@@ -6,7 +6,7 @@ ADD_CUSTOM_COMMAND(
     COMMAND tar 
     ARGS cf ${THEME}.tar * --exclude .svn --exclude CMake* --exclude Makefile* --exclude *.tar
     COMMAND ../tar2h
-    ARGS Default.tar default_icons > ../../sptk3/gui/default_icons.h
+    ARGS Default.tar default_icons > ../../sptk5/gui/default_icons.h
 )
 
 ADD_CUSTOM_TARGET(

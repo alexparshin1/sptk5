@@ -34,15 +34,16 @@
 using namespace std;
 using namespace sptk;
 
-std::map<std::string,gtk_color_function>     CThemeColorCollection::m_gtkColorFunctionMap;
+std::map<std::string,gtk_color_function>*    CThemeColorCollection::m_gtkColorFunctionMap;
 std::map<std::string,Fl_Color>               CThemeColorCollection::m_colorMap;
 
 CThemeColorCollection::CThemeColorCollection() {
-    if (m_gtkColorFunctionMap.empty()) {
-        m_gtkColorFunctionMap["darker"] = darker;
-        m_gtkColorFunctionMap["lighter"] = lighter;
-        m_gtkColorFunctionMap["shade"] = shade;
-        m_gtkColorFunctionMap["mix"] = mix;
+    if (!m_gtkColorFunctionMap) {
+        m_gtkColorFunctionMap = new std::map<std::string,gtk_color_function>;
+        (*m_gtkColorFunctionMap)["darker"] = darker;
+        (*m_gtkColorFunctionMap)["lighter"] = lighter;
+        (*m_gtkColorFunctionMap)["shade"] = shade;
+        (*m_gtkColorFunctionMap)["mix"] = mix;
     }
 }
 
@@ -157,8 +158,8 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression) {
                 cerr << "Color expression '" << expression << "' isn't understood" << endl;
                 return FL_BLACK;
             }
-            std::map<std::string,gtk_color_function>::iterator itor = m_gtkColorFunctionMap.find(function);
-            if (itor == m_gtkColorFunctionMap.end()) {
+            std::map<std::string,gtk_color_function>::iterator itor = m_gtkColorFunctionMap->find(function);
+            if (itor == m_gtkColorFunctionMap->end()) {
                 cerr << "Color function '" << function << "' isn't supported" << endl;
                 return passby(arguments);
             } else {
@@ -200,7 +201,7 @@ void CThemeColorCollection::loadFromSptkTheme(CXmlDoc& sptkTheme) {
 
 void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
     loadColorMap(gtkTheme,"/gtk_color_scheme");
-    
+
     string stylesXPath = "/styles/style";
     CXmlNodeVector styleNodes;
     gtkTheme.select(styleNodes,stylesXPath);
@@ -213,7 +214,7 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
             break;
         }
     }
-    
+
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath(colorNames[colorIndex]);
         CXmlNodeVector colorNodes;
@@ -224,7 +225,7 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
             loadColor(colorNode,CThemeColorIndex(colorIndex));
         }
     }
-    
+
     Fl::set_color(FL_FOREGROUND_COLOR,fgColor(THM_COLOR_NORMAL));
     Fl::set_color(FL_BACKGROUND_COLOR,bgColor(THM_COLOR_NORMAL));
     Fl::set_color(FL_BACKGROUND2_COLOR,baseColor(THM_COLOR_NORMAL));
@@ -234,14 +235,14 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
 
 void CThemeColorCollection::loadColorMap(CXmlDoc& gtkTheme,string colorMapXPath) {
     m_colorMap.clear();
-    
+
     CXmlNodeVector colorMapNodes;
     gtkTheme.select(colorMapNodes,colorMapXPath);
     if (!colorMapNodes.size())
         return;
-    
+
     CXmlNode* colorMapNode = *(colorMapNodes.begin());
-    
+
     CStrings colorMapStrings(colorMapNode->getAttribute("value"),"\\n");
 
     for (unsigned i = 0; i < colorMapStrings.size(); i++) {

@@ -4,7 +4,7 @@ function themeInstall() {
     local themeName=$1
     echo "  theme: $themeName"
     mkdir -p $install_prefix/$themeName
-    cp -r .themes.sptk/$themeName/* $install_prefix/$themeName/
+    cp -r themes/$themeName/* $install_prefix/$themeName/
     rm -rf $install_prefix/$themeName/.svn $install_prefix/$themeName/dialog_icons/.svn
 }
 
@@ -20,9 +20,9 @@ install_prefix=$install_prefix/share/sptk
 
 echo Installing themes into $install_prefix
 
-for themeName in `ls .themes.sptk` 
+for themeName in `ls themes` 
 do
-    if [ -d .themes.sptk/$themeName ] && [ ! $themeName = ".svn" ]; then
+    if [ -d themes/$themeName ] && [ ! $themeName = ".svn" ]; then
 	themeInstall $themeName
     fi
 done

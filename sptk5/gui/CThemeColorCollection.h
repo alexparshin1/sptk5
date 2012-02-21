@@ -63,22 +63,22 @@ enum CThemeColorState {
 typedef Fl_Color (*gtk_color_function)(std::string expression);
 
 class CThemeColorCollection {
-    static std::map<std::string,gtk_color_function> m_gtkColorFunctionMap;
+    static std::map<std::string,gtk_color_function>* m_gtkColorFunctionMap;
     static std::map<std::string,Fl_Color> m_colorMap;
     Fl_Color    m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
     static Fl_Color gtkColorFunction(std::string expression);
     void loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex);
     void loadColorMap(CXmlDoc& gtkTheme,std::string colorMapXPath);
-    
+
     static Fl_Color passby(std::string expression);
     static Fl_Color lighter(std::string expression);
     static Fl_Color darker(std::string expression);
     static Fl_Color shade(std::string expression);
     static Fl_Color mix(std::string expression);
-    
+
 public:
     CThemeColorCollection();
-    
+
     void loadFromSptkTheme(CXmlDoc& gtkTheme);
     void loadFromGtkTheme(CXmlDoc& gtkTheme);
 
@@ -93,3 +93,4 @@ public:
 };
 
 #endif
+

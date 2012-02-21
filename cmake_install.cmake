@@ -201,7 +201,7 @@ ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unsp
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  INCLUDE("/home/alexeyp/workspace/sptk5/.themes.sptk/cmake_install.cmake")
+  INCLUDE("/home/alexeyp/workspace/sptk5/themes/cmake_install.cmake")
   INCLUDE("/home/alexeyp/workspace/sptk5/src/cmake_install.cmake")
   INCLUDE("/home/alexeyp/workspace/sptk5/examples/cmake_install.cmake")
 

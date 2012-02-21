@@ -148,7 +148,7 @@ ENDIF (PTHREAD_RWLOCK_TIMEDRDLOCK)
 CONFIGURE_FILE ("sptk5/sptk-config.h.cmake" "sptk5/sptk-config.h" @ONLY)
 
 IF (FLTK_FLAG)
-  ADD_SUBDIRECTORY (.themes.sptk)
+  ADD_SUBDIRECTORY (themes)
 ENDIF (FLTK_FLAG)
 
 ADD_SUBDIRECTORY (src)

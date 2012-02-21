@@ -162,7 +162,7 @@ tar2h: cmake_check_build_system
 
 # fast build rule for target.
 tar2h/fast:
-	$(MAKE) -f .themes.sptk/CMakeFiles/tar2h.dir/build.make .themes.sptk/CMakeFiles/tar2h.dir/build
+	$(MAKE) -f themes/CMakeFiles/tar2h.dir/build.make themes/CMakeFiles/tar2h.dir/build
 .PHONY : tar2h/fast
 
 #=============================================================================
@@ -175,7 +175,7 @@ Blue\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 Blue\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/Blue/CMakeFiles/Blue Theme.dir/build.make" ".themes.sptk/Blue/CMakeFiles/Blue Theme.dir/build"
+	$(MAKE) -f "themes/Blue/CMakeFiles/Blue Theme.dir/build.make" "themes/Blue/CMakeFiles/Blue Theme.dir/build"
 .PHONY : Blue\ Theme/fast
 
 #=============================================================================
@@ -188,7 +188,7 @@ Dark\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 Dark\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/Dark/CMakeFiles/Dark Theme.dir/build.make" ".themes.sptk/Dark/CMakeFiles/Dark Theme.dir/build"
+	$(MAKE) -f "themes/Dark/CMakeFiles/Dark Theme.dir/build.make" "themes/Dark/CMakeFiles/Dark Theme.dir/build"
 .PHONY : Dark\ Theme/fast
 
 #=============================================================================
@@ -201,7 +201,7 @@ Default\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 Default\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/Default/CMakeFiles/Default Theme.dir/build.make" ".themes.sptk/Default/CMakeFiles/Default Theme.dir/build"
+	$(MAKE) -f "themes/Default/CMakeFiles/Default Theme.dir/build.make" "themes/Default/CMakeFiles/Default Theme.dir/build"
 .PHONY : Default\ Theme/fast
 
 #=============================================================================
@@ -214,7 +214,7 @@ E17\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 E17\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/E17/CMakeFiles/E17 Theme.dir/build.make" ".themes.sptk/E17/CMakeFiles/E17 Theme.dir/build"
+	$(MAKE) -f "themes/E17/CMakeFiles/E17 Theme.dir/build.make" "themes/E17/CMakeFiles/E17 Theme.dir/build"
 .PHONY : E17\ Theme/fast
 
 #=============================================================================
@@ -227,7 +227,7 @@ Flat\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 Flat\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/Flat/CMakeFiles/Flat Theme.dir/build.make" ".themes.sptk/Flat/CMakeFiles/Flat Theme.dir/build"
+	$(MAKE) -f "themes/Flat/CMakeFiles/Flat Theme.dir/build.make" "themes/Flat/CMakeFiles/Flat Theme.dir/build"
 .PHONY : Flat\ Theme/fast
 
 #=============================================================================
@@ -240,7 +240,7 @@ Keramic\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 Keramic\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/Keramic/CMakeFiles/Keramic Theme.dir/build.make" ".themes.sptk/Keramic/CMakeFiles/Keramic Theme.dir/build"
+	$(MAKE) -f "themes/Keramic/CMakeFiles/Keramic Theme.dir/build.make" "themes/Keramic/CMakeFiles/Keramic Theme.dir/build"
 .PHONY : Keramic\ Theme/fast
 
 #=============================================================================
@@ -253,7 +253,7 @@ OSX\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 OSX\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/OSX/CMakeFiles/OSX Theme.dir/build.make" ".themes.sptk/OSX/CMakeFiles/OSX Theme.dir/build"
+	$(MAKE) -f "themes/OSX/CMakeFiles/OSX Theme.dir/build.make" "themes/OSX/CMakeFiles/OSX Theme.dir/build"
 .PHONY : OSX\ Theme/fast
 
 #=============================================================================
@@ -266,7 +266,7 @@ OSX_Flat\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 OSX_Flat\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/OSX_Flat/CMakeFiles/OSX_Flat Theme.dir/build.make" ".themes.sptk/OSX_Flat/CMakeFiles/OSX_Flat Theme.dir/build"
+	$(MAKE) -f "themes/OSX_Flat/CMakeFiles/OSX_Flat Theme.dir/build.make" "themes/OSX_Flat/CMakeFiles/OSX_Flat Theme.dir/build"
 .PHONY : OSX_Flat\ Theme/fast
 
 #=============================================================================
@@ -279,7 +279,7 @@ Opera\ Theme: cmake_check_build_system
 
 # fast build rule for target.
 Opera\ Theme/fast:
-	$(MAKE) -f ".themes.sptk/Opera/CMakeFiles/Opera Theme.dir/build.make" ".themes.sptk/Opera/CMakeFiles/Opera Theme.dir/build"
+	$(MAKE) -f "themes/Opera/CMakeFiles/Opera Theme.dir/build.make" "themes/Opera/CMakeFiles/Opera Theme.dir/build"
 .PHONY : Opera\ Theme/fast
 
 #=============================================================================

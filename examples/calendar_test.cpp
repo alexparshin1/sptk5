@@ -39,26 +39,28 @@ using namespace sptk;
 
 CBox *dateBox;
 
-void cb_clicked(Fl_Widget *w, void *) {
-   CCalendar *calendar = (CCalendar *)w;
-   string dateString = calendar->date().dateString();
-   dateBox->data(dateString);
+void cb_clicked(Fl_Widget *w, void *)
+{
+    CCalendar *calendar = (CCalendar *) w;
+    string dateString = calendar->date().dateString();
+    dateBox->data(dateString);
 }
 
-int main(int argc, char *argv[]) {
-   CWindow w(200, 240, "Calendar Demo");
-   
-   w.layoutSpacing(10);
-   
-   CCalendar calendar("", 10, SP_ALIGN_CLIENT);
-   CBox  box1("", 20, SP_ALIGN_BOTTOM);
-   dateBox = &box1;
-   
-   calendar.callback(cb_clicked);
-   
-   w.end();
-   w.show(argc, argv);
-   Fl::run();
-   
-   return EXIT_SUCCESS;
+int main(int argc, char *argv[])
+{
+    CWindow w(200, 240, "Calendar Demo");
+
+    w.layoutSpacing(10);
+
+    CCalendar calendar("", 10, SP_ALIGN_CLIENT);
+    CBox box1("", 20, SP_ALIGN_BOTTOM);
+    dateBox = &box1;
+
+    calendar.callback(cb_clicked);
+
+    w.end();
+    w.show(argc, argv);
+    Fl::run();
+
+    return EXIT_SUCCESS;
 }
