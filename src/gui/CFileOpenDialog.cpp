@@ -1,0 +1,66 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CFileOpenDialog.cpp  -  description
+                             -------------------
+    begin                : July 19 2003
+    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+    based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#ifdef _WIN32
+#include <io.h>
+#endif
+#include <fcntl.h>
+
+#include <FL/fl_ask.h>
+
+#include <sptk5/gui/CFileOpenDialog.h>
+#include <sptk5/gui/CMessageDialog.h>
+
+using namespace std;
+using namespace sptk;
+
+bool CFileOpenDialog::okPressed() {
+   string fname;
+   try {
+      fname = fileName();
+      if (!fname.length()) 
+         throw CException("Please, select or type in the filename.");
+      fname = removeTrailingSlash(directory()) + slashStr + fname;
+      int fh = open(fname.c_str(),O_RDONLY);
+      if (fh < 0) 
+         throw CException("File doesn't exist.");
+      close(fh);
+      return true;
+   }
+   catch(exception& e) {
+      spError("Can't open file "+fname +".\n"+string(e.what()));
+      return false;
+   }
+}
+
+CFileOpenDialog::CFileOpenDialog(string caption)
+: CFileDialog(caption,false)
+{
+   m_okButton->label("Open");
+   m_okButton->buttonImage(SP_OPEN_BUTTON);
+}

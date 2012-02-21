@@ -1,0 +1,284 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CODBC.h  -  description
+                             -------------------
+    begin                : Tue Dec 14 1999
+    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#ifndef __CODBC_H__
+#define __CODBC_H__
+
+#include <sptk5/sptk.h>
+
+#if HAVE_ODBC == 1
+
+#include <sptk5/CStrings.h>
+
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <windows.h>
+    #include <sys/types.h>
+    #include <time.h>
+#else
+    #define LPCVOID  const void *
+#endif
+#include <sqlext.h>
+#include <assert.h>
+#include <sptk5/CException.h>
+#include <sptk5/db/CParams.h>
+#include <sptk5/CWaiter.h>
+
+namespace sptk {
+
+/// @addtogroup Database Database Support
+/// @{
+
+class CODBCDatabase;
+class CODBCEnvironment;
+class CODBCConnection;
+class CParam;
+
+/// @brief ODBC base
+///
+/// Base class for all ODBC classes
+class SP_EXPORT ODBCBase : public CWaiter {
+protected:
+    /// Last RETCODE returned from ODBC function
+    SQLRETURN   m_Retcode;
+
+    /// Constructor
+    ODBCBase() : m_Retcode(SQL_SUCCESS) { }
+
+public:
+
+    /// Destructor
+    ~ODBCBase() {}
+
+    /// Returns last ODBC operation result
+    RETCODE retcode() const {
+        return m_Retcode;
+    }
+
+    /// Throws the exception
+    void    exception(std::string text,int line) const;
+
+private:
+
+    /// Assignment operator, disabled
+    ODBCBase & operator = (const ODBCBase & d);
+
+    /// Copy constructor, disabled
+    ODBCBase(const ODBCBase &);
+};
+
+/// @brief ODBC environment
+///
+/// Environment is only used by CODBCConnection class
+class SP_EXPORT CODBCEnvironment : public ODBCBase {
+    friend class CODBCConnection;
+private:
+
+    /// ODBC environment handle
+    SQLHENV m_hEnvironment;
+
+protected:
+
+    /// Constructor
+    CODBCEnvironment();
+
+    /// Allocates enviromment handle
+    void allocEnv();
+
+    /// Deallocates enviromment handle
+    void freeEnv();
+
+    /// Is enviromment handle allocated?
+    bool valid()  const {
+        return m_hEnvironment!=SQL_NULL_HENV;
+    }
+
+    /// Returns enviromment handle
+    SQLHENV handle() const {
+        return m_hEnvironment;
+    }
+
+    /// Returns the error information
+    /// @param action const char *, user action name for the error message
+    /// @returns ODBC driver error message with the user action
+    std::string errorInformation(const char *action);
+public:
+
+    /// Destructor
+    ~CODBCEnvironment();
+};
+
+/// @brief ODBC socket
+///
+/// Class CODBCConnection represents the connection to a database.
+/// You need one object of this class for each database you want to access.
+class SP_EXPORT CODBCConnection : public ODBCBase {
+    CODBCEnvironment&  m_cEnvironment;      ///< ODBC environment
+    SQLHDBC            m_hConnection;       ///< ODBC connection handle
+    bool               m_connected;        ///< Is connection active?
+    std::string        m_connectString;     ///< ODBC connection string
+    std::string        m_driverDescription; ///< Driver description, filled in during the connection to the DSN
+protected:
+    /// Is connection active?
+    bool valid()  const {
+        return m_hConnection!=SQL_NULL_HDBC;
+    }
+public:
+
+    /// Default constructor
+    CODBCConnection();
+
+    /// Default destructor
+    ~CODBCConnection();
+
+    /// Allocates connection
+    void allocConnect();
+
+    /// Deallocates connection
+    void freeConnect();
+
+    /// Connects to the database passing ODBC connection string.
+    /// The full connection string is returned in FinalConnectionString.
+    void connect(const std::string& ConnectionString,std::string& FinalConnectionString,bool EnableDriverPrompt=false);
+
+    /// Disconnects from the database passing ODBC connection string.
+    void disconnect();
+
+    /// Returns the connection handle
+    SQLHDBC handle()   const {
+        return m_hConnection;
+    }
+
+    /// Returns true if the connection is active
+    bool isConnected() const {
+        return m_connected;
+    }
+
+    /// Sets the connection option
+    void setConnectOption(UWORD fOption, UDWORD vParam);
+
+    /// Gets the connection information
+    void getInfo(uint16_t fInfoType,LPSTR str, int size);
+
+    /// Gets the connection information
+    void getInfo(uint16_t fInfoType,int16_t *num) {
+        getInfo(fInfoType,(LPSTR)num,sizeof(num));
+    }
+
+    /// Gets the connection information
+    void getInfo(uint16_t fInfoType,DWORD *num) {
+        getInfo(fInfoType,(LPSTR)num,sizeof(num));
+    }
+
+    /// Returns the ODBC connection string for the active connection
+    std::string connectString() const {
+        return m_connectString;
+    }
+
+    /// Returns the ODBC driver description string for the active connection
+    std::string driverDescription() const {
+        return m_driverDescription;
+    }
+
+    /// Begins transaction
+    void beginTransaction() {
+        setConnectOption(SQL_AUTOCOMMIT,SQL_AUTOCOMMIT_OFF);
+    }
+
+    /// Controls transaction
+    void transact(uint16_t fType);
+
+    /// Commits transaction
+    void commit()   {
+        transact(SQL_COMMIT);
+    }
+
+    /// Rollbacks transaction
+    void rollback() {
+        transact(SQL_ROLLBACK);
+    }
+
+private:
+
+    /// Returns the only environment needed
+    static CODBCEnvironment & GetStaticEnv();
+
+protected:
+
+    /// Retrieves an error information for user action name
+    /// @param action const char *, user action name for the error message
+    /// @returns ODBC driver error message with the user action
+    std::string errorInformation(const char *action);
+};
+
+/// @brief ODBC synchronization object
+///
+/// Locks shared ODBC handles. That is needed for thread safety.
+/// Defines only protected constructors to be used internally.
+class SP_EXPORT CODBCLock {
+    friend class CODBCDatabase;
+    friend class CODBCEnvironment;
+    friend class CODBCConnection;
+
+    ODBCBase& m_object;    ///< ODBC handle owner
+protected:
+    /// @brief Protected constructor
+    ///
+    /// Locks the ODBC object till the destructor is called.
+    /// @param object ODBCBase&, ODBC object to lock.
+    CODBCLock(ODBCBase& object) : m_object(object) {
+        if (&m_object)
+            m_object.lock();
+    }
+
+    /// @brief Protected constructor
+    ///
+    /// Locks the ODBC object till the destructor is called.
+    /// @param object ODBCBase*, ODBC object to lock.
+    CODBCLock(ODBCBase* object) : m_object(*object) {
+        if (&m_object)
+            m_object.lock();
+    }
+public:
+
+    /// @brief Destructor
+    ///
+    /// Unlocks the ODBC object defined in constructor.
+    ~CODBCLock() {
+        if (&m_object)
+            m_object.unlock();
+    }
+};
+
+/// Removes excessive driver information from error message
+const char *removeDriverIdentification(const char *error);
+
+/// @}
+}
+#endif
+
+#endif

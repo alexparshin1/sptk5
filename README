@@ -1,0 +1,107 @@
+---------------------------------------------------------------------------
+Welcome to SPTK version 5.
+---------------------------------------------------------------------------
+
+This is the root directory of SPTK. It contains CMake project 
+files that allow building for several systems, supported by CMake.
+
+The example applications are in ./examples. They are built only if
+examples flag is requested during CMake project configuration.
+
+If you experience any problem building or using SPTK, please 
+let me know at alexeyp@gmail.com.
+
+The new and old versions of SPTK can be downloaded from http://www.sptk.net.
+
+---------------------------------------------------------------------------
+How to build SPTK
+---------------------------------------------------------------------------
+
+ATTENTION: Sqlite version 3.3.8 doesn't work properly with SPTK.
+           You need version 3.3.7 or before.
+
+1. Windows and Cygwin.
+
+a) Install Gygwin. Make sure that gcc, autotools (automake and autoconf),
+   binutils, cvs, doxygen, libtool, make are installed.
+   Do not install FLTK. Cygwin includes FLTK 1.1.4 that is way too old.
+
+b) Install FLTK version 1.1.6 or higher (but not 2.x!).
+   You can get it from http://www.fltk.org.
+
+c) Install sqlite3 runtime. You can get it from http://www.sqlite.org.
+   The sqlite3.dll should be placed into the library search path, and 
+   sqlite.h should be in include search path.
+   Do not install the sqlite3 version 3.3.8 available on the website.
+   We have discovered - it has a bug that doesn't allow it to work with SPTK.
+
+d) Install latest SPTK from SVN. To get the source code, use:
+
+   svn co https://gateway.total-knowledge.com/svn/sptk/trunk sptk
+
+   Then build it (by default, the libraries and includes are installed under 
+   /usr/local/):
+
+   cd sptk3
+   ./autogen.bash
+   ./configure --disable-debug
+   make
+   make install
+
+2. Windows and VC++ 7/8.
+
+a) Verify that ODBC support is installed.
+
+b) In the directory of your choice, create the following structure:
+  BuildDirectory
+    +---fltk
+    +---sqlite
+    L---sptk3
+   The libraries you will be installing should be placed in that structure,
+   otherwise you have to update the project files
+   
+c) Install FLTK version 1.1.6 or higher (but not 2.x!).
+   You can get it from http://www.fltk.org.
+   Move/rename the FLTK directory into your BuildDirectory.
+   Open the VC workspace and build the solution.
+   Verify that test programs (in fltk/test/) run.
+
+d) Copy sqlite3 runtime into your BuildDirectory. 
+   You can get it from http://www.sqlite.org.
+   The sqlite3.dll should be placed into the search path.
+   Do not install the sqlite3 version 3.3.8 available on the website.
+   We have discovered - it has a bug that doesn't allow it to work with SPTK.
+
+e) Install latest SPTK from SVN. To get the source code, use:
+
+   svn co https://gateway.total-knowledge.com/svn/sptk/trunk sptk
+  
+   Open the VC workspace and build the solution.
+   Verify that test programs (in sptk3/test/) run.
+
+3. Linux
+
+   Install the following packages:
+
+a) optionally: ODBC support (like unixODBC)
+
+b) optionally: Sqlite3 version 3.3 to 3.3.7 (not 3.3.8!)
+
+c) optionally: Libpq version 4.x or higher (PostgreSQL C-interface)
+
+d) FLTK version 1.1.5 to 1.1.7 (not 2.x!) 
+
+e) optionally: Aspell
+
+f) Install latest SPTK from SVN. To get the source code, use:
+
+   svn co https://gateway.total-knowledge.com/svn/sptk/trunk sptk
+
+   Then build it (by default, the libraries and includes are installed under /usr/local/):
+
+   cd sptk3
+   ./autogen.bash
+   ./configure --disable-debug
+   make
+   make install
+

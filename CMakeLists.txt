@@ -1,0 +1,193 @@
+# The name of our project is "SPTK".  CMakeLists files in this project can
+# refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
+# to the root binary directory of the project as ${SPTK_BINARY_DIR}.
+PROJECT (SPTK)
+
+cmake_minimum_required(VERSION 2.6)
+
+#SET (CMAKE_BUILD_TYPE Release)
+SET (CMAKE_BUILD_TYPE Debug)
+#SET (CMAKE_COLOR_MAKEFILE OFF)
+
+SET (VERSION "3.5.7")
+
+INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
+INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
+INCLUDE (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
+
+CHECK_TYPE_SIZE(int INT)
+CHECK_TYPE_SIZE(long LONG)
+CHECK_TYPE_SIZE(short SHORT)
+CHECK_TYPE_SIZE(double DOUBLE)
+
+TEST_BIG_ENDIAN(BIG_ENDIAN_INIT)
+
+MESSAGE ("Build type:         " ${CMAKE_BUILD_TYPE})
+IF (WIN32)
+  ADD_DEFINITIONS (-DHAVE_CONFIG_H -mno-cygwin -mwindows -DWIN32)
+  LINK_LIBRARIES(wsock32 ole32 uuid comctl32)
+#ELSE (WIN32)
+  #ADD_DEFINITIONS (-Wall)
+ENDIF (WIN32)
+
+SET (ODBC_FLAG "0")
+IF (NOT NO_ODBC)
+  IF (WIN32)
+    SET (ODBC_FLAG "1")
+    SET (ODBC_LIBRARY "odbc32")
+  ELSE (WIN32)
+    FIND_LIBRARY (ODBC_LIBRARY NAMES odbc PATHS /usr/lib /usr/local/lib)
+  ENDIF (WIN32)
+
+  IF (ODBC_LIBRARY)
+    SET (ODBC_FLAG "1")
+    LINK_LIBRARIES(${ODBC_LIBRARY})
+  ENDIF (ODBC_LIBRARY)
+ENDIF (NOT NO_ODBC)
+
+IF (ODBC_FLAG)
+  MESSAGE("ODBC support:       compile")
+ELSE (ODBC_FLAG)
+  MESSAGE("ODBC support:       don't compile")
+  SET (ODBC_LIBRARY "")
+ENDIF (ODBC_FLAG)
+
+FIND_LIBRARY (SOCKET_LIBRARY NAMES socket PATHS /usr/lib)
+IF (NOT SOCKET_LIBRARY)
+  SET (SOCKET_LIBRARY "")
+ELSE (NOT SOCKET_LIBRARY)
+  SET (SOCKET_LIBRARY "-lsocket -lrt -lnsl")
+ENDIF (NOT SOCKET_LIBRARY)
+
+SET (POSTGRESQL_FLAG "0")
+IF (NOT NO_POSTGRESQL)
+  FIND_LIBRARY (POSTGRESQL_LIBRARY pq /usr/lib /usr/local/lib)
+  IF (POSTGRESQL_LIBRARY)
+    SET (POSTGRESQL_FLAG "1")
+  ELSE (POSTGRESQL_LIBRARY)
+    SET (POSTGRESQL_LIBRARY "")
+  ENDIF (POSTGRESQL_LIBRARY)
+ELSE (NOT NO_POSTGRESQL)
+  SET (POSTGRESQL_LIBRARY "")
+ENDIF (NOT NO_POSTGRESQL)
+
+IF (POSTGRESQL_FLAG)
+  MESSAGE("POSTGRESQL support: compile")
+ELSE (POSTGRESQL_FLAG)
+  MESSAGE("POSTGRESQL support: don't compile")
+ENDIF (POSTGRESQL_FLAG)
+
+SET (SQLITE3_FLAG "0")
+IF (NOT NO_SQLITE3)
+  FIND_LIBRARY (SQLITE3_LIBRARY NAMES sqlite3 PATHS /usr/lib /usr/local/lib)
+  IF (NOT SQLITE3_LIBRARY AND WIN32)
+    FIND_FILE (SQLITE3_LIBRARY sqlite3.dll PATHS /usr/lib /usr/local/lib)
+  ENDIF (NOT SQLITE3_LIBRARY AND WIN32)
+  IF (SQLITE3_LIBRARY)
+    SET (SQLITE3_LIBRARY "sqlite3")
+    SET (SQLITE3_FLAG "1")
+  ELSE (SQLITE3_LIBRARY)
+    SET (SQLITE3_LIBRARY "")
+  ENDIF (SQLITE3_LIBRARY)
+ENDIF (NOT NO_SQLITE3)
+
+IF (SQLITE3_FLAG)
+  MESSAGE("SQLITE3 support:    compile")
+ELSE (SQLITE3_FLAG)
+  MESSAGE("SQLITE3 support:    don't compile")
+ENDIF (SQLITE3_FLAG)
+
+SET (FLTK_FLAG "0")
+IF (NOT NO_FLTK)
+  FIND_PROGRAM (FLTK_CONFIG fltk-utf8-config fltk-config PATHS /usr/bin /usr/local/bin)
+  IF (FLTK_CONFIG)
+    EXEC_PROGRAM ("${FLTK_CONFIG}" ARGS --cxxflags --use-images OUTPUT_VARIABLE FLTK_CXX_FLAGS)
+    EXEC_PROGRAM ("${FLTK_CONFIG}" ARGS --ldflags --use-images OUTPUT_VARIABLE FLTK_LD_FLAGS)
+    EXEC_PROGRAM ("${FLTK_CONFIG}" ARGS --ldflags --use-images | cut -f '2-20' -d ' ' OUTPUT_VARIABLE FLTK_LIBRARIES)
+    EXEC_PROGRAM ("${FLTK_CONFIG}" ARGS --ldflags | cut -d ' ' -f 1 | sed 's|-L||g' OUTPUT_VARIABLE FLTK_LIB_DIR)
+    ADD_DEFINITIONS (${FLTK_CXX_FLAGS})
+    SET (FLTK_FLAG "1")
+  ENDIF (FLTK_CONFIG)
+  IF (FLTK_FLAG)
+    IF (NOT NO_ASPELL)
+      FIND_PACKAGE (ASPELL)
+      IF (ASPELL_FOUND)
+        SET (ASPELL_FLAG "1")
+      ELSE (ASPELL_FOUND)
+        SET (ASPELL_FLAG "0")
+	SET (ASPELL_LIBRARIES "")
+      ENDIF (ASPELL_FOUND)
+    ENDIF (NOT NO_ASPELL)
+  ENDIF (FLTK_FLAG)
+ENDIF (NOT NO_FLTK)
+
+IF (FLTK_FLAG)
+  MESSAGE("FLTK support:       compile")
+ELSE (FLTK_FLAG)
+  MESSAGE("FLTK support:       don't compile")
+ENDIF (FLTK_FLAG)
+
+IF (ASPELL_FLAG)
+  MESSAGE("ASPELL support:     compile")
+ELSE (ASPELL_FLAG)
+  MESSAGE("ASPELL support:     don't compile")
+ENDIF (ASPELL_FLAG)
+
+SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
+
+SET (CMAKE_REQUIRED_LIBRARIES pthread)
+CHECK_FUNCTION_EXISTS(pthread_rwlock_timedrdlock PTHREAD_RWLOCK_TIMEDRDLOCK)
+SET (HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK "0")
+SET (HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK "0")
+IF (PTHREAD_RWLOCK_TIMEDRDLOCK)
+  SET (HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK "1")
+  SET (HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK "1")
+ENDIF (PTHREAD_RWLOCK_TIMEDRDLOCK)
+
+CONFIGURE_FILE ("sptk5/sptk-config.h.cmake" "sptk5/sptk-config.h" @ONLY)
+
+IF (FLTK_FLAG)
+  ADD_SUBDIRECTORY (.themes.sptk)
+ENDIF (FLTK_FLAG)
+
+ADD_SUBDIRECTORY (src)
+ADD_SUBDIRECTORY (examples)
+
+FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
+INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
+
+FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
+INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
+
+FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
+INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
+
+IF (FLTK_FLAG)
+  FILE (GLOB includeFilesGUI "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/gui/*.h")
+  INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui)
+ENDIF (FLTK_FLAG)
+
+FILE (GLOB includeFilesGroup "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/c*")
+INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5)
+
+IF (POSTGRESQL_FLAG)
+  FILE (GLOB pgSQLscripts "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.pl")
+  INSTALL (PROGRAMS ${pgSQLscripts} DESTINATION bin)
+  FILE (GLOB pgSQLscriptConfigs "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.conf")
+  INSTALL (FILES ${pgSQLscriptConfigs} DESTINATION share/sptk/doc)
+ENDIF (POSTGRESQL_FLAG)
+
+# create uninstall configuration file
+CONFIGURE_FILE(
+  "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in" 
+#  "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
+  "share/sptk/cmake_uninstall.cmake"
+  IMMEDIATE @ONLY
+)
+
+# create uninstall target
+ADD_CUSTOM_TARGET(
+  uninstall
+  "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
+)

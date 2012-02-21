@@ -1,0 +1,25 @@
+<AAA>
+    <XXX>
+        <DDD>
+            <BBB/>
+            <BBB/>
+            <EEE/>
+            <FFF/>
+        </DDD>
+    </XXX>
+    <CCC>
+        <DDD>
+            <BBB/>
+            <BBB/>
+            <EEE/>
+            <FFF/>
+        </DDD>
+    </CCC>
+    <CCC>
+        <BBB>
+            <BBB>
+                    <BBB/>
+            </BBB>
+        </BBB>
+    </CCC>
+</AAA>

@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice 6.1 Beta 2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT="Alexey Parshin">
+	<META NAME="CREATED" CONTENT="20030527;16385300">
+	<META NAME="CHANGEDBY" CONTENT="Alexey Parshin">
+	<META NAME="CHANGED" CONTENT="20030605;10080000">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><IMG SRC="../pictures/sptk.png" NAME="Graphic1" ALIGN=BOTTOM WIDTH=802 HEIGHT=124 BORDER=0></P>
+<H1 ALIGN=CENTER><FONT FACE="Arial, sans-serif">Happy life with
+CDialog</FONT></H1>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif">by
+Alexey Parshin</FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4><B>The
+Introduction</B></FONT></FONT></FONT></P>
+<P><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>Dialogs
+are a part of any modern application. No matter what is the
+application about, if it has the GUI interface, it would also have a
+Settings (or Preferences) dialog, maybe one or more Properties
+dialogs. There are also an error information dialogs. FLTK provides
+us a window class, but (unfortunately) there is no class to support a
+dialog. You have to make it yourself. The code to support a basic
+modal mode for the window does exist already. But the classic dialog
+grabs the program control till you exit it (by pressing Ok or Cancel
+buttons). The code to make the dialog window to do it is relatively
+simple. The problem is &ndash; if the application has ten different
+dialogs &ndash; it will have that code in ten different places. I
+don't know about you, but I don't like the code duplication in my
+programs. So, that's the reason to create a class that does the job.</FONT></FONT></FONT></P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4><B>The
+idea</B></FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>What
+do we need from the dialog? First, it should require a minimal amount
+of code to use it. Second, it should be really simple to set and read
+data in the dialog's widgets. CDialog's code supports the window
+modal mode. But how to communicate with the widgets inside the
+dialog?</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>Every
+SPTK widget has an extra property &ndash; the fieldName(). When the
+widgets are added to CDialog, the fieldName() is defined for every
+widget. That allows to address the fields instead of widgets. CDialog
+has an index operator (operator [ ]) that allows to access widgets
+with defined field names using the widget index or the field name,
+like this:</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CDialog
+dlg;</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.newPage(&ldquo;Page
+1&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CInput
+fnameInput(&ldquo;First Name:&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CInput
+lnameInput(&ldquo;Last Name:&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>fnameInput.fieldName(&ldquo;first_name&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>lnameInput.fieldName(&ldquo;last_name&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><SPAN STYLE="font-weight: medium"><FONT SIZE=4>dlg.end();</FONT></SPAN></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg[
+0 ] = &ldquo;John&rdquo;;  // Access by index</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg[
+&ldquo;last_name&rdquo; ] = &ldquo;Doe&rdquo;;  // Access by field
+name</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.showModal();</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>There
+are several things to consider, though:</FONT></FONT></FONT></P>
+<UL>
+	<LI><P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>The
+	widgets on the dialog that don't have field name defined are
+	ignored. However, you can always use the widget pointer to work with
+	such widgets.</FONT></FONT></FONT></P>
+	<LI><P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>The
+	index operator of dialog should be used only after all the widgets
+	are added. The very first usage of the index operator makes the
+	dialog to scan all the widgets inside to find widgets with field
+	name defined. If some changes were made in dialog after the index
+	operator was used, or after the dialog is shown, it's necessary to
+	call <B>rescan()</B> method to let the dialog know about it.</FONT></FONT></FONT></P>
+	<LI><P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>The
+	index operator allows to access the widgets of CControl class and
+	descended (controls). This may be inconvenient if you want to use
+	your own widgets not related to CControl. The next version of SPTK
+	will address this problem.</FONT></FONT></FONT></P>
+</UL>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4><B>The
+implementation</B></FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CDialog
+class is designed based on CWindow class (Fl_Double_Window descended)
+and CMultiTabs (IMHO, a better version of Fl_Tabs). It uses layout
+everywhere. Most of the time it's very convenient &ndash; you don't
+have to worry about locations of the widgets inside like tabs or
+buttons. CMultiTabs allows CDialog to have multiple pages with
+widgets. One trick is used, though. The tabs are shown only if there
+are several of them. If CDialog has only one page the tabs are hidden
+and CDialog simply shows the FL_THIN_DOWN_BOX group.</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>There
+two types of pages currently supported in CDialog. The regular page
+is CGroup, and the scroll page is CScroll. The pages are created with
+newPage() and newScroll() methods. It's not necessary to <B>end()</B>
+the prior page if you call one of these methods. Just make sure you
+didn't forget to <B><SPAN STYLE="font-style: normal">end()</SPAN></B>
+the dialog itself.</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>After
+the dialog is constructed, and is shown, or the index operator
+(operator [ ]) used, or the database access or registry (in this
+dialog) used, the dialog creates the internal list of widgets.
+CDialog uses this list to perform database and registry (CRegistry,
+of course) operations with the fields &ndash; I call it the default
+processing. You may want to exclude some of the controls from the 
+default processing (in the derived dialog) if you add such controls
+(as CControl *) to m_specialProcessingControls list (CList object).</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>It's
+good to know that scan operation is recursive. The control may belong
+to the group that is inside another group that is inside CMultiTabs.
+Yet, it will be found anyway.</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>A
+lot of applications may stay happy forever with just using the direct
+field access explained before. But there is also a bunch of
+applications that would benefit from using the database access.
+CDialog provides simple yet useful support to edit a database data.
+It allows to edit data from the particular database table, if this
+data can be uniquly identified with the integer key. Usually, the
+table's primary key is the best candidate for this role.</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>In
+order to use CDialog with the database connection, it takes, of
+course, to establish the database connection itself. SPTK supports
+only ODBC database connections, so it will look like this (the actual
+parameters inside the connect string for you will be different, of
+course):</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CDatabase
+db(&ldquo;DSN=test;UID=user;PWD=password&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>db.open();</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>Now
+the database is open and we may work with the data. Let's define the
+data connection for the dialog:</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CDialog
+dlg(&ldquo;My dialog&rdquo;,300,200);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.database(&amp;db);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.table(&ldquo;employees&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.keyField(&ldquo;emp_id&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.newPage(&ldquo;Page
+1&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CInput
+fnameInput(&ldquo;First Name:&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>fnameInput.fieldName(&ldquo;emp_fname&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CInput
+lnameInput(&ldquo;Last Name:&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>lnameInput.fieldName(&ldquo;emp_lname&rdquo;);</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><SPAN STYLE="font-weight: medium"><FONT SIZE=4>dlg.end();</FONT></SPAN></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>The
+dialog (above) defines the table 'employees' from the database <B>db</B>.
+The table contains at least fields: emp_id (integer, unique),
+emp_fname, emp_lname. So far we just created the dialog. The data
+connection is defined, but the data isn't loaded yet. The following
+operation actually loads the data into the dialog's fields:</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>dlg.keyValue(1);</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>It
+makes the dialog to build the necessary SQL queries, and try to
+search for the record with the key '1' (integer):</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>SELECT
+emp_id, emp_fname, emp_lname </FONT></FONT></FONT>
+</P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>FROM
+employees</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>WHERE
+emp_id = 1</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>If
+the record is found, the values will be loaded into the fields, and
+CDialog switches to <B><I>edit</I></B> mode. If there is no record
+with emp_id = 1, the fields will be empty and CDialog works in <B><I>insert</I></B>
+mode. What's the difference? <B><I>Edit</I></B> mode means that
+pressing <B><I>Ok</I></B> button will execute an <B>UPDATE</B> SQL
+statement, as an opposite to <B><I>insert</I></B> mode that executes
+an <B><I>INSERT</I></B> SQL statement. If the <B><I>Cancel</I></B>
+button is pressed then, of course, no operation is done on the
+database. This is pretty much it. </FONT></FONT></FONT>
+</P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>If
+you need a more complex scenario, like updating several tables from
+one dialog, then you have to subclass CDialog, define the list of
+special fields (that belong to other database tables) and override
+the load() and save() methods. Just don't forget to call the original
+methods from inside your override methods:</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CMyDialog::load()
+{</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.58in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CDialog::load();</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.58in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>//
+your own code is here</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#0000ff"><SPAN STYLE="font-weight: medium"><FONT SIZE=4><FONT FACE="Arial, sans-serif">}</FONT></FONT></SPAN></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>I
+leave the details of implementation to you. If it looks too
+complicated just check the source code for CDialog &ndash; it isn't,
+really.</FONT></FONT></FONT></P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Albany, sans-serif"><FONT SIZE=4>Using
+the registry</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>SPTK
+registry is just an old &ndash; style INI file. CRegistry class
+allows to work with it the simple way. Please, review CRegistry class
+for details, if you need them. Let's talk how we can use CRegistry
+with CDialog. </FONT></FONT></FONT>
+</P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>First,
+why do we need CRegistry for CDialog? Many applications use so-called
+'Preferences' dialog. Such dialog would contain some user-defined
+settings for this application. The combination of CDialog and
+CRegistry makes a ready-to use 'Preferences' dialog. It stores the
+user settings in registry file and restores it when application
+starts.</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>CDialog
+has two methods: loadFromRegistry() and saveToRegistry() to load and
+update the registry information. Both methods use the same two
+parameters &ndash; the Registry object pointer and the name of the
+section inside registry. The 'Preferences' dialog may be a subclass
+of CDialog. It should be created upon the application start, then it
+should load the data from registry. That's it! Now the application
+just uses the index operator of the 'Preferences' dialog to get the
+stored values:</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>int
+window_w = myPreferenceDlg[&ldquo;window_w&rdquo;];</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>int
+window_h = myPreferenceDlg[&ldquo;window_h&rdquo;];</FONT></FONT></FONT></P>
+<P STYLE="margin-left: 0.79in; font-weight: medium"><FONT COLOR="#0000ff"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>window.size(window_w,window_h);</FONT></FONT></FONT></P>
+<P STYLE="font-weight: medium"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=4>I
+hope, the information in this document helps you to use CDialog. </FONT></FONT></FONT>
+</P>
+<P STYLE="font-weight: medium"><BR><BR>
+</P>
+</BODY>
+</HTML>

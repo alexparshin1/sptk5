@@ -1,0 +1,354 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CODBC.cpp  -  description
+                             -------------------
+    begin                : Tue Dec 14 1999
+    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <ctype.h>
+
+#include <sptk5/db/CODBC.h>
+
+#include <iostream>
+#include <stdexcept>
+
+using namespace std;
+using namespace sptk;
+
+static const char
+   cantSetConnectOption[] = "Can't set connect option",
+cantStartTranscation[] = "Can't start transaction",
+cantEndTranscation[] = "Can't end transaction",
+cantGetInformation[]   = "Can't get connect information";
+
+// Returns true if result code indicates success
+static inline bool Successful(RETCODE ret) {
+   return ret==SQL_SUCCESS || ret==SQL_SUCCESS_WITH_INFO;
+}
+
+// Return true if the result code indicates a warning
+static inline bool IsWarning(RETCODE ret) {
+   return ret==SQL_SUCCESS_WITH_INFO || ret==SQL_NO_DATA_FOUND;
+}
+
+// Return true if result code indicates an error
+static inline bool IsError(RETCODE ret) {
+   return !Successful(ret) && !IsWarning(ret); // ret==SQL_ERROR || ret==SQL_INVALID_HANDLE;
+}
+
+// String description of ODBC return code
+/*
+static LPCSTR GetRetcodeDescription(RETCODE retcode) {
+   switch(retcode) {
+   case SQL_INVALID_HANDLE     : return "SQL_INVALID_HANDLE";
+   case SQL_ERROR              : return "SQL_ERROR"         ;
+   case SQL_SUCCESS            : return "SQL_SUCCESS"       ;
+   case SQL_SUCCESS_WITH_INFO  : return "SQL_SUCCESS_WITH_INFO";
+   case SQL_NO_DATA_FOUND      : return "SQL_NO_DATA_FOUND" ;
+   case SQL_STILL_EXECUTING    : return "SQL_STILL_EXECUTING (unsupported)";
+   case SQL_NEED_DATA          : return "SQL_NEED_DATA (unsupported)";
+   default                     : return "Unexpected sql retcode";
+   }
+}
+*/
+void ODBCBase::exception(string text,int line) const {
+   throw CException(text,__FILE__,line);
+}
+//---------------------------------------------------------------------------
+// ODBC Environment class
+//---------------------------------------------------------------------------
+CODBCEnvironment::CODBCEnvironment()
+:m_hEnvironment(SQL_NULL_HENV) {}
+
+CODBCEnvironment::~CODBCEnvironment() {
+   if (valid()) freeEnv();
+}
+
+void CODBCEnvironment::allocEnv() {
+   if (valid()) return; // Already allocated
+   CODBCLock lock(this);
+   if (!Successful(SQLAllocEnv(&m_hEnvironment))) {
+      m_hEnvironment=SQL_NULL_HENV;
+      exception("Can't allocate ODBC environment",__LINE__);
+   }
+}
+
+void CODBCEnvironment::freeEnv() {
+   if (!valid()) return; // Never allocated
+   CODBCLock(this);
+   SQLFreeEnv(m_hEnvironment);
+   m_hEnvironment=SQL_NULL_HENV;
+}
+
+//--------------------------------------------------------------------------------------------
+// ODBC Connection class
+//--------------------------------------------------------------------------------------------
+
+CODBCConnection::CODBCConnection()
+: m_cEnvironment(GetStaticEnv()),
+m_hConnection(SQL_NULL_HDBC),
+m_connected(false) {
+}
+
+CODBCConnection::~CODBCConnection() {
+   if (isConnected()) disconnect();
+   freeConnect();
+}
+
+// Static environment object inside this function
+CODBCEnvironment & CODBCConnection::GetStaticEnv() {
+   static CODBCEnvironment Env;
+   return Env;
+}
+
+void CODBCConnection::allocConnect() {
+   // If already connected, return false
+   if (valid()) return;
+
+   // Allocate environment if not already done
+   m_cEnvironment.allocEnv();
+
+   CODBCLock lock(this);
+
+   // Create connection handle
+   if (!Successful(SQLAllocConnect(m_cEnvironment.handle(),&m_hConnection))) {
+      m_hConnection=SQL_NULL_HDBC;
+      exception(errorInformation("Can't alloc connection"),__LINE__);
+   }
+}
+
+void CODBCConnection::freeConnect() {
+   if (!valid()) return; // Not connected
+   if (isConnected()) disconnect();
+
+   CODBCLock lock(this);
+
+   SQLFreeConnect(m_hConnection);
+   m_hConnection=SQL_NULL_HDBC;
+   m_connected=false;
+   m_connectString = "";
+}
+
+void CODBCConnection::connect(const string& ConnectionString,string& pFinalString,bool /*EnableDriverPrompt*/) {
+   // Check parameters
+   if (!ConnectionString.length())
+      exception("Can'connect: connection string is empty",__LINE__);
+
+   // If handle not allocated, allocate it
+   allocConnect();
+
+   // If we are  already connected, disconnect
+   if (isConnected()) disconnect();
+
+   CODBCLock lock(this);
+
+   m_connectString = ConnectionString;
+
+   char  *buff= new char [2048];
+   SWORD bufflen=0;
+
+#ifdef WIN32
+   HWND ParentWnd = 0;
+#else
+   void *ParentWnd = 0;
+#endif
+   m_Retcode=::SQLDriverConnect(m_hConnection,ParentWnd,
+         (UCHAR FAR *)ConnectionString.c_str(),SQL_NTS,
+         (UCHAR FAR *)buff,(short)2048,&bufflen,
+         SQL_DRIVER_NOPROMPT);
+
+   if (!Successful(m_Retcode)) {
+      string errorInfo = errorInformation(("SQLDriverConnect("+ConnectionString+")").c_str());
+      exception(errorInfo,__LINE__);
+   }
+   pFinalString = buff;
+   delete [] buff;
+
+   m_connected = true;
+   m_connectString = pFinalString;
+
+   // Trying to get more information about the driver
+   SQLCHAR*     driverDescription = new SQLCHAR[2048];
+   SQLSMALLINT	descriptionLength = 0;
+   m_Retcode = SQLGetInfo(
+        m_hConnection,
+        SQL_DBMS_NAME,
+        driverDescription,
+        2048,
+        &descriptionLength);
+   if (Successful(m_Retcode))
+      m_driverDescription = (char *)driverDescription;
+
+   m_Retcode = SQLGetInfo(
+        m_hConnection,
+        SQL_DBMS_VER,
+        driverDescription,
+        2048,
+        &descriptionLength);
+   if (Successful(m_Retcode))
+       m_driverDescription += " " + string((char *)driverDescription);
+ 
+   delete [] driverDescription;
+}
+
+void CODBCConnection::disconnect() {
+   if (!isConnected()) return; // Not connected
+
+   CODBCLock lock(this);
+
+   SQLDisconnect(m_hConnection);
+   m_connected=false;
+   m_connectString = "";
+}
+
+void CODBCConnection::setConnectOption(UWORD fOption, UDWORD vParam) {
+   if (!isConnected())
+      exception(errorInformation(cantSetConnectOption),__LINE__);
+
+   CODBCLock lock(this);
+
+   if (!Successful(SQLSetConnectOption(m_hConnection,fOption,vParam)))
+      exception(errorInformation(cantSetConnectOption),__LINE__);
+}
+
+void CODBCConnection::transact(UWORD fType) {
+   if (!isConnected())
+      exception(string(cantEndTranscation)+"Not connected to the database",__LINE__);
+
+   CODBCLock lock(this);
+
+   m_Retcode = SQLEndTran(SQL_HANDLE_ENV,m_cEnvironment.handle(),fType);
+   if (!Successful(m_Retcode))
+      exception(errorInformation(cantEndTranscation),__LINE__);
+}
+
+void CODBCConnection::getInfo(UWORD fInfoType,LPSTR str, int size) {
+   if (!str || size<1 || !isConnected())
+      exception(errorInformation(cantGetInformation),__LINE__);
+
+   m_Retcode = SQLGetInfo(m_hConnection,fInfoType,str,(short)size,NULL);
+
+   if (!Successful(m_Retcode))
+      exception(errorInformation(cantGetInformation),__LINE__);
+}
+//==============================================================================
+const char *sptk::removeDriverIdentification(const char *error) {
+   char *p = (char *)error;
+   const char *p1 = error;
+   while (p1) {
+      p1 = strstr(p,"][");
+      if (p1)
+         p = (char *)p1 + 1;
+   }
+   p1 = strstr(p,"]");
+   if (p1)
+      p = (char *)p1 + 1;
+   p1 = strstr(p,"sqlerrm(");
+   if (p1) {
+      p = (char *)p1 + 8;
+      int len = (int) strlen(p);
+      if (p[len-1] == ')')
+         p[len-1] = 0;
+   }
+   return p;
+}
+
+string CODBCEnvironment::errorInformation(const char *action) {
+   if (!action) action = " ";
+   assert(m_Retcode!=SQL_SUCCESS);
+
+   char        errorDescription[SQL_MAX_MESSAGE_LENGTH];
+   char        errorState[SQL_MAX_MESSAGE_LENGTH];
+   //const char *errorPtr;
+
+   SWORD       pcnmsg=0;
+   SQLINTEGER  nativeError=0;
+
+   *errorDescription=0;
+   *errorState=0;
+
+   if (SQL_SUCCESS!=SQLError(m_hEnvironment,SQL_NULL_HDBC,SQL_NULL_HSTMT,(UCHAR FAR*)errorState,(SQLINTEGER *)&nativeError,(UCHAR FAR*)errorDescription,sizeof(errorDescription),&pcnmsg))
+      exception(cantGetInformation,__LINE__);
+
+   //return removeDriverIdentification(errorDescription);
+   return string(errorDescription);
+}
+
+string CODBCConnection::errorInformation(const char * function) {
+   if (!function) function = " ";
+   assert(m_Retcode!=SQL_SUCCESS);
+
+   char        errorDescription[SQL_MAX_MESSAGE_LENGTH];
+   char        errorState[SQL_MAX_MESSAGE_LENGTH];
+   SWORD       pcnmsg=0;
+   SQLINTEGER  nativeError=0;
+   *errorState=0;
+   *errorDescription = 0;
+
+
+   int rc = SQLError(SQL_NULL_HENV,m_hConnection,SQL_NULL_HSTMT,(UCHAR FAR*)errorState,(SQLINTEGER *)&nativeError,(UCHAR FAR*)errorDescription,sizeof(errorDescription),&pcnmsg);
+   if (rc != SQL_SUCCESS) {
+      rc = SQLError(m_cEnvironment.handle(),SQL_NULL_HDBC,SQL_NULL_HSTMT,(UCHAR FAR*)errorState,(SQLINTEGER *)&nativeError,(UCHAR FAR*)errorDescription,sizeof(errorDescription),&pcnmsg);
+      if (rc != SQL_SUCCESS)
+         exception(cantGetInformation,__LINE__);
+   }
+
+   return removeDriverIdentification(errorDescription);
+}
+//----------------------------------------------------------------------------------------------------------------
+// Convert from a CTime to a TIMESTAMP_STRUCT
+bool CTime_to_TIMESTAMP_STRUCT(const time_t & time, TIMESTAMP_STRUCT & t) {
+   struct tm tt;
+
+   memcpy(&tt,localtime(&time),sizeof(struct tm));
+
+   t.year    = short(tt.tm_year + 1900);
+   t.month   = short(tt.tm_mon);
+   t.day     = short(tt.tm_mday);
+   t.hour    = short(tt.tm_hour);
+   t.minute  = short(tt.tm_min);
+   t.second  = short(tt.tm_sec);
+   t.fraction = 0;
+
+   return true;
+}
+
+// Convert a TIMESTAMP_STRUCT to a CTime
+bool TIMESTAMP_STRUCT_to_CTime(const TIMESTAMP_STRUCT & t, time_t & time) {
+   struct tm tt;
+
+   tt.tm_year = t.year - 1900;
+   tt.tm_mon  = t.month;
+   tt.tm_mday = t.day;
+   tt.tm_hour = t.hour;
+   tt.tm_min  = t.minute;
+   tt.tm_sec  = t.second;
+   tt.tm_isdst = -1;
+
+   time = mktime(&tt);
+
+   return true;
+}

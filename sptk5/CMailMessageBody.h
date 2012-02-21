@@ -1,0 +1,86 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CMailMessageBody.h  -  description
+                             -------------------
+    begin                : 25 Oct 2004
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#ifndef __CMAILMESSAGEBODY_H__
+#define __CMAILMESSAGEBODY_H__
+
+#include <sptk5/sptk.h>
+#include <string>
+
+namespace sptk {
+
+/// @addtogroup utility Utility Classes
+/// @{
+
+/// Defines the type of the mail message
+enum CMailMessageType {
+    MMT_PLAIN_TEXT_MESSAGE,        ///< Message has plain text only
+    MMT_HTML_MESSAGE               ///< Message has plain text and HTML parts
+};
+
+/// @brief Mail message body text
+///
+/// Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
+class CMailMessageBody {
+    CMailMessageType m_type;       ///< Message type
+    std::string      m_plainText;  ///< Plain text part of the message
+    std::string      m_htmlText;   ///< Optional HTML part of the message
+
+    /// Builds a plain text string from HTML text
+    std::string stripHtml(const std::string& origHtml);
+
+public:
+    /// @brief Default constructor
+    CMailMessageBody() {
+        m_type = MMT_PLAIN_TEXT_MESSAGE;
+    }
+
+    /// @brief Sets the message text.
+    ///
+    /// Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message
+    /// @param messageText const std::string& messageText, the text of the message
+    /// @param smtp bool, special processing for smtp
+    void text(const std::string& messageText,bool smtp);
+
+    /// @brief Returns the message body type
+    CMailMessageType type() {
+        return m_type;
+    }
+
+    /// @brief Returns the plain text version of the message
+    const std::string& text() const {
+        return m_plainText;
+    }
+
+    /// @brief Returns the html version of the message (if presented)
+    const std::string& html() const {
+        return m_htmlText;
+    }
+};
+/// @}
+}
+#endif

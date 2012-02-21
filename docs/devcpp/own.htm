@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>Dev-C++ and SPTK</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.1  (Linux)">
+	<META NAME="CREATED" CONTENT="20040530;7423100">
+	<META NAME="CHANGED" CONTENT="20040530;7450300">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>Build your own SPTKlib.a</H1>
+<P>(If you find an error in this Howto please let me know via email
+at andreasbresser (at) gmx (dot) de) <BR><BR>1. Install Dev-C++:<BR>1.1
+Download Dev-C++ from <A HREF="http://www.bloodshed.net/dev/devcpp.html">here</A>.
+(I'm using the <A HREF="http://prdownloads.sourceforge.net/dev-cpp/devcpp4980.exe">Beta
+5 Version 4.9.8.0</A>).<BR>1.2 Install Dev-C++ (remember the
+install-directory).<BR><BR><BR>2. Install aspell-dev:<BR>2.1 Download
+aspell-dev from <A HREF="http://aspell.net/win32/">here</A>. (I'm
+using <A HREF="http://ftp.gnu.org/gnu/aspell/w32/aspell-dev-0-50-3-3.zip">Aspell-dev-0-50-3-3</A>).<BR>2.2
+Extract aspell-dev-xx.zip (where xx is the version number).<BR>2.3 Go
+into the aspell-dev-xx directory.<BR>2.4 Copy the include and lib
+folder into your Dev-C++-directory (If Windows ask you to replace the
+folder select &quot;Yes, all&quot;).<BR><BR><BR>3. Install FLTK:<BR>3.1
+Download the fltk-devpack from <A HREF="http://sourceforge.net/projects/devpaks/">here</A>
+(I'm using <A HREF="http://prdownloads.sourceforge.net/devpaks/fltk-1.1.4.devpak?download">fltk-1.1.4</A>).<BR>3.2
+Double-click on the .devpak-file.<BR>3.3 Click three times on &quot;Next
+&gt;&quot; and then on &quot;Install &gt;&quot; to install the
+devpack.<BR>3.4 Click on &quot;Finish&quot;<BR>3.5. Close the &quot;DevC++
+Package Manager&quot;.<BR><BR><BR>4. Get SPTK:<BR>4.1 Download SPTK
+from <A HREF="http://sptk.tts-sf.com/index.php">here</A> (I'm using
+<A HREF="http://sptk.tts-sf.com/sptk-2.2alpha.tgz">SPTK 2.2 alpha
+</A>)<BR>4.2 Extract SPTK into any directory (If Windows does not
+know the filetype, download and install <A HREF="http://www.rarlab.com/download.htm">Winrar</A>
+first, I've tried to extract the files with <A HREF="http://www.winace.com/">Winace</A>,
+but it creates only a blank directory).<BR>4.3 Go into the
+sptk-x.x\sptk folder (where x.x is the version).<BR>4.4 Rename the
+file sptk-config.h.win to sptk-config.h.<BR><BR><BR>5. Import
+sptk-lib into Dev-C++:<BR>5.1 Start Dev-C++.<BR>5.2 Click on &quot;File&quot;
+-&gt; &quot;Import&quot; -&gt; &quot;Import MS Visual C++
+Project&quot;.<BR>5.3 Click on &quot;...&quot;.<BR>5.4 Select the
+file sptk-x.x\VC6\SPTKLib.dsp and click on &quot;Open&quot;<BR><IMG SRC="images/2.jpg" NAME="Graphic1" ALIGN=BOTTOM WIDTH=368 HEIGHT=242 BORDER=0><BR>(should
+look like this)<BR><BR><BR>5.5 Click on &quot;Import&quot;.<BR>You
+get this error now:<BR><IMG SRC="images/error.jpg" NAME="Graphic2" ALIGN=BOTTOM WIDTH=370 HEIGHT=245 BORDER=0><BR>5.6
+Ignore it and click on &quot;Yes&quot;.<BR>5.7 Right-click on
+&quot;Headers&quot; and then on &quot;Add to Project&quot;.<BR>5.8
+Select the file sptk-x.x\sptk\sptk-config.h and click on open.<BR><BR><BR>6
+Add the FLTK files to SPTKLib.dev:<BR>6.1 Press ALT+P to open the
+Options Dialog.<BR>6.2 Click on &quot;Parameters&quot;.<BR>6.3 Click
+on &quot;Add Library or Object&quot; under the &quot;Linker&quot;-Textbox.<BR>6.4
+Select the file libfltk.a form the devcpp/lib directory.<BR>6.5 Click
+on &quot;Open&quot;.<BR>6.7 Repeat 6.1.4 to 6.1.5 with the files
+libfltk_forms.a, libfltk_images.a and libfltk_gl.a.<BR>6.8 Click on
+&quot;OK&quot;.<BR><BR><BR>7. Compiler Options<BR>7.1 Make sure you
+compile a &quot;Static Lib&quot;, NOT a &quot;GUI&quot;-Program:<BR>7.2
+Press ALT+P to Open the Options Dialog.<BR>7.3 Select &quot;Win32
+Static Lib&quot; in the Type-Section.<BR>7.4 Click on &quot;OK&quot;<BR><IMG SRC="images/static_lib.jpg" NAME="Graphic3" ALIGN=BOTTOM WIDTH=477 HEIGHT=340 BORDER=0><BR><BR><BR>8.
+Compile SPTK:<BR>8.1 Press CTRL+F9.<BR>8.2 Wait... ;)<BR>8.3 If you
+get the following error:<BR><IMG SRC="images/error_cstring.jpg" NAME="Graphic4" ALIGN=BOTTOM WIDTH=768 HEIGHT=536 BORDER=0><BR><BR>change
+line 60 in the CRegister.cpp form<BR>&nbsp;&nbsp;&nbsp;&nbsp;return
+getenv(&quot;WINDIR&quot;) + CString(&quot;\\&quot;);<BR>to<BR>&nbsp;&nbsp;&nbsp;&nbsp;return
+<B>(CString)</B> getenv(&quot;WINDIR&quot;) + CString(&quot;\\&quot;);<BR>and
+press CTRL+F9 again.<BR><BR><B>If you get another error press CTRL+F9
+again</B><BR><BR><BR>If you see this:<BR><IMG SRC="images/compile.jpg" NAME="Graphic5" ALIGN=BOTTOM WIDTH=284 HEIGHT=228 BORDER=0><BR>you
+are successful ;-)<BR><BR>8.4 Now click on &quot;<U>C</U>lose&quot;.<BR>8.5
+Copy the SPTKlib.a from sptk-xx\VC6\ directory into your devcpp\lib
+directory.<BR><BR><BR>9. Compile your first sptk-program with
+Dev-C++.<BR>9.1 Start Dev-C++.<BR>9.2 Click on &quot;File&quot; -&gt;
+&quot;Import&quot; -&gt; &quot;Import MS Visual C++&quot;
+project.<BR>9.3 Click on &quot;...&quot;.<BR>9.4 Select the file
+sptk-x.x\VC6\cscroll_test.dsp and click on open.<BR>9.5 Click on
+&quot;Import&quot;.<BR>9.6 Click on &quot;Yes&quot;<BR>9.7 Press
+ALT+P.<BR>9.8 Click on &quot;Parameters&quot;.<BR>9.9 Click on &quot;Add
+Libary or Object&quot; under the &quot;Linker&quot;-Textbox.<BR>9.10
+Select the file <B>SPTKlib.a</B> form the devcpp/lib directory.<BR>9.11
+Click on &quot;Open&quot;.<BR>9.12 Repeat 9.9 to 9.11 with the files
+libfltk.a, libfltk_forms.a, libfltk_images.a and
+libfltk_gl.a<BR><IMG SRC="images/linker.jpg" NAME="Graphic6" ALIGN=BOTTOM WIDTH=477 HEIGHT=340 BORDER=0><BR>(should
+look like this).<BR><BR>9.13 <I>(tip)</I> Copy the text in the
+&quot;Linker&quot; Textbox into the memory (right-click -&gt;
+&quot;copy&quot;). You can now easy paste it into another project
+without search the files every time, because you need to link these
+files in every SPTK-Program. <BR>9.14 Click on &quot;OK&quot;. You
+should compile the program now (press F9). 
+</P>
+<P ALIGN=RIGHT STYLE="margin-bottom: 0in"><A HREF="odbc.htm">Next
+Step: Compile your first SPDB Project</A></P>
+<P><BR><BR><I>(optional)</I> Copy sptk from your sptk-xx\ directory
+to devcpp\include.<BR><BR><BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in">by Andreas Bresser
+andreasbresser (at) gmx (dot) de</P>
+</BODY>
+</HTML>

@@ -1,0 +1,87 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CFileLog.h  -  description
+                             -------------------
+    begin                : Tue Jan 31 2006
+    copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ 
+    This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
+    Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
+    for defining the requirements for this class.
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#ifndef __CFILELOG_H__
+#define __CFILELOG_H__
+
+#include <sptk5/CBaseLog.h>
+#include <fstream>
+
+namespace sptk {
+
+/// @addtogroup log Log Classes
+/// @{
+
+/// @brief A log stored in the regular file.
+///
+/// A simplest possible way to implement logging.
+/// The log file is created automatically if it doesn't exist.
+/// @see CBaseLog for more information about basic log abilities.
+class CFileLog : public CBaseLog {
+    std::ofstream   m_fileStream;   ///< Log file stream
+    std::string     m_fileName;      ///< Log file name
+protected:
+
+public:
+    /// @brief Stores or sends log message to actual destination
+    /// @param date CDateTime, message timestamp
+    /// @param message const char *, message text
+    /// @param sz uint32_t, message size
+    /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
+    virtual void saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException);
+
+public:
+    /// @brief Constructor
+    ///
+    /// Creates a new log object based on the file name.
+    /// If this file doesn't exist - it will be created.
+    /// @param fileName string, log file name
+    CFileLog(std::string fileName) : m_fileName(fileName) {}
+
+    /// @brief Destructor
+    ///
+    /// Destructs the log object, closes the log file, releases all the allocated resources
+    virtual ~CFileLog();
+
+    /// @brief Restarts the log
+    ///
+    /// The current log content is cleared. The file is recreated.
+    virtual void reset() throw(CException);
+
+    /// @brief Returns log file name
+    std::string fileName() const {
+        return m_fileName;
+    }
+};
+/// @}
+}
+
+#endif

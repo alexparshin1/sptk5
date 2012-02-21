@@ -1,0 +1,62 @@
+/* sptk/sptk-config.h.  Generated automatically by configure.  */
+/*
+ * Configuration file for the Simply Powerful Toolkit (SPTK).
+ * @configure_input@
+ *
+ * Copyright 1998-2007 by Alexey Parshin.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ */
+
+#define HAVE_ODBC 1
+
+/*
+ * USE_ODBC:
+ *
+ * Use the ODBC libs, from unixODBC, for instance
+ */
+
+#define USE_ODBC HAVE_ODBC
+
+/*
+ * HAVE_ASPELL:
+ *
+ * Use the Aspell lib, the spell checker
+ */
+
+#define HAVE_ASPELL 1
+#define HAVE_SQLITE3 1
+
+/*
+ * WORDS_BIGENDIAN:
+ *
+ * Byte order of your machine: 1 = big-endian, 0 = little-endian.
+ */
+
+#define WORDS_BIGENDIAN 0
+
+/*
+ * HAVE_DIRENT_H, HAVE_SYS_NDIR_H, HAVE_SYS_DIR_H, HAVE_NDIR_H, HAVE_SCANDIR:
+ *
+ * Where is <dirent.h> (used only by fl_file_chooser and scandir).
+ */
+
+/* #undef HAVE_DIRENT_H */
+/* #undef HAVE_SYS_NDIR_H */
+/* #undef HAVE_SYS_DIR_H */
+/* #undef HAVE_NDIR_H */
+/* #undef HAVE_SCANDIR */

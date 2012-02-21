@@ -1,0 +1,148 @@
+<H1> SPTK XML HowTo </H1>
+<p>
+This document shortly describes how to create an XML document in SPTK, and how to parse an existing document. 
+The actually working program, matching more or less with the code snippets here, 
+can be found in examples/xml/xml_test2.cpp.
+</p>
+<H2> Creating a new XML document </H2>
+<p>
+Lets assume we have to create an XML document that describes couple of bookcases in your room.
+These bookcases have shelves with books. We want to know the name, issue date, and number of pages of every book, 
+as well as the name of every shelf. Here is the XML document fragment that shows the minimal possible bookcase:
+</p>
+<pre>
+   &lt;bookcase location="next to the window"&gt;
+     &lt;shelf label="English Literature"&gt;
+       &lt;book author="William Shakspere" title="Romeo and Juliete" issued="Mar 2003" pages="345" /&gt;
+     &lt;/shelf&gt;
+   &lt;/bookcase&gt;
+</pre>
+
+<p>
+Lets try to create the similar document using SPTK. Here is the code sample that does it:
+</p>
+<pre>
+   
+   // Creating a new empty XML document
+   CXmlDoc *doc = new CXmlDoc("Bookscases Map version 1.00"); 
+
+   // Creating a bookcase element
+   CXmlNode *bookcase = new CXmlElement(*doc,"bookcase");
+   bookcase->setAttribute("location","next to the window");
+   
+   // Creating a shelf in the bookcase
+   CXmlNode *shelf = new CXmlElement(*bookcase,"shelf");
+   shelf->setAttribute("label","English Literature");
+   
+   // Creating a book on the shelf
+   CXmlNode *book = new CXmlElement(*shelf,"book");  
+   book->setAttribute("author","William Shakspere");
+   book->setAttribute("title","Romeo and Juliete");
+   book->setAttribute("issued","Mar 2003");
+   book->setAttribute("pages",345);
+   
+   // Creating another book on the same shelf
+   book = new CXmlElement(*shelf,"book");  
+   book->setAttribute("author","William Shakspere");
+   book->setAttribute("title","King Lear");
+   book->setAttribute("issued",CDateTime::Now());
+   book->setAttribute("pages",345);
+   
+</pre>
+
+Simple enough, isn't it? Every XML node has a parent node, a name, and an optional attributes.
+You can add any number of sub nodes to any node. You are not limited in number of attributes.
+SPTK does most of the necessary type conversions for the attributes - you can use( char *), 
+std::string, int, double, CDateTime..
+
+<H2> Saving XML document to file </H2>
+
+<p> Saving an XML document to a file is a very simple task. First, you save the document to the buffer.
+Second, you save the buffer to a file, just don't forget to trap possible exceptions. 
+Here is the code sample:
+</p>
+<pre>
+   try {
+      CBuffer buffer;
+      doc->save(buffer);
+      buffer.saveToFile("MyXML.xml");
+   } catch(std::exception& e) {
+      printf("Error: %s\n",e.what());
+   }
+
+   // If you don't need this document anymore - destroy it
+   delete doc;
+
+</pre>
+
+<H2> Loading an existing XML document </H2>
+
+<p> Once again, it's very simple. SPTK does most of the job for you: </p>
+
+<pre>
+   // Creating a new empty XML document
+   CXmlDoc *doc = new CXmlDoc(); 
+   
+   try {
+      CBuffer buffer;
+      buffer.loadFromFile("MyXML.xml");
+      doc->load(buffer);
+   } catch(std::exception& e) {
+      printf("Error: %s\n",e.what());
+   }
+
+</pre>
+
+<H2> Processing an XML document </H2>
+
+<p> Processing, or parsing, an XML document is little bit tricky. 
+It is, basically, just walking by the XML tree. 
+For every node, you process the node itself, and then process any child nodes (subnodes) if they exist.
+It requires to provide some code to handle every node in the document you're interested in.
+You can use node->name() to separate different nodes. 
+The possible implementation of, for instance, printing nodes from our document, can be done like the following:
+</p>
+
+<pre>
+   // Print the node and all the subnodes
+   void printNode(CXmlNode *node) {
+      // Check the node name and print it properly (see below)
+      if (node->name() == "bookcase")
+         printBookcase(node);
+      else if (node->name() == "shelf")
+         printShelf(node);
+      else if (node->name() == "book")
+         printBook(node);
+      // Process all the children
+      for (unsigned i = 0; i < node->children(); i++)
+         printNode( node->child(i) );
+   }
+   
+   // Print the node attributes by the name
+   void printBookcase(CXmlNode *node) {
+      std::string location = node->getAttribute("location");
+      printf("Bookcase : %s\n",location.c_str());
+   }
+   
+   // Print the node attributes by the name
+   void printShelf(CXmlNode *node) {
+      std::string label = node->getAttribute("label");
+      printf(" Shelf : %s\n",label.c_str());
+   }   
+   
+   // Print all the node attributes
+   void printBook(CXmlNode *node) {
+      printf("    Book : ");
+      CXmlAttributes& attributes = node->attributes();
+      CXmlAttributes::iterator itor = attributes.begin();
+      for (; itor != attributes.end(); itor++ ) {
+         std::string name = itor->first;
+         CXmlAttribute& attribute = itor->second;
+	 std::string value = attribute;
+	 printf("%s = %s ",name.c_str(),value.c_str());
+      }
+      printf("\n");
+   }   
+   
+</pre>
+

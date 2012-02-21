@@ -1,0 +1,75 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CMailMessageBody.cpp  -  description
+                             -------------------
+    begin                : 25 Oct 2004
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#include <sptk5/CMailMessageBody.h>
+#include <sptk5/CStrings.h>
+#include <sptk5/istring.h>
+#include <sptk5/string_ext.h>
+#include <string.h>
+
+#include <vector>
+#include <map>
+
+using namespace std;
+using namespace sptk;
+
+string CMailMessageBody::stripHtml(const string& origHtml) {
+   CStrings html(origHtml,"<");
+   unsigned    i = 0;
+
+   // Remove comments and scripts
+   for (i = 0; i < html.size(); i++) {
+       string& str = html[i];
+       size_t pos = str.find(">");
+       if (pos == string::npos)
+           continue;
+       str = str.substr(pos+1);
+       if (str.empty()) {
+           html.erase(html.begin()+i);
+           i--;
+       }
+   }
+
+   return trim(replaceAll(replaceAll(html.asString(" "),"   "," "),"  "," "));
+}
+
+void CMailMessageBody::text(const string& messageText,bool smtp) {
+   string msg;
+   if (smtp)
+      msg = replaceAll(messageText,"\n.\n","\n \n");
+   else
+      msg = messageText;
+   if (upperCase(messageText.substr(0,100)).find("<HTML>") == string::npos) {
+      m_type = MMT_PLAIN_TEXT_MESSAGE;
+      m_plainText = msg;
+      m_htmlText = "";
+   } else {
+      m_type = MMT_HTML_MESSAGE;
+      m_plainText = stripHtml(msg);
+      m_htmlText = msg;
+   }
+}

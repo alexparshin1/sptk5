@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice 6.1 Beta 2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT="Alexey Parshin">
+	<META NAME="CREATED" CONTENT="20030527;16385300">
+	<META NAME="CHANGEDBY" CONTENT="Alexey Parshin">
+	<META NAME="CHANGED" CONTENT="20030707;12010800">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><IMG SRC="../pictures/sptk.png" NAME="Graphic1" ALIGN=BOTTOM WIDTH=733 HEIGHT=93 BORDER=0></P>
+<H1 ALIGN=CENTER>New Layout Initiative</H1>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in">by Alexey Parshin</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Albany, sans-serif"><FONT SIZE=4>The
+Introduction</FONT></FONT></FONT></P>
+<P><FONT FACE="Arial, sans-serif">I'm developing FLTK applications
+for about a year for now, and have ported some of my Windows projects
+from Borland C++ Builder to FLTK. The process went more or less
+painful, and now I have several projects working. During the porting
+I've noticed that some part of coding took most of my time. I also
+noticed that I didn't like this exact part of coding :) I'm talking
+about placing the widgets on the form or window. FLTK allows you to
+place the widgets just nicely, it also allows to define how widgets
+should be resized if the form or window is resized. Unfortunately,
+the traditional FLTK way resizes widgets in both directions &ndash;
+height and width. It's not exactly what user of the application
+expects from it, especially when the application has widgets like
+combo box or numeric input. These widgets should be resized the very
+certain way, keeping the vertical size in certain limits specific to
+widget. Trying to meet such size requirements, I had to implement a
+virtual resize() method in every window or form of my programs. I
+didn't like it. It takes too much work and too much time. Also, the
+constructor of every window contained widgets with sizes defined.
+Unfortunately, resize function doesn't really need these sizes, or
+even ignores them completely. I didn't like it ether. </FONT>
+</P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Albany, sans-serif"><FONT SIZE=4>The
+Idea</FONT></FONT></FONT></P>
+<P><FONT FACE="Arial, sans-serif">After some experiments, I've
+decided to implement the automatic layout manager. The main goal was
+to provide minimum work required from the programmer to use it, and
+to make program shorter. It should also better use the constructor
+information, and shouldn't require to define virtual resize() method.</FONT></P>
+<P><FONT FACE="Arial, sans-serif">First, the idea was to define a
+widget alignment as one of: right, left, top, bottom and client. The
+widget alignment supposed to tell the application how the widget
+should be located.</FONT></P>
+<P><FONT FACE="Arial, sans-serif">Second, every widget has different
+size limitations or preferences. To solve this problem, someone in
+FLTK Usenet group proposed to define a preferred size method. That
+method would tell the system how the widget wants to be resized. I'd
+be glad to mention the author of this nice idea as soon as I have his
+name.</FONT></P>
+<P><FONT FACE="Arial, sans-serif">Third, to handle the extra widget
+information it takes to use a special group. That group should be
+smart enough to ask the widgets about their preferred sizes, and
+locate them accordingly to the available space. Also, the group often
+enough may need the extra space and should be able to grow, so all
+the widgets inside would fit.</FONT></P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT COLOR="#800000"><FONT FACE="Albany, sans-serif"><FONT SIZE=4>The
+implementation</FONT></FONT></FONT></P>
+<P>From the idea' description I've pictured two basic classes:
+CLayoutClient and CLayoutManager. The CLayoutClient is used as one of
+the basic classes for the widget in order to let the layout manager
+know &ndash; it's our guy and we have to locate him properly.
+CLayoutManager class is managing the client widgets that is derived
+from CLayoutClient. It doesn't mean the widgets should be derived
+from <I><B>only</B> </I>CLayoutClient. The widgets should be derived
+from the original widget, say, Fl_Input, <B><I>and</I></B>
+CLayoutClient. Here is the example (not a real class):</P>
+<P>class CMyInput : public Fl_Input, public CLayoutClient {</P>
+<P>public:</P>
+<P>CMyInput(int x, int y, int w, int h, const char *label=0L) :
+Fl_Input(x,y,w,h,label), CLayoutClient(SP_ALIGN_TOP) {}</P>
+<P>virtual void preferredSize(int&amp; width, int&amp; height) const;</P>
+<P>};</P>
+<P>As soon as we have such class definition, we can use that class
+with CLayoutManager. The only problem is &ndash; the layout manager
+doesn't need the location and size of the widget defined in
+constructor. What it needs, however, is the optional size of the
+widget (depending on the alignment, it's height or width) and the
+widget alignment in layout. So, the optimal constructor should look
+like this:</P>
+<P>CMyInput(const char *label=0L, int layoutSize=10, CLayoutAlign
+alignment=SP_ALIGN_TOP);</P>
+<P>The default values are chosen based on the most popular values: A
+lot of the forms are placing the widgets from top to bottom, that
+gives us the alignment=SP_ALIGN_TOP. And, in many cases, the widgets
+have the preferredSize() method defining the exact size of the
+widget, or at least &ndash; the exact height of it. Want to see the
+example? The Fl_Input widget, for instance, if it's not in multi-line
+mode, should always have the certain height, based on the widget
+font. The CDateTimeInput widget is even more strict, requiring both
+height and width defined based on the widget font. But, the widgets
+like Fl_Browser may have the height and width only limited by the
+minimal value (something like double font size), and we have to
+provide some information about the desirable widget size. What should
+be inside the preferredSize() method? It is very simple. If the
+widget wants to take any size it's asked &ndash; the body of that
+method should be empty. Otherwise, the widget simply checks the
+values of arguments width and height and changes them if necessary.
+For instance, if the widget may have any width bigger than 20, and
+the height always 20, the method should look like:</P>
+<P><FONT COLOR="#800000">void CMyInput::preferredSize(int&amp; width,
+int&amp; height) const {</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">if (width &lt;
+20) width = 20;</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">height = 20;</FONT></P>
+<P><FONT COLOR="#800000">}</FONT></P>
+<P>In SPTK, the kind of the constructor I've just described, is
+widely used. In fact, to use the regular FLTK constructors for SPTK
+widgets, you have to define __COMPATIBILITY_MODE__ constant during
+the SPTK compilation. Otherwise, the old style constructors are
+simply not included. So the code creating several of widgets looks
+like:</P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new
+CInput(&ldquo;first name&rdquo;);</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new CInput(&ldquo;last
+name&rdquo;);</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new
+CDateInput(&ldquo;birth date&rdquo;);</FONT></P>
+<P>Looks pretty strange for FLTK, isn't it? Yet, it works. Of course,
+it doesn't work as it should if used with the regular Fl_Group. In
+order for layout to work properly, the widgets with layout support
+should be placed in ClayoutManager-based class. SPTK provides two of
+such classes: CGroup and CWindow. So, the complete window code looks
+like:</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in"><FONT COLOR="#800000">CWindow
+*w = new CWindow(300,300,&rdquo;My window&rdquo;);</FONT></P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in"><FONT COLOR="#800000">new
+CInput(&ldquo;first name&rdquo;);</FONT></P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in"><FONT COLOR="#800000">new
+CInput(&ldquo;last name&rdquo;);</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new
+CDateInput(&ldquo;birth date&rdquo;);</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">w-&gt;end();</FONT></P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">w-&gt;resizable(w);</FONT></P>
+<P><FONT COLOR="#000000">That's all! CWindow </FONT>will place the
+widgets one by one from the top to the bottom, resize them correctly
+even if the window size is changed. 
+</P>
+<P>If you need to use the widget with less strictly defined
+preferredSize(), the code should include an extra size value, like:</P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in; margin-bottom: 0in"><FONT COLOR="#800000">CWindow
+*w = new CWindow(300,300,&rdquo;My window&rdquo;);</FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in; margin-bottom: 0in"><FONT COLOR="#800000">new
+CInput(&ldquo;first name&rdquo;);</FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in; margin-bottom: 0in"><FONT COLOR="#800000">new
+CInput(&ldquo;last name&rdquo;);</FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new
+CDateInput(&ldquo;birth date&rdquo;);</FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new
+CListView(&ldquo;Work history&rdquo;,150);</FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in"><FONT COLOR="#800000">w-&gt;end();</FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 0.79in"><FONT COLOR="#800000">w-&gt;resizable(w);</FONT></P>
+<P>In that example, ListView will have the height of 150 pixels, and
+will keep this height even if the window is resized. If you want the
+widget to occupy all the space not taken by other widgets, the widget
+is created with the client-alignment. The size value is simply
+ignored.</P>
+<P STYLE="margin-left: 0.79in"><FONT COLOR="#800000">new
+CListView(&ldquo;Work history&rdquo;, 10, SP_ALIGN_CLIENT);</FONT></P>
+<P><BR><BR>
+</P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid"><FONT FACE="Albany, sans-serif"><FONT SIZE=4>How
+Does it work?</FONT></FONT></P>
+<P>Let's say we start from the empty CWindow object, and add several
+widgets. The following code is a simplified version from the
+examples/cgroup_test.cpp (see SPTK distribution):</P>
+<PRE>int main() {
+    CWindow w(500,400,&quot;CGroup test&quot;);
+    w.resizable(w);
+    w.color(0xC0C8FF00);
+
+    // CCheckButtons figures out the size from the list
+    // of choices. The default alignment is SP_ALIGN_TOP,
+    // and you can change it in ctor
+    CCheckButtons cbl(&quot;Check Buttons: &quot;);
+    cbl.buttons(CStringList(&quot;first,second,third,*&quot;,&quot;,&quot;));
+
+    CRadioButtons rbl(&quot;Radio Buttons: &quot;);
+    rbl.buttons(CStringList(&quot;first,second,third,*&quot;,&quot;,&quot;));
+
+    // CListView is more flexible, than CCheckButtons or
+    // CRadioButtons, it's vertical size is defined with
+    // the layoutSize parameter in ctor as 150.
+    // SP_ALIGN_CLIENT allows that widget to occupy all
+    // the space left after all the other widgets are 
+    // put in place
+    CListView listView(&quot;List View:&quot;,10,SP_ALIGN_CLIENT);
+    listView.columns().add(CColumn(&quot;column 1&quot;,VAR_INT,70));
+    listView.columns().add(CColumn(&quot;column 2&quot;,VAR_INT,70));
+    listView.columns().add(CColumn(&quot;column 3&quot;,VAR_STRING,200));
+    listView.columns().add(CColumn(&quot;column 4&quot;,VAR_STRING));
+
+    // That group keeps togeteher the buttons. These
+    // buttons use the default alignment for buttons - 
+    // SP_ALIGN_RIGHT, and the text/icon defined by the 
+    // button kind.
+    CGroup buttonGroup(&quot;&quot;,10,SP_ALIGN_BOTTOM);
+    buttonGroup.color(0xA0A0E000);
+    CButton okButton(SP_OK_BUTTON);
+    okButton.defaultButton(true);
+    CButton addButton(SP_ADD_BUTTON);
+    CButton nextButton(SP_NEXT_BUTTON);
+    buttonGroup.end();
+
+    w.end();
+    w.show();
+
+    Fl::run();
+
+    return 0;
+}</PRE><P>
+<BR><BR>
+</P>
+<P>At the moment we create the window and fill it with the widgets &ndash;
+none of the widgets has the correct size. When the window is shown,
+at some moment FLTK calls that window resize() method, and layout
+manager comes forward. The layout manager processes the widgets in
+the order they were created. So, let's try to watch how it's done. 
+</P>
+<TABLE WIDTH=802 BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<COL WIDTH=355>
+	<COL WIDTH=447>
+	<TR VALIGN=TOP>
+		<TD WIDTH=355>
+			<P><IMG SRC="../pictures/layout_step1.png" NAME="Graphic1" ALIGN=LEFT WIDTH=444 HEIGHT=395 BORDER=0><BR CLEAR=LEFT><BR>
+			</P>
+		</TD>
+		<TD WIDTH=447>
+			<P>The very beginning. When the layout manager starts to work,
+			none of the components is located and sized correctly. The is
+			considered as an empty area, with the size (ww, hh) pixels. This
+			area is slightly smaller than the available window area if the
+			layoutSpacing() is not 0. layoutSpacing() defines the extra space
+			between the widgets</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=355>
+			<P><IMG SRC="../pictures/layout_step2.png" NAME="Graphic2" ALIGN=LEFT WIDTH=444 HEIGHT=395 BORDER=0><BR CLEAR=LEFT><BR>
+			</P>
+		</TD>
+		<TD WIDTH=447>
+			<P>The first widget to place is CCheckButtons cbl. Layout manager
+			calls the preferredSize() method for that widget and finds out
+			what is the optimal widht and height of the widget. For the check
+			buttons the height is determined based on the actual number of
+			check buttons inside. The width of the widget isn't limited, so it
+			takes all the available width of the area. 
+			</P>
+			<P>The default layout alignment is SP_ALIGN_TOP, so the widget is
+			aligned to the top of available area.</P>
+			<P>After placing the widget, layout manager decreases the size of
+			the available by the size taken by the widget.</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=355>
+			<P><IMG SRC="../pictures/layout_step3.png" NAME="Graphic3" ALIGN=LEFT WIDTH=444 HEIGHT=346 BORDER=0><BR CLEAR=LEFT><BR>
+			</P>
+		</TD>
+		<TD WIDTH=447>
+			<P>After placing the first widget, the layout manager switches to
+			the second one (in the order the widgets were created). Once
+			again, the widget is asked through the preferredSize() method how
+			it wants to be resized. The layout manager resizes the widget with
+			the default layout align to the top of the available area and once
+			again decreases the area size.</P>
+			<P>Next widget to process is CListView with the layout alignment
+			as SP_ALIGN_CLIENT. This is a special alignment &ndash; only one
+			widget inside the group may have it. Layout manager takes a note
+			about this widget but doesn't resize it before all the other
+			widgets in the group are resized. 
+			</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=355>
+			<P><IMG SRC="../pictures/layout_step4.png" NAME="Graphic4" ALIGN=LEFT WIDTH=444 HEIGHT=395 BORDER=0><BR CLEAR=LEFT><BR>
+			</P>
+		</TD>
+		<TD WIDTH=447>
+			<P>Next, the CGroup buttonGroup is asked for the preferredSize().
+			This is little bit more complicated than before, but not for you &ndash;
+			for layout manager. Layout manager first computes the
+			preferredSize() for every widget inside the group, and then
+			computes the preferredSize() for itself. After it's done, the
+			parent group (the window) resizes the buttonGroup and puts it to
+			the buttom of the available area as defined by the constructor:</P>
+			<PRE STYLE="margin-bottom: 0.2in">CGroup buttonGroup(&quot;&quot;,10,SP_ALIGN_BOTTOM);</PRE><P>
+			The group that was originally created with the height 10 grows to
+			fit all the buttons inside.</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=355>
+			<P><IMG SRC="../pictures/layout_step5.png" NAME="Graphic5" ALIGN=LEFT WIDTH=444 HEIGHT=383 BORDER=0><BR CLEAR=LEFT><BR>
+			</P>
+		</TD>
+		<TD WIDTH=447>
+			<P>And, finaly, the moment of truth - the very last step. After
+			all the other widgets are placed, layout manager places the widget
+			with the layout align SP_ALIGN_CLIENT (if you had one, of course).
+			It tries to take all the remaining space, if the preferredSize()
+			allows to do so.</P>
+		</TD>
+	</TR>
+</TABLE>
+<P>The whole set of operations is repeated when you resize the
+window. Of course, nothing is perfect. The layout manager ignores the
+regular widgets, not based on CLayoutClient, completely. But, if you
+want to use some favorite widget of yours with the layout manager,
+simply subclass it from your original widget and CLayoutClient.</P>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

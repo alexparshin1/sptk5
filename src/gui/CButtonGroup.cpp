@@ -1,0 +1,198 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          cbuttongroup.cpp  -  description
+                             -------------------
+    begin                : Jan 2, 2003
+    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#include <FL/Fl.H>
+#include <FL/Fl_Round_Button.H>
+#include <FL/fl_draw.H>
+
+#include <stdio.h>
+#include <string.h>
+#include <sptk5/gui/CDataControl.h>
+#include <sptk5/gui/CButtonGroup.h>
+#include <sptk5/gui/CGroup.h>
+#include <sptk5/db/CParams.h>
+#include <sptk5/CVariant.h>
+
+using namespace std;
+using namespace sptk;
+
+void CButtonGroup::ctor_init() {
+   m_controlFlags = FGE_MULTILINEENTRY;
+   m_maxHeight = 0;
+   m_control = new CGroup;
+   m_control->align(FL_ALIGN_LEFT);
+   end();
+   clearButtons();
+}
+
+CButtonGroup::CButtonGroup(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
+: CControl (label,layoutSize,layoutAlignment)
+{
+   ctor_init();
+}
+
+#ifdef __COMPATIBILITY_MODE__    
+CButtonGroup::CButtonGroup(int x,int y,int w,int h,const char *l)
+: CControl (x,y,w,h,l) 
+{
+   ctor_init();
+}
+#endif
+
+void CButtonGroup::controlDataChanged() {
+   string  newValue = data().getString();
+   if (m_lastValue != newValue) 
+      fireEvent(CE_DATA_CHANGED,0);
+}
+
+void CButtonGroup::clearButtons() {
+   CGroup *group = (CGroup *)m_control;
+   group->clear();
+   m_buttonLabels.clear();
+   m_otherInput = 0L;
+   m_otherButton = 0L;
+}
+
+void CButtonGroup::buttons(const CStrings& sl) {
+   clearButtons();
+   m_buttonLabels = sl;
+   unsigned buttonsCount = m_buttonLabels.size();
+   CGroup *group = (CGroup *)m_control;
+   group->begin();
+   const idstring *otherLabel = NULL;
+   for (unsigned i = 0; i < buttonsCount; i++) {
+      idstring& si = m_buttonLabels[i];
+      if (si == "*") {
+         if (otherLabel) continue;  // Only one free entry is allowed
+         otherLabel = &m_buttonLabels[i];
+      } else {
+         Fl_Button *btn = createButton(si.c_str());
+         btn->argument(si.ident());
+         btn->align(FL_ALIGN_INSIDE|FL_ALIGN_LEFT|FL_ALIGN_WRAP);
+      }
+   }
+   if (otherLabel) {
+      Fl_Button *btn = createButton("",16,SP_ALIGN_LEFT);
+      btn->argument(otherLabel->ident());
+      m_otherButton = btn;
+      m_otherInput = new CInput_("");
+      m_otherInput->color(FL_LIGHT3);
+   }
+   end();
+   resize(x(),y(),w(),h());
+}
+
+CVariant CButtonGroup::data() const {
+   CGroup *group = (CGroup *)m_control;
+   unsigned    cnt = group->children();
+   string     result;
+   for (unsigned i = 0; i < cnt; i++) {
+      Fl_Widget *w = group->child(i);
+      Fl_Button *b = dynamic_cast<Fl_Button *>(w);
+      if (!b) continue;
+      if (b->value()) {
+         if (b == m_otherButton) {
+            return m_otherInput->value();
+         } else {
+            return b->label();
+         }
+      }
+   }
+   return CVariant("");
+}
+
+int CButtonGroup::buttonIndex(const char *buttonLabel) {
+   CGroup  *group = (CGroup *)m_control;
+   unsigned    cnt = group->children();
+   for (unsigned i = 0; i < cnt; i++) {
+      Fl_Button *b = dynamic_cast<Fl_Button *>(group->child(i));
+      if (!b) continue;
+      if (strcmp(b->label(),buttonLabel) == 0)
+         return i;
+   }
+   return -1;
+}
+
+void CButtonGroup::deselectAllButtons() {
+   CGroup *group = (CGroup *)m_control;
+   unsigned    cnt = group->children();
+   for (unsigned i = 0; i < cnt; i++) {
+      Fl_Button *b = dynamic_cast<Fl_Button *>(group->child(i));
+      if (!b) continue;
+      b->value(0);
+   }
+}
+
+void CButtonGroup::data(const CVariant d) {
+   deselectAllButtons();
+   int ndx = buttonIndex(d.getString());
+   if (ndx > -1) {
+      CGroup *g = (CGroup *)m_control;
+      Fl_Button *b = (Fl_Button *)g->child(ndx);
+      b->value(1);
+   } else {
+      if (m_otherButton) {
+         m_otherButton->value(1);
+         m_otherInput->value(d.getString());
+      }
+   }
+   fireEvent(CE_DATA_CHANGED,0);
+}
+
+bool CButtonGroup::preferredSize(int& w,int& h) {
+   CGroup *g = (CGroup *)m_control;
+   w -= labelWidth();
+   bool rc = g->preferredSize(w,h);
+   w += labelWidth();
+   int hh = labelHeight();
+   if (h < hh) h = hh;
+   return rc;
+}
+
+void CButtonGroup::load(CQuery *loadQuery) {
+   if (!m_fieldName.length()) return;
+   CField& fld = (*loadQuery)[m_fieldName.c_str()];
+   data( fld.asString() );
+}
+
+void CButtonGroup::save(CQuery *updateQuery) {
+   if (!m_fieldName.length()) return;
+   CParam& param = updateQuery->param(m_fieldName.c_str());
+   param = data();
+}
+
+void CButtonGroup::load(const CXmlNode *node,CLayoutXMLmode xmlMode) {
+    CControl::load(node,xmlMode);
+    CStrings btns(node->getAttribute("buttons"),"|");
+    if (btns.size())
+	buttons(btns);
+}
+
+void CButtonGroup::save(CXmlNode *node,CLayoutXMLmode xmlMode) const {
+    CControl::save(node,xmlMode);
+    node->setAttribute("buttons",buttons().asString("|"));
+}

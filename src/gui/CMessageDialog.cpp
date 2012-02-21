@@ -1,0 +1,108 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CMessageDialog.cpp  -  description
+                             -------------------
+    begin                : Thu Oct 28 2004
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#include <FL/Fl.h>
+#include <sptk5/gui/CMessageDialog.h>
+#include <sptk5/string_ext.h>
+
+using namespace std;
+using namespace sptk;
+
+CAskDialog::CAskDialog(const char *label,int w)
+: CDialog(w,100,label) {
+
+   int textSize = int(Fl::h() / 64 + 0.5);
+   if (textSize < 14) textSize = 14;
+
+   CGroup *grp = new CGroup("",65,SP_ALIGN_LEFT);
+   m_imageBox = new Fl_Box(8, 8, 50, 50);
+   m_imageBox->box(FL_NO_BOX);
+   grp->end();
+
+   m_textBox = new CHtmlBox("",30,SP_ALIGN_CLIENT);
+   m_textBox->labelWidth(0);
+   m_textBox->textSize(textSize);
+   m_textBox->color(FL_GRAY);
+
+   m_inputBox = new CInput("",10,SP_ALIGN_BOTTOM);
+   m_inputBox->labelWidth(0);
+   m_inputBox->textSize(textSize);
+   m_inputBox->hide();
+
+   layoutGrowMode(LGM_AUTO_GROW);
+
+   end();
+}
+
+bool CAskDialog::execute(string msg) {
+   string htmlMessage(msg);
+   if (upperCase(htmlMessage).find("<HTML>") == string::npos) {
+      htmlMessage = "<HTML><BODY>" + replaceAll(htmlMessage,"\n","<BR>") + "</BODY></HTML>";
+   }
+   m_textBox->data(htmlMessage);
+   relayout();
+   return showModal();
+}	
+
+bool CInputDialog::execute(string msg,string& inputText) {
+   m_inputBox->data(inputText.c_str());
+   if (CAskDialog::execute(msg)) {
+      inputText = m_inputBox->data().asString().c_str();
+      return true;
+   }
+   return false;
+}
+
+int sptk::spAsk(string message) {
+   CAskDialog ask("Please, confirm");
+   ask.icon(CThemes::getIconImage("question",IS_DIALOG_ICON));
+   return ask.execute(message);
+}
+
+int sptk::spInformation(string message) {
+   CMessageDialog ask("Information");
+   ask.icon(CThemes::getIconImage("info",IS_DIALOG_ICON));
+   return ask.execute(message);
+}
+
+int sptk::spWarning(string message) {
+   CMessageDialog ask("Warning");
+   ask.icon(CThemes::getIconImage("warning",IS_DIALOG_ICON));
+   return ask.execute(message);
+}
+
+int sptk::spError(string message) {
+   CMessageDialog ask("Error");
+   ask.icon(CThemes::getIconImage("error",IS_DIALOG_ICON));
+   return ask.execute(message);
+}
+
+int sptk::spInput(string message,string& inputText) {
+   CInputDialog ask("Please, input");
+   ask.icon(CThemes::getIconImage("question",IS_DIALOG_ICON));
+   return ask.execute(message,inputText);
+}

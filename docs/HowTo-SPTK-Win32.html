@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2900.2668" name=3DGENERATOR>
+<META content=3D20050912;10150248 name=3DCREATED>
+<META content=3D20050912;10583059 name=3DCHANGED></HEAD>
+<BODY lang=3Den-US dir=3Dltr>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<HR>
+
+<H1>How to compile SPTK on Windows</H1>
+<P style=3D"MARGIN-BOTTOM: 0cm">This HowTo is designed to help you if =
+you decide=20
+to use Microsoft Visual C++. If you follow these steps (below) &#8211; =
+it should be=20
+fairly easy.</P>
+<OL>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Download FLTK from <A=20
+  href=3D"http://www.fltk.org/" name=3Dfltk>FLTK website</A> and unpack =
+it to the=20
+  top level directory of any logical disk. Rename FLTK directory to just =
+&#8220;fltk&#8221;=20
+  (exclude the version number). Compile it by using the FLTK VC++ =
+workspace file=20
+  (select any project). You can find that file in \fltk\visualc =
+directory.</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Optionally, download and install <A=20
+  href=3D"http://aspell.net/win32">ASpell for Win32</A> and at least one =
+
+  dictionary for it. Download and unpack aspell-dev to the top level =
+directory=20
+  of the same logical disk as FLTK. Rename aspell-dev directory to just =
+&#8220;aspell&#8221;=20
+  (exclude the version number).</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Optionally, but highly recommended, =
+install the=20
+  ODBC manager and drivers for your favorite database(s). You can get it =
+with=20
+  the installation of Microsoft Office, or with any of the major SQL =
+database=20
+  clients.</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Download SPTK from <A=20
+  href=3D"http://www.sptk.net/">SPTK website</A> and unpack it to the =
+top level=20
+  directory of the same logical disk as FLTK. Rename FLTK directory to =
+just=20
+  &#8220;sptk&#8221; (exclude the version number). In that case you =
+don't have to correct=20
+  any project files.</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Copy \sptk\sptk\sptk-config.h.win file =
+to=20
+  \sptk\sptk\sptk-config.h. Edit the file with any editor to define =
+options=20
+  you'd like to have in SPTK. Options you can change, are named as =
+HAVE_*. For=20
+  instance, if you don't want ASpell support &#8211; you can change the =
+define for it=20
+  to 0 like this: <I>#define HAVE_ASPELL 0 </I></P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Compile it by using the SPTK VC++ =
+workspace file=20
+  (selecting any example project). You can find that file in \sptk\VC6=20
+  directory.</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">The resulting libraries would be =
+placed into=20
+  \sptk\lib. If you want to create your own project using SPTK, make =
+sure you=20
+  include fltk and sptk directories to the include path list, and fltk =
+and sptk=20
+  libraries to link libraries list. As a quick solution, you can copy =
+and modify=20
+  one of the VC++ project files from \sptk\examples and modify it in any =
+test=20
+  editor, or directly in Visual Studio.</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">Copy the SPTK themes from =
+\sptk\.themes.sptk=20
+  into Windows directory, most likely C:\Windows\.themes.sptk.</P>
+  <LI>
+  <P style=3D"MARGIN-BOTTOM: 0cm">The most important step. Have=20
+fun!</P></LI></OL></BODY></HTML>

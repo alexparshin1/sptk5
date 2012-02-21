@@ -1,0 +1,19 @@
+This directory contains Sql2Cpp files.
+Sql2Cpp generates C++ interface classes for PostgreSQL stored procedures.
+
+In order to run the tests, you have to create default PostgreSQL database
+for the current user, and run the command:
+
+psql -f create_test_tables.sql
+
+After that, you can run Sql2Cpp:
+
+perl sql2cpp.pl
+
+The SQL files are located in sql/ sub-directory. Sql2Cpp should generate 
+files src/CBook.{h,cpp} and src/CAuthor.{h.cpp}. You can change the generated 
+file and class names, file paths, and many other parameters, in configuration 
+file sql2cpp.conf.
+
+The default configuration file refers to CRecordSet class. The simplistic
+version of this class is provided for your convenience in src/ sub-directory.

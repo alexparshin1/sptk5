@@ -1,0 +1,220 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                               DEMO PROGRAMS SET
+                          sqlite3_test.cpp  -  description
+                             -------------------
+    begin                : Wed November 2, 2005
+    copyright            : (C) 2005-2012 by Alexey S.Parshin
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+#ifdef __BORLANDC__
+#include <vcl.h>
+#pragma hdrstop
+#endif
+
+#include <iostream>
+#include <iomanip>
+#include <stdlib.h>
+
+#include <sptk5/db/CSQLite3Database.h>
+#include <sptk5/cdatabase>
+
+using namespace std;
+using namespace sptk;
+
+int testTransactions(CDatabase&db,string tableName,bool rollback) {
+    try {
+        CQuery  step5Query(&db,"DELETE FROM "+tableName);
+        CQuery  step6Query(&db,"SELECT count(*) FROM "+tableName);
+
+        cout << endl << "        Begining the transaction ..";
+        db.beginTransaction();
+        cout << endl << "        Deleting everything from the temp table ..";
+        step5Query.exec();
+
+        step6Query.open();
+        int counter = step6Query[uint32_t(0)].asInteger();
+        step6Query.close();
+        cout << endl << "        The temp table now has " << counter << " records ..";
+
+        if (rollback) {
+            cout << endl << "        Rolling back the transaction ..";
+            db.rollbackTransaction();
+        } else {
+            cout << endl << "        Commiting the transaction ..";
+            db.commitTransaction();
+        }
+        step6Query.open();
+        counter = step6Query[uint32_t(0)].asInteger();
+        step6Query.close();
+        cout << endl << "        The temp table now has " << counter << " records.." << endl;
+    } catch (exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
+
+    return true;
+}
+
+int main() {
+
+    // If you want to test the database abilities of the data controls
+    // you have to setup the ODBC database connection.
+    // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
+    // If UID or PWD are omitted they are read from the datasource settings.
+    CSQLite3Database     db("demo_db.sqlite3");
+
+    /// Defining a log for the application. This is optional - you can omit this step
+    CFileLog logFile("sqlite_test.log");
+    /// If the log is defined for the database, the database operations would be logged it.
+    /// You can also print to the log your own messages.
+    db.logFile(&logFile);
+
+    try {
+        cout << "Openning the database.. ";
+        db.open();
+        cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
+
+        CStrings tableList;
+        db.objectList(DOT_TABLES,tableList);
+        cout << "First 10 tables in the database:" << endl;
+        for (unsigned i = 0; i < tableList.size() && i < 10; i++)
+            cout << "  Table: " << tableList[i] << endl;
+
+        // Defining the queries
+        CQuery step1Query(&db,"CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
+        CQuery step2Query(&db,"INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
+        CQuery step3Query(&db,"SELECT * FROM test WHERE id > :some_id");
+        CQuery step4Query(&db,"DROP TABLE test");
+
+        cout << "Ok.\nStep 1: Creating the table.. ";
+        step1Query.exec();
+
+        cout << "Ok.\nStep 2: Inserting data into the table.. ";
+
+        // The following example shows how to use the paramaters,
+        // addressing them by name
+        CDateTime start,end;
+
+        step2Query.param("person_id") = 1;
+        step2Query.param("person_name") = "John Doe";
+        step2Query.param("position_name") = "CIO";
+        step2Query.exec();
+
+        // Here is the example of using parameters as a stream.
+        // That method is several times faster than access by field name
+        // Params should come in the exact order as they are defined in the query
+        step2Query.params() << 2 << "Jane Doe" << "Vise President";
+        step2Query.exec();
+
+        // Here is the example of using parameters by index.
+        // This is the even faster than stream
+        step2Query.param(uint32_t(0)) = 3;
+        step2Query.param(uint32_t(1)) = "Anonymous";
+        step2Query.param(uint32_t(2)) = "Manager";
+        step2Query.exec();
+
+        // And, finally - the fastest method: using CParam& variables.
+        // If you have to call the same query multiple times with the different parameters,
+        // that method gives you some extra gain.
+        // So, lets define the parameter variables
+        CParam& id_param = step2Query.param("person_id");
+        CParam& name_param = step2Query.param("person_name");
+        CParam& position_param = step2Query.param("position_name");
+        // Now, we can use these variables
+        id_param = 4;
+        name_param = "Buffy";
+        position_param = "Vampire slayer";
+        step2Query.exec();
+        // .. and use these variables again for the next insert
+        id_param = 5;
+        name_param = "Donald Duck";
+        position_param.setNull(); // This is the way to set field to NULL
+        step2Query.exec();
+
+        cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
+        step3Query.param("some_id") = 1;
+        step3Query.open();
+
+        while ( ! step3Query.eof() ) {
+
+            // getting data from the query by the field name
+            int64_t id = step3Query["id"].asInt64();
+
+            // another method - getting data by the column number
+            string name = step3Query[1].asString();
+            string position = step3Query[2].asString();
+
+            cout << setw(10) << id << setw(20) << name << setw(20) << position << endl;
+
+            step3Query.fetch();
+        }
+        step3Query.close();
+
+        cout << "Ok.\nStep 4: Selecting the information through the stream .." << endl;
+        step3Query.param("some_id") = 1;
+        step3Query.open();
+
+        while ( ! step3Query.eof() ) {
+
+            int id;
+            string name, position;
+
+            step3Query.fields() >> id >> name >> position;
+
+            cout << setw(10) << id << setw(20) << name << setw(20) << position << endl;
+
+            step3Query.fetch();
+        }
+        step3Query.close();
+
+        cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
+        step3Query.param("some_id") = 1;
+        step3Query.open();
+
+        // First, find the field references by name or by number
+        CField& idField = step3Query[uint32_t(0)];
+        CField& nameField = step3Query["name"];
+        CField& positionField = step3Query["position"];
+
+        while ( ! step3Query.eof() ) {
+
+            int id = idField.asInteger();
+            string name = nameField.asString();
+            string position = positionField.asString();
+
+            cout << setw(10) << id << setw(20) << name << setw(20) << position << endl;
+
+            step3Query.fetch();
+        }
+        step3Query.close();
+
+        cout << "Ok.\n***********************************************\nTesting the transactions.";
+
+        testTransactions(db,"test",true);
+        testTransactions(db,"test",false);
+
+        step4Query.exec();
+
+        cout << "Ok.\nStep 6: Closing the database.. ";
+        db.close();
+        cout << "Ok." << endl;
+    } catch (exception& e) {
+        cout << "\nError: " << e.what() << endl;
+        cout << "Sorry, you have to fix your database or database connection." << endl;
+        cout << "Please, read the README.txt for more information." << endl;
+    }
+
+    logFile << "sqlite3 finished" << endl;
+
+    return 0;
+}
