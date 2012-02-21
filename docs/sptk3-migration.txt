@@ -1,6 +1,0 @@
-Notes on migrating from SPTK-2 to SPTK-3
-
-CString is gone. Use std::string instead
-CStringList is gone. Use CStrings (derived from std::map<std::string, std::string>
-CList, CObjectList, C*Map - all gone - use STL classes instead
-
