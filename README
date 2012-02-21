@@ -35,16 +35,14 @@ c) Install sqlite3 runtime. You can get it from http://www.sqlite.org.
    Do not install the sqlite3 version 3.3.8 available on the website.
    We have discovered - it has a bug that doesn't allow it to work with SPTK.
 
-d) Install latest SPTK from SVN. To get the source code, use:
+d) Install CMake version 2.6 or higher.
 
-   svn co https://gateway.total-knowledge.com/svn/sptk/trunk sptk
-
+e) Install latest SPTK from this web site, and unpack it to local directory.
    Then build it (by default, the libraries and includes are installed under 
    /usr/local/):
 
-   cd sptk3
-   ./autogen.bash
-   ./configure --disable-debug
+   cd sptk5
+   cmake .
    make
    make install
 
@@ -72,12 +70,13 @@ d) Copy sqlite3 runtime into your BuildDirectory.
    Do not install the sqlite3 version 3.3.8 available on the website.
    We have discovered - it has a bug that doesn't allow it to work with SPTK.
 
-e) Install latest SPTK from SVN. To get the source code, use:
+d) Install CMake version 2.6 or higher.
 
-   svn co https://gateway.total-knowledge.com/svn/sptk/trunk sptk
-  
+e) Install latest SPTK from this web site. Unpack it to local directory.
+   Run CMake GUI from Windows menu, and configure the local sptk directory.
+
    Open the VC workspace and build the solution.
-   Verify that test programs (in sptk3/test/) run.
+   Verify that test programs (in sptk5/bin/) run properly.
 
 3. Linux
 
@@ -93,15 +92,13 @@ d) FLTK version 1.1.5 to 1.1.7 (not 2.x!)
 
 e) optionally: Aspell
 
-f) Install latest SPTK from SVN. To get the source code, use:
+f) CMake version 2.6 or higher.
 
-   svn co https://gateway.total-knowledge.com/svn/sptk/trunk sptk
-
+g) Install latest SPTK from this site, and unpack it to local directory.
    Then build it (by default, the libraries and includes are installed under /usr/local/):
 
-   cd sptk3
-   ./autogen.bash
-   ./configure --disable-debug
+   cd sptk5
+   cmake .
    make
    make install
 
