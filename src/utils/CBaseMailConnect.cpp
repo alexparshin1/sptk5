@@ -94,7 +94,7 @@ void CBaseMailConnect::mimeFile (string fileName, string fileAlias, stringstream
 {
     CBuffer  bufSource;
     string  strDest;
-    char    *header = new char[1024];
+    //char    *header = new char[1024];
 
     bufSource.loadFromFile (fileName.c_str());
 

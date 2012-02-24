@@ -70,7 +70,7 @@ protected:
 
     /// Returns true for the leap year
     static int    isLeapYear(const int16_t year) {
-        return (year&3) == 0 && year%100 || year%400 == 0;
+        return ((year&3) == 0 && year%100) || ((year%400) == 0);
     }
 
 protected:

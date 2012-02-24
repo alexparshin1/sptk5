@@ -25,19 +25,19 @@
  ***************************************************************************/
 
 #include <sptk5/CProxyLog.h>
-#include <sptk5/CGuard.h>
+#include <sptk5/threads/CSynchronizedCode.h>
 
 using namespace std;
 using namespace sptk;
 
 void CProxyLog::saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException) {
     if (m_options & CLO_ENABLE) {
-        CGuard guard(m_destination);
+        CSynchronizedCode guard(m_destination);
         m_destination.saveMessage(date,message,sz,priority);
     }
 }
 
 void CProxyLog::reset() throw(CException) {
-   CGuard guard(m_destination);
+   CSynchronizedCode guard(m_destination);
    m_destination.reset();
 }

@@ -6,9 +6,9 @@
     copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
 
-    This module creation was sponsored by Total Knowledge 
+    This module creation was sponsored by Total Knowledge
     (http://www.total-knowledge.com).
-    Author thanks the developers of CPPSERV project 
+    Author thanks the developers of CPPSERV project
     (http://www.total-knowledge.com/progs/cppserv)
     for defining the requirements for this class.
  ***************************************************************************/
@@ -40,7 +40,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CDateTime.h>
-#include <sptk5/CWaiter.h>
+#include <sptk5/threads/CSynchronizedCode.h>
 #include <sptk5/CException.h>
 #include <iostream>
 #include <streambuf>
@@ -180,7 +180,7 @@ typedef std::ios     _ios;
 class CFunctionLogger;
 
 /// Base class for all log classes
-class CBaseLog : public CWaiter, public _ostream {
+class CBaseLog : public CSynchronized, public _ostream {
     friend class CFunctionLogger;
     friend class CLogStreamBuf;
 

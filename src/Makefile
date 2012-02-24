@@ -325,6 +325,54 @@ drivers/PostgreSQL/CPostgreSQLDatabase.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/CPostgreSQLDatabase.cpp.s
 .PHONY : drivers/PostgreSQL/CPostgreSQLDatabase.cpp.s
 
+drivers/PostgreSQL/CPostgreSQLParamValues.o: drivers/PostgreSQL/CPostgreSQLParamValues.cpp.o
+.PHONY : drivers/PostgreSQL/CPostgreSQLParamValues.o
+
+# target to build an object file
+drivers/PostgreSQL/CPostgreSQLParamValues.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/CPostgreSQLParamValues.cpp.o
+.PHONY : drivers/PostgreSQL/CPostgreSQLParamValues.cpp.o
+
+drivers/PostgreSQL/CPostgreSQLParamValues.i: drivers/PostgreSQL/CPostgreSQLParamValues.cpp.i
+.PHONY : drivers/PostgreSQL/CPostgreSQLParamValues.i
+
+# target to preprocess a source file
+drivers/PostgreSQL/CPostgreSQLParamValues.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/CPostgreSQLParamValues.cpp.i
+.PHONY : drivers/PostgreSQL/CPostgreSQLParamValues.cpp.i
+
+drivers/PostgreSQL/CPostgreSQLParamValues.s: drivers/PostgreSQL/CPostgreSQLParamValues.cpp.s
+.PHONY : drivers/PostgreSQL/CPostgreSQLParamValues.s
+
+# target to generate assembly for a file
+drivers/PostgreSQL/CPostgreSQLParamValues.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/CPostgreSQLParamValues.cpp.s
+.PHONY : drivers/PostgreSQL/CPostgreSQLParamValues.cpp.s
+
+drivers/PostgreSQL/htonq.o: drivers/PostgreSQL/htonq.cpp.o
+.PHONY : drivers/PostgreSQL/htonq.o
+
+# target to build an object file
+drivers/PostgreSQL/htonq.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/htonq.cpp.o
+.PHONY : drivers/PostgreSQL/htonq.cpp.o
+
+drivers/PostgreSQL/htonq.i: drivers/PostgreSQL/htonq.cpp.i
+.PHONY : drivers/PostgreSQL/htonq.i
+
+# target to preprocess a source file
+drivers/PostgreSQL/htonq.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/htonq.cpp.i
+.PHONY : drivers/PostgreSQL/htonq.cpp.i
+
+drivers/PostgreSQL/htonq.s: drivers/PostgreSQL/htonq.cpp.s
+.PHONY : drivers/PostgreSQL/htonq.s
+
+# target to generate assembly for a file
+drivers/PostgreSQL/htonq.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/drivers/PostgreSQL/htonq.cpp.s
+.PHONY : drivers/PostgreSQL/htonq.cpp.s
+
 drivers/SQLite3/CSQLite3Database.o: drivers/SQLite3/CSQLite3Database.cpp.o
 .PHONY : drivers/SQLite3/CSQLite3Database.o
 
@@ -2101,6 +2149,30 @@ themes/ThemeUtils.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sptk5.dir/build.make src/CMakeFiles/sptk5.dir/themes/ThemeUtils.cpp.s
 .PHONY : themes/ThemeUtils.cpp.s
 
+threads/CSynchronized.o: threads/CSynchronized.cpp.o
+.PHONY : threads/CSynchronized.o
+
+# target to build an object file
+threads/CSynchronized.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSynchronized.cpp.o
+.PHONY : threads/CSynchronized.cpp.o
+
+threads/CSynchronized.i: threads/CSynchronized.cpp.i
+.PHONY : threads/CSynchronized.i
+
+# target to preprocess a source file
+threads/CSynchronized.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSynchronized.cpp.i
+.PHONY : threads/CSynchronized.cpp.i
+
+threads/CSynchronized.s: threads/CSynchronized.cpp.s
+.PHONY : threads/CSynchronized.s
+
+# target to generate assembly for a file
+threads/CSynchronized.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSynchronized.cpp.s
+.PHONY : threads/CSynchronized.cpp.s
+
 utils/CBase64.o: utils/CBase64.cpp.o
 .PHONY : utils/CBase64.o
 
@@ -2869,30 +2941,6 @@ utils/CVariant.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CVariant.cpp.s
 .PHONY : utils/CVariant.cpp.s
 
-utils/CWaiter.o: utils/CWaiter.cpp.o
-.PHONY : utils/CWaiter.o
-
-# target to build an object file
-utils/CWaiter.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CWaiter.cpp.o
-.PHONY : utils/CWaiter.cpp.o
-
-utils/CWaiter.i: utils/CWaiter.cpp.i
-.PHONY : utils/CWaiter.i
-
-# target to preprocess a source file
-utils/CWaiter.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CWaiter.cpp.i
-.PHONY : utils/CWaiter.cpp.i
-
-utils/CWaiter.s: utils/CWaiter.cpp.s
-.PHONY : utils/CWaiter.s
-
-# target to generate assembly for a file
-utils/CWaiter.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CWaiter.cpp.s
-.PHONY : utils/CWaiter.cpp.s
-
 utils/string_ext.o: utils/string_ext.cpp.o
 .PHONY : utils/string_ext.o
 
@@ -3094,6 +3142,12 @@ help:
 	@echo "... drivers/PostgreSQL/CPostgreSQLDatabase.o"
 	@echo "... drivers/PostgreSQL/CPostgreSQLDatabase.i"
 	@echo "... drivers/PostgreSQL/CPostgreSQLDatabase.s"
+	@echo "... drivers/PostgreSQL/CPostgreSQLParamValues.o"
+	@echo "... drivers/PostgreSQL/CPostgreSQLParamValues.i"
+	@echo "... drivers/PostgreSQL/CPostgreSQLParamValues.s"
+	@echo "... drivers/PostgreSQL/htonq.o"
+	@echo "... drivers/PostgreSQL/htonq.i"
+	@echo "... drivers/PostgreSQL/htonq.s"
 	@echo "... drivers/SQLite3/CSQLite3Database.o"
 	@echo "... drivers/SQLite3/CSQLite3Database.i"
 	@echo "... drivers/SQLite3/CSQLite3Database.s"
@@ -3316,6 +3370,9 @@ help:
 	@echo "... themes/ThemeUtils.o"
 	@echo "... themes/ThemeUtils.i"
 	@echo "... themes/ThemeUtils.s"
+	@echo "... threads/CSynchronized.o"
+	@echo "... threads/CSynchronized.i"
+	@echo "... threads/CSynchronized.s"
 	@echo "... utils/CBase64.o"
 	@echo "... utils/CBase64.i"
 	@echo "... utils/CBase64.s"
@@ -3412,9 +3469,6 @@ help:
 	@echo "... utils/CVariant.o"
 	@echo "... utils/CVariant.i"
 	@echo "... utils/CVariant.s"
-	@echo "... utils/CWaiter.o"
-	@echo "... utils/CWaiter.i"
-	@echo "... utils/CWaiter.s"
 	@echo "... utils/string_ext.o"
 	@echo "... utils/string_ext.i"
 	@echo "... utils/string_ext.s"

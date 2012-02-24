@@ -69,7 +69,7 @@ enum CListViewDataMode {
 ///
 /// Class CListView is the list of multicolumn rows. It allows to sort rows
 /// by column, supports type-in incremental search etc.
-class SP_EXPORT CListView : public CControl, public CWaiter {
+class SP_EXPORT CListView : public CControl, public CSynchronized {
     friend class CInternalComboBoxPanel;
     friend class CDBDropDownList;
 private:
@@ -786,7 +786,7 @@ public:
     virtual std::string className() const {
         return "list_view";
     }
-    
+
     /// @brief Sets the images that may be referred from items
     /// @param iconNames CStrings&, a list of icon names
     void imageCollection(CStrings& iconNames);

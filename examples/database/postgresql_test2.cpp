@@ -159,8 +159,8 @@ void testPerformance (CDatabase& db)
                 PQclear (res);
                 throw CException (error);
             }
-            int rowCount = PQntuples (res);
-            int fieldCount = PQnfields (res);
+            //int rowCount = PQntuples (res);
+            //int fieldCount = PQnfields (res);
             id = atoi (PQgetvalue (res, 0, 0));
             name = PQgetvalue (res, 0, 1);
             position = PQgetvalue (res, 0, 2);

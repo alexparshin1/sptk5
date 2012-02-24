@@ -5,7 +5,6 @@
     begin                : Thu Apr 28 2005
     copyright            : (C) 2005-2012 by Ilya A. Volynets-Evenbakh
     email                : ilya@total-knowledge.com
-    based on             : CWaiter.h by Alexey Parshin. All rights reserved.
  ***************************************************************************/
 
 /***************************************************************************

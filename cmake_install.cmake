@@ -34,7 +34,6 @@ ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sptk5" TYPE FILE FILES
-    "/home/alexeyp/workspace/sptk5/sptk5/CWaiter.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CLogFile.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CDirectoryDS.h"
     "/home/alexeyp/workspace/sptk5/sptk5/sptk-config.h"

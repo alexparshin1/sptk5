@@ -83,7 +83,7 @@ int main() {
     // For mor information please refer to:
     // http://www.postgresql.org/docs/current/interactive/libpq-connect.html
     // If connect string is empty the default database with the name equal to user name is used.
-    string              connectString("dbname='practica'");
+    string              connectString("dbname='test'");
     CPostgreSQLDatabase db(connectString);
     //CODBCDatabase 	db("DSN=uu");
     CFileLog            logFile("postgresql_test.log");
@@ -155,6 +155,7 @@ int main() {
         step2Query.param(uint32_t(0)) = 3;
         step2Query.param(uint32_t(1)) = "UTF-8: тестик (Russian, 6 chars)";
         step2Query.param(uint32_t(2)) = "Manager";
+        step2Query.param(uint32_t(3)).setDate(CDateTime::Now());
         step2Query.exec();
 
         // And, finally - the fastest method: using CParam& variables.

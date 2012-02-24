@@ -50,12 +50,16 @@
     #include <sptk5/sptk-config.h.win>
     #include <winsock2.h>
     #include <windows.h>
+    #include <process.h>
     #pragma warning (disable: 4290)
     #pragma warning (disable: 4355)
     #pragma warning (disable: 4786)
     #pragma warning (disable: 4996)
 #else
     #include <sptk5/sptk-config.h>
+    #include <unistd.h>
+    #include <pthread.h>
+    #include <errno.h>
 #endif
 
 #include <map>

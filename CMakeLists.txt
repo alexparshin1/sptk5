@@ -27,8 +27,9 @@ MESSAGE ("Build type:         " ${CMAKE_BUILD_TYPE})
 IF (WIN32)
   ADD_DEFINITIONS (-DHAVE_CONFIG_H -mno-cygwin -mwindows -DWIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)
-#ELSE (WIN32)
-  #ADD_DEFINITIONS (-Wall)
+ELSE (WIN32)
+  ADD_DEFINITIONS (-Wall)
+  LINK_LIBRARIES(rt)
 ENDIF (WIN32)
 
 SET (ODBC_FLAG "0")
@@ -180,7 +181,7 @@ ENDIF (POSTGRESQL_FLAG)
 
 # create uninstall configuration file
 CONFIGURE_FILE(
-  "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in" 
+  "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 #  "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
   "share/sptk/cmake_uninstall.cmake"
   IMMEDIATE @ONLY

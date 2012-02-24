@@ -28,7 +28,7 @@
 #ifndef __CTHREAD_H__
 #define __CTHREAD_H__
 
-#include <sptk5/CWaiter.h>
+#include <sptk5/threads/CSynchronizedCode.h>
 #include <sptk5/CFileLog.h>
 #include <sptk5/CStrings.h>
 

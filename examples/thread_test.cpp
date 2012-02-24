@@ -34,19 +34,16 @@ using namespace sptk;
 
 class CMyThread : public CThread {
    CProxyLog   m_log;  /// Thread proxy log
-   static CWaiter waiter;
 public:
-   
+
    // Constructor
    CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode=true);
-   
+
    // The thread function.
    virtual void threadFunction();
 };
 
-CWaiter CMyThread::waiter;
-
-CMyThread::CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode) 
+CMyThread::CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode)
 : CThread(threadName, politeMode), m_log(sharedLog)
 {
    // Put anything you need here to define your actual thread
@@ -70,41 +67,41 @@ void CMyThread::threadFunction() {
 int main(int argc, char* argv[]) {
    unsigned             i;
    vector<CMyThread*>   threads;
-   
+
    /// The log file would get messages from all the threads.
    /// Threads send messages through their own CProxyLog objects.
    /// Multiple CProxyLog objects can share same log object thread-safely.
-   CFileLog             sharedLog("thread_test.log"); 
-   
+   CFileLog             sharedLog("thread_test.log");
+
    /// Trancate the log file
    sharedLog.reset();
-   
+
    /// Adding 'duplicate messages to stdout' option to log options
    sharedLog.options( sharedLog.options() | CBaseLog::CLO_STDOUT );
-        
+
    // Creating several threads
    for (i = 0; i < 5; i++) {
       string threadName = "Thread" + int2string(i);
       threads.push_back(new CMyThread(threadName,sharedLog));
    }
-   
+
    // Starting all the threads
    for (i = 0; i < threads.size(); i++)
       threads[i]->run();
-   
+
    puts("Waiting 10 seconds while threads are running..");
    CThread::msleep(10000);
-   
-   // Sending 'terminate' signal to all the threads. 
+
+   // Sending 'terminate' signal to all the threads.
    // That signal suggests thread to terminate and exits instantly.
    for (i = 0; i < threads.size(); i++)
       threads[i]->terminate();
-   
-   // Deleting all the threads. 
-   // Since threads are created in polite mode (see CMyThread class definition), 
+
+   // Deleting all the threads.
+   // Since threads are created in polite mode (see CMyThread class definition),
    // the delete operation would wait for actual thread termination.
    for (i = 0; i < threads.size(); i++)
       delete threads[i];
-   
+
    return 0;
 }

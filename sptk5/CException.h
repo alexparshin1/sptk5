@@ -37,7 +37,7 @@ namespace sptk {
 /// @addtogroup utility Utility Classes
 /// @{
 
-/// @brief SPTK exception class.
+/// @brief SPTK generic exception class.
 ///
 /// Contains information about what
 /// happened and where. It's based on std::exception, so if you
@@ -86,9 +86,38 @@ public:
     }
 };
 
+/// @brief Timeout exception
+///
+/// Thrown every time when timeout error occurs.
+class SP_EXPORT CTimeoutException : public CException {
+public:
+    /// Constructor
+    /// @param text std::string, the exception text
+    /// @param file std::string, the file where exception occurs
+    /// @param line int, the line number in the file where exception occurs
+    /// @param description std::string, the optional description information
+    CTimeoutException(std::string text,std::string file="",int line=0,std::string description="") :
+        CException(text, file, line, description) {}
+};
+
+/// @brief Database operation exception
+///
+/// Thrown every time when database operation error occurs.
+class SP_EXPORT CDatabaseException : public CException {
+public:
+    /// Constructor
+    /// @param text std::string, the exception text
+    /// @param file std::string, the file where exception occurs
+    /// @param line int, the line number in the file where exception occurs
+    /// @param description std::string, the optional description information
+    CDatabaseException(std::string text,std::string file="",int line=0,std::string description="") :
+        CException(text, file, line, description) {}
+};
+
 /// Defines a handy macros that automatically registers filename and line number
 /// for the place an exception is thrown from
 #define throwException(msg) throw CException(msg,__FILE__,__LINE__)
+#define throwTimeoutException(msg) throw CTimeoutException(msg,__FILE__,__LINE__)
 
 /// @}
 }
