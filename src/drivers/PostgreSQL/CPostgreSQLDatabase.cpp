@@ -204,9 +204,6 @@ void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw(CException) {
 }
 
 //-----------------------------------------------------------------------------------------------
-static inline bool successful(int ret) {
-    return ret == PGRES_COMMAND_OK;
-}
 
 string CPostgreSQLDatabase::queryError(const CQuery *query) const {
     return PQerrorMessage(m_connect);

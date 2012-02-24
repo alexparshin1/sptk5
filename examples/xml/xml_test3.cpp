@@ -67,7 +67,7 @@ int main(int argc,char *argv[]) {
         cout << "The XPath selection test started." << endl << endl;
         
         string fullPath(argv[0]);
-        int pos = fullPath.rfind("/");
+        unsigned pos = fullPath.rfind("/");
         if (pos == string::npos) 
             pos = fullPath.rfind("\\");
         if (pos == string::npos)

@@ -79,9 +79,7 @@ bool CImapConnect::getResponse(string ident) {
          }
       }
    }
-#ifdef __MSCVER__
    return false;
-#endif
 }
 
 const string CImapConnect::empty_quotes;

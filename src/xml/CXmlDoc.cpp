@@ -280,8 +280,8 @@ void CXmlDoc::load(const char* xmlData) {
                     }
                     parseDocType(tokenEnd+1);
                     tokenEnd = nodeEnd;
-                    break;
                 }
+                break;
 
             case '?': {
                 /// Processing instructions

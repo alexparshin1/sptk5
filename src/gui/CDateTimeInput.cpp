@@ -103,8 +103,8 @@ bool CDateTimeBaseInput::valid() const {
             return val >= double(m_minValue) && val <= double(m_maxValue);
         return true;
     } catch (...) {
-        return false;
     }
+    return false;
 }
 
 CDateTime CDateTimeBaseInput::dateTimeValue() const {

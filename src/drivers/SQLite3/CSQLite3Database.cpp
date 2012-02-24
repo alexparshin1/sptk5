@@ -141,9 +141,6 @@ void CSQLite3Database::driverEndTransaction(bool commit) throw(CException) {
 }
 
 //-----------------------------------------------------------------------------------------------
-static inline bool successful(int ret) {
-    return ret==SQLITE_OK;
-}
 
 string CSQLite3Database::queryError(const CQuery *query) const {
     return sqlite3_errmsg(m_connect);

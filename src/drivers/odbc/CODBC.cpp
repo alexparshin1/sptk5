@@ -49,16 +49,6 @@ static inline bool Successful(RETCODE ret) {
    return ret==SQL_SUCCESS || ret==SQL_SUCCESS_WITH_INFO;
 }
 
-// Return true if the result code indicates a warning
-static inline bool IsWarning(RETCODE ret) {
-   return ret==SQL_SUCCESS_WITH_INFO || ret==SQL_NO_DATA_FOUND;
-}
-
-// Return true if result code indicates an error
-static inline bool IsError(RETCODE ret) {
-   return !Successful(ret) && !IsWarning(ret); // ret==SQL_ERROR || ret==SQL_INVALID_HANDLE;
-}
-
 // String description of ODBC return code
 /*
 static LPCSTR GetRetcodeDescription(RETCODE retcode) {

@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
    printf("Time:  %s\n", dt.timeString().c_str());
 
    CDateTime	dd(2000,1,1);
-   unsigned month = 1;
    for (unsigned day = 0; day < 732; day++) {
       CDateTime nd = double(dd) + 1.0;
       if (nd.month() != dd.month()) {

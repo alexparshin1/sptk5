@@ -450,6 +450,7 @@ CControlKind CControl::controlNameToType(std::string typeName,int& maxLength,std
             break;
         default:
             controlType = DCV_BOX;
+            break;
         }
         break;
 

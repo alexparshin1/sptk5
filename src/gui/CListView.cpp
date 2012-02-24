@@ -1465,6 +1465,7 @@ static int navkey()
         case FL_Tab:
             if (!Fl::event_state(FL_SHIFT))
                 return FL_Right;
+            break;
         case 0xfe20: // XK_ISO_Left_Tab
             return FL_Left;
         case FL_Right:
@@ -1484,6 +1485,7 @@ static int navkey()
                 case ctrl('F') : return FL_Right;
                 case ctrl('B') : return FL_Left;
             }
+            break;
     }
     return 0;
 }

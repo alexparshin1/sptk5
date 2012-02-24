@@ -165,12 +165,13 @@ NEXTCASE:
             if (*s != *(p-1) && tolower(*s) != *(p-1))
                 return false;
             s++;
+            break;
 #else
 
         case '\\':           // quote next character
             if (*p)
                 p++;
-        default  :
+        default:
             if (*s++ != *(p-1))
                 return false;
             break;
@@ -178,6 +179,7 @@ NEXTCASE:
 
         }
     }
+    return false;
 }
 
 // Returns typename

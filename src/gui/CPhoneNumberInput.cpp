@@ -96,6 +96,7 @@ void CPhoneNumberInput::data(const CVariant ss) {
                 p2++;
                 s2++;
             }
+            break;
         }
         pos++;
     }

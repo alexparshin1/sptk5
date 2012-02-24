@@ -63,11 +63,10 @@ static Fl_Color colorFromHexString(string colorStr) {
 }
 
 static void splitArguments(const string& expression,CStrings& arguments) {
-    bool  completed = false;
     int   subExpressionLevel = 0;
     const char* ptr1 = expression.c_str();
-    const char* ptr2;
-    while (ptr2 = strpbrk(ptr1,",(")) {
+    const char* ptr2 = strpbrk(ptr1,",(");
+    while (ptr2) {
         if (*ptr2 == '(') {
             const char* ptr = ptr2 + 1;
             subExpressionLevel++;
@@ -79,9 +78,7 @@ static void splitArguments(const string& expression,CStrings& arguments) {
                     subExpressionLevel--;
                 ptr = ptr2 + 1;
             }
-            ptr2 = strpbrk(ptr,",");
-            if (!ptr2)
-                break;
+            ptr2 = strpbrk(ptr,",)");
         }
         string part(ptr1,ptr2-ptr1);
         arguments.push_back(part);
@@ -168,6 +165,7 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression) {
             }
             break;
     }
+    return FL_BLACK;
 }
 
 void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex) {

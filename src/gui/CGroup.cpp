@@ -81,7 +81,7 @@ bool CGroup::preferredSize(int& ww,int& hh) {
     int offsetY = offsetX;
 
     const char *lbl = m_label.c_str();
-    if (align() & FL_ALIGN_INSIDE && lbl && lbl[0] ) {
+    if ((align() & FL_ALIGN_INSIDE) && lbl && lbl[0] ) {
         int tw = ww - 8, th = 0;
         fl_font(labelfont(),labelsize());
         fl_measure(lbl,tw,th);
@@ -119,7 +119,7 @@ void CGroup::draw() {
     fl_font(labelfont(),labelsize());
     fl_measure(m_label.c_str(),tw,th);
 
-    if (align() & FL_ALIGN_INSIDE && lbl[0]) {
+    if ((align() & FL_ALIGN_INSIDE) && lbl[0]) {
         int xt = x() + 8;
         switch (align() & (FL_ALIGN_LEFT|FL_ALIGN_RIGHT|FL_ALIGN_CENTER)) {
         case FL_ALIGN_LEFT:

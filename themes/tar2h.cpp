@@ -33,8 +33,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	
-	printf("static size_t %s_len = %ld;\n", argv[2], st.st_size);
-	printf("static unsigned char %s[%ld] = {\n", argv[2], st.st_size);
+	printf("static size_t %s_len = %ld;\n", argv[2], (long) st.st_size);
+	printf("static unsigned char %s[%ld] = {\n", argv[2], (long) st.st_size);
 
 	x = (unsigned char *)malloc(st.st_size);
 

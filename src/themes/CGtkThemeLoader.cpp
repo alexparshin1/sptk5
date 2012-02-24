@@ -36,7 +36,7 @@ static const CStrings notGroupingTags("styles;style;engine",";");
 
 CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* parentNode,bool createAttributes) {
     try {
-        int pos = row.find_first_of(":[ \t=");
+        unsigned pos = row.find_first_of(":[ \t=");
         string name = row.substr(0,pos);
 
         string subName;
@@ -50,7 +50,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* paren
                 if (row[pos+1] != ':')
                     throw runtime_error("single ':' found");
                 pos += 2;
-                int pos2 = row.find_first_of(" \t=",pos);
+                unsigned pos2 = row.find_first_of(" \t=",pos);
                 if (pos2 == string::npos)
                     throw runtime_error("value not found");
                 subName = row.substr(pos,pos2-pos);
@@ -60,7 +60,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* paren
             case '[':
             {
                 pos++;
-                int pos2 = row.find_first_of("]",pos);
+                unsigned pos2 = row.find_first_of("]",pos);
                 if (pos2 == string::npos)
                     throw runtime_error("matching ']' not found");
                 subName = row.substr(pos,pos2-pos);
@@ -70,7 +70,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* paren
             case '\"':
             {
                 pos++;
-                int pos2 = row.find_first_of("\"",pos);
+                unsigned pos2 = row.find_first_of("\"",pos);
                 if (pos2 == string::npos)
                     throw runtime_error("matching '\"' not found");
                 subName = row.substr(pos,pos2-pos);
@@ -80,7 +80,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* paren
         }
 
         bool valueMode = false;
-        int  pos2 = row.find_first_of("=",pos);
+        unsigned  pos2 = row.find_first_of("=",pos);
         if (pos2 != string::npos) {
             valueMode = true;
             pos = pos2 + 1;
@@ -92,7 +92,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* paren
         int maxValueSize = 16384;
         if (row[pos] == '\"') {
             pos++;
-            int pos2 = row.find_first_of("\"",pos);
+            unsigned pos2 = row.find_first_of("\"",pos);
             if (pos2 == string::npos)
                 throw runtime_error("Error parsing value for "+ name + " in row " + row);
             maxValueSize = pos2 - pos;
@@ -131,6 +131,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row,CXmlNode* paren
     catch (exception& e) {
         throw runtime_error("Error parsing row '" + row + "'\n" + string(e.what()));
     }
+    return NULL;
 }
 
 void CGtkThemeParser::parseImage(const CStrings& gtkrc,unsigned& currentRow,CXmlNode* parentNode) {
@@ -173,7 +174,7 @@ void CGtkThemeParser::parseEngine(const CStrings& gtkrc,unsigned& currentRow,CXm
 }
 
 void CGtkThemeParser::parseStyle(const CStrings& gtkrc,unsigned& currentRow,CXmlNode* parentNode) {
-    const string& styleRow = gtkrc[currentRow];
+    //const string& styleRow = gtkrc[currentRow];
     if (gtkrc[currentRow].find("style") != 0)
         throw runtime_error("Expecting 'style' in row "+gtkrc[currentRow]);
     CXmlNode* styleNode = parseParameter(gtkrc[currentRow++],parentNode);
@@ -198,7 +199,7 @@ void CGtkThemeParser::parse(const CStrings& gtkrc) {
     CBuffer buffer;
     m_xml.clear();
     CXmlNode* stylesNode = new CXmlElement(&m_xml,"styles");
-    CXmlNode* paramsNode = new CXmlElement(&m_xml,"styles");
+    //CXmlNode* paramsNode = new CXmlElement(&m_xml,"styles");
     for (unsigned row = 0; row < gtkrc.size(); row++) {
         const string& str = gtkrc[row];
         if (str.find("style ") == 0)
@@ -229,7 +230,7 @@ void CGtkThemeParser::load(std::string themeName) throw (std::exception) {
     for (unsigned i = 0; i < gtkrcSource.size(); i++) {
         string s = trim(gtkrcSource[i]);
 
-        int pos = 0;
+        unsigned pos = 0;
 
         // Remove comments (if any)
         if (s.find_first_of("#") != string::npos) {
