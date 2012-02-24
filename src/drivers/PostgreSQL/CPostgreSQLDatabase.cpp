@@ -28,126 +28,43 @@
 #include <sptk5/db/CPostgreSQLDatabase.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/db/CParams.h>
+
+#include "CPostgreSQLParamValues.h"
+#include "htonq.h"
 
 #include <string>
 #include <stdio.h>
+
+#ifndef WIN32
 #include <arpa/inet.h>
+#endif
 
 #include <iostream>
 
 #if HAVE_POSTGRESQL == 1
 
-#define PG_FETCH_BINARY_RESULTS
-
-// This is copied from the server headers. We assume that it wouldn't change in the future..
-#define VOIDOID			2278
-
 using namespace std;
 using namespace sptk;
 
+const CDateTime sptk::epochDate(2000,1,1);
+
 namespace sptk {
-    
-    /// @brief PostgreSQL-specific database field
-    class CPostgreSQLField : public CDatabaseField {
-        friend class CPostgreSQLDatabase;
-    public:
-        /// @brief Constructor
-        /// @param std::string fieldName, field name
-        /// @param fieldColumn int, field column number
-        /// @param fieldType int, native field type
-        /// @param dataType CVariantType, SPTK field data type
-        /// @param fieldSize int, maximum field size in bytes
-        CPostgreSQLField(std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldSize)
-        : CDatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldSize, 4) {}
-    };
-    
-    class CParamValues {
-        friend class CPostgreSQLStatement;
-    protected:
-        unsigned       m_size;
-        unsigned       m_count;
-        const char**   m_values;
-        int*           m_lengths;
-        int*           m_formats;
-        Oid*           m_types;
-        CParamVector   m_params;
-    public:
-        CParamValues() {
-            m_count = 0;
-            m_size = 0;
-            m_values  = NULL;
-            m_lengths = NULL;
-            m_formats = NULL;
-            m_types   = NULL;
-            resize(16);
-        }
-        
-        ~CParamValues() {
-            if (m_size) {
-                free(m_values);
-                free(m_lengths);
-                free(m_formats);
-                free(m_types);
-            }
-        }
-        
-        void reset() {
-            m_count = 0;
-        }
-        
-        void resize(unsigned sz) {
-            if (sz > m_size) {
-                m_size = sz;
-                m_values  = (const char**) realloc(m_values,  m_size * sizeof(const char*));
-                m_lengths = (int*)         realloc(m_lengths, m_size * sizeof(int));
-                m_formats = (int*)         realloc(m_formats, m_size * sizeof(int));
-                m_types   = (Oid*)         realloc(m_types,   m_size * sizeof(Oid));
-            }
-        }
-        
-        void print() {
-            cout << m_count << " parameters:" << endl;
-            for (unsigned i = 0; i < m_count; i++) {
-                cout << hex << (void*)m_values[i] << ", len=" << m_lengths[i] << ", format=" << m_formats[i] << ", type=" << m_types[i] 
-                        << " (" << m_params[i]->name() << ")" << endl;
-            }
-        }
-        
-        void setParameters(CParamList& params);
-                
-        void setParameterValue(unsigned number, const void* value, unsigned sz) {
-            m_values[number] = (const char*) value;
-            m_lengths[number] = sz;
-        }
-        
-        void setParameterSize(unsigned number, unsigned sz) {
-            m_lengths[number] = sz;
-        }
-        
-        unsigned size() const               { return m_count;   }
-        const char* const* values() const   { return m_values;  }
-        const int* lengths() const          { return m_lengths; }
-        const int* formats() const          { return m_formats; }
-        const Oid* types() const            { return m_types;   }
-        const CParamVector& params() const  { return m_params;  }
-    };
 
     class CPostgreSQLStatement {
         PGresult*         m_stmt;
         char              m_stmtName[20];
         static unsigned   index;
         int               m_rows;
-	int               m_cols;
+        int               m_cols;
         int               m_currentRow;
     public:
-        CParamValues      m_paramValues;
+        CPostgreSQLParamValues      m_paramValues;
     public:
         CPostgreSQLStatement() {
             m_stmt = NULL;
             sprintf(m_stmtName, "S%04i", ++index);
         }
-        
+
         ~CPostgreSQLStatement() {
             if (m_stmt)       PQclear(m_stmt);
         }
@@ -156,7 +73,7 @@ namespace sptk {
            clearRows();
 	   m_cols = 0;
         }
-        
+
         void clearRows() {
             if (m_stmt) {
                 PQclear(m_stmt);
@@ -165,7 +82,7 @@ namespace sptk {
             m_rows = 0;
             m_currentRow = -1;
         }
-        
+
         void stmt(PGresult* st, unsigned rows, unsigned cols=99999) {
             if (m_stmt)
                 PQclear(m_stmt);
@@ -175,7 +92,7 @@ namespace sptk {
 	        m_cols = cols;
             m_currentRow = -1;
         }
-        
+
         const PGresult* stmt() const        { return m_stmt; }
         string   name() const               { return m_stmtName; }
         void     fetch()                    { m_currentRow++; }
@@ -183,94 +100,13 @@ namespace sptk {
         unsigned currentRow() const         { return m_currentRow; }
         unsigned colCount() const           { return m_cols; }
         unsigned rowCount() const           { return m_rows; }
-        
+
         const CParamVector& params() const  { return m_paramValues.m_params;  }
     };
-    
+
     unsigned CPostgreSQLStatement::index;
-    const CDateTime epochDate(2000,1,1);
 }
 
-
-static uint64_t htonq(uint64_t val) {
-#if WORDS_BIGENDIAN == 1
-    return val;
-#else
-    uint64_t result;
-    int32_t* src = (int32_t *)(void *)&val;
-    int32_t* dst = (int32_t *)(void *)&result;
-    dst[0] = htonl(src[1]);
-    dst[1] = htonl(src[0]);
-    return result;
-#endif
-}
-
-static uint64_t ntohq(uint64_t val) {
-#if WORDS_BIGENDIAN == 1
-    return val;
-#else
-    uint64_t result;
-    int32_t* src = (int32_t *)(void *)&val;
-    int32_t* dst = (int32_t *)(void *)&result;
-    dst[0] = htonl(src[1]);
-    dst[1] = htonl(src[0]);
-    return result;
-#endif
-}
-
-static void inline htonq_inplace(uint64_t* in,uint64_t* out) {
-#if WORDS_BIGENDIAN == 1
-    return;
-#else
-    int32_t* src = (int32_t *)(void *)in;
-    int32_t* dst = (int32_t *)(void *)out;
-    dst[1] = htonl(src[0]);
-    dst[0] = htonl(src[1]);
-#endif
-}
-
-void CParamValues::setParameters(CParamList& params) {
-    params.enumerate(m_params);
-    m_count = m_params.size();
-    resize(m_count);
-    for (unsigned i = 0; i < m_count; i++) {
-        CParam* param = m_params[i];
-        CVariantType ptype = param->dataType();
-        CPostgreSQLDatabase::CTypeToPostgreType(ptype, m_types[i]);
-      
-        if (ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) {
-            m_formats[i] = 1; // Binary format
-        } else
-            m_formats[i] = 0; // Text format
-        m_values[i] = param->conversionBuffer(); // This is a default. For VAR_STRING, VAR_TEXT, VAR_BUFFER and it would be replaced later
-        
-        switch (ptype) {
-             case VAR_BOOL:
-                m_lengths[i] = sizeof(bool);
-                break;
-
-             case VAR_INT:
-                m_lengths[i] = sizeof(int32_t);
-                break;
-
-             case VAR_DATE:
-                m_lengths[i] = sizeof(int32_t);
-                break;
-
-             case VAR_FLOAT:
-             case VAR_DATE_TIME:
-                m_lengths[i] = sizeof(double);
-                break;
-
-             case VAR_INT64:
-                m_lengths[i] = sizeof(int64_t);
-                break;
-            default:
-                m_lengths[i] = 0;
-                break;
-        }
-    }
-}
 
 CPostgreSQLDatabase::CPostgreSQLDatabase(string connectionString)
 : CDatabase(connectionString) {
@@ -296,7 +132,7 @@ void CPostgreSQLDatabase::openDatabase(const string newConnectionString) throw(C
         m_inTransaction = false;
         if (newConnectionString.length())
             m_connString = newConnectionString;
-        
+
         m_connect = PQconnectdb(m_connString.c_str());
         if (PQstatus(m_connect) != CONNECTION_OK) {
             string error = PQerrorMessage(m_connect);
@@ -329,10 +165,10 @@ bool CPostgreSQLDatabase::active() const {
 void CPostgreSQLDatabase::driverBeginTransaction() throw(CException) {
     if (!m_connect)
         open();
-    
+
     if (m_inTransaction)
         throw CException("Transaction already started.");
-    
+
     PGresult* res = PQexec(m_connect, "BEGIN");
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {
         string error = "BEGIN command failed: ";
@@ -341,20 +177,20 @@ void CPostgreSQLDatabase::driverBeginTransaction() throw(CException) {
         throw CException(error);
     }
     PQclear(res);
-    
+
     m_inTransaction = true;
 }
 
 void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw(CException) {
     if (!m_inTransaction)
         throw CException("Transaction isn't started.");
-    
+
     string action;
     if (commit)
         action = "COMMIT";
     else
         action = "ROLLBACK";
-    
+
     PGresult* res = PQexec(m_connect, action.c_str());
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {
         string error = action + " command failed: ";
@@ -363,7 +199,7 @@ void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw(CException) {
         throw CException(error);
     }
     PQclear(res);
-    
+
     m_inTransaction = false;
 }
 
@@ -384,8 +220,8 @@ void CPostgreSQLDatabase::queryAllocStmt(CQuery *query) {
 }
 
 void CPostgreSQLDatabase::queryFreeStmt(CQuery *query) {
-    CPostgreSQLLock lock(this);
-    
+    SYNCHRONIZED_CODE;
+
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*)query->statement();
     if (statement) {
         if (statement->stmt()) {
@@ -403,13 +239,13 @@ void CPostgreSQLDatabase::queryFreeStmt(CQuery *query) {
         delete statement;
     }
     querySetStmt(query, 0L);
-    
+
     querySetPrepared(query, false);
 }
 
 void CPostgreSQLDatabase::queryCloseStmt(CQuery *query) {
-    CPostgreSQLLock lock(this);
-    
+    SYNCHRONIZED_CODE;
+
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*)query->statement();
     statement->clearRows();
 }
@@ -417,15 +253,15 @@ void CPostgreSQLDatabase::queryCloseStmt(CQuery *query) {
 void CPostgreSQLDatabase::queryPrepare(CQuery *query) {
     queryFreeStmt(query);
 
-    CPostgreSQLLock lock(this);
-    
+    SYNCHRONIZED_CODE;
+
     querySetStmt(query, new CPostgreSQLStatement);
-    
+
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*)query->statement();
-    
-    CParamValues& params = statement->m_paramValues;
+
+    CPostgreSQLParamValues& params = statement->m_paramValues;
     params.setParameters(query->params());
-    
+
     const Oid* paramTypes = params.types();
     unsigned   paramCount = params.size();
 
@@ -436,15 +272,15 @@ void CPostgreSQLDatabase::queryPrepare(CQuery *query) {
         PQclear(stmt);
         query->logAndThrow("CPostgreSQLDatabase::queryPrepare", error);
     }
-    
+
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
     unsigned fieldCount = PQnfields(stmt2);
     if (fieldCount && PQftype(stmt2,0) == VOIDOID)
         fieldCount = 0;   // VOID result considered as no result
     PQclear(stmt2);
-	
+
     statement->stmt(stmt, 0, fieldCount);
-    
+
     querySetPrepared(query, true);
 }
 
@@ -453,91 +289,28 @@ void CPostgreSQLDatabase::queryUnprepare(CQuery *query) {
 }
 
 int CPostgreSQLDatabase::queryColCount(CQuery *query) {
-    
+
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*)query->statement();
-    
+
     return statement->colCount();
 }
 
 void CPostgreSQLDatabase::queryBindParameters(CQuery *query) {
-    CPostgreSQLLock lock(this);
-    static const char* booleanTrue = "t";
-    static const char* booleanFalse = "f";
-    
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*)query->statement();
-    CParamValues&         paramValues = statement->m_paramValues;
-    const CParamVector&   params = paramValues.params();
+    SYNCHRONIZED_CODE;
+
+    CPostgreSQLStatement*   statement = (CPostgreSQLStatement*)query->statement();
+    CPostgreSQLParamValues& paramValues = statement->m_paramValues;
+    const CParamVector&     params = paramValues.params();
     uint32_t paramNumber = 0;
     for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
         CParam *param = *ptor;
-        CVariantType ptype = param->dataType();
-            
-        if (param->isNull())
-            paramValues.setParameterValue(paramNumber, 0, 0);
-        else {
-            switch (ptype) {
-                case VAR_BOOL:
-                    if (param->asBool())
-                        paramValues.setParameterValue(paramNumber, booleanTrue, 1);
-                    else
-                        paramValues.setParameterValue(paramNumber, booleanFalse, 1);
-                    break;
-                    
-                case VAR_INT: {
-                    int32_t* bufferToSend = (int32_t*) param->conversionBuffer();
-                    *bufferToSend = htonl(param->getInteger());
-                }
-                break;
-
-                case VAR_DATE: {
-                    int32_t* bufferToSend = (int32_t*) param->conversionBuffer();
-                    *bufferToSend = htonl((int32_t)param->getDateTime() - (int32_t) epochDate);
-                }
-                break;
-
-                case VAR_DATE_TIME: {
-                    double dt = (param->getDateTime() - epochDate) * 3600 * 24;
-                    //int64_t* bufferToSend = (int64_t*) param->conversionBuffer();
-                    //*bufferToSend = htonq(*(int64_t*)(void*)&dt);
-                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
-                }
-                break;
-
-                case VAR_INT64: {
-                    int64_t* bufferToSend = (int64_t*) param->conversionBuffer();
-                    *bufferToSend = htonq(param->getInt64());
-                }
-                break;
-
-                case VAR_FLOAT: {
-                    int64_t* bufferToSend = (int64_t*) param->conversionBuffer();
-                    *bufferToSend = htonq(*(int64_t*)param->dataBuffer());
-                }
-                break;
-
-                case VAR_STRING:
-                case VAR_TEXT:
-                    //paramValues.setParameterValue(paramNumber, param->getString(), 0);
-                    //break;
-                    
-                case VAR_BUFFER:
-                    paramValues.setParameterValue(paramNumber, param->getString(), param->dataSize());
-                    break;
-                default:
-                    query->logAndThrow("CPostgreSQLDatabase::queryBindParameters","Unsupported type of parameter "+int2string(paramNumber));
-            }
-        }
+        paramValues.setParameterValue(paramNumber, param);
     }
 
-#ifdef PG_FETCH_BINARY_RESULTS
     int resultFormat = 1;   // Results are presented in binary format
-#else
-    int resultFormat = 0;   // Results are presented in text format
-#endif
-
     if (!statement->colCount())
         resultFormat = 0;   // VOID result or NO results, using text format
-            
+
     PGresult* stmt = PQexecPrepared(
             m_connect,
             statement->name().c_str(),
@@ -547,7 +320,7 @@ void CPostgreSQLDatabase::queryBindParameters(CQuery *query) {
             paramValues.formats(),
             resultFormat
             );
-    
+
     ExecStatusType rc = PQresultStatus(stmt);
     switch (rc) {
         case PGRES_COMMAND_OK:
@@ -602,24 +375,24 @@ void CPostgreSQLDatabase::CTypeToPostgreType(CVariantType dataType, Oid& postgre
 
 void CPostgreSQLDatabase::queryOpen(CQuery *query) {
     if (!active()) open();
-    
+
     if (query->active()) return;
-    
+
     if (!query->statement())
         queryAllocStmt(query);
-    
+
     if (!query->prepared())
         queryPrepare(query);
-    
+
     // Bind parameters also executes a query
     queryBindParameters(query);
-    
+
     //query->fields().clear();
-    
+
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*)query->statement();
     //if (statement->rowCount() == 0)
     //    return;
-    
+
     short count = queryColCount(query);
     if (count < 1) {
         //queryCloseStmt(query);
@@ -627,7 +400,7 @@ void CPostgreSQLDatabase::queryOpen(CQuery *query) {
     } else {
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
-           CPostgreSQLLock lock(this);
+           SYNCHRONIZED_CODE;
            // Reading the column attributes
            char  columnName[256];
            //long  columnType;
@@ -642,14 +415,14 @@ void CPostgreSQLDatabase::queryOpen(CQuery *query) {
                CVariantType fieldType;
                PostgreTypeToCType(dataType, fieldType);
                int fieldLength = PQfsize(stmt, column);
-               CPostgreSQLField* field = new CPostgreSQLField(columnName, column, dataType, fieldType, fieldLength);
+               CDatabaseField* field = new CDatabaseField(columnName, column, dataType, fieldType, fieldLength);
                query->fields().push_back(field);
            }
         }
     }
-    
+
     querySetEof(query, statement->eof());
-    
+
     queryFetch(query);
 }
 
@@ -682,36 +455,36 @@ static long double numericBinaryToLongDouble(const char* v) {
     if (sign)
 	finalValue = -finalValue;
     return finalValue;
-}        
+}
 
 void CPostgreSQLDatabase::queryFetch(CQuery *query) {
     if (!query->active())
         query->logAndThrow("CPostgreSQLDatabase::queryFetch","Dataset isn't open");
-    
-    CPostgreSQLLock lock(this);
-    
+
+    SYNCHRONIZED_CODE;
+
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
-    
+
     statement->fetch();
     if (statement->eof()) {
         querySetEof(query, true);
         return;
     }
-    
+
     int fieldCount = query->fieldCount();
     int dataLength = 0;
-    
+
     if (!fieldCount)
         return;
-    
-    CPostgreSQLField*    field = 0;
+
+    CDatabaseField*    field = 0;
     const PGresult*   stmt = statement->stmt();
     int               currentRow = statement->currentRow();
     for (int column = 0; column < fieldCount; column++) {
         try {
-            field = (CPostgreSQLField*) & (*query)[(int)column];
+            field = (CDatabaseField*) & (*query)[(int)column];
             short fieldType = (short) field->fieldType();
-	    
+
             bool  isNull = false;
             dataLength = PQgetlength(stmt, currentRow, column);
             if (!dataLength) {
@@ -726,59 +499,57 @@ void CPostgreSQLDatabase::queryFetch(CQuery *query) {
             } else {
                 char* data = PQgetvalue(stmt, currentRow, column);
 
-#ifdef PG_FETCH_BINARY_RESULTS
                 switch (fieldType) {
-                    
+
                     case PG_BOOL:
                         field->setBool((bool)*data);
-                        dataLength = sizeof(bool);
                         break;
-                        
+
                     case PG_INT2:
                         field->setInteger( ntohs(*(int16_t *)data) );
                         break;
-                        
+
                     case PG_OID:
                     case PG_INT4:
                         field->setInteger( ntohl(*(int32_t *)data) );
                         break;
-                        
+
                     case PG_INT8:
                         field->setInt64( ntohq(*(int64_t *)data) );
                         break;
-                        
+
                    case PG_FLOAT4: {
                         int32_t v = ntohl(*(int32_t *)data);
                         field->setFloat( *(float *)(void *)&v );
                         break;
                    }
-                        
+
                    case PG_FLOAT8: {
                         int64_t v = ntohq(*(int64_t *)data);
                         field->setFloat( *(double *)(void *)&v );
                         break;
                    }
-                        
+
                     case PG_NUMERIC:
                         field->setFloat( numericBinaryToLongDouble(data) );
                         break;
-                        
+
                     default:
                         field->setExternalString(data, dataLength);
                         break;
-                        
+
                     case PG_BYTEA:
                         field->setExternalBuffer(data, dataLength);
                         break;
-                        
+
                    case PG_DATE: {
                         int32_t dt = ntohl(*(int32_t *)data);
                         field->setDateTime( dt + (int32_t) epochDate );
                         break;
                    }
-                        
-                   case PG_TIME: 
-                   case PG_TIMESTAMPTZ: 
+
+                   case PG_TIME:
+                   case PG_TIMESTAMPTZ:
                    case PG_TIMESTAMP: {
                         int64_t v = ntohq(*(int64_t *)data);
                         double val = (double)epochDate + *(double *)(void *)&v / 3600.0 / 24.0;
@@ -786,42 +557,6 @@ void CPostgreSQLDatabase::queryFetch(CQuery *query) {
                         break;
                    }
                 }
-#else
-                switch (fieldType) {
-                    case PG_BOOL:
-                        field->setBool(*data == 't');
-                        break;
-                        
-                    case PG_INT2:
-                    case PG_OID:
-                    case PG_INT4:
-                        field->setInteger( atoi(data) );
-                        break;
-                        
-                    case PG_INT8:
-                        field->setInt64( atoll(data) );
-                        break;
-                        
-                    case PG_FLOAT4:
-                    case PG_FLOAT8:
-                    case PG_NUMERIC:
-                        field->setFloat( atof(data) );
-                        break;
-                        
-                    default:
-                        field->setString(data, dataLength);
-                        break;
-                        
-                    case PG_BYTEA:
-                        field->setBuffer(data, dataLength);
-                        break;
-                        
-                    case PG_TIMESTAMP:
-                        field->setDateTime(data);
-                        break;
-                }
-#endif
-                field->dataSize(dataLength);
             }
 
         } catch (exception& e) {

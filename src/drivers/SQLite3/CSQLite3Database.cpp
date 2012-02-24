@@ -74,7 +74,8 @@ CSQLite3Database::~CSQLite3Database() {
                 query->disconnect();
             } catch (...) {}}
         m_queryList.clear();
-    } catch (...) {}}
+    } catch (...) {}
+}
 
 void CSQLite3Database::openDatabase(const string newConnectionString) throw(CException) {
     if (!active()) {

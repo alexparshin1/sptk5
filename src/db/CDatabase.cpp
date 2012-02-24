@@ -34,15 +34,15 @@
 using namespace std;
 using namespace sptk;
 
-CDatabase::CDatabase(string connectionString)
-: CWaiter(), m_connString(connectionString)
+CDatabase::CDatabase(string connectionString) :
+    m_connString(connectionString)
 {
-   m_inTransaction = false;
-   m_log = 0;
+    m_inTransaction = false;
+    m_log = 0;
 }
 
 CDatabase::~CDatabase() {
-   // To prevent the exceptions, if the database connection 
+   // To prevent the exceptions, if the database connection
    // is terminated already
    try {
       while (m_queryList.size()) {
@@ -107,17 +107,17 @@ bool CDatabase::active() const {
 
 void CDatabase::beginTransaction() throw(CException) {
    if (m_log) *m_log << "Begin transaction" << endl;
-   driverBeginTransaction(); 
+   driverBeginTransaction();
 }
 
-void CDatabase::commitTransaction() throw(CException) { 
+void CDatabase::commitTransaction() throw(CException) {
    if (m_log) *m_log << "Commit transaction" << endl;
-   driverEndTransaction(true); 
+   driverEndTransaction(true);
 }
 
-void CDatabase::rollbackTransaction() throw(CException) { 
+void CDatabase::rollbackTransaction() throw(CException) {
    if (m_log) *m_log << "Rollback transaction" << endl;
-   driverEndTransaction(false); 
+   driverEndTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -127,29 +127,29 @@ string CDatabase::queryError(const CQuery *query) const {
    return "";
 }
 
-void CDatabase::querySetAutoPrep(CQuery *q,bool pf) { 
-   q->m_autoPrepare = pf; 
+void CDatabase::querySetAutoPrep(CQuery *q,bool pf) {
+   q->m_autoPrepare = pf;
 }
 
-void CDatabase::querySetStmt(CQuery *q,void *stmt)  { 
-   q->m_statement = stmt; 
+void CDatabase::querySetStmt(CQuery *q,void *stmt)  {
+   q->m_statement = stmt;
 }
 
-void CDatabase::querySetConn(CQuery *q,void *conn)  { 
+void CDatabase::querySetConn(CQuery *q,void *conn)  {
    q->m_connection = conn;
 }
 
-void CDatabase::querySetPrepared(CQuery *q,bool pf) { 
-   q->m_prepared = pf; 
-}  
+void CDatabase::querySetPrepared(CQuery *q,bool pf) {
+   q->m_prepared = pf;
+}
 
-void CDatabase::querySetActive(CQuery *q,bool af)   { 
-   q->m_active = af; 
-}    
+void CDatabase::querySetActive(CQuery *q,bool af)   {
+   q->m_active = af;
+}
 
 void CDatabase::querySetEof(CQuery *q,bool eof)     {
-   q->m_eof = eof; 
-} 
+   q->m_eof = eof;
+}
 
 void CDatabase::queryAllocStmt(CQuery *query) {
    notImplemented("queryAllocStmt");
@@ -204,12 +204,12 @@ void CDatabase::notImplemented(const char *methodName) const {
    throw CException("Method '"+string(methodName)+"' is not supported by this database driver.");
 }
 
-void *CDatabase::queryHandle(CQuery *query) const { 
+void *CDatabase::queryHandle(CQuery *query) const {
    return query->m_statement;
 }
 
-void CDatabase::queryHandle(CQuery *query,void *handle) { 
-   query->m_statement = handle; 
+void CDatabase::queryHandle(CQuery *query,void *handle) {
+   query->m_statement = handle;
 }
 
 void CDatabase::logAndThrow(string method,string error) throw(CException) {
