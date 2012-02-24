@@ -41,50 +41,26 @@ namespace sptk {
 
     class CQuery;
     class CPostgreSQLStatement;
-    
-    /// @brief PostgreSQL native data types
-    enum PG_DATA_TYPE {
-        PG_BOOL = 16,          ///< Boolean
-        PG_BYTEA = 17,         ///< Byte array
-        PG_CHAR = 18,          ///< Single character
-        PG_NAME = 19,          ///< String name
-        PG_INT8 = 20,          ///< 64-bit integer
-        PG_INT2 = 21,          ///< 16-bit integer
-        PG_INT4 = 23,          ///< 32-bit integer
-        PG_TEXT = 25,          ///< Text string
-        PG_OID = 26,           ///< Object id (32-bit integer)
-        PG_FLOAT4 = 700,       ///< 32-bit float
-        PG_FLOAT8 = 701,       ///< 64-bit float (double)
-        PG_VARCHAR = 1043,     ///< String
-        PG_DATE = 1082,        ///< Date
-        PG_TIME = 1083,        ///< Time
-        PG_TIMESTAMP = 1114,   ///< Time stamp
-        PG_TIMESTAMPTZ = 1184, ///< Time stamp with time zone
-        PG_INTERVAL = 1186,    ///< Time interval
-        PG_TIMETZ = 1266,      ///< Time zone
-        PG_VARBIT = 1562,      ///< Var bit
-        PG_NUMERIC = 1700      ///< Numeric (decimal)
-    };
-    
+
     /// @brief PostgreSQL database
     ///
     /// CPostgreSQLDatabase is thread-safe connection to PostgreSQL database.
     class CPostgreSQLDatabase : public CDatabase {
         friend class CQuery;
-        
+
     private:
-        
+
         PGconn*       m_connect;  ///< PostgreSQL database connection
-        
+
     protected:
-        
+
         /// @brief Begins the transaction
         virtual void driverBeginTransaction() throw(CException);
-        
+
         /// @brief Ends the transaction
         /// @param commit bool, commit if true, rollback if false
         virtual void driverEndTransaction(bool commit) throw(CException);
-        
+
         // These methods implement the actions requested by CQuery
         virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
         virtual void queryAllocStmt(CQuery *query);      ///< Allocates an PostgreSQL statement
@@ -97,7 +73,7 @@ namespace sptk {
         virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
         virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
         virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
-        
+
         /// @brief Returns parameter mark
         ///
         /// Parameter mark is generated from the parameterIndex.
@@ -113,12 +89,12 @@ namespace sptk {
     public:
         /// @brief Converts datatype from PostgreSQL type to SPTK CVariantType
         static void PostgreTypeToCType(int postgreType, CVariantType& dataType);
-        
+
         /// @brief Converts datatype from SPTK CVariantType to PostgreSQL type
         static void CTypeToPostgreType(CVariantType dataType, Oid& postgreType);
-        
+
     public:
-        
+
         /// @brief Constructor
         ///
         /// Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
@@ -127,69 +103,32 @@ namespace sptk {
         /// If the connection string is empty then default database with the name equal to user name is used.
         /// @param connectionString std::string, the PostgreSQL connection string
         CPostgreSQLDatabase(std::string connectionString = "");
-        
+
         /// @brief Destructor
         virtual ~CPostgreSQLDatabase();
-        
+
         /// @brief Opens the database connection. If unsuccessful throws an exception.
         /// @param connectionString std::string, the PostgreSQL connection string
         virtual void openDatabase(std::string connectionString = "") throw(CException);
-        
+
         /// @brief Closes the database connection. If unsuccessful throws an exception.
         virtual void closeDatabase() throw(CException);
-        
+
         /// @brief Returns true if database is opened
         virtual bool active() const;
-        
+
         /// @brief Returns the database connection handle
         virtual void* handle() const;
-        
+
         /// @brief Returns the PostgreSQL driver description for the active connection
         virtual std::string driverDescription() const;
-        
+
         /// @brief Lists database objects
         /// @param objectType CDbObjectType, object type to list
         /// @param objects CStrings&, object list (output)
         virtual void objectList(CDbObjectType objectType, CStrings& objects) throw(std::exception);
     };
-    
-    /// @brief PostgreSQL synchronization object
-    ///
-    /// Locks PostgreSQL database. That is needed for thread safety.
-    /// Defines only protected constructors to be used internally.
-    class CPostgreSQLLock {
-        friend class CPostgreSQLDatabase;
-        
-        CPostgreSQLDatabase& m_object;    /// PostgreSQL database
-    protected:
-        /// @brief Protected constructor
-        ///
-        /// Locks the PostgreSQL object till the destructor is called.
-        /// @param object CPostgreSQLDatabase&, PostgreSQL object to lock.
-        CPostgreSQLLock(CPostgreSQLDatabase& object) : m_object(object) {
-            if (&m_object)
-                m_object.lock();
-        }
-        
-        /// @brief Protected constructor
-        ///
-        /// Locks the PostgreSQL object till the destructor is called.
-        /// @param object CPostgreSQLDatabase*, PostgreSQL object to lock.
-        CPostgreSQLLock(CPostgreSQLDatabase* object) : m_object(*object) {
-            if (&m_object)
-                m_object.lock();
-        }
-    public:
-        
-        /// @brief Destructor
-        ///
-        /// Unlocks the PostgreSQL object defined in constructor.
-        ~CPostgreSQLLock() {
-            if (&m_object)
-                m_object.unlock();
-        }
-    };
-    
+
 /// @}
 }
 

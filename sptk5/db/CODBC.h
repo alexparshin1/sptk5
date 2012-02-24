@@ -46,7 +46,7 @@
 #include <assert.h>
 #include <sptk5/CException.h>
 #include <sptk5/db/CParams.h>
-#include <sptk5/CWaiter.h>
+#include <sptk5/threads/CSynchronizedCode.h>
 
 namespace sptk {
 
@@ -61,7 +61,7 @@ class CParam;
 /// @brief ODBC base
 ///
 /// Base class for all ODBC classes
-class SP_EXPORT ODBCBase : public CWaiter {
+class SP_EXPORT ODBCBase : public CSynchronized {
 protected:
     /// Last RETCODE returned from ODBC function
     SQLRETURN   m_Retcode;

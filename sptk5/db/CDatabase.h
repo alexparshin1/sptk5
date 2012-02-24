@@ -30,19 +30,19 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CWaiter.h>
+#include <sptk5/threads/CSynchronizedCode.h>
 #include <sptk5/CVariant.h>
 #include <sptk5/CFileLog.h>
 
 #include <vector>
 
 namespace sptk {
-   
+
    /// @addtogroup Database Database Support
    /// @{
-   
+
    class CQuery;
-   
+
    /// @brief Types of the objects for CDatabase::listObjects method
    enum CDbObjectType {
       DOT_TABLES,         ///< Tables
@@ -55,7 +55,7 @@ namespace sptk {
       double      m_duration;   ///< Total calls duration, sec
       unsigned    m_calls;      ///< Total number of calls
       std::string m_sql;        ///< The last used query sql
-      
+
       /// @brief Default constructor
       CCallStatistic() {
          m_duration = 0;
@@ -79,47 +79,47 @@ namespace sptk {
          m_sql = cs.m_sql;
       }
    };
-   
+
    /// @brief Map to store statistical data about query calls
    ///
    /// The map index is the query creation location in (file:line) format
    typedef std::map<std::string,CCallStatistic>   CCallStatisticMap;
-   
+
    /// @brief Database connector
    ///
    /// Implements a thread-safe connection to general database. It is used
    /// as a base class for the particular database driver, CODBCDatabase,
    /// for instance.
-   class SP_EXPORT CDatabase : public CWaiter {
+   class SP_EXPORT CDatabase : public CSynchronized {
       typedef std::vector<CQuery *> CQueryVector;
       friend class CQuery;
-      
+
    protected:
-      
+
       CQueryVector  m_queryList;      ///< The list of queries that use this database
       std::string   m_connString;     ///< The ODBC driver connection string
       bool          m_inTransaction;  ///< The in-transaction flag
       CBaseLog *    m_log;            ///< Log for the database events (optional)
       std::string   m_objectName;     ///< Object name for logs and error messages
-      
+
       /// Attaches (links) query to the database
       bool linkQuery(CQuery *q);
-      
+
       /// Ulinks query from the database
       bool unlinkQuery(CQuery *q);
-      
+
       CCallStatisticMap    m_queryStatisticMap; ///< Map of query creation location to statistical information
-      
+
       /// @brief Clears statistical information about query calls
       void clearStatistics();
-      
+
       /// @brief Adds statistical information about query calls
       /// @param location const std::string&, query creation location (file:line)
       /// @param totalDuration double, total execution time for query calls, sec
       /// @param totalCalls unsigned, total number of query calls
       /// @param sql const std::string&, last sql used by query
       void addStatistics(const std::string& location, double totalDuration, unsigned totalCalls, const std::string& sql);
-      
+
    protected:
       // These methods get access to CQuery's protected members
       void querySetAutoPrep(CQuery *q, bool pf);       ///< Sets internal CQuery m_autoPrepare flag
@@ -128,7 +128,7 @@ namespace sptk {
       void querySetPrepared(CQuery *q, bool pf);       ///< Sets internal CQuery m_prepared flag
       void querySetActive(CQuery *q, bool af);         ///< Sets internal CQuery m_active flag
       void querySetEof(CQuery *q, bool eof);           ///< Sets internal CQuery m_eof flag
-      
+
       // These methods implement the actions requested by CQuery
       virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
       virtual void queryAllocStmt(CQuery *query);     ///< Allocates an ODBC statement
@@ -143,16 +143,16 @@ namespace sptk {
       virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
       virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
       virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
-      
+
       /// @brief Returns parameter mark
       ///
       /// Parameter mark is generated from the parameterIndex.
       /// @param paramIndex unsigned, parameter index in SQL starting from 0
       virtual std::string paramMark(unsigned paramIndex) { return "?"; }
    protected:
-      
+
       std::string m_driverDescription; ///< Driver description is filled by the particular driver.
-      
+
       /// @brief Constructor
       ///
       /// Protected constructor prevents creating an instance of the
@@ -160,32 +160,32 @@ namespace sptk {
       /// classes.
       /// @param connectionString std::string, the connection string
       CDatabase(std::string connectionString);
-      
+
       /// Stub function to throw an exception in case if the
       /// called method isn't implemented in the derived class
       void notImplemented(const char *methodName) const;
-      
+
       void *queryHandle(CQuery *query) const;          ///< Retrieves internal query handle
       void queryHandle(CQuery *query, void *handle);    ///< Sets internal query handle
-      
+
       /// @brief Opens the database connection.
       ///
       /// This method should be overwritten in derived classes
       /// @param connectionString std::string, the ODBC connection string
       virtual void openDatabase(std::string connectionString = "") throw(CException);
-      
+
       /// @brief Closes the database connection.
       ///
       /// This method should be overwritten in derived classes
       virtual void closeDatabase() throw(CException);
-      
+
       /// @brief Begins the transaction
       ///
       /// This method should be implemented in derived driver
       virtual void driverBeginTransaction() throw(CException) {
          notImplemented("driverBeginTransaction");
       }
-      
+
       /// @brief Ends the transaction
       ///
       /// This method should be implemented in derived driver
@@ -193,60 +193,60 @@ namespace sptk {
       virtual void driverEndTransaction(bool commit) throw(CException) {
          notImplemented("driverEndTransaction");
       }
-      
+
       /// @brief Throws an exception
       ///
       /// Before exception is thrown, it is logged into the logfile (if the logfile is defined)
       /// @param method std::string, method name where error has occured
       /// @param error std::string, error text
       void logAndThrow(std::string method, std::string error) throw(CException);
-      
+
    public:
       /// @brief Destructor
       ///
       /// Closes the database connection and all the connected queries.
       /// Releases all the database resources allocated during the connection.
       virtual ~CDatabase();
-      
+
       /// @brief Opens the database connection
       ///
       /// If unsuccessful throws an exception.
       /// @param connectionString std::string, the ODBC connection string
       void open(std::string connectionString = "") throw(CException);
-      
+
       /// @brief Closes the database connection. If unsuccessful throws an exception.
       void close() throw(CException);
-      
+
       /// @brief Returns true if database is opened
       virtual bool active() const;
-      
+
       /// @brief Returns the database connection handle
       virtual void* handle() const;
-      
+
       /// @brief Returns the connection string
       virtual std::string connectionString() const {
          return m_connString;
       }
-      
+
       /// @brief Returns the driver description
       virtual std::string driverDescription() const {
          return m_driverDescription;
       }
-      
+
       /// @brief Begins the transaction
       void beginTransaction() throw(CException);
-      
+
       /// @brief Commits the transaction
       void commitTransaction() throw(CException);
-      
+
       /// @brief Rolls back the transaction
       void rollbackTransaction()  throw(CException);
-      
+
       /// @brief Reports true if in transaction
       int  inTransaction() {
          return m_inTransaction;
       }
-      
+
       /// @brief Lists database objects
       ///
       /// Not implemented in CDatabase. The derived database class
@@ -254,7 +254,7 @@ namespace sptk {
       /// @param objectType CDbObjectType, object type to list
       /// @param objects CStrings&, object list (output)
       virtual void objectList(CDbObjectType objectType, CStrings& objects) throw(std::exception) = 0;
-      
+
       /// @brief Sets a log file for the database operations.
       ///
       /// If the database log is set, the database would log the events in CDatabase and CQuery objects
@@ -263,21 +263,21 @@ namespace sptk {
       void logFile(CBaseLog *logFile) {
          m_log = logFile;
       }
-      
+
       /// @brief Returns a log file for the database operations.
       /// @returns current log file ptr, ot NULL if log file isn't set
       CBaseLog *logFile() {
          return m_log;
       }
-      
+
       /// @brief Returns statistical information about query calls
-      /// 
+      ///
       /// The information is collected between database open() and close() operations.
       /// Every open() operation resets the statistics
       const CCallStatisticMap& callStatistics() const {
          return m_queryStatisticMap;
       }
-      
+
    };
    /// @}
 }
