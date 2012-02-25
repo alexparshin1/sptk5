@@ -21,10 +21,7 @@
 #include <condefs.h>
 #endif
 
-#include <sptk5/CThread.h>
-#include <sptk5/CFileLog.h>
-#include <sptk5/CProxyLog.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/cutils>
 #include <string>
 #include <vector>
 #include <iostream>

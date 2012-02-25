@@ -35,9 +35,11 @@
 #include <sptk5/CRegistry.h>
 #include <sptk5/CSocket.h>
 #include <sptk5/CSysLog.h>
-#include <sptk5/CThread.h>
 #include <sptk5/CUniqueInstance.h>
 #include <sptk5/istring.h>
 #include <sptk5/string_ext.h>
+
+#include <sptk5/threads/CThread.h>
+#include <sptk5/threads/CRWLock.h>
 
 #endif

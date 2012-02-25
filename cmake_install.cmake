@@ -41,7 +41,6 @@ IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspeci
     "/home/alexeyp/workspace/sptk5/sptk5/CFrame.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CMemoryDS.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CSysLog.h"
-    "/home/alexeyp/workspace/sptk5/sptk5/CGuard.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CStrings.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CCGI.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CDataSource.h"
@@ -73,10 +72,8 @@ IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspeci
     "/home/alexeyp/workspace/sptk5/sptk5/filedefs.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CDateTime.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CSmtpConnect.h"
-    "/home/alexeyp/workspace/sptk5/sptk5/CRWLock.h"
     "/home/alexeyp/workspace/sptk5/sptk5/istring.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CRegistry.h"
-    "/home/alexeyp/workspace/sptk5/sptk5/CThread.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CFTPConnect.h"
     "/home/alexeyp/workspace/sptk5/sptk5/CImapConnect.h"
     )

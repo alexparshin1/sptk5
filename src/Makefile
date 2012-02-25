@@ -2149,6 +2149,30 @@ themes/ThemeUtils.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sptk5.dir/build.make src/CMakeFiles/sptk5.dir/themes/ThemeUtils.cpp.s
 .PHONY : themes/ThemeUtils.cpp.s
 
+threads/CRWLock.o: threads/CRWLock.cpp.o
+.PHONY : threads/CRWLock.o
+
+# target to build an object file
+threads/CRWLock.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRWLock.cpp.o
+.PHONY : threads/CRWLock.cpp.o
+
+threads/CRWLock.i: threads/CRWLock.cpp.i
+.PHONY : threads/CRWLock.i
+
+# target to preprocess a source file
+threads/CRWLock.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRWLock.cpp.i
+.PHONY : threads/CRWLock.cpp.i
+
+threads/CRWLock.s: threads/CRWLock.cpp.s
+.PHONY : threads/CRWLock.s
+
+# target to generate assembly for a file
+threads/CRWLock.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRWLock.cpp.s
+.PHONY : threads/CRWLock.cpp.s
+
 threads/CSynchronized.o: threads/CSynchronized.cpp.o
 .PHONY : threads/CSynchronized.o
 
@@ -2172,6 +2196,30 @@ threads/CSynchronized.s: threads/CSynchronized.cpp.s
 threads/CSynchronized.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSynchronized.cpp.s
 .PHONY : threads/CSynchronized.cpp.s
+
+threads/CThread.o: threads/CThread.cpp.o
+.PHONY : threads/CThread.o
+
+# target to build an object file
+threads/CThread.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThread.cpp.o
+.PHONY : threads/CThread.cpp.o
+
+threads/CThread.i: threads/CThread.cpp.i
+.PHONY : threads/CThread.i
+
+# target to preprocess a source file
+threads/CThread.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThread.cpp.i
+.PHONY : threads/CThread.cpp.i
+
+threads/CThread.s: threads/CThread.cpp.s
+.PHONY : threads/CThread.s
+
+# target to generate assembly for a file
+threads/CThread.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThread.cpp.s
+.PHONY : threads/CThread.cpp.s
 
 utils/CBase64.o: utils/CBase64.cpp.o
 .PHONY : utils/CBase64.o
@@ -2701,30 +2749,6 @@ utils/CProxyLog.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CProxyLog.cpp.s
 .PHONY : utils/CProxyLog.cpp.s
 
-utils/CRWLock.o: utils/CRWLock.cpp.o
-.PHONY : utils/CRWLock.o
-
-# target to build an object file
-utils/CRWLock.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CRWLock.cpp.o
-.PHONY : utils/CRWLock.cpp.o
-
-utils/CRWLock.i: utils/CRWLock.cpp.i
-.PHONY : utils/CRWLock.i
-
-# target to preprocess a source file
-utils/CRWLock.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CRWLock.cpp.i
-.PHONY : utils/CRWLock.cpp.i
-
-utils/CRWLock.s: utils/CRWLock.cpp.s
-.PHONY : utils/CRWLock.s
-
-# target to generate assembly for a file
-utils/CRWLock.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CRWLock.cpp.s
-.PHONY : utils/CRWLock.cpp.s
-
 utils/CRegistry.o: utils/CRegistry.cpp.o
 .PHONY : utils/CRegistry.o
 
@@ -2868,30 +2892,6 @@ utils/CSysLog.s: utils/CSysLog.cpp.s
 utils/CSysLog.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CSysLog.cpp.s
 .PHONY : utils/CSysLog.cpp.s
-
-utils/CThread.o: utils/CThread.cpp.o
-.PHONY : utils/CThread.o
-
-# target to build an object file
-utils/CThread.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CThread.cpp.o
-.PHONY : utils/CThread.cpp.o
-
-utils/CThread.i: utils/CThread.cpp.i
-.PHONY : utils/CThread.i
-
-# target to preprocess a source file
-utils/CThread.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CThread.cpp.i
-.PHONY : utils/CThread.cpp.i
-
-utils/CThread.s: utils/CThread.cpp.s
-.PHONY : utils/CThread.s
-
-# target to generate assembly for a file
-utils/CThread.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CThread.cpp.s
-.PHONY : utils/CThread.cpp.s
 
 utils/CUniqueInstance.o: utils/CUniqueInstance.cpp.o
 .PHONY : utils/CUniqueInstance.o
@@ -3370,9 +3370,15 @@ help:
 	@echo "... themes/ThemeUtils.o"
 	@echo "... themes/ThemeUtils.i"
 	@echo "... themes/ThemeUtils.s"
+	@echo "... threads/CRWLock.o"
+	@echo "... threads/CRWLock.i"
+	@echo "... threads/CRWLock.s"
 	@echo "... threads/CSynchronized.o"
 	@echo "... threads/CSynchronized.i"
 	@echo "... threads/CSynchronized.s"
+	@echo "... threads/CThread.o"
+	@echo "... threads/CThread.i"
+	@echo "... threads/CThread.s"
 	@echo "... utils/CBase64.o"
 	@echo "... utils/CBase64.i"
 	@echo "... utils/CBase64.s"
@@ -3439,9 +3445,6 @@ help:
 	@echo "... utils/CProxyLog.o"
 	@echo "... utils/CProxyLog.i"
 	@echo "... utils/CProxyLog.s"
-	@echo "... utils/CRWLock.o"
-	@echo "... utils/CRWLock.i"
-	@echo "... utils/CRWLock.s"
 	@echo "... utils/CRegistry.o"
 	@echo "... utils/CRegistry.i"
 	@echo "... utils/CRegistry.s"
@@ -3460,9 +3463,6 @@ help:
 	@echo "... utils/CSysLog.o"
 	@echo "... utils/CSysLog.i"
 	@echo "... utils/CSysLog.s"
-	@echo "... utils/CThread.o"
-	@echo "... utils/CThread.i"
-	@echo "... utils/CThread.s"
 	@echo "... utils/CUniqueInstance.o"
 	@echo "... utils/CUniqueInstance.i"
 	@echo "... utils/CUniqueInstance.s"

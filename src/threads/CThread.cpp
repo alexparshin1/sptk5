@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CThread.h>
+#include <sptk5/threads/CThread.h>
 #include <sptk5/CException.h>
 
 #include <stdio.h>

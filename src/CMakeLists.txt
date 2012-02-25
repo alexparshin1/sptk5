@@ -14,13 +14,13 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     utils/CBuffer.cpp utils/CCGI.cpp utils/CDataSource.cpp utils/CDateTime.cpp utils/CException.cpp
     utils/CField.cpp utils/CFieldList.cpp utils/CFileLog.cpp utils/CFTPConnect.cpp
     utils/CHttpConnect.cpp utils/CHttpParams.cpp utils/CImapConnect.cpp utils/CIntList.cpp
-    utils/CMailMessageBody.cpp utils/CRegistry.cpp utils/CRWLock.cpp utils/CSharedStrings.cpp
-    utils/CSmtpConnect.cpp utils/CSocket.cpp utils/CStrings.cpp utils/CSysLog.cpp utils/CThread.cpp
+    utils/CMailMessageBody.cpp utils/CRegistry.cpp utils/CSharedStrings.cpp
+    utils/CSmtpConnect.cpp utils/CSocket.cpp utils/CStrings.cpp utils/CSysLog.cpp 
     utils/CUniqueInstance.cpp utils/CVariant.cpp utils/string_ext.cpp
     utils/CDirectoryDS.cpp utils/CMemoryDS.cpp utils/CFtpDS.cpp utils/CImapDS.cpp utils/CProxyLog.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
     tar/block.c tar/CTar.cpp tar/decode.c tar/handle.c tar/libtar_hash.c tar/libtar_list.c tar/util.c
-    threads/CSynchronized.cpp
+    threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp
     )
 
 SET (SPDB_SOURCES db/CDatabase.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp db/CTransaction.cpp)

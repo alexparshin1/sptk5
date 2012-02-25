@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/sptk.h>
-#include <sptk5/CRWLock.h>
+#include <sptk5/threads/CRWLock.h>
 #include <time.h>
 #include <errno.h>
 

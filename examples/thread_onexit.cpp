@@ -34,8 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sptk5/CThread.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/cutils>
 #include <string>
 
 using namespace std;

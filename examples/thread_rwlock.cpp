@@ -1,5 +1,4 @@
-#include <sptk5/CThread.h>
-#include <sptk5/CRWLock.h>
+#include <sptk5/cutils>
 #include <iostream>
 
 using namespace sptk;

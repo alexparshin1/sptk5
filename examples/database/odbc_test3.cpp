@@ -31,7 +31,7 @@
 
 #include <sptk5/db/CODBCDatabase.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/CThread.h>
+#include <sptk5/threads/CThread.h>
 
 using namespace std;
 using namespace sptk;
