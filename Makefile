@@ -608,45 +608,6 @@ themes_test/fast:
 .PHONY : themes_test/fast
 
 #=============================================================================
-# Target rules for targets named thread_onexit
-
-# Build rule for target.
-thread_onexit: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 thread_onexit
-.PHONY : thread_onexit
-
-# fast build rule for target.
-thread_onexit/fast:
-	$(MAKE) -f examples/CMakeFiles/thread_onexit.dir/build.make examples/CMakeFiles/thread_onexit.dir/build
-.PHONY : thread_onexit/fast
-
-#=============================================================================
-# Target rules for targets named thread_rwlock
-
-# Build rule for target.
-thread_rwlock: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 thread_rwlock
-.PHONY : thread_rwlock
-
-# fast build rule for target.
-thread_rwlock/fast:
-	$(MAKE) -f examples/CMakeFiles/thread_rwlock.dir/build.make examples/CMakeFiles/thread_rwlock.dir/build
-.PHONY : thread_rwlock/fast
-
-#=============================================================================
-# Target rules for targets named thread_test
-
-# Build rule for target.
-thread_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 thread_test
-.PHONY : thread_test
-
-# fast build rule for target.
-thread_test/fast:
-	$(MAKE) -f examples/CMakeFiles/thread_test.dir/build.make examples/CMakeFiles/thread_test.dir/build
-.PHONY : thread_test/fast
-
-#=============================================================================
 # Target rules for targets named tree_test
 
 # Build rule for target.
@@ -803,6 +764,71 @@ sqlite3_test/fast:
 .PHONY : sqlite3_test/fast
 
 #=============================================================================
+# Target rules for targets named semaphore
+
+# Build rule for target.
+semaphore: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 semaphore
+.PHONY : semaphore
+
+# fast build rule for target.
+semaphore/fast:
+	$(MAKE) -f examples/threads/CMakeFiles/semaphore.dir/build.make examples/threads/CMakeFiles/semaphore.dir/build
+.PHONY : semaphore/fast
+
+#=============================================================================
+# Target rules for targets named thread_onexit
+
+# Build rule for target.
+thread_onexit: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 thread_onexit
+.PHONY : thread_onexit
+
+# fast build rule for target.
+thread_onexit/fast:
+	$(MAKE) -f examples/threads/CMakeFiles/thread_onexit.dir/build.make examples/threads/CMakeFiles/thread_onexit.dir/build
+.PHONY : thread_onexit/fast
+
+#=============================================================================
+# Target rules for targets named thread_rwlock
+
+# Build rule for target.
+thread_rwlock: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 thread_rwlock
+.PHONY : thread_rwlock
+
+# fast build rule for target.
+thread_rwlock/fast:
+	$(MAKE) -f examples/threads/CMakeFiles/thread_rwlock.dir/build.make examples/threads/CMakeFiles/thread_rwlock.dir/build
+.PHONY : thread_rwlock/fast
+
+#=============================================================================
+# Target rules for targets named thread_test
+
+# Build rule for target.
+thread_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 thread_test
+.PHONY : thread_test
+
+# fast build rule for target.
+thread_test/fast:
+	$(MAKE) -f examples/threads/CMakeFiles/thread_test.dir/build.make examples/threads/CMakeFiles/thread_test.dir/build
+.PHONY : thread_test/fast
+
+#=============================================================================
+# Target rules for targets named threadman_test
+
+# Build rule for target.
+threadman_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 threadman_test
+.PHONY : threadman_test
+
+# fast build rule for target.
+threadman_test/fast:
+	$(MAKE) -f examples/threads/CMakeFiles/threadman_test.dir/build.make examples/threads/CMakeFiles/threadman_test.dir/build
+.PHONY : threadman_test/fast
+
+#=============================================================================
 # Target rules for targets named directory_ds
 
 # Build rule for target.
@@ -928,9 +954,6 @@ help:
 	@echo "... syslog_test"
 	@echo "... tabs_test"
 	@echo "... themes_test"
-	@echo "... thread_onexit"
-	@echo "... thread_rwlock"
-	@echo "... thread_test"
 	@echo "... tree_test"
 	@echo "... tree_view"
 	@echo "... unique_instance"
@@ -943,6 +966,11 @@ help:
 	@echo "... postgresql_test"
 	@echo "... postgresql_test2"
 	@echo "... sqlite3_test"
+	@echo "... semaphore"
+	@echo "... thread_onexit"
+	@echo "... thread_rwlock"
+	@echo "... thread_test"
+	@echo "... threadman_test"
 	@echo "... directory_ds"
 	@echo "... imap_ds"
 	@echo "... file_dialogs"

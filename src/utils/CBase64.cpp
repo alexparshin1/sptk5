@@ -53,7 +53,7 @@ static char B64Chars[64] = {
                            };
 
 #define base64val(c) Index_64[(uint32_t)(c)]
-#define base64chars(c) B64Chars[(uint32_t)(c & 0x3F)]
+#define base64chars(c) B64Chars[(uint32_t)((c) & 0x3F)]
 
 void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource) {
     char   c;

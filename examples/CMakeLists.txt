@@ -5,6 +5,7 @@ ELSE (NO_EXAMPLES)
 
   ADD_SUBDIRECTORY (xml)
   ADD_SUBDIRECTORY (database)
+  ADD_SUBDIRECTORY (threads)
 
   INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
   INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
@@ -13,12 +14,10 @@ ELSE (NO_EXAMPLES)
   LINK_DIRECTORIES (${SPTK_BINARY_DIR})
   LINK_DIRECTORIES (${FLTK_LIB_DIR})
 
-  LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY} pthread)
+  LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY} pthread rt)
 
-  SET (CONSOLE_TESTS datetime client_test server_test exceptions logfile_test thread_onexit
-            thread_rwlock thread_test syslog_test unique_instance
-            #xml/xml_test2
-            registry
+  SET (CONSOLE_TESTS datetime client_test server_test exceptions logfile_test
+            syslog_test unique_instance registry
   )
 
   FOREACH (CONSOLE_TEST ${CONSOLE_TESTS})
@@ -45,7 +44,7 @@ ELSE (NO_EXAMPLES)
     #SET (GUI_LIBRARIES "-lsputil5 -lsptk5 -lspdb5 ${FLTK_LIBRARIES} ${ASPELL_LIBRARIES}")
 
     SET (GUI_TESTS calendar_test ceditor_test cgroup_test check_buttons combo_test cscroll_test db_list_view
-                  dialog_test font_combo shaped_window spell_checker splitter sptk_test 
+                  dialog_test font_combo shaped_window spell_checker splitter sptk_test
                   tabs_test themes_test tree_test tree_view)
 
     FOREACH (GUI_TEST ${GUI_TESTS})

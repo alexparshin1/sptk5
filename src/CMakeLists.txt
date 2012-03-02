@@ -1,5 +1,4 @@
 INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (/usr/local/include /usr/include/pgsql /usr/include/pgsql/libpq)
 
 IF (WIN32)
@@ -8,6 +7,11 @@ ELSE (WIN32)
   #SET (LIBRARY_TYPE STATIC)
   SET (LIBRARY_TYPE SHARED)
 ENDIF (WIN32)
+
+IF (LIBRARY_TYPE STREQUAL "SHARED")
+  ADD_DEFINITIONS (-DSP_LIBRARY)
+  ADD_DEFINITIONS (-DSP_DLL)
+ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     utils/CBase64.cpp utils/CBaseLog.cpp utils/CBaseMailConnect.cpp
@@ -18,9 +22,11 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     utils/CSmtpConnect.cpp utils/CSocket.cpp utils/CStrings.cpp utils/CSysLog.cpp 
     utils/CUniqueInstance.cpp utils/CVariant.cpp utils/string_ext.cpp
     utils/CDirectoryDS.cpp utils/CMemoryDS.cpp utils/CFtpDS.cpp utils/CImapDS.cpp utils/CProxyLog.cpp
+    utils/CSystemException.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
     tar/block.c tar/CTar.cpp tar/decode.c tar/handle.c tar/libtar_hash.c tar/libtar_list.c tar/util.c
-    threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp
+    threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadManager.cpp 
+    threads/CSemaphore.cpp threads/CRunable.cpp threads/CWorkerThread.cpp
     )
 
 SET (SPDB_SOURCES db/CDatabase.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp db/CTransaction.cpp)
@@ -47,6 +53,8 @@ ENDIF (POSTGRESQL_FLAG)
 ADD_LIBRARY (spdb5 ${LIBRARY_TYPE} ${SPDB_SOURCES} ${ODBC_SOURCES} ${SQLITE3_SOURCES} ${POSTGRESQL_SOURCES})
 
 IF (FLTK_FLAG)
+
+  INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
 
   ADD_LIBRARY (sptk5 ${LIBRARY_TYPE} gui/CFontComboBox.cpp gui/CPhoneNumberInput.cpp
     gui/CPngImage.cpp gui/CInput.cpp gui/CFileSaveDialog.cpp gui/CSmallPixmaps.cpp gui/CDateControl.cpp

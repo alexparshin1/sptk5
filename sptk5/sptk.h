@@ -67,9 +67,13 @@
 #include <vector>
 
 namespace sptk {
+
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2
 #define ALIGN_CENTER 3
+
+/// Infinite timeout (milliseconds)
+#define SP_INFINITY uint32_t(-1)
 
 /// Workaround for VC++ bug
 typedef std::string std_string;

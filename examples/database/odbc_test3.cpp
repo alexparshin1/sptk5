@@ -1,15 +1,15 @@
 /***************************************************************************
-                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                               DEMO PROGRAMS SET
-                          odbc_test3.cpp  -  description
+ SIMPLY POWERFUL TOOLKIT (SPTK)
+ DEMO PROGRAMS SET
+ odbc_test3.cpp  -  description
 
-    This test creates several threads with the independent database
-    connection per thread.
+ This test creates several threads with the independent database
+ connection per thread.
 
-                             -------------------
-    begin                : October 15, 2005
-    copyright            : (C) 2005-2012 by Alexey S.Parshin
-    email                : alexeyp@gmail.com
+ -------------------
+ begin                : October 15, 2005
+ copyright            : (C) 2005-2012 by Alexey S.Parshin
+ email                : alexeyp@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -40,81 +40,86 @@ using namespace sptk;
 /// 100 of records to the database. After that
 /// verifies that all the records are inserted
 /// properly.
-class CInsertThread : public CThread {
-        static int threadIndex;
+class CInsertThread: public CThread
+{
+    static int threadIndex;
 
-        CODBCDatabase    m_db;
-        CQuery           m_query;
-        int              m_threadIndex;
-        int     m_rowsToInsert;
+    CODBCDatabase m_db;
+    CQuery m_query;
+    int m_threadIndex;
+    int m_rowsToInsert;
 
-    public:
-        CInsertThread(std::string connectString,int rowsToInsert);
-        virtual void threadFunction();
+public:
+    CInsertThread(std::string connectString, int rowsToInsert);
+    virtual void threadFunction();
 };
 
 int CInsertThread::threadIndex = 0;
 
-CInsertThread::CInsertThread(std::string connectString,int rowsToInsert)
-        : CThread("Thread "+int2string(threadIndex)), m_db(connectString), m_query(&m_db,""), m_threadIndex(threadIndex) {
+CInsertThread::CInsertThread(std::string connectString, int rowsToInsert) :
+    CThread("Thread " + int2string(threadIndex)),
+    m_db(connectString),
+    m_query(&m_db, ""),
+    m_threadIndex(threadIndex)
+{
     threadIndex++;
     m_rowsToInsert = rowsToInsert;
 }
 
-void CInsertThread::threadFunction() {
+void CInsertThread::threadFunction()
+{
     try {
         // Opening the database
         m_db.open();
 
-        m_query.sql("INSERT INTO tblCGTParcelResultTest ("
-                    "iHoldingId,"
-                    "iEventEntryId,"
-                    "iAcqEntryId,"
-                    "dtOrigAcqDate, "
-                    "dtAcqDate, "
-                    "dtTradeDate,"
-                    "dtEventDate,"
-                    "dUnits,"
-                    "decIndexedCB,"
-                    "decReducedCB,"
-                    "decAdjustedCB,"
-                    "decIndexedGain,"
-                    "decAdjustedGain,"
-                    "decReducedGain,"
-                    "decDiscountable,"
-                    "bExempt,"
-                    "bIndexedOK,"
-                    "bAdjustedOK,"
-                    "bReducedOK,"
-                    "bDiscountOK,"
-                    "decBaseCostPerUnit,"
-                    "decCostPerUnit"
-                    ") VALUES ("
-                    ":iHoldingId,"
-                    ":iEventEntryId,"
-                    ":iAcqEntryId,"
-                    ":dtOrigAcqDate,"
-                    ":dtAcqDate,"
-                    ":dtTradeDate,"
-                    ":dtEventDate,"
-                    ":dUnits,"
-                    ":decIndexedCB,"
-                    ":decReducedCB,"
-                    ":decAdjustedCB,"
-                    ":decIndexedGain,"
-                    ":decAdjustedGain,"
-                    ":decReducedGain,"
-                    ":decDiscountable,"
-                    ":bExempt,"
-                    ":bIndexedOK,"
-                    ":bAdjustedOK,"
-                    ":bReducedOK,"
-                    ":bDiscountOK,"
-                    ":decBaseCostPerUnit,"
-                    ":decCostPerUnit)"
-                   );
+        m_query.sql("INSERT INTO test_table ("
+                "record_id,"
+                "iEventEntryId,"
+                "iAcqEntryId,"
+                "dtOrigAcqDate, "
+                "dtAcqDate, "
+                "dtTradeDate,"
+                "dtEventDate,"
+                "dUnits,"
+                "decIndexedCB,"
+                "decReducedCB,"
+                "decAdjustedCB,"
+                "decIndexedGain,"
+                "decAdjustedGain,"
+                "decReducedGain,"
+                "decDiscountable,"
+                "bExempt,"
+                "bIndexedOK,"
+                "bAdjustedOK,"
+                "bReducedOK,"
+                "bDiscountOK,"
+                "decBaseCostPerUnit,"
+                "decCostPerUnit"
+                ") VALUES ("
+                ":record_id,"
+                ":iEventEntryId,"
+                ":iAcqEntryId,"
+                ":dtOrigAcqDate,"
+                ":dtAcqDate,"
+                ":dtTradeDate,"
+                ":dtEventDate,"
+                ":dUnits,"
+                ":decIndexedCB,"
+                ":decReducedCB,"
+                ":decAdjustedCB,"
+                ":decIndexedGain,"
+                ":decAdjustedGain,"
+                ":decReducedGain,"
+                ":decDiscountable,"
+                ":bExempt,"
+                ":bIndexedOK,"
+                ":bAdjustedOK,"
+                ":bReducedOK,"
+                ":bDiscountOK,"
+                ":decBaseCostPerUnit,"
+                ":decCostPerUnit)");
 
-        CParam& iHoldingId = m_query.param("iHoldingId");
+        CParam& record_id = m_query.param("record_id");
         CParam& iEventEntryId = m_query.param("iEventEntryId");
         CParam& iAcqEntryId = m_query.param("iAcqEntryId");
         CParam& dtOrigAcqDate = m_query.param("dtOrigAcqDate");
@@ -140,7 +145,7 @@ void CInsertThread::threadFunction() {
         CDateTime dt = (int) CDateTime::Now();
         for (int i = 1; i <= m_rowsToInsert; i++) {
             int id = m_threadIndex * m_rowsToInsert + i;
-            iHoldingId = id;
+            record_id = id;
             iEventEntryId = 1;
             iAcqEntryId = 1;
 
@@ -167,24 +172,26 @@ void CInsertThread::threadFunction() {
 
             m_query.exec();
         }
-        printf("Thread %i completed\n",m_threadIndex);
+        printf("Thread %i completed\n", m_threadIndex);
         m_db.close();
     } catch (exception& e) {
-        printf("Error in thread %i: %s\n",m_threadIndex,e.what());
+        printf("Error in thread %i: %s\n", m_threadIndex, e.what());
     } catch (...) {
-        printf("Unknown error in thread %i\n",m_threadIndex);
+        printf("Unknown error in thread %i\n", m_threadIndex);
     }
 }
 
-int main() {
+int main()
+{
     unsigned threadNumber;
     unsigned maxThreads;
 
-    cout << "Number of threads: "; cout.flush();
+    cout << "Number of threads: ";
+    cout.flush();
     cin >> maxThreads;
     cout << "Beginning test " << endl;
 
-    CODBCDatabase   db1("DSN=odbc_demo");
+    CODBCDatabase db1("DSN=odbc_demo");
 
     try {
 
@@ -196,37 +203,38 @@ int main() {
 
         if (driver.find("microsoft") != string::npos)
             dateType = "DATETIME";
-        else
-            if (driver.find("informix") != string::npos)
-                dateType = "DATETIME YEAR TO SECOND";
+        else if (driver.find("informix") != string::npos)
+            dateType = "DATETIME YEAR TO SECOND";
 
-        CQuery createTable(&db1,"CREATE TABLE tblCGTParcelResultTest ("
-                           "iHoldingId INT,"
-                           "iEventEntryId INT,"
-                           "iAcqEntryId INT,"
-                           "dtOrigAcqDate " +dateType + ", "
-                           "dtAcqDate " +dateType + ", "
-                           "dtTradeDate " +dateType + ", "
-                           "dtEventDate " +dateType + ", "
-                           "dUnits DECIMAL(18,6),"
-                           "decIndexedCB DECIMAL(18,2),"
-                           "decReducedCB DECIMAL(18,2),"
-                           "decAdjustedCB DECIMAL(18,2),"
-                           "decIndexedGain DECIMAL(18,2),"
-                           "decAdjustedGain DECIMAL(18,2),"
-                           "decReducedGain DECIMAL(18,2),"
-                           "decDiscountable DECIMAL(18,2),"
-                           "bExempt INT DEFAULT 0,"
-                           "bIndexedOK INT DEFAULT 0,"
-                           "bAdjustedOK INT DEFAULT 0,"
-                           "bReducedOK INT DEFAULT 0,"
-                           "bDiscountOK INT DEFAULT 0,"
-                           "decBaseCostPerUnit DECIMAL(18,6),"
-                           "decCostPerUnit DECIMAL(18,6),"
-                           "CONSTRAINT PK_tblCGTParcelResult PRIMARY KEY (iHoldingId, iEventEntryId, iAcqEntryId))");
-        CQuery dropTable(&db1,"DROP TABLE tblCGTParcelResultTest");
-        CQuery cleanTable(&db1,"DELETE FROM tblCGTParcelResultTest");
-        CQuery countTable(&db1,"SELECT count(*) FROM tblCGTParcelResultTest");
+        CQuery createTable(
+                &db1,
+                "CREATE TABLE test_table ("
+                        "record_id INT,"
+                        "iEventEntryId INT,"
+                        "iAcqEntryId INT,"
+                        "dtOrigAcqDate " + dateType + ", "
+                        "dtAcqDate " + dateType + ", "
+                        "dtTradeDate " + dateType + ", "
+                        "dtEventDate " + dateType + ", "
+                        "dUnits DECIMAL(18,6),"
+                        "decIndexedCB DECIMAL(18,2),"
+                        "decReducedCB DECIMAL(18,2),"
+                        "decAdjustedCB DECIMAL(18,2),"
+                        "decIndexedGain DECIMAL(18,2),"
+                        "decAdjustedGain DECIMAL(18,2),"
+                        "decReducedGain DECIMAL(18,2),"
+                        "decDiscountable DECIMAL(18,2),"
+                        "bExempt INT DEFAULT 0,"
+                        "bIndexedOK INT DEFAULT 0,"
+                        "bAdjustedOK INT DEFAULT 0,"
+                        "bReducedOK INT DEFAULT 0,"
+                        "bDiscountOK INT DEFAULT 0,"
+                        "decBaseCostPerUnit DECIMAL(18,6),"
+                        "decCostPerUnit DECIMAL(18,6),"
+                        "CONSTRAINT PK_test_table PRIMARY KEY (record_id, iEventEntryId, iAcqEntryId))");
+        CQuery dropTable(&db1, "DROP TABLE test_table");
+        CQuery cleanTable(&db1, "DELETE FROM test_table");
+        CQuery countTable(&db1, "SELECT count(*) FROM test_table");
 
         cleanTable.exec();
 
@@ -237,7 +245,8 @@ int main() {
         int recordsTotal = (10000 / maxThreads) * maxThreads;
         int recordsPerThread = recordsTotal / maxThreads;
         for (threadNumber = 0; threadNumber < maxThreads; threadNumber++) {
-            CInsertThread *thread = new CInsertThread(db1.connectionString(),recordsPerThread);
+            CInsertThread *thread = new CInsertThread(db1.connectionString(),
+                    recordsPerThread);
             threads.push_back(thread);
             thread->run();
         }
@@ -252,9 +261,11 @@ int main() {
                     CThread::msleep(100);
                 delete thread;
             } catch (exception& e) {
-                printf("exception deleting thread %i: %s\n", threadNumber, e.what());
+                printf("exception deleting thread %i: %s\n", threadNumber,
+                        e.what());
             } catch (...) {
-                printf("exception deleting thread %i: %s\n", threadNumber, "Unknown exception");
+                printf("exception deleting thread %i: %s\n", threadNumber,
+                        "Unknown exception");
             }
         }
 
@@ -265,8 +276,10 @@ int main() {
         recordsTotal = countTable[uint32_t(0)];
         countTable.close();
 
-        cout << "Total of " << recordsTotal << " inserted for " << durationSec << " seconds." << endl;
-        cout << "Average for " << maxThreads << " threads is " << recordsTotal / durationSec << " recs/sec." << endl;
+        cout << "Total of " << recordsTotal << " inserted for " << durationSec
+                << " seconds." << endl;
+        cout << "Average for " << maxThreads << " threads is "
+                << recordsTotal / durationSec << " recs/sec." << endl;
 
         CThread::msleep(3000);
     } catch (exception& e) {

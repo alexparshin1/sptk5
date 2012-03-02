@@ -1,6 +1,6 @@
 /***************************************************************************
                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                         thread_test.cpp  -  description
+                         threadman_test.cpp  -  description
                              -------------------
     begin                : Tue Dec 14 1999
     copyright            : (C) 1999 by Alexey Parshin
@@ -25,7 +25,7 @@
  Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-// This example demonstrates thread manipulation and logging.
+// This example demonstrates basic thread manager usage
 #if __BORLANDC__ > 0x500
 #include <condefs.h>
 #endif
@@ -34,31 +34,41 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;
 
-class CMyThread: public CThread
+class CMyTask: public CRunable
 {
-    CProxyLog m_log; /// Thread proxy log
+    string      m_name; /// Task name, for distinguishing different tasks output
+    CProxyLog   m_log;  /// Task proxy log
+
+    static uint32_t taskCount;
 public:
 
     // Constructor
-    CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode = true);
+    CMyTask(CBaseLog& sharedLog);
 
     // The thread function.
-    virtual void threadFunction();
+    virtual void run() throw (exception);
+
+    string name() const
+    {
+        return m_name;
+    }
 };
 
-CMyThread::CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode) :
-        CThread(threadName, politeMode), m_log(sharedLog)
+uint32_t CMyTask::taskCount;
+
+CMyTask::CMyTask(CBaseLog& sharedLog) :
+    m_name("Task " + int2string(++taskCount)),
+    m_log(sharedLog)
 {
-    // Put anything you need here to define your actual thread
-    m_log << name() << " is created" << endl;
 }
 
-// The thread function. Prints a message once a second till terminated
-void CMyThread::threadFunction()
+// The task function. Prints a message once a second till terminated
+void CMyTask::run() throw (exception)
 {
     m_log << name() << " is started" << endl;
 
@@ -66,7 +76,7 @@ void CMyThread::threadFunction()
     while (!terminated()) {
         m_log << "Output " << counter << " from " << name() << endl;
         counter++;
-        msleep(100);
+        CThread::msleep(100);
     }
 
     m_log << name() << " is terminated" << endl;
@@ -75,12 +85,15 @@ void CMyThread::threadFunction()
 int main(int argc, char* argv[])
 {
     unsigned i;
-    vector<CMyThread*> threads;
+    vector<CMyTask*> tasks;
 
-    /// The log file would get messages from all the threads.
+    /// Thread manager controls tasks execution.
+    CThreadManager threadManager;
+
+    /// The log file would get messages from all the tasks.
     /// Threads send messages through their own CProxyLog objects.
     /// Multiple CProxyLog objects can share same log object thread-safely.
-    CFileLog sharedLog("thread_test.log");
+    CFileLog sharedLog("task_test.log");
 
     /// Trancate the log file
     sharedLog.reset();
@@ -88,29 +101,27 @@ int main(int argc, char* argv[])
     /// Adding 'duplicate messages to stdout' option to log options
     sharedLog.options(sharedLog.options() | CBaseLog::CLO_STDOUT);
 
-    // Creating several threads
-    for (i = 0; i < 5; i++) {
-        string threadName = "Thread" + int2string(i);
-        threads.push_back(new CMyThread(threadName, sharedLog));
-    }
+    // Creating several tasks
+    for (i = 0; i < 5; i++)
+        tasks.push_back(new CMyTask(sharedLog));
 
-    // Starting all the threads
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->run();
+    // Starting all the tasks
+    for (i = 0; i < tasks.size(); i++)
+        threadManager.execute(tasks[i]);
 
-    puts("Waiting 10 seconds while threads are running..");
+    puts("Waiting 10 seconds while tasks are running..");
     CThread::msleep(10000);
 
-    // Sending 'terminate' signal to all the threads.
-    // That signal suggests thread to terminate and exits instantly.
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->terminate();
+    // Sending 'terminate' signal to all the tasks.
+    // That signal suggests task to terminate and exits instantly.
+    for (i = 0; i < tasks.size(); i++)
+        tasks[i]->terminate();
 
-    // Deleting all the threads.
-    // Since threads are created in polite mode (see CMyThread class definition),
-    // the delete operation would wait for actual thread termination.
-    for (i = 0; i < threads.size(); i++)
-        delete threads[i];
+    // Deleting all the tasks.
+    // Since tasks are created in polite mode (see CMyTask class definition),
+    // the delete operation would wait for actual task termination.
+    for (i = 0; i < tasks.size(); i++)
+        delete tasks[i];
 
     return 0;
 }

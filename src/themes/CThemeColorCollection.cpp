@@ -62,28 +62,37 @@ static Fl_Color colorFromHexString(string colorStr) {
     return (Fl_Color) (rgbColor << 8);
 }
 
-static void splitArguments(const string& expression,CStrings& arguments) {
-    int   subExpressionLevel = 0;
+static void splitArguments(const string& expression, CStrings& arguments) {
+    int subExpressionLevel = 0;
+
     const char* ptr1 = expression.c_str();
-    const char* ptr2 = strpbrk(ptr1,",(");
-    while (ptr2) {
+    const char* ptr2 = NULL;
+    while ((ptr2 = strpbrk(ptr1, "(,"))) {
         if (*ptr2 == '(') {
             const char* ptr = ptr2 + 1;
             subExpressionLevel++;
             while (subExpressionLevel) {
-                ptr2 = strpbrk(ptr,"()");
+                ptr2 = strpbrk(ptr, "()");
                 if (*ptr2 == '(')
                     subExpressionLevel++;
                 else
                     subExpressionLevel--;
                 ptr = ptr2 + 1;
             }
-            ptr2 = strpbrk(ptr,",)");
+            ptr2 = strpbrk(ptr, ",");
+            if (!ptr2)
+                break;
         }
-        string part(ptr1,ptr2-ptr1);
-        arguments.push_back(part);
+
+        string parts(ptr1, ptr2 - ptr1);
+        parts = trim(parts);
+        if (parts[0] == '\"')
+            parts = parts.substr(1, parts.length() - 2);
+        arguments.push_back(parts);
+
         ptr1 = ptr2 + 1;
     }
+
     arguments.push_back(ptr1);
 }
 

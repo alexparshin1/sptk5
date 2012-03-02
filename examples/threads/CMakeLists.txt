@@ -1,14 +1,13 @@
 INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
 
-SET (THREADS_TESTS thread_onexit thread_rwlock thread_test threadman_test)
+SET (THREADS_TESTS semaphore thread_onexit thread_rwlock thread_test threadman_test)
 
 FOREACH (THREADS_TEST ${THREADS_TESTS})
 
     ADD_EXECUTABLE (${THREADS_TEST} ${THREADS_TEST}.cpp)
-    TARGET_LINK_LIBRARIES (${THREADS_TEST} sputil5)
+    TARGET_LINK_LIBRARIES (${THREADS_TEST} sputil5 rt)
     IF (WIN32)
       SET_TARGET_PROPERTIES (${THREADS_TEST} PROPERTIES LINK_FLAGS "-mconsole -mno-cygwin")
     ENDIF (WIN32)

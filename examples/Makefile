@@ -448,48 +448,6 @@ themes_test/fast:
 .PHONY : themes_test/fast
 
 # Convenience name for target.
-examples/CMakeFiles/thread_onexit.dir/rule:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/thread_onexit.dir/rule
-.PHONY : examples/CMakeFiles/thread_onexit.dir/rule
-
-# Convenience name for target.
-thread_onexit: examples/CMakeFiles/thread_onexit.dir/rule
-.PHONY : thread_onexit
-
-# fast build rule for target.
-thread_onexit/fast:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_onexit.dir/build.make examples/CMakeFiles/thread_onexit.dir/build
-.PHONY : thread_onexit/fast
-
-# Convenience name for target.
-examples/CMakeFiles/thread_rwlock.dir/rule:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/thread_rwlock.dir/rule
-.PHONY : examples/CMakeFiles/thread_rwlock.dir/rule
-
-# Convenience name for target.
-thread_rwlock: examples/CMakeFiles/thread_rwlock.dir/rule
-.PHONY : thread_rwlock
-
-# fast build rule for target.
-thread_rwlock/fast:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_rwlock.dir/build.make examples/CMakeFiles/thread_rwlock.dir/build
-.PHONY : thread_rwlock/fast
-
-# Convenience name for target.
-examples/CMakeFiles/thread_test.dir/rule:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/thread_test.dir/rule
-.PHONY : examples/CMakeFiles/thread_test.dir/rule
-
-# Convenience name for target.
-thread_test: examples/CMakeFiles/thread_test.dir/rule
-.PHONY : thread_test
-
-# fast build rule for target.
-thread_test/fast:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_test.dir/build.make examples/CMakeFiles/thread_test.dir/build
-.PHONY : thread_test/fast
-
-# Convenience name for target.
 examples/CMakeFiles/tree_test.dir/rule:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/tree_test.dir/rule
 .PHONY : examples/CMakeFiles/tree_test.dir/rule
@@ -1059,78 +1017,6 @@ themes_test.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/themes_test.dir/build.make examples/CMakeFiles/themes_test.dir/themes_test.cpp.s
 .PHONY : themes_test.cpp.s
 
-thread_onexit.o: thread_onexit.cpp.o
-.PHONY : thread_onexit.o
-
-# target to build an object file
-thread_onexit.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_onexit.dir/build.make examples/CMakeFiles/thread_onexit.dir/thread_onexit.cpp.o
-.PHONY : thread_onexit.cpp.o
-
-thread_onexit.i: thread_onexit.cpp.i
-.PHONY : thread_onexit.i
-
-# target to preprocess a source file
-thread_onexit.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_onexit.dir/build.make examples/CMakeFiles/thread_onexit.dir/thread_onexit.cpp.i
-.PHONY : thread_onexit.cpp.i
-
-thread_onexit.s: thread_onexit.cpp.s
-.PHONY : thread_onexit.s
-
-# target to generate assembly for a file
-thread_onexit.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_onexit.dir/build.make examples/CMakeFiles/thread_onexit.dir/thread_onexit.cpp.s
-.PHONY : thread_onexit.cpp.s
-
-thread_rwlock.o: thread_rwlock.cpp.o
-.PHONY : thread_rwlock.o
-
-# target to build an object file
-thread_rwlock.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_rwlock.dir/build.make examples/CMakeFiles/thread_rwlock.dir/thread_rwlock.cpp.o
-.PHONY : thread_rwlock.cpp.o
-
-thread_rwlock.i: thread_rwlock.cpp.i
-.PHONY : thread_rwlock.i
-
-# target to preprocess a source file
-thread_rwlock.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_rwlock.dir/build.make examples/CMakeFiles/thread_rwlock.dir/thread_rwlock.cpp.i
-.PHONY : thread_rwlock.cpp.i
-
-thread_rwlock.s: thread_rwlock.cpp.s
-.PHONY : thread_rwlock.s
-
-# target to generate assembly for a file
-thread_rwlock.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_rwlock.dir/build.make examples/CMakeFiles/thread_rwlock.dir/thread_rwlock.cpp.s
-.PHONY : thread_rwlock.cpp.s
-
-thread_test.o: thread_test.cpp.o
-.PHONY : thread_test.o
-
-# target to build an object file
-thread_test.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_test.dir/build.make examples/CMakeFiles/thread_test.dir/thread_test.cpp.o
-.PHONY : thread_test.cpp.o
-
-thread_test.i: thread_test.cpp.i
-.PHONY : thread_test.i
-
-# target to preprocess a source file
-thread_test.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_test.dir/build.make examples/CMakeFiles/thread_test.dir/thread_test.cpp.i
-.PHONY : thread_test.cpp.i
-
-thread_test.s: thread_test.cpp.s
-.PHONY : thread_test.s
-
-# target to generate assembly for a file
-thread_test.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/CMakeFiles/thread_test.dir/build.make examples/CMakeFiles/thread_test.dir/thread_test.cpp.s
-.PHONY : thread_test.cpp.s
-
 tree_test.o: tree_test.cpp.o
 .PHONY : tree_test.o
 
@@ -1237,9 +1123,6 @@ help:
 	@echo "... syslog_test"
 	@echo "... tabs_test"
 	@echo "... themes_test"
-	@echo "... thread_onexit"
-	@echo "... thread_rwlock"
-	@echo "... thread_test"
 	@echo "... tree_test"
 	@echo "... tree_view"
 	@echo "... unique_instance"
@@ -1309,15 +1192,6 @@ help:
 	@echo "... themes_test.o"
 	@echo "... themes_test.i"
 	@echo "... themes_test.s"
-	@echo "... thread_onexit.o"
-	@echo "... thread_onexit.i"
-	@echo "... thread_onexit.s"
-	@echo "... thread_rwlock.o"
-	@echo "... thread_rwlock.i"
-	@echo "... thread_rwlock.s"
-	@echo "... thread_test.o"
-	@echo "... thread_test.i"
-	@echo "... thread_test.s"
 	@echo "... tree_test.o"
 	@echo "... tree_test.i"
 	@echo "... tree_test.s"

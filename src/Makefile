@@ -2173,6 +2173,54 @@ threads/CRWLock.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRWLock.cpp.s
 .PHONY : threads/CRWLock.cpp.s
 
+threads/CRunable.o: threads/CRunable.cpp.o
+.PHONY : threads/CRunable.o
+
+# target to build an object file
+threads/CRunable.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRunable.cpp.o
+.PHONY : threads/CRunable.cpp.o
+
+threads/CRunable.i: threads/CRunable.cpp.i
+.PHONY : threads/CRunable.i
+
+# target to preprocess a source file
+threads/CRunable.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRunable.cpp.i
+.PHONY : threads/CRunable.cpp.i
+
+threads/CRunable.s: threads/CRunable.cpp.s
+.PHONY : threads/CRunable.s
+
+# target to generate assembly for a file
+threads/CRunable.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CRunable.cpp.s
+.PHONY : threads/CRunable.cpp.s
+
+threads/CSemaphore.o: threads/CSemaphore.cpp.o
+.PHONY : threads/CSemaphore.o
+
+# target to build an object file
+threads/CSemaphore.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSemaphore.cpp.o
+.PHONY : threads/CSemaphore.cpp.o
+
+threads/CSemaphore.i: threads/CSemaphore.cpp.i
+.PHONY : threads/CSemaphore.i
+
+# target to preprocess a source file
+threads/CSemaphore.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSemaphore.cpp.i
+.PHONY : threads/CSemaphore.cpp.i
+
+threads/CSemaphore.s: threads/CSemaphore.cpp.s
+.PHONY : threads/CSemaphore.s
+
+# target to generate assembly for a file
+threads/CSemaphore.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CSemaphore.cpp.s
+.PHONY : threads/CSemaphore.cpp.s
+
 threads/CSynchronized.o: threads/CSynchronized.cpp.o
 .PHONY : threads/CSynchronized.o
 
@@ -2220,6 +2268,54 @@ threads/CThread.s: threads/CThread.cpp.s
 threads/CThread.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThread.cpp.s
 .PHONY : threads/CThread.cpp.s
+
+threads/CThreadManager.o: threads/CThreadManager.cpp.o
+.PHONY : threads/CThreadManager.o
+
+# target to build an object file
+threads/CThreadManager.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadManager.cpp.o
+.PHONY : threads/CThreadManager.cpp.o
+
+threads/CThreadManager.i: threads/CThreadManager.cpp.i
+.PHONY : threads/CThreadManager.i
+
+# target to preprocess a source file
+threads/CThreadManager.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadManager.cpp.i
+.PHONY : threads/CThreadManager.cpp.i
+
+threads/CThreadManager.s: threads/CThreadManager.cpp.s
+.PHONY : threads/CThreadManager.s
+
+# target to generate assembly for a file
+threads/CThreadManager.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadManager.cpp.s
+.PHONY : threads/CThreadManager.cpp.s
+
+threads/CWorkerThread.o: threads/CWorkerThread.cpp.o
+.PHONY : threads/CWorkerThread.o
+
+# target to build an object file
+threads/CWorkerThread.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CWorkerThread.cpp.o
+.PHONY : threads/CWorkerThread.cpp.o
+
+threads/CWorkerThread.i: threads/CWorkerThread.cpp.i
+.PHONY : threads/CWorkerThread.i
+
+# target to preprocess a source file
+threads/CWorkerThread.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CWorkerThread.cpp.i
+.PHONY : threads/CWorkerThread.cpp.i
+
+threads/CWorkerThread.s: threads/CWorkerThread.cpp.s
+.PHONY : threads/CWorkerThread.s
+
+# target to generate assembly for a file
+threads/CWorkerThread.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CWorkerThread.cpp.s
+.PHONY : threads/CWorkerThread.cpp.s
 
 utils/CBase64.o: utils/CBase64.cpp.o
 .PHONY : utils/CBase64.o
@@ -2893,6 +2989,30 @@ utils/CSysLog.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CSysLog.cpp.s
 .PHONY : utils/CSysLog.cpp.s
 
+utils/CSystemException.o: utils/CSystemException.cpp.o
+.PHONY : utils/CSystemException.o
+
+# target to build an object file
+utils/CSystemException.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CSystemException.cpp.o
+.PHONY : utils/CSystemException.cpp.o
+
+utils/CSystemException.i: utils/CSystemException.cpp.i
+.PHONY : utils/CSystemException.i
+
+# target to preprocess a source file
+utils/CSystemException.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CSystemException.cpp.i
+.PHONY : utils/CSystemException.cpp.i
+
+utils/CSystemException.s: utils/CSystemException.cpp.s
+.PHONY : utils/CSystemException.s
+
+# target to generate assembly for a file
+utils/CSystemException.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/utils/CSystemException.cpp.s
+.PHONY : utils/CSystemException.cpp.s
+
 utils/CUniqueInstance.o: utils/CUniqueInstance.cpp.o
 .PHONY : utils/CUniqueInstance.o
 
@@ -3373,12 +3493,24 @@ help:
 	@echo "... threads/CRWLock.o"
 	@echo "... threads/CRWLock.i"
 	@echo "... threads/CRWLock.s"
+	@echo "... threads/CRunable.o"
+	@echo "... threads/CRunable.i"
+	@echo "... threads/CRunable.s"
+	@echo "... threads/CSemaphore.o"
+	@echo "... threads/CSemaphore.i"
+	@echo "... threads/CSemaphore.s"
 	@echo "... threads/CSynchronized.o"
 	@echo "... threads/CSynchronized.i"
 	@echo "... threads/CSynchronized.s"
 	@echo "... threads/CThread.o"
 	@echo "... threads/CThread.i"
 	@echo "... threads/CThread.s"
+	@echo "... threads/CThreadManager.o"
+	@echo "... threads/CThreadManager.i"
+	@echo "... threads/CThreadManager.s"
+	@echo "... threads/CWorkerThread.o"
+	@echo "... threads/CWorkerThread.i"
+	@echo "... threads/CWorkerThread.s"
 	@echo "... utils/CBase64.o"
 	@echo "... utils/CBase64.i"
 	@echo "... utils/CBase64.s"
@@ -3463,6 +3595,9 @@ help:
 	@echo "... utils/CSysLog.o"
 	@echo "... utils/CSysLog.i"
 	@echo "... utils/CSysLog.s"
+	@echo "... utils/CSystemException.o"
+	@echo "... utils/CSystemException.i"
+	@echo "... utils/CSystemException.s"
 	@echo "... utils/CUniqueInstance.o"
 	@echo "... utils/CUniqueInstance.i"
 	@echo "... utils/CUniqueInstance.s"
