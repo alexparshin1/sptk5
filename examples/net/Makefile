@@ -140,6 +140,20 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+examples/net/CMakeFiles/client_test.dir/rule:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/net/CMakeFiles/client_test.dir/rule
+.PHONY : examples/net/CMakeFiles/client_test.dir/rule
+
+# Convenience name for target.
+client_test: examples/net/CMakeFiles/client_test.dir/rule
+.PHONY : client_test
+
+# fast build rule for target.
+client_test/fast:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/client_test.dir/build.make examples/net/CMakeFiles/client_test.dir/build
+.PHONY : client_test/fast
+
+# Convenience name for target.
 examples/net/CMakeFiles/http_connect.dir/rule:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/net/CMakeFiles/http_connect.dir/rule
 .PHONY : examples/net/CMakeFiles/http_connect.dir/rule
@@ -168,6 +182,20 @@ imap_connect/fast:
 .PHONY : imap_connect/fast
 
 # Convenience name for target.
+examples/net/CMakeFiles/server_test.dir/rule:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/net/CMakeFiles/server_test.dir/rule
+.PHONY : examples/net/CMakeFiles/server_test.dir/rule
+
+# Convenience name for target.
+server_test: examples/net/CMakeFiles/server_test.dir/rule
+.PHONY : server_test
+
+# fast build rule for target.
+server_test/fast:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/server_test.dir/build.make examples/net/CMakeFiles/server_test.dir/build
+.PHONY : server_test/fast
+
+# Convenience name for target.
 examples/net/CMakeFiles/smtp_connect.dir/rule:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f CMakeFiles/Makefile2 examples/net/CMakeFiles/smtp_connect.dir/rule
 .PHONY : examples/net/CMakeFiles/smtp_connect.dir/rule
@@ -180,6 +208,30 @@ smtp_connect: examples/net/CMakeFiles/smtp_connect.dir/rule
 smtp_connect/fast:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/smtp_connect.dir/build.make examples/net/CMakeFiles/smtp_connect.dir/build
 .PHONY : smtp_connect/fast
+
+client_test.o: client_test.cpp.o
+.PHONY : client_test.o
+
+# target to build an object file
+client_test.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/client_test.dir/build.make examples/net/CMakeFiles/client_test.dir/client_test.cpp.o
+.PHONY : client_test.cpp.o
+
+client_test.i: client_test.cpp.i
+.PHONY : client_test.i
+
+# target to preprocess a source file
+client_test.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/client_test.dir/build.make examples/net/CMakeFiles/client_test.dir/client_test.cpp.i
+.PHONY : client_test.cpp.i
+
+client_test.s: client_test.cpp.s
+.PHONY : client_test.s
+
+# target to generate assembly for a file
+client_test.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/client_test.dir/build.make examples/net/CMakeFiles/client_test.dir/client_test.cpp.s
+.PHONY : client_test.cpp.s
 
 http_connect.o: http_connect.cpp.o
 .PHONY : http_connect.o
@@ -229,6 +281,30 @@ imap_connect.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/imap_connect.dir/build.make examples/net/CMakeFiles/imap_connect.dir/imap_connect.cpp.s
 .PHONY : imap_connect.cpp.s
 
+server_test.o: server_test.cpp.o
+.PHONY : server_test.o
+
+# target to build an object file
+server_test.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/server_test.dir/build.make examples/net/CMakeFiles/server_test.dir/server_test.cpp.o
+.PHONY : server_test.cpp.o
+
+server_test.i: server_test.cpp.i
+.PHONY : server_test.i
+
+# target to preprocess a source file
+server_test.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/server_test.dir/build.make examples/net/CMakeFiles/server_test.dir/server_test.cpp.i
+.PHONY : server_test.cpp.i
+
+server_test.s: server_test.cpp.s
+.PHONY : server_test.s
+
+# target to generate assembly for a file
+server_test.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f examples/net/CMakeFiles/server_test.dir/build.make examples/net/CMakeFiles/server_test.dir/server_test.cpp.s
+.PHONY : server_test.cpp.s
+
 smtp_connect.o: smtp_connect.cpp.o
 .PHONY : smtp_connect.o
 
@@ -259,6 +335,7 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... client_test"
 	@echo "... edit_cache"
 	@echo "... http_connect"
 	@echo "... imap_connect"
@@ -267,13 +344,20 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... server_test"
 	@echo "... smtp_connect"
+	@echo "... client_test.o"
+	@echo "... client_test.i"
+	@echo "... client_test.s"
 	@echo "... http_connect.o"
 	@echo "... http_connect.i"
 	@echo "... http_connect.s"
 	@echo "... imap_connect.o"
 	@echo "... imap_connect.i"
 	@echo "... imap_connect.s"
+	@echo "... server_test.o"
+	@echo "... server_test.i"
+	@echo "... server_test.s"
 	@echo "... smtp_connect.o"
 	@echo "... smtp_connect.i"
 	@echo "... smtp_connect.s"

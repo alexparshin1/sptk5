@@ -6,7 +6,8 @@ necessary to compile and run the example applications.
    On Unix, Linux, Solaris it will be
 
    cd /your_sptk_dir
-   make 
+   cmake .
+   make
    make install
 
    The SPTK installs its shared libraries into /usr/local/lib. 

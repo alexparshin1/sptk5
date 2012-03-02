@@ -322,331 +322,6 @@ sputil5/fast:
 .PHONY : sputil5/fast
 
 #=============================================================================
-# Target rules for targets named calendar_test
-
-# Build rule for target.
-calendar_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 calendar_test
-.PHONY : calendar_test
-
-# fast build rule for target.
-calendar_test/fast:
-	$(MAKE) -f examples/CMakeFiles/calendar_test.dir/build.make examples/CMakeFiles/calendar_test.dir/build
-.PHONY : calendar_test/fast
-
-#=============================================================================
-# Target rules for targets named ceditor_test
-
-# Build rule for target.
-ceditor_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ceditor_test
-.PHONY : ceditor_test
-
-# fast build rule for target.
-ceditor_test/fast:
-	$(MAKE) -f examples/CMakeFiles/ceditor_test.dir/build.make examples/CMakeFiles/ceditor_test.dir/build
-.PHONY : ceditor_test/fast
-
-#=============================================================================
-# Target rules for targets named cgroup_test
-
-# Build rule for target.
-cgroup_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cgroup_test
-.PHONY : cgroup_test
-
-# fast build rule for target.
-cgroup_test/fast:
-	$(MAKE) -f examples/CMakeFiles/cgroup_test.dir/build.make examples/CMakeFiles/cgroup_test.dir/build
-.PHONY : cgroup_test/fast
-
-#=============================================================================
-# Target rules for targets named check_buttons
-
-# Build rule for target.
-check_buttons: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 check_buttons
-.PHONY : check_buttons
-
-# fast build rule for target.
-check_buttons/fast:
-	$(MAKE) -f examples/CMakeFiles/check_buttons.dir/build.make examples/CMakeFiles/check_buttons.dir/build
-.PHONY : check_buttons/fast
-
-#=============================================================================
-# Target rules for targets named client_test
-
-# Build rule for target.
-client_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 client_test
-.PHONY : client_test
-
-# fast build rule for target.
-client_test/fast:
-	$(MAKE) -f examples/CMakeFiles/client_test.dir/build.make examples/CMakeFiles/client_test.dir/build
-.PHONY : client_test/fast
-
-#=============================================================================
-# Target rules for targets named combo_test
-
-# Build rule for target.
-combo_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 combo_test
-.PHONY : combo_test
-
-# fast build rule for target.
-combo_test/fast:
-	$(MAKE) -f examples/CMakeFiles/combo_test.dir/build.make examples/CMakeFiles/combo_test.dir/build
-.PHONY : combo_test/fast
-
-#=============================================================================
-# Target rules for targets named cscroll_test
-
-# Build rule for target.
-cscroll_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cscroll_test
-.PHONY : cscroll_test
-
-# fast build rule for target.
-cscroll_test/fast:
-	$(MAKE) -f examples/CMakeFiles/cscroll_test.dir/build.make examples/CMakeFiles/cscroll_test.dir/build
-.PHONY : cscroll_test/fast
-
-#=============================================================================
-# Target rules for targets named datetime
-
-# Build rule for target.
-datetime: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 datetime
-.PHONY : datetime
-
-# fast build rule for target.
-datetime/fast:
-	$(MAKE) -f examples/CMakeFiles/datetime.dir/build.make examples/CMakeFiles/datetime.dir/build
-.PHONY : datetime/fast
-
-#=============================================================================
-# Target rules for targets named db_list_view
-
-# Build rule for target.
-db_list_view: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 db_list_view
-.PHONY : db_list_view
-
-# fast build rule for target.
-db_list_view/fast:
-	$(MAKE) -f examples/CMakeFiles/db_list_view.dir/build.make examples/CMakeFiles/db_list_view.dir/build
-.PHONY : db_list_view/fast
-
-#=============================================================================
-# Target rules for targets named dialog_test
-
-# Build rule for target.
-dialog_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 dialog_test
-.PHONY : dialog_test
-
-# fast build rule for target.
-dialog_test/fast:
-	$(MAKE) -f examples/CMakeFiles/dialog_test.dir/build.make examples/CMakeFiles/dialog_test.dir/build
-.PHONY : dialog_test/fast
-
-#=============================================================================
-# Target rules for targets named exceptions
-
-# Build rule for target.
-exceptions: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 exceptions
-.PHONY : exceptions
-
-# fast build rule for target.
-exceptions/fast:
-	$(MAKE) -f examples/CMakeFiles/exceptions.dir/build.make examples/CMakeFiles/exceptions.dir/build
-.PHONY : exceptions/fast
-
-#=============================================================================
-# Target rules for targets named font_combo
-
-# Build rule for target.
-font_combo: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 font_combo
-.PHONY : font_combo
-
-# fast build rule for target.
-font_combo/fast:
-	$(MAKE) -f examples/CMakeFiles/font_combo.dir/build.make examples/CMakeFiles/font_combo.dir/build
-.PHONY : font_combo/fast
-
-#=============================================================================
-# Target rules for targets named logfile_test
-
-# Build rule for target.
-logfile_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 logfile_test
-.PHONY : logfile_test
-
-# fast build rule for target.
-logfile_test/fast:
-	$(MAKE) -f examples/CMakeFiles/logfile_test.dir/build.make examples/CMakeFiles/logfile_test.dir/build
-.PHONY : logfile_test/fast
-
-#=============================================================================
-# Target rules for targets named registry
-
-# Build rule for target.
-registry: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 registry
-.PHONY : registry
-
-# fast build rule for target.
-registry/fast:
-	$(MAKE) -f examples/CMakeFiles/registry.dir/build.make examples/CMakeFiles/registry.dir/build
-.PHONY : registry/fast
-
-#=============================================================================
-# Target rules for targets named server_test
-
-# Build rule for target.
-server_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 server_test
-.PHONY : server_test
-
-# fast build rule for target.
-server_test/fast:
-	$(MAKE) -f examples/CMakeFiles/server_test.dir/build.make examples/CMakeFiles/server_test.dir/build
-.PHONY : server_test/fast
-
-#=============================================================================
-# Target rules for targets named shaped_window
-
-# Build rule for target.
-shaped_window: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 shaped_window
-.PHONY : shaped_window
-
-# fast build rule for target.
-shaped_window/fast:
-	$(MAKE) -f examples/CMakeFiles/shaped_window.dir/build.make examples/CMakeFiles/shaped_window.dir/build
-.PHONY : shaped_window/fast
-
-#=============================================================================
-# Target rules for targets named spell_checker
-
-# Build rule for target.
-spell_checker: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 spell_checker
-.PHONY : spell_checker
-
-# fast build rule for target.
-spell_checker/fast:
-	$(MAKE) -f examples/CMakeFiles/spell_checker.dir/build.make examples/CMakeFiles/spell_checker.dir/build
-.PHONY : spell_checker/fast
-
-#=============================================================================
-# Target rules for targets named splitter
-
-# Build rule for target.
-splitter: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 splitter
-.PHONY : splitter
-
-# fast build rule for target.
-splitter/fast:
-	$(MAKE) -f examples/CMakeFiles/splitter.dir/build.make examples/CMakeFiles/splitter.dir/build
-.PHONY : splitter/fast
-
-#=============================================================================
-# Target rules for targets named sptk_test
-
-# Build rule for target.
-sptk_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 sptk_test
-.PHONY : sptk_test
-
-# fast build rule for target.
-sptk_test/fast:
-	$(MAKE) -f examples/CMakeFiles/sptk_test.dir/build.make examples/CMakeFiles/sptk_test.dir/build
-.PHONY : sptk_test/fast
-
-#=============================================================================
-# Target rules for targets named syslog_test
-
-# Build rule for target.
-syslog_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 syslog_test
-.PHONY : syslog_test
-
-# fast build rule for target.
-syslog_test/fast:
-	$(MAKE) -f examples/CMakeFiles/syslog_test.dir/build.make examples/CMakeFiles/syslog_test.dir/build
-.PHONY : syslog_test/fast
-
-#=============================================================================
-# Target rules for targets named tabs_test
-
-# Build rule for target.
-tabs_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 tabs_test
-.PHONY : tabs_test
-
-# fast build rule for target.
-tabs_test/fast:
-	$(MAKE) -f examples/CMakeFiles/tabs_test.dir/build.make examples/CMakeFiles/tabs_test.dir/build
-.PHONY : tabs_test/fast
-
-#=============================================================================
-# Target rules for targets named themes_test
-
-# Build rule for target.
-themes_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 themes_test
-.PHONY : themes_test
-
-# fast build rule for target.
-themes_test/fast:
-	$(MAKE) -f examples/CMakeFiles/themes_test.dir/build.make examples/CMakeFiles/themes_test.dir/build
-.PHONY : themes_test/fast
-
-#=============================================================================
-# Target rules for targets named tree_test
-
-# Build rule for target.
-tree_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 tree_test
-.PHONY : tree_test
-
-# fast build rule for target.
-tree_test/fast:
-	$(MAKE) -f examples/CMakeFiles/tree_test.dir/build.make examples/CMakeFiles/tree_test.dir/build
-.PHONY : tree_test/fast
-
-#=============================================================================
-# Target rules for targets named tree_view
-
-# Build rule for target.
-tree_view: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 tree_view
-.PHONY : tree_view
-
-# fast build rule for target.
-tree_view/fast:
-	$(MAKE) -f examples/CMakeFiles/tree_view.dir/build.make examples/CMakeFiles/tree_view.dir/build
-.PHONY : tree_view/fast
-
-#=============================================================================
-# Target rules for targets named unique_instance
-
-# Build rule for target.
-unique_instance: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 unique_instance
-.PHONY : unique_instance
-
-# fast build rule for target.
-unique_instance/fast:
-	$(MAKE) -f examples/CMakeFiles/unique_instance.dir/build.make examples/CMakeFiles/unique_instance.dir/build
-.PHONY : unique_instance/fast
-
-#=============================================================================
 # Target rules for targets named xml_test1
 
 # Build rule for target.
@@ -829,6 +504,84 @@ threadman_test/fast:
 .PHONY : threadman_test/fast
 
 #=============================================================================
+# Target rules for targets named datetime
+
+# Build rule for target.
+datetime: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 datetime
+.PHONY : datetime
+
+# fast build rule for target.
+datetime/fast:
+	$(MAKE) -f examples/utils/CMakeFiles/datetime.dir/build.make examples/utils/CMakeFiles/datetime.dir/build
+.PHONY : datetime/fast
+
+#=============================================================================
+# Target rules for targets named exceptions
+
+# Build rule for target.
+exceptions: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 exceptions
+.PHONY : exceptions
+
+# fast build rule for target.
+exceptions/fast:
+	$(MAKE) -f examples/utils/CMakeFiles/exceptions.dir/build.make examples/utils/CMakeFiles/exceptions.dir/build
+.PHONY : exceptions/fast
+
+#=============================================================================
+# Target rules for targets named logfile_test
+
+# Build rule for target.
+logfile_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 logfile_test
+.PHONY : logfile_test
+
+# fast build rule for target.
+logfile_test/fast:
+	$(MAKE) -f examples/utils/CMakeFiles/logfile_test.dir/build.make examples/utils/CMakeFiles/logfile_test.dir/build
+.PHONY : logfile_test/fast
+
+#=============================================================================
+# Target rules for targets named registry
+
+# Build rule for target.
+registry: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 registry
+.PHONY : registry
+
+# fast build rule for target.
+registry/fast:
+	$(MAKE) -f examples/utils/CMakeFiles/registry.dir/build.make examples/utils/CMakeFiles/registry.dir/build
+.PHONY : registry/fast
+
+#=============================================================================
+# Target rules for targets named syslog_test
+
+# Build rule for target.
+syslog_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 syslog_test
+.PHONY : syslog_test
+
+# fast build rule for target.
+syslog_test/fast:
+	$(MAKE) -f examples/utils/CMakeFiles/syslog_test.dir/build.make examples/utils/CMakeFiles/syslog_test.dir/build
+.PHONY : syslog_test/fast
+
+#=============================================================================
+# Target rules for targets named unique_instance
+
+# Build rule for target.
+unique_instance: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 unique_instance
+.PHONY : unique_instance
+
+# fast build rule for target.
+unique_instance/fast:
+	$(MAKE) -f examples/utils/CMakeFiles/unique_instance.dir/build.make examples/utils/CMakeFiles/unique_instance.dir/build
+.PHONY : unique_instance/fast
+
+#=============================================================================
 # Target rules for targets named directory_ds
 
 # Build rule for target.
@@ -855,17 +608,17 @@ imap_ds/fast:
 .PHONY : imap_ds/fast
 
 #=============================================================================
-# Target rules for targets named file_dialogs
+# Target rules for targets named client_test
 
 # Build rule for target.
-file_dialogs: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 file_dialogs
-.PHONY : file_dialogs
+client_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 client_test
+.PHONY : client_test
 
 # fast build rule for target.
-file_dialogs/fast:
-	$(MAKE) -f examples/dialogs/CMakeFiles/file_dialogs.dir/build.make examples/dialogs/CMakeFiles/file_dialogs.dir/build
-.PHONY : file_dialogs/fast
+client_test/fast:
+	$(MAKE) -f examples/net/CMakeFiles/client_test.dir/build.make examples/net/CMakeFiles/client_test.dir/build
+.PHONY : client_test/fast
 
 #=============================================================================
 # Target rules for targets named http_connect
@@ -894,6 +647,19 @@ imap_connect/fast:
 .PHONY : imap_connect/fast
 
 #=============================================================================
+# Target rules for targets named server_test
+
+# Build rule for target.
+server_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 server_test
+.PHONY : server_test
+
+# fast build rule for target.
+server_test/fast:
+	$(MAKE) -f examples/net/CMakeFiles/server_test.dir/build.make examples/net/CMakeFiles/server_test.dir/build
+.PHONY : server_test/fast
+
+#=============================================================================
 # Target rules for targets named smtp_connect
 
 # Build rule for target.
@@ -905,6 +671,240 @@ smtp_connect: cmake_check_build_system
 smtp_connect/fast:
 	$(MAKE) -f examples/net/CMakeFiles/smtp_connect.dir/build.make examples/net/CMakeFiles/smtp_connect.dir/build
 .PHONY : smtp_connect/fast
+
+#=============================================================================
+# Target rules for targets named calendar_test
+
+# Build rule for target.
+calendar_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 calendar_test
+.PHONY : calendar_test
+
+# fast build rule for target.
+calendar_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/calendar_test.dir/build.make examples/gui/CMakeFiles/calendar_test.dir/build
+.PHONY : calendar_test/fast
+
+#=============================================================================
+# Target rules for targets named ceditor_test
+
+# Build rule for target.
+ceditor_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ceditor_test
+.PHONY : ceditor_test
+
+# fast build rule for target.
+ceditor_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/ceditor_test.dir/build.make examples/gui/CMakeFiles/ceditor_test.dir/build
+.PHONY : ceditor_test/fast
+
+#=============================================================================
+# Target rules for targets named cgroup_test
+
+# Build rule for target.
+cgroup_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cgroup_test
+.PHONY : cgroup_test
+
+# fast build rule for target.
+cgroup_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/cgroup_test.dir/build.make examples/gui/CMakeFiles/cgroup_test.dir/build
+.PHONY : cgroup_test/fast
+
+#=============================================================================
+# Target rules for targets named check_buttons
+
+# Build rule for target.
+check_buttons: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 check_buttons
+.PHONY : check_buttons
+
+# fast build rule for target.
+check_buttons/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/check_buttons.dir/build.make examples/gui/CMakeFiles/check_buttons.dir/build
+.PHONY : check_buttons/fast
+
+#=============================================================================
+# Target rules for targets named combo_test
+
+# Build rule for target.
+combo_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 combo_test
+.PHONY : combo_test
+
+# fast build rule for target.
+combo_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/combo_test.dir/build.make examples/gui/CMakeFiles/combo_test.dir/build
+.PHONY : combo_test/fast
+
+#=============================================================================
+# Target rules for targets named cscroll_test
+
+# Build rule for target.
+cscroll_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cscroll_test
+.PHONY : cscroll_test
+
+# fast build rule for target.
+cscroll_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/cscroll_test.dir/build.make examples/gui/CMakeFiles/cscroll_test.dir/build
+.PHONY : cscroll_test/fast
+
+#=============================================================================
+# Target rules for targets named db_list_view
+
+# Build rule for target.
+db_list_view: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 db_list_view
+.PHONY : db_list_view
+
+# fast build rule for target.
+db_list_view/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/db_list_view.dir/build.make examples/gui/CMakeFiles/db_list_view.dir/build
+.PHONY : db_list_view/fast
+
+#=============================================================================
+# Target rules for targets named dialog_test
+
+# Build rule for target.
+dialog_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 dialog_test
+.PHONY : dialog_test
+
+# fast build rule for target.
+dialog_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/dialog_test.dir/build.make examples/gui/CMakeFiles/dialog_test.dir/build
+.PHONY : dialog_test/fast
+
+#=============================================================================
+# Target rules for targets named file_dialogs
+
+# Build rule for target.
+file_dialogs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 file_dialogs
+.PHONY : file_dialogs
+
+# fast build rule for target.
+file_dialogs/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/file_dialogs.dir/build.make examples/gui/CMakeFiles/file_dialogs.dir/build
+.PHONY : file_dialogs/fast
+
+#=============================================================================
+# Target rules for targets named font_combo
+
+# Build rule for target.
+font_combo: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 font_combo
+.PHONY : font_combo
+
+# fast build rule for target.
+font_combo/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/font_combo.dir/build.make examples/gui/CMakeFiles/font_combo.dir/build
+.PHONY : font_combo/fast
+
+#=============================================================================
+# Target rules for targets named shaped_window
+
+# Build rule for target.
+shaped_window: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 shaped_window
+.PHONY : shaped_window
+
+# fast build rule for target.
+shaped_window/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/shaped_window.dir/build.make examples/gui/CMakeFiles/shaped_window.dir/build
+.PHONY : shaped_window/fast
+
+#=============================================================================
+# Target rules for targets named spell_checker
+
+# Build rule for target.
+spell_checker: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 spell_checker
+.PHONY : spell_checker
+
+# fast build rule for target.
+spell_checker/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/spell_checker.dir/build.make examples/gui/CMakeFiles/spell_checker.dir/build
+.PHONY : spell_checker/fast
+
+#=============================================================================
+# Target rules for targets named splitter
+
+# Build rule for target.
+splitter: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 splitter
+.PHONY : splitter
+
+# fast build rule for target.
+splitter/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/splitter.dir/build.make examples/gui/CMakeFiles/splitter.dir/build
+.PHONY : splitter/fast
+
+#=============================================================================
+# Target rules for targets named sptk_test
+
+# Build rule for target.
+sptk_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 sptk_test
+.PHONY : sptk_test
+
+# fast build rule for target.
+sptk_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/sptk_test.dir/build.make examples/gui/CMakeFiles/sptk_test.dir/build
+.PHONY : sptk_test/fast
+
+#=============================================================================
+# Target rules for targets named tabs_test
+
+# Build rule for target.
+tabs_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tabs_test
+.PHONY : tabs_test
+
+# fast build rule for target.
+tabs_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/tabs_test.dir/build.make examples/gui/CMakeFiles/tabs_test.dir/build
+.PHONY : tabs_test/fast
+
+#=============================================================================
+# Target rules for targets named themes_test
+
+# Build rule for target.
+themes_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 themes_test
+.PHONY : themes_test
+
+# fast build rule for target.
+themes_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/themes_test.dir/build.make examples/gui/CMakeFiles/themes_test.dir/build
+.PHONY : themes_test/fast
+
+#=============================================================================
+# Target rules for targets named tree_test
+
+# Build rule for target.
+tree_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tree_test
+.PHONY : tree_test
+
+# fast build rule for target.
+tree_test/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/tree_test.dir/build.make examples/gui/CMakeFiles/tree_test.dir/build
+.PHONY : tree_test/fast
+
+#=============================================================================
+# Target rules for targets named tree_view
+
+# Build rule for target.
+tree_view: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tree_view
+.PHONY : tree_view
+
+# fast build rule for target.
+tree_view/fast:
+	$(MAKE) -f examples/gui/CMakeFiles/tree_view.dir/build.make examples/gui/CMakeFiles/tree_view.dir/build
+.PHONY : tree_view/fast
 
 # Help Target
 help:
@@ -932,31 +932,6 @@ help:
 	@echo "... spdb5"
 	@echo "... sptk5"
 	@echo "... sputil5"
-	@echo "... calendar_test"
-	@echo "... ceditor_test"
-	@echo "... cgroup_test"
-	@echo "... check_buttons"
-	@echo "... client_test"
-	@echo "... combo_test"
-	@echo "... cscroll_test"
-	@echo "... datetime"
-	@echo "... db_list_view"
-	@echo "... dialog_test"
-	@echo "... exceptions"
-	@echo "... font_combo"
-	@echo "... logfile_test"
-	@echo "... registry"
-	@echo "... server_test"
-	@echo "... shaped_window"
-	@echo "... spell_checker"
-	@echo "... splitter"
-	@echo "... sptk_test"
-	@echo "... syslog_test"
-	@echo "... tabs_test"
-	@echo "... themes_test"
-	@echo "... tree_test"
-	@echo "... tree_view"
-	@echo "... unique_instance"
 	@echo "... xml_test1"
 	@echo "... xml_test2"
 	@echo "... xml_test3"
@@ -971,12 +946,37 @@ help:
 	@echo "... thread_rwlock"
 	@echo "... thread_test"
 	@echo "... threadman_test"
+	@echo "... datetime"
+	@echo "... exceptions"
+	@echo "... logfile_test"
+	@echo "... registry"
+	@echo "... syslog_test"
+	@echo "... unique_instance"
 	@echo "... directory_ds"
 	@echo "... imap_ds"
-	@echo "... file_dialogs"
+	@echo "... client_test"
 	@echo "... http_connect"
 	@echo "... imap_connect"
+	@echo "... server_test"
 	@echo "... smtp_connect"
+	@echo "... calendar_test"
+	@echo "... ceditor_test"
+	@echo "... cgroup_test"
+	@echo "... check_buttons"
+	@echo "... combo_test"
+	@echo "... cscroll_test"
+	@echo "... db_list_view"
+	@echo "... dialog_test"
+	@echo "... file_dialogs"
+	@echo "... font_combo"
+	@echo "... shaped_window"
+	@echo "... spell_checker"
+	@echo "... splitter"
+	@echo "... sptk_test"
+	@echo "... tabs_test"
+	@echo "... themes_test"
+	@echo "... tree_test"
+	@echo "... tree_view"
 .PHONY : help
 
 
