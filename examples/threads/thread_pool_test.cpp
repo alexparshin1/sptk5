@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
     vector<CMyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    CThreadManager threadManager;
+    CThreadPool threadManager;
 
     /// The log file would get messages from all the tasks.
     /// Threads send messages through their own CProxyLog objects.

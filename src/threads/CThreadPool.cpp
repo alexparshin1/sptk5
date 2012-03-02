@@ -2,7 +2,7 @@
                          SIMPLY POWERFUL TOOLKIT (SPTK)
                          CThreadPool.cpp  -  description
                              -------------------
-    begin                : Sat Feb 25 2012
+    begin                : Sun Feb 26 2012
     copyright            : (C) 2000-2012 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
@@ -30,86 +30,81 @@
 using namespace std;
 using namespace sptk;
 
-class CWorkerThread : public CThread
+CThreadPool::CThreadPool(uint32_t threadLimit, uint32_t threadIdleSeconds) :
+    CThread("thread manager"),
+    m_threadLimit(threadLimit),
+    m_activeThreads(0),
+    m_threadIdleSeconds(threadIdleSeconds),
+    m_shutdown(false)
 {
-    CSynchronizedQueue<CRunable*>&  m_queue;
-protected:
-    void threadFunction()
-    {
-        while (!terminated()) {
-            CRunable* runable = NULL;
-            if (m_queue.pop(runable, 1000)) {
-                try {
-                    runable->execute();
-                }
-                catch (exception& e) {
-                    cerr << "CRunable::run() : " << e.what() << endl;
-                }
-                catch (...) {
-                    cerr << "CRunable::run() : unknown exception" << endl;
-                }
-            }
-        }
-    }
-public:
-    CWorkerThread(CSynchronizedQueue<CRunable*>& queue) :
-        CThread("worker"),
-        m_queue(queue)
-    {
-    }
-};
-
-
-class CMonitorThread : public CThread, public CSynchronized
-{
-    CSynchronizedQueue<CRunable*>&  m_queue;
-    std::queue<CWorkerThread*>      m_workerThreads;
-protected:
-    void threadFunction()
-    {
-        while (!terminated()) {
-        }
-    }
-public:
-    CMonitorThread(CSynchronizedQueue<CRunable*>& queue) :
-        CThread("worker"),
-        m_queue(queue)
-    {
-    }
-
-    void startThread()
-    {
-        SYNCHRONIZED_CODE;
-        CWorkerThread* workerThread = new CWorkerThread(m_queue);
-        if (workerThread) {
-            m_workerThreads.push(workerThread);
-            workerThread->run();
-        }
-    }
-
-    uint32_t threadCount()
-    {
-        SYNCHRONIZED_CODE;
-        return m_workerThreads.size();
-    }
-};
-
-
-CThreadPool::CThreadPool(uint32_t maxWorkerThreads) :
-    m_monitorThread(new CMonitorThread(m_executeQueue)),
-    m_maxWorkerThreads(maxWorkerThreads)
-{
+    run();
 }
 
 CThreadPool::~CThreadPool()
 {
 }
 
-void CThreadPool::execute(CRunable* runable)
+void CThreadPool::threadFunction()
+{
+    while (!terminated()) {
+        CWorkerThread* workerThread = NULL;
+        if (m_terminatedThreads.pop_front(workerThread, 1000)) {
+            m_threads.remove(workerThread);
+            delete workerThread;
+            cout << "Terminated thread " << hex << workerThread << endl;
+        }
+    }
+}
+
+CWorkerThread* CThreadPool::createThread()
+{
+    CWorkerThread*  workerThread = new CWorkerThread(&m_taskQueue, this, m_threadIdleSeconds);
+    m_threads.push_back(workerThread);
+    workerThread->run();
+    return workerThread;
+}
+
+void CThreadPool::execute(CRunable* task)
 {
     SYNCHRONIZED_CODE;
-    CMonitorThread* monitorThread = (CMonitorThread*)m_monitorThread;
-    if (m_executeQueue.size() && monitorThread->threadCount() < m_maxWorkerThreads)
-        monitorThread->startThread();
-    m_executeQueue.push(runable);
+    if (m_shutdown)
+        throw CException("Thread manager is stopped");
+    unsigned threadCount = m_threads.size();
+    if (m_activeThreads == threadCount) {
+        createThread();
+        m_activeThreads++;
+    }
+    m_taskQueue.push(task);
+}
+
+void CThreadPool::threadEvent(CThread* thread, CThreadEvent::Type eventType)
+{
+    SYNCHRONIZED_CODE;
+    switch (eventType) {
+    case CThreadEvent::RUNABLE_STARTED:
+        m_activeThreads++;
+        break;
+    case CThreadEvent::RUNABLE_FINISHED:
+        m_activeThreads--;
+        break;
+    case CThreadEvent::THREAD_FINISHED:
+        m_terminatedThreads.push_back((CWorkerThread*)thread);
+        break;
+    case CThreadEvent::THREAD_STARTED:
+    case CThreadEvent::IDLE_TIMEOUT:
+        break;
+    }
+}
+
+static bool terminateThread(CWorkerThread*& thread, void*)
+{
+    thread->terminate();
+    return true;
+}
+
+void CThreadPool::stop()
+{
+    SYNCHRONIZED_CODE;
+    m_shutdown = true;
+    m_threads.each(terminateThread);
 }

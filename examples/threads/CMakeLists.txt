@@ -2,7 +2,7 @@ INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
 
-SET (THREADS_TESTS semaphore thread_onexit thread_rwlock thread_test threadman_test)
+SET (THREADS_TESTS semaphore thread_onexit thread_rwlock thread_test thread_pool_test)
 
 FOREACH (THREADS_TEST ${THREADS_TESTS})
 

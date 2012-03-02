@@ -2,7 +2,7 @@
                          SIMPLY POWERFUL TOOLKIT (SPTK)
                          CThreadPool.h  -  description
                              -------------------
-    begin                : Sat Feb 25 2012
+    begin                : Sun Feb 26 2012
     copyright            : (C) 2000-2012 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
@@ -28,37 +28,72 @@
 #ifndef __CTHREADPOOL_H__
 #define __CTHREADPOOL_H__
 
-#include <sptk5/threads/CSynchronizedQueue.h>
 #include <sptk5/threads/CThread.h>
+#include <sptk5/threads/CThreadEvent.h>
 #include <sptk5/threads/CRunable.h>
-#include <queue>
-#include <list>
+#include <sptk5/threads/CSynchronizedQueue.h>
+#include <sptk5/threads/CSynchronizedList.h>
+#include <sptk5/threads/CWorkerThread.h>
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
+/// @addtogroup threads Threads Classes
 /// @{
 
-/// @brief Thread pool that executes runable (derived from CRunable) objects
-class CThreadPool : public CSynchronized
+/// @brief Controls creation and execution of the threads.
+///
+/// When a thread is requested from the thread pool, it ether
+/// creates a new thread or returns one from the thread pool.
+/// If a thread is idle for the period longer than defined in constructor,
+/// it's automatically terminated.
+class SP_EXPORT CThreadPool : public CSynchronized, public CThreadEvent, public CThread
 {
-    CSynchronizedQueue<CRunable*>   m_executeQueue;     ///< Queue of the runable objects to be executed
-    CThread*                        m_monitorThread;    ///< Monitor thread
-    uint32_t                        m_maxWorkerThreads; ///< Maximum number of worker threads
+    CSynchronizedList<CWorkerThread*>   m_terminatedThreads;    ///< Terminated threads scheduled for delete
+    CSynchronizedList<CWorkerThread*>   m_threads;              ///< All threads created by this pool
+    uint32_t                            m_threadLimit;          ///< Maximum number of threads in this pool
+    CSynchronizedQueue<CRunable*>       m_taskQueue;            ///< Share task queue
+    uint32_t                            m_activeThreads;        ///< Number of threads currently running tasks
+    uint32_t                            m_threadIdleSeconds;    ///< Maximum thread idle time before thread in this pool is terminated
+    bool                                m_shutdown;             ///< Flag: true during pool shutdown
+
+    /// @brief Creates a new thread and adds it to thread pool
+    ///
+    /// Create new worker thread
+    CWorkerThread* createThread();
+
+protected:
+
+    /// @brief Thread pool control thread function
+    ///
+    /// Manages terminated threads
+    virtual void threadFunction();
+
+
+    /// @brief Sends terminate() message to all worker threads, and sets shutdown state
+    void stop();
+
 public:
+
     /// @brief Constructor
-    /// @param maxWorkerThreads uint32_t, Maximum number of worker threads
-    CThreadPool(uint32_t maxWorkerThreads=100);
+    /// @param threadLimit uint32_t, Maximum number of threads in this pool
+    /// @param threadIdleSeconds int32_t, Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+    CThreadPool(uint32_t threadLimit=100, uint32_t threadIdleSeconds=60);
 
     /// @brief Destructor
+    ///
+    /// All worker threads are sent terminate() message,
+    /// then thread pool waits while threads are destroyed
     virtual ~CThreadPool();
 
-    /// @brief Executes runable
+    /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
+    void execute(CRunable* task);
+
+    /// @brief Thread event callback function
     ///
-    /// Runable is placed to the queue for execution in worker threads,
-    /// and execute() immediately returns.
-    /// @param runable CRunable*, Runable to execute
-    void execute(CRunable* runable);
+    /// Receives events that occur in the threads
+    /// @param thread CThread*, Thread where event occured
+    /// @param eventType CThreadEvent::Type, Thread event type
+    virtual void threadEvent(CThread* thread, CThreadEvent::Type eventType);
 };
 
 /// @}

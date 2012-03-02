@@ -465,6 +465,19 @@ thread_onexit/fast:
 .PHONY : thread_onexit/fast
 
 #=============================================================================
+# Target rules for targets named thread_pool_test
+
+# Build rule for target.
+thread_pool_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 thread_pool_test
+.PHONY : thread_pool_test
+
+# fast build rule for target.
+thread_pool_test/fast:
+	$(MAKE) -f examples/threads/CMakeFiles/thread_pool_test.dir/build.make examples/threads/CMakeFiles/thread_pool_test.dir/build
+.PHONY : thread_pool_test/fast
+
+#=============================================================================
 # Target rules for targets named thread_rwlock
 
 # Build rule for target.
@@ -489,19 +502,6 @@ thread_test: cmake_check_build_system
 thread_test/fast:
 	$(MAKE) -f examples/threads/CMakeFiles/thread_test.dir/build.make examples/threads/CMakeFiles/thread_test.dir/build
 .PHONY : thread_test/fast
-
-#=============================================================================
-# Target rules for targets named threadman_test
-
-# Build rule for target.
-threadman_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 threadman_test
-.PHONY : threadman_test
-
-# fast build rule for target.
-threadman_test/fast:
-	$(MAKE) -f examples/threads/CMakeFiles/threadman_test.dir/build.make examples/threads/CMakeFiles/threadman_test.dir/build
-.PHONY : threadman_test/fast
 
 #=============================================================================
 # Target rules for targets named datetime
@@ -943,9 +943,9 @@ help:
 	@echo "... sqlite3_test"
 	@echo "... semaphore"
 	@echo "... thread_onexit"
+	@echo "... thread_pool_test"
 	@echo "... thread_rwlock"
 	@echo "... thread_test"
-	@echo "... threadman_test"
 	@echo "... datetime"
 	@echo "... exceptions"
 	@echo "... logfile_test"

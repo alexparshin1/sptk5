@@ -39,7 +39,7 @@
 #include <sptk5/istring.h>
 #include <sptk5/string_ext.h>
 
-#include <sptk5/threads/CThreadManager.h>
+#include <sptk5/threads/CThreadPool.h>
 #include <sptk5/threads/CRunable.h>
 #include <sptk5/threads/CRWLock.h>
 

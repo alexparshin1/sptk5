@@ -2269,29 +2269,29 @@ threads/CThread.cpp.s:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThread.cpp.s
 .PHONY : threads/CThread.cpp.s
 
-threads/CThreadManager.o: threads/CThreadManager.cpp.o
-.PHONY : threads/CThreadManager.o
+threads/CThreadPool.o: threads/CThreadPool.cpp.o
+.PHONY : threads/CThreadPool.o
 
 # target to build an object file
-threads/CThreadManager.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadManager.cpp.o
-.PHONY : threads/CThreadManager.cpp.o
+threads/CThreadPool.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadPool.cpp.o
+.PHONY : threads/CThreadPool.cpp.o
 
-threads/CThreadManager.i: threads/CThreadManager.cpp.i
-.PHONY : threads/CThreadManager.i
+threads/CThreadPool.i: threads/CThreadPool.cpp.i
+.PHONY : threads/CThreadPool.i
 
 # target to preprocess a source file
-threads/CThreadManager.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadManager.cpp.i
-.PHONY : threads/CThreadManager.cpp.i
+threads/CThreadPool.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadPool.cpp.i
+.PHONY : threads/CThreadPool.cpp.i
 
-threads/CThreadManager.s: threads/CThreadManager.cpp.s
-.PHONY : threads/CThreadManager.s
+threads/CThreadPool.s: threads/CThreadPool.cpp.s
+.PHONY : threads/CThreadPool.s
 
 # target to generate assembly for a file
-threads/CThreadManager.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadManager.cpp.s
-.PHONY : threads/CThreadManager.cpp.s
+threads/CThreadPool.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/threads/CThreadPool.cpp.s
+.PHONY : threads/CThreadPool.cpp.s
 
 threads/CWorkerThread.o: threads/CWorkerThread.cpp.o
 .PHONY : threads/CWorkerThread.o
@@ -3505,9 +3505,9 @@ help:
 	@echo "... threads/CThread.o"
 	@echo "... threads/CThread.i"
 	@echo "... threads/CThread.s"
-	@echo "... threads/CThreadManager.o"
-	@echo "... threads/CThreadManager.i"
-	@echo "... threads/CThreadManager.s"
+	@echo "... threads/CThreadPool.o"
+	@echo "... threads/CThreadPool.i"
+	@echo "... threads/CThreadPool.s"
 	@echo "... threads/CWorkerThread.o"
 	@echo "... threads/CWorkerThread.i"
 	@echo "... threads/CWorkerThread.s"
