@@ -138,6 +138,7 @@ bool CSynchronized::tryLock()
         return false; // Locked by someone else
     default:
         throwError(rc);
+        break;
     }
     return false;
 }

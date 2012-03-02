@@ -1,10 +1,10 @@
 /***************************************************************************
- SIMPLY POWERFUL TOOLKIT (SPTK)
- CRunable.h  -  description
- -------------------
- begin                : Thu Jul 12 2001
- copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
- email                : alexeyp@gmail.com
+                         SIMPLY POWERFUL TOOLKIT (SPTK)
+                         CRunable.h  -  description
+                             -------------------
+    begin                : Fri Mar 1 2012
+    copyright            : (C) 2000-2012 by Alexey Parshin
+    email                : alexeyp@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -38,44 +38,45 @@ namespace sptk
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Base runable object.
+/// @brief Abstract runable object.
 ///
 /// Should be used for deriving a user class for executing by a worker
 /// thread in a thread pool. Derived class must override run() method.
 class CRunable
 {
+    bool            m_terminated;   ///< Flag: is the task sent terminate request?
+    CSynchronized   m_running;      ///< Synchronized object locked while the task running
+
 protected:
-    bool m_terminated; ///< Flag: is the thread terminated?
+
+    /// @brief Method that is executed by worker thread
+    ///
+    /// Should be overwritten by derived class.
+    virtual void run() throw (std::exception) = 0;
 
 public:
 
     /// @brief Default Constructor
-    CRunable() :
-            m_terminated(false)
-    {
-    }
+    CRunable();
 
     /// @brief Destructor
-    virtual ~CRunable()
-    {
-    }
+    virtual ~CRunable();
 
-    /// @brief Method that is executed by worker thread
+    /// @brief Executes task' run method
     ///
-    /// Should be overwritten by derived class
-    virtual void run()
-    {
-        m_terminated = false;
-    }
+    /// Task may be executed multiple times, but only one caller
+    /// may execute same task at a time.
+    void execute() throw (std::exception);
 
-    /// Requests to terminate the thread
+    /// @brief Requests execution termination
     void terminate();
 
-    /// Returns true if the thread is terminated
-    bool terminated()
-    {
-        return m_terminated;
-    }
+    /// @brief Returns true if terminate request is sent to runable
+    bool terminated();
+
+    /// @brief Returns true, if the task is completed
+    /// @param timeoutMS uint32_t, Wait timeout, milliseconds
+    bool completed(uint32_t timeoutMS=SP_INFINITY) throw (std::exception);
 };
 /// @}
 }

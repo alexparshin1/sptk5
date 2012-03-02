@@ -1,0 +1,116 @@
+/***************************************************************************
+                         SIMPLY POWERFUL TOOLKIT (SPTK)
+                         thread_test.cpp  -  description
+                             -------------------
+    begin                : Tue Dec 14 1999
+    copyright            : (C) 1999 by Alexey Parshin
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ This library is free software; you can redistribute it and/or modify it
+ under the terms of the GNU Library General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or (at
+ your option) any later version.
+
+ This library is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+ General Public License for more details.
+
+ You should have received a copy of the GNU Library General Public License
+ along with this library; if not, write to the Free Software Foundation,
+ Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+ Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+// This example demonstrates thread manipulation and logging.
+#if __BORLANDC__ > 0x500
+#include <condefs.h>
+#endif
+
+#include <sptk5/cutils>
+#include <string>
+#include <vector>
+#include <iostream>
+
+using namespace std;
+using namespace sptk;
+
+class CMyThread: public CThread
+{
+    CProxyLog m_log; /// Thread proxy log
+public:
+
+    // Constructor
+    CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode = true);
+
+    // The thread function.
+    virtual void threadFunction();
+};
+
+CMyThread::CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode) :
+        CThread(threadName, politeMode), m_log(sharedLog)
+{
+    // Put anything you need here to define your actual thread
+    m_log << name() << " is created" << endl;
+}
+
+// The thread function. Prints a message once a second till terminated
+void CMyThread::threadFunction()
+{
+    m_log << name() << " is started" << endl;
+
+    unsigned counter = 0;
+    while (!terminated()) {
+        m_log << "Output " << counter << " from " << name() << endl;
+        counter++;
+        msleep(100);
+    }
+
+    m_log << name() << " is terminated" << endl;
+}
+
+int main(int argc, char* argv[])
+{
+    unsigned i;
+    vector<CMyThread*> threads;
+
+    /// The log file would get messages from all the threads.
+    /// Threads send messages through their own CProxyLog objects.
+    /// Multiple CProxyLog objects can share same log object thread-safely.
+    CFileLog sharedLog("thread_test.log");
+
+    /// Trancate the log file
+    sharedLog.reset();
+
+    /// Adding 'duplicate messages to stdout' option to log options
+    sharedLog.options(sharedLog.options() | CBaseLog::CLO_STDOUT);
+
+    // Creating several threads
+    for (i = 0; i < 5; i++) {
+        string threadName = "Thread" + int2string(i);
+        threads.push_back(new CMyThread(threadName, sharedLog));
+    }
+
+    // Starting all the threads
+    for (i = 0; i < threads.size(); i++)
+        threads[i]->run();
+
+    puts("Waiting 10 seconds while threads are running..");
+    CThread::msleep(10000);
+
+    // Sending 'terminate' signal to all the threads.
+    // That signal suggests thread to terminate and exits instantly.
+    for (i = 0; i < threads.size(); i++)
+        threads[i]->terminate();
+
+    // Deleting all the threads.
+    // Since threads are created in polite mode (see CMyThread class definition),
+    // the delete operation would wait for actual thread termination.
+    for (i = 0; i < threads.size(); i++)
+        delete threads[i];
+
+    return 0;
+}

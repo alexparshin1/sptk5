@@ -44,7 +44,7 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
+/// @addtogroup threads Thread Classes
 /// @{
 
 /// Read-write synchronization object
