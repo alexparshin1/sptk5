@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cexception.h  -  description
+                          CException.h  -  description
                              -------------------
     begin                : Thu Apr 27 2000
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -135,6 +135,7 @@ public:
 /// for the place an exception is thrown from
 #define throwException(msg) throw CException(msg,__FILE__,__LINE__)
 #define throwTimeoutException(msg) throw CTimeoutException(msg,__FILE__,__LINE__)
+#define throwDatabaseException(msg) throw CDatabaseException(msg,__FILE__,__LINE__)
 
 /// @}
 }

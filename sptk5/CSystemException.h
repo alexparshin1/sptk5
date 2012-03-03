@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cexception.cpp  -  description
+                          CSystemException.h  -  description
                              -------------------
     begin                : Thu Apr 27 2000
-    copyright            : (C) 2000-2011 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
 
   This program is free software; you can redistribute it and/or modify

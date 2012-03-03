@@ -45,10 +45,11 @@ namespace sptk {
 class CXmlElement;
 
 /// @brief XML attribute is just a named item
-class CXmlAttribute : public CXmlNamedItem {
+class CXmlAttribute: public CXmlNamedItem
+{
     friend class CXmlAttributes;
 protected:
-    std::string  m_value;  ///< Attribute value
+    std::string m_value;  ///< Attribute value
 
     /// @brief Protected constructor (internal)
     ///
@@ -57,7 +58,7 @@ protected:
     /// @param parent CXmlElement*, parent element (can't be NULL)
     /// @param name const std::string&, attribute name
     /// @param value CXmlValue, attribute value
-    CXmlAttribute(CXmlElement* parent,const std::string& name,CXmlValue value);
+    CXmlAttribute(CXmlElement* parent, const std::string& name, CXmlValue value);
 
     /// @brief Protected constructor (internal)
     ///
@@ -66,25 +67,28 @@ protected:
     /// @param parent CXmlElement*, parent element (can't be NULL)
     /// @param name const char*, attribute name
     /// @param value CXmlValue, attribute value
-    CXmlAttribute(CXmlElement* parent,const char* name,CXmlValue value);
+    CXmlAttribute(CXmlElement* parent, const char* name, CXmlValue value);
 
 public:
     /// @brief Returns the value of the node
-    virtual const std::string& value() const {
+    virtual const std::string& value() const
+    {
         return m_value;
     }
 
     /// @brief Sets new value to node.
     /// @param new_value const std::string &, new value
     /// @see value()
-    virtual void value(const std::string &new_value) {
+    virtual void value(const std::string &new_value)
+    {
         m_value = new_value;
     }
 
     /// @brief Sets new value to node
     /// @param new_value const char *, value to set
     /// @see value()
-    virtual void value(const char *new_value) {
+    virtual void value(const char *new_value)
+    {
         m_value = new_value;
     }
 };
@@ -110,11 +114,12 @@ typedef std::map<const char*,CXmlAttribute,less_attr> CXmlAttributeMap;
 /// @brief XML node attributes
 ///
 /// The CXmlAttributes class is map for node attributes.
-class SP_EXPORT CXmlAttributes : public CXmlNodeList {
+class SP_EXPORT CXmlAttributes: public CXmlNodeList
+{
     friend class CXmlNode;
     friend class CXmlElement;
 protected:
-    CXmlElement*                     m_parent;    ///< The parent XML element
+    CXmlElement* m_parent;    ///< The parent XML element
 
     /// @brief Returns an attribute node
     ///
@@ -138,13 +143,16 @@ public:
     ///
     /// The XML attributes object uses the shared strings table (SST) for attribute names
     /// @param parent CXmlElement*, the parent XML element
-    CXmlAttributes(CXmlElement* parent) : m_parent(parent) {}
+    CXmlAttributes(CXmlElement* parent) :
+            m_parent(parent)
+    {
+    }
 
     /// @brief Assign operator
     ///
     /// Makes copy of an attribute set to another.
     /// @param src as copy source
-    CXmlAttributes& operator = (const CXmlAttributes& src);
+    CXmlAttributes& operator =(const CXmlAttributes& src);
 
     /// @brief Searches for named attribute
     ///
@@ -159,14 +167,14 @@ public:
     /// @param attr std::string, name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
     /// @returns attribute value 
-    CXmlValue getAttribute(std::string attr,const char *defaultValue="") const;
+    CXmlValue getAttribute(std::string attr, const char *defaultValue = "") const;
 
     /// @brief Sets attribute value for given attribute
     ///
     /// @param attr std::string, name of attribute
     /// @param value CXmlValue, an attribute value. See CXmlValue class description for data convertions.
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    void setAttribute(std::string attr,CXmlValue value,const char *defaultValue="");
+    void setAttribute(std::string attr, CXmlValue value, const char *defaultValue = "");
 };
 /// @}
 }

@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cdblistview.cpp  -  description
+                          CDBListview.cpp  -  description
                             -------------------
     begin                : Fri Mar 31 2000
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -66,7 +66,7 @@ CLayoutClient* CDBListView::creator(CXmlNode *node) {
     return widget;
 }
 
-void CDBListView::database(CDatabase *db) {
+void CDBListView::database(CDatabaseDriver *db) {
    if (m_dataMode == LV_DATA_UNDEFINED)
       m_dataMode = LV_DATA_KEY;
    m_fastRefreshQuery.connect(db);
@@ -74,7 +74,7 @@ void CDBListView::database(CDatabase *db) {
    m_recordCountQuery.connect(db);
 }
 
-CDatabase *CDBListView::database() const {
+CDatabaseDriver *CDBListView::database() const {
    return m_fullRefreshQuery.database();
 }
 
@@ -95,7 +95,7 @@ CParam& CDBListView::param(const char *paramName,CRefreshKind refreshKind) {
    else  return m_fullRefreshQuery.param(paramName);
 }
 
-void CDBListView::setup(CDatabase *db,string _sql,string _keyField) {
+void CDBListView::setup(CDatabaseDriver *db,string _sql,string _keyField) {
    database(db);
    sql(_sql);
    keyField(_keyField);

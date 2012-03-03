@@ -4,7 +4,7 @@
                           postgresql_test.cpp  -  description
                              -------------------
     begin                : September 20, 2007
-    copyright            : (C) 2008-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -33,10 +33,11 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabase&db,string tableName,bool rollback) {
+int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
+{
     try {
-        CQuery  step5Query(&db,"DELETE FROM "+tableName,__FILE__,__LINE__);
-        CQuery  step6Query(&db,"SELECT count(*) FROM "+tableName,__FILE__,__LINE__);
+        CQuery step5Query(&db, "DELETE FROM " + tableName, __FILE__, __LINE__);
+        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName, __FILE__, __LINE__);
 
         cout << "\n        Begining the transaction ..";
         db.beginTransaction();
@@ -68,14 +69,16 @@ int testTransactions(CDatabase&db,string tableName,bool rollback) {
 
 // This function returns field content as a string, or "<NULL>" is field
 // contains a NULL value
-string fieldToString(const CField& field) {
+string fieldToString(const CField& field)
+{
     if (field.isNull())
         return "<NULL>";
     // Returned field is automatically converted to string
-    return field; 
+    return field;
 }
 
-int main() {
+int main()
+{
 
     // If you want to test the database abilities of the data controls
     // you have to setup the PostgreSQL database, and verify connection.
@@ -83,10 +86,10 @@ int main() {
     // For mor information please refer to:
     // http://www.postgresql.org/docs/current/interactive/libpq-connect.html
     // If connect string is empty the default database with the name equal to user name is used.
-    string              connectString("dbname='test'");
+    string connectString("dbname='test'");
     CPostgreSQLDatabase db(connectString);
     //CODBCDatabase 	db("DSN=uu");
-    CFileLog            logFile("postgresql_test.log");
+    CFileLog logFile("postgresql_test.log");
 
     db.logFile(&logFile);
     logFile.reset();
@@ -97,16 +100,15 @@ int main() {
         cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
 
         CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
-        string    objectTypeNames[] = { "tables", "views", "stored procedures"};
+        string objectTypeNames[] = { "tables", "views", "stored procedures" };
 
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
             CStrings objectList;
             try {
-                db.objectList(objectTypes[i],objectList);
-            }
-            catch (exception& e) {
+                db.objectList(objectTypes[i], objectList);
+            } catch (exception& e) {
                 cout << e.what() << endl;
             }
             for (unsigned i = 0; i < objectList.size() && i < 10; i++)
@@ -115,19 +117,20 @@ int main() {
         cout << "-------------------------------------------------" << endl;
 
         // Defining the queries
-	// Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
+        // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        CQuery step1Query(&db,"CREATE TABLE "+tableName+"(id INT8,name CHAR(40),position CHAR(20),date TIMESTAMP)",__FILE__,__LINE__);
-        CQuery step2Query(&db,"INSERT INTO "+tableName+" VALUES(:person_id,:person_name,:position_name,:date)",__FILE__,__LINE__);
-        CQuery step3Query(&db,"SELECT * FROM "+tableName+" WHERE id > :some_id OR id IS NULL",__FILE__,__LINE__);
-        CQuery step4Query(&db,"DROP TABLE "+tableName,__FILE__,__LINE__);
+        CQuery step1Query(&db, "CREATE TABLE " + tableName + "(id INT8,name CHAR(40),position CHAR(20),date TIMESTAMP)",
+                __FILE__, __LINE__);
+        CQuery step2Query(&db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:date)", __FILE__,
+                __LINE__);
+        CQuery step3Query(&db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
+        CQuery step4Query(&db, "DROP TABLE " + tableName, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             step1Query.exec();
-        }
-        catch (exception& e) {
-            if (strstr(e.what(),"already exists") == NULL)
+        } catch (exception& e) {
+            if (strstr(e.what(), "already exists") == NULL)
                 throw;
             cout << "Table already exists, ";
         }
@@ -136,7 +139,7 @@ int main() {
 
         // The following example shows how to use the paramaters,
         // addressing them by name
-        CDateTime start,end;
+        CDateTime start, end;
 
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
@@ -165,29 +168,29 @@ int main() {
         CParam& id_param = step2Query.param("person_id");
         CParam& name_param = step2Query.param("person_name");
         CParam& position_param = step2Query.param("position_name");
-        
+
         // Now, we can use these variables
         id_param = 4;
         name_param = "Buffy";
         position_param = "Vampire slayer";
         step2Query.exec();
-        
+
         // .. and use these variables again for the next insert
         // This is the way to set fields to NULL:
         id_param.setNull();
         name_param.setNull();
-        position_param.setNull(); 
+        position_param.setNull();
         step2Query.exec();
 
         cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             // getting data from the query by the field name
             int64_t id = step3Query["id"];
-            
+
             // we can check field for NULL value
             if (step3Query["id"].isNull())
                 cout << setw(7) << "<NULL>";
@@ -199,8 +202,8 @@ int main() {
             string name = fieldToString(step3Query[1]);
             string position = fieldToString(step3Query[2]);
             string date = fieldToString(step3Query[3]);
-            
-            cout << " | "  << setw(40) << name << " | " << setw(20) << position << " | " << date << endl;
+
+            cout << " | " << setw(40) << name << " | " << setw(20) << position << " | " << date << endl;
 
             step3Query.fetch();
         }
@@ -210,22 +213,22 @@ int main() {
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             int id;
             string name, position, date;
 
             step3Query.fields() >> id >> name >> position >> date;
 
-            cout << setw(4) << id << " | "  << setw(20) << name << " | " << position <<  " | " << date << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << " | " << date << endl;
 
             step3Query.fetch();
         }
-        step3Query.close();           
+        step3Query.close();
 
         cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
         step3Query.param("some_id") = 1;
-        step3Query.open(); 
+        step3Query.open();
 
         // First, find the field references by name or by number
         CField& idField = step3Query[uint32_t(0)];
@@ -233,14 +236,14 @@ int main() {
         CField& positionField = step3Query["position"];
         CField& dateField = step3Query["date"];
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             int64_t id = idField;
             string name = nameField;
             string position = positionField;
             string date = dateField;
 
-            cout << setw(4) << id << " | "  << setw(20) << name << " | " << position << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
 
             step3Query.fetch();
         }
@@ -248,23 +251,23 @@ int main() {
 
         cout << "Ok.\n***********************************************\nTesting the transactions.";
 
-        testTransactions(db,tableName,true);
-        testTransactions(db,tableName,false);
+        testTransactions(db, tableName, true);
+        testTransactions(db, tableName, false);
 
         step4Query.exec();
 
         cout << "Ok.\nStep 6: Closing the database.. ";
         db.close();
-	
+
         cout << "Ok.\n***********************************************\nPrinting the query statistics." << endl;
 
-	CCallStatisticMap::const_iterator itor = db.callStatistics().begin();
-	CCallStatisticMap::const_iterator etor = db.callStatistics().end();
-	for ( ; itor != etor; itor++ ) {
-	    const CCallStatistic& cs = itor->second;
-	    cout << setw(60) << cs.m_sql << ": " << cs.m_calls << " calls, " << cs.m_duration << " seconds total" << endl;
-	}
-	
+        CCallStatisticMap::const_iterator itor = db.callStatistics().begin();
+        CCallStatisticMap::const_iterator etor = db.callStatistics().end();
+        for (; itor != etor; itor++) {
+            const CCallStatistic& cs = itor->second;
+            cout << setw(60) << cs.m_sql << ": " << cs.m_calls << " calls, " << cs.m_duration << " seconds total" << endl;
+        }
+
         cout << "Ok." << endl;
     } catch (exception& e) {
         cout << "\nError: " << e.what() << endl;

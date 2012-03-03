@@ -32,10 +32,11 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabase&db,string tableName,bool rollback) {
+int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
+{
     try {
-        CQuery  step5Query(&db,"DELETE FROM "+tableName);
-        CQuery  step6Query(&db,"SELECT count(*) FROM "+tableName);
+        CQuery step5Query(&db, "DELETE FROM " + tableName);
+        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName);
 
         cout << endl << "        Begining the transaction ..";
         db.beginTransaction();
@@ -65,13 +66,14 @@ int testTransactions(CDatabase&db,string tableName,bool rollback) {
     return true;
 }
 
-int main() {
+int main()
+{
 
     // If you want to test the database abilities of the data controls
     // you have to setup the ODBC database connection.
     // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
     // If UID or PWD are omitted they are read from the datasource settings.
-    CSQLite3Database     db("demo_db.sqlite3");
+    CSQLite3Database db("demo_db.sqlite3");
 
     /// Defining a log for the application. This is optional - you can omit this step
     CFileLog logFile("sqlite_test.log");
@@ -85,16 +87,16 @@ int main() {
         cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
 
         CStrings tableList;
-        db.objectList(DOT_TABLES,tableList);
+        db.objectList(DOT_TABLES, tableList);
         cout << "First 10 tables in the database:" << endl;
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)
             cout << "  Table: " << tableList[i] << endl;
 
         // Defining the queries
-        CQuery step1Query(&db,"CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(&db,"INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(&db,"SELECT * FROM test WHERE id > :some_id");
-        CQuery step4Query(&db,"DROP TABLE test");
+        CQuery step1Query(&db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
+        CQuery step2Query(&db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
+        CQuery step3Query(&db, "SELECT * FROM test WHERE id > :some_id");
+        CQuery step4Query(&db, "DROP TABLE test");
 
         cout << "Ok.\nStep 1: Creating the table.. ";
         step1Query.exec();
@@ -103,7 +105,7 @@ int main() {
 
         // The following example shows how to use the paramaters,
         // addressing them by name
-        CDateTime start,end;
+        CDateTime start, end;
 
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
@@ -145,7 +147,7 @@ int main() {
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             // getting data from the query by the field name
             int64_t id = step3Query["id"].asInt64();
@@ -164,7 +166,7 @@ int main() {
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             int id;
             string name, position;
@@ -186,7 +188,7 @@ int main() {
         CField& nameField = step3Query["name"];
         CField& positionField = step3Query["position"];
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             int id = idField.asInteger();
             string name = nameField.asString();
@@ -200,8 +202,8 @@ int main() {
 
         cout << "Ok.\n***********************************************\nTesting the transactions.";
 
-        testTransactions(db,"test",true);
-        testTransactions(db,"test",false);
+        testTransactions(db, "test", true);
+        testTransactions(db, "test", false);
 
         step4Query.exec();
 

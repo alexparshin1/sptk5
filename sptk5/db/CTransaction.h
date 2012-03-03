@@ -28,7 +28,7 @@
 #ifndef __CTRANSACTION_H__
 #define __CTRANSACTION_H__
 
-#include <sptk5/db/CDatabase.h>
+#include <sptk5/db/CDatabaseDriver.h>
 #include <sptk5/CException.h>
 
 namespace sptk {
@@ -41,13 +41,14 @@ namespace sptk {
 /// Allows to begin, commit, and rollback the transaction automatically.
 /// If the transaction object is deleted w/o commiting or rolling back
 /// the transaction, it rolls back the transaction (if active)
-class CTransaction {
-    bool         m_active;   ///< Transaction activity
-    CDatabase   *m_db;       ///< Database to work with
+class CTransaction
+{
+    bool                m_active;   ///< Transaction activity
+    CDatabaseDriver*    m_db;       ///< Database to work with
 public:
     /// Constructor
-    /// @param db CDatabase&, the database to work with
-    CTransaction(CDatabase& db);
+    /// @param db CDatabaseDriver&, the database to work with
+    CTransaction(CDatabaseDriver& db);
 
     /// Destructor
     ~CTransaction();
@@ -62,7 +63,8 @@ public:
     void rollback();
 
     /// Is transaction active?
-    bool active() const {
+    bool active() const
+    {
         return m_active;
     }
 };

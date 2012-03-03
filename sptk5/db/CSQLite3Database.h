@@ -33,7 +33,7 @@
 
 #if HAVE_SQLITE3 == 1
 
-#include <sptk5/db/CDatabase.h>
+#include <sptk5/db/CDatabaseDriver.h>
 #include <sqlite3.h>
 
 namespace sptk {
@@ -45,24 +45,25 @@ class CQuery;
 /// @brief SQLite3 database
 ///
 /// CSQLite3Database is thread-safe connection to SQLite3 database.
-class SP_EXPORT CSQLite3Database : public CDatabase {
+class SP_EXPORT CSQLite3Database: public CDatabaseDriver
+{
     friend class CQuery;
 
     typedef sqlite3_stmt * SQLHSTMT;
-    typedef sqlite3      * SQLHDBC;
+    typedef sqlite3 * SQLHDBC;
 
 private:
 
-    sqlite3  *m_connect;   ///< The SQLite3 database connection object
+    sqlite3 *m_connect;   ///< The SQLite3 database connection object
 
 protected:
 
     /// @brief Begins the transaction
-    virtual void driverBeginTransaction() throw(CException);
+    virtual void driverBeginTransaction() throw (CException);
 
     /// @brief Ends the transaction
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) throw(CException);
+    virtual void driverEndTransaction(bool commit) throw (CException);
 
     // These methods implement the actions requested by CQuery
     virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
@@ -72,18 +73,19 @@ protected:
     virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
     virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
     virtual void queryExecute(CQuery *query);        ///< Executes a statement
-    virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
+    virtual int queryColCount(CQuery *query);        ///< Counts columns of the dataset (if any) returned by query
     virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
     virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
     virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
     /// @brief Returns the SQLite3 connection object
-    sqlite3 *connection() {
+    sqlite3 *connection()
+    {
         return m_connect;
     }
 
     /// @brief Converts datatype from SQLite type to SPTK CVariantType
-    void SQLITEtypeToCType(int sqliteType,CVariantType& dataType);
+    void SQLITEtypeToCType(int sqliteType, CVariantType& dataType);
 
 public:
 
@@ -96,10 +98,10 @@ public:
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the SQLite3 connection string
-    virtual void openDatabase(std::string connectionString = "") throw(CException);
+    virtual void openDatabase(std::string connectionString = "") throw (CException);
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
-    virtual void closeDatabase() throw(CException);
+    virtual void closeDatabase() throw (CException);
 
     /// @brief Returns true if database is opened
     virtual bool active() const;
@@ -113,7 +115,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType,CStrings& objects) throw(std::exception);
+    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception);
 };
 
 /// @brief SQLite3 synchronization object

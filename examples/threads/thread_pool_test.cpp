@@ -1,9 +1,9 @@
 /***************************************************************************
                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                         threadman_test.cpp  -  description
+                         thread_pool_test.cpp  -  description
                              -------------------
-    begin                : Tue Dec 14 1999
-    copyright            : (C) 1999 by Alexey Parshin
+    begin                : Sat Feb 14 2012
+    copyright            : (C) 2000-2012 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

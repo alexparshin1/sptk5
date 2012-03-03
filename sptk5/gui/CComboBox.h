@@ -31,7 +31,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 
-#include <sptk5/db/CDatabase.h>
+#include <sptk5/db/CDatabaseDriver.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CDBListView.h>
@@ -48,28 +48,29 @@ class CDBListView;
 ///
 /// A base class for CListBox and CComboBox.
 /// Implements most of the common methods for these two classes.
-class SP_EXPORT CBaseListBox : public CControl {
+class SP_EXPORT CBaseListBox: public CControl
+{
     friend class CInternalComboBoxPanel;
 private:
 
-    Fl_Callback_p     m_buttonClicked;  ///< Internal button callback
-    Fl_Button*        m_buttons[5];     ///< The list of buttons
-    bool              m_droppedDown;    ///< Is the list dropped down (shown)?
-    uint32_t          m_buttonSet;      ///< The bit-combination of button IDs
+    Fl_Callback_p   m_buttonClicked;  ///< Internal button callback
+    Fl_Button*      m_buttons[5];     ///< The list of buttons
+    bool            m_droppedDown;    ///< Is the list dropped down (shown)?
+    uint32_t        m_buttonSet;      ///< The bit-combination of button IDs
 
     /// The internal function to process data changes
-    void              changeControlData(int changeType,int intData=0,std::string stringData="");
+    void changeControlData(int changeType, int intData = 0, std::string stringData = "");
     /// The constructor initializer
-    void              ctor_init(const char *label,int _mode);
+    void ctor_init(const char *label, int _mode);
 
     /// Internal buttons callback function.
-    static void comboButtonPressed(Fl_Widget *btn,void *data);
+    static void comboButtonPressed(Fl_Widget *btn, void *data);
 
 protected:
-    int               m_mode;           ///< Control mode - CListBox or CComboBox
-    CDBDropDownList  *m_dropDownWindow; ///< Drop down window - CComboBox only
-    CDBListView      *m_list;           ///< Internal CDBListView widget
-    int               m_buttonSpace;    ///< The width of space taken by buttons
+    int m_mode;           ///< Control mode - CListBox or CComboBox
+    CDBDropDownList *m_dropDownWindow; ///< Drop down window - CComboBox only
+    CDBListView *m_list;           ///< Internal CDBListView widget
+    int m_buttonSpace;    ///< The width of space taken by buttons
 
     /// Drops down the window with the List View. CComboBox only.
     virtual void dropDownList();
@@ -86,7 +87,7 @@ protected:
     /// as well as visible() and active() states
     /// @param node CXmlNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void     load(const CXmlNode* node,CLayoutXMLmode xmlMode);
+    virtual void load(const CXmlNode* node, CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
@@ -94,10 +95,11 @@ protected:
     /// as well as visible() and active() states
     /// @param node CXmlNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(CXmlNode* node, CLayoutXMLmode xmlMode) const;
 
     /// Returns true, if the data is valid.
-    bool valid() const {
+    bool valid() const
+    {
         return true;
     }
 
@@ -108,7 +110,7 @@ protected:
     /// @param layoutSize int, widget align in layout
     /// @param layoutAlign CLayoutAlign, widget align in layout
     /// @param mode int, IS_COMBO_BOX or IS_LIST_BOX - internal
-    CBaseListBox(const char *label,int layoutSize,CLayoutAlign layoutAlign,int mode);
+    CBaseListBox(const char *label, int layoutSize, CLayoutAlign layoutAlign, int mode);
 
 #ifdef __COMPATIBILITY_MODE__
     /// Constructor in FLTK style
@@ -133,7 +135,8 @@ public:
     virtual void clear();
 
     /// Returns the bitmask of visible buttons' IDs
-    uint32_t buttons() {
+    uint32_t buttons()
+    {
         return m_buttonSet;
     }
 
@@ -141,13 +144,15 @@ public:
     void buttons(uint32_t);
 
     /// Returns buttons' callback function
-    Fl_Callback_p buttonClicked() const {
+    Fl_Callback_p buttonClicked() const
+    {
         return m_buttonClicked;
     }
 
     /// Sets buttons' callback function
-    void buttonClicked(Fl_Callback* c) {
-        m_buttonClicked=c;
+    void buttonClicked(Fl_Callback* c)
+    {
+        m_buttonClicked = c;
     }
 
     /// Sets the internal list view columns from the column list. The old column list is destroyed
@@ -164,7 +169,7 @@ public:
     /// @param type CVariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, is the column visible?
-    void addColumn(std::string cname,CVariantType type=VAR_STRING,int16_t cwidth=70,bool cvisible=true);
+    void addColumn(std::string cname, CVariantType type = VAR_STRING, int16_t cwidth = 70, bool cvisible = true);
 
     /// Adds a new row to the internal list view. Doesn't make a copy - just
     /// inserts the pointer. The row will be destroyed in CCombo destructor.
@@ -176,7 +181,7 @@ public:
     /// The row ID may be defined inside CStrings object, or with rowID parameter.
     /// @param rowStrings const CStrings&, new row
     /// @param rowId int, optional row ID
-    void addRow(const CStrings& rowStrings,int rowId=0);
+    void addRow(const CStrings& rowStrings, int rowId = 0);
 
     /// Adds new row to the internal list view.
     /// @param rowId int, row argument (key value)
@@ -185,103 +190,109 @@ public:
     /// @param s3 const char *, text data for the column 3
     /// @param s4 const char *, text data for the column 4
     /// @param s5 const char *, text data for the column 5
-    void addRow(int rowId,const char *s1,const char *s2=NULL,const char *s3=NULL,const char *s4=NULL,const char *s5=NULL);
+    void addRow(int rowId, const char *s1, const char *s2 = NULL, const char *s3 = NULL, const char *s4 = NULL, const char *s5 =
+            NULL);
 
     /// Creates the column as columnName and adds rows to the internal list view. If the column with such name
     /// already exists, it will be used. The method is good the a very simple cases of one-column
     /// combo boxes. The row IDs may be defined inside CStrings object strings.
     /// @param columnName std::string, new columnName
     /// @param rows CStrings, new rows
-    void addRows(std::string columnName,CStrings rows);
+    void addRows(std::string columnName, CStrings rows);
 
     /// Resizes the control and inside widgets.
     /// @param x int, x-position
     /// @param y int, y-position
     /// @param w int, width
     /// @param h int, height
-    virtual void resize(int x,int y,int w,int h);
+    virtual void resize(int x, int y, int w, int h);
 
     /// Universal data connection. Operates with selected list view item's ID.
     virtual CVariant data() const;
 
     /// Universal data connection. Operates with selected list view item's ID.
-    virtual void     data(const CVariant v);
+    virtual void data(const CVariant v);
 
     /// Sets data mode for the data() methods.
     /// Defines which information list view are working with in data() method - key value, item index, or item caption.
     /// @see CListViewDataMode for more information
-    void dataMode(CListViewDataMode dm) {
+    void dataMode(CListViewDataMode dm)
+    {
         m_list->dataMode(dm);
     }
 
     /// Returns data mode as LVDM_KEY, LVDM_INDEX, or LVDM_TEXT.
     /// @see CListViewDataMode for more information
-    CListViewDataMode dataMode() {
+    CListViewDataMode dataMode()
+    {
         return m_list->dataMode();
     }
 
     /// Finds an item with the caption (a string in the first column).
     /// @param caption std::string, the caption to find and select.
     /// @returns an item, or NULL if item caption is not found
-    CPackedStrings *findCaption(std::string caption) {
+    CPackedStrings *findCaption(std::string caption)
+    {
         return m_list->findCaption(caption);
     }
 
     /// Finds an item with the key (an integer associated with the item - argument()).
     /// @param keyValue int, the caption to find and select.
     /// @returns an item, or NULL if item caption is not found
-    CPackedStrings *findKey(int keyValue) {
+    CPackedStrings *findKey(int keyValue)
+    {
         return m_list->findKey(keyValue);
     }
 
     /// Returns database connection pointer
-    CDatabase  *database() const;
+    CDatabaseDriver* database() const;
 
     /// Defines database connection
-    void        database(CDatabase *db);
+    void database(CDatabaseDriver* db);
 
     /// Returns SQL query text
     std::string sql() const;
 
     /// Defines SQL query text
     /// @param s std::string, SQL text
-    void        sql(std::string s);
+    void sql(std::string s);
 
     /// Returns SQL query field name that contains unique row IDS, preferrably - integers.
     std::string keyField() const;
 
     /// Sets SQL query field name that contains unique row IDS, preferrably - integers.
     /// @param keyFieldName std::string, a name of the key field
-    void        keyField(std::string keyFieldName);
+    void keyField(std::string keyFieldName);
 
     /// Returns sortColumn
-    int         sortColumn() const;
+    int sortColumn() const;
 
     /// Sorts the list
-    void        sort() {
+    void sort()
+    {
         m_list->sort();
     }
 
     /// Defines sortColumn.
     /// @param sortColumn int, sort column number. -1 means don't sort.
-    void        sortColumn(int sortColumn);
+    void sortColumn(int sortColumn);
 
     /// The fast way to define a database connection.
-    /// @param db CDatabase *, a pointer to the database
+    /// @param db CDatabaseDriver *, a pointer to the database
     /// @param sql std::string, a SQL query text
     /// @param keyField std::string, a name of the query field with unique row IDs
-    void        setup(CDatabase *db,std::string sql,std::string keyField);
+    void setup(CDatabaseDriver* db, std::string sql, std::string keyField);
 
     /// Returns the SQL query parameter reference for the parameter name. It is
     /// typical to call:
     ///   myCombo.param("customer_id") = 1234;
     /// @param paramName const char *, parameter name.
     /// @returns the parameter reference, if found, or throws an excception.
-    CParam&     param(const char *paramName);
+    CParam& param(const char *paramName);
 
     /// Reloads data from the database if database connection is defined.
     /// Throws an exception if any error.
-    void        refreshData();
+    void refreshData();
 
     /// Finds a string in the sort column of list view defined with sortColumn()
     /// @param str std::string, string to find
@@ -289,10 +300,10 @@ public:
     /// @param startRow uint32_t, the row number to start
     /// @param endRow uint32_t, the row number to finish
     /// @returns the row number, or -1 if not found
-    int         findString(std::string str,bool select=true,uint32_t startRow=0,unsigned endRow=0);
+    int findString(std::string str, bool select = true, uint32_t startRow = 0, unsigned endRow = 0);
 
     /// Returns the currently selected row, or reference to NULL if not selected
-    CPackedStrings& selectedRow () const;
+    CPackedStrings& selectedRow() const;
 
     /// Selects a row
     /// @param rowNumber unsigned, row number
@@ -311,7 +322,7 @@ public:
     /// @param w int&, input - width offered by the program, output - width required by widget
     /// @param h int&, input - height offered by the program, output - height required by widget
     /// @returns true if the size is stable (doesn't depend on input sizes)
-    virtual bool preferredSize(int& w,int& h);
+    virtual bool preferredSize(int& w, int& h);
 };
 
 /// @brief Combo box widget
@@ -319,13 +330,14 @@ public:
 /// The extended version of standard combo box that exists in any OS.
 /// It may include up to four special buttons to insert, edit, delete, refresh data inside
 /// the drop down list besides the standard button to show the drop down list
-class SP_EXPORT CComboBox : public CBaseListBox {
+class SP_EXPORT CComboBox: public CBaseListBox
+{
 public:
     /// Constructor in SPTK style
     /// @param label const char *, label
     /// @param layoutSize int, widget align in layout
     /// @param layoutAlign CLayoutAlign, widget align in layout
-    CComboBox(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CComboBox(const char * label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /// Constructor in FLTK style
@@ -346,7 +358,8 @@ public:
 
     /// SPTK RTTI information
     /// @returns control type name
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "combo_box";
     }
 
@@ -359,13 +372,14 @@ public:
 /// The extended version of standard list box that exists in any OS.
 /// It may include up to four special buttons to insert, edit, delete, refresh data inside
 /// the list.
-class SP_EXPORT CListBox : public CBaseListBox {
+class SP_EXPORT CListBox: public CBaseListBox
+{
 public:
     /// Constructor in SPTK style
     /// @param label const char *, label
     /// @param layoutSize int, widget align in layout
     /// @param layoutAlign CLayoutAlign, widget align in layout
-    CListBox(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CListBox(const char * label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /// Constructor in FLTK style
@@ -380,13 +394,15 @@ public:
     /// SPTK RTTI information
     /// @returns control type as CControlKind
     /// @see CControlKind
-    virtual CControlKind kind() const {
+    virtual CControlKind kind() const
+    {
         return DCV_LISTBOX;
     }
 
     /// SPTK RTTI information
     /// @returns control type name
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "list_box";
     }
 };

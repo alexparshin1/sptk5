@@ -4,7 +4,7 @@
                           odbc_test.cpp  -  description
                              -------------------
     begin                : January 3, 2003
-    copyright            : (C) 2003-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -32,10 +32,11 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabase&db,string tableName,bool rollback) {
+int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
+{
     try {
-        CQuery  step5Query(&db,"DELETE FROM "+tableName);
-        CQuery  step6Query(&db,"SELECT count(*) FROM "+tableName);
+        CQuery step5Query(&db, "DELETE FROM " + tableName);
+        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName);
 
         cout << "\n        Begining the transaction ..";
         db.beginTransaction();
@@ -65,14 +66,15 @@ int testTransactions(CDatabase&db,string tableName,bool rollback) {
     return true;
 }
 
-int main() {
+int main()
+{
 
     // If you want to test the database abilities of the data controls
     // you have to setup the ODBC database connection.
     // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
     // If UID or PWD are omitted they are read from the datasource settings.
-    CODBCDatabase     db("DSN=odbc_demo");
-    CFileLog          logFile("odbc_test.log");
+    CODBCDatabase db("DSN=odbc_demo");
+    CFileLog logFile("odbc_test.log");
 
     db.logFile(&logFile);
     logFile.reset();
@@ -83,16 +85,15 @@ int main() {
         cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
 
         CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
-        string    objectTypeNames[] = { "tables", "views", "stored procedures"};
+        string objectTypeNames[] = { "tables", "views", "stored procedures" };
 
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
             CStrings objectList;
             try {
-                db.objectList(objectTypes[i],objectList);
-            }
-            catch (exception& e) {
+                db.objectList(objectTypes[i], objectList);
+            } catch (exception& e) {
                 cout << e.what() << endl;
             }
             for (unsigned i = 0; i < objectList.size() && i < 10; i++)
@@ -102,17 +103,16 @@ int main() {
 
         // Defining the queries
         string tableName = "test_table";
-        CQuery step1Query(&db,"CREATE TABLE "+tableName+"(id INT,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(&db,"INSERT INTO "+tableName+" VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(&db,"SELECT * FROM "+tableName+" WHERE id > :some_id");
-        CQuery step4Query(&db,"DROP TABLE "+tableName);
+        CQuery step1Query(&db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
+        CQuery step2Query(&db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
+        CQuery step3Query(&db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
+        CQuery step4Query(&db, "DROP TABLE " + tableName);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             step1Query.exec();
-        }
-        catch (exception& e) {
-            if (strstr(e.what(),"already exists") == NULL)
+        } catch (exception& e) {
+            if (strstr(e.what(), "already exists") == NULL)
                 throw;
             cout << "Table already exists, ";
         }
@@ -121,7 +121,7 @@ int main() {
 
         // The following example shows how to use the paramaters,
         // addressing them by name
-        CDateTime start,end;
+        CDateTime start, end;
 
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
@@ -163,7 +163,7 @@ int main() {
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             // getting data from the query by the field name
             int id = step3Query["id"];
@@ -172,7 +172,7 @@ int main() {
             string name = step3Query[1];
             string position = step3Query[2];
 
-            cout << setw(4) << id << " | "  << setw(20) << name << " | " << position << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
 
             step3Query.fetch();
         }
@@ -182,14 +182,14 @@ int main() {
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             int id;
             string name, position;
 
             step3Query.fields() >> id >> name >> position;
 
-            cout << setw(4) << id << " | "  << setw(20) << name << " | " << position << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
 
             step3Query.fetch();
         }
@@ -204,13 +204,13 @@ int main() {
         CField& nameField = step3Query["name"];
         CField& positionField = step3Query["position"];
 
-        while ( ! step3Query.eof() ) {
+        while (!step3Query.eof()) {
 
             int id = idField;
             string name = nameField;
             string position = positionField;
 
-            cout << setw(4) << id << " | "  << setw(20) << name << " | " << position << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
 
             step3Query.fetch();
         }
@@ -218,8 +218,8 @@ int main() {
 
         cout << "Ok.\n***********************************************\nTesting the transactions.";
 
-        testTransactions(db,tableName,true);
-        testTransactions(db,tableName,false);
+        testTransactions(db, tableName, true);
+        testTransactions(db, tableName, false);
 
         step4Query.exec();
 

@@ -181,29 +181,29 @@ sputil5/fast:
 	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/sputil5.dir/build.make src/CMakeFiles/sputil5.dir/build
 .PHONY : sputil5/fast
 
-db/CDatabase.o: db/CDatabase.cpp.o
-.PHONY : db/CDatabase.o
+db/CDatabaseDriver.o: db/CDatabaseDriver.cpp.o
+.PHONY : db/CDatabaseDriver.o
 
 # target to build an object file
-db/CDatabase.cpp.o:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/db/CDatabase.cpp.o
-.PHONY : db/CDatabase.cpp.o
+db/CDatabaseDriver.cpp.o:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/db/CDatabaseDriver.cpp.o
+.PHONY : db/CDatabaseDriver.cpp.o
 
-db/CDatabase.i: db/CDatabase.cpp.i
-.PHONY : db/CDatabase.i
+db/CDatabaseDriver.i: db/CDatabaseDriver.cpp.i
+.PHONY : db/CDatabaseDriver.i
 
 # target to preprocess a source file
-db/CDatabase.cpp.i:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/db/CDatabase.cpp.i
-.PHONY : db/CDatabase.cpp.i
+db/CDatabaseDriver.cpp.i:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/db/CDatabaseDriver.cpp.i
+.PHONY : db/CDatabaseDriver.cpp.i
 
-db/CDatabase.s: db/CDatabase.cpp.s
-.PHONY : db/CDatabase.s
+db/CDatabaseDriver.s: db/CDatabaseDriver.cpp.s
+.PHONY : db/CDatabaseDriver.s
 
 # target to generate assembly for a file
-db/CDatabase.cpp.s:
-	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/db/CDatabase.cpp.s
-.PHONY : db/CDatabase.cpp.s
+db/CDatabaseDriver.cpp.s:
+	cd /home/alexeyp/workspace/sptk5 && $(MAKE) -f src/CMakeFiles/spdb5.dir/build.make src/CMakeFiles/spdb5.dir/db/CDatabaseDriver.cpp.s
+.PHONY : db/CDatabaseDriver.cpp.s
 
 db/CDatabaseField.o: db/CDatabaseField.cpp.o
 .PHONY : db/CDatabaseField.o
@@ -3244,9 +3244,9 @@ help:
 	@echo "... spdb5"
 	@echo "... sptk5"
 	@echo "... sputil5"
-	@echo "... db/CDatabase.o"
-	@echo "... db/CDatabase.i"
-	@echo "... db/CDatabase.s"
+	@echo "... db/CDatabaseDriver.o"
+	@echo "... db/CDatabaseDriver.i"
+	@echo "... db/CDatabaseDriver.s"
 	@echo "... db/CDatabaseField.o"
 	@echo "... db/CDatabaseField.i"
 	@echo "... db/CDatabaseField.s"

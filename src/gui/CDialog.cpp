@@ -30,9 +30,9 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <sptk5/db/CDatabase.h>
 #include <sptk5/CException.h>
 #include <sptk5/CRegistry.h>
+#include <sptk5/db/CDatabaseDriver.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CMessageDialog.h>
 #include <sptk5/gui/CInput.h>
@@ -47,8 +47,9 @@ using namespace sptk;
 static const unsigned headerHeight = 20;
 
 //==============================================================================
-void CDialogTabs::prepareNewPage(Fl_Group *page,bool autoColor) {
-    CTabs::prepareNewPage(page,autoColor);
+void CDialogTabs::prepareNewPage(Fl_Group *page, bool autoColor)
+{
+    CTabs::prepareNewPage(page, autoColor);
     if (pageCount() == 1) {
         box(FL_THIN_DOWN_FRAME);
         showTabs(false);
@@ -60,8 +61,9 @@ void CDialogTabs::prepareNewPage(Fl_Group *page,bool autoColor) {
     }
 }
 //==============================================================================
-CDialog::CDialog(int w, int h, const char *label)
-        : CWindow(w,h,label) {
+CDialog::CDialog(int w, int h, const char *label) :
+        CWindow(w, h, label)
+{
     m_queriesBuilt = false;
     m_controlsScanned = false;
     m_keyValue = -1;
@@ -74,7 +76,7 @@ CDialog::CDialog(int w, int h, const char *label)
     m_updateQuery = new CQuery;
     m_insertQuery = new CQuery;
 
-    m_buttonGroup = new CGroup("",20,SP_ALIGN_BOTTOM);
+    m_buttonGroup = new CGroup("", 20, SP_ALIGN_BOTTOM);
     m_okButton = new CButton(SP_OK_BUTTON);
     m_cancelButton = new CButton(SP_CANCEL_BUTTON);
     m_buttonGroup->end();
@@ -88,17 +90,20 @@ CDialog::CDialog(int w, int h, const char *label)
     m_modalResult = DMR_NONE;
 }
 
-CDialog::~CDialog() {
+CDialog::~CDialog()
+{
     delete m_selectQuery;
     delete m_updateQuery;
     delete m_insertQuery;
 }
 
-int CDialog::handle(int event) {
+int CDialog::handle(int event)
+{
     int rc = CWindow::handle(event);
     if (rc)
         return rc;
-    switch (event) {
+    switch (event)
+    {
     case FL_KEYBOARD:
         if (Fl::event_key() == FL_Enter) {
             Fl_Button *btn = dynamic_cast<Fl_Button *>(Fl::focus());
@@ -113,16 +118,18 @@ int CDialog::handle(int event) {
     return 0;
 }
 
-void CDialog::defaultButton(CButton *newDefaultButton) {
+void CDialog::defaultButton(CButton *newDefaultButton)
+{
     unsigned cnt = m_buttonGroup->children();
     for (unsigned bi = 0; bi < cnt; bi++) {
-        CButton *button = (CButton *)m_buttonGroup->child(bi);
+        CButton *button = (CButton *) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
     }
     m_defaultButton = newDefaultButton;
 }
 
-bool CDialog::okPressed() {
+bool CDialog::okPressed()
+{
     try {
         save();
     } catch (exception& e) {
@@ -132,16 +139,18 @@ bool CDialog::okPressed() {
     return true;
 }
 
-bool CDialog::cancelPressed() {
+bool CDialog::cancelPressed()
+{
     return true;
 }
 
-bool CDialog::showModal() {
-    resize(x(),y(),w(),h());
+bool CDialog::showModal()
+{
+    resize(x(), y(), w(), h());
     Fl_Widget *pressed;
     int x = (Fl::w() - w()) / 2;
     int y = (Fl::h() - h()) / 2;
-    position(x,y);
+    position(x, y);
     set_modal();
     fl_cursor(FL_CURSOR_DEFAULT);
     show();
@@ -183,30 +192,35 @@ bool CDialog::showModal() {
     return rc;
 }
 
-void CDialog::database(CDatabase *db) {
+void CDialog::database(CDatabaseDriver* db)
+{
     m_selectQuery->database(db);
     m_updateQuery->database(db);
     m_insertQuery->database(db);
 }
 
-CDatabase * CDialog::database() const {
+CDatabaseDriver * CDialog::database() const
+{
     return m_selectQuery->database();
 }
 
-void CDialog::table(const string tableName) {
+void CDialog::table(const string tableName)
+{
     if (m_tableName != tableName) {
         m_tableName = tableName;
         m_queriesBuilt = false;
     }
 }
 
-void CDialog::table(CDatabase *db,const string tb,const string key) {
+void CDialog::table(CDatabaseDriver* db, const string tb, const string key)
+{
     database(db);
     table(tb);
     keyField(key);
 }
 
-void CDialog::keyField(const string fldName) {
+void CDialog::keyField(const string fldName)
+{
     if (m_keyField != fldName) {
         m_keyValue = -1;
         m_keyField = fldName;
@@ -214,7 +228,8 @@ void CDialog::keyField(const string fldName) {
     }
 }
 
-void CDialog::keyValue(int val) {
+void CDialog::keyValue(int val)
+{
     m_keyValue = val;
     try {
         load();
@@ -224,7 +239,8 @@ void CDialog::keyValue(int val) {
     }
 }
 
-bool CDialog::buildQueries() {
+bool CDialog::buildQueries()
+{
     string columnNames;
     string paramNames;
     string updateNames;
@@ -242,26 +258,27 @@ bool CDialog::buildQueries() {
         const string& fieldName = control->fieldName();
         if (!first) {
             columnNames += "," + fieldName;
-            paramNames  += ",:" + fieldName;
+            paramNames += ",:" + fieldName;
             updateNames += "," + fieldName + "=:" + fieldName;
         } else {
             columnNames = fieldName;
-            paramNames  = ":" + fieldName;
+            paramNames = ":" + fieldName;
             updateNames = fieldName + "=:" + fieldName;
         }
         first = false;
     }
 
-    m_selectQuery->sql("SELECT "+columnNames+" FROM "+m_tableName+" WHERE "+m_keyField+"=:key");
-    m_insertQuery->sql("INSERT INTO "+m_tableName+"("+columnNames+") VALUES ("+paramNames+")");
-    m_updateQuery->sql("UPDATE "+m_tableName+" SET "+updateNames+" WHERE "+m_keyField+"=:key");
+    m_selectQuery->sql("SELECT " + columnNames + " FROM " + m_tableName + " WHERE " + m_keyField + "=:key");
+    m_insertQuery->sql("INSERT INTO " + m_tableName + "(" + columnNames + ") VALUES (" + paramNames + ")");
+    m_updateQuery->sql("UPDATE " + m_tableName + " SET " + updateNames + " WHERE " + m_keyField + "=:key");
 
     m_queriesBuilt = true;
 
     return true;
 }
 
-bool CDialog::load() {
+bool CDialog::load()
+{
     buildQueries();
     reset();
     if (m_keyValue > 0) {
@@ -281,7 +298,8 @@ bool CDialog::load() {
     return true;
 }
 
-bool CDialog::save() {
+bool CDialog::save()
+{
 
     if (!m_controlsScanned)
         scanControls();
@@ -326,43 +344,50 @@ bool CDialog::save() {
     return true;
 }
 
-void CDialog::load(const CXmlNode* node) throw (CException) {
-    CLayoutManager::loadLayout(node,LXM_DATA);
+void CDialog::load(const CXmlNode* node) throw (CException)
+{
+    CLayoutManager::loadLayout(node, LXM_DATA);
     loadPosition(node);
 }
 
-void CDialog::save(CXmlNode* node) const {
-    CLayoutManager::saveLayout(node,LXM_DATA);
+void CDialog::save(CXmlNode* node) const
+{
+    CLayoutManager::saveLayout(node, LXM_DATA);
     savePosition(node);
 }
 
-CControl& CDialog::operator [] (string fieldName) {
+CControl& CDialog::operator [](string fieldName)
+{
     if (!m_controlsScanned)
         scanControls();
     CControlList::iterator itor = m_allFields.find(fieldName);
     if (itor != m_allFields.end())
         return *itor->second;
-    throw CException("The dialog window doesn't have a field '"+fieldName+"'");
+    throw CException("The dialog window doesn't have a field '" + fieldName + "'");
 }
 
-CButton *CDialog::addExtraButton(CButtonKind buttonKind,const char *label,Fl_Callback_p callbackFunction) {
+CButton *CDialog::addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callbackFunction)
+{
     m_buttonGroup->begin();
-    CButton *extraButton = new CButton(buttonKind,SP_ALIGN_RIGHT,label);
+    CButton *extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
     m_buttonGroup->end();
     if (callbackFunction)
         extraButton->callback(callbackFunction);
     return extraButton;
 }
 
-int CDialog::keyValue() const {
+int CDialog::keyValue() const
+{
     return m_keyValue;
 }
 
-void CDialog::alert(const string s) const {
+void CDialog::alert(const string s) const
+{
     spWarning(s.c_str());
 }
 
-void CDialog::scanControls() {
+void CDialog::scanControls()
+{
     m_allFields.clear();
     m_defaultFields.clear();
     m_allFields << *m_pages;
@@ -372,15 +397,18 @@ void CDialog::scanControls() {
     m_queriesBuilt = false;
 }
 
-Fl_Group* CDialog::newPage(const char *label,bool autoColor) {
-    return m_pages->newPage(label,autoColor);
+Fl_Group* CDialog::newPage(const char *label, bool autoColor)
+{
+    return m_pages->newPage(label, autoColor);
 }
 
-Fl_Group* CDialog::newScroll(const char *label,bool autoColor) {
-    return m_pages->newScroll(label,autoColor);
+Fl_Group* CDialog::newScroll(const char *label, bool autoColor)
+{
+    return m_pages->newScroll(label, autoColor);
 }
 
-bool CDialog::reset() {
+bool CDialog::reset()
+{
     if (!m_controlsScanned)
         scanControls();
     m_allFields.reset();

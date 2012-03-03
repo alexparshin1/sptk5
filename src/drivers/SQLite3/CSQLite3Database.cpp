@@ -37,16 +37,20 @@
 
 namespace sptk {
 
-    class CSQLite3Field : public CDatabaseField {
-            friend class CSQLite3Database;
-        public:
-            CSQLite3Field(const std::string fieldName,int fieldColumn)
-                    : CDatabaseField(fieldName,fieldColumn,0,VAR_NONE,0,0) {}
-            void setFieldType(int fieldType,int fieldLength,int fieldScale) {
-                m_fldType = fieldType;
-                m_fldSize = fieldLength;
-                m_fldScale = fieldScale;
-            }
+    class CSQLite3Field: public CDatabaseField
+    {
+        friend class CSQLite3Database;
+    public:
+        CSQLite3Field(const std::string fieldName, int fieldColumn) :
+                CDatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
+        {
+        }
+        void setFieldType(int fieldType, int fieldLength, int fieldScale)
+        {
+            m_fldType = fieldType;
+            m_fldSize = fieldLength;
+            m_fldScale = fieldScale;
+        }
     };
 
 }
@@ -58,26 +62,32 @@ extern "C" {
     typedef void (*sqlite3cb)(void*);
 }
 
-CSQLite3Database::CSQLite3Database(string connectionString)
-        : CDatabase(connectionString) {
+CSQLite3Database::CSQLite3Database(string connectionString) :
+        CDatabaseDriver(connectionString)
+{
     m_connect = 0;
 }
 
-CSQLite3Database::~CSQLite3Database() {
+CSQLite3Database::~CSQLite3Database()
+{
     try {
         if (m_inTransaction && active())
             rollbackTransaction();
         close();
         while (m_queryList.size()) {
             try {
-                CQuery *query = (CQuery *)m_queryList[0];
+                CQuery *query = (CQuery *) m_queryList[0];
                 query->disconnect();
-            } catch (...) {}}
+            } catch (...) {
+            }
+        }
         m_queryList.clear();
-    } catch (...) {}
+    } catch (...) {
+    }
 }
 
-void CSQLite3Database::openDatabase(const string newConnectionString) throw(CException) {
+void CSQLite3Database::openDatabase(const string newConnectionString) throw (CException)
+{
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
@@ -86,46 +96,53 @@ void CSQLite3Database::openDatabase(const string newConnectionString) throw(CExc
             string error = sqlite3_errmsg(m_connect);
             sqlite3_close(m_connect);
             m_connect = 0;
-            throw CException(error);
+            throw CDatabaseException(error);
         }
     }
 }
 
-void CSQLite3Database::closeDatabase() throw(CException) {
+void CSQLite3Database::closeDatabase() throw (CException)
+{
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
-            CQuery *query = (CQuery *)m_queryList[i];
+            CQuery *query = (CQuery *) m_queryList[i];
             queryFreeStmt(query);
-        } catch (...) {}}
+        } catch (...) {
+        }
+    }
     sqlite3_close(m_connect);
     m_connect = 0L;
 }
 
-void* CSQLite3Database::handle() const {
+void* CSQLite3Database::handle() const
+{
     return m_connect;
 }
 
-bool CSQLite3Database::active() const {
+bool CSQLite3Database::active() const
+{
     return m_connect != 0L;
 }
 
-void CSQLite3Database::driverBeginTransaction() throw(CException) {
+void CSQLite3Database::driverBeginTransaction() throw (CException)
+{
     if (!m_connect)
         open();
 
     if (m_inTransaction)
-        throw CException("Transaction already started.");
+        throw CDatabaseException("Transaction already started.");
 
     char *zErrMsg;
-    if (sqlite3_exec(m_connect,"BEGIN TRANSACTION", 0, 0, &zErrMsg) != SQLITE_OK)
-        throw CException(zErrMsg);
+    if (sqlite3_exec(m_connect, "BEGIN TRANSACTION", 0, 0, &zErrMsg) != SQLITE_OK)
+        throw CDatabaseException(zErrMsg);
 
     m_inTransaction = true;
 }
 
-void CSQLite3Database::driverEndTransaction(bool commit) throw(CException) {
+void CSQLite3Database::driverEndTransaction(bool commit) throw (CException)
+{
     if (!m_inTransaction)
-        throw CException("Transaction isn't started.");
+        throw CDatabaseException("Transaction isn't started.");
 
     string action;
     if (commit)
@@ -134,90 +151,98 @@ void CSQLite3Database::driverEndTransaction(bool commit) throw(CException) {
         action = "ROLLBACK";
 
     char *zErrMsg;
-    if (sqlite3_exec(m_connect,action.c_str(), 0, 0, &zErrMsg) != SQLITE_OK)
-        throw CException(zErrMsg);
+    if (sqlite3_exec(m_connect, action.c_str(), 0, 0, &zErrMsg) != SQLITE_OK)
+        throw CDatabaseException(zErrMsg);
 
     m_inTransaction = false;
 }
 
 //-----------------------------------------------------------------------------------------------
 
-string CSQLite3Database::queryError(const CQuery *query) const {
+string CSQLite3Database::queryError(const CQuery *query) const
+{
     return sqlite3_errmsg(m_connect);
 }
 
 // Doesn't actually allocate stmt, but makes sure
 // the previously allocated stmt is released
-void CSQLite3Database::queryAllocStmt(CQuery *query) {
-    CSQLite3Lock lock (this);
+void CSQLite3Database::queryAllocStmt(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
-    SQLHSTMT stmt = (SQLHSTMT)query->statement();
+    SQLHSTMT stmt = (SQLHSTMT) query->statement();
     if (stmt)
         sqlite3_finalize(stmt);
-    querySetStmt(query,0L);
+    querySetStmt(query, 0L);
 }
 
-void CSQLite3Database::queryFreeStmt(CQuery *query) {
-    CSQLite3Lock lock (this);
+void CSQLite3Database::queryFreeStmt(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
-    SQLHSTMT stmt = (SQLHSTMT)query->statement();
+    SQLHSTMT stmt = (SQLHSTMT) query->statement();
     if (stmt)
         sqlite3_finalize(stmt);
-    querySetStmt(query,0L);
-    querySetPrepared(query,false);
+    querySetStmt(query, 0L);
+    querySetPrepared(query, false);
 }
 
-void CSQLite3Database::queryCloseStmt(CQuery *query) {
-    CSQLite3Lock lock (this);
+void CSQLite3Database::queryCloseStmt(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
     //sqlite3_reset((SQLHSTMT)query->statement());
-    SQLHSTMT stmt = (SQLHSTMT)query->statement();
+    SQLHSTMT stmt = (SQLHSTMT) query->statement();
     if (stmt)
         sqlite3_finalize(stmt);
-    querySetStmt(query,0L);
-    querySetPrepared(query,false);
+    querySetStmt(query, 0L);
+    querySetPrepared(query, false);
 }
 
-void CSQLite3Database::queryPrepare(CQuery *query) {
-    CSQLite3Lock lock (this);
+void CSQLite3Database::queryPrepare(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
     SQLHSTMT stmt;
     const char *pzTail;
-    if (sqlite3_prepare(m_connect,query->sql().c_str(),
-                        int(query->sql().length()),&stmt,&pzTail) != SQLITE_OK) {
+    if (sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &stmt, &pzTail) != SQLITE_OK) {
         const char *errorMsg = sqlite3_errmsg(m_connect);
-        throw CException(errorMsg,__FILE__,__LINE__,query->sql().c_str());
+        throw CDatabaseException(errorMsg, __FILE__, __LINE__, query->sql().c_str());
     }
 
     //sqlite3_clear_bindings(stmt);
 
-    querySetStmt(query,stmt);
-    querySetPrepared(query,true);
+    querySetStmt(query, stmt);
+    querySetPrepared(query, true);
 }
 
-void CSQLite3Database::queryUnprepare(CQuery *query) {
+void CSQLite3Database::queryUnprepare(CQuery *query)
+{
     queryFreeStmt(query);
 }
 
-void CSQLite3Database::queryExecute(CQuery *query) {
-    CSQLite3Lock lock (this);
+void CSQLite3Database::queryExecute(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
     if (!query->prepared())
-        throw CException("Query isn't prepared");
+        throw CDatabaseException("Query isn't prepared");
 }
 
-int CSQLite3Database::queryColCount(CQuery *query) {
-    CSQLite3Lock lock (this);
+int CSQLite3Database::queryColCount(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
-    SQLHSTMT stmt = (SQLHSTMT)query->statement();
+    SQLHSTMT stmt = (SQLHSTMT) query->statement();
 
     return sqlite3_column_count(stmt);
 }
 
-void CSQLite3Database::queryBindParameters(CQuery *query) {
-    CSQLite3Lock lock (this);
+void CSQLite3Database::queryBindParameters(CQuery *query)
+{
+    CSQLite3Lock lock(this);
 
-    SQLHSTMT stmt = (SQLHSTMT)query->statement();
+    SQLHSTMT stmt = (SQLHSTMT) query->statement();
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
         CParam *param = &query->param(i);
@@ -225,66 +250,73 @@ void CSQLite3Database::queryBindParameters(CQuery *query) {
         //SQLINTEGER& cblen = param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
-            int   rc = -1;
+            int rc = -1;
             short paramNumber = short(param->bindIndex(j) + 1);
 
             if (param->isNull())
-                rc = sqlite3_bind_null(stmt,paramNumber);
+                rc = sqlite3_bind_null(stmt, paramNumber);
             else
-                switch (ptype) {
+                switch (ptype)
+                {
                 case VAR_BOOL:
                 case VAR_INT:
-                    rc = sqlite3_bind_int(stmt,paramNumber,param->getInteger());
+                    rc = sqlite3_bind_int(stmt, paramNumber, param->getInteger());
                     break;
                 case VAR_INT64:
-                    rc = sqlite3_bind_int64(stmt,paramNumber,param->getInt64());
+                    rc = sqlite3_bind_int64(stmt, paramNumber, param->getInt64());
                     break;
                 case VAR_FLOAT:
-                    rc = sqlite3_bind_double(stmt,paramNumber,param->getFloat());
+                    rc = sqlite3_bind_double(stmt, paramNumber, param->getFloat());
                     break;
                 case VAR_STRING:
                 case VAR_TEXT:
-                    rc = sqlite3_bind_text(stmt,paramNumber,param->getString(),int(param->dataSize()),(sqlite3cb)SQLITE_STATIC);
+                    rc = sqlite3_bind_text(stmt, paramNumber, param->getString(), int(param->dataSize()),
+                            (sqlite3cb) SQLITE_STATIC);
                     break;
                 case VAR_BUFFER:
-                    rc = sqlite3_bind_blob(stmt,paramNumber,param->getString(),int(param->dataSize()),(sqlite3cb)SQLITE_STATIC);
+                    rc = sqlite3_bind_blob(stmt, paramNumber, param->getString(), int(param->dataSize()),
+                            (sqlite3cb) SQLITE_STATIC);
                     break;
                 case VAR_DATE:
                 case VAR_DATE_TIME:
                     throwException("Date and time types isn't yet supported for SQLite3");
                     /*
-                    {
-                       paramType = SQL_C_TIMESTAMP;
-                       sqlType   = SQL_TIMESTAMP;
-                       len = sizeof(TIMESTAMP_STRUCT);
-                       TIMESTAMP_STRUCT *t = (TIMESTAMP_STRUCT *)param->conversionBuffer();
-                       CDateTime dt = param->getDateTime();
-                       buff = t;
-                       if (dt) {
-                          dt.decodeDate((short *)&t->year,(short *)&t->month,(short *)&t->day);
-                          t->hour = t->minute = t->second = 0;
-                          t->fraction = 0;
-                       } else {
-                          paramType = SQL_C_CHAR;
-                          sqlType   = SQL_CHAR;
-                          *(char *)buff = 0;
-                       }
-                    }
-                    */
+                     {
+                     paramType = SQL_C_TIMESTAMP;
+                     sqlType   = SQL_TIMESTAMP;
+                     len = sizeof(TIMESTAMP_STRUCT);
+                     TIMESTAMP_STRUCT *t = (TIMESTAMP_STRUCT *)param->conversionBuffer();
+                     CDateTime dt = param->getDateTime();
+                     buff = t;
+                     if (dt) {
+                     dt.decodeDate((short *)&t->year,(short *)&t->month,(short *)&t->day);
+                     t->hour = t->minute = t->second = 0;
+                     t->fraction = 0;
+                     } else {
+                     paramType = SQL_C_CHAR;
+                     sqlType   = SQL_CHAR;
+                     *(char *)buff = 0;
+                     }
+                     }
+                     */
                     break;
                 default:
-                    throw CException("Unsupported type of parameter "+int2string(paramNumber),__FILE__,__LINE__,query->sql().c_str());
+                    throw CDatabaseException("Unsupported type of parameter " + int2string(paramNumber), __FILE__, __LINE__,
+                            query->sql().c_str());
                 }
             if (rc != SQLITE_OK) {
                 string error = sqlite3_errmsg(m_connect);
-                throw CException(error + ", in binding parameter "+int2string(paramNumber),__FILE__,__LINE__,query->sql().c_str());
+                throw CDatabaseException(error + ", in binding parameter " + int2string(paramNumber), __FILE__, __LINE__,
+                        query->sql().c_str());
             }
         }
     }
 }
 
-void CSQLite3Database::SQLITEtypeToCType(int sqliteType,CVariantType& dataType) {
-    switch (sqliteType) {
+void CSQLite3Database::SQLITEtypeToCType(int sqliteType, CVariantType& dataType)
+{
+    switch (sqliteType)
+    {
 
     case SQLITE_INTEGER:
         dataType = VAR_INT64;
@@ -306,7 +338,8 @@ void CSQLite3Database::SQLITEtypeToCType(int sqliteType,CVariantType& dataType) 
     dataType = VAR_NONE;
 }
 
-void CSQLite3Database::queryOpen(CQuery *query) {
+void CSQLite3Database::queryOpen(CQuery *query)
+{
     if (!active())
         open();
 
@@ -326,44 +359,46 @@ void CSQLite3Database::queryOpen(CQuery *query) {
 
     query->fields().clear();
 
-    SQLHSTMT stmt = (SQLHSTMT)query->statement();
+    SQLHSTMT stmt = (SQLHSTMT) query->statement();
 
     if (count < 1) {
         if (sqlite3_step(stmt) != SQLITE_DONE) {
             string error = queryError(query);
             queryCloseStmt(query);
-            throw CException(error,__FILE__,__LINE__,query->sql().c_str());
+            throw CDatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
         }
         queryCloseStmt(query);
         return;
     } else {
-        querySetActive(query,true);
+        querySetActive(query, true);
 
         // Reading the column attributes
-        char  columnName[256];
+        char columnName[256];
         //long  columnType;
         //CVariantType dataType;
         for (short column = 1; column <= count; column++) {
-            strncpy(columnName,sqlite3_column_name(stmt,column-1),255);
+            strncpy(columnName, sqlite3_column_name(stmt, column - 1), 255);
             columnName[255] = 0;
             if (columnName[0] == 0)
-                sprintf(columnName,"column%02i",column);
+                sprintf(columnName, "column%02i", column);
 
-            CSQLite3Field *field = new CSQLite3Field(columnName,column);
+            CSQLite3Field *field = new CSQLite3Field(columnName, column);
             query->fields().push_back(field);
         }
     }
 
-    querySetEof(query,false);
+    querySetEof(query, false);
 
     queryFetch(query);
 }
 
-static uint32_t trimField(char *s,uint32_t sz) {
+static uint32_t trimField(char *s, uint32_t sz)
+{
     register char *p = s + sz;
     char ch = s[0];
     s[0] = '!';
-    while (*(--p) == ' ') {}
+    while (*(--p) == ' ') {
+    }
     *(++p) = 0;
     if (ch == ' ' && s[1] == 0)
         return 0;
@@ -371,25 +406,27 @@ static uint32_t trimField(char *s,uint32_t sz) {
     return uint32_t(p - s);
 }
 
-void CSQLite3Database::queryFetch(CQuery *query) {
+void CSQLite3Database::queryFetch(CQuery *query)
+{
     if (!query->active())
-        throw CException("Dataset isn't open",__FILE__,__LINE__,query->sql().c_str());
+        throw CDatabaseException("Dataset isn't open", __FILE__, __LINE__, query->sql().c_str());
 
-    SQLHSTMT    statement = (SQLHSTMT) query->statement();
+    SQLHSTMT statement = (SQLHSTMT) query->statement();
 
-    CSQLite3Lock lock (this);
+    CSQLite3Lock lock(this);
 
     int rc = sqlite3_step(statement);
 
-    switch (rc) {
+    switch (rc)
+    {
     case SQLITE_DONE:
-        querySetEof(query,true);
+        querySetEof(query, true);
         return;
     case SQLITE_ROW:
         break;
 
     default:
-        throw CException(queryError(query),__FILE__,__LINE__,query->sql().c_str());
+        throw CDatabaseException(queryError(query), __FILE__, __LINE__, query->sql().c_str());
     }
 
     uint32_t fieldCount = query->fieldCount();
@@ -398,36 +435,37 @@ void CSQLite3Database::queryFetch(CQuery *query) {
     if (!fieldCount)
         return;
 
-    CSQLite3Field  *field = 0;
+    CSQLite3Field *field = 0;
     for (uint32_t column = 0; column < fieldCount; column++) {
         try {
-            field = (CSQLite3Field *) & (*query)[(int)column];
+            field = (CSQLite3Field *) &(*query)[(int) column];
             short fieldType = (short) field->fieldType();
             if (!fieldType) {
-                fieldType = sqlite3_column_type(statement,int(column));
-                field->setFieldType(fieldType,0,0);
+                fieldType = sqlite3_column_type(statement, int(column));
+                field->setFieldType(fieldType, 0, 0);
             }
 
-            dataLength = sqlite3_column_bytes(statement,int(column));
+            dataLength = sqlite3_column_bytes(statement, int(column));
 
             if (dataLength) {
-                switch (fieldType) {
+                switch (fieldType)
+                {
 
                 case SQLITE_INTEGER:
-                    field->setInt64(sqlite3_column_int64(statement,int(column)));
+                    field->setInt64(sqlite3_column_int64(statement, int(column)));
                     break;
 
                 case SQLITE_FLOAT:
-                    field->setFloat(sqlite3_column_double(statement,int(column)));
+                    field->setFloat(sqlite3_column_double(statement, int(column)));
                     break;
 
                 case SQLITE_TEXT:
-                    field->setString((const char *)sqlite3_column_text(statement,int(column)),dataLength);
-                    dataLength = trimField((char *)field->getString(),dataLength);
+                    field->setString((const char *) sqlite3_column_text(statement, int(column)), dataLength);
+                    dataLength = trimField((char *) field->getString(), dataLength);
                     break;
 
                 case SQLITE_BLOB:
-                    field->setBuffer(sqlite3_column_blob(statement,int(column)),dataLength);
+                    field->setBuffer(sqlite3_column_blob(statement, int(column)), dataLength);
                     break;
 
                 default:
@@ -442,20 +480,28 @@ void CSQLite3Database::queryFetch(CQuery *query) {
                 field->setNull();
             }
         } catch (exception& e) {
-            throw CException("Can't read field "+field->fieldName()+"\n"+string(e.what()),__FILE__,__LINE__,query->sql().c_str());
+            throw CDatabaseException("Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
+                    query->sql().c_str());
         }
     }
 }
 
-void CSQLite3Database::objectList(CDbObjectType objectType,CStrings& objects) throw(std::exception) {
+void CSQLite3Database::objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception)
+{
     string objectTypeName;
     objects.clear();
-    switch (objectType) {
-    case DOT_TABLES:    objectTypeName = "table"; break;
-    case DOT_VIEWS:     objectTypeName = "view"; break;
-    default:            return; // no information about objects of other types
+    switch (objectType)
+    {
+    case DOT_TABLES:
+        objectTypeName = "table";
+        break;
+    case DOT_VIEWS:
+        objectTypeName = "view";
+        break;
+    default:
+        return; // no information about objects of other types
     }
-    CQuery query(this,"SELECT name FROM sqlite_master WHERE type='"+objectTypeName+"'");
+    CQuery query(this, "SELECT name FROM sqlite_master WHERE type='" + objectTypeName + "'");
     query.open();
     while (!query.eof()) {
         objects.push_back(query[uint32_t(0)].asString());
@@ -464,7 +510,8 @@ void CSQLite3Database::objectList(CDbObjectType objectType,CStrings& objects) th
     query.close();
 }
 
-std::string CSQLite3Database::driverDescription() const {
+std::string CSQLite3Database::driverDescription() const
+{
     return "SQLite3 " SQLITE_VERSION;
 }
 

@@ -30,44 +30,50 @@
 
 using namespace sptk;
 
-CXmlAttribute::CXmlAttribute(CXmlElement* parent,const char* tagname,CXmlValue avalue)
-: CXmlNamedItem(*parent->document()) {
+CXmlAttribute::CXmlAttribute(CXmlElement* parent, const char* tagname, CXmlValue avalue) :
+    CXmlNamedItem(*parent->document())
+{
     name(tagname);
     value(avalue);
     parent->attributes().push_back(this);
 }
 
-CXmlAttribute::CXmlAttribute(CXmlElement* parent,const std::string& tagname,CXmlValue avalue)
-: CXmlNamedItem(*parent->document()) {
+CXmlAttribute::CXmlAttribute(CXmlElement* parent, const std::string& tagname, CXmlValue avalue) :
+    CXmlNamedItem(*parent->document())
+{
     name(tagname);
     value(avalue);
     parent->attributes().push_back(this);
 }
 
-CXmlAttributes& CXmlAttributes::operator = (const CXmlAttributes& s) {
+CXmlAttributes& CXmlAttributes::operator =(const CXmlAttributes& s)
+{
     clear();
-    for(CXmlAttributes::const_iterator it = s.begin(); it != s.end(); it++) {
+    for (CXmlAttributes::const_iterator it = s.begin(); it != s.end(); it++) {
         CXmlNode* node = *it;
-        new CXmlAttribute(m_parent,node->name(),node->value());
+        new CXmlAttribute(m_parent, node->name(), node->value());
     }
     return *this;
 }
 
-CXmlAttribute* CXmlAttributes::getAttributeNode(std::string attr) {
+CXmlAttribute* CXmlAttributes::getAttributeNode(std::string attr)
+{
     iterator itor = findFirst(attr.c_str());
     if (itor != end())
-        return (CXmlAttribute*)*itor;
+        return (CXmlAttribute*) *itor;
     return NULL;
 }
 
-const CXmlAttribute* CXmlAttributes::getAttributeNode(std::string attr) const {
+const CXmlAttribute* CXmlAttributes::getAttributeNode(std::string attr) const
+{
     const_iterator itor = findFirst(attr.c_str());
     if (itor != end())
-        return (const CXmlAttribute*)*itor;
+        return (const CXmlAttribute*) *itor;
     return NULL;
 }
 
-CXmlValue CXmlAttributes::getAttribute(std::string attr,const char *defaultValue) const {
+CXmlValue CXmlAttributes::getAttribute(std::string attr, const char *defaultValue) const
+{
     const_iterator itor = findFirst(attr.c_str());
     if (itor != end())
         return (*itor)->value();
@@ -77,7 +83,8 @@ CXmlValue CXmlAttributes::getAttribute(std::string attr,const char *defaultValue
     return rc;
 }
 
-void CXmlAttributes::setAttribute(std::string attr,CXmlValue value,const char *defaultValue) {
+void CXmlAttributes::setAttribute(std::string attr, CXmlValue value, const char *defaultValue)
+{
     iterator itor = findFirst(attr.c_str());
     if (defaultValue && value == defaultValue) {
         if (itor != end()) {
@@ -89,10 +96,11 @@ void CXmlAttributes::setAttribute(std::string attr,CXmlValue value,const char *d
     if (itor != end())
         (*itor)->value(value);
     else
-        new CXmlAttribute(m_parent,attr,value);
+        new CXmlAttribute(m_parent, attr, value);
 }
 
-bool CXmlAttributes::hasAttribute(std::string attr) const {
+bool CXmlAttributes::hasAttribute(std::string attr) const
+{
     const_iterator itor = findFirst(attr.c_str());
     return itor != end();
 }

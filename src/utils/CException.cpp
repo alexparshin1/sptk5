@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cexception.cpp  -  description
+                          CException.cpp  -  description
                              -------------------
     begin                : Thu Apr 27 2000
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -31,12 +31,12 @@
 using namespace std;
 using namespace sptk;
 
-CException::CException(string text,string file,int line,string description)
-: m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
-{	
-   if (m_line && !m_file.empty()) 
-      m_fullMessage += " " + m_file + "("+int2string(uint32_t(m_line))+") ";
+CException::CException(string text, string file, int line, string description) :
+    m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
+{
+    if (m_line && !m_file.empty())
+        m_fullMessage += " " + m_file + "(" + int2string(uint32_t(m_line)) + ") ";
 
-   if (!m_description.empty())
-      m_fullMessage += "\n" + m_description;
+    if (!m_description.empty())
+        m_fullMessage += "\n" + m_description;
 }

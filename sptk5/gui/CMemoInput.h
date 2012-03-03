@@ -36,7 +36,7 @@
 #include <FL/Fl_Button.H>
 #include <sptk5/CIntList.h>
 #include <sptk5/CDateTime.h>
-#include <sptk5/db/CDatabase.h>
+#include <sptk5/db/CDatabaseDriver.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
@@ -56,7 +56,8 @@ class CToggleTree;
 /// @brief Simple text editor
 ///
 /// Multiple line input box
-class SP_EXPORT CMemoInput : public CInput {
+class SP_EXPORT CMemoInput: public CInput
+{
     typedef class CInput inherited;
 
     /// @brief Constructor initializer
@@ -68,7 +69,7 @@ public:
     /// @param label const char *, label
     /// @param layoutSize int, widget align in layout
     /// @param layoutAlign CLayoutAlign, widget align in layout
-    CMemoInput(const char *label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CMemoInput(const char *label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /// @brief Constructor in FLTK style
@@ -82,12 +83,14 @@ public:
 
     /// @brief Returns the control kind, SPTK-style RTTI
     /// @see CControlKind for more information
-    virtual CControlKind kind() const {
+    virtual CControlKind kind() const
+    {
         return DCV_MEMO;
     }
 
     /// @brief Returns the control class name, SPTK-style RTTI
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "memo";
     }
 
@@ -95,19 +98,19 @@ public:
     virtual CVariant data() const;
 
     /// @brief Universal data connection, sets data from control
-    virtual void     data(const CVariant v);
+    virtual void data(const CVariant v);
 
     /// @brief Returns the input text font type
-    virtual Fl_Font  textFont() const;
+    virtual Fl_Font textFont() const;
 
     /// @brief Sets the input text font type
-    virtual void     textFont(Fl_Font f);
+    virtual void textFont(Fl_Font f);
 
     /// @brief Returns the input text font size
-    virtual uchar    textSize() const;
+    virtual uchar textSize() const;
 
     /// @brief Sets the input text font size
-    virtual void     textSize(uchar s);
+    virtual void textSize(uchar s);
 
     /// @brief Saves data to query
     virtual void save(CQuery *);
@@ -116,7 +119,7 @@ public:
     /// @param w int&, input - width offered by the program, output - width required by widget
     /// @param h int&, input - height offered by the program, output - height required by widget
     /// @returns true if the size is stable (doesn't depend on input sizes)
-    virtual bool preferredSize(int& w,int& h);
+    virtual bool preferredSize(int& w, int& h);
 
     /// @brief Creates a widget based on the XML node information
     static CLayoutClient* creator(CXmlNode *node);

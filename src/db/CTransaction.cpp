@@ -30,33 +30,38 @@
 using namespace std;
 using namespace sptk;
 
-CTransaction::CTransaction(CDatabase& db) {
-   m_active = false;
-   m_db = &db;
+CTransaction::CTransaction(CDatabaseDriver& db)
+{
+    m_active = false;
+    m_db = &db;
 }
 
-CTransaction::~CTransaction() {
-   if (m_active)
-      m_db->rollbackTransaction();
+CTransaction::~CTransaction()
+{
+    if (m_active)
+        m_db->rollbackTransaction();
 }
 
-void CTransaction::begin() {
-   if (m_active)
-      throw CException("This transaction is already active");
-   m_active = true;
-   m_db->beginTransaction();
+void CTransaction::begin()
+{
+    if (m_active)
+        throw CException("This transaction is already active");
+    m_active = true;
+    m_db->beginTransaction();
 }
 
-void CTransaction::commit() {
-   if (!m_active)
-      throw CException("This transaction is not active");
-   m_db->commitTransaction();
-   m_active = false;
+void CTransaction::commit()
+{
+    if (!m_active)
+        throw CException("This transaction is not active");
+    m_db->commitTransaction();
+    m_active = false;
 }
 
-void CTransaction::rollback() {
-   if (!m_active)
-      throw CException("This transaction is not active");
-   m_db->rollbackTransaction();
-   m_active = false;
+void CTransaction::rollback()
+{
+    if (!m_active)
+        throw CException("This transaction is not active");
+    m_db->rollbackTransaction();
+    m_active = false;
 }

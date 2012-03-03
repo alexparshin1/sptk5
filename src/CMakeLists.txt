@@ -29,7 +29,7 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     threads/CSemaphore.cpp threads/CRunable.cpp threads/CWorkerThread.cpp
     )
 
-SET (SPDB_SOURCES db/CDatabase.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp db/CTransaction.cpp)
+SET (SPDB_SOURCES db/CDatabaseDriver.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp db/CTransaction.cpp)
 
 SET (ODBC_SOURCES)
 IF (ODBC_FLAG)

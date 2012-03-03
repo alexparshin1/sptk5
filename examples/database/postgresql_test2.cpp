@@ -1,10 +1,10 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
                                DEMO PROGRAMS SET
-                          postgresql_test.cpp  -  description
+                          postgresql_test2.cpp  -  description
                              -------------------
     begin                : September 20, 2007
-    copyright            : (C) 2008-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -35,7 +35,7 @@ using namespace sptk;
 
 unsigned idOffset = 1;
 
-void testPerformance (CDatabase& db)
+void testPerformance (CDatabaseDriver& db)
 {
     try {
         cout << "Openning the database.. ";

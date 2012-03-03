@@ -3,7 +3,7 @@
                           CODBC.h  -  description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -61,31 +61,38 @@ class CParam;
 /// @brief ODBC base
 ///
 /// Base class for all ODBC classes
-class SP_EXPORT ODBCBase : public CSynchronized {
+class SP_EXPORT ODBCBase: public CSynchronized
+{
 protected:
     /// Last RETCODE returned from ODBC function
-    SQLRETURN   m_Retcode;
+    SQLRETURN m_Retcode;
 
     /// Constructor
-    ODBCBase() : m_Retcode(SQL_SUCCESS) { }
+    ODBCBase() :
+            m_Retcode(SQL_SUCCESS)
+    {
+    }
 
 public:
 
     /// Destructor
-    ~ODBCBase() {}
+    ~ODBCBase()
+    {
+    }
 
     /// Returns last ODBC operation result
-    RETCODE retcode() const {
+    RETCODE retcode() const
+    {
         return m_Retcode;
     }
 
     /// Throws the exception
-    void    exception(std::string text,int line) const;
+    void exception(std::string text, int line) const;
 
 private:
 
     /// Assignment operator, disabled
-    ODBCBase & operator = (const ODBCBase & d);
+    ODBCBase & operator =(const ODBCBase & d);
 
     /// Copy constructor, disabled
     ODBCBase(const ODBCBase &);
@@ -94,7 +101,8 @@ private:
 /// @brief ODBC environment
 ///
 /// Environment is only used by CODBCConnection class
-class SP_EXPORT CODBCEnvironment : public ODBCBase {
+class SP_EXPORT CODBCEnvironment: public ODBCBase
+{
     friend class CODBCConnection;
 private:
 
@@ -113,12 +121,14 @@ protected:
     void freeEnv();
 
     /// Is enviromment handle allocated?
-    bool valid()  const {
-        return m_hEnvironment!=SQL_NULL_HENV;
+    bool valid() const
+    {
+        return m_hEnvironment != SQL_NULL_HENV;
     }
 
     /// Returns enviromment handle
-    SQLHENV handle() const {
+    SQLHENV handle() const
+    {
         return m_hEnvironment;
     }
 
@@ -136,16 +146,18 @@ public:
 ///
 /// Class CODBCConnection represents the connection to a database.
 /// You need one object of this class for each database you want to access.
-class SP_EXPORT CODBCConnection : public ODBCBase {
-    CODBCEnvironment&  m_cEnvironment;      ///< ODBC environment
-    SQLHDBC            m_hConnection;       ///< ODBC connection handle
-    bool               m_connected;        ///< Is connection active?
-    std::string        m_connectString;     ///< ODBC connection string
-    std::string        m_driverDescription; ///< Driver description, filled in during the connection to the DSN
+class SP_EXPORT CODBCConnection: public ODBCBase
+{
+    CODBCEnvironment& m_cEnvironment;      ///< ODBC environment
+    SQLHDBC m_hConnection;       ///< ODBC connection handle
+    bool m_connected;        ///< Is connection active?
+    std::string m_connectString;     ///< ODBC connection string
+    std::string m_driverDescription; ///< Driver description, filled in during the connection to the DSN
 protected:
     /// Is connection active?
-    bool valid()  const {
-        return m_hConnection!=SQL_NULL_HDBC;
+    bool valid() const
+    {
+        return m_hConnection != SQL_NULL_HDBC;
     }
 public:
 
@@ -163,18 +175,20 @@ public:
 
     /// Connects to the database passing ODBC connection string.
     /// The full connection string is returned in FinalConnectionString.
-    void connect(const std::string& ConnectionString,std::string& FinalConnectionString,bool EnableDriverPrompt=false);
+    void connect(const std::string& ConnectionString, std::string& FinalConnectionString, bool EnableDriverPrompt = false);
 
     /// Disconnects from the database passing ODBC connection string.
     void disconnect();
 
     /// Returns the connection handle
-    SQLHDBC handle()   const {
+    SQLHDBC handle() const
+    {
         return m_hConnection;
     }
 
     /// Returns true if the connection is active
-    bool isConnected() const {
+    bool isConnected() const
+    {
         return m_connected;
     }
 
@@ -182,43 +196,50 @@ public:
     void setConnectOption(UWORD fOption, UDWORD vParam);
 
     /// Gets the connection information
-    void getInfo(uint16_t fInfoType,LPSTR str, int size);
+    void getInfo(uint16_t fInfoType, LPSTR str, int size);
 
     /// Gets the connection information
-    void getInfo(uint16_t fInfoType,int16_t *num) {
-        getInfo(fInfoType,(LPSTR)num,sizeof(num));
+    void getInfo(uint16_t fInfoType, int16_t *num)
+    {
+        getInfo(fInfoType, (LPSTR) num, sizeof(num));
     }
 
     /// Gets the connection information
-    void getInfo(uint16_t fInfoType,DWORD *num) {
-        getInfo(fInfoType,(LPSTR)num,sizeof(num));
+    void getInfo(uint16_t fInfoType, DWORD *num)
+    {
+        getInfo(fInfoType, (LPSTR) num, sizeof(num));
     }
 
     /// Returns the ODBC connection string for the active connection
-    std::string connectString() const {
+    std::string connectString() const
+    {
         return m_connectString;
     }
 
     /// Returns the ODBC driver description string for the active connection
-    std::string driverDescription() const {
+    std::string driverDescription() const
+    {
         return m_driverDescription;
     }
 
     /// Begins transaction
-    void beginTransaction() {
-        setConnectOption(SQL_AUTOCOMMIT,SQL_AUTOCOMMIT_OFF);
+    void beginTransaction()
+    {
+        setConnectOption(SQL_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF);
     }
 
     /// Controls transaction
     void transact(uint16_t fType);
 
     /// Commits transaction
-    void commit()   {
+    void commit()
+    {
         transact(SQL_COMMIT);
     }
 
     /// Rollbacks transaction
-    void rollback() {
+    void rollback()
+    {
         transact(SQL_ROLLBACK);
     }
 
@@ -233,45 +254,6 @@ protected:
     /// @param action const char *, user action name for the error message
     /// @returns ODBC driver error message with the user action
     std::string errorInformation(const char *action);
-};
-
-/// @brief ODBC synchronization object
-///
-/// Locks shared ODBC handles. That is needed for thread safety.
-/// Defines only protected constructors to be used internally.
-class SP_EXPORT CODBCLock {
-    friend class CODBCDatabase;
-    friend class CODBCEnvironment;
-    friend class CODBCConnection;
-
-    ODBCBase& m_object;    ///< ODBC handle owner
-protected:
-    /// @brief Protected constructor
-    ///
-    /// Locks the ODBC object till the destructor is called.
-    /// @param object ODBCBase&, ODBC object to lock.
-    CODBCLock(ODBCBase& object) : m_object(object) {
-        if (&m_object)
-            m_object.lock();
-    }
-
-    /// @brief Protected constructor
-    ///
-    /// Locks the ODBC object till the destructor is called.
-    /// @param object ODBCBase*, ODBC object to lock.
-    CODBCLock(ODBCBase* object) : m_object(*object) {
-        if (&m_object)
-            m_object.lock();
-    }
-public:
-
-    /// @brief Destructor
-    ///
-    /// Unlocks the ODBC object defined in constructor.
-    ~CODBCLock() {
-        if (&m_object)
-            m_object.unlock();
-    }
 };
 
 /// Removes excessive driver information from error message

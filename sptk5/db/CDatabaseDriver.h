@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDatabase.h  -  description
+                          CDatabaseDriver.h  -  description
                              -------------------
     begin                : Wed Dec 15 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -43,7 +43,7 @@ namespace sptk {
 
    class CQuery;
 
-   /// @brief Types of the objects for CDatabase::listObjects method
+   /// @brief Types of the objects for CDatabaseDriver::listObjects method
    enum CDbObjectType {
       DOT_TABLES,         ///< Tables
       DOT_VIEWS,          ///< Views
@@ -90,7 +90,7 @@ namespace sptk {
    /// Implements a thread-safe connection to general database. It is used
    /// as a base class for the particular database driver, CODBCDatabase,
    /// for instance.
-   class SP_EXPORT CDatabase : public CSynchronized {
+   class SP_EXPORT CDatabaseDriver : public CSynchronized {
       typedef std::vector<CQuery *> CQueryVector;
       friend class CQuery;
 
@@ -156,10 +156,10 @@ namespace sptk {
       /// @brief Constructor
       ///
       /// Protected constructor prevents creating an instance of the
-      /// CDatabase. Instead, it is possible to create an instance of derived
+      /// CDatabaseDriver. Instead, it is possible to create an instance of derived
       /// classes.
       /// @param connectionString std::string, the connection string
-      CDatabase(std::string connectionString);
+      CDatabaseDriver(std::string connectionString);
 
       /// Stub function to throw an exception in case if the
       /// called method isn't implemented in the derived class
@@ -206,7 +206,7 @@ namespace sptk {
       ///
       /// Closes the database connection and all the connected queries.
       /// Releases all the database resources allocated during the connection.
-      virtual ~CDatabase();
+      virtual ~CDatabaseDriver();
 
       /// @brief Opens the database connection
       ///
@@ -249,7 +249,7 @@ namespace sptk {
 
       /// @brief Lists database objects
       ///
-      /// Not implemented in CDatabase. The derived database class
+      /// Not implemented in CDatabaseDriver. The derived database class
       /// must provide its own implementation
       /// @param objectType CDbObjectType, object type to list
       /// @param objects CStrings&, object list (output)
@@ -257,7 +257,7 @@ namespace sptk {
 
       /// @brief Sets a log file for the database operations.
       ///
-      /// If the database log is set, the database would log the events in CDatabase and CQuery objects
+      /// If the database log is set, the database would log the events in CDatabaseDriver and CQuery objects
       /// into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
       /// @param logFile CBaseLog *, the log file object to use.
       void logFile(CBaseLog *logFile) {

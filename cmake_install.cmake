@@ -98,12 +98,12 @@ IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspeci
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/sptk5/db" TYPE FILE FILES
     "/home/alexeyp/workspace/sptk5/sptk5/db/CQuery.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CPostgreSQLDatabase.h"
-    "/home/alexeyp/workspace/sptk5/sptk5/db/CDatabase.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CQueryGuard.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CODBCDatabase.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CDatabaseField.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CSQLite3Database.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CParams.h"
+    "/home/alexeyp/workspace/sptk5/sptk5/db/CDatabaseDriver.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CTransaction.h"
     "/home/alexeyp/workspace/sptk5/sptk5/db/CODBC.h"
     )

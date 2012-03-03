@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cdblistview.h  -  description
+                          CDBListview.h  -  description
                              -------------------
     begin                : Fri Mar 31 2000
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -38,7 +38,8 @@ namespace sptk {
 /// @{
 
 /// @brief List view widget with extended database support
-class SP_EXPORT CDBListView : public CListView {
+class SP_EXPORT CDBListView : public CListView
+{
 protected:
     CQuery      m_fullRefreshQuery;  ///< Full refersh Query
     CQuery      m_fastRefreshQuery;  ///< Fast refersh Query
@@ -70,10 +71,10 @@ public:
     ~CDBListView();
 
     /// Sets the database connection
-    void database(CDatabase *db);
+    void database(CDatabaseDriver *db);
 
     /// Returns the database connection
-    CDatabase *database() const;
+    CDatabaseDriver *database() const;
 
     /// Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
     /// The record count query should return only number of record.
@@ -96,7 +97,8 @@ public:
     void keyField(std::string fieldName);
 
     /// Returns key field name
-    std::string keyField() const  {
+    std::string keyField() const
+    {
         return m_keyField;
     }
 
@@ -104,7 +106,7 @@ public:
     /// @param db CDatabase *, the database connection
     /// @param sql std::string,  the full refresh SQL query text
     /// @param keyField std::string, the name of the key field
-    void setup(CDatabase *db,std::string sql,std::string keyField);
+    void setup(CDatabaseDriver* db,std::string sql,std::string keyField);
 
     /// Refreshes the data with full or fast method
     /// @param refreshKind CRefreshKind, the type of refresh
@@ -116,18 +118,21 @@ public:
     }
 
     /// Sets the maximum record number to fetch from the database
-    void maxRecords(uint32_t mr) {
+    void maxRecords(uint32_t mr)
+    {
         m_maxRecords = mr;
     }
 
     /// Returns the maximum record number to fetch from the database
-    uint32_t maxRecords()   const {
+    uint32_t maxRecords() const
+    {
         return m_maxRecords;
     }
 
     /// Returns the records limited flag. The flag is set if the query
     /// returned more records than records limit.
-    bool recordsLimited() const {
+    bool recordsLimited() const
+    {
         return m_recordsLimited;
     }
 

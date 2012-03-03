@@ -33,7 +33,7 @@
 #if HAVE_ODBC == 1
 
 #include <sptk5/db/CODBC.h>
-#include <sptk5/db/CDatabase.h>
+#include <sptk5/db/CDatabaseDriver.h>
 
 namespace sptk {
 
@@ -46,12 +46,13 @@ class CQuery;
 /// @brief ODBC database
 ///
 /// CODBCDatabase is thread-safe connection to ODBC database.
-class SP_EXPORT CODBCDatabase : public CDatabase {
+class SP_EXPORT CODBCDatabase: public CDatabaseDriver
+{
     friend class CQuery;
 
 private:
 
-    CODBCConnection  *m_connect;   ///< The ODBC connection object
+    CODBCConnection *m_connect;   ///< The ODBC connection object
 
     /// @brief Retrieves an error (if any) after statement was executed
     /// @param stmt SQLHSTMT, the statement that had an error
@@ -60,11 +61,11 @@ private:
 protected:
 
     /// @brief Begins the transaction
-    virtual void driverBeginTransaction() throw(CException);
+    virtual void driverBeginTransaction() throw (CException);
 
     /// @brief Ends the transaction
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) throw(CException);
+    virtual void driverEndTransaction(bool commit) throw (CException);
 
     // These methods implement the actions requested by CQuery
     virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
@@ -74,17 +75,18 @@ protected:
     virtual void queryPrepare(CQuery *query);       ///< Prepares a query if supported by database
     virtual void queryUnprepare(CQuery *query);     ///< Unprepares a query if supported by database
     virtual void queryExecute(CQuery *query);       ///< Executes a statement
-    virtual int  queryColCount(CQuery *query);      ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryColAttributes(CQuery *query,int16_t column,int16_t descType,int32_t& value); ///< In a dataset returned by a query, retrieves the column attributes
-    virtual void queryColAttributes(CQuery *query,int16_t column,int16_t descType,char *buff,int len); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual int queryColCount(CQuery *query);      ///< Counts columns of the dataset (if any) returned by query
+    virtual void queryColAttributes(CQuery *query, int16_t column, int16_t descType, int32_t& value); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual void queryColAttributes(CQuery *query, int16_t column, int16_t descType, char *buff, int len); ///< In a dataset returned by a query, retrieves the column attributes
     virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
     virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    virtual void queryFetch(CQuery *query); ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
-    static  void ODBCtypeToCType(int odbcType,int32_t &ctype,CVariantType& dataType); ///< Converts the native ODBC type into SPTK data type
+    static void ODBCtypeToCType(int odbcType, int32_t &ctype, CVariantType& dataType); ///< Converts the native ODBC type into SPTK data type
 
     /// Returns the ODBC connection object
-    CODBCConnection *connection() {
+    CODBCConnection *connection()
+    {
         return m_connect;
     }
 
@@ -99,10 +101,10 @@ public:
 
     /// Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the ODBC connection string
-    virtual void openDatabase(std::string connectionString = "") throw(CException);
+    virtual void openDatabase(std::string connectionString = "") throw (CException);
 
     /// Closes the database connection. If unsuccessful throws an exception.
-    virtual void closeDatabase() throw(CException);
+    virtual void closeDatabase() throw (CException);
 
     /// Retruns true if database is opened
     virtual bool active() const;
@@ -119,7 +121,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType,CStrings& objects) throw(std::exception);
+    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception);
 };
 /// @}
 }
