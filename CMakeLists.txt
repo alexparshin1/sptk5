@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 2.6)
 SET (CMAKE_BUILD_TYPE Debug)
 #SET (CMAKE_COLOR_MAKEFILE OFF)
 
-SET (VERSION "3.5.7")
+SET (VERSION "4.99.01")
 
 OPTION (USE_FLTK       "Build SPTK GUI library" ON)
 
