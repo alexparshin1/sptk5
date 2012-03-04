@@ -109,8 +109,11 @@ int main(int argc, char* argv[])
     for (i = 0; i < tasks.size(); i++)
         threadManager.execute(tasks[i]);
 
-    puts("Waiting 10 seconds while tasks are running..");
-    CThread::msleep(10000);
+    cout << tasks.size() << " tasks are created." << endl;
+    CThread::msleep(1000);
+
+    puts("Waiting 5 seconds while tasks are running..");
+    CThread::msleep(5000);
 
     // Sending 'terminate' signal to all the tasks.
     // That signal suggests task to terminate and exits instantly.
