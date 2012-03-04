@@ -36,12 +36,10 @@ using namespace sptk;
 
 #ifndef _WIN32
 #if HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK == 0
-int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock,
-                                      const struct timespec * abs_timeout);
+int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock, const struct timespec * abs_timeout);
 #endif
 #if HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK == 0
-int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock,
-                                      const struct timespec * abs_timeout);
+int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock, const struct timespec * abs_timeout);
 #endif
 #endif
 
@@ -150,7 +148,7 @@ void CRWLock::unlock() {
 }
 
 #ifndef _WIN32
-#ifndef HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK
+#if HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK == 0
 /*!
     \fn static int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock, const struct timespec *restrict abs_timeout)
     This is ugly implemetation of timed rwlocking function, that has very low resolution, very high overhead
@@ -169,7 +167,7 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock,
     return rc;
 }
 #endif
-#ifndef HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK
+#if HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK == 0
 int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock,
                                       const struct timespec * abs_timeout) {
     time_t tm,wt=abs_timeout->tv_sec;

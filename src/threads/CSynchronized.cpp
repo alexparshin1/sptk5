@@ -25,8 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CException.h>
 #include <sptk5/threads/CSynchronized.h>
+#include <sptk5/CException.h>
 
 using namespace std;
 using namespace sptk;
@@ -84,7 +84,10 @@ void CSynchronized::throwError(int rc, const char* fileName, int lineNumber) thr
 void CSynchronized::lock(const char* fileName, int lineNumber)
 {
 #ifndef _WIN32
-    int rc = pthread_mutex_lock(&m_synchronized);
+    int rc = 0;
+    do {
+        rc = pthread_mutex_lock(&m_synchronized);
+    } while (rc == EINTR);
     if (rc != 0)
         throwError(rc, fileName, lineNumber);
 #else
@@ -99,9 +102,12 @@ void CSynchronized::lock(int timeoutMS, const char* fileName, int lineNumber) th
 {
 #ifndef _WIN32
     int rc = 0;
-    if (timeoutMS < 1)
-        rc = pthread_mutex_lock(&m_synchronized);
-    else {
+    if (timeoutMS < 1) {
+        do {
+            rc = pthread_mutex_lock(&m_synchronized);
+        } while (rc == EINTR);
+    } else {
+        #if HAVE_PTHREAD_MUTEX_TIMED_LOCK
         struct timespec abs_time;
         clock_gettime(CLOCK_REALTIME, &abs_time);
         abs_time.tv_sec += timeoutMS / 1000;
@@ -110,7 +116,28 @@ void CSynchronized::lock(int timeoutMS, const char* fileName, int lineNumber) th
             abs_time.tv_nsec = abs_time.tv_nsec % 1000000;
             abs_time.tv_sec += abs_time.tv_nsec / 1000000;
         }
-        rc = pthread_mutex_timedlock(&m_synchronized, &abs_time);
+        do {
+            rc = pthread_mutex_timedlock(&m_synchronized, &abs_time);
+        } while (rc == EINTR);
+        #else
+        int step = 50;   // Check every 50 milliseconds
+        int elapsed = 0;
+        while (elapsed < timeoutMS) {
+            int rc = pthread_mutex_trylock(&m_synchronized);
+            switch (rc) {
+                case 0:
+                    return;
+                case EBUSY:
+                case EINTR:
+                    msleep(step);
+                    elapsed += step;
+                    break;
+                default:
+                    throwError(rc, fileName, lineNumber);
+            }
+        }
+        throwError(ETIMEDOUT, fileName, lineNumber);
+        #endif
     }
     if (rc != 0)
         throwError(rc, fileName, lineNumber);
@@ -160,7 +187,7 @@ void CSynchronized::unlock()
 //   The pthread_cond_timedwait() and pthread_cond_wait() functions shall block on a condition variable.
 //   They shall be called with mutex locked by the calling thread or undefined behavior results.
 // Failing to do so makes code non-portable between *nix and Win32.
-int CSynchronized::sleep(int timeoutMS)
+int CSynchronized::msleep(int timeoutMS)
 {
 #ifndef _WIN32
     lock();
@@ -177,7 +204,10 @@ int CSynchronized::sleep(int timeoutMS)
             abstime.tv_sec++;
         }
 
-        int rc = pthread_cond_timedwait(&m_condition, &m_synchronized, &abstime);
+        int rc = 0;
+        do {
+            rc = pthread_cond_timedwait(&m_condition, &m_synchronized, &abstime);
+        } while (rc == EINTR);
         if (rc == ETIMEDOUT)
             return -1; // Timeout or error
     } else {

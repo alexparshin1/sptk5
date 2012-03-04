@@ -88,7 +88,7 @@ public:
     /// @brief Sleeps until receives wakeup(), or until timeout occurs
     /// @param timeoutMS int, timeout in milliseconds
     /// @return 0 on success or -1 on timeout or error
-    virtual int sleep(int timeoutMS=-1);
+    virtual int msleep(int timeoutMS=-1);
 
     /// @brief Wakes up a sleeping object
     virtual void wakeup();
