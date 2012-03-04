@@ -3,7 +3,7 @@
                           sptk-config.h  -  description
                              -------------------
     begin                : Sun Apr 2007
-    copyright            : (C) 2005-2007 by Alexey Parshin
+    copyright            : (C) 2000-2012 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -29,7 +29,7 @@
 #define __SPTK_CONFIG_H__
 
 #define VERSION          "4.99.01"
-#define THEMES_PREFIX    "C:/Program Files/SPTK"
+#define THEMES_PREFIX    "/usr/local"
 
 #define HAVE_FLTK        0
 #define HAVE_ODBC        1
@@ -42,6 +42,7 @@
 #define SIZEOF_DOUBLE    8
 #define WORDS_BIG_ENDIAN 0
 
+#define HAVE_PTHREAD_MUTEX_TIMEDLOCK    0
 #define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK 0
 #define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK 0
 
