@@ -93,7 +93,7 @@ void CSynchronized::lock(const char* fileName, int lineNumber)
 #else
     DWORD rc = WaitForSingleObject(m_synchronized, INFINITE);
     if (rc != WAIT_OBJECT_0)
-        throwError(fileName, lineNumber);
+        throwError(rc, fileName, lineNumber);
 #endif
     m_location.set(fileName, lineNumber);
 }

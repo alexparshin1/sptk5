@@ -346,22 +346,14 @@ CSocket::~CSocket()
 #endif
 }
 
-ssize_t CSocket::recv (void* buffer, uint32_t len)
+int32_t CSocket::recv (void* buffer, uint32_t len)
 {
-#ifndef _WIN32
-    return ::recv(m_sockfd, buffer, len, 0);
-#else
-    return ::recv(m_sockfd, buffer, len);
-#endif
+    return ::recv(m_sockfd, (char*) buffer, len, 0);
 }
 
-ssize_t CSocket::send (const void* buffer, uint32_t len)
+int32_t CSocket::send (const void* buffer, uint32_t len)
 {
-#ifndef _WIN32
-    return ::send(m_sockfd, buffer, len, 0);
-#else
-    return ::send(m_sockfd, buffer, len, 0);
-#endif
+    return ::send(m_sockfd, (char*) buffer, len, 0);
 }
 
 int32_t CSocket::control (int flag, uint32_t *check)
@@ -506,7 +498,7 @@ char CSocket::getChar()
 {
     char ch;
 #ifdef _WIN32
-    int bytes = recv (m_sockfd, &ch, 1, 0);
+    int bytes = ::recv (m_sockfd, &ch, 1, 0);
 #else
     int bytes = ::read (m_sockfd, &ch, 1);
 #endif

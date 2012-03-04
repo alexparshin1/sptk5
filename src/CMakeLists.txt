@@ -24,7 +24,7 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     utils/CDirectoryDS.cpp utils/CMemoryDS.cpp utils/CFtpDS.cpp utils/CImapDS.cpp utils/CProxyLog.cpp
     utils/CSystemException.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
-    tar/block.c tar/CTar.cpp tar/decode.c tar/handle.c tar/libtar_hash.c tar/libtar_list.c tar/util.c
+    tar/block.cpp tar/CTar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp 
     threads/CSemaphore.cpp threads/CRunable.cpp threads/CWorkerThread.cpp
     )

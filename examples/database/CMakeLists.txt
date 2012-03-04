@@ -3,7 +3,10 @@ INCLUDE_DIRECTORIES (/usr/local/include /usr/include/pgsql /usr/include/pgsql/li
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
 
-LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY} pthread rt)
+LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY})
+IF (UNIX)
+    LINK_LIBRARIES (pthread rt)
+ENDIF (UNIX)
 
 IF (POSTGRESQL_FLAG)
   ADD_EXECUTABLE (postgresql_test postgresql_test.cpp)

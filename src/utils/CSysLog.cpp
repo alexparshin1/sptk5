@@ -37,7 +37,7 @@ using namespace sptk;
 int    CSysLog::m_objectCounter = 0;
 bool   CSysLog::m_logOpened = false;
 #else
-#include <VC7/events.h>
+#include <events.w32/events.h>
 string CSysLog::m_moduleFileName;
 bool   CSysLog::m_registrySet = false;
 #endif

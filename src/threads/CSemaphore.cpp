@@ -28,7 +28,7 @@
 #include <sptk5/threads/CSemaphore.h>
 #include <sptk5/CSystemException.h>
 
-#include <errno.h>
+#include <limits.h>
 #include <time.h>
 
 using namespace std;
@@ -92,7 +92,7 @@ bool CSemaphore::wait(uint32_t timeoutMS) throw (exception)
 CSemaphore::CSemaphore(uint32_t startingValue)
 {
     // Create unnamed semaphore
-    m_semaphore = CreateSemaphore(NULL, startingValue, MAX_INT, NULL);
+    m_semaphore = CreateSemaphore(NULL, startingValue, INT_MAX, NULL);
 }
 
 CSemaphore::~CSemaphore()
@@ -104,14 +104,14 @@ CSemaphore::~CSemaphore()
 void CSemaphore::post() throw (exception)
 {
     // Post semaphore by one
-    if (ReleaseSemaphore(m_sem_semaphore, 1, NULL) == 0)
+    if (ReleaseSemaphore(m_semaphore, 1, NULL) == 0)
         throw CSystemException("Error in semaphore post()");
 }
 
 bool CSemaphore::wait(uint32_t timeoutMS) throw (exception)
 {
     // Wait for semaphore get posted
-    DWORD rc = WaitForSingleObject(m_semaphore, timetimeoutMS);
+    DWORD rc = WaitForSingleObject(m_semaphore, timeoutMS);
     if (rc == WAIT_FAILED)
         throw CSystemException("Wait for semaphore");
 

@@ -29,7 +29,7 @@
 #define __SPTK_CONFIG_H__
 
 #define VERSION          "4.99.01"
-#define THEMES_PREFIX    "/usr/local"
+#define THEMES_PREFIX    "C:/Program Files/SPTK"
 
 #define HAVE_FLTK        0
 #define HAVE_ODBC        1

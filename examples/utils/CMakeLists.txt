@@ -2,7 +2,11 @@ INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
 INCLUDE_DIRECTORIES (/usr/local/include /usr/include/pgsql /usr/include/pgsql/libpq)
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
-LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY} pthread rt)
+
+LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY})
+IF (UNIX)
+    LINK_LIBRARIES (pthread rt)
+ENDIF (UNIX)
 
 SET (CONSOLE_TESTS datetime exceptions logfile_test syslog_test unique_instance registry)
 

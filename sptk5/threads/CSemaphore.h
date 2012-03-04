@@ -28,20 +28,12 @@
 #ifndef __CSEMAPHORE_H__
 #define __CSEMAPHORE_H__
 
+#include <sptk5/sptk.h>
+#include <sptk5/CException.h>
+
 #ifndef _WIN32
    #include <semaphore.h>
-   #include <unistd.h>
-   #include <pthread.h>
-   #include <inttypes.h>
-#else
-   #include <winsock2.h>
-   #include <windows.h>
-   #include <process.h>
 #endif
-
-#include <stdexcept>
-//#include <sptk5/sptk.h>
-//#include <sptk5/CException.h>
 
 namespace sptk {
 

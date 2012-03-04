@@ -10,6 +10,7 @@
 **  University of Illinois at Urbana-Champaign
 */
 
+#include <sptk5/sptk.h>
 #include "libtar.h"
 
 #include <stdio.h>

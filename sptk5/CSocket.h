@@ -232,13 +232,13 @@ public:
     /// @param buffer void *, the destination buffer
     /// @param size uint32_t, the destination buffer size
     /// @returns the number of bytes read from the socket
-    ssize_t recv(void* buffer,uint32_t size);
+    int32_t recv(void* buffer,uint32_t size);
 
     /// @brief Reads data from the socket in regular or TLS mode
     /// @param buffer const void *, the send buffer
     /// @param size uint32_t, the send data length
     /// @returns the number of bytes sent the socket
-    ssize_t send(const void* buffer,uint32_t len);
+    int32_t send(const void* buffer,uint32_t len);
 
     /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
     ///

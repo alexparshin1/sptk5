@@ -22,6 +22,10 @@
 #pragma hdrstop
 #endif
 
+#ifdef WIN32
+#include <direct.h>
+#endif
+
 #include <sptk5/sptk.h>
 #include <sptk5/cxml>
 #include <iostream>
