@@ -3,7 +3,7 @@
                           sptk-config.h  -  description
                              -------------------
     begin                : Sun Apr 2007
-    copyright            : (C) 2005-2007 by Alexey Parshin
+    copyright            : (C) 2000-2012 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -42,6 +42,7 @@
 #define SIZEOF_DOUBLE    @DOUBLE@
 #define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@
 
+#define HAVE_PTHREAD_MUTEX_TIMEDLOCK    @HAVE_PTHREAD_MUTEX_TIMEDLOCK@
 #define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK @HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@
 #define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK @HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@
 
