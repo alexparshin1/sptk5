@@ -46,8 +46,8 @@ class CThread
 {
 protected:
     bool        m_terminated;   ///< Flag: is the thread terminated?
-    bool        m_running;      ///< Flag: is the thread running?
     std::string m_name;         ///< Thread name
+    uint64_t    m_id;
 #ifndef _WIN32
     pthread_t   m_thread;       ///< Thread handle
 #else
@@ -104,17 +104,23 @@ public:
     /// @brief Returns true if the thread is running
     bool running() const
     {
-        return m_running;
+        return m_id != 0;
     }
 
-    /// @brief Returns thread OS id
-    uint64_t id();
+    /// @brief Returns this thread OS id
+    uint64_t id() const
+    {
+        return m_id;
+    }
 
     /// @brief Returns the name of the thread
     const std::string& name() const
     {
         return m_name;
     }
+
+    /// @brief Returns context thread OS id
+    static uint64_t contextThreadId();
 
     /// @brief Pauses the thread
     /// @param msec int, pause time in milliseconds

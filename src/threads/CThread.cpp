@@ -58,8 +58,8 @@ unsigned __stdcall CThread::threadStart(void *p)
 
 CThread::CThread(string name) :
     m_terminated(false),
-    m_running(false),
     m_name(name),
+    m_id(0),
     m_thread(0)
 {
 }
@@ -93,8 +93,7 @@ void CThread::joinThread()
 void CThread::createThread()
 {
 #ifndef WIN32
-    int rc = pthread_create(&m_thread, NULL,
-            (CThreadStartFunction) CThread::threadStart, (void *) this);
+    int rc = pthread_create(&m_thread, NULL, (CThreadStartFunction) CThread::threadStart, (void *) this);
     if (rc)
         throw CException("Can't create a new thread");
 #else
@@ -114,18 +113,26 @@ void CThread::destroyThread()
 #endif
 }
 
+uint64_t CThread::contextThreadId()
+{
+#ifndef WIN32
+    return (uint64_t) pthread_self();
+#else
+    return GetCurrentThreadId();
+#endif
+}
+
 void CThread::runThread()
 {
-    m_running = true;
+    m_id = contextThreadId();
     threadFunction();
-    m_running = false;
+    m_id = 0;
     destroyThread();
 }
 
 void CThread::run()
 {
     m_terminated = false;
-    m_running = true;
     createThread();
 }
 
@@ -137,13 +144,3 @@ void CThread::msleep(int msec)
     Sleep(msec);
 #endif
 }
-
-uint64_t CThread::id()
-{
-#ifdef WIN32
-    return GetCurrentThreadId();
-#else
-    return (uint64_t)pthread_self();
-#endif
-}
-

@@ -60,7 +60,6 @@ void CWorkerThread::threadFunction()
         } else
             idleSeconds++;
     }
-    cout << "Finishing thread." << endl;
     if (m_threadEvent)
         m_threadEvent->threadEvent(this, CThreadEvent::THREAD_FINISHED);
 }
