@@ -38,7 +38,7 @@
 #include <sptk5/CRegistry.h>
 #include <sptk5/string_ext.h>
 
-#if defined (_WIN32) && !defined (__CYGWIN__)
+#ifdef WIN32
 
 #include <direct.h>
    const char sptk::CFileDialog::slashChar  = '\\';
@@ -206,7 +206,7 @@ void CFileDialog::createFolder() {
       char doubleSlashStr[] = { slashChar, slashChar, 0 };
       string folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
       folderName = replaceAll(folderName,doubleSlashStr,slashStr);
-#if defined (_WIN32) && !defined (__CYGWIN__)
+#ifdef WIN32
       int rc = mkdir(folderName.c_str());
 #else
       int rc = mkdir(folderName.c_str(),S_IRWXU);
@@ -220,7 +220,7 @@ void CFileDialog::createFolder() {
    }
 }
 
-#ifdef _WIN32
+#ifdef WIN32
 
 static void makeDriveList(CStrings& driveList) {
    char buffer[128];
@@ -241,7 +241,7 @@ void CFileDialog::directory(string p) {
 
    int pseudoID = 0;
 
-#ifdef _WIN32
+#ifdef WIN32
    CStrings driveList;
    makeDriveList(driveList);
 
@@ -260,7 +260,7 @@ void CFileDialog::directory(string p) {
       incrementalPath += pathItems[i];
       if (i == 0)
          incrementalPath += slashStr;
-#ifdef _WIN32
+#ifdef WIN32
       if (i)
 #endif
       {

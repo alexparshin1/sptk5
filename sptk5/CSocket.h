@@ -53,10 +53,6 @@
 #include <sptk5/CStrings.h>
 #include <sptk5/CBuffer.h>
 
-#ifdef HAVE_GNUTLS
-#include <gnutls/gnutls.h>
-#endif
-
 namespace sptk {
 
 /// @addtogroup utility Utility Classes

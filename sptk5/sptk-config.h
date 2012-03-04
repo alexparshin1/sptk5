@@ -28,23 +28,21 @@
 #ifndef __SPTK_CONFIG_H__
 #define __SPTK_CONFIG_H__
 
-#define VERSION          "3.5.7"
+#define VERSION          "4.99.01"
 #define THEMES_PREFIX    "/usr/local"
 
-#define HAVE_GNUTLS      
-#define HAVE_FLTK        1
+#define HAVE_FLTK        0
 #define HAVE_ODBC        1
-#define HAVE_SQLITE3     1
-#define HAVE_POSTGRESQL  1
-#define HAVE_ASPELL      1
-#define BUILD_EXCEL      
+#define HAVE_SQLITE3     0
+#define HAVE_POSTGRESQL  0
+#define HAVE_ASPELL      0
 #define SIZEOF_INT       4
 #define SIZEOF_LONG      4
 #define SIZEOF_SHORT     2
 #define SIZEOF_DOUBLE    8
 #define WORDS_BIG_ENDIAN 0
 
-#define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK 1
-#define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK 1
+#define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK 0
+#define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK 0
 
 #endif
