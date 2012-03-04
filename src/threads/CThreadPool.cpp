@@ -51,7 +51,6 @@ void CThreadPool::threadFunction()
         if (m_terminatedThreads.pop_front(workerThread, 1000)) {
             m_threads.remove(workerThread);
             delete workerThread;
-            cout << "Terminated thread " << hex << workerThread << endl;
         }
     }
 }
@@ -70,10 +69,8 @@ void CThreadPool::execute(CRunable* task)
     if (m_shutdown)
         throw CException("Thread manager is stopped");
     unsigned threadCount = m_threads.size();
-    if (m_activeThreads == threadCount) {
+    if (m_activeThreads == threadCount)
         createThread();
-        m_activeThreads++;
-    }
     m_taskQueue.push(task);
 }
 

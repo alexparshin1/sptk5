@@ -31,13 +31,11 @@
 #define VERSION          "@VERSION@"
 #define THEMES_PREFIX    "@THEMES_PREFIX@"
 
-#define HAVE_GNUTLS      @TLS_FLAG@
 #define HAVE_FLTK        @FLTK_FLAG@
 #define HAVE_ODBC        @ODBC_FLAG@
 #define HAVE_SQLITE3     @SQLITE3_FLAG@
 #define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@
 #define HAVE_ASPELL      @ASPELL_FLAG@
-#define BUILD_EXCEL      @EXCEL_FLAG@
 #define SIZEOF_INT       @INT@
 #define SIZEOF_LONG      @LONG@
 #define SIZEOF_SHORT     @SHORT@

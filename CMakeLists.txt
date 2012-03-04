@@ -11,6 +11,11 @@ SET (CMAKE_BUILD_TYPE Debug)
 
 SET (VERSION "4.99.01")
 
+# Place compiled libraries and examples into ./bin/
+SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
+
 OPTION (USE_FLTK       "Build SPTK GUI library" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)

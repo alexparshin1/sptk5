@@ -3,7 +3,7 @@
                           CQuery.h  -  description
                              -------------------
     begin                : Wed Dec 15 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -28,7 +28,7 @@
 #ifndef __CQUERY_H__
 #define __CQUERY_H__
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ifdef WIN32
 #include <winsock2.h>
 #include <windows.h>
 #endif
@@ -40,8 +40,8 @@
 #include <sptk5/CFieldList.h>
 
 namespace sptk {
-   
-   /// @addtogroup Database Database Support
+
+/// @addtogroup Database Database Support
 /// @{
 
 /// @brief Database query
