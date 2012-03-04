@@ -44,14 +44,14 @@ class CMyThread: public CThread
 public:
 
     // Constructor
-    CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode = true);
+    CMyThread(string threadName, CBaseLog& sharedLog);
 
     // The thread function.
     virtual void threadFunction();
 };
 
-CMyThread::CMyThread(string threadName, CBaseLog& sharedLog, bool politeMode) :
-        CThread(threadName, politeMode), m_log(sharedLog)
+CMyThread::CMyThread(string threadName, CBaseLog& sharedLog) :
+        CThread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
     m_log << name() << " is created" << endl;

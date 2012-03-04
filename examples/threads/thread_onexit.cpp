@@ -17,13 +17,11 @@
 
 /**
  * How this works:
- * Two threads are created on heap - one in polite mode and one in impolite
- * mode. Thread function sleeps 1010 ms and prints a message with thread
- * name in a loop, untill terminated() isn't set. Main function sleeps 5
+ * Two threads are created on heap.
+ * Thread function sleeps 1010 ms and prints a message with thread
+ * name in a loop, until terminated() is called. Main function sleeps 5
  * seconds , then calls terminate() on both threads.
- * Polite thread should  tell us it's been terminated.
- * Impolite thread should die right away.
- * Both threads should selfdestruct propperly, since onThreadExit() calls
+ * Both threads should self-destruct propperly, since onThreadExit() calls
  * delete(this)
  */
 
@@ -45,7 +43,7 @@ class CMyThread: public CThread
 public:
 
     // Constructor
-    CMyThread(string threadName, bool politeMode = true);
+    CMyThread(string threadName);
     ~CMyThread();
 
     // The thread function.
@@ -53,50 +51,51 @@ public:
     virtual void onThreadExit();
 };
 
-CMyThread::CMyThread(string threadName, bool politeMode) :
-        CThread(threadName, politeMode)
+CMyThread::CMyThread(string threadName) :
+        CThread(threadName)
 {
     // Put anything you need here to define your actual thread
-    puts((name() + " is created").c_str());
+    cout << name() << " thread: created" << endl;
 }
 
 CMyThread::~CMyThread()
 {
-    printf("%s> bye, the cruel world\n", name().c_str());
+    cout << name() << " thread: destroyed" << endl;
 }
+
 // The thread function. Prints a message once a second till terminated
 void CMyThread::threadFunction()
 {
-    puts((name() + " is started").c_str());
+    cout << name() << " thread: started" << endl;
     int i = 0;
     while (!terminated()) {
-        printf("Output %d from %s\n", i++, name().c_str());
+        cout << "Output " << i << " from " << name() << endl;
+		i++;
         msleep(1010);
     }
-    puts((name() + " is terminated").c_str());
+    cout << name() + " thread: terminated" << endl;
 }
 
 void CMyThread::onThreadExit()
 {
-    printf("%s> thread is no longer executing\n", name().c_str());
+    cout << name() << " thread: no longer executing" << endl;
     delete this;
 }
 
 int main(int argc, char* argv[])
 {
-    CMyThread *thread1 = new CMyThread("Mr. Nice", true);
-    CMyThread *thread2 = new CMyThread("Mr. Naughty", false);
+    CMyThread *thread1 = new CMyThread("Mr. Nice");
+    CMyThread *thread2 = new CMyThread("Mr. Naughty");
 
     thread1->run();
     thread2->run();
 
-    puts("Waiting 5 seconds while threads are running..");
+    cout << "Waiting 5 seconds while threads are running.." << endl;
 
     CThread::msleep(5000);
 
-    thread2->terminate();
-    puts("thread2 completed termination");
     thread1->terminate();
+    thread2->terminate();
 
     return 0;
 }

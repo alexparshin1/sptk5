@@ -3,7 +3,7 @@
                          thread_rwlock.cpp  -  description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 2005-2012 by Ilya A. Volynets-Evenbakh
+    copyright            : (C) 1999-2012 by Ilya A. Volynets-Evenbakh
     email                : ilya@total-knowledge.com
  ***************************************************************************/
 
@@ -37,7 +37,7 @@ class T1: public CThread
     int a;
 public:
     T1(const char* name, CRWLock *lock) :
-            CThread(name, 1), lock(lock), name(name), a(1)
+        CThread(name), lock(lock), name(name), a(1)
     {
     }
     void act(int _a)
@@ -90,7 +90,7 @@ class T2: public CThread
     int a;
 public:
     T2(const char* name, CRWLock *lock) :
-            CThread(name, 1), lock(lock), name(name), a(1)
+        CThread(name), lock(lock), name(name), a(1)
     {
     }
     void act(int _a)

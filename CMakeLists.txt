@@ -1,13 +1,16 @@
+# Under Cygwin, CMake 2.8.4 and newer doesn't define WIN32 anymore.
+# For other environments, required CMake version can be 2.6 or higher.
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.4)
+
+
 # The name of our project is "SPTK".  CMakeLists files in this project can
 # refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.
 PROJECT (SPTK)
 
-cmake_minimum_required(VERSION 2.6)
 
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
-#SET (CMAKE_COLOR_MAKEFILE OFF)
 
 SET (VERSION "4.99.01")
 
@@ -146,7 +149,7 @@ IF (WIN32)
   ELSE (MC_COMPILER)
     MESSAGE("Windows SDK mc:      not found")
   ENDIF (MC_COMPILER)
-  ADD_SUBDIRECTORY (event.w32)
+  ADD_SUBDIRECTORY (events.w32)
 ENDIF (WIN32)
 
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
