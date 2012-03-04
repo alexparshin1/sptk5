@@ -40,7 +40,7 @@ extern "C"
     typedef void* (*CThreadStartFunction)(void*);
 }
 
-#ifndef _WIN32
+#ifndef WIN32
 void *CThread::threadStart(void *p)
 {
     CThread *thread = (CThread *) p;
@@ -56,17 +56,18 @@ unsigned __stdcall CThread::threadStart(void *p)
 }
 #endif
 
-CThread::CThread(string name, bool politeMode)
+CThread::CThread(string name) :
+    m_terminated(false),
+    m_running(false),
+    m_name(name),
+    m_thread(0)
 {
-    m_name = name;
-    m_terminated = false;
-    m_running = false;
-    m_politeMode = politeMode;
 }
 
 CThread::~CThread()
 {
     terminate();
+    joinThread();
 }
 
 void CThread::terminate()
@@ -74,30 +75,24 @@ void CThread::terminate()
     if (m_terminated)
         return;
     m_terminated = true;
+}
 
-    if (m_running) {
-        if (m_politeMode) {
-#ifndef _WIN32
-            // wait till the thread is stopping
-            pthread_join(m_thread, 0);
+void CThread::joinThread()
+{
+    if (m_thread) {
+#ifndef WIN32
+        // wait till the thread is stopping
+        pthread_join(m_thread, 0);
 #else
-            WaitForSingleObject(m_thread,INFINITE);
-            m_thread = 0;
+        WaitForSingleObject(m_thread,INFINITE);
 #endif
-        } else {
-#ifndef _WIN32
-            // stop this thread _now_
-            pthread_cancel(m_thread);
-#else
-            CloseHandle(m_thread);
-#endif
-        }
+        m_thread = 0;
     }
 }
 
 void CThread::createThread()
 {
-#ifndef _WIN32
+#ifndef WIN32
     int rc = pthread_create(&m_thread, NULL,
             (CThreadStartFunction) CThread::threadStart, (void *) this);
     if (rc)
@@ -112,7 +107,7 @@ void CThread::createThread()
 
 void CThread::destroyThread()
 {
-#ifndef _WIN32
+#ifndef WIN32
     pthread_exit(NULL);
 #else
     _endthreadex(0);
@@ -136,9 +131,19 @@ void CThread::run()
 
 void CThread::msleep(int msec)
 {
-#ifndef _WIN32
+#ifndef WIN32
     usleep(msec * 1000L);
 #else
     Sleep(msec);
 #endif
 }
+
+uint64_t CThread::id()
+{
+#ifdef WIN32
+    return GetCurrentThreadId();
+#else
+    return (uint64_t)pthread_self();
+#endif
+}
+

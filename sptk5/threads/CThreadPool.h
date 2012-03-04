@@ -68,10 +68,6 @@ protected:
     /// Manages terminated threads
     virtual void threadFunction();
 
-
-    /// @brief Sends terminate() message to all worker threads, and sets shutdown state
-    void stop();
-
 public:
 
     /// @brief Constructor
@@ -88,12 +84,20 @@ public:
     /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
     void execute(CRunable* task);
 
-    /// @brief Thread event callback function
+    /// @brief Thrttead event callback function
     ///
     /// Receives events that occur in the threads
     /// @param thread CThread*, Thread where event occured
     /// @param eventType CThreadEvent::Type, Thread event type
     virtual void threadEvent(CThread* thread, CThreadEvent::Type eventType);
+
+    /// @brief Sends terminate() message to all worker threads, and sets shutdown state
+    ///
+    /// After thread pool is stopped, it no longer accepts tasks for execution.
+    void stop();
+
+    /// @brief Number of active threads in the pool
+    uint32_t size() const;
 };
 
 /// @}

@@ -60,6 +60,7 @@ void CWorkerThread::threadFunction()
         } else
             idleSeconds++;
     }
+    cout << "Finishing thread." << endl;
     if (m_threadEvent)
         m_threadEvent->threadEvent(this, CThreadEvent::THREAD_FINISHED);
 }
@@ -73,7 +74,7 @@ CWorkerThread::CWorkerThread(CSynchronizedQueue<CRunable*>* queue, CThreadEvent*
         m_queue = queue;
     else
         m_queue = new CSynchronizedQueue<CRunable*>;
-    m_queueOwner = (queue != NULL);
+    m_queueOwner = (queue == NULL);
 }
 
 CWorkerThread::~CWorkerThread()

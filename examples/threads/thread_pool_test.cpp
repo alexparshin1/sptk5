@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
     vector<CMyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    CThreadPool threadManager;
+    CThreadPool threadPool;
 
     /// The log file would get messages from all the tasks.
     /// Threads send messages through their own CProxyLog objects.
@@ -105,24 +105,46 @@ int main(int argc, char* argv[])
     for (i = 0; i < 5; i++)
         tasks.push_back(new CMyTask(sharedLog));
 
-    // Starting all the tasks
+    cout << tasks.size() << " tasks are created." << endl;
+    CThread::msleep(100);
+
+    cout << "Thread pool has " << threadPool.size() << " threads" << endl;
+
+    cout << "Starting all tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
-        threadManager.execute(tasks[i]);
+        threadPool.execute(tasks[i]);
 
     cout << tasks.size() << " tasks are created." << endl;
-    CThread::msleep(500);
+    CThread::msleep(100);
 
-    puts("Waiting 5 seconds while tasks are running..");
-    CThread::msleep(500);
+    cout << "Waiting 1 seconds while tasks are running.." << endl;
+    CThread::msleep(1000);
 
-    // Sending 'terminate' signal to all the tasks.
-    // That signal suggests task to terminate and exits instantly.
+    cout << "Thread pool has " << threadPool.size() << " threads" << endl;
+    cout << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
+    CThread::msleep(1000);
 
-    // Deleting all the tasks.
-    // Since tasks are created in polite mode (see CMyTask class definition),
-    // the delete operation would wait for actual task termination.
+    cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
+
+    cout << "Starting tasks again." << endl;
+    for (i = 0; i < tasks.size(); i++)
+        threadPool.execute(tasks[i]);
+
+    cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
+
+    CThread::msleep(1000);
+
+    cout << "Sending 'terminate' signal to all the tasks." << endl;
+    for (i = 0; i < tasks.size(); i++)
+        tasks[i]->terminate();
+    CThread::msleep(1000);
+
+    cout << "Stopping thread pool..." << endl;
+    threadPool.stop();
+
+    cout << "Deleting all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         delete tasks[i];
 

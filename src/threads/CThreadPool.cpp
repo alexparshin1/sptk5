@@ -36,12 +36,13 @@ CThreadPool::CThreadPool(uint32_t threadLimit, uint32_t threadIdleSeconds) :
     m_threadIdleSeconds(threadIdleSeconds),
     m_shutdown(false)
 {
-    createThread();
     run();
 }
 
 CThreadPool::~CThreadPool()
 {
+    stop();
+    cout << "### Pool destroyed." << endl;
 }
 
 void CThreadPool::threadFunction()
@@ -79,7 +80,6 @@ void CThreadPool::execute(CRunable* task)
 
 void CThreadPool::threadEvent(CThread* thread, CThreadEvent::Type eventType)
 {
-    SYNCHRONIZED_CODE;
     switch (eventType) {
     case CThreadEvent::RUNABLE_STARTED:
         break;
@@ -87,6 +87,7 @@ void CThreadPool::threadEvent(CThread* thread, CThreadEvent::Type eventType)
         m_availableThreads.post();
         break;
     case CThreadEvent::THREAD_FINISHED:
+        cout << "Thread finished" << endl;
         m_terminatedThreads.push_back((CWorkerThread*)thread);
         break;
     case CThreadEvent::THREAD_STARTED:
@@ -103,7 +104,21 @@ static bool terminateThread(CWorkerThread*& thread, void*)
 
 void CThreadPool::stop()
 {
-    SYNCHRONIZED_CODE;
-    m_shutdown = true;
+    {
+        SYNCHRONIZED_CODE;
+        m_shutdown = true;
+    }
+    cout << "Sending terminate() to all threads" << endl;
+
     m_threads.each(terminateThread);
+
+    cout << "Sent terminate() to all threads" << endl;
+
+    while (m_threads.size())
+        CThread::msleep(100);
+}
+
+uint32_t CThreadPool::size() const
+{
+    return m_threads.size();
 }

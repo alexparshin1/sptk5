@@ -47,7 +47,6 @@ class CThread
 protected:
     bool        m_terminated;   ///< Flag: is the thread terminated?
     bool        m_running;      ///< Flag: is the thread running?
-    bool        m_politeMode;   ///< Flag: does the thread uses the 'polite' mode for shutdown?
     std::string m_name;         ///< Thread name
 #ifndef _WIN32
     pthread_t   m_thread;       ///< Thread handle
@@ -69,6 +68,9 @@ protected:
     /// @brief Creates a thread
     void createThread();
 
+    /// @brief Waits until thread joins
+    void joinThread();
+
     /// @brief Destroys the thread
     void destroyThread();
 
@@ -79,8 +81,7 @@ public:
 
     /// @brief Constructor
     /// @param name CString, name of the thread for future references.
-    /// @param politeMode bool, true if we want to shutdown thread waitng for the crrect exit.
-    CThread(std::string name, bool politeMode = true);
+    CThread(std::string name);
 
     /// @brief Destructor
     virtual ~CThread();
@@ -95,16 +96,19 @@ public:
     void terminate();
 
     /// @brief Returns true if the thread is terminated
-    bool terminated()
+    bool terminated() const
     {
         return m_terminated;
     }
 
     /// @brief Returns true if the thread is running
-    bool running()
+    bool running() const
     {
         return m_running;
     }
+
+    /// @brief Returns thread OS id
+    uint64_t id();
 
     /// @brief Returns the name of the thread
     const std::string& name() const
