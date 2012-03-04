@@ -1,5 +1,4 @@
 INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
-INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (/usr/local/include /usr/include/pgsql /usr/include/pgsql/libpq)
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
