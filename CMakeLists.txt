@@ -137,6 +137,18 @@ ELSE (ASPELL_FLAG)
   MESSAGE("ASPELL support:     don't compile")
 ENDIF (ASPELL_FLAG)
 
+
+IF (WIN32)
+  # Windows message resource compiler (included with Windows SDK)
+  FIND_PROGRAM (MC_COMPILER mc PATHS "$ENV{ProgramFiles}/Microsoft SDKs/Windows/*/Bin")
+  IF (MC_COMPILER)
+    MESSAGE("Windows SDK mc:      found")
+  ELSE (MC_COMPILER)
+    MESSAGE("Windows SDK mc:      not found")
+  ENDIF (MC_COMPILER)
+  ADD_SUBDIRECTORY (event.w32)
+ENDIF (WIN32)
+
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 SET (CMAKE_REQUIRED_LIBRARIES pthread)

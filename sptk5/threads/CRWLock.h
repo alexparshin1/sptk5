@@ -28,18 +28,6 @@
 #ifndef __CRWLOCK_H__
 #define __CRWLOCK_H__
 
-#ifndef _WIN32
-
-#include <unistd.h>
-#include <pthread.h>
-
-#else
-
-#include <windows.h>
-#include <process.h>
-
-#endif
-
 #include <sptk5/sptk.h>
 
 namespace sptk {
@@ -48,19 +36,18 @@ namespace sptk {
 /// @{
 
 /// Read-write synchronization object
-class SP_EXPORT CRWLock {
+class SP_EXPORT CRWLock
+{
 protected:
 
-#ifndef _WIN32
-
+#ifndef WIN32
     pthread_rwlock_t    m_rwlock;   ///< pthreads rwlock object
 #else
-
-    HANDLE               m_readLock;
-    HANDLE               m_writeLock;
+    HANDLE              m_readLock;
+    HANDLE              m_writeLock;
     CRITICAL_SECTION    m_criticalSection;
-    int                  m_readerCount;
-    bool                 m_writerMode;
+    int                 m_readerCount;
+    bool                m_writerMode;
 #endif
 
 public:
@@ -73,11 +60,11 @@ public:
 
     /// Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
     /// @param timeout int, timeout in milliseconds
-    int lockR(int timeout=-1);
+    int lockR(int timeout = SP_INFINITY);
 
     /// Try to lock the object for writing. Blocks if object is locked for reading or writing.
     /// @param timeout int, timeout in milliseconds
-    int lockRW(int timeout=-1);
+    int lockRW(int timeout = SP_INFINITY);
 
     /// Releases lock on the object.
     void unlock();

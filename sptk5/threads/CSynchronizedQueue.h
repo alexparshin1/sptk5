@@ -61,6 +61,15 @@ protected:
 
 public:
 
+    /// @brief List callback function used in each() method.
+    ///
+    /// Iterates through queue until false is returned.
+    /// @param item T&, List item
+    /// @param data void*, Optional function-specific data
+    typedef bool (CallbackFunction)(T& item, void* data);
+
+public:
+
     /// @brief Default constructor
     CSynchronizedQueue() :
         m_queue(new std::queue<T>)
@@ -132,6 +141,42 @@ public:
         CSynchronizedCode sc(m_sync);
         delete m_queue;
         m_queue = new std::queue<T>;
+    }
+
+    /// @brief Calls callbackFunction() for every list until false is returned
+    ///
+    /// Current implementation does the job but isn't too efficient due to
+    /// std::queue class limitations.
+    /// @param callbackFunction CallbackFunction*, Callback function that is executed for list items
+    /// @param data void*, Function-specific data
+    /// @returns true if every list item was processed
+    bool each(CallbackFunction* callbackFunction, void* data=NULL)
+    {
+        CSynchronizedCode sc(m_sync);
+
+        std::queue<T> newQueue = new std::queue<T>;
+
+        // Iterating through queue until callback returns false
+        bool rc = true;
+        while (m_queue->size()) {
+            T& item = m_queue->front();
+            m_queue->pop();
+            newQueue->push(item);
+            // When rc switches to false, don't execute callback
+            // for the remaining queue items
+            if (rc) {
+                try {
+                    rc = callbackFunction(item, data);
+                } catch (std::exception& e) {
+                    rc = false;
+                }
+            }
+        }
+
+        delete m_queue;
+        m_queue = newQueue;
+
+        return rc;
     }
 };
 /// @}

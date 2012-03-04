@@ -52,7 +52,6 @@ protected:
 #ifndef _WIN32
     pthread_t   m_thread;       ///< Thread handle
 #else
-
     HANDLE      m_thread;       ///< Thread handle
     HANDLE      m_timer;        ///< Thread timer handle
 #endif
