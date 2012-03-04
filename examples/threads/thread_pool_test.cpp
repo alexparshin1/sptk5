@@ -70,7 +70,7 @@ CMyTask::CMyTask(CBaseLog& sharedLog) :
 // The task function. Prints a message once a second till terminated
 void CMyTask::run() throw (exception)
 {
-    m_log << name() << " is started" << endl;
+    m_log << name() << " started" << endl;
 
     unsigned counter = 0;
     while (!terminated()) {
@@ -110,10 +110,10 @@ int main(int argc, char* argv[])
         threadManager.execute(tasks[i]);
 
     cout << tasks.size() << " tasks are created." << endl;
-    CThread::msleep(1000);
+    CThread::msleep(500);
 
     puts("Waiting 5 seconds while tasks are running..");
-    CThread::msleep(5000);
+    CThread::msleep(500);
 
     // Sending 'terminate' signal to all the tasks.
     // That signal suggests task to terminate and exits instantly.

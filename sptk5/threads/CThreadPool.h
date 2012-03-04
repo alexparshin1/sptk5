@@ -52,7 +52,7 @@ class SP_EXPORT CThreadPool : public CSynchronized, public CThreadEvent, public 
     CSynchronizedList<CWorkerThread*>   m_threads;              ///< All threads created by this pool
     uint32_t                            m_threadLimit;          ///< Maximum number of threads in this pool
     CSynchronizedQueue<CRunable*>       m_taskQueue;            ///< Share task queue
-    uint32_t                            m_activeThreads;        ///< Number of threads currently running tasks
+    CSemaphore                          m_availableThreads;     ///< Semaphore indicating available threads
     uint32_t                            m_threadIdleSeconds;    ///< Maximum thread idle time before thread in this pool is terminated
     bool                                m_shutdown;             ///< Flag: true during pool shutdown
 

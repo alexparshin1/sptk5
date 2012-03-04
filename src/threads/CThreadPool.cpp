@@ -33,10 +33,10 @@ using namespace sptk;
 CThreadPool::CThreadPool(uint32_t threadLimit, uint32_t threadIdleSeconds) :
     CThread("thread manager"),
     m_threadLimit(threadLimit),
-    m_activeThreads(0),
     m_threadIdleSeconds(threadIdleSeconds),
     m_shutdown(false)
 {
+    createThread();
     run();
 }
 
@@ -68,9 +68,12 @@ void CThreadPool::execute(CRunable* task)
     SYNCHRONIZED_CODE;
     if (m_shutdown)
         throw CException("Thread manager is stopped");
-    unsigned threadCount = m_threads.size();
-    if (m_activeThreads == threadCount)
-        createThread();
+
+    if (!m_availableThreads.wait(10)) {
+        if (m_threads.size() < m_threadLimit)
+            createThread();
+    }
+
     m_taskQueue.push(task);
 }
 
@@ -79,10 +82,9 @@ void CThreadPool::threadEvent(CThread* thread, CThreadEvent::Type eventType)
     SYNCHRONIZED_CODE;
     switch (eventType) {
     case CThreadEvent::RUNABLE_STARTED:
-        m_activeThreads++;
         break;
     case CThreadEvent::RUNABLE_FINISHED:
-        m_activeThreads--;
+        m_availableThreads.post();
         break;
     case CThreadEvent::THREAD_FINISHED:
         m_terminatedThreads.push_back((CWorkerThread*)thread);
