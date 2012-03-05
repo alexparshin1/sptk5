@@ -3,7 +3,7 @@
                           CFileLog.cpp  -  description
                              -------------------
     begin                : Tue Jan 31 2006
-    copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
  
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-void CFileLog::saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException) {
+void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t , const CLogPriority *priority) throw(CException) {
     if (m_options&CLO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(),ofstream::out|ofstream::app);
@@ -52,7 +52,7 @@ void CFileLog::saveMessage(CDateTime date,const char *message,uint32_t sz,const 
 
         m_fileStream << message << endl;
     }
-    
+
     if (m_options & CLO_STDOUT) {
         if (m_options & CLO_DATE)
             cout << date.dateString() << " ";

@@ -56,7 +56,7 @@ string CParam::asXML() const {
    string xml("<param ");
    xml += "name='" + m_name + "' ";
    xml += "type='" + int2string(m_dataType) + "' ";
-   xml += "null='" + int2string(isNull()) + "' ";
+   xml += "null='" + int2string((int)isNull()) + "' ";
    if (dataType() & (VAR_STRING|VAR_TEXT)) {
       string txt = replaceAll(replaceAll(m_data.buffer.data,"\n","\\n"),"\r","");
       xml += "value='" + txt + "' ";

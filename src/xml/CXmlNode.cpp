@@ -144,9 +144,9 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement,int nodePositio
         }
         return attributeMatch;
     } else
-		return true;
+        return true;
 #ifdef __MSCVER__
-	return false;
+    return false;
 #endif
 }
 

@@ -106,7 +106,7 @@ string CHttpParams::decodeString(string& str) {
     return result;
 }
 
-void CHttpParams::decode(const CBuffer& cb,bool lowerCaseNames) {
+void CHttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/) {
     clear();
 
     CStrings sl(cb.data(),"&");
