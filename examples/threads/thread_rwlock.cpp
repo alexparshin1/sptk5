@@ -28,6 +28,7 @@
 #include <sptk5/cutils>
 #include <iostream>
 
+using namespace std;
 using namespace sptk;
 
 class T1: public CThread
@@ -42,30 +43,30 @@ public:
     }
     void act(int _a)
     {
-        std::cout << name << " Setting act to " << _a << '\n';
+        cout << name << " Setting act to " << _a << endl;
         this->a = _a;
     }
     void actionL()
     {
-        std::cout << name << " is trying to lock\n";
+        cout << name << " is trying to lock" << endl;
         int rc = lock->lockR(10);
-        std::cout << name << " got it(" << rc << ")\n";
+        cout << name << " got it(" << rc << ")" << endl;
         if (a == 1)
             a = 0;
     }
     void actionU()
     {
-        std::cout << name << " is trying to ulock\n";
+        cout << name << " is trying to ulock" << endl;
         lock->unlock();
-        std::cout << name << " got it\n";
+        cout << name << " got it" << endl;
         if (a == 2)
             a = 0;
     }
     virtual void threadFunction()
     {
-        std::cout << "Thread " << name << " starting\n";
+        cout << "Thread " << name << " starting" << endl;
         while (1) {
-            //std::cout<<name<<": act="<<a<<'\n';
+            //cout<<name<<": act="<<a<<'\n';
             switch (a)
             {
             case 1:
@@ -95,30 +96,30 @@ public:
     }
     void act(int _a)
     {
-        std::cout << name << " Setting act to " << _a << '\n';
+        cout << name << " Setting act to " << _a << endl;
         this->a = _a;
     }
     void actionL()
     {
-        std::cout << name << " is trying to lock\n";
+        cout << name << " is trying to lock" << endl;
         int rc = lock->lockRW(10);
-        std::cout << name << " got it(" << rc << ")\n";
+        cout << name << " got it(" << rc << ")" << endl;
         if (a == 1)
             a = 0;
     }
     void actionU()
     {
-        std::cout << name << " is trying to ulock\n";
+        cout << name << " is trying to ulock" << endl;
         lock->unlock();
-        std::cout << name << " got it\n";
+        cout << name << " got it" << endl;
         if (a == 2)
             a = 0;
     }
     virtual void threadFunction()
     {
-        std::cout << "Thread " << name << " starting\n";
+        cout << "Thread " << name << " starting" << endl;
         while (1) {
-            //std::cout<<name<<": act="<<a<<'\n';
+            //cout<<name<<": act="<<a<<'\n';
             switch (a)
             {
             case 1:
