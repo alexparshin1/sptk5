@@ -2,7 +2,8 @@ INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
 INCLUDE_DIRECTORIES (/usr/local/include /usr/include/pgsql /usr/include/pgsql/libpq)
 
 IF (WIN32)
-  SET (LIBRARY_TYPE STATIC)
+  #SET (LIBRARY_TYPE STATIC)
+  SET (LIBRARY_TYPE SHARED)
 ELSE (WIN32)
   #SET (LIBRARY_TYPE STATIC)
   SET (LIBRARY_TYPE SHARED)
@@ -29,7 +30,10 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     threads/CSemaphore.cpp threads/CRunable.cpp threads/CWorkerThread.cpp
     )
 
-SET (SPDB_SOURCES db/CDatabaseDriver.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp db/CTransaction.cpp)
+SET (SPDB_SOURCES 
+    db/CDatabaseDriver.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp 
+    db/CTransaction.cpp
+    db/CDBDriver.cpp db/CDBDriverLoader.cpp)
 
 SET (ODBC_SOURCES)
 IF (ODBC_FLAG)

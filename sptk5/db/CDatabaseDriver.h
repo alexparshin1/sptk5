@@ -25,8 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CDATABASE_H__
-#define __CDATABASE_H__
+#ifndef __CDATABASEDRIVER_H__
+#define __CDATABASEDRIVER_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/CStrings.h>
