@@ -3,7 +3,7 @@
                           CSysLog.h  -  description
                              -------------------
     begin                : Tue Jan 31 2006
-    copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
@@ -42,7 +42,8 @@
 #include <sptk5/CBaseLog.h>
 #include <string>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup log Log Classes
 /// @{
@@ -54,21 +55,14 @@ namespace sptk {
 /// On Windows 95/98/ME the system log isn't supported..
 /// The facility method allows to define - which system log is used
 /// @see CBaseLog for more information about basic log abilities.
-class CSysLog : public CBaseLog {
-    static std::string m_programName;   ///< The name of the program that is used as a prefix in the log
-#ifndef _WIN32
-
-    static int         m_objectCounter; ///< The counter of the log objects
-    static bool        m_logOpened;     ///< (Unix) Is the log opened?
-#else
-
-    HANDLE             m_logHandle;     ///< (Windows) The handle of the log file
-    static std::string m_moduleFileName;///< (Windows) The file name of the module
-    static bool        m_registrySet;   ///< (Windows) The flag indicates that registry key for that program name was created
+class CSysLog: public CBaseLog
+{
+#ifdef _WIN32
+    HANDLE              m_logHandle;     ///< (Windows) The handle of the log file
 #endif
 
     /// List of facilities allows to define one or more system logs where messages would be sent
-    uint32_t           m_facilities;
+    uint32_t m_facilities;
 
 public:
     /// @brief Stores or sends log message to actual destination
@@ -78,7 +72,7 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException);
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException);
 public:
     /// @brief Constructor
     ///
@@ -86,7 +80,7 @@ public:
     /// For Windows, parameter facilities is ignored and messages are stored
     /// into Application event log
     /// @param facilities int, log facility or a set of facilities.
-    CSysLog(uint32_t facilities=LOG_USER);
+    CSysLog(uint32_t facilities = LOG_USER);
 
     /// @brief Destructor
     ///
@@ -100,8 +94,7 @@ public:
     /// name is changed, the log is closed to be re-opened on next message.
     /// @param progName std::string, a program name
     static void programName(std::string progName);
-}
-;
+};
 /// @}
 }
 #endif

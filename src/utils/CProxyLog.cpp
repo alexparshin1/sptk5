@@ -3,7 +3,7 @@
                           CProxyLog.cpp  -  description
                              -------------------
     begin                : Tue Jan 11 2008
-    copyright            : (C) 2008-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
  ***************************************************************************/
 
 /***************************************************************************
@@ -30,14 +30,16 @@
 using namespace std;
 using namespace sptk;
 
-void CProxyLog::saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException) {
+void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
+{
     if (m_options & CLO_ENABLE) {
         CSynchronizedCode guard(m_destination);
-        m_destination.saveMessage(date,message,sz,priority);
+        m_destination.saveMessage(date, message, sz, priority);
     }
 }
 
-void CProxyLog::reset() throw(CException) {
-   CSynchronizedCode guard(m_destination);
-   m_destination.reset();
+void CProxyLog::reset() throw (CException)
+{
+    CSynchronizedCode guard(m_destination);
+    m_destination.reset();
 }

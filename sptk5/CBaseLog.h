@@ -80,60 +80,36 @@ namespace sptk {
 
 class CBaseLog;
 
-/// Log message priority
-class CLogPriority {
-    uint32_t    m_id;       ///< Priority id
-    std::string m_name;     ///< Priority name
-
-public:
-
-    /// @brief Constructor
-    ///
-    /// Contructs a log priority object
-    /// @param id uint32_t, a priority id
-    /// @param name const char *, a priority name
-    CLogPriority(uint32_t id,const char* name) {
-        m_id = id;
-        m_name = name;
-    }
-
-    /// @brief Returns priority id
-    uint32_t id() const {
-        return m_id;
-    }
-
-    /// @brief Returns priority name
-    std::string name() const {
-        return m_name;
-    }
+/// @brief Log message priority
+enum CLogPriority {
+    CLP_DEBUG = LOG_DEBUG,      ///< Debug message priority
+    CLP_INFO = LOG_INFO,        ///< Information message priority
+    CLP_NOTICE = LOG_NOTICE,    ///< Notice message priority
+    CLP_WARNING = LOG_WARNING,  ///< Warning message priority
+    CLP_ERROR = LOG_ERR,        ///< Error message priority
+    CLP_CRITICAL = LOG_CRIT,    ///< Critical message priority
+    CLP_ALERT = LOG_ALERT,      ///< Alert message priority
+    CLP_PANIC = LOG_EMERG       ///< Panic message priority
 };
 
-extern SP_EXPORT const CLogPriority
-    CLP_DEBUG,     ///< Debug message priority
-    CLP_INFO,      ///< Information message priority
-    CLP_NOTICE,    ///< Notice message priority
-    CLP_WARNING,   ///< Warning message priority
-    CLP_ERROR,     ///< Error message priority
-    CLP_CRITICAL,  ///< Critical message priority
-    CLP_ALERT,     ///< Alert message priority
-    CLP_PANIC;     ///< Panic message priority
-
-/// Internal buffer for the CLogStream class
-class CLogStreamBuf : public std::streambuf {
+/// @brief Internal buffer for the CLogStream class
+class CLogStreamBuf: public std::streambuf
+{
     friend class CBaseLog;
 private:
-    char*          m_buffer;           ///< Internal buffer to store the current log message
-    uint32_t       m_size;             ///< The size of the internal buffer
-    uint32_t       m_bytes;            ///< The number of characters in the buffer
-    CDateTime      m_date;             ///< Message timestamp
-    const CLogPriority* m_priority;    ///< Current message priority, should be defined for every message
-    CBaseLog*      m_parent;           ///< Parent log object
+    char*           m_buffer;           ///< Internal buffer to store the current log message
+    uint32_t        m_size;             ///< The size of the internal buffer
+    uint32_t        m_bytes;            ///< The number of characters in the buffer
+    CDateTime       m_date;             ///< Message timestamp
+    CLogPriority    m_priority;         ///< Current message priority, should be defined for every message
+    CBaseLog*       m_parent;           ///< Parent log object
 
 protected:
     /// @brief Assignes the parent log object
     ///
     /// @param par CBaseLog *, parent log object
-    void parent(CBaseLog *par) {
+    void parent(CBaseLog *par)
+    {
         m_parent = par;
     }
 
@@ -151,7 +127,8 @@ public:
     ///
     /// Sends the remaining part of the message to the log,
     /// then releases the allocated memory
-    ~CLogStreamBuf() {
+    ~CLogStreamBuf()
+    {
         flush();
         free(m_buffer);
     }
@@ -159,15 +136,17 @@ public:
     /// @brief Flushes message buffer
     ///
     /// Sends the remaining part of the message to the log
-    void flush() {
+    void flush()
+    {
         overflow(char(13));
     }
 
     /// @brief Sets current message priority
     ///
-    /// @param prt const CLogPriority&, current message priority
-    void priority(const CLogPriority& prt) {
-        m_priority = &prt;
+    /// @param prt CLogPriority, current message priority
+    void priority(CLogPriority prt)
+    {
+        m_priority = prt;
     }
 };
 
@@ -175,21 +154,19 @@ public:
 typedef std::ostream _ostream;
 
 /// Class name alias for std::ios, to make M$ VC-- compile the the class
-typedef std::ios     _ios;
-
-class CFunctionLogger;
+typedef std::ios _ios;
 
 /// Base class for all log classes
-class CBaseLog : public CSynchronized, public _ostream {
-    friend class CFunctionLogger;
+class CBaseLog: public CSynchronized, public _ostream
+{
     friend class CLogStreamBuf;
 
 protected:
-    CLogStreamBuf       m_buffer;            ///< Log buffer
-    int                 m_indent;            ///< Text indent
-    const CLogPriority* m_defaultPriority;   ///< The default priority for the new message
-    const CLogPriority* m_minPriority;       ///< Min message priority, should be defined for every message
-    int                 m_options;           ///< Log options, a bit combination of CLogOption
+    CLogStreamBuf   m_buffer;            ///< Log buffer
+    int             m_indent;            ///< Text indent
+    CLogPriority    m_defaultPriority;   ///< The default priority for the new message
+    CLogPriority    m_minPriority;       ///< Min message priority, should be defined for every message
+    int             m_options;           ///< Log options, a bit combination of CLogOption
 
 public:
     /// @brief Stores or sends log message to actual destination
@@ -199,7 +176,9 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException) {}
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
+    {
+    }
 
 protected:
     /// @brief Protected constructor
@@ -208,117 +187,105 @@ protected:
     /// CBaseLog can only be used as a base class for log classes that implement at least
     /// saveMessage() method.
     /// The default message priority is CLP_NOTICE.
-    CBaseLog() : _ios(0), _ostream(&m_buffer) {
+    CBaseLog() :
+        _ios(0),
+        _ostream(&m_buffer)
+    {
         m_buffer.parent(this);
         m_indent = 0;
-        m_defaultPriority = &CLP_NOTICE;
-        m_minPriority = &CLP_NOTICE;
-        m_options = CLO_ENABLE|CLO_DATE|CLO_TIME|CLO_PRIORITY;
+        m_defaultPriority = CLP_NOTICE;
+        m_minPriority = CLP_NOTICE;
+        m_options = CLO_ENABLE | CLO_DATE | CLO_TIME | CLO_PRIORITY;
     }
 public:
 
     /// @brief Log options
-    enum CLogOption {
-        CLO_STDOUT=1,    ///< Duplicate messages to stdout
-        CLO_DATE=2,      ///< Print date for every log message
-        CLO_TIME=4,      ///< Print time for every log message
-        CLO_PRIORITY=8,  ///< Print message priority
-        CLO_ENABLE=16    ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+    enum CLogOption
+    {
+        CLO_STDOUT = 1,    ///< Duplicate messages to stdout
+        CLO_DATE = 2,      ///< Print date for every log message
+        CLO_TIME = 4,      ///< Print time for every log message
+        CLO_PRIORITY = 8,  ///< Print message priority
+        CLO_ENABLE = 16
+    ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
     };
 
     /// @brief Destructor
     /// Flushes the log and releases any allocated resources
-    virtual ~CBaseLog() {
+    virtual ~CBaseLog()
+    {
         flush();
     }
 
     /// @brief Sets log options
     /// @param ops int, a bit combination of CLogOption
-    void options(int ops) {
+    void options(int ops)
+    {
         m_options = ops;
     }
 
     /// @brief Returns log options
     /// @returns a bit combination of CLogOption
-    int options() const {
+    int options() const
+    {
         return m_options;
     }
 
     /// @brief Sets an option to true or false
-    void option(CLogOption option,bool flag);
+    void option(CLogOption option, bool flag);
 
     /// @brief Sets current message priority
-    /// @param prt const CLogPriority&, current message priority
-    void priority(const CLogPriority& prt) {
+    /// @param prt CLogPriority, current message priority
+    void priority(CLogPriority prt)
+    {
         m_buffer.priority(prt);
     }
 
     /// @brief Restarts the log, if applicable
     /// In CBaseLog it does nothing
-    virtual void reset() throw(CException) {}
+    virtual void reset() throw (CException)
+    {
+    }
 
     /// @brief Sets the default priority
     ///
     /// The default priority is used for the new message,
     /// if you are not defining priority.
-    /// @param priority CLogPriority&, new default priority
-    virtual void defaultPriority(CLogPriority& priority) {
-        m_defaultPriority = &priority;
+    /// @param priority CLogPriority, new default priority
+    virtual void defaultPriority(CLogPriority priority)
+    {
+        m_defaultPriority = priority;
     }
 
     /// @brief Returns the default priority
     ///
     /// The default priority is used for the new message,
     /// if you are not defining priority.
-    virtual const CLogPriority& defaultPriority() const {
-        return *m_defaultPriority;
+    virtual CLogPriority defaultPriority() const
+    {
+        return m_defaultPriority;
     }
 
     /// @brief Sets min message priority
     ///
     /// Messages with priority less than requested are ignored
-    /// @param prt const CLogPriority&, min message priority
-    virtual void minPriority(const CLogPriority& prt) {
-        m_minPriority = &prt;
+    /// @param prt CLogPriority, min message priority
+    virtual void minPriority(CLogPriority prt)
+    {
+        m_minPriority = prt;
     }
 
     /// @brief Returns the min priority
     ///
     /// Messages with priority less than requested are ignored
-    virtual const CLogPriority& minPriority() const {
-        return *m_minPriority;
-    }
-};
-
-/// @brief Function logger
-///
-/// Designed to be placed to the beginning of function or method as an automatic (stack) object.
-/// Creates a log message 'XYZ started' upon creation.
-/// Creates another log message 'XYZ exits' upon destruction.
-class CFunctionLogger {
-    CBaseLog&    m_log;           ///< Log object to send messages to
-    std::string  m_functionName;  ///< Function or method name
-    CDateTime    m_started;       ///< The datetime of the start
-    static bool  m_quietMode;     ///< If true, don't print start-end messages
-public:
-    /// Constructor
-    /// @param log CBaseLog&, Log object to send messages to
-    /// @param functionName std::string, function or method name
-    CFunctionLogger(CBaseLog& log,std::string functionName);
-
-    /// Destructor
-    ~CFunctionLogger();
-
-    /// Sets quiet mode (static method)
-    /// @param quietMode bool, if true - don't print start-end messages
-    static void quiet(bool quietMode) {
-        m_quietMode = quietMode;
+    virtual CLogPriority minPriority() const
+    {
+        return m_minPriority;
     }
 
-    /// Returns current quiet mode (static method)
-    static bool quiet() {
-        return m_quietMode;
-    }
+    /// @brief Returns message priority name
+    /// @param prt CLogPriority, message priority
+    static std::string priorityName(sptk::CLogPriority prt);
 };
 
 /// @brief Sets the message priority
@@ -326,7 +293,7 @@ public:
 /// By default, the message priority is CLP_NOTICE.
 /// Changing the priority would hold till the new log message.
 /// The new message would start with the default priority.
-SP_EXPORT sptk::CBaseLog& operator << (sptk::CBaseLog &, const sptk::CLogPriority &);
+SP_EXPORT sptk::CBaseLog& operator <<(sptk::CBaseLog &, sptk::CLogPriority);
 
 /// @}
 }

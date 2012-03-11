@@ -3,7 +3,7 @@
                           CProxyLog.h  -  description
                              -------------------
     begin                : Tue Jan 11 2008
-    copyright            : (C) 2008-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -44,55 +44,65 @@ namespace sptk {
 /// The log options defining message format and min priority are used
 /// from destination log.
 /// @see CBaseLog for more information about basic log abilities.
-class CProxyLog : public CBaseLog {
-   CBaseLog&  m_destination;  /// The actual log to store messages to (destination log)
+class CProxyLog: public CBaseLog
+{
+    CBaseLog& m_destination;  /// The actual log to store messages to (destination log)
 
 protected:
 
-	/// @brief Sets the default priority
-	///
-	/// Does nothing since the priority should be defined for the shared (parent) log object
-	/// @param priority CLogPriority&, new default priority
-	virtual void defaultPriority(CLogPriority& priority) {}
+    /// @brief Sets the default priority
+    ///
+    /// Does nothing since the priority should be defined for the shared (parent) log object
+    /// @param priority CLogPriority&, new default priority
+    virtual void defaultPriority(CLogPriority& priority)
+    {
+    }
 
-	/// @brief Sets min message priority
-	///
-	/// Does nothing since the min message priority should be defined for the shared (parent) log object
-	/// @param prt const CLogPriority&, min message priority
-	virtual void minPriority(const CLogPriority& prt) {}
+    /// @brief Sets min message priority
+    ///
+    /// Does nothing since the min message priority should be defined for the shared (parent) log object
+    /// @param prt const CLogPriority&, min message priority
+    virtual void minPriority(const CLogPriority& prt)
+    {
+    }
 
-	/// @brief Sends log message to actual destination
-	/// @param date CDateTime, message timestamp
-	/// @param message const char *, message text
-	/// @param sz uint32_t, message size
-	/// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-	virtual void saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException);
+    /// @brief Sends log message to actual destination
+    /// @param date CDateTime, message timestamp
+    /// @param message const char *, message text
+    /// @param sz uint32_t, message size
+    /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException);
 
 public:
-	/// @brief Constructor
-	///
-	/// Creates a new log object based on the file name.
-	/// If this file doesn't exist - it will be created.
-	/// @param destination CBaseLog&, destination log object
-	CProxyLog(CBaseLog& destination) : m_destination(destination) {}
+    /// @brief Constructor
+    ///
+    /// Creates a new log object based on the file name.
+    /// If this file doesn't exist - it will be created.
+    /// @param destination CBaseLog&, destination log object
+    CProxyLog(CBaseLog& destination) :
+            m_destination(destination)
+    {
+    }
 
-	/// @brief Restarts the log
-	///
-	/// The current log content is cleared. The file is recreated.
-	virtual void reset() throw(CException);
+    /// @brief Restarts the log
+    ///
+    /// The current log content is cleared. The file is recreated.
+    virtual void reset() throw (CException);
 
-   /// @brief Returns the default priority
+    /// @brief Returns the default priority
     ///
     /// The default priority is used for the new message,
     /// if you are not defining priority.
-    virtual const CLogPriority& defaultPriority() const {
+    virtual CLogPriority defaultPriority() const
+    {
         return m_destination.defaultPriority();
     }
 
     /// @brief Returns the min priority
     ///
     /// Messages with priority less than requested are ignored
-    virtual const CLogPriority& minPriority() const {
+    virtual CLogPriority minPriority() const
+    {
         return m_destination.minPriority();
     }
 };

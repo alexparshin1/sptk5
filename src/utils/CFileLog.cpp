@@ -33,12 +33,13 @@
 using namespace std;
 using namespace sptk;
 
-void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t , const CLogPriority *priority) throw(CException) {
-    if (m_options&CLO_ENABLE) {
+void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPriority priority) throw (CException)
+{
+    if (m_options & CLO_ENABLE) {
         if (!m_fileStream.is_open()) {
-            m_fileStream.open(m_fileName.c_str(),ofstream::out|ofstream::app);
+            m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
-                throw CException("Can't append or create log file '"+m_fileName+"'",__FILE__,__LINE__);
+                throw CException("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
         }
 
         if (m_options & CLO_DATE)
@@ -48,7 +49,7 @@ void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t , const
             m_fileStream << date.timeString(true) << " ";
 
         if (m_options & CLO_PRIORITY)
-            m_fileStream << "[" << priority->name() << "] ";
+            m_fileStream << "[" << priorityName(priority) << "] ";
 
         m_fileStream << message << endl;
     }
@@ -61,27 +62,29 @@ void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t , const
             cout << date.timeString(true) << " ";
 
         if (m_options & CLO_PRIORITY)
-            cout << "[" << priority->name() << "] ";
+            cout << "[" << priorityName(priority) << "] ";
 
         cout << message << endl;
     }
 
     if (m_fileStream.bad())
-        throw CException("Can't write to log file '"+m_fileName+"'",__FILE__,__LINE__);
+        throw CException("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
 }
 
-CFileLog::~CFileLog() {
+CFileLog::~CFileLog()
+{
     m_buffer.flush();
     if (m_fileStream.is_open())
         m_fileStream.close();
 }
 
-void CFileLog::reset() throw(CException) {
+void CFileLog::reset() throw (CException)
+{
     if (m_fileStream.is_open())
         m_fileStream.close();
-	if (m_fileName.empty())
-        throw CException("File name isn't defined",__FILE__,__LINE__);
-    m_fileStream.open(m_fileName.c_str(),ofstream::out|ofstream::trunc);
+    if (m_fileName.empty())
+        throw CException("File name isn't defined", __FILE__, __LINE__);
+    m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!m_fileStream.is_open())
-        throw CException("Can't open log file '"+m_fileName+"'",__FILE__,__LINE__);
+        throw CException("Can't open log file '" + m_fileName + "'", __FILE__, __LINE__);
 }

@@ -45,9 +45,10 @@ namespace sptk {
 /// A simplest possible way to implement logging.
 /// The log file is created automatically if it doesn't exist.
 /// @see CBaseLog for more information about basic log abilities.
-class CFileLog : public CBaseLog {
+class CFileLog: public CBaseLog
+{
     std::ofstream   m_fileStream;   ///< Log file stream
-    std::string     m_fileName;      ///< Log file name
+    std::string     m_fileName;     ///< Log file name
 protected:
 
 public:
@@ -56,7 +57,7 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date,const char *message,uint32_t sz,const CLogPriority *priority) throw(CException);
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException);
 
 public:
     /// @brief Constructor
@@ -64,7 +65,10 @@ public:
     /// Creates a new log object based on the file name.
     /// If this file doesn't exist - it will be created.
     /// @param fileName string, log file name
-    CFileLog(std::string fileName) : m_fileName(fileName) {}
+    CFileLog(std::string fileName) :
+        m_fileName(fileName)
+    {
+    }
 
     /// @brief Destructor
     ///
@@ -74,10 +78,11 @@ public:
     /// @brief Restarts the log
     ///
     /// The current log content is cleared. The file is recreated.
-    virtual void reset() throw(CException);
+    virtual void reset() throw (CException);
 
     /// @brief Returns log file name
-    std::string fileName() const {
+    std::string fileName() const
+    {
         return m_fileName;
     }
 };
