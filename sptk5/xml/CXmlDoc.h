@@ -48,17 +48,13 @@ namespace sptk
 ///
 /// Represents the entire XML document.
 /// It provides access to document root node, which includes all nodes in XML document tree.
-class CXmlDoc: public CSharedStrings, public CXmlElement
+class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
 {
     friend class CXmlNode;
 
     CXmlDocType     m_doctype;          ///< Document type
-    static int      m_indent_spaces;    ///< Indent spaces
+    int             m_indentSpaces;     ///< Indent spaces
     CBuffer         m_encodeBuffer;     ///< Buffer to encode entities
-
-    static const std::string nodeNameString;
-
-    static const std::string indentsString;     /// String of a indent spaces
 
     /// @brief Internal entities parser
     void parseEntities(char* entitiesSection);
@@ -104,11 +100,7 @@ public:
     virtual void clear();
 
     /// @brief Returns the node name.
-    ///
-    /// The meaning of the value depends on the node type
-    virtual const std::string& name() const {
-        return nodeNameString;
-    }
+    virtual const std::string& name() const;
 
     /// @brief Sets the new name for the node
     /// @param name const std::string&, new node name
@@ -140,15 +132,15 @@ public:
     CXmlNode *rootNode();
 
     /// @brief Returns indentation in save
-    static int indentSpaces() {
-        return m_indent_spaces;
+    int indentSpaces() {
+        return m_indentSpaces;
     }
 
     /// @brief Set indentation in save, defaults to 2
     ///
     /// @param i as new indent spaces
-    static void indentSpaces(int i) {
-        m_indent_spaces = i;
+    void indentSpaces(int i) {
+        m_indentSpaces = i;
     }
 
     /// Loads document from buffer.

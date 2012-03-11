@@ -48,7 +48,7 @@ typedef CDBDriver* CCreateDriverInstance(std::string);
 typedef void CDestroyDriverInstance(CDBDriver*);
 
 /// @brief Database driver description
-class CDBDriverLoader : public CSynchronized
+class SP_EXPORT CDBDriverLoader : public CSynchronized
 {
     typedef std::map<std::string, CDBDriverLoader*> DriverLoaders;
     static DriverLoaders    m_loadedDrivers;            ///< Cache of loaded drivers

@@ -3,7 +3,7 @@
                           CDateTime.h  -  description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -46,7 +46,8 @@ class CDateTimeFormat;
 /// a floating point number. Allows to synchronize the Now() time
 /// with the external date/time, without affecting the local host
 /// system time.
-class SP_EXPORT CDateTime {
+class SP_EXPORT CDateTime
+{
     friend class CDateTimeFormat;
 protected:
 
@@ -77,10 +78,6 @@ protected:
 
     double                m_dateTime;             ///< Actual date and time value
 
-    /// The offset from current' system time for synchronization
-    /// with outside system
-    static double         m_dateTimeOffset;
-    static bool           m_time24Mode;           ///< System's time mode
 public:
 
     static char           dateFormat[32];         ///< System's date format
@@ -233,9 +230,7 @@ public:
     }
 
     /// @brief Returns system's time mode.
-    static bool time24Mode() {
-        return m_time24Mode;
-    }
+    static bool time24Mode();
 
     /// @brief Sets system's time mode
     static void time24Mode(bool t24mode);

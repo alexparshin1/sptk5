@@ -3,7 +3,7 @@
                           CBaseLog.cpp  -  description
                              -------------------
     begin                : Mon Jan 30 2006
-    copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
  
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
@@ -37,15 +37,15 @@
 using namespace std;
 using namespace sptk;
 
-const CLogPriority
-sptk::CLP_DEBUG(LOG_DEBUG,"debug"),
-sptk::CLP_INFO(LOG_INFO,"info"),
-sptk::CLP_NOTICE(LOG_NOTICE,"notice"),
-sptk::CLP_WARNING(LOG_WARNING,"warning"),
-sptk::CLP_ERROR(LOG_ERR,"err"),
-sptk::CLP_CRITICAL(LOG_CRIT,"crit"),
-sptk::CLP_ALERT(LOG_ALERT,"alert"),
-sptk::CLP_PANIC(LOG_EMERG,"panic");
+SP_EXPORT const CLogPriority
+    sptk::CLP_DEBUG(LOG_DEBUG,"debug"),
+    sptk::CLP_INFO(LOG_INFO,"info"),
+    sptk::CLP_NOTICE(LOG_NOTICE,"notice"),
+    sptk::CLP_WARNING(LOG_WARNING,"warning"),
+    sptk::CLP_ERROR(LOG_ERR,"err"),
+    sptk::CLP_CRITICAL(LOG_CRIT,"crit"),
+    sptk::CLP_ALERT(LOG_ALERT,"alert"),
+    sptk::CLP_PANIC(LOG_EMERG,"panic");
 //==========================================================================================
 CLogStreamBuf::CLogStreamBuf() {
     m_parent = 0;
@@ -81,7 +81,7 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c) {
     return traits_type::not_eof(c);
 }
 //==========================================================================================
-CBaseLog& sptk::operator << (CBaseLog &stream, const CLogPriority &priority) {
+SP_EXPORT CBaseLog& sptk::operator << (CBaseLog &stream, const CLogPriority &priority) {
     stream.priority(priority);
     return stream;
 }

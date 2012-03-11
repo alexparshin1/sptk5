@@ -41,7 +41,7 @@ namespace sptk {
 /// Allows to begin, commit, and rollback the transaction automatically.
 /// If the transaction object is deleted w/o commiting or rolling back
 /// the transaction, it rolls back the transaction (if active)
-class CTransaction
+class SP_EXPORT CTransaction
 {
     bool                m_active;   ///< Transaction activity
     CDatabaseDriver*    m_db;       ///< Database to work with

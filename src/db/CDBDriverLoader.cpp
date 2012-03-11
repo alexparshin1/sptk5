@@ -56,7 +56,7 @@ void CDBDriverLoader::load(std::string driverName) throw (exception)
         m_destroyDriverInstance = loadedDriver->m_destroyDriverInstance;
         return;
     }
-
+#ifndef WIN32
     string driverFileName = "libspdb5_"+driverName+".so";
 
     m_handle = dlopen(driverFileName.c_str(), RTLD_NOW);
@@ -82,4 +82,5 @@ void CDBDriverLoader::load(std::string driverName) throw (exception)
     }
 
     m_loadedDrivers[driverName] = this;
+#endif
 }

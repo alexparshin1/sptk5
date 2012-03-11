@@ -42,7 +42,7 @@ namespace sptk
 ///
 /// Should be used for deriving a user class for executing by a worker
 /// thread in a thread pool. Derived class must override run() method.
-class CRunable
+class SP_EXPORT CRunable
 {
     bool            m_terminated;   ///< Flag: is the task sent terminate request?
     CSynchronized   m_running;      ///< Synchronized object locked while the task running

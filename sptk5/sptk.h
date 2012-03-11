@@ -51,6 +51,7 @@
     #include <winsock2.h>
     #include <windows.h>
     #include <process.h>
+    #pragma warning (disable: 4251)
     #pragma warning (disable: 4290)
     #pragma warning (disable: 4355)
     #pragma warning (disable: 4786)

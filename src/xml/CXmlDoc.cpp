@@ -36,15 +36,11 @@
 using namespace std;
 using namespace sptk;
 
-int           CXmlDoc::m_indent_spaces = 2;
-const string  CXmlDoc::nodeNameString("#document");
-const string  CXmlDoc::indentsString(1024,' ');
-
 CXmlDoc::CXmlDoc()
-        : CXmlElement(*this) {}
+        : CXmlElement(*this), m_indentSpaces(2) {}
 
 CXmlDoc::CXmlDoc(const char *aname, const char *public_id, const char *system_id)
-        : CXmlElement(*this), m_doctype(aname,public_id,system_id) {}
+        : CXmlElement(*this), m_doctype(aname,public_id,system_id), m_indentSpaces(2) {}
 
 CXmlNode *CXmlDoc::rootNode() {
     iterator itor = begin();
@@ -411,4 +407,9 @@ void CXmlDoc::save(CBuffer &buffer,int /*indent*/) const {
             continue;
         node->save(buffer, 0);
     }
+}
+
+const std::string& CXmlDoc::name() const {
+    static const string nodeNameString("#document");
+    return nodeNameString;
 }

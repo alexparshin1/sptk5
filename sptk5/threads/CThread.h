@@ -42,7 +42,7 @@ namespace sptk
 ///
 /// Should be used for deriving a user thread
 /// by overwriting threadFunction().
-class CThread
+class SP_EXPORT CThread
 {
 protected:
     bool        m_terminated;   ///< Flag: is the thread terminated?

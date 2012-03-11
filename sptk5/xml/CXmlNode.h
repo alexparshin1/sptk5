@@ -57,7 +57,7 @@ enum CXPathAxis {
 };
 
 /// @brief Parsed element of XPath
-class CXPathElement {
+class SP_EXPORT CXPathElement {
 public:
     const std::string*  elementName;     ///< Node name, or '*'
     std::string         criteria;        ///< Criteria
@@ -151,13 +151,6 @@ protected:
     virtual bool nameIs(const std::string* sstName) const { return false; }
 
 protected:
-    /// @brief An empty nodes set to emulate a set of stub iterators
-    static CXmlNodeList emptyNodes;
-
-protected:
-
-    /// @brief An empty string to use as a stub for value()
-    static const std::string emptyString;
 
     CXmlDoc*           m_document;           ///< Parent document pointer
     CXmlNode*          m_parent;             ///< Parent node pointer
@@ -267,9 +260,7 @@ public:
     ///
     /// The meaning of the value depends on the node type.
     /// DOM_DOCUMENT and DOM_ELEMENT don't have values
-    virtual const std::string& value() const {
-        return emptyString;
-    }
+    virtual const std::string& value() const;
 
     /// @brief Sets new value to node.
     ///
@@ -349,24 +340,16 @@ public:
     virtual void save(CBuffer &buffer, int indent=0) const;
 
     /// @brief Returns the first subnode iterator
-    virtual iterator begin() {
-        return emptyNodes.end();
-    }
+    virtual iterator begin();
 
     /// @brief Returns the first subnode const iterator
-    virtual const_iterator begin() const {
-        return emptyNodes.end();
-    }
+    virtual const_iterator begin() const;
 
     /// @brief Returns the end subnode iterator
-    virtual iterator end() {
-        return emptyNodes.end();
-    }
+    virtual iterator end();
 
     /// @brief Returns the end subnode const iterator
-    virtual const_iterator end() const {
-        return emptyNodes.end();
-    }
+    virtual const_iterator end() const;
 
     /// @brief Returns a number of subnodes
     virtual uint32_t size() const {
@@ -432,7 +415,7 @@ public:
 /// @brief XML Named item
 ///
 /// Used as a base class for XML element and XML attribute
-class CXmlNamedItem : public CXmlNode {
+class SP_EXPORT CXmlNamedItem : public CXmlNode {
     friend class CXmlDoc;
     friend class CXmlAttribute;
     const std::string* m_name;               ///< Node name, stored in the parent document SST
@@ -498,13 +481,11 @@ public:
 };
 
 /// @brief Base class for XML nodes with value
-class CXmlBaseTextNode : public CXmlNode {
+class SP_EXPORT CXmlBaseTextNode : public CXmlNode {
     std::string        m_value;              ///< Node value
 protected:
     /// @brief returns node name
-    virtual const std::string& nodeName() const {
-        return emptyString;
-    }
+    virtual const std::string& nodeName() const;
 public:
     /// @brief Constructor
     CXmlBaseTextNode(CXmlNode *parent,const char *data)
@@ -554,13 +535,10 @@ public:
 };
 
 /// XML Text
-class CXmlText : public CXmlBaseTextNode {
-    static const std::string nodeNameString;
+class SP_EXPORT CXmlText : public CXmlBaseTextNode {
 protected:
     /// @brief returns node name
-    virtual const std::string& nodeName() const {
-        return nodeNameString;
-    }
+    virtual const std::string& nodeName() const;
 public:
     /// @brief Constructor
     ///
@@ -590,13 +568,10 @@ public:
 };
 
 /// XML comment
-class CXmlComment : public CXmlBaseTextNode {
-    static const std::string nodeNameString;
+class SP_EXPORT CXmlComment : public CXmlBaseTextNode {
 protected:
     /// @brief returns node name
-    virtual const std::string& nodeName() const {
-        return nodeNameString;
-    }
+    virtual const std::string& nodeName() const;
 public:
     /// @brief Constructor
     ///
@@ -626,13 +601,10 @@ public:
 };
 
 /// XML CData section
-class CXmlCDataSection : public CXmlBaseTextNode {
-    static const std::string nodeNameString;
+class SP_EXPORT CXmlCDataSection : public CXmlBaseTextNode {
 protected:
     /// @brief returns node name
-    virtual const std::string& nodeName() const {
-        return nodeNameString;
-    }
+    virtual const std::string& nodeName() const;
 public:
     /// @brief Constructor
     ///
@@ -661,7 +633,7 @@ public:
 };
 
 /// XML processing instructions (PI)
-class CXmlPI : public CXmlBaseTextNode {
+class SP_EXPORT CXmlPI : public CXmlBaseTextNode {
     const std::string* m_name;               ///< Node name, stored in the parent document SST
 public:
     /// @brief Constructor

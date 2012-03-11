@@ -3,7 +3,7 @@
                           CDateTime.cpp  -  description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -79,8 +79,8 @@ static const short _monthDaySums[2][13] = {
 
 #define DateDelta 693594
 
-bool     CDateTime::m_time24Mode;
-double   CDateTime::m_dateTimeOffset;
+static bool     _time24Mode;
+static double   dateTimeOffset;
 
 char     CDateTime::dateFormat[32];
 char     CDateTime::datePartsOrder[4];
@@ -131,11 +131,11 @@ char CDateTimeFormat::parseDateOrTime(char *format,const char *dateOrTime) {
         switch (number) {
         case 10:
             pattern = "19";   // hour (12-hour mode)
-            CDateTime::m_time24Mode = false;
+            _time24Mode = false;
             break;
         case 22:
             pattern = "29";    // hour (24-hour mode)
-            CDateTime::m_time24Mode = true;
+            _time24Mode = true;
             break;
         case 48:
             pattern = "59";    // minute
@@ -169,7 +169,7 @@ char CDateTimeFormat::parseDateOrTime(char *format,const char *dateOrTime) {
     len = (int) strlen(format);
     if (len)
         format[len-1] = 0;
-    if (processingTime && CDateTime::m_time24Mode)
+    if (processingTime && _time24Mode)
         strcat(format,"TM");
 
     return separator[0];
@@ -273,7 +273,7 @@ void CDateTime::time24Mode(bool t24mode) {
     if (t24mode)
         timeBuffer = "22:48:59";
 
-    CDateTime::m_time24Mode = t24mode;
+    _time24Mode = t24mode;
     CDateTime::timeSeparator = CDateTimeFormat::parseDateOrTime(CDateTime::fullTimeFormat,timeBuffer);
     strcpy(CDateTime::shortTimeFormat,CDateTime::fullTimeFormat);
     char *p = strchr(CDateTime::shortTimeFormat,CDateTime::timeSeparator);
@@ -282,7 +282,7 @@ void CDateTime::time24Mode(bool t24mode) {
         if (p)
             *p = 0;
     }
-    if (!CDateTime::m_time24Mode) {
+    if (!_time24Mode) {
         strcat(CDateTime::fullTimeFormat,"TM");
         strcat(CDateTime::shortTimeFormat,"TM");
     }
@@ -764,12 +764,12 @@ CDateTime CDateTime::System() {
 
 // Get the current system time with optional synchronization offset
 CDateTime CDateTime::Now() {
-    return (double)CDateTime::System() + CDateTime::m_dateTimeOffset;
+    return (double)CDateTime::System() + ::dateTimeOffset;
 }
 
 // Set the synchronization offset
 void CDateTime::Now(CDateTime dt) {
-    CDateTime::m_dateTimeOffset = (double)dt - (double)CDateTime::System();
+    ::dateTimeOffset = (double)dt - (double)CDateTime::System();
 }
 
 CDateTime CDateTime::Date() {
@@ -842,7 +842,7 @@ string CDateTime::dateString() const {
 
 string CDateTime::timeString(bool showSeconds) const {
     char  buffer[32];
-    formatTime(buffer,!m_time24Mode,showSeconds);
+    formatTime(buffer,!_time24Mode,showSeconds);
     return string(buffer);
 }
 
@@ -852,4 +852,9 @@ CDateTime CDateTime::convertCTime(const time_t tt) {
     encodeDate(dat,short(t->tm_year+1900),short(t->tm_mon+1),short(t->tm_mday));
     encodeTime(tim,short(t->tm_hour),short(t->tm_min),short(t->tm_sec),short(0));
     return dat + tim;
+}
+
+bool CDateTime::time24Mode()
+{
+    return _time24Mode;
 }

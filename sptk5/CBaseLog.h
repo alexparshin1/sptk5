@@ -3,7 +3,7 @@
                           CBaseLog.h  -  description
                              -------------------
     begin                : Mon Jan 30 2006
-    copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
 
     This module creation was sponsored by Total Knowledge
@@ -108,7 +108,7 @@ public:
     }
 };
 
-extern const CLogPriority
+extern SP_EXPORT const CLogPriority
     CLP_DEBUG,     ///< Debug message priority
     CLP_INFO,      ///< Information message priority
     CLP_NOTICE,    ///< Notice message priority
@@ -326,7 +326,7 @@ public:
 /// By default, the message priority is CLP_NOTICE.
 /// Changing the priority would hold till the new log message.
 /// The new message would start with the default priority.
-sptk::CBaseLog& operator << (sptk::CBaseLog &, const sptk::CLogPriority &);
+SP_EXPORT sptk::CBaseLog& operator << (sptk::CBaseLog &, const sptk::CLogPriority &);
 
 /// @}
 }

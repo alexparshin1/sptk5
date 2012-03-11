@@ -3,7 +3,7 @@
                           CDataSource.h  -  description
                              -------------------
     begin                : Jun 20 2003
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -44,124 +44,147 @@ namespace sptk {
 /// It's designed as a base class for multiple datasources available in SPTK.
 /// The main idea is to provide the simple interface that allows to open the datasource
 /// with certain parameters and read or write the datasource fields. And don't you forget to close it :)
-class CDataSource {
+class SP_EXPORT CDataSource
+{
     friend class Fl_Group;
 
 protected:
-    /// Loads datasource data. Should be implemented in derived class
-    virtual bool loadData() {
+    /// @brief Loads datasource data. Should be implemented in derived class
+    virtual bool loadData()
+    {
         return true;
     }
-    /// Saves data from datasource. Should be implemented in derived class
-    virtual bool saveData() {
+
+    /// @brief Saves data from datasource. Should be implemented in derived class
+    virtual bool saveData()
+    {
         return true;
     }
 
 public:
-    /// Default constructor
-    CDataSource() {}
+    /// @brief Default constructor
+    CDataSource()
+    {}
 
-    /// Destructor
-    virtual ~CDataSource() {}
+    /// @brief Destructor
+    virtual ~CDataSource()
+    {}
 
 public:
-    /// Field access by the field index, const version.
+    /// @brief Field access by the field index, const version.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldIndex uint32_t, field index
     /// @returns field reference
     virtual const CField& operator [] (uint32_t fieldIndex) const = 0;
 
-    /// Field access by the field index, non-const version
+    /// @brief Field access by the field index, non-const version
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldIndex uint32_t, field index
     /// @returns field reference
     virtual CField&       operator [] (uint32_t fieldIndex) = 0;
 
-    /// Field access by the field name, const version.
+    /// @brief Field access by the field name, const version.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @returns field reference
     virtual const CField& operator [] (const char *fieldName) const = 0;
 
-    /// Field access by the field name, const version.
+    /// @brief Field access by the field name, const version.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @returns field reference
     virtual CField&       operator [] (const char *fieldName) = 0;
 
-    /// Returns field count in the datasource.
+    /// @brief Returns field count in the datasource.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @returns field count
-    virtual uint32_t        fieldCount() const = 0;
+    virtual uint32_t fieldCount() const = 0;
 public:
 
-    /// Returns record count in the datasource.
+    /// @brief Returns record count in the datasource.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @returns record count
-    virtual uint32_t        recordCount() const = 0;
+    virtual uint32_t recordCount() const = 0;
 
-    /// Returns user_data associated with the datasource.
-    virtual void         *user_data() const {
+    /// @brief Returns user_data associated with the datasource.
+    virtual void* user_data() const 
+    {
         return 0L;
     }
 public:
-    /// Reads the field by name from the datasource.
+    /// @brief Reads the field by name from the datasource.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @param fieldValue CVariant, field value
-    virtual bool          readField(const char *fieldName,CVariant& fieldValue) = 0;
+    virtual bool readField(const char *fieldName, CVariant& fieldValue) = 0;
 
-    /// Writes the field by name from the datasource.
+    /// @brief Writes the field by name from the datasource.
+    ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @param fieldValue CVariant, field value
-    virtual bool          writeField(const char *fieldName,const CVariant& fieldValue) = 0;
+    virtual bool writeField(const char *fieldName, const CVariant& fieldValue) = 0;
 public:
 
-    /// Opens the datasource. Implemented in derved class.
-    virtual bool          open()  {
+    /// @brief Opens the datasource. Implemented in derved class.
+    virtual bool open()
+    {
         return false;
     }
 
-    /// Closes the datasource. Implemented in derved class.
-    virtual bool          close() {
+    /// @brief Closes the datasource. Implemented in derved class.
+    virtual bool close()
+    {
         return false;
     }
 
-    /// Moves to the first record of the datasource. Implemented in derved class.
-    virtual bool          first() {
+    /// @brief Moves to the first record of the datasource. Implemented in derved class.
+    virtual bool first()
+    {
         return false;
     }
 
-    /// Moves to the next record of the datasource. Implemented in derved class.
-    virtual bool          next()  {
+    /// @brief Moves to the next record of the datasource. Implemented in derved class.
+    virtual bool next()
+    {
         return false;
     }
 
-    /// Moves to the prior record of the datasource. Implemented in derved class.
-    virtual bool          prior() {
+    /// @brief Moves to the prior record of the datasource. Implemented in derved class.
+    virtual bool prior()
+    {
         return false;
     }
 
-    /// Moves to the last record of the datasource. Implemented in derved class.
-    virtual bool          last()  {
+    /// @brief Moves to the last record of the datasource. Implemented in derved class.
+    virtual bool last()
+    {
         return false;
     }
 
-    /// Moves to the specified record position of the datasource. Implemented in derved class.
-    virtual bool          find(CVariant position) {
+    /// @brief Moves to the specified record position of the datasource. Implemented in derved class.
+    virtual bool find(CVariant position)
+    {
         return false;
     }
 
-    /// Returns true if there are no more records in the datasource. Implemented in derved class.
-    virtual bool          eof() const  {
+    /// @brief Returns true if there are no more records in the datasource. Implemented in derved class.
+    virtual bool eof() const
+    {
         return false;
     }
 
-    /// Loads data into the datasource
+    /// @brief Loads data into the datasource
     bool load();
 
-    /// Saves data from the datasource
+    /// @brief Saves data from the datasource
     bool save();
 
     /// @brief Saves dataset row data into XML
@@ -170,7 +193,7 @@ public:
     /// Otherwise, the fields are stored as subnodes.
     /// @param node CXmlNode&, the XML node to fill in
     /// @param compactXmlMode bool, compact XML flag
-    void rowToXML(CXmlNode& node,bool compactXmlMode) const;
+    void rowToXML(CXmlNode& node, bool compactXmlMode) const;
 
     /// @brief Saves data into XML
     ///
@@ -181,7 +204,7 @@ public:
     /// @param parentNode CXmlNode&, the XML node to add subnodes to
     /// @param nodeName std::string, the name for subnodes
     /// @param compactXmlMode bool, compact XML flag
-    virtual void toXML(CXmlNode& parentNode,std::string nodeName,bool compactXmlMode);
+    virtual void toXML(CXmlNode& parentNode, std::string nodeName, bool compactXmlMode);
 };
 
 /// @}

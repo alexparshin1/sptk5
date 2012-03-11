@@ -46,7 +46,7 @@ class CPostgreSQLStatement;
 /// @brief PostgreSQL database
 ///
 /// CPostgreSQLDatabase is thread-safe connection to PostgreSQL database.
-class CPostgreSQLDatabase: public CDatabaseDriver
+class SP_EXPORT CPostgreSQLDatabase: public CDatabaseDriver
 {
     friend class CQuery;
 

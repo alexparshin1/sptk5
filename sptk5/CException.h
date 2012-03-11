@@ -45,50 +45,49 @@ namespace sptk {
 /// try {} catch (std::exception& e) {} block.
 class SP_EXPORT CException: public std::exception
 {
-    std::string m_file; ///< The file where exception occurs
-    int m_line; ///< The line number in the file where exception occurs
-    std::string m_text; ///< The exception text
-    std::string m_description; ///< The extended error information
-    std::string m_fullMessage; ///< The complete error information combining everything together
+    std::string m_file;         ///< The file where exception occurs
+    int         m_line;         ///< The line number in the file where exception occurs
+    std::string m_text;         ///< The exception text
+    std::string m_description;  ///< The extended error information
+    std::string m_fullMessage;  ///< The complete error information combining everything together
 public:
-    /// Constructor
+    /// @brief Constructor
     /// @param text std::string, the exception text
     /// @param file std::string, the file where exception occurs
     /// @param line int, the line number in the file where exception occurs
     /// @param description std::string, the optional description information
-    CException(std::string text, std::string file = "", int line = 0,
-            std::string description = "");
+    CException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
-    /// Destructor
+    /// @brief Destructor
     virtual ~CException() throw ()
     {
     }
 
-    /// Returns complete text of exception
+    /// @brief Returns complete text of exception
     virtual const char * what() const throw ()
     {
         return m_fullMessage.c_str();
     }
 
-    /// Returns exception message without file name, line number, or description
+    /// @brief Returns exception message without file name, line number, or description
     std::string message() const
     {
         return m_text;
     }
 
-    /// Returns exception file name
+    /// @brief Returns exception file name
     std::string file() const
     {
         return m_file;
     }
 
-    /// Returns exception line number
+    /// @brief Returns exception line number
     int line() const
     {
         return m_line;
     }
 
-    /// Returns exception description
+    /// @brief Returns exception description
     std::string description() const
     {
         return m_description;

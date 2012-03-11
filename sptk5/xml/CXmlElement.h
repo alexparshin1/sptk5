@@ -47,7 +47,8 @@ namespace sptk {
 class CXmlDoc;
 
 /// @brief XML Element is a named item that may optionally have sub-nodes and attributes
-class CXmlElement : public CXmlNamedItem {
+class SP_EXPORT CXmlElement : public CXmlNamedItem
+{
     friend class CXmlDoc;
     CXmlNodeList       m_nodes;              ///< The list of subnodes
 
@@ -57,62 +58,78 @@ protected:
     /// @brief Protected constructor for creating CXmlDoc only
     ///
     /// @param doc CXmlDoc&, a document.
-    CXmlElement(CXmlDoc& doc) : CXmlNamedItem(doc), m_attributes(this) {}
+    CXmlElement(CXmlDoc& doc) : 
+        CXmlNamedItem(doc), 
+        m_attributes(this) 
+    {}
 
 public:
     /// @brief Constructor
     ///
     /// @param parent CXmlNode*, a parent node.
     /// @param tagname const char*, a name of XML tag
-    CXmlElement(CXmlNode& parent,const char* tagname)
-            : CXmlNamedItem(parent,tagname), m_attributes(this) {}
+    CXmlElement(CXmlNode& parent, const char* tagname) :
+        CXmlNamedItem(parent,tagname),
+        m_attributes(this) 
+    {}
 
     /// @brief Constructor
     ///
     /// @param parent CXmlNode*, a parent node.
     /// @param tagname const char*, a name of XML tag
-    CXmlElement(CXmlNode* parent,const char* tagname)
-            : CXmlNamedItem(*parent,tagname), m_attributes(this) {}
+    CXmlElement(CXmlNode* parent, const char* tagname) : 
+        CXmlNamedItem(*parent,tagname),
+        m_attributes(this)
+    {}
 
     /// @brief Constructor
     ///
     /// @param parent CXmlNode &, a parent node.
     /// @param tagname const string&, a name of XML tag
-    CXmlElement(CXmlNode& parent,const std::string& tagname)
-            : CXmlNamedItem(parent,tagname), m_attributes(this) {}
+    CXmlElement(CXmlNode& parent, const std::string& tagname) : 
+        CXmlNamedItem(parent,tagname),
+        m_attributes(this)
+    {}
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const {
+    virtual CXmlNodeType type() const
+    {
         return DOM_ELEMENT;
     }
 
     /// @brief Returns the first subnode iterator
-    virtual iterator begin() {
+    virtual iterator begin()
+    {
         return m_nodes.begin();
     }
 
     /// @brief Returns the first subnode const iterator
-    virtual const_iterator begin() const {
+    virtual const_iterator begin() const
+    {
         return m_nodes.begin();
     }
 
     /// @brief Returns the end subnode iterator
-    virtual iterator end() {
+    virtual iterator end()
+    {
         return m_nodes.end();
     }
 
     /// @brief Returns the end subnode const iterator
-    virtual const_iterator end() const {
+    virtual const_iterator end() const
+    {
         return m_nodes.end();
     }
 
     /// @brief Returns a number of subnodes
-    virtual uint32_t size() const {
+    virtual uint32_t size() const
+    {
         return (uint32_t) m_nodes.size();
     }
 
     /// @brief Returns true if node has no subnodes of subnodes
-    virtual bool empty() const {
+    virtual bool empty() const
+    {
         return m_nodes.empty();
     }
 
@@ -125,7 +142,7 @@ public:
     ///
     /// @param pos iterator, insert position with the list of subnodes
     /// @param node CXmlNode*, node to insert
-    virtual void insert(iterator pos,CXmlNode* node);
+    virtual void insert(iterator pos, CXmlNode* node);
 
     /// @brief Removes a subnode
     ///
@@ -151,23 +168,27 @@ public:
     virtual void clear();
 
     /// @brief Returns referrence to node attributes
-    virtual CXmlAttributes& attributes() {
+    virtual CXmlAttributes& attributes()
+    {
         return m_attributes;
     }
 
     /// @brief Returns referrence to node attributes (const version)
-    virtual const CXmlAttributes& attributes() const {
+    virtual const CXmlAttributes& attributes() const
+    {
         return m_attributes;
     }
 
     /// Returns true, if node has any attributes
-    virtual bool hasAttributes() const {
+    virtual bool hasAttributes() const
+    {
         return m_attributes.size() != 0;
     }
 
     /// Returns true, if given attribute is found
     /// @param attr const char *, attribute to search
-    virtual bool hasAttribute(const char *attr) const {
+    virtual bool hasAttribute(const char *attr) const
+    {
         return m_attributes.hasAttribute(attr);
     }
 
@@ -176,7 +197,8 @@ public:
     /// @param attr std::string, name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
     /// @returns attribute value
-    virtual CXmlValue getAttribute(std::string attr,const char *defaultValue="") const {
+    virtual CXmlValue getAttribute(std::string attr, const char *defaultValue="") const
+    {
         return m_attributes.getAttribute(attr,defaultValue);
     }
 
@@ -185,7 +207,8 @@ public:
     /// @param attr const char*, attribute name
     /// @param value CXmlValue, attribute value
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    virtual void setAttribute(const char *attr, CXmlValue value,const char *defaultValue="") {
+    virtual void setAttribute(const char *attr, CXmlValue value, const char *defaultValue="")
+    {
         m_attributes.setAttribute(attr,value,defaultValue);
     }
 
@@ -194,7 +217,8 @@ public:
     /// @param attr const string&, an attribute name
     /// @param value CXmlValue, attribute value
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    virtual void setAttribute(const std::string& attr, CXmlValue value,const char *defaultValue="") {
+    virtual void setAttribute(const std::string& attr, CXmlValue value, const char *defaultValue="")
+    {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
     }
 };

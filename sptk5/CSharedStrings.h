@@ -40,7 +40,8 @@ namespace sptk {
 ///
 /// Contains a table of shared strings for the use with different objects
 /// such as XML node, ListView, etc
-class CSharedStrings {
+class SP_EXPORT CSharedStrings
+{
     typedef std::map<std::string, int> CSIMap; ///< String to int map type
     CSIMap m_stringIdMap; ///< Map of shared strings and reference counters
 public:
@@ -48,7 +49,8 @@ public:
     CSharedStrings();
 
     /// @brief Destructor
-    ~CSharedStrings() {
+    ~CSharedStrings()
+    {
         clear();
     }
 
@@ -68,7 +70,8 @@ public:
     /// For an existing shared string, every call of this method encreases string
     /// reference counter by one
     /// @param str const std::string&, a string to share
-    const std::string& shareString(const std::string& str) {
+    const std::string& shareString(const std::string& str) 
+    {
         return shareString(str.c_str());
     }
 
@@ -88,7 +91,8 @@ public:
     /// the string is removed from SST. If the string doesn't exist,
     /// the exception is thrown.
     /// @param str const std::string&, a string to release
-    void releaseString(const std::string& str) throw(std::exception) {
+    void releaseString(const std::string& str) throw(std::exception)
+    {
         releaseString(str.c_str());
     }
 

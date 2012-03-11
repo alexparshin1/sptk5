@@ -47,13 +47,16 @@ typedef std::vector<CXmlNode *> CXmlNodeVector;
 ///
 /// The CXmlNodeList interface provides the an ordered collection of nodes,
 /// The items in the NodeList are accessible via an integral index, starting from 0.
-class CXmlNodeList : public CXmlNodeVector {
+class SP_EXPORT CXmlNodeList : public CXmlNodeVector 
+{
 public:
     /// @brief Constructor
-    CXmlNodeList() {}
+    CXmlNodeList()
+    {}
 
     /// @brief Destructor
-    ~CXmlNodeList() {
+    ~CXmlNodeList()
+    {
         clear();
     }
 

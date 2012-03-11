@@ -38,44 +38,44 @@ namespace sptk {
 /// @{
 
 /// Converts string to upper case
-std::string upperCase(const std::string& str);
+std::string SP_EXPORT upperCase(const std::string& str);
 
 /// Converts string to lower case
-std::string lowerCase(const std::string& str);
+std::string SP_EXPORT lowerCase(const std::string& str);
 
 /// Trims string to remove leading and trailing spaces
-std::string trim(const std::string& str);
+std::string SP_EXPORT trim(const std::string& str);
 
 /// Converts int32_t to string
-std::string int2string(int32_t);
+std::string SP_EXPORT int2string(int32_t);
 
 /// Converts uint32_t to string
-std::string int2string(uint32_t);
+std::string SP_EXPORT int2string(uint32_t);
 
 /// Converts uint64_t to string
-std::string int2string(int64_t);
+std::string SP_EXPORT int2string(int64_t);
 
 /// Converts uint64_t to string
-std::string int2string(uint64_t);
+std::string SP_EXPORT int2string(uint64_t);
 
 /// Converts string to integer. The optional default value is used
 /// for unsuccessful conversion
-int string2int(const std::string& str,int defaultValue=0);
+int SP_EXPORT string2int(const std::string& str,int defaultValue=0);
 
 /// Replaces all the pattern in str with replacement
-std::string replaceAll(const std::string& str,const std::string& pattern,const std::string& replacement);
+std::string SP_EXPORT replaceAll(const std::string& str,const std::string& pattern,const std::string& replacement);
 
 /// Capitalizes all the words in string
-std::string capitalizeWords(const std::string& str);
+std::string SP_EXPORT capitalizeWords(const std::string& str);
 
 /// Converts a string vector into CSV string
-void join(std::string& dest, const std::vector<std::string> src, std::string separator);
+void SP_EXPORT join(std::string& dest, const std::vector<std::string> src, std::string separator);
 
 /// Converts a CSV string into string vector
-void split(std::vector<std::string> dest, const std::string& src, std::string separator);
+void SP_EXPORT split(std::vector<std::string> dest, const std::string& src, std::string separator);
 
 /// Converts a CSV string into string vector
-void stringToStringVector(const std::string& src,std::vector<std::string> dest,std::string delimitter);
+void SP_EXPORT stringToStringVector(const std::string& src,std::vector<std::string> dest,std::string delimitter);
 
 /// @}
 

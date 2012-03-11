@@ -38,7 +38,7 @@ namespace sptk {
 /// @{
 
 /// @brief Thread event interface
-class CThreadEvent
+class SP_EXPORT CThreadEvent
 {
 public:
     /// @brief Thread event type

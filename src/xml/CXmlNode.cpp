@@ -33,12 +33,33 @@
 using namespace std;
 using namespace sptk;
 
-const string CXmlNode::emptyString;
-const string CXmlText::nodeNameString("#text");
-const string CXmlComment::nodeNameString("#comment");
-const string CXmlCDataSection::nodeNameString("#cdata-section");
+/// An empty string to use as a stub for value()
+static const std::string emptyString;
+static const string indentsString(1024,' ');
 
-CXmlNodeList CXmlNode::emptyNodes;
+/// An empty nodes set to emulate a set of stub iterators
+static CXmlNodeList emptyNodes;
+
+const std::string& CXmlNode::value() const 
+{
+    return emptyString;
+}
+
+CXmlNode::iterator CXmlNode::begin() {
+    return emptyNodes.end();
+}
+
+CXmlNode::const_iterator CXmlNode::begin() const {
+    return emptyNodes.end();
+}
+
+CXmlNode::iterator CXmlNode::end() {
+    return emptyNodes.end();
+}
+
+CXmlNode::const_iterator CXmlNode::end() const {
+    return emptyNodes.end();
+}
 
 void CXmlNode::parent(CXmlNode *p) {
     if (m_parent == p) return;
@@ -290,7 +311,7 @@ void CXmlNode::text(std::string txt) {
 void CXmlNode::save(CBuffer &buffer, int indent) const {
     // output indendation spaces
     if (indent > 0)
-        buffer.append(CXmlDoc::indentsString.c_str(),indent);
+        buffer.append(indentsString.c_str(),indent);
 
     if (type() == DOM_ELEMENT) {
         // Output tag name
@@ -360,14 +381,14 @@ void CXmlNode::save(CBuffer &buffer, int indent) const {
                 if (only_cdata)
                     np->save(buffer, -1);
                 else {
-                    np->save(buffer, indent + CXmlDoc::indentSpaces());
+                    np->save(buffer, indent + m_document->indentSpaces());
                     if (buffer.data()[buffer.bytes()-1] != '\n')
                         buffer.append('\n');
                 }
             }
             // output indendation spaces
             if (!only_cdata && indent > 0)
-                buffer.append(CXmlDoc::indentsString.c_str(),indent);
+                buffer.append(indentsString.c_str(),indent);
 
             // output closing tag
             buffer.append("</",2);
@@ -403,6 +424,10 @@ CXmlNode *CXmlNode::findOrCreate(std::string aname,bool recursively) {
     CXmlNode *node = findFirst(aname,recursively);
     if (node) return node;
     return new CXmlElement(*this,aname);
+}
+
+const std::string& CXmlBaseTextNode::nodeName() const {
+    return emptyString;
 }
 
 void CXmlNamedItem::name(const std::string& name) {
@@ -454,3 +479,17 @@ void CXmlPI::name(const char *name) {
     m_name = &document()->shareString(name);
 }
 
+const std::string& CXmlComment::nodeName() const {
+    static const string nodeNameString("#comment");
+    return nodeNameString;
+}
+
+const std::string& CXmlText::nodeName() const {
+    static const string nodeNameString("#text");
+    return nodeNameString;
+}
+
+const std::string& CXmlCDataSection::nodeName() const {
+    static const string nodeNameString("#cdata-section");
+    return nodeNameString;
+}
