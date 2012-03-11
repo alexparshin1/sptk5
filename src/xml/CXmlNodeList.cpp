@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -33,73 +33,78 @@
 using namespace std;
 using namespace sptk;
 
-void CXmlNodeList::clear() {
+void CXmlNodeList::clear()
+{
     for (iterator itor = begin(); itor != end(); itor++)
         delete *itor;
     CXmlNodeVector::clear();
 }
 /*
-void CXmlNodeList::replace(uint32_t pos, CXmlNode *item) {
-    if (pos < size()) {
-        iterator itor = begin()+pos;
-        delete *itor;
-        *itor = item;
-    }
-}
+ void CXmlNodeList::replace(uint32_t pos, CXmlNode *item) {
+ if (pos < size()) {
+ iterator itor = begin()+pos;
+ delete *itor;
+ *itor = item;
+ }
+ }
 
-void CXmlNodeList::remove(uint32_t pos) {
-    if (pos < size()) {
-        iterator itor = begin()+pos;
-        delete *itor;
-        erase(itor);
-    }
-}
+ void CXmlNodeList::remove(uint32_t pos) {
+ if (pos < size()) {
+ iterator itor = begin()+pos;
+ delete *itor;
+ erase(itor);
+ }
+ }
 
-bool CXmlNodeList::remove(CXmlNode *item) {
-    iterator itor = std::find(begin(),end(),item);
-    if (itor == end())
-        return false;
-    delete *itor;
-    erase(itor);
-    return true;
-}
-*/
+ bool CXmlNodeList::remove(CXmlNode *item) {
+ iterator itor = std::find(begin(),end(),item);
+ if (itor == end())
+ return false;
+ delete *itor;
+ erase(itor);
+ return true;
+ }
+ */
 
-CXmlNodeList::iterator CXmlNodeList::findFirst(const char* nodeName) {
+CXmlNodeList::iterator CXmlNodeList::findFirst(const char* nodeName)
+{
     iterator itor;
     for (itor = begin(); itor != end(); itor++) {
         CXmlNode *anode = *itor;
-        if (anode->name() == nodeName) 
+        if (anode->name() == nodeName)
             break;
     }
     return itor;
 }
 
-CXmlNodeList::iterator CXmlNodeList::findFirst(const string& nodeName) {
+CXmlNodeList::iterator CXmlNodeList::findFirst(const string& nodeName)
+{
     iterator itor;
     for (itor = begin(); itor != end(); itor++) {
         CXmlNode *anode = *itor;
-        if (anode->name() == nodeName) 
+        if (anode->name() == nodeName)
             break;
     }
     return itor;
 }
 
-CXmlNodeList::const_iterator CXmlNodeList::findFirst(const char* nodeName) const {
+CXmlNodeList::const_iterator CXmlNodeList::findFirst(const char* nodeName) const
+{
     const_iterator itor;
     for (itor = begin(); itor != end(); itor++) {
         CXmlNode *anode = *itor;
-        if (anode->name() == nodeName) 
+        if (anode->name() == nodeName)
             break;
     }
     return itor;
 }
 
-CXmlNodeList::const_iterator CXmlNodeList::findFirst(const string& nodeName) const {
+CXmlNodeList::const_iterator CXmlNodeList::findFirst(const string& nodeName) const
+{
     const_iterator itor;
     for (itor = begin(); itor != end(); itor++) {
         CXmlNode *anode = *itor;
-        if (anode->name() == nodeName) 
+        if (anode->name() == nodeName)
             break;
     }
     return itor;

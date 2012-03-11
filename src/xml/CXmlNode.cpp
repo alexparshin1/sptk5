@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -35,34 +35,40 @@ using namespace sptk;
 
 /// An empty string to use as a stub for value()
 static const std::string emptyString;
-static const string indentsString(1024,' ');
+static const string indentsString(1024, ' ');
 
 /// An empty nodes set to emulate a set of stub iterators
 static CXmlNodeList emptyNodes;
 
-const std::string& CXmlNode::value() const 
+const std::string& CXmlNode::value() const
 {
     return emptyString;
 }
 
-CXmlNode::iterator CXmlNode::begin() {
+CXmlNode::iterator CXmlNode::begin()
+{
     return emptyNodes.end();
 }
 
-CXmlNode::const_iterator CXmlNode::begin() const {
+CXmlNode::const_iterator CXmlNode::begin() const
+{
     return emptyNodes.end();
 }
 
-CXmlNode::iterator CXmlNode::end() {
+CXmlNode::iterator CXmlNode::end()
+{
     return emptyNodes.end();
 }
 
-CXmlNode::const_iterator CXmlNode::end() const {
+CXmlNode::const_iterator CXmlNode::end() const
+{
     return emptyNodes.end();
 }
 
-void CXmlNode::parent(CXmlNode *p) {
-    if (m_parent == p) return;
+void CXmlNode::parent(CXmlNode *p)
+{
+    if (m_parent == p)
+        return;
     if (m_parent)
         m_parent->unlink(p);
 
@@ -72,7 +78,8 @@ void CXmlNode::parent(CXmlNode *p) {
         m_parent->push_back(this);
 }
 
-static void parsePathElement(CXmlDoc* document,const string& pathElementStr,CXPathElement& pathElement) {
+static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CXPathElement& pathElement)
+{
     pathElement.elementName = NULL;
     pathElement.attributeName = NULL;
     pathElement.axis = XPA_CHILD;
@@ -87,27 +94,26 @@ static void parsePathElement(CXmlDoc* document,const string& pathElementStr,CXPa
             pathElementName = pathElementStr;
             pathElement.criteria.clear();
         } else {
-            pathElementName = pathElementStr.substr(0,bracketPosition);
-            pathElement.criteria = pathElementStr.substr(bracketPosition+1,backBracketPosition-bracketPosition-1);
+            pathElementName = pathElementStr.substr(0, bracketPosition);
+            pathElement.criteria = pathElementStr.substr(bracketPosition + 1, backBracketPosition - bracketPosition - 1);
         }
     }
 
     size_t pos = pathElementName.find("::");
     if (pos != string::npos) {
-        if (pos == 10 && pathElementName.compare(0,12,"descendant::") == 0)
+        if (pos == 10 && pathElementName.compare(0, 12, "descendant::") == 0)
             pathElement.axis = XPA_DESCENDANT;
-        else
-            if (pos == 6 && pathElementName.compare(0,8,"parent::") == 0)
-                pathElement.axis = XPA_DESCENDANT;
-        pathElementName.erase(0,pos+2);
+        else if (pos == 6 && pathElementName.compare(0, 8, "parent::") == 0)
+            pathElement.axis = XPA_DESCENDANT;
+        pathElementName.erase(0, pos + 2);
     }
 
-    if (pathElementName[0] == '@') 
-        pathElement.attributeName = &document->shareString(pathElementName.c_str()+1);
+    if (pathElementName[0] == '@')
+        pathElement.attributeName = &document->shareString(pathElementName.c_str() + 1);
     else
         pathElement.elementName = &document->shareString(pathElementName.c_str());
 
-    string& criteria  = pathElement.criteria;
+    string& criteria = pathElement.criteria;
     int& nodePosition = pathElement.nodePosition;
 
     if (!criteria.empty()) {
@@ -121,11 +127,11 @@ static void parsePathElement(CXmlDoc* document,const string& pathElementStr,CXPa
                 if (pos == string::npos)
                     pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
                 else {
-                    pathElement.attributeName = &document->shareString(criteria.substr(1,pos-1));
-                    if (criteria[pos+1] == '\'' || criteria[pos+1] == '"')
-                        pathElement.attributeValue = criteria.substr(pos+2,criteria.length()-(pos+3));
+                    pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
+                    if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
+                        pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
                     else
-                        pathElement.attributeValue = criteria.substr(pos+1,criteria.length()-(pos+1));
+                        pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
                     pathElement.attributeValueDefined = true;
                 }
             }
@@ -133,7 +139,9 @@ static void parsePathElement(CXmlDoc* document,const string& pathElementStr,CXPa
     }
 }
 
-bool CXmlNode::matchPathElement(const CXPathElement& pathElement,int nodePosition,const string* starPointer,bool& nameMatches,bool& positionMatches) {
+bool CXmlNode::matchPathElement(const CXPathElement& pathElement, int nodePosition, const string* starPointer,
+        bool& nameMatches, bool& positionMatches)
+{
     if (pathElement.elementName && pathElement.elementName != starPointer && !nameIs(pathElement.elementName))
         return false;
 
@@ -155,10 +163,10 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement,int nodePositio
                         break;
                     }
                 }
-            } else 
+            } else
                 attributeMatch = attributes.getAttribute(*pathElement.attributeName) == pathElement.attributeValue;
         } else {
-            if (pathElement.attributeName == starPointer) 
+            if (pathElement.attributeName == starPointer)
                 attributeMatch = hasAttributes();
             else
                 attributeMatch = hasAttribute(pathElement.attributeName->c_str());
@@ -171,7 +179,9 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement,int nodePositio
 #endif
 }
 
-void CXmlNode::scanDescendents(CXmlNodeVector& nodes,const std::vector<CXPathElement>& pathElements,int pathPosition,const std::string* starPointer) {
+void CXmlNode::scanDescendents(CXmlNodeVector& nodes, const std::vector<CXPathElement>& pathElements, int pathPosition,
+        const std::string* starPointer)
+{
     const CXPathElement& pathElement = pathElements[pathPosition];
     CXmlNode* lastNode = 0;
     int currentPosition = 1;
@@ -179,32 +189,34 @@ void CXmlNode::scanDescendents(CXmlNodeVector& nodes,const std::vector<CXPathEle
         CXmlNode* node = *itor;
         bool nameMatches;
         bool positionMatches;
-        if (node->matchPathElement(pathElement,currentPosition,starPointer,nameMatches,positionMatches)) {
+        if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
             currentPosition++;
-            node->matchNode(nodes,pathElements,pathPosition,starPointer);
+            node->matchNode(nodes, pathElements, pathPosition, starPointer);
         } else {
             if (nameMatches)
                 currentPosition++;
             if (pathElement.nodePosition < 0 && nameMatches)
                 lastNode = node;
         }
-        if (node->type() & (DOM_DOCUMENT|DOM_ELEMENT))
-            node->scanDescendents(nodes,pathElements,pathPosition,starPointer);
+        if (node->type() & (DOM_DOCUMENT | DOM_ELEMENT))
+            node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
     }
     if (lastNode)
-        lastNode->matchNode(nodes,pathElements,pathPosition,starPointer);
+        lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
 }
 
-void CXmlNode::matchNode(CXmlNodeVector& nodes,const vector<CXPathElement>& pathElements,int pathPosition,const std::string* starPointer) {
+void CXmlNode::matchNode(CXmlNodeVector& nodes, const vector<CXPathElement>& pathElements, int pathPosition,
+        const std::string* starPointer)
+{
     pathPosition++;
     if (pathPosition == (int) pathElements.size()) {
         const CXPathElement& pathElement = pathElements[pathPosition - 1];
         if (pathElement.elementName)
-            nodes.insert(nodes.end(),this);
+            nodes.insert(nodes.end(), this);
         else if (pathElement.attributeName) {
             CXmlAttribute* attributeNode = attributes().getAttributeNode(*pathElement.attributeName);
             if (attributeNode)
-                nodes.insert(nodes.end(),attributeNode);
+                nodes.insert(nodes.end(), attributeNode);
         }
         return;
     }
@@ -218,39 +230,41 @@ void CXmlNode::matchNode(CXmlNodeVector& nodes,const vector<CXPathElement>& path
         bool nameMatches;
         bool positionMatches;
         string nodeName = node->name();
-        if (node->matchPathElement(pathElement,currentPosition,starPointer,nameMatches,positionMatches)) {
+        if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
             currentPosition++;
-            node->matchNode(nodes,pathElements,pathPosition,starPointer);
+            node->matchNode(nodes, pathElements, pathPosition, starPointer);
         } else if (pathElement.nodePosition < 0 && nameMatches)
             lastNode = node;
         if (pathElement.axis == XPA_DESCENDANT)
-            node->scanDescendents(nodes,pathElements,pathPosition,starPointer);
+            node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
     }
     if (lastNode)
-        lastNode->matchNode(nodes,pathElements,pathPosition,starPointer);
+        lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
 }
 
-void CXmlNode::select(CXmlNodeVector& nodes,string xpath) {
+void CXmlNode::select(CXmlNodeVector& nodes, string xpath)
+{
     const char* ptr;
     nodes.clear();
 
-    xpath = replaceAll(xpath,"//","/descendant::");
+    xpath = replaceAll(xpath, "//", "/descendant::");
 
     if (xpath[0] == '/')
-            ptr = xpath.c_str() + 1;
+        ptr = xpath.c_str() + 1;
     else
-            ptr = xpath.c_str();
+        ptr = xpath.c_str();
 
-    CStrings pathElementStrs(ptr,"/");
-    vector<CXPathElement>   pathElements(pathElementStrs.size());
+    CStrings pathElementStrs(ptr, "/");
+    vector<CXPathElement> pathElements(pathElementStrs.size());
     for (unsigned i = 0; i < pathElements.size(); i++)
-            parsePathElement(document(),pathElementStrs[i],pathElements[i]);
+        parsePathElement(document(), pathElementStrs[i], pathElements[i]);
 
     const string* starPointer = &document()->shareString("*");
-    matchNode(nodes,pathElements,-1,starPointer);
+    matchNode(nodes, pathElements, -1, starPointer);
 }
 
-void CXmlNode::copy(const CXmlNode& node) {
+void CXmlNode::copy(const CXmlNode& node)
+{
     name(node.name());
     value(node.value());
     if (isElement() && node.isElement()) {
@@ -261,23 +275,24 @@ void CXmlNode::copy(const CXmlNode& node) {
     const_iterator iend = node.end();
     for (; itor != iend; itor++) {
         const CXmlNode* node = *itor;
-        switch (node->type()) {
+        switch (node->type())
+        {
         case DOM_ELEMENT: {
-            CXmlNode* element = new CXmlElement(this,"");
+            CXmlNode* element = new CXmlElement(this, "");
             element->copy(*node);
         }
-        break;
+            break;
         case DOM_PI:
-            new CXmlPI(*this,node->name(),node->value());
+            new CXmlPI(*this, node->name(), node->value());
             break;
         case DOM_TEXT:
-            new CXmlText(*this,node->value());
+            new CXmlText(*this, node->value());
             break;
         case DOM_CDATA_SECTION:
-            new CXmlCDataSection(*this,node->value());
+            new CXmlCDataSection(*this, node->value());
             break;
         case DOM_COMMENT:
-            new CXmlComment(*this,node->value());
+            new CXmlComment(*this, node->value());
             break;
         default:
             break;
@@ -285,17 +300,18 @@ void CXmlNode::copy(const CXmlNode& node) {
     }
 }
 
-std::string CXmlNode::text() const {
+std::string CXmlNode::text() const
+{
     std::string ret;
 
-    if (type() & (DOM_TEXT|DOM_CDATA_SECTION))
+    if (type() & (DOM_TEXT | DOM_CDATA_SECTION))
         ret += value();
     else {
         const_iterator itor = begin();
         const_iterator iend = end();
-        for (; itor != iend; itor++ ) {
+        for (; itor != iend; itor++) {
             CXmlNode *np = *itor;
-            if (np->type() & (DOM_TEXT|DOM_CDATA_SECTION))
+            if (np->type() & (DOM_TEXT | DOM_CDATA_SECTION))
                 ret += np->value();
         }
     }
@@ -303,15 +319,17 @@ std::string CXmlNode::text() const {
     return ret;
 }
 
-void CXmlNode::text(std::string txt) {
+void CXmlNode::text(std::string txt)
+{
     clearChildren();
-    new CXmlText(*this,txt);
+    new CXmlText(*this, txt);
 }
 
-void CXmlNode::save(CBuffer &buffer, int indent) const {
+void CXmlNode::save(CBuffer &buffer, int indent) const
+{
     // output indendation spaces
     if (indent > 0)
-        buffer.append(indentsString.c_str(),indent);
+        buffer.append(indentsString.c_str(), indent);
 
     if (type() == DOM_ELEMENT) {
         // Output tag name
@@ -321,9 +339,7 @@ void CXmlNode::save(CBuffer &buffer, int indent) const {
         if (attributes.size()) {
             // Output attributes
             CBuffer real_id, real_val;
-            for (CXmlAttributes::const_iterator it = attributes.begin(); 
-                it != attributes.end(); it++) 
-            {
+            for (CXmlAttributes::const_iterator it = attributes.begin(); it != attributes.end(); it++) {
                 CXmlNode* attributeNode = *it;
                 real_id.bytes(0);
                 real_val.bytes(0);
@@ -342,7 +358,8 @@ void CXmlNode::save(CBuffer &buffer, int indent) const {
     }
 
     // depending on the nodetype, do output
-    switch (type()) {
+    switch (type())
+    {
     case DOM_PI:
         buffer.append("<?" + std::string(name()) + " " + value() + "?>\n");
         break;
@@ -367,12 +384,12 @@ void CXmlNode::save(CBuffer &buffer, int indent) const {
             const_iterator itor = begin();
             const_iterator iend = end();
             CXmlNode *nd = *itor;
-            if (size()==1 && nd->type() == DOM_TEXT) {
+            if (size() == 1 && nd->type() == DOM_TEXT) {
                 only_cdata = true;
                 buffer.append('>');
             } else {
                 only_cdata = false;
-                buffer.append(">\n",2);
+                buffer.append(">\n", 2);
             }
 
             // output all subnodes
@@ -382,114 +399,134 @@ void CXmlNode::save(CBuffer &buffer, int indent) const {
                     np->save(buffer, -1);
                 else {
                     np->save(buffer, indent + m_document->indentSpaces());
-                    if (buffer.data()[buffer.bytes()-1] != '\n')
+                    if (buffer.data()[buffer.bytes() - 1] != '\n')
                         buffer.append('\n');
                 }
             }
             // output indendation spaces
             if (!only_cdata && indent > 0)
-                buffer.append(indentsString.c_str(),indent);
+                buffer.append(indentsString.c_str(), indent);
 
             // output closing tag
-            buffer.append("</",2);
+            buffer.append("</", 2);
             buffer.append(name());
-            buffer.append(">\n",2);
+            buffer.append(">\n", 2);
 
         } else {
             //LEAF
-            buffer.append("/>\n",3);
+            buffer.append("/>\n", 3);
         }
     }
-    break;
+        break;
 
     default: // unknown nodetype
         break;
     }
 }
 
-CXmlNode *CXmlNode::findFirst(std::string aname,bool recursively) const {
+CXmlNode *CXmlNode::findFirst(std::string aname, bool recursively) const
+{
     for (const_iterator itor = begin(); itor != end(); itor++) {
         CXmlNode *node = *itor;
         if (node->name() == aname)
             return node;
         if (recursively && node->size()) {
-            CXmlNode *cnode = node->findFirst(aname,true);
-            if (cnode) return cnode;
+            CXmlNode *cnode = node->findFirst(aname, true);
+            if (cnode)
+                return cnode;
         }
     }
     return 0L;
 }
 
-CXmlNode *CXmlNode::findOrCreate(std::string aname,bool recursively) {
-    CXmlNode *node = findFirst(aname,recursively);
-    if (node) return node;
-    return new CXmlElement(*this,aname);
+CXmlNode *CXmlNode::findOrCreate(std::string aname, bool recursively)
+{
+    CXmlNode *node = findFirst(aname, recursively);
+    if (node)
+        return node;
+    return new CXmlElement(*this, aname);
 }
 
-const std::string& CXmlBaseTextNode::nodeName() const {
+const std::string& CXmlBaseTextNode::nodeName() const
+{
     return emptyString;
 }
 
-void CXmlNamedItem::name(const std::string& name) {
+void CXmlNamedItem::name(const std::string& name)
+{
     m_name = &document()->shareString(name.c_str());
 }
 
-void CXmlNamedItem::name(const char *name) {
+void CXmlNamedItem::name(const char *name)
+{
     m_name = &document()->shareString(name);
 }
 
-void CXmlElement::insert(iterator itor,CXmlNode* node) {
-    m_nodes.insert(itor,node);
+void CXmlElement::insert(iterator itor, CXmlNode* node)
+{
+    m_nodes.insert(itor, node);
     node->m_parent = this;
 }
 
-void CXmlElement::push_back(CXmlNode* node) {
-    m_nodes.insert(m_nodes.end(),node);
+void CXmlElement::push_back(CXmlNode* node)
+{
+    m_nodes.insert(m_nodes.end(), node);
     node->m_parent = this;
 }
 
-void CXmlElement::unlink(CXmlNode* node) {
-    iterator itor = find(begin(),end(),node);
-    if (itor == end()) return;
+void CXmlElement::unlink(CXmlNode* node)
+{
+    iterator itor = find(begin(), end(), node);
+    if (itor == end())
+        return;
     m_nodes.erase(itor);
 }
 
-void CXmlElement::remove(CXmlNode* node) {
-    iterator itor = find(begin(),end(),node);
-    if (itor == end()) return;
+void CXmlElement::remove(CXmlNode* node)
+{
+    iterator itor = find(begin(), end(), node);
+    if (itor == end())
+        return;
     delete *itor;
     m_nodes.erase(itor);
 }
 
-void CXmlElement::clearChildren() {
+void CXmlElement::clearChildren()
+{
     m_nodes.clear();
 }
 
-void CXmlElement::clear() {
+void CXmlElement::clear()
+{
     CXmlNode::clear();
     m_nodes.clear();
     m_attributes.clear();
 }
 
-void CXmlPI::name(const std::string& name) {
+void CXmlPI::name(const std::string& name)
+{
     m_name = &document()->shareString(name.c_str());
 }
 
-void CXmlPI::name(const char *name) {
+void CXmlPI::name(const char *name)
+{
     m_name = &document()->shareString(name);
 }
 
-const std::string& CXmlComment::nodeName() const {
+const std::string& CXmlComment::nodeName() const
+{
     static const string nodeNameString("#comment");
     return nodeNameString;
 }
 
-const std::string& CXmlText::nodeName() const {
+const std::string& CXmlText::nodeName() const
+{
     static const string nodeNameString("#text");
     return nodeNameString;
 }
 
-const std::string& CXmlCDataSection::nodeName() const {
+const std::string& CXmlCDataSection::nodeName() const
+{
     static const string nodeNameString("#cdata-section");
     return nodeNameString;
 }

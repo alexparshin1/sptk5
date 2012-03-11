@@ -4,7 +4,7 @@
                              -------------------
     begin                : Wed June 21 2006
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -95,21 +95,6 @@ public:
 
 class CXmlNode;
 class CXmlDoc;
-/*
-/// @brief Custom compare attributes method
-struct less_attr : public std::binary_function<const char*,const char*,bool> {
-    /// @brief Compares two strings
-    /// @returns true if s1 < s2
-    bool operator() (const char* s1,const char* s2) const {
-        return strcmp(s1,s2) < 0;
-    }
-};
-
-/// @brief The map of character strings to attributes
-///
-/// Designed to be used together with SST (Shared Strings Table)
-typedef std::map<const char*,CXmlAttribute,less_attr> CXmlAttributeMap;
-*/
 
 /// @brief XML node attributes
 ///

@@ -4,7 +4,7 @@
                              -------------------
     begin                : Wed June 21 2006
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -31,7 +31,7 @@
 using namespace sptk;
 
 CXmlAttribute::CXmlAttribute(CXmlElement* parent, const char* tagname, CXmlValue avalue) :
-    CXmlNamedItem(*parent->document())
+        CXmlNamedItem(*parent->document())
 {
     name(tagname);
     value(avalue);
@@ -39,7 +39,7 @@ CXmlAttribute::CXmlAttribute(CXmlElement* parent, const char* tagname, CXmlValue
 }
 
 CXmlAttribute::CXmlAttribute(CXmlElement* parent, const std::string& tagname, CXmlValue avalue) :
-    CXmlNamedItem(*parent->document())
+        CXmlNamedItem(*parent->document())
 {
     name(tagname);
     value(avalue);

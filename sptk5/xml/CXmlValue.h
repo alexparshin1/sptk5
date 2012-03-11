@@ -3,7 +3,7 @@
                           CXmlValue.h  -  description
                              -------------------
     begin                : Wed June 21 2006
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -42,105 +42,123 @@ class CXmlDoc;
 /// @brief XML value
 ///
 /// A string that has converters to and from most popular types
-class SP_EXPORT CXmlValue : public std::string {
-
+class SP_EXPORT CXmlValue: public std::string
+{
 public:
     /// @brief Default constructor
     ///
     /// Creates an empty XML attribute
-    CXmlValue() {}
+    CXmlValue()
+    {
+    }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from character string
-    CXmlValue(const char *v) : std::string(v) {}
+    CXmlValue(const char *v) :
+            std::string(v)
+    {
+    }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from std::string
-    CXmlValue(std::string v) : std::string(v) {}
-
-    /// @brief Constructor
-    ///
-    /// Creates an XML attribute from integer
-    CXmlValue(int32_t v) {
-        operator = (v);
+    CXmlValue(std::string v) :
+            std::string(v)
+    {
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from integer
-    CXmlValue(uint32_t v) {
-        operator = (v);
+    CXmlValue(int32_t v)
+    {
+        operator =(v);
+    }
+
+    /// @brief Constructor
+    ///
+    /// Creates an XML attribute from integer
+    CXmlValue(uint32_t v)
+    {
+        operator =(v);
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from int32_t
-    CXmlValue(int64_t v)        {
-        operator = (v);
+    CXmlValue(int64_t v)
+    {
+        operator =(v);
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from uint32_t
-    CXmlValue(uint64_t v) {
-        operator = (v);
+    CXmlValue(uint64_t v)
+    {
+        operator =(v);
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from double
-    CXmlValue(double v) {
-        operator = (v);
+    CXmlValue(double v)
+    {
+        operator =(v);
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from bool
-    CXmlValue(bool v) {
-        operator = (v);
+    CXmlValue(bool v)
+    {
+        operator =(v);
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from CDateTime
-    CXmlValue(CDateTime v) : std::string(v) {}
+    CXmlValue(CDateTime v) :
+            std::string(v)
+    {
+    }
 
     /// @brief Assignment of the value
     ///
     /// @param v bool, a new value
-    CXmlValue& operator = (bool v);
+    CXmlValue& operator =(bool v);
 
     /// @brief Assignment of the value
     ///
     /// @param v int32_t, a new value
-    CXmlValue& operator = (int32_t v);
+    CXmlValue& operator =(int32_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v uint32_t, a new value
-    CXmlValue& operator = (uint32_t v);
+    CXmlValue& operator =(uint32_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v int64_t, a new value
-    CXmlValue& operator = (int64_t v);
+    CXmlValue& operator =(int64_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v int64_t, a new value
-    CXmlValue& operator = (uint64_t v);
+    CXmlValue& operator =(uint64_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v double, a new value
-    CXmlValue& operator = (double v);
+    CXmlValue& operator =(double v);
 
     /// @brief Assignment of the value
     ///
     /// @param s const std::string, a new value
-    CXmlValue& operator = (const std::string& s) {
+    CXmlValue& operator =(const std::string& s)
+    {
         assign(s);
         return *this;
     }
@@ -148,7 +166,8 @@ public:
     /// @brief Assignment of the value
     ///
     /// @param s const char *, a new value
-    CXmlValue& operator = (const char *s)        {
+    CXmlValue& operator =(const char *s)
+    {
         assign(s);
         return *this;
     }
@@ -156,23 +175,27 @@ public:
     /// @brief Assignment of the value
     ///
     /// @param s CDateTime, a new value
-    CXmlValue& operator = (CDateTime s)          {
+    CXmlValue& operator =(CDateTime s)
+    {
         assign(s);
         return *this;
     }
 
     /// @brief Returns the value with the conversion
-    operator uint32_t () const                  {
+    operator uint32_t() const
+    {
         return atol(c_str());
     }
 
     /// @brief Returns the value with the conversion
-    operator int32_t () const                           {
+    operator int32_t() const
+    {
         return atol(c_str());
     }
 
     /// @brief Returns the value with the conversion
-    operator uint64_t () const                  {
+    operator uint64_t() const
+    {
 #ifdef __UNIX_COMPILER__
         return atoll(c_str());
 #else
@@ -181,7 +204,8 @@ public:
     }
 
     /// @brief Returns the value with the conversion
-    operator int64_t () const                           {
+    operator int64_t() const
+    {
 #ifdef __UNIX_COMPILER__
         return atoll(c_str());
 #else
@@ -190,10 +214,11 @@ public:
     }
 
     /// @brief Returns the value with the conversion
-    operator bool () const;
+    operator bool() const;
 
     /// @brief Returns the value with the conversion
-    operator double () const                         {
+    operator double() const
+    {
         return atof(c_str());
     }
 };

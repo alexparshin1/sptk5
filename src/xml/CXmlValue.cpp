@@ -30,15 +30,17 @@
 
 using namespace sptk;
 
-CXmlValue::operator bool() const {
+CXmlValue::operator bool() const
+{
     if (empty())
         return false;
     char ch = c_str()[0];
-    const char *p = strchr("TtYy1",ch);
+    const char *p = strchr("TtYy1", ch);
     return p != 0;
 }
 
-CXmlValue& CXmlValue::operator = (bool v) {
+CXmlValue& CXmlValue::operator =(bool v)
+{
     if (v)
         assign("Y");
     else
@@ -46,45 +48,50 @@ CXmlValue& CXmlValue::operator = (bool v) {
     return *this;
 }
 
-CXmlValue& CXmlValue::operator = (int32_t v) {
+CXmlValue& CXmlValue::operator =(int32_t v)
+{
     char buff[64];
-    sprintf(buff,"%i",v);
+    sprintf(buff, "%i", v);
     assign(buff);
     return *this;
 }
 
-CXmlValue& CXmlValue::operator = (uint32_t v)  {
+CXmlValue& CXmlValue::operator =(uint32_t v)
+{
     char buff[64];
-    sprintf(buff,"%u",v);
+    sprintf(buff, "%u", v);
     assign(buff);
     return *this;
 }
 
-CXmlValue& CXmlValue::operator = (int64_t v) {
+CXmlValue& CXmlValue::operator =(int64_t v)
+{
     char buff[64];
 #if SIZEOF_LONG == 8
     sprintf(buff,"%li",v);
 #else
-    sprintf(buff,"%lli",v);
+    sprintf(buff, "%lli", v);
 #endif
     assign(buff);
     return *this;
 }
 
-CXmlValue& CXmlValue::operator = (uint64_t v)  {
+CXmlValue& CXmlValue::operator =(uint64_t v)
+{
     char buff[64];
 #if SIZEOF_LONG == 8
     sprintf(buff,"%lu",v);
 #else
-    sprintf(buff,"%llu",v);
+    sprintf(buff, "%llu", v);
 #endif
     assign(buff);
     return *this;
 }
 
-CXmlValue& CXmlValue::operator = (double v) {
+CXmlValue& CXmlValue::operator =(double v)
+{
     char buff[64];
-    sprintf(buff,"%f",v);
+    sprintf(buff, "%f", v);
     assign(buff);
     return *this;
 }

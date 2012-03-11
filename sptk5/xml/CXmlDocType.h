@@ -4,7 +4,7 @@
                              -------------------
     begin                : June 27 2006
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2006-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -44,48 +44,56 @@ namespace sptk {
 /// Represents tag <DOCTYPE ...> in XML document.
 /// It can return a map of all entities().
 /// Provides the name(), public_id() and system_id() functions.
-class CXmlDocType {
+class CXmlDocType
+{
     friend class CXmlDoc;
-    char         m_replacementBuffer[16];   ///< The buffer used to return replacement literals
-	CBuffer		 m_encodeBuffers[2];		///< Encode buffers
+    char        m_replacementBuffer[16];    ///< The buffer used to return replacement literals
+    CBuffer     m_encodeBuffers[2];		    ///< Encode buffers
 public:
 
     /// @brief Default constructor
-    CXmlDocType() {}
+    CXmlDocType()
+    {
+    }
 
     /// @brief Constructor
-    CXmlDocType(const char *name, const char *public_id=0, const char *system_id=0);
+    CXmlDocType(const char *name, const char *public_id = 0, const char *system_id = 0);
 
     /// @brief Returns the name of the document type as specified in the <!DOCTYPE name> tag
-    const std::string &name() const {
+    const std::string &name() const
+    {
         return m_name;
     }
 
     /// @brief Returns the public identifier of the external DTD subset
     ///
     /// Returns empty string if there is no public identifier
-    const std::string &publicID() const {
+    const std::string &publicID() const
+    {
         return m_public_id;
     }
 
     /// @brief Returns the system identifier of the external DTD subset.
     ///
     /// Returns empty string if there is no system identifier
-    const std::string &systemID() const {
+    const std::string &systemID() const
+    {
         return m_system_id;
     }
 
     /// @brief Returns a map of all entities described in the DTD
     ///
     /// NOTE: Map doesn't hold default entities.
-    CXmlEntities &entities() {
+    CXmlEntities &entities()
+    {
         return m_entities;
     }
 
     /// @brief Returns a map of all entities described in the DTD
     ///
     /// NOTE: Map doesn't hold default entities.
-    const CXmlEntities &entities() const {
+    const CXmlEntities &entities() const
+    {
         return m_entities;
     }
 
@@ -115,7 +123,8 @@ public:
     ///
     /// @returns true, if entity removed.
     /// @param name entity to remove
-    void removeEntity(const char *name) {
+    void removeEntity(const char *name)
+    {
         m_entities.removeEntity(name);
     }
 
@@ -124,7 +133,7 @@ public:
     /// If entity is not found, empty string is returned.
     /// @param name const char *, entity name
     /// @param replacementLength uint32_t&, the length of the replacement 
-    const char* getReplacement(const char *name,uint32_t& replacementLength);
+    const char* getReplacement(const char *name, uint32_t& replacementLength);
 
     /// @brief Adds an entity to the map
     ///
@@ -132,7 +141,8 @@ public:
     /// its value is replaced with 'replacement'
     /// @param name entity to add/change
     /// @param replacement value that represents entity
-    void setEntity(const char *name, const char *replacement) {
+    void setEntity(const char *name, const char *replacement)
+    {
         m_entities.setEntity(name, replacement);
     }
 

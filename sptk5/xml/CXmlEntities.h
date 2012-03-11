@@ -4,7 +4,7 @@
                              -------------------
     begin                : Tue Jun 27 2006
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2006-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -40,17 +40,21 @@ namespace sptk {
 /// @brief XML entities
 ///
 /// Maps an XML entity string to a presentation string.
-class CXmlEntities : public std::map<std::string,std::string> {
+class CXmlEntities: public std::map<std::string, std::string>
+{
 public:
 
     /// @brief Constructor
-    CXmlEntities() { }
+    CXmlEntities()
+    {
+    }
 
     /// @brief Removes named entity
     ///
     /// @param name const char *, entity name to remove
     /// @returns true, if operation succeeds
-    void removeEntity(const char *name) {
+    void removeEntity(const char *name)
+    {
         erase(name);
     }
 
@@ -59,7 +63,8 @@ public:
     /// If entity named 'name' exists already in map, its value is replaced with 'replacement'
     /// @param name const char *, entity to add/change
     /// @param replacement const char *, value that represents entity
-    void setEntity(const char *name, const char *replacement) {
+    void setEntity(const char *name, const char *replacement)
+    {
         (*this)[name] = replacement;
     }
 };

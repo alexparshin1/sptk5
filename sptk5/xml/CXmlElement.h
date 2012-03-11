@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -179,20 +179,21 @@ public:
         return m_attributes;
     }
 
-    /// Returns true, if node has any attributes
+    /// @brief Returns true, if node has any attributes
     virtual bool hasAttributes() const
     {
         return m_attributes.size() != 0;
     }
 
-    /// Returns true, if given attribute is found
+    /// @brief Returns true, if given attribute is found
     /// @param attr const char *, attribute to search
     virtual bool hasAttribute(const char *attr) const
     {
         return m_attributes.hasAttribute(attr);
     }
 
-    /// Returns attribute value for given attribute.
+    /// @brief Returns attribute value for given attribute.
+    ///
     /// HTML tags can have empty attributes, for those you should use has_attribute() method.
     /// @param attr std::string, name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
@@ -202,7 +203,8 @@ public:
         return m_attributes.getAttribute(attr,defaultValue);
     }
 
-    /// Sets new value to attribute 'attr'.
+    /// @brief Sets new value to attribute 'attr'.
+    ///
     /// If attribute is not found, it's added to map.
     /// @param attr const char*, attribute name
     /// @param value CXmlValue, attribute value
@@ -212,7 +214,8 @@ public:
         m_attributes.setAttribute(attr,value,defaultValue);
     }
 
-    /// Sets new value to attribute 'attr'.
+    /// @brief Sets new value to attribute 'attr'.
+    ///
     /// If attribute is not found, it's added to map.
     /// @param attr const string&, an attribute name
     /// @param value CXmlValue, attribute value

@@ -52,9 +52,9 @@ class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
 {
     friend class CXmlNode;
 
-    CXmlDocType     m_doctype;          ///< Document type
-    int             m_indentSpaces;     ///< Indent spaces
-    CBuffer         m_encodeBuffer;     ///< Buffer to encode entities
+    CXmlDocType m_doctype;          ///< Document type
+    int m_indentSpaces;     ///< Indent spaces
+    CBuffer m_encodeBuffer;     ///< Buffer to encode entities
 
     /// @brief Internal entities parser
     void parseEntities(char* entitiesSection);
@@ -67,36 +67,38 @@ class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
 
 protected:
 
-    CBuffer         m_decodeBuffer;     ///< Decode and encode buffer
+    CBuffer m_decodeBuffer;     ///< Decode and encode buffer
 
     /// Creates new named node of type CXmlNode::DOM_ELEMENT.
     /// It can be added to document DOM tree.
     /// @param tagname const char *, name of the element
     /// @see CXmlNode
-    CXmlNode *createElement (const char *tagname);
+    CXmlNode *createElement(const char *tagname);
 
 public:
 
-    /// Constructs an empty document, without doctype.
+    /// @brief Constructs an empty document, without doctype.
     CXmlDoc();
 
-    /// Constructs an empty document, with doctype.
+    /// @brief Constructs an empty document, with doctype.
     /// @param name const char *, name of the document.
     /// @param public_id const char *, public id of the document, placed on DOCTYPE declaration
     /// @param system_id const char *, system id of the document, placed on DOCTYPE declaration
     CXmlDoc(const char *name, const char *public_id = 0, const char *system_id = 0);
 
-    /// Destructor
-    virtual ~CXmlDoc() {
+    /// @brief Destructor
+    virtual ~CXmlDoc()
+    {
         clear();
     }
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const {
+    virtual CXmlNodeType type() const
+    {
         return DOM_DOCUMENT;
     }
 
-    /// Destroys all nodes in document
+    /// @brief Destroys all nodes in document
     virtual void clear();
 
     /// @brief Returns the node name.
@@ -104,27 +106,35 @@ public:
 
     /// @brief Sets the new name for the node
     /// @param name const std::string&, new node name
-    virtual void name(const std::string& name) {}
+    virtual void name(const std::string& name)
+    {
+    }
 
     /// @brief Sets new name for node
     /// @param name const char *, new node name
-    virtual void name(const char *name) {}
+    virtual void name(const char *name)
+    {
+    }
 
-    /// Returns doctype of document.
+    /// @brief Returns doctype of document.
+    ///
     /// You can use it to add e.g. custom entities.
     /// <pre>
     /// mydoc->doctype().set_entity("myentity", "myreplacement");
     /// </pre>
-    CXmlDocType &docType() {
+    CXmlDocType &docType()
+    {
         return m_doctype;
     }
 
-    /// Returns doctype of document.
+    /// @brief Returns doctype of document.
+    ///
     /// You can use it to add e.g. custom entities.
     /// <pre>
     /// mydoc->doctype().set_entity("myentity", "myreplacement");
     /// </pre>
-    const CXmlDocType &docType() const {
+    const CXmlDocType &docType() const
+    {
         return m_doctype;
     }
 
@@ -132,28 +142,31 @@ public:
     CXmlNode *rootNode();
 
     /// @brief Returns indentation in save
-    int indentSpaces() {
+    int indentSpaces()
+    {
         return m_indentSpaces;
     }
 
     /// @brief Set indentation in save, defaults to 2
     ///
     /// @param i as new indent spaces
-    void indentSpaces(int i) {
+    void indentSpaces(int i)
+    {
         m_indentSpaces = i;
     }
 
-    /// Loads document from buffer.
+    /// @brief Loads document from buffer.
     /// @param buffer const char*, source buffer
     virtual void load(const char* buffer);
 
-    /// Loads document from buffer.
+    /// @brief Loads document from buffer.
     /// @param buffer const CBuffer&, source buffer
-    virtual void load(const CBuffer& buffer) {
+    virtual void load(const CBuffer& buffer)
+    {
         load(buffer.c_str());
     }
 
-    /// Saves document to buffer.
+    /// @brief Saves document to buffer.
     /// @param buffer CBuffer&, a buffer to save document
     /// @param indent int, how many indent spaces at start
     virtual void save(CBuffer& buffer, int indent = 0) const;

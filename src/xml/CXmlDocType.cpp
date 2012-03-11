@@ -4,7 +4,7 @@
                              -------------------
     begin                : Tue June 27 2006
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2006-2012 by Alexey S.Parshin
+    copyright            : (C) 2000-2012 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -31,61 +31,67 @@
 using namespace std;
 using namespace sptk;
 
-CXmlDocType::CXmlDocType(const char *name, const char *public_id, const char *system_id) {
+CXmlDocType::CXmlDocType(const char *name, const char *public_id, const char *system_id)
+{
     m_name = name;
-    if(public_id)
+    if (public_id)
         m_public_id = public_id;
-    if(system_id)
+    if (system_id)
         m_system_id = system_id;
 }
 
-struct entity {
+struct entity
+{
     const char *name;
     int replacement_len;
     const char *replacement;
 };
 
-typedef map<std::string,struct entity *> CEntityMap;
+typedef map<std::string, struct entity *> CEntityMap;
 
 struct entity builtin_ent_xml[] = {
-                                      { "amp", 1, "&"
-                                      },
-                                      { "lt",  1, "<" },
-                                      { "gt",  1, ">" },
-                                      { "apos",  1, "'" },
-                                      { "quot",  1, "\"" },
-                                      { NULL,  1, "\"" }
-                                  };
+        { "amp", 1, "&" },
+        { "lt", 1, "<" },
+        { "gt", 1, ">" },
+        { "apos", 1, "'" },
+        { "quot", 1, "\"" },
+        { NULL, 1, "\"" }
+};
+
 const char xml_shortcut[] = "&<>'\"";
 
-class CEntityCache {
+class CEntityCache
+{
     CEntityMap              m_hash;
-    map<int,CEntityMap>     m_replacementMaps;
+    map<int, CEntityMap>    m_replacementMaps;
 public:
 
-    CEntityCache(struct entity entities[]) {
+    CEntityCache(struct entity entities[])
+    {
         struct entity *ent = entities;
-        for(; ent->name; ent++) {
+        for (; ent->name; ent++) {
             m_hash[ent->name] = ent;
             m_replacementMaps[ent->replacement_len][ent->replacement] = ent;
         }
     }
 
-    const struct entity *find(const std::string &ent) const {
-            CEntityMap::const_iterator itor = m_hash.find(ent);
-            if (itor != m_hash.end())
-                return itor->second;
-            return 0L;
-        }
+    const struct entity *find(const std::string &ent) const
+    {
+        CEntityMap::const_iterator itor = m_hash.find(ent);
+        if (itor != m_hash.end())
+            return itor->second;
+        return 0L;
+    }
 
     const struct entity *encode(const char* str) const;
 };
 
-const struct entity *CEntityCache::encode(const char* str) const {
-    map<int,CEntityMap>::const_iterator maps = m_replacementMaps.begin();
+const struct entity *CEntityCache::encode(const char* str) const
+{
+    map<int, CEntityMap>::const_iterator maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); maps++) {
         int len = maps->first;
-        string fragment(str,len);
+        string fragment(str, len);
         const CEntityMap& replacements = maps->second;
         CEntityMap::const_iterator itor = replacements.find(fragment);
         if (itor != replacements.end())
@@ -96,114 +102,121 @@ const struct entity *CEntityCache::encode(const char* str) const {
 
 static const CEntityCache xml_entities(builtin_ent_xml);
 
-void CXmlDocType::decodeEntities(const char* str, uint32_t sz, CBuffer& ret) {
+void CXmlDocType::decodeEntities(const char* str, uint32_t sz, CBuffer& ret)
+{
     ret.bytes(0);
 
     const char* start = str;
     const char* ptr = str;
     while (*ptr) {
-        const char* ent_start = strchr(ptr,'&');
+        const char* ent_start = strchr(ptr, '&');
         if (ent_start) {
-            char* ent_end = (char*)strchr(ent_start+1,';');
+            char* ent_end = (char*) strchr(ent_start + 1, ';');
             if (ent_end) {
                 char ch = *ent_end;
                 *ent_end = 0;
                 uint32_t replacementLength = 0;
-                const char* rep = getReplacement(ent_start+1,replacementLength);
+                const char* rep = getReplacement(ent_start + 1, replacementLength);
                 *ent_end = ch;
                 if (rep) {
-					uint32_t len = uint32_t(ent_start-start);
-					if (len)
-						ret.append(start,len);
-                    ptr = ent_end+1;
+                    uint32_t len = uint32_t(ent_start - start);
+                    if (len)
+                        ret.append(start, len);
+                    ptr = ent_end + 1;
                     start = ptr;
-                    ret.append(rep,replacementLength);
+                    ret.append(rep, replacementLength);
                 } else
                     ptr++;
             } else {
                 ptr++;
             }
-		} else {
-			sz = (uint32_t) strlen(start);
+        } else {
+            sz = (uint32_t) strlen(start);
             break;
-		}
+        }
     }
-    ret.append(start,sz);
+    ret.append(start, sz);
 }
 
-bool CXmlDocType::encodeEntities(const char *str, CBuffer& ret) {
+bool CXmlDocType::encodeEntities(const char *str, CBuffer& ret)
+{
     entity* table = builtin_ent_xml;
 
     bool replaced = false;
 
     const char* ptr = str;
-	CBuffer* src = &m_encodeBuffers[0];
-	CBuffer* dst = &m_encodeBuffers[1];
-	dst->bytes(0);
+    CBuffer* src = &m_encodeBuffers[0];
+    CBuffer* dst = &m_encodeBuffers[1];
+    dst->bytes(0);
     while (*ptr) {
-        const char* pos = strpbrk(ptr,xml_shortcut);
+        const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos) {
-            uint32_t index = uint32_t(strchr(xml_shortcut,*pos) - xml_shortcut);
+            uint32_t index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
             entity* ent = table + index;
-			dst->append(ptr,uint32_t(pos-ptr));
+            dst->append(ptr, uint32_t(pos - ptr));
             dst->append('&');
             dst->append(ent->name);
             dst->append(';');
-			replaced = true;
-			ptr = pos + 1;
-		} else {
-			if (ptr != str) {
-				dst->append(ptr);
-				ptr = dst->data();
-				CBuffer* tmp = dst; dst = src; src = tmp;
-				dst->bytes(0);
-			}
-			break;
-		}
-	}
+            replaced = true;
+            ptr = pos + 1;
+        } else {
+            if (ptr != str) {
+                dst->append(ptr);
+                ptr = dst->data();
+                CBuffer* tmp = dst;
+                dst = src;
+                src = tmp;
+                dst->bytes(0);
+            }
+            break;
+        }
+    }
 
     if (!m_entities.empty()) {
         CXmlEntities::iterator it = m_entities.begin();
         for (; it != m_entities.end(); it++) {
             std::string& val = it->second;
             uint32_t len = (uint32_t) val.length();
-			const char* pos = strstr(ptr,val.c_str());
-			while (pos) {
-				dst->append(ptr,uint32_t(pos-ptr));
-				dst->append('&');
-				dst->append(it->first);
-				dst->append(';');
-				replaced = true;
+            const char* pos = strstr(ptr, val.c_str());
+            while (pos) {
+                dst->append(ptr, uint32_t(pos - ptr));
+                dst->append('&');
+                dst->append(it->first);
+                dst->append(';');
+                replaced = true;
                 ptr = pos + len;
-				pos = strstr(ptr,val.c_str());
-				if (!pos) {
-					dst->append(ptr);
-					ptr = dst->data();
-					CBuffer* tmp = dst; dst = src; src = tmp;
-					dst->bytes(0);
-				}
+                pos = strstr(ptr, val.c_str());
+                if (!pos) {
+                    dst->append(ptr);
+                    ptr = dst->data();
+                    CBuffer* tmp = dst;
+                    dst = src;
+                    src = tmp;
+                    dst->bytes(0);
+                }
             }
-		}
+        }
     }
 
-	if (replaced)
-		ret.append(src->data(),src->bytes());
-	else
-		ret.append(ptr);
+    if (replaced)
+        ret.append(src->data(), src->bytes());
+    else
+        ret.append(ptr);
 
     return replaced;
 }
 
-const char* CXmlDocType::getReplacement(const char *name,uint32_t& replacementLength) {
+const char* CXmlDocType::getReplacement(const char *name, uint32_t& replacementLength)
+{
     // &#123; style entity..
-    if (name[0]=='#') {
+    if (name[0] == '#') {
         if (isdigit(name[1])) {
-            m_replacementBuffer[0] = (char)strtol(name+1, NULL, 10);
+            m_replacementBuffer[0] = (char) strtol(name + 1, NULL, 10);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
-        } else if (name[1]=='x' || name[1]=='X') {
-            m_replacementBuffer[0] = (char)strtol(name+2, NULL, 16);
+        } else if (name[1] == 'x' || name[1] == 'X') {
+            m_replacementBuffer[0] = (char) strtol(name + 2, NULL, 16);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
@@ -221,15 +234,16 @@ const char* CXmlDocType::getReplacement(const char *name,uint32_t& replacementLe
     CXmlEntities::const_iterator itor = m_entities.find(name);
     if (itor != m_entities.end()) {
         const string& rep = itor->second;
-        replacementLength = (uint32_t)rep.length();
+        replacementLength = (uint32_t) rep.length();
         return rep.c_str();
     }
 
     return 0;
 }
 
-bool CXmlDocType::hasEntity(const char *name) {
+bool CXmlDocType::hasEntity(const char *name)
+{
     uint32_t len;
-    const char* tmp = getReplacement(name,len);
+    const char* tmp = getReplacement(name, len);
     return tmp != NULL;
 }

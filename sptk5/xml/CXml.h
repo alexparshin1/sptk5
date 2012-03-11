@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -41,22 +41,25 @@ namespace sptk {
 ///
 /// Xml extension throws CXmlException type exceptions.
 /// You should catch always atleast these type of exceptions, when processing XML.
-class SP_EXPORT CXmlException : public std::exception {
-    std::string     m_message; ///< Exception text
+class SP_EXPORT CXmlException: public std::exception
+{
+    std::string m_message; ///< Exception text
 public:
 
     /// @brief Constructor
     /// @param error const char*, error text
     /// @param xmlbase const char*, parsed xml text
     /// @param position const char*, parsed xml error position
-    CXmlException(const char* error,const char* xmlbase,const char* position);
+    CXmlException(const char* error, const char* xmlbase, const char* position);
 
     /// @brief Destructor
-    ~CXmlException() throw() {
+    ~CXmlException() throw ()
+    {
     }
 
-    /// Returns human readable error string.
-    const char *what() const throw() {
+    /// @brief Returns human readable error string.
+    const char *what() const throw ()
+    {
         return m_message.c_str();
     }
 };

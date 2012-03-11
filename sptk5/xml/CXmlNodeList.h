@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -47,7 +47,7 @@ typedef std::vector<CXmlNode *> CXmlNodeVector;
 ///
 /// The CXmlNodeList interface provides the an ordered collection of nodes,
 /// The items in the NodeList are accessible via an integral index, starting from 0.
-class SP_EXPORT CXmlNodeList : public CXmlNodeVector 
+class SP_EXPORT CXmlNodeList : public CXmlNodeVector
 {
 public:
     /// @brief Constructor
@@ -82,22 +82,21 @@ public:
     /// @param nodeName const std::string&, a node name
     /// @returns node iterator, or end()
     const_iterator findFirst(const std::string& nodeName) const;
-/*
-    /// Replaces the item
-    /// @param pos uint32_t, replace position
-    /// @param item CXmlNode *, item to insert
-    void replace(uint32_t pos, CXmlNode *item);
+    /*
+     /// Replaces the item
+     /// @param pos uint32_t, replace position
+     /// @param item CXmlNode *, item to insert
+     void replace(uint32_t pos, CXmlNode *item);
 
-    /// Removes the item
-    /// @param pos uint32_t, remove item position
-    void remove(uint32_t pos);
+     /// Removes the item
+     /// @param pos uint32_t, remove item position
+     void remove(uint32_t pos);
 
-    /// Removes the item
-    /// @param item CXmlNode *, item to remove
-    bool remove(CXmlNode *item);
-*/
-}
-;
+     /// Removes the item
+     /// @param item CXmlNode *, item to remove
+     bool remove(CXmlNode *item);
+     */
+};
 /// @}
 }
 #endif
