@@ -72,14 +72,9 @@ int main(int argc,char *argv[]) {
         
         string fullPath(argv[0]);
         unsigned pos = fullPath.rfind("/");
-#ifdef _MSC_VER // Miscrosoft C++ only
-        unsigned npos = -1;
-#else
-        unsigned npos = string::npos;
-#endif
-        if (pos == npos) 
+        if (pos == STRING_NPOS)
             pos = fullPath.rfind("\\");
-        if (pos == npos)
+        if (pos == STRING_NPOS)
             throw CException("Can't determine work directory");
         
         string workDirectory(fullPath.substr(0,pos));

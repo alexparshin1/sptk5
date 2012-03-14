@@ -113,7 +113,7 @@ void CHttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/) {
     for (unsigned i=0; i < sl.size(); i++) {
         string& s = sl[i];
         size_t pos = s.find("=");
-        if (pos != string::npos) {
+        if (pos != STRING_NPOS) {
             string value = s.substr(pos+1,s.length());
             s[pos] = 0;
             (*this)[s] = decodeString(value);

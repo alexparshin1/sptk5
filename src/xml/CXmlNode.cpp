@@ -85,12 +85,12 @@ static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CX
     pathElement.axis = XPA_CHILD;
     size_t backBracketPosition = pathElementStr.rfind("]");
     string pathElementName;
-    if (backBracketPosition == string::npos) {
+    if (backBracketPosition == STRING_NPOS) {
         pathElementName = pathElementStr;
         pathElement.criteria.clear();
     } else {
         size_t bracketPosition = pathElementStr.find("[");
-        if (bracketPosition == string::npos || backBracketPosition < bracketPosition) {
+        if (bracketPosition == STRING_NPOS || backBracketPosition < bracketPosition) {
             pathElementName = pathElementStr;
             pathElement.criteria.clear();
         } else {
@@ -100,7 +100,7 @@ static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CX
     }
 
     size_t pos = pathElementName.find("::");
-    if (pos != string::npos) {
+    if (pos != STRING_NPOS) {
         if (pos == 10 && pathElementName.compare(0, 12, "descendant::") == 0)
             pathElement.axis = XPA_DESCENDANT;
         else if (pos == 6 && pathElementName.compare(0, 8, "parent::") == 0)
@@ -124,7 +124,7 @@ static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CX
         if (nodePosition == 0) {
             if (criteria[0] == '@') {
                 size_t pos = criteria.find("=");
-                if (pos == string::npos)
+                if (pos == STRING_NPOS)
                     pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
                 else {
                     pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));

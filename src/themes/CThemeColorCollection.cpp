@@ -99,7 +99,7 @@ static void splitArguments(const string& expression, CStrings& arguments) {
 static void splitExpression(const string& colorValue,string& function,string& arguments) {
     size_t pos1 = colorValue.find("(");
     size_t pos2 = colorValue.rfind(")");
-    if (pos1 != string::npos && pos2 != string::npos ) {
+    if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
         function = trim(colorValue.substr(0,pos1-1));
         arguments = trim(colorValue.substr(pos1+1,pos2-pos1-1));
     }
@@ -216,7 +216,7 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
     for (CXmlNode::iterator itor = styleNodes.begin(); itor != styleNodes.end(); itor++) {
         CXmlNode* styleNode = *itor;
         string styleName(styleNode->getAttribute("name"));
-        if (styleName == "default" || styleName.find("-default") != string::npos) {
+        if (styleName == "default" || styleName.find("-default") != STRING_NPOS) {
             defaultStyleNode = styleNode;
             break;
         }

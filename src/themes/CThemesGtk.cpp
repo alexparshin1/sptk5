@@ -63,7 +63,7 @@ void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::s
         buttonState = THM_DEFAULT_FRAME;
     else if (buttonState > -1 && shadow == "IN")
             buttonState++;
-    if (buttonState > -1 && fileName.find(".png") != string::npos)
+    if (buttonState > -1 && fileName.find(".png") != STRING_NPOS)
         buttonFileNames[CThemeImageState(buttonState)] = m_themeFolder + fileName;
 }
 

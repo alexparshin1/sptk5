@@ -60,7 +60,7 @@ CAskDialog::CAskDialog(const char *label,int w)
 
 bool CAskDialog::execute(string msg) {
    string htmlMessage(msg);
-   if (upperCase(htmlMessage).find("<HTML>") == string::npos) {
+   if (upperCase(htmlMessage).find("<HTML>") == STRING_NPOS) {
       htmlMessage = "<HTML><BODY>" + replaceAll(htmlMessage,"\n","<BR>") + "</BODY></HTML>";
    }
    m_textBox->data(htmlMessage);

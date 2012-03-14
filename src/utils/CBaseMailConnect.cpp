@@ -207,7 +207,7 @@ void CBaseMailConnect::mimeMessage (CBuffer& buffer)
         string attachment = sl[i];
         string attachmentAlias = attachment;
         const char *separator = "\\";
-        if (attachment.find ("/") != string::npos)
+        if (attachment.find ("/") != STRING_NPOS)
             separator = "/";
         CStrings attachmentParts (attachment, separator);
         uint32_t attachmentPartsCount = (uint32_t) attachmentParts.size();

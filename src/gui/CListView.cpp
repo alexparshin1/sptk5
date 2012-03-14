@@ -1176,7 +1176,7 @@ int CListView::findString(std::string str, bool findAndSelect, unsigned startRow
         CPackedStrings *row = m_rows[i];
         std::string currentStr((*row)[col]);
         size_t pos = lowerCase(currentStr).find(searchStr.c_str());
-        if (pos != string::npos) {
+        if (pos != STRING_NPOS) {
             if (findAndSelect) {
                 select_only(i);
                 m_activeRow = i;

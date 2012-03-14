@@ -155,7 +155,7 @@ void CDateIntervalInput::data(const CVariant s) {
     if (!separatorLength)
         throw CException("Can't work with an empty dates separator");
 
-    if (pos != string::npos && pos > 0) {
+    if (pos != STRING_NPOS && pos > 0) {
         firstStringData[pos] = 0;
         secondStringData = firstStringData.substr(pos+separatorLength,20);
     }

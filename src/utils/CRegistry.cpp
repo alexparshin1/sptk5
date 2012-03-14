@@ -111,7 +111,7 @@ CRegistry::~CRegistry() {
 void CRegistry::prepareDirectory() {
     struct stat st;
     size_t pos = m_fileName.rfind("/");
-    if (pos == string::npos)
+    if (pos == STRING_NPOS)
         return;
     string directory = m_fileName.substr(0,pos);
     if (stat(directory.c_str(),&st) == 0) {

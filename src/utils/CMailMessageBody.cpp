@@ -45,7 +45,7 @@ string CMailMessageBody::stripHtml(const string& origHtml) {
    for (i = 0; i < html.size(); i++) {
        string& str = html[i];
        size_t pos = str.find(">");
-       if (pos == string::npos)
+       if (pos == STRING_NPOS)
            continue;
        str = str.substr(pos+1);
        if (str.empty()) {
@@ -63,7 +63,7 @@ void CMailMessageBody::text(const string& messageText,bool smtp) {
       msg = replaceAll(messageText,"\n.\n","\n \n");
    else
       msg = messageText;
-   if (upperCase(messageText.substr(0,100)).find("<HTML>") == string::npos) {
+   if (upperCase(messageText.substr(0,100)).find("<HTML>") == STRING_NPOS) {
       m_type = MMT_PLAIN_TEXT_MESSAGE;
       m_plainText = msg;
       m_htmlText = "";

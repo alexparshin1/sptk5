@@ -638,7 +638,7 @@ CStrings CThemes::availableThemes() {
             while (!dir.eof()) {
                 std::string fileName = dir["Name"];
                 size_t pos = fileName.rfind(".tar");
-                if (pos != string::npos) {
+                if (pos != STRING_NPOS) {
                     string themeName = fileName.substr(0, pos);
                     if (themes.indexOf(themeName) < 0)
                         themes.push_back(themeName);

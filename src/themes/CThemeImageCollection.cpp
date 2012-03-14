@@ -131,7 +131,7 @@ void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string image
             string border = imageNode->getAttribute("border","{ 0, 0, 0, 0 }");
             size_t pos1 = border.find("{");
             size_t pos2 = border.find("}");
-            if (pos1 != string::npos && pos2 != string::npos ) {
+            if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
                 pos1++;
                 border = border.substr(pos1,pos2-pos1);
                 CStrings borderStrs(border,",");
@@ -153,9 +153,9 @@ void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string image
         if (buttonState > -1) {
             m_images[CThemeImageState(buttonState)] = NULL;
             m_overlayImages[CThemeImageState(buttonState)] = NULL;
-            if (!fileName.empty() && fileName.find(".png") != string::npos)
+            if (!fileName.empty() && fileName.find(".png") != STRING_NPOS)
                 m_images[CThemeImageState(buttonState)] = loadValidatePNGImage(fileName,true);
-            if (!overlayFileName.empty() && overlayFileName.find(".png") != string::npos)
+            if (!overlayFileName.empty() && overlayFileName.find(".png") != STRING_NPOS)
                 m_overlayImages[CThemeImageState(buttonState)] = loadValidatePNGImage(overlayFileName,true);
         }
     }

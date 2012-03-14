@@ -438,7 +438,7 @@ CControlKind CControl::controlNameToType(std::string typeName,int& maxLength,std
     case 'P':   // PHONE, PHONE EXT, PLAIN TEXT
         switch (c1) {
         case 'H':
-            if (typeName.find("ext") == string::npos)
+            if (typeName.find("ext") == STRING_NPOS)
                 controlType = DCV_PHONE; // phone number
             else {
                 maxLength = 4;

@@ -144,7 +144,7 @@ void CImapConnect::cmd_select(string mail_box,int32_t& total_msgs) {
       std::string& st = m_response[i];
       if (st[0] == '*') {
          size_t p = st.find("EXISTS");
-	 if (p != string::npos) {
+	 if (p != STRING_NPOS) {
             total_msgs = atoi(st.substr(2,p - 2).c_str());
             break;
          }
@@ -188,7 +188,7 @@ static void parse_header(const string& header,string& header_name,string& header
       return;
 
    size_t p = header.find(" ");
-   if (p == string::npos)
+   if (p == STRING_NPOS)
       return;
    if (header[p-1] == ':') {
       header_name = lowerCase(header.substr(0,p-1));
@@ -334,7 +334,7 @@ string CImapConnect::cmd_fetch_flags(int32_t msg_id) {
          return "";
       string flags(fpos+1);
       size_t pos = flags.find("))");
-      if (pos != string::npos)
+      if (pos != STRING_NPOS)
          flags[pos] = 0;
       return flags;
    }

@@ -160,7 +160,7 @@ string parseAddress(string fullAddress)
 {
     size_t p1 = fullAddress.find("<");
     size_t p2 = fullAddress.find(">");
-    if (p1 == string::npos || p2 == string::npos || p2 < p1)
+    if (p1 == STRING_NPOS || p2 == STRING_NPOS || p2 < p1)
         return fullAddress;
     return trim(fullAddress.substr(p1 + 1, p2 - p1 - 1));
 }

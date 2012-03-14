@@ -193,7 +193,7 @@ string replaceAll(const string& src,const string& pattern,const string& replacem
 
     size_t i = str.find(pattern);
 
-    while (i != string::npos) { // While not at the end of the string
+    while (i != STRING_NPOS) { // While not at the end of the string
         str.replace(i,patternLength,replacement);
         i = str.find(pattern, i + replacementLength);
     }

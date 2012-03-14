@@ -56,11 +56,18 @@
     #pragma warning (disable: 4355)
     #pragma warning (disable: 4786)
     #pragma warning (disable: 4996)
+    #if defined(_MSC_VER)
+        #define STRING_NPOS -1
+    #endif
 #else
     #include <sptk5/sptk-config.h>
     #include <unistd.h>
     #include <pthread.h>
     #include <errno.h>
+#endif
+
+#ifndef STRING_NPOS
+    #define STRING_NPOS string::npos
 #endif
 
 #include <map>

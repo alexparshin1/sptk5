@@ -197,14 +197,9 @@ int main()
 
         cout << "Connected to [" << db1.driverDescription() << "]" << endl;
 
-#ifdef _MSC_VER // Miscrosoft C++ only
-        unsigned npos = -1;
-#else
-        unsigned npos = string::npos;
-#endif
-        if (driver.find("microsoft") != npos)
+        if (driver.find("microsoft") != STRING_NPOS)
             dateType = "DATETIME";
-        else if (driver.find("informix") >= npos)
+        else if (driver.find("informix") >= STRING_NPOS)
             dateType = "DATETIME YEAR TO SECOND";
 
         CQuery createTable(
