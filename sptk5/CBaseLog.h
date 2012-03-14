@@ -93,7 +93,7 @@ enum CLogPriority {
 };
 
 /// @brief Internal buffer for the CLogStream class
-class CLogStreamBuf: public std::streambuf
+class SP_EXPORT CLogStreamBuf: public std::streambuf
 {
     friend class CBaseLog;
 private:
@@ -157,7 +157,7 @@ typedef std::ostream _ostream;
 typedef std::ios _ios;
 
 /// Base class for all log classes
-class CBaseLog: public CSynchronized, public _ostream
+class SP_EXPORT CBaseLog: public CSynchronized, public _ostream
 {
     friend class CLogStreamBuf;
 

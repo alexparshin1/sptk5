@@ -39,7 +39,7 @@ namespace sptk {
 ///
 /// Connects to FTP server. It takes two of such sockets
 /// to establish the correct FTP communication
-class CFTPSocket : public CSocket {
+class SP_EXPORT CFTPSocket : public CSocket {
     /// Server response string list
     CStrings  m_response;
 public:
@@ -68,7 +68,7 @@ public:
 };
 
 /// Connection to the FTP server
-class CFTPConnect {
+class SP_EXPORT CFTPConnect {
 protected:
     CFTPSocket        m_commandSocket;  ///< FTP command socket
     CFTPSocket        m_dataSocket;     ///< FTP data socket

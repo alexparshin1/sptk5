@@ -3,7 +3,7 @@
                           CSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 2002-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -50,8 +50,8 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-int   CSocket::m_socketCount;
-bool  CSocket::m_inited = false;
+    static int   m_socketCount;
+    static bool  m_inited(false);
 #endif
 
 static void throwSocketError (std::string operation, int line) throw (CException)

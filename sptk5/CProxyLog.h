@@ -44,7 +44,7 @@ namespace sptk {
 /// The log options defining message format and min priority are used
 /// from destination log.
 /// @see CBaseLog for more information about basic log abilities.
-class CProxyLog: public CBaseLog
+class SP_EXPORT CProxyLog: public CBaseLog
 {
     CBaseLog& m_destination;  /// The actual log to store messages to (destination log)
 

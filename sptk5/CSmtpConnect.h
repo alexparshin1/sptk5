@@ -44,7 +44,7 @@ namespace sptk {
 /// Sends an e-mail message using SMTP protocol.
 /// It uses CSocket class to establish the connection, and CBaseMailConnect
 /// to make the complete RFC 822 message.
-class CSmtpConnect : public CBaseMailConnect, public CSocket {
+class SP_EXPORT CSmtpConnect : public CBaseMailConnect, public CSocket {
     CStrings     m_response;
 
     /// Processes tag for strippedHtml.

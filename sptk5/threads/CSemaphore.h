@@ -41,7 +41,7 @@ namespace sptk {
 /// @{
 
 /// @brief Generic unnamed semaphore class
-class CSemaphore
+class SP_EXPORT CSemaphore
 {
 
 #ifndef WIN32

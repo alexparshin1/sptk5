@@ -41,7 +41,7 @@ namespace sptk {
 /// @brief Base mail socket
 ///
 /// CBaseMailConnect class is the base class for mail message components
-class CBaseMailConnect {
+class SP_EXPORT CBaseMailConnect {
 protected:
     std::string      m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd@noname.com>"
     std::string      m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"

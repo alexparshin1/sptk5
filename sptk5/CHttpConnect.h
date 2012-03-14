@@ -44,7 +44,7 @@ typedef std::map<std::string,std::string> CHttpHeaders;
 ///
 /// Implements the GET and POST methods of HTTP protocol.
 /// Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
-class CHttpConnect : public CSocket {
+class SP_EXPORT CHttpConnect : public CSocket {
     CBuffer         m_readBuffer;           ///< Internal read buffer
 
 protected:

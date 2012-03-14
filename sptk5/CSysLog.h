@@ -55,7 +55,7 @@ namespace sptk
 /// On Windows 95/98/ME the system log isn't supported..
 /// The facility method allows to define - which system log is used
 /// @see CBaseLog for more information about basic log abilities.
-class CSysLog: public CBaseLog
+class SP_EXPORT CSysLog: public CBaseLog
 {
 #ifdef _WIN32
     HANDLE              m_logHandle;     ///< (Windows) The handle of the log file

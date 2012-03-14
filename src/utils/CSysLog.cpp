@@ -92,19 +92,19 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
         throw CException("Can't open Application Event Log");
 
         unsigned eventType;
-        switch (priority->id()) {
+        switch (priority) {
             case LOG_EMERG:
             case LOG_ALERT:
             case LOG_CRIT:
             case LOG_ERR:
-            eventType = EVENTLOG_ERROR_TYPE;
-            break;
+                eventType = EVENTLOG_ERROR_TYPE;
+                break;
             case LOG_WARNING:
-            eventType = EVENTLOG_WARNING_TYPE;
-            break;
+                eventType = EVENTLOG_WARNING_TYPE;
+                break;
             default:
-            eventType = EVENTLOG_INFORMATION_TYPE;
-            break;
+                eventType = EVENTLOG_INFORMATION_TYPE;
+                break;
         }
 
         //const char *messageStrings[] = { message, NULL };

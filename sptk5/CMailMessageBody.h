@@ -45,7 +45,7 @@ enum CMailMessageType {
 /// @brief Mail message body text
 ///
 /// Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
-class CMailMessageBody {
+class SP_EXPORT CMailMessageBody {
     CMailMessageType m_type;       ///< Message type
     std::string      m_plainText;  ///< Plain text part of the message
     std::string      m_htmlText;   ///< Optional HTML part of the message

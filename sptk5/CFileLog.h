@@ -45,7 +45,7 @@ namespace sptk {
 /// A simplest possible way to implement logging.
 /// The log file is created automatically if it doesn't exist.
 /// @see CBaseLog for more information about basic log abilities.
-class CFileLog: public CBaseLog
+class SP_EXPORT CFileLog: public CBaseLog
 {
     std::ofstream   m_fileStream;   ///< Log file stream
     std::string     m_fileName;     ///< Log file name

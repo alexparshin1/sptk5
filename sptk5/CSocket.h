@@ -3,7 +3,7 @@
                           CSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 2002-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -61,7 +61,7 @@ namespace sptk {
 class CSocket;
 
 /// Buffered Socket reader.
-class CSocketReader : protected CBuffer {
+class SP_EXPORT CSocketReader : protected CBuffer {
     CSocket&  m_socket;       ///< Socket to read from
     uint32_t  m_readOffset;   ///< Current offset in the read buffer
 
@@ -107,7 +107,7 @@ public:
 ///
 /// Allows to establish a network connection
 /// to the host by name and port address
-class CSocket {
+class SP_EXPORT CSocket {
 protected:
     SOCKET              m_sockfd;       ///< Socket internal (OS) handle
     int32_t             m_domain;       ///< Socket domain type
@@ -119,19 +119,9 @@ protected:
     fd_set              m_outputs;      ///< The set of socket descriptors for writing
     CSocketReader       m_reader;       ///< Socket buffered reader
     CBuffer             m_stringBuffer; ///< Buffer to read a line
-#ifdef HAVE_GNUTLS
-    bool                m_tlsMode;      ///< True, is socket switched to TLS mode (using GNU TLS)
-    gnutls_session_t    m_tlsSession;   ///< GNU TLS session
-    gnutls_anon_client_credentials_t
-                        m_tlsAnonCred;  ///< GNU TLS anonymous credentials
-
-    static bool         m_tlsInitted;   ///< Was GNU TLS initted?
-#endif
 protected:
 
 #ifdef _WIN32
-    static int32_t      m_socketCount;  ///< Total number of the objects of this class
-    static bool         m_inited;       ///< Were the sockets inited?
     static void         init();         ///< WinSock initialization
     static void         cleanup();      ///< WinSock cleanup
 #endif
@@ -297,28 +287,6 @@ public:
 
     /// @brief Stream std::string output
     CSocket& operator >> ( std::string& );
-#ifdef HAVE_GNUTLS
-    /// @brief Global TLS initialization
-    ///
-    /// Should executed from the main thread and only once, otherwise TLS wouldn't work.
-    static void globalInitTLS();
-
-    /// @brief Returns TLS mode
-    ///
-    /// In TLS mode, socket uses gnutls_record_recv() and gnutls_record_send() instead of
-    /// recv() and send().
-    bool tlsMode() const { return m_tlsMode; }
-
-    /// @brief Inits TLS mode for the client socket
-    ///
-    /// Initializes session in default anonymous mode, and runs TLS handshake
-    /// In TLS mode, socket uses gnutls_record_recv() and gnutls_record_send() instead of
-    /// recv() and send().
-    void startTLS();
-
-    /// @brief Switches socket into regular mode
-    void endTLS();
-#endif
 };
 
 /// @}

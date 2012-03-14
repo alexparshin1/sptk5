@@ -1,15 +1,11 @@
 /***************************************************************************
- SIMPLY POWERFUL TOOLKIT (SPTK)
- DEMO PROGRAMS SET
- odbc_test3.cpp  -  description
-
- This test creates several threads with the independent database
- connection per thread.
-
- -------------------
- begin                : October 15, 2005
- copyright            : (C) 2005-2012 by Alexey S.Parshin
- email                : alexeyp@gmail.com
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                               DEMO PROGRAMS SET
+                          odbc_test3.cpp  -  description
+                             -------------------
+    begin                : October 15, 2005
+    copyright            : (C) 2005-2012 by Alexey S.Parshin
+    email                : alexeyp@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -201,9 +197,14 @@ int main()
 
         cout << "Connected to [" << db1.driverDescription() << "]" << endl;
 
-        if (driver.find("microsoft") != string::npos)
+#ifdef _MSC_VER // Miscrosoft C++ only
+        unsigned npos = -1;
+#else
+        unsigned npos = string::npos;
+#endif
+        if (driver.find("microsoft") != npos)
             dateType = "DATETIME";
-        else if (driver.find("informix") != string::npos)
+        else if (driver.find("informix") >= npos)
             dateType = "DATETIME YEAR TO SECOND";
 
         CQuery createTable(
