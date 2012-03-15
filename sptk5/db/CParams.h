@@ -3,7 +3,7 @@
                           CParams.h  -  description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -29,11 +29,11 @@
 #define __CPARAMS_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/istring.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/CVariant.h>
 #include <sptk5/CBuffer.h>
 #include <sptk5/CIntList.h>
+#include <sptk5/CCaseInsensitiveCompare.h>
 
 #include <vector>
 #include <map>
@@ -310,9 +310,12 @@ class SP_EXPORT CParamList
 {
     friend class CQuery;
 
+    /// @brief Case insensitive parameter name to parameter map
+    typedef std::map<std::string, CParam*, CCaseInsensitiveCompare>  CParamMap;
+
     CParamVector                m_items;             ///< The list of parameters
     CParamVector::iterator      m_paramStreamItor;   ///< The list of parameters iterator
-    std::map<istring, CParam*>  m_index;             ///< The parameters index
+    CParamMap                   m_index;             ///< The parameters index
 protected:
     /// @brief Adds a parameter to the list
     void add(CParam *item);

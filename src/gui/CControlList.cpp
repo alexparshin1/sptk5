@@ -34,61 +34,64 @@
 
 using namespace sptk;
 
-void CControlList::scanControls(const Fl_Group *group) {
-   unsigned cnt = group->children();
-   for (unsigned i = 0; i < cnt; i++) {
-      Fl_Widget *widget = group->child(i);
+void CControlList::scanControls(const Fl_Group *group)
+{
+    unsigned cnt = group->children();
+    for (unsigned i = 0; i < cnt; i++) {
+        Fl_Widget *widget = group->child(i);
 
-      // The try {} catch() {} is only required for MSVC++
-      CControl *control = 0L;
-      try {
-         control = dynamic_cast<CControl *>(widget);
-      }
-      catch (...) {
-      }
+        // The try {} catch() {} is only required for MSVC++
+        CControl *control = 0L;
+        try {
+            control = dynamic_cast<CControl *>(widget);
+        } catch (...) {
+        }
 
-      if (control) {
-         if (control->fieldName().length())
-            add(control);
-         continue;
-      }
+        if (control) {
+            if (control->fieldName().length())
+                add(control);
+            continue;
+        }
 
-      Fl_Group *g = 0L;
+        Fl_Group *g = 0L;
 
-      try {
-         g = dynamic_cast<Fl_Group *>(widget);
-      }
-      catch (...) {
-      }
+        try {
+            g = dynamic_cast<Fl_Group *>(widget);
+        } catch (...) {
+        }
 
-      if (g) 
-         scanControls(g);
-   }
+        if (g)
+            scanControls(g);
+    }
 }
 
-void CControlList::add(CControl *control) {
-   (*this)[control->fieldName()] = control;
+void CControlList::add(CControl *control)
+{
+    (*this)[control->fieldName()] = control;
 }
 
-void CControlList::add(const Fl_Group& group) {
-   scanControls(&group);
+void CControlList::add(const Fl_Group& group)
+{
+    scanControls(&group);
 }
 
-void CControlList::add(const CControlList& list) {
-   const_iterator itor = list.begin();
-   for ( ; itor != list.end(); itor++)
-      add(itor->second);
+void CControlList::add(const CControlList& list)
+{
+    const_iterator itor = list.begin();
+    for (; itor != list.end(); itor++)
+        add(itor->second);
 }
 
-void CControlList::remove(const CControlList& l) {
-   const_iterator itor = l.begin();
-   for (; itor != l.end(); itor++)
-      remove(itor->second);
+void CControlList::remove(const CControlList& l)
+{
+    const_iterator itor = l.begin();
+    for (; itor != l.end(); itor++)
+        remove(itor->second);
 }
 
-void CControlList::reset() {
-   iterator itor = begin();
-   for ( ; itor != end(); itor++ ) {
-      itor->second->reset();
-   }
+void CControlList::reset()
+{
+    iterator itor = begin();
+    for (; itor != end(); itor++)
+        itor->second->reset();
 }

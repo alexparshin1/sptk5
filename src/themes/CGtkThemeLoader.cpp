@@ -169,7 +169,7 @@ void CGtkThemeParser::parseEngine(const CStrings& gtkrc,unsigned& currentRow,CXm
         }
     }
     catch (exception& e) {
-        cerr << "Error parsing engine '" << engineNode->getAttribute("name","") << "': " << e.what() << endl;
+        cerr << "Error parsing engine '" << engineNode->getAttribute("name","").str() << "': " << e.what() << endl;
     }
 }
 
@@ -178,7 +178,7 @@ void CGtkThemeParser::parseStyle(const CStrings& gtkrc,unsigned& currentRow,CXml
     if (gtkrc[currentRow].find("style") != 0)
         throw runtime_error("Expecting 'style' in row "+gtkrc[currentRow]);
     CXmlNode* styleNode = parseParameter(gtkrc[currentRow++],parentNode);
-    if (styleNode->getAttribute("name") == "scrollbar")
+    if (styleNode->getAttribute("name").str() == "scrollbar")
         styleNode->setAttribute("name","scrollbars");
     if (gtkrc[currentRow] != "{")
         throw runtime_error("Expecting '{' in row '"+gtkrc[currentRow]+"'");

@@ -28,7 +28,6 @@
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/gui/CControl.h>
-#include <sptk5/istring.h>
 #include <stdexcept>
 
 using namespace std;
@@ -48,7 +47,7 @@ CLayoutClient::CLayoutClient(Fl_Widget* widget,int layoutSize,CLayoutAlign ca) {
 void CLayoutClient::load(const CXmlNode* node,CLayoutXMLmode xmlMode) {
     if (xmlMode & (int) LXM_LAYOUT) {
         CLayoutAlign layoutAlign;
-        istring alignName = node->getAttribute("layout_align");
+        string alignName( lowerCase(node->getAttribute("layout_align")) );
         switch (alignName[0]) {
         case 'b':
             layoutAlign = SP_ALIGN_BOTTOM;
@@ -91,7 +90,7 @@ void CLayoutClient::load(const CXmlNode* node,CLayoutXMLmode xmlMode) {
 
         string boxTypeName = node->getAttribute("box");
         if (boxTypeName.empty())
-            boxTypeName = node->getAttribute("frame");
+            boxTypeName = (string) node->getAttribute("frame");
         if (!boxTypeName.empty()) {
             map<string,Fl_Boxtype>::const_iterator btor = CLayoutManager::boxTypeNames().find(boxTypeName);
             if (btor != CLayoutManager::boxTypeNames().end())

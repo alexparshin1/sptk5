@@ -109,10 +109,10 @@ void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string image
     for (CXmlNode::iterator itor = images.begin(); itor != images.end(); itor++) {
         CXmlNode* imageNode = *itor;
 
-        if (!attribute.empty() && imageNode->getAttribute(attribute) != attributeValue)
+        if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)
             continue;
         
-        bool defaultFrame = imageNode->getAttribute("detail","") == "buttondefault";
+        bool defaultFrame = imageNode->getAttribute("detail","").str() == "buttondefault";
 
         string fileName = gtkFullFileName(imageNode->getAttribute("file"));
         string overlayFileName = gtkFullFileName(imageNode->getAttribute("overlay_file"));
@@ -127,7 +127,7 @@ void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string image
             normalOverlayFileName = overlayFileName;
         
         if (!borderInitted) {
-            m_stretch = imageNode->getAttribute("stretch") == "TRUE";
+            m_stretch = imageNode->getAttribute("stretch").str() == "TRUE";
             string border = imageNode->getAttribute("border","{ 0, 0, 0, 0 }");
             size_t pos1 = border.find("{");
             size_t pos2 = border.find("}");

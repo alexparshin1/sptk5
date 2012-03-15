@@ -39,11 +39,12 @@ namespace sptk {
 /// @{
 
 /// @brief Class CColumn represents a column descriptor for CListView
-class SP_EXPORT CColumn {
+class SP_EXPORT CColumn
+{
 protected:
-    std::string  m_name;            ///< Column name
+    std::string  m_name;        ///< Column name
     uint32_t     m_width;       ///< Column width in pixels
-    CVariantType m_type;            ///< Column data type
+    CVariantType m_type;        ///< Column data type
     bool         m_visible;     ///< Column visibility
     bool         m_autoWidth;   ///< Column auto width flag
 public:
@@ -53,49 +54,57 @@ public:
     /// @param type CVariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, column visibility
-    CColumn(std::string cname="",CVariantType type=VAR_STRING,int16_t cwidth=100,bool cvisible=true);
+    CColumn(std::string cname = "", CVariantType type = VAR_STRING, int16_t cwidth = 100, bool cvisible = true);
 
     /// @brief Copy constructor
     /// @param col const CColumn&, source column object
     CColumn(const CColumn& col);
 
     /// @brief Returns column name
-    std::string name()        const {
+    std::string name() const
+    {
         return m_name;
     }
 
     /// @brief Returns column width in pixels
-    int16_t   width()           const {
+    int16_t width() const
+    {
         return m_width;
     }
 
     /// @brief Sets column width in pixels
-    void    width(int16_t w)          {
+    void width(int16_t w)
+    {
         m_width = w;
     }
 
     /// @brief Returns column visibility
-    bool    visible()         const {
+    bool visible() const
+    {
         return m_visible;
     }
 
     /// @brief Sets column visibility
-    void    visible(bool v)         {
+    void visible(bool v)
+    {
         m_visible = v;
     }
 
     /// @brief Returns Column auto width flag
-    bool    autoWidth()       const {
+    bool autoWidth() const
+    {
         return m_autoWidth;
     }
 
     /// @brief Sets column auto width flag
-    void    autoWidth(bool v)       {
+    void autoWidth(bool v)
+    {
         m_autoWidth = v;
     }
 
     /// @brief Returns column data type
-    CVariantType type()       const {
+    CVariantType type() const
+    {
         return m_type;
     }
 
@@ -111,7 +120,8 @@ public:
     /// Loads information about column
     /// from the registry.
     /// @param node const CXmlNode*, an XML node to load column information from
-    void load(const CXmlNode* node) {
+    void load(const CXmlNode* node)
+    {
         load(*node);
     }
 
@@ -127,21 +137,25 @@ public:
     /// Saves information about column
     /// from the registry.
     /// @param node CXmlNode*, an XML node to unload column information to
-    void save(CXmlNode* node) const {
+    void save(CXmlNode* node) const
+    {
         save(*node);
     }
 };
 
 /// Class CColumnList is a list of columns used in CListView
-class SP_EXPORT CColumnList : public std::vector<CColumn> {
+class SP_EXPORT CColumnList: public std::vector<CColumn>
+{
 public:
 
     /// @brief Default constructor
-    CColumnList() {}
+    CColumnList()
+    {
+    }
 
     /// @brief Finds the column index by column name
     /// @param columnName const char *, column name
-    int  indexOf(const char *columnName) const;
+    int indexOf(const char *columnName) const;
 
     /// @brief Loads columns information
     ///
@@ -155,7 +169,8 @@ public:
     /// Loads information about columns
     /// from the registry.
     /// @param node const CXmlNode*, an XML node to load columns information from
-    void load(const CXmlNode* node) {
+    void load(const CXmlNode* node)
+    {
         load(*node);
     }
 
@@ -171,7 +186,8 @@ public:
     /// Saves information about columns
     /// from the registry.
     /// @param node CXmlNode*, an XML node to unload columns information to
-    void save(CXmlNode* node) const {
+    void save(CXmlNode* node) const
+    {
         save(*node);
     }
 };

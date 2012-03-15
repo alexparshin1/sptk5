@@ -32,14 +32,14 @@ using namespace std;
 using namespace sptk;
 
 CTabImage::CTabImage(const CTar& tar,const CXmlNode* tabImageNode) {
-    m_name = tabImageNode->getAttribute("name");
+    m_name = tabImageNode->getAttribute("name").str();
     string fileName = tabImageNode->getAttribute("image");
     m_image = new CPngImage(tar.file(fileName));
     m_leftFrameWidth = tabImageNode->getAttribute("left_frame","0");
     m_rightFrameWidth = tabImageNode->getAttribute("right_frame","0");
     m_topFrameHeight = tabImageNode->getAttribute("top_frame","0");
     m_bottomFrameHeight = tabImageNode->getAttribute("bottom_frame","0");
-    if (tabImageNode->getAttribute("fill") == "stretch")
+    if (tabImageNode->getAttribute("fill").str() == "stretch")
         m_backgroundDrawMode = CPngImage::PDM_STRETCH;
     else
         m_backgroundDrawMode = CPngImage::PDM_TILE;

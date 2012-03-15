@@ -53,7 +53,7 @@ void testXPath(string fileName,string xpath,int expectedNodeCount=-1) {
         CXmlNode* node = *itor;
         cout << node->name();
         if (node->hasAttribute("N"))
-            cout << ", N=" << node->getAttribute("N");
+            cout << ", N=" << node->getAttribute("N").str();
         if (!node->value().empty())
             cout << ", value=" << node->value();
         cout << endl;

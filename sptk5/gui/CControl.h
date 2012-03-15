@@ -44,7 +44,8 @@ namespace sptk {
 /// @{
 
 /// @brief Control kind is the constant to report the internal SPTK RTTI.
-enum CControlKind {
+enum CControlKind
+{
     DCV_UNKNOWN,                 ///< Control kind is unknown
     DCV_BOX=1,                   ///< Control is a box of plain text
     DCV_HTMLBOX=2,               ///< Control is a box of HTML text
@@ -69,7 +70,8 @@ enum CControlKind {
 };
 
 /// @brief Special control flags (used as bit combination)
-enum FGENTRYFLAGS {
+enum FGENTRYFLAGS
+{
     FGE_NONE,                   ///< No flags
     FGE_SPELLCHECK=1,           ///< Requires spell checking
     FGE_MANDATORY=2,            ///< Must have some value
@@ -93,7 +95,8 @@ SP_EXPORT bool checkFieldName(std::string fldName);
 ///
 /// It is a group used as a container for the widget(s) inside.
 /// Every CControl has a field name, and it can be a layout client.
-class SP_EXPORT CControl : public ::Fl_Group, public CLayoutClient {
+class SP_EXPORT CControl : public ::Fl_Group, public CLayoutClient
+{
     friend class CInternalComboBoxPanel;
     friend class CEditor;
     friend class CBaseButton;
@@ -129,22 +132,22 @@ protected:
     bool containsFocus() const;
 
     /// @brief Internal focus notification on focus change
-    void notifyFocus(bool gotFocus=true);
+    void notifyFocus(bool gotFocus = true);
 
     /// @brief Internal focus notification on focus change
-    virtual void     onEnter();
+    virtual void onEnter();
 
     /// @brief Internal focus notification on focus change
-    virtual void     onExit();
+    virtual void onExit();
 
     /// @brief Computes the label height based on the labelFont() and labelWidth()
-    uint32_t         labelHeight() const;
+    uint32_t labelHeight() const;
 
     /// @brief Special handle() method
-    int              handle(int);
+    int handle(int);
 
     /// @brief Internal callback function
-    static void internalCallback(Fl_Widget *internalWidget,void *data);
+    static void internalCallback(Fl_Widget *internalWidget, void *data);
 
 public:
 
@@ -152,7 +155,7 @@ public:
     /// @param label const char *, label
     /// @param layoutSize int, widget align in layout
     /// @param layoutAlign CLayoutAlign, widget align in layout
-    CControl(const char *label,int layoutSize=20,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CControl(const char *label, int layoutSize = 20, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /// @brief Constructor in FLTK style
@@ -171,61 +174,64 @@ public:
     /// @param y int, y-position
     /// @param w int, width
     /// @param h int, height
-    virtual void     resize(int x,int y,int w,int h);
+    virtual void resize(int x, int y, int w, int h);
 
     /// @brief Draws the control
-    virtual void     draw();
+    virtual void draw();
 
     /// @brief Returns the control's user data tag
-    virtual int      tag() const {
+    virtual int tag() const
+    {
         return m_tag;
     }
 
     /// @brief Sets the control's user data tag
-    virtual void     tag(int t)  {
+    virtual void tag(int t)
+    {
         m_tag = t;
     }
 
     /// @brief Returns the control's text font
 #if FL_MAJOR_VERSION < 2
-    virtual Fl_Font  textFont() const;
+    virtual Fl_Font textFont() const;
 
     /// @brief Sets the control's text font
-    virtual void     textFont(Fl_Font);
+    virtual void textFont(Fl_Font);
 #else
 
-    virtual Font    *textFont() const;
+    virtual Font* textFont() const;
 
     /// @brief Sets the control's text font
-    virtual void     textFont(Font *);
+    virtual void textFont(Font *);
 #endif
 
     /// @brief Returns the control's text font size
-    virtual uchar    textSize() const;
+    virtual uchar textSize() const;
 
     /// @brief Sets the control's text font size
-    virtual void     textSize(uchar);
+    virtual void textSize(uchar);
 
     /// @brief Returns the control's text color
     virtual Fl_Color textColor() const;
 
     /// @brief Sets the control's text color
-    virtual void     textColor(Fl_Color);
+    virtual void textColor(Fl_Color);
 
     /// @brief Returns the control's label color
     virtual Fl_Color labelColor() const;
 
     /// @brief Sets the control's label color
-    virtual void     labelColor(Fl_Color);
+    virtual void labelColor(Fl_Color);
 
     /// @brief Returns the control's background color
     virtual Fl_Color color() const;
 
     /// @brief Sets the control's background color
-    virtual void     color(Fl_Color);
+    virtual void color(Fl_Color);
 
     /// @brief Returns the control's flags
-    uint32_t flags() const {
+    uint32_t flags() const
+    {
         return m_controlFlags;
     }
 
@@ -233,51 +239,57 @@ public:
     void flags(uint32_t flags);
 
     /// @brief Returns main widget inside the container
-    Fl_Widget*       control() const {
+    Fl_Widget* control() const
+    {
         return m_control;
     }
 
     /// @brief Returns control's label
-    const std::string& label() const {
+    const std::string& label() const
+    {
         return m_label;
     }
 
     /// @brief Sets control's label
-    void             label(const std::string);
+    void label(const std::string);
 
     /// @brief Returns control's menu
-    Fl_Menu_*        menu() const;
+    Fl_Menu_* menu() const;
 
     /// @brief Sets control's menu
-    void             menu(const Fl_Menu_Item*);
+    void menu(const Fl_Menu_Item*);
 
     /// @brief Returns control's label font
-    Fl_Font          labelFont() const {
+    Fl_Font labelFont() const
+    {
         return labelfont();
     }
 
     /// @brief Sets control's label font
-    void             labelSize(Fl_Font f) {
+    void labelSize(Fl_Font f)
+    {
         labelfont(f);
     }
 
     /// @brief Returns control's label font size
-    uchar            labelSize() const;
+    uchar labelSize() const;
 
     /// @brief Sets control's label font size
-    void             labelSize(uchar);
+    void labelSize(uchar);
 
     /// @brief Returns control's label width
-    uint32_t         labelWidth() const {
+    uint32_t labelWidth() const
+    {
         return m_labelWidth;
     }
 
     /// @brief Sets control's label width
-    void             labelWidth(uint32_t);
+    void labelWidth(uint32_t);
 
     /// @brief Sets control's hint (tooltip)
     /// @param str std::string, tooltip text
-    void             hint(std::string str) {
+    void hint(std::string str)
+    {
         if (m_control) {
             m_hint = str;
             m_control->tooltip(m_hint.c_str());
@@ -285,46 +297,57 @@ public:
     }
 
     /// @brief Returns control's hint (tooltip)
-    std::string     hint() const {
+    std::string hint() const
+    {
         return m_hint;
     }
 
     /// @brief Returns control's max input length, if applicable
-    virtual int      maxLength() const {
+    virtual int maxLength() const
+    {
         return 0;
     }
 
     /// @brief Sets control's max input length, if applicable
-    virtual void     maxLength(int) {}
+    virtual void maxLength(int)
+    {
+    }
 
     /// @brief Returns control's field name for universal data connection
-    virtual const std::string& fieldName() const {
+    virtual const std::string& fieldName() const
+    {
         return m_fieldName;
     }
 
     /// @brief Sets control's field name for universal data connection
-    virtual void     fieldName(const std::string&);
+    virtual void fieldName(const std::string&);
 
     /// @brief Returns control's kind (internal SPTK RTTI).
     virtual CControlKind kind() const = 0;
 
     /// @brief Returns control's class name (internal SPTK RTTI).
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "control";
     }
 
     /// @brief Sets the control to empty text (for the input entries)
     ///
     /// Also sets no selection state / default selection (for the lists)
-    virtual void     reset() {
+    virtual void reset()
+    {
         data("");
     }
 
     /// @brief Loads control data from query fields
-    virtual void     load(CQuery *) {}
+    virtual void load(CQuery *)
+    {
+    }
 
     /// @brief Saves control data to query params
-    virtual void     save(CQuery *) {}
+    virtual void save(CQuery *)
+    {
+    }
 
     /// @brief Loads control data from XML
     ///
@@ -332,7 +355,7 @@ public:
     /// as well as visible() and active() states
     /// @param node CXmlNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void     load(const CXmlNode* node,CLayoutXMLmode xmlMode);
+    virtual void load(const CXmlNode* node, CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
@@ -340,153 +363,177 @@ public:
     /// as well as visible() and active() states
     /// @param node CXmlNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(CXmlNode* node, CLayoutXMLmode xmlMode) const;
 
     /// @brief Returns true if the control state is valid, and the data is inside the limits (if applicable)
-    virtual bool     valid() const = 0;
+    virtual bool valid() const = 0;
 
     /// @brief The universal data connector
     /// @returns control data
-    virtual CVariant data() const {
+    virtual CVariant data() const
+    {
         return CVariant("");
     }
 
     /// @brief The universal data connector, sets control data
-    virtual void     data(const CVariant v) {}
+    virtual void data(const CVariant v)
+    {
+    }
 
     /// @brief Fires the event generated by this control
-    void             fireEvent(CEvent ev,int32_t arg);
+    void fireEvent(CEvent ev, int32_t arg);
 
     /// @brief Returns the last event fired by this control
-    const CEventInfo& event() const {
+    const CEventInfo& event() const
+    {
         return m_event;
     }
 
     /// @brief Returns the event type for the last fired by this control
-    CEvent           eventType() const {
+    CEvent eventType() const
+    {
         return m_event.type();
     }
 
     /// @brief Returns the event argument for the last fired by this control
-    int              eventArgument() const {
+    int eventArgument() const
+    {
         return m_event.argument();
     }
 
     /// @brief Converts control name to control kind
-    static  CControlKind controlNameToType(std::string typeName,int& maxLength,std::string values="");
+    static CControlKind controlNameToType(std::string typeName, int& maxLength, std::string values = "");
 
     /// @brief Control data assignment
-    CControl& operator = (const std::string& str) {
+    CControl& operator =(const std::string& str)
+    {
         data(str);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (const char *str)    {
+    CControl& operator =(const char *str)
+    {
         data(str);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (int32_t v)              {
+    CControl& operator =(int32_t v)
+    {
         data(v);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (uint32_t v)         {
+    CControl& operator =(uint32_t v)
+    {
         data(v);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (int64_t v)              {
+    CControl& operator =(int64_t v)
+    {
         data(v);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (uint64_t v)         {
+    CControl& operator =(uint64_t v)
+    {
         data(v);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (float v)            {
+    CControl& operator =(float v)
+    {
         data(v);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (double v)           {
+    CControl& operator =(double v)
+    {
         data(v);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (CDateTime dt)       {
+    CControl& operator =(CDateTime dt)
+    {
         data(dt);
         return *this;
     }
 
     /// @brief Control data assignment
-    CControl& operator = (CField& fld)        {
+    CControl& operator =(CField& fld)
+    {
         data(fld);
         return *this;
     }
 
     /// @brief Control data conversion
-    operator std::string () const   {
+    operator std::string() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator int32_t () const       {
+    operator int32_t() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator uint32_t () const  {
+    operator uint32_t() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator int64_t () const       {
+    operator int64_t() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator uint64_t () const  {
+    operator uint64_t() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator float () const     {
+    operator float() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator double () const    {
+    operator double() const
+    {
         return data();
     }
 
     /// @brief Control data conversion
-    operator CDateTime () const {
+    operator CDateTime() const
+    {
         return data();
     }
 
 public:
     /// @brief Default callback function to support CControl default menu item 'Copy'
-    static void defaultControlMenuCopy(Fl_Widget *,void *);
+    static void defaultControlMenuCopy(Fl_Widget *, void *);
 
     /// @brief Default callback function to support CControl default menu item 'Delete'
-    static void defaultControlMenuCut(Fl_Widget *,void *);
+    static void defaultControlMenuCut(Fl_Widget *, void *);
 
     /// @brief Default callback function to support CControl default menu item 'Paste'
-    static void defaultControlMenuPaste(Fl_Widget *,void *);
+    static void defaultControlMenuPaste(Fl_Widget *, void *);
 
     /// @brief Default callback function to support CControl default menu item 'Clear'
-    static void defaultControlMenuClear(Fl_Widget *,void *);
+    static void defaultControlMenuClear(Fl_Widget *, void *);
 
     /// @brief CControl default menu
     static const Fl_Menu_Item defaultControlMenu[];
@@ -499,7 +546,7 @@ public:
 /// @param label std::string, a control label
 /// @param fieldName std::string, a control field name
 /// @param layoutSize int, a control layout size
-CControl *createControl(int controlKind,std::string label,std::string fieldName,int layoutSize);
+CControl *createControl(int controlKind, std::string label, std::string fieldName, int layoutSize);
 
 /// @brief Create a control or a group of controls
 ///
@@ -524,7 +571,7 @@ CControl *createControl(int controlKind,std::string label,std::string fieldName,
 /// The group node may contain other controls. If the control type or parameter is not recognized,
 /// the exception is thrown.
 /// @param xmlControls const CXmlNodeList&, the controls description in XML
-void createControls(const CXmlNodeList& xmlControls) throw(std::exception);
+void createControls(const CXmlNodeList& xmlControls) throw (std::exception);
 
 /// @}
 }

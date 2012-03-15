@@ -328,20 +328,21 @@ public:
         return *(CXmlAttributes*) 0;
     }
 
-    /// Returns true, if node has any attributes
+    /// @brief Returns true, if node has any attributes
     virtual bool hasAttributes() const
     {
         return false;
     }
 
-    /// Returns true, if given attribute is found
+    /// @brief Returns true, if given attribute is found
     /// @param attr const char *, attribute to search
     virtual bool hasAttribute(const char *attr) const
     {
         return false;
     }
 
-    /// Returns attribute value for given attribute.
+    /// @brief Returns attribute value for given attribute.
+    ///
     /// HTML tags can have empty attributes, for those you should use has_attribute() method.
     /// @param attr name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
@@ -351,7 +352,8 @@ public:
         return defaultValue;
     }
 
-    /// Sets new value to attribute 'attr'.
+    /// @brief Sets new value to attribute 'attr'.
+    ///
     /// If attribute is not found, it's added to map.
     /// @param attr attribute name
     /// @param value attribute value
@@ -360,7 +362,8 @@ public:
     {
     }
 
-    /// Sets new value to attribute 'attr'.
+    /// @brief Sets new value to attribute 'attr'.
+    ///
     /// If attribute is not found, it's added to map.
     /// @param attr const string&, an attribute name
     /// @param value CXmlValue, attribute value
@@ -369,7 +372,7 @@ public:
     {
     }
 
-    /// Saves node to buffer.
+    /// @brief Saves node to buffer.
     /// @param buffer to save
     /// @param indent how many indent spaces at start
     virtual void save(CBuffer &buffer, int indent = 0) const;

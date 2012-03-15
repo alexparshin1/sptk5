@@ -36,7 +36,8 @@
 using namespace std;
 using namespace sptk;
 
-CColumn::CColumn(const std::string cname,CVariantType type,short cwidth,bool cvisible) {
+CColumn::CColumn(const std::string cname, CVariantType type, short cwidth, bool cvisible)
+{
     m_name = cname;
     m_type = type;
     m_visible = cvisible;
@@ -49,7 +50,8 @@ CColumn::CColumn(const std::string cname,CVariantType type,short cwidth,bool cvi
     }
 }
 
-CColumn::CColumn(const CColumn& col) {
+CColumn::CColumn(const CColumn& col)
+{
     m_name = col.m_name;
     m_type = col.m_type;
     m_width = col.m_width;
@@ -57,25 +59,28 @@ CColumn::CColumn(const CColumn& col) {
     m_autoWidth = col.m_autoWidth;
 }
 
-void CColumn::load(const CXmlNode& node) {
-    m_name = node.getAttribute("caption");
-    m_type = (CVariantType)(unsigned) node.getAttribute("type");
+void CColumn::load(const CXmlNode& node)
+{
+    m_name = (string) node.getAttribute("caption");
+    m_type = (CVariantType) (unsigned) node.getAttribute("type");
     m_width = node.getAttribute("width");
     m_visible = node.getAttribute("visible");
     m_autoWidth = node.getAttribute("auto_width");
 }
 
-void CColumn::save(CXmlNode& node) const {
+void CColumn::save(CXmlNode& node) const
+{
     node.clear();
     node.name("column");
-    node.setAttribute("caption",m_name);
-    node.setAttribute("type",m_type);
-    node.setAttribute("width",m_width);
-    node.setAttribute("visible",m_visible);
-    node.setAttribute("auto_width",m_autoWidth);
+    node.setAttribute("caption", m_name);
+    node.setAttribute("type", m_type);
+    node.setAttribute("width", m_width);
+    node.setAttribute("visible", m_visible);
+    node.setAttribute("auto_width", m_autoWidth);
 }
 
-int CColumnList::indexOf(const char *colname) const {
+int CColumnList::indexOf(const char *colname) const
+{
     unsigned cnt = size();
     for (unsigned i = 0; i < cnt; i++) {
         const CColumn& column = operator[](i);
@@ -85,7 +90,8 @@ int CColumnList::indexOf(const char *colname) const {
     return -1;
 }
 
-void CColumnList::load(const CXmlNode& node) {
+void CColumnList::load(const CXmlNode& node)
+{
     CXmlNode::const_iterator itor = node.begin();
     CXmlNode::const_iterator iend = node.end();
     resize(node.size());
@@ -97,20 +103,23 @@ void CColumnList::load(const CXmlNode& node) {
                 continue;
             CColumn& column = (*this)[columnIndex];
             column.load(columnNode);
-        } catch (...) {}
+        } catch (...) {
+        }
     }
 }
 
-void CColumnList::save(CXmlNode& node) const {
+void CColumnList::save(CXmlNode& node) const
+{
     node.clear();
     node.name("columns");
     unsigned counter = size();
     for (unsigned i = 0; i < counter; i++) {
         try {
             const CColumn& column = (*this)[i];
-            CXmlNode& columnNode = *(new CXmlElement(node,"column"));
+            CXmlNode& columnNode = *(new CXmlElement(node, "column"));
             column.save(columnNode);
-            columnNode.setAttribute("index",i);
-        } catch (...) {}
+            columnNode.setAttribute("index", i);
+        } catch (...) {
+        }
     }
 }

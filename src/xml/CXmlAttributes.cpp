@@ -31,7 +31,7 @@
 using namespace sptk;
 
 CXmlAttribute::CXmlAttribute(CXmlElement* parent, const char* tagname, CXmlValue avalue) :
-        CXmlNamedItem(*parent->document())
+    CXmlNamedItem(*parent->document())
 {
     name(tagname);
     value(avalue);
@@ -39,7 +39,7 @@ CXmlAttribute::CXmlAttribute(CXmlElement* parent, const char* tagname, CXmlValue
 }
 
 CXmlAttribute::CXmlAttribute(CXmlElement* parent, const std::string& tagname, CXmlValue avalue) :
-        CXmlNamedItem(*parent->document())
+    CXmlNamedItem(*parent->document())
 {
     name(tagname);
     value(avalue);
@@ -86,7 +86,7 @@ CXmlValue CXmlAttributes::getAttribute(std::string attr, const char *defaultValu
 void CXmlAttributes::setAttribute(std::string attr, CXmlValue value, const char *defaultValue)
 {
     iterator itor = findFirst(attr.c_str());
-    if (defaultValue && value == defaultValue) {
+    if (defaultValue && value.str() == defaultValue) {
         if (itor != end()) {
             delete *itor;
             erase(itor);

@@ -32,9 +32,9 @@ using namespace sptk;
 
 CXmlValue::operator bool() const
 {
-    if (empty())
+    if (m_value.empty())
         return false;
-    char ch = c_str()[0];
+    char ch = m_value.c_str()[0];
     const char *p = strchr("TtYy1", ch);
     return p != 0;
 }
@@ -42,25 +42,25 @@ CXmlValue::operator bool() const
 CXmlValue& CXmlValue::operator =(bool v)
 {
     if (v)
-        assign("Y");
+        m_value.assign("Y", 1);
     else
-        assign("N");
+        m_value.assign("N", 1);
     return *this;
 }
 
 CXmlValue& CXmlValue::operator =(int32_t v)
 {
     char buff[64];
-    sprintf(buff, "%i", v);
-    assign(buff);
+    uint32_t sz = sprintf(buff, "%i", v);
+    m_value.assign(buff, sz);
     return *this;
 }
 
 CXmlValue& CXmlValue::operator =(uint32_t v)
 {
     char buff[64];
-    sprintf(buff, "%u", v);
-    assign(buff);
+    uint32_t sz = sprintf(buff, "%u", v);
+    m_value.assign(buff, sz);
     return *this;
 }
 
@@ -68,11 +68,11 @@ CXmlValue& CXmlValue::operator =(int64_t v)
 {
     char buff[64];
 #if SIZEOF_LONG == 8
-    sprintf(buff,"%li",v);
+    uint32_t sz = sprintf(buff,"%li",v);
 #else
-    sprintf(buff, "%lli", v);
+    uint32_t sz = sprintf(buff, "%lli", v);
 #endif
-    assign(buff);
+    m_value.assign(buff, sz);
     return *this;
 }
 
@@ -80,18 +80,18 @@ CXmlValue& CXmlValue::operator =(uint64_t v)
 {
     char buff[64];
 #if SIZEOF_LONG == 8
-    sprintf(buff,"%lu",v);
+    uint32_t sz = sprintf(buff,"%lu",v);
 #else
-    sprintf(buff, "%llu", v);
+    uint32_t sz = sprintf(buff, "%llu", v);
 #endif
-    assign(buff);
+    m_value.assign(buff, sz);
     return *this;
 }
 
 CXmlValue& CXmlValue::operator =(double v)
 {
     char buff[64];
-    sprintf(buff, "%f", v);
-    assign(buff);
+    uint32_t sz = sprintf(buff, "%f", v);
+    m_value.assign(buff, sz);
     return *this;
 }

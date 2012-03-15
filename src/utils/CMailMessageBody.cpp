@@ -27,7 +27,6 @@
 
 #include <sptk5/CMailMessageBody.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/istring.h>
 #include <sptk5/string_ext.h>
 #include <string.h>
 
@@ -37,39 +36,41 @@
 using namespace std;
 using namespace sptk;
 
-string CMailMessageBody::stripHtml(const string& origHtml) {
-   CStrings html(origHtml,"<");
-   unsigned    i = 0;
+string CMailMessageBody::stripHtml(const string& origHtml)
+{
+    CStrings html(origHtml, "<");
+    unsigned i = 0;
 
-   // Remove comments and scripts
-   for (i = 0; i < html.size(); i++) {
-       string& str = html[i];
-       size_t pos = str.find(">");
-       if (pos == STRING_NPOS)
-           continue;
-       str = str.substr(pos+1);
-       if (str.empty()) {
-           html.erase(html.begin()+i);
-           i--;
-       }
-   }
+    // Remove comments and scripts
+    for (i = 0; i < html.size(); i++) {
+        string& str = html[i];
+        size_t pos = str.find(">");
+        if (pos == STRING_NPOS)
+            continue;
+        str = str.substr(pos + 1);
+        if (str.empty()) {
+            html.erase(html.begin() + i);
+            i--;
+        }
+    }
 
-   return trim(replaceAll(replaceAll(html.asString(" "),"   "," "),"  "," "));
+    return trim(replaceAll(replaceAll(html.asString(" "), "   ", " "), "  ", " "));
 }
 
-void CMailMessageBody::text(const string& messageText,bool smtp) {
-   string msg;
-   if (smtp)
-      msg = replaceAll(messageText,"\n.\n","\n \n");
-   else
-      msg = messageText;
-   if (upperCase(messageText.substr(0,100)).find("<HTML>") == STRING_NPOS) {
-      m_type = MMT_PLAIN_TEXT_MESSAGE;
-      m_plainText = msg;
-      m_htmlText = "";
-   } else {
-      m_type = MMT_HTML_MESSAGE;
-      m_plainText = stripHtml(msg);
-      m_htmlText = msg;
-   }
+void CMailMessageBody::text(const string& messageText, bool smtp)
+{
+    string msg;
+    if (smtp)
+        msg = replaceAll(messageText, "\n.\n", "\n \n");
+    else
+        msg = messageText;
+    if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS) {
+        m_type = MMT_PLAIN_TEXT_MESSAGE;
+        m_plainText = msg;
+        m_htmlText = "";
+    } else {
+        m_type = MMT_HTML_MESSAGE;
+        m_plainText = stripHtml(msg);
+        m_htmlText = msg;
+    }
 }

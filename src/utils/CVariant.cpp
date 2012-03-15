@@ -616,7 +616,7 @@ CVariantType CVariant::nameType(const char* name) {
 }
 
 void CVariant::load(const CXmlNode& node) {
-    const string& ntype = node.getAttribute("type");
+    const string& ntype = node.getAttribute("type").str();
     unsigned type = nameType(ntype.c_str());
     switch (type) {
     case VAR_BOOL:

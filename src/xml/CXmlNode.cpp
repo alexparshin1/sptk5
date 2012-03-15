@@ -164,7 +164,7 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement, int nodePositi
                     }
                 }
             } else
-                attributeMatch = attributes.getAttribute(*pathElement.attributeName) == pathElement.attributeValue;
+                attributeMatch = attributes.getAttribute(*pathElement.attributeName).str() == pathElement.attributeValue;
         } else {
             if (pathElement.attributeName == starPointer)
                 attributeMatch = hasAttributes();

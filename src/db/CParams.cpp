@@ -3,7 +3,7 @@
                           CParams.cpp  -  description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -139,7 +139,7 @@ void CParamList::add(CParam * item)
 //---------------------------------------------------------------------------
 CParam* CParamList::find(const char *paramName)
 {
-    map<istring, CParam *>::iterator itor = m_index.find(paramName);
+    CParamMap::iterator itor = m_index.find(paramName);
     if (itor == m_index.end())
         return 0;
     return itor->second;
@@ -147,7 +147,7 @@ CParam* CParamList::find(const char *paramName)
 //---------------------------------------------------------------------------
 CParam& CParamList::operator [](const char *paramName) const
 {
-    map<istring, CParam *>::const_iterator itor = m_index.find(paramName);
+    CParamMap::const_iterator itor = m_index.find(paramName);
     if (itor == m_index.end())
         throw CException("Invalid parameter name: " + string(paramName), __FILE__, __LINE__);
     return *itor->second;

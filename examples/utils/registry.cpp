@@ -47,17 +47,17 @@ void printRegistry(CRegistryMode mode) {
             CXmlNode*        node = *itor;
             if (node->name() == "position")
                cout << "Window position: "
-               << node->getAttribute("x") << ":"
-               << node->getAttribute("y") << endl;
+               << (int) node->getAttribute("x") << ":"
+               << (int) node->getAttribute("y") << endl;
             else if (node->name() == "colors") {
                // Processing the subnodes of <colors>
                CXmlNode::iterator itor = node->begin();
                cout << "Window colors:" << endl;
                for (; itor != node->end(); itor++) {
                   CXmlNode* colorNode = *itor;
-                  cout << "  " << colorNode->getAttribute("name")
-                  << ": fg " << colorNode->getAttribute("foreground")
-                  << ", bg " << colorNode->getAttribute("background")
+                  cout << "  " << (string) colorNode->getAttribute("name")
+                  << ": fg " << (string) colorNode->getAttribute("foreground")
+                  << ", bg " << (string) colorNode->getAttribute("background")
                   << endl;
                }
             }

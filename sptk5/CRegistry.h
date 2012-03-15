@@ -30,7 +30,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/istring.h>
 #include <sptk5/cxml>
 
 namespace sptk {
@@ -45,7 +44,11 @@ class CRegistry;
 /// Modes for the registry. User registry is stored in home directory
 /// (if home directory is avalable). Program registry is stored in the program's
 /// startup directory.
-enum CRegistryMode { USER_REGISTRY=1, PROGRAM_REGISTRY=2 };
+enum CRegistryMode
+{
+    USER_REGISTRY = 1,
+    PROGRAM_REGISTRY = 2
+};
 
 
 /// @brief Registry
@@ -53,8 +56,9 @@ enum CRegistryMode { USER_REGISTRY=1, PROGRAM_REGISTRY=2 };
 /// Works with INI and XML configuration-files.
 /// Class allows to read both INI and XML files and write the output file
 /// in the same format, or change the output format before saving the file.
-class SP_EXPORT CRegistry : public CXmlDoc {
-    std::string         m_fileName;            ///< The registry file name
+class SP_EXPORT CRegistry: public CXmlDoc
+{
+    std::string m_fileName;            ///< The registry file name
 
     /// @brief Prepares program registry directory
     void prepareDirectory();
@@ -65,7 +69,7 @@ class SP_EXPORT CRegistry : public CXmlDoc {
     /// @param outputData CStrings&, the string list to save data into
     /// @param node CXmlNode*, the XML node to save
     /// @param currentPath string, current path to the parent node
-    void save(CStrings& outputData,CXmlNode* node,std::string currentPath);
+    void save(CStrings& outputData, CXmlNode* node, std::string currentPath);
 
     /// @brief Cleans the node recursively
     ///
@@ -81,24 +85,26 @@ public:
     /// @param programGroupName std::string, the name of the program group to generate a directory name for the registry files.
     /// Should be a single phrase without '\\' or '/'
     /// @param mode CRegistryMode, see CRegistryMode for details
-    CRegistry(std::string fileName,std::string programGroupName,CRegistryMode mode=USER_REGISTRY);
+    CRegistry(std::string fileName, std::string programGroupName, CRegistryMode mode = USER_REGISTRY);
 
     /// @brief Destructor
-    virtual  ~CRegistry();
+    virtual ~CRegistry();
 
     /// @brief Sets the registry file name
-    void fileName(std::string fname) {
+    void fileName(std::string fname)
+    {
         m_fileName = fname;
     }
 
     /// @brief Returns the registry file name
-    const std::string fileName() {
+    const std::string fileName()
+    {
         return m_fileName;
     }
 
     /// @brief Loads registry from the file. Usually it's the first action with registry.
     /// @param fileName const char*, the optional file name
-    virtual void load(const char* fileName=NULL);
+    virtual void load(const char* fileName = NULL);
 
     /// @brief Loads registry from the string list
     virtual void load(const CStrings& data);
@@ -112,7 +118,11 @@ public:
 
     /// @brief Loads registry from buffer.
     /// @param buffer const CBuffer&, source buffer
-    virtual void load(const CBuffer &buffer) { clear(); CXmlDoc::load(buffer); }
+    virtual void load(const CBuffer &buffer)
+    {
+        clear();
+        CXmlDoc::load(buffer);
+    }
 
     /// @brief Saves registry to the file.
     virtual void save();
@@ -129,7 +139,10 @@ public:
     /// @brief Saves registry to buffer.
     /// @param buffer CBuffer&, a buffer to save document
     /// @param indent int, how many indent spaces at start
-    virtual void save(CBuffer &buffer, int indent=0) const { CXmlDoc::save(buffer,indent); }
+    virtual void save(CBuffer &buffer, int indent = 0) const
+    {
+        CXmlDoc::save(buffer, indent);
+    }
 
 public:
 

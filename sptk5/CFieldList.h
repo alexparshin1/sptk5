@@ -28,9 +28,9 @@
 #ifndef __CFIELDLIST_H__
 #define __CFIELDLIST_H__
 
-#include <sptk5/istring.h>
 #include <sptk5/CField.h>
 #include <sptk5/cxml>
+#include <sptk5/CCaseInsensitiveCompare.h>
 #include <map>
 #include <vector>
 
@@ -44,14 +44,15 @@ namespace sptk {
 /// Is used in CDataSource.
 /// Allows to access data fields by the field name or field index.
 /// Provides the streaming output, and export to XML.
-class SP_EXPORT CFieldList {
-    typedef std::map<istring,CField *> CFieldMap;
-    typedef std::vector<CField *>      CFieldVector;
+class SP_EXPORT CFieldList
+{
+    typedef std::map<std::string, CField *, CCaseInsensitiveCompare>    CFieldMap;
+    typedef std::vector<CField *>                                       CFieldVector;
 
-    void                   *m_userData;        ///< User data - any data you want to associate with that field list
+    void*                   m_userData;        ///< User data - any data you want to associate with that field list
     CFieldVector            m_list;            ///< The list of fields
     CFieldVector::iterator  m_fieldStreamItor; ///< The field iterator for the streamed fields reading
-    CFieldMap              *m_index;           ///< The optional field index by name. 0L if field list isn't indexed.
+    CFieldMap*              m_index;           ///< The optional field index by name. 0L if field list isn't indexed.
     bool                    m_compactXmlMode;  ///< The compact XML mode flag
 
 public:
@@ -69,7 +70,8 @@ public:
     void clear();
 
     /// Returns the nummber of fields in the list
-    uint32_t size() const {
+    uint32_t size() const
+    {
         return (uint32_t) m_list.size();
     }
 
@@ -78,7 +80,8 @@ public:
     /// The compact XML modes means that fields values are stored as attributes, w/o type information.
     /// Otherwise, fields are stored as subnodes, with the field information stored as attributes.
     /// @param compact bool, the compact XML export flag
-    void xmlMode(bool compact) {
+    void xmlMode(bool compact)
+    {
         m_compactXmlMode = compact;
     }
 
@@ -107,32 +110,54 @@ public:
 
     /// @brief Field access by field index, non-const version
     ///
-    /// @param index int, field index
+    /// @param index uint32_t, field index
     /// @returns field reference
-    CField& operator [] (uint32_t index) {
-        return *(CField *)m_list[index];
+    CField& operator [](uint32_t index)
+    {
+        return *(CField *) m_list[index];
+    }
+
+    /// @brief Field access by field index, non-const version
+    ///
+    /// @param index int32_t, field index
+    /// @returns field reference
+    CField& operator [](int32_t index)
+    {
+        return *(CField *) m_list[index];
     }
 
     /// @brief Field access by field index, const version
     ///
-    /// @param index int, field index
+    /// @param index uint32_t, field index
     /// @returns field reference
-    const CField& operator [] (uint32_t index) const {
-        return *(CField *)m_list[index];
+    const CField& operator [](uint32_t index) const
+    {
+        return *(CField *) m_list[index];
+    }
+
+    /// @brief Field access by field index, const version
+    ///
+    /// @param index int32_t, field index
+    /// @returns field reference
+    const CField& operator [](int32_t index) const
+    {
+        return *(CField *) m_list[index];
     }
 
     /// @brief Field access by field name, non-const version
     ///
     /// @param fname const char *, field name
     /// @returns field reference
-    CField& operator [] (const char *fname) {
+    CField& operator [](const char *fname)
+    {
         return *fieldByName(fname);
     }
 
     /// Field access by field name, const version
     /// @param fname const char *, field name
     /// @returns field reference
-    const CField& operator [] (const char *fname) const {
+    const CField& operator [](const char *fname) const
+    {
         return *fieldByName(fname);
     }
 
@@ -140,7 +165,8 @@ public:
     ///
     /// @param fname const std::string&, field name
     /// @returns field reference
-    CField& operator [] (const std::string& fname)   {
+    CField& operator [](const std::string& fname)
+    {
         return *fieldByName(fname.c_str());
     }
 
@@ -148,7 +174,8 @@ public:
     ///
     /// @param fname const std::string&, field name
     /// @returns field reference
-    const CField& operator [] (const std::string& fname) const {
+    const CField& operator [](const std::string& fname) const
+    {
         return *fieldByName(fname.c_str());
     }
 
@@ -158,19 +185,22 @@ public:
     /// or an index (id) of some object. CFieldList doesn't maintain this pointer, just keeps it
     /// as a tag.
     /// @param data void *, a user-defined data
-    void user_data(void *data) {
+    void user_data(void *data)
+    {
         m_userData = data;
     }
 
     /// @brief Returns user data
-    void* user_data() const {
+    void* user_data() const
+    {
         return m_userData;
     }
 
     /// @brief Sets the field stream iterator to the first field
     ///
     /// This method is useful if you're using stream access to fields
-    void rewind() {
+    void rewind()
+    {
         m_fieldStreamItor = m_list.begin();
     }
 

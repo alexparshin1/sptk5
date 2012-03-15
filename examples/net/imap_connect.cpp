@@ -49,9 +49,9 @@ int main( int argc, char *argv[] ) {
 		registry.load();
 		CXmlNode* hostNode = registry.findFirst("host");
 		if (hostNode) {
-			server = hostNode->getAttribute("hostname");
-			user = hostNode->getAttribute("user");
-			password = hostNode->getAttribute("password");
+			server = (string) hostNode->getAttribute("hostname");
+			user = (string) hostNode->getAttribute("user");
+			password = (string) hostNode->getAttribute("password");
 		}
 		IMAP.host(server);
 	}

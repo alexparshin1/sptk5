@@ -30,7 +30,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CBuffer.h>
-#include <sptk5/istring.h>
+#include <sptk5/CCaseInsensitiveCompare.h>
 
 #include <string>
 #include <map>
@@ -41,32 +41,35 @@ namespace sptk {
 /// @{
 
 /// HTTP fields are implemented as case-insensitive map
-typedef std::map<istring,std::string> CStringHttpFieldMap;
+typedef std::map<std::string, std::string, CCaseInsensitiveCompare> CStringHttpFieldMap;
 
 /// @brief HTTP params map
 ///
 /// Designed to hold HTTP parametrs in
 /// CHttpConnect and CCgiApplication. It is, basically, a string-to-string
 /// map with an addition of encode and decode functions for HTTP Mime.
-class CHttpParams : public CStringHttpFieldMap {
-    /// Encodes a string into HTML parameters
+class CHttpParams: public CStringHttpFieldMap
+{
+    /// @brief Encodes a string into HTML parameters
     static std::string encodeString(std::string& str);
 
-    /// Decodes a string from HTML parameters
+    /// @brief Decodes a string from HTML parameters
     static std::string decodeString(std::string& str);
 public:
-    /// Default constructor.
-    CHttpParams() : CStringHttpFieldMap() {}
+    /// @brief Default constructor.
+    CHttpParams() :
+        CStringHttpFieldMap()
+    {
+    }
 
-    /// Encodes HTTP parameters for sending to the server.
+    /// @brief Encodes HTTP parameters for sending to the server.
     /// @param result CBuffer&, output - encoded parameters string (if any) as the buffer.
     void encode(CBuffer& result);
 
-    /// Decodes HTTP parameters that came from the server as a string
-    /// into parameters map.
+    /// @brief Decodes HTTP parameters that came from the server as a string into parameters map.
     /// @param paramString CBuffer, parameters string from HTTP server
     /// @param lowerCaseNames bool, true if you want to lower-case the parameter names
-    void decode(const CBuffer& paramString,bool lowerCaseNames=false);
+    void decode(const CBuffer& paramString, bool lowerCaseNames = false);
 };
 /// @}
 }

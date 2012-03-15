@@ -42,8 +42,9 @@ class CXmlDoc;
 /// @brief XML value
 ///
 /// A string that has converters to and from most popular types
-class SP_EXPORT CXmlValue: public std::string
+class SP_EXPORT CXmlValue
 {
+    std::string     m_value;    ///< XML value
 public:
     /// @brief Default constructor
     ///
@@ -55,22 +56,35 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from character string
+    /// @param v const char *, value
     CXmlValue(const char *v) :
-            std::string(v)
+        m_value(v)
+    {
+    }
+
+    /// @brief Constructor
+    ///
+    /// Creates an XML attribute from character string
+    /// @param v const char *, value
+    /// @param sz uint32_t, value length
+    CXmlValue(const char *v, uint32_t sz) :
+        m_value(v, sz)
     {
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from std::string
-    CXmlValue(std::string v) :
-            std::string(v)
+    /// @param v const std::string&, value
+    CXmlValue(const std::string& v) :
+        m_value(v)
     {
     }
 
     /// @brief Constructor
     ///
     /// Creates an XML attribute from integer
+    /// @param v int32_t, value
     CXmlValue(int32_t v)
     {
         operator =(v);
@@ -79,6 +93,7 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from integer
+    /// @param v uint32_t, value
     CXmlValue(uint32_t v)
     {
         operator =(v);
@@ -87,6 +102,7 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from int32_t
+    /// @param v int64_t, value
     CXmlValue(int64_t v)
     {
         operator =(v);
@@ -95,6 +111,7 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from uint32_t
+    /// @param v uint64_t, value
     CXmlValue(uint64_t v)
     {
         operator =(v);
@@ -103,6 +120,7 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from double
+    /// @param v double, value
     CXmlValue(double v)
     {
         operator =(v);
@@ -111,6 +129,7 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from bool
+    /// @param v bool, value
     CXmlValue(bool v)
     {
         operator =(v);
@@ -119,8 +138,9 @@ public:
     /// @brief Constructor
     ///
     /// Creates an XML attribute from CDateTime
+    /// @param v int32_t, value
     CXmlValue(CDateTime v) :
-            std::string(v)
+        m_value(v)
     {
     }
 
@@ -159,7 +179,7 @@ public:
     /// @param s const std::string, a new value
     CXmlValue& operator =(const std::string& s)
     {
-        assign(s);
+        m_value = s;
         return *this;
     }
 
@@ -168,7 +188,7 @@ public:
     /// @param s const char *, a new value
     CXmlValue& operator =(const char *s)
     {
-        assign(s);
+        m_value = s;
         return *this;
     }
 
@@ -177,29 +197,41 @@ public:
     /// @param s CDateTime, a new value
     CXmlValue& operator =(CDateTime s)
     {
-        assign(s);
+        m_value = s.dateString() + " " + s.timeString(true);
         return *this;
+    }
+
+    /// @brief Returns const reference to string value
+    const std::string& str() const
+    {
+        return m_value;
+    }
+
+    /// @brief Returns the value with the conversion
+    operator std::string() const
+    {
+        return m_value;
     }
 
     /// @brief Returns the value with the conversion
     operator uint32_t() const
     {
-        return atol(c_str());
+        return atol(m_value.c_str());
     }
 
     /// @brief Returns the value with the conversion
     operator int32_t() const
     {
-        return atol(c_str());
+        return atol(m_value.c_str());
     }
 
     /// @brief Returns the value with the conversion
     operator uint64_t() const
     {
 #ifdef __UNIX_COMPILER__
-        return atoll(c_str());
+        return atoll(m_value.c_str());
 #else
-        return _atoi64(c_str());
+        return _atoi64(m_value.c_str());
 #endif
     }
 
@@ -207,9 +239,9 @@ public:
     operator int64_t() const
     {
 #ifdef __UNIX_COMPILER__
-        return atoll(c_str());
+        return atoll(m_value.c_str());
 #else
-        return _atoi64(c_str());
+        return _atoi64(m_value.c_str());
 #endif
     }
 
@@ -219,7 +251,19 @@ public:
     /// @brief Returns the value with the conversion
     operator double() const
     {
-        return atof(c_str());
+        return atof(m_value.c_str());
+    }
+
+    /// @brief Returns the value length
+    uint32_t size() const
+    {
+        return m_value.size();
+    }
+
+    /// @brief Returns true if the value is empty string
+    bool empty() const
+    {
+        return m_value.empty();
     }
 };
 

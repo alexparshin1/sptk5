@@ -28,8 +28,8 @@
 #ifndef __CCONTROLLIST_H__
 #define __CCONTROLLIST_H__
 
-#include <sptk5/istring.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/CCaseInsensitiveCompare.h>
 #include <map>
 
 namespace sptk {
@@ -37,87 +37,90 @@ namespace sptk {
 /// @addtogroup gui GUI Classes
 /// @{
 
-/// String to Control map.
-/// Uses case-insensitive strings and pointers to CControl.
+/// @brief String to Control map.
+/// Uses strings and pointers to CControl.
 /// Strings are control field names.
-typedef std::map<istring,CControl *> CStringControlMap;
+typedef std::map<std::string, CControl *, CCaseInsensitiveCompare> CStringControlMap;
 
-/// List of CControl object pointers in Fl_Group
-class CControlList : public CStringControlMap {
+/// @brief List of CControl object pointers in Fl_Group
+class CControlList: public CStringControlMap
+{
 protected:
-    /// Scan group to find all CControl objects inside,
-    /// including children groups
+
+    /// @brief Scan group to find all CControl objects inside, including children groups
     void scanControls(const Fl_Group *group);
+
 public:
-    /// Constructor
-    CControlList() {}
 
-    /// Adds a CControl pointer into the list
-    void add
-        (CControl *control);
+    /// @brief Constructor
+    CControlList()
+    {
+    }
 
-    /// Adds a list of CControl pointers into the list
-    void add
-        (const CControlList& l);
+    /// @brief Adds a CControl pointer into the list
+    void add(CControl *control);
 
-    /// Adds a list of CControl pointers from the group into the list
-    void add
-        (const Fl_Group& g);
+    /// @brief Adds a list of CControl pointers into the list
+    void add(const CControlList& l);
 
-    /// Removes CControl pointer from the list
-    void remove
-        (CControl *control) {
+    /// @brief Adds a list of CControl pointers from the group into the list
+    void add(const Fl_Group& g);
+
+    /// @brief Removes CControl pointer from the list
+    void remove(CControl *control)
+    {
         erase(control->fieldName());
     }
 
-    /// Removes a list of CControl pointers from the list
-    void remove
-        (const CControlList& l);
+    /// @brief Removes a list of CControl pointers from the list
+    void remove(const CControlList& l);
 
-    /// Returns true if the control for the same field name exists
-    bool contains(CControl *control) const {
+    /// @brief Returns true if the control for the same field name exists
+    bool contains(CControl *control) const
+    {
         if (!control)
             return false;
         return find(control->fieldName()) != end();
     }
 
-    /// Assignment operation
-    CControlList& operator =  (const Fl_Group& g)     {
+    /// @brief Assignment operation
+    CControlList& operator =(const Fl_Group& g)
+    {
         clear();
-        add
-            (g);
+        add(g);
         return *this;
     }
-    /// Assignment operation
-    CControlList& operator =  (const CControlList& l) {
+
+    /// @brief Assignment operation
+    CControlList& operator =(const CControlList& l)
+    {
         clear();
-        add
-            (l);
+        add(l);
         return *this;
     }
 
-    /// Addition operation
-    CControlList& operator << (CControl *c)           {
-        add
-            (c);
+    /// @brief Addition operation
+    CControlList& operator <<(CControl *c)
+    {
+        add(c);
         return *this;
     }
 
-    /// Addition operation
-    CControlList& operator << (const Fl_Group& g)     {
-        add
-            (g);
+    /// @brief Addition operation
+    CControlList& operator <<(const Fl_Group& g)
+    {
+        add(g);
         return *this;
     }
 
-    /// Addition operation
-    CControlList& operator << (const CControlList& l) {
-        add
-            (l);
+    /// @brief Addition operation
+    CControlList& operator <<(const CControlList& l)
+    {
+        add(l);
         return *this;
     }
 
-    /// Sends reset() signal to all the widgets in the list
+    /// @brief Sends reset() signal to all the widgets in the list
     void reset();
 };
 /// @}

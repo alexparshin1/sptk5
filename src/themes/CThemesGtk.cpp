@@ -46,11 +46,11 @@ using namespace sptk;
 void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames) {
     static const CStrings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT","|"); /// DFRAME is a stub
 
-    bool defaultFrame = imageNode->getAttribute("detail","") == "buttondefault";
+    bool defaultFrame = imageNode->getAttribute("detail","").str() == "buttondefault";
 
     string fileName = imageNode->getAttribute("file");
     if (fileName.empty())
-        fileName = imageNode->getAttribute("overlay_file");
+        fileName = imageNode->getAttribute("overlay_file").str();
 
     string state = upperCase(imageNode->getAttribute("state","NORMAL"));
     string border = imageNode->getAttribute("border");
@@ -74,7 +74,7 @@ void CThemes::loadGtkButtonFileNames(CXmlDoc& xml,string XPath,map<CThemeImageSt
     xml.select(buttonImages,XPath);
     for (CXmlNode::iterator itor = buttonImages.begin(); itor != buttonImages.end(); itor++) {
         CXmlNode* imageNode = *itor;
-        if (!orientation.empty() && imageNode->getAttribute("arrow_direction") != orientation)
+        if (!orientation.empty() && imageNode->getAttribute("arrow_direction").str() != orientation)
             continue;
         loadGtkButton(imageNode,buttonFileNames);
     }
