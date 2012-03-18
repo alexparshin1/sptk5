@@ -232,7 +232,7 @@ void CGtkThemeParser::load(std::string themeName) throw (std::exception)
     for (unsigned i = 0; i < gtkrcSource.size(); i++) {
         string s = trim(gtkrcSource[i]);
 
-        uint32_t pos = 0;
+        size_t pos = 0;
 
         // Remove comments (if any)
         if (s.find_first_of("#") != STRING_NPOS) {
