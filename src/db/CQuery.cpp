@@ -365,13 +365,13 @@ void CQuery::disconnect()
     m_db = NULL;
 }
 
-bool CQuery::readField(const char *fname, CVariant& fvalue)
+bool CQuery::readField(const char *, CVariant&)
 {
     //fvalue = m_fields[fname];
     return true;
 }
 
-bool CQuery::writeField(const char *fname, const CVariant& fvalue)
+bool CQuery::writeField(const char *, const CVariant&)
 {
     //m_fields[fname] = fvalue;
     return true;

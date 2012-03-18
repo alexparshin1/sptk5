@@ -122,7 +122,7 @@ void CDatabaseDriver::rollbackTransaction() throw(CException) {
 
 //-----------------------------------------------------------------------------------------------
 
-string CDatabaseDriver::queryError(const CQuery *query) const {
+string CDatabaseDriver::queryError(const CQuery *) const {
    notImplemented("queryError");
    return "";
 }
@@ -151,19 +151,19 @@ void CDatabaseDriver::querySetEof(CQuery *q,bool eof)     {
    q->m_eof = eof;
 }
 
-void CDatabaseDriver::queryAllocStmt(CQuery *query) {
+void CDatabaseDriver::queryAllocStmt(CQuery *) {
    notImplemented("queryAllocStmt");
 }
 
-void CDatabaseDriver::queryFreeStmt(CQuery *query) {
+void CDatabaseDriver::queryFreeStmt(CQuery *) {
    notImplemented("queryFreeStmt");
 }
 
-void CDatabaseDriver::queryCloseStmt(CQuery *query) {
+void CDatabaseDriver::queryCloseStmt(CQuery *) {
    notImplemented("queryCloseStmt");
 }
 
-void CDatabaseDriver::queryPrepare(CQuery *query) {
+void CDatabaseDriver::queryPrepare(CQuery *) {
    notImplemented("queryPrepare");
 }
 
@@ -171,32 +171,32 @@ void CDatabaseDriver::queryUnprepare(CQuery *query) {
    queryFreeStmt(query);
 }
 
-void CDatabaseDriver::queryExecute(CQuery *query) {
+void CDatabaseDriver::queryExecute(CQuery *) {
    notImplemented("queryExecute");
 }
 
-int CDatabaseDriver::queryColCount(CQuery *query) {
+int CDatabaseDriver::queryColCount(CQuery *) {
    notImplemented("queryColCount");
    return 0;
 }
 
-void CDatabaseDriver::queryColAttributes(CQuery *query,int16_t column,int16_t descType,int32_t& value) {
+void CDatabaseDriver::queryColAttributes(CQuery *,int16_t,int16_t,int32_t&) {
    notImplemented("queryColAttributes");
 }
 
-void CDatabaseDriver::queryColAttributes(CQuery *query,int16_t column,int16_t descType,char *buff,int32_t len) {
+void CDatabaseDriver::queryColAttributes(CQuery *,int16_t,int16_t,char *,int32_t) {
    notImplemented("queryColAttributes");
 }
 
-void CDatabaseDriver::queryBindParameters(CQuery *query) {
+void CDatabaseDriver::queryBindParameters(CQuery *) {
    notImplemented("queryBindParameters");
 }
 
-void CDatabaseDriver::queryOpen(CQuery *query) {
+void CDatabaseDriver::queryOpen(CQuery *) {
    notImplemented("queryOpen");
 }
 
-void CDatabaseDriver::queryFetch(CQuery *query) {
+void CDatabaseDriver::queryFetch(CQuery *) {
    notImplemented("queryFetch");
 }
 

@@ -82,7 +82,7 @@ void CMyThread::onThreadExit()
     delete this;
 }
 
-int main(int argc, char* argv[])
+int main(int, char*[])
 {
     CMyThread *thread1 = new CMyThread("Mr. Nice");
     CMyThread *thread2 = new CMyThread("Mr. Naughty");

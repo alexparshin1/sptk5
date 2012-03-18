@@ -82,7 +82,7 @@ void CMyTask::run() throw (exception)
     m_log << name() << " is terminated" << endl;
 }
 
-int main(int argc, char* argv[])
+int main(int, char*[])
 {
     unsigned i;
     vector<CMyTask*> tasks;

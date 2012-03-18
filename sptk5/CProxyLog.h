@@ -53,16 +53,16 @@ protected:
     /// @brief Sets the default priority
     ///
     /// Does nothing since the priority should be defined for the shared (parent) log object
-    /// @param priority CLogPriority&, new default priority
-    virtual void defaultPriority(CLogPriority& priority)
+    /// @param priority CLogPriority, new default priority
+    virtual void defaultPriority(CLogPriority)
     {
     }
 
     /// @brief Sets min message priority
     ///
     /// Does nothing since the min message priority should be defined for the shared (parent) log object
-    /// @param prt const CLogPriority&, min message priority
-    virtual void minPriority(const CLogPriority& prt)
+    /// @param CLogPriority, min message priority
+    virtual void minPriority(CLogPriority)
     {
     }
 

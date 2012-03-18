@@ -72,7 +72,7 @@ void CMyThread::threadFunction()
     m_log << name() << " is terminated" << endl;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     unsigned i;
     vector<CMyThread*> threads;

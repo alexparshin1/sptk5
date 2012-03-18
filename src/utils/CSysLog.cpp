@@ -117,7 +117,7 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
                         SPTK_MESSAGE,// event identifier
                         0,// user security identifier (optional)
                         1,// number of strings to merge with message
-                        0,// size of binary data, in bytes
+                        sz,// size of binary data, in bytes
                         messageStrings,// array of strings to merge with message
                         0// address of binary data
                 )) {

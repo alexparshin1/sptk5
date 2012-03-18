@@ -30,7 +30,7 @@
 
 using namespace sptk;
 
-int main(int argc, char *argv[]) {
+int main() {
 
    puts("Define the date as 2003/09/28, and print the date components:");
    

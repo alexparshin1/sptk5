@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <sptk5/CException.h>
 
-int main(int argc, char *argv[]) {
+int main() {
   
    puts("Let's try to throw the exception and catch it:");
    

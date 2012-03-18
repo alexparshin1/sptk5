@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc,char *argv[]) {
+int main() {
    try {
       cout << "Creating a log file ./logfile_test.log: " << endl;
       CFileLog	fileLog("logfile_test.log");

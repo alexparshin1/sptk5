@@ -30,7 +30,7 @@
 
 using namespace sptk;
 
-int main(int argc, char* argv[]) {
+int main() {
    char buffer[1024];
    
    // Define the unique-instance name
