@@ -82,9 +82,6 @@ namespace sptk {
 
 /// Infinite timeout (milliseconds)
 #define SP_INFINITY uint32_t(-1)
-
-/// Workaround for VC++ bug
-typedef std::string std_string;
 }
 
 #ifdef __UNIX_COMPILER__
