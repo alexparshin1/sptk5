@@ -593,11 +593,11 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent) {
         percent = 100;
     if (percent < 0)
         percent = 0;
-    
+
     CPngImage*                  partImage[2];  // 0 - trough, 1 - bar
     int                         border[2] = { 0, 0 };
     CPngImage::CPatternDrawMode drawMode[2] = { CPngImage::PDM_TILE, CPngImage::PDM_TILE };
-    
+
     for (unsigned i = 0; i < 2; i++) {
         partImage[i] = m_progressBar[i].image(THM_IMAGE_NORMAL);
         if (m_progressBar[i].stretch()) {
@@ -605,7 +605,7 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent) {
             border[i] = m_progressBar[i].border(0);
         }
     }
-            
+
     if (partImage[0] && partImage[1]) {
         int frameHeight = partImage[0]->h();
         int frameWidth = partImage[0]->w();
@@ -650,7 +650,7 @@ CStrings CThemes::availableThemes() {
             continue;
         }
     }
-    
+
     /// GTK2 themes
     CStrings gtkDirs;
     gtkDirs.push_back("/usr/share/themes");

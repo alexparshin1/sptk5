@@ -36,7 +36,7 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-    
+
     class CODBCField : public CDatabaseField
     {
         friend class CODBCDatabase;
@@ -48,7 +48,7 @@ namespace sptk {
     public:
         CODBCField(const std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale) :
             CDatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale) {}};
-        
+
 }
 
 CODBCDatabase::CODBCDatabase(string connectionString) :
@@ -279,7 +279,7 @@ void CODBCDatabase::queryColAttributes(CQuery *query, int16_t column, int16_t de
 {
     CSynchronizedCode lock(m_connect);
 
-    if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, (SQLINTEGER *) &value)))
+    if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, (SQLLEN *) &value)))
         query->logAndThrow("CODBCDatabase::queryColAttributes", queryError(query));
 }
 
@@ -297,7 +297,7 @@ void CODBCDatabase::queryColAttributes(CQuery *query, int16_t column, int16_t de
 
 void CODBCDatabase::queryBindParameters(CQuery *query)
 {
-    static SQLINTEGER cbNullValue = SQL_NULL_DATA;
+    static SQLLEN cbNullValue = SQL_NULL_DATA;
 
     CSynchronizedCode lock(m_connect);
     int rc;
@@ -305,7 +305,7 @@ void CODBCDatabase::queryBindParameters(CQuery *query)
     for (uint32_t i = 0; i < query->paramCount(); i++) {
         CParam *param = &query->param(i);
         CVariantType ptype = param->dataType();
-        SQLINTEGER& cblen = (SQLINTEGER&) param->callbackLength();
+        SQLLEN& cblen = (SQLLEN&) param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
             int16_t paramType = 0, sqlType = 0, scale = 0;
@@ -396,7 +396,7 @@ void CODBCDatabase::queryBindParameters(CQuery *query)
                 query->logAndThrow("CODBCDatabase::queryBindParameters",
                         "Unknown type of parameter " + int2string(paramNumber));
             }
-            SQLINTEGER* cbValue = NULL;
+            SQLLEN* cbValue = NULL;
             if (param->isNull()) {
                 cbValue = &cbNullValue;
                 len = 0;
@@ -580,7 +580,7 @@ void CODBCDatabase::queryFetch(CQuery *query)
     }
 
     uint32_t fieldCount = query->fieldCount();
-    SQLINTEGER dataLength = 0;
+    SQLLEN dataLength = 0;
 
     if (!fieldCount)
         return;
@@ -691,8 +691,8 @@ void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) thro
 
         SQLCHAR objectSchema[256];
         SQLCHAR objectName[256];
-        SQLINTEGER cbObjectSchema;
-        SQLINTEGER cbObjectName;
+        SQLLEN cbObjectSchema;
+        SQLLEN cbObjectName;
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)
             throw CException("SQLBindCol");
         if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName, sizeof(objectName), &cbObjectName) != SQL_SUCCESS)

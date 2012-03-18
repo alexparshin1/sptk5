@@ -1,9 +1,9 @@
-EXEC_PROGRAM(basename ARGS ${CMAKE_CURRENT_SOURCE_DIR} OUTPUT_VARIABLE THEME) 
+EXEC_PROGRAM(basename ARGS ${CMAKE_CURRENT_SOURCE_DIR} OUTPUT_VARIABLE THEME)
 
-ADD_CUSTOM_COMMAND( 
+ADD_CUSTOM_COMMAND(
     OUTPUT ${THEME}.tar
     DEPENDS *.png theme.ini dialog_icons/*.png icons.12/*.png icons.16/*.png icons.22/*.png
-    COMMAND tar 
+    COMMAND tar
     ARGS cf ${THEME}.tar * --exclude .svn --exclude CMake* --exclude Makefile* --exclude *.tar
     COMMAND ../tar2h
     ARGS Default.tar default_icons > ../../sptk5/gui/default_icons.h
