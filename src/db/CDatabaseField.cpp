@@ -31,75 +31,78 @@
 using namespace std;
 using namespace sptk;
 
-CDatabaseField::CDatabaseField(const std::string fName,int fieldColumn,int fieldType,CVariantType dataType,int fieldLength,int fieldScale)
-: CField(fName.c_str()) {
-   m_fldType     = fieldType;
-   m_fldColumn   = fieldColumn;
-   m_fldSize     = fieldLength;
-   m_fldScale    = fieldScale;
-   visible       = true;
-   displayName   = fName;
+CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale) :
+        CField(fName.c_str())
+{
+    m_fldType = fieldType;
+    m_fldColumn = fieldColumn;
+    m_fldSize = fieldLength;
+    m_fldScale = fieldScale;
+    visible = true;
+    displayName = fName;
 
-   m_data.buffer.size = 0;
+    m_data.buffer.size = 0;
 
-   switch (dataType) {
-      case VAR_BOOL:
-         setBool(false);
-         width = 6;
-         break;
+    switch (dataType)
+    {
+    case VAR_BOOL:
+        setBool(false);
+        width = 6;
+        break;
 
-      case VAR_INT:
-         setInteger(0);
-         width = 10;
-         break;
+    case VAR_INT:
+        setInteger(0);
+        width = 10;
+        break;
 
-      case VAR_FLOAT:
-         setFloat(0);
-         width = 16;
-         precision = fieldScale;
-         break;
+    case VAR_FLOAT:
+        setFloat(0);
+        width = 16;
+        precision = fieldScale;
+        break;
 
-      case VAR_STRING:
-         setString("");
-         checkSize(fieldLength + 1);
-         width = fieldLength;
-         break;
+    case VAR_STRING:
+        setString("");
+        checkSize(fieldLength + 1);
+        width = fieldLength;
+        break;
 
-      case VAR_TEXT:
-         setText("");
-         checkSize(fieldLength + 1);
-         width = fieldLength;
-         break;
+    case VAR_TEXT:
+        setText("");
+        checkSize(fieldLength + 1);
+        width = fieldLength;
+        break;
 
-      case VAR_BUFFER:
-         setBuffer("",1);
-         checkSize(fieldLength);
-         width = 1;
-         break;
+    case VAR_BUFFER:
+        setBuffer("", 1);
+        checkSize(fieldLength);
+        width = 1;
+        break;
 
-      case VAR_DATE:
-      case VAR_DATE_TIME:
-         setDateTime(0.0);
-         CField::dataType(dataType);
-         width = 10;
-         break;
+    case VAR_DATE:
+    case VAR_DATE_TIME:
+        setDateTime(0.0);
+        CField::dataType(dataType);
+        width = 10;
+        break;
 
-      default:
-         setString("");
-         checkSize(fieldLength + 1);
-         width = fieldLength;
-         break;
-   }
+    default:
+        setString("");
+        checkSize(fieldLength + 1);
+        width = fieldLength;
+        break;
+    }
 }
 
-bool CDatabaseField::checkSize(unsigned sz) {
-   if (sz > m_data.buffer.size) {
-      unsigned newSize = (sz / 16 + 1) * 16;
-      char *p = (char *)realloc(m_data.buffer.data,newSize + 1);
-      if (!p)
-         throw CException("Can't reallocate a buffer");
-      m_data.buffer.data = p;
-      m_data.buffer.size = newSize;
-   }
-   return true;
+bool CDatabaseField::checkSize(unsigned sz)
+{
+    if (sz > m_data.buffer.size) {
+        unsigned newSize = (sz / 16 + 1) * 16;
+        char *p = (char *) realloc(m_data.buffer.data, newSize + 1);
+        if (!p)
+            throw CException("Can't reallocate a buffer");
+        m_data.buffer.data = p;
+        m_data.buffer.size = newSize;
+    }
+    return true;
 }

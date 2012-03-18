@@ -1,5 +1,5 @@
 # Placing example executables to bin subdirectory
-SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 IF (NO_EXAMPLES)
     MESSAGE("Usage examples:     don't compile")
