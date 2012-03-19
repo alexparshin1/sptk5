@@ -36,7 +36,8 @@
 using namespace std;
 using namespace sptk;
 
-void testXPath(string fileName,string xpath,int expectedNodeCount=-1) {
+void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
+{
     CXmlDoc doc;
     CBuffer buf;
 
@@ -48,7 +49,7 @@ void testXPath(string fileName,string xpath,int expectedNodeCount=-1) {
     doc.load(buf);
 
     CXmlNodeVector selectedNodes;
-    doc.select(selectedNodes,xpath);
+    doc.select(selectedNodes, xpath);
     for (CXmlNode::iterator itor = selectedNodes.begin(); itor != selectedNodes.end(); itor++) {
         CXmlNode* node = *itor;
         cout << node->name();
@@ -66,51 +67,53 @@ void testXPath(string fileName,string xpath,int expectedNodeCount=-1) {
     }
 }
 
-int main(int argc,char *argv[]) {
+int main(int argc, char *argv[])
+{
     try {
         cout << "The XPath selection test started." << endl << endl;
-        
+
         string fullPath(argv[0]);
         unsigned pos = fullPath.rfind("/");
         if (pos == STRING_NPOS)
             pos = fullPath.rfind("\\");
         if (pos == STRING_NPOS)
             throw CException("Can't determine work directory");
-        
-        string workDirectory(fullPath.substr(0,pos));
+
+        string workDirectory(fullPath.substr(0, pos));
         chdir(workDirectory.c_str());
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
-        testXPath("xpath_test1.xml","/AAA",1);          // Select the root element AAA
-        testXPath("xpath_test1.xml","/AAA/CCC",2);      // Select all elements CCC which are children of the root element AAA
-        testXPath("xpath_test1.xml","/AAA/DDD/BBB",1);  // Select all elements BBB which are children of DDD which are children of the root element AAA
+        testXPath("xpath_test1.xml", "/AAA", 1);          // Select the root element AAA
+        testXPath("xpath_test1.xml", "/AAA/CCC", 2);      // Select all elements CCC which are children of the root element AAA
+        testXPath("xpath_test1.xml", "/AAA/DDD/BBB", 1);  // Select all elements BBB which are children of DDD which are children of the root element AAA
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example2.html
-        testXPath("xpath_test2.xml","//BBB",5);
-        testXPath("xpath_test2.xml","//DDD/BBB",3);
+        testXPath("xpath_test2.xml", "//BBB", 5);
+        testXPath("xpath_test2.xml", "//DDD/BBB", 3);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example3.html
-        testXPath("xpath_test3.xml","/AAA/CCC/DDD/*",4);
-        testXPath("xpath_test3.xml","/*/*/*/BBB",5);
-        testXPath("xpath_test3.xml","//*",17);
+        testXPath("xpath_test3.xml", "/AAA/CCC/DDD/*", 4);
+        testXPath("xpath_test3.xml", "/*/*/*/BBB", 5);
+        testXPath("xpath_test3.xml", "//*", 17);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example4.html
-        testXPath("xpath_test4.xml","/AAA/BBB[1]",1);
-        testXPath("xpath_test4.xml","/AAA/BBB[last()]",1);
+        testXPath("xpath_test4.xml", "/AAA/BBB[1]", 1);
+        testXPath("xpath_test4.xml", "/AAA/BBB[last()]", 1);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example5.html
-        testXPath("xpath_test5.xml","//@id",2);
-        testXPath("xpath_test5.xml","//BBB[@id]",2);
-        testXPath("xpath_test5.xml","//BBB[@name]",1);
-        testXPath("xpath_test5.xml","//BBB[@*]",3);
+        testXPath("xpath_test5.xml", "//@id", 2);
+        testXPath("xpath_test5.xml", "//BBB[@id]", 2);
+        testXPath("xpath_test5.xml", "//BBB[@name]", 1);
+        testXPath("xpath_test5.xml", "//BBB[@*]", 3);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example6.html
-        testXPath("xpath_test6.xml","//BBB[@id='b1']",1);
-        testXPath("xpath_test6.xml","//BBB[@name='bbb']",1);
+        testXPath("xpath_test6.xml", "//BBB[@id='b1']", 1);
+        testXPath("xpath_test6.xml", "//BBB[@name='bbb']", 1);
 
         cout << "The XPath selection test completed" << endl;
 
-    } catch (std::exception& e) {
+    }
+    catch (std::exception& e) {
         cout << e.what() << endl;
         return 1;
     }

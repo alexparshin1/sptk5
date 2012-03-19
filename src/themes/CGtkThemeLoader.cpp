@@ -38,7 +38,7 @@ static const CStrings notGroupingTags("styles;style;engine", ";");
 CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* parentNode, bool createAttributes)
 {
     try {
-        unsigned pos = row.find_first_of(":[ \t=");
+        size_t pos = row.find_first_of(":[ \t=");
         string name = row.substr(0, pos);
 
         string subName;
@@ -52,7 +52,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
             if (row[pos + 1] != ':')
                 throw runtime_error("single ':' found");
             pos += 2;
-            unsigned pos2 = row.find_first_of(" \t=", pos);
+            size_t pos2 = row.find_first_of(" \t=", pos);
             if (pos2 == STRING_NPOS)
                 throw runtime_error("value not found");
             subName = row.substr(pos, pos2 - pos);
@@ -61,7 +61,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
         }
         case '[': {
             pos++;
-            unsigned pos2 = row.find_first_of("]", pos);
+            size_t pos2 = row.find_first_of("]", pos);
             if (pos2 == STRING_NPOS)
                 throw runtime_error("matching ']' not found");
             subName = row.substr(pos, pos2 - pos);
@@ -70,7 +70,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
         }
         case '\"': {
             pos++;
-            unsigned pos2 = row.find_first_of("\"", pos);
+            size_t pos2 = row.find_first_of("\"", pos);
             if (pos2 == STRING_NPOS)
                 throw runtime_error("matching '\"' not found");
             subName = row.substr(pos, pos2 - pos);
@@ -80,7 +80,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
         }
 
         bool valueMode = false;
-        unsigned pos2 = row.find_first_of("=", pos);
+        size_t pos2 = row.find_first_of("=", pos);
         if (pos2 != STRING_NPOS) {
             valueMode = true;
             pos = pos2 + 1;
@@ -92,7 +92,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
         int maxValueSize = 16384;
         if (row[pos] == '\"') {
             pos++;
-            unsigned pos2 = row.find_first_of("\"", pos);
+            size_t pos2 = row.find_first_of("\"", pos);
             if (pos2 == STRING_NPOS)
                 throw runtime_error("Error parsing value for " + name + " in row " + row);
             maxValueSize = pos2 - pos;
@@ -127,7 +127,8 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
                 node->setAttribute("value", value);
         }
         return node;
-    } catch (exception& e) {
+    }
+    catch (exception& e) {
         throw runtime_error("Error parsing row '" + row + "'\n" + string(e.what()));
     }
     return NULL;
@@ -168,7 +169,8 @@ void CGtkThemeParser::parseEngine(const CStrings& gtkrc, unsigned& currentRow, C
             if (currentRow == gtkrc.size())
                 throw runtime_error("Expecting '}' after row '" + gtkrc[currentRow - 1] + "'");
         }
-    } catch (exception& e) {
+    }
+    catch (exception& e) {
         cerr << "Error parsing engine '" << engineNode->getAttribute("name", "").str() << "': " << e.what() << endl;
     }
 }
@@ -221,7 +223,8 @@ void CGtkThemeParser::load(std::string themeName) throw (std::exception)
 
     try {
         gtkrcSource.loadFromFile(gtkrcFile);
-    } catch (exception& e) {
+    }
+    catch (exception& e) {
         m_themeFolder = "/usr/share/themes/" + themeName + "/gtk-2.0/";
         gtkrcFile = m_themeFolder + "gtkrc";
         gtkrcSource.loadFromFile(gtkrcFile);

@@ -41,27 +41,33 @@
 using namespace std;
 using namespace sptk;
 
-void CIcon::load(const CBuffer& imageData) {
-    m_image = new CPngImage(imageData);
-    if (!m_image->data()) {
-        delete m_image;
-        m_image = 0L;
+void CIcon::load(const CBuffer& imageData)
+{
+    if (m_image)
+        m_image->load(imageData);
+    else {
+        m_image = new CPngImage(imageData);
+        if (!m_image->data()) {
+            delete m_image;
+            m_image = 0L;
+        }
     }
 }
 
-void CIconMap::clear() {
-    for (iterator itor=begin(); itor!=end(); itor++) {
+void CIconMap::clear()
+{
+    for (iterator itor = begin(); itor != end(); itor++) {
         CIcon* icon = itor->second;
         if (m_shared)
             delete icon;
-        else
-        if (!icon->m_shared)
+        else if (!icon->m_shared)
             delete icon;
     }
-    map<string,CIcon*>::clear();
+    map<string, CIcon*, CCaseInsensitiveCompare>::clear();
 }
 
-void CIconMap::insert(CIcon* icon) {
+void CIconMap::insert(CIcon* icon)
+{
     iterator it = find(icon->name());
     if (it != end()) {
         CIcon* oldIcon = it->second;
@@ -72,8 +78,8 @@ void CIconMap::insert(CIcon* icon) {
     }
 }
 
-void CIconMap::load(CTar& tar,CXmlNode* iconsNode) {
-    clear();
+void CIconMap::load(CTar& tar, CXmlNode* iconsNode)
+{
     for (CXmlNode::iterator itor = iconsNode->begin(); itor != iconsNode->end(); itor++) {
         CXmlNode* node = *itor;
         if (node->name() != "icon")
@@ -84,15 +90,17 @@ void CIconMap::load(CTar& tar,CXmlNode* iconsNode) {
             continue;
         try {
             const CBuffer& imageData = tar.file(fileName);
-            CIcon* icon = new CIcon(iconName);
-            icon->load(imageData);
-            if (icon->image()) {
-		//cerr << "Load [" << iconName << "]: " << fileName << endl;
+            CIcon* icon = NULL;
+            iterator itor = find(iconName);
+            if (itor == end()) {
+                // Icon not found, adding new one
+                icon = new CIcon(iconName);
                 insert(icon);
-            } else {
-		cerr << "Can't load " << fileName << endl;
-                delete icon;
-            }
+            } else
+                icon = itor->second;
+            icon->load(imageData);
+            if (!icon->image())
+                throw runtime_error("Can't load " + fileName);
         }
         catch (exception& e) {
             cerr << "ERROR: " << e.what() << endl;

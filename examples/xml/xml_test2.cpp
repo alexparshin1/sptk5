@@ -30,7 +30,8 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc,char *argv[]) {
+int main()
+{
     ostream& out = cout;
     //out.open("xml_test3.log",ofstream::out);
 
@@ -51,24 +52,24 @@ int main(int argc,char *argv[]) {
         string rowTag("row"), cellTag("cell");
         unsigned nodesPerRow = 7;
         for (unsigned i = 0; i < 100000; i++) {
-            CXmlNode* row = new CXmlElement(doc,rowTag);
+            CXmlNode* row = new CXmlElement(doc, rowTag);
 
-            sprintf(buffer,"%i",i);
-            CXmlNode* cell1 = new CXmlElement(*row,cellTag);
-            cell1->setAttribute("column",1);
-            new CXmlText(*cell1,buffer);
+            sprintf(buffer, "%i", i);
+            CXmlNode* cell1 = new CXmlElement(*row, cellTag);
+            cell1->setAttribute("column", 1);
+            new CXmlText(*cell1, buffer);
 
-            sprintf(buffer,"A pretty long string number %i",i);
-            CXmlNode* cell2 = new CXmlElement(*row,cellTag);
-            cell2->setAttribute("column",2);
-            new CXmlText(*cell2,buffer);
+            sprintf(buffer, "A pretty long string number %i", i);
+            CXmlNode* cell2 = new CXmlElement(*row, cellTag);
+            cell2->setAttribute("column", 2);
+            new CXmlText(*cell2, buffer);
         }
 
-        out.setf(ios::fixed );
+        out.setf(ios::fixed);
         out.precision(2);
 
         end = CDateTime::Now();
-        duration = (end-start) * 3600 * 24;
+        duration = (end - start) * 3600 * 24;
         start = end;
 
         out << "The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
@@ -77,34 +78,34 @@ int main(int argc,char *argv[]) {
         buf->saveToFile("0.xml");
 
         end = CDateTime::Now();
-        duration = (end-start) * 3600 * 24;
+        duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is saved to buffer (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         doc.clear();
 
         end = CDateTime::Now();
-        duration = (end-start) * 3600 * 24;
+        duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is cleared (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         doc.load(*buf);
         end = CDateTime::Now();
-        duration = (end-start) * 3600 * 24;
+        duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         doc.save(*buf);
 
         end = CDateTime::Now();
-        duration = (end-start) * 3600 * 24;
+        duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is saved to buffer(" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         buf->saveToFile("1.xml");
 
         end = CDateTime::Now();
-        duration = (end-start) * 3600 * 24;
+        duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is saved to disk: " << duration << " seconds" << endl;
 
@@ -113,7 +114,8 @@ int main(int argc,char *argv[]) {
         // Releasing the buffer memory
         delete buf;
 
-    } catch (std::exception& e) {
+    }
+    catch (std::exception& e) {
         out << e.what() << endl;
         return 1;
     }

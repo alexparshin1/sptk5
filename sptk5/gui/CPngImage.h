@@ -42,7 +42,11 @@ enum CBorderIndex { BORDER_LEFT, BORDER_RIGHT, BORDER_TOP, BORDER_BOTTOM };
 /// This class is used by SPTK themes
 class CPngImage : public Fl_RGB_Image {
 
+    friend class CIcon;
+
     typedef void (*resized_draw_function)(CPngImage* image,int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH);
+
+protected:
 
     /// @brief Internal loader from PNG image buffer
     /// @param buffer const CBuffer&, image data
