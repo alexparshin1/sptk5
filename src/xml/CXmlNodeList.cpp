@@ -39,32 +39,6 @@ void CXmlNodeList::clear()
         delete *itor;
     CXmlNodeVector::clear();
 }
-/*
- void CXmlNodeList::replace(uint32_t pos, CXmlNode *item) {
- if (pos < size()) {
- iterator itor = begin()+pos;
- delete *itor;
- *itor = item;
- }
- }
-
- void CXmlNodeList::remove(uint32_t pos) {
- if (pos < size()) {
- iterator itor = begin()+pos;
- delete *itor;
- erase(itor);
- }
- }
-
- bool CXmlNodeList::remove(CXmlNode *item) {
- iterator itor = std::find(begin(),end(),item);
- if (itor == end())
- return false;
- delete *itor;
- erase(itor);
- return true;
- }
- */
 
 CXmlNodeList::iterator CXmlNodeList::findFirst(const char* nodeName)
 {

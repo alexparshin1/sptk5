@@ -53,8 +53,8 @@ class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
     friend class CXmlNode;
 
     CXmlDocType m_doctype;          ///< Document type
-    int m_indentSpaces;     ///< Indent spaces
-    CBuffer m_encodeBuffer;     ///< Buffer to encode entities
+    int         m_indentSpaces;     ///< Indent spaces
+    CBuffer     m_encodeBuffer;     ///< Buffer to encode entities
 
     /// @brief Internal entities parser
     void parseEntities(char* entitiesSection);

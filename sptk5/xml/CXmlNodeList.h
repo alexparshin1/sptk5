@@ -82,20 +82,6 @@ public:
     /// @param nodeName const std::string&, a node name
     /// @returns node iterator, or end()
     const_iterator findFirst(const std::string& nodeName) const;
-    /*
-     /// Replaces the item
-     /// @param pos uint32_t, replace position
-     /// @param item CXmlNode *, item to insert
-     void replace(uint32_t pos, CXmlNode *item);
-
-     /// Removes the item
-     /// @param pos uint32_t, remove item position
-     void remove(uint32_t pos);
-
-     /// Removes the item
-     /// @param item CXmlNode *, item to remove
-     bool remove(CXmlNode *item);
-     */
 };
 /// @}
 }
