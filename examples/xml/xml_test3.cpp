@@ -72,14 +72,14 @@ int main(int argc, char *argv[])
     try {
         cout << "The XPath selection test started." << endl << endl;
 
-        string fullPath(argv[0]);
-        unsigned pos = fullPath.rfind("/");
-        if (pos == STRING_NPOS)
-            pos = fullPath.rfind("\\");
-        if (pos == STRING_NPOS)
-            throw CException("Can't determine work directory");
-
-        string workDirectory(fullPath.substr(0, pos));
+        const char* endOfPath = strrchr(argv[0],'/');
+        if (!endOfPath)
+            endOfPath = strrchr(argv[0],'\\');
+        string workDirectory;
+        if (endOfPath)
+            workDirectory.assign(argv[0], endOfPath - argv[0]);
+        else
+            workDirectory = "/";
         chdir(workDirectory.c_str());
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
