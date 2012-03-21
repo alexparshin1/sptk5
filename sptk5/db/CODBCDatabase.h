@@ -123,8 +123,15 @@ public:
     /// @param objects CStrings&, object list (output)
     virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception);
 };
+
+
 /// @}
 }
 #endif
+
+extern "C" {
+    void* odbc_createDriverInstance(const char connectionString);
+    void  odbc_destroyDriverInstance(void* driverInstance);
+}
 
 #endif

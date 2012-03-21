@@ -43,11 +43,14 @@
 using namespace std;
 using namespace sptk;
 
-CDBDriverLoader::DriverLoaders CDBDriverLoader::m_loadedDrivers;
+typedef std::map<std::string, CDBDriverLoader*, CCaseInsensitiveCompare> DriverLoaders;
+static DriverLoaders m_loadedDrivers;
 
 void CDBDriverLoader::load(std::string driverName) throw (exception)
 {
     SYNCHRONIZED_CODE;
+
+    driverName = lowerCase(driverName);
 
     CDBDriverLoader* loadedDriver = m_loadedDrivers[driverName];
     if (loadedDriver) {
@@ -56,21 +59,40 @@ void CDBDriverLoader::load(std::string driverName) throw (exception)
         m_destroyDriverInstance = loadedDriver->m_destroyDriverInstance;
         return;
     }
-#ifndef WIN32
+
+    // Load the library
+#ifdef WIN32
+    string driverFileName = "spdb5_"+driverName+".dll";
+    m_handle = LoadLibrary (driverFileName.c_str());
+    if (!m_handle)
+        throw CDatabaseException("Cannot load library: " + driverFileName);
+#else
     string driverFileName = "libspdb5_"+driverName+".so";
 
     m_handle = dlopen(driverFileName.c_str(), RTLD_NOW);
     if (!m_handle)
         throw CDatabaseException("Cannot load library: " + string(dlerror()));
+#endif
 
+    // Creating the driver instance
+    string createDriverInstanceFunctionName(driverName + "_createDriverInstance");
+    string destroyDriverInstanceFunctionName(driverName + "_destroyDriverInstance");
+#ifdef WIN32
+    m_createDriverInstance = (CCreateDriverInstance*) GetProcAddress(m_handle, createDriverInstanceFunctionName.c_str());
+    if (!m_createDriverInstance)
+        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + createDriverInstanceFunctionName);
+    m_destroyDriverInstance = (CDestroyDriverInstance*) GetProcAddress(m_handle, destroyDriverInstanceFunctionName.c_str());
+    if (!m_destroyDriverInstance)
+        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + destroyDriverInstanceFunctionName);
+#else
     // reset errors
     dlerror();
 
     // load the symbols
-    m_createDriverInstance = (CCreateDriverInstance*) dlsym(m_handle, (driverName + "_createDriverInstance").c_str());
+    m_createDriverInstance = (CCreateDriverInstance*) dlsym(m_handle, createDriverInstanceFunctionName.c_str());
     const char* dlsym_error = dlerror();
     if (!dlsym_error) {
-        m_destroyDriverInstance = (CDestroyDriverInstance*) dlsym(m_handle, (driverName + "_destroyDriverInstance").c_str());
+        m_destroyDriverInstance = (CDestroyDriverInstance*) dlsym(m_handle, destroyDriverInstanceFunctionName.c_str());
         dlsym_error = dlerror();
     }
 
@@ -81,6 +103,8 @@ void CDBDriverLoader::load(std::string driverName) throw (exception)
         throw CDatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
     }
 
-    m_loadedDrivers[driverName] = this;
 #endif
+
+    // Registering loaded driver in the map
+    m_loadedDrivers[driverName] = this;
 }

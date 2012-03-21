@@ -37,6 +37,7 @@
 #define __CDATABASE_H__
 
 #include <sptk5/db/CDBDriver.h>
+#include <sptk5/CCaseInsensitiveCompare.h>
 
 namespace sptk
 {
@@ -47,21 +48,25 @@ namespace sptk
 typedef CDBDriver* CCreateDriverInstance(std::string);
 typedef void CDestroyDriverInstance(CDBDriver*);
 
+#ifdef WIN32
+    typedef HMODULE CDriverHandle;                   ///< Windows: Driver DLL handle type
+#else
+    typedef void*   CDriverHandle;                   ///< Unix: Driver SO/DLL handle type
+#endif
+
 /// @brief Database driver description
 class SP_EXPORT CDBDriverLoader : public CSynchronized
 {
-    typedef std::map<std::string, CDBDriverLoader*> DriverLoaders;
-    static DriverLoaders    m_loadedDrivers;            ///< Cache of loaded drivers
 protected:
-    void*                   m_handle;                   ///< Driver SO/DLL handle after load
+    CDriverHandle           m_handle;                   ///< Driver SO/DLL handle after load
     CCreateDriverInstance*  m_createDriverInstance;     ///< Function that creates driver instances
     CDestroyDriverInstance* m_destroyDriverInstance;    ///< Function that destroys driver instances
 public:
     /// @brief Constructor
-    /// @param handle void*, Handle of loaded driver library
+    /// @param handle CDriverHandle, Handle of loaded driver library
     /// @param createDriverInstance CCreateDriverInstance*, Function that creates driver instances
     /// @param destroyDriverInstance CDestroyDriverInstance*, Function that destroys driver instances
-    CDBDriverLoader(void* handle = 0, CCreateDriverInstance* createDriverInstance = 0, CDestroyDriverInstance* destroyDriverInstance = 0)
+    CDBDriverLoader(CDriverHandle handle = 0, CCreateDriverInstance* createDriverInstance = 0, CDestroyDriverInstance* destroyDriverInstance = 0)
     {
         m_handle = handle;
         m_createDriverInstance = createDriverInstance;
