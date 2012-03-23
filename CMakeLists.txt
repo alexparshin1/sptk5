@@ -17,6 +17,7 @@ SET (VERSION "4.99.01")
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
+OPTION (USE_ODBC       "Build SPTK ODBC library" ON)
 OPTION (USE_FLTK       "Build SPTK GUI library" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
@@ -55,7 +56,7 @@ MESSAGE ("Library type:       " ${LIBRARY_TYPE})
 
 
 SET (ODBC_FLAG "0")
-IF (NOT NO_ODBC)
+IF (USE_ODBC)
   IF (WIN32)
     SET (ODBC_FLAG "1")
     SET (ODBC_LIBRARY "odbc32")
@@ -67,7 +68,7 @@ IF (NOT NO_ODBC)
     SET (ODBC_FLAG "1")
     LINK_LIBRARIES(${ODBC_LIBRARY})
   ENDIF (ODBC_LIBRARY)
-ENDIF (NOT NO_ODBC)
+ENDIF (USE_ODBC)
 
 IF (ODBC_FLAG)
   MESSAGE("ODBC support:       compile")

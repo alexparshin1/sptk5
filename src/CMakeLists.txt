@@ -11,25 +11,20 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     utils/CField.cpp utils/CFieldList.cpp utils/CFileLog.cpp utils/CFTPConnect.cpp
     utils/CHttpConnect.cpp utils/CHttpParams.cpp utils/CImapConnect.cpp utils/CIntList.cpp
     utils/CMailMessageBody.cpp utils/CRegistry.cpp utils/CSharedStrings.cpp
-    utils/CSmtpConnect.cpp utils/CSocket.cpp utils/CStrings.cpp utils/CSysLog.cpp 
+    utils/CSmtpConnect.cpp utils/CSocket.cpp utils/CStrings.cpp utils/CSysLog.cpp
     utils/CUniqueInstance.cpp utils/CVariant.cpp utils/string_ext.cpp
     utils/CDirectoryDS.cpp utils/CMemoryDS.cpp utils/CFtpDS.cpp utils/CImapDS.cpp utils/CProxyLog.cpp
     utils/CSystemException.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
     tar/block.cpp tar/CTar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
-    threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp 
+    threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp
     threads/CSemaphore.cpp threads/CRunable.cpp threads/CWorkerThread.cpp
     )
 
-SET (SPDB_SOURCES 
-    db/CDatabaseDriver.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp 
+SET (SPDB_SOURCES
+    db/CDatabaseDriver.cpp db/CDatabaseField.cpp db/CParams.cpp db/CQuery.cpp
     db/CTransaction.cpp
     db/CDBDriver.cpp db/CDBDriverLoader.cpp)
-
-SET (ODBC_SOURCES)
-IF (ODBC_FLAG)
-    SET (ODBC_SOURCES drivers/odbc/CODBC.cpp drivers/odbc/CODBCDatabase.cpp)
-ENDIF (ODBC_FLAG)
 
 SET (SQLITE3_SOURCES)
 IF (SQLITE3_FLAG)
@@ -38,15 +33,17 @@ ENDIF (SQLITE3_FLAG)
 
 SET (POSTGRESQL_SOURCES)
 IF (POSTGRESQL_FLAG)
-    SET (POSTGRESQL_SOURCES 
+    SET (POSTGRESQL_SOURCES
         drivers/PostgreSQL/CPostgreSQLDatabase.cpp
         drivers/PostgreSQL/CPostgreSQLParamValues.cpp
         drivers/PostgreSQL/htonq.cpp
         )
 ENDIF (POSTGRESQL_FLAG)
 
-ADD_LIBRARY (spdb5 ${LIBRARY_TYPE} ${SPDB_SOURCES} ${ODBC_SOURCES} ${SQLITE3_SOURCES} ${POSTGRESQL_SOURCES})
+ADD_LIBRARY (spdb5 ${LIBRARY_TYPE} ${SPDB_SOURCES} ${SQLITE3_SOURCES} ${POSTGRESQL_SOURCES})
 #TARGET_LINK_LIBRARIES(spdb5 sputl5)
+
+ADD_SUBDIRECTORY (drivers)
 
 IF (FLTK_FLAG)
 
