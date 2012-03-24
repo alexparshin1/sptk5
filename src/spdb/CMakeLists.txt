@@ -1,0 +1,28 @@
+IF (LIBRARY_TYPE STREQUAL "SHARED")
+  ADD_DEFINITIONS (-DSP_LIBRARY)
+ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
+
+SET (SPDB_SOURCES
+    CDatabaseField.cpp CParams.cpp CQuery.cpp
+    CTransaction.cpp
+    CDatabaseDriver.cpp CDatabaseDriverLoader.cpp)
+
+SET (SQLITE3_SOURCES)
+IF (SQLITE3_FLAG)
+    SET (SQLITE3_SOURCES ../drivers/SQLite3/CSQLite3Database.cpp)
+ENDIF (SQLITE3_FLAG)
+
+SET (POSTGRESQL_SOURCES)
+IF (POSTGRESQL_FLAG)
+    SET (POSTGRESQL_SOURCES
+        ../drivers/PostgreSQL/CPostgreSQLDatabase.cpp
+        ../drivers/PostgreSQL/CPostgreSQLParamValues.cpp
+        ../drivers/PostgreSQL/htonq.cpp
+        )
+ENDIF (POSTGRESQL_FLAG)
+
+ADD_LIBRARY (spdb5 ${LIBRARY_TYPE} ${SPDB_SOURCES} ${SQLITE3_SOURCES} ${POSTGRESQL_SOURCES})
+
+TARGET_LINK_LIBRARIES (spdb5 sputil5)
+
+INSTALL(TARGETS spdb5 RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
