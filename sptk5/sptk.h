@@ -46,6 +46,20 @@
 #  define SP_EXPORT
 #endif
 
+#ifndef __UNIX_COMPILER__
+#  if defined(SP_DLL) && defined(WIN32)
+#    ifdef SP_DRIVER_LIBRARY
+#      define SP_DRIVER_EXPORT   __declspec(dllexport)
+#    else
+#      define SP_DRIVER_EXPORT   __declspec(dllimport)
+#    endif
+#  else
+#    define SP_DRIVER_EXPORT
+#  endif
+#else
+#  define SP_DRIVER_EXPORT
+#endif
+
 #if defined(_MSC_VER) || defined(__BORLANDC__)
     #include <sptk5/sptk-config.h.win>
     #include <winsock2.h>

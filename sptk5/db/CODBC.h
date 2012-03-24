@@ -61,7 +61,7 @@ class CParam;
 /// @brief ODBC base
 ///
 /// Base class for all ODBC classes
-class SP_EXPORT ODBCBase: public CSynchronized
+class SP_DRIVER_EXPORT ODBCBase: public CSynchronized
 {
 protected:
     /// Last RETCODE returned from ODBC function
@@ -101,7 +101,7 @@ private:
 /// @brief ODBC environment
 ///
 /// Environment is only used by CODBCConnection class
-class SP_EXPORT CODBCEnvironment: public ODBCBase
+class SP_DRIVER_EXPORT CODBCEnvironment: public ODBCBase
 {
     friend class CODBCConnection;
 private:
@@ -146,7 +146,7 @@ public:
 ///
 /// Class CODBCConnection represents the connection to a database.
 /// You need one object of this class for each database you want to access.
-class SP_EXPORT CODBCConnection: public ODBCBase
+class SP_DRIVER_EXPORT CODBCConnection: public ODBCBase
 {
     CODBCEnvironment& m_cEnvironment;      ///< ODBC environment
     SQLHDBC m_hConnection;       ///< ODBC connection handle

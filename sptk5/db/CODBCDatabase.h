@@ -46,7 +46,7 @@ class CQuery;
 /// @brief ODBC database
 ///
 /// CODBCDatabase is thread-safe connection to ODBC database.
-class SP_EXPORT CODBCDatabase: public CDatabaseDriver
+class SP_DRIVER_EXPORT CODBCDatabase: public CDatabaseDriver
 {
     friend class CQuery;
 
