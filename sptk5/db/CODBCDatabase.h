@@ -130,7 +130,7 @@ public:
 #endif
 
 extern "C" {
-    void* odbc_createDriverInstance(const char connectionString);
+    void* odbc_createDriverInstance(const char* connectionString);
     void  odbc_destroyDriverInstance(void* driverInstance);
 }
 

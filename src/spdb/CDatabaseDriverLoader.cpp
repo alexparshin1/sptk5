@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDBDriverLoader.cpp  -  description
+                          CDatabaseDriverLoader.cpp  -  description
                              -------------------
     begin                : Sun Mar 11 2012
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -33,7 +33,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ***************************************************************************/
 
-#include <sptk5/db/CDBDriverLoader.h>
+#include <sptk5/db/CDatabaseDriverLoader.h>
 #ifndef WIN32
     /// *nix only
     #include <dlfcn.h>
@@ -43,16 +43,16 @@
 using namespace std;
 using namespace sptk;
 
-typedef std::map<std::string, CDBDriverLoader*, CCaseInsensitiveCompare> DriverLoaders;
+typedef std::map<std::string, CDatabaseDriverLoader*, CCaseInsensitiveCompare> DriverLoaders;
 static DriverLoaders m_loadedDrivers;
 
-void CDBDriverLoader::load(std::string driverName) throw (exception)
+void CDatabaseDriverLoader::load(std::string driverName) throw (exception)
 {
     SYNCHRONIZED_CODE;
 
     driverName = lowerCase(driverName);
 
-    CDBDriverLoader* loadedDriver = m_loadedDrivers[driverName];
+    CDatabaseDriverLoader* loadedDriver = m_loadedDrivers[driverName];
     if (loadedDriver) {
         m_handle = loadedDriver->m_handle;
         m_createDriverInstance = loadedDriver->m_createDriverInstance;

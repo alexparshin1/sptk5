@@ -26,6 +26,7 @@
 #include <iomanip>
 
 #include <sptk5/db/CODBCDatabase.h>
+#include <sptk5/db/CDatabaseDriverLoader.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
 
@@ -34,5 +35,14 @@ using namespace sptk;
 
 int main()
 {
+    CDatabaseDriverLoader driverLoader;
+    try {
+        driverLoader.load("odbc");
+        CDatabaseDriver* driverInstance = driverLoader.createDriverInstance("connstring");
+        cout << driverInstance->connectionString() << endl;
+    }
+    catch (exception& e) {
+        cerr << e.what() << endl;
+    }
     return 0;
 }

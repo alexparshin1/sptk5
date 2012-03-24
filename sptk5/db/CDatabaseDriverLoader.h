@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDBDriverLoader.h  -  description
+                          CDatabaseDriverLoader.h  -  description
                              -------------------
     begin                : Sun Mar 11 2012
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -33,10 +33,10 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ***************************************************************************/
 
-#ifndef __CDATABASE_H__
-#define __CDATABASE_H__
+#ifndef __CDATABASEDRIVERLOADER_H__
+#define __CDATABASEDRIVERLOADER_H__
 
-#include <sptk5/db/CDBDriver.h>
+#include <sptk5/db/CDatabaseDriver.h>
 #include <sptk5/CCaseInsensitiveCompare.h>
 
 namespace sptk
@@ -45,8 +45,8 @@ namespace sptk
 /// @addtogroup Database Database Support
 /// @{
 
-typedef CDBDriver* CCreateDriverInstance(std::string);
-typedef void CDestroyDriverInstance(CDBDriver*);
+typedef CDatabaseDriver* CCreateDriverInstance(const char*);
+typedef void CDestroyDriverInstance(CDatabaseDriver*);
 
 #ifdef WIN32
     typedef HMODULE CDriverHandle;                   ///< Windows: Driver DLL handle type
@@ -55,7 +55,7 @@ typedef void CDestroyDriverInstance(CDBDriver*);
 #endif
 
 /// @brief Database driver description
-class SP_EXPORT CDBDriverLoader : public CSynchronized
+class SP_EXPORT CDatabaseDriverLoader : public CSynchronized
 {
 protected:
     CDriverHandle           m_handle;                   ///< Driver SO/DLL handle after load
@@ -66,7 +66,7 @@ public:
     /// @param handle CDriverHandle, Handle of loaded driver library
     /// @param createDriverInstance CCreateDriverInstance*, Function that creates driver instances
     /// @param destroyDriverInstance CDestroyDriverInstance*, Function that destroys driver instances
-    CDBDriverLoader(CDriverHandle handle = 0, CCreateDriverInstance* createDriverInstance = 0, CDestroyDriverInstance* destroyDriverInstance = 0)
+    CDatabaseDriverLoader(CDriverHandle handle = 0, CCreateDriverInstance* createDriverInstance = 0, CDestroyDriverInstance* destroyDriverInstance = 0)
     {
         m_handle = handle;
         m_createDriverInstance = createDriverInstance;
@@ -80,14 +80,14 @@ public:
 
     /// @brief Creates driver instance
     /// @param connectionString std::string, Connect string
-    CDBDriver* createDriverInstance(std::string connectString)
+    CDatabaseDriver* createDriverInstance(std::string connectString)
     {
-        return m_createDriverInstance(connectString);
+        return m_createDriverInstance(connectString.c_str());
     }
 
     /// @brief Destroys driver instance
-    /// @param driverInstance CDBDriver*, destroys the driver instance
-    void destroyDriverInstance(CDBDriver* driverInstance)
+    /// @param driverInstance CDatabaseDriver*, destroys the driver instance
+    void destroyDriverInstance(CDatabaseDriver* driverInstance)
     {
         m_destroyDriverInstance(driverInstance);
     }

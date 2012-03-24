@@ -721,3 +721,14 @@ void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) thro
         logAndThrow("CODBCDatabase::objectList", "Unknown error");
     }
 }
+
+void* odbc_createDriverInstance(const char* connectionString)
+{
+    CODBCDatabase* database = new CODBCDatabase(connectionString);
+    return database;
+}
+
+void  odbc_destroyDriverInstance(void* driverInstance)
+{
+    delete (CODBCDatabase*) driverInstance;
+}
