@@ -43,14 +43,22 @@
 using namespace std;
 using namespace sptk;
 
-typedef std::map<std::string, CDatabaseDriverLoader*, CCaseInsensitiveCompare> DriverLoaders;
+typedef map<string, CDatabaseDriverLoader*, CCaseInsensitiveCompare> DriverLoaders;
 static DriverLoaders m_loadedDrivers;
 
-void CDatabaseDriverLoader::load(std::string driverName) throw (exception)
+CDatabaseDriverLoader::CDatabaseDriverLoader(std::string driverName) :
+    m_handle(0),
+    m_createDriverInstance(0),
+    m_destroyDriverInstance(0),
+    m_driverName(driverName)
+{
+}
+
+void CDatabaseDriverLoader::load() throw (CDatabaseException)
 {
     SYNCHRONIZED_CODE;
 
-    driverName = lowerCase(driverName);
+    string driverName = lowerCase(m_driverName);
 
     CDatabaseDriverLoader* loadedDriver = m_loadedDrivers[driverName];
     if (loadedDriver) {
@@ -79,11 +87,15 @@ void CDatabaseDriverLoader::load(std::string driverName) throw (exception)
     string destroyDriverInstanceFunctionName(driverName + "_destroyDriverInstance");
 #ifdef WIN32
     m_createDriverInstance = (CCreateDriverInstance*) GetProcAddress(m_handle, createDriverInstanceFunctionName.c_str());
-    if (!m_createDriverInstance)
+    if (!m_createDriverInstance) {
+        m_handle = NULL;
         throw CDatabaseException("Cannot load driver " + driverName + ": no function " + createDriverInstanceFunctionName);
+    }
     m_destroyDriverInstance = (CDestroyDriverInstance*) GetProcAddress(m_handle, destroyDriverInstanceFunctionName.c_str());
-    if (!m_destroyDriverInstance)
+    if (!m_destroyDriverInstance) {
+        m_handle = NULL;
         throw CDatabaseException("Cannot load driver " + driverName + ": no function " + destroyDriverInstanceFunctionName);
+    }
 #else
     // reset errors
     dlerror();
@@ -99,7 +111,7 @@ void CDatabaseDriverLoader::load(std::string driverName) throw (exception)
     if (dlsym_error) {
         m_createDriverInstance = 0;
         dlclose(m_handle);
-        m_handle = 0;
+        m_handle = NULL;
         throw CDatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
     }
 
@@ -107,4 +119,17 @@ void CDatabaseDriverLoader::load(std::string driverName) throw (exception)
 
     // Registering loaded driver in the map
     m_loadedDrivers[driverName] = this;
+}
+
+CDatabaseDriver* CDatabaseDriverLoader::createConnection(std::string connectString) throw (CDatabaseException)
+{
+    if (!m_handle)
+        load();
+    CDatabaseDriver* driver = m_createDriverInstance(connectString.c_str());
+    return driver;
+}
+
+void CDatabaseDriverLoader::destroyConnection(CDatabaseDriver* driverInstance)
+{
+    m_destroyDriverInstance(driverInstance);
 }

@@ -50,7 +50,7 @@ void CQuery::allocStmt()
 {
     if (!m_db) {
         logText("Error in CQuery::allocStmt(): " + string(cantAllocateStmt));
-        throw CException(cantAllocateStmt, __FILE__, __LINE__, m_sql);
+        throw CDatabaseException(cantAllocateStmt, __FILE__, __LINE__, m_sql);
     }
     m_db->queryAllocStmt(this);
 }
@@ -263,7 +263,7 @@ void CQuery::sql(string _sql)
             }
             param->bindAdd(paramNumber);
             if (!m_db)
-                throw CException("Query isn't connected to the database");
+                throw CDatabaseException("Query isn't connected to the database");
             odbcSQL += m_db->paramMark(paramNumber) + delimitter;
             paramNumber++;
         } else {
@@ -292,7 +292,7 @@ void CQuery::sql(string _sql)
 bool CQuery::open()
 {
     if (!m_db)
-        throw CException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
+        throw CDatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
 
     if (m_db->logFile())
         logText("Opening query: " + replaceAll(m_sql, "\n", " "));
@@ -326,7 +326,7 @@ void CQuery::fetch()
     m_fields.rewind();
     if (!m_db || !m_active) {
         logText("Error in CQuery::fetch(): Dataset isn't open");
-        throw CException("Dataset isn't open", __FILE__, __LINE__, m_sql);
+        throw CDatabaseException("Dataset isn't open", __FILE__, __LINE__, m_sql);
     }
 
     m_db->queryFetch(this);
@@ -379,7 +379,7 @@ bool CQuery::writeField(const char *, const CVariant&)
 
 void CQuery::notImplemented(string functionName) const
 {
-    throw CException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
+    throw CDatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
 void CQuery::logText(std::string text, const CLogPriority& priority)
@@ -395,11 +395,11 @@ void CQuery::logText(std::string text, const CLogPriority& priority)
     }
 }
 
-void CQuery::logAndThrow(string method, string error) throw (CException)
+void CQuery::logAndThrow(string method, string error) throw (CDatabaseException)
 {
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, CLP_ERROR);
-    throw CException(errorText);
+    throw CDatabaseException(errorText);
 }
 
 void CQuery::storeStatistics()

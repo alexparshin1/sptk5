@@ -61,11 +61,11 @@ private:
 protected:
 
     /// @brief Begins the transaction
-    virtual void driverBeginTransaction() throw (CException);
+    virtual void driverBeginTransaction() throw (CDatabaseException);
 
     /// @brief Ends the transaction
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) throw (CException);
+    virtual void driverEndTransaction(bool commit) throw (CDatabaseException);
 
     // These methods implement the actions requested by CQuery
     virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
@@ -101,10 +101,10 @@ public:
 
     /// Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the ODBC connection string
-    virtual void openDatabase(std::string connectionString = "") throw (CException);
+    virtual void openDatabase(std::string connectionString = "") throw (CDatabaseException);
 
     /// Closes the database connection. If unsuccessful throws an exception.
-    virtual void closeDatabase() throw (CException);
+    virtual void closeDatabase() throw (CDatabaseException);
 
     /// Retruns true if database is opened
     virtual bool active() const;
@@ -121,7 +121,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception);
+    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException);
 };
 
 

@@ -41,8 +41,6 @@
 
 #include <iostream>
 
-#if HAVE_POSTGRESQL == 1
-
 using namespace std;
 using namespace sptk;
 
@@ -132,7 +130,7 @@ CPostgreSQLDatabase::~CPostgreSQLDatabase()
     }
 }
 
-void CPostgreSQLDatabase::openDatabase(const string newConnectionString) throw (CException)
+void CPostgreSQLDatabase::openDatabase(const string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -144,12 +142,12 @@ void CPostgreSQLDatabase::openDatabase(const string newConnectionString) throw (
             string error = PQerrorMessage(m_connect);
             PQfinish(m_connect);
             m_connect = NULL;
-            throw CException(error);
+            throw CDatabaseException(error);
         }
     }
 }
 
-void CPostgreSQLDatabase::closeDatabase() throw (CException)
+void CPostgreSQLDatabase::closeDatabase() throw (CDatabaseException)
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -172,30 +170,30 @@ bool CPostgreSQLDatabase::active() const
     return m_connect != 0L;
 }
 
-void CPostgreSQLDatabase::driverBeginTransaction() throw (CException)
+void CPostgreSQLDatabase::driverBeginTransaction() throw (CDatabaseException)
 {
     if (!m_connect)
         open();
 
     if (m_inTransaction)
-        throw CException("Transaction already started.");
+        throw CDatabaseException("Transaction already started.");
 
     PGresult* res = PQexec(m_connect, "BEGIN");
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {
         string error = "BEGIN command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(res);
-        throw CException(error);
+        throw CDatabaseException(error);
     }
     PQclear(res);
 
     m_inTransaction = true;
 }
 
-void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw (CException)
+void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw (CDatabaseException)
 {
     if (!m_inTransaction)
-        throw CException("Transaction isn't started.");
+        throw CDatabaseException("Transaction isn't started.");
 
     string action;
     if (commit)
@@ -208,7 +206,7 @@ void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw (CException)
         string error = action + " command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(res);
-        throw CException(error);
+        throw CDatabaseException(error);
     }
     PQclear(res);
 
@@ -618,7 +616,7 @@ void CPostgreSQLDatabase::queryFetch(CQuery *query)
     }
 }
 
-void CPostgreSQLDatabase::objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception)
+void CPostgreSQLDatabase::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
 {
     string tablesSQL("SELECT table_schema || '.' || table_name "
                      "FROM information_schema.tables "
@@ -662,4 +660,14 @@ std::string CPostgreSQLDatabase::paramMark(unsigned paramIndex)
     return mark;
 }
 
-#endif
+
+void* postgresql_createDriverInstance(const char* connectionString)
+{
+    CPostgreSQLDatabase* database = new CPostgreSQLDatabase(connectionString);
+    return database;
+}
+
+void  postgresql_destroyDriverInstance(void* driverInstance)
+{
+    delete (CPostgreSQLDatabase*) driverInstance;
+}

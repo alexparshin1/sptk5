@@ -93,11 +93,10 @@ typedef std::map<std::string, CCallStatistic> CCallStatisticMap;
 /// @brief Database connector
 ///
 /// Implements a thread-safe connection to general database. It is used
-/// as a base class for the particular database driver, CODBCDatabase,
-/// for instance.
+/// as a base class for actual database driver classes.
 class SP_EXPORT CDatabaseDriver: public CSynchronized
 {
-    typedef std::vector<CQuery *> CQueryVector;
+    typedef std::vector<CQuery*> CQueryVector;
     friend class CQuery;
 
 protected:
@@ -111,7 +110,7 @@ protected:
     /// @brief Attaches (links) query to the database
     bool linkQuery(CQuery *q);
 
-    /// @brief Ulinks query from the database
+    /// @brief Unlinks query from the database
     bool unlinkQuery(CQuery *q);
 
     CCallStatisticMap m_queryStatisticMap; ///< Map of query creation location to statistical information
@@ -181,17 +180,17 @@ protected:
     ///
     /// This method should be overwritten in derived classes
     /// @param connectionString std::string, the ODBC connection string
-    virtual void openDatabase(std::string connectionString = "") throw (CException);
+    virtual void openDatabase(std::string connectionString = "") throw (CDatabaseException);
 
     /// @brief Closes the database connection.
     ///
     /// This method should be overwritten in derived classes
-    virtual void closeDatabase() throw (CException);
+    virtual void closeDatabase() throw (CDatabaseException);
 
     /// @brief Begins the transaction
     ///
     /// This method should be implemented in derived driver
-    virtual void driverBeginTransaction() throw (CException)
+    virtual void driverBeginTransaction() throw (CDatabaseException)
     {
         notImplemented("driverBeginTransaction");
     }
@@ -200,7 +199,7 @@ protected:
     ///
     /// This method should be implemented in derived driver
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) throw (CException)
+    virtual void driverEndTransaction(bool commit) throw (CDatabaseException)
     {
         notImplemented("driverEndTransaction");
     }
@@ -210,7 +209,7 @@ protected:
     /// Before exception is thrown, it is logged into the logfile (if the logfile is defined)
     /// @param method std::string, method name where error has occured
     /// @param error std::string, error text
-    void logAndThrow(std::string method, std::string error) throw (CException);
+    void logAndThrow(std::string method, std::string error) throw (CDatabaseException);
 
 public:
     /// @brief Destructor
@@ -223,10 +222,10 @@ public:
     ///
     /// If unsuccessful throws an exception.
     /// @param connectionString std::string, the ODBC connection string
-    void open(std::string connectionString = "") throw (CException);
+    void open(std::string connectionString = "") throw (CDatabaseException);
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
-    void close() throw (CException);
+    void close() throw (CDatabaseException);
 
     /// @brief Returns true if database is opened
     virtual bool active() const;
@@ -247,13 +246,13 @@ public:
     }
 
     /// @brief Begins the transaction
-    void beginTransaction() throw (CException);
+    void beginTransaction() throw (CDatabaseException);
 
     /// @brief Commits the transaction
-    void commitTransaction() throw (CException);
+    void commitTransaction() throw (CDatabaseException);
 
     /// @brief Rolls back the transaction
-    void rollbackTransaction() throw (CException);
+    void rollbackTransaction() throw (CDatabaseException);
 
     /// @brief Reports true if in transaction
     int inTransaction()
@@ -267,7 +266,7 @@ public:
     /// must provide its own implementation
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception) = 0;
+    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException) = 0;
 
     /// @brief Sets a log file for the database operations.
     ///

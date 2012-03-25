@@ -149,7 +149,7 @@ CParam& CParamList::operator [](const char *paramName) const
 {
     CParamMap::const_iterator itor = m_index.find(paramName);
     if (itor == m_index.end())
-        throw CException("Invalid parameter name: " + string(paramName), __FILE__, __LINE__);
+        throw CDatabaseException("Invalid parameter name: " + string(paramName), __FILE__, __LINE__);
     return *itor->second;
 }
 //---------------------------------------------------------------------------

@@ -76,7 +76,7 @@ CODBCDatabase::~CODBCDatabase()
     }
 }
 
-void CODBCDatabase::openDatabase(const string newConnectionString) throw (CException)
+void CODBCDatabase::openDatabase(const string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -88,7 +88,7 @@ void CODBCDatabase::openDatabase(const string newConnectionString) throw (CExcep
     }
 }
 
-void CODBCDatabase::closeDatabase() throw (CException)
+void CODBCDatabase::closeDatabase() throw (CDatabaseException)
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -109,7 +109,7 @@ bool CODBCDatabase::active() const
     return m_connect->isConnected();
 }
 
-void CODBCDatabase::driverBeginTransaction() throw (CException)
+void CODBCDatabase::driverBeginTransaction() throw (CDatabaseException)
 {
     if (!m_connect->isConnected())
         open();
@@ -121,7 +121,7 @@ void CODBCDatabase::driverBeginTransaction() throw (CException)
     m_inTransaction = true;
 }
 
-void CODBCDatabase::driverEndTransaction(bool commit) throw (CException)
+void CODBCDatabase::driverEndTransaction(bool commit) throw (CDatabaseException)
 {
     if (!m_inTransaction) {
         if (commit)
@@ -572,7 +572,7 @@ void CODBCDatabase::queryFetch(CQuery *query)
         if (rc < 0) {
             string error = queryError(query);
             query->logText(error);
-            throw CException(error, __FILE__, __LINE__, query->sql().c_str());
+            throw CDatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
         } else {
             querySetEof(query, rc == SQL_NO_DATA);
             return;
@@ -659,7 +659,7 @@ string CODBCDatabase::driverDescription() const
         return "";
 }
 
-void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception)
+void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -668,24 +668,24 @@ void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) thro
         SQLRETURN rc;
         SQLHDBC hdb = (SQLHDBC) handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
-            throw CException("CODBCDatabase::queryAllocStmt");
+            throw CDatabaseException("CODBCDatabase::queryAllocStmt");
 
         switch (objectType)
         {
         case DOT_TABLES:
             if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
-                throw CException("SQLTables");
+                throw CDatabaseException("SQLTables");
             break;
 
         case DOT_VIEWS:
             if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
-                throw CException("SQLTables");
+                throw CDatabaseException("SQLTables");
             break;
 
         case DOT_PROCEDURES:
             rc = SQLProcedures(stmt, NULL, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
             if (rc != SQL_SUCCESS)
-                throw CException("SQLProcedures");
+                throw CDatabaseException("SQLProcedures");
             break;
         }
 
@@ -694,9 +694,9 @@ void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) thro
         SQLLEN cbObjectSchema;
         SQLLEN cbObjectName;
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)
-            throw CException("SQLBindCol");
+            throw CDatabaseException("SQLBindCol");
         if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName, sizeof(objectName), &cbObjectName) != SQL_SUCCESS)
-            throw CException("SQLBindCol");
+            throw CDatabaseException("SQLBindCol");
 
         while (true) {
             objectSchema[0] = 0;
@@ -705,7 +705,7 @@ void CODBCDatabase::objectList(CDbObjectType objectType, CStrings& objects) thro
             if (rc == SQL_NO_DATA_FOUND)
                 break;
             if (!successful(rc))
-                throw CException("SQLFetch");
+                throw CDatabaseException("SQLFetch");
             objects.push_back(string((char*) objectSchema) + "." + string((char*) objectName));
         }
 
@@ -728,7 +728,7 @@ void* odbc_createDriverInstance(const char* connectionString)
     return database;
 }
 
-void  odbc_destroyDriverInstance(void* driverInstance)
+void odbc_destroyDriverInstance(void* driverInstance)
 {
     delete (CODBCDatabase*) driverInstance;
 }

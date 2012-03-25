@@ -86,7 +86,7 @@ CSQLite3Database::~CSQLite3Database()
     }
 }
 
-void CSQLite3Database::openDatabase(const string newConnectionString) throw (CException)
+void CSQLite3Database::openDatabase(const string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -101,7 +101,7 @@ void CSQLite3Database::openDatabase(const string newConnectionString) throw (CEx
     }
 }
 
-void CSQLite3Database::closeDatabase() throw (CException)
+void CSQLite3Database::closeDatabase() throw (CDatabaseException)
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -124,7 +124,7 @@ bool CSQLite3Database::active() const
     return m_connect != 0L;
 }
 
-void CSQLite3Database::driverBeginTransaction() throw (CException)
+void CSQLite3Database::driverBeginTransaction() throw (CDatabaseException)
 {
     if (!m_connect)
         open();
@@ -139,7 +139,7 @@ void CSQLite3Database::driverBeginTransaction() throw (CException)
     m_inTransaction = true;
 }
 
-void CSQLite3Database::driverEndTransaction(bool commit) throw (CException)
+void CSQLite3Database::driverEndTransaction(bool commit) throw (CDatabaseException)
 {
     if (!m_inTransaction)
         throw CDatabaseException("Transaction isn't started.");
@@ -486,7 +486,7 @@ void CSQLite3Database::queryFetch(CQuery *query)
     }
 }
 
-void CSQLite3Database::objectList(CDbObjectType objectType, CStrings& objects) throw (std::exception)
+void CSQLite3Database::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
 {
     string objectTypeName;
     objects.clear();
@@ -513,6 +513,17 @@ void CSQLite3Database::objectList(CDbObjectType objectType, CStrings& objects) t
 std::string CSQLite3Database::driverDescription() const
 {
     return "SQLite3 " SQLITE_VERSION;
+}
+
+void* sqlite3_createDriverInstance(const char* connectionString)
+{
+    CSQLite3Database* database = new CSQLite3Database(connectionString);
+    return database;
+}
+
+void sqlite3_destroyDriverInstance(void* driverInstance)
+{
+    delete (CSQLite3Database*) driverInstance;
 }
 
 #endif

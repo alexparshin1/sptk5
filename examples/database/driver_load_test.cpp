@@ -35,10 +35,9 @@ using namespace sptk;
 
 int main()
 {
-    CDatabaseDriverLoader driverLoader;
+    CDatabaseDriverLoader driverLoader("odbc");
     try {
-        driverLoader.load("odbc");
-        CDatabaseDriver* driverInstance = driverLoader.createDriverInstance("connstring");
+        CDatabaseDriver* driverInstance = driverLoader.createConnection("connstring");
         cout << driverInstance->connectionString() << endl;
     }
     catch (exception& e) {

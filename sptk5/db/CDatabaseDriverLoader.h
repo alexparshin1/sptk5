@@ -54,43 +54,34 @@ typedef void CDestroyDriverInstance(CDatabaseDriver*);
     typedef void*   CDriverHandle;                   ///< Unix: Driver SO/DLL handle type
 #endif
 
-/// @brief Database driver description
+/// @brief Database driver loader
+///
+/// Loads and initializes SPTK database driver by request.
+/// Already loaded drivers are cached.
 class SP_EXPORT CDatabaseDriverLoader : public CSynchronized
 {
 protected:
     CDriverHandle           m_handle;                   ///< Driver SO/DLL handle after load
     CCreateDriverInstance*  m_createDriverInstance;     ///< Function that creates driver instances
     CDestroyDriverInstance* m_destroyDriverInstance;    ///< Function that destroys driver instances
+    std::string             m_driverName;               ///< Database driver name
+
+    /// @brief Loads database driver
+    ///
+    /// First successfull driver load places driver into driver cache.
+    void load() throw (CDatabaseException);
+
 public:
     /// @brief Constructor
-    /// @param handle CDriverHandle, Handle of loaded driver library
-    /// @param createDriverInstance CCreateDriverInstance*, Function that creates driver instances
-    /// @param destroyDriverInstance CDestroyDriverInstance*, Function that destroys driver instances
-    CDatabaseDriverLoader(CDriverHandle handle = 0, CCreateDriverInstance* createDriverInstance = 0, CDestroyDriverInstance* destroyDriverInstance = 0)
-    {
-        m_handle = handle;
-        m_createDriverInstance = createDriverInstance;
-        m_destroyDriverInstance = destroyDriverInstance;
-    }
+    CDatabaseDriverLoader(std::string driverName);
 
-    /// @brief Loads driver by name
-    ///
-    /// First successful driver load places driver into driver cache.
-    void load(std::string driverName) throw (std::exception);
-
-    /// @brief Creates driver instance
+    /// @brief Creates database connection
     /// @param connectionString std::string, Connect string
-    CDatabaseDriver* createDriverInstance(std::string connectString)
-    {
-        return m_createDriverInstance(connectString.c_str());
-    }
+    CDatabaseDriver* createConnection(std::string connectString) throw (CDatabaseException);
 
     /// @brief Destroys driver instance
     /// @param driverInstance CDatabaseDriver*, destroys the driver instance
-    void destroyDriverInstance(CDatabaseDriver* driverInstance)
-    {
-        m_destroyDriverInstance(driverInstance);
-    }
+    void destroyConnection(CDatabaseDriver* driverInstance);
 };
 /// @}
 }

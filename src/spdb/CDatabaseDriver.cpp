@@ -68,12 +68,12 @@ bool CDatabaseDriver::unlinkQuery(CQuery *q)
     return true;
 }
 
-void CDatabaseDriver::openDatabase(string newConnectionString) throw (CException)
+void CDatabaseDriver::openDatabase(string newConnectionString) throw (CDatabaseException)
 {
     notImplemented("openDatabase");
 }
 
-void CDatabaseDriver::open(string newConnectionString) throw (CException)
+void CDatabaseDriver::open(string newConnectionString) throw (CDatabaseException)
 {
     clearStatistics();
     openDatabase(newConnectionString);
@@ -81,12 +81,12 @@ void CDatabaseDriver::open(string newConnectionString) throw (CException)
         *m_log << "Opened database: " << m_connString << endl;
 }
 
-void CDatabaseDriver::closeDatabase() throw (CException)
+void CDatabaseDriver::closeDatabase() throw (CDatabaseException)
 {
     notImplemented("closeDatabase");
 }
 
-void CDatabaseDriver::close() throw (CException)
+void CDatabaseDriver::close() throw (CDatabaseException)
 {
     if (active()) {
         if (m_inTransaction) {
@@ -116,21 +116,21 @@ bool CDatabaseDriver::active() const
     return true;
 }
 
-void CDatabaseDriver::beginTransaction() throw (CException)
+void CDatabaseDriver::beginTransaction() throw (CDatabaseException)
 {
     if (m_log)
         *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
-void CDatabaseDriver::commitTransaction() throw (CException)
+void CDatabaseDriver::commitTransaction() throw (CDatabaseException)
 {
     if (m_log)
         *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
-void CDatabaseDriver::rollbackTransaction() throw (CException)
+void CDatabaseDriver::rollbackTransaction() throw (CDatabaseException)
 {
     if (m_log)
         *m_log << "Rollback transaction" << endl;
@@ -238,7 +238,7 @@ void CDatabaseDriver::queryFetch(CQuery *)
 
 void CDatabaseDriver::notImplemented(const char *methodName) const
 {
-    throw CException("Method '" + string(methodName) + "' is not supported by this database driver.");
+    throw CDatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
 }
 
 void *CDatabaseDriver::queryHandle(CQuery *query) const
@@ -251,12 +251,12 @@ void CDatabaseDriver::queryHandle(CQuery *query, void *handle)
     query->m_statement = handle;
 }
 
-void CDatabaseDriver::logAndThrow(string method, string error) throw (CException)
+void CDatabaseDriver::logAndThrow(string method, string error) throw (CDatabaseException)
 {
     string errorText("Exception in " + method + ": " + error);
     if (m_log)
         *m_log << "errorText" << endl;
-    throw CException(errorText);
+    throw CDatabaseException(errorText);
 }
 
 void CDatabaseDriver::clearStatistics()

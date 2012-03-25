@@ -99,6 +99,6 @@ namespace sptk {
 
     extern const CDateTime epochDate;
 
-};
+}
 
 #endif

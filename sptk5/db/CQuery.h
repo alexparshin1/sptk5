@@ -406,7 +406,7 @@ public:
     /// Before exception is thrown, it is logged into the logfile (if the logfile is defined)
     /// @param method std::string, method name where error has occured
     /// @param error std::string, error text
-    void logAndThrow(std::string method, std::string error) throw (CException);
+    void logAndThrow(std::string method, std::string error) throw (CDatabaseException);
 
     /// @brief Access to diag messages
     ///
