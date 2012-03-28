@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-CTransaction::CTransaction(CDatabaseDriver& db)
+CTransaction::CTransaction(CDatabaseConnection& db)
 {
     m_active = false;
     m_db = &db;

@@ -28,7 +28,8 @@
 #ifndef __CDATABASE__
 #define __CDATABASE__
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/db/CDatabaseConnectionPool.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/db/CTransaction.h>
 

@@ -26,20 +26,20 @@
 #include <iomanip>
 #include <stdlib.h>
 
-#include <sptk5/db/CSQLite3Database.h>
+#include <sptk5/db/CSQLite3Connection.h>
 #include <sptk5/cdatabase>
 
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
+int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(&db, "DELETE FROM " + tableName);
-        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName);
+        CQuery step5Query(db, "DELETE FROM " + tableName);
+        CQuery step6Query(db, "SELECT count(*) FROM " + tableName);
 
         cout << endl << "        Begining the transaction ..";
-        db.beginTransaction();
+        db->beginTransaction();
         cout << endl << "        Deleting everything from the temp table ..";
         step5Query.exec();
 
@@ -50,10 +50,10 @@ int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
 
         if (rollback) {
             cout << endl << "        Rolling back the transaction ..";
-            db.rollbackTransaction();
+            db->rollbackTransaction();
         } else {
             cout << endl << "        Commiting the transaction ..";
-            db.commitTransaction();
+            db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
@@ -68,35 +68,31 @@ int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
 
 int main()
 {
-
-    // If you want to test the database abilities of the data controls
-    // you have to setup the ODBC database connection.
-    // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
-    // If UID or PWD are omitted they are read from the datasource settings.
-    CSQLite3Database db("demo_db.sqlite3");
+    CDatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
+    CDatabaseConnection* db = connectionPool.createConnection();
 
     /// Defining a log for the application. This is optional - you can omit this step
     CFileLog logFile("sqlite_test.log");
     /// If the log is defined for the database, the database operations would be logged it.
     /// You can also print to the log your own messages.
-    db.logFile(&logFile);
+    db->logFile(&logFile);
 
     try {
         cout << "Openning the database.. ";
-        db.open();
-        cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
+        db->open();
+        cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
         CStrings tableList;
-        db.objectList(DOT_TABLES, tableList);
+        db->objectList(DOT_TABLES, tableList);
         cout << "First 10 tables in the database:" << endl;
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)
             cout << "  Table: " << tableList[i] << endl;
 
         // Defining the queries
-        CQuery step1Query(&db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(&db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(&db, "SELECT * FROM test WHERE id > :some_id");
-        CQuery step4Query(&db, "DROP TABLE test");
+        CQuery step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
+        CQuery step2Query(db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
+        CQuery step3Query(db, "SELECT * FROM test WHERE id > :some_id");
+        CQuery step4Query(db, "DROP TABLE test");
 
         cout << "Ok.\nStep 1: Creating the table.. ";
         step1Query.exec();
@@ -208,7 +204,7 @@ int main()
         step4Query.exec();
 
         cout << "Ok.\nStep 6: Closing the database.. ";
-        db.close();
+        db->close();
         cout << "Ok." << endl;
     } catch (exception& e) {
         cout << "\nError: " << e.what() << endl;

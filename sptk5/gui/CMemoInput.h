@@ -36,7 +36,7 @@
 #include <FL/Fl_Button.H>
 #include <sptk5/CIntList.h>
 #include <sptk5/CDateTime.h>
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>

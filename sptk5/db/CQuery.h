@@ -35,7 +35,7 @@
 
 #include <sptk5/CDataSource.h>
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CParams.h>
 #include <sptk5/CFieldList.h>
 
@@ -48,10 +48,10 @@ namespace sptk {
 ///
 /// A CDataset connected to the database to
 /// execute a database queries. The type of the database
-/// depends on the CDatabaseDriver object query is connected to.
+/// depends on the CDatabaseConnection object query is connected to.
 class SP_EXPORT CQuery: public CDataSource, public CSynchronized
 {
-    friend class CDatabaseDriver;
+    friend class CDatabaseConnection;
 
 protected:
     bool            m_autoPrepare;     ///< Prepare the query automatically, on the first call
@@ -68,7 +68,7 @@ protected:
     double          m_totalDuration;   ///< The total duration of executions, in seconds
     unsigned        m_totalCalls;      ///< The total number of query executions
 
-    CDatabaseDriver*m_db;              ///< Database connection
+    CDatabaseConnection*m_db;              ///< Database connection
     std::string     m_sql;             ///< SQL statement string
     const char*     m_createdFile;     ///< The source file the query was created in
     unsigned        m_createdLine;     ///< The source file line the query was created at
@@ -124,11 +124,11 @@ public:
     /// this query is created. This is used to collect statistical information
     /// for the query calls. If file and line information is provided, then
     /// calls statistics is stored to the database object during the query dtor.
-    /// @param db CDatabaseDriver, the database to connect to, optional
+    /// @param db CDatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param createdFile const char*, the name of the file this query was created in (optional)
     /// @param createdLine unsigned, the line of the file this query was created at (optional)
-    CQuery(CDatabaseDriver *db = 0L, std::string sql = "", const char* createdFile = 0, unsigned createdLine = 0);
+    CQuery(CDatabaseConnection *db = 0L, std::string sql = "", const char* createdFile = 0, unsigned createdLine = 0);
 
     /// @brief Copy constructor
     CQuery(const CQuery&);
@@ -284,7 +284,7 @@ public:
     ///
     /// If the query was connected
     /// to another database, releases all the allocated resources in it.
-    void connect(CDatabaseDriver *db);
+    void connect(CDatabaseConnection *db);
 
     /// @brief Disconnects query from the database and releases all the allocated resourses.
     void disconnect();
@@ -348,13 +348,13 @@ public:
     void sql(std::string _sql);
 
     /// @brief Returns the database the query is connected to
-    CDatabaseDriver *database() const
+    CDatabaseConnection *database() const
     {
         return m_db;
     }
 
     /// @brief Connects the query to the database different database.
-    void database(CDatabaseDriver *db)
+    void database(CDatabaseConnection *db)
     {
         connect(db);
     }

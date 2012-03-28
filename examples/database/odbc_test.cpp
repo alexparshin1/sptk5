@@ -25,14 +25,14 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sptk5/db/CODBCDatabase.h>
+#include <sptk5/db/CODBCConnection.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
+int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
 {
     try {
         CQuery step5Query(&db, "DELETE FROM " + tableName);
@@ -73,7 +73,7 @@ int main()
     // you have to setup the ODBC database connection.
     // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
     // If UID or PWD are omitted they are read from the datasource settings.
-    CODBCDatabase db("DSN=odbc_demo");
+    CODBCConnection db("DSN=odbc_demo");
     CFileLog logFile("odbc_test.log");
 
     db.logFile(&logFile);

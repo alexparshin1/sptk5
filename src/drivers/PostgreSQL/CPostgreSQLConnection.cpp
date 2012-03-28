@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CPostgreSQLDatabase.cpp  -  description
+                          CPostgreSQLConnection.cpp  -  description
                              -------------------
     begin                : Mon Sep 17 2007
     copyright            : (C) 2008-2012 by Alexey Parshin. All rights reserved.
@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/db/CPostgreSQLDatabase.h>
+#include <sptk5/db/CPostgreSQLConnection.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
 
@@ -106,13 +106,13 @@ namespace sptk {
 }
 
 
-CPostgreSQLDatabase::CPostgreSQLDatabase(string connectionString) :
-        CDatabaseDriver(connectionString)
+CPostgreSQLConnection::CPostgreSQLConnection(string connectionString) :
+        CDatabaseConnection(connectionString)
 {
     m_connect = 0;
 }
 
-CPostgreSQLDatabase::~CPostgreSQLDatabase()
+CPostgreSQLConnection::~CPostgreSQLConnection()
 {
     try {
         if (m_inTransaction && active())
@@ -130,14 +130,37 @@ CPostgreSQLDatabase::~CPostgreSQLDatabase()
     }
 }
 
-void CPostgreSQLDatabase::openDatabase(const string newConnectionString) throw (CDatabaseException)
+static string csParam(string name, string value)
+{
+    if (!value.empty())
+        return name + "=" + value + " ";
+    return "";
+}
+
+string CPostgreSQLConnection::nativeConnectionString() const
+{
+    string port;
+    if (m_connString.portNumber())
+        port = int2string(m_connString.portNumber());
+
+    string result =
+        csParam("dbname", m_connString.databaseName()) +
+        csParam("host", m_connString.hostName()) +
+        csParam("user", m_connString.userName()) +
+        csParam("password", m_connString.password()) +
+        csParam("port", port);
+
+    return result;
+}
+
+void CPostgreSQLConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
             m_connString = newConnectionString;
 
-        m_connect = PQconnectdb(m_connString.c_str());
+        m_connect = PQconnectdb(nativeConnectionString().c_str());
         if (PQstatus(m_connect) != CONNECTION_OK) {
             string error = PQerrorMessage(m_connect);
             PQfinish(m_connect);
@@ -147,7 +170,7 @@ void CPostgreSQLDatabase::openDatabase(const string newConnectionString) throw (
     }
 }
 
-void CPostgreSQLDatabase::closeDatabase() throw (CDatabaseException)
+void CPostgreSQLConnection::closeDatabase() throw (CDatabaseException)
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -160,17 +183,17 @@ void CPostgreSQLDatabase::closeDatabase() throw (CDatabaseException)
     m_connect = NULL;
 }
 
-void* CPostgreSQLDatabase::handle() const
+void* CPostgreSQLConnection::handle() const
 {
     return m_connect;
 }
 
-bool CPostgreSQLDatabase::active() const
+bool CPostgreSQLConnection::active() const
 {
     return m_connect != 0L;
 }
 
-void CPostgreSQLDatabase::driverBeginTransaction() throw (CDatabaseException)
+void CPostgreSQLConnection::driverBeginTransaction() throw (CDatabaseException)
 {
     if (!m_connect)
         open();
@@ -190,7 +213,7 @@ void CPostgreSQLDatabase::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw (CDatabaseException)
+void CPostgreSQLConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
 {
     if (!m_inTransaction)
         throw CDatabaseException("Transaction isn't started.");
@@ -215,20 +238,20 @@ void CPostgreSQLDatabase::driverEndTransaction(bool commit) throw (CDatabaseExce
 
 //-----------------------------------------------------------------------------------------------
 
-string CPostgreSQLDatabase::queryError(const CQuery *query) const
+string CPostgreSQLConnection::queryError(const CQuery *query) const
 {
     return PQerrorMessage(m_connect);
 }
 
 // Doesn't actually allocate stmt, but makes sure
 // the previously allocated stmt is released
-void CPostgreSQLDatabase::queryAllocStmt(CQuery *query)
+void CPostgreSQLConnection::queryAllocStmt(CQuery *query)
 {
     queryFreeStmt(query);
     querySetStmt(query, new CPostgreSQLStatement);
 }
 
-void CPostgreSQLDatabase::queryFreeStmt(CQuery *query)
+void CPostgreSQLConnection::queryFreeStmt(CQuery *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -242,7 +265,7 @@ void CPostgreSQLDatabase::queryFreeStmt(CQuery *query)
                 string error = "DEALLOCATE command failed: ";
                 error += PQerrorMessage(m_connect);
                 PQclear(res);
-                query->logAndThrow("CPostgreSQLDatabase::queryFreeStmt", error);
+                query->logAndThrow("CPostgreSQLConnection::queryFreeStmt", error);
             }
             PQclear(res);
         }
@@ -253,7 +276,7 @@ void CPostgreSQLDatabase::queryFreeStmt(CQuery *query)
     querySetPrepared(query, false);
 }
 
-void CPostgreSQLDatabase::queryCloseStmt(CQuery *query)
+void CPostgreSQLConnection::queryCloseStmt(CQuery *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -261,7 +284,7 @@ void CPostgreSQLDatabase::queryCloseStmt(CQuery *query)
     statement->clearRows();
 }
 
-void CPostgreSQLDatabase::queryPrepare(CQuery *query)
+void CPostgreSQLConnection::queryPrepare(CQuery *query)
 {
     queryFreeStmt(query);
 
@@ -282,7 +305,7 @@ void CPostgreSQLDatabase::queryPrepare(CQuery *query)
         string error = "PREPARE command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(stmt);
-        query->logAndThrow("CPostgreSQLDatabase::queryPrepare", error);
+        query->logAndThrow("CPostgreSQLConnection::queryPrepare", error);
     }
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
@@ -296,12 +319,12 @@ void CPostgreSQLDatabase::queryPrepare(CQuery *query)
     querySetPrepared(query, true);
 }
 
-void CPostgreSQLDatabase::queryUnprepare(CQuery *query)
+void CPostgreSQLConnection::queryUnprepare(CQuery *query)
 {
     queryFreeStmt(query);
 }
 
-int CPostgreSQLDatabase::queryColCount(CQuery *query)
+int CPostgreSQLConnection::queryColCount(CQuery *query)
 {
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
@@ -309,7 +332,7 @@ int CPostgreSQLDatabase::queryColCount(CQuery *query)
     return statement->colCount();
 }
 
-void CPostgreSQLDatabase::queryBindParameters(CQuery *query)
+void CPostgreSQLConnection::queryBindParameters(CQuery *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -343,12 +366,12 @@ void CPostgreSQLDatabase::queryBindParameters(CQuery *query)
         error += PQerrorMessage(m_connect);
         PQclear(stmt);
         statement->clear();
-        query->logAndThrow("CPostgreSQLDatabase::queryBindParameters", error);
+        query->logAndThrow("CPostgreSQLConnection::queryBindParameters", error);
     }
     }
 }
 
-void CPostgreSQLDatabase::PostgreTypeToCType(int postgreType, CVariantType& dataType)
+void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, CVariantType& dataType)
 {
     switch (postgreType)
     {
@@ -384,7 +407,7 @@ void CPostgreSQLDatabase::PostgreTypeToCType(int postgreType, CVariantType& data
     }
 }
 
-void CPostgreSQLDatabase::CTypeToPostgreType(CVariantType dataType, Oid& postgreType)
+void CPostgreSQLConnection::CTypeToPostgreType(CVariantType dataType, Oid& postgreType)
 {
     switch (dataType)
     {
@@ -417,7 +440,7 @@ void CPostgreSQLDatabase::CTypeToPostgreType(CVariantType dataType, Oid& postgre
     }
 }
 
-void CPostgreSQLDatabase::queryOpen(CQuery *query)
+void CPostgreSQLConnection::queryOpen(CQuery *query)
 {
     if (!active())
         open();
@@ -505,10 +528,10 @@ static long double numericBinaryToLongDouble(const char* v)
     return finalValue;
 }
 
-void CPostgreSQLDatabase::queryFetch(CQuery *query)
+void CPostgreSQLConnection::queryFetch(CQuery *query)
 {
     if (!query->active())
-        query->logAndThrow("CPostgreSQLDatabase::queryFetch", "Dataset isn't open");
+        query->logAndThrow("CPostgreSQLConnection::queryFetch", "Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
@@ -610,13 +633,13 @@ void CPostgreSQLDatabase::queryFetch(CQuery *query)
             }
 
         } catch (exception& e) {
-            query->logAndThrow("CPostgreSQLDatabase::queryFetch",
+            query->logAndThrow("CPostgreSQLConnection::queryFetch",
                     "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
 }
 
-void CPostgreSQLDatabase::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
 {
     string tablesSQL("SELECT table_schema || '.' || table_name "
                      "FROM information_schema.tables "
@@ -648,12 +671,12 @@ void CPostgreSQLDatabase::objectList(CDbObjectType objectType, CStrings& objects
     query.close();
 }
 
-std::string CPostgreSQLDatabase::driverDescription() const
+std::string CPostgreSQLConnection::driverDescription() const
 {
     return "PostgreSQL";
 }
 
-std::string CPostgreSQLDatabase::paramMark(unsigned paramIndex)
+std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, "$%i", paramIndex + 1);
@@ -661,13 +684,13 @@ std::string CPostgreSQLDatabase::paramMark(unsigned paramIndex)
 }
 
 
-void* postgresql_createDriverInstance(const char* connectionString)
+void* postgresql_create_connection(const char* connectionString)
 {
-    CPostgreSQLDatabase* database = new CPostgreSQLDatabase(connectionString);
-    return database;
+    CPostgreSQLConnection* connection = new CPostgreSQLConnection(connectionString);
+    return connection;
 }
 
-void  postgresql_destroyDriverInstance(void* driverInstance)
+void  postgresql_destroy_connection(void* connection)
 {
-    delete (CPostgreSQLDatabase*) driverInstance;
+    delete (CPostgreSQLConnection*) connection;
 }

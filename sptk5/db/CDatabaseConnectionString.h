@@ -91,6 +91,15 @@ public:
         parse();
     }
 
+    /// @brief Copy constructor
+    /// @param cs const CDatabaseConnectionString&, Database connection string object to copy from
+    CDatabaseConnectionString(const CDatabaseConnectionString& cs) :
+        m_connectionString(cs.m_connectionString),
+        m_portNumber(0)
+    {
+        parse();
+    }
+
     /// @brief Returns connection string
     const std::string& str() const
     {

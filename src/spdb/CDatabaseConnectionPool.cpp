@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDatabaseDriverLoader.cpp  -  description
+                          CDatabaseConnectionPool.cpp  -  description
                              -------------------
     begin                : Sun Mar 11 2012
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -33,7 +33,7 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ***************************************************************************/
 
-#include <sptk5/db/CDatabaseDriverLoader.h>
+#include <sptk5/db/CDatabaseConnectionPool.h>
 #ifndef WIN32
     /// *nix only
     #include <dlfcn.h>
@@ -43,28 +43,28 @@
 using namespace std;
 using namespace sptk;
 
-typedef map<string, CDatabaseDriverLoader*, CCaseInsensitiveCompare> DriverLoaders;
+typedef map<string, CDatabaseConnectionPool*, CCaseInsensitiveCompare> DriverLoaders;
 static DriverLoaders m_loadedDrivers;
 
-CDatabaseDriverLoader::CDatabaseDriverLoader(std::string driverName) :
+CDatabaseConnectionPool::CDatabaseConnectionPool(std::string connectionString) :
+    CDatabaseConnectionString(connectionString),
     m_handle(0),
-    m_createDriverInstance(0),
-    m_destroyDriverInstance(0),
-    m_driverName(driverName)
+    m_createConnection(0),
+    m_destroyConnection(0)
 {
 }
 
-void CDatabaseDriverLoader::load() throw (CDatabaseException)
+void CDatabaseConnectionPool::load() throw (CDatabaseException)
 {
     SYNCHRONIZED_CODE;
 
     string driverName = lowerCase(m_driverName);
 
-    CDatabaseDriverLoader* loadedDriver = m_loadedDrivers[driverName];
+    CDatabaseConnectionPool* loadedDriver = m_loadedDrivers[driverName];
     if (loadedDriver) {
         m_handle = loadedDriver->m_handle;
-        m_createDriverInstance = loadedDriver->m_createDriverInstance;
-        m_destroyDriverInstance = loadedDriver->m_destroyDriverInstance;
+        m_createConnection = loadedDriver->m_createConnection;
+        m_destroyConnection = loadedDriver->m_destroyConnection;
         return;
     }
 
@@ -83,33 +83,33 @@ void CDatabaseDriverLoader::load() throw (CDatabaseException)
 #endif
 
     // Creating the driver instance
-    string createDriverInstanceFunctionName(driverName + "_createDriverInstance");
-    string destroyDriverInstanceFunctionName(driverName + "_destroyDriverInstance");
+    string create_connectionFunctionName(driverName + "_create_connection");
+    string destroy_connectionFunctionName(driverName + "_destroy_connection");
 #ifdef WIN32
-    m_createDriverInstance = (CCreateDriverInstance*) GetProcAddress(m_handle, createDriverInstanceFunctionName.c_str());
-    if (!m_createDriverInstance) {
+    m_createConnection = (CCreateDriverInstance*) GetProcAddress(m_handle, create_connectionFunctionName.c_str());
+    if (!m_createConnection) {
         m_handle = NULL;
-        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + createDriverInstanceFunctionName);
+        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + create_connectionFunctionName);
     }
-    m_destroyDriverInstance = (CDestroyDriverInstance*) GetProcAddress(m_handle, destroyDriverInstanceFunctionName.c_str());
-    if (!m_destroyDriverInstance) {
+    m_destroyConnection = (CDestroyDriverInstance*) GetProcAddress(m_handle, destroy_connectionFunctionName.c_str());
+    if (!m_destroyConnection) {
         m_handle = NULL;
-        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + destroyDriverInstanceFunctionName);
+        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + destroy_connectionFunctionName);
     }
 #else
     // reset errors
     dlerror();
 
     // load the symbols
-    m_createDriverInstance = (CCreateDriverInstance*) dlsym(m_handle, createDriverInstanceFunctionName.c_str());
+    m_createConnection = (CCreateDriverInstance*) dlsym(m_handle, create_connectionFunctionName.c_str());
     const char* dlsym_error = dlerror();
     if (!dlsym_error) {
-        m_destroyDriverInstance = (CDestroyDriverInstance*) dlsym(m_handle, destroyDriverInstanceFunctionName.c_str());
+        m_destroyConnection = (CDestroyDriverInstance*) dlsym(m_handle, destroy_connectionFunctionName.c_str());
         dlsym_error = dlerror();
     }
 
     if (dlsym_error) {
-        m_createDriverInstance = 0;
+        m_createConnection = 0;
         dlclose(m_handle);
         m_handle = NULL;
         throw CDatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
@@ -121,15 +121,15 @@ void CDatabaseDriverLoader::load() throw (CDatabaseException)
     m_loadedDrivers[driverName] = this;
 }
 
-CDatabaseDriver* CDatabaseDriverLoader::createConnection(std::string connectString) throw (CDatabaseException)
+CDatabaseConnection* CDatabaseConnectionPool::createConnection() throw (CDatabaseException)
 {
     if (!m_handle)
         load();
-    CDatabaseDriver* driver = m_createDriverInstance(connectString.c_str());
+    CDatabaseConnection* driver = m_createConnection(str().c_str());
     return driver;
 }
 
-void CDatabaseDriverLoader::destroyConnection(CDatabaseDriver* driverInstance)
+void CDatabaseConnectionPool::destroyConnection(CDatabaseConnection* connection)
 {
-    m_destroyDriverInstance(driverInstance);
+    m_destroyConnection(connection);
 }

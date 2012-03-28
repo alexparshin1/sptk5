@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDatabaseDriver.h  -  description
+                          CDatabaseConnection.h  -  description
                              -------------------
     begin                : Wed Dec 15 1999
     copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
@@ -25,11 +25,12 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CDATABASEDRIVER_H__
-#define __CDATABASEDRIVER_H__
+#ifndef __CDATABASECONNECTION_H__
+#define __CDATABASECONNECTION_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/CStrings.h>
+#include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 #include <sptk5/CVariant.h>
 #include <sptk5/CFileLog.h>
@@ -43,7 +44,7 @@ namespace sptk {
 
 class CQuery;
 
-/// @brief Types of the objects for CDatabaseDriver::listObjects method
+/// @brief Types of the objects for CDatabaseConnection::listObjects method
 enum CDbObjectType
 {
     DOT_TABLES,         ///< Tables
@@ -94,18 +95,18 @@ typedef std::map<std::string, CCallStatistic> CCallStatisticMap;
 ///
 /// Implements a thread-safe connection to general database. It is used
 /// as a base class for actual database driver classes.
-class SP_EXPORT CDatabaseDriver: public CSynchronized
+class SP_EXPORT CDatabaseConnection: public CSynchronized
 {
     typedef std::vector<CQuery*> CQueryVector;
     friend class CQuery;
 
 protected:
 
-    CQueryVector m_queryList;      ///< The list of queries that use this database
-    std::string  m_connString;     ///< The ODBC driver connection string
-    bool         m_inTransaction;  ///< The in-transaction flag
-    CBaseLog*    m_log;            ///< Log for the database events (optional)
-    std::string  m_objectName;     ///< Object name for logs and error messages
+    CQueryVector                m_queryList;      ///< The list of queries that use this database
+    CDatabaseConnectionString   m_connString;     ///< The connection string
+    bool                        m_inTransaction;  ///< The in-transaction flag
+    CBaseLog*                   m_log;            ///< Log for the database events (optional)
+    std::string                 m_objectName;     ///< Object name for logs and error messages
 
     /// @brief Attaches (links) query to the database
     bool linkQuery(CQuery *q);
@@ -164,10 +165,10 @@ protected:
     /// @brief Constructor
     ///
     /// Protected constructor prevents creating an instance of the
-    /// CDatabaseDriver. Instead, it is possible to create an instance of derived
+    /// CDatabaseConnection. Instead, it is possible to create an instance of derived
     /// classes.
     /// @param connectionString std::string, the connection string
-    CDatabaseDriver(std::string connectionString);
+    CDatabaseConnection(std::string connectionString);
 
     /// Stub function to throw an exception in case if the
     /// called method isn't implemented in the derived class
@@ -216,7 +217,7 @@ public:
     ///
     /// Closes the database connection and all the connected queries.
     /// Releases all the database resources allocated during the connection.
-    virtual ~CDatabaseDriver();
+    virtual ~CDatabaseConnection();
 
     /// @brief Opens the database connection
     ///
@@ -234,10 +235,13 @@ public:
     virtual void* handle() const;
 
     /// @brief Returns the connection string
-    virtual std::string connectionString() const
+    virtual const CDatabaseConnectionString& connectionString() const
     {
         return m_connString;
     }
+
+    /// @brief Returns driver-specific connection string
+    virtual std::string nativeConnectionString() const = 0;
 
     /// @brief Returns the driver description
     virtual std::string driverDescription() const
@@ -262,7 +266,7 @@ public:
 
     /// @brief Lists database objects
     ///
-    /// Not implemented in CDatabaseDriver. The derived database class
+    /// Not implemented in CDatabaseConnection. The derived database class
     /// must provide its own implementation
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
@@ -270,7 +274,7 @@ public:
 
     /// @brief Sets a log file for the database operations.
     ///
-    /// If the database log is set, the database would log the events in CDatabaseDriver and CQuery objects
+    /// If the database log is set, the database would log the events in CDatabaseConnection and CQuery objects
     /// into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
     /// @param logFile CBaseLog *, the log file object to use.
     void logFile(CBaseLog *logFile)

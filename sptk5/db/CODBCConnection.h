@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CODBCDatabase.h  -  description
+                          CODBCConnection.h  -  description
                              -------------------
     begin                : Fri Oct 03 2003
     copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
@@ -25,15 +25,15 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CODBCDATABASE_H__
-#define __CODBCDATABASE_H__
+#ifndef __CODBCCONNECTION_H__
+#define __CODBCCONNECTION_H__
 
 #include <sptk5/sptk.h>
 
 #if HAVE_ODBC == 1
 
 #include <sptk5/db/CODBC.h>
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 
 namespace sptk {
 
@@ -45,14 +45,14 @@ class CQuery;
 
 /// @brief ODBC database
 ///
-/// CODBCDatabase is thread-safe connection to ODBC database.
-class SP_DRIVER_EXPORT CODBCDatabase: public CDatabaseDriver
+/// CODBCConnection is thread-safe connection to ODBC database.
+class SP_DRIVER_EXPORT CODBCConnection: public CDatabaseConnection
 {
     friend class CQuery;
 
 private:
 
-    CODBCConnection *m_connect;   ///< The ODBC connection object
+    ODBCConnection *m_connect;   ///< The ODBC connection object
 
     /// @brief Retrieves an error (if any) after statement was executed
     /// @param stmt SQLHSTMT, the statement that had an error
@@ -85,37 +85,40 @@ protected:
     static void ODBCtypeToCType(int odbcType, int32_t &ctype, CVariantType& dataType); ///< Converts the native ODBC type into SPTK data type
 
     /// Returns the ODBC connection object
-    CODBCConnection *connection()
+    ODBCConnection *connection()
     {
         return m_connect;
     }
 
 public:
 
-    /// Constructor
+    /// @brief Constructor
     /// @param connectionString std::string, the ODBC connection string
-    CODBCDatabase(std::string connectionString = "");
+    CODBCConnection(std::string connectionString = "");
 
-    /// Destructor
-    virtual ~CODBCDatabase();
+    /// @brief Destructor
+    virtual ~CODBCConnection();
 
-    /// Opens the database connection. If unsuccessful throws an exception.
+    /// @brief Returns driver-specific connection string
+    virtual std::string nativeConnectionString() const;
+
+    /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the ODBC connection string
     virtual void openDatabase(std::string connectionString = "") throw (CDatabaseException);
 
-    /// Closes the database connection. If unsuccessful throws an exception.
+    /// @brief Closes the database connection. If unsuccessful throws an exception.
     virtual void closeDatabase() throw (CDatabaseException);
 
-    /// Retruns true if database is opened
+    /// @brief Returns true if database is opened
     virtual bool active() const;
 
-    /// Returns the database connection handle
+    /// @brief Returns the database connection handle
     virtual void* handle() const;
 
-    /// Returns the ODBC connection string for the active connection
+    /// @brief Returns the ODBC connection string for the active connection
     virtual std::string connectString() const;
 
-    /// Returns the ODBC driver description for the active connection
+    /// @brief Returns the ODBC driver description for the active connection
     virtual std::string driverDescription() const;
 
     /// @brief Lists database objects
@@ -130,8 +133,8 @@ public:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* odbc_createDriverInstance(const char* connectionString);
-    SP_DRIVER_EXPORT void  odbc_destroyDriverInstance(void* driverInstance);
+    SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  odbc_destroy_connection(void* connection);
 }
 
 #endif

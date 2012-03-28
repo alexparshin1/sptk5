@@ -28,7 +28,7 @@
 #ifndef __CTRANSACTION_H__
 #define __CTRANSACTION_H__
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/CException.h>
 
 namespace sptk {
@@ -44,11 +44,11 @@ namespace sptk {
 class SP_EXPORT CTransaction
 {
     bool                m_active;   ///< Transaction activity
-    CDatabaseDriver*    m_db;       ///< Database to work with
+    CDatabaseConnection*    m_db;       ///< Database to work with
 public:
     /// Constructor
-    /// @param db CDatabaseDriver&, the database to work with
-    CTransaction(CDatabaseDriver& db);
+    /// @param db CDatabaseConnection&, the database to work with
+    CTransaction(CDatabaseConnection& db);
 
     /// Destructor
     ~CTransaction();

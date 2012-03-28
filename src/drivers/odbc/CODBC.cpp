@@ -72,18 +72,18 @@ void ODBCBase::exception(string text, int line) const
 //---------------------------------------------------------------------------
 // ODBC Environment class
 //---------------------------------------------------------------------------
-CODBCEnvironment::CODBCEnvironment() :
+ODBCEnvironment::ODBCEnvironment() :
         m_hEnvironment(SQL_NULL_HENV)
 {
 }
 
-CODBCEnvironment::~CODBCEnvironment()
+ODBCEnvironment::~ODBCEnvironment()
 {
     if (valid())
         freeEnv();
 }
 
-void CODBCEnvironment::allocEnv()
+void ODBCEnvironment::allocEnv()
 {
     if (valid())
         return; // Already allocated
@@ -94,7 +94,7 @@ void CODBCEnvironment::allocEnv()
     }
 }
 
-void CODBCEnvironment::freeEnv()
+void ODBCEnvironment::freeEnv()
 {
     if (!valid())
         return; // Never allocated
@@ -107,12 +107,14 @@ void CODBCEnvironment::freeEnv()
 // ODBC Connection class
 //--------------------------------------------------------------------------------------------
 
-CODBCConnection::CODBCConnection() :
-        m_cEnvironment(GetStaticEnv()), m_hConnection(SQL_NULL_HDBC), m_connected(false)
+ODBCConnection::ODBCConnection() :
+    m_cEnvironment(GetStaticEnv()),
+    m_hConnection(SQL_NULL_HDBC),
+    m_connected(false)
 {
 }
 
-CODBCConnection::~CODBCConnection()
+ODBCConnection::~ODBCConnection()
 {
     if (isConnected())
         disconnect();
@@ -120,13 +122,13 @@ CODBCConnection::~CODBCConnection()
 }
 
 // Static environment object inside this function
-CODBCEnvironment & CODBCConnection::GetStaticEnv()
+ODBCEnvironment & ODBCConnection::GetStaticEnv()
 {
-    static CODBCEnvironment Env;
+    static ODBCEnvironment Env;
     return Env;
 }
 
-void CODBCConnection::allocConnect()
+void ODBCConnection::allocConnect()
 {
     // If already connected, return false
     if (valid())
@@ -144,7 +146,7 @@ void CODBCConnection::allocConnect()
     }
 }
 
-void CODBCConnection::freeConnect()
+void ODBCConnection::freeConnect()
 {
     if (!valid())
         return; // Not connected
@@ -159,7 +161,7 @@ void CODBCConnection::freeConnect()
     m_connectString = "";
 }
 
-void CODBCConnection::connect(const string& ConnectionString, string& pFinalString, bool /*EnableDriverPrompt*/)
+void ODBCConnection::connect(const string& ConnectionString, string& pFinalString, bool /*EnableDriverPrompt*/)
 {
     // Check parameters
     if (!ConnectionString.length())
@@ -211,7 +213,7 @@ void CODBCConnection::connect(const string& ConnectionString, string& pFinalStri
     delete[] driverDescription;
 }
 
-void CODBCConnection::disconnect()
+void ODBCConnection::disconnect()
 {
     if (!isConnected())
         return; // Not connected
@@ -223,7 +225,7 @@ void CODBCConnection::disconnect()
     m_connectString = "";
 }
 
-void CODBCConnection::setConnectOption(UWORD fOption, UDWORD vParam)
+void ODBCConnection::setConnectOption(UWORD fOption, UDWORD vParam)
 {
     if (!isConnected())
         exception(errorInformation(cantSetConnectOption), __LINE__);
@@ -234,7 +236,7 @@ void CODBCConnection::setConnectOption(UWORD fOption, UDWORD vParam)
         exception(errorInformation(cantSetConnectOption), __LINE__);
 }
 
-void CODBCConnection::transact(UWORD fType)
+void ODBCConnection::transact(UWORD fType)
 {
     if (!isConnected())
         exception(string(cantEndTranscation) + "Not connected to the database", __LINE__);
@@ -246,7 +248,7 @@ void CODBCConnection::transact(UWORD fType)
         exception(errorInformation(cantEndTranscation), __LINE__);
 }
 
-void CODBCConnection::getInfo(UWORD fInfoType, LPSTR str, int size)
+void ODBCConnection::getInfo(UWORD fInfoType, LPSTR str, int size)
 {
     if (!str || size < 1 || !isConnected())
         exception(errorInformation(cantGetInformation), __LINE__);
@@ -279,7 +281,7 @@ const char *sptk::removeDriverIdentification(const char *error)
     return p;
 }
 
-string CODBCEnvironment::errorInformation(const char *action)
+string ODBCEnvironment::errorInformation(const char *action)
 {
     if (!action)
         action = " ";
@@ -304,7 +306,7 @@ string CODBCEnvironment::errorInformation(const char *action)
     return string(errorDescription);
 }
 
-string CODBCConnection::errorInformation(const char * function)
+string ODBCConnection::errorInformation(const char * function)
 {
     if (!function)
         function = " ";

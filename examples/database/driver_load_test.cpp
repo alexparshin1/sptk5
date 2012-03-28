@@ -25,8 +25,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sptk5/db/CODBCDatabase.h>
-#include <sptk5/db/CDatabaseDriverLoader.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
 
@@ -35,10 +33,10 @@ using namespace sptk;
 
 int main()
 {
-    CDatabaseDriverLoader driverLoader("odbc");
+    CDatabaseConnectionPool connectionPool("postgresql://theater/protis");
     try {
-        CDatabaseDriver* driverInstance = driverLoader.createConnection("connstring");
-        cout << driverInstance->connectionString() << endl;
+        CDatabaseConnection* connection = connectionPool.createConnection();
+        cout << connection->nativeConnectionString() << endl;
     }
     catch (exception& e) {
         cerr << e.what() << endl;

@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSQLite3Database.h  -  description
+                          CSQLite3Connection.h  -  description
                              -------------------
     begin                : Fri Oct 03 2003
     copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
@@ -25,15 +25,15 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CSQLite3Database_H__
-#define __CSQLite3Database_H__
+#ifndef __CSQLITE3CONNECTION_H__
+#define __CSQLITE3CONNECTION_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/sptk.h>
 
 #if HAVE_SQLITE3 == 1
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sqlite3.h>
 
 namespace sptk {
@@ -44,8 +44,8 @@ class CQuery;
 
 /// @brief SQLite3 database
 ///
-/// CSQLite3Database is thread-safe connection to SQLite3 database.
-class SP_EXPORT CSQLite3Database: public CDatabaseDriver
+/// CSQLite3Connection is thread-safe connection to SQLite3 database.
+class SP_EXPORT CSQLite3Connection: public CDatabaseConnection
 {
     friend class CQuery;
 
@@ -91,10 +91,13 @@ public:
 
     /// @brief Constructor
     /// @param connectionString std::string, the SQLite3 connection string
-    CSQLite3Database(std::string connectionString = "");
+    CSQLite3Connection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CSQLite3Database();
+    virtual ~CSQLite3Connection();
+
+    /// @brief Returns driver-specific connection string
+    std::string nativeConnectionString() const;
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the SQLite3 connection string
@@ -118,50 +121,14 @@ public:
     virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException);
 };
 
-/// @brief SQLite3 synchronization object
-///
-/// Locks SQLite3 database. That is needed for thread safety.
-/// Defines only protected constructors to be used internally.
-class SP_EXPORT CSQLite3Lock {
-    friend class CSQLite3Database;
-
-    CSQLite3Database& m_object;    /// SQLite3 database
-protected:
-    /// @brief Protected constructor
-    ///
-    /// Locks the SQLite3 object till the destructor is called.
-    /// @param object CSQLite3Database&, SQLite3 object to lock.
-    CSQLite3Lock(CSQLite3Database& object) : m_object(object) {
-        if (&m_object)
-            m_object.lock();
-    }
-
-    /// @brief Protected constructor
-    ///
-    /// Locks the SQLite3 object till the destructor is called.
-    /// @param object CSQLite3Database*, SQLite3 object to lock.
-    CSQLite3Lock(CSQLite3Database* object) : m_object(*object) {
-        if (&m_object)
-            m_object.lock();
-    }
-public:
-
-    /// @brief Destructor
-    ///
-    /// Unlocks the SQLite3 object defined in constructor.
-    ~CSQLite3Lock() {
-        if (&m_object)
-            m_object.unlock();
-    }
-};
 /// @}
 }
 
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* sqlite3_createDriverInstance(const char* connectionString);
-    SP_DRIVER_EXPORT void  sqlite3_destroyDriverInstance(void* driverInstance);
+    SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  sqlite3_destroy_connection(void* connection);
 }
 
 #endif

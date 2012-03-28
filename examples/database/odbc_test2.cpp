@@ -27,7 +27,7 @@
 
 #include <sptk5/CException.h>
 
-#include <sptk5/db/CODBCDatabase.h>
+#include <sptk5/db/CODBCConnection.h>
 #include <sptk5/db/CQuery.h>
 
 using namespace std;
@@ -131,7 +131,7 @@ int main() {
    // you have to setup the ODBC database connection.
    // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
    // If UID or PWD are omitted they are read from the datasource settings.
-	CODBCDatabase     db("DSN=odbc_demo");
+	CODBCConnection     db("DSN=odbc_demo");
 
 	for (unsigned i = 0; i < 2; i++) {
 		try {

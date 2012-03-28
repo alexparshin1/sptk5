@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDatabaseDriverLoader.h  -  description
+                          CDatabaseConnectionPool.h  -  description
                              -------------------
     begin                : Sun Mar 11 2012
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -33,10 +33,11 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ***************************************************************************/
 
-#ifndef __CDATABASEDRIVERLOADER_H__
-#define __CDATABASEDRIVERLOADER_H__
+#ifndef __CDATABASECONNECTIONLOADER_H__
+#define __CDATABASECONNECTIONLOADER_H__
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/CCaseInsensitiveCompare.h>
 
 namespace sptk
@@ -45,8 +46,8 @@ namespace sptk
 /// @addtogroup Database Database Support
 /// @{
 
-typedef CDatabaseDriver* CCreateDriverInstance(const char*);
-typedef void CDestroyDriverInstance(CDatabaseDriver*);
+typedef CDatabaseConnection* CCreateDriverInstance(const char*);
+typedef void CDestroyDriverInstance(CDatabaseConnection*);
 
 #ifdef WIN32
     typedef HMODULE CDriverHandle;                   ///< Windows: Driver DLL handle type
@@ -58,13 +59,12 @@ typedef void CDestroyDriverInstance(CDatabaseDriver*);
 ///
 /// Loads and initializes SPTK database driver by request.
 /// Already loaded drivers are cached.
-class SP_EXPORT CDatabaseDriverLoader : public CSynchronized
+class SP_EXPORT CDatabaseConnectionPool : public CSynchronized, public CDatabaseConnectionString
 {
 protected:
-    CDriverHandle           m_handle;                   ///< Driver SO/DLL handle after load
-    CCreateDriverInstance*  m_createDriverInstance;     ///< Function that creates driver instances
-    CDestroyDriverInstance* m_destroyDriverInstance;    ///< Function that destroys driver instances
-    std::string             m_driverName;               ///< Database driver name
+    CDriverHandle               m_handle;                   ///< Driver SO/DLL handle after load
+    CCreateDriverInstance*      m_createConnection;         ///< Function that creates driver instances
+    CDestroyDriverInstance*     m_destroyConnection;        ///< Function that destroys driver instances
 
     /// @brief Loads database driver
     ///
@@ -73,15 +73,18 @@ protected:
 
 public:
     /// @brief Constructor
-    CDatabaseDriverLoader(std::string driverName);
+    ///
+    /// Database connection string is the same for all connections,
+    /// created with this object.
+    /// @param connectionString std::string, Database connection string
+    CDatabaseConnectionPool(std::string connectionString);
 
     /// @brief Creates database connection
-    /// @param connectionString std::string, Connect string
-    CDatabaseDriver* createConnection(std::string connectString) throw (CDatabaseException);
+    CDatabaseConnection* createConnection() throw (CDatabaseException);
 
     /// @brief Destroys driver instance
-    /// @param driverInstance CDatabaseDriver*, destroys the driver instance
-    void destroyConnection(CDatabaseDriver* driverInstance);
+    /// @param connection CDatabaseConnection*, destroys the driver instance
+    void destroyConnection(CDatabaseConnection* connection);
 };
 /// @}
 }

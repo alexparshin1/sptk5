@@ -25,8 +25,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sptk5/db/CODBCDatabase.h>
-#include <sptk5/db/CPostgreSQLDatabase.h>
+#include <sptk5/db/CODBCConnection.h>
+#include <sptk5/db/CPostgreSQLConnection.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
 
@@ -35,15 +35,16 @@ using namespace sptk;
 
 unsigned idOffset = 1;
 
-void testPerformance (CDatabaseDriver& db)
+void testPerformance (CDatabaseConnection& db)
 {
+    string tableName("test_table");
     try {
         cout << "Openning the database.. ";
         db.open();
         cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
 
         // Defining the queries
-        string tableName = "test_table2";
+        string tableNdbdbame = "test_table2";
         CQuery step1Query (&db, "CREATE TABLE " + tableName + "(id INT PRIMARY KEY,name CHAR(20),position CHAR(20),salary DECIMAL(10,2),description text,salary2 float,name2 CHAR(20),dt date,ts timestamp)");
         CQuery step2Query (&db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:salary,:description,:salary,:person_name,:dt,:ts)");
         CQuery step3Query (&db, "SELECT * FROM " + tableName + " WHERE id=:person_id");
@@ -62,7 +63,7 @@ void testPerformance (CDatabaseDriver& db)
         }
 
         unsigned rows = 50000;
-        cout << "Ok.\nStep 2: CPostgreSQLDatabase benchmark (binary binding)" << endl;
+        cout << "Ok.\nStep 2: CPostgreSQLConnection benchmark (binary binding)" << endl;
         cout << "  * Executing " << rows << " inserts : ";
 
         // The following example shows how to use the paramaters,
@@ -127,7 +128,7 @@ void testPerformance (CDatabaseDriver& db)
         baseId = idOffset;
         start  = CDateTime::Now();
 
-        PGconn *conn = ( (CPostgreSQLDatabase*) & db)->connection();
+        PGconn *conn = ( (CPostgreSQLConnection*) & db)->connection();
 
         for (unsigned i = 0; i < rows; i++) {
             string sql = "INSERT INTO " + tableName
@@ -185,10 +186,8 @@ void testPerformance (CDatabaseDriver& db)
 
 int main()
 {
+    CDatabaseConnectionPool connectionPool("postgresql://localhost/test");
+    CDatabaseConnection* db = connectionPool.createConnection();
 
-    //CODBCDatabase       odbcDB("DSN=uu");
-    CPostgreSQLDatabase postgresDB ("dbname=uu");
-
-    testPerformance (postgresDB);
-    //testPerformance(odbcDB);
+    testPerformance(*db);
 }

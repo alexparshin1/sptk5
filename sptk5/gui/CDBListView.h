@@ -71,10 +71,10 @@ public:
     ~CDBListView();
 
     /// Sets the database connection
-    void database(CDatabaseDriver *db);
+    void database(CDatabaseConnection *db);
 
     /// Returns the database connection
-    CDatabaseDriver *database() const;
+    CDatabaseConnection *database() const;
 
     /// Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
     /// The record count query should return only number of record.
@@ -106,7 +106,7 @@ public:
     /// @param db CDatabase *, the database connection
     /// @param sql std::string,  the full refresh SQL query text
     /// @param keyField std::string, the name of the key field
-    void setup(CDatabaseDriver* db,std::string sql,std::string keyField);
+    void setup(CDatabaseConnection* db,std::string sql,std::string keyField);
 
     /// Refreshes the data with full or fast method
     /// @param refreshKind CRefreshKind, the type of refresh

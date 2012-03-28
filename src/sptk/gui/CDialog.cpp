@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <sptk5/CException.h>
 #include <sptk5/CRegistry.h>
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CMessageDialog.h>
 #include <sptk5/gui/CInput.h>
@@ -192,14 +192,14 @@ bool CDialog::showModal()
     return rc;
 }
 
-void CDialog::database(CDatabaseDriver* db)
+void CDialog::database(CDatabaseConnection* db)
 {
     m_selectQuery->database(db);
     m_updateQuery->database(db);
     m_insertQuery->database(db);
 }
 
-CDatabaseDriver * CDialog::database() const
+CDatabaseConnection * CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -212,7 +212,7 @@ void CDialog::table(const string tableName)
     }
 }
 
-void CDialog::table(CDatabaseDriver* db, const string tb, const string key)
+void CDialog::table(CDatabaseConnection* db, const string tb, const string key)
 {
     database(db);
     table(tb);

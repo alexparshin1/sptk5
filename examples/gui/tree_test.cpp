@@ -24,7 +24,7 @@
 
 #include <FL/Fl.H>
 
-#include <sptk5/db/CSQLite3Database.h>
+#include <sptk5/db/CSQLite3Connection.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cgui>
 #include <math.h>
@@ -137,7 +137,7 @@ public:
 
 class CFileManagerTree : public CTreeControl {
    CFileListTreeHeader*    m_header;
-   CSQLite3Database        m_db;
+   CSQLite3Connection        m_db;
    
    static unsigned compareSortColumn;
    static unsigned compareSortInverse;

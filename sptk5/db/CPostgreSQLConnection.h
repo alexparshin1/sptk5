@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CPostgreSQLDatabase.h  -  description
+                          CPostgreSQLConnection.h  -  description
                              -------------------
     begin                : Mon Sep 17 2007
     copyright            : (C) 2007-2012 by Alexey Parshin. All rights reserved.
@@ -25,10 +25,10 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CPOSTGRESQLDATABASE_H__
-#define __CPOSTGRESQLDATABASE_H__
+#ifndef __CPOSTGRESQLCONNECTION_H__
+#define __CPOSTGRESQLCONNECTION_H__
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 
 #if HAVE_POSTGRESQL == 1
 
@@ -45,8 +45,8 @@ class CPostgreSQLStatement;
 
 /// @brief PostgreSQL database
 ///
-/// CPostgreSQLDatabase is thread-safe connection to PostgreSQL database.
-class SP_EXPORT CPostgreSQLDatabase: public CDatabaseDriver
+/// CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
+class SP_EXPORT CPostgreSQLConnection: public CDatabaseConnection
 {
     friend class CQuery;
 
@@ -105,10 +105,13 @@ public:
     /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
     /// If the connection string is empty then default database with the name equal to user name is used.
     /// @param connectionString std::string, the PostgreSQL connection string
-    CPostgreSQLDatabase(std::string connectionString = "");
+    CPostgreSQLConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CPostgreSQLDatabase();
+    virtual ~CPostgreSQLConnection();
+
+    /// @brief Returns driver-specific connection string
+    virtual std::string nativeConnectionString() const;
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the PostgreSQL connection string
@@ -138,8 +141,8 @@ public:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* postgresql_createDriverInstance(const char* connectionString);
-    SP_DRIVER_EXPORT void  postgresql_destroyDriverInstance(void* driverInstance);
+    SP_DRIVER_EXPORT void* postgresql_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  postgresql_destroy_connection(void* connection);
 }
 
 #endif

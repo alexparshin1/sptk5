@@ -45,7 +45,7 @@ void cb_OK(Fl_Widget* widget, void*)
 class CDataDialog: public CDialog
 {
 public:
-    CDataDialog(CDatabaseDriver *db) :
+    CDataDialog(CDatabaseConnection *db) :
             CDialog(300, 180, "Example Data Dialog")
     {
         database(db);

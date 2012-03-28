@@ -25,22 +25,22 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sptk5/db/CPostgreSQLDatabase.h>
-//#include <sptk5/CODBCDatabase.h>
+#include <sptk5/db/CPostgreSQLConnection.h>
+//#include <sptk5/CODBCConnection.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
+int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(&db, "DELETE FROM " + tableName, __FILE__, __LINE__);
-        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName, __FILE__, __LINE__);
+        CQuery step5Query(db, "DELETE FROM " + tableName, __FILE__, __LINE__);
+        CQuery step6Query(db, "SELECT count(*) FROM " + tableName, __FILE__, __LINE__);
 
         cout << "\n        Begining the transaction ..";
-        db.beginTransaction();
+        db->beginTransaction();
         cout << "\n        Deleting everything from the table ..";
         step5Query.exec();
 
@@ -51,10 +51,10 @@ int testTransactions(CDatabaseDriver& db, string tableName, bool rollback)
 
         if (rollback) {
             cout << "\n        Rolling back the transaction ..";
-            db.rollbackTransaction();
+            db->rollbackTransaction();
         } else {
             cout << "\n        Commiting the transaction ..";
-            db.commitTransaction();
+            db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
@@ -79,25 +79,18 @@ string fieldToString(const CField& field)
 
 int main()
 {
+    CDatabaseConnectionPool connectionPool("postgresql://localhost/test");
+    CDatabaseConnection* db = connectionPool.createConnection();
 
-    // If you want to test the database abilities of the data controls
-    // you have to setup the PostgreSQL database, and verify connection.
-    // Typical connect string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-    // For mor information please refer to:
-    // http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-    // If connect string is empty the default database with the name equal to user name is used.
-    string connectString("dbname='test'");
-    CPostgreSQLDatabase db(connectString);
-    //CODBCDatabase 	db("DSN=uu");
     CFileLog logFile("postgresql_test.log");
 
-    db.logFile(&logFile);
+    db->logFile(&logFile);
     logFile.reset();
 
     try {
         cout << "Openning the database.. ";
-        db.open();
-        cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
+        db->open();
+        cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
         CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
@@ -107,7 +100,7 @@ int main()
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
             CStrings objectList;
             try {
-                db.objectList(objectTypes[i], objectList);
+                db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
                 cout << e.what() << endl;
             }
@@ -119,12 +112,12 @@ int main()
         // Defining the queries
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        CQuery step1Query(&db, "CREATE TABLE " + tableName + "(id INT8,name CHAR(40),position CHAR(20),date TIMESTAMP)",
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT8,name CHAR(40),position CHAR(20),date TIMESTAMP)",
                 __FILE__, __LINE__);
-        CQuery step2Query(&db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:date)", __FILE__,
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:date)", __FILE__,
                 __LINE__);
-        CQuery step3Query(&db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
-        CQuery step4Query(&db, "DROP TABLE " + tableName, __FILE__, __LINE__);
+        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
+        CQuery step4Query(db, "DROP TABLE " + tableName, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
@@ -257,12 +250,12 @@ int main()
         step4Query.exec();
 
         cout << "Ok.\nStep 6: Closing the database.. ";
-        db.close();
+        db->close();
 
         cout << "Ok.\n***********************************************\nPrinting the query statistics." << endl;
 
-        CCallStatisticMap::const_iterator itor = db.callStatistics().begin();
-        CCallStatisticMap::const_iterator etor = db.callStatistics().end();
+        CCallStatisticMap::const_iterator itor = db->callStatistics().begin();
+        CCallStatisticMap::const_iterator etor = db->callStatistics().end();
         for (; itor != etor; itor++) {
             const CCallStatistic& cs = itor->second;
             cout << setw(60) << cs.m_sql << ": " << cs.m_calls << " calls, " << cs.m_duration << " seconds total" << endl;

@@ -39,7 +39,7 @@ using namespace sptk;
 
 #if HAVE_ODBC == 1
 #define ODBC_DEMO
-#include <sptk5/db/CODBCDatabase.h>
+#include <sptk5/db/CODBCConnection.h>
 #endif
 
 CTabs *tabs;
@@ -53,7 +53,7 @@ static void cb_OK(Fl_Return_Button*, void*)
 class CDataDialog: public CDialog
 {
 public:
-    CDataDialog(CDatabaseDriver *db) :
+    CDataDialog(CDatabaseConnection *db) :
             CDialog(300, 180, "Example Data Dialog")
     {
         database(db);
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
     // you have to setup the ODBC database connection.
     // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
     // If UID or PWD are omitted they are read from the datasource settings.
-    CODBCDatabase db("DSN=odbc_demo");
+    CODBCConnection db("DSN=odbc_demo");
     string tableName("companies");
     string isTemp("TEMP");
 

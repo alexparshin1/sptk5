@@ -31,7 +31,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CDBListView.h>
@@ -245,10 +245,10 @@ public:
     }
 
     /// Returns database connection pointer
-    CDatabaseDriver* database() const;
+    CDatabaseConnection* database() const;
 
     /// Defines database connection
-    void database(CDatabaseDriver* db);
+    void database(CDatabaseConnection* db);
 
     /// Returns SQL query text
     std::string sql() const;
@@ -278,10 +278,10 @@ public:
     void sortColumn(int sortColumn);
 
     /// The fast way to define a database connection.
-    /// @param db CDatabaseDriver *, a pointer to the database
+    /// @param db CDatabaseConnection *, a pointer to the database
     /// @param sql std::string, a SQL query text
     /// @param keyField std::string, a name of the query field with unique row IDs
-    void setup(CDatabaseDriver* db, std::string sql, std::string keyField);
+    void setup(CDatabaseConnection* db, std::string sql, std::string keyField);
 
     /// Returns the SQL query parameter reference for the parameter name. It is
     /// typical to call:

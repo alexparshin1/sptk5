@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CDatabaseDriver.cpp  -  description
+                          CDatabaseConnection.cpp  -  description
                              -------------------
     begin                : Wed Dec 15 1999
     copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/CException.h>
 
@@ -34,14 +34,14 @@
 using namespace std;
 using namespace sptk;
 
-CDatabaseDriver::CDatabaseDriver(string connectionString) :
+CDatabaseConnection::CDatabaseConnection(string connectionString) :
         m_connString(connectionString)
 {
     m_inTransaction = false;
     m_log = 0;
 }
 
-CDatabaseDriver::~CDatabaseDriver()
+CDatabaseConnection::~CDatabaseConnection()
 {
     // To prevent the exceptions, if the database connection
     // is terminated already
@@ -55,38 +55,38 @@ CDatabaseDriver::~CDatabaseDriver()
     }
 }
 
-bool CDatabaseDriver::linkQuery(CQuery *q)
+bool CDatabaseConnection::linkQuery(CQuery *q)
 {
     m_queryList.push_back(q);
     return true;
 }
 
-bool CDatabaseDriver::unlinkQuery(CQuery *q)
+bool CDatabaseConnection::unlinkQuery(CQuery *q)
 {
     CQueryVector::iterator itor = find(m_queryList.begin(), m_queryList.end(), q);
     m_queryList.erase(itor);
     return true;
 }
 
-void CDatabaseDriver::openDatabase(string newConnectionString) throw (CDatabaseException)
+void CDatabaseConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
 {
     notImplemented("openDatabase");
 }
 
-void CDatabaseDriver::open(string newConnectionString) throw (CDatabaseException)
+void CDatabaseConnection::open(string newConnectionString) throw (CDatabaseException)
 {
     clearStatistics();
     openDatabase(newConnectionString);
     if (m_log)
-        *m_log << "Opened database: " << m_connString << endl;
+        *m_log << "Opened database: " << m_connString.str() << endl;
 }
 
-void CDatabaseDriver::closeDatabase() throw (CDatabaseException)
+void CDatabaseConnection::closeDatabase() throw (CDatabaseException)
 {
     notImplemented("closeDatabase");
 }
 
-void CDatabaseDriver::close() throw (CDatabaseException)
+void CDatabaseConnection::close() throw (CDatabaseException)
 {
     if (active()) {
         if (m_inTransaction) {
@@ -100,37 +100,37 @@ void CDatabaseDriver::close() throw (CDatabaseException)
         }
         closeDatabase();
         if (m_log)
-            *m_log << "Closed database: " << m_connString << endl;
+            *m_log << "Closed database: " << m_connString.str() << endl;
     }
 }
 
-void* CDatabaseDriver::handle() const
+void* CDatabaseConnection::handle() const
 {
     notImplemented("handle");
     return 0;
 }
 
-bool CDatabaseDriver::active() const
+bool CDatabaseConnection::active() const
 {
     notImplemented("active");
     return true;
 }
 
-void CDatabaseDriver::beginTransaction() throw (CDatabaseException)
+void CDatabaseConnection::beginTransaction() throw (CDatabaseException)
 {
     if (m_log)
         *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
-void CDatabaseDriver::commitTransaction() throw (CDatabaseException)
+void CDatabaseConnection::commitTransaction() throw (CDatabaseException)
 {
     if (m_log)
         *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
-void CDatabaseDriver::rollbackTransaction() throw (CDatabaseException)
+void CDatabaseConnection::rollbackTransaction() throw (CDatabaseException)
 {
     if (m_log)
         *m_log << "Rollback transaction" << endl;
@@ -139,119 +139,119 @@ void CDatabaseDriver::rollbackTransaction() throw (CDatabaseException)
 
 //-----------------------------------------------------------------------------------------------
 
-string CDatabaseDriver::queryError(const CQuery *) const
+string CDatabaseConnection::queryError(const CQuery *) const
 {
     notImplemented("queryError");
     return "";
 }
 
-void CDatabaseDriver::querySetAutoPrep(CQuery *q, bool pf)
+void CDatabaseConnection::querySetAutoPrep(CQuery *q, bool pf)
 {
     q->m_autoPrepare = pf;
 }
 
-void CDatabaseDriver::querySetStmt(CQuery *q, void *stmt)
+void CDatabaseConnection::querySetStmt(CQuery *q, void *stmt)
 {
     q->m_statement = stmt;
 }
 
-void CDatabaseDriver::querySetConn(CQuery *q, void *conn)
+void CDatabaseConnection::querySetConn(CQuery *q, void *conn)
 {
     q->m_connection = conn;
 }
 
-void CDatabaseDriver::querySetPrepared(CQuery *q, bool pf)
+void CDatabaseConnection::querySetPrepared(CQuery *q, bool pf)
 {
     q->m_prepared = pf;
 }
 
-void CDatabaseDriver::querySetActive(CQuery *q, bool af)
+void CDatabaseConnection::querySetActive(CQuery *q, bool af)
 {
     q->m_active = af;
 }
 
-void CDatabaseDriver::querySetEof(CQuery *q, bool eof)
+void CDatabaseConnection::querySetEof(CQuery *q, bool eof)
 {
     q->m_eof = eof;
 }
 
-void CDatabaseDriver::queryAllocStmt(CQuery *)
+void CDatabaseConnection::queryAllocStmt(CQuery *)
 {
     notImplemented("queryAllocStmt");
 }
 
-void CDatabaseDriver::queryFreeStmt(CQuery *)
+void CDatabaseConnection::queryFreeStmt(CQuery *)
 {
     notImplemented("queryFreeStmt");
 }
 
-void CDatabaseDriver::queryCloseStmt(CQuery *)
+void CDatabaseConnection::queryCloseStmt(CQuery *)
 {
     notImplemented("queryCloseStmt");
 }
 
-void CDatabaseDriver::queryPrepare(CQuery *)
+void CDatabaseConnection::queryPrepare(CQuery *)
 {
     notImplemented("queryPrepare");
 }
 
-void CDatabaseDriver::queryUnprepare(CQuery *query)
+void CDatabaseConnection::queryUnprepare(CQuery *query)
 {
     queryFreeStmt(query);
 }
 
-void CDatabaseDriver::queryExecute(CQuery *)
+void CDatabaseConnection::queryExecute(CQuery *)
 {
     notImplemented("queryExecute");
 }
 
-int CDatabaseDriver::queryColCount(CQuery *)
+int CDatabaseConnection::queryColCount(CQuery *)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void CDatabaseDriver::queryColAttributes(CQuery *, int16_t, int16_t, int32_t&)
+void CDatabaseConnection::queryColAttributes(CQuery *, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void CDatabaseDriver::queryColAttributes(CQuery *, int16_t, int16_t, char *, int32_t)
+void CDatabaseConnection::queryColAttributes(CQuery *, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void CDatabaseDriver::queryBindParameters(CQuery *)
+void CDatabaseConnection::queryBindParameters(CQuery *)
 {
     notImplemented("queryBindParameters");
 }
 
-void CDatabaseDriver::queryOpen(CQuery *)
+void CDatabaseConnection::queryOpen(CQuery *)
 {
     notImplemented("queryOpen");
 }
 
-void CDatabaseDriver::queryFetch(CQuery *)
+void CDatabaseConnection::queryFetch(CQuery *)
 {
     notImplemented("queryFetch");
 }
 
-void CDatabaseDriver::notImplemented(const char *methodName) const
+void CDatabaseConnection::notImplemented(const char *methodName) const
 {
     throw CDatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
 }
 
-void *CDatabaseDriver::queryHandle(CQuery *query) const
+void *CDatabaseConnection::queryHandle(CQuery *query) const
 {
     return query->m_statement;
 }
 
-void CDatabaseDriver::queryHandle(CQuery *query, void *handle)
+void CDatabaseConnection::queryHandle(CQuery *query, void *handle)
 {
     query->m_statement = handle;
 }
 
-void CDatabaseDriver::logAndThrow(string method, string error) throw (CDatabaseException)
+void CDatabaseConnection::logAndThrow(string method, string error) throw (CDatabaseException)
 {
     string errorText("Exception in " + method + ": " + error);
     if (m_log)
@@ -259,12 +259,12 @@ void CDatabaseDriver::logAndThrow(string method, string error) throw (CDatabaseE
     throw CDatabaseException(errorText);
 }
 
-void CDatabaseDriver::clearStatistics()
+void CDatabaseConnection::clearStatistics()
 {
     m_queryStatisticMap.clear();
 }
 
-void CDatabaseDriver::addStatistics(const std::string& location, double totalDuration, unsigned totalCalls, const std::string& sql)
+void CDatabaseConnection::addStatistics(const std::string& location, double totalDuration, unsigned totalCalls, const std::string& sql)
 {
     CCallStatisticMap::iterator itor = m_queryStatisticMap.find(location);
     if (itor != m_queryStatisticMap.end()) {

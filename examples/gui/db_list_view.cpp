@@ -30,7 +30,7 @@
 #include <iostream>
 #include <sptk5/cgui>
 #include <sptk5/cdatabase>
-#include <sptk5/db/CODBCDatabase.h>
+#include <sptk5/db/CODBCConnection.h>
 
 using namespace std;
 using namespace sptk;
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
    // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
    // If UID or PWD are omitted they are read from the datasource settings.
    
-   CODBCDatabase    db("DSN=odbc_demo");
+   CODBCConnection    db("DSN=odbc_demo");
    CWindow          w(500, 400, "Test for List View Dataset");
    
    try {

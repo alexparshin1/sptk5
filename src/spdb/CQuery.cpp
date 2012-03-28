@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sptk5/db/CDatabaseDriver.h>
+#include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/CException.h>
 
@@ -127,7 +127,7 @@ string CQuery::getError() const
     return "";
 }
 //==============================================================================
-CQuery::CQuery(CDatabaseDriver *_db, string _sql, const char* createdFile, unsigned createdLine) :
+CQuery::CQuery(CDatabaseConnection *_db, string _sql, const char* createdFile, unsigned createdLine) :
         CDataSource(), m_fields(true)
 {
     m_objectIndex = nextObjectIndex;
@@ -348,7 +348,7 @@ void CQuery::closeQuery(bool releaseStatement)
     //m_fields.clear();
 }
 
-void CQuery::connect(CDatabaseDriver *_db)
+void CQuery::connect(CDatabaseConnection *_db)
 {
     if (m_db == _db)
         return;

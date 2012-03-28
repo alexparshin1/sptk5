@@ -425,12 +425,12 @@ CPackedStrings& CBaseListBox::selectedRow() const
     return m_list->selectedRow();
 }
 
-CDatabaseDriver * CBaseListBox::database() const
+CDatabaseConnection * CBaseListBox::database() const
 {
     return m_list->database();
 }
 
-void CBaseListBox::database(CDatabaseDriver *db)
+void CBaseListBox::database(CDatabaseConnection *db)
 {
     m_list->database(db);
 }
@@ -483,7 +483,7 @@ void CBaseListBox::keyField(string kf)
     m_list->keyField(kf);
 }
 
-void CBaseListBox::setup(CDatabaseDriver *db, string sql, string keyField)
+void CBaseListBox::setup(CDatabaseConnection *db, string sql, string keyField)
 {
     m_list->setup(db, sql, keyField);
 }

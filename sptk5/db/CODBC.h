@@ -53,9 +53,9 @@ namespace sptk {
 /// @addtogroup Database Database Support
 /// @{
 
-class CODBCDatabase;
-class CODBCEnvironment;
 class CODBCConnection;
+class ODBCEnvironment;
+class ODBCConnection;
 class CParam;
 
 /// @brief ODBC base
@@ -100,10 +100,10 @@ private:
 
 /// @brief ODBC environment
 ///
-/// Environment is only used by CODBCConnection class
-class SP_DRIVER_EXPORT CODBCEnvironment: public ODBCBase
+/// Environment is only used by ODBCConnection class
+class SP_DRIVER_EXPORT ODBCEnvironment: public ODBCBase
 {
-    friend class CODBCConnection;
+    friend class ODBCConnection;
 private:
 
     /// ODBC environment handle
@@ -112,7 +112,7 @@ private:
 protected:
 
     /// Constructor
-    CODBCEnvironment();
+    ODBCEnvironment();
 
     /// Allocates enviromment handle
     void allocEnv();
@@ -139,20 +139,20 @@ protected:
 public:
 
     /// Destructor
-    ~CODBCEnvironment();
+    ~ODBCEnvironment();
 };
 
 /// @brief ODBC socket
 ///
-/// Class CODBCConnection represents the connection to a database.
+/// Class ODBCConnection represents the connection to a database.
 /// You need one object of this class for each database you want to access.
-class SP_DRIVER_EXPORT CODBCConnection: public ODBCBase
+class SP_DRIVER_EXPORT ODBCConnection: public ODBCBase
 {
-    CODBCEnvironment& m_cEnvironment;      ///< ODBC environment
-    SQLHDBC m_hConnection;       ///< ODBC connection handle
-    bool m_connected;        ///< Is connection active?
-    std::string m_connectString;     ///< ODBC connection string
-    std::string m_driverDescription; ///< Driver description, filled in during the connection to the DSN
+    ODBCEnvironment&   m_cEnvironment;      ///< ODBC environment
+    SQLHDBC             m_hConnection;       ///< ODBC connection handle
+    bool                m_connected;         ///< Is connection active?
+    std::string         m_connectString;     ///< ODBC connection string
+    std::string         m_driverDescription; ///< Driver description, filled in during the connection to the DSN
 protected:
     /// Is connection active?
     bool valid() const
@@ -162,10 +162,10 @@ protected:
 public:
 
     /// Default constructor
-    CODBCConnection();
+    ODBCConnection();
 
     /// Default destructor
-    ~CODBCConnection();
+    ~ODBCConnection();
 
     /// Allocates connection
     void allocConnect();
@@ -246,7 +246,7 @@ public:
 private:
 
     /// Returns the only environment needed
-    static CODBCEnvironment & GetStaticEnv();
+    static ODBCEnvironment & GetStaticEnv();
 
 protected:
 

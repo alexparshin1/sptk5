@@ -25,7 +25,7 @@
 #include <sptk5/sptk.h>
 #include <iostream>
 
-#include <sptk5/db/CODBCDatabase.h>
+#include <sptk5/db/CODBCConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/threads/CThread.h>
 
@@ -40,7 +40,7 @@ class CInsertThread: public CThread
 {
     static int threadIndex;
 
-    CODBCDatabase m_db;
+    CODBCConnection m_db;
     CQuery m_query;
     int m_threadIndex;
     int m_rowsToInsert;
@@ -187,7 +187,7 @@ int main()
     cin >> maxThreads;
     cout << "Beginning test " << endl;
 
-    CODBCDatabase db1("DSN=odbc_demo");
+    CODBCConnection db1("DSN=odbc_demo");
 
     try {
 
