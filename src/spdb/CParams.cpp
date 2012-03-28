@@ -79,7 +79,7 @@ void CParam::setString(const char * value, uint32_t maxlen)
         valueLength = maxlen;
     else
         valueLength = (uint32_t) strlen(value);
-    if (m_dataType == VAR_STRING && m_data.buffer.size >= valueLength + 1) {
+    if (m_dataType & (VAR_STRING|VAR_TEXT|VAR_BUFFER) && m_data.buffer.size >= valueLength + 1) {
         if (value) {
             memcpy(m_data.buffer.data, value, valueLength);
             m_data.buffer.data[valueLength] = 0;
@@ -93,13 +93,13 @@ void CParam::setString(const char * value, uint32_t maxlen)
         if (value) {
             m_dataSize = valueLength;
             m_data.buffer.size = valueLength + 1;
+            if (m_dataType & (VAR_STRING|VAR_TEXT|VAR_BUFFER) && m_data.buffer.data)
+                free(m_data.buffer.data);
             if (maxlen) {
-                m_data.buffer.data = (char *) realloc(m_data.buffer.data, m_data.buffer.size);
+                m_data.buffer.data = (char *) malloc(m_data.buffer.size);
                 strncpy(m_data.buffer.data, value, maxlen);
                 m_data.buffer.data[maxlen] = 0;
             } else {
-                if (m_data.buffer.data)
-                    free(m_data.buffer.data);
                 m_data.buffer.size = m_dataSize + 1;
                 m_data.buffer.data = strdup(value);
             }

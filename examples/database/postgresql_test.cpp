@@ -84,7 +84,7 @@ int main()
 
     CFileLog logFile("postgresql_test.log");
 
-    db->logFile(&logFile);
+    //db->logFile(&logFile);
     logFile.reset();
 
     try {
