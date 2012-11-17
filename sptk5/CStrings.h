@@ -174,8 +174,7 @@ public:
     void remove(uint32_t i) {
         erase(begin()+i);
     }
-}
-;
+};
 /// @}
 }
 #endif
