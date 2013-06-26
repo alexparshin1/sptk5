@@ -62,15 +62,15 @@ CLayoutClient* CGroup::creator(CXmlNode* node) {
 void CGroup::resize(int xx,int yy,int ww,int hh) {
     Fl_Widget::resize(xx,yy,ww,hh);
 
-    int offsetX = frameWidth();
-    int offsetY = offsetX;
+    //int offsetX = frameWidth();
+    //int offsetY = offsetX;
 
     const char *lbl = m_label.c_str();
     if (align() & FL_ALIGN_INSIDE && lbl && lbl[0] ) {
         int tw = ww - 8, th = 0;
         fl_font(labelfont(),labelsize());
         fl_measure(lbl,tw,th);
-        offsetY = th;
+        //offsetY = th;
     }
 
     autoLayout(xx,yy,ww,hh,true);

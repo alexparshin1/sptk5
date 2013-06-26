@@ -34,7 +34,7 @@ namespace sptk {
 
 CPngImage *loadValidatePNGImage(std::string fileName,bool externalFile=false);
 
-};
+}
 
 #endif	/* _THEMEUTILS_H */
 

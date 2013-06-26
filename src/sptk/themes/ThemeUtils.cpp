@@ -56,8 +56,8 @@ namespace sptk {
         } catch (...) {}
         return 0;
     }
-    
-};
+
+}
 
 #endif	/* _THEMEUTILS_H */
 

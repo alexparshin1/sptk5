@@ -247,7 +247,7 @@ void CThemes::set(string theThemeName) {
         m_registry->clear();
 
         m_desaturateInactiveButtons = false;
-        int scrollBarButtonSize = 0;
+        //int scrollBarButtonSize = 0;
         if (!defaultTheme) {
             try {
                 m_tar.read(fileName);
@@ -349,11 +349,13 @@ void CThemes::set(string theThemeName) {
         if (!CTreeItem::folderClosed)
             CTreeItem::folderClosed = CTreeItem::treeClosed;
 
+        /*
         try {
             CXmlNode& topic = *m_registry->findFirst("scrollbars", false);
             if (&topic)
                 scrollBarButtonSize = topic.getAttribute("ButtonSize", "16");
         } catch (...) {}
+        */
 
         m_scrollBar[THM_SCROLLBAR_VERTICAL].load(THM_SCROLLBAR_VERTICAL, m_desaturateInactiveButtons);
         m_scrollBar[THM_SCROLLBAR_HORIZONTAL].load(THM_SCROLLBAR_HORIZONTAL, m_desaturateInactiveButtons);

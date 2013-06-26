@@ -87,7 +87,7 @@ namespace sptk {
             void *user_data() const { return m_data;        }
 
             /// Sets user_data as integer
-            void argument(int32_t arg)  { m_data = (void *) arg; }
+            void argument(int32_t arg)  { m_data = (void *) (long) arg; }
 
             /// Returns user_data as integer
             int32_t argument() const   { return (int32_t)(long) m_data;   }

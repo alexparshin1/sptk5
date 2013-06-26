@@ -118,7 +118,7 @@ CVariant CTreeView::data() const {
 }
 
 void CTreeView::data(const CVariant v) {
-    CTreeItem *node = m_treeControl->findData((void *)v.asInteger());
+    CTreeItem *node = m_treeControl->findData((void *)(long)v.asInteger());
     if (node)
         m_treeControl->makeVisible(node);
 }

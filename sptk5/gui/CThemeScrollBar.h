@@ -92,11 +92,11 @@ public:
     /// @brief Loads GTK theme scrollbar troughs
     /// @brief xml CXmlDoc&, GTK theme converted to XML
     static void loadGtkScrollbarTroughs(CXmlDoc& xml);
-    
+
     /// @brief Loads GTK theme scrollbar sliders
     /// @brief xml CXmlDoc&, GTK theme converted to XML
     static void loadGtkScrollbarSliders(CXmlDoc& xml);
-    
+
     /// @brief Loads GTK theme scrollbar button images from GTK theme
     /// @brief xml CXmlDoc&, GTK theme converted to XML
     static void loadGtkScrollbars(CXmlDoc& xml);
@@ -125,6 +125,6 @@ public:
 };
 
 /// @}
-};
+}
 
 #endif

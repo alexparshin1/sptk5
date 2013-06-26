@@ -165,7 +165,7 @@ CPackedStrings& CPackedStrings::operator=(const CStrings& strings) {
 
    flags = 0;
    height = 0;
-   m_data  = (void *)strings.argument();
+   m_data  = (void *)(long) strings.argument();
 
    int sz = offsetsSpace + sizeof(uint16_t);
 
