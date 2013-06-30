@@ -12,9 +12,10 @@ IF (FLTK_FLAG)
         LINK_LIBRARIES (pthread rt)
     ENDIF (UNIX)
 
-    SET (GUI_TESTS calendar_test ceditor_test cgroup_test check_buttons combo_test cscroll_test db_list_view
-                  dialog_test file_dialogs font_combo shaped_window spell_checker splitter sptk_test
-                  tabs_test themes_test tree_test tree_view)
+    SET (GUI_TESTS calendar_test ceditor_test cgroup_test check_buttons combo_test cscroll_test 
+                  #db_list_view sptk_test tree_test
+                  dialog_test file_dialogs font_combo shaped_window spell_checker splitter
+                  tabs_test themes_test tree_view)
 
     FOREACH (GUI_TEST ${GUI_TESTS})
         ADD_EXECUTABLE (${GUI_TEST} ${GUI_TEST}.cpp)

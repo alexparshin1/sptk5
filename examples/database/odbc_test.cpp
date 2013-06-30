@@ -71,18 +71,20 @@ int main()
 
     // If you want to test the database abilities of the data controls
     // you have to setup the ODBC database connection.
-    // Typical connect string is something like: "DSN=odbc_demo;UID=user;PWD=password".
+    // Typical connect string is something like: "odbc://odbc_demo?UID=user&PWD=password".
     // If UID or PWD are omitted they are read from the datasource settings.
-    CODBCConnection db("DSN=odbc_demo");
+    CDatabaseConnectionPool connectionPool("odbc://demo_odbc");
+    CDatabaseConnection* db = connectionPool.createConnection();
+
     CFileLog logFile("odbc_test.log");
 
-    db.logFile(&logFile);
+    db->logFile(&logFile);
     logFile.reset();
 
     try {
         cout << "Openning the database.. ";
-        db.open();
-        cout << "Ok.\nDriver description: " << db.driverDescription() << endl;
+        db->open();
+        cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
         CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
@@ -92,7 +94,7 @@ int main()
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
             CStrings objectList;
             try {
-                db.objectList(objectTypes[i], objectList);
+                db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
                 cout << e.what() << endl;
             }
@@ -103,10 +105,10 @@ int main()
 
         // Defining the queries
         string tableName = "test_table";
-        CQuery step1Query(&db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(&db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(&db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
-        CQuery step4Query(&db, "DROP TABLE " + tableName);
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
+        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
+        CQuery step4Query(db, "DROP TABLE " + tableName);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
@@ -218,13 +220,13 @@ int main()
 
         cout << "Ok.\n***********************************************\nTesting the transactions.";
 
-        testTransactions(db, tableName, true);
-        testTransactions(db, tableName, false);
+        testTransactions(*db, tableName, true);
+        testTransactions(*db, tableName, false);
 
         step4Query.exec();
 
         cout << "Ok.\nStep 6: Closing the database.. ";
-        db.close();
+        db->close();
         cout << "Ok." << endl;
     } catch (exception& e) {
         cout << "\nError: " << e.what() << endl;

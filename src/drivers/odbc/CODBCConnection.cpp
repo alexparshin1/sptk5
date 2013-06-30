@@ -292,9 +292,11 @@ int CODBCConnection::queryColCount(CQuery *query)
 void CODBCConnection::queryColAttributes(CQuery *query, int16_t column, int16_t descType, int32_t& value)
 {
     CSynchronizedCode lock(m_connect);
+    SQLLEN result;
 
-    if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, (SQLLEN *) &value)))
+    if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, &result)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
+    value = (int32_t) result;
 }
 
 void CODBCConnection::queryColAttributes(CQuery *query, int16_t column, int16_t descType, LPSTR buff, int len)
