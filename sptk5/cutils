@@ -33,6 +33,7 @@
 #include <sptk5/CFileLog.h>
 #include <sptk5/CProxyLog.h>
 #include <sptk5/CRegistry.h>
+#include <sptk5/CRegExp.h>
 #include <sptk5/CSocket.h>
 #include <sptk5/CSysLog.h>
 #include <sptk5/CUniqueInstance.h>

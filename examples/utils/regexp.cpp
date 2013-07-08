@@ -62,6 +62,31 @@ int main()
         cout << "yes" << endl;
     }
 
+    CDateTime started = CDateTime::Now();
+    unsigned counter = 0;
+    unsigned tests = 1000000;
+    for (unsigned i = 0; i < tests; i++) {
+        if (text == CRegExp("\\(\\d{3}\\)-\\d{3}-\\d{4}")) {
+            counter++;
+        }
+    }
+    CDateTime finished = CDateTime::Now();
+    cout << "Executed " << tests << " regexp tests (compiled on the fly) for " << (finished - started) * 86400 << " seconds." << endl;
+    cout.precision(2);
+    cout << "That is " << fixed << tests / ((finished - started) * 86400) / 1000000 << "M tests/sec" << endl;
+
+    started = CDateTime::Now();
+    counter = 0;
+    for (unsigned i = 0; i < tests; i++) {
+        if (text == phoneRegexp) {
+            counter++;
+        }
+    }
+    finished = CDateTime::Now();
+    cout << "Executed " << tests << " regexp tests (precompiled) for " << (finished - started) * 86400 << " seconds." << endl;
+    cout.precision(2);
+    cout << "That is " << fixed << tests / ((finished - started) * 86400) / 1000000 << "M tests/sec" << endl;
+
     return 0;
 }
 //---------------------------------------------------------------------------
