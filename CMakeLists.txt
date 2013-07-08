@@ -12,15 +12,18 @@ PROJECT (SPTK)
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
-SET (VERSION "4.99.01")
+SET (VERSION "5.0.0")
 
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.cmake/")
+
 
 OPTION (USE_ODBC       "Build ODBC support library" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 OPTION (USE_FLTK       "Build GUI library" ON)
+OPTION (USE_PCRE       "Build PCRE (Perl Regexp) support" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
@@ -167,6 +170,21 @@ IF (WIN32)
   ADD_SUBDIRECTORY (events.w32)
 ENDIF (WIN32)
 
+
+SET (PCRE_FLAG "0")
+IF (USE_PCRE)
+  FIND_PACKAGE(PCRE QUIET)
+  IF (PCRE_FOUND)
+    MESSAGE("PCRE support:       compile")
+    INCLUDE_DIRECTORIES(${PCRE_INCLUDE_DIR})
+    LINK_LIBRARIES(${PCRE_LIBRARY})
+    SET (PCRE_FLAG "1")
+  ELSE (PCRE_FOUND)
+    MESSAGE("PCRE support:       don't compile")
+  ENDIF (PCRE_FOUND)
+ENDIF (USE_PCRE)
+
+
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 SET (HAVE_PTHREAD_MUTEX_TIMEDLOCK "0")
@@ -201,6 +219,9 @@ INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
+
+FILE (GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
+INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
 
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)

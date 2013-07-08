@@ -36,6 +36,7 @@
 #define HAVE_SQLITE3     @SQLITE3_FLAG@
 #define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@
 #define HAVE_ASPELL      @ASPELL_FLAG@
+#define HAVE_PCRE        @PCRE_FLAG@
 #define SIZEOF_INT       @INT@
 #define SIZEOF_LONG      @LONG@
 #define SIZEOF_SHORT     @SHORT@

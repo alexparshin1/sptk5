@@ -41,3 +41,6 @@ IF (ODBC_LIBRARY)
     ARCHIVE DESTINATION lib
   )
 ENDIF (ODBC_LIBRARY)
+
+ADD_EXECUTABLE (all_drivers_test all_drivers_test.cpp)
+TARGET_LINK_LIBRARIES (all_drivers_test sputil5 spdb5)

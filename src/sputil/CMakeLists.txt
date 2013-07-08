@@ -11,7 +11,7 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     core/CSmtpConnect.cpp core/CSocket.cpp core/CStrings.cpp core/CSysLog.cpp
     core/CUniqueInstance.cpp core/CVariant.cpp core/string_ext.cpp
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/CFtpDS.cpp core/CImapDS.cpp core/CProxyLog.cpp
-    core/CSystemException.cpp
+    core/CSystemException.cpp core/CRegExp.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
     tar/block.cpp tar/CTar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp
