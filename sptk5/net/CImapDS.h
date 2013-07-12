@@ -29,7 +29,7 @@
 #define __CIMAPDS_H__
 
 #include <sptk5/CMemoryDS.h>
-#include <sptk5/CImapConnect.h>
+#include <sptk5/net/CImapConnect.h>
 #include <string>
 
 namespace sptk {

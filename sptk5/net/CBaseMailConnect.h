@@ -29,7 +29,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CBuffer.h>
-#include <sptk5/CMailMessageBody.h>
+#include <sptk5/net/CMailMessageBody.h>
 
 #include <string>
 

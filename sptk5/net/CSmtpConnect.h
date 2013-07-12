@@ -28,9 +28,9 @@
 #ifndef __CSMTPCONNECT_H__
 #define __CSMTPCONNECT_H__
 
-#include <sptk5/CSocket.h>
+#include <sptk5/net/CSocket.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CBaseMailConnect.h>
+#include <sptk5/net/CBaseMailConnect.h>
 
 #include <string>
 

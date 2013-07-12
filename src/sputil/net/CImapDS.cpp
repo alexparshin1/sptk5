@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CImapDS.h>
+#include <sptk5/net/CImapDS.h>
 #include <sptk5/CException.h>
 
 #include <stdlib.h>

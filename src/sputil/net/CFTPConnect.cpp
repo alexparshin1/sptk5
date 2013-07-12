@@ -29,7 +29,7 @@
 #include <netinet/in.h>
 #endif
 
-#include <sptk5/CFTPConnect.h>
+#include <sptk5/net/CFTPConnect.h>
 #include <stdio.h>
 #include <string.h>
 

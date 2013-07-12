@@ -27,8 +27,7 @@
 
 #include <iostream>
 
-#include <sptk5/CSocket.h>
-#include <sptk5/CException.h>
+#include <sptk5/cnet>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,23 +54,23 @@ int main(int argc, char* argv[]) {
 
       std::string data;
 
-      client >> data;
+      client.readLine(data);
       std::cout << "Receiving: " << data.c_str() << "\n";
 
       data = "Several copies of a single string";
       std::cout << "Sending: test data\n";
-      client << data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n";
+      client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
 
       std::cout << "Sending: end data\n";
-      client << "EOD\n";
+      client.write("EOD\n");
 
-      client >> data;
+      client.readLine(data);
       std::cout << "Receiving: " << data.c_str() << "\n";
 
       std::cout << "Sending: end session\n";
-      client << "EOS\n";
+      client.write("EOS\n");
 
-      client >> data;
+      client.readLine(data);
       std::cout << "Receiving: " << data.c_str() << "\n";
    } catch (std::exception& e) {
       std::cout << "Exception was caught:" << e.what() << "\nExiting.\n";

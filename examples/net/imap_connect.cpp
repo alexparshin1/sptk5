@@ -22,10 +22,9 @@
 #endif
 
 #include <stdio.h>
-#include <sptk5/CException.h>
 
-#include <sptk5/CImapConnect.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;

@@ -19,7 +19,7 @@
 #include <FL/Fl.h>
 #include <FL/fl_ask.h>
 #include <sptk5/cgui>
-#include <sptk5/CImapDS.h>
+#include <sptk5/cnet>
 
 using namespace std;
 using namespace sptk;

@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <sptk5/CBase64.h>
-#include <sptk5/CSmtpConnect.h>
+#include <sptk5/net/CSmtpConnect.h>
 #include <sptk5/CException.h>
 
 #include <sptk5/CFileLog.h>

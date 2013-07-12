@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSocket.cpp  -  description
+                          CBaseSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
     copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
@@ -25,13 +25,14 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CSOCKET_H__
-#define __CSOCKET_H__
+#ifndef __CBASESOCKET_H__
+#define __CBASESOCKET_H__
 
 #ifndef _WIN32
     #include <sys/types.h>
     #include <sys/socket.h>
     #include <sys/un.h>
+    #include <sys/time.h>
     #include <unistd.h>
     #include <fcntl.h>
     #include <netinet/in.h>
@@ -40,6 +41,11 @@
 
     /// A socket handle is an integer
     typedef int SOCKET;
+    typedef sa_family_t SOCKET_ADDRESS_FAMILY;
+
+    #ifdef __APPLE__
+        typedef int socklen_t;
+    #endif
 
     /// A value to indicate an invalid handle
     #define INVALID_SOCKET -1
@@ -47,6 +53,8 @@
 #else
     #include <winsock2.h>
     #include <windows.h>
+    typedef int socklen_t;
+    typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
 
 #include <sptk5/CException.h>
@@ -58,56 +66,11 @@ namespace sptk {
 /// @addtogroup utility Utility Classes
 /// @{
 
-class CSocket;
-
-/// Buffered Socket reader.
-class SP_EXPORT CSocketReader : protected CBuffer {
-    CSocket&  m_socket;       ///< Socket to read from
-    uint32_t  m_readOffset;   ///< Current offset in the read buffer
-
-    /// @brief Performs buffered read
-    ///
-    /// Data is read from the opened socket into a character buffer of limited size
-    /// @param dest char *, destination buffer
-    /// @param sz uint32_t, size of the destination buffer
-    /// @param readLine bool, true if we want to read one line (ended with CRLF) only
-    /// @param from sockaddr_in*, an optional structure for source address
-    /// @returns number of bytes read
-    int32_t bufferedRead(char *dest,uint32_t sz,bool readLine,struct sockaddr_in* from=NULL);
-
-public:
-
-    /// @brief Constructor
-    /// @param socket CSocket&, socket to work with
-    /// @param bufferSize int, the desirable size of the internal buffer
-    CSocketReader(CSocket& socket,int bufferSize=4096);
-
-    /// @brief Connects the reader to the socket handle
-    void open();
-
-    /// @brief Disconnects the reader from the socket handle
-    void close() {
-    }
-
-    /// @brief Performs the buffered read
-    /// @param dest char *, destination buffer
-    /// @param sz uint32_t, size of the destination buffer
-    /// @param readLine bool, true if we want to read one line (ended with CRLF) only
-    /// @param from sockaddr_in*, an optional structure for source address
-    /// @returns bytes read from the internal buffer
-    uint32_t read(char *dest,uint32_t sz,bool readLine=false,struct sockaddr_in* from=NULL);
-
-    /// @brief Performs the buffered read of '\n'-terminated string
-    /// @param dest CBuffer&, destination buffer
-    /// @returns bytes read from the internal buffer
-    uint32_t readLine(CBuffer& dest);
-};
-
 /// @brief Generic socket.
 ///
 /// Allows to establish a network connection
 /// to the host by name and port address
-class SP_EXPORT CSocket {
+class SP_EXPORT CBaseSocket {
 protected:
     SOCKET              m_sockfd;       ///< Socket internal (OS) handle
     int32_t             m_domain;       ///< Socket domain type
@@ -115,19 +78,12 @@ protected:
     int32_t             m_protocol;     ///< Socket protocol
     std::string         m_host;         ///< Host name
     int32_t             m_port;         ///< Port number
-    fd_set              m_inputs;       ///< The set of socket descriptors for reading
-    fd_set              m_outputs;      ///< The set of socket descriptors for writing
-    CSocketReader       m_reader;       ///< Socket buffered reader
-    CBuffer             m_stringBuffer; ///< Buffer to read a line
 protected:
 
 #ifdef _WIN32
     static void         init();         ///< WinSock initialization
     static void         cleanup();      ///< WinSock cleanup
 #endif
-
-    /// @brief Reads a single char from the socket
-    char getChar();
 
 public:
     /// @brief A mode to open a socket, one of
@@ -137,15 +93,21 @@ public:
         SOM_BIND        ///< Bind (listen)
     };
 
+    /// @brief Throws socket exception with error description retrieved from socket state
+    /// @param std::string message, error message
+    /// @param const char* file, source file name
+    /// @param int line, source file line number
+    static void throwSocketError (std::string message, const char* file, int line) throw (CException);
+
 public:
     /// @brief Constructor
     /// @param domain int32_t, socket domain type
     /// @param type int32_t, socket type
     /// @param protocol int32_t, protocol type
-    CSocket(int32_t domain=AF_INET, int32_t type=SOCK_STREAM, int32_t protocol=0);
+    CBaseSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET, int32_t type=SOCK_STREAM, int32_t protocol=0);
 
     /// @brief Destructor
-    virtual ~CSocket();
+    virtual ~CBaseSocket();
 
     /// @brief Returns socket handle
     int  handle() const {
@@ -180,16 +142,6 @@ public:
     /// @param addr sockaddr_in*, defines socket address/port information
     void open_addr(CSocketOpenMode openMode=SOM_CREATE,sockaddr_in* addr=0L);
 
-    /// @brief Opens the client socket connection by host and port
-    /// @param hostName std::string, the host name
-    /// @param port int32_t, the port number
-    /// @param openMode CSocketOpenMode, socket open mode
-    virtual void open(std::string hostName="",int32_t port=0,CSocketOpenMode openMode=SOM_CONNECT);
-
-    /// @brief Opens the server socket connection on port (binds/listens)
-    /// @param portNumber int32_t, the port number
-    void listen(int32_t portNumber=0);
-
     /// @brief In server mode, waits for the incoming connection.
     ///
     /// When incoming connection is made, exits returning the connection info
@@ -222,58 +174,53 @@ public:
     /// @param buffer void *, the destination buffer
     /// @param size uint32_t, the destination buffer size
     /// @returns the number of bytes read from the socket
-    int32_t recv(void* buffer,uint32_t size);
+    virtual int32_t recv(void* buffer,uint32_t size);
 
     /// @brief Reads data from the socket in regular or TLS mode
     /// @param buffer const void *, the send buffer
     /// @param size uint32_t, the send data length
     /// @returns the number of bytes sent the socket
-    int32_t send(const void* buffer,uint32_t len);
-
-    /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
-    ///
-    /// The output string should fit the buffer or it will be returned incomplete.
-    /// @param buffer char *, the destination buffer
-    /// @param size uint32_t, the destination buffer size
-    /// @returns the number of bytes read from the socket
-    uint32_t readLine(char *buffer,uint32_t size);
-
-    /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
-    ///
-    /// The memory buffer is extended automatically to fit the string.
-    /// @param buffer CBuffer&, the destination buffer
-    /// @returns the number of bytes read from the socket
-    uint32_t readLine(CBuffer& buffer);
-
-    /// @brief Reads one line (terminated with CRLF) from the socket into string
-    /// @param s std::string&, the destination string
-    /// @returns the number of bytes read from the socket
-    uint32_t readLine(std::string& s);
+    virtual int32_t send(const void* buffer,uint32_t len);
 
     /// @brief Reads data from the socket
     /// @param buffer char *, the memory buffer
-    /// @param size uint32_t, the memory buffer size
+    /// @param size uint32_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    uint32_t read(char *buffer,uint32_t size,sockaddr_in* from=NULL);
+    virtual uint32_t read(char *buffer,uint32_t size,sockaddr_in* from=NULL);
 
     /// @brief Reads data from the socket into memory buffer
-    /// @param buffer const CBuffer&, the memory buffer
+    ///
+    /// Buffer bytes() is set to number of bytes read
+    /// @param buffer CBuffer&, the memory buffer
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    uint32_t read(CBuffer& buffer,sockaddr_in* from=NULL);
+    virtual uint32_t read(CBuffer& buffer,uint32_t size,sockaddr_in* from=NULL);
+
+    /// @brief Reads data from the socket into memory buffer
+    ///
+    /// Buffer bytes() is set to number of bytes read
+    /// @param buffer std::string&, the memory buffer
+    /// @param from sockaddr_in*, an optional structure for source address
+    /// @returns the number of bytes read from the socket
+    virtual uint32_t read(std::string& buffer,uint32_t size,sockaddr_in* from=NULL);
 
     /// @brief Writes data to the socket
     /// @param buffer const char *, the memory buffer
     /// @param size uint32_t, the memory buffer size
     /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
-    uint32_t write(const char *buffer,uint32_t size,const sockaddr_in* peer=0);
+    virtual uint32_t write(const char *buffer,uint32_t size=-1,const sockaddr_in* peer=NULL);
 
     /// @brief Writes data to the socket
     /// @param buffer const CBuffer&, the memory buffer
     /// @returns the number of bytes written to the socket
-    uint32_t write(const CBuffer& buffer);
+    virtual uint32_t write(const CBuffer& buffer,const sockaddr_in* peer=NULL);
+
+    /// @brief Writes data to the socket
+    /// @param buffer const std::string&, the memory buffer
+    /// @returns the number of bytes written to the socket
+    virtual uint32_t write(const std::string& buffer,const sockaddr_in* peer=NULL);
 
     /// @brief Reports true if socket is ready for reading from it
     /// @param waitmsec uint32_t, read timeout in msec
@@ -281,13 +228,9 @@ public:
 
     /// @brief Reports true if socket is ready for writing to it
     bool readyToWrite();
-
-    /// @brief Stream std::string input
-    CSocket& operator << ( const std::string& );
-
-    /// @brief Stream std::string output
-    CSocket& operator >> ( std::string& );
 };
+
+#define THROW_SOCKET_ERROR(msg) CBaseSocket::throwSocketError(msg,__FILE__,__LINE__)
 
 /// @}
 }

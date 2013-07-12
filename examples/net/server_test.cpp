@@ -38,8 +38,7 @@
 #include <sys/time.h>
 #endif
 
-#include <sptk5/CSocket.h>
-#include <sptk5/CException.h>
+#include <sptk5/cnet>
 
 using namespace sptk;
 
@@ -65,21 +64,21 @@ int main( int argc, char* argv[] ) {
          std::string data;
 
          std::cout << "Sending: Test SPTK server 1.00\n";
-         new_sock << "Test SPTK server 1.00\n";
+         new_sock.write("Test SPTK server 1.00\n");
 
          std::cout << "Receving (strings): ";
 
          do {
-            new_sock >> data;
+            new_sock.readLine(data);
             std::cout << data.c_str() << "\n";
          } while (data != "EOD");
 
          std::cout << "Sending: confirmation\n";
-         new_sock << "Data accepted\n";
+         new_sock.write("Data accepted\n");
 
          // End of session
          try {
-            new_sock >> data;
+            new_sock.readLine(data);
          }
          catch(...) {}
 

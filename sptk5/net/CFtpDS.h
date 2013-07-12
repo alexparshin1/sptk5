@@ -29,7 +29,7 @@
 #define __CFTPDS_H__
 
 #include <sptk5/CMemoryDS.h>
-#include <sptk5/CFTPConnect.h>
+#include <sptk5/net/CFTPConnect.h>
 
 namespace sptk {
 

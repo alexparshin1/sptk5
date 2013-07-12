@@ -1,11 +1,12 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cutils  -  description
+                          CUDPSocket.h  -  description
                              -------------------
-    begin                : Aug 10 2006
-    copyright            : (C) 2006-2013 by Alexey Parshin
+    begin                : Jul 10 2013
+    copyright            : (C) 2000-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
+
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -25,21 +26,39 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#ifndef __CUDPSOCKET_H__
+#define __CUDPSOCKET_H__
 
+#include <sptk5/net/CBaseSocket.h>
 #include <sptk5/CBuffer.h>
-#include <sptk5/CDataSource.h>
-#include <sptk5/CFileLog.h>
-#include <sptk5/CProxyLog.h>
-#include <sptk5/CRegistry.h>
-#include <sptk5/CRegExp.h>
-#include <sptk5/CSysLog.h>
-#include <sptk5/CUniqueInstance.h>
-#include <sptk5/string_ext.h>
 
-#include <sptk5/threads/CThreadPool.h>
-#include <sptk5/threads/CRunable.h>
-#include <sptk5/threads/CRWLock.h>
+namespace sptk {
 
+/// @addtogroup net Networking Classes
+/// @{
+
+/// @brief UDP Socket
+///
+/// Sends and receives data using UDP protocol.
+/// Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
+class CUDPSocket : public CBaseSocket
+{
+public:
+    /// @brief Constructor
+    /// @param domain SOCKET_ADDRESS_FAMILY, socket domain type
+    CUDPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET);
+
+    /// @brief Destructor
+    virtual ~CUDPSocket() {}
+
+    /// @brief Reads data from the socket
+    /// @param buffer char *, the memory buffer
+    /// @param size uint32_t, the number of bytes to read
+    /// @param from sockaddr_in*, an optional structure for source address
+    /// @returns the number of bytes read from the socket
+    virtual uint32_t read(char *buffer,uint32_t size,sockaddr_in* from=NULL);
+};
+
+/// @}
+}
 #endif

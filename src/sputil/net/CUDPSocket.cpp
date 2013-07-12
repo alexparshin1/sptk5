@@ -1,11 +1,12 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cutils  -  description
+                          CUDPSocket.h  -  description
                              -------------------
-    begin                : Aug 10 2006
-    copyright            : (C) 2006-2013 by Alexey Parshin
+    begin                : Jul 10 2013
+    copyright            : (C) 2000-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
+
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -25,21 +26,22 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#include <sptk5/net/CUDPSocket.h>
 
-#include <sptk5/CBuffer.h>
-#include <sptk5/CDataSource.h>
-#include <sptk5/CFileLog.h>
-#include <sptk5/CProxyLog.h>
-#include <sptk5/CRegistry.h>
-#include <sptk5/CRegExp.h>
-#include <sptk5/CSysLog.h>
-#include <sptk5/CUniqueInstance.h>
-#include <sptk5/string_ext.h>
+using namespace std;
+using namespace sptk;
 
-#include <sptk5/threads/CThreadPool.h>
-#include <sptk5/threads/CRunable.h>
-#include <sptk5/threads/CRWLock.h>
+CUDPSocket::CUDPSocket(SOCKET_ADDRESS_FAMILY domain)
+ : CBaseSocket(domain,SOCK_DGRAM)
+{
+    m_sockfd = socket (m_domain, m_type, m_protocol);
+}
 
-#endif
+uint32_t CUDPSocket::read(char *buffer,uint32_t size,sockaddr_in* from)
+{
+    socklen_t addrLength = sizeof(sockaddr_in);
+    int32_t bytes = recvfrom(m_sockfd, (char*) buffer, size, 0, (sockaddr*) from, &addrLength);
+    if (bytes < 0)
+        THROW_SOCKET_ERROR("Can't read to socket");
+    return bytes;
+}

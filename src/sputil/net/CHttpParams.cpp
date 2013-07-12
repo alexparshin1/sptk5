@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CHttpParams.h>
+#include <sptk5/net/CHttpParams.h>
 #include <sptk5/CBuffer.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/string_ext.h>

@@ -1,6 +1,6 @@
 #include <FL/Fl.h>
-#include <FL/fl_ask.h> 
-#include <sptk5/CHttpConnect.h>
+#include <FL/fl_ask.h>
+#include <sptk5/cnet>
 #include <sptk5/cgui>
 
 #include <string.h>

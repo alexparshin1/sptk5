@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CMailMessageBody.h>
+#include <sptk5/net/CMailMessageBody.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/string_ext.h>
 #include <string.h>

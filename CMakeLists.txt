@@ -220,6 +220,9 @@ INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
 
+FILE (GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
+INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net)
+
 FILE (GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
 INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
 

@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CFtpDS.h>
+#include <sptk5/net/CFtpDS.h>
 #include <sptk5/CException.h>
 #include <sptk5/CSmallPixmapIDs.h>
 

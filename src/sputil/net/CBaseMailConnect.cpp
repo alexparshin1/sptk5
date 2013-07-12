@@ -34,7 +34,7 @@
 #endif
 
 #include <sptk5/CBase64.h>
-#include <sptk5/CBaseMailConnect.h>
+#include <sptk5/net/CBaseMailConnect.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/CDateTime.h>
 #include <sptk5/string_ext.h>

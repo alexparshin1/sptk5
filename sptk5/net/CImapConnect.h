@@ -28,7 +28,7 @@
 #ifndef __CIMAPCONNECT_H__
 #define __CIMAPCONNECT_H__
 
-#include <sptk5/CSocket.h>
+#include <sptk5/net/CSocket.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/CFieldList.h>
 

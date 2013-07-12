@@ -28,7 +28,7 @@
 #define __CFTPCONNECT_H__
 
 #include <sptk5/CStrings.h>
-#include <sptk5/CSocket.h>
+#include <sptk5/net/CSocket.h>
 
 namespace sptk {
 

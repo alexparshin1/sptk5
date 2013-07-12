@@ -24,7 +24,7 @@
 
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
-#include <sptk5/CFrame.h>
+#include <sptk5/gui/CFrame.h>
 
 using namespace std;
 using namespace sptk;

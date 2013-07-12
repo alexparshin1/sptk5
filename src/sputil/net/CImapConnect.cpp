@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/string_ext.h>
-#include <sptk5/CImapConnect.h>
+#include <sptk5/net/CImapConnect.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

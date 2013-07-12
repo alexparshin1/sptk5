@@ -22,8 +22,8 @@
 #endif
 
 #include <stdio.h>
-#include <sptk5/CSmtpConnect.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -56,17 +56,17 @@ int main( int argc, char *argv[] ) {
    } else {
       user = "";
    }
-   
+
    printf("E-mail address to test: ");
    scanf("%s", buffer);
    email = buffer;
-   
+
    puts("\nTrying to connect to SMTP server..");
-   
+
    try {
       SMTP.cmd_login(user, password);
       printResonse(SMTP.response());
-      
+
       SMTP.subject("Test e-mail");
       SMTP.from("Yourself <"+email+">");
       SMTP.to(email);

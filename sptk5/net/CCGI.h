@@ -31,7 +31,7 @@
 #include <stdio.h>
 
 #include <sptk5/sptk.h>
-#include <sptk5/CHttpParams.h>
+#include <sptk5/net/CHttpParams.h>
 
 #include <string>
 
