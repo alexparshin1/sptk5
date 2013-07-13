@@ -28,7 +28,7 @@
 #ifndef __CSMTPCONNECT_H__
 #define __CSMTPCONNECT_H__
 
-#include <sptk5/net/CSocket.h>
+#include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/net/CBaseMailConnect.h>
 
@@ -44,7 +44,7 @@ namespace sptk {
 /// Sends an e-mail message using SMTP protocol.
 /// It uses CSocket class to establish the connection, and CBaseMailConnect
 /// to make the complete RFC 822 message.
-class SP_EXPORT CSmtpConnect : public CBaseMailConnect, public CSocket {
+class SP_EXPORT CSmtpConnect : public CBaseMailConnect, public CTCPSocket {
     CStrings     m_response;
 
     /// Processes tag for strippedHtml.

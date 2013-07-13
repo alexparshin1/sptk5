@@ -172,7 +172,7 @@ void CScroll::draw() {
     int X,Y,W,H;
     bbox(X,Y,W,H);
 
-    uchar d = damage();
+    //uchar d = damage();
 
     draw_box(box(),x(),y(),w(),h(),color());
     draw_clip(this, X, Y, W, H);
@@ -231,23 +231,23 @@ void CScroll::draw() {
     // Now that we know what's needed, make it so.
     if (vneeded && !scrollbar.visible()) {
         scrollbar.set_visible();
-        d = FL_DAMAGE_ALL;
+        //d = FL_DAMAGE_ALL;
     } else if (!vneeded && scrollbar.visible()) {
         scrollbar.clear_visible();
         draw_clip(this,
                   scrollbar.align()&FL_ALIGN_LEFT ? X : X+W-scrollbar.w(),
                   Y, scrollbar.w(), H);
-        d = FL_DAMAGE_ALL;
+        //d = FL_DAMAGE_ALL;
     }
     if (hneeded && !hscrollbar.visible()) {
         hscrollbar.set_visible();
-        d = FL_DAMAGE_ALL;
+        //d = FL_DAMAGE_ALL;
     } else if (!hneeded && hscrollbar.visible()) {
         hscrollbar.clear_visible();
         draw_clip(this,
                   X, scrollbar.align()&FL_ALIGN_TOP ? Y : Y+H-hscrollbar.h(),
                   W, hscrollbar.h());
-        d = FL_DAMAGE_ALL;
+        //d = FL_DAMAGE_ALL;
     }
 
     scrollbar.resize(scrollbar.align()&FL_ALIGN_LEFT ? X-scrollbar.w() : X+W, Y, scrollbar.w(), H);

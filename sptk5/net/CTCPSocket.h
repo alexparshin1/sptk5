@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSocket.cpp  -  description
+                          CTCPSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -63,7 +63,7 @@ namespace sptk {
 /// @{
 
 /// Buffered Socket reader.
-class SP_EXPORT CSocketReader : protected CBuffer {
+class SP_EXPORT CTCPSocketReader : protected CBuffer {
     CBaseSocket&    m_socket;       ///< Socket to read from
     uint32_t        m_readOffset;   ///< Current offset in the read buffer
 
@@ -82,7 +82,7 @@ public:
     /// @brief Constructor
     /// @param socket CBaseSocket&, socket to work with
     /// @param bufferSize int, the desirable size of the internal buffer
-    CSocketReader(CBaseSocket& socket,int bufferSize=4096);
+    CTCPSocketReader(CBaseSocket& socket,int bufferSize=4096);
 
     /// @brief Connects the reader to the socket handle
     void open();
@@ -105,9 +105,9 @@ public:
 ///
 /// Allows to establish a network connection
 /// to the host by name and port address
-class SP_EXPORT CSocket : public CBaseSocket {
+class SP_EXPORT CTCPSocket : public CBaseSocket {
 protected:
-    CSocketReader       m_reader;       ///< Socket buffered reader
+    CTCPSocketReader    m_reader;       ///< Socket buffered reader
     CBuffer             m_stringBuffer; ///< Buffer to read a line
 protected:
 
@@ -119,10 +119,10 @@ public:
     /// @param domain int32_t, socket domain type
     /// @param type int32_t, socket type
     /// @param protocol int32_t, protocol type
-    CSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET, int32_t type=SOCK_STREAM, int32_t protocol=0);
+    CTCPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET, int32_t type=SOCK_STREAM, int32_t protocol=0);
 
     /// @brief Destructor
-    virtual ~CSocket();
+    virtual ~CTCPSocket();
 
     /// @brief Opens the client socket connection by host and port
     /// @param hostName std::string, the host name
@@ -184,7 +184,6 @@ public:
     /// @returns the number of bytes read from the socket
     uint32_t read(std::string& buffer,uint32_t size,sockaddr_in* from=NULL);
 };
-
 
 /// @}
 }

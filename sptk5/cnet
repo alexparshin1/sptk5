@@ -28,7 +28,6 @@
 #ifndef __CNET_H__
 #define __CNET_H__
 
-#include <sptk5/net/CBaseMailConnect.h>
 #include <sptk5/net/CCGI.h>
 #include <sptk5/net/CFTPConnect.h>
 #include <sptk5/net/CFtpDS.h>
@@ -38,7 +37,7 @@
 #include <sptk5/net/CImapDS.h>
 #include <sptk5/net/CMailMessageBody.h>
 #include <sptk5/net/CSmtpConnect.h>
-#include <sptk5/net/CSocket.h>
+#include <sptk5/net/CTCPServer.h>
 #include <sptk5/net/CUDPSocket.h>
 
 #endif

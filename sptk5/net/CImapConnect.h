@@ -28,7 +28,7 @@
 #ifndef __CIMAPCONNECT_H__
 #define __CIMAPCONNECT_H__
 
-#include <sptk5/net/CSocket.h>
+#include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/CFieldList.h>
 
@@ -44,7 +44,7 @@ namespace sptk {
 /// Class CImapConnect is used to communicate with IMAP 4 servers.
 /// It implements the most popular commands of IMAP protocol to build
 /// a simple IMAP client.
-class CImapConnect : public CSocket {
+class CImapConnect : public CTCPSocket {
     sptk::CStrings            m_response;    ///< Internal response buffer
     int32_t                   m_ident;       ///< Message id
     static const std::string  empty_quotes;  ///< Empty quotes string

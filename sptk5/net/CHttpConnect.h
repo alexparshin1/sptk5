@@ -28,7 +28,7 @@
 #ifndef __CHTTPCONNECT_H__
 #define __CHTTPCONNECT_H__
 
-#include <sptk5/net/CSocket.h>
+#include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/net/CHttpParams.h>
 
@@ -44,7 +44,7 @@ typedef std::map<std::string,std::string> CHttpHeaders;
 ///
 /// Implements the GET and POST methods of HTTP protocol.
 /// Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
-class SP_EXPORT CHttpConnect : public CSocket {
+class SP_EXPORT CHttpConnect : public CTCPSocket {
     CBuffer         m_readBuffer;           ///< Internal read buffer
 
 protected:

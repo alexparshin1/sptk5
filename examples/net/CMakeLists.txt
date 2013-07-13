@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES (/usr/local/include)
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
 
-SET (NET_TESTS client_test server_test smtp_connect)
+SET (NET_TESTS tcp_client_test server_test smtp_connect)
 
 IF (FLTK_FLAG)
     INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})

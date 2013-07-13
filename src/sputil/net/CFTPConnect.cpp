@@ -36,7 +36,7 @@
 using namespace sptk;
 
 CFTPSocket::CFTPSocket()
-        : CSocket() {
+        : CTCPSocket() {
     m_port = 21;
     m_type = SOCK_STREAM;
     m_protocol = IPPROTO_TCP;
@@ -48,7 +48,7 @@ CFTPSocket::~CFTPSocket() {
 }
 
 void CFTPSocket::open(std::string hostName, int port,CSocketOpenMode openMode) {
-    CSocket::open(hostName,port,openMode);
+    CTCPSocket::open(hostName,port,openMode);
     get_response();
     int on = 1;
     setsockopt(m_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof(on));
@@ -156,7 +156,7 @@ void CFTPConnect::openDataPort() {
     }
     // Current implementation supports only passive mode, sorry
     //if (m_passive) {
-    m_dataSocket.open_addr(CSocket::SOM_CONNECT,&sin.in);
+    m_dataSocket.open_addr(CTCPSocket::SOM_CONNECT,&sin.in);
     setsockopt(m_dataSocket.handle(),SOL_SOCKET,SO_LINGER,(char *)&lng,sizeof(lng));
     //}
 }

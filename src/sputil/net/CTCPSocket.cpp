@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSocket.cpp  -  description
+                          CTCPSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 2000-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -29,21 +29,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifndef _WIN32
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <sys/time.h>
-
-#ifdef __APPLE__
-typedef int socklen_t;
-#endif
-
-#else
-typedef int socklen_t;
-#endif
-
-#include <sptk5/net/CSocket.h>
+#include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CException.h>
 
 using namespace std;
@@ -54,20 +40,20 @@ using namespace sptk;
     static bool  m_inited(false);
 #endif
 
-CSocketReader::CSocketReader (CBaseSocket& socket, int buffer_size)
+CTCPSocketReader::CTCPSocketReader (CBaseSocket& socket, int buffer_size)
     : CBuffer (buffer_size), m_socket (socket)
 {
     m_readOffset = 0;
     m_buffer[buffer_size-1] = 0;
 }
 
-void CSocketReader::open()
+void CTCPSocketReader::open()
 {
     m_readOffset = 0;
     m_bytes = 0;
 }
 
-int32_t CSocketReader::bufferedRead (char *dest, uint32_t sz, bool read_line, sockaddr_in* from)
+int32_t CTCPSocketReader::bufferedRead (char *dest, uint32_t sz, bool read_line, sockaddr_in* from)
 {
     int availableBytes = int (m_bytes - m_readOffset);
     int bytesToRead = (int) sz;
@@ -121,7 +107,7 @@ int32_t CSocketReader::bufferedRead (char *dest, uint32_t sz, bool read_line, so
     return bytesToRead;
 }
 
-uint32_t CSocketReader::read (char *dest, uint32_t sz, bool read_line, sockaddr_in* from)
+uint32_t CTCPSocketReader::read (char *dest, uint32_t sz, bool read_line, sockaddr_in* from)
 {
     int total = 0;
     int eol = 0;
@@ -150,7 +136,7 @@ uint32_t CSocketReader::read (char *dest, uint32_t sz, bool read_line, sockaddr_
     return total - eol;
 }
 
-uint32_t CSocketReader::readLine (CBuffer& destBuffer)
+uint32_t CTCPSocketReader::readLine (CBuffer& destBuffer)
 {
     int total = 0;
     int eol = 0;
@@ -184,36 +170,18 @@ uint32_t CSocketReader::readLine (CBuffer& destBuffer)
     return destBuffer.bytes();
 }
 
-#ifdef _WIN32
-void CSocket::init()
-{
-    if (m_inited)
-        return;
-    m_inited =  true;
-    WSADATA  wsaData;
-    WORD     wVersionRequested = MAKEWORD (2, 0);
-    WSAStartup (wVersionRequested, &wsaData);
-}
-
-void CSocket::cleanup()
-{
-    m_inited =  false;
-    WSACleanup();
-}
-#endif
-
 // Constructor
-CSocket::CSocket (SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+CTCPSocket::CTCPSocket (SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
         : CBaseSocket(domain, type, protocol), m_reader (*this, 1024)
 {
 }
 
 // Destructor
-CSocket::~CSocket()
+CTCPSocket::~CTCPSocket()
 {
 }
 
-void CSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMode)
+void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMode)
 {
     if (hostName.length())
         m_host = hostName;
@@ -241,7 +209,7 @@ void CSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMo
     m_reader.open();
 }
 
-void CSocket::listen (uint32_t portNumber)
+void CTCPSocket::listen (uint32_t portNumber)
 {
     if (portNumber)
         m_port = portNumber;
@@ -256,7 +224,7 @@ void CSocket::listen (uint32_t portNumber)
     open_addr (SOM_BIND, &addr);
 }
 
-void CSocket::accept (int& clientSocketFD, struct sockaddr_in& clientInfo)
+void CTCPSocket::accept (int& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof (clientInfo);
     clientSocketFD = (int) ::accept (m_sockfd, (struct sockaddr *) & clientInfo, &len);
@@ -264,7 +232,7 @@ void CSocket::accept (int& clientSocketFD, struct sockaddr_in& clientInfo)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }
 
-char CSocket::getChar()
+char CTCPSocket::getChar()
 {
     char ch;
 #ifdef _WIN32
@@ -277,30 +245,30 @@ char CSocket::getChar()
     return ch;
 }
 
-uint32_t CSocket::readLine (char *buffer, uint32_t size)
+uint32_t CTCPSocket::readLine (char *buffer, uint32_t size)
 {
     return m_reader.read (buffer, size, true);
 }
 
-uint32_t CSocket::readLine (CBuffer& buffer)
+uint32_t CTCPSocket::readLine (CBuffer& buffer)
 {
     return m_reader.readLine (buffer);
 }
 
-uint32_t CSocket::readLine (std::string& s)
+uint32_t CTCPSocket::readLine (std::string& s)
 {
     m_reader.readLine (m_stringBuffer);
     s = m_stringBuffer.data();
     return m_stringBuffer.size() - 1;
 }
 
-uint32_t CSocket::read (char *buffer, uint32_t size, sockaddr_in* from)
+uint32_t CTCPSocket::read (char *buffer, uint32_t size, sockaddr_in* from)
 {
     m_reader.read (buffer, size, false, from);
     return size;
 }
 
-uint32_t CSocket::read (CBuffer& buffer, uint32_t size, sockaddr_in* from)
+uint32_t CTCPSocket::read (CBuffer& buffer, uint32_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
     uint32_t rc = m_reader.read (buffer.data(), size, false, from);
@@ -308,7 +276,7 @@ uint32_t CSocket::read (CBuffer& buffer, uint32_t size, sockaddr_in* from)
     return rc;
 }
 
-uint32_t CSocket::read (string& buffer, uint32_t size, sockaddr_in* from)
+uint32_t CTCPSocket::read (string& buffer, uint32_t size, sockaddr_in* from)
 {
     buffer.resize(size);
     uint32_t rc = m_reader.read ((char*)buffer.c_str(), size, false, from);

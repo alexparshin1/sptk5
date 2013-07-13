@@ -28,7 +28,7 @@
 #define __CFTPCONNECT_H__
 
 #include <sptk5/CStrings.h>
-#include <sptk5/net/CSocket.h>
+#include <sptk5/net/CTCPSocket.h>
 
 namespace sptk {
 
@@ -39,7 +39,7 @@ namespace sptk {
 ///
 /// Connects to FTP server. It takes two of such sockets
 /// to establish the correct FTP communication
-class SP_EXPORT CFTPSocket : public CSocket {
+class SP_EXPORT CFTPSocket : public CTCPSocket {
     /// Server response string list
     CStrings  m_response;
 public:

@@ -44,7 +44,7 @@ using namespace sptk;
 
 int main(int argc, char* argv[]) {
    try {
-      CSocket client;
+      CTCPSocket client;
       client.port(3000);
       client.host("localhost");
 

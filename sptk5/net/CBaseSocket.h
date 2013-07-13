@@ -99,6 +99,11 @@ public:
     /// @param int line, source file line number
     static void throwSocketError (std::string message, const char* file, int line) throw (CException);
 
+    /// @brief Opens the socket connection by address.
+    /// @param openMode CSocketOpenMode, SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
+    /// @param addr sockaddr_in*, defines socket address/port information
+    void open_addr(CSocketOpenMode openMode=SOM_CREATE,sockaddr_in* addr=0L);
+
 public:
     /// @brief Constructor
     /// @param domain int32_t, socket domain type
@@ -136,11 +141,6 @@ public:
     int32_t port() const {
         return m_port;
     }
-
-    /// @brief Opens the socket connection by address.
-    /// @param openMode CSocketOpenMode, SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
-    /// @param addr sockaddr_in*, defines socket address/port information
-    void open_addr(CSocketOpenMode openMode=SOM_CREATE,sockaddr_in* addr=0L);
 
     /// @brief In server mode, waits for the incoming connection.
     ///
