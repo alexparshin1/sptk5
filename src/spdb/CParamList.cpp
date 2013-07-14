@@ -1,0 +1,142 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CParamList.cpp  -  description
+                             -------------------
+    begin                : Sun Jul 14 2013
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#include <sptk5/db/CParamList.h>
+
+using namespace std;
+using namespace sptk;
+
+
+CParamList::CParamList() :
+    m_bindingTypeChanged(true)
+{
+}
+
+CParamList::~CParamList()
+{
+    try {
+        clear();
+    } catch (...) {
+    }
+}
+
+void CParamList::clear()
+{
+    unsigned sz = size();
+
+    for (unsigned i = 0; i < sz; i++) {
+        CParam* item = (CParam*) m_items[i];
+        delete item;
+    }
+
+    m_items.clear();
+    m_index.clear();
+}
+
+void CParamList::add(CParam* item)
+{
+    m_items.push_back(item);
+    m_index[item->name()] = item;
+    item->m_paramList = this;
+}
+
+CParam* CParamList::find(const char* paramName)
+{
+    string pname(paramName);
+    map<string, CParam*>::iterator itor = m_index.find(pname);
+
+    if (itor == m_index.end())
+        return 0;
+
+    return itor->second;
+}
+
+CParam& CParamList::operator[](const char* paramName) const
+{
+    string pname(paramName);
+    map<string, CParam*>::const_iterator itor = m_index.find(pname);
+
+    if (itor == m_index.end())
+        throwException("Invalid parameter name: " + pname);
+
+    return *itor->second;
+}
+
+CParam& CParamList::operator[](const std::string& paramName) const
+{
+    return operator[](paramName.c_str());
+}
+
+CParam& CParamList::operator[](int32_t index) const
+{
+    return *m_items[index];
+}
+
+uint32_t CParamList::size() const
+{
+    return (uint32_t) m_items.size();
+}
+
+void CParamList::remove(uint32_t i)
+{
+    CParamVector::iterator itor = m_items.begin() + i;
+    CParam* item = *itor;
+    m_index.erase(item->name());
+    m_items.erase(itor);
+    delete item;
+}
+
+void CParamList::enumerate(CParamVector& params)
+{
+    CParamVector::iterator ptor;
+    CIntList::iterator btor;
+    params.resize(m_items.size() * 2);
+
+    if (m_items.empty())
+        return;
+
+    uint32_t maxIndex = 0;
+
+    for (ptor = m_items.begin(); ptor != m_items.end(); ptor++) {
+        CParam* param = *ptor;
+        CIntList& bindIndex = param->m_bindParamIndexes;
+
+        for (btor = bindIndex.begin(); btor != bindIndex.end(); btor++) {
+            uint32_t index = *btor;
+
+            if (index >= params.size())
+                params.resize(index + 1);
+
+            params[index] = param;
+
+            if (index > maxIndex)
+                maxIndex = index;
+        }
+    }
+
+    params.resize(maxIndex + 1);
+}
