@@ -3,7 +3,7 @@
                           CSynchronized.h  -  description
                              -------------------
     begin                : Thu Feb 23 2012
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

@@ -4,7 +4,7 @@
                           postgresql_test.cpp  -  description
                              -------------------
     begin                : September 20, 2007
-    copyright            : (C) 2000-2012 by Alexey S.Parshin
+    copyright            : (C) 1999-2013 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -143,9 +143,6 @@ int main()
         // Here is the example of using parameters as a stream.
         // That method is several times faster than access by field name
         // Params should come in the exact order as they are defined in the query
-        step2Query.params() << 2 << "Jane Doe" << "Vise President";
-        step2Query.exec();
-
         // Here is the example of using parameters by index.
         // This is the even faster than stream
         step2Query.param(uint32_t(0)) = 3;

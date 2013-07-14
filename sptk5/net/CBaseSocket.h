@@ -3,7 +3,7 @@
                           CBaseSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -33,6 +33,7 @@
     #include <sys/socket.h>
     #include <sys/un.h>
     #include <sys/time.h>
+    #include <sys/ioctl.h>
     #include <unistd.h>
     #include <fcntl.h>
     #include <netinet/in.h>
@@ -113,6 +114,9 @@ public:
 
     /// @brief Destructor
     virtual ~CBaseSocket();
+
+    /// @brief Returns number of bytes available in socket
+    uint32_t socketBytes();
 
     /// @brief Returns socket handle
     int  handle() const {

@@ -3,7 +3,7 @@
                           CBaseSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -97,6 +97,20 @@ CBaseSocket::~CBaseSocket()
     if (!m_socketCount)
         cleanup();
 #endif
+}
+
+uint32_t CBaseSocket::socketBytes()
+{
+    uint32_t bytes = 0;
+#ifdef _WIN32
+    int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+#else
+    int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
+#endif
+    if (rc < 0)
+        THROW_SOCKET_ERROR("Can't get socket bytes");
+
+    return bytes;
 }
 
 int32_t CBaseSocket::recv (void* buffer, uint32_t len)

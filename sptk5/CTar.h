@@ -3,7 +3,7 @@
                           CTar.h  -  description
                              -------------------
     begin                : Fri Sep 1 2006
-    copyright            : (C) 2001-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
 
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)

@@ -2,7 +2,7 @@
                               filedefs.h  -  description
                               -------------------
         begin                : Apr 10 2006
-        copyright            : (C) 2006-2012 by Alexey Parshin. All rights reserved.
+        copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
         email                : alexeyp@gmail.com
  ***************************************************************************/
 

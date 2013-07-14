@@ -3,7 +3,7 @@
                           CPostgreSQLConnection.h  -  description
                              -------------------
     begin                : Mon Sep 17 2007
-    copyright            : (C) 2007-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

@@ -3,7 +3,7 @@
                          CSemaphore.cpp  -  description
                              -------------------
     begin                : Sat Feb 25 2012
-    copyright            : (C) 2000-2012 by Alexey Parshin
+    copyright            : (C) 1999-2013 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

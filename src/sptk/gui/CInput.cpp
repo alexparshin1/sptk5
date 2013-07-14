@@ -3,7 +3,7 @@
                           cinput.cpp - description
                              -------------------
     begin                : Tue Dec 14 1999
-    copyright            : (C) 1999-2008 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

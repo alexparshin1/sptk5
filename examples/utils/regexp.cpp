@@ -4,7 +4,7 @@
                           regexp.cpp  -  description
                              -------------------
     begin                : Jul 8, 2013
-    copyright            : (C) 2003-2013 by Alexey S.Parshin
+    copyright            : (C) 1999-2013 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

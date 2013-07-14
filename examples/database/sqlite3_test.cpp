@@ -4,7 +4,7 @@
                           sqlite3_test.cpp  -  description
                              -------------------
     begin                : Wed November 2, 2005
-    copyright            : (C) 2005-2012 by Alexey S.Parshin
+    copyright            : (C) 1999-2013 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -106,12 +106,6 @@ int main()
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
         step2Query.param("position_name") = "CIO";
-        step2Query.exec();
-
-        // Here is the example of using parameters as a stream.
-        // That method is several times faster than access by field name
-        // Params should come in the exact order as they are defined in the query
-        step2Query.params() << 2 << "Jane Doe" << "Vise President";
         step2Query.exec();
 
         // Here is the example of using parameters by index.

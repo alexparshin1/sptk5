@@ -3,7 +3,7 @@
                           CSmtpConnect.h  -  description
                              -------------------
     begin                : Jun 25 2003
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

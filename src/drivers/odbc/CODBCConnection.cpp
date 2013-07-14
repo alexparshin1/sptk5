@@ -3,7 +3,7 @@
                           CODBCConnection.cpp  -  description
                              -------------------
     begin                : Fri Oct 03 2003
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -27,7 +27,6 @@
 
 #include <sptk5/db/CODBCConnection.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/db/CParams.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <string>
 #include <stdio.h>
@@ -421,7 +420,7 @@ void CODBCConnection::queryBindParameters(CQuery *query)
             rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, paramType, sqlType, len, scale,
                     buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
-                param->m_binding.reset();
+                param->m_binding.reset(false);
                 query->logAndThrow("CODBCConnection::queryBindParameters", "Can't bind parameter " + int2string(paramNumber));
             }
         }

@@ -3,7 +3,7 @@
                           CQuery.h  -  description
                              -------------------
     begin                : Wed Dec 15 1999
-    copyright            : (C) 1999-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -36,7 +36,7 @@
 #include <sptk5/CDataSource.h>
 
 #include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CParams.h>
+#include <sptk5/db/CParamList.h>
 #include <sptk5/CFieldList.h>
 
 namespace sptk {

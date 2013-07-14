@@ -3,7 +3,7 @@
                           imap_connect.cpp  -  description
                              -------------------
     begin                : 26 June 2003
-    copyright            : (C) 2000-2012 by Alexey S.Parshin
+    copyright            : (C) 1999-2013 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

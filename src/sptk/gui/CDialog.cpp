@@ -3,7 +3,7 @@
             CDialog.cpp  -  description
                 -------------------
             begin                : Fri Mar 31 2000
-            copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+            copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
             email                : alexeyp@gmail.com
 ***************************************************************************/
 

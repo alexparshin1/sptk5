@@ -3,7 +3,7 @@
                           cbuttongroup.cpp  -  description
                              -------------------
     begin                : Jan 2, 2003
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -31,11 +31,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CButtonGroup.h>
-#include <sptk5/gui/CGroup.h>
-#include <sptk5/db/CParams.h>
-#include <sptk5/CVariant.h>
+#include <sptk5/cgui>
+#include <sptk5/cdatabase>
 
 using namespace std;
 using namespace sptk;

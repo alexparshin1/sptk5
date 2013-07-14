@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -63,17 +63,17 @@ public:
     /// @brief Clears the list of XML nodes and releases all the allocated memory
     void clear();
 
-    /// @brief Finds the first node node in the list with the matching name
+    /// @brief Finds the first node in the list with the matching name
     /// @param nodeName const char*, a node name
     /// @returns node iterator, or end()
     iterator findFirst(const char* nodeName);
 
-    /// @brief Finds the first node node in the list with the matching name
+    /// @brief Finds the first node in the list with the matching name
     /// @param nodeName const std::string&, a node name
     /// @returns node iterator, or end()
     iterator findFirst(const std::string& nodeName);
 
-    /// @brief Finds the first node node in the list with the matching name
+    /// @brief Finds the first node in the list with the matching name
     /// @param nodeName const char*, a node name
     /// @returns node iterator, or end()
     const_iterator findFirst(const char* nodeName) const;

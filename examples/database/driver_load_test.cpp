@@ -4,7 +4,7 @@
                           driver_load_test.cpp  -  description
                              -------------------
     begin                : Mar 24, 2012
-    copyright            : (C) 2000-2012 by Alexey S.Parshin
+    copyright            : (C) 1999-2013 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

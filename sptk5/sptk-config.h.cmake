@@ -35,6 +35,7 @@
 #define HAVE_ODBC        @ODBC_FLAG@
 #define HAVE_SQLITE3     @SQLITE3_FLAG@
 #define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@
+#define HAVE_ORACLE      @ORACLE_FLAG@
 #define HAVE_ASPELL      @ASPELL_FLAG@
 #define HAVE_PCRE        @PCRE_FLAG@
 #define SIZEOF_INT       @INT@

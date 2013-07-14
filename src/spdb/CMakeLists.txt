@@ -5,8 +5,8 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (spdb5 ${LIBRARY_TYPE}
-    CDatabaseField.cpp CParams.cpp CQuery.cpp
-    CTransaction.cpp CDatabaseConnectionString.cpp
+    CDatabaseField.cpp CParamBinding.cpp CParam.cpp CParamList.cpp
+    CQuery.cpp CTransaction.cpp CDatabaseConnectionString.cpp
     CDatabaseConnection.cpp CDatabaseConnectionPool.cpp)
 
 TARGET_LINK_LIBRARIES (spdb5 sputil5)

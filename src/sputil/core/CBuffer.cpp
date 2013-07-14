@@ -3,7 +3,7 @@
                           CBuffer.cpp  -  description
                              -------------------
     begin                : January 3, 2003
-    copyright            : (C) 2003-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -49,7 +49,7 @@ CBuffer::CBuffer(const void *data,uint32_t sz) {
       memcpy(m_buffer,data,sz);
       m_size = sz;
       m_bytes = sz;
-	  m_buffer[sz] = 0;
+      m_buffer[sz] = 0;
    } else {
       m_size = m_bytes = 0;
    }

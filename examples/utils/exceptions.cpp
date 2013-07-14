@@ -3,7 +3,7 @@
                           exceptions.cpp  -  description
                              -------------------
     begin                : Mon Sep 28, 2003
-    copyright            : (C) 1999-2008 by Alexey Parshin
+    copyright            : (C) 1999-2013 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

@@ -3,7 +3,7 @@
                           sptk.h  -  description
                              -------------------
     begin                : Mon Apr 17 2000
-    copyright            : (C) 2000-2012 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -99,20 +99,23 @@ namespace sptk {
 }
 
 #ifdef __UNIX_COMPILER__
-	#include <stdint.h>
-	#include <inttypes.h>
+    #include <stdint.h>
+    #include <inttypes.h>
 #else
-	#ifdef __BORLANDC__
-		#include <stdint.h>
-		#include <ctype.h>
-	#else
-		#define int16_t  __int16
-		#define uint16_t unsigned __int16
-		#define int32_t  __int32
-		#define uint32_t unsigned __int32
-		#define int64_t  __int64
-		#define uint64_t unsigned __int64
-	#endif
+    #ifdef __BORLANDC__
+        #include <stdint.h>
+        #include <ctype.h>
+    #else
+        #define int16_t  __int16
+        #define uint16_t unsigned __int16
+        #define int32_t  __int32
+        #define uint32_t unsigned __int32
+        #define int64_t  __int64
+        #define uint64_t unsigned __int64
+    #endif
 #endif
 
+#define foreach(type,list) for (type::iterator itor = list.begin(); itor != list.end(); itor++)
+
 #endif
+
