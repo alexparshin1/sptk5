@@ -62,6 +62,19 @@ int main()
         cout << "yes" << endl;
     }
 
+    text = "user='horse' noice='some' password='haystack' host='localhost'";
+    cout << "\nParsing the text: " << text << endl;
+    CRegExp connectionParser("(user|password|host)=['\"]([\\S]+)['\"]","g");
+    CRegExp parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
+    CStrings matches;
+    connectionParser.m(text,matches);
+    for (unsigned i = 0; i < matches.size(); i++) {
+        cout << matches[i] << " : ";
+        i++;
+        cout << matches[i] << endl;
+    }
+    cout << endl;
+
     CDateTime started = CDateTime::Now();
     unsigned counter = 0;
     unsigned tests = 1000000;
