@@ -115,7 +115,5 @@ namespace sptk {
     #endif
 #endif
 
-#define foreach(type,list) for (type::iterator itor = list.begin(); itor != list.end(); itor++)
-
 #endif
 

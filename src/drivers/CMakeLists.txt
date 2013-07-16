@@ -30,8 +30,9 @@ ENDIF (POSTGRESQL_FLAG)
 
 IF (ORACLE_FLAG)
     ADD_LIBRARY (spdb5_oracle ${LIBRARY_TYPE}
-        #Oracle/COracleDatabase.cpp
+        Oracle/COracleEnvironment.cpp
         Oracle/COracleStatement.cpp
+        Oracle/COracleConnection.cpp
     )
     TARGET_LINK_LIBRARIES (spdb5_oracle ${ORACLE_LIBRARIES})
     INSTALL(TARGETS spdb5_oracle RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

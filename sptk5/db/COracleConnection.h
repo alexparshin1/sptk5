@@ -32,12 +32,11 @@
 
 #if HAVE_ORACLE == 1
 
-#include <occi.h>
+#include <sptk5/db/COracleStatement.h>
+#include <sptk5/db/COracleEnvironment.h>
 
 namespace sptk
 {
-
-    typedef oracle::occi oracle;
 
 /// @addtogroup Database Database Support
 /// @{
@@ -54,8 +53,8 @@ class SP_EXPORT COracleConnection: public CDatabaseConnection
 
 private:
 
-    oracle::Environment*    m_environment;  ///< Oracle connection environment
-    oracle::Connection*     m_connect;      ///< Oracle database connection
+    COracleEnvironment          m_environment;  ///< Oracle connection environment
+    oracle::occi::Connection*   m_connection;   ///< Oracle database connection
 
 protected:
 
@@ -87,18 +86,19 @@ protected:
 
 public:
     /// @brief Returns the Oracle connection object
-    oracle::Connection* connection()
+    oracle::occi::Connection* connection() const
     {
-        return m_connect;
+        return m_connection;
     }
 
 public:
+/*
     /// @brief Converts datatype from Oracle type to SPTK CVariantType
     static void OracleTypeToCType(int postgreType, CVariantType& dataType);
 
     /// @brief Converts datatype from SPTK CVariantType to Oracle type
     static void CTypeToOracleType(CVariantType dataType, Oid& postgreType);
-
+*/
 public:
 
     /// @brief Constructor

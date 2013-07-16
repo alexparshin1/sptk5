@@ -35,162 +35,10 @@
 using namespace std;
 using namespace sptk;
 
-namespace sptk {
-
-class COracleStatement {
-    Connection*         m_connect;
-    Statement*          m_stmt;
-    Statement*          m_lobManipulationStmt;
-    ResultSet*          m_resultSet;
-    list<ResultSet*>    m_openedResultSets;
-    CParamVector        m_enumeratedParams;
-    unsigned            m_cols;
-    bool                m_eof;
-    bool                m_autoCommit;
-    bool                m_hasOutputParameters;
-public:
-    COracleStatement(Connection* conn, string sql) :
-        m_connect(conn),
-        m_lobManipulationStmt(NULL),
-        m_resultSet(0),
-        m_cols(0),
-        m_eof(true),
-        m_autoCommit(true),
-        m_hasOutputParameters(false)
-    {
-        // Create statement and switch it into auto-commit mode.
-        // Statement is switched off auto-commit mode inside the transaction
-        m_stmt = conn->createStatement(sql);
-        m_stmt->setAutoCommit(true);
-    }
-
-    ~COracleStatement()
-    {
-        if (m_connect) {
-            if (m_stmt)
-                m_connect->terminateStatement(m_stmt);
-            if (m_lobManipulationStmt)
-                m_connect->terminateStatement(m_lobManipulationStmt);
-        }
-    }
-
-    void clear()
-    {
-        m_cols = 0;
-    }
-
-    Statement* stmt() const
-    {
-        return m_stmt;
-    }
-
-    void enumerateParams(CParamList& queryParams)
-    {
-        queryParams.enumerate(m_enumeratedParams);
-        m_hasOutputParameters = false;
-        for (CParamVector::const_iterator ptor = m_enumeratedParams.begin(); ptor != m_enumeratedParams.end(); ptor++) {
-            CParam *param = *ptor;
-            if (param->bindingType() == CParam::INPUT)
-                continue;
-            m_hasOutputParameters = true;
-            break;
-        }
-    }
-
-    CParamVector& enumeratedParams()
-    {
-        return m_enumeratedParams;
-    }
-
-    bool hasOutputParameters() const
-    {
-        return m_hasOutputParameters;
-    }
-
-    void execute(bool inTransaction)
-    {
-        // If statement is inside the transaction, it shouldn't be in auto-commit mode
-        if (inTransaction == m_autoCommit) {
-            m_stmt->setAutoCommit(!inTransaction);
-            m_autoCommit = !inTransaction;
-        }
-        Statement::Status status = m_stmt->execute();
-        if (status == Statement::RESULT_SET_AVAILABLE) {
-            m_eof = false;
-
-            m_resultSet = m_stmt->getResultSet();
-            m_openedResultSets.push_front(m_resultSet);
-
-            vector<MetaData> columnsMetaData = m_resultSet->getColumnListMetaData();
-
-            m_cols = columnsMetaData.size();
-
-            // Check if m_resultSet contains nested cursors
-            for (unsigned column = 0; column < m_cols; column++) {
-                const MetaData& metaData = columnsMetaData[column];
-                int columnType = metaData.getInt(MetaData::ATTR_DATA_TYPE);
-                if (columnType == SQLT_RSET) {
-                    // Found nested cursor, ignoring outher columns
-                    m_resultSet->next();
-                    m_resultSet = m_resultSet->getCursor(column + 1);
-                    m_openedResultSets.push_front(m_resultSet);
-                    m_cols = m_resultSet->getColumnListMetaData().size();
-                    break;
-                }
-            }
-        } else {
-            m_cols = 0;
-        }
-    }
-
-    void close()
-    {
-        list<ResultSet*>::iterator itor = m_openedResultSets.begin();
-        for (; itor != m_openedResultSets.end(); itor++) {
-            ResultSet* resultSet = *itor;
-            resultSet->cancel();
-        }
-        m_openedResultSets.clear();
-    }
-
-    void fetch()
-    {
-        if (m_resultSet) {
-            m_eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
-        }
-    }
-
-    bool eof() const
-    {
-        return m_eof;
-    }
-
-    unsigned colCount() const
-    {
-        return m_cols;
-    }
-
-    ResultSet* resultSet()
-    {
-        return m_resultSet;
-    }
-
-    const MetaData& metaData(size_t columnNumber) const
-    {
-        return m_resultSet->getColumnListMetaData()[columnNumber];
-    }
-
-    Clob makeTemporaryClob(const char* buffer, uint32_t bytes);
-    Blob makeTemporaryBlob(const char* buffer, uint32_t bytes);
-};
-}
-}
-
-
 COracleConnection::COracleConnection(string connectionString) :
-        CDatabaseConnection(connectionString)
+    CDatabaseConnection(connectionString),
+    m_connection(NULL)
 {
-    m_connect = 0;
 }
 
 COracleConnection::~COracleConnection()
@@ -233,7 +81,7 @@ string COracleConnection::nativeConnectionString() const
 
     return result;
 }
-
+/*
 void COracleConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
@@ -775,3 +623,4 @@ void  oracle_destroy_connection(void* connection)
 {
     delete (COracleConnection*) connection;
 }
+*/

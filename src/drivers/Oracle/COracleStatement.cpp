@@ -25,13 +25,13 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include "COracleStatement.h"
+#include <sptk5/db/COracleStatement.h>
 
 using namespace std;
 using namespace sptk;
 
 COracleStatement::COracleStatement(Connection* connection, string sql) :
-        m_oracleStatement(connection->createStatement(sql))
+    m_oracleStatement(connection->createStatement(sql))
 {
     m_state.columnCount = 0;
     m_state.eof = true;
