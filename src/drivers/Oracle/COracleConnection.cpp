@@ -92,7 +92,7 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
         try {
             m_connection = m_environment.createConnection(m_connString);
         }
-        catch (SQLException& e) {
+        catch (oracle::occi::SQLException& e) {
             m_connection = NULL;
             throwDatabaseException(string("Can't create connection: ") + e.what());
         }
@@ -113,7 +113,7 @@ void COracleConnection::closeDatabase() throw (CDatabaseException)
         m_environment.terminateConnection(m_connection);
         m_connection = NULL;
     }
-    catch (SQLException& e) {
+    catch (oracle::occi::SQLException& e) {
         m_connection = NULL;
         throwDatabaseException(string("Can't create connection: ") + e.what());
     }
