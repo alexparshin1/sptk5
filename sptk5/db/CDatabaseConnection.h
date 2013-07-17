@@ -158,6 +158,7 @@ protected:
     {
         return "?";
     }
+
 protected:
 
     std::string m_driverDescription; ///< Driver description is filled by the particular driver.

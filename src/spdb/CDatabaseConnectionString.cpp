@@ -34,89 +34,44 @@
  ***************************************************************************/
 
 #include <sptk5/db/CDatabaseConnectionString.h>
+#include <sptk5/CStrings.h>
+#include <sptk5/CRegExp.h>
 #include <string.h>
 #include <stdlib.h>
 
 using namespace std;
 using namespace sptk;
 
-void CDatabaseConnectionString::parseParameters(char* ptr) throw (CDatabaseException)
-{
-    m_parameters.clear();
-    char* start = ptr;
-    while (start) {
-        char* end = strchr(ptr, '&');
-        if (end) {
-            *end = 0;
-            end++;
-        }
-        char* name = start;
-        char* value = strchr(name, '=');
-        if (!value)
-            throw CDatabaseException("Parameter " + string(name) + " is invalid");
-        *value = 0;
-        value++;
-        m_parameters[name] = value;
-        start = end;
-    }
-}
-
 void CDatabaseConnectionString::parse() throw (CDatabaseException)
 {
-    char* temp = strdup(m_connectionString.c_str());
-    try {
-        char* ptr = strchr(temp, '?');
-        if (ptr) {
-            *ptr = 0;
-            parseParameters(ptr + 1);
-        }
+    CStrings    parts;
+    CRegExp("^(\\w+)://([\\w-_:]+@)?([\\w-_]+)(:\\d+)?(/[\\w_]+)?(\\?.*)?$").m(m_connectionString,parts);
+    if (!parts.size())
+        throwDatabaseException("Invalid connection string: m_connectionString");
+    int i = 0;
+    m_driverName = parts[i++];
+    m_userName = parts[i++];
+    m_password = parts[i++];
+    m_hostName = parts[i++];
+    if (!parts[i].empty()) {
+        m_portNumber = string2int(parts[i]);
+        if (!m_portNumber)
+            throw CDatabaseException("Invalid port number: " + m_connectionString);
+    } else
+        m_portNumber = 0;
+    i++;
+    m_databaseName = parts[i++];
 
-        // Locate the protocol
-        char* start = temp;
-        ptr = strstr(start, "://");
-        if (!ptr)
-            throw CDatabaseException("Driver name not found: " + m_connectionString);
-        *ptr = 0;
-        m_driverName = start;
-        start = ptr + 3;
+    string parameters = parts[i++];
 
-        // Locate optional user name and password
-        ptr = strchr(start, '@');
-        if (ptr) {
-            char* name = start;
-            char* password = strchr(name, ':');
-            if (password) {
-                *password = 0;
-                password++;
-                m_password = password;
-            }
-            m_userName = name;
-            ptr = 0;
-            start = ptr + 1;
-        }
+    if (m_driverName != CRegExp("^(sqlite|postgres|oracle|mysql|mssql)"))
+        throw CDatabaseException("Driver name not found: " + m_connectionString);
 
-        // Locate database name
-        ptr = strchr(start, '/');
-        if (ptr) {
-            *ptr = 0;
-            m_databaseName = ptr + 1;
-        }
+    if (m_userName.empty() && !m_password.empty())
+        throw CDatabaseException("User name not found: " + m_connectionString);
 
-        // Locate server port
-        char* port = strchr(start, '/');
-        if (port) {
-            *port = 0;
-            m_portNumber = (uint16_t) atoi(port + 1);
-            if (!m_portNumber)
-                throw CDatabaseException("Invalid port number: " + m_connectionString);
-        }
-
-        m_hostName = start;
-
-        free(temp);
-    }
-    catch (...) {
-        free(temp);
-        throw;
-    }
+    CRegExp("([\\w_]+)=([\\w\\s/\\\\:-_\"']+)","g").m(parameters, parts);
+    m_parameters.clear();
+    for (unsigned i = 0; i < parts.size(); i+= 2)
+        m_parameters[ parts[i] ] = parts[i+1];
 }

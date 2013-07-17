@@ -68,10 +68,6 @@ protected:
     /// @brief Parses connection string
     void parse() throw (CDatabaseException);
 
-    /// @brief Parses connection string
-    /// @param ptr char*, Parameters string
-    void parseParameters(char* ptr) throw (CDatabaseException);
-
     std::string     m_connectionString;         ///< Database connection string
     std::string     m_driverName;               ///< Database driver name
     std::string     m_hostName;                 ///< Database server host name

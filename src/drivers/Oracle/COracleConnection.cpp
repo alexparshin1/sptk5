@@ -81,7 +81,7 @@ string COracleConnection::nativeConnectionString() const
 
     return result;
 }
-/*
+
 void COracleConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
@@ -89,12 +89,12 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
         if (newConnectionString.length())
             m_connString = newConnectionString;
 
-        m_connect = PQconnectdb(nativeConnectionString().c_str());
-        if (PQstatus(m_connect) != CONNECTION_OK) {
-            string error = PQerrorMessage(m_connect);
-            PQfinish(m_connect);
-            m_connect = NULL;
-            throw CDatabaseException(error);
+        try {
+            m_connection = m_environment.createConnection(m_connString);
+        }
+        catch (SQLException& e) {
+            m_connection = NULL;
+            throwDatabaseException(string("Can't create connection: ") + e.what());
         }
     }
 }
@@ -108,20 +108,27 @@ void COracleConnection::closeDatabase() throw (CDatabaseException)
         } catch (...) {
         }
     }
-    PQfinish(m_connect);
-    m_connect = NULL;
+
+    try {
+        m_environment.terminateConnection(m_connection);
+        m_connection = NULL;
+    }
+    catch (SQLException& e) {
+        m_connection = NULL;
+        throwDatabaseException(string("Can't create connection: ") + e.what());
+    }
 }
 
 void* COracleConnection::handle() const
 {
-    return m_connect;
+    return m_connection;
 }
 
 bool COracleConnection::active() const
 {
-    return m_connect != 0L;
+    return m_connection != 0L;
 }
-
+/*
 void COracleConnection::driverBeginTransaction() throw (CDatabaseException)
 {
     if (!m_connect)

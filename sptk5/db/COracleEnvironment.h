@@ -63,12 +63,8 @@ public:
     std::string clientVersion();
 
     /// @brief Creates new database connection
-    /// @param user std::string, User name
-    /// @param password std::string, Password
-    /// @param connectionString std::string, Oracle connection string
-    oracle::occi::Connection* createConnection(std::string user,
-                                               std::string password,
-                                               std::string connectionString="");
+    /// @param connectionString CDatabaseConnectionString&, Connection parameters
+    oracle::occi::Connection* createConnection(CDatabaseConnectionString& connectionString);
 
     /// @brief Terminates database connection
     /// @param connection oracle::occi::Connection*, Oracle connection

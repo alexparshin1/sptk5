@@ -98,8 +98,8 @@ int CRegExp::match(const string& text, std::vector<Match>* matches) const throw 
     bool    done = false;
     int     totalMatches = 0;
     while (!done) {
-	const char* textPtr = text.c_str() + startOffset;
-	unsigned fragmentOffset = 0;
+        const char* textPtr = text.c_str() + startOffset;
+        int fragmentOffset = 0;
         int matchCount = pcre_exec(m_pcre, m_pcreExtra, textPtr, textLength - startOffset, 0, options, (int*)matchOffsets, MAX_MATCHES);
         if (matchCount < 0) {
             if (matchCount == PCRE_ERROR_NOMATCH) {
@@ -112,20 +112,26 @@ int CRegExp::match(const string& text, std::vector<Match>* matches) const throw 
         int i = 0;
         if (i == 0 && matchCount > 1)
             i++; /// First match is a complete string
-            
+
         for (; i < matchCount; i++) {
             Match& match = matchOffsets[i];
             if (match.m_start >= fragmentOffset) {
+                // Actual match
                 fragmentOffset = match.m_end;
                 totalMatches++;
                 if (matches) {
-		    match.m_start += startOffset;
+                    match.m_start += startOffset;
                     match.m_end += startOffset;
                     matches->push_back(match);
-		}
+                }
+            } else {
+                // Empty match
+                totalMatches++;
+                if (matches)
+                    matches->push_back(match);
             }
         }
-        
+
         startOffset += fragmentOffset;
 
         if (!m_global)
@@ -156,8 +162,12 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const throw (CExcept
     int matchCount = match(textPtr, &matches);
     for (std::vector<Match>::iterator itor = matches.begin(); itor != matches.end(); itor++) {
         unsigned sz = itor->m_end - itor->m_start;
-        string str(textPtr + itor->m_start, sz);
-        matchedStrings.push_back(str);
+        if (sz) {
+            string str(textPtr + itor->m_start, sz);
+            matchedStrings.push_back(str);
+        } else {
+            matchedStrings.push_back("");
+        }
     }
     return matchCount > 0;
 }

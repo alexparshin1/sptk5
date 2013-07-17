@@ -53,12 +53,14 @@ std::string COracleEnvironment::clientVersion()
     return version;
 }
 
-oracle::occi::Connection* COracleEnvironment::createConnection(
-    std::string user,
-    std::string password,
-    std::string connectionString)
+oracle::occi::Connection* COracleEnvironment::createConnection(CDatabaseConnectionString& connectionString)
 {
-    return m_handle->createConnection(user, password, connectionString);
+    string host = connectionString.hostName();
+    if (connectionString.portNumber())
+        host += ":" + int2string(connectionString.portNumber());
+    if (connectionString.databaseName().length())
+        host += "/" + connectionString.databaseName();
+    return m_handle->createConnection(connectionString.userName(), connectionString.password(), host);
 }
 
 void COracleEnvironment::terminateConnection(oracle::occi::Connection* connection)
