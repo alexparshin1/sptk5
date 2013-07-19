@@ -51,10 +51,27 @@ class SP_EXPORT COracleConnection: public CDatabaseConnection
 {
     friend class CQuery;
 
+public:
+    typedef oracle::occi::Environment   Environment;
+    typedef oracle::occi::Connection    Connection;
+    typedef oracle::occi::Statement     Statement;
+    typedef oracle::occi::Type          Type;
+
 private:
 
-    COracleEnvironment          m_environment;  ///< Oracle connection environment
-    oracle::occi::Connection*   m_connection;   ///< Oracle database connection
+    Environment*    m_environment;  ///< Oracle connection environment
+    Connection*     m_connection;   ///< Oracle database connection
+    std::string     m_lastError;    ///< Last error in this connection or query
+
+    /// @brief Translates Oracle native type to CVariant type
+    /// @param oracleType oracle::occi::Type, Oracle native type
+    /// @returns CVariant type
+    static CVariantType OracleTypeToVariantType(Type oracleType);
+
+    /// @brief Translates CVariant type to Oracle native type
+    /// @param dataType CVariantType&, CVariant type
+    /// @returns Oracle native type
+    static Type VariantTypeToOracleType(CVariantType dataType);
 
 protected:
 
@@ -86,19 +103,22 @@ protected:
 
 public:
     /// @brief Returns the Oracle connection object
-    oracle::occi::Connection* connection() const
+    Connection* connection() const
     {
         return m_connection;
     }
 
-public:
-/*
-    /// @brief Converts datatype from Oracle type to SPTK CVariantType
-    static void OracleTypeToCType(int postgreType, CVariantType& dataType);
+    /// @brief Returns the Oracle connection object
+    Environment* environment() const
+    {
+        return m_environment;
+    }
 
-    /// @brief Converts datatype from SPTK CVariantType to Oracle type
-    static void CTypeToOracleType(CVariantType dataType, Oid& postgreType);
-*/
+    Statement* createStatement(std::string sql)
+    {
+        return m_connection->createStatement(sql);
+    }
+
 public:
 
     /// @brief Constructor
@@ -112,9 +132,6 @@ public:
 
     /// @brief Destructor
     virtual ~COracleConnection();
-
-    /// @brief Returns driver-specific connection string
-    virtual std::string nativeConnectionString() const;
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the Oracle connection string
@@ -137,6 +154,8 @@ public:
     /// @param objects CStrings&, object list (output)
     virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException);
 };
+
+#define throwOracleException(description) m_lastError = description; throwDatabaseException(m_lastError);
 
 /// @}
 }

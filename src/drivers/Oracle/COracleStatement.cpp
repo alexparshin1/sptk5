@@ -25,12 +25,12 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/db/COracleStatement.h>
+#include <sptk5/db/COracleConnection.h>
 
 using namespace std;
 using namespace sptk;
 
-COracleStatement::COracleStatement(Connection* connection, string sql) :
+COracleStatement::COracleStatement(COracleConnection* connection, string sql) :
     m_oracleStatement(connection->createStatement(sql))
 {
     m_state.columnCount = 0;
@@ -56,12 +56,98 @@ void COracleStatement::enumerateParams(CParamList& queryParams)
         iend = m_enumeratedParams.end();
     for (; itor != iend; itor++)
     {
-        CParam* param = *itor;
-        if (param->isOutput())
+        CParam* parameter = *itor;
+        if (parameter->isOutput())
             m_state.outputParameterCount++;
     }
 }
 
+void COracleStatement::setParameterValues()
+{
+    int parameterIndex = 1;
+    CParamVector::iterator
+        itor = m_enumeratedParams.begin(),
+        iend = m_enumeratedParams.end();
+    for (; itor != iend; itor++)
+    {
+        CParam& parameter = *(*itor);
+        if (parameter.isNull())
+            m_oracleStatement->setNull(parameterIndex, oracle::occi::OCCI_SQLT_STR);
+        else
+        switch (parameter.dataType()) {
+
+            case VAR_NONE:      ///< Undefined
+                throwDatabaseException("Parameter " + parameter.name() + " data type is undefined");
+
+            case VAR_INT:       ///< Integer
+                m_oracleStatement->setInt(parameterIndex, parameter.getInteger());
+                break;
+
+            case VAR_FLOAT:     ///< Floating-point (double)
+            case VAR_MONEY:     ///< Floating-point (double) money
+                m_oracleStatement->setDouble(parameterIndex, parameter.getFloat());
+                break;
+
+            case VAR_STRING:    ///< String pointer
+                m_oracleStatement->setString(parameterIndex, parameter.getString());
+                break;
+
+            case VAR_TEXT:      ///< String pointer, corresponding to BLOBS in database
+                {
+                    ub2   length = parameter.dataSize();
+                    m_oracleStatement->setDataBuffer(parameterIndex, parameter.dataBuffer(),
+                                                     oracle::occi::OCCI_SQLT_CLOB,
+                                                     parameter.bufferSize(), &length);
+                }
+                break;
+
+            case VAR_BUFFER:    ///< Data pointer, corresponding to BLOBS in database
+                {
+                    ub2   length = parameter.dataSize();
+                    m_oracleStatement->setDataBuffer(parameterIndex, parameter.dataBuffer(),
+                                                     oracle::occi::OCCI_SQLT_BLOB,
+                                                     parameter.bufferSize(), &length);
+                }
+                break;
+
+            case VAR_DATE:      ///< CDateTime (double)
+                {
+                    int16_t year, month, day;
+                    parameter.getDateTime().decodeDate(&year, &month, &day);
+                    oracle::occi::Date dateValue(m_connection->environment(), year, month, day);
+                    m_oracleStatement->setDate(parameterIndex, dateValue);
+                }
+                break;
+
+            case VAR_DATE_TIME: ///< CDateTime (double)
+                {
+                    int16_t year, month, day;
+                    parameter.getDateTime().decodeDate(&year, &month, &day);
+                    int16_t hour, minute, second, msecond;
+                    parameter.getDateTime().decodeTime(&hour, &minute, &second, &msecond);
+                    oracle::occi::Timestamp timestampValue(m_connection->environment(),
+                                                           year, month, day,
+                                                           hour, minute, second);
+                    m_oracleStatement->setTimestamp(parameterIndex, timestampValue);
+                }
+                break;
+
+            case VAR_INT64:     ///< 64bit integer
+                m_oracleStatement->setInt(parameterIndex, parameter.getInteger());
+                break;
+
+            case VAR_BOOL:      ///< Boolean
+                m_oracleStatement->setInt(parameterIndex, parameter.getInteger());
+                break;
+
+            case VAR_IMAGE_PTR: ///< Image pointer
+            case VAR_IMAGE_NDX: ///< Image index in object-specific table of image pointers
+                throwDatabaseException("Unsupported data type for parameter " + parameter.name());
+        }
+        parameterIndex++;
+    }
+}
+/*
 void COracleStatement::execute(bool inTransaction)
 {
     // If statement is inside the transaction, it shouldn't be in auto-commit mode
@@ -114,3 +200,4 @@ void COracleStatement::close()
 
     m_resultSets.clear();
 }
+*/

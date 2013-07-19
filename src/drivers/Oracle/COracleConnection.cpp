@@ -59,29 +59,6 @@ COracleConnection::~COracleConnection()
     }
 }
 
-static string csParam(string name, string value)
-{
-    if (!value.empty())
-        return name + "=" + value + " ";
-    return "";
-}
-
-string COracleConnection::nativeConnectionString() const
-{
-    string port;
-    if (m_connString.portNumber())
-        port = int2string(m_connString.portNumber());
-
-    string result =
-        csParam("dbname", m_connString.databaseName()) +
-        csParam("host", m_connString.hostName()) +
-        csParam("user", m_connString.userName()) +
-        csParam("password", m_connString.password()) +
-        csParam("port", port);
-
-    return result;
-}
-
 void COracleConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
 {
     if (!active()) {
@@ -90,11 +67,17 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
             m_connString = newConnectionString;
 
         try {
-            m_connection = m_environment.createConnection(m_connString);
+            // Connection string in format: host[:port][/instance]
+            string connectionString = m_connString.hostName();
+            if (m_connString.portNumber())
+                connectionString += ":" + int2string(m_connString.portNumber());
+            if (m_connString.databaseName() != "")
+                connectionString += "/" + m_connString.databaseName();
+            m_connection = m_environment->createConnection(m_connString.userName(), m_connString.password(), connectionString);
         }
         catch (oracle::occi::SQLException& e) {
             m_connection = NULL;
-            throwDatabaseException(string("Can't create connection: ") + e.what());
+            throwOracleException(string("Can't create connection: ") + e.what());
         }
     }
 }
@@ -110,12 +93,12 @@ void COracleConnection::closeDatabase() throw (CDatabaseException)
     }
 
     try {
-        m_environment.terminateConnection(m_connection);
+        m_environment->terminateConnection(m_connection);
         m_connection = NULL;
     }
     catch (oracle::occi::SQLException& e) {
         m_connection = NULL;
-        throwDatabaseException(string("Can't create connection: ") + e.what());
+        throwOracleException(string("Can't create connection: ") + e.what());
     }
 }
 
@@ -128,23 +111,14 @@ bool COracleConnection::active() const
 {
     return m_connection != 0L;
 }
-/*
+
 void COracleConnection::driverBeginTransaction() throw (CDatabaseException)
 {
-    if (!m_connect)
+    if (!m_connection)
         open();
 
     if (m_inTransaction)
-        throw CDatabaseException("Transaction already started.");
-
-    PGresult* res = PQexec(m_connect, "BEGIN");
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        string error = "BEGIN command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(res);
-        throw CDatabaseException(error);
-    }
-    PQclear(res);
+        throwOracleException("Transaction already started.");
 
     m_inTransaction = true;
 }
@@ -152,31 +126,29 @@ void COracleConnection::driverBeginTransaction() throw (CDatabaseException)
 void COracleConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
 {
     if (!m_inTransaction)
-        throw CDatabaseException("Transaction isn't started.");
+        throwOracleException("Transaction isn't started.");
 
     string action;
-    if (commit)
-        action = "COMMIT";
-    else
-        action = "ROLLBACK";
-
-    PGresult* res = PQexec(m_connect, action.c_str());
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        string error = action + " command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(res);
-        throw CDatabaseException(error);
+    try {
+        if (commit) {
+            action = "COMMIT";
+            m_connection->commit();
+        } else {
+            action = "ROLLBACK";
+            m_connection->rollback();
+        }
     }
-    PQclear(res);
+    catch (oracle::occi::SQLException& e) {
+        throwOracleException((action + " failed: ") + e.what());
+    }
 
     m_inTransaction = false;
 }
 
 //-----------------------------------------------------------------------------------------------
-
 string COracleConnection::queryError(const CQuery *query) const
 {
-    return PQerrorMessage(m_connect);
+    return m_lastError;
 }
 
 // Doesn't actually allocate stmt, but makes sure
@@ -184,74 +156,37 @@ string COracleConnection::queryError(const CQuery *query) const
 void COracleConnection::queryAllocStmt(CQuery *query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new COracleStatement);
+    querySetStmt(query, new COracleStatement(this, query->sql()));
 }
 
 void COracleConnection::queryFreeStmt(CQuery *query)
 {
     SYNCHRONIZED_CODE;
-
     COracleStatement* statement = (COracleStatement*) query->statement();
-    if (statement) {
-        if (statement->stmt()) {
-            string deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
-            PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-            ExecStatusType rc = PQresultStatus(res);
-            if (rc >= PGRES_BAD_RESPONSE) {
-                string error = "DEALLOCATE command failed: ";
-                error += PQerrorMessage(m_connect);
-                PQclear(res);
-                query->logAndThrow("COracleConnection::queryFreeStmt", error);
-            }
-            PQclear(res);
-        }
+    if (statement)
         delete statement;
-    }
     querySetStmt(query, 0L);
-
     querySetPrepared(query, false);
 }
 
 void COracleConnection::queryCloseStmt(CQuery *query)
 {
     SYNCHRONIZED_CODE;
-
     COracleStatement* statement = (COracleStatement*) query->statement();
-    statement->clearRows();
+    if (statement)
+        statement->close();
 }
 
 void COracleConnection::queryPrepare(CQuery *query)
 {
-    queryFreeStmt(query);
-
     SYNCHRONIZED_CODE;
 
-    querySetStmt(query, new COracleStatement);
-
     COracleStatement* statement = (COracleStatement*) query->statement();
-
-    COracleParamValues& params = statement->m_paramValues;
-    params.setParameters(query->params());
-
-    const Oid* paramTypes = params.types();
-    unsigned paramCount = params.size();
-
-    PGresult* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), paramCount, paramTypes);
-    if (PQresultStatus(stmt) != PGRES_COMMAND_OK) {
-        string error = "PREPARE command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(stmt);
-        query->logAndThrow("COracleConnection::queryPrepare", error);
-    }
-
-    PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    unsigned fieldCount = PQnfields(stmt2);
-    if (fieldCount && PQftype(stmt2, 0) == VOIDOID)
-        fieldCount = 0;   // VOID result considered as no result
-    PQclear(stmt2);
-
-    statement->stmt(stmt, 0, fieldCount);
-
+    if (statement)
+        delete statement;
+    statement = new COracleStatement(this, query->sql());
+    statement->enumerateParams(query->params());
+    querySetStmt(query, statement);
     querySetPrepared(query, true);
 }
 
@@ -264,7 +199,8 @@ int COracleConnection::queryColCount(CQuery *query)
 {
 
     COracleStatement* statement = (COracleStatement*) query->statement();
-
+    if (!statement)
+        throwOracleException("Query not opened");
     return statement->colCount();
 }
 
@@ -273,109 +209,70 @@ void COracleConnection::queryBindParameters(CQuery *query)
     SYNCHRONIZED_CODE;
 
     COracleStatement* statement = (COracleStatement*) query->statement();
-    COracleParamValues& paramValues = statement->m_paramValues;
-    const CParamVector& params = paramValues.params();
-    uint32_t paramNumber = 0;
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
-        CParam *param = *ptor;
-        paramValues.setParameterValue(paramNumber, param);
-    }
-
-    int resultFormat = 1;   // Results are presented in binary format
-    if (!statement->colCount())
-        resultFormat = 0;   // VOID result or NO results, using text format
-
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), paramValues.size(), paramValues.values(),
-            paramValues.lengths(), paramValues.formats(), resultFormat);
-
-    ExecStatusType rc = PQresultStatus(stmt);
-    switch (rc)
-    {
-    case PGRES_COMMAND_OK:
-        statement->stmt(stmt, 0, 0);
-        break;
-    case PGRES_TUPLES_OK:
-        statement->stmt(stmt, PQntuples(stmt));
-        break;
-    default: {
-        string error = "EXECUTE command failed: ";
-        error += PQerrorMessage(m_connect);
-        PQclear(stmt);
-        statement->clear();
-        query->logAndThrow("COracleConnection::queryBindParameters", error);
-    }
-    }
+    if (!statement)
+        throwDatabaseException("Query not prepared");
+    statement->setParameterValues();
 }
 
-void COracleConnection::PostgreTypeToCType(int postgreType, CVariantType& dataType)
+CVariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
 {
-    switch (postgreType)
+    switch (oracleType)
     {
-    case PG_BOOL:
-        dataType = VAR_BOOL;
-        return;
-    case PG_OID:
-    case PG_INT2:
-    case PG_INT4:
-        dataType = VAR_INT;
-        return;
-    case PG_INT8:
-        dataType = VAR_INT64;
-        return;
-    case PG_NUMERIC:
-    case PG_FLOAT4:
-    case PG_FLOAT8:
-        dataType = VAR_FLOAT;
-        return;
-    case PG_BYTEA:
-        dataType = VAR_BUFFER;
-        return;
-    case PG_DATE:
-        dataType = VAR_DATE;
-        return;
-    case PG_TIME:
-    case PG_TIMESTAMP:
-        dataType = VAR_DATE_TIME;
-        return;
-    default:
-        dataType = VAR_STRING;
-        return;
+        case SQLT_NUM:
+            return VAR_FLOAT;
+        case SQLT_INT:
+        case SQLT_FLT:
+        case SQLT_UIN:
+            return VAR_INT64;
+        case SQLT_DAT:
+        case SQLT_DATE:
+            return VAR_DATE;
+        case SQLT_BFLOAT:
+        case SQLT_BDOUBLE:
+            return VAR_FLOAT;
+        case SQLT_BLOB:
+            return VAR_BUFFER;
+        case SQLT_CLOB:
+            return VAR_TEXT;
+        case SQLT_TIME:
+        case SQLT_TIME_TZ:
+        case SQLT_TIMESTAMP:
+        case SQLT_TIMESTAMP_TZ:
+            return VAR_DATE_TIME;
+        default:
+            return VAR_STRING;
     }
 }
 
-void COracleConnection::CTypeToPostgreType(CVariantType dataType, Oid& postgreType)
+oracle::occi::Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
 {
     switch (dataType)
     {
-    case VAR_INT:
-        postgreType = PG_INT4;
-        return;        ///< Integer 4 bytes
-    case VAR_FLOAT:
-    case VAR_MONEY:
-        postgreType = PG_FLOAT8;
-        return;        ///< Floating-point (double)
-    case VAR_STRING:
-    case VAR_TEXT:
-        postgreType = PG_VARCHAR;
-        return;        ///< Varchar
-    case VAR_BUFFER:
-        postgreType = PG_BYTEA;
-        return;        ///< Bytea
-    case VAR_DATE:
-    case VAR_DATE_TIME:
-        postgreType = PG_TIMESTAMP;
-        return;    ///< Timestamp
-    case VAR_INT64:
-        postgreType = PG_INT8;
-        return;           ///< Integer 8 bytes
-    case VAR_BOOL:
-        postgreType = PG_BOOL;
-        return;           ///< Boolean
-    default:
-        throwException("Unsupported SPTK data type: " + int2string(dataType));
+        case VAR_NONE:
+            throwException("Data type is not defined");
+        case VAR_INT:
+            return (Type) SQLT_INT;
+        case VAR_FLOAT:
+        case VAR_MONEY:
+            return (Type) SQLT_BDOUBLE;
+        case VAR_STRING:
+            return (Type) SQLT_CHR;
+        case VAR_TEXT:
+            return (Type) SQLT_CLOB;
+        case VAR_BUFFER:
+            return (Type) SQLT_BLOB;
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+            return (Type) SQLT_TIMESTAMP;
+        case VAR_INT64:
+            return (Type) SQLT_INT;
+        case VAR_BOOL:
+            return (Type) SQLT_CHR;
+        default:
+            throwException("Unsupported SPTK data type: " + int2string(dataType));
     }
 }
-
+/*
 void COracleConnection::queryOpen(CQuery *query)
 {
     if (!active())

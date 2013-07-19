@@ -67,7 +67,6 @@ int main()
     CRegExp connectionParser("(user|password|host)=['\"]([\\S]+)['\"]","g");
     CRegExp parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
     CStrings matches;
-/*
     connectionParser.m(text,matches);
     for (unsigned i = 0; i < matches.size(); i++) {
         cout << matches[i] << " : ";
@@ -75,23 +74,6 @@ int main()
         cout << matches[i] << endl;
     }
     cout << endl;
-*/
-    //CRegExp("^(\\w+)://([\\w-_:]+@)([\\w-_:]+)(\\?\\.+)?$").m("postgres://horse:haystack@localhost/testdb:12345?p1=v1&p2=v2",matches);
-    CRegExp uriParser("^(\\w+)://([\\w-_:]+@)?([\\w-_]+)(:\\d+)?(/[\\w_]+)?(\\?.*)?$");
-    uriParser.m("postgres://horse:haystack@localhost:12345/testdb?p1=C:\\test\\path to data&p2=2",matches);
-    for (unsigned i = 0; i < matches.size(); i++) {
-        cout << "## " << matches[i] << endl;
-    }
-    cout << endl;
-
-    string parameters = matches[5];
-    CStrings parts;
-    CRegExp  parametersParser("([\\w_]+)=([\\w\\s/\\\\:-_\"']+)","g");
-    parametersParser.m(parameters, parts);
-    for (unsigned i = 0; i < parts.size(); i+= 2) {
-        cout << "** " << parts[i] << " is " << parts[i+1] << endl;
-    }
-
 
     CDateTime started = CDateTime::Now();
     unsigned counter = 0;

@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#ifndef __CORACLESTATEMENT_H__
+#define __CORACLESTATEMENT_H__
 
 #include <occi.h>
 
@@ -37,6 +39,8 @@
 namespace sptk
 {
 
+class COracleConnection;
+
 class COracleStatement
 {
 public:
@@ -46,9 +50,10 @@ public:
     typedef oracle::occi::MetaData MetaData;
     typedef std::list<ResultSet*> ResultSetList;
 private:
-    Statement*      m_oracleStatement;      ///< Statement
-    ResultSetList   m_resultSets;           ///< All result sets opened during execution of this statement
-    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
+    COracleConnection*  m_connection;           ///< Oracle connection
+    Statement*          m_oracleStatement;      ///< Statement
+    ResultSetList       m_resultSets;           ///< All result sets opened during execution of this statement
+    CParamVector        m_enumeratedParams;     ///< Enumerated parameters
     struct
     {
         unsigned    columnCount:12;         ///< Number of columns is result set
@@ -60,7 +65,7 @@ public:
     /// @brief Constructor
     /// @param connection Connection*, Oracle connection
     /// @param sql std::string, SQL statement
-    COracleStatement(Connection* connection, std::string sql);
+    COracleStatement(COracleConnection* connection, std::string sql);
 
     /// @brief Destructor
     ~COracleStatement();
@@ -86,6 +91,9 @@ public:
     {
         return m_state.outputParameterCount;
     }
+
+    /// @brief Sets actual parameter values for the statement execution
+    void setParameterValues();
 
     /// @brief Executes statement
     /// @param inTransaction bool, True if statement is executed from transaction
@@ -122,3 +130,5 @@ public:
 };
 
 }
+
+#endif
