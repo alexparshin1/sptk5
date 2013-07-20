@@ -34,6 +34,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace oracle::occi;
 
 COracleConnection::COracleConnection(string connectionString) :
     CDatabaseConnection(connectionString),
@@ -67,15 +68,9 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
             m_connString = newConnectionString;
 
         try {
-            // Connection string in format: host[:port][/instance]
-            string connectionString = m_connString.hostName();
-            if (m_connString.portNumber())
-                connectionString += ":" + int2string(m_connString.portNumber());
-            if (m_connString.databaseName() != "")
-                connectionString += "/" + m_connString.databaseName();
-            m_connection = m_environment->createConnection(m_connString.userName(), m_connString.password(), connectionString);
+            m_connection = m_environment.createConnection(m_connString);
         }
-        catch (oracle::occi::SQLException& e) {
+        catch (SQLException& e) {
             m_connection = NULL;
             throwOracleException(string("Can't create connection: ") + e.what());
         }
@@ -93,10 +88,10 @@ void COracleConnection::closeDatabase() throw (CDatabaseException)
     }
 
     try {
-        m_environment->terminateConnection(m_connection);
+        m_environment.terminateConnection(m_connection);
         m_connection = NULL;
     }
-    catch (oracle::occi::SQLException& e) {
+    catch (SQLException& e) {
         m_connection = NULL;
         throwOracleException(string("Can't create connection: ") + e.what());
     }
@@ -110,6 +105,17 @@ void* COracleConnection::handle() const
 bool COracleConnection::active() const
 {
     return m_connection != 0L;
+}
+
+string COracleConnection::nativeConnectionString() const
+{
+    // Connection string in format: host[:port][/instance]
+    string connectionString = m_connString.hostName();
+    if (m_connString.portNumber())
+        connectionString += ":" + int2string(m_connString.portNumber());
+    if (m_connString.databaseName() != "")
+        connectionString += "/" + m_connString.databaseName();
+    return connectionString;
 }
 
 void COracleConnection::driverBeginTransaction() throw (CDatabaseException)
@@ -138,7 +144,7 @@ void COracleConnection::driverEndTransaction(bool commit) throw (CDatabaseExcept
             m_connection->rollback();
         }
     }
-    catch (oracle::occi::SQLException& e) {
+    catch (SQLException& e) {
         throwOracleException((action + " failed: ") + e.what());
     }
 
@@ -244,7 +250,7 @@ CVariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
     }
 }
 
-oracle::occi::Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
+Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
 {
     switch (dataType)
     {
@@ -272,7 +278,7 @@ oracle::occi::Type COracleConnection::VariantTypeToOracleType(CVariantType dataT
             throwException("Unsupported SPTK data type: " + int2string(dataType));
     }
 }
-/*
+
 void COracleConnection::queryOpen(CQuery *query)
 {
     if (!active())
@@ -290,12 +296,9 @@ void COracleConnection::queryOpen(CQuery *query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    //query->fields().clear();
-
     COracleStatement* statement = (COracleStatement*) query->statement();
-    //if (statement->rowCount() == 0)
-    //    return;
 
+    queryExecute(query);
     short count = queryColCount(query);
     if (count < 1) {
         //queryCloseStmt(query);
@@ -304,21 +307,25 @@ void COracleConnection::queryOpen(CQuery *query)
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
             SYNCHRONIZED_CODE;
-            // Reading the column attributes
-            char columnName[256];
-            //long  columnType;
-            //CVariantType dataType;
-            const PGresult* stmt = statement->stmt();
-            for (short column = 0; column < count; column++) {
-                strncpy(columnName, PQfname(stmt, column), 255);
-                columnName[255] = 0;
-                if (columnName[0] == 0)
-                    sprintf(columnName, "column%02i", column);
-                Oid dataType = PQftype(stmt, column);
-                CVariantType fieldType;
-                PostgreTypeToCType(dataType, fieldType);
-                int fieldLength = PQfsize(stmt, column);
-                CDatabaseField* field = new CDatabaseField(columnName, column, dataType, fieldType, fieldLength);
+
+            ResultSet* resultSet = statement->resultSet();
+            vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
+            vector<MetaData>::iterator
+                itor = resultSetMetaData.begin(),
+                iend = resultSetMetaData.end();
+            int columnIndex = 0;
+            for (; itor != iend; itor++, columnIndex++) {
+                MetaData& metaData = *itor;
+                Type columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
+                string columnName = metaData.getString(MetaData::ATTR_NAME);
+                int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
+                if (columnName.empty()) {
+                    char alias[32];
+                    sprintf(alias, "column_%02i", columnIndex);
+                    columnName = alias;
+                }
+                CVariantType dataType = OracleTypeToVariantType(columnType);
+                CDatabaseField* field = new CDatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize);
                 query->fields().push_back(field);
             }
         }
@@ -327,38 +334,6 @@ void COracleConnection::queryOpen(CQuery *query)
     querySetEof(query, statement->eof());
 
     queryFetch(query);
-}
-
-// Converts internal NUMERIC Postgresql binary to long double
-static long double numericBinaryToLongDouble(const char* v)
-{
-    int16_t ndigits = ntohs(*(int16_t*) v);
-    int16_t weight = ntohs(*(int16_t*) (v + 2));
-    int16_t sign = ntohs(*(int16_t*) (v + 4));
-    //int16_t dscale  = ntohs(*(int16_t*)(v+6));
-
-    v += 8;
-    int64_t value = 0;
-    int64_t decValue = 0;
-    int64_t divider = 1;
-    if (weight < 0) {
-        for (int i = 0; i < -(weight + 1); i++)
-            divider *= 10000;
-        weight = -1;
-    }
-    for (int i = 0; i < ndigits; i++, v += 2) {
-        int16_t digit = ntohs(*(int16_t*) v);
-        if (i <= weight)
-            value = value * 10000 + digit;
-        else {
-            decValue = decValue * 10000 + digit;
-            divider *= 10000;
-        }
-    }
-    long double finalValue = value + decValue / (long double) (divider);
-    if (sign)
-        finalValue = -finalValue;
-    return finalValue;
 }
 
 void COracleConnection::queryFetch(CQuery *query)
@@ -377,120 +352,124 @@ void COracleConnection::queryFetch(CQuery *query)
     }
 
     int fieldCount = query->fieldCount();
-    int dataLength = 0;
-
     if (!fieldCount)
         return;
 
+    ResultSet* resultSet = statement->resultSet();
     CDatabaseField* field = 0;
-    const PGresult* stmt = statement->stmt();
-    int currentRow = statement->currentRow();
     for (int column = 0; column < fieldCount; column++) {
         try {
-            field = (CDatabaseField*) &(*query)[(int) column];
-            short fieldType = (short) field->fieldType();
+            field = (CDatabaseField*) &(*query)[column];
 
-            bool isNull = false;
-            dataLength = PQgetlength(stmt, currentRow, column);
-            if (!dataLength) {
-                if (fieldType & (VAR_STRING | VAR_TEXT | VAR_BUFFER))
-                    isNull = PQgetisnull(stmt, currentRow, column);
-                else
-                    isNull = true;
-                if (isNull)
-                    field->setNull();
-                else
-                    field->setExternalString("", 0);
-            } else {
-                char* data = PQgetvalue(stmt, currentRow, column);
+            // Result set column index starts from 1
+            int columnIndex = column + 1;
 
-                switch (fieldType)
-                {
+            if (resultSet->isNull(columnIndex)) {
+                field->setNull();
+                continue;
+            }
 
-                case PG_BOOL:
-                    field->setBool((bool) *data);
+            int         year;
+            unsigned    month, day, hour, min, sec, ms;
+
+            switch ((Type)field->fieldType())
+            {
+                case SQLT_INT:
+                case SQLT_UIN:
+                    field->setInteger(resultSet->getInt(columnIndex));
                     break;
 
-                case PG_INT2:
-                    field->setInteger(ntohs(*(int16_t *) data));
+                case SQLT_NUM:
+                    field->setFloat(resultSet->getNumber(columnIndex));
                     break;
 
-                case PG_OID:
-                case PG_INT4:
-                    field->setInteger(ntohl(*(int32_t *) data));
+                case SQLT_FLT:
+                case SQLT_BFLOAT:
+                    field->setFloat(resultSet->getFloat(columnIndex));
                     break;
 
-                case PG_INT8:
-                    field->setInt64(ntohq(*(int64_t *) data));
+                case SQLT_BDOUBLE:
+                    field->setFloat(resultSet->getDouble(columnIndex));
                     break;
 
-                case PG_FLOAT4: {
-                    int32_t v = ntohl(*(int32_t *) data);
-                    field->setFloat(*(float *) (void *) &v);
+                case SQLT_DAT:
+                case SQLT_DATE:
+                    {
+                        resultSet->getDate(column).getDate(year, month, day, hour, min, sec);
+                        field->setDate(CDateTime(year, month, day, 0, 0, 0));
+                    }
                     break;
-                }
 
-                case PG_FLOAT8: {
-                    int64_t v = ntohq(*(int64_t *) data);
-                    field->setFloat(*(double *) (void *) &v);
+                case SQLT_TIME:
+                case SQLT_TIME_TZ:
+                case SQLT_TIMESTAMP:
+                case SQLT_TIMESTAMP_TZ:
+                    {
+                        Timestamp timestamp = resultSet->getTimestamp(column);
+                        timestamp.getDate(year, month, day);
+                        timestamp.getTime(hour, min, sec, ms);
+                        field->setDateTime(CDateTime(year, month, day, hour, min, sec));
+                    }
                     break;
-                }
 
-                case PG_NUMERIC:
-                    field->setFloat(numericBinaryToLongDouble(data));
+                case SQLT_BLOB:
+                    {
+                        Blob blob = resultSet->getBlob(column);
+                        blob.open(OCCI_LOB_READONLY);
+                        unsigned bytes = blob.length();
+                        field->checkSize(bytes);
+                        blob.read(bytes,
+                                  (unsigned char*) field->getBuffer(), 
+                                  bytes,
+                                  1);
+                        blob.close();
+                        field->setDataSize(bytes);
+                    }
+                    break;
+
+                case SQLT_CLOB:
+                    {
+                        Clob clob = resultSet->getClob(column);
+                        clob.open(OCCI_LOB_READONLY);
+                        // Attention: clob stored as widechar
+                        unsigned clobChars = clob.length();
+                        unsigned clobBytes = clobChars * 4;
+                        field->checkSize(clobBytes);
+                        unsigned bytes = clob.read(clobChars,
+                                                   (unsigned char*) field->getBuffer(), 
+                                                   clobBytes,
+                                                   1);
+                        clob.close();
+                        field->setDataSize(bytes);
+                    }
                     break;
 
                 default:
-                    field->setExternalString(data, dataLength);
+                    field->setString(resultSet->getString(column));
                     break;
-
-                case PG_BYTEA:
-                    field->setExternalBuffer(data, dataLength);
-                    break;
-
-                case PG_DATE: {
-                    int32_t dt = ntohl(*(int32_t *) data);
-                    field->setDateTime(dt + (int32_t) epochDate);
-                    break;
-                }
-
-                case PG_TIME:
-                case PG_TIMESTAMPTZ:
-                case PG_TIMESTAMP: {
-                    int64_t v = ntohq(*(int64_t *) data);
-                    double val = (double) epochDate + *(double *) (void *) &v / 3600.0 / 24.0;
-                    field->setDateTime(val);
-                    break;
-                }
-                }
             }
 
         } catch (exception& e) {
             query->logAndThrow("COracleConnection::queryFetch",
-                    "Can't read field " + field->fieldName() + ": " + string(e.what()));
+                               "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
 }
 
 void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
 {
-    string tablesSQL("SELECT table_schema || '.' || table_name "
-                     "FROM information_schema.tables "
-                     "WHERE table_schema NOT IN ('information_schema','pg_catalog') ");
     string objectsSQL;
     objects.clear();
     switch (objectType)
     {
     case DOT_PROCEDURES:
-        objectsSQL = "SELECT DISTINCT routine_schema || '.' || routine_name "
-                     "FROM information_schema.routines "
-                     "WHERE routine_schema NOT IN ('information_schema','pg_catalog')";
+        objectsSQL = "SELECT object_name FROM user_procedures";
         break;
     case DOT_TABLES:
-        objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
+        objectsSQL = "SELECT table_name FROM user_tables";
         break;
     case DOT_VIEWS:
-        objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
+        objectsSQL = "SELECT view_name FROM user_views";
         break;
     default:
         return; // no information about objects of other types
@@ -506,13 +485,13 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
 
 std::string COracleConnection::driverDescription() const
 {
-    return "Oracle";
+    return m_environment.clientVersion();
 }
 
 std::string COracleConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
-    sprintf(mark, "$%i", paramIndex + 1);
+    sprintf(mark, ":%i", paramIndex + 1);
     return mark;
 }
 
@@ -527,4 +506,3 @@ void  oracle_destroy_connection(void* connection)
 {
     delete (COracleConnection*) connection;
 }
-*/

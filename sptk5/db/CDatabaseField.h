@@ -77,6 +77,16 @@ public:
     /// @returns true if success
     bool checkSize(uint32_t sz);
 
+    /// @brief Sets the internal data size
+    ///
+    /// The internal buffer is not modified, only the data size is set.
+    /// @param sz uint32_t, data size (in bytes)
+    /// @returns true if success
+    void setDataSize(uint32_t sz)
+    {
+        dataSize(sz);
+    }
+
     /// Reports field column number
     int          fieldColumn() const {
         return m_fldColumn;

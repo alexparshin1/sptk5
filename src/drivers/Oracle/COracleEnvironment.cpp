@@ -43,7 +43,7 @@ COracleEnvironment::~COracleEnvironment()
 }
 
 /// @brief Returns client version
-std::string COracleEnvironment::clientVersion()
+std::string COracleEnvironment::clientVersion() const
 {
     int major, minor, update, patch, portUpdate;
     m_handle->getClientVersion(major, minor, update, patch, portUpdate);

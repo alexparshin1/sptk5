@@ -59,9 +59,9 @@ public:
 
 private:
 
-    Environment*    m_environment;  ///< Oracle connection environment
-    Connection*     m_connection;   ///< Oracle database connection
-    std::string     m_lastError;    ///< Last error in this connection or query
+    COracleEnvironment  m_environment;  ///< Oracle connection environment
+    Connection*         m_connection;   ///< Oracle database connection
+    std::string         m_lastError;    ///< Last error in this connection or query
 
     /// @brief Translates Oracle native type to CVariant type
     /// @param oracleType oracle::occi::Type, Oracle native type
@@ -111,7 +111,7 @@ public:
     /// @brief Returns the Oracle connection object
     Environment* environment() const
     {
-        return m_environment;
+        return m_environment.handle();
     }
 
     Statement* createStatement(std::string sql)
@@ -145,6 +145,9 @@ public:
 
     /// @brief Returns the database connection handle
     virtual void* handle() const;
+
+    /// @brief Returns driver-specific connection string
+    virtual std::string nativeConnectionString() const;
 
     /// @brief Returns the Oracle driver description for the active connection
     virtual std::string driverDescription() const;

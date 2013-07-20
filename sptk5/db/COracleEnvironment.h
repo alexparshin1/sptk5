@@ -60,7 +60,7 @@ public:
     }
 
     /// @brief Returns client version
-    std::string clientVersion();
+    std::string clientVersion() const;
 
     /// @brief Creates new database connection
     /// @param connectionString CDatabaseConnectionString&, Connection parameters
