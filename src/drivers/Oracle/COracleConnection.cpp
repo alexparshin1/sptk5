@@ -169,10 +169,11 @@ void COracleConnection::queryFreeStmt(CQuery *query)
 {
     SYNCHRONIZED_CODE;
     COracleStatement* statement = (COracleStatement*) query->statement();
-    if (statement)
+    if (statement) {
         delete statement;
-    querySetStmt(query, 0L);
-    querySetPrepared(query, false);
+        querySetStmt(query, 0L);
+        querySetPrepared(query, false);
+    }
 }
 
 void COracleConnection::queryCloseStmt(CQuery *query)
@@ -188,9 +189,8 @@ void COracleConnection::queryPrepare(CQuery *query)
     SYNCHRONIZED_CODE;
 
     COracleStatement* statement = (COracleStatement*) query->statement();
-    if (statement)
-        delete statement;
-    statement = new COracleStatement(this, query->sql());
+    if (!statement)
+        statement = new COracleStatement(this, query->sql());
     statement->enumerateParams(query->params());
     querySetStmt(query, statement);
     querySetPrepared(query, true);
@@ -203,7 +203,6 @@ void COracleConnection::queryUnprepare(CQuery *query)
 
 int COracleConnection::queryColCount(CQuery *query)
 {
-
     COracleStatement* statement = (COracleStatement*) query->statement();
     if (!statement)
         throwOracleException("Query not opened");
@@ -277,6 +276,14 @@ Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
         default:
             throwException("Unsupported SPTK data type: " + int2string(dataType));
     }
+}
+
+void COracleConnection::queryExecute(CQuery *query)
+{
+    COracleStatement* statement = (COracleStatement*) query->statement();
+    if (!statement)
+        throwOracleException("Query is not prepared");
+    statement->execute(m_inTransaction);
 }
 
 void COracleConnection::queryOpen(CQuery *query)
@@ -357,12 +364,12 @@ void COracleConnection::queryFetch(CQuery *query)
 
     ResultSet* resultSet = statement->resultSet();
     CDatabaseField* field = 0;
-    for (int column = 0; column < fieldCount; column++) {
+    for (int fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         try {
-            field = (CDatabaseField*) &(*query)[column];
+            field = (CDatabaseField*) &(*query)[fieldIndex];
 
             // Result set column index starts from 1
-            int columnIndex = column + 1;
+            int columnIndex = fieldIndex + 1;
 
             if (resultSet->isNull(columnIndex)) {
                 field->setNull();
@@ -395,7 +402,7 @@ void COracleConnection::queryFetch(CQuery *query)
                 case SQLT_DAT:
                 case SQLT_DATE:
                     {
-                        resultSet->getDate(column).getDate(year, month, day, hour, min, sec);
+                        resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
                         field->setDate(CDateTime(year, month, day, 0, 0, 0));
                     }
                     break;
@@ -405,7 +412,7 @@ void COracleConnection::queryFetch(CQuery *query)
                 case SQLT_TIMESTAMP:
                 case SQLT_TIMESTAMP_TZ:
                     {
-                        Timestamp timestamp = resultSet->getTimestamp(column);
+                        Timestamp timestamp = resultSet->getTimestamp(columnIndex);
                         timestamp.getDate(year, month, day);
                         timestamp.getTime(hour, min, sec, ms);
                         field->setDateTime(CDateTime(year, month, day, hour, min, sec));
@@ -414,7 +421,7 @@ void COracleConnection::queryFetch(CQuery *query)
 
                 case SQLT_BLOB:
                     {
-                        Blob blob = resultSet->getBlob(column);
+                        Blob blob = resultSet->getBlob(columnIndex);
                         blob.open(OCCI_LOB_READONLY);
                         unsigned bytes = blob.length();
                         field->checkSize(bytes);
@@ -429,7 +436,7 @@ void COracleConnection::queryFetch(CQuery *query)
 
                 case SQLT_CLOB:
                     {
-                        Clob clob = resultSet->getClob(column);
+                        Clob clob = resultSet->getClob(columnIndex);
                         clob.open(OCCI_LOB_READONLY);
                         // Attention: clob stored as widechar
                         unsigned clobChars = clob.length();
@@ -445,7 +452,7 @@ void COracleConnection::queryFetch(CQuery *query)
                     break;
 
                 default:
-                    field->setString(resultSet->getString(column));
+                    field->setString(resultSet->getString(columnIndex));
                     break;
             }
 

@@ -89,7 +89,7 @@ protected:
     virtual void queryCloseStmt(CQuery *query);      ///< Closes an Oracle statement
     virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
     virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(CQuery *query) {};     ///< Executes a statement
+    virtual void queryExecute(CQuery *query);        ///< Executes a statement
     virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
     virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
     virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
@@ -158,7 +158,7 @@ public:
     virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException);
 };
 
-#define throwOracleException(description) m_lastError = description; throwDatabaseException(m_lastError);
+#define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
 
 /// @}
 }

@@ -31,7 +31,8 @@ using namespace std;
 using namespace sptk;
 
 COracleStatement::COracleStatement(COracleConnection* connection, string sql) :
-    m_oracleStatement(connection->createStatement(sql))
+    m_oracleStatement(connection->createStatement(sql)),
+    m_resultSet(NULL)
 {
     m_state.columnCount = 0;
     m_state.eof = true;
@@ -147,7 +148,7 @@ void COracleStatement::setParameterValues()
         parameterIndex++;
     }
 }
-/*
+
 void COracleStatement::execute(bool inTransaction)
 {
     // If statement is inside the transaction, it shouldn't be in auto-commit mode
@@ -156,7 +157,7 @@ void COracleStatement::execute(bool inTransaction)
         m_state.transaction = inTransaction;
     }
 
-    if (m_resultSets.size())
+    if (m_resultSet)
         close();
 
     m_state.eof = true;
@@ -164,25 +165,27 @@ void COracleStatement::execute(bool inTransaction)
 
     if (m_oracleStatement->execute() == Statement::RESULT_SET_AVAILABLE) {
 
-        ResultSet* resultSet = m_oracleStatement->getResultSet();
-        m_resultSets.push_front(resultSet);
-
-        vector<MetaData> columnsMetaData = resultSet->getColumnListMetaData();
-
         m_state.eof = false;
-        m_state.columnCount = columnsMetaData.size();
 
-        // Check if m_resultSet contains nested cursors
-        for (unsigned column = 0; column < m_state.columnCount; column++) {
-            const MetaData& metaData = columnsMetaData[column];
-            int columnType = metaData.getInt(MetaData::ATTR_DATA_TYPE);
+        m_resultSet = m_oracleStatement->getResultSet();
 
-            if (columnType == SQLT_RSET) {
-                // Found nested cursor, ignoring other columns
-                resultSet->next();
-                resultSet = resultSet->getCursor(column + 1);
-                m_resultSets.push_front(resultSet);
-                m_state.columnCount = resultSet->getColumnListMetaData().size();
+        vector<MetaData> resultSetMetaData = m_resultSet->getColumnListMetaData();
+        vector<MetaData>::iterator
+            itor = resultSetMetaData.begin(),
+            iend = resultSetMetaData.end();
+
+        m_state.columnCount = resultSetMetaData.size();
+
+        int columnIndex = 1;
+        for (; itor != iend; itor++, columnIndex++) {
+            const MetaData& metaData = *itor;
+            // If resultSet contains cursor, use that cursor as resultSet
+            if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET) {
+                m_resultSet->next();
+                ResultSet* resultSet = m_resultSet->getCursor(columnIndex);
+                m_resultSet->cancel();
+                m_resultSet = resultSet;
+                m_state.columnCount = m_resultSet->getColumnListMetaData().size();
                 break;
             }
         }
@@ -191,13 +194,8 @@ void COracleStatement::execute(bool inTransaction)
 
 void COracleStatement::close()
 {
-    list<ResultSet*>::iterator
-        itor = m_resultSets.begin(),
-        iend = m_resultSets.end();
+    if (m_resultSet)
+        m_resultSet->cancel();
 
-    for(; itor != iend; itor++)
-        (*itor)->cancel();
-
-    m_resultSets.clear();
+    m_resultSet = NULL;
 }
-*/

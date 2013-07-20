@@ -193,7 +193,9 @@ public:
     }
 
     /// @brief Returns true if parameter is output parameter
-    bool isOutput() const;
+    bool isOutput() const {
+        return m_binding.m_output;
+    }
 };
 
 /// @}

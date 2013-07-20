@@ -45,33 +45,41 @@ using namespace sptk;
 void CDatabaseConnectionString::parse() throw (CDatabaseException)
 {
     CStrings    parts;
-    CRegExp("^(\\w+)://([\\w-_:]+@)?([\\w-_]+)(:\\d+)?(/[\\w_]+)?(\\?.*)?$").m(m_connectionString,parts);
+    int matchCount = CRegExp("^(\\w+)://(([\\w-_]+)(:(\\S+))?@)?([\\w-_]+)(:(\\d+))?(/([\\w_]+))?(\\?.*)?$").m(m_connectionString,parts);
     if (!parts.size())
         throwDatabaseException("Invalid connection string: m_connectionString");
     int i = 0;
     m_driverName = parts[i++];
+    i++;
     m_userName = parts[i++];
+    i++;
     m_password = parts[i++];
     m_hostName = parts[i++];
-    if (!parts[i].empty()) {
-        m_portNumber = string2int(parts[i]);
+    i++;
+    string port = parts[i++];
+    if (!port.empty()) {
+        m_portNumber = string2int(port);
         if (!m_portNumber)
             throw CDatabaseException("Invalid port number: " + m_connectionString);
     } else
         m_portNumber = 0;
     i++;
-    m_databaseName = parts[i++];
+    if (i < parts.size()) {
+        m_databaseName = parts[i++];
 
-    string parameters = parts[i++];
+        if (i < parts.size()) {
+            string parameters = parts[i++];
+
+            CRegExp("([\\w_]+)=([\\w\\s/\\\\:-_\"']+)","g").m(parameters, parts);
+            m_parameters.clear();
+            for (unsigned i = 0; i < parts.size(); i+= 2)
+                m_parameters[ parts[i] ] = parts[i+1];
+        }
+    }
 
     if (m_driverName != CRegExp("^(sqlite|postgres|oracle|mysql|mssql)"))
         throw CDatabaseException("Driver name not found: " + m_connectionString);
 
     if (m_userName.empty() && !m_password.empty())
         throw CDatabaseException("User name not found: " + m_connectionString);
-
-    CRegExp("([\\w_]+)=([\\w\\s/\\\\:-_\"']+)","g").m(parameters, parts);
-    m_parameters.clear();
-    for (unsigned i = 0; i < parts.size(); i+= 2)
-        m_parameters[ parts[i] ] = parts[i+1];
 }

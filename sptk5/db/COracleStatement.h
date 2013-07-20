@@ -48,11 +48,10 @@ public:
     typedef oracle::occi::Statement Statement;
     typedef oracle::occi::ResultSet ResultSet;
     typedef oracle::occi::MetaData MetaData;
-    typedef std::list<ResultSet*> ResultSetList;
 private:
     COracleConnection*  m_connection;           ///< Oracle connection
     Statement*          m_oracleStatement;      ///< Statement
-    ResultSetList       m_resultSets;           ///< All result sets opened during execution of this statement
+    ResultSet*          m_resultSet;            ///< Result set (if returned by statement)
     CParamVector        m_enumeratedParams;     ///< Enumerated parameters
     struct
     {
@@ -105,9 +104,8 @@ public:
     /// @brief Fetches next record
     void fetch()
     {
-        if (m_resultSets.size()) {
-            ResultSet* resultSet = m_resultSets.front();
-            m_state.eof = (resultSet->next() == ResultSet::END_OF_FETCH);
+        if (m_resultSet) {
+            m_state.eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
         }
     }
 
@@ -123,9 +121,7 @@ public:
 
     ResultSet* resultSet()
     {
-        if (m_resultSets.size())
-            return m_resultSets.front();
-        return NULL;
+        return m_resultSet;
     }
 };
 

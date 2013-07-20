@@ -5,7 +5,7 @@ ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 # ODBC support library
 IF (ODBC_FLAG)
     ADD_LIBRARY (spdb5_odbc ${LIBRARY_TYPE} odbc/CODBC.cpp odbc/CODBCConnection.cpp)
-    TARGET_LINK_LIBRARIES(spdb5_odbc spdb5 sputil5)
+    TARGET_LINK_LIBRARIES(spdb5_odbc spdb5 sputil5 ${ODBC_LIBRARY})
     INSTALL(TARGETS spdb5_odbc RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (ODBC_FLAG)
 
@@ -34,6 +34,6 @@ IF (ORACLE_FLAG)
         Oracle/COracleStatement.cpp
         Oracle/COracleConnection.cpp
     )
-    TARGET_LINK_LIBRARIES (spdb5_oracle ${ORACLE_LIBRARIES})
+    TARGET_LINK_LIBRARIES (spdb5_oracle ${Oracle_LIBRARIES})
     INSTALL(TARGETS spdb5_oracle RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (ORACLE_FLAG)
