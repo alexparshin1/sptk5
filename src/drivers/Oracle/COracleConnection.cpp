@@ -38,7 +38,9 @@ using namespace oracle::occi;
 
 COracleConnection::COracleConnection(string connectionString) :
     CDatabaseConnection(connectionString),
-    m_connection(NULL)
+    m_connection(NULL),
+    m_createCLOBstmt(NULL),
+    m_createBLOBstmt(NULL)
 {
 }
 
@@ -67,13 +69,22 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
         if (newConnectionString.length())
             m_connString = newConnectionString;
 
+        Statement* createLOBtable = NULL;
         try {
             m_connection = m_environment.createConnection(m_connString);
+            createLOBtable = m_connection->createStatement();
+            createLOBtable->setSQL("CREATE GLOBAL TEMPORARY TABLE sptk_lobs (sptk_clob CLOB, sptk_blob BLOB) ON COMMIT DELETE ROWS");
+            createLOBtable->executeUpdate();
         }
         catch (SQLException& e) {
-            m_connection = NULL;
-            throwOracleException(string("Can't create connection: ") + e.what());
+            if (strstr(e.what(),"already used") == NULL) {
+                m_connection->terminateStatement(createLOBtable);
+                m_environment.terminateConnection(m_connection);
+                m_connection = NULL;
+                throwOracleException(string("Can't create connection: ") + e.what());
+            }
         }
+        m_connection->terminateStatement(createLOBtable);
     }
 }
 
@@ -92,8 +103,7 @@ void COracleConnection::closeDatabase() throw (CDatabaseException)
         m_connection = NULL;
     }
     catch (SQLException& e) {
-        m_connection = NULL;
-        throwOracleException(string("Can't create connection: ") + e.what());
+        throwOracleException(string("Can't close connection: ") + e.what());
     }
 }
 
@@ -259,20 +269,21 @@ Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
             return (Type) SQLT_INT;
         case VAR_FLOAT:
         case VAR_MONEY:
-            return (Type) SQLT_BDOUBLE;
+            return (Type) OCCIBDOUBLE;
         case VAR_STRING:
-            return (Type) SQLT_CHR;
+            return (Type) OCCICHAR; //SQLT_CHR;
         case VAR_TEXT:
-            return (Type) SQLT_CLOB;
+            return (Type) OCCICLOB;
         case VAR_BUFFER:
-            return (Type) SQLT_BLOB;
+            return (Type) OCCIBLOB;
         case VAR_DATE:
+            return (Type) OCCIDATE;
         case VAR_DATE_TIME:
-            return (Type) SQLT_TIMESTAMP;
+            return (Type) OCCITIMESTAMP;
         case VAR_INT64:
-            return (Type) SQLT_INT;
+            return (Type) OCCIINT;
         case VAR_BOOL:
-            return (Type) SQLT_CHR;
+            return (Type) OCCIINT;
         default:
             throwException("Unsupported SPTK data type: " + int2string(dataType));
     }

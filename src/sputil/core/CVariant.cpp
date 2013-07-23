@@ -550,7 +550,11 @@ void *CVariant::asImagePtr() const throw(CException) {
     }
 }
 
-void CVariant::setNull() {
+void CVariant::setNull(CVariantType vtype) {
+    if (vtype != sptk::VAR_NONE) {
+        releaseBuffers();
+        dataType(VAR_BUFFER);
+    }
     switch (dataType()) {
     default:
         m_data.int64Data = 0;

@@ -50,18 +50,26 @@ class COracleStatement;
 class SP_EXPORT COracleConnection: public CDatabaseConnection
 {
     friend class CQuery;
+    friend class COracleStatement;
 
 public:
     typedef oracle::occi::Environment   Environment;
     typedef oracle::occi::Connection    Connection;
     typedef oracle::occi::Statement     Statement;
     typedef oracle::occi::Type          Type;
+    typedef oracle::occi::Clob          Clob;
+    typedef oracle::occi::Blob          Blob;
 
 private:
 
-    COracleEnvironment  m_environment;  ///< Oracle connection environment
-    Connection*         m_connection;   ///< Oracle database connection
-    std::string         m_lastError;    ///< Last error in this connection or query
+    COracleEnvironment  m_environment;      ///< Oracle connection environment
+    Connection*         m_connection;       ///< Oracle database connection
+    std::string         m_lastError;        ///< Last error in this connection or query
+
+    COracleStatement*   m_createCLOBstmt;   ///< Statement that creates CLOBs
+    COracleStatement*   m_createBLOBstmt;   ///< Statement that creates BLOBs
+
+protected:
 
     /// @brief Translates Oracle native type to CVariant type
     /// @param oracleType oracle::occi::Type, Oracle native type
@@ -117,6 +125,11 @@ public:
     Statement* createStatement(std::string sql)
     {
         return m_connection->createStatement(sql);
+    }
+
+    Statement* createStatement()
+    {
+        return m_connection->createStatement();
     }
 
 public:

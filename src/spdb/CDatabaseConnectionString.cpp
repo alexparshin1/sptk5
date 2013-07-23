@@ -45,10 +45,10 @@ using namespace sptk;
 void CDatabaseConnectionString::parse() throw (CDatabaseException)
 {
     CStrings    parts;
-    int matchCount = CRegExp("^(\\w+)://(([\\w-_]+)(:(\\S+))?@)?([\\w-_]+)(:(\\d+))?(/([\\w_]+))?(\\?.*)?$").m(m_connectionString,parts);
+    CRegExp("^(\\w+)://(([\\w-_]+)(:(\\S+))?@)?([\\w-_]+)(:(\\d+))?(/([\\w_]+))?(\\?.*)?$").m(m_connectionString,parts);
     if (!parts.size())
         throwDatabaseException("Invalid connection string: m_connectionString");
-    int i = 0;
+    unsigned i = 0;
     m_driverName = parts[i++];
     i++;
     m_userName = parts[i++];

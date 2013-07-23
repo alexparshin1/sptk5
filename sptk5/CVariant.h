@@ -585,7 +585,8 @@ public:
     /// Useful for the database operations.
     /// Releases the memory allocated for string/text/blob types.
     /// Retains the data type. Sets the data to zero(s).
-    void setNull();
+    /// @param vtype CVariantType, optional variant type to enforce
+    void setNull(CVariantType vtype=VAR_NONE);
 
     /// @brief Null flag
     ///

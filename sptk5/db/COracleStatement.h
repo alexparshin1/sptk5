@@ -50,7 +50,9 @@ public:
     typedef oracle::occi::MetaData MetaData;
 private:
     COracleConnection*  m_connection;           ///< Oracle connection
-    Statement*          m_oracleStatement;      ///< Statement
+    Statement*          m_statement;            ///< Main statement
+    Statement*          m_createClobStatement;  ///< Statement for creating CLOBs
+    Statement*          m_createBlobStatement;  ///< Statement for creating BLOBs
     ResultSet*          m_resultSet;            ///< Result set (if returned by statement)
     CParamVector        m_enumeratedParams;     ///< Enumerated parameters
     struct
@@ -60,6 +62,19 @@ private:
         bool        transaction:1;          ///< Transaction in progress flag
         unsigned    outputParameterCount:1; ///< Output parameter count
     } m_state;                              ///< State flags
+
+    /// @brief Sets character data to a CLOB parameter
+    /// @param parameterIndex uint32_t, Parameter index
+    /// @param data unsigned char*, Character data buffer
+    /// @param dataSize uint32_t, Character data size
+    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+
+    /// @brief Sets binary data to a BLOB parameter
+    /// @param parameterIndex uint32_t, Parameter index
+    /// @param data unsigned char*, Binary data buffer
+    /// @param dataSize uint32_t, Binary data size
+    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+
 public:
     /// @brief Constructor
     /// @param connection Connection*, Oracle connection
@@ -72,7 +87,7 @@ public:
     /// @brief Returns statement handle
     Statement* stmt() const
     {
-        return m_oracleStatement;
+        return m_statement;
     }
 
     /// @brief Generates normalized list of parameters
