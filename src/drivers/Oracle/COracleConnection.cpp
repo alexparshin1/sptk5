@@ -38,9 +38,7 @@ using namespace oracle::occi;
 
 COracleConnection::COracleConnection(string connectionString) :
     CDatabaseConnection(connectionString),
-    m_connection(NULL),
-    m_createCLOBstmt(NULL),
-    m_createBLOBstmt(NULL)
+    m_connection(NULL)
 {
 }
 
@@ -339,7 +337,7 @@ void COracleConnection::queryOpen(CQuery *query)
                 int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
                 if (columnName.empty()) {
                     char alias[32];
-                    sprintf(alias, "column_%02i", columnIndex);
+                    sprintf(alias, "column_%02i", columnIndex + 1);
                     columnName = alias;
                 }
                 CVariantType dataType = OracleTypeToVariantType(columnType);

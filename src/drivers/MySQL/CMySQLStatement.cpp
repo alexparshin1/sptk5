@@ -1,0 +1,471 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CMySQLStatement.h  -  description
+                             -------------------
+    begin                : Wed Jul 24 2013
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#include <sptk5/db/CMySQLConnection.h>
+#include <sptk5/db/CMySQLStatement.h>
+#include <sptk5/CFieldList.h>
+
+using namespace std;
+using namespace sptk;
+
+#define throwMySQLError throw CDatabaseException(mysql_stmt_error(m_statement))
+
+// When TEXT field is large, fetch in chunks:
+#define FETCH_BUFFER 8192
+
+class CMySQLStatementField: public CDatabaseField {
+public:
+    // Callback variables
+    unsigned long   m_cbLength;
+    my_bool         m_cbNull;
+    my_bool         m_cbError;
+    // MySQL time cinversion buffer
+    MYSQL_TIME      m_timeBuffer;
+
+public:
+    CMySQLStatementField(std::string fieldName, int fieldColumn, enum_field_types fieldType, CVariantType dataType, int fieldSize) :
+        CDatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize),
+        m_cbLength(0), m_cbNull(0), m_cbError(0)
+    {
+        memset(&m_timeBuffer, 0, sizeof(MYSQL_TIME));
+    }
+
+    void bindCallbacks(MYSQL_BIND* bind)
+    {
+        bind->length = &m_cbLength;
+        bind->is_null = &m_cbNull;
+        bind->error = &m_cbError;
+    }
+
+    MYSQL_TIME& getTimeBuffer()
+    {
+        return m_timeBuffer;
+    }
+
+    void setDataSize(uint32_t sz)
+    {
+        dataSize(sz);
+    }
+};
+
+
+CMySQLStatement::CMySQLStatement(CMySQLConnection* connection, string sql)
+: CDatabaseStatement<CMySQLConnection,MYSQL_STMT>(connection)
+{
+    m_statement = mysql_stmt_init((MYSQL*)connection->handle());
+}
+
+CMySQLStatement::~CMySQLStatement()
+{
+    mysql_stmt_close(m_statement);
+}
+
+void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, CVariantType timeType)
+{
+    short year, month, day, hour, minute, second, msecond;
+    memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
+    timestamp.decodeDate(&year, &month, &day);
+    mysqlDate.year = year;
+    mysqlDate.month = month;
+    mysqlDate.day = day;
+    if (timeType == VAR_DATE)
+        mysqlDate.time_type = MYSQL_TIMESTAMP_DATE;
+    else {
+        timestamp.decodeTime(&hour, &minute, &second, &msecond);
+        mysqlDate.hour = hour;
+        mysqlDate.minute = minute;
+        mysqlDate.second = second;
+        mysqlDate.second_part = msecond;
+        mysqlDate.time_type = MYSQL_TIMESTAMP_DATETIME;
+    }
+}
+
+void CMySQLStatement::mysqlDateToDateTime(CDateTime& timestamp, const MYSQL_TIME& mysqlDate)
+{
+    CDateTime dt(mysqlDate.year, short(mysqlDate.month), short(mysqlDate.day),
+                short(mysqlDate.hour), short(mysqlDate.minute), short(mysqlDate.second));
+    if (mysqlDate.time_type == MYSQL_TIMESTAMP_DATE)
+        timestamp = CDateTime(
+                        mysqlDate.year, mysqlDate.month, mysqlDate.day,
+                        0, 0, 0);
+    else
+        timestamp = CDateTime(
+                        mysqlDate.year, mysqlDate.month, mysqlDate.day,
+                        mysqlDate.hour, mysqlDate.minute, mysqlDate.second);
+}
+
+void CMySQLStatement::enumerateParams(CParamList& queryParams)
+{
+    CDatabaseStatement::enumerateParams(queryParams);
+    uint32_t paramCount = m_enumeratedParams.size();
+    m_paramBuffers.resize(paramCount);
+    m_paramLengths.resize(paramCount);
+    MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
+    if (paramCount) {
+        memset(paramBuffers, 0, sizeof(MYSQL_BIND) * paramCount);
+        for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++)
+            m_paramBuffers[paramIndex].length = &m_paramLengths[paramIndex];
+    }
+}
+
+CVariantType CMySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
+{
+    switch (mysqlType) {
+
+    case MYSQL_TYPE_BIT:
+    case MYSQL_TYPE_TINY:
+        return VAR_BOOL;
+
+    case MYSQL_TYPE_SHORT:
+    case MYSQL_TYPE_YEAR:
+    case MYSQL_TYPE_LONG:
+        return VAR_INT;
+
+    case MYSQL_TYPE_FLOAT:
+    case MYSQL_TYPE_DOUBLE:
+        return VAR_FLOAT;
+
+    case MYSQL_TYPE_TINY_BLOB:
+    case MYSQL_TYPE_MEDIUM_BLOB:
+    case MYSQL_TYPE_LONG_BLOB:
+    case MYSQL_TYPE_BLOB:
+        return VAR_BUFFER;
+
+    case MYSQL_TYPE_NEWDATE:
+    case MYSQL_TYPE_DATE:
+        return VAR_DATE;
+
+    case MYSQL_TYPE_DATETIME:
+    case MYSQL_TYPE_TIME:
+    case MYSQL_TYPE_TIMESTAMP:
+        return VAR_DATE_TIME;
+
+    case MYSQL_TYPE_LONGLONG:
+        return VAR_INT64;
+
+    // Anything we don't know about - treat as string
+    default:
+        return VAR_STRING;
+    }
+}
+
+enum_field_types CMySQLStatement::variantTypeToMySQLType(CVariantType dataType)
+{
+    switch (dataType) {
+
+    case VAR_NONE:
+        return MYSQL_TYPE_VARCHAR;
+
+    case VAR_BOOL:
+        return MYSQL_TYPE_TINY;
+
+    case VAR_INT:
+        return MYSQL_TYPE_LONG;
+
+    case VAR_FLOAT:
+    case VAR_MONEY:
+        return MYSQL_TYPE_DOUBLE;
+
+    case VAR_STRING:
+        return MYSQL_TYPE_VARCHAR;
+
+    case VAR_TEXT:
+    case VAR_BUFFER:
+        return MYSQL_TYPE_BLOB;
+
+    case VAR_DATE:
+    case VAR_DATE_TIME:
+        return MYSQL_TYPE_TIMESTAMP;
+
+    case VAR_INT64:
+        return MYSQL_TYPE_LONGLONG;
+
+    // Anything we don't know about - treat as string
+    default:
+        return MYSQL_TYPE_STRING;
+    }
+}
+
+void CMySQLStatement::setParameterValues()
+{
+    static my_bool nullValue = 1;
+
+    unsigned paramCount = m_enumeratedParams.size();
+    for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+        CParam*     param = m_enumeratedParams[paramIndex];
+        MYSQL_BIND& bind = m_paramBuffers[paramIndex];
+
+        bind.buffer = (void*) param->getBuffer();
+        bind.buffer_type = variantTypeToMySQLType(param->dataType());
+
+        switch (param->dataType()) {
+
+        case VAR_NONE:
+            m_paramLengths[paramIndex] = 0;
+            param->setNull();
+            break;
+
+        case VAR_BOOL:
+        case VAR_INT:
+        case VAR_FLOAT:
+        case VAR_MONEY:
+            m_paramLengths[paramIndex] = 0;
+            bind.buffer = (void*) &param->getInt64();
+            break;
+
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            m_paramLengths[paramIndex] = param->dataSize();
+            break;
+
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+            m_paramLengths[paramIndex] = sizeof(MYSQL_TIME);
+            bind.buffer = (void*) param->conversionBuffer();
+            dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, param->getDateTime(), param->dataType());
+            break;
+
+        case VAR_INT64:
+            m_paramLengths[paramIndex] = 0;
+            bind.buffer = (void*) &param->getInt64();
+            break;
+
+        default:
+            throw CDatabaseException("Unsupported parameter type");
+        }
+        if (param->isNull())
+            bind.is_null = &nullValue;
+        else
+            bind.is_null = 0;
+        bind.error = 0;
+    }
+        /// Bind the buffers
+    if (mysql_stmt_bind_param(m_statement, &m_paramBuffers[0]) != 0)
+        throwMySQLError;
+}
+
+void CMySQLStatement::CMySQLStatement::prepare(const string& sql)
+{
+    if (mysql_stmt_prepare(m_statement, sql.c_str(), sql.length()) != 0)
+        throwMySQLError;
+}
+
+void CMySQLStatement::execute(bool)
+{
+    m_state.eof = false;
+    if (mysql_stmt_execute(m_statement) != 0)
+        throwMySQLError;
+    m_state.columnCount = mysql_stmt_field_count(m_statement);
+}
+
+void CMySQLStatement::bindResult(CFieldList& fields)
+{
+    fields.clear();
+
+    MYSQL_RES*  metadata = mysql_stmt_result_metadata(m_statement);
+    if (!metadata)
+        throwMySQLError;
+    char columnName[256];
+    for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
+        MYSQL_FIELD *fieldMetadata = mysql_fetch_field(metadata);
+        if (!fieldMetadata)
+            throwMySQLError;
+        strncpy(columnName, fieldMetadata->name, sizeof(columnName));
+        columnName[sizeof(columnName)-1] = 0;
+        if (columnName[0] == 0)
+            sprintf(columnName, "column_%02i", columnIndex + 1);
+        CVariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
+        unsigned fieldLength = fieldMetadata->length;
+        if (fieldLength > FETCH_BUFFER)
+            fieldLength = FETCH_BUFFER;
+        fields.push_back(new CMySQLStatementField(columnName, columnIndex, fieldMetadata->type, fieldType, fieldLength));
+    }
+    mysql_free_result(metadata);
+
+    // Bind initialized fields to MySQL bind buffers
+    m_fieldBuffers.resize(m_state.columnCount);
+    for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
+        CMySQLStatementField*   field = (CMySQLStatementField*) &fields[columnIndex];
+        MYSQL_BIND&             bind = m_fieldBuffers[columnIndex];
+
+        bind.buffer_type = (enum_field_types) field->fieldType();
+
+        switch (bind.buffer_type) {
+        // Fixed length buffer - integers
+        case MYSQL_TYPE_BIT:
+        case MYSQL_TYPE_TINY:
+        case MYSQL_TYPE_SHORT:
+        case MYSQL_TYPE_YEAR:
+            bind.buffer = (void*) &field->getInteger();
+            bind.buffer_length = sizeof(int32_t);
+            break;
+
+        // Fixed length buffer - floats
+        case MYSQL_TYPE_FLOAT:
+        case MYSQL_TYPE_DOUBLE:
+            bind.buffer = (void*) &field->getFloat();
+            bind.buffer_length = sizeof(double);
+            break;
+
+        // Fixed length date buffer
+        case MYSQL_TYPE_DATE:
+        case MYSQL_TYPE_DATETIME:
+        case MYSQL_TYPE_TIME:
+        case MYSQL_TYPE_TIMESTAMP:
+            bind.buffer = (void*) &field->getTimeBuffer();
+            bind.buffer_length = sizeof(MYSQL_TIME);
+            break;
+
+        // Fixed length buffer - long integers
+        case MYSQL_TYPE_LONG:
+        case MYSQL_TYPE_LONGLONG:
+            bind.buffer = (void*) &field->getInt64();
+            bind.buffer_length = sizeof(uint64_t);
+            break;
+
+        // Variable length buffer - will be extended during fetch if needed
+        default:
+            bind.buffer_length = field->fieldSize();
+            bind.buffer = (void*) field->getBuffer();
+            break;
+        }
+
+        field->bindCallbacks(&bind);
+    }
+    if (mysql_stmt_bind_result(m_statement, &m_fieldBuffers[0]) != 0)
+        throwMySQLError;
+}
+
+void CMySQLStatement::fetchResult(CFieldList& fields)
+{
+    uint32_t    fieldCount = fields.size();
+    bool        fieldSizeChanged = false;
+    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+        CMySQLStatementField*   field = (CMySQLStatementField*) &fields[fieldIndex];
+        MYSQL_BIND&             bind = m_fieldBuffers[fieldIndex];
+
+        if (*(bind.is_null)) {
+            // Field data is null, no more processing
+            field->setNull();
+            continue;
+        }
+
+        CVariantType    fieldType = field->dataType();
+        uint32_t        dataLength = *(bind.length);
+
+        switch (fieldType) {
+
+        case VAR_BOOL:
+        case VAR_INT:
+            field->setDataSize(dataLength);
+            break;
+
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+            {
+                MYSQL_TIME& mysqlTime = *(MYSQL_TIME*) bind.buffer;
+                if (mysqlTime.day == 0 && mysqlTime.month == 0) {
+                    // Date returned as 0000-00-00
+                    field->setNull();
+                } else {
+                    CDateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
+                                short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
+                    if (fieldType == VAR_DATE)
+                        field->setDate(dt);
+                    else
+                        field->setDateTime(dt);
+                    field->setDataSize(sizeof(double));
+                }
+            }
+            break;
+
+        case VAR_FLOAT:
+        case VAR_MONEY:
+            if (dataLength == sizeof(float)) {
+                float value = *(float*) bind.buffer;
+                field->setFloat(value);
+            }
+            field->setDataSize(dataLength);
+            break;
+
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            if (dataLength == 0) {
+                // Empty string
+                field->setString("", 0);
+            } else {
+                if (bind.buffer_length < dataLength) {
+                    /// Fetch truncated, enlarge buffer and fetch again
+                    field->checkSize(dataLength);
+                    for (uint32_t offset = bind.buffer_length; offset < dataLength; offset += bind.buffer_length) {
+                        bind.buffer = (char*) field->getBuffer() + offset;
+                        if (mysql_stmt_fetch_column(m_statement, &bind, fieldIndex, offset) != 0)
+                            throwMySQLError;
+                    }
+                    bind.buffer = (void*) field->getBuffer();
+                }
+                field->setDataSize(dataLength);
+            }
+            break;
+
+        case VAR_INT64:
+            field->setDataSize(dataLength);
+            break;
+
+        default:
+            throwDatabaseException("Unsupported Variant type: " + int2string(fieldType));
+        }
+    }
+    if (fieldSizeChanged && mysql_stmt_bind_result(m_statement, &m_fieldBuffers[0]) != 0)
+        throwMySQLError;
+}
+
+void CMySQLStatement::close()
+{
+    if (mysql_stmt_free_result(m_statement) != 0)
+        throwMySQLError;
+}
+
+void CMySQLStatement::fetch()
+{
+    int rc = mysql_stmt_fetch(m_statement);
+    switch (rc) {
+    case 0: // Successful, the data has been fetched to application data buffers
+    case MYSQL_DATA_TRUNCATED: // Successful, but one or mode fields were truncated
+        m_state.eof = false;
+        break;
+
+    case MYSQL_NO_DATA: // All data fetched
+        m_state.eof = true;
+        break;
+
+    default: // Error during fetch, retrieving error
+        throwMySQLError;
+    }
+}

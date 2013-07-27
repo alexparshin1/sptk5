@@ -16,12 +16,13 @@ SET (VERSION "5.0.0")
 
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.cmake/")
+SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 
 OPTION (USE_ODBC       "Build ODBC support library" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_ORACLE     "Build Oracle support library" ON)
+OPTION (USE_MYSQL      "Build MySQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 OPTION (USE_FLTK       "Build GUI library" ON)
 OPTION (USE_PCRE       "Build PCRE (Perl Regexp) support" ON)
@@ -117,6 +118,18 @@ IF (USE_ORACLE)
     MESSAGE("Oracle support:     don't compile")
   ENDIF (Oracle_FOUND)
 ENDIF (USE_ORACLE)
+
+
+SET (MYSQL_FLAG "0")
+IF (USE_MYSQL)
+  FIND_PACKAGE(MySQL)
+  IF (MySQL_FOUND)
+    MESSAGE("MySQL support:      compile")
+    SET (MYSQL_FLAG "1")
+  ELSE (MySQL_FOUND)
+    MESSAGE("MySQL support:      don't compile")
+  ENDIF (MySQL_FOUND)
+ENDIF (USE_MYSQL)
 
 
 SET (SQLITE3_FLAG "0")

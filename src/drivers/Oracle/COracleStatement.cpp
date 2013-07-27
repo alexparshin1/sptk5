@@ -32,12 +32,12 @@ using namespace sptk;
 using namespace oracle::occi;
 
 COracleStatement::COracleStatement(COracleConnection* connection, string sql) :
-    m_connection(connection),
-    m_statement(m_connection->createStatement(sql)),
+    CDatabaseStatement<COracleConnection,oracle::occi::Statement>(connection),
     m_createClobStatement(NULL),
     m_createBlobStatement(NULL),
     m_resultSet(NULL)
 {
+    m_statement = connection->createStatement(sql);
     m_state.columnCount = 0;
     m_state.eof = true;
     m_state.transaction = false;
@@ -56,28 +56,13 @@ COracleStatement::~COracleStatement()
         connection->terminateStatement(m_statement);
 }
 
-void COracleStatement::enumerateParams(CParamList& queryParams)
-{
-    queryParams.enumerate(m_enumeratedParams);
-    m_state.outputParameterCount = 0;
-
-    CParamVector::iterator
-        itor = m_enumeratedParams.begin(),
-        iend = m_enumeratedParams.end();
-    for (; itor != iend; itor++)
-    {
-        CParam* parameter = *itor;
-        if (parameter->isOutput())
-            m_state.outputParameterCount++;
-    }
-}
-
 void COracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
 {
     if (m_connection) {
         if (!m_createClobStatement) {
-            m_createClobStatement = 
-                m_connection->createStatement("INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
+            COracleConnection* oracleConnection = (COracleConnection*)m_connection;
+            m_createClobStatement =
+                oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
             m_createClobStatement->registerOutParam(1, OCCICLOB);
         }
 
@@ -95,8 +80,9 @@ void COracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* 
 {
     if (m_connection) {
         if (!m_createBlobStatement) {
-            m_createBlobStatement = 
-                m_connection->createStatement("INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
+            COracleConnection* oracleConnection = (COracleConnection*)m_connection;
+            m_createBlobStatement =
+                oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
             m_createBlobStatement->registerOutParam(1, OCCIBLOB);
         }
 
@@ -104,7 +90,7 @@ void COracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* 
         m_createBlobStatement->executeUpdate();
         Blob blob = m_createBlobStatement->getBlob(1);
 
-        // Fill CLOB with data
+        // Fill BLOB with data
         blob.write(dataSize, data, dataSize);
         m_statement->setBlob(parameterIndex, blob);
     }
@@ -170,8 +156,7 @@ void COracleStatement::setParameterValues()
                     int16_t hour, minute, second, msecond;
                     parameter.getDateTime().decodeTime(&hour, &minute, &second, &msecond);
                     Timestamp timestampValue(m_connection->environment(),
-                                                           year, month, day,
-                                                           hour, minute, second);
+                                             year, month, day, hour, minute, second);
                     m_statement->setTimestamp(parameterIndex, timestampValue);
                 }
                 break;

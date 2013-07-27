@@ -1,8 +1,8 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          COracleConnection.h  -  description
+                          CMySQLConnection.h  -  description
                              -------------------
-    begin                : Sat November 17 2012
+    begin                : Wed Jul 24 2013
     copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
@@ -25,15 +25,14 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CORACLECONNECTION_H__
-#define __CORACLECONNECTION_H__
+#ifndef __CMYSQLCONNECTION_H__
+#define __CMYSQLCONNECTION_H__
 
 #include <sptk5/db/CDatabaseConnection.h>
 
-#if HAVE_ORACLE == 1
+#if HAVE_MYSQL == 1
 
-#include <sptk5/db/COracleStatement.h>
-#include <sptk5/db/COracleEnvironment.h>
+#include <sptk5/db/CMySQLStatement.h>
 
 namespace sptk
 {
@@ -42,41 +41,17 @@ namespace sptk
 /// @{
 
 class CQuery;
-class COracleStatement;
+class CMySQLStatement;
 
-/// @brief Oracle database
-///
-/// COracleConnection is thread-safe connection to Oracle database.
-class SP_EXPORT COracleConnection: public CDatabaseConnection
+/// @brief MySQL database connection
+class SP_EXPORT CMySQLConnection: public CDatabaseConnection
 {
     friend class CQuery;
-    friend class COracleStatement;
-
-public:
-    typedef oracle::occi::Environment   Environment;
-    typedef oracle::occi::Connection    Connection;
-    typedef oracle::occi::Statement     Statement;
-    typedef oracle::occi::Type          Type;
-    typedef oracle::occi::Clob          Clob;
-    typedef oracle::occi::Blob          Blob;
+    friend class CMySQLStatement;
 
 private:
 
-    COracleEnvironment  m_environment;      ///< Oracle connection environment
-    Connection*         m_connection;       ///< Oracle database connection
-    std::string         m_lastError;        ///< Last error in this connection or query
-
-protected:
-
-    /// @brief Translates Oracle native type to CVariant type
-    /// @param oracleType oracle::occi::Type, Oracle native type
-    /// @returns CVariant type
-    static CVariantType OracleTypeToVariantType(Type oracleType);
-
-    /// @brief Translates CVariant type to Oracle native type
-    /// @param dataType CVariantType&, CVariant type
-    /// @returns Oracle native type
-    static Type VariantTypeToOracleType(CVariantType dataType);
+    MYSQL*  m_connection;                           ///< MySQL database connection
 
 protected:
 
@@ -89,9 +64,9 @@ protected:
 
     // These methods implement the actions requested by CQuery
     virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an Oracle statement
-    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an Oracle statement
-    virtual void queryCloseStmt(CQuery *query);      ///< Closes an Oracle statement
+    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an MySQL statement
+    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an MySQL statement
+    virtual void queryCloseStmt(CQuery *query);      ///< Closes an MySQL statement
     virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
     virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
     virtual void queryExecute(CQuery *query);        ///< Executes a statement
@@ -107,27 +82,15 @@ protected:
     virtual std::string paramMark(unsigned paramIndex);
 
 public:
-    /// @brief Returns the Oracle connection object
-    Connection* connection() const
+    /// @brief Returns the MySQL connection object
+    MYSQL* connection() const
     {
         return m_connection;
     }
 
-    /// @brief Returns the Oracle connection object
-    Environment* environment() const
-    {
-        return m_environment.handle();
-    }
+    MYSQL_STMT* createStatement(std::string sql);
 
-    Statement* createStatement(std::string sql)
-    {
-        return m_connection->createStatement(sql);
-    }
-
-    Statement* createStatement()
-    {
-        return m_connection->createStatement();
-    }
+    MYSQL_STMT* createStatement();
 
 public:
 
@@ -137,14 +100,14 @@ public:
     /// For more information please refer to:
     /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
     /// If the connection string is empty then default database with the name equal to user name is used.
-    /// @param connectionString std::string, the Oracle connection string
-    COracleConnection(std::string connectionString = "");
+    /// @param connectionString std::string, the MySQL connection string
+    CMySQLConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~COracleConnection();
+    virtual ~CMySQLConnection();
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the Oracle connection string
+    /// @param connectionString std::string, the MySQL connection string
     virtual void openDatabase(std::string connectionString = "") throw (CDatabaseException);
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
@@ -159,7 +122,7 @@ public:
     /// @brief Returns driver-specific connection string
     virtual std::string nativeConnectionString() const;
 
-    /// @brief Returns the Oracle driver description for the active connection
+    /// @brief Returns the MySQL driver description for the active connection
     virtual std::string driverDescription() const;
 
     /// @brief Lists database objects
@@ -168,7 +131,7 @@ public:
     virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException);
 };
 
-#define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
+#define throwMySQLException(info) throw CDatabaseException(string(info) + ":" + string(mysql_error(m_connection)))
 
 /// @}
 }
@@ -176,8 +139,8 @@ public:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  oracle_destroy_connection(void* connection);
+    SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  mysql_destroy_connection(void* connection);
 }
 
 #endif

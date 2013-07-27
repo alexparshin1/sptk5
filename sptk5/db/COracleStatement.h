@@ -34,34 +34,25 @@
 #include <string>
 #include <stdio.h>
 
-#include <sptk5/db/CParamList.h>
+#include <sptk5/db/CDatabaseStatement.h>
 
 namespace sptk
 {
 
 class COracleConnection;
 
-class COracleStatement
+class COracleStatement 
+: public CDatabaseStatement<COracleConnection,oracle::occi::Statement>
 {
 public:
-    typedef oracle::occi::Connection Connection;
-    typedef oracle::occi::Statement Statement;
-    typedef oracle::occi::ResultSet ResultSet;
-    typedef oracle::occi::MetaData MetaData;
+    typedef oracle::occi::Connection    Connection;
+    typedef oracle::occi::Statement     Statement;
+    typedef oracle::occi::ResultSet     ResultSet;
+    typedef oracle::occi::MetaData      MetaData;
 private:
-    COracleConnection*  m_connection;           ///< Oracle connection
-    Statement*          m_statement;            ///< Main statement
     Statement*          m_createClobStatement;  ///< Statement for creating CLOBs
     Statement*          m_createBlobStatement;  ///< Statement for creating BLOBs
     ResultSet*          m_resultSet;            ///< Result set (if returned by statement)
-    CParamVector        m_enumeratedParams;     ///< Enumerated parameters
-    struct
-    {
-        unsigned    columnCount:12;         ///< Number of columns is result set
-        bool        eof:1;                  ///< EOF (end of file) flag
-        bool        transaction:1;          ///< Transaction in progress flag
-        unsigned    outputParameterCount:1; ///< Output parameter count
-    } m_state;                              ///< State flags
 
     /// @brief Sets character data to a CLOB parameter
     /// @param parameterIndex uint32_t, Parameter index
@@ -82,29 +73,7 @@ public:
     COracleStatement(COracleConnection* connection, std::string sql);
 
     /// @brief Destructor
-    ~COracleStatement();
-
-    /// @brief Returns statement handle
-    Statement* stmt() const
-    {
-        return m_statement;
-    }
-
-    /// @brief Generates normalized list of parameters
-    /// @param queryParams CParamList&, Standard query parameters
-    void enumerateParams(CParamList& queryParams);
-
-    /// @brief Returns normalized list of parameters
-    CParamVector& enumeratedParams()
-    {
-        return m_enumeratedParams;
-    }
-
-    /// @brief Returns true if statement uses output parameters
-    bool outputParameterCount() const
-    {
-        return m_state.outputParameterCount;
-    }
+    virtual ~COracleStatement();
 
     /// @brief Sets actual parameter values for the statement execution
     void setParameterValues();
@@ -122,16 +91,6 @@ public:
         if (m_resultSet) {
             m_state.eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
         }
-    }
-
-    bool eof() const
-    {
-        return m_state.eof;
-    }
-
-    unsigned colCount() const
-    {
-        return m_state.columnCount;
     }
 
     ResultSet* resultSet()

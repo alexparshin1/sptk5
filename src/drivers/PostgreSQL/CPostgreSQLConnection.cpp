@@ -544,7 +544,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
                 columnName[255] = 0;
 
                 if (columnName[0] == 0)
-                    sprintf(columnName, "column%02i", column);
+                    sprintf(columnName, "column%02i", column + 1);
 
                 Oid dataType = PQftype(stmt, column);
                 CVariantType fieldType;

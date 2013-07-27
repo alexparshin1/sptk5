@@ -86,6 +86,11 @@ CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fie
         width = 10;
         break;
 
+    case VAR_INT64:
+        setInt64(0);
+        width = 16;
+        break;
+
     default:
         setString("");
         checkSize(fieldLength + 1);
