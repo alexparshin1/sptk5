@@ -225,15 +225,17 @@ void CMySQLConnection::queryUnprepare(CQuery *query)
 
 int CMySQLConnection::queryColCount(CQuery *query)
 {
+    int              colCount = 0;
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not opened");
-        return statement->colCount();
+        colCount = statement->colCount();
     }
     catch (exception& e) {
         query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
     }
+    return colCount;
 }
 
 void CMySQLConnection::queryBindParameters(CQuery *query)
