@@ -106,22 +106,6 @@ class SP_EXPORT CXmlAttributes: public CXmlNodeList
 protected:
     CXmlElement* m_parent;    ///< The parent XML element
 
-    /// @brief Returns an attribute node
-    ///
-    /// If the attribute is not found, empty string is returned.
-    /// HTML tags can have empty attributes, for those you should use has_attribute() method.
-    /// @param attr std::string, name of attribute
-    /// @returns attribute node or NULL 
-    CXmlAttribute* getAttributeNode(std::string attr);
-
-    /// @brief Returns an attribute node (const version)
-    ///
-    /// If the attribute is not found, empty string is returned.
-    /// HTML tags can have empty attributes, for those you should use has_attribute() method.
-    /// @param attr std::string, name of attribute
-    /// @returns attribute node or NULL 
-    const CXmlAttribute* getAttributeNode(std::string attr) const;
-
 public:
 
     /// @brief Constructor
@@ -160,6 +144,22 @@ public:
     /// @param value CXmlValue, an attribute value. See CXmlValue class description for data convertions.
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
     void setAttribute(std::string attr, CXmlValue value, const char *defaultValue = "");
+
+    /// @brief Returns an attribute node
+    ///
+    /// If the attribute is not found, empty string is returned.
+    /// HTML tags can have empty attributes, for those you should use has_attribute() method.
+    /// @param attr std::string, name of attribute
+    /// @returns attribute node or NULL 
+    CXmlAttribute* getAttributeNode(std::string attr);
+
+    /// @brief Returns an attribute node (const version)
+    ///
+    /// If the attribute is not found, empty string is returned.
+    /// HTML tags can have empty attributes, for those you should use has_attribute() method.
+    /// @param attr std::string, name of attribute
+    /// @returns attribute node or NULL 
+    const CXmlAttribute* getAttributeNode(std::string attr) const;
 };
 /// @}
 }

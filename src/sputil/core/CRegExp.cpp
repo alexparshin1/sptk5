@@ -190,10 +190,8 @@ string CRegExp::s(string text, string replacement) const throw (CException)
             fragmentStarts = substringEnds + 1;
             continue;
         }
-        int fragmentEnds = substringStarts - 1;
-        int fragmentLength = fragmentEnds - fragmentStarts + 1;
-        string str(textStart + fragmentStarts, fragmentLength);
-        result += str + replacement;
+        string head(textStart, + itor->m_start);
+        result += head + replacement;
         fragmentStarts = substringEnds;
     }
     string str(textStart + fragmentStarts);

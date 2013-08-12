@@ -238,12 +238,16 @@ ENDIF (FLTK_FLAG)
 
 ADD_SUBDIRECTORY (src)
 ADD_SUBDIRECTORY (examples)
+ADD_SUBDIRECTORY (utilities)
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)
+
+FILE (GLOB includeFilesWSDL "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/wsdl/*.h")
+INSTALL (FILES ${includeFilesWSDL} DESTINATION include/sptk5/wsdl)
 
 FILE (GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
 INSTALL (FILES ${includeFilesNet} DESTINATION include/sptk5/net)

@@ -78,7 +78,7 @@ void CXmlDoc::processAttributes(CXmlNode* node, char *ptr)
     const char* tokenStart = ptr;
 
     CXmlAttributes& attr = node->attributes();
-    while (*tokenStart == ' ')
+    while (*tokenStart && *tokenStart <= ' ')
         tokenStart++;
     while (*tokenStart) {
         char* tokenEnd = (char*) strpbrk(tokenStart, " =");
@@ -118,7 +118,7 @@ void CXmlDoc::processAttributes(CXmlNode* node, char *ptr)
         else
             tokenStart = "";
 
-        while (*tokenStart == ' ')
+        while (*tokenStart && *tokenStart <= ' ')
             tokenStart++;
     }
 }
@@ -240,7 +240,7 @@ void CXmlDoc::load(const char* xmlData)
         char* tokenStart = (char*) strchr(buffer, '<');
         while (tokenStart) {
             tokenStart++;
-            char* tokenEnd = strpbrk(tokenStart, " >");
+            char* tokenEnd = strpbrk(tokenStart, "\r\n >");
             if (!tokenEnd)
                 break; /// Tag started but not completed
 
