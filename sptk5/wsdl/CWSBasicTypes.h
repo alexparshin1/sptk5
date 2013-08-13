@@ -46,6 +46,11 @@ public:
         m_data = attr->text();
     }
     
+    virtual void load(std::string attr)
+    {
+        m_data = attr;
+    }
+    
     virtual std::string asString() const
     {
         return m_data;
@@ -68,6 +73,7 @@ class WSBool : public WSType
 {
 public:
     virtual void load(const CXmlNode* attr);
+    virtual void load(std::string attr);
     virtual std::string asString() const;
 };
 
@@ -75,6 +81,7 @@ class WSDate : public WSType
 {
 public:
     virtual void load(const CXmlNode* attr);
+    virtual void load(std::string attr);
     virtual std::string asString() const;
 };
 
@@ -82,6 +89,7 @@ class WSDateTime : public WSType
 {
 public:
     virtual void load(const CXmlNode* attr);
+    virtual void load(std::string attr);
     virtual std::string asString() const;
 };
 
@@ -89,12 +97,14 @@ class WSDouble : public WSType
 {
 public:
     virtual void load(const CXmlNode* attr);
+    virtual void load(std::string attr);
 };
 
 class WSInteger : public WSType
 {
 public:
     virtual void load(const CXmlNode* attr);
+    virtual void load(std::string attr);
 };
 
 class WSString : public WSType

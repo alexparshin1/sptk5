@@ -36,7 +36,12 @@ void WSBool::load(const CXmlNode* attr)
     m_data.setBool(attr->text() == "true");
 }
 
-std::string WSBool::asString() const
+void WSBool::load(string attr)
+{
+    m_data.setBool(attr == "true");
+}
+
+string WSBool::asString() const
 {
     return m_data.getBool() ? "true" : "false";
 }
@@ -46,7 +51,12 @@ void WSDate::load(const CXmlNode* attr)
     m_data.setDate(CDateTime(attr->text().c_str()));
 }
 
-std::string WSDate::asString() const
+void WSDate::load(string attr)
+{
+    m_data.setDate(CDateTime(attr.c_str()));
+}
+
+string WSDate::asString() const
 {
     return m_data.asString();
 }
@@ -58,7 +68,14 @@ void WSDateTime::load(const CXmlNode* attr)
     m_data.setDateTime(CDateTime(dateString.c_str()));
 }
 
-std::string WSDateTime::asString() const
+void WSDateTime::load(string attr)
+{
+    static CRegExp getDate("^([\\d\\-]+)T(.*)Z.*$");
+    string dateString = getDate.s(attr,"\\1 \\2");
+    m_data.setDateTime(CDateTime(dateString.c_str()));
+}
+
+string WSDateTime::asString() const
 {
     static CRegExp getDate("^([\\d\\-]+) (.*)$");
     return getDate.s(m_data.asString(),"\\1T\\2Z");
@@ -69,7 +86,17 @@ void WSDouble::load(const CXmlNode* attr)
     m_data.setFloat(atof(attr->text().c_str()));
 }
 
+void WSDouble::load(string attr)
+{
+    m_data.setFloat(atof(attr.c_str()));
+}
+
 void WSInteger::load(const CXmlNode* attr)
 {
     m_data.setInteger(atoi(attr->text().c_str()));
+}
+
+void WSInteger::load(string attr)
+{
+    m_data.setInteger(atoi(attr.c_str()));
 }

@@ -224,7 +224,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         classImplementation << "   // Load attributes" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
             CWSParserAttribute& attr = *(itor->second);
-            classImplementation << "   m_" << attr.name() << ".load(input->attributes().getAttributeNode(\"" << attr.name() << "\"));" << endl;
+            classImplementation << "   m_" << attr.name() << ".load(input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
     }
     if (m_sequence.size()) {
