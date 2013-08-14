@@ -263,7 +263,14 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) throw (ex
 
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
         string operationName = itor->first;
-        string requestName = strip_namespace(itor->second.m_input->name());
+        CStrings nameParts(itor->second.m_input->name(), ":");
+        string requestNamespace, requestName;
+        if (nameParts.size() == 1)
+            requestName = nameParts[0];
+        else {
+            requestNamespace = nameParts[0];
+            requestName = nameParts[1];
+        }
         CWSOperation& operation = itor->second;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(CXmlElement* requestNode) throw (std::exception)" << endl;
         serviceImplementation << "{" << endl;
@@ -273,7 +280,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) throw (ex
         serviceImplementation << "   CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
         serviceImplementation << "   soapBody->clearChildren();" << endl;
         serviceImplementation << "   " << operationName << "(inputData,outputData);" << endl;
-        serviceImplementation << "   CXmlElement* response = new CXmlElement(soapBody, \"" << operation.m_output->name() << "\");" << endl;
+        serviceImplementation << "   CXmlElement* response = new CXmlElement(soapBody, \"ns1:" << operation.m_output->name() << "\");" << endl;
         serviceImplementation << "   outputData.unload(response);" << endl;
         serviceImplementation << "}" << endl << endl;
     }

@@ -267,6 +267,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
                                     << " itor != m_" << complexType->name() << ".end(); itor++) {" << endl;
                 classImplementation << "      " << complexType->className() << "* item = *itor;" << endl;
                 classImplementation << "      item->unload(output);" << endl;
+                classImplementation << "   }" << endl;
             } else {
                 if (complexType->className().find("sptk::") == 0)
                     classImplementation << "   m_" << complexType->name() << ".addElement(output,\"" << complexType->name() << "\");" << endl;
