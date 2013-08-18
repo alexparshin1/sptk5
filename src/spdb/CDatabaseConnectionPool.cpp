@@ -46,11 +46,12 @@ using namespace sptk;
 typedef map<string, CDatabaseConnectionPool*, CCaseInsensitiveCompare> DriverLoaders;
 static DriverLoaders m_loadedDrivers;
 
-CDatabaseConnectionPool::CDatabaseConnectionPool(std::string connectionString) :
+CDatabaseConnectionPool::CDatabaseConnectionPool(std::string connectionString, unsigned maxConnections) :
     CDatabaseConnectionString(connectionString),
     m_handle(0),
     m_createConnection(0),
-    m_destroyConnection(0)
+    m_destroyConnection(0),
+    m_maxConnections(maxConnections)
 {
 }
 
@@ -125,11 +126,24 @@ CDatabaseConnection* CDatabaseConnectionPool::createConnection() throw (CDatabas
 {
     if (!m_handle)
         load();
-    CDatabaseConnection* driver = m_createConnection(str().c_str());
-    return driver;
+    CDatabaseConnection* connection = NULL;
+    if (m_connections.size() < m_maxConnections && m_pool.empty()) {
+        connection = m_createConnection(str().c_str());
+        m_connections.push_back(connection);
+        return connection;
+    }
+    m_pool.pop(connection, 10000);
+    return connection;
+}
+
+void CDatabaseConnectionPool::releaseConnection(CDatabaseConnection* connection)
+{
+    m_pool.push(connection);
 }
 
 void CDatabaseConnectionPool::destroyConnection(CDatabaseConnection* connection)
 {
+    m_connections.remove(connection);
+    connection->close();
     m_destroyConnection(connection);
 }

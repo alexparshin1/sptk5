@@ -42,4 +42,6 @@
 #include <sptk5/threads/CRunable.h>
 #include <sptk5/threads/CRWLock.h>
 
+#include <sptk5/md5.h>
+
 #endif

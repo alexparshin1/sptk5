@@ -205,7 +205,6 @@ public:
 
     /// @brief Reports the year
     int16_t year() const;
-public:
 
     /// @brief Returns date as a string
     std::string dateString() const;
@@ -217,7 +216,12 @@ public:
     operator std::string () const {
         return dateString() + " " + timeString();
     }
-public:
+
+    /// @brief Returns interval between two dates in seconds
+    double secondsTo(CDateTime toDate) const
+    {
+        return (toDate - m_dateTime) * 86400;
+    }
 
     /// @brief Decodes date into y,m,d
     void decodeDate(int16_t *y,int16_t *m,int16_t *d) const {

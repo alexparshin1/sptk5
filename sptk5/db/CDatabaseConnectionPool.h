@@ -39,6 +39,8 @@
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/threads/CSynchronizedList.h>
+#include <sptk5/threads/CSynchronizedQueue.h>
 
 namespace sptk
 {
@@ -52,7 +54,7 @@ typedef void CDestroyDriverInstance(CDatabaseConnection*);
 #ifdef WIN32
     typedef HMODULE CDriverHandle;                   ///< Windows: Driver DLL handle type
 #else
-    typedef void*   CDriverHandle;                   ///< Unix: Driver SO/DLL handle type
+    typedef void*   CDriverHandle;                   ///< Unix: Driver shared library handle type
 #endif
 
 /// @brief Database driver loader
@@ -62,9 +64,12 @@ typedef void CDestroyDriverInstance(CDatabaseConnection*);
 class SP_EXPORT CDatabaseConnectionPool : public CSynchronized, public CDatabaseConnectionString
 {
 protected:
-    CDriverHandle               m_handle;                   ///< Driver SO/DLL handle after load
-    CCreateDriverInstance*      m_createConnection;         ///< Function that creates driver instances
-    CDestroyDriverInstance*     m_destroyConnection;        ///< Function that destroys driver instances
+    CDriverHandle                               m_handle;               ///< Driver SO/DLL handle after load
+    CCreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
+    CDestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
+    unsigned                                    m_maxConnections;       ///< Maximum number of connections in the pool
+    CSynchronizedList<CDatabaseConnection*>     m_connections;          ///< List all connections
+    CSynchronizedQueue<CDatabaseConnection*>    m_pool;                 ///< Connection pool
 
     /// @brief Loads database driver
     ///
@@ -77,12 +82,22 @@ public:
     /// Database connection string is the same for all connections,
     /// created with this object.
     /// @param connectionString std::string, Database connection string
-    CDatabaseConnectionPool(std::string connectionString);
+    /// @param maxConnections unsigned, Maximum number of connections in the pool
+    CDatabaseConnectionPool(std::string connectionString, unsigned maxConnections=100);
+    
+    /// @brief Destructor
+    ///
+    /// Closes and destroys all created connections
+    CDatabaseConnectionPool();
 
     /// @brief Creates database connection
     CDatabaseConnection* createConnection() throw (CDatabaseException);
 
-    /// @brief Destroys driver instance
+    /// @brief Returns used database connection back to the pool
+    /// @param connection CDatabaseConnection*, Database that is no longer in use and may be returned to the pool
+    void releaseConnection(CDatabaseConnection* connection);
+
+    /// @brief Destroys connection
     /// @param connection CDatabaseConnection*, destroys the driver instance
     void destroyConnection(CDatabaseConnection* connection);
 };

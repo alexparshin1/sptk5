@@ -1,8 +1,8 @@
 /***************************************************************************
 *                          SIMPLY POWERFUL TOOLKIT (SPTK)
-*                          CSynchronizedQueue.h  -  description
+*                          CSynchronizedMap.h  -  description
 *                             -------------------
-*    begin                : Sat Feb 25 2012
+*    begin                : Sat Aug 17 2013
 *    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
 *    email                : alexeyp@gmail.com
 ***************************************************************************/
@@ -33,152 +33,127 @@
 *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************/
 
-#ifndef __CSYNCHRONIZEDQUEUE_H__
-#define __CSYNCHRONIZEDQUEUE_H__
+#ifndef __CSYNCHRONIZEDMAP_H__
+#define __CSYNCHRONIZEDMAP_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/threads/CSynchronizedCode.h>
-#include <sptk5/threads/CSemaphore.h>
-#include <queue>
+#include <map>
 
 namespace sptk {
 
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Synchronized template queue
+/// @brief Synchronized map
 ///
-/// Simple thread-safe queue
-template <class T>
-class CSynchronizedQueue
+/// Simple thread-safe map
+template <class K, class T>
+class CSynchronizedMap
 {
-    CSemaphore              m_semaphore;        ///< Semaphore to waiting for an item if queue is empty
-    std::queue<T>*          m_queue;            ///< Queue
+    typedef std::map<K,T>   Map;
+    Map                     m_map;              ///< Map
 
 protected:
 
-    mutable CSynchronized   m_sync;             ///< Lock to synchronize queue operations
+    mutable CSynchronized   m_sync;             ///< Lock to synchronize map operations
 
 public:
 
-    /// @brief Queue callback function used in each() method.
+    /// @brief Map callback function used in each() method.
     ///
-    /// Iterates through queue until false is returned.
-    /// @param item T&, List item
+    /// Iterates through list until false is returned.
+    /// @param const key K&, Map item key
+    /// @param item T&, Map item
     /// @param data void*, Optional function-specific data
-    typedef bool (CallbackFunction)(T& item, void* data);
+    typedef bool (CallbackFunction)(const K& key, T& item, void* data);
 
 public:
 
     /// @brief Default constructor
-    CSynchronizedQueue() :
-        m_queue(new std::queue<T>)
+    CSynchronizedMap()
     {}
 
     /// @brief Destructor
-    virtual ~CSynchronizedQueue()
-    {
-        delete m_queue;
-    }
+    virtual ~CSynchronizedMap()
+    {}
 
-    /// @brief Pushes a data item to the queue
-    ///
-    /// Automatically posts internal semaphore to indicate
-    /// queue item availability.
+    /// @brief Inserts data item to the map
+    /// @param key const K&, A data key
     /// @param data const T&, A data item
-    void push(const T& data)
+    virtual void insert(const K& key, const T& data)
     {
         CSynchronizedCode sc(m_sync);
-        m_queue->push(data);
-        m_semaphore.post();
+        m_map[key] = data;
     }
 
-    /// @brief Pops a data item from the queue
+    /// @brief Finds a data item from the list front
     ///
-    /// If queue is empty then waits until timeoutMS milliseconds timeout occurs.
-    /// Returns false if timeout occurs.
-    /// @param item T&, A queue item (output)
-    /// @param timeoutMS int32_t, Operation timeout in milliseconds, -1 is forever
-    bool pop(T& item, int32_t timeoutMS=-1)
+    /// Returns true if key exists and data populated.
+    /// @param key const K&, A data key
+    /// @param item T&, A list item (output)
+    virtual bool get(const K& key, T& item)
     {
-        if (m_semaphore.wait(timeoutMS)) {
-            CSynchronizedCode sc(m_sync);
-            if (!m_queue->empty()) {
-                item = m_queue->front();
-                m_queue->pop();
-                return true;
-            }
-        }
-        return false;
+        CSynchronizedCode sc(m_sync);
+        typename Map::iterator itor = m_map.find(key);
+        if (itor == m_map.end())
+            return false;
+        item = itor->second;
+        return true;
     }
 
-    /// @brief Wakes up queue semaphore to interrupt waiting
+    /// @brief Removes data with matching key
     ///
-    /// Any waiting pop() operation immediately returns false.
-    /// @brief Wakes up a sleeping object
-    virtual void wakeup()
+    /// Returns true if key existed.
+    /// @param key const K&, A data key
+    virtual bool remove(const K& key)
     {
-        m_semaphore.post();
+        CSynchronizedCode sc(m_sync);
+        typename Map::iterator itor = m_map.find(key);
+        if (itor == m_map.end())
+            return false;
+        m_map.erase(itor);
+        return true;
     }
 
-    /// @brief Returns true if the queue is empty
+    /// @brief Returns true if the list is empty
     bool empty() const
     {
         CSynchronizedCode sc(m_sync);
-        return m_queue->empty();
+        return m_map.empty();
     }
 
-    /// @brief Returns number of items in the queue
+    /// @brief Returns number of items in the list
     uint32_t size() const
     {
         CSynchronizedCode sc(m_sync);
-        return m_queue->size();
+        return m_map.size();
     }
 
-    /// @brief Removes all items from the queue
+    /// @brief Removes all items from the list
     void clear()
     {
         CSynchronizedCode sc(m_sync);
-        delete m_queue;
-        m_queue = new std::queue<T>;
+        m_map.clear();
     }
 
     /// @brief Calls callbackFunction() for every list until false is returned
-    ///
-    /// Current implementation does the job but isn't too efficient due to
-    /// std::queue class limitations.
     /// @param callbackFunction CallbackFunction*, Callback function that is executed for list items
     /// @param data void*, Function-specific data
     /// @returns true if every list item was processed
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
         CSynchronizedCode sc(m_sync);
-
-        std::queue<T> newQueue = new std::queue<T>;
-
-        // Iterating through queue until callback returns false
-        bool rc = true;
-        while (m_queue->size()) {
-            T& item = m_queue->front();
-            m_queue->pop();
-            newQueue->push(item);
-            // When rc switches to false, don't execute callback
-            // for the remaining queue items
-            if (rc) {
-                try {
-                    rc = callbackFunction(item, data);
-                } catch (std::exception& e) {
-                    rc = false;
-                }
-            }
+        typename Map::iterator itor;
+        for (itor = m_map.begin(); itor != m_map.end(); itor++) {
+            if (!callbackFunction(itor->first, itor->second, data))
+                return false;
         }
-
-        delete m_queue;
-        m_queue = newQueue;
-
-        return rc;
+        return true;
     }
 };
+
 /// @}
+
 }
 #endif

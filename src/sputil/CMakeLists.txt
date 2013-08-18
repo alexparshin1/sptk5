@@ -8,6 +8,7 @@ ADD_LIBRARY (sputil5 ${LIBRARY_TYPE}
     core/CField.cpp core/CFieldList.cpp core/CFileLog.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
     core/CStrings.cpp core/CSysLog.cpp core/CUniqueInstance.cpp core/CVariant.cpp core/string_ext.cpp
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/CProxyLog.cpp core/CSystemException.cpp core/CRegExp.cpp
+    core/md5.cpp
     net/CBaseMailConnect.cpp net/CBaseSocket.cpp net/CCGI.cpp net/CFTPConnect.cpp
     net/CHttpConnect.cpp net/CHttpParams.cpp net/CImapConnect.cpp net/CMailMessageBody.cpp
     net/CSmtpConnect.cpp net/CTCPServer.cpp  net/CTCPSocket.cpp 
