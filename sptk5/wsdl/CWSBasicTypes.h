@@ -67,6 +67,11 @@ public:
         element->text(m_data);
         return element;
     }
+    
+    void value(CVariant data)
+    {
+        m_data = data;
+    }
 };
 
 class WSBool : public WSType

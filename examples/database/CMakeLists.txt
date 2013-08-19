@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES (/usr/local/include /usr/include/pgsql /usr/include/pgsql/li
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
 
-LINK_LIBRARIES (sputil5 ${ODBC_LIBRARY} ${SQLITE3_LIBRARY} ${POSTGRESQL_LIBRARY} ${SOCKET_LIBRARY})
+LINK_LIBRARIES (sputil5 ${SOCKET_LIBRARY})
 IF (UNIX)
     LINK_LIBRARIES (pthread rt)
 ENDIF (UNIX)
@@ -11,13 +11,11 @@ ENDIF (UNIX)
 IF (POSTGRESQL_FLAG)
   ADD_EXECUTABLE (postgresql_test postgresql_test.cpp)
   TARGET_LINK_LIBRARIES (postgresql_test sputil5 spdb5)
-  ADD_EXECUTABLE (postgresql_test2 postgresql_test2.cpp)
-  TARGET_LINK_LIBRARIES (postgresql_test2 sputil5 spdb5)
 ENDIF (POSTGRESQL_FLAG)
 
 IF (SQLITE3_LIBRARY)
   ADD_EXECUTABLE (sqlite3_test sqlite3_test.cpp)
-  TARGET_LINK_LIBRARIES (sqlite3_test sputil5 spdb5 ${SQLITE3_LIBRARY})
+  TARGET_LINK_LIBRARIES (sqlite3_test sputil5 spdb5)
 
   INSTALL(TARGETS sqlite3_test
     RUNTIME DESTINATION share/sptk/bin
@@ -32,7 +30,7 @@ IF (ODBC_LIBRARY)
   LINK_LIBRARIES (spdb5)
   FOREACH (ODBC_TEST ${ODBC_TESTS})
     ADD_EXECUTABLE (${ODBC_TEST} ${ODBC_TEST}.cpp)
-    TARGET_LINK_LIBRARIES (${ODBC_TEST} sputil5 spdb5 ${ODBC_LIBRARY})
+    TARGET_LINK_LIBRARIES (${ODBC_TEST} sputil5 spdb5)
   ENDFOREACH (ODBC_TEST)
 
   INSTALL(TARGETS ${ODBC_TESTS}

@@ -46,7 +46,7 @@ IF (WIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)
 ELSE (WIN32)
   ADD_DEFINITIONS (-Wall -pedantic)
-  LINK_LIBRARIES(pthread rt)
+  LINK_LIBRARIES(pthread rt dl)
 ENDIF (WIN32)
 
 

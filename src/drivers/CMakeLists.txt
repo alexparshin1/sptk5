@@ -24,7 +24,7 @@ IF (POSTGRESQL_FLAG)
         PostgreSQL/CPostgreSQLParamValues.cpp
         PostgreSQL/htonq.cpp
     )
-    TARGET_LINK_LIBRARIES(spdb5_postgresql spdb5 sputil5)
+    TARGET_LINK_LIBRARIES(spdb5_postgresql ${POSTGRESQL_LIBRARY})
     INSTALL(TARGETS spdb5_postgresql RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (POSTGRESQL_FLAG)
 
