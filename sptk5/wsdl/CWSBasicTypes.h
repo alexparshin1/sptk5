@@ -56,21 +56,11 @@ public:
         return m_data;
     }
 
-    CVariant& value()
-    {
-        return m_data;
-    }
-
     CXmlElement* addElement(CXmlElement* parent, std::string name)
     {
         CXmlElement* element = new CXmlElement(*parent, name);
         element->text(m_data);
         return element;
-    }
-    
-    void value(CVariant data)
-    {
-        m_data = data;
     }
 };
 
@@ -80,6 +70,17 @@ public:
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
     virtual std::string asString() const;
+
+    WSType& operator = (bool value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator bool () const
+    {
+        return m_data.asBool();
+    }
 };
 
 class WSDate : public WSType
@@ -88,6 +89,17 @@ public:
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
     virtual std::string asString() const;
+
+    WSType& operator = (CDateTime value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator CDateTime () const
+    {
+        return m_data.asDate();
+    }
 };
 
 class WSDateTime : public WSType
@@ -96,6 +108,17 @@ public:
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
     virtual std::string asString() const;
+
+    WSType& operator = (CDateTime value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator CDateTime () const
+    {
+        return m_data.asDateTime();
+    }
 };
 
 class WSDouble : public WSType
@@ -103,6 +126,17 @@ class WSDouble : public WSType
 public:
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
+
+    WSType& operator = (double value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator double () const
+    {
+        return m_data.asFloat();
+    }
 };
 
 class WSInteger : public WSType
@@ -110,14 +144,47 @@ class WSInteger : public WSType
 public:
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
+
+    WSType& operator = (int value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator int () const
+    {
+        return m_data.asInteger();
+    }
 };
 
 class WSString : public WSType
 {
+public:
+    WSType& operator = (std::string value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator std::string () const
+    {
+        return m_data.asString();
+    }
 };
 
 class WSTime : public WSType
 {
+public:
+    WSType& operator = (std::string value)
+    {
+        m_data = value;
+        return *this;
+    }
+    
+    operator std::string () const
+    {
+        return m_data.asString();
+    }
 };
 
 }

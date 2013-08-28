@@ -40,6 +40,7 @@ COracleConnection::COracleConnection(string connectionString) :
     CDatabaseConnection(connectionString),
     m_connection(NULL)
 {
+    m_connType = DCT_ORACLE;
 }
 
 COracleConnection::~COracleConnection()

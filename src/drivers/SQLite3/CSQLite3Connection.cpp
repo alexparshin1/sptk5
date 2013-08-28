@@ -65,6 +65,7 @@ CSQLite3Connection::CSQLite3Connection(string connectionString) :
     CDatabaseConnection(connectionString)
 {
     m_connect = 0;
+    m_connType = DCT_SQLITE3;
 }
 
 CSQLite3Connection::~CSQLite3Connection()

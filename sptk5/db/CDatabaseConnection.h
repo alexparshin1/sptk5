@@ -100,10 +100,21 @@ class SP_EXPORT CDatabaseConnection: public CSynchronized
     typedef std::vector<CQuery*> CQueryVector;
     friend class CQuery;
 
+public:
+    enum Type {
+        DCT_UNKNOWN=0,
+        DCT_MYSQL=1,
+        DCT_ORACLE=2,
+        DCT_POSTGRES=4,
+        DCT_SQLITE3=8,
+        DCT_ODBC=16
+    };
+
 protected:
 
     CQueryVector                m_queryList;      ///< The list of queries that use this database
     CDatabaseConnectionString   m_connString;     ///< The connection string
+    Type                        m_connType;       ///< The connection type
     bool                        m_inTransaction;  ///< The in-transaction flag
     CBaseLog*                   m_log;            ///< Log for the database events (optional)
     std::string                 m_objectName;     ///< Object name for logs and error messages
@@ -243,6 +254,12 @@ public:
 
     /// @brief Returns driver-specific connection string
     virtual std::string nativeConnectionString() const = 0;
+
+    /// @brief Returns the connection type
+    virtual Type connectionType() const
+    {
+        return m_connType;
+    }
 
     /// @brief Returns the driver description
     virtual std::string driverDescription() const

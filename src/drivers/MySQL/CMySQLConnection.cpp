@@ -39,6 +39,7 @@ CMySQLConnection::CMySQLConnection(string connectionString) :
     CDatabaseConnection(connectionString),
     m_connection(NULL)
 {
+    m_connType = DCT_MYSQL;
 }
 
 CMySQLConnection::~CMySQLConnection()

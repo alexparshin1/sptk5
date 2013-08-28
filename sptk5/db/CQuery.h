@@ -345,7 +345,7 @@ public:
     /// @brief Sets SQL Query text.
     /// If the Query text is not the same and the db statement was prepared earlier
     /// then the db statement is released and new one is created.
-    void sql(std::string _sql);
+    virtual void sql(std::string _sql);
 
     /// @brief Returns the database the query is connected to
     CDatabaseConnection *database() const

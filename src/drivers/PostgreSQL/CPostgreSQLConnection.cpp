@@ -133,6 +133,7 @@ CPostgreSQLConnection::CPostgreSQLConnection(string connectionString) :
     CDatabaseConnection(connectionString)
 {
     m_connect = 0;
+    m_connType = DCT_POSTGRES;
 }
 
 CPostgreSQLConnection::~CPostgreSQLConnection()

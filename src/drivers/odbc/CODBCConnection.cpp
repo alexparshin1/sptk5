@@ -56,6 +56,7 @@ CODBCConnection::CODBCConnection(string connectionString) :
     CDatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnection;
+    m_connType = DCT_ODBC;
 }
 
 CODBCConnection::~CODBCConnection()
