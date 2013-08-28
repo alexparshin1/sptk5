@@ -37,7 +37,7 @@
 using namespace sptk;
 
 // read the folder() and move item into the first entry
-bool CImapDS::open() {
+bool CImapDS::open() throw (std::exception) {
    clear();
 
     // Connect to the server

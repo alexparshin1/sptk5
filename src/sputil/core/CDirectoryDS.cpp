@@ -280,7 +280,7 @@ void CDirectoryDS::directory(string d) {
 }
 
 // read the directory() and move item into the first entry
-bool CDirectoryDS::open() {
+bool CDirectoryDS::open() throw (std::exception) {
     clear();
 
     size_t dlen = m_directory.length()-1;

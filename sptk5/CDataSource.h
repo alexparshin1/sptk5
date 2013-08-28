@@ -134,7 +134,7 @@ public:
 public:
 
     /// @brief Opens the datasource. Implemented in derved class.
-    virtual bool open()
+    virtual bool open() throw (std::exception)
     {
         return false;
     }

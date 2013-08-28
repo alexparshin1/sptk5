@@ -148,7 +148,7 @@ CFieldList *parse_file_info_string(string& file_info) {
 }
 
 // read the folder() and move item into the first entry
-bool sptk::CFtpDS::open() {
+bool sptk::CFtpDS::open() throw (std::exception) {
    clear();
 
    // Connect to the server

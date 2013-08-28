@@ -236,7 +236,7 @@ public:
     ///
     /// It is necessary for the select queries and some stored procedures
     /// that may return the dataset. First-time call for open() also prepares the query.
-    virtual bool open();
+    virtual bool open() throw (std::exception);
 
     /// @brief Closes the query
     ///
@@ -262,7 +262,7 @@ public:
 
 public:
     /// @brief Executes the query and closes the statement.
-    void exec()
+    virtual void exec() throw (std::exception)
     {
         open();
     }
@@ -271,14 +271,14 @@ public:
     ///
     /// Query SQL would be set to the new SQL statement
     /// @param newSQL std::string, an SQL statement to execute
-    void exec(std::string newSQL)
+    virtual void exec(std::string newSQL) throw (std::exception)
     {
         sql(newSQL);
         open();
     }
 
     /// @brief Fetches the next row from the recordset, same as next()
-    void fetch();
+    void fetch() throw (std::exception);
 
     /// @brief Connects a query to a database
     ///

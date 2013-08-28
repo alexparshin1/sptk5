@@ -106,7 +106,7 @@ public:
     }
 
     /// Opens the directory and fills in the dataset
-    virtual bool open();
+    virtual bool open() throw (std::exception);
 };
 /// @}
 }

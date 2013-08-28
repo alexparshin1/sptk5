@@ -130,7 +130,7 @@ public:
 
     /// Opens the IMAP server connection with user name and password defined with user() and password().
     /// Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
-    virtual bool open();
+    virtual bool open() throw (std::exception);
 
     /// Optional callback for the open() method progression.
     /// @param cb CProgressCallback, a callback function

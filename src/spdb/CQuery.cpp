@@ -289,7 +289,7 @@ void CQuery::sql(string _sql)
     }
 }
 
-bool CQuery::open()
+bool CQuery::open() throw (std::exception)
 {
     if (!m_db)
         throw CDatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
@@ -319,7 +319,7 @@ bool CQuery::open()
     return true;
 }
 
-void CQuery::fetch()
+void CQuery::fetch() throw (std::exception)
 {
     m_fields.rewind();
     if (!m_db || !m_active) {

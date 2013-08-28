@@ -51,19 +51,20 @@ enum CFtpShowPolicy {
 ///
 /// Class CFtpDS allows to browse the list of files on FTP server.
 /// It returns a dataset with file names, sizes, modification times etc.
-class CFtpDS : public CMemoryDS  {
+class CFtpDS : public CMemoryDS
+{
 private:
-    CFTPConnect           m_ftp;           /// FTP socket
-    std::string           m_host;       /// FTP host name
-    int                   m_port;       /// FTP port
-    std::string           m_folder;        /// FTP folder name
-    int                   m_showpolicy;    /// FTP show policy, see CFtpShowPolicy
-    std::string           m_user;       /// FTP user name
-    std::string           m_password;      /// FTP user password
-    CProgressCallback     m_callback;      /// Internal callback to indicate the progress on open()
+    CFTPConnect           m_ftp;            /// FTP socket
+    std::string           m_host;           /// FTP host name
+    int                   m_port;           /// FTP port
+    std::string           m_folder;         /// FTP folder name
+    int                   m_showpolicy;     /// FTP show policy, see CFtpShowPolicy
+    std::string           m_user;           /// FTP user name
+    std::string           m_password;       /// FTP user password
+    CProgressCallback     m_callback;       /// Internal callback to indicate the progress on open()
 public:
     /// Default Constructor
-    CFtpDS() : CMemoryDS(), m_port(21), m_showpolicy(0), m_callback(NULL) { }
+    CFtpDS() : CMemoryDS(), m_port ( 21 ), m_showpolicy ( 0 ), m_callback ( NULL ) { }
 
     /// Destructor
     virtual ~CFtpDS() {
@@ -76,12 +77,12 @@ public:
     }
 
     /// Defines current show policy, see CFtpShowPolicy
-    void showPolicy(char type)        {
+    void showPolicy ( char type )        {
         m_showpolicy = type;
     }
 
     /// FTP host name
-    void host(std::string host_name)      {
+    void host ( std::string host_name )      {
         m_host = host_name;
     }
 
@@ -91,7 +92,7 @@ public:
     }
 
     /// FTP port number
-    void port(int p)                  {
+    void port ( int p )                  {
         m_port = p;
     }
 
@@ -101,7 +102,7 @@ public:
     }
 
     /// FTP user name
-    void user(std::string usr)            {
+    void user ( std::string usr )            {
         m_user = usr;
     }
 
@@ -111,7 +112,7 @@ public:
     }
 
     /// FTP user password
-    void password(std::string pwd)        {
+    void password ( std::string pwd )        {
         m_password = pwd;
     }
 
@@ -121,7 +122,7 @@ public:
     }
 
     /// FTP folder name
-    void folder(std::string d)            {
+    void folder ( std::string d )            {
         m_folder = d;
     }
 
@@ -134,10 +135,10 @@ public:
     /// selects the FTP folder(),
     /// reads the list of files and directories,
     /// closes the FTP connection
-    virtual bool              open();
+    virtual bool              open() throw ( std::exception );
 
     /// Sets the callback for the open() progression
-    void callback(CProgressCallback cb) {
+    void callback ( CProgressCallback cb ) {
         m_callback = cb;
     }
 };
