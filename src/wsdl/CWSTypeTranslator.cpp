@@ -38,7 +38,7 @@ CWSTypeTranslator::CWSTypeTranslator()
 {
     wsTypeToCxxTypeMap["xsd:boolean"]   = "sptk::WSBool";
     wsTypeToCxxTypeMap["xsd:date"]      = "sptk::WSDate";
-    wsTypeToCxxTypeMap["xsd:datetime"]  = "sptk::WSDateTime";
+    wsTypeToCxxTypeMap["xsd:dateTime"]  = "sptk::WSDateTime";
     wsTypeToCxxTypeMap["xsd:double"]    = "sptk::WSDouble";
     wsTypeToCxxTypeMap["xsd:float"]     = "sptk::WSDouble";
     wsTypeToCxxTypeMap["xsd:int"]       = "sptk::WSInteger";
