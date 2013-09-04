@@ -84,7 +84,7 @@ public:
     /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
     void execute(CRunable* task);
 
-    /// @brief Thrttead event callback function
+    /// @brief Thread event callback function
     ///
     /// Receives events that occur in the threads
     /// @param thread CThread*, Thread where event occured

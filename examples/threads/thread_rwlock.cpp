@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/cutils>
+#include <sptk5/cthreads>
 #include <iostream>
 
 using namespace std;

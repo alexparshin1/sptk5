@@ -31,7 +31,7 @@
 #endif
 
 #include <sptk5/cutils>
-#include <string>
+#include <sptk5/cthreads>
 #include <vector>
 #include <iostream>
 #include <sys/stat.h>

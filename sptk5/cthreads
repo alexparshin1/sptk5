@@ -25,19 +25,16 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#ifndef __CTHREADS__
+#define __CTHREADS__
 
-#include <sptk5/CBuffer.h>
-#include <sptk5/CDataSource.h>
-#include <sptk5/CFileLog.h>
-#include <sptk5/CProxyLog.h>
-#include <sptk5/CRegistry.h>
-#include <sptk5/CRegExp.h>
-#include <sptk5/CSysLog.h>
-#include <sptk5/CUniqueInstance.h>
-#include <sptk5/string_ext.h>
-
-#include <sptk5/md5.h>
+#include <sptk5/threads/CRWLock.h>
+#include <sptk5/threads/CSemaphore.h>
+#include <sptk5/threads/CSynchronizedCode.h>
+#include <sptk5/threads/CSynchronizedList.h>
+#include <sptk5/threads/CSynchronizedMap.h>
+#include <sptk5/threads/CSynchronizedQueue.h>
+#include <sptk5/threads/CThreadPool.h>
+#include <sptk5/threads/CRunable.h>
 
 #endif

@@ -33,7 +33,7 @@
 #include <stdlib.h>
 
 #include <sptk5/cutils>
-#include <string>
+#include <sptk5/cthreads>
 
 using namespace std;
 using namespace sptk;
