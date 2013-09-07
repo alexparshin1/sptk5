@@ -70,9 +70,7 @@ void WSDateTime::load(const CXmlNode* attr)
 
 void WSDateTime::load(string attr)
 {
-    static CRegExp getDate("^([\\d\\-]+)T(.*)Z.*$");
-    string dateString = getDate.s(attr,"\\1 \\2");
-    m_data.setDateTime(CDateTime(dateString.c_str()));
+    m_data.setDateTime(CDateTime(attr.c_str()));
 }
 
 string WSDateTime::asString() const

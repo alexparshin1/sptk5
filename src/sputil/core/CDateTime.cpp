@@ -410,8 +410,8 @@ static int trimRight(char *s) {
 
 void CDateTime::encodeTime(double& dt,const char *tim) {
     char  bdat[32];
-    short timePart[4] = { 0, 0, 0, 0},
-                        partNumber = 0;
+    short timePart[4] = { 0, 0, 0, 0};
+    short partNumber = 0;
     char  *ptr = NULL;
     bool  afternoon = false;
 
@@ -426,15 +426,11 @@ void CDateTime::encodeTime(double& dt,const char *tim) {
         dt = Time();        // Sets the current date
         return;
     } else {
-        char *p = strstr(bdat,"AM");
+        char *p = strpbrk(bdat,"APZ"); // Looking for AM, PM, or Z
         if (p) {
-            *p = 0;
-        } else {
-            p = strstr(bdat,"PM");
-            if (p) {
-                *p = 0;
+            if (*p == 'P')
                 afternoon = true;
-            }
+            *p = 0;
         }
         trimRight(bdat);
         uint32_t len = (uint32_t) strlen(bdat);
@@ -549,7 +545,7 @@ CDateTime::CDateTime(const char * dat) {
     }
 
     char* s1 = strdup(dat);
-    char* s2 = strchr(s1,' ');
+    char* s2 = strpbrk(s1," T");
     if (s2) {
         *s2 = 0;
         s2++;

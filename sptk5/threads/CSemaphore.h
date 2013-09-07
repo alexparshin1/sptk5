@@ -71,7 +71,7 @@ public:
     /// If semaphore value is greater than zero, decreases semaphore value by one and returns true.
     /// Timeout interval can be -1 (wait forever), or number of milliseconds.
     /// @param timeoutMS int32_t, wait timeout in milliseconds
-    /// @return true if semaphore was pasted, or false if timeout occurs
+    /// @return true if semaphore was posted (signaled), or false if timeout occurs
     bool wait(uint32_t timeoutMS=-1) throw (std::exception);
 };
 /// @}
