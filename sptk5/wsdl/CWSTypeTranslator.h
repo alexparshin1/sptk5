@@ -47,7 +47,10 @@ public:
     /// @brief Translates WSDL type names to C++ type names
     /// @param wsType std::string, WSDL type name
     /// @param defaultType std::type, C++ type name returned when match is not found
-    std::string toCxxType(std::string wsType,std::string defaultType="sptk::WSString") const;
+    std::string toCxxType(std::string wsType,std::string defaultType="std::string") const;
+    
+    static std::string convertToCxxType(std::string cxxType, std::string variable);
+    static std::string convertFromCxxType(std::string cxxType, std::string wsdlType, std::string variable);
 };
 
 extern CWSTypeTranslator wsTypeTranslator;

@@ -58,6 +58,8 @@ public:
     CWSParserAttribute(const CWSParserAttribute& attr);
     std::string name() const { return m_name; }
     std::string generate() const;
+    std::string cxxTypeName() const { return m_cxxTypeName; }
+    std::string wsTypeName() const { return m_wsTypeName; }
 };
 
 /// @brief Parses WSDL complexType element

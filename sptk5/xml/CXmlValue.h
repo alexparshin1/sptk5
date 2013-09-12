@@ -207,6 +207,12 @@ public:
         return m_value;
     }
 
+    /// @brief Returns const pointer to string data
+    const char* c_str() const
+    {
+        return m_value.c_str();
+    }
+    
     /// @brief Returns the value with the conversion
     operator std::string() const
     {
