@@ -25,8 +25,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sptk5/db/CPostgreSQLConnection.h>
-//#include <sptk5/CODBCConnection.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
 

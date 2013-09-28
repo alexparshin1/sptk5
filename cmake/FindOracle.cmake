@@ -14,7 +14,11 @@ ELSE (WIN32)
         /usr/include/oracle/*/*
         /usr/local/include
         /usr/local/include/oracle/*/*)
-   SET (ORACLE_POSSIBLE_LIB_PATHS ${ORACLE_HOME}/lib /usr/lib /usr/local/lib)
+   SET (ORACLE_POSSIBLE_LIB_PATHS 
+        ${ORACLE_HOME}/lib
+        ${ORACLE_HOME}/lib64
+        /usr/lib
+        /usr/*/lib)
 ENDIF (WIN32)
 
 SET (Oracle_FOUND FALSE)
@@ -22,8 +26,8 @@ SET (Oracle_FOUND FALSE)
 IF (ORACLE_HOME)
     FIND_PATH (Oracle_INCLUDE_DIRS occi.h ${ORACLE_POSSIBLE_INCLUDE_PATHS})
     IF (Oracle_INCLUDE_DIRS)
-        FIND_LIBRARY (ORACLE_CLNTSH_LIBRARY clntsh ${ORACLE_POSSIBLE_LIB_PATHS} PATH_SUFFIXES oracle)
-        FIND_LIBRARY (ORACLE_OCCI_LIBRARY occi ${ORACLE_POSSIBLE_LIB_PATHS} PATH_SUFFIXES oracle)
+        FIND_LIBRARY (ORACLE_CLNTSH_LIBRARY clntsh ${ORACLE_POSSIBLE_LIB_PATHS})
+        FIND_LIBRARY (ORACLE_OCCI_LIBRARY occi ${ORACLE_POSSIBLE_LIB_PATHS})
         SET (Oracle_LIBRARIES ${ORACLE_CLNTSH_LIBRARY} ${ORACLE_OCCI_LIBRARY})
     ENDIF (Oracle_INCLUDE_DIRS)
     IF (Oracle_LIBRARIES)
