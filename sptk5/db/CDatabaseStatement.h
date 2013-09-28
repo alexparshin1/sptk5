@@ -1,0 +1,119 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CDatabaseStatement.h  -  description
+                             -------------------
+    begin                : Wed Jul 24 2013
+    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#ifndef __CDATABASESTATEMENT_H__
+#define __CDATABASESTATEMENT_H__
+
+#include <sptk5/db/CParamList.h>
+
+namespace sptk
+{
+
+template <class Connection, class Statement> class CDatabaseStatement
+{
+protected:
+    Connection*     m_connection;           ///< DB connection
+    Statement*      m_statement;            ///< Statement
+    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
+    struct
+    {
+        unsigned    columnCount:12;         ///< Number of columns is result set
+        bool        eof:1;                  ///< EOF (end of file) flag
+        bool        transaction:1;          ///< Transaction in progress flag
+        unsigned    outputParameterCount:1; ///< Output parameter count
+    } m_state;                              ///< State flags
+
+public:
+    /// @brief Constructor
+    /// @param connection Connection*, DB connection
+    CDatabaseStatement(Connection* connection)
+    : m_connection(connection)
+    {}
+
+    /// @brief Returns current DB statement handle
+    Statement* stmt() const
+    {
+        return m_statement;
+    }
+
+    /// @brief Generates normalized list of parameters
+    /// @param queryParams CParamList&, Standard query parameters
+    virtual void enumerateParams(CParamList& queryParams)
+    {
+        queryParams.enumerate(m_enumeratedParams);
+        m_state.outputParameterCount = 0;
+
+        CParamVector::iterator
+            itor = m_enumeratedParams.begin(),
+            iend = m_enumeratedParams.end();
+        for (; itor != iend; itor++)
+        {
+            CParam* parameter = *itor;
+            if (parameter->isOutput())
+                m_state.outputParameterCount++;
+        }
+    }
+
+    /// @brief Returns normalized list of parameters
+    CParamVector& enumeratedParams()
+    {
+        return m_enumeratedParams;
+    }
+
+    /// @brief Returns true if statement uses output parameters
+    bool outputParameterCount() const
+    {
+        return m_state.outputParameterCount;
+    }
+
+    /// @brief Sets actual parameter values for the statement execution
+    virtual void setParameterValues() = 0;
+
+    /// @brief Executes statement
+    /// @param inTransaction bool, True if statement is executed from transaction
+    virtual void execute(bool inTransaction) = 0;
+
+    /// @brief Closes statement and releases allocated resources
+    virtual void close() = 0;
+
+    /// @brief Fetches next record
+    virtual void fetch() = 0;
+
+    bool eof() const
+    {
+        return m_state.eof;
+    }
+
+    unsigned colCount() const
+    {
+        return m_state.columnCount;
+    }
+};
+
+}
+
+#endif
