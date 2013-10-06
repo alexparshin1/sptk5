@@ -150,7 +150,7 @@ public:
     void formatDate(char *str) const;
 
     /// @brief Print the date into str
-    void formatTime(char *str,bool ampm=true,bool showSeconds=false) const;
+    void formatTime(char *str,bool ampm=true,bool showSeconds=false,bool showTimezone=false) const;
 
     /// @brief Set the current date and time for this program only.
     ///
@@ -210,7 +210,7 @@ public:
     std::string dateString() const;
 
     /// @brief Returns time as a string
-    std::string timeString(bool showSeconds=false) const;
+    std::string timeString(bool showSeconds=false, bool showTimezone=false) const;
 
     /// @brief Returns date and time as a string
     operator std::string () const {

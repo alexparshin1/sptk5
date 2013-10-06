@@ -30,8 +30,17 @@
 
 using namespace sptk;
 
-int main() {
-
+int main() 
+{
+   puts("Decode date and time in PST timezone and print it in local timezone:");
+   const char*  pstDateTimeStr = "2013-10-01 10:00:00-7:00";
+   CDateTime    pstDateTime(pstDateTimeStr);
+   printf("From PST(-7:00): %s to local: %s %s \n", 
+           pstDateTimeStr, 
+           pstDateTime.dateString().c_str(),
+           pstDateTime.timeString(true,true).c_str()
+         );
+    
    puts("Define the date as 2003/09/28, and print the date components:");
    
    CDateTime   dt(2003, 9, 28);

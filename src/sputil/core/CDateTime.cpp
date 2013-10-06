@@ -67,15 +67,17 @@ namespace sptk {
 
 }
 
-static const short _monthDays[2][13] = {
-                                           {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-                                           {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-                                       };
+static const short _monthDays[2][13] = 
+{
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+};
 
-static const short _monthDaySums[2][13] = {
-            {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
-            {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
-        };
+static const short _monthDaySums[2][13] =
+{
+    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
+    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
+};
 
 #define DateDelta 693594
 
@@ -253,14 +255,14 @@ CDateTimeFormat::CDateTimeFormat() {
     zname[cnt] = 0;
     CDateTime::timeZoneName = zname;
 #if defined(__BORLANDC__)
-    CDateTime::timeZoneOffset = -_timezone / 3600;
+    CDateTime::timeZoneOffset = -_timezone / 60;
 #else
     #ifdef __FreeBSD__
         time_t at = time(NULL);
         struct tm* tt = gmtime(&at);
-        CDateTime::timeZoneOffset = (int) tt->tm_gmtoff / 3600;
+        CDateTime::timeZoneOffset = (int) tt->tm_gmtoff / 60;
     #else
-        CDateTime::timeZoneOffset = -(int) timezone / 3600;
+        CDateTime::timeZoneOffset = -(int) timezone / 60;
     #endif
 #endif
 }
@@ -408,7 +410,33 @@ static int trimRight(char *s) {
     return len;
 }
 
-void CDateTime::encodeTime(double& dt,const char *tim) {
+// Returns timezone offset in minutes from formats:
+// "Z" - UTC
+// "[+-]HH24:MM - TZ offset
+int decodeTZOffset(const char* tzOffset)
+{
+    char tzo[10];
+    strncpy(tzo,tzOffset,sizeof(tzo) - 1);
+    
+    char* p = tzo;
+    int   sign = 1;
+    switch (*p) {
+        case 'Z': return 0;
+        case '+': p++; break;
+        case '-': p++; sign = -1; break;
+    }
+    char* p1 = strchr(p,':');
+    int   hours, minutes;
+    if (p1) {
+        *p1 = 0;
+        minutes = atoi(p1+1);
+    }
+    hours = atoi(p);
+    return sign * (hours * 60 + minutes);
+}
+
+void CDateTime::encodeTime(double& dt,const char *tim)
+{
     char  bdat[32];
     short timePart[4] = { 0, 0, 0, 0};
     short partNumber = 0;
@@ -426,11 +454,18 @@ void CDateTime::encodeTime(double& dt,const char *tim) {
         dt = Time();        // Sets the current date
         return;
     } else {
-        char *p = strpbrk(bdat,"APZ"); // Looking for AM, PM, or Z
+        int tzOffsetMin = 0;
+        char *p = strpbrk(bdat,"APZ+-"); // Looking for AM, PM, or timezone
         if (p) {
-            if (*p == 'P')
+            if (*p == 'P') {
                 afternoon = true;
+                p = strpbrk(bdat,"Z+-");
+                if (p)
+                    tzOffsetMin = decodeTZOffset(p);
+            } else
+                tzOffsetMin = decodeTZOffset(p);
             *p = 0;
+            tzOffsetMin -= CDateTime::timeZoneOffset;
         }
         trimRight(bdat);
         uint32_t len = (uint32_t) strlen(bdat);
@@ -456,6 +491,8 @@ void CDateTime::encodeTime(double& dt,const char *tim) {
         if (afternoon && timePart[0] != 12)
             timePart[0] = short(timePart[0] + 12);
         encodeTime(dt,timePart[0],timePart[1],timePart[2],timePart[3]);
+        if (tzOffsetMin)
+            dt += tzOffsetMin / 1440.0;
     }
 }
 
@@ -703,7 +740,7 @@ void CDateTime::formatDate(char *str) const {
     *(ptr-1) = 0;
 }
 
-void CDateTime::formatTime(char *str,bool ampm,bool showSeconds) const {
+void CDateTime::formatTime(char *str,bool ampm,bool showSeconds,bool showTimezone) const {
     short h,m,s,ms;
 
     if (m_dateTime == 0) {
@@ -720,12 +757,24 @@ void CDateTime::formatTime(char *str,bool ampm,bool showSeconds) const {
         if (h > 12)
             h = h%12;
     }
+    int length;
     if (!showSeconds)
-        sprintf(str,"%02i%c%02i",h,timeSeparator,m);
+        length = sprintf(str,"%02i%c%02i",h,timeSeparator,m);
     else
-        sprintf(str,"%02i%c%02i%c%02i",h,timeSeparator,m,timeSeparator,s);
+        length = sprintf(str,"%02i%c%02i%c%02i",h,timeSeparator,m,timeSeparator,s);
     if (ampm)
         strcat(str,appendix);
+    if (showTimezone) {
+        int minutes;
+        if (timeZoneOffset > 0) {
+            str[length] = '+';
+            minutes = timeZoneOffset;
+        } else {
+            str[length] = '-';
+            minutes = -timeZoneOffset;
+        }
+        sprintf(str + length + 1, "%02d:%02d", minutes / 60, minutes % 60);
+    }
 }
 //----------------------------------------------------------------
 //  Miscellaneous Routines
@@ -836,9 +885,9 @@ string CDateTime::dateString() const {
     return string(buffer);
 }
 
-string CDateTime::timeString(bool showSeconds) const {
+string CDateTime::timeString(bool showSeconds, bool showTimezone) const {
     char  buffer[32];
-    formatTime(buffer,!_time24Mode,showSeconds);
+    formatTime(buffer,!_time24Mode,showSeconds,showTimezone);
     return string(buffer);
 }
 
