@@ -22,50 +22,42 @@
 #endif
 
 #include <stdio.h>
+#include <iostream>
 #include <sptk5/cnet>
 #include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-void printResonse(const CStrings& response) {
-   for (unsigned i = 0; i < response.size(); i++) {
-      puts(response[i].c_str());
-   }
-   puts("---------------------------------");
-}
-
-int main( int argc, char *argv[] ) {
-   char           buffer[128];
+int main( int argc, char *argv[] )
+{
    CSmtpConnect   SMTP;
-   std::string    user, password, email;
+   std::string    user, password, email, host;
    
-   puts("Testing SMTP connectivity.\n");
-   printf("SMTP server name: ");
-   scanf("%s", buffer);
-   SMTP.host(buffer);
+   cout << "Testing SMTP connectivity." << endl;
+   cout << "SMTP server name: ";
+   cin >> host;
    
-   printf("SMTP user name (or N/A if not required): ");
-   scanf("%s", buffer);
-   user = buffer;
+   cout << "SMTP user name (or N/A if not required): ";
+   cin >> user;
    
    if (trim(lowerCase(user)) != "n/a") {
-      printf("SMTP user password: ");
-      scanf("%s", buffer);
-      password = buffer;
+      cout << "SMTP user password: ";
+      cin >> password;
    } else {
       user = "";
    }
 
-   printf("E-mail address to test: ");
-   scanf("%s", buffer);
-   email = buffer;
+   cout << "E-mail address to test: ";
+   cin >> email;
 
-   puts("\nTrying to connect to SMTP server..");
+   cout << "\nTrying to connect to SMTP server.." << endl;
 
    try {
-      SMTP.cmd_login(user, password);
-      printResonse(SMTP.response());
+      SMTP.host(host);
+      SMTP.cmd_auth(user, password);
+      //SMTP.cmd_login("","");
+      cout << SMTP.response().asString("\n") << endl;
 
       SMTP.subject("Test e-mail");
       SMTP.from("Yourself <"+email+">");
@@ -73,18 +65,18 @@ int main( int argc, char *argv[] ) {
       SMTP.body("<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>", true);
       //SMTP.attachments("test.html");
       
-      puts("\nSending test message..");
+      cout << "\nSending test message.." << endl;
       SMTP.cmd_send();
-      printResonse(SMTP.response());
+      cout << SMTP.response().asString("\n") << endl;
       
-      puts("\nClosing SMTP connection..");
+      cout << "\nClosing SMTP connection.." << endl;
       SMTP.cmd_quit();
-      printResonse(SMTP.response());
+      cout << SMTP.response().asString("\n") << endl;
       
-      puts(("\nMessage send. Please, check your mail in "+email).c_str());
+      cout << endl << "Message send. Please, check your mail in " << email << endl;
    }
    catch (std::exception& e) {
-      puts(e.what());
+      cerr << e.what() << endl;
    }
    return 0;
 }

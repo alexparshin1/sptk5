@@ -101,6 +101,13 @@ int CSmtpConnect::command(string cmd, bool encodeCommand, bool decodeResponse)
     return getResponse(decodeResponse);
 }
 
+string CSmtpConnect::mime(const CBuffer& buffer)
+{
+    CBuffer result;
+    CBase64::encode(result, buffer);
+    return result;
+}
+
 string CSmtpConnect::mime(string s)
 {
     string result;
@@ -118,7 +125,7 @@ string CSmtpConnect::unmime(string s)
     return result;
 }
 
-void CSmtpConnect::cmd_login(string user, string password)
+void CSmtpConnect::cmd_auth(string user, string password, string method)
 {
     close();
     open();
@@ -130,18 +137,39 @@ void CSmtpConnect::cmd_login(string user, string password)
     if (rc > 251)
         throw CException(m_response.asString("\n"));
 
+    method = trim(lowerCase(method));
     if (trim(user).length()) {
-        rc = command("AUTH LOGIN", false, true);
-        if (rc > 432)
-            throw CException(m_response.asString("\n"));
+        if (method == "login") {
+            rc = command("AUTH LOGIN", false, true);
+            if (rc > 432)
+                throw CException(m_response.asString("\n"));
+            
+            rc = command(user, true, true);
+            if (rc > 432)
+                throw CException(m_response.asString("\n"));
 
-        rc = command(user, true, true);
-        if (rc > 432)
-            throw CException(m_response.asString("\n"));
+            rc = command(password, true, false);
+            if (rc > 432)
+                throw CException(m_response.asString("\n"));
+            return;
+        }
 
-        rc = command(password, true);
-        if (rc > 432)
-            throw CException(m_response.asString("\n"));
+        if (method == "plain") {
+            CBuffer userAndPassword;
+            char    nullChar = 0;
+            userAndPassword.append(&nullChar, 1);
+            userAndPassword.append(user.c_str(), user.size());
+            userAndPassword.append(&nullChar, 1);
+            userAndPassword.append(password.c_str(), password.size());
+
+            string userAndPasswordMimed = mime(userAndPassword);
+            rc = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
+            if (rc > 432)
+                throw CException(m_response.asString("\n"));
+            return;
+        }
+        
+        throw CException("AUTH method " + method + " is not supported");
     }
 }
 
