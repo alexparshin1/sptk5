@@ -101,11 +101,21 @@ void CDatabaseConnectionPool::load() throw (CDatabaseException)
     // reset errors
     dlerror();
 
+    // workaround for deficiency of C++ standard
+    union {
+        CCreateDriverInstance*  create_func_ptr;
+        CDestroyDriverInstance* destroy_func_ptr;
+        void*                   void_ptr;
+    } conv;
+
     // load the symbols
-    m_createConnection = (CCreateDriverInstance*) dlsym(m_handle, create_connectionFunctionName.c_str());
+    conv.void_ptr = dlsym(m_handle, create_connectionFunctionName.c_str());
+    m_createConnection = conv.create_func_ptr;
+
     const char* dlsym_error = dlerror();
     if (!dlsym_error) {
-        m_destroyConnection = (CDestroyDriverInstance*) dlsym(m_handle, destroy_connectionFunctionName.c_str());
+        conv.void_ptr = dlsym(m_handle, destroy_connectionFunctionName.c_str());
+        m_destroyConnection = conv.destroy_func_ptr;
         dlsym_error = dlerror();
     }
 

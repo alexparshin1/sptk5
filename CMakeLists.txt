@@ -45,7 +45,7 @@ IF (WIN32)
   ADD_DEFINITIONS (-DHAVE_CONFIG_H -DWIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)
 ELSE (WIN32)
-  ADD_DEFINITIONS (-Wall -pedantic)
+  ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   LINK_LIBRARIES(pthread rt dl)
 ENDIF (WIN32)
 
