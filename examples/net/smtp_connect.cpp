@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-int main( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
    CSmtpConnect   SMTP;
    std::string    user, password, email, host;
