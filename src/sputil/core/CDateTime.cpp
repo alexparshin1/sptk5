@@ -255,14 +255,14 @@ CDateTimeFormat::CDateTimeFormat() {
     zname[cnt] = 0;
     CDateTime::timeZoneName = zname;
 #if defined(__BORLANDC__)
-    CDateTime::timeZoneOffset = -_timezone / 60;
+    CDateTime::timeZoneOffset = -_timezone / 60 + _daylight * 60;
 #else
     #ifdef __FreeBSD__
         time_t at = time(NULL);
         struct tm* tt = gmtime(&at);
-        CDateTime::timeZoneOffset = (int) tt->tm_gmtoff / 60;
+        CDateTime::timeZoneOffset = (int) tt->tm_gmtoff  / 60;
     #else
-        CDateTime::timeZoneOffset = -(int) timezone / 60;
+        CDateTime::timeZoneOffset = -(int) timezone / 60 + daylight * 60;
     #endif
 #endif
 }
