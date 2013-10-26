@@ -44,6 +44,24 @@ CField::CField(const char *name) {
    precision = 3; // default precision, only affects floating point fields
 }
 
+void CField::setNull(CVariantType vtype) {
+    switch (dataType()) {
+    default:
+        m_data.int64Data = 0;
+        break;
+
+    case VAR_STRING:
+    case VAR_TEXT:
+    case VAR_BUFFER:
+        if (m_dataType & VAR_EXTERNAL_BUFFER)
+            m_data.buffer.data = 0;
+        else if (m_data.buffer.data)
+            m_data.buffer.data[0] = 0;
+        break;
+    }
+    m_dataType |= VAR_NULL;
+}
+
 string CField::asString() const throw(CException) {
    char print_buffer[32];
    if (m_dataType & VAR_NULL) return "";

@@ -418,7 +418,9 @@ void CMySQLStatement::fetchResult(CFieldList& fields)
         case VAR_BUFFER:
             if (dataLength == 0) {
                 // Empty string
-                field->setString("", 0);
+                char* data = (char*) field->getBuffer();
+                *data = 0;
+                field->setDataSize(0);
             } else {
                 if (bind.buffer_length < dataLength) {
                     /// Fetch truncated, enlarge buffer and fetch again

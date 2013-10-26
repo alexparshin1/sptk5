@@ -71,7 +71,15 @@ public:
 		return m_name;
 	}
 
-	/// Assignment operation
+    /// @brief Sets the NULL state
+    ///
+    /// Useful for the database operations.
+    /// Releases the memory allocated for string/text/blob types.
+    /// Retains the data type. Sets the data to zero(s).
+    /// @param vtype CVariantType, optional variant type to enforce
+    virtual void setNull(CVariantType vtype=VAR_NONE);
+
+    /// Assignment operation
 	virtual CField& operator = (const CVariant &C)    {
 		if (this == &C)
 			return *this;
