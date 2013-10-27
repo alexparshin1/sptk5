@@ -312,18 +312,18 @@ int testDatabase(string connectionString)
 int main()
 {
     CFileLog logFile("postgresql_test.log");
-/*
+
 #if HAVE_MYSQL == 1
     testDatabase("mysql://scott:tiger@localhost/test");
 #endif
-*/
+
 /*
 #if HAVE_ORACLE == 1
     testDatabase("oracle://scott:tiger@theater/XE");
 #endif
 */
 #if HAVE_POSTGRESQL == 1
-    testDatabase("postgresql://localhost/protis");
+    testDatabase("postgresql://scott:tiger@localhost/protis");
 #endif
 /*
 #if HAVE_ODBC == 1

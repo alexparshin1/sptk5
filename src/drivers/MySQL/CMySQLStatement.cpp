@@ -432,6 +432,7 @@ void CMySQLStatement::fetchResult(CFieldList& fields)
                     }
                     bind.buffer = (void*) field->getBuffer();
                 }
+                ((char *)bind.buffer)[dataLength] = 0;
                 field->setDataSize(dataLength);
             }
             break;
