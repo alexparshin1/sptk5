@@ -379,6 +379,7 @@ void CXmlDoc::load(const char* xmlData)
         free(buffer);
         throw;
     }
+    free(buffer);
 }
 
 void CXmlDoc::save(CBuffer &buffer, int /*indent*/) const
