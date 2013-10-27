@@ -193,8 +193,8 @@ protected:
     {
         m_buffer.parent(this);
         m_indent = 0;
-        m_defaultPriority = CLP_NOTICE;
-        m_minPriority = CLP_NOTICE;
+        m_defaultPriority = CLP_INFO;
+        m_minPriority = CLP_INFO;
         m_options = CLO_ENABLE | CLO_DATE | CLO_TIME | CLO_PRIORITY;
     }
 public:
@@ -206,8 +206,7 @@ public:
         CLO_DATE = 2,      ///< Print date for every log message
         CLO_TIME = 4,      ///< Print time for every log message
         CLO_PRIORITY = 8,  ///< Print message priority
-        CLO_ENABLE = 16
-    ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+        CLO_ENABLE = 16    ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
     };
 
     /// @brief Destructor

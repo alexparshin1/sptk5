@@ -95,14 +95,14 @@ void CBaseLog::option(CLogOption option, bool flag)
 string CBaseLog::priorityName(CLogPriority prt)
 {
     switch (prt) {
-    case CLP_DEBUG:     return "debug";
-    case CLP_INFO:      return "info";
-    case CLP_NOTICE:    return "notice";
-    case CLP_WARNING:   return "warning";
-    case CLP_ERROR:     return "err";
-    case CLP_CRITICAL:  return "crit";
-    case CLP_ALERT:     return "alert";
-    case CLP_PANIC:     return "panic";
+    case CLP_DEBUG:     return "DEBUG";
+    case CLP_INFO:      return "INFO";
+    case CLP_NOTICE:    return "NOTICE";
+    case CLP_WARNING:   return "WARNING";
+    case CLP_ERROR:     return "ERROR";
+    case CLP_CRITICAL:  return "CRITICAL";
+    case CLP_ALERT:     return "ALERT";
+    case CLP_PANIC:     return "PANIC";
     }
     return "";
 }

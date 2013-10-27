@@ -29,8 +29,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CFILELOG_H__
-#define __CFILELOG_H__
+#ifndef __CSYSLOG_H__
+#define __CSYSLOG_H__
 
 #ifndef _WIN32
 #include <syslog.h>
