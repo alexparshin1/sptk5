@@ -83,7 +83,7 @@ void CDatabaseConnection::open(string newConnectionString) throw (CDatabaseExcep
 
 void CDatabaseConnection::closeDatabase() throw (CDatabaseException)
 {
-    notImplemented("closeDatabase");
+    closeDatabase();
 }
 
 void CDatabaseConnection::close() throw (CDatabaseException)

@@ -88,7 +88,7 @@ public:
     /// @brief Destructor
     ///
     /// Closes and destroys all created connections
-    CDatabaseConnectionPool();
+    ~CDatabaseConnectionPool();
 
     /// @brief Creates database connection
     CDatabaseConnection* createConnection() throw (CDatabaseException);
@@ -99,7 +99,8 @@ public:
 
     /// @brief Destroys connection
     /// @param connection CDatabaseConnection*, destroys the driver instance
-    void destroyConnection(CDatabaseConnection* connection);
+    /// @param unlink bool, should always be true for any eternal use
+    void destroyConnection(CDatabaseConnection* connection,bool unlink=true);
 };
 /// @}
 }

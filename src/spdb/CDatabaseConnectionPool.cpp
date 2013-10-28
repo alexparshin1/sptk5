@@ -55,6 +55,18 @@ CDatabaseConnectionPool::CDatabaseConnectionPool(std::string connectionString, u
 {
 }
 
+bool closeConnectionCB(CDatabaseConnection*& item, void* data)
+{
+    CDatabaseConnection* connection = item;
+    CDatabaseConnectionPool* connectionPool = (CDatabaseConnectionPool*)data;
+    connectionPool->destroyConnection(connection,false);
+}
+
+CDatabaseConnectionPool::~CDatabaseConnectionPool()
+{
+    m_connections.each(closeConnectionCB,this);
+}
+
 void CDatabaseConnectionPool::load() throw (CDatabaseException)
 {
     SYNCHRONIZED_CODE;
@@ -151,9 +163,10 @@ void CDatabaseConnectionPool::releaseConnection(CDatabaseConnection* connection)
     m_pool.push(connection);
 }
 
-void CDatabaseConnectionPool::destroyConnection(CDatabaseConnection* connection)
+void CDatabaseConnectionPool::destroyConnection(CDatabaseConnection* connection, bool unlink)
 {
-    m_connections.remove(connection);
+    if (unlink)
+        m_connections.remove(connection);
     connection->close();
     m_destroyConnection(connection);
 }
