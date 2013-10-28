@@ -53,6 +53,7 @@ void CTCPServerListener::threadFunction()
                     connection->run();
                 } else {
                     #ifndef _WIN32
+                        shutdown(connectionFD,SHUT_RDWR);
                         ::close (connectionFD);
                     #else
                         closesocket (connectionFD);
@@ -89,9 +90,9 @@ void CTCPServer::stop()
     SYNCHRONIZED_CODE;
     {
         CSynchronizedCode   m_sync(m_connectionThreadsLock);
-        set<CTCPConnection*>::iterator itor, iend;
+        set<CTCPConnection*>::iterator itor;
 
-        for (itor = m_connectionThreads.begin(); itor != iend; itor++)
+        for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
             (*itor)->terminate();
     }
     for (;;) {
@@ -100,8 +101,14 @@ void CTCPServer::stop()
         if (m_connectionThreads.empty())
             break;
     }
-    m_listenerThread->terminate();
-    delete m_listenerThread;
+
+    if (m_listenerThread) {
+        m_listenerThread->terminate();
+        while (m_listenerThread->running())
+            CThread::msleep(100);
+        delete m_listenerThread;
+        m_listenerThread = NULL;
+    }
 }
 
 void CTCPServer::registerConnection(CTCPConnection* connection)

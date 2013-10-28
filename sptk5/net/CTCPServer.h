@@ -38,7 +38,8 @@ namespace sptk {
 class CTCPServer;
 
 /// @brief Internal TCP server listener thread
-class CTCPServerListener : public CThread {
+class CTCPServerListener : public CThread
+{
     CTCPServer* m_server;
     CTCPSocket  m_listenerSocket;
     int32_t     m_port;
@@ -51,7 +52,8 @@ public:
     /// @brief Thread function.
     virtual void threadFunction();
 
-    std::string error() const {
+    std::string error() const 
+    {
         return m_error;
     }
 };
