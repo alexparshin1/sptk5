@@ -93,7 +93,7 @@ public:
     virtual void threadFunction() = 0;
 
     /// @brief Requests to terminate the thread
-    void terminate();
+    virtual void terminate();
 
     /// @brief Returns true if the thread is terminated
     bool terminated() const
