@@ -98,8 +98,8 @@ int main()
     for (i = 0; i < threads.size(); i++)
         threads[i]->run();
 
-    puts("Waiting 10 seconds while threads are running..");
-    CThread::msleep(10000);
+    puts("Waiting 2 seconds while threads are running..");
+    CThread::msleep(2000);
 
     // Sending 'terminate' signal to all the threads.
     // That signal suggests thread to terminate and exits instantly.
