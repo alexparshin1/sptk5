@@ -47,7 +47,7 @@ struct CWSOperation
 /// Loads a WSDL file and converts it to a set of abstract classes that can be saved 
 /// as C++ source files to a directory.
 /// The actual web service is built by deriving concrete classes from these abstract classes.
-class CWSParser
+class SP_EXPORT CWSParser
 {
 public:
     typedef std::map<std::string,CWSParserElement*>     ElementMap;

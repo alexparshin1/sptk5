@@ -42,7 +42,7 @@ namespace sptk {
 /// @{
 
 /// @brief PCRE-type regular expressions
-class CRegExp
+class SP_EXPORT CRegExp
 {
 public:
     /// @brief Match position information
@@ -108,8 +108,8 @@ public:
 /// @}
 }
 
-bool operator == (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException);
-bool operator != (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException);
+bool SP_EXPORT operator == (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException);
+bool SP_EXPORT operator != (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException);
 
 #endif
 

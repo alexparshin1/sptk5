@@ -224,7 +224,7 @@ void CTCPSocket::listen (uint32_t portNumber)
     open_addr (SOM_BIND, &addr);
 }
 
-void CTCPSocket::accept (int& clientSocketFD, struct sockaddr_in& clientInfo)
+void CTCPSocket::accept (SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof (clientInfo);
     clientSocketFD = (int) ::accept (m_sockfd, (struct sockaddr *) & clientInfo, &len);

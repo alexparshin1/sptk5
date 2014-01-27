@@ -98,7 +98,7 @@ public:
 ///
 /// General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
 /// Includes several extra methods to construct it from string or load/save from/to file.
-class CStrings : public std::vector<idstring> {
+class SP_EXPORT CStrings : public std::vector<idstring> {
 
     int32_t m_userData;    ///< User-specified data
 

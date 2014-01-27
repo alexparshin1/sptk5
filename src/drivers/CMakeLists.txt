@@ -1,10 +1,12 @@
-IF (LIBRARY_TYPE STREQUAL "SHARED")
+SET (DRIVER_LIBRARY_TYPE SHARED)
+
+IF (DRIVER_LIBRARY_TYPE STREQUAL "SHARED")
   ADD_DEFINITIONS (-DSP_DRIVER_LIBRARY)
-ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
+ENDIF(DRIVER_LIBRARY_TYPE STREQUAL "SHARED")
 
 # ODBC support library
 IF (ODBC_FLAG)
-    ADD_LIBRARY (spdb5_odbc ${LIBRARY_TYPE} odbc/CODBC.cpp odbc/CODBCConnection.cpp)
+    ADD_LIBRARY (spdb5_odbc ${DRIVER_LIBRARY_TYPE} odbc/CODBC.cpp odbc/CODBCConnection.cpp)
     TARGET_LINK_LIBRARIES(spdb5_odbc spdb5 sputil5 ${ODBC_LIBRARY})
     INSTALL(TARGETS spdb5_odbc RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (ODBC_FLAG)
@@ -12,14 +14,14 @@ ENDIF (ODBC_FLAG)
 # SQLite3 support library
 SET (SQLITE3_SOURCES)
 IF (SQLITE3_FLAG)
-    ADD_LIBRARY (spdb5_sqlite3 ${LIBRARY_TYPE} SQLite3/CSQLite3Connection.cpp)
+    ADD_LIBRARY (spdb5_sqlite3 ${DRIVER_LIBRARY_TYPE} SQLite3/CSQLite3Connection.cpp)
     TARGET_LINK_LIBRARIES(spdb5_sqlite3 spdb5 sputil5)
     INSTALL(TARGETS spdb5_sqlite3 RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (SQLITE3_FLAG)
 
 SET (POSTGRESQL_SOURCES)
 IF (POSTGRESQL_FLAG)
-    ADD_LIBRARY (spdb5_postgresql ${LIBRARY_TYPE}
+    ADD_LIBRARY (spdb5_postgresql ${DRIVER_LIBRARY_TYPE}
         PostgreSQL/CPostgreSQLConnection.cpp
         PostgreSQL/CPostgreSQLParamValues.cpp
         PostgreSQL/htonq.cpp
@@ -30,7 +32,7 @@ IF (POSTGRESQL_FLAG)
 ENDIF (POSTGRESQL_FLAG)
 
 IF (ORACLE_FLAG)
-    ADD_LIBRARY (spdb5_oracle ${LIBRARY_TYPE}
+    ADD_LIBRARY (spdb5_oracle ${DRIVER_LIBRARY_TYPE}
         Oracle/COracleEnvironment.cpp
         Oracle/COracleStatement.cpp
         Oracle/COracleConnection.cpp
@@ -40,7 +42,7 @@ IF (ORACLE_FLAG)
 ENDIF (ORACLE_FLAG)
 
 IF (MYSQL_FLAG)
-    ADD_LIBRARY (spdb5_mysql ${LIBRARY_TYPE}
+    ADD_LIBRARY (spdb5_mysql ${DRIVER_LIBRARY_TYPE}
         MySQL/CMySQLStatement.cpp
         MySQL/CMySQLConnection.cpp
     )

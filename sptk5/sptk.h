@@ -60,8 +60,8 @@
 #  define SP_DRIVER_EXPORT
 #endif
 
+#include <sptk5/sptk-config.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__)
-    #include <sptk5/sptk-config.h.win>
     #include <winsock2.h>
     #include <windows.h>
     #include <process.h>
@@ -74,7 +74,6 @@
         #define STRING_NPOS -1
     #endif
 #else
-    #include <sptk5/sptk-config.h>
     #include <unistd.h>
     #include <pthread.h>
     #include <errno.h>
@@ -106,13 +105,9 @@ namespace sptk {
         #include <stdint.h>
         #include <ctype.h>
     #else
-        #define int16_t  __int16
-        #define uint16_t unsigned __int16
-        #define int32_t  __int32
-        #define uint32_t unsigned __int32
-        #define int64_t  __int64
-        #define uint64_t unsigned __int64
-    #endif
+		#include <stdint.h>
+		#include <inttypes.h>
+	#endif
 #endif
 
 #endif

@@ -74,7 +74,9 @@ CRegExp::CRegExp(std::string pattern, string options) :
 CRegExp::~CRegExp()
 {
     if (m_pcre) {
+#if PCRE_VERSION_MAJOR > 7
         pcre_free_study(m_pcreExtra);
+#endif
         pcre_free(m_pcre);
     }
 }

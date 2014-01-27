@@ -139,7 +139,7 @@ public:
     /// When incoming connection is made, exits returning the connection info
     /// @param clientSocketFD int&, connected client socket FD
     /// @param clientInfo sockaddr_in&, connected client info
-    void accept(int& clientSocketFD,struct sockaddr_in& clientInfo);
+    void accept(SOCKET& clientSocketFD,struct sockaddr_in& clientInfo);
 
     /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
     ///
