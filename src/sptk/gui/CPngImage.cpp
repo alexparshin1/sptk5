@@ -78,14 +78,14 @@ void CPngImage::load(const CBuffer& imagedata) {
     else
         channels = 1;
 
-    bool            alpha; // = false;
+    //bool            alpha = false;
     int             num_trans = 0;
     png_color_16p   trans_color;
     png_bytep       trans_alpha;
     png_get_tRNS(pp, info, &trans_alpha, &num_trans, &trans_color);
     if ((color_type & PNG_COLOR_MASK_ALPHA) || num_trans) {
         channels++;
-        alpha = true;
+        //alpha = true;
     }
 
     w((int)png_get_image_width(pp,info));
