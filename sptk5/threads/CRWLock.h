@@ -29,6 +29,9 @@
 #define __CRWLOCK_H__
 
 #include <sptk5/sptk.h>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
 namespace sptk {
 
@@ -40,15 +43,11 @@ class SP_EXPORT CRWLock
 {
 protected:
 
-#ifndef WIN32
-    pthread_rwlock_t    m_rwlock;   ///< pthreads rwlock object
-#else
-    HANDLE              m_readLock;
-    HANDLE              m_writeLock;
-    CRITICAL_SECTION    m_criticalSection;
-    int                 m_readerCount;
-    bool                m_writerMode;
-#endif
+    std::mutex              m_writeLock;
+    std::condition_variable m_condition;
+
+    std::atomic<int>        m_readerCount;
+    std::atomic<bool>       m_writerMode;
 
 public:
 

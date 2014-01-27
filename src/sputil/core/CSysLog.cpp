@@ -72,6 +72,7 @@ CSysLog::CSysLog(uint32_t facilities) :
 
 void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
 {
+    SYNCHRONIZED_CODE;
     if (m_options & CLO_ENABLE) {
 #ifndef _WIN32
         if (!m_logOpened)

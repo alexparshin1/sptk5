@@ -44,7 +44,7 @@ SP_EXPORT const CLogPriority sptk::CLP_DEBUG(LOG_DEBUG, "debug"), sptk::CLP_INFO
 //==========================================================================================
 CLogStreamBuf::CLogStreamBuf()
 {
-    m_parent = 0;
+    m_parent = NULL;
     m_bytes = 0;
     m_size = 1024;
     m_buffer = (char *) malloc(m_size);
@@ -54,6 +54,8 @@ CLogStreamBuf::CLogStreamBuf()
 
 streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
 {
+    SYNCHRONIZED_CODE;
+    
     bool bufferOverflow = m_bytes > m_size - 2;
     bool lineBreak = c <= 13;
 
@@ -86,6 +88,7 @@ SP_EXPORT CBaseLog& sptk::operator <<(CBaseLog &stream, CLogPriority priority)
 
 void CBaseLog::option(CLogOption option, bool flag)
 {
+    SYNCHRONIZED_CODE;
     if (flag)
         m_options |= option;
     else

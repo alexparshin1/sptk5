@@ -31,9 +31,9 @@
 #include <sptk5/sptk.h>
 #include <sptk5/CException.h>
 
-#ifndef _WIN32
-   #include <semaphore.h>
-#endif
+#include <condition_variable>
+#include <atomic>
+#include <chrono>
 
 namespace sptk {
 
@@ -44,12 +44,9 @@ namespace sptk {
 class SP_EXPORT CSemaphore
 {
 
-#ifndef WIN32
-    typedef sem_t   semaphore_t;
-#else
-    typedef HANDLE  semaphore_t;
-#endif
-    semaphore_t m_semaphore;        ///< Semaphore handle
+    std::mutex              m_mutex;        ///< Mutex object
+    std::condition_variable m_condition;    ///< Mutex condition object
+    std::atomic<int>        m_value;        ///< Semaphore value
 
 public:
     /// @brief Constructor

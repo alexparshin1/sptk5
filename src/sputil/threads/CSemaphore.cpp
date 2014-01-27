@@ -34,87 +34,36 @@
 using namespace std;
 using namespace sptk;
 
-#ifndef WIN32
-
 CSemaphore::CSemaphore(uint32_t startingValue)
+: m_value(startingValue)
 {
-    // Create semaphore
-    int rc = sem_init(&m_semaphore, 0, startingValue);
-    if (rc != 0)
-        throw CSystemException("Create semaphore");
 }
 
 CSemaphore::~CSemaphore()
 {
-    // Destroy semaphore
-    sem_destroy(&m_semaphore);
 }
 
 void CSemaphore::post() throw (exception)
 {
-    int rc = sem_post(&m_semaphore);
-    if (rc != 0)
-        throw CSystemException("Post semaphore");
+    m_value++;
 }
 
 bool CSemaphore::wait(uint32_t timeoutMS) throw (exception)
 {
-    /// Get current absolute time
-    timespec abstime;
-    if (clock_gettime(CLOCK_REALTIME, &abstime) == -1)
-        throw CSystemException("clock_gettime()");
+    if (timeoutMS < 0)
+        timeoutMS = 999999999;
 
-    /// Offset current time to the end of the waiting intervale
-    abstime.tv_sec += timeoutMS / 1000;
-    abstime.tv_nsec += timeoutMS % 1000 * 1000;
-
-    /// Wait for semaphore post
-    int rc = 0;
-    for (;;) {
-        rc = sem_timedwait(&m_semaphore, &abstime);
-        if (rc == 0)
-            return true;
-
-        switch(errno)        {
-            case ETIMEDOUT:
-                return false;
-            case EINTR:
-                break;
-            default:
-                throw CSystemException("Wait for semaphore");
-        }
+    unique_lock<mutex>  lock(m_mutex);
+    
+    // Wait until semaphore value is greater than 0
+    if (!m_condition.wait_for(lock, 
+                              chrono::milliseconds(timeoutMS), 
+                              [this](){return m_value > 0;}))
+    {
+        return false;
     }
-    return false;
+
+    m_value--;
+
+    return true;
 }
-
-#else
-
-CSemaphore::CSemaphore(uint32_t startingValue)
-{
-    // Create unnamed semaphore
-    m_semaphore = CreateSemaphore(NULL, startingValue, INT_MAX, NULL);
-}
-
-CSemaphore::~CSemaphore()
-{
-    // Destroy semaphore
-    CloseHandle(m_semaphore);
-}
-
-void CSemaphore::post() throw (exception)
-{
-    // Post semaphore by one
-    if (ReleaseSemaphore(m_semaphore, 1, NULL) == 0)
-        throw CSystemException("Error in semaphore post()");
-}
-
-bool CSemaphore::wait(uint32_t timeoutMS) throw (exception)
-{
-    // Wait for semaphore get posted
-    DWORD rc = WaitForSingleObject(m_semaphore, timeoutMS);
-    if (rc == WAIT_FAILED)
-        throw CSystemException("Wait for semaphore");
-
-    return (rc == WAIT_OBJECT_0);
-}
-#endif

@@ -81,6 +81,7 @@ int main()
     /// Threads send messages through their own CProxyLog objects.
     /// Multiple CProxyLog objects can share same log object thread-safely.
     CFileLog sharedLog("thread_test.log");
+    CProxyLog log(sharedLog);
 
     /// Trancate the log file
     sharedLog.reset();
@@ -95,22 +96,26 @@ int main()
     }
 
     // Starting all the threads
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->run();
+    for (auto& th: threads)
+        th->run();
 
     puts("Waiting 2 seconds while threads are running..");
     CThread::msleep(2000);
 
-    // Sending 'terminate' signal to all the threads.
-    // That signal suggests thread to terminate and exits instantly.
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->terminate();
+    log << "Sending 'terminate' signal to all the threads." << endl;
+    // That signal suggests thread to terminate and exits ASAP.
+    for (auto th : threads)
+        th->terminate();
 
-    // Deleting all the threads.
+    log << "Joining all the threads." << endl;
+    for (auto th : threads)
+        th->join();
+
+    log << "Deleting all the threads." << endl;
     // Since threads are created in polite mode (see CMyThread class definition),
     // the delete operation would wait for actual thread termination.
-    for (i = 0; i < threads.size(); i++)
-        delete threads[i];
+    for (auto th : threads)
+        delete th;
 
     return 0;
 }

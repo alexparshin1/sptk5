@@ -78,7 +78,7 @@ void CPngImage::load(const CBuffer& imagedata) {
     else
         channels = 1;
 
-    bool            alpha = false;
+    bool            alpha; // = false;
     int             num_trans = 0;
     png_color_16p   trans_color;
     png_bytep       trans_alpha;

@@ -30,6 +30,8 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/threads/CLocation.h>
+#include <condition_variable>
+#include <chrono>
 
 namespace sptk {
 
@@ -40,21 +42,15 @@ namespace sptk {
 class SP_EXPORT CSynchronized
 {
     /// @brief Throws error description for the error code
-    /// @param rc int, Error code
+    /// @param error const char*, Error
     /// @param fileName const char*, File name where lock is invoked
     /// @param lineNumber int, Line number where lock is invoked
-    void throwError(int rc, const char* fileName=NULL, int lineNumber=0) throw (std::exception);
+    void throwError(const char* error, const char* fileName=NULL, int lineNumber=0) throw (std::exception);
 
 protected:
 
-#ifndef _WIN32
-    // PThreads native objects
-    pthread_mutex_t     m_synchronized;     ///< Mutex object
-    pthread_cond_t      m_condition;        ///< Mutex condition object
-#else
-    HANDLE              m_synchronized;     ///< Win32 event object
-#endif
-    CLocation           m_location;         ///< Location of latest successfull lock()
+    std::timed_mutex        m_synchronized;     ///< Mutex object
+    CLocation               m_location;         ///< Location of latest successfull lock()
 
 public:
 
@@ -84,14 +80,6 @@ public:
 
     /// @brief Unlocks the synchronization object.
     virtual void unlock();
-
-    /// @brief Sleeps until receives wakeup(), or until timeout occurs
-    /// @param timeoutMS int, timeout in milliseconds
-    /// @return 0 on success or -1 on timeout or error
-    virtual int msleep(int timeoutMS=-1);
-
-    /// @brief Wakes up a sleeping object
-    virtual void wakeup();
 };
 
 /// @}

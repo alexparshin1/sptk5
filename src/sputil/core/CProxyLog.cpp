@@ -32,14 +32,11 @@ using namespace sptk;
 
 void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
 {
-    if (m_options & CLO_ENABLE) {
-        CSynchronizedCode guard(m_destination);
+    if (options() & CLO_ENABLE)
         m_destination.saveMessage(date, message, sz, priority);
-    }
 }
 
 void CProxyLog::reset() throw (CException)
 {
-    CSynchronizedCode guard(m_destination);
     m_destination.reset();
 }

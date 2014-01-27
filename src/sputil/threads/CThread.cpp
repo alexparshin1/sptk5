@@ -35,112 +35,49 @@
 using namespace std;
 using namespace sptk;
 
-extern "C"
-{
-    typedef void* (*CThreadStartFunction)(void*);
+namespace sptk {
+    void threadStart(void* athread)
+    {
+        CThread* th = (CThread*) athread;
+        th->threadFunction();
+    }
 }
-
-#ifndef WIN32
-void *CThread::threadStart(void *p)
-{
-    CThread *thread = (CThread *) p;
-    thread->runThread();
-    return    NULL;
-}
-#else
-unsigned __stdcall CThread::threadStart(void *p)
-{
-    CThread *thread = (CThread *)p;
-    thread->runThread();
-    return 0;
-}
-#endif
 
 CThread::CThread(string name) :
     m_terminated(false),
-    m_name(name),
-    m_id(0),
-    m_thread(0)
+    m_name(name)
 {
 }
 
 CThread::~CThread()
 {
-    terminate();
-    joinThread();
+    m_terminated = true;
+    if (m_thread.joinable())
+        m_thread.detach();
 }
 
 void CThread::terminate()
 {
+    std::lock_guard<std::mutex> lk(m_mutex);
     if (m_terminated)
         return;
     m_terminated = true;
 }
 
-void CThread::joinThread()
+void CThread::join()
 {
-    if (m_thread) {
-#ifndef WIN32
-        // wait till the thread is stopping
-        pthread_join(m_thread, 0);
-#else
-        WaitForSingleObject(m_thread,INFINITE);
-#endif
-        m_thread = 0;
-    }
-}
-
-void CThread::createThread()
-{
-#ifndef WIN32
-    int rc = pthread_create(&m_thread, NULL, (CThreadStartFunction) CThread::threadStart, (void *) this);
-    if (rc)
-        throw CException("Can't create a new thread");
-#else
-    unsigned threadID;
-    m_thread = (HANDLE) _beginthreadex(0L, 2048, CThread::threadStart, (void *) this, 0, &threadID);
-    if (!m_thread)
-        throw CException("Can't create a new thread");
-#endif
-}
-
-void CThread::destroyThread()
-{
-#ifndef WIN32
-    pthread_exit(NULL);
-#else
-    _endthreadex(0);
-#endif
-}
-
-uint64_t CThread::contextThreadId()
-{
-#ifndef WIN32
-    return (uint64_t) pthread_self();
-#else
-    return GetCurrentThreadId();
-#endif
-}
-
-void CThread::runThread()
-{
-    m_id = contextThreadId();
-    threadFunction();
-    m_id = 0;
-    destroyThread();
+    if (m_thread.joinable())
+        m_thread.join();
 }
 
 void CThread::run()
 {
+    std::lock_guard<std::mutex> lk(m_mutex);
     m_terminated = false;
-    createThread();
+    m_thread = thread(threadStart, (void *) this);
 }
 
 void CThread::msleep(int msec)
 {
-#ifndef WIN32
-    usleep(msec * 1000L);
-#else
-    Sleep(msec);
-#endif
+    this_thread::sleep_for(chrono::milliseconds(msec));
 }

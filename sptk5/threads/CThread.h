@@ -29,8 +29,9 @@
 #define __CTHREAD_H__
 
 #include <sptk5/threads/CSynchronizedCode.h>
-#include <sptk5/CFileLog.h>
-#include <sptk5/CStrings.h>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 namespace sptk
 {
@@ -44,38 +45,14 @@ namespace sptk
 /// by overwriting threadFunction().
 class SP_EXPORT CThread
 {
+    friend void threadStart(void* athread);
+
+    std::mutex          m_mutex;
+    
 protected:
-    bool        m_terminated;   ///< Flag: is the thread terminated?
-    std::string m_name;         ///< Thread name
-    uint64_t    m_id;
-#ifndef _WIN32
-    pthread_t   m_thread;       ///< Thread handle
-#else
-    HANDLE      m_thread;       ///< Thread handle
-    HANDLE      m_timer;        ///< Thread timer handle
-#endif
-
-#ifndef _WIN32
-    /// @brief Internally starts a new thread
-    static void *threadStart(void *p);
-#else
-    /// @brief Internally starts a new thread
-    static unsigned __stdcall threadStart(void *p);
-#endif
-
-protected:
-
-    /// @brief Creates a thread
-    void createThread();
-
-    /// @brief Waits until thread joins
-    void joinThread();
-
-    /// @brief Destroys the thread
-    void destroyThread();
-
-    /// @brief Executes the thread function
-    void runThread();
+    bool                m_terminated;   ///< Flag: is the thread terminated?
+    std::string         m_name;         ///< Thread name
+    std::thread         m_thread;       ///< Thread object
 
 public:
 
@@ -96,21 +73,19 @@ public:
     virtual void terminate();
 
     /// @brief Returns true if the thread is terminated
-    bool terminated() const
+    bool terminated()
     {
+        std::lock_guard<std::mutex> lk(m_mutex);
         return m_terminated;
     }
 
-    /// @brief Returns true if the thread is running
-    bool running() const
-    {
-        return m_id != 0;
-    }
+    /// @brief Waits until thread joins
+    void join();
 
     /// @brief Returns this thread OS id
-    uint64_t id() const
+    std::thread::id id()
     {
-        return m_id;
+        return m_thread.get_id();
     }
 
     /// @brief Returns the name of the thread
@@ -118,9 +93,6 @@ public:
     {
         return m_name;
     }
-
-    /// @brief Returns context thread OS id
-    static uint64_t contextThreadId();
 
     /// @brief Pauses the thread
     /// @param msec int, pause time in milliseconds

@@ -60,6 +60,7 @@ bool closeConnectionCB(CDatabaseConnection*& item, void* data)
     CDatabaseConnection* connection = item;
     CDatabaseConnectionPool* connectionPool = (CDatabaseConnectionPool*)data;
     connectionPool->destroyConnection(connection,false);
+    return true;
 }
 
 CDatabaseConnectionPool::~CDatabaseConnectionPool()

@@ -35,14 +35,15 @@ using namespace sptk;
 
 void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPriority priority) throw (CException)
 {
-    if (m_options & CLO_ENABLE) {
+    SYNCHRONIZED_CODE;
+    if (options() & CLO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
                 throw CException("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
         }
 
-        if (m_options & CLO_DATE)
+        if (options() & CLO_DATE)
             m_fileStream << date.dateString() << " ";
 
         if (m_options & CLO_TIME)
@@ -54,7 +55,7 @@ void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPr
         m_fileStream << message << endl;
     }
 
-    if (m_options & CLO_STDOUT) {
+    if (options() & CLO_STDOUT) {
         if (m_options & CLO_DATE)
             cout << date.dateString() << " ";
 
@@ -73,6 +74,7 @@ void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPr
 
 CFileLog::~CFileLog()
 {
+    SYNCHRONIZED_CODE;
     m_buffer.flush();
     if (m_fileStream.is_open())
         m_fileStream.close();
@@ -80,6 +82,7 @@ CFileLog::~CFileLog()
 
 void CFileLog::reset() throw (CException)
 {
+    SYNCHRONIZED_CODE;
     if (m_fileStream.is_open())
         m_fileStream.close();
     if (m_fileName.empty())

@@ -27,6 +27,7 @@
  ***************************************************************************/
 
 #include <sptk5/net/CTCPServer.h>
+#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -104,8 +105,7 @@ void CTCPServer::stop()
 
     if (m_listenerThread) {
         m_listenerThread->terminate();
-        while (m_listenerThread->running())
-            CThread::msleep(100);
+        m_listenerThread->join();
         delete m_listenerThread;
         m_listenerThread = NULL;
     }

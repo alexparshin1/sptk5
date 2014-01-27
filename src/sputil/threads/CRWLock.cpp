@@ -28,156 +28,67 @@
 #include <sptk5/sptk.h>
 #include <sptk5/threads/CRWLock.h>
 #include <time.h>
-#include <errno.h>
+#include <thread>
 
 using namespace sptk;
+using namespace std;
 
-#define MAX_SEMAPHOR_COUNT  16384
-
-#ifndef _WIN32
-#if HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK == 0
-int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock, const struct timespec * abs_timeout);
-#endif
-#if HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK == 0
-int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock, const struct timespec * abs_timeout);
-#endif
-#endif
-
-CRWLock::CRWLock() {
-#ifndef _WIN32
-    pthread_rwlock_init(&m_rwlock,NULL);
-#else
-
-    m_readLock = CreateEvent(0L,true,true,0L);
-    SetEvent(m_readLock);
-    m_writeLock = CreateMutex(0L,false,0L);
-    InitializeCriticalSection(&m_criticalSection);
+CRWLock::CRWLock()
+{
     m_readerCount = 0;
     m_writerMode = false;
-#endif
 }
 
-CRWLock::~CRWLock() {
-#ifndef _WIN32
-    pthread_rwlock_destroy(&m_rwlock);
-#else
-
-    CloseHandle(m_readLock);
-    CloseHandle(m_writeLock);
-    DeleteCriticalSection(&m_criticalSection);
-#endif
+CRWLock::~CRWLock()
+{
 }
 
-int CRWLock::lockR(int timeout) {
-#ifndef _WIN32
-    if (timeout > 0) {
-        int   secs  = timeout / 1000;
-        int   msecs = timeout % 1000;
-        struct timespec   abstime = {
-                                        time(NULL) + secs, msecs * 1000L
-                                    };
-        return pthread_rwlock_timedrdlock(&m_rwlock,&abstime);
-    } else {
-        return pthread_rwlock_rdlock(&m_rwlock) == 0;
-    }
-#else
-    if (timeout < 0)
-        timeout = INFINITE;
+int CRWLock::lockR(int timeoutMS)
+{
+    if (timeoutMS < 0)
+        timeoutMS = 999999999;
 
-    // Trying to make sure we don't have an active writer
-    if (WaitForSingleObject(m_writeLock, timeout) == WAIT_FAILED)
+    unique_lock<mutex>  lock(m_writeLock);
+    
+    // Wait for no writers
+    if (!m_condition.wait_for(lock, 
+                              chrono::milliseconds(timeoutMS), 
+                              [this](){return m_writerMode == false;}))
+    {
         return false;
-
-    // Increment the readers counter.
-    // Switch m_readLock to non-signaled state if needed,
-    // blocking the potential waiters
-    EnterCriticalSection(&m_criticalSection);
-    if (m_readerCount == 0)
-        ResetEvent(m_readLock);
+    }
+        
     m_readerCount++;
-    m_writerMode = false;
-    LeaveCriticalSection(&m_criticalSection);
+
     return true;
-#endif
 }
 
-int CRWLock::lockRW(int timeout) {
-#ifndef _WIN32
-    if (timeout > 0) {
-        int   secs  = timeout / 1000;
-        int   msecs = timeout % 1000;
-        struct timespec   abstime = {
-                                        time(NULL) + secs, msecs * 1000L
-                                    };
-        return pthread_rwlock_timedwrlock(&m_rwlock,&abstime) == 0;
-    } else {
-        return pthread_rwlock_wrlock(&m_rwlock) == 0;
-    }
-#else
-    if (timeout < 0)
-        timeout = INFINITE;
+int CRWLock::lockRW(int timeoutMS)
+{
+    if (timeoutMS < 0)
+        timeoutMS = 999999999;
 
-    // Trying to make sure we don't have active readers or writer
-    // and to acquire the mutex
-    HANDLE locks[] = { m_readLock, m_writeLock };
-    if (WaitForMultipleObjects(2, locks, true, timeout) == WAIT_FAILED) {
+    unique_lock<mutex>  lock(m_writeLock);
+    
+    // Wait for no readers or writers
+    if (!m_condition.wait_for(lock, 
+                              chrono::milliseconds(timeoutMS), 
+                              [this](){return m_writerMode == false && m_readerCount == 0;}))
+    {
         return false;
     }
 
-    // Only one writer is possible
-    m_readerCount = 1;
     m_writerMode = true;
+
     return true;
-#endif
 }
 
-void CRWLock::unlock() {
-#ifndef _WIN32
-    pthread_rwlock_unlock(&m_rwlock);
-#else
-    // Decrement the readers counter.
-    // Switch m_readLock to signaled state if needed, unblocking all the waiters
-    EnterCriticalSection(&m_criticalSection);
+void CRWLock::unlock()
+{
+    lock_guard<mutex>   guard(m_writeLock);
     if (m_writerMode)
-        ReleaseMutex(m_writeLock);
-    if (m_readerCount == 1)
-        SetEvent(m_readLock);
-    m_readerCount--;
-    LeaveCriticalSection(&m_criticalSection);
-#endif
+        m_writerMode = false;
+    else
+        if (m_readerCount > 0)
+            m_readerCount--;
 }
-
-#ifndef _WIN32
-#if HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK == 0
-/*!
-    \fn static int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock, const struct timespec *restrict abs_timeout)
-    This is ugly implemetation of timed rwlocking function, that has very low resolution, very high overhead
-    (it's essantially is a spinlock with timeout) and generally should not have been written. But for poor OSs that don't
-    have timers option implemented in pthreads (Solaris) it'll do it. I'm (iluxa) not using timeouts on RW locks anyways ;-)
- */
-int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock,
-                                      const struct timespec * abs_timeout) {
-    time_t tm,wt=abs_timeout->tv_sec;
-    int rc;
-    while((rc=pthread_rwlock_trywrlock(rwlock))==EBUSY) {
-        time(&tm);
-        if(tm>wt)
-            return rc;
-    }
-    return rc;
-}
-#endif
-#if HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK == 0
-int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock,
-                                      const struct timespec * abs_timeout) {
-    time_t tm,wt=abs_timeout->tv_sec;
-    int rc;
-    while((rc=pthread_rwlock_tryrdlock(rwlock))==EBUSY) {
-        time(&tm);
-        if(tm>wt)
-            return rc;
-    }
-    return rc;
-}
-#endif
-#endif
