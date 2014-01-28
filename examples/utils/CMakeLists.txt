@@ -8,7 +8,11 @@ IF (UNIX)
     LINK_LIBRARIES (pthread rt)
 ENDIF (UNIX)
 
-SET (CONSOLE_TESTS datetime exceptions logfile_test syslog_test unique_instance registry regexp)
+SET (CONSOLE_TESTS datetime exceptions logfile_test syslog_test unique_instance registry)
+
+IF (PCRE_FLAG)
+    SET (CONSOLE_TESTS ${CONSOLE_TESTS} regexp)
+ENDIF (PCRE_FLAG)
 
 FOREACH (CONSOLE_TEST ${CONSOLE_TESTS})
 
