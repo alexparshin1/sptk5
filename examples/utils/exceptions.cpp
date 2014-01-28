@@ -25,19 +25,32 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <stdio.h>
+#include <iostream>
 #include <sptk5/CException.h>
+#include <sptk5/CBuffer.h>
 
-int main() {
-  
-   puts("Let's try to throw the exception and catch it:");
-   
-   try {
-      // If something goes wrong, we can throw an exception here
-      throw sptk::CException("Error in something", __FILE__, __LINE__, "The full description is here.");
-   } catch (std::exception& e) {
-      puts(e.what());
-   }
-   
-   return 0;
+using namespace std;
+using namespace sptk;
+
+int main()
+{
+    cout << "Let's try to throw the exception and catch it:" << endl;
+
+    try {
+        // If something goes wrong, we can throw an exception here
+        throw CException("Error in something", __FILE__, __LINE__, "The full description is here.");
+    } catch (exception& e) {
+        cerr << "Caught exception: " << e.what() << endl;
+    }
+
+    cout << endl << "Now let's try to load non-existing file and catch the exception:" << endl;
+
+    try {
+        CBuffer buffer;
+        buffer.loadFromFile("/this/file/does/not/exist");
+    } catch (exception& e) {
+        cerr << "Caught exception: " << e.what() << endl;
+    }
+
+    return 0;
 }
