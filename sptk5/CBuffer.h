@@ -47,13 +47,13 @@ class SP_EXPORT CBuffer
 {
 
     /// @brief Resizes current buffer
-    /// @param sz uint32_t, required memory size
-    void adjustSize(uint32_t sz);
+    /// @param sz size_t, required memory size
+    void adjustSize(size_t sz);
 
 protected:
 
-    uint32_t    m_size;     ///< Allocated size of the buffer
-    uint32_t    m_bytes;    ///< Actual size of the data in buffer
+    size_t    m_size;     ///< Allocated size of the buffer
+    size_t    m_bytes;    ///< Actual size of the data in buffer
     char*       m_buffer;   ///< The buffer itself
 
 public:
@@ -62,8 +62,8 @@ public:
     ///
     /// Creates an empty buffer.
     /// The return of the bytes() method will be 0.
-    /// @param sz uint32_t, buffer size to be pre-allocated
-    CBuffer(uint32_t sz = 16);
+    /// @param sz size_t, buffer size to be pre-allocated
+    CBuffer(size_t sz = 16);
 
     /// @brief Constructor
     ///
@@ -87,8 +87,8 @@ public:
     /// The data is copied inside the buffer.
     /// The return of the bytes() method will be the input data size.
     /// @param data void * data buffer
-    /// @param sz uint32_t, data buffer size
-    CBuffer(const void* data, uint32_t sz);
+    /// @param sz size_t, data buffer size
+    CBuffer(const void* data, size_t sz);
 
     /// @brief Copy constructor
     ///
@@ -126,8 +126,8 @@ public:
     /// @brief Checks if the current buffer size is enough
     ///
     /// Allocates memory if needed.
-    /// @param sz uint32_t, required memory size
-    void checkSize(uint32_t sz)
+    /// @param sz size_t, required memory size
+    void checkSize(size_t sz)
     {
         if (sz > m_size)
             adjustSize(sz);
@@ -137,9 +137,9 @@ public:
     ///
     /// Allocates memory if needed.
     /// @param data const char*, external data buffer
-    /// @param sz uint32_t, required memory size
+    /// @param sz size_t, required memory size
     /// @returns success (true) or failure (false)
-    void set(const char* data, uint32_t sz);
+    void set(const char* data, size_t sz);
 
     /// @brief Copies the external data of size sz into the current buffer.
     ///
@@ -167,15 +167,15 @@ public:
     ///
     /// Allocates memory if needed.
     /// @param data const char *, external data buffer
-    /// @param sz uint32_t, required memory size
-    void append(const char* data, uint32_t sz = 0);
+    /// @param sz size_t, required memory size
+    void append(const char* data, size_t sz = 0);
 
     /// @brief Appends the external data of size sz to the current buffer.
     ///
     /// Allocated memory isn't checked. Application should call checkSize() to make sure the required size is there
     /// @param data const char *, external data buffer
-    /// @param sz uint32_t, required memory size
-    void appendNoCheck(const char* data, uint32_t sz = 0);
+    /// @param sz size_t, required memory size
+    void appendNoCheck(const char* data, size_t sz = 0);
 
     /// @brief Appends the string to the current buffer.
     ///
@@ -183,7 +183,7 @@ public:
     /// @param str std::string, string to append
     void append(const std::string& str)
     {
-        return append(str.c_str(), (uint32_t)str.length());
+        return append(str.c_str(), str.length());
     }
 
     /// @brief Appends the string to the current buffer.
@@ -198,8 +198,8 @@ public:
     /// @brief Truncates the current buffer to the size sz.
     ///
     /// Deallocates unused memory if needed.
-    /// @param sz uint32_t, the required data size in bytes
-    void reset(uint32_t sz = 0);
+    /// @param sz size_t, the required data size in bytes
+    void reset(size_t sz = 0);
 
     /// @brief Fills the bytes() characters in buffer with character ch.
     /// @param ch the character to fill the buffer
@@ -207,21 +207,21 @@ public:
 
     /// @brief Returns the size of memory allocated for the data buffer
     /// @returns buffer size
-    uint32_t size()  const
+    size_t size()  const
     {
         return m_size;
     }
 
     /// @brief Returns the size of data in the data buffer
     /// @returns data size
-    uint32_t bytes() const
+    size_t bytes() const
     {
         return m_bytes;
     }
 
     /// @brief Returns the size of data in the data buffer
     /// @returns data size
-    uint32_t length() const
+    size_t length() const
     {
         return m_bytes;
     }
@@ -229,22 +229,22 @@ public:
     /// @brief Sets the size of the data stored
     ///
     /// Doesn't check anything so use it this caution.
-    /// @param b uint32_t, the new size of the buffer
-    void bytes(uint32_t b)
+    /// @param b size_t, the new size of the buffer
+    void bytes(size_t b)
     {
         m_bytes = b;
     }
 
     /// @brief Access the chars by index
-    /// @param index uint32_t, character index
-    char& operator[](uint32_t index)
+    /// @param index size_t, character index
+    char& operator[](size_t index)
     {
         return m_buffer[index];
     }
 
     /// @brief Access the chars by index, const version
-    /// @param index uint32_t, character index
-    const char& operator[](uint32_t index) const
+    /// @param index size_t, character index
+    const char& operator[](size_t index) const
     {
         return m_buffer[index];
     }

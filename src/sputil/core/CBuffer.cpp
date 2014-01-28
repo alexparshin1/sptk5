@@ -35,161 +35,203 @@
 using namespace std;
 using namespace sptk;
 
-CBuffer::CBuffer(uint32_t sz) {
-   m_buffer = (char *)calloc(1,sz);
-   if (m_buffer)
-      m_size = sz;
-   else  m_size = 0;
-   m_bytes = 0;
+CBuffer::CBuffer(size_t sz)
+{
+    m_buffer = (char*)calloc(1, sz);
+
+    if (m_buffer)
+        m_size = sz;
+    else
+        m_size = 0;
+
+    m_bytes = 0;
 }
 
-CBuffer::CBuffer(const void *data,uint32_t sz) {
-   m_buffer = (char *)malloc(sz+1);
-   if (m_buffer) {
-      memcpy(m_buffer,data,sz);
-      m_size = sz;
-      m_bytes = sz;
-      m_buffer[sz] = 0;
-   } else {
-      m_size = m_bytes = 0;
-   }
+CBuffer::CBuffer(const void* data, size_t sz)
+{
+    m_buffer = (char*)malloc(sz + 1);
+
+    if (m_buffer)
+    {
+        memcpy(m_buffer, data, sz);
+        m_size = sz;
+        m_bytes = sz;
+        m_buffer[sz] = 0;
+    }
+    else
+        m_size = m_bytes = 0;
 }
 
-CBuffer::CBuffer(const char *str) {
-   uint32_t sz = (uint32_t) strlen(str) + 1;
-   m_buffer = (char *)malloc(sz);
-   if (m_buffer) {
-      memcpy(m_buffer,str,sz);
-      m_size = sz;
-      m_bytes = sz-1;
-   } else {
-      m_size = 0;
-      m_bytes = 0;
-   }
+CBuffer::CBuffer(const char* str)
+{
+    size_t sz = (size_t) strlen(str) + 1;
+    m_buffer = (char*)malloc(sz);
+
+    if (m_buffer) {
+        memcpy(m_buffer, str, sz);
+        m_size = sz;
+        m_bytes = sz - 1;
+    } else {
+        m_size = 0;
+        m_bytes = 0;
+    }
 }
 
-CBuffer::CBuffer(const string& str) {
-   uint32_t sz = (uint32_t) str.length() + 1;
-   m_buffer = (char *)malloc(sz);
-   if (m_buffer) {
-      if (sz > 1)
-         memcpy(m_buffer,str.c_str(),sz);
-      else m_buffer[0] = 0;
-      m_size = sz;
-      m_bytes = sz-1;
-   } else {
-      m_size = 0;
-      m_bytes = 0;
-   }
+CBuffer::CBuffer(const string& str)
+{
+    size_t sz = (size_t) str.length() + 1;
+    m_buffer = (char*)malloc(sz);
+
+    if (m_buffer) {
+        if (sz > 1)
+            memcpy(m_buffer, str.c_str(), sz);
+        else m_buffer[0] = 0;
+
+        m_size = sz;
+        m_bytes = sz - 1;
+    } else {
+        m_size = 0;
+        m_bytes = 0;
+    }
 }
 
-CBuffer::CBuffer(const CBuffer& buffer) {
-   uint32_t sz = buffer.bytes() + 1;
-   m_buffer = (char *)malloc(sz);
-   if (m_buffer) {
-      memcpy(m_buffer,buffer.data(),sz);
-      m_size = sz;
-      m_bytes = sz-1;
-   } else {
-      m_size = 0;
-      m_bytes = 0;
-   }
+CBuffer::CBuffer(const CBuffer& buffer)
+{
+    size_t sz = buffer.bytes() + 1;
+    m_buffer = (char*)malloc(sz);
+
+    if (m_buffer) {
+        memcpy(m_buffer, buffer.data(), sz);
+        m_size = sz;
+        m_bytes = sz - 1;
+    } else {
+        m_size = 0;
+        m_bytes = 0;
+    }
 }
 
-void CBuffer::adjustSize(uint32_t sz) {
-    uint32_t newSize = sz / 3 * 4 + 16;
-    char *p = (char *)realloc(m_buffer,newSize + 1);
+void CBuffer::adjustSize(size_t sz)
+{
+    size_t newSize = sz / 3 * 4 + 16;
+    char* p = (char*)realloc(m_buffer, newSize + 1);
+
     if (!p)
         throw CException("Can't reallocate a buffer");
+
     m_buffer = p;
     m_size = newSize;
 }
 
-void CBuffer::set(const char *data,uint32_t sz) {
-   checkSize(sz+1);
-   if (data) {
-      memcpy(m_buffer,data,sz);
-      m_buffer[sz] = 0;
-   }
-   m_bytes = sz;
+void CBuffer::set(const char* data, size_t sz)
+{
+    checkSize(sz + 1);
+
+    if (data) {
+        memcpy(m_buffer, data, sz);
+        m_buffer[sz] = 0;
+    }
+
+    m_bytes = sz;
 }
 
-void CBuffer::append(char ch) {
-   checkSize(m_bytes + 1);
-   m_buffer[m_bytes] = ch;
-   m_bytes++;
+void CBuffer::append(char ch)
+{
+    checkSize(m_bytes + 1);
+    m_buffer[m_bytes] = ch;
+    m_bytes++;
 }
 
-void CBuffer::append(const char *data,uint32_t sz) {
-   if (!sz)
-       sz = (uint32_t) strlen(data);
-   checkSize(m_bytes + sz + 1);
-   memcpy(m_buffer+m_bytes,data,sz);
-   m_bytes += sz;
-   m_buffer[m_bytes] = 0;
+void CBuffer::append(const char* data, size_t sz)
+{
+    if (!sz)
+        sz = (size_t) strlen(data);
+
+    checkSize(m_bytes + sz + 1);
+    memcpy(m_buffer + m_bytes, data, sz);
+    m_bytes += sz;
+    m_buffer[m_bytes] = 0;
 }
 
-void CBuffer::fill(char c) {
-   memset(m_buffer,c,m_size);
+void CBuffer::fill(char c)
+{
+    memset(m_buffer, c, m_size);
 }
 
-void CBuffer::reset(uint32_t sz) {
-   if (sz) {
-      char *p = (char *)realloc(m_buffer,sz + 1);
-      if (!p)
-         throw CException("Can't reallocate a buffer");
-      m_buffer = p;
-      m_size = sz;
-   }
-   m_bytes = 0;
+void CBuffer::reset(size_t sz)
+{
+    if (sz) {
+        char* p = (char*)realloc(m_buffer, sz + 1);
+
+        if (!p)
+            throw CException("Can't reallocate a buffer");
+
+        m_buffer = p;
+        m_size = sz;
+    }
+
+    m_bytes = 0;
 }
 
-void CBuffer::loadFromFile(string fileName) {
-   FILE *f = fopen(fileName.c_str(),"rb");
-   if (!f)
-      throw CException("Can't open file " + fileName + " for reading");
+void CBuffer::loadFromFile(string fileName)
+{
+    FILE* f = fopen(fileName.c_str(), "rb");
 
-   struct stat st;
-   fstat(fileno(f),&st);
-   int size = st.st_size;
+    if (!f)
+        throw CException("Can't open file " + fileName + " for reading");
 
-   reset(size+1);
-   m_buffer[size] = 0;
-   m_bytes = (uint32_t) fread(m_buffer,1,size,f);
-   fclose(f);
+    struct stat st;
+    fstat(fileno(f), &st);
+    int size = st.st_size;
+
+    reset(size + 1);
+    m_buffer[size] = 0;
+    m_bytes = fread(m_buffer, 1, size, f);
+    fclose(f);
 }
 
-void CBuffer::saveToFile(string fileName) const {
-   FILE *f = fopen(fileName.c_str(),"wb");
-   if (!f)
-      throw CException("Can't open file " + fileName + " for writing");
-   fwrite(m_buffer,bytes(),1,f);
-   fclose(f);
+void CBuffer::saveToFile(string fileName) const
+{
+    FILE* f = fopen(fileName.c_str(), "wb");
+
+    if (!f)
+        throw CException("Can't open file " + fileName + " for writing");
+
+    fwrite(m_buffer, bytes(), 1, f);
+    fclose(f);
 }
 
-CBuffer& CBuffer::operator = (const CBuffer& b) {
-   checkSize(b.m_bytes + 1);
-   if (b.m_buffer)
-	   memcpy(m_buffer,b.m_buffer,b.m_bytes);
-   m_bytes = b.m_bytes;
-   m_buffer[m_bytes] = 0;
-   return *this;
+CBuffer& CBuffer::operator = (const CBuffer& b)
+{
+    checkSize(b.m_bytes + 1);
+
+    if (b.m_buffer)
+        memcpy(m_buffer, b.m_buffer, b.m_bytes);
+
+    m_bytes = b.m_bytes;
+    m_buffer[m_bytes] = 0;
+    return *this;
 }
 
-CBuffer& CBuffer::operator = (const std::string& str) {
-   uint32_t sz = (uint32_t) str.length(); 
-   checkSize(sz + 1);
-   if (sz)
-	   memcpy(m_buffer,str.c_str(),sz + 1);
-   m_bytes = sz;
-   return *this;
+CBuffer& CBuffer::operator = (const std::string& str)
+{
+    size_t sz = (size_t) str.length();
+    checkSize(sz + 1);
+
+    if (sz)
+        memcpy(m_buffer, str.c_str(), sz + 1);
+
+    m_bytes = sz;
+    return *this;
 }
 
-CBuffer& CBuffer::operator = (const char *str) {
-   uint32_t sz = (uint32_t) strlen(str); 
-   checkSize(sz + 1);
-   if (sz)
-	   memcpy(m_buffer,str,sz + 1);
-   m_bytes = sz;
-   return *this;
+CBuffer& CBuffer::operator = (const char* str)
+{
+    size_t sz = (size_t) strlen(str);
+    checkSize(sz + 1);
+
+    if (sz)
+        memcpy(m_buffer, str, sz + 1);
+
+    m_bytes = sz;
+    return *this;
 }
