@@ -41,6 +41,14 @@ int main()
            pstDateTime.timeString(true,true).c_str()
          );
     
+   const char*  utcDateTimeStr = "2013-10-01T10:00:00Z";
+   CDateTime    utcDateTime(utcDateTimeStr);
+   printf("From UTC: %s to local: %s %s \n", 
+           utcDateTimeStr, 
+           utcDateTime.dateString().c_str(),
+           utcDateTime.timeString(true,true).c_str()
+         );
+    
    puts("Define the date as 2003/09/28, and print the date components:");
    
    CDateTime   dt(2003, 9, 28);

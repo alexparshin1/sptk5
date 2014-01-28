@@ -394,7 +394,10 @@ void CDateTime::encodeDate(double &dt,const char *dat) {
 }
 
 void CDateTime::encodeTime(double& dt,short h,short m,short s,short ms) {
-    dt = (h + ((m + (s + ms / 1000.0) / 60.0) / 60.0)) / 24.0;
+    double seconds = s + ms / 1000.0;
+    double minutes = m + seconds / 60.0;
+    double hours = h + (minutes / 60.0);
+    dt = hours / 24.0;
 }
 
 static int trimRight(char *s) {
@@ -461,11 +464,11 @@ void CDateTime::encodeTime(double& dt,const char *tim)
                 afternoon = true;
                 p = strpbrk(bdat,"Z+-");
                 if (p)
-                    tzOffsetMin = decodeTZOffset(p);
+                    tzOffsetMin = -decodeTZOffset(p);
             } else
-                tzOffsetMin = decodeTZOffset(p);
+                tzOffsetMin = -decodeTZOffset(p);
             *p = 0;
-            tzOffsetMin -= CDateTime::timeZoneOffset;
+            tzOffsetMin += CDateTime::timeZoneOffset;
         }
         trimRight(bdat);
         uint32_t len = (uint32_t) strlen(bdat);
@@ -505,13 +508,14 @@ void CDateTime::decodeTime(const double dt,short& h,short& m,short& s,short& ms)
         t++;
 
     double floatSecs = t * S1;
-    int secs = (int)floatSecs;
+    double msecs = int(floatSecs * 1000 + 0.5);
+    int secs = int(msecs/1000);
+    ms = int((msecs / 1000 - secs) * 1000);
     h = short(secs / 3600);
     secs = secs % 3600;
     m = short(secs / 60);
     secs = secs % 60;
     s = short(secs);
-    ms = int((floatSecs - secs) * 1000);
 }
 
 const int D1 = 365;              // Days in 1 year
