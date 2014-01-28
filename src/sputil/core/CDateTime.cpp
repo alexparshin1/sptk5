@@ -95,7 +95,8 @@ string   CDateTime::monthNames[12];
 string   CDateTime::timeZoneName;
 int      CDateTime::timeZoneOffset;
 
-static void upperCase(char *dest,const char *src) {
+static void upperCase(char *dest,const char *src)
+{
     int i = 0;
     int len = (int) strlen(src);
     for (; i < len; i++)
@@ -103,7 +104,8 @@ static void upperCase(char *dest,const char *src) {
     dest[i] = 0;
 }
 
-char CDateTimeFormat::parseDateOrTime(char *format,const char *dateOrTime) {
+char CDateTimeFormat::parseDateOrTime(char *format,const char *dateOrTime)
+{
     char  separator[] = " ";
     char  dt[32];
 
@@ -177,7 +179,8 @@ char CDateTimeFormat::parseDateOrTime(char *format,const char *dateOrTime) {
     return separator[0];
 }
 
-CDateTimeFormat::CDateTimeFormat() {
+CDateTimeFormat::CDateTimeFormat()
+{
     char  dateBuffer[32];
     char  timeBuffer[32];
     // make a special date and time - today :)
@@ -269,7 +272,8 @@ CDateTimeFormat::CDateTimeFormat() {
 
 static CDateTimeFormat dateTimeFormatInitializer;
 
-void CDateTime::time24Mode(bool t24mode) {
+void CDateTime::time24Mode(bool t24mode)
+{
     const char *timeBuffer = "10:48:59AM";
 
     if (t24mode)
@@ -290,7 +294,8 @@ void CDateTime::time24Mode(bool t24mode) {
     }
 }
 
-void CDateTime::encodeDate(double &dt,short year,short month,short day) {
+void CDateTime::encodeDate(double &dt,short year,short month,short day)
+{
     if (year == 0 && month == 0 && day == 0) {
         dt = 0;
         return;
@@ -309,7 +314,8 @@ void CDateTime::encodeDate(double &dt,short year,short month,short day) {
     dt = i * 365 + i / 4 - i / 100 + i / 400 + day - DateDelta;
 }
 
-void CDateTime::encodeDate(double &dt,const char *dat) {
+void CDateTime::encodeDate(double &dt,const char *dat)
+{
     char     bdat[64];
     short    datePart[7], partNumber = 0;
     char     *ptr = NULL;
@@ -393,14 +399,16 @@ void CDateTime::encodeDate(double &dt,const char *dat) {
     }
 }
 
-void CDateTime::encodeTime(double& dt,short h,short m,short s,short ms) {
+void CDateTime::encodeTime(double& dt,short h,short m,short s,short ms)
+{
     double seconds = s + ms / 1000.0;
     double minutes = m + seconds / 60.0;
     double hours = h + (minutes / 60.0);
     dt = hours / 24.0;
 }
 
-static int trimRight(char *s) {
+static int trimRight(char *s)
+{
     int len = (int) strlen(s);
 
     while ((len--) >= 0) {
@@ -501,7 +509,8 @@ void CDateTime::encodeTime(double& dt,const char *tim)
 
 const int S1 = 24 * 3600; // seconds in 1 day
 
-void CDateTime::decodeTime(const double dt,short& h,short& m,short& s,short& ms) {
+void CDateTime::decodeTime(const double dt,short& h,short& m,short& s,short& ms)
+{
     double t = dt - (int) dt;
 
     if (t < 0)
@@ -523,12 +532,14 @@ const int D4 = D1 * 4 + 1;       // Days in 4 years
 const int D100 = D4 * 25 - 1;    // Days in 100 years
 const int D400 = D100 * 4 + 1;   // Days in 400 years
 
-inline void DivMod(int op1, int op2, int& div, int& mod) {
+inline void DivMod(int op1, int op2, int& div, int& mod)
+{
     div = op1 / op2;
     mod = op1 % op2;
 }
 
-void CDateTime::decodeDate(const double dat,short& year,short& month,short& day) {
+void CDateTime::decodeDate(const double dat,short& year,short& month,short& day)
+{
     int M, D, I;
     int T = (int) dat + DateDelta - 1;
 
@@ -571,14 +582,16 @@ void CDateTime::decodeDate(const double dat,short& year,short& month,short& day)
 //----------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------
-CDateTime::CDateTime(short year,short month,short day,short hour,short minute,short second) {
+CDateTime::CDateTime(short year,short month,short day,short hour,short minute,short second)
+{
     double t;
     encodeDate(m_dateTime,year,month,day);
     encodeTime(t,hour,minute,second);
     m_dateTime += t;
 }
 
-CDateTime::CDateTime(const char * dat) {
+CDateTime::CDateTime(const char * dat)
+{
     while (*dat && *dat == ' ') dat++;
     if (!*dat) {
         m_dateTime = 0;
@@ -608,21 +621,25 @@ CDateTime::CDateTime(const char * dat) {
     }
 }
 
-CDateTime::CDateTime(const CDateTime &dt) {
+CDateTime::CDateTime(const CDateTime &dt)
+{
     m_dateTime = dt.m_dateTime;
 }
 
-CDateTime::CDateTime(const double dt) {
+CDateTime::CDateTime(const double dt)
+{
     m_dateTime = dt;
 }
 //----------------------------------------------------------------
 // Assignments
 //----------------------------------------------------------------
-void CDateTime::operator = (const CDateTime &dt) {
+void CDateTime::operator = (const CDateTime &dt)
+{
     m_dateTime = dt.m_dateTime;
 }
 
-void CDateTime::operator = (const char * dat) {
+void CDateTime::operator = (const char * dat)
+{
     if (dat)
         encodeDate(m_dateTime, dat);
     else
@@ -634,47 +651,56 @@ void CDateTime::operator = (const char * dat) {
 //----------------------------------------------------------------
 // CDateTime::operator int (void) { return (int) dateTime; }
 
-CDateTime::operator double(void) const {
+CDateTime::operator double(void) const
+{
     return m_dateTime;
 }
 
 //----------------------------------------------------------------
 // Date Arithmetic
 //----------------------------------------------------------------
-CDateTime CDateTime::operator + (CDateTime& dt) {
+CDateTime CDateTime::operator + (CDateTime& dt)
+{
     return CDateTime(m_dateTime + dt.m_dateTime);
 }
 
-CDateTime CDateTime::operator - (CDateTime& dt) {
+CDateTime CDateTime::operator - (CDateTime& dt)
+{
     return CDateTime(m_dateTime - dt.m_dateTime);
 }
 
-CDateTime& CDateTime::operator += (CDateTime& dt) {
+CDateTime& CDateTime::operator += (CDateTime& dt)
+{
     m_dateTime += dt.m_dateTime;
     return *this;
 }
 
-CDateTime& CDateTime::operator -= (CDateTime& dt) {
+CDateTime& CDateTime::operator -= (CDateTime& dt)
+{
     m_dateTime -= dt.m_dateTime;
     return *this;
 }
 
-CDateTime& CDateTime::operator ++() {
+CDateTime& CDateTime::operator ++()
+{
     m_dateTime += 1;
     return *this;
 }
 
-CDateTime &CDateTime::operator ++(int) {
+CDateTime &CDateTime::operator ++(int)
+{
     m_dateTime += 1;
     return *this;
 }
 
-CDateTime &CDateTime::operator --() {
+CDateTime &CDateTime::operator --()
+{
     m_dateTime -= 1;
     return *this;
 }
 
-CDateTime &CDateTime::operator --(int) {
+CDateTime &CDateTime::operator --(int)
+{
     m_dateTime -= 1;
     return *this;
 }
@@ -683,42 +709,51 @@ CDateTime &CDateTime::operator --(int) {
 // Date comparison
 //----------------------------------------------------------------
 
-bool operator < (const CDateTime &dt1, const CDateTime &dt2) {
+bool operator < (const CDateTime &dt1, const CDateTime &dt2)
+{
     return ((double) dt1 < (double) dt2);
 }
 
-bool operator <= (const CDateTime &dt1, const CDateTime &dt2) {
+bool operator <= (const CDateTime &dt1, const CDateTime &dt2)
+{
     return ((double) dt1 <= (double) dt2);
 }
 
-bool operator > (const CDateTime &dt1, const CDateTime &dt2) {
+bool operator > (const CDateTime &dt1, const CDateTime &dt2)
+{
     return ((double) dt1 > (double) dt2);
 }
 
-bool operator >= (const CDateTime &dt1, const CDateTime &dt2) {
+bool operator >= (const CDateTime &dt1, const CDateTime &dt2)
+{
     return ((double) dt1 >= (double) dt2);
 }
 
-bool operator == (const CDateTime &dt1, const CDateTime &dt2) {
+bool operator == (const CDateTime &dt1, const CDateTime &dt2)
+{
     return ((double) dt1 == (double) dt2);
 }
 
-bool operator != (const CDateTime &dt1, const CDateTime &dt2) {
+bool operator != (const CDateTime &dt1, const CDateTime &dt2)
+{
     return ((double) dt1 != (double) dt2);
 }
 
-CDateTime operator + (const CDateTime &dt1, const CDateTime &dt2) {
+CDateTime operator + (const CDateTime &dt1, const CDateTime &dt2)
+{
     return double(dt1) + double(dt2);
 }
 
-CDateTime operator - (const CDateTime &dt1, const CDateTime &dt2) {
+CDateTime operator - (const CDateTime &dt1, const CDateTime &dt2)
+{
     return double(dt1) - double(dt2);
 }
 
 //----------------------------------------------------------------
 // Format routine
 //----------------------------------------------------------------
-void CDateTime::formatDate(char *str) const {
+void CDateTime::formatDate(char *str, bool universalDateFormat) const
+{
     char *ptr = str;
     short month, day, year;
 
@@ -727,21 +762,27 @@ void CDateTime::formatDate(char *str) const {
         return;
     }
     decodeDate(m_dateTime,year,month,day);
-    for (int i = 0; i < 3; i++) {
-        switch (datePartsOrder[i]) {
-        case 'M':
-            sprintf(ptr,"%02i%c",month,dateSeparator);
-            break;
-        case 'D':
-            sprintf(ptr,"%02i%c",day,dateSeparator);
-            break;
-        case 'Y':
-            sprintf(ptr,"%04i%c",year,dateSeparator);
-            break;
+    if (universalDateFormat) {
+        size_t bytes = sprintf(str, "%04d-%02d-%02d", year, month, day);
+        ptr += bytes;
+        *ptr = 0;
+    } else {
+        for (int i = 0; i < 3; i++) {
+            switch (datePartsOrder[i]) {
+            case 'M':
+                sprintf(ptr,"%02i%c",month,dateSeparator);
+                break;
+            case 'D':
+                sprintf(ptr,"%02i%c",day,dateSeparator);
+                break;
+            case 'Y':
+                sprintf(ptr,"%04i%c",year,dateSeparator);
+                break;
+            }
+            ptr += strlen(ptr);
         }
-        ptr += strlen(ptr);
+        *(ptr-1) = 0;
     }
-    *(ptr-1) = 0;
 }
 
 void CDateTime::formatTime(char *str,bool ampm,bool showSeconds,bool showTimezone) const {
@@ -883,9 +924,9 @@ string CDateTime::monthName() const {
     return CDateTime::monthNames[month()-1];
 }
 
-string CDateTime::dateString() const {
+string CDateTime::dateString(bool universalDateFormat) const {
     char  buffer[32];
-    formatDate(buffer);
+    formatDate(buffer, universalDateFormat);
     return string(buffer);
 }
 

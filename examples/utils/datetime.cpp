@@ -35,17 +35,17 @@ int main()
    puts("Decode date and time in PST timezone and print it in local timezone:");
    const char*  pstDateTimeStr = "2013-10-01 10:00:00-7:00";
    CDateTime    pstDateTime(pstDateTimeStr);
-   printf("From PST(-7:00): %s to local: %s %s \n", 
+   printf("From PST(-7:00): %s to local: %sT%s \n", 
            pstDateTimeStr, 
-           pstDateTime.dateString().c_str(),
+           pstDateTime.dateString(true).c_str(),
            pstDateTime.timeString(true,true).c_str()
          );
     
    const char*  utcDateTimeStr = "2013-10-01T10:00:00Z";
    CDateTime    utcDateTime(utcDateTimeStr);
-   printf("From UTC: %s to local: %s %s \n", 
+   printf("From UTC: %s to local: %sT%s \n", 
            utcDateTimeStr, 
-           utcDateTime.dateString().c_str(),
+           utcDateTime.dateString(true).c_str(),
            utcDateTime.timeString(true,true).c_str()
          );
     

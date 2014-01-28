@@ -147,7 +147,7 @@ public:
     CDateTime& operator -- (int);
 
     /// @brief Print the date into str
-    void formatDate(char *str) const;
+    void formatDate(char *str, bool universalDateFormat=false) const;
 
     /// @brief Print the date into str
     void formatTime(char *str,bool ampm=true,bool showSeconds=false,bool showTimezone=false) const;
@@ -207,7 +207,8 @@ public:
     int16_t year() const;
 
     /// @brief Returns date as a string
-    std::string dateString() const;
+    /// @param universalDateFormat bool, If false then use local date format. Otherwise use "YYYY-MM-DD" format
+    std::string dateString(bool universalDateFormat=false) const;
 
     /// @brief Returns time as a string
     std::string timeString(bool showSeconds=false, bool showTimezone=false) const;
