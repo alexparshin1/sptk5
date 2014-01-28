@@ -98,52 +98,74 @@ public:
 ///
 /// General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
 /// Includes several extra methods to construct it from string or load/save from/to file.
-class SP_EXPORT CStrings : public std::vector<idstring> {
-
+class SP_EXPORT CStrings : public std::vector<idstring>
+{
     int32_t m_userData;    ///< User-specified data
 
-    /// Parses a string to elements separated by a delimiter string
-    /// @param src const char *, a source string
-    /// @param separator const char *, a separator string
-    void parseString(const char *src,const char *delimitter);
+    /// @brief Splits source string on substrings using exact delimiter
+    ///
+    /// Consequent delimiters create empty strings.
+    /// @param src const std::string&, a source string
+    /// @param delimiter const char *, a delimiter string
+    void splitByDelimiter(const std::string& src, const char *delimitter);
+    
+    /// @brief Splits source string on substrings using any char in delimiter
+    ///
+    /// Consequent delimiters are treated as a single one.
+    /// @param src const std::string&, a source string
+    /// @param delimiter const char *, a delimiter string
+    void splitByAnyChar(const std::string& src, const char *delimitter);
+
 public:
+
+    /// @brief String split mode
+    enum SplitMode
+    { 
+        SM_DELIMITER,   ///< Split by the whole delimiter
+        SM_ANYCHAR      ///< Split by any char in delimiter
+    };
+    
     /// @brief Default constructor
-    CStrings() {
+    CStrings() 
+    {
         m_userData = 0;
     }
 
     /// @brief Copy constructor
-    CStrings(const CStrings& src) : std::vector<idstring>() {
+    CStrings(const CStrings& src) : std::vector<idstring>()
+    {
         resize(src.size());
         std::copy(src.begin(),src.end(),begin());
     }
 
     /// @brief Constructor from a string with elements separated by a delimiter string
     /// @param src const std::string&, a source string
-    /// @param separator const char *, a separator string
-    CStrings(const std::string& src,const char *separator) {
-        parseString(src.c_str(),separator);
+    /// @param delimiter const char *, a delimiter string
+    /// @param mode SplitMode, delimiter string usage
+    CStrings(const std::string& src, const char *delimiter, SplitMode mode=SM_DELIMITER)
+    {
+        fromString(src.c_str(), delimiter, mode);
     }
 
     /// @brief Constructor from a string with elements separated by a delimiter string
     /// @param src const char *, a source string
-    /// @param separator const char *, a separator string
-    CStrings(const char *src,const char *separator) {
+    /// @param delimiter const char *, a delimiter string
+    /// @param mode SplitMode, delimiter string usage
+    CStrings(const char *src,const char *delimiter, SplitMode mode=SM_DELIMITER)
+    {
         clear();
-        parseString(src,separator);
+        fromString(src,delimiter);
     }
 
     /// @brief Assigns strings from a string with elements separated by a delimiter string
     /// @param src const std::string&, a source string
-    /// @param separator const char *, a separator string
-    void fromString(const std::string& src,const char *separator) {
-        clear();
-        parseString(src.c_str(),separator);
-    }
+    /// @param delimiter const char *, a delimiter string
+    /// @param mode SplitMode, delimiter string usage
+    void fromString(const std::string& src, const char *delimiter, SplitMode mode=SM_DELIMITER);
 
     /// @brief Makes string from own strings separated by a delimiter string
-    /// @param separator const char *, a separator string
-    std::string asString(const char *separator) const;
+    /// @param delimiter const char *, a delimiter string
+    std::string asString(const char *delimiter) const;
 
     /// @brief Returns an index of the string in strings, or -1 if not found
     /// @param s std::string, a string to find
@@ -159,19 +181,22 @@ public:
     void loadFromFile(std::string fileName) throw(CException);
 
     /// @brief Returns user data as integer
-    int32_t argument() const   {
-        return (int)m_userData;
+    int32_t argument() const
+    {
+        return (int) m_userData;
     }
 
     /// @brief Sets user data as integer
     /// @param d int, new value for user data
-    void argument(int32_t d)   {
+    void argument(int32_t d)
+    {
         m_userData = d;
     }
 
     /// @brief Removes a string from vector
     /// @param i uint32_t, string index in the vector
-    void remove(uint32_t i) {
+    void remove(uint32_t i)
+    {
         erase(begin()+i);
     }
 };

@@ -29,45 +29,55 @@
 #include <string.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/string_ext.h>
+#include <sptk5/CBuffer.h>
 
 using namespace std;
 using namespace sptk;
 
-void CStrings::parseString(const char *src,const char *delimitter) {
-    if (!src || !src[0])
-        return;
-    string buffer(src);
-    clear();
-    uint32_t dlen = (uint32_t) strlen(delimitter);
-    if (!dlen)
-        return;
-    char *p = (char *)buffer.c_str();
-    for (;;) {
-        char *end = strstr(p,delimitter);
-        if (end) {
-            char sc = *end;
-            *end = 0;
-            push_back(p);
-            *end = sc;
-            p = end + dlen;
+void CStrings::splitByDelimiter(const string& src, const char *delimitter)
+{
+    size_t  pos = 0, end = 0;
+    size_t  dlen = strlen(delimitter);
+    while (true) {
+        end = src.find(delimitter, pos);
+        if (end != string::npos) {
+            push_back(src.substr(pos, end - pos));
+            pos = end + dlen;
         } else {
-            push_back(p);
+            push_back(src.substr(pos));
             break;
         }
     }
 }
 
-string CStrings::asString(const char *separator) const {
+void CStrings::splitByAnyChar(const string& src, const char *delimitter)
+{
+    size_t  pos = 0, end = 0;
+    while (true) {
+        end = src.find_first_of(delimitter, pos);
+        if (end != string::npos) {
+            push_back(src.substr(pos, end - pos));
+            pos = src.find_first_not_of(delimitter, end + 1);
+        } else {
+            push_back(src.substr(pos));
+            break;
+        }
+    }
+}
+
+void CStrings::fromString(const string& src, const char *delimitter, SplitMode mode) {
+    clear();
+    if (mode == SM_DELIMITER)
+        splitByDelimiter(src, delimitter);
+    else
+        splitByAnyChar(src, delimitter);
+}
+
+string CStrings::asString(const char *delimiter) const 
+{
     string result;
-    const_iterator itor = begin();
-    if (itor != end()) {
-        result = *itor;
-        itor++;
-    }
-    while (itor != end()) {
-        result += separator + *itor;
-        itor++;
-    }
+    for (auto& str : *this)
+        result += delimiter + str;
     return result;
 }
 
@@ -75,63 +85,35 @@ int CStrings::indexOf(string s) const {
     const_iterator itor = find(begin(),end(),s.c_str());
     if (itor == end())
         return -1;
-#ifdef __SUNPRO_CC
-    int d;
-    distance(begin(),itor,d);
-    return d;
-#else
-    return (int) std::distance(begin(),itor);
-#endif
+    return (int) distance(begin(),itor);
 }
 
-void CStrings::saveToFile(string fileName) const throw(CException) {
-#ifdef WIN32
-    /// I'm using FILE IO here, since the ofstream implementation
-    /// in Visual C++ works about 20 times slower
-    FILE *f = fopen(fileName.c_str(),"w+t");
-    if (!f)
-        throw CException("Can't open file "+fileName+" for writing");
-    char *buffer = new char[16384];
-    setvbuf(f,buffer,_IONBF,16384);
-
-    const_iterator itor = begin();
-    for (; itor != end(); itor++) {
-        const idstring& str = *itor;
-        if (fputs(str.c_str(),f) == EOF) {
-            delete [] buffer;
-            throw CException("Can't write to file "+fileName);
-        }
-        if (fputs("\n",f) == EOF) {
-            delete [] buffer;
-            throw CException("Can't write to file "+fileName);
-        }
+void CStrings::saveToFile(string fileName) const throw(CException)
+{
+    CBuffer buffer;
+    for (auto& str : *this) {
+        buffer.append(str);
+        buffer.append("\n");
     }
-    fclose(f);
-    delete [] buffer;
-#else
-    ofstream file;
-    file.open(fileName.c_str());
-    if (!file.is_open())
-        throw CException("Can't open file "+fileName+" for reading");
-    const_iterator itor = begin();
-    for (; itor != end(); itor++) {
-        const idstring& str = *itor;
-        file << str << endl;
-        if (!file.good())
-            throw CException("Can't write to file "+fileName);
-    }
-    file.close();
-#endif
+    buffer.saveToFile(fileName);
 }
 
-void CStrings::loadFromFile(string fileName) throw(CException)  {
-    string line;
-    clear();
-    ifstream infile;
-    infile.open(fileName.c_str());
-    if (!infile.is_open())
-        throw CException("Can't open file "+fileName+" for reading");
-    while (getline(infile,line,'\n'))
-        push_back (line);
-    infile.close();
+void CStrings::loadFromFile(string fileName) throw(CException)
+{
+    CBuffer buffer;
+    buffer.loadFromFile(fileName);
+    
+    // Load text
+    string text(buffer.c_str(), buffer.bytes());
+    
+    // Determine delimiter
+    size_t pos1 = text.find_first_of("\n\r");
+    size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
+    string delimiter = text.substr(pos1, 1);
+    if (pos1 + 1 == pos2) {
+        if (text[pos1] != text[pos2]) // Two chars delimiter
+            delimiter = text.substr(pos1, 2);
+    }
+    
+    splitByDelimiter(text, delimiter.c_str());
 }
