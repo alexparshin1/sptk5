@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/wsdl/CWSBasicTypes.h>
-#include <sptk5/CRegExp.h>
 
 using namespace std;
 using namespace sptk;
@@ -63,9 +62,7 @@ string WSDate::asString() const
 
 void WSDateTime::load(const CXmlNode* attr)
 {
-    static CRegExp getDate("^([\\d\\-]+)T(.*)Z.*$");
-    string dateString = getDate.s(attr->text(),"\\1 \\2");
-    m_data.setDateTime(CDateTime(dateString.c_str()));
+    m_data.setDateTime(CDateTime(attr->text().c_str()));
 }
 
 void WSDateTime::load(string attr)
@@ -75,8 +72,8 @@ void WSDateTime::load(string attr)
 
 string WSDateTime::asString() const
 {
-    static CRegExp getDate("^([\\d\\-]+) (.*)$");
-    return getDate.s(m_data.asString(),"\\1T\\2Z");
+    CDateTime dt = m_data.asDateTime();
+    return dt.dateString(true) + "T" + dt.timeString(true,true);
 }
 
 void WSDouble::load(const CXmlNode* attr)
