@@ -323,7 +323,7 @@ int main()
 #endif
 */
 #if HAVE_POSTGRESQL == 1
-    testDatabase("postgresql://scott:tiger@localhost/protis");
+    testDatabase("postgresql://scott:tiger@localhost:5432/protis");
 #endif
 /*
 #if HAVE_ODBC == 1
