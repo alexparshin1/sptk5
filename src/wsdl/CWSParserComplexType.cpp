@@ -27,7 +27,6 @@
 
 #include <sptk5/wsdl/CWSParserComplexType.h>
 #include <sptk5/wsdl/CWSTypeTranslator.h>
-#include <sptk5/CRegExp.h>
 #include <sstream>
 #include <stdio.h>
 #include <set>
@@ -101,10 +100,10 @@ string CWSParserComplexType::className() const
     string cxxType = wsTypeTranslator.toCxxType(m_typeName,"");
     if (!cxxType.empty())
         return cxxType;
-    static CRegExp nameSpace("^(\\S+:)");
-    return "C" + nameSpace.s(m_typeName,"");
+    size_t pos = m_typeName.find(":");
+    return "C" + m_typeName.substr(0, pos);
 }
-    
+
 void CWSParserComplexType::parseSequence(CXmlElement* sequence) throw (std::exception)
 {
     for (CXmlElement::const_iterator itor = sequence->begin(); itor != sequence->end(); itor++) {
