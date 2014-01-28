@@ -35,66 +35,57 @@
 
 #include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CRegExp.h>
 #include <string.h>
 #include <stdlib.h>
 
 using namespace std;
 using namespace sptk;
 
+static const CStrings driverNames("sqlite|postgres|postgresql|oracle|mysql|mssql)", "|");
+
 void CDatabaseConnectionString::parse() throw (CDatabaseException)
 {
-    CStrings    parts;
-    CRegExp("^(\\w+)://((\\S+)@)?([\\w-_\\.]+)(:(\\d+))?(/([\\w_]+))?(\\?.*)?$").m(m_connectionString,parts);
-    if (!parts.size())
-        throwDatabaseException("Invalid connection string: m_connectionString");
-    for (unsigned i = 0; i < parts.size(); i++) {
-        string item = parts[i];
-        switch (i) {
-        case 0: 
-            m_driverName = item;
-            break;
-        case 2:
-            if (!item.empty()) {
-                CStrings login(item,":");
-                m_userName = login[0];
-                if (login.size() > 1)
-                    m_password = login[1];
-            }
-            break;
-        case 3:
-            m_hostName = item;
-            break;
-        case 4:
-            {
-                string port = item;
-                if (!port.empty()) {
-                    m_portNumber = string2int(port);
-                    if (!m_portNumber)
-                        throw CDatabaseException("Invalid port number: " + m_connectionString);
-                } else
-                    m_portNumber = 0;
-            }
-            break;
-        case 7:
-            m_databaseName = item;
-            break;
-        case 8:
-            {
-                string parameters = item;
+    size_t pos;
+    string connStr(m_connectionString);
 
-                CRegExp("([\\w_]+)=([\\w\\s/\\\\:-_\"']+)","g").m(parameters, parts);
-                m_parameters.clear();
-                for (unsigned i = 0; i < parts.size(); i+= 2)
-                    m_parameters[ parts[i] ] = parts[i+1];
-            }
-            break;
+    // Find extra parameters
+    pos = connStr.find_first_of("?");
+    if (pos != string::npos) {
+        CStrings parameters(connStr.substr(pos + 1),"&");
+        for (auto& item: parameters) {
+            CStrings pair(item,"='");
+            if (pair.size() == 2)
+                m_parameters[ pair[0] ] = pair[1];
         }
+        connStr.erase(pos);
     }
+    
+    pos = connStr.find("://");
+    if (pos != string::npos) {
+        m_driverName = connStr.substr(0, pos);
+        connStr.erase(0, pos + 3);
+        if (driverNames.indexOf(m_driverName) < 0)
+            throwDatabaseException("Driver name is unknown: " + m_connectionString);
+    } else
+        throwDatabaseException("Driver name is missing: " + m_connectionString);
 
-    if (m_driverName != CRegExp("^(sqlite|postgres|oracle|mysql|mssql)"))
-        throw CDatabaseException("Driver name not found: " + m_connectionString);
-
-    if (m_userName.empty() && !m_password.empty())
-        throw CDatabaseException("User name not found: " + m_connectionString);
+    pos = connStr.find("@");
+    if (pos != string::npos) {
+        CStrings usernameAndPassword(connStr.substr(0, pos),":");
+        m_userName = usernameAndPassword[0];
+        if (usernameAndPassword.size() > 1)
+            m_password = usernameAndPassword[1];
+        connStr.erase(0, pos + 1);
+    }
+    
+    pos = connStr.find("/");
+    if (pos != string::npos) {
+        m_databaseName = connStr.substr(pos + 1);
+        connStr.erase(pos);
+    }
+    
+    CStrings hostAndPort(connStr, ":");
+    m_hostName = hostAndPort[0];
+    if (hostAndPort.size() > 1)
+        m_portNumber = stoi(hostAndPort[1]);
 }
