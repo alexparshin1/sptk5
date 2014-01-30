@@ -101,7 +101,7 @@ string CWSParserComplexType::className() const
     if (!cxxType.empty())
         return cxxType;
     size_t pos = m_typeName.find(":");
-    return "C" + m_typeName.substr(0, pos);
+    return "C" + m_typeName.substr(pos + 1);
 }
 
 void CWSParserComplexType::parseSequence(CXmlElement* sequence) throw (std::exception)
