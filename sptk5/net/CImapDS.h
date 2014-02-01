@@ -32,99 +32,118 @@
 #include <sptk5/net/CImapConnect.h>
 #include <string>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup gui GUI Classes
 /// @{
 
 /// Progression callback function prototype
-typedef void (*CProgressCallback)(int total,int progress);
+typedef void (*CProgressCallback)(int total, int progress);
 
 /// @brief IMAP datasource
 ///
 /// Allows to browse the list of messages and folders on IMAP server.
 /// It returns a dataset with message headers.
-class CImapDS : public CMemoryDS  {
+class CImapDS: public CMemoryDS
+{
 protected:
-    CImapConnect         m_imap;        ///< IMAP socket connector
-    std::string          m_folder;      ///< IMAP folder name
-    std::string          m_user;        ///< IMAP user name
-    std::string          m_password;    ///< IMAP user password
-    bool                 m_fetchbody;   ///< True, if we want to fetch the message headers AND message body
-    CProgressCallback    m_callback;    ///< Internal prograssion callback for open()
-    int                  m_msgid;       ///< Internal message ID
+    CImapConnect        m_imap;        ///< IMAP socket connector
+    std::string         m_folder;      ///< IMAP folder name
+    std::string         m_user;        ///< IMAP user name
+    std::string         m_password;    ///< IMAP user password
+    bool                m_fetchbody;   ///< True, if we want to fetch the message headers AND message body
+    CProgressCallback   m_callback;    ///< Internal prograssion callback for open()
+    int                 m_msgid;       ///< Internal message ID
 public:
 
     /// Default constructor
-    CImapDS() : CMemoryDS(), m_fetchbody(false), m_callback(NULL) {
+    CImapDS() :
+            CMemoryDS(),
+            m_fetchbody(false),
+            m_callback(NULL)
+    {
         m_msgid = 0;
     }
 
     /// Destructor
-    virtual ~CImapDS() {
+    virtual ~CImapDS()
+    {
         close();
     }
 
     /// IMAP host name
-    void host(std::string host_name)  {
+    void host(std::string host_name)
+    {
         m_imap.host(host_name);
     }
 
     /// IMAP host name
-    std::string host() const          {
+    std::string host() const
+    {
         return m_imap.host();
     }
 
     /// IMAP user name
-    void user(std::string usr)        {
+    void user(std::string usr)
+    {
         m_user = usr;
     }
 
     /// IMAP user name
-    std::string user() const          {
+    std::string user() const
+    {
         return m_user;
     }
 
     /// IMAP user password
-    void password(std::string pwd)    {
+    void password(std::string pwd)
+    {
         m_password = pwd;
     }
 
     /// IMAP user password
-    std::string password() const      {
+    std::string password() const
+    {
         return m_password;
     }
 
     /// IMAP folder name
-    void folder(std::string d)        {
+    void folder(std::string d)
+    {
         m_folder = d;
     }
 
     /// IMAP folder name
-    const std::string &folder() const {
+    const std::string &folder() const
+    {
         return m_folder;
     }
 
     /// IMAP message ID (message number in the folder). If defined,
     /// the open() will retrieve only the message with the selected ID (if any)
-    void messageID(int msgid)       {
+    void messageID(int msgid)
+    {
         m_msgid = msgid;
     }
 
     /// Returns the ID of the message when defined to retrieve one message only
-    int messageID()   const         {
+    int messageID() const
+    {
         return m_msgid;
     }
 
     /// Sets the fetch body flag. Should be called prior to open().
     /// If the fetch body flag is not set, only the message headers will be retrieved and that is much faster.
-    void fetchBody(bool fb)       {
+    void fetchBody(bool fb)
+    {
         m_fetchbody = fb;
     }
 
     /// Returns the current value of the fetch body flag
     /// @returns the fetch body flag
-    bool fetchBody() const        {
+    bool fetchBody() const
+    {
         return m_fetchbody;
     }
 
@@ -134,7 +153,8 @@ public:
 
     /// Optional callback for the open() method progression.
     /// @param cb CProgressCallback, a callback function
-    void callback(CProgressCallback cb) {
+    void callback(CProgressCallback cb)
+    {
         m_callback = cb;
     }
 };

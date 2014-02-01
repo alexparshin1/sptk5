@@ -33,7 +33,8 @@
 
 #include <string>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
@@ -41,32 +42,38 @@ namespace sptk {
 /// @brief Base mail socket
 ///
 /// CBaseMailConnect class is the base class for mail message components
-class SP_EXPORT CBaseMailConnect {
+class SP_EXPORT CBaseMailConnect
+{
 protected:
-    std::string      m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd@noname.com>"
-    std::string      m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
-    std::string      m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
-    std::string      m_bcc;      ///< Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
-    std::string      m_subject;  ///< Mail SUBJECT:
-    CMailMessageBody m_body;     ///< Mail text (plain-text and html parts of the message)
-    std::string      m_attachments; ///< The list of attachment files separated with ';'
+    std::string         m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd@noname.com>"
+    std::string         m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
+    std::string         m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
+    std::string         m_bcc;      ///< Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
+    std::string         m_subject;  ///< Mail SUBJECT:
+    CMailMessageBody    m_body;     ///< Mail text (plain-text and html parts of the message)
+    std::string         m_attachments; ///< The list of attachment files separated with ';'
 
-    CBuffer m_messageBuffer; ///< Internal message buffer
+    CBuffer             m_messageBuffer; ///< Internal message buffer
 
     /// Encoding the message into internal message buffer
-    void mimeFile(std::string fileName,std::string fileAlias,std::stringstream& message);
+    void mimeFile(std::string fileName, std::string fileAlias, std::stringstream& message);
 
 public:
     /// Default constructor
-    CBaseMailConnect() {}
+    CBaseMailConnect()
+    {
+    }
 
     /// Default destructor
-    virtual ~CBaseMailConnect() {}
+    virtual ~CBaseMailConnect()
+    {
+    }
 
     /// Method from() returns the current value of 'FROM:' field
     /// of e-mail message.
     /// @returns a single e-mail address.
-    std::string from() const        {
+    std::string from() const
+    {
         return m_from;
     }
 
@@ -74,13 +81,15 @@ public:
     /// of e-mail message.
     /// @param addr should be an e-mail address in format:
     /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
-    void from(std::string addr)     {
+    void from(std::string addr)
+    {
         m_from = addr;
     }
 
     /// Method to() returns the current value of 'TO:' field
     /// of e-mail message
-    std::string to() const          {
+    std::string to() const
+    {
         return m_to;
     }
 
@@ -88,14 +97,16 @@ public:
     /// of e-mail message.
     /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
     /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
-    void to(std::string addr)       {
+    void to(std::string addr)
+    {
         m_to = addr;
     }
 
     /// Method cc() returns the current value of 'CC:' field
     /// of e-mail message
     /// @returns a list of e-mail addresses. See method to() description for format
-    std::string cc() const          {
+    std::string cc() const
+    {
         return m_cc;
     }
 
@@ -103,14 +114,16 @@ public:
     /// of e-mail message.
     /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
     /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
-    void cc(std::string addr)       {
+    void cc(std::string addr)
+    {
         m_cc = addr;
     }
 
     /// Method bcc() returns the current value of 'BCC:' field
     /// of e-mail message.
     /// @returns a list of e-mail addresses. See method to() description for format
-    std::string bcc() const         {
+    std::string bcc() const
+    {
         return m_bcc;
     }
 
@@ -118,28 +131,32 @@ public:
     /// of e-mail message.
     /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
     /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
-    void bcc(std::string addr)      {
+    void bcc(std::string addr)
+    {
         m_bcc = addr;
     }
 
     /// Method subject() returns the current value of 'SUBJECT:' field
     /// of e-mail message.
     /// @returns current message subject
-    std::string subject() const     {
+    std::string subject() const
+    {
         return m_subject;
     }
 
     /// Method subject() sets the current value of 'BCC:' field
     /// of e-mail message.
     /// @param subj A message subject
-    void subject(std::string subj)  {
+    void subject(std::string subj)
+    {
         m_subject = subj;
     }
 
     /// Method subject() returns the current plain text part
     /// of e-mail message.
     /// @returns current message plain-text part
-    std::string body() const        {
+    std::string body() const
+    {
         return m_body.text();
     }
 
@@ -147,28 +164,32 @@ public:
     ///
     /// @param body std::string&, message body
     /// @param smtp bool, do we need special pre-processing for SMTP?
-    void body(const std::string& body,bool smtp)     {
-        m_body.text(body,smtp);
+    void body(const std::string& body, bool smtp)
+    {
+        m_body.text(body, smtp);
     }
 
     /// Method attachments() returns the current semicolon-separated
     /// list of attachments of e-mail message. Example: "readme.txt;readme.doc".
     /// @returns current message list of attachments
-    std::string attachments() const {
+    std::string attachments() const
+    {
         return m_attachments;
     }
 
     /// Method attachments() sets the current semicolon-separated
     /// list of attachments of e-mail message. Example: "readme.txt;readme.doc".
     /// @param attachments current message list of attachments
-    void attachments(std::string attachments) {
+    void attachments(std::string attachments)
+    {
         m_attachments = attachments;
     }
 
     /// Method messageBuffer() returns the reference to the internal current message text completely
     /// prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
     /// @returns reference to current message text
-    const CBuffer& messageBuffer() const {
+    const CBuffer& messageBuffer() const
+    {
         return m_messageBuffer;
     }
 

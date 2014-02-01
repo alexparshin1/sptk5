@@ -62,7 +62,8 @@
 #include <sptk5/CStrings.h>
 #include <sptk5/CBuffer.h>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
@@ -74,22 +75,23 @@ namespace sptk {
 class SP_EXPORT CBaseSocket
 {
 protected:
-    SOCKET              m_sockfd;       ///< Socket internal (OS) handle
-    int32_t             m_domain;       ///< Socket domain type
-    int32_t             m_type;         ///< Socket type
-    int32_t             m_protocol;     ///< Socket protocol
-    std::string         m_host;         ///< Host name
-    uint32_t            m_port;         ///< Port number
+    SOCKET m_sockfd;        ///< Socket internal (OS) handle
+    int32_t m_domain;       ///< Socket domain type
+    int32_t m_type;         ///< Socket type
+    int32_t m_protocol;     ///< Socket protocol
+    std::string m_host;     ///< Host name
+    uint32_t m_port;        ///< Port number
 protected:
-    
+
 #ifdef _WIN32
-    static void         init();         ///< WinSock initialization
-    static void         cleanup();      ///< WinSock cleanup
+    static void init();     ///< WinSock initialization
+    static void cleanup();  ///< WinSock cleanup
 #endif
 
 public:
     /// @brief A mode to open a socket, one of
-    enum CSocketOpenMode {
+    enum CSocketOpenMode
+    {
         SOM_CREATE,     ///< Only create (Typical UDP connectionless socket)
         SOM_CONNECT,    ///< Connect
         SOM_BIND        ///< Bind (listen)
@@ -99,19 +101,19 @@ public:
     /// @param std::string message, error message
     /// @param const char* file, source file name
     /// @param int line, source file line number
-    static void throwSocketError (std::string message, const char* file, int line) throw (CException);
+    static void throwSocketError(std::string message, const char* file, int line) throw (CException);
 
     /// @brief Opens the socket connection by address.
     /// @param openMode CSocketOpenMode, SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
     /// @param addr sockaddr_in*, defines socket address/port information
-    void open_addr(CSocketOpenMode openMode=SOM_CREATE,sockaddr_in* addr=0L);
+    void open_addr(CSocketOpenMode openMode = SOM_CREATE, sockaddr_in* addr = 0L);
 
 public:
     /// @brief Constructor
     /// @param domain int32_t, socket domain type
     /// @param type int32_t, socket type
     /// @param protocol int32_t, protocol type
-    CBaseSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET, int32_t type=SOCK_STREAM, int32_t protocol=0);
+    CBaseSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /// @brief Destructor
     virtual ~CBaseSocket();
@@ -120,7 +122,8 @@ public:
     uint32_t socketBytes();
 
     /// @brief Returns socket handle
-    int  handle() const {
+    int handle() const
+    {
         return (int) m_sockfd;
     }
 
@@ -133,7 +136,8 @@ public:
     void host(std::string hostName);
 
     /// @brief Returns the host name
-    std::string host() const {
+    std::string host() const
+    {
         return m_host;
     }
 
@@ -143,7 +147,8 @@ public:
 
     /// @brief Returns the current port number
     /// @returns port number
-    int32_t port() const {
+    int32_t port() const
+    {
         return m_port;
     }
 
@@ -152,28 +157,29 @@ public:
     /// When incoming connection is made, exits returning the connection info
     /// @param clientSocketFD int&, connected client socket FD
     /// @param clientInfo sockaddr_in&, connected client info
-    void accept(SOCKET& clientSocketFD,struct sockaddr_in& clientInfo);
+    void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
 
     /// @brief Closes the socket connection
     virtual void close();
 
     /// @brief Returns the current socket state
     /// @returns true if socket is opened
-    bool active() const {
+    bool active() const
+    {
         return m_sockfd != INVALID_SOCKET;
     }
 
     /// @brief Calls Unix fcntl() or Windows ioctlsocket()
-    int32_t  control(int flag, uint32_t *check);
+    int32_t control(int flag, uint32_t *check);
 
     /// @brief Sets socket option value
     /// Throws an error if not succeeded
-    void setOption(int level,int option,int value) throw(sptk::CException);
+    void setOption(int level, int option, int value) throw (sptk::CException);
 
     /// @brief Gets socket option value
     ///
     /// Throws an error if not succeeded
-    void getOption(int level,int option,int& value) throw(CException);
+    void getOption(int level, int option, int& value) throw (CException);
 
     /// @brief Reads data from the socket in regular or TLS mode
     /// @param buffer void *, the destination buffer
@@ -185,14 +191,14 @@ public:
     /// @param buffer const void *, the send buffer
     /// @param size size_t, the send data length
     /// @returns the number of bytes sent the socket
-    virtual size_t send(const void* buffer,size_t size);
+    virtual size_t send(const void* buffer, size_t size);
 
     /// @brief Reads data from the socket
     /// @param buffer char *, the memory buffer
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -201,7 +207,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(CBuffer& buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
+    virtual size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -210,7 +216,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(std::string& buffer, size_t size,sockaddr_in* from=NULL) throw(CException);
+    virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
 
     /// @brief Writes data to the socket
     ///
@@ -219,17 +225,17 @@ public:
     /// @param size uint32_t, the memory buffer size
     /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const char *buffer, size_t size=-1, const sockaddr_in* peer=NULL) throw(CException);
+    virtual size_t write(const char *buffer, size_t size = -1, const sockaddr_in* peer = NULL) throw (CException);
 
     /// @brief Writes data to the socket
     /// @param buffer const CBuffer&, the memory buffer
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const CBuffer& buffer,const sockaddr_in* peer=NULL) throw(CException);
+    virtual size_t write(const CBuffer& buffer, const sockaddr_in* peer = NULL) throw (CException);
 
     /// @brief Writes data to the socket
     /// @param buffer const std::string&, the memory buffer
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const std::string& buffer,const sockaddr_in* peer=NULL) throw(CException);
+    virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL) throw (CException);
 
     /// @brief Reports true if socket is ready for reading from it
     /// @param waitmsec size_t, read timeout in msec

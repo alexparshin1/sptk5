@@ -34,7 +34,8 @@
 
 #include <string>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
@@ -44,10 +45,11 @@ namespace sptk {
 /// Class CImapConnect is used to communicate with IMAP 4 servers.
 /// It implements the most popular commands of IMAP protocol to build
 /// a simple IMAP client.
-class CImapConnect : public CTCPSocket {
-    sptk::CStrings            m_response;    ///< Internal response buffer
-    int32_t                   m_ident;       ///< Message id
-    static const std::string  empty_quotes;  ///< Empty quotes string
+class CImapConnect: public CTCPSocket
+{
+    sptk::CStrings          m_response;    ///< Internal response buffer
+    int32_t                 m_ident;       ///< Message id
+    static const std::string empty_quotes;  ///< Empty quotes string
 protected:
 
     /// @brief Sends a command to the server, but doesn't retrieve the server response
@@ -68,7 +70,7 @@ protected:
     /// @brief Parses server response as a message data (after the appropriate command) to the set of fields
     /// @param result CFieldList, the set of fields with the message information.
     /// @param headersOnly bool, true if we don't want to retrieve message body.
-    void parseMessage(CFieldList& result,bool headersOnly);
+    void parseMessage(CFieldList& result, bool headersOnly);
 
     /// @brief Parses server response as a folder list (after the appropriate command), and converts the response to it
     ///
@@ -87,26 +89,30 @@ public:
     /// @param cmd std::string, IMAP4 command
     /// @param arg1 std::string, optional command argument1
     /// @param arg2 std::string, optional command argument2
-    void command(std::string cmd,const std::string& arg1="",const std::string& arg2="");
+    void command(std::string cmd, const std::string& arg1 = "", const std::string& arg2 = "");
 
     /// Returns reference to a last command response. */
-    const sptk::CStrings& response() const               {
+    const sptk::CStrings& response() const
+    {
         return m_response;
     }
 
     // IMAPv4 commands - any state
     /// Retrieves server's capabilities in response(). */
-    void cmd_capability()                          {
+    void cmd_capability()
+    {
         command("capability");
     }
 
     /// Sends NOOP command. */
-    void cmd_noop()                                {
+    void cmd_noop()
+    {
         command("noop");
     }
 
     /// Logs out from the current session. */
-    void cmd_logout()                              {
+    void cmd_logout()
+    {
         command("LOGOUT");
     }
 
@@ -116,71 +122,79 @@ public:
     /// with the call of host() method.
     /// @param user std::string, user name on the server
     /// @param password std::string, user password on the server
-    void cmd_login(std::string user,std::string password);
+    void cmd_login(std::string user, std::string password);
 
     // IMAPv4 commands - logged in, mailbox-operations
 
     /// Selects the mail box for future operations.
     /// @param mail_box std::string, the name of the mail box
     /// @param total_msgs int32_t&, returns the total messages in the mail box
-    void cmd_select(std::string mail_box,int32_t& total_msgs);
+    void cmd_select(std::string mail_box, int32_t& total_msgs);
 
     /// Retrieves the mail box information into response().
     /// @param mail_box std::string, the name of the mail box
-    void cmd_examine(std::string mail_box)            {
-        command("examine",mail_box);
+    void cmd_examine(std::string mail_box)
+    {
+        command("examine", mail_box);
     }
 
     /// Subscribes the mail box to the user.
     /// @param mail_box std::string, the name of the mail box
-    void cmd_subscribe(std::string mail_box)          {
-        command("subscribe",mail_box);
+    void cmd_subscribe(std::string mail_box)
+    {
+        command("subscribe", mail_box);
     }
 
     /// Unsubscribes the mail box from the user.
     /// @param mail_box std::string, the name of the mail box
-    void cmd_unsubscribe(std::string mail_box)        {
-        command("unsubscribe",mail_box);
+    void cmd_unsubscribe(std::string mail_box)
+    {
+        command("unsubscribe", mail_box);
     }
 
     /// Creates the new mail box.
     /// @param mail_box std::string, the name of the mail box
-    void cmd_create(std::string mail_box)             {
-        command("create",mail_box);
+    void cmd_create(std::string mail_box)
+    {
+        command("create", mail_box);
     }
 
     /// Deletes the new mail box.
     /// @param mail_box std::string, the name of the mail box
-    void cmd_delete(std::string mail_box)             {
-        command("delete",mail_box);
+    void cmd_delete(std::string mail_box)
+    {
+        command("delete", mail_box);
     }
 
     /// Renames the new mail box.
     /// @param mail_box std::string, the name of the mail box
     /// @param new_name std::string, the new name of the mail box
-    void cmd_rename(std::string mail_box,std::string new_name)  {
-        command("rename ",mail_box,new_name);
+    void cmd_rename(std::string mail_box, std::string new_name)
+    {
+        command("rename ", mail_box, new_name);
     }
 
     /// Retrieves the list of mail boxes.
     /// @param mail_box_mask std::string, the mask for the mail box names
     /// @param decode bool, true if you want to convert the response into plain folder list.
-    void cmd_list(std::string mail_box_mask,bool decode=false);
+    void cmd_list(std::string mail_box_mask, bool decode = false);
 
     /// Appends the message to the mail box.
     /// @param mail_box std::string, the name of the mail box
     /// @param message CBuffer, the RFC-2060 defined message
-    void cmd_append(std::string mail_box,const CBuffer& message);
+    void cmd_append(std::string mail_box, const CBuffer& message);
 
     // IMAPv4 commands - logged in, selected mailbox-operations
 
     /// Closes the connection with the server. */
-    void cmd_close()                                {
+    void cmd_close()
+    {
         command("close");
     }
 
     /// Expanges the deleted messages in the current mail box. */
-    void cmd_expunge()                              {
+    void cmd_expunge()
+    {
         command("expunge");
     }
 
@@ -193,12 +207,12 @@ public:
     /// Reatrieves the headers for the message.
     /// @param msg_id int32_t, the message identifier
     /// @param result CFieldList, the message headers information
-    void cmd_fetch_headers(int32_t msg_id,CFieldList& result);
+    void cmd_fetch_headers(int32_t msg_id, CFieldList& result);
 
     /// Reatrieves the message information.
     /// @param msg_id int, the message identifier
     /// @param result CFieldList, the complete message information
-    void cmd_fetch_message(int32_t msg_id,CFieldList& result);
+    void cmd_fetch_message(int32_t msg_id, CFieldList& result);
 
     /// Gets message flags
     /// @param msg_id int, the message identifier
@@ -208,7 +222,7 @@ public:
     /// Sets message flags
     /// @param msg_id int, the message identifier
     /// @param flags const char *, the message flags
-    void cmd_store_flags(int32_t msg_id,const char *flags);
+    void cmd_store_flags(int32_t msg_id, const char *flags);
 };
 
 /// @}

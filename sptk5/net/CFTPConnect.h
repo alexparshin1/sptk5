@@ -30,7 +30,8 @@
 #include <sptk5/CStrings.h>
 #include <sptk5/net/CTCPSocket.h>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
@@ -39,9 +40,10 @@ namespace sptk {
 ///
 /// Connects to FTP server. It takes two of such sockets
 /// to establish the correct FTP communication
-class SP_EXPORT CFTPSocket : public CTCPSocket {
+class SP_EXPORT CFTPSocket: public CTCPSocket
+{
     /// Server response string list
-    CStrings  m_response;
+    CStrings m_response;
 public:
     /// Default constructor
     CFTPSocket();
@@ -50,15 +52,16 @@ public:
     ~CFTPSocket();
 
     /// Establish the connection
-    virtual void open(std::string hostName="", uint32_t port=0,CSocketOpenMode openMode=SOM_CONNECT) throw(CException);
+    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) throw (CException);
 
     /// Returns a reference to server response string list
-    const CStrings& response() const {
+    const CStrings& response() const
+    {
         return m_response;
     }
 
     /// Logs in to the server
-    const CStrings& login(std::string user,std::string password);
+    const CStrings& login(std::string user, std::string password);
 
     /// Sends a command to the server
     const CStrings& command(std::string cmd);
@@ -68,15 +71,16 @@ public:
 };
 
 /// Connection to the FTP server
-class SP_EXPORT CFTPConnect {
+class SP_EXPORT CFTPConnect
+{
 protected:
-    CFTPSocket        m_commandSocket;  ///< FTP command socket
-    CFTPSocket        m_dataSocket;     ///< FTP data socket
-    std::string       m_user;               ///< FTP user name
-    std::string       m_password;           ///< FTP user password
-    std::string       m_host;               ///< FTP host name
-    int               m_port;           ///< FTP port
-    bool              m_passive;        ///< Passive mode
+    CFTPSocket  m_commandSocket;  ///< FTP command socket
+    CFTPSocket  m_dataSocket;     ///< FTP data socket
+    std::string m_user;           ///< FTP user name
+    std::string m_password;       ///< FTP user password
+    std::string m_host;           ///< FTP host name
+    uint32_t    m_port;           ///< FTP port
+    bool        m_passive;        ///< Passive mode
 
 protected:
 
@@ -87,7 +91,7 @@ protected:
     void command(std::string cmd);
 
     /// Gets the list from the FTP server
-    void getList(std::string cmd,CStrings& list);
+    void getList(std::string cmd, CStrings& list);
 
 public:
 
@@ -98,37 +102,43 @@ public:
     ~CFTPConnect();
 
     /// Sets the passive mode true/false
-    void passive(bool p) {
+    void passive(bool p)
+    {
         m_passive = p;
     }
 
     /// Returns the passive mode
-    bool passive() const {
+    bool passive() const
+    {
         return m_passive;
     }
 
     /// Sets the user name
-    void user(std::string u) {
+    void user(std::string u)
+    {
         m_user = u;
     }
 
     /// Returns the user name
-    std::string user() const {
+    std::string user() const
+    {
         return m_user;
     }
 
     /// Sets the user password
-    void password(std::string p) {
+    void password(std::string p)
+    {
         m_password = p;
     }
 
     /// Returns the user password
-    std::string password() const {
+    std::string password() const
+    {
         return m_password;
     }
 
     /// Sets the host name and port
-    void host(std::string hostName,uint32_t portNumber=21);
+    void host(std::string hostName, uint32_t portNumber = 21);
 
     /// Opens the FTP connection
     void open();
@@ -137,12 +147,14 @@ public:
     void close();
 
     /// Returns the referense on the server response string list
-    const CStrings& response() const {
+    const CStrings& response() const
+    {
         return m_commandSocket.response();
     }
 
     /// Returns true if the connection is active
-    bool active() const {
+    bool active() const
+    {
         return m_commandSocket.active();
     }
 

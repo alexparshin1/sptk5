@@ -33,16 +33,17 @@
 #include <sptk5/threads/CThread.h>
 #include <set>
 
-namespace sptk {
+namespace sptk
+{
 
 class CTCPServer;
 
 /// @brief Internal TCP server listener thread
-class CTCPServerListener : public CThread
+class CTCPServerListener: public CThread
 {
     CTCPServer* m_server;
-    CTCPSocket  m_listenerSocket;
-    int32_t     m_port;
+    CTCPSocket m_listenerSocket;
+    int32_t m_port;
     std::string m_error;
 public:
     /// @brief Constructor
@@ -52,7 +53,7 @@ public:
     /// @brief Thread function.
     virtual void threadFunction();
 
-    std::string error() const 
+    std::string error() const
     {
         return m_error;
     }
@@ -62,21 +63,24 @@ public:
 ///
 /// Application creates concrete TCP connection based on this class
 /// to use with CTCPServer as connection template
-class CTCPConnection : public CThread
+class CTCPConnection: public CThread
 {
 protected:
-    CTCPSocket  m_socket;
-    CTCPServer* m_server;
+    CTCPSocket      m_socket;
+    CTCPServer*     m_server;
 public:
     /// @brief Constructor
     /// @brief server CTCPServer*, Parent TCP server
     /// @brief connectionSocket SOCKET, Already accepted incoming connection socket
     /// @brief peer sockaddr_in*, Incoming connection information
-    CTCPConnection(SOCKET connectionSocket) 
-    : CThread("CTCPServer::Connection") {
+    CTCPConnection(SOCKET connectionSocket) :
+            CThread("CTCPServer::Connection")
+    {
         m_socket.attach(connectionSocket);
     }
-    ~CTCPConnection() {}
+    ~CTCPConnection()
+    {
+    }
     virtual void threadFunction() = 0;
     virtual void onThreadExit();
 };
@@ -87,7 +91,7 @@ public:
 /// @brief TCP server
 ///
 /// For every incoming connection, creates connection thread.
-class CTCPServer : public CSynchronized
+class CTCPServer: public CSynchronized
 {
     friend class CTCPServerListener;
     friend class CTCPConnection;
@@ -100,7 +104,8 @@ protected:
     /// Method is called right after connection request is accepted,
     /// and allows ignore unwanted connections. By default simply returns true.
     /// @param connectionRequest sockaddr_in*, Incoming connection information
-    virtual bool allowConnection(sockaddr_in* connectionRequest) {
+    virtual bool allowConnection(sockaddr_in* connectionRequest)
+    {
         return true;
     }
 
@@ -124,12 +129,14 @@ protected:
 
 public:
     /// @brief Constructor
-    CTCPServer()
-    : m_listenerThread(NULL) {
+    CTCPServer() :
+            m_listenerThread(NULL)
+    {
     }
 
     /// @brief Destructor
-    virtual ~CTCPServer() {
+    virtual ~CTCPServer()
+    {
         stop();
     }
 
@@ -141,7 +148,8 @@ public:
     void stop();
 
     /// @brief Returns server state
-    bool active() const {
+    bool active() const
+    {
         return m_listenerThread != NULL;
     }
 };

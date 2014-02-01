@@ -31,13 +31,15 @@
 #include <sptk5/sptk.h>
 #include <string>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
 
 /// Defines the type of the mail message
-enum CMailMessageType {
+enum CMailMessageType
+{
     MMT_PLAIN_TEXT_MESSAGE,        ///< Message has plain text only
     MMT_HTML_MESSAGE               ///< Message has plain text and HTML parts
 };
@@ -45,17 +47,19 @@ enum CMailMessageType {
 /// @brief Mail message body text
 ///
 /// Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
-class SP_EXPORT CMailMessageBody {
-    CMailMessageType m_type;       ///< Message type
-    std::string      m_plainText;  ///< Plain text part of the message
-    std::string      m_htmlText;   ///< Optional HTML part of the message
+class SP_EXPORT CMailMessageBody
+{
+    CMailMessageType    m_type;       ///< Message type
+    std::string         m_plainText;  ///< Plain text part of the message
+    std::string         m_htmlText;   ///< Optional HTML part of the message
 
     /// Builds a plain text string from HTML text
     std::string stripHtml(const std::string& origHtml);
 
 public:
     /// @brief Default constructor
-    CMailMessageBody() {
+    CMailMessageBody()
+    {
         m_type = MMT_PLAIN_TEXT_MESSAGE;
     }
 
@@ -64,20 +68,23 @@ public:
     /// Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message
     /// @param messageText const std::string& messageText, the text of the message
     /// @param smtp bool, special processing for smtp
-    void text(const std::string& messageText,bool smtp);
+    void text(const std::string& messageText, bool smtp);
 
     /// @brief Returns the message body type
-    CMailMessageType type() {
+    CMailMessageType type()
+    {
         return m_type;
     }
 
     /// @brief Returns the plain text version of the message
-    const std::string& text() const {
+    const std::string& text() const
+    {
         return m_plainText;
     }
 
     /// @brief Returns the html version of the message (if presented)
-    const std::string& html() const {
+    const std::string& html() const
+    {
         return m_htmlText;
     }
 };

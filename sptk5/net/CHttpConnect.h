@@ -32,19 +32,21 @@
 #include <sptk5/CStrings.h>
 #include <sptk5/net/CHttpParams.h>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
 
 /// @brief A map of HTTP headers and their values (string to string)
-typedef std::map<std::string,std::string> CHttpHeaders;
+typedef std::map<std::string, std::string> CHttpHeaders;
 
 /// @brief HTTP socket
 ///
 /// Implements the GET and POST methods of HTTP protocol.
 /// Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
-class SP_EXPORT CHttpConnect : public CTCPSocket {
+class SP_EXPORT CHttpConnect: public CTCPSocket
+{
     CBuffer         m_readBuffer;           ///< Internal read buffer
 
 protected:
@@ -78,7 +80,8 @@ public:
     /// getResponse() method internally). The buffer doesn't contain HTTP headers that are parsed
     /// int m_headers map.
     /// @returns internal read buffer reference
-    const CBuffer& htmlData() const {
+    const CBuffer& htmlData() const
+    {
         return m_readBuffer;
     }
 
@@ -86,7 +89,8 @@ public:
     ///
     /// The HTTP headers request should be set before sending a command to the server
     /// @returns internal http request headers reference
-    CHttpHeaders& requestHeaders() {
+    CHttpHeaders& requestHeaders()
+    {
         return m_requestHeaders;
     }
 
@@ -95,7 +99,8 @@ public:
     /// The HTTP response headers make sense only after sending a command to the server (if that command calls
     /// getResponse() method internally).
     /// @returns internal http headers reference
-    const CHttpHeaders& responseHeaders() const {
+    const CHttpHeaders& responseHeaders() const
+    {
         return m_responseHeaders;
     }
 
@@ -104,14 +109,14 @@ public:
     /// Retrieves the server response into internal read buffer.
     /// @param pageName std::string, the name of the page without the server name.
     /// @param postData CHttpParams&, the list of HTTP data to pass to the server
-    void cmd_get(std::string pageName,CHttpParams& postData);
+    void cmd_get(std::string pageName, CHttpParams& postData);
 
     /// @brief Sends the POST command to the server
     ///
     /// Retrieves the server response into internal read buffer.
     /// @param pageName std::string, the name of the page without the server name.
     /// @param postData CHttpParams&, the list of HTTP data to pass to the server
-    void cmd_post(std::string pageName,CHttpParams& postData);
+    void cmd_post(std::string pageName, CHttpParams& postData);
 };
 /// @}
 }

@@ -34,7 +34,8 @@
 
 #include <string>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup utility Utility Classes
 /// @{
@@ -44,15 +45,17 @@ namespace sptk {
 /// Sends an e-mail message using SMTP protocol.
 /// It uses CSocket class to establish the connection, and CBaseMailConnect
 /// to make the complete RFC 822 message.
-class SP_EXPORT CSmtpConnect : public CBaseMailConnect, public CTCPSocket {
-    CStrings     m_response;
+class SP_EXPORT CSmtpConnect: public CBaseMailConnect,
+                              public CTCPSocket
+{
+    CStrings    m_response;
 
     /// Processes tag for strippedHtml.
     /// Extracts the text information for the tag
     /// @param tag std::string, the tag name
     /// @param params std::string, the tag parameters
     /// @returns the extracted text like URL
-    static std::string processTag(std::string tag,std::string params);
+    static std::string processTag(std::string tag, std::string params);
 protected:
 
     /// @brief Sends command using SMTP protocol
@@ -60,13 +63,13 @@ protected:
     /// The CRLF characters after the command are added automatically.
     /// @param cmd std::string, SMTP protocol command
     /// @param encode bool, encode the arguments to Base64 or not
-    void sendCommand(std::string cmd,bool encode=false);
+    void sendCommand(std::string cmd, bool encode = false);
 
     /// @brief Retrieves the server response after the command into internal CStrings buffer
     ///
     /// The response can be read then with response() method.
     /// @param decode bool, decode the response from Base64 or not
-    int  getResponse(bool decode=false);
+    int getResponse(bool decode = false);
 
     /// Mime-encodes the buffer
     static std::string mime(const CBuffer& buffer);
@@ -91,10 +94,11 @@ public:
     /// @param cmd std::string, SMTP protocol command
     /// @param encodeCommand bool, encode the comand argument to Base64 or not
     /// @param decodeResponse bool, decode the response from Base64 or not
-    int command(std::string cmd,bool encodeCommand=false,bool decodeResponse=false);
+    int command(std::string cmd, bool encodeCommand = false, bool decodeResponse = false);
 
     /// @brief The response from the server - makes sence after calling any command
-    CStrings& response() {
+    CStrings& response()
+    {
         return m_response;
     }
 
@@ -102,14 +106,13 @@ public:
     /// @param user std::string, user name
     /// @param password std::string, user password
     /// @param method std::string, AUTH method: "login" or "plain"
-    void cmd_auth(std::string user,std::string password,std::string method="plain");
+    void cmd_auth(std::string user, std::string password, std::string method = "plain");
 
     /// @brief Sends the message
     ///
     /// Message is based on the information defined by the methods from
     /// CBaseMailConnect, and retrieves the server output. An alias for sendMessage().
     void cmd_send();
-
 
     /// Ends the SMTP session
     void cmd_quit();
