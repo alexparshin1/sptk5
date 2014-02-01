@@ -37,7 +37,7 @@ CUDPSocket::CUDPSocket(SOCKET_ADDRESS_FAMILY domain)
     m_sockfd = socket (m_domain, m_type, m_protocol);
 }
 
-uint32_t CUDPSocket::read(char *buffer,uint32_t size,sockaddr_in* from)
+size_t CUDPSocket::read(char *buffer,size_t size,sockaddr_in* from) throw(CException)
 {
     socklen_t addrLength = sizeof(sockaddr_in);
     int32_t bytes = recvfrom(m_sockfd, (char*) buffer, size, 0, (sockaddr*) from, &addrLength);

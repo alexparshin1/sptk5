@@ -66,8 +66,8 @@ public:
     ///
     /// Creates an XML attribute from character string
     /// @param v const char *, value
-    /// @param sz uint32_t, value length
-    CXmlValue(const char *v, uint32_t sz) :
+    /// @param sz size_t, value length
+    CXmlValue(const char *v, size_t sz) :
         m_value(v, sz)
     {
     }

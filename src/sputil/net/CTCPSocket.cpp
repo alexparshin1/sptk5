@@ -40,7 +40,7 @@ using namespace sptk;
     static bool  m_inited(false);
 #endif
 
-CTCPSocketReader::CTCPSocketReader (CBaseSocket& socket, int buffer_size)
+CTCPSocketReader::CTCPSocketReader (CBaseSocket& socket, size_t buffer_size)
     : CBuffer (buffer_size), m_socket (socket)
 {
     m_readOffset = 0;
@@ -53,7 +53,7 @@ void CTCPSocketReader::open()
     m_bytes = 0;
 }
 
-int32_t CTCPSocketReader::bufferedRead (char *dest, uint32_t sz, bool read_line, sockaddr_in* from)
+int32_t CTCPSocketReader::bufferedRead (char *dest, size_t sz, bool read_line, sockaddr_in* from)
 {
     int availableBytes = int (m_bytes - m_readOffset);
     int bytesToRead = (int) sz;
@@ -107,7 +107,7 @@ int32_t CTCPSocketReader::bufferedRead (char *dest, uint32_t sz, bool read_line,
     return bytesToRead;
 }
 
-uint32_t CTCPSocketReader::read (char *dest, uint32_t sz, bool read_line, sockaddr_in* from)
+size_t CTCPSocketReader::read (char *dest, size_t sz, bool read_line, sockaddr_in* from)
 {
     int total = 0;
     int eol = 0;
@@ -136,7 +136,7 @@ uint32_t CTCPSocketReader::read (char *dest, uint32_t sz, bool read_line, sockad
     return total - eol;
 }
 
-uint32_t CTCPSocketReader::readLine (CBuffer& destBuffer)
+size_t CTCPSocketReader::readLine (CBuffer& destBuffer)
 {
     int total = 0;
     int eol = 0;
@@ -181,7 +181,7 @@ CTCPSocket::~CTCPSocket()
 {
 }
 
-void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMode)
+void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMode) throw(CException)
 {
     if (hostName.length())
         m_host = hostName;
@@ -245,41 +245,41 @@ char CTCPSocket::getChar()
     return ch;
 }
 
-uint32_t CTCPSocket::readLine (char *buffer, uint32_t size)
+size_t CTCPSocket::readLine (char *buffer, size_t size)
 {
     return m_reader.read (buffer, size, true);
 }
 
-uint32_t CTCPSocket::readLine (CBuffer& buffer)
+size_t CTCPSocket::readLine (CBuffer& buffer)
 {
     return m_reader.readLine (buffer);
 }
 
-uint32_t CTCPSocket::readLine (std::string& s)
+size_t CTCPSocket::readLine (std::string& s)
 {
     m_reader.readLine (m_stringBuffer);
     s = m_stringBuffer.data();
     return m_stringBuffer.size() - 1;
 }
 
-uint32_t CTCPSocket::read (char *buffer, uint32_t size, sockaddr_in* from)
+size_t CTCPSocket::read (char *buffer, size_t size, sockaddr_in* from) throw(CException)
 {
     m_reader.read (buffer, size, false, from);
     return size;
 }
 
-uint32_t CTCPSocket::read (CBuffer& buffer, uint32_t size, sockaddr_in* from)
+size_t CTCPSocket::read (CBuffer& buffer, size_t size, sockaddr_in* from) throw(CException)
 {
     buffer.checkSize(size);
-    uint32_t rc = m_reader.read (buffer.data(), size, false, from);
+    size_t rc = m_reader.read (buffer.data(), size, false, from);
     buffer.bytes (rc);
     return rc;
 }
 
-uint32_t CTCPSocket::read (string& buffer, uint32_t size, sockaddr_in* from)
+size_t CTCPSocket::read (string& buffer, size_t size, sockaddr_in* from) throw(CException)
 {
     buffer.resize(size);
-    uint32_t rc = m_reader.read ((char*)buffer.c_str(), size, false, from);
+    size_t rc = m_reader.read ((char*)buffer.c_str(), size, false, from);
     buffer.resize(rc);
     return rc;
 }

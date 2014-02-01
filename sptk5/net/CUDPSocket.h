@@ -53,10 +53,10 @@ public:
 
     /// @brief Reads data from the socket
     /// @param buffer char *, the memory buffer
-    /// @param size uint32_t, the number of bytes to read
+    /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual uint32_t read(char *buffer,uint32_t size,sockaddr_in* from=NULL);
+    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) throw (CException);
 };
 
 /// @}

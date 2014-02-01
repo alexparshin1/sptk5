@@ -50,7 +50,7 @@ public:
     ~CFTPSocket();
 
     /// Establish the connection
-	virtual void open(std::string hostName="", int port=0,CSocketOpenMode openMode=SOM_CONNECT);
+    virtual void open(std::string hostName="", uint32_t port=0,CSocketOpenMode openMode=SOM_CONNECT) throw(CException);
 
     /// Returns a reference to server response string list
     const CStrings& response() const {
@@ -128,7 +128,7 @@ public:
     }
 
     /// Sets the host name and port
-    void host(std::string hostName,int portNumber=21);
+    void host(std::string hostName,uint32_t portNumber=21);
 
     /// Opens the FTP connection
     void open();

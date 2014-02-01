@@ -71,16 +71,17 @@ namespace sptk {
 ///
 /// Allows to establish a network connection
 /// to the host by name and port address
-class SP_EXPORT CBaseSocket {
+class SP_EXPORT CBaseSocket
+{
 protected:
     SOCKET              m_sockfd;       ///< Socket internal (OS) handle
     int32_t             m_domain;       ///< Socket domain type
     int32_t             m_type;         ///< Socket type
     int32_t             m_protocol;     ///< Socket protocol
     std::string         m_host;         ///< Host name
-    int32_t             m_port;         ///< Port number
+    uint32_t            m_port;         ///< Port number
 protected:
-
+    
 #ifdef _WIN32
     static void         init();         ///< WinSock initialization
     static void         cleanup();      ///< WinSock cleanup
@@ -151,7 +152,7 @@ public:
     /// When incoming connection is made, exits returning the connection info
     /// @param clientSocketFD int&, connected client socket FD
     /// @param clientInfo sockaddr_in&, connected client info
-    void accept(int& clientSocketFD,struct sockaddr_in& clientInfo);
+    void accept(SOCKET& clientSocketFD,struct sockaddr_in& clientInfo);
 
     /// @brief Closes the socket connection
     virtual void close();
@@ -172,63 +173,67 @@ public:
     /// @brief Gets socket option value
     ///
     /// Throws an error if not succeeded
-    void getOption(int level,int option,int& value) throw(sptk::CException);
+    void getOption(int level,int option,int& value) throw(CException);
 
     /// @brief Reads data from the socket in regular or TLS mode
     /// @param buffer void *, the destination buffer
-    /// @param size uint32_t, the destination buffer size
+    /// @param size size_t, the destination buffer size
     /// @returns the number of bytes read from the socket
-    virtual int32_t recv(void* buffer,uint32_t size);
+    virtual size_t recv(void* buffer, size_t size);
 
     /// @brief Reads data from the socket in regular or TLS mode
     /// @param buffer const void *, the send buffer
-    /// @param size uint32_t, the send data length
+    /// @param size size_t, the send data length
     /// @returns the number of bytes sent the socket
-    virtual int32_t send(const void* buffer,uint32_t len);
+    virtual size_t send(const void* buffer,size_t size);
 
     /// @brief Reads data from the socket
     /// @param buffer char *, the memory buffer
-    /// @param size uint32_t, the number of bytes to read
+    /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual uint32_t read(char *buffer,uint32_t size,sockaddr_in* from=NULL);
+    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
 
     /// @brief Reads data from the socket into memory buffer
     ///
     /// Buffer bytes() is set to number of bytes read
     /// @param buffer CBuffer&, the memory buffer
+    /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual uint32_t read(CBuffer& buffer,uint32_t size,sockaddr_in* from=NULL);
+    virtual size_t read(CBuffer& buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
 
     /// @brief Reads data from the socket into memory buffer
     ///
     /// Buffer bytes() is set to number of bytes read
     /// @param buffer std::string&, the memory buffer
+    /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual uint32_t read(std::string& buffer,uint32_t size,sockaddr_in* from=NULL);
+    virtual size_t read(std::string& buffer, size_t size,sockaddr_in* from=NULL) throw(CException);
 
     /// @brief Writes data to the socket
+    ///
+    /// If size is omited then buffer is treated as zero-terminated string
     /// @param buffer const char *, the memory buffer
     /// @param size uint32_t, the memory buffer size
     /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
-    virtual uint32_t write(const char *buffer,uint32_t size=-1,const sockaddr_in* peer=NULL);
+    virtual size_t write(const char *buffer, size_t size=-1, const sockaddr_in* peer=NULL) throw(CException);
 
     /// @brief Writes data to the socket
     /// @param buffer const CBuffer&, the memory buffer
     /// @returns the number of bytes written to the socket
-    virtual uint32_t write(const CBuffer& buffer,const sockaddr_in* peer=NULL);
+    virtual size_t write(const CBuffer& buffer,const sockaddr_in* peer=NULL) throw(CException);
 
     /// @brief Writes data to the socket
     /// @param buffer const std::string&, the memory buffer
     /// @returns the number of bytes written to the socket
-    virtual uint32_t write(const std::string& buffer,const sockaddr_in* peer=NULL);
+    virtual size_t write(const std::string& buffer,const sockaddr_in* peer=NULL) throw(CException);
 
     /// @brief Reports true if socket is ready for reading from it
-    /// @param waitmsec uint32_t, read timeout in msec
-    bool readyToRead(uint32_t waitmsec);
+    /// @param waitmsec size_t, read timeout in msec
+    bool readyToRead(size_t waitmsec);
 
     /// @brief Reports true if socket is ready for writing to it
     bool readyToWrite();

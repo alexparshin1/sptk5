@@ -71,37 +71,37 @@ class SP_EXPORT CTCPSocketReader : protected CBuffer {
     ///
     /// Data is read from the opened socket into a character buffer of limited size
     /// @param dest char *, destination buffer
-    /// @param sz uint32_t, size of the destination buffer
+    /// @param sz size_t, size of the destination buffer
     /// @param readLine bool, true if we want to read one line (ended with CRLF) only
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns number of bytes read
-    int32_t bufferedRead(char *dest,uint32_t sz,bool readLine,struct sockaddr_in* from=NULL);
+    int32_t bufferedRead(char *dest,size_t sz,bool readLine,struct sockaddr_in* from=NULL);
 
 public:
 
     /// @brief Constructor
     /// @param socket CBaseSocket&, socket to work with
-    /// @param bufferSize int, the desirable size of the internal buffer
-    CTCPSocketReader(CBaseSocket& socket,int bufferSize=4096);
+    /// @param bufferSize size_t, the desirable size of the internal buffer
+    CTCPSocketReader(CBaseSocket& socket,size_t bufferSize=4096);
 
     /// @brief Connects the reader to the socket handle
     void open();
 
     /// @brief Performs the buffered read
     /// @param dest char *, destination buffer
-    /// @param sz uint32_t, size of the destination buffer
+    /// @param sz size_t, size of the destination buffer
     /// @param readLine bool, true if we want to read one line (ended with CRLF) only
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns bytes read from the internal buffer
-    uint32_t read(char *dest,uint32_t sz,bool readLine=false,struct sockaddr_in* from=NULL);
+    size_t read(char *dest,size_t sz,bool readLine=false,struct sockaddr_in* from=NULL);
 
     /// @brief Performs the buffered read of '\n'-terminated string
     /// @param dest CBuffer&, destination buffer
     /// @returns bytes read from the internal buffer
-    uint32_t readLine(CBuffer& dest);
+    size_t readLine(CBuffer& dest);
 };
 
-/// @brief Generic socket.
+/// @brief Generic TCP socket.
 ///
 /// Allows to establish a network connection
 /// to the host by name and port address
@@ -128,7 +128,7 @@ public:
     /// @param hostName std::string, the host name
     /// @param port uint32_t, the port number
     /// @param openMode CSocketOpenMode, socket open mode
-    virtual void open(std::string hostName="",uint32_t port=0,CSocketOpenMode openMode=SOM_CONNECT);
+    virtual void open(std::string hostName="",uint32_t port=0,CSocketOpenMode openMode=SOM_CONNECT) throw(CException);
 
     /// @brief Opens the server socket connection on port (binds/listens)
     /// @param portNumber uint32_t, the port number
@@ -145,28 +145,28 @@ public:
     ///
     /// The output string should fit the buffer or it will be returned incomplete.
     /// @param buffer char *, the destination buffer
-    /// @param size uint32_t, the destination buffer size
+    /// @param size size_t, the destination buffer size
     /// @returns the number of bytes read from the socket
-    uint32_t readLine(char *buffer,uint32_t size);
+    size_t readLine(char *buffer,size_t size);
 
     /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
     ///
     /// The memory buffer is extended automatically to fit the string.
     /// @param buffer CBuffer&, the destination buffer
     /// @returns the number of bytes read from the socket
-    uint32_t readLine(CBuffer& buffer);
+    size_t readLine(CBuffer& buffer);
 
     /// @brief Reads one line (terminated with CRLF) from the socket into string
     /// @param s std::string&, the destination string
     /// @returns the number of bytes read from the socket
-    uint32_t readLine(std::string& s);
+    size_t readLine(std::string& s);
 
     /// @brief Reads data from the socket
     /// @param buffer char *, the memory buffer
-    /// @param size uint32_t, the number of bytes to read
+    /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual uint32_t read(char *buffer,uint32_t size,sockaddr_in* from=NULL);
+    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -174,7 +174,7 @@ public:
     /// @param buffer CBuffer&, the memory buffer
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    uint32_t read(CBuffer& buffer,uint32_t size,sockaddr_in* from=NULL);
+    size_t read(CBuffer& buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -182,7 +182,7 @@ public:
     /// @param buffer std::string&, the memory buffer
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    uint32_t read(std::string& buffer,uint32_t size,sockaddr_in* from=NULL);
+    size_t read(std::string& buffer,size_t size,sockaddr_in* from=NULL) throw(CException);
 };
 
 /// @}

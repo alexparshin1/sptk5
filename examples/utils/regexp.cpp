@@ -67,7 +67,7 @@ int main()
     CRegExp connectionParser("(user|password|host)=['\"]([\\S]+)['\"]","g");
     CRegExp parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
     CStrings matches;
-    connectionParser.m(text,matches);
+    connectionParser.m(text, matches);
     for (unsigned i = 0; i < matches.size(); i++) {
         cout << matches[i] << " : ";
         i++;

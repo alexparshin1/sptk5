@@ -73,7 +73,7 @@ class CField;
 struct CVariantDataBuffer
 {
     char*        data;         ///< String or buffer pointer
-    uint32_t     size;         ///< Allocated buffer size
+    size_t       size;         ///< Allocated buffer size
 };
 
 /// @brief Universal data storage.
@@ -95,7 +95,7 @@ protected:
         void*   imagePtr;        ///< Image pointer
         int32_t imageNdx;        ///< Image index in object-specific table of image pointers
     } m_data;                    ///< Data storage union
-    uint32_t m_dataSize;         ///< Data size
+    size_t   m_dataSize;         ///< Data size
     uint16_t m_dataType;         ///< Data type
 
     /// @brief Copies data from another CVariant
@@ -108,8 +108,8 @@ protected:
     /// @brief Sets the data size
     ///
     /// If data size is 0, the NULL flag is set. Otherwise, the NULL flag is set to false.
-    /// @param ds uint32_t, data size (in bytes).
-    void dataSize(uint32_t ds)
+    /// @param ds size_t, data size (in bytes).
+    void dataSize(size_t ds)
     {
         m_dataSize = ds;
         if (m_dataSize == 0)
@@ -186,7 +186,7 @@ public:
     CVariant(const std::string& v)
     {
         m_dataType = VAR_NONE;
-        setString(v.c_str(), (uint32_t) v.length());
+        setString(v.c_str(), v.length());
     }
 
     /// @brief Constructor
@@ -197,7 +197,7 @@ public:
     }
 
     /// @brief Constructor
-    CVariant(const void * value, uint32_t sz)
+    CVariant(const void * value, size_t sz)
     {
         m_dataType = VAR_NONE;
         setBuffer(value, sz);
@@ -239,12 +239,12 @@ public:
     virtual void setMoney(double value);
 
     /// @brief Assignment method
-    virtual void setString(const char * value, uint32_t maxlen = 0);
+    virtual void setString(const char * value, size_t maxlen = 0);
 
     /// @brief Assignment method
     virtual void setString(const std::string& value)
     {
-        setString(value.c_str(), (uint32_t) value.length());
+        setString(value.c_str(), value.length());
     }
 
     /// @brief Assignment method
@@ -253,7 +253,7 @@ public:
     /// @brief Assignment method
     void setExternalString(const std::string& value)
     {
-        setExternalString(value.c_str(), (uint32_t) value.length());
+        setExternalString(value.c_str(), value.length());
     }
 
     /// @brief Assignment method
@@ -266,7 +266,7 @@ public:
     virtual void setExternalText(const char * value);
 
     /// @brief Assignment method
-    virtual void setBuffer(const void * value, uint32_t sz);
+    virtual void setBuffer(const void * value, size_t sz);
 
     /// @brief Assignment method
     virtual void setBuffer(const CBuffer& value)
@@ -275,7 +275,7 @@ public:
     }
 
     /// @brief Assignment method
-    virtual void setExternalBuffer(const void * value, uint32_t sz);
+    virtual void setExternalBuffer(const void * value, size_t sz);
 
     /// @brief Assignment method
     virtual void setBuffer(const std::string& str);
@@ -368,7 +368,7 @@ public:
     /// @brief Assignment operator
     virtual CVariant& operator =(const std::string& value)
     {
-        setString(value.c_str(), (uint32_t) value.length());
+        setString(value.c_str(), value.length());
         return *this;
     }
 
@@ -466,13 +466,13 @@ public:
     }
 
     /// @brief Returns the data size
-    uint32_t dataSize() const
+    size_t dataSize() const
     {
         return m_dataSize;
     }
 
     /// @brief Returns the allocated buffer size
-    uint32_t bufferSize() const
+    size_t bufferSize() const
     {
         return m_data.buffer.size;
     }

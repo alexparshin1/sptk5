@@ -47,7 +47,7 @@ CFTPSocket::~CFTPSocket() {
         write("QUIT\n",6);
 }
 
-void CFTPSocket::open(std::string hostName, int port,CSocketOpenMode openMode) {
+void CFTPSocket::open(std::string hostName, uint32_t port,CSocketOpenMode openMode) throw(CException) {
     CTCPSocket::open(hostName,port,openMode);
     get_response();
     int on = 1;
@@ -99,7 +99,7 @@ CFTPConnect::~CFTPConnect() {
     close();
 }
 
-void CFTPConnect::host(std::string hostName,int portNumber) {
+void CFTPConnect::host(std::string hostName,uint32_t portNumber) {
     close();
     m_port = portNumber;
     m_host = hostName;

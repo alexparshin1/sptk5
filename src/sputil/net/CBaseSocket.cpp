@@ -113,12 +113,12 @@ uint32_t CBaseSocket::socketBytes()
     return bytes;
 }
 
-int32_t CBaseSocket::recv (void* buffer, uint32_t len)
+size_t CBaseSocket::recv (void* buffer, size_t len)
 {
     return ::recv(m_sockfd, (char*) buffer, len, 0);
 }
 
-int32_t CBaseSocket::send (const void* buffer, uint32_t len)
+size_t CBaseSocket::send (const void* buffer, size_t len)
 {
     return ::send(m_sockfd, (char*) buffer, len, 0);
 }
@@ -197,7 +197,7 @@ void CBaseSocket::attach (SOCKET socketHandle)
     m_sockfd = socketHandle;
 }
 
-uint32_t CBaseSocket::read(char *buffer,uint32_t size,sockaddr_in* from)
+size_t CBaseSocket::read(char *buffer,size_t size,sockaddr_in* from) throw(CException)
 {
     int bytes;
     if (from) {
@@ -208,28 +208,29 @@ uint32_t CBaseSocket::read(char *buffer,uint32_t size,sockaddr_in* from)
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
+    
     return bytes;
 }
 
-uint32_t CBaseSocket::read(CBuffer& buffer,uint32_t size,sockaddr_in* from)
+size_t CBaseSocket::read(CBuffer& buffer,size_t size,sockaddr_in* from) throw(CException)
 {
     buffer.checkSize(size);
-    uint32_t bytes = read(buffer.data(),size,from);
+    size_t bytes = read(buffer.data(),size,from);
     if (bytes != size)
         buffer.bytes(bytes);
     return bytes;
 }
 
-uint32_t CBaseSocket::read(std::string& buffer,uint32_t size,sockaddr_in* from)
+size_t CBaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) throw(CException)
 {
     buffer.resize(size);
-    uint32_t bytes = read((char*)buffer.data(),size,from);
+    size_t bytes = read((char*)buffer.data(),size,from);
     if (bytes != size)
         buffer.resize(bytes);
     return bytes;
 }
 
-uint32_t CBaseSocket::write (const char *buffer, uint32_t size, const sockaddr_in* peer)
+size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* peer) throw(CException)
 {
     int         bytes;
     const char *p = buffer;
@@ -251,17 +252,17 @@ uint32_t CBaseSocket::write (const char *buffer, uint32_t size, const sockaddr_i
     return total;
 }
 
-uint32_t CBaseSocket::write (const CBuffer& buffer, const sockaddr_in* peer)
+size_t CBaseSocket::write (const CBuffer& buffer, const sockaddr_in* peer) throw(CException)
 {
-    return write (buffer.data(), buffer.bytes(), peer);
+    return write(buffer.data(), buffer.bytes(), peer);
 }
 
-uint32_t CBaseSocket::write (const std::string& buffer, const sockaddr_in* peer)
+size_t CBaseSocket::write (const std::string& buffer, const sockaddr_in* peer) throw(CException)
 {
-    return write (buffer.c_str(), buffer.length(), peer);
+    return write(buffer.c_str(), buffer.length(), peer);
 }
 
-bool CBaseSocket::readyToRead (uint32_t wait_msec)
+bool CBaseSocket::readyToRead (size_t wait_msec)
 {
     struct timeval timeout;
     timeout.tv_sec = int32_t (wait_msec) / 1000;

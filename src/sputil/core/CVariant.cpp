@@ -94,7 +94,7 @@ void CVariant::setMoney(double value) {
     m_data.floatData = value;
 }
 //---------------------------------------------------------------------------
-void CVariant::setString(const char * value,uint32_t maxlen) {
+void CVariant::setString(const char * value,size_t maxlen) {
     uint32_t dtype = VAR_STRING;
     if (dataType() == VAR_STRING && maxlen && m_data.buffer.size == maxlen+1) {
         if (value) {
@@ -114,7 +114,7 @@ void CVariant::setString(const char * value,uint32_t maxlen) {
                 strncpy(m_data.buffer.data,value,maxlen);
                 m_data.buffer.data[maxlen] = 0;
             } else {
-                dataSize((uint32_t)strlen(value));
+                dataSize(strlen(value));
                 m_data.buffer.size = dataSize() + 1;
                 m_data.buffer.data = strdup(value);
             }
@@ -153,7 +153,7 @@ void CVariant::setText(const char * value) {
     releaseBuffers();
     dataType(VAR_TEXT);
     if (value) {
-        dataSize((uint32_t)strlen(value));
+        dataSize(strlen(value));
         m_data.buffer.size = dataSize() + 1;
         m_data.buffer.data = strdup(value);
     } else {
@@ -167,7 +167,7 @@ void CVariant::setText(const char * value) {
 void CVariant::setText(const string& value) {
     releaseBuffers();
     dataType(VAR_TEXT);
-    uint32_t vlen = (uint32_t)value.length();
+    size_t vlen = value.length();
     if (vlen) {
         dataSize(vlen);
         m_data.buffer.size = vlen + 1;
@@ -184,7 +184,7 @@ void CVariant::setExternalText(const char * value) {
     releaseBuffers();
     dataType(VAR_TEXT);
     if (value) {
-        dataSize((uint32_t)strlen(value));
+        dataSize(strlen(value));
         m_data.buffer.size = dataSize() + 1;
         m_data.buffer.data = (char*) value;
         m_dataType |= VAR_EXTERNAL_BUFFER;
@@ -196,7 +196,7 @@ void CVariant::setExternalText(const char * value) {
     }
 }
 //---------------------------------------------------------------------------
-void CVariant::setBuffer(const void * value,uint32_t sz) {
+void CVariant::setBuffer(const void * value, size_t sz) {
     releaseBuffers();
     dataType(VAR_BUFFER);
     if (value) {
@@ -211,9 +211,9 @@ void CVariant::setBuffer(const void * value,uint32_t sz) {
 void CVariant::setBuffer(const string& value) {
     releaseBuffers();
     dataType(VAR_BUFFER);
-    uint32_t vlen = (uint32_t) value.length();
+    size_t vlen = value.length();
     if (vlen) {
-        uint32_t sz = vlen + 1;
+        size_t sz = vlen + 1;
         m_data.buffer.size = sz;
         dataSize(sz);
         m_data.buffer.data = (char *)malloc(sz);
@@ -222,7 +222,7 @@ void CVariant::setBuffer(const string& value) {
         setNull();
 }
 //---------------------------------------------------------------------------
-void CVariant::setExternalBuffer(const void * value,uint32_t sz) {
+void CVariant::setExternalBuffer(const void * value, size_t sz) {
     releaseBuffers();
     dataType(VAR_BUFFER);
     m_data.buffer.data = (char*) value;
