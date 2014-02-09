@@ -184,7 +184,7 @@ void CFTPConnect::getList(std::string cmd,CStrings& list) {
     CBuffer   buffer(1024);
     openDataPort();
     command(cmd);
-    uint32_t len;
+    size_t len;
     list.clear();
     do {
         len = m_dataSocket.readLine(buffer);
@@ -210,7 +210,7 @@ void CFTPConnect::cmd_retr(std::string fileName) {
         throw CException("Can't open file <" + fileName + "> for writing");
     openDataPort();
     command("RETR " + fileName);
-    uint32_t len;
+    size_t len;
     do {
         len = m_dataSocket.read(buffer,2048,0);
         if (len) {
@@ -234,7 +234,7 @@ void CFTPConnect::cmd_store(std::string fileName) {
         throw CException("Can't open file <" + fileName + "> for reading");
     openDataPort();
     command("STOR " + fileName);
-    uint32_t len, bytes;
+    size_t len, bytes;
     while (!feof(infile)) {
         bytes = (uint32_t) fread(buffer.data(),1,8192,infile);
         char *p = buffer.data();

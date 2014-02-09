@@ -261,7 +261,7 @@ public:
     }
 
     /// @brief Returns the value length
-    uint32_t size() const
+    size_t size() const
     {
         return m_value.size();
     }
@@ -276,3 +276,4 @@ public:
 /// @}
 }
 #endif
+

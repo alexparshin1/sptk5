@@ -253,7 +253,7 @@ public:
     /// @brief Assignment method
     void setExternalString(const std::string& value)
     {
-        setExternalString(value.c_str(), value.length());
+        setExternalString(value.c_str(), (int) value.length());
     }
 
     /// @brief Assignment method

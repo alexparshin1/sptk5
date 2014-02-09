@@ -56,7 +56,7 @@ int CSmtpConnect::getResponse(bool decode)
     int      rc = 0;
 
     while (!readCompleted) {
-        uint32_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
+        size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
@@ -222,3 +222,4 @@ void CSmtpConnect::sendMessage()
     if (rc > 251)
         throw CException("Message body is not accepted.\n" + m_response.asString("\n"));
 }
+

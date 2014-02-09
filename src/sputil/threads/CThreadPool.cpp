@@ -111,7 +111,8 @@ void CThreadPool::stop()
         CThread::msleep(100);
 }
 
-uint32_t CThreadPool::size() const
+size_t CThreadPool::size() const
 {
     return m_threads.size();
 }
+

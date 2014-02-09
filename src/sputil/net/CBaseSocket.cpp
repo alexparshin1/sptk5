@@ -115,12 +115,12 @@ uint32_t CBaseSocket::socketBytes()
 
 size_t CBaseSocket::recv (void* buffer, size_t len)
 {
-    return ::recv(m_sockfd, (char*) buffer, len, 0);
+    return ::recv(m_sockfd, (char*) buffer, (int) len, 0);
 }
 
 size_t CBaseSocket::send (const void* buffer, size_t len)
 {
-    return ::send(m_sockfd, (char*) buffer, len, 0);
+    return ::send(m_sockfd, (char*) buffer, (int) len, 0);
 }
 
 int32_t CBaseSocket::control (int flag, uint32_t *check)
@@ -202,9 +202,9 @@ size_t CBaseSocket::read(char *buffer,size_t size,sockaddr_in* from) throw(CExce
     int bytes;
     if (from) {
         socklen_t flen = sizeof (sockaddr_in);
-        bytes = ::recvfrom (m_sockfd, buffer, size, 0, (sockaddr*) from, &flen);
+        bytes = ::recvfrom (m_sockfd, buffer, (int) size, 0, (sockaddr*) from, &flen);
     } else
-        bytes = ::recv(m_sockfd, (char*) buffer, size, 0);
+        bytes = ::recv(m_sockfd, (char*) buffer, (int) size, 0);
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
@@ -232,13 +232,13 @@ size_t CBaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) thro
 
 size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* peer) throw(CException)
 {
-    int         bytes;
+    size_t      bytes;
     const char *p = buffer;
 
     if (int(size) == -1)
         size = strlen(buffer);
 
-    uint32_t    total = size;
+    size_t    total = size;
     while (size > 0) {
         if (peer)
             bytes = sendto (m_sockfd, p, int (size), 0, (sockaddr *) peer, sizeof (sockaddr_in));

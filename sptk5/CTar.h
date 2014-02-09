@@ -41,9 +41,9 @@ namespace sptk {
 /// @brief Tar memory handle
 class CMemoryTarHandle {
 public:
-    uint32_t    position;         ///< Memory buffer position
+    size_t		position;         ///< Memory buffer position
     char*       sourceBuffer;     ///< Memory buffer
-    uint32_t    sourceBufferLen;  ///< Memory buffer len
+    size_t		sourceBufferLen;  ///< Memory buffer len
 public:
     /// @brief Constructor
     /// @param buffer CBuffer*, source data

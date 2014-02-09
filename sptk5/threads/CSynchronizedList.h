@@ -167,7 +167,7 @@ public:
     }
 
     /// @brief Returns number of items in the list
-    uint32_t size() const
+    size_t size() const
     {
         CSynchronizedCode sc(m_sync);
         return m_list->size();
@@ -200,3 +200,4 @@ public:
 
 }
 #endif
+

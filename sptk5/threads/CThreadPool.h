@@ -50,7 +50,7 @@ class SP_EXPORT CThreadPool : public CSynchronized, public CThreadEvent, public 
 {
     CSynchronizedList<CWorkerThread*>   m_terminatedThreads;    ///< Terminated threads scheduled for delete
     CSynchronizedList<CWorkerThread*>   m_threads;              ///< All threads created by this pool
-    uint32_t                            m_threadLimit;          ///< Maximum number of threads in this pool
+    size_t                              m_threadLimit;          ///< Maximum number of threads in this pool
     CSynchronizedQueue<CRunable*>       m_taskQueue;            ///< Share task queue
     CSemaphore                          m_availableThreads;     ///< Semaphore indicating available threads
     uint32_t                            m_threadIdleSeconds;    ///< Maximum thread idle time before thread in this pool is terminated
@@ -97,10 +97,11 @@ public:
     void stop();
 
     /// @brief Number of active threads in the pool
-    uint32_t size() const;
+    size_t size() const;
 };
 
 /// @}
 }
 
 #endif
+

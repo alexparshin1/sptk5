@@ -58,7 +58,7 @@ static char B64Chars[64] = {
 void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource) {
     char   c;
     char*  current = bufSource.data();
-    uint32_t len = bufSource.bytes();
+    uint32_t len = (uint32_t) bufSource.bytes();
 
     while (len >= 3) {
         c = base64chars((current[0] & 0xFC) >> 2);
@@ -161,7 +161,7 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
 }
 
 int CBase64::decode(CBuffer &bufDest, const CBuffer& bufSource) throw(CException) {
-    return internal_decode(bufDest, (const unsigned char *)bufSource.data(), bufSource.bytes());
+    return internal_decode(bufDest, (const unsigned char *)bufSource.data(), (uint32_t)bufSource.bytes());
 }
 
 int CBase64::decode(CBuffer &bufDest, const string& strSource) throw(CException) {

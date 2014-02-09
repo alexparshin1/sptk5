@@ -51,7 +51,7 @@ bool CImapConnect::getResponse(string ident) {
    char    readBuffer[RSP_BLOCK_SIZE+1];
 
    for (;;) {
-      uint32_t len = readLine(readBuffer,RSP_BLOCK_SIZE);
+      size_t len = readLine(readBuffer,RSP_BLOCK_SIZE);
       string longLine = readBuffer;
       if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE]!='\n') {
          do {
@@ -376,3 +376,4 @@ void CImapConnect::cmd_list(string mail_box_mask,bool decode)  {
    if (decode)
       parseFolderList();
 }
+

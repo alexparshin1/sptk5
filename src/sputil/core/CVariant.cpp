@@ -128,7 +128,7 @@ void CVariant::setString(const char * value,size_t maxlen) {
     dataType(dtype);
 }
 //---------------------------------------------------------------------------
-void CVariant::setExternalString(const char * value,int length) {
+void CVariant::setExternalString(const char * value, int length) {
     uint32_t dtype = VAR_STRING;
 
     if (!(m_dataType & VAR_EXTERNAL_BUFFER))
@@ -136,7 +136,7 @@ void CVariant::setExternalString(const char * value,int length) {
 
     if (value) {
         if (length < 0)
-            length = strlen(value);
+            length = (int) strlen(value);
         m_dataSize = length;
         m_data.buffer.size = length + 1;
         dtype |= VAR_EXTERNAL_BUFFER;
