@@ -30,6 +30,10 @@
 
 #if HAVE_PCRE
 
+#if PCRE_VERSION_MAJOR < 8
+#error Pcre version is too old. Please use libpcre 8.x or newer.
+#endif
+
 using namespace std;
 using namespace sptk;
 
@@ -74,9 +78,7 @@ CRegExp::CRegExp(std::string pattern, string options) :
 CRegExp::~CRegExp()
 {
     if (m_pcre) {
-#if PCRE_VERSION_MAJOR > 7
         pcre_free_study(m_pcreExtra);
-#endif
         pcre_free(m_pcre);
     }
 }
