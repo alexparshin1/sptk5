@@ -134,9 +134,7 @@ void CRegistry::load(const CStrings& inputData) {
     CXmlDoc::load(buffer);
 }
 
-void CRegistry::load(const char* fileName) {
-    if (fileName)
-        m_fileName = fileName;
+void CRegistry::load() {
     CBuffer inputData;
     inputData.loadFromFile(m_fileName);
     CXmlDoc::load(inputData);

@@ -103,8 +103,7 @@ public:
     }
 
     /// @brief Loads registry from the file. Usually it's the first action with registry.
-    /// @param fileName const char*, the optional file name
-    virtual void load(const char* fileName = NULL);
+    virtual void load();
 
     /// @brief Loads registry from the string list
     virtual void load(const CStrings& data);
