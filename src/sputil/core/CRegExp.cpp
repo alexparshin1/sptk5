@@ -30,7 +30,7 @@
 
 #if HAVE_PCRE
 
-#if PCRE_VERSION_MAJOR < 8
+#if PCRE_MAJOR < 8
 #error Pcre version is too old. Please use libpcre 8.x or newer.
 #endif
 
