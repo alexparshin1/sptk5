@@ -96,26 +96,26 @@ int main()
     }
 
     // Starting all the threads
-    for (auto& th: threads)
-        th->run();
+    for (i = 0; i < threads.size(); i++)
+        threads[i]->run();
 
     puts("Waiting 2 seconds while threads are running..");
     CThread::msleep(2000);
 
     log << "Sending 'terminate' signal to all the threads." << endl;
     // That signal suggests thread to terminate and exits ASAP.
-    for (auto th : threads)
-        th->terminate();
+    for (i = 0; i < threads.size(); i++)
+        threads[i]->terminate();
 
     log << "Joining all the threads." << endl;
-    for (auto th : threads)
-        th->join();
+    for (i = 0; i < threads.size(); i++)
+        threads[i]->join();
 
     log << "Deleting all the threads." << endl;
     // Since threads are created in polite mode (see CMyThread class definition),
     // the delete operation would wait for actual thread termination.
-    for (auto th : threads)
-        delete th;
+    for (i = 0; i < threads.size(); i++)
+        delete threads[i];
 
     return 0;
 }

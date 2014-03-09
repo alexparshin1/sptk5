@@ -120,7 +120,7 @@ void CMySQLStatement::mysqlDateToDateTime(CDateTime& timestamp, const MYSQL_TIME
 
 void CMySQLStatement::enumerateParams(CParamList& queryParams)
 {
-    CDatabaseStatement::enumerateParams(queryParams);
+    CDatabaseStatement<CMySQLConnection,MYSQL_STMT>::enumerateParams(queryParams);
     uint32_t paramCount = m_enumeratedParams.size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);

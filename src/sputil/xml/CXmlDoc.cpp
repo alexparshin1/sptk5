@@ -357,7 +357,7 @@ void CXmlDoc::load(const char* xmlData)
             tokenStart = strchr(tokenEnd + 1, '<');
             if (!tokenStart) {
                 if (currentNode == this)
-                    return;
+                    break;
                 throw CException("Tag started but not closed");
             }
             unsigned char* textStart = (unsigned char*) tokenEnd + 1;

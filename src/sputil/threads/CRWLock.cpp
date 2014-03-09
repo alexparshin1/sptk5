@@ -49,7 +49,7 @@ int CRWLock::lockR(int timeoutMS)
         timeoutMS = 999999999;
 
     unique_lock<mutex>  lock(m_writeLock);
-    
+
     // Wait for no writers
     if (!m_condition.wait_for(lock, 
                               chrono::milliseconds(timeoutMS), 
@@ -57,7 +57,7 @@ int CRWLock::lockR(int timeoutMS)
     {
         return false;
     }
-        
+
     m_readerCount++;
 
     return true;

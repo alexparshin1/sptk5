@@ -59,7 +59,7 @@ void CDatabaseConnectionString::parse() throw (CDatabaseException)
         }
         connStr.erase(pos);
     }
-    
+
     pos = connStr.find("://");
     if (pos != string::npos) {
         m_driverName = connStr.substr(0, pos);
@@ -77,13 +77,13 @@ void CDatabaseConnectionString::parse() throw (CDatabaseException)
             m_password = usernameAndPassword[1];
         connStr.erase(0, pos + 1);
     }
-    
+
     pos = connStr.find("/");
     if (pos != string::npos) {
         m_databaseName = connStr.substr(pos + 1);
         connStr.erase(pos);
     }
-    
+
     CStrings hostAndPort(connStr, ":");
     m_hostName = hostAndPort[0];
     if (hostAndPort.size() > 1)

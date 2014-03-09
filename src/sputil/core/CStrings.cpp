@@ -76,8 +76,8 @@ void CStrings::fromString(const string& src, const char *delimitter, SplitMode m
 string CStrings::asString(const char *delimiter) const 
 {
     string result;
-    for (auto& str : *this)
-        result += delimiter + str;
+    for (const_iterator str = begin(); str != end(); str++)
+        result += delimiter + *str;
     return result;
 }
 
@@ -91,8 +91,8 @@ int CStrings::indexOf(string s) const {
 void CStrings::saveToFile(string fileName) const throw(CException)
 {
     CBuffer buffer;
-    for (auto& str : *this) {
-        buffer.append(str);
+    for (const_iterator str = begin(); str != end(); str++) {
+        buffer.append(*str);
         buffer.append("\n");
     }
     buffer.saveToFile(fileName);

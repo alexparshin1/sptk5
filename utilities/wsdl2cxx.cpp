@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/wsdl/CWSParser.h>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;
@@ -49,7 +50,17 @@ int main(int argc, const char* argv[])
     string outputDirectory;
     if (argc > 2)
         outputDirectory = argv[2];
+    else
+        outputDirectory = ".";
+    
+    int rc = system(("mkdir -p " + outputDirectory).c_str());
+    if (rc != 0) {
+        cerr << "Can't open or create output directory '" << outputDirectory << "'." << endl;
+        return 1;
+    }
     
     wsParser.parse(argv[1]);
     wsParser.generate(outputDirectory);
+    
+    return 0;
 }
