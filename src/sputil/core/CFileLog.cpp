@@ -75,7 +75,7 @@ void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPr
 CFileLog::~CFileLog()
 {
     SYNCHRONIZED_CODE;
-    m_buffer.flush();
+    m_buffer->flush();
     if (m_fileStream.is_open())
         m_fileStream.close();
 }

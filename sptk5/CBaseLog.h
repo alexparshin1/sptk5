@@ -165,7 +165,7 @@ class SP_EXPORT CBaseLog: public CSynchronized, public _ostream
     friend class CLogStreamBuf;
 
 protected:
-    CLogStreamBuf   m_buffer;            ///< Log buffer
+    CLogStreamBuf*  m_buffer;            ///< Log buffer
     int             m_indent;            ///< Text indent
     CLogPriority    m_defaultPriority;   ///< The default priority for the new message
     CLogPriority    m_minPriority;       ///< Min message priority, should be defined for every message
@@ -192,9 +192,9 @@ protected:
     /// The default message priority is CLP_NOTICE.
     CBaseLog() :
         _ios(0),
-        _ostream(&m_buffer)
+        _ostream((m_buffer = new CLogStreamBuf))
     {
-        m_buffer.parent(this);
+        m_buffer->parent(this);
         m_indent = 0;
         m_defaultPriority = CLP_INFO;
         m_minPriority = CLP_INFO;
@@ -218,6 +218,7 @@ public:
     {
         SYNCHRONIZED_CODE;
         flush();
+        delete m_buffer;
     }
 
     /// @brief Sets log options
@@ -243,7 +244,7 @@ public:
     void priority(CLogPriority prt)
     {
         SYNCHRONIZED_CODE;
-        m_buffer.priority(prt);
+        m_buffer->priority(prt);
     }
 
     /// @brief Restarts the log, if applicable
