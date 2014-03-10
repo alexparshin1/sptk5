@@ -52,8 +52,8 @@ void CDatabaseConnectionString::parse() throw (CDatabaseException)
     pos = connStr.find_first_of("?");
     if (pos != string::npos) {
         CStrings parameters(connStr.substr(pos + 1),"&");
-        for (auto& item: parameters) {
-            CStrings pair(item,"='");
+        for (CStrings::iterator item = parameters.begin(); item != parameters.end(); item++) {
+            CStrings pair(*item, "='");
             if (pair.size() == 2)
                 m_parameters[ pair[0] ] = pair[1];
         }
@@ -87,5 +87,5 @@ void CDatabaseConnectionString::parse() throw (CDatabaseException)
     CStrings hostAndPort(connStr, ":");
     m_hostName = hostAndPort[0];
     if (hostAndPort.size() > 1)
-        m_portNumber = stoi(hostAndPort[1]);
+        m_portNumber = atoi(hostAndPort[1].c_str());
 }

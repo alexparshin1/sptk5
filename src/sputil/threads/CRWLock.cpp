@@ -28,23 +28,42 @@
 #include <sptk5/sptk.h>
 #include <sptk5/threads/CRWLock.h>
 #include <time.h>
-#include <thread>
+#include <errno.h>
+#if USE_CXX11
+    #include <thread>
+#endif
 
 using namespace sptk;
 using namespace std;
 
+#if USE_CXX11 == 0
+    #define MAX_SEMAPHORE_COUNT  16384
+    #if HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK == 0
+    int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock, const struct timespec * abs_timeout);
+    int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock, const struct timespec * abs_timeout);
+    #endif
+#endif
+
 CRWLock::CRWLock()
 {
+#if USE_CXX11
     m_readerCount = 0;
     m_writerMode = false;
+#else
+    pthread_rwlock_init(&m_rwlock,NULL);
+#endif
 }
 
 CRWLock::~CRWLock()
 {
+#if USE_CXX11 == 0
+    pthread_rwlock_destroy(&m_rwlock);
+#endif
 }
 
 int CRWLock::lockR(int timeoutMS)
 {
+#if USE_CXX11
     if (timeoutMS < 0)
         timeoutMS = 999999999;
 
@@ -61,10 +80,22 @@ int CRWLock::lockR(int timeoutMS)
     m_readerCount++;
 
     return true;
+#else
+    if (timeoutMS > 0) {
+        int   secs  = timeoutMS / 1000;
+        int   msecs = timeoutMS % 1000;
+        struct timespec   abstime = {
+                                        time(NULL) + secs, msecs * 1000L
+                                    };
+        return pthread_rwlock_timedrdlock(&m_rwlock,&abstime);
+    } else
+        return pthread_rwlock_rdlock(&m_rwlock) == 0;
+#endif
 }
 
 int CRWLock::lockRW(int timeoutMS)
 {
+#if USE_CXX11
     if (timeoutMS < 0)
         timeoutMS = 999999999;
 
@@ -81,14 +112,29 @@ int CRWLock::lockRW(int timeoutMS)
     m_writerMode = true;
 
     return true;
+#else
+    if (timeoutMS > 0) {
+        int   secs  = timeoutMS / 1000;
+        int   msecs = timeoutMS % 1000;
+        struct timespec   abstime = {
+                                        time(NULL) + secs, msecs * 1000L
+                                    };
+        return pthread_rwlock_timedwrlock(&m_rwlock,&abstime) == 0;
+    } else
+        return pthread_rwlock_wrlock(&m_rwlock) == 0;
+#endif
 }
 
 void CRWLock::unlock()
 {
+#if USE_CXX11
     lock_guard<mutex>   guard(m_writeLock);
     if (m_writerMode)
         m_writerMode = false;
     else
         if (m_readerCount > 0)
             m_readerCount--;
+#else
+    pthread_rwlock_unlock(&m_rwlock);
+#endif
 }

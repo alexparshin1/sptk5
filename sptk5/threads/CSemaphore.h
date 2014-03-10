@@ -30,10 +30,13 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CException.h>
-
-#include <condition_variable>
-#include <atomic>
-#include <chrono>
+#if USE_CXX11
+    #include <condition_variable>
+    #include <atomic>
+    #include <chrono>
+#else
+   #include <semaphore.h>
+#endif
 
 namespace sptk {
 
@@ -44,9 +47,13 @@ namespace sptk {
 class SP_EXPORT CSemaphore
 {
 
+#if USE_CXX11
     std::mutex              m_mutex;        ///< Mutex object
     std::condition_variable m_condition;    ///< Mutex condition object
     std::atomic<int>        m_value;        ///< Semaphore value
+#else
+    sem_t                   m_semaphore;    ///< Semaphore handle
+#endif
 
 public:
     /// @brief Constructor

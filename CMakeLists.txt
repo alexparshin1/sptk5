@@ -26,6 +26,7 @@ OPTION (USE_MYSQL      "Build MySQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 OPTION (USE_FLTK       "Build GUI library" ON)
 OPTION (USE_PCRE       "Build PCRE (Perl Regexp) support" ON)
+OPTION (USE_CXX11      "Build using cxx11 compiler if available" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
@@ -39,13 +40,12 @@ CHECK_TYPE_SIZE(double DOUBLE)
 
 TEST_BIG_ENDIAN(BIG_ENDIAN_INIT)
 
-
 MESSAGE ("Build type:         " ${CMAKE_BUILD_TYPE})
 IF (WIN32)
   ADD_DEFINITIONS (-DHAVE_CONFIG_H -DWIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)
 ELSE (WIN32)
-  ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -std=c++11)
+  ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   LINK_LIBRARIES(pthread rt dl)
 ENDIF (WIN32)
 
@@ -202,6 +202,25 @@ IF (USE_PCRE)
     MESSAGE("PCRE support:       don't compile")
   ENDIF (PCRE_FOUND)
 ENDIF (USE_PCRE)
+
+
+SET (CXX11_FLAG "0")
+IF (USE_CXX11)
+  INCLUDE(cmake/CXX11.cmake)
+  check_for_cxx11_compiler(CXX11_COMPILER)
+  # If a C++11 compiler is available, then set the appropriate flags
+  IF (CXX11_COMPILER)
+    enable_cxx11()
+    SET (CXX11_FLAG "1")
+  ELSE (CXX11_COMPILER)
+  ENDIF (CXX11_COMPILER)
+ENDIF (USE_CXX11)
+
+IF (CXX11_FLAG)
+  MESSAGE("CXX11 compiler:     use")
+ELSE (CXX11_FLAG)
+  MESSAGE("CXX11 compiler:     don't use")
+ENDIF (CXX11_FLAG)
 
 
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})

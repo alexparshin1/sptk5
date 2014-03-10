@@ -29,9 +29,12 @@
 #define __CTHREAD_H__
 
 #include <sptk5/threads/CSynchronizedCode.h>
-#include <thread>
-#include <atomic>
-#include <mutex>
+
+#if USE_CXX11
+    #include <thread>
+    #include <atomic>
+    #include <mutex>
+#endif
 
 namespace sptk
 {
@@ -45,16 +48,32 @@ namespace sptk
 /// by overwriting threadFunction().
 class SP_EXPORT CThread
 {
-    friend void threadStart(void* athread);
+#if USE_CXX11
+    static void threadStart(void* athread);
+#else
+    static void* threadStart(void* athread);
+    void runThread();
+#endif
 
-    std::mutex          m_mutex;
-    
 protected:
-    bool                m_terminated;   ///< Flag: is the thread terminated?
     std::string         m_name;         ///< Thread name
+#if USE_CXX11
     std::thread         m_thread;       ///< Thread object
+    std::mutex          m_mutex;        ///< Thread synchronization object
+#else
+    uint64_t            m_id;           ///< Thread id
+    pthread_t           m_thread;       ///< Thread handle
+    CSynchronized       m_mutex;        ///< Thread synchronization object
+#endif    
+    bool                m_terminated;   ///< Flag: is the thread terminated?
 
 public:
+    
+#if USE_CXX11
+    typedef std::thread::id Id;
+#else
+    typedef uint64_t Id;
+#endif
 
     /// @brief Constructor
     /// @param name CString, name of the thread for future references.
@@ -73,20 +92,13 @@ public:
     virtual void terminate();
 
     /// @brief Returns true if the thread is terminated
-    bool terminated()
-    {
-        std::lock_guard<std::mutex> lk(m_mutex);
-        return m_terminated;
-    }
+    bool terminated();
 
     /// @brief Waits until thread joins
     void join();
 
     /// @brief Returns this thread OS id
-    std::thread::id id()
-    {
-        return m_thread.get_id();
-    }
+    Id id();
 
     /// @brief Returns the name of the thread
     const std::string& name() const
