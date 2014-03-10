@@ -12,7 +12,7 @@ PROJECT (SPTK)
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
-SET (VERSION "5.0.3")
+SET (VERSION "5.1.1")
 
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
