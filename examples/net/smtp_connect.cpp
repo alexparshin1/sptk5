@@ -31,8 +31,11 @@ using namespace sptk;
 
 int main(int argc, char *argv[])
 {
-   CSmtpConnect   SMTP;
-   std::string    user, password, email, host;
+    CFileLog        logger("smtp.log");
+    logger.option(CBaseLog::CLO_STDOUT, true);
+    
+    CSmtpConnect    SMTP(&logger);
+    std::string     user, password, email, host;
    
    cout << "Testing SMTP connectivity." << endl;
    cout << "SMTP server name: ";

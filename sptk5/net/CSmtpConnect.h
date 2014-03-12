@@ -31,6 +31,7 @@
 #include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/net/CBaseMailConnect.h>
+#include <sptk5/CBaseLog.h>
 
 #include <string>
 
@@ -48,9 +49,11 @@ namespace sptk
 class SP_EXPORT CSmtpConnect: public CBaseMailConnect,
                               public CTCPSocket
 {
+    CBaseLog*   m_log;
     CStrings    m_response;
 
-    /// Processes tag for strippedHtml.
+    /// @brief Processes tag for strippedHtml.
+    ///
     /// Extracts the text information for the tag
     /// @param tag std::string, the tag name
     /// @param params std::string, the tag parameters
@@ -71,19 +74,26 @@ protected:
     /// @param decode bool, decode the response from Base64 or not
     int getResponse(bool decode = false);
 
-    /// Mime-encodes the buffer
+    /// @brief Mime-encodes the buffer
+    /// @param buffer const CBuffer&, Source data
+    /// @return MIME-encoded data
     static std::string mime(const CBuffer& buffer);
 
-    /// Mime-encodes the string
+    /// @brief Mime-encodes the string
+    /// @param s std::string, Source data
+    /// @return MIME-encoded data
     static std::string mime(std::string s);
 
-    /// Mime-decodes the string
+    /// @brief Mime-decodes the string
+    /// @param s std::string, Source data
+    /// @return Decoded data
     static std::string unmime(std::string s);
 
 public:
 
-    /// Default constructor
-    CSmtpConnect();
+    /// @brief Default constructor
+    /// @param log CBaseLog*, Optional log object
+    CSmtpConnect(CBaseLog* log=NULL);
 
     /// Destructor
     ~CSmtpConnect();

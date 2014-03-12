@@ -37,7 +37,8 @@
 using namespace std;
 using namespace sptk;
 
-CSmtpConnect::CSmtpConnect()
+CSmtpConnect::CSmtpConnect(CBaseLog* log)
+: m_log(log)
 {
     m_port = 25;
 }
@@ -58,13 +59,17 @@ int CSmtpConnect::getResponse(bool decode)
     while (!readCompleted) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
+        if (m_log)
+            *m_log << "[RECV] " << readBuffer << endl;
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
                 len = readLine(readBuffer, RSP_BLOCK_SIZE);
                 longLine += readBuffer;
+                if (m_log)
+                    *m_log << "[RECV] " << readBuffer << endl;
             } while (len == RSP_BLOCK_SIZE);
         }
-
+        
         if (longLine[3] == ' ') {
             readCompleted = true;
             longLine[3] = 0;
@@ -88,6 +93,8 @@ void CSmtpConnect::sendCommand(string cmd, bool encode)
         throw CException("Socket isn't open");
     if (encode)
         cmd = mime(cmd);
+    if (m_log)
+        *m_log << "[SEND] " << cmd << endl;
     cmd += "\n";
     write (cmd.c_str(), (uint32_t) cmd.length());
 }
@@ -222,4 +229,3 @@ void CSmtpConnect::sendMessage()
     if (rc > 251)
         throw CException("Message body is not accepted.\n" + m_response.asString("\n"));
 }
-
