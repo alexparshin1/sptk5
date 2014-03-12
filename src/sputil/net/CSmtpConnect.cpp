@@ -69,7 +69,7 @@ int CSmtpConnect::getResponse(bool decode)
                     *m_log << "[RECV] " << readBuffer << endl;
             } while (len == RSP_BLOCK_SIZE);
         }
-        
+
         if (longLine[3] == ' ') {
             readCompleted = true;
             longLine[3] = 0;
@@ -140,7 +140,7 @@ void CSmtpConnect::cmd_auth(string user, string password, string method)
     m_response.clear();
     getResponse();
 
-    int rc = command("HELO localhost");
+    int rc = command("EHLO localhost");
     if (rc > 251)
         throw CException(m_response.asString("\n"));
 
