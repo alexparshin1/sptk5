@@ -76,8 +76,12 @@ void CStrings::fromString(const string& src, const char *delimitter, SplitMode m
 string CStrings::asString(const char *delimiter) const 
 {
     string result;
-    for (const_iterator str = begin(); str != end(); str++)
-        result += delimiter + *str;
+    for (const_iterator str = begin(); str != end(); str++) {
+        if (result.empty())
+            result = *str;
+        else
+            result += delimiter + *str;
+    }
     return result;
 }
 
