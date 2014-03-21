@@ -310,30 +310,84 @@ int testDatabase(string connectionString)
     return 0;
 }
 
-int main()
+// If a single command line parameter supplied,
+// use it as database connection string
+int main(int argc, const char* argv[])
 {
     CFileLog logFile("all_drivers_test.log");
-/*
+    
+    string connectionString;
+    if (argc == 2)
+        connectionString = argv[1];
+    
+    const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1
-    testDatabase("mysql://scott:tiger@localhost/test");
+        "mysql",
 #endif
-*/
-/*
 #if HAVE_ORACLE == 1
-    testDatabase("oracle://scott:tiger@theater/XE");
+        "oracle",
 #endif
-
 #if HAVE_POSTGRESQL == 1
-    testDatabase("postgresql://localhost/protis");
+        "postgres",
 #endif
-
 #if HAVE_ODBC == 1
-    testDatabase("odbc://demo_odbc");
+        "odbc",
 #endif
-*/
-
 #if HAVE_FIREBIRD == 1
-testDatabase("firebird://TIAS:T!A5Pwaf@devdb6/databases/interbase/work/asp/transact_devetest.gdb");
+        "firebird",
 #endif
+        NULL };
 
+    if (connectionString.empty()) {
+        CStrings databaseTypes;
+        for (size_t i = 0; availableDatabaseTypes[i] != NULL; i++)
+            databaseTypes.push_back(availableDatabaseTypes[i]);
+
+        string dbtype, dbname, username, password, hostOrDSN;
+        for (;;) {
+            cout << "Please select database type (" << databaseTypes.asString(",") << ")> ";
+            cin >> dbtype;
+            if (databaseTypes.indexOf(dbtype) != -1)
+                break;
+        }
+        
+        if (dbtype == "odbc") {
+            cout << "DSN name > ";
+            cin >> hostOrDSN;
+        } else {
+            cout << "hostname (or localhost) > ";
+            cin >> hostOrDSN;
+            cout << "Database name > ";
+            cin >> dbname;
+        }
+
+        cout << "User name > ";
+        cin >> username;
+        
+        cout << "Password > ";
+        cin >> password;
+        
+        // Creating connection string in the following format:
+        // <dbtype>://[username[:password]@]<host_or_DSN>[:port_number][/dbname]
+        
+        string connectionString = dbtype + "://";
+        if (!username.empty()) {
+            connectionString += username;
+            if (!password.empty())
+                connectionString += ":" + password;
+            connectionString += "@";
+        }
+        
+        connectionString += hostOrDSN;
+        if (!dbname.empty()) {
+            if (dbname[0] == '/')
+                connectionString += dbname;
+            else
+                connectionString += "/" + dbname;
+        }
+    }
+
+    cout << "Connection string: " << connectionString << endl;
+    
+    testDatabase(connectionString);
 }
