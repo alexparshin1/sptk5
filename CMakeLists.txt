@@ -21,6 +21,7 @@ SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
 OPTION (USE_ODBC       "Build ODBC support library" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
+OPTION (USE_FIREBIRD   "Build Firebird support library" ON)
 OPTION (USE_ORACLE     "Build Oracle support library" ON)
 OPTION (USE_MYSQL      "Build MySQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
@@ -101,6 +102,19 @@ IF (USE_POSTGRESQL)
     MESSAGE("PostgreSQL support: don't compile")
   ENDIF (PostgreSQL_FOUND)
 ENDIF (USE_POSTGRESQL)
+
+
+SET (FIREBIRD_FLAG "0")
+IF (USE_FIREBIRD)
+  FIND_PACKAGE(Firebird QUIET)
+  IF (Firebird_FOUND)
+    MESSAGE("Firebird support:   compile")
+    SET (FIREBIRD_FLAG "1")
+  ELSE (Firebird_FOUND)
+    MESSAGE("Firebird support:   don't compile")
+  ENDIF (Firebird_FOUND)
+ENDIF (USE_FIREBIRD)
+
 
 SET (ORACLE_FLAG "0")
 IF (USE_ORACLE)

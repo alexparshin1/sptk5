@@ -107,7 +107,8 @@ public:
         DCT_ORACLE=2,
         DCT_POSTGRES=4,
         DCT_SQLITE3=8,
-        DCT_ODBC=16
+        DCT_ODBC=16,
+        DCT_FIREBIRD=32
     };
 
 protected:

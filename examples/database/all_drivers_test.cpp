@@ -141,16 +141,16 @@ int testDatabase(string connectionString)
         // Defining the queries
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(40), position CHAR(20), hire_date TIMESTAMP)",
-                __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date)", 
-                __FILE__, __LINE__);
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date TIMESTAMP)", __FILE__, __LINE__);
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date)",  __FILE__, __LINE__);
         CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
         CQuery step4Query(db, "DROP TABLE " + tableName, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             step1Query.exec();
+            if (db->connectionType() == CDatabaseConnection::DCT_FIREBIRD)
+                db->commitTransaction(); // Some databases don't recognize table existense until it is committed
         } catch (exception& e) {
             if (strstr(e.what(), " already ") == NULL)
                 throw;
@@ -176,7 +176,7 @@ int testDatabase(string connectionString)
         step2Query.param(uint32_t(2)) = "Manager";
         step2Query.param(uint32_t(3)).setDate(CDateTime::Now());
         step2Query.exec();
-
+        
         // And, finally - the fastest method: using CParam& variables.
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
@@ -186,10 +186,11 @@ int testDatabase(string connectionString)
         CParam& position_param = step2Query.param("position_name");
         CParam& hire_date_param = step2Query.param("hire_date");
 
-        // Now, we can use these variables
+        // Now, we can use these variables, re-defining their values before each .exec() if needed:
         id_param = 4;
         name_param = "Buffy";
         position_param = "Fearless fiction vampire slayer";
+        hire_date_param.setDate(CDateTime::Now());
         step2Query.exec();
 
         // Now, we can use these variables
@@ -224,10 +225,10 @@ int testDatabase(string connectionString)
             // Another method: getting data by the column number.
             // For printing values we use custom function implemented above
             string name = fieldToString(step3Query[1]);
-            string position = fieldToString(step3Query[2]);
+            string position_name = fieldToString(step3Query[2]);
             string date = fieldToString(step3Query[3]);
 
-            cout << " | " << setw(40) << name << " | " << setw(20) << position << " | " << date << endl;
+            cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << endl;
 
             step3Query.fetch();
         }
@@ -240,11 +241,11 @@ int testDatabase(string connectionString)
         while (!step3Query.eof()) {
 
             int id;
-            string name, position, hire_date;
+            string name, position_name, hire_date;
 
-            step3Query.fields() >> id >> name >> position >> hire_date;
+            step3Query.fields() >> id >> name >> position_name >> hire_date;
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position << " | " << hire_date << endl;
+            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << endl;
 
             step3Query.fetch();
         }
@@ -257,17 +258,17 @@ int testDatabase(string connectionString)
         // First, find the field references by name or by number
         CField& idField = step3Query[uint32_t(0)];
         CField& nameField = step3Query["name"];
-        CField& positionField = step3Query["position"];
+        CField& positionNameField = step3Query["position_name"];
         CField& dateField = step3Query["hire_date"];
 
         while (!step3Query.eof()) {
 
             int64_t id = idField;
             string name = nameField;
-            string position = positionField;
+            string position_name = positionNameField;
             string hire_date = dateField;
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position << " | " << hire_date << endl;
+            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << endl;
 
             step3Query.fetch();
         }
@@ -311,27 +312,28 @@ int testDatabase(string connectionString)
 
 int main()
 {
-    CFileLog logFile("postgresql_test.log");
-
+    CFileLog logFile("all_drivers_test.log");
+/*
 #if HAVE_MYSQL == 1
     testDatabase("mysql://scott:tiger@localhost/test");
 #endif
-
+*/
 /*
 #if HAVE_ORACLE == 1
     testDatabase("oracle://scott:tiger@theater/XE");
 #endif
-*/
+
 #if HAVE_POSTGRESQL == 1
-    testDatabase("postgresql://scott:tiger@localhost:5432/protis");
+    testDatabase("postgresql://localhost/protis");
 #endif
-/*
+
 #if HAVE_ODBC == 1
     testDatabase("odbc://demo_odbc");
 #endif
-
-#if HAVE_ORACLE == 1
-    testDatabase("oracle://localhost/demo");
-#endif
 */
+
+#if HAVE_FIREBIRD == 1
+testDatabase("firebird://TIAS:T!A5Pwaf@devdb6/databases/interbase/work/asp/transact_devetest.gdb");
+#endif
+
 }

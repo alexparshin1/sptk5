@@ -199,11 +199,12 @@ void CVariant::setExternalText(const char * value) {
 void CVariant::setBuffer(const void * value, size_t sz) {
     releaseBuffers();
     dataType(VAR_BUFFER);
-    if (value) {
+    if (value || sz) {
         m_data.buffer.size = sz;
         dataSize(sz);
         m_data.buffer.data = (char *)malloc(sz);
-        memcpy(m_data.buffer.data,value,sz);
+        if (value)
+            memcpy(m_data.buffer.data,value,sz);
     } else
         setNull();
 }

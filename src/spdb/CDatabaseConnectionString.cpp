@@ -41,7 +41,7 @@
 using namespace std;
 using namespace sptk;
 
-static const CStrings driverNames("sqlite|postgres|postgresql|oracle|mysql|mssql)", "|");
+static const CStrings driverNames("sqlite|postgres|postgresql|oracle|mysql|firebird", "|");
 
 void CDatabaseConnectionString::parse() throw (CDatabaseException)
 {
@@ -82,6 +82,8 @@ void CDatabaseConnectionString::parse() throw (CDatabaseException)
     if (pos != string::npos) {
         m_databaseName = connStr.substr(pos + 1);
         connStr.erase(pos);
+        if (m_databaseName.find("/") != string::npos)
+            m_databaseName = "/" + m_databaseName;
     }
 
     CStrings hostAndPort(connStr, ":");
