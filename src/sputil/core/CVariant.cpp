@@ -38,6 +38,29 @@
 using namespace std;
 using namespace sptk;
 
+
+int64_t CMoneyData::dividers[16] = {
+    1, 10, 100, 1000,
+    10000, 100000, 1000000L, 10000000L,
+    100000000L, 1000000000L, 10000000000L, 100000000000L,
+    1000000000000L, 10000000000000L, 100000000000000L, 1000000000000000L
+};
+
+CMoneyData::operator double () const
+{
+    return double(quantity) / dividers[scale];
+}
+
+CMoneyData::operator int64_t () const
+{
+    return quantity / dividers[scale];
+}
+
+CMoneyData::operator int32_t () const
+{
+    return int32_t(quantity / dividers[scale]);
+}
+//---------------------------------------------------------------------------
 void CVariant::releaseBuffers() {
     if (m_dataType & (VAR_STRING|VAR_BUFFER|VAR_TEXT)) {
         if (m_data.buffer.data) {
@@ -85,13 +108,14 @@ void CVariant::setFloat(double value) {
     m_data.floatData = value;
 }
 //---------------------------------------------------------------------------
-void CVariant::setMoney(double value) {
+void CVariant::setMoney(int64_t value, unsigned scale) {
     if (m_dataType != VAR_MONEY) {
         releaseBuffers();
         m_dataType = VAR_MONEY;
-        m_dataSize = sizeof(value);
+        m_dataSize = sizeof(CMoneyData);
     }
-    m_data.floatData = value;
+    m_data.moneyData.quantity = value;
+    m_data.moneyData.scale = scale;
 }
 //---------------------------------------------------------------------------
 void CVariant::setString(const char * value,size_t maxlen) {
@@ -288,7 +312,7 @@ void CVariant::setData(const CVariant &C) {
         setFloat(C.getFloat());
         break;
     case VAR_MONEY:
-        setFloat(C.getFloat());
+        setMoney(C.m_data.moneyData.quantity, C.m_data.moneyData.scale);
         break;
     case VAR_STRING:
         setString(C.getString(),C.dataSize());
@@ -329,6 +353,7 @@ int32_t CVariant::asInteger() const throw(CException) {
     case VAR_INT64:
         return (int32_t) m_data.int64Data;
     case VAR_MONEY:
+        return (int32_t) m_data.moneyData;
     case VAR_FLOAT:
         return (int32_t) m_data.floatData;
     case VAR_STRING:
@@ -354,8 +379,9 @@ int64_t CVariant::asInt64() const throw(CException) {
         case VAR_INT64:
             return m_data.int64Data;
         case VAR_MONEY:
+            return (int64_t)m_data.moneyData;
         case VAR_FLOAT:
-            return (long)m_data.floatData;
+            return (int64_t)m_data.floatData;
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
@@ -388,6 +414,7 @@ bool CVariant::asBool() const throw(CException) {
     case VAR_INT64:
         return (m_data.int64Data>0);
     case VAR_MONEY:
+        return (m_data.moneyData.quantity>0);
     case VAR_FLOAT:
         return (m_data.floatData>0);
     case VAR_STRING:
@@ -418,6 +445,7 @@ double CVariant::asFloat() const throw(CException) {
     case VAR_INT64:
         return (double) m_data.int64Data;
     case VAR_MONEY:
+        return (double) m_data.moneyData;
     case VAR_FLOAT:
         return m_data.floatData;
     case VAR_STRING:
@@ -453,7 +481,22 @@ string CVariant::asString() const throw(CException) {
         sprintf(print_buffer,"%lli",m_data.int64Data);
 #endif
         return string(print_buffer);
-    case VAR_MONEY:
+    case VAR_MONEY: {
+            char format[16];
+            int64_t absValue;
+            char *formatPtr = format;
+            if (m_data.moneyData.quantity < 0) {
+                *formatPtr = '-';
+                formatPtr++;
+                absValue = -m_data.moneyData.quantity;
+            } else
+                absValue = m_data.moneyData.quantity;
+            sprintf(formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
+            int64_t intValue = absValue / CMoneyData::dividers[m_data.moneyData.scale];
+            int64_t fraction = absValue % CMoneyData::dividers[m_data.moneyData.scale];
+            sprintf(print_buffer, format, intValue, fraction);
+            return string(print_buffer);
+        }
     case VAR_FLOAT: {
             const char *formatString = "%0.4f";
             if (floor(m_data.floatData) == m_data.floatData)
@@ -495,6 +538,7 @@ CDateTime CVariant::asDate() const throw(CException) {
     case VAR_INT64:
         return (double) m_data.int64Data;
     case VAR_MONEY:
+        return (double) m_data.moneyData;
     case VAR_FLOAT:
         return m_data.floatData;
 
@@ -523,6 +567,7 @@ CDateTime CVariant::asDateTime() const throw(CException) {
     case VAR_INT64:
         return (double) m_data.int64Data;
     case VAR_MONEY:
+        return (double) m_data.moneyData;
     case VAR_FLOAT:
         return m_data.floatData;
 

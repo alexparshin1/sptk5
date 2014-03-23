@@ -124,7 +124,6 @@ void COracleStatement::setParameterValues()
                 break;
 
             case VAR_FLOAT:     ///< Floating-point (double)
-            case VAR_MONEY:     ///< Floating-point (double) money
                 m_statement->setDouble(parameterIndex, parameter.asFloat());
                 break;
 

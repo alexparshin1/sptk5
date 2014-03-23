@@ -141,8 +141,8 @@ int testDatabase(string connectionString)
         // Defining the queries
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date TIMESTAMP)", __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date)",  __FILE__, __LINE__);
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date TIMESTAMP, rate NUMERIC(16,4))", __FILE__, __LINE__);
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)",  __FILE__, __LINE__);
         CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
         CQuery step4Query(db, "DROP TABLE " + tableName, __FILE__, __LINE__);
 
@@ -167,6 +167,7 @@ int testDatabase(string connectionString)
         step2Query.param("person_name") = "John Doe";
         step2Query.param("position_name") = "CIO";
         step2Query.param("hire_date") = CDateTime::Now();
+        step2Query.param("rate") = 70.1234;
         step2Query.exec();
 
         // Here is the example of using parameters by index.
@@ -175,6 +176,7 @@ int testDatabase(string connectionString)
         step2Query.param(uint32_t(1)) = "UTF-8: тестик (Russian, 6 chars)";
         step2Query.param(uint32_t(2)) = "Manager";
         step2Query.param(uint32_t(3)).setDate(CDateTime::Now());
+        step2Query.param(4) = 70.1234;
         step2Query.exec();
         
         // And, finally - the fastest method: using CParam& variables.
@@ -185,18 +187,21 @@ int testDatabase(string connectionString)
         CParam& name_param = step2Query.param("person_name");
         CParam& position_param = step2Query.param("position_name");
         CParam& hire_date_param = step2Query.param("hire_date");
+        CParam& rate_param = step2Query.param("rate");
 
         // Now, we can use these variables, re-defining their values before each .exec() if needed:
         id_param = 4;
         name_param = "Buffy";
         position_param = "Fearless fiction vampire slayer";
         hire_date_param.setDate(CDateTime::Now());
+        rate_param = 81.2345;
         step2Query.exec();
 
         // Now, we can use these variables
         id_param = 5;
         name_param = "Buffy 2";
         position_param = "Fearless fiction vampire slayer";
+        rate_param = 82.3456;
         step2Query.exec();
 
         // .. and use these variables again for the next insert
@@ -205,6 +210,7 @@ int testDatabase(string connectionString)
         name_param.setNull();
         position_param.setNull();
         hire_date_param.setNull();
+        rate_param.setNull();
         step2Query.exec();
 
         cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
@@ -227,8 +233,9 @@ int testDatabase(string connectionString)
             string name = fieldToString(step3Query[1]);
             string position_name = fieldToString(step3Query[2]);
             string date = fieldToString(step3Query[3]);
+            string rate = fieldToString(step3Query[4]);
 
-            cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << endl;
+            cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate << endl;
 
             step3Query.fetch();
         }
@@ -241,11 +248,11 @@ int testDatabase(string connectionString)
         while (!step3Query.eof()) {
 
             int id;
-            string name, position_name, hire_date;
+            string name, position_name, hire_date, rate;
 
-            step3Query.fields() >> id >> name >> position_name >> hire_date;
+            step3Query.fields() >> id >> name >> position_name >> hire_date >> rate;
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << endl;
+            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate << endl;
 
             step3Query.fetch();
         }
@@ -260,6 +267,7 @@ int testDatabase(string connectionString)
         CField& nameField = step3Query["name"];
         CField& positionNameField = step3Query["position_name"];
         CField& dateField = step3Query["hire_date"];
+        CField& rateField = step3Query["rate"];
 
         while (!step3Query.eof()) {
 
@@ -267,8 +275,9 @@ int testDatabase(string connectionString)
             string name = nameField;
             string position_name = positionNameField;
             string hire_date = dateField;
+            string rate = rateField;
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << endl;
+            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate << endl;
 
             step3Query.fetch();
         }

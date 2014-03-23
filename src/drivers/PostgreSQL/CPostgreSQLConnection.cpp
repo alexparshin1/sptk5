@@ -470,7 +470,6 @@ void CPostgreSQLConnection::CTypeToPostgreType(CVariantType dataType, Oid& postg
         return;        ///< Integer 4 bytes
 
     case VAR_FLOAT:
-    case VAR_MONEY:
         postgreType = PG_FLOAT8;
         return;        ///< Floating-point (double)
 
@@ -486,11 +485,11 @@ void CPostgreSQLConnection::CTypeToPostgreType(CVariantType dataType, Oid& postg
     case VAR_DATE:
     case VAR_DATE_TIME:
         postgreType = PG_TIMESTAMP;
-        return;    ///< Timestamp
+        return;        ///< Timestamp
 
     case VAR_INT64:
         postgreType = PG_INT8;
-        return;           ///< Integer 8 bytes
+        return;        ///< Integer 8 bytes
 
     case VAR_BOOL:
         postgreType = PG_BOOL;

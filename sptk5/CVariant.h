@@ -44,7 +44,7 @@ enum CVariantType {
     VAR_NONE      = 0,    ///< Undefined
     VAR_INT       = 1,    ///< Integer
     VAR_FLOAT     = 2,    ///< Floating-point (double)
-    VAR_MONEY     = 4,    ///< Floating-point (double) money
+    VAR_MONEY     = 4,    ///< Special (integer quantity and scale) money
     VAR_STRING    = 8,    ///< String pointer
     VAR_TEXT      = 16,   ///< String pointer, corresponding to BLOBS in database
     VAR_BUFFER    = 32,   ///< Data pointer, corresponding to BLOBS in database
@@ -76,6 +76,22 @@ struct CVariantDataBuffer
     size_t       size;         ///< Allocated buffer size
 };
 
+/// @brief Money data (internal).
+///
+/// A combination of integer quantity and scale - positive integer presenting power of ten for divider.
+/// A money value is quantity / 10^(scale)
+struct CMoneyData
+{
+    static int64_t dividers[16];
+    
+    int64_t      quantity;     ///< Integer value 
+    unsigned     scale:4;      ///< Scale (1..15)
+    
+    operator double () const;  ///< Convert to double value
+    operator int64_t () const; ///< Convert to integer value
+    operator int32_t () const; ///< Convert to integer value
+};
+
 /// @brief Universal data storage.
 ///
 /// Reasonably compact an fast class what allows storing data of different
@@ -86,14 +102,15 @@ protected:
     /// @brief Internal variant data storage
     union variantData
     {
-        bool    boolData;        ///< Boolean data
-        int32_t intData;         ///< Integer data
-        int64_t int64Data;       ///< 64 bit integer data
-        double  floatData;       ///< Floating point data
-        double  timeData;        ///< CDateTime data
-        CVariantDataBuffer buffer; ///< A buffer for data with the variable length like strings, or just generic buffers
-        void*   imagePtr;        ///< Image pointer
-        int32_t imageNdx;        ///< Image index in object-specific table of image pointers
+        bool                boolData;        ///< Boolean data
+        int32_t             intData;         ///< Integer data
+        int64_t             int64Data;       ///< 64 bit integer data
+        double              floatData;       ///< Floating point data
+        double              timeData;        ///< CDateTime data
+        CVariantDataBuffer  buffer; ///< A buffer for data with the variable length like strings, or just generic buffers
+        void*               imagePtr;        ///< Image pointer
+        int32_t             imageNdx;        ///< Image index in object-specific table of image pointers
+        CMoneyData          moneyData;       ///< Money data
     } m_data;                    ///< Data storage union
     size_t   m_dataSize;         ///< Data size
     uint16_t m_dataType;         ///< Data type
@@ -148,10 +165,16 @@ public:
     }
 
     /// @brief Constructor
-    CVariant(int64_t value)
+    CVariant(int64_t value, unsigned scale = 1)
     {
-        m_dataType = VAR_INT64;
-        m_data.int64Data = value;
+        if (scale > 1) {
+            m_dataType = VAR_MONEY;
+            m_data.moneyData.quantity = value;
+            m_data.moneyData.scale = scale;
+        } else {
+            m_dataType = VAR_INT64;
+            m_data.int64Data = value;
+        }
     }
 
     /// @brief Constructor
@@ -236,7 +259,7 @@ public:
     virtual void setFloat(double value);
 
     /// @brief Assignment method
-    virtual void setMoney(double value);
+    virtual void setMoney(int64_t value, unsigned scale);
 
     /// @brief Assignment method
     virtual void setString(const char * value, size_t maxlen = 0);
@@ -359,6 +382,13 @@ public:
     }
 
     /// @brief Assignment operator
+    virtual CVariant& operator =(const CMoneyData& value)
+    {
+        setMoney(value.quantity, value.scale);
+        return *this;
+    }
+
+    /// @brief Assignment operator
     virtual CVariant& operator =(const char * value)
     {
         setString(value);
@@ -415,6 +445,12 @@ public:
     virtual const double& getFloat() const
     {
         return m_data.floatData;
+    }
+
+    /// @brief Directly reads the internal data
+    virtual const CMoneyData& getMoney() const
+    {
+        return m_data.moneyData;
     }
 
     /// @brief Directly reads the internal data

@@ -267,7 +267,6 @@ Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
         case VAR_INT:
             return (Type) SQLT_INT;
         case VAR_FLOAT:
-        case VAR_MONEY:
             return (Type) OCCIBDOUBLE;
         case VAR_STRING:
             return (Type) OCCICHAR; //SQLT_CHR;

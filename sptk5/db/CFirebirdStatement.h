@@ -107,11 +107,6 @@ public:
     /// @returns CVariant type
     static CVariantType firebirdTypeToVariantType(int firebirdType, int firebirdSubtype);
 
-    /// @brief Translates CVariant type to Firebird native type
-    /// @param dataType CVariantType&, CVariant type
-    /// @returns Firebird native type
-    static int variantTypeToFirebirdType(CVariantType dataType);
-
     /// @brief Translates CDateTime to Firebird time
     /// @param firebirdDate tm&, Firebird time
     /// @param timestamp CDateTime, Timestamp

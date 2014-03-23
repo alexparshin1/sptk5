@@ -88,6 +88,22 @@ string CField::asString() const throw(CException) {
             sprintf(print_buffer,formatString,m_data.floatData);
             return string(print_buffer);
          }
+      case VAR_MONEY: {
+            char format[16];
+            int64_t absValue;
+            char *formatPtr = format;
+            if (m_data.moneyData.quantity < 0) {
+                *formatPtr = '-';
+                formatPtr++;
+                absValue = -m_data.moneyData.quantity;
+            } else
+                absValue = m_data.moneyData.quantity;
+            sprintf(formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
+            int64_t intValue = absValue / CMoneyData::dividers[m_data.moneyData.scale];
+            int64_t fraction = absValue % CMoneyData::dividers[m_data.moneyData.scale];
+            sprintf(print_buffer, format, intValue, fraction);
+            return string(print_buffer);
+        }
       case VAR_STRING:
       case VAR_TEXT:
       case VAR_BUFFER:     

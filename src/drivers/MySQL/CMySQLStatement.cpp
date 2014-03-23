@@ -187,7 +187,6 @@ enum_field_types CMySQLStatement::variantTypeToMySQLType(CVariantType dataType)
         return MYSQL_TYPE_LONG;
 
     case VAR_FLOAT:
-    case VAR_MONEY:
         return MYSQL_TYPE_DOUBLE;
 
     case VAR_STRING:
@@ -232,7 +231,6 @@ void CMySQLStatement::setParameterValues()
         case VAR_BOOL:
         case VAR_INT:
         case VAR_FLOAT:
-        case VAR_MONEY:
             m_paramLengths[paramIndex] = 0;
             bind.buffer = (void*) &param->getInt64();
             break;
@@ -405,7 +403,6 @@ void CMySQLStatement::fetchResult(CFieldList& fields)
             break;
 
         case VAR_FLOAT:
-        case VAR_MONEY:
             if (dataLength == sizeof(float)) {
                 float value = *(float*) bind.buffer;
                 field->setFloat(value);

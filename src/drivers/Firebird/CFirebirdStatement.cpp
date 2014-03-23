@@ -140,11 +140,13 @@ CVariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int
     switch (firebirdType) {
 
     case SQL_SHORT:
+        if (firebirdSubtype == 1)
+            return VAR_MONEY;
         return VAR_INT;
 
     case SQL_LONG:
         if (firebirdSubtype == 1)
-            return VAR_FLOAT;
+            return VAR_MONEY;
         return VAR_INT;
 
     case SQL_FLOAT:
@@ -164,7 +166,7 @@ CVariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int
 
     case SQL_INT64:
         if (firebirdSubtype == 1)
-            return VAR_FLOAT;
+            return VAR_MONEY;
         return VAR_INT64;
 
     case SQL_TEXT:
@@ -176,40 +178,6 @@ CVariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int
         // Anything we don't know about - treat as string
     default:
         return VAR_STRING;
-    }
-}
-
-int CFirebirdStatement::variantTypeToFirebirdType(CVariantType dataType)
-{
-    switch (dataType) {
-
-    case VAR_NONE:
-        return SQL_NULL;
-
-    case VAR_INT:
-        return SQL_LONG;
-
-    case VAR_FLOAT:
-    case VAR_MONEY:
-        return SQL_DOUBLE;
-
-    case VAR_TEXT:
-    case VAR_BUFFER:
-        return SQL_BLOB;
-
-    case VAR_DATE:
-        return SQL_TYPE_DATE;
-        
-    case VAR_DATE_TIME:
-        return SQL_TIMESTAMP;
-
-    case VAR_INT64:
-        return SQL_INT64;
-
-    case VAR_STRING:
-        // Anything we don't know about - treat as string
-    default:
-        return SQL_VARYING;
     }
 }
 
@@ -231,6 +199,7 @@ void CFirebirdStatement::setParameterValues()
             
             case VAR_NONE:
                 sqlvar.sqltype = SQL_TEXT + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = 0;
                 sqlvar.sqldata = (ISC_SCHAR*) "";
                 param->setNull();
@@ -238,31 +207,43 @@ void CFirebirdStatement::setParameterValues()
 
             case VAR_BOOL:
                 sqlvar.sqltype = SQL_SHORT + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(short);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getInteger();
                 break;
                 
             case VAR_INT:
                 sqlvar.sqltype = SQL_LONG + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int32_t);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getInteger();
                 break;
                 
             case VAR_FLOAT:
-            case VAR_MONEY:
                 sqlvar.sqltype = SQL_DOUBLE + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(double);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getFloat();
                 break;
                 
             case VAR_INT64:
                 sqlvar.sqltype = SQL_INT64 + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int64_t);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getInt64();
                 break;
                 
+            case VAR_MONEY:
+                sqlvar.sqltype = SQL_INT64 + 1;
+                sqlvar.sqlsubtype = 1;
+                sqlvar.sqllen = sizeof(int64_t);
+                sqlvar.sqldata = (ISC_SCHAR*) &param->getMoney().quantity;
+                sqlvar.sqlscale = -param->getMoney().scale;
+                break;
+                
             case VAR_STRING:
                 sqlvar.sqltype = SQL_TEXT + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = param->dataSize();
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
@@ -277,6 +258,7 @@ void CFirebirdStatement::setParameterValues()
                 
             case VAR_DATE:
                 sqlvar.sqltype = SQL_TYPE_DATE + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_DATE);
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
                 dateTimeToFirebirdDate(firebirdDateTime, param->getDate(), VAR_DATE);
@@ -285,6 +267,7 @@ void CFirebirdStatement::setParameterValues()
                 
             case VAR_DATE_TIME:
                 sqlvar.sqltype = SQL_TIMESTAMP + 1;
+                sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_TIMESTAMP);
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
                 pts = (ISC_TIMESTAMP*) sqlvar.sqldata;
@@ -471,19 +454,22 @@ void CFirebirdStatement::fetchResult(CFieldList& fields)
                 break;
                         
             case SQL_SHORT:
-                field->setInteger(*(short*) sqlvar.sqldata);
+                if (sqlvar.sqlsubtype == 1)
+                    field->setMoney(*(short*) sqlvar.sqldata, -sqlvar.sqlscale);
+                else
+                    field->setInteger(*(short*) sqlvar.sqldata);
                 break;
                         
             case SQL_LONG:
                 if (sqlvar.sqlsubtype == 1)
-                    field->setFloat(*(int32_t*) sqlvar.sqldata * field->m_numericScale);
+                    field->setMoney(*(int32_t*) sqlvar.sqldata, -sqlvar.sqlscale);
                 else
                     field->setInteger(*(int32_t*) sqlvar.sqldata);
                 break;
                         
             case SQL_INT64:
                 if (sqlvar.sqlsubtype == 1)
-                    field->setFloat(*(int64_t*) sqlvar.sqldata * field->m_numericScale);
+                    field->setMoney(*(int64_t*) sqlvar.sqldata, -sqlvar.sqlscale);
                 else
                     field->setInt64(*(int64_t*) sqlvar.sqldata);
                 break;
