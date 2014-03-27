@@ -30,15 +30,11 @@
 
 #if HAVE_PCRE
 
-#if PCRE_MAJOR < 8
-#error Pcre version is too old. Please use libpcre 8.x or newer.
-#endif
-
 using namespace std;
 using namespace sptk;
 
 CRegExp::CRegExp(std::string pattern, string options) :
-    m_pattern(pattern), m_global(false), m_pcreOptions()
+    m_pattern(pattern), m_global(false), m_pcre(NULL), m_pcreExtra(NULL), m_pcreOptions()
 {
     for (unsigned i = 0; i < options.length(); i++) {
         switch (options[i]) {
@@ -63,9 +59,10 @@ CRegExp::CRegExp(std::string pattern, string options) :
     const char* error;
     int errorOffset;
     m_pcre = pcre_compile(m_pattern.c_str(), m_pcreOptions, &error, &errorOffset, NULL);
-    if (!m_pcre) {
+    if (!m_pcre)
         m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
-    } else {
+#if PCRE_MAJOR > 7
+    else {
         m_pcreExtra = pcre_study(m_pcre, 0, &error);
         if (!m_pcreExtra) {
             pcre_free(m_pcre);
@@ -73,133 +70,142 @@ CRegExp::CRegExp(std::string pattern, string options) :
             m_error = "PCRE pattern study error : " + string(error);
         }
     }
+#endif
 }
 
 CRegExp::~CRegExp()
 {
-    if (m_pcre) {
+    if (m_pcreExtra)
         pcre_free_study(m_pcreExtra);
+    if (m_pcre)
         pcre_free(m_pcre);
-    }
 }
 
-#define MAX_MATCHES 256
-
-int CRegExp::match(const string& text, std::vector<Match>* matches) const throw (CException)
+#define MAX_MATCHES 128
+size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const throw (sptk::CException)
 {
     if (!m_pcre)
         throwException(m_error);
 
-    if (matches)
-        matches->clear();
+    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), text.length(), offset, 0, (int*)matchOffsets, matchOffsetsSize * 2);
+    if (rc == PCRE_ERROR_NOMATCH)
+        return 0;
 
-    Match   matchOffsets[MAX_MATCHES];
-    int32_t startOffset = 0;
-
-    int     textLength = text.length();
-
-    int     iteration = 0, options = 0;
-    bool    done = false;
-    int     totalMatches = 0;
-    while (!done) {
-        const char* textPtr = text.c_str() + startOffset;
-        int fragmentOffset = 0;
-        int matchCount = pcre_exec(m_pcre, m_pcreExtra, textPtr, textLength - startOffset, 0, options, (int*)matchOffsets, MAX_MATCHES);
-        if (matchCount < 0) {
-            if (matchCount == PCRE_ERROR_NOMATCH) {
-                done = true;
-                break;
-            }
-            throwException("PCRE match error");
+    if (rc < 0) {
+        switch (rc) {
+            case PCRE_ERROR_NULL         : throwException("Null argument");
+            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option");
+            case PCRE_ERROR_BADMAGIC     : 
+            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n");
+            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory");
+            default                      : throwException("Unknown error");
         }
-
-        int i = 0;
-        if (i == 0 && matchCount > 1)
-            i++; /// First match is a complete string
-
-        for (; i < matchCount; i++) {
-            Match& match = matchOffsets[i];
-            if (match.m_start >= fragmentOffset) {
-                // Actual match
-                fragmentOffset = match.m_end;
-                totalMatches++;
-                if (matches) {
-                    match.m_start += startOffset;
-                    match.m_end += startOffset;
-                    matches->push_back(match);
-                }
-            } else {
-                // Empty match
-                totalMatches++;
-                if (matches)
-                    matches->push_back(match);
-            }
-        }
-
-        startOffset += fragmentOffset;
-
-        if (!m_global)
-            break;
-
-        iteration++;
     }
-    return totalMatches;
+    
+    int matchCount = rc ? rc : MAX_MATCHES; // If match count is zero - there are too many matches
+
+    offset = matchOffsets[0].m_end;
+    
+    return matchCount;
 }
 
 bool CRegExp::operator == (std::string text) const throw (CException)
 {
-    return match(text.c_str(), NULL) > 0;
+    size_t  offset = 0;
+    Match   matchOffsets[MAX_MATCHES];
+    return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
 bool CRegExp::operator != (std::string text) const throw (CException)
 {
-    return match(text.c_str(), NULL) <= 0;
+    size_t  offset = 0;
+    Match   matchOffsets[MAX_MATCHES];
+    return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
 bool CRegExp::m(std::string text, CStrings& matchedStrings) const throw (CException)
 {
-    const char* textPtr = text.c_str();
-
     matchedStrings.clear();
 
-    std::vector<Match> matches;
-    int matchCount = match(textPtr, &matches);
-    for (std::vector<Match>::iterator itor = matches.begin(); itor != matches.end(); itor++) {
-        unsigned sz = itor->m_end - itor->m_start;
-        if (sz) {
-            string str(textPtr + itor->m_start, sz);
-            matchedStrings.push_back(str);
-        } else {
-            matchedStrings.push_back("");
+    size_t  offset = 0;
+    Match   matchOffsets[MAX_MATCHES];
+    int     totalMatches = 0;
+    
+    do {
+        int matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        if (matchCount == 0) // No matches
+            break;
+        totalMatches += matchCount;
+
+        for(int matchIndex = 1; matchIndex < matchCount; matchIndex++) {
+            Match& match = matchOffsets[matchIndex];
+            matchedStrings.push_back(string(text.c_str() + match.m_start, match.m_end - match.m_start));
         }
-    }
-    return matchCount > 0;
+        
+    } while (offset);
+    
+    return totalMatches > 0;
 }
 
-string CRegExp::s(string text, string replacement) const throw (CException)
+string CRegExp::s(string text, string outputPattern) const throw (CException)
 {
-    std::vector<Match> matches;
+    size_t  offset = 0;
+    size_t  lastOffset = 0;
+    Match   matchOffsets[MAX_MATCHES];
+    int     totalMatches = 0;
+    string  result;
+    
+    do {
+        size_t fragmentOffset = offset;
+        size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        if (matchCount == 0) // No matches
+            break;
+        if (matchCount == 1) // String matched but no strings extracted
+            break;
+        if (offset)
+            lastOffset = offset;
+        totalMatches += matchCount;
+        
+        // Create next replacement
+        size_t pos = 0;
+        string nextReplacement;
+        while (pos != string::npos) {
+            size_t placeHolderStart = pos;
+            for (;;) {
+                placeHolderStart = outputPattern.find("\\", placeHolderStart);
+                if (placeHolderStart == string::npos)
+                    break;
+                if (isdigit(outputPattern[placeHolderStart + 1]))
+                    break;
+            }
+            if (placeHolderStart == string::npos) {
+                nextReplacement += outputPattern.substr(pos);
+                break;
+            }
 
-    const char* textStart = text.c_str();
-    int rc = match(textStart, &matches);
-    if (!rc)
-        return text; /// No matches
-    string result;
-    int fragmentStarts = 0;
-    for (std::vector<Match>::iterator itor = matches.begin(); itor != matches.end(); itor++) {
-        int substringStarts = itor->m_start;
-        int substringEnds = itor->m_end;
-
-        if (fragmentStarts > substringStarts) {
-            fragmentStarts = substringEnds + 1;
-            continue;
+            nextReplacement += outputPattern.substr(pos, placeHolderStart - pos);
+            placeHolderStart++;
+            size_t placeHolderIndex = atoi(outputPattern.c_str() + placeHolderStart);
+            size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
+            if (placeHolderIndex < matchCount) {
+                Match& match = matchOffsets[placeHolderIndex];
+                const char* matchPtr = text.c_str() + match.m_start;
+                nextReplacement += string(matchPtr, match.m_end - match.m_start);
+            }
+            pos = placeHolderEnd;
         }
-        string head(textStart, + itor->m_start);
-        result += head + replacement;
-        fragmentStarts = substringEnds;
-    }
-    string str(textStart + fragmentStarts);
-    return result + str;
+        
+        // Append text from fragment start to match start
+        int fragmentStartLength = matchOffsets[0].m_start - fragmentOffset;
+        if (fragmentStartLength)
+            result += text.substr(offset, fragmentStartLength);
+        
+        // Append next replacement
+        result += nextReplacement;
+        
+    } while (offset);
+    
+    return result + text.substr(lastOffset);
 }
 
 bool operator == (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException)

@@ -512,7 +512,7 @@ string CVariant::asString() const throw(CException) {
         return m_data.buffer.data;
     case VAR_DATE:
         return CDateTime(m_data.floatData).dateString();
-    case VAR_DATE_TIME:   {
+    case VAR_DATE_TIME: {
             CDateTime dt(m_data.floatData);
             return dt.dateString() + " " + dt.timeString();
         }

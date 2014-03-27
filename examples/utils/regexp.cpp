@@ -64,7 +64,7 @@ int main()
 
     text = "user='horse' noice='some' password='haystack' host='localhost'";
     cout << "\nParsing the text: " << text << endl;
-    CRegExp connectionParser("(user|password|host)=['\"]([\\S]+)['\"]","g");
+    CRegExp connectionParser("(user|password|host)='([\\S]+)'","g");
     CRegExp parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
     CStrings matches;
     connectionParser.m(text, matches);
@@ -75,13 +75,18 @@ int main()
     }
     cout << endl;
 
+    text = "Area code: 415 Phone: 123-4567";
+    cout << "\nParsing the text: " << text << endl;
+    CRegExp phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
+    string phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
+    cout << "Reformatted phone number: " << phoneNumber << endl << endl;
+    
     CDateTime started = CDateTime::Now();
     unsigned counter = 0;
     unsigned tests = 1000000;
     for (unsigned i = 0; i < tests; i++) {
-        if (text == CRegExp("\\(\\d{3}\\)-\\d{3}-\\d{4}")) {
+        if (text == CRegExp("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
             counter++;
-        }
     }
     CDateTime finished = CDateTime::Now();
     cout << "Executed " << tests << " regexp tests (compiled on the fly) for " << (finished - started) * 86400 << " seconds." << endl;

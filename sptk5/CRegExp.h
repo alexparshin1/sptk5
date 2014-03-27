@@ -44,14 +44,14 @@ namespace sptk {
 /// @brief PCRE-type regular expressions
 class SP_EXPORT CRegExp
 {
-public:
     /// @brief Match position information
     typedef struct {
         int         m_start;        ///< Match start
         int         m_end;          ///< Match end
     } Match;
+    
+    typedef std::vector<Match> Matches; ///< Vector of match positions
 
-private:
     std::string     m_pattern;      ///< Match pattern
     bool            m_global;       ///< Global match (g) or first match only
     std::string     m_error;        ///< Last pattern error (if any)
@@ -59,6 +59,14 @@ private:
     pcre*           m_pcre;         ///< Compiled PCRE expression handle
     pcre_extra*     m_pcreExtra;    ///< Compiled PCRE expression optimization (for faster execution)
     int32_t         m_pcreOptions;  ///< PCRE pattern options
+
+    /// @brief Computes match positions and lengths
+    /// @param text const std::string&, Input text
+    /// @param offset& size_t, starting match offset, advanced with every successful match
+    /// @param matchOffsets Match*, Output match positions array
+    /// @param matchOffsetsSize size_t, Output match positions array size (in elements)
+    /// @return number of matches
+    size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const throw (sptk::CException);
 
 public:
     /// @brief Constructor
@@ -86,12 +94,6 @@ public:
     /// @return true if match found
     bool operator != (std::string text) const throw (sptk::CException);
 
-    /// @brief Computes match positions and lengths
-    /// @param text const std::string&, Input text
-    /// @param matches std::vector<Match>*, Output match positions and lengths, ignored if NULL
-    /// @return number of matches
-    int match(const std::string& text, std::vector<Match>* matches=NULL) const throw (sptk::CException);
-
     /// @brief Returns list of strings matched with regular expression
     /// @param text std::string, Text to process
     /// @param matchedStrings sptk::CStrings&, list of matched strings
@@ -100,9 +102,9 @@ public:
 
     /// @brief Replaces matches with replacement string
     /// @param text std::string, text to process
-    /// @param replacement std::string, replacement string
+    /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
     /// @return processed text
-    std::string s(std::string text,std::string replacement) const throw (sptk::CException);
+    std::string s(std::string text, std::string outputPattern) const throw (sptk::CException);
 };
 
 /// @}
