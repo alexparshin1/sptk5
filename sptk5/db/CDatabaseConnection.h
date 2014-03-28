@@ -317,6 +317,19 @@ public:
         return m_queryStatisticMap;
     }
 
+    /// @brief Executes bulk inserts of data from memory buffer
+    ///
+    /// Data is inserted the fastest possible way. The server-specific format definition provides extra information
+    /// about data. If format is empty than default server-specific data format is used.
+    /// For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\t', '\n', '\r') and "\\N" for NULLs.
+    /// @param tableName std::string, table name to insert into
+    /// @param columnNames const CStrings&, list of table columns to populate
+    /// @param data const CStrings&, data for bulk insert
+    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="")
+    {
+        throw CDatabaseException("Bulk insert is not yet implemented for this database type.");
+    }
+
 };
 /// @}
 }

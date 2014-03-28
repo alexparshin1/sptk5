@@ -124,7 +124,7 @@ public:
         SM_DELIMITER,   ///< Split by the whole delimiter
         SM_ANYCHAR      ///< Split by any char in delimiter
     };
-    
+
     /// @brief Default constructor
     CStrings() 
     {

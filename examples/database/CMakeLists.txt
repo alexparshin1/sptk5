@@ -9,8 +9,8 @@ IF (UNIX)
 ENDIF (UNIX)
 
 IF (POSTGRESQL_FLAG)
-  ADD_EXECUTABLE (postgresql_test postgresql_test.cpp)
-  TARGET_LINK_LIBRARIES (postgresql_test sputil5 spdb5)
+  ADD_EXECUTABLE (postgresql_bulk_insert_test postgresql_bulk_insert_test.cpp)
+  TARGET_LINK_LIBRARIES (postgresql_bulk_insert_test sputil5 spdb5)
 ENDIF (POSTGRESQL_FLAG)
 
 IF (SQLITE3_LIBRARY)

@@ -764,6 +764,38 @@ std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
     return mark;
 }
 
+void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format)
+{
+    string      sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
+    PGresult*   res = PQexec(m_connect, sql.c_str());
+
+    ExecStatusType rc = PQresultStatus(res);
+    if (rc < 0) {
+        string error = "COPY command failed: ";
+        error += PQerrorMessage(m_connect);
+        PQclear(res);
+        throw CDatabaseException(error);
+    }
+    PQclear(res);
+
+    CBuffer buffer;
+    for (CStrings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
+        buffer.append(*itor);
+        buffer.append('\n');
+    }
+
+    if (PQputCopyData(m_connect, buffer.c_str(), buffer.bytes()) != 1) {
+        string error = "COPY command send data failed: ";
+        error += PQerrorMessage(m_connect);
+        throw CDatabaseException(error);
+    }
+
+    if (PQputCopyEnd(m_connect, NULL) != 1) {
+        string error = "COPY command end copy failed: ";
+        error += PQerrorMessage(m_connect);
+        throw CDatabaseException(error);
+    }
+}
 
 void* postgresql_create_connection(const char* connectionString)
 {
