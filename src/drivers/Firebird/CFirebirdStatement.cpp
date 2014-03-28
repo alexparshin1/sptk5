@@ -124,7 +124,7 @@ void CFirebirdStatement::firebirdDateToDateTime(CDateTime& timestamp, const stru
 
 void CFirebirdStatement::enumerateParams(CParamList& queryParams)
 {
-    CDatabaseStatement::enumerateParams(queryParams);
+    CDatabaseStatement<CFirebirdConnection,isc_stmt_handle>::enumerateParams(queryParams);
     XSQLDA* psqlda = &m_paramBuffers.sqlda();
     isc_dsql_describe_bind(m_status_vector, m_statement, 1, psqlda);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);

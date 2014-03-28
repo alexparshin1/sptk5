@@ -30,7 +30,7 @@ int main()
     string text;
 
     text = "This text contains number: ABCDEF";
-    cout << "Test: does '" << text << "' actually contains number? ";
+    cout << "Test: does '" << text << "' contain number? ";
     CRegExp regexp("[\\d]+");
     if (text == regexp) {
         cout << "yes" << endl;
@@ -39,7 +39,7 @@ int main()
     }
 
     text = "This text contains number: 12345";
-    cout << "Test: does '" << text << "' actually contains number? ";
+    cout << "Test: does '" << text << "' contain number? ";
     if (text == regexp) {
         cout << "yes" << endl;
     } else {
@@ -47,7 +47,7 @@ int main()
     }
 
     text = "This text contains phone number: (415)-123-4567";
-    cout << "Test: does '" << text << "' actually contains phone number? ";
+    cout << "Test: does '" << text << "' contain valid phone number? ";
     CRegExp phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
     if (text == phoneRegexp) {
         cout << "yes" << endl;
@@ -55,7 +55,7 @@ int main()
         cout << "no" << endl;
     }
     text = "This text contains phone number: 415/123/4567";
-    cout << "Test: does '" << text << "' contains valid phone number? ";
+    cout << "Test: does '" << text << "' contain valid phone number? ";
     if (text != CRegExp("\\(\\d{3}\\)-\\d{3}-\\d{4}")) {
         cout << "no" << endl;
     } else {
@@ -80,8 +80,9 @@ int main()
     CRegExp phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
     string phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
     cout << "Reformatted phone number: " << phoneNumber << endl << endl;
-    
+
     CDateTime started = CDateTime::Now();
+
     unsigned counter = 0;
     unsigned tests = 1000000;
     for (unsigned i = 0; i < tests; i++) {

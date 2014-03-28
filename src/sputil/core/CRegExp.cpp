@@ -75,8 +75,10 @@ CRegExp::CRegExp(std::string pattern, string options) :
 
 CRegExp::~CRegExp()
 {
+#if PCRE_MAJOR > 7
     if (m_pcreExtra)
         pcre_free_study(m_pcreExtra);
+#endif
     if (m_pcre)
         pcre_free(m_pcre);
 }
