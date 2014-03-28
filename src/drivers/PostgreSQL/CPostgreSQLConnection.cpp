@@ -764,7 +764,7 @@ std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
     return mark;
 }
 
-void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format)
+void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
 {
     string      sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
     PGresult*   res = PQexec(m_connect, sql.c_str());

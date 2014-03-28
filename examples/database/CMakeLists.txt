@@ -8,10 +8,8 @@ IF (UNIX)
     LINK_LIBRARIES (pthread rt)
 ENDIF (UNIX)
 
-IF (POSTGRESQL_FLAG)
-  ADD_EXECUTABLE (postgresql_bulk_insert_test postgresql_bulk_insert_test.cpp)
-  TARGET_LINK_LIBRARIES (postgresql_bulk_insert_test sputil5 spdb5)
-ENDIF (POSTGRESQL_FLAG)
+ADD_EXECUTABLE (bulk_insert_test bulk_insert_test.cpp)
+TARGET_LINK_LIBRARIES (bulk_insert_test sputil5 spdb5)
 
 IF (SQLITE3_LIBRARY)
   ADD_EXECUTABLE (sqlite3_test sqlite3_test.cpp)

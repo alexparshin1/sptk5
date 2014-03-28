@@ -33,7 +33,8 @@ using namespace sptk;
 
 int main()
 {
-    CDatabaseConnectionPool connectionPool("postgresql://localhost/test");
+    //CDatabaseConnectionPool connectionPool("postgresql://localhost/test");
+    CDatabaseConnectionPool connectionPool("mysql://localhost/test");
     CDatabaseConnection* db = connectionPool.createConnection();
 
     CFileLog logFile("postgresql_test.log");

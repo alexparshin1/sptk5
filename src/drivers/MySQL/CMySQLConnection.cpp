@@ -365,6 +365,21 @@ void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) t
     }
 }
 
+void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+{
+    char    fileName[256];
+    sprintf(fileName, ".bulk.insert.%i.%i", getpid(), rand());
+    data.saveToFile(fileName);
+    string sql = "LOAD DATA LOCAL INFILE '" + string(fileName) + "' INTO TABLE " + tableName + " (" + columnNames.asString(",") + ") " + format;
+
+    int rc = mysql_query(m_connection, sql.c_str());
+    unlink(fileName);
+    if (rc) {
+        string error = mysql_error(m_connection);
+        throwDatabaseException(error);
+    }    
+}
+
 std::string CMySQLConnection::driverDescription() const
 {
     if (m_connection)
