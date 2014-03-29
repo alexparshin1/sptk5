@@ -54,7 +54,7 @@ class SP_EXPORT CQuery: public CDataSource, public CSynchronized
     friend class CDatabaseConnection;
 
 protected:
-    bool            m_autoPrepare;     ///< Prepare the query automatically, on the first call
+    bool            m_autoPrepare;     ///< Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
     void*           m_statement;       ///< ODBC statement handle
     void*           m_connection;      ///< Database server connection
 
@@ -68,12 +68,13 @@ protected:
     double          m_totalDuration;   ///< The total duration of executions, in seconds
     unsigned        m_totalCalls;      ///< The total number of query executions
 
-    CDatabaseConnection*m_db;              ///< Database connection
+    CDatabaseConnection*m_db;          ///< Database connection
     std::string     m_sql;             ///< SQL statement string
     const char*     m_createdFile;     ///< The source file the query was created in
     unsigned        m_createdLine;     ///< The source file line the query was created at
 
     CStrings        m_messages;        ///< Optional diag messages populated after exec() or open()
+    bool            m_bulkMode;        ///< Bulk mode flag
 
     int countCols();                   ///< Counts columns of the dataset (if any) returned by query
     void allocStmt();                  ///< Allocates a statement
@@ -135,7 +136,6 @@ public:
 
     /// @brief Destructor
     ~CQuery();
-public:
 
     /// @brief Finds a field by the field name
     /// @param fname const char *, field name
@@ -195,7 +195,6 @@ public:
         return m_fields.size();
     }
 
-public:
     /// @brief Reports the record count for the recordset, returned by the open() method.
     ///
     /// Currently is NOT implemented.
@@ -289,7 +288,6 @@ public:
     /// @brief Disconnects query from the database and releases all the allocated resourses.
     void disconnect();
 
-public:
     /// @brief Reports the number of unique parameters in the query.
     ///
     /// Makes sense after the SQL query text is set.
@@ -327,8 +325,6 @@ public:
     {
         return m_params[paramIndex];
     }
-
-public:
 
     /// @brief Returns query statement handle
     void *statement() const
@@ -388,10 +384,10 @@ public:
     }
 
     /// @brief Prepares query for the fast execution
-    void prepare();
+    virtual void prepare();
 
     /// @brief Unprepares query releasing previously prepared statement
-    void unprepare();
+    virtual void unprepare();
 
     /// @brief Adds the text to log file
     ///
@@ -417,6 +413,9 @@ public:
     {
         return m_messages;
     }
+
+    ///@ brief Returns bulk mode flag
+    bool bulkMode() const { return m_bulkMode; }
 };
 /// @}
 }

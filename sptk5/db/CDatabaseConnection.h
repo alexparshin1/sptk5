@@ -91,6 +91,15 @@ struct CCallStatistic
 /// The map index is the query creation location in (file:line) format
 typedef std::map<std::string, CCallStatistic> CCallStatisticMap;
 
+struct CColumnTypeSize
+{
+    CVariantType    type;
+    size_t          length;
+};
+
+typedef std::vector<CColumnTypeSize> CColumnTypeSizeVector;
+typedef std::map<std::string,CColumnTypeSize> CColumnTypeSizeMap;
+
 /// @brief Database connector
 ///
 /// Implements a thread-safe connection to general database. It is used

@@ -131,11 +131,11 @@ void COracleStatement::setParameterValues()
                 m_statement->setString(parameterIndex, parameter.asString());
                 break;
 
-            case VAR_TEXT:      ///< String pointer, corresponding to CLOBS in database
+            case VAR_TEXT:      ///< String pointer, corresponding to CLOB in database
                 setClobParameter(parameterIndex, (unsigned char*) parameter.getString(), parameter.dataSize());
                 break;
 
-            case VAR_BUFFER:    ///< Data pointer, corresponding to BLOBS in database
+            case VAR_BUFFER:    ///< Data pointer, corresponding to BLOB in database
                 setBlobParameter(parameterIndex, (unsigned char*) parameter.getString(), parameter.dataSize());
                 break;
 
@@ -173,6 +173,27 @@ void COracleStatement::setParameterValues()
         }
     }
 }
+
+void COracleStatement::execBulk(bool inTransaction, bool lastIteration)
+{
+    // If statement is inside the transaction, it shouldn't be in auto-commit mode
+    if (inTransaction != m_state.transaction) {
+        m_statement->setAutoCommit(!inTransaction);
+        m_state.transaction = inTransaction;
+    }
+
+    if (m_resultSet)
+        close();
+
+    m_state.eof = true;
+    m_state.columnCount = 0;
+
+    if (lastIteration)
+        m_statement->execute();
+    else
+        m_statement->addIteration();
+}
+
 
 void COracleStatement::execute(bool inTransaction)
 {

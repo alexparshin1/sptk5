@@ -36,6 +36,7 @@ IF (ORACLE_FLAG)
         Oracle/COracleEnvironment.cpp
         Oracle/COracleStatement.cpp
         Oracle/COracleConnection.cpp
+        Oracle/COracleBulkInsertQuery.cpp
     )
     TARGET_LINK_LIBRARIES (spdb5_oracle ${Oracle_LIBRARIES})
     INSTALL(TARGETS spdb5_oracle RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

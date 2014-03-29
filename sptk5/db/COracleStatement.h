@@ -82,6 +82,11 @@ public:
     /// @param inTransaction bool, True if statement is executed from transaction
     void execute(bool inTransaction);
 
+    /// @brief Executes statement in bulk mode
+    /// @param inTransaction bool, True if statement is executed from transaction
+    /// @param lastIteration bool, True if bulk operation is completed (all iterations added)
+    void execBulk(bool inTransaction, bool lastIteration);
+
     /// @brief Closes statement and releases allocated resources
     void close();
 

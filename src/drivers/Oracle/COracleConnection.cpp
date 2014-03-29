@@ -28,6 +28,7 @@
 #include <sptk5/db/COracleConnection.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
+#include "COracleBulkInsertQuery.h"
 
 #include <string>
 #include <stdio.h>
@@ -201,6 +202,24 @@ void COracleConnection::queryPrepare(CQuery *query)
     if (!statement)
         statement = new COracleStatement(this, query->sql());
     statement->enumerateParams(query->params());
+    if (query->bulkMode()) {
+        CParamVector& enumeratedParams = statement->enumeratedParams();
+        int paramIndex = 1;
+        Statement* stmt = statement->stmt();
+        COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+        const CColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
+        for (CParamVector::iterator itor = enumeratedParams.begin(); itor != enumeratedParams.end(); itor++, paramIndex++) {
+            CParam* param = *itor;
+            CColumnTypeSizeMap::const_iterator xtor = columnTypeSizes.find(upperCase(param->name()));
+            if (xtor != columnTypeSizes.end()) {
+                if (xtor->second.length)
+                    stmt->setMaxParamSize(paramIndex, xtor->second.length);
+                else
+                    stmt->setMaxParamSize(paramIndex, 32);
+            }
+        }
+        stmt->setMaxIterations(bulkInsertQuery->batchSize());
+    }
     querySetStmt(query, statement);
     querySetPrepared(query, true);
 }
@@ -292,7 +311,12 @@ void COracleConnection::queryExecute(CQuery *query)
     COracleStatement* statement = (COracleStatement*) query->statement();
     if (!statement)
         throwOracleException("Query is not prepared");
-    statement->execute(m_inTransaction);
+    if (query->bulkMode()) {
+        COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+        statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());
+    }
+    else
+        statement->execute(m_inTransaction);
 }
 
 void COracleConnection::queryOpen(CQuery *query)
@@ -497,6 +521,62 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
         query.next();
     }
     query.close();
+}
+
+void COracleConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+{
+    CQuery tableColumnsQuery(this, 
+                        "SELECT column_name, data_type, data_length "
+                        "FROM user_tab_columns "
+                        "WHERE table_name = :table_name");
+    tableColumnsQuery.param("table_name") = upperCase(tableName);
+    tableColumnsQuery.open();
+    CField& column_name = tableColumnsQuery["column_name"];
+    CField& data_type = tableColumnsQuery["data_type"];
+    CField& data_length = tableColumnsQuery["data_length"];
+    string numericTypes("DECIMAL|FLOAT|DOUBLE|NUMBER");
+    CColumnTypeSizeMap columnTypeSizeMap;
+    while (!tableColumnsQuery.eof()) {
+        string columnName = column_name.asString();
+        string columnType = data_type.asString();
+        int maxDataLength = data_length.asInteger();
+        CColumnTypeSize columnTypeSize;
+        columnTypeSize.type = VAR_STRING;
+        columnTypeSize.length = 0;
+        if (columnType.find("LOB") != string::npos) {
+            columnTypeSize.type = VAR_TEXT;
+            columnTypeSize.length = 65536;
+        }
+        if (columnType.find("CHAR") != string::npos)
+            columnTypeSize.length = maxDataLength;
+        columnTypeSizeMap[columnName] = columnTypeSize;
+        tableColumnsQuery.fetch();
+    }
+    tableColumnsQuery.close();
+
+    CColumnTypeSizeVector columnTypeSizeVector;
+    for (CStrings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); itor++) {
+        map<string,CColumnTypeSize>::iterator column = columnTypeSizeMap.find(upperCase(*itor));
+        if (column == columnTypeSizeMap.end())
+            throwDatabaseException("Column '" + *itor + "' doesn't belong to table " + tableName);
+        columnTypeSizeVector.push_back(column->second);
+    }
+
+    COracleBulkInsertQuery insertQuery(this,
+                                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
+                                       ") VALUES (:" + columnNames.asString(",:") + ")",
+                                       data.size(),
+                                       columnTypeSizeMap);
+    for (CStrings::const_iterator row = data.begin(); row != data.end(); row++) {
+        CStrings rowData(*row,"\t");
+        for (unsigned i = 0; i < columnNames.size(); i++) {
+            if (columnTypeSizeVector[i].type == VAR_TEXT)
+                insertQuery.param(i).setText(rowData[i]);
+            else
+                insertQuery.param(i).setString(rowData[i]);
+        }
+        insertQuery.execNext();
+    }
 }
 
 std::string COracleConnection::driverDescription() const

@@ -128,7 +128,7 @@ string CQuery::getError() const
 }
 //==============================================================================
 CQuery::CQuery(CDatabaseConnection *_db, string _sql, const char* createdFile, unsigned createdLine) :
-        CDataSource(), m_fields(true)
+        CDataSource(), m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
