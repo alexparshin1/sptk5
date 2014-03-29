@@ -34,7 +34,8 @@ using namespace sptk;
 int main()
 {
     //CDatabaseConnectionPool connectionPool("postgresql://localhost/test");
-    CDatabaseConnectionPool connectionPool("mysql://localhost/test");
+    //CDatabaseConnectionPool connectionPool("mysql://localhost/test");
+    CDatabaseConnectionPool connectionPool("oracle://protis:wsxedc@theater/XE");
     CDatabaseConnection* db = connectionPool.createConnection();
 
     CFileLog logFile("postgresql_test.log");
@@ -49,7 +50,7 @@ int main()
         // Defining the queries
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT8,name CHAR(40),position CHAR(20),date TIMESTAMP)", __FILE__, __LINE__);
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", __FILE__, __LINE__);
         CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
         CQuery step4Query(db, "DROP TABLE " + tableName, __FILE__, __LINE__);
 
@@ -57,18 +58,18 @@ int main()
         try {
             step1Query.exec();
         } catch (exception& e) {
-            if (strstr(e.what(), "already exists") == NULL)
+            if (strstr(e.what(), "exist") == NULL)
                 throw;
             cout << "Table already exists, ";
         }
 
         cout << "Ok.\nStep 2: Inserting data into the test table.. ";
-        CStrings columnNames("id,name,position,date", ",");
+        CStrings columnNames("id,name,position_name,hire_date", ",");
 
         CStrings data;
-        data.push_back("1\tAlex\tProgrammer\t2014-01-01");
-        data.push_back("2\tDavid\tCEO\t2014-01-01");
-        data.push_back("3\tRoger\tBunny\t2014-01-01");
+        data.push_back("1\tAlex\tProgrammer\t01-JAN-2014");
+        data.push_back("2\tDavid\tCEO\t01-JAN-2014");
+        data.push_back("3\tRoger\tBunny\t01-JAN-2014");
 
         db->bulkInsert(tableName, columnNames, data);
 
@@ -79,11 +80,11 @@ int main()
         while (!step3Query.eof()) {
 
             int id;
-            string name, position, date;
+            string name, position_name, hire_date;
 
-            step3Query.fields() >> id >> name >> position >> date;
+            step3Query.fields() >> id >> name >> position_name >> hire_date;
 
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << " | " << date << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl;
 
             step3Query.fetch();
         }
