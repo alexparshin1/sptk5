@@ -334,11 +334,7 @@ public:
     /// @param tableName std::string, table name to insert into
     /// @param columnNames const CStrings&, list of table columns to populate
     /// @param data const CStrings&, data for bulk insert
-    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") throw (CDatabaseException)
-    {
-        throw CDatabaseException("Bulk insert is not yet implemented for this database type.");
-    }
-
+    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") throw (CDatabaseException);
 };
 /// @}
 }

@@ -277,3 +277,16 @@ void CDatabaseConnection::addStatistics(const std::string& location, double tota
         m_queryStatisticMap[location] = stat;
     }
 }
+
+void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+{
+    CQuery insertQuery(this,
+                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
+                       ") VALUES (:" + columnNames.asString(",:") + ")");
+    for (CStrings::const_iterator row = data.begin(); row != data.end(); row++) {
+        CStrings rowData(*row,"\t");
+        for (unsigned i = 0; i < columnNames.size(); i++)
+            insertQuery.param(i).setString(rowData[i]);
+        insertQuery.exec();
+    }
+}
