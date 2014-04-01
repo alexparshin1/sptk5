@@ -60,7 +60,9 @@ class CPostgreSQLStatement
 public:
     CPostgreSQLParamValues      m_paramValues;
 public:
-    CPostgreSQLStatement() {
+    CPostgreSQLStatement(bool int64timestamps)
+    : m_paramValues(int64timestamps)
+    {
         m_stmt = NULL;
         sprintf(m_stmtName, "S%04i", ++index);
     }
@@ -128,6 +130,8 @@ public:
 unsigned CPostgreSQLStatement::index;
 }
 
+enum CPostgreSQLTimestampFormat { PG_UNKNOWN_TIMESTAMPS, PG_DOUBLE_TIMESTAMPS, PG_INT64_TIMESTAMPS };
+static CPostgreSQLTimestampFormat timestampsFormat;
 
 CPostgreSQLConnection::CPostgreSQLConnection(string connectionString) :
     CDatabaseConnection(connectionString)
@@ -197,6 +201,14 @@ void CPostgreSQLConnection::openDatabase(string newConnectionString) throw (CDat
             PQfinish(m_connect);
             m_connect = NULL;
             throw CDatabaseException(error);
+        }
+
+        if (timestampsFormat == PG_UNKNOWN_TIMESTAMPS) {
+            const char* val = PQparameterStatus(m_connect,"integer_datetimes");
+            if (upperCase(val) == "ON")
+                timestampsFormat = PG_INT64_TIMESTAMPS;
+            else
+                timestampsFormat = PG_DOUBLE_TIMESTAMPS;
         }
     }
 }
@@ -285,7 +297,7 @@ string CPostgreSQLConnection::queryError(const CQuery* query) const
 void CPostgreSQLConnection::queryAllocStmt(CQuery* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new CPostgreSQLStatement);
+    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS));
 }
 
 void CPostgreSQLConnection::queryFreeStmt(CQuery* query)
@@ -332,7 +344,7 @@ void CPostgreSQLConnection::queryPrepare(CQuery* query)
 
     SYNCHRONIZED_CODE;
 
-    querySetStmt(query, new CPostgreSQLStatement);
+    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS));
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
 
@@ -696,11 +708,17 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
                     break;
                 }
 
-                case PG_TIME:
                 case PG_TIMESTAMPTZ:
                 case PG_TIMESTAMP: {
                     int64_t v = ntohq(*(int64_t*) data);
-                    double val = (double) epochDate + *(double*) (void*) &v / 3600.0 / 24.0;
+                    double val = (double) epochDate;
+                    if (timestampsFormat == PG_INT64_TIMESTAMPS) {
+                        // time is in usecs
+                        val += v / 1000000.0 / 3600.0 / 24.0;
+                    } else {
+                        // time is in secs
+                        val += *(double*) (void*) &v / 3600.0 / 24.0;
+                    }
                     field->setDateTime(val);
                     break;
                 }

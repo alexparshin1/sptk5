@@ -32,7 +32,7 @@
 enum PG_DATA_TYPE {
     PG_BOOL = 16,          ///< Boolean
     PG_BYTEA = 17,         ///< Byte array
-    PG_CHAR = 18,          ///< Single character
+    PG_BYTE = 18,          ///< Single byte
     PG_NAME = 19,          ///< String name
     PG_INT8 = 20,          ///< 64-bit integer
     PG_INT2 = 21,          ///< 16-bit integer
@@ -41,6 +41,7 @@ enum PG_DATA_TYPE {
     PG_OID = 26,           ///< Object id (32-bit integer)
     PG_FLOAT4 = 700,       ///< 32-bit float
     PG_FLOAT8 = 701,       ///< 64-bit float (double)
+    PG_CHAR = 1042,        ///< String
     PG_VARCHAR = 1043,     ///< String
     PG_DATE = 1082,        ///< Date
     PG_TIME = 1083,        ///< Time

@@ -44,8 +44,9 @@ namespace sptk {
         int*           m_formats;
         Oid*           m_types;
         CParamVector   m_params;
+        bool           m_int64timestamps;
     public:
-        CPostgreSQLParamValues() {
+        CPostgreSQLParamValues(bool int64timestamps) {
             m_count = 0;
             m_size = 0;
             m_values  = NULL;
@@ -53,6 +54,7 @@ namespace sptk {
             m_formats = NULL;
             m_types   = NULL;
             resize(16);
+            m_int64timestamps = int64timestamps;
         }
 
         ~CPostgreSQLParamValues() {

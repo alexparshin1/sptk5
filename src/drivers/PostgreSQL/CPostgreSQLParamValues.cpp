@@ -100,15 +100,25 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
             break;
 
             case VAR_DATE: {
+                if (m_int64timestamps) {
+                    int64_t dt = int64_t(double(param->getDateTime() - epochDate) + 1E-6) * 3600 * 24 * 1000000;
+                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                } else {
                 double dt = int32_t(double(param->getDateTime() - epochDate) + 1E-6) * 3600 * 24;
                 htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
             }
             break;
 
             case VAR_DATE_TIME: {
+                if (m_int64timestamps) {
+                    int64_t dt = (param->getDateTime() - epochDate) * 3600 * 24 * 1000000;
+                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                } else {
                 double dt = (param->getDateTime() - epochDate) * 3600 * 24;
                 htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
             }
             break;

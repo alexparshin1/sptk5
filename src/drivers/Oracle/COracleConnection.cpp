@@ -78,9 +78,11 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
         }
         catch (SQLException& e) {
             if (strstr(e.what(),"already used") == NULL) {
-                m_connection->terminateStatement(createLOBtable);
-                m_environment.terminateConnection(m_connection);
-                m_connection = NULL;
+                if (m_connection) {
+                    m_connection->terminateStatement(createLOBtable);
+                    m_environment.terminateConnection(m_connection);
+                    m_connection = NULL;
+                }
                 throwOracleException(string("Can't create connection: ") + e.what());
             }
         }
