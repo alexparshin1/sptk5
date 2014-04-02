@@ -31,23 +31,21 @@
 
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
-
-#include <string>
-#include <stdio.h>
-
 #ifndef WIN32
 #include <arpa/inet.h>
 #endif
 
-#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-const CDateTime sptk::epochDate(2000, 1, 1);
-
 namespace sptk
 {
+
+const CDateTime epochDate(2000, 1, 1);
 
 class CPostgreSQLStatement
 {
@@ -573,8 +571,60 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
     queryFetch(query);
 }
 
+static inline bool readBool(char* data)
+{
+    return (bool) *data;
+}
+
+static inline int16_t readInt2(char* data)
+{
+    return ntohs(*(int16_t*) data);
+}
+
+static inline int32_t readInt4(char* data)
+{
+    return ntohl(*(int32_t*) data);
+}
+
+static inline int64_t readInt8(char* data)
+{
+    return ntohq(*(int64_t*) data);
+}
+
+static inline float readFloat4(char* data)
+{
+    int32_t v = ntohl(*(int32_t*) data);
+    return *(float*) (void*) &v;
+}
+
+static inline double readFloat8(char* data)
+{
+    int64_t v = ntohq(*(int64_t*) data);
+    return *(double*) (void*) &v;
+}
+
+static inline double readDate(char* data)
+{
+    int32_t dt = ntohl(*(int32_t*) data);
+    return dt + (int32_t) epochDate;
+}
+
+static inline double readTimestamp(char* data, bool integerTimestamps)
+{
+    int64_t v = ntohq(*(int64_t*) data);
+    double dt = (double) epochDate;
+    if (integerTimestamps) {
+        // time is in usecs
+        dt += v / 1000000.0 / 3600.0 / 24.0;
+    } else {
+        // time is in secs
+        dt += *(double*) (void*) &v / 3600.0 / 24.0;
+    }
+    return dt;
+}
+
 // Converts internal NUMERIC Postgresql binary to long double
-static long double numericBinaryToLongDouble(const char* v)
+static inline long double readNumeric(char* v)
 {
     int16_t ndigits = ntohs(*(int16_t*) v);
     int16_t weight = ntohs(*(int16_t*) (v + 2));
@@ -589,7 +639,6 @@ static long double numericBinaryToLongDouble(const char* v)
     if (weight < 0) {
         for (int i = 0; i < -(weight + 1); i++)
             divider *= 10000;
-
         weight = -1;
     }
 
@@ -610,6 +659,92 @@ static long double numericBinaryToLongDouble(const char* v)
         finalValue = -finalValue;
 
     return finalValue;
+}
+
+
+static void decodeArray(char* data, CDatabaseField* field)
+{
+    struct PGArrayHeader {
+        uint32_t dimensionNumber;
+        uint32_t hasNull;
+        uint32_t elementType;
+    };
+    
+    struct PGArrayDimension {
+        uint32_t elementCount;
+        uint32_t lowerBound;
+    };
+    
+    PGArrayHeader* arrayHeader = (PGArrayHeader*) data;
+    arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
+    arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
+    arrayHeader->elementType = ntohl(arrayHeader->elementType);
+    data += sizeof(PGArrayHeader);
+    
+    PGArrayDimension* dimensions = (PGArrayDimension*) data;
+    data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
+
+    stringstream output;
+    for (size_t dim = 0; dim < arrayHeader->dimensionNumber; dim++) {
+        PGArrayDimension* dimension = dimensions + dim;
+        dimension->elementCount = htonl(dimension->elementCount);
+        dimension->lowerBound = htonl(dimension->lowerBound);
+        output << "{";
+        for (size_t element = 0; element < dimension->elementCount; element++) {
+            if (element)
+                output << ",";
+            
+            uint32_t dataSize = ntohl(*(uint32_t*) data);
+            data += sizeof(uint32_t);
+            
+            switch (arrayHeader->elementType) {
+                case PG_INT2:
+                    output << readInt2(data);
+                    break;
+                
+                case PG_INT4:
+                    output << readInt4(data);
+                    break;
+                
+                case PG_INT8:
+                    output << readInt8(data);
+                    break;
+
+                case PG_FLOAT4:
+                    output << readFloat4(data);
+                    break;
+                
+                case PG_FLOAT8:
+                    output << readFloat8(data);
+                    break;
+                
+                case PG_TEXT:
+                case PG_CHAR:
+                case PG_VARCHAR:
+                    output << string(data, dataSize);
+                    break;
+                    
+                case PG_DATE: {
+                    CDateTime dt = readDate(data);
+                    output << dt.dateString();
+                    break;
+                }
+                
+                case PG_TIMESTAMPTZ:
+                case PG_TIMESTAMP: {
+                    CDateTime dt = readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS);
+                    output << dt.dateString();
+                    break;
+                }
+                
+                default:
+                    throw CDatabaseException("Unsupported array element type");
+            }
+            data += dataSize;
+        }
+        output << "}";
+    }
+    field->setString(output.str());
 }
 
 void CPostgreSQLConnection::queryFetch(CQuery* query)
@@ -662,36 +797,32 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
                 switch (fieldType) {
 
                 case PG_BOOL:
-                    field->setBool((bool) *data);
+                    field->setBool(readBool(data));
                     break;
 
                 case PG_INT2:
-                    field->setInteger(ntohs(*(int16_t*) data));
+                    field->setInteger(readInt2(data));
                     break;
 
                 case PG_OID:
                 case PG_INT4:
-                    field->setInteger(ntohl(*(int32_t*) data));
+                    field->setInteger(readInt4(data));
                     break;
 
                 case PG_INT8:
-                    field->setInt64(ntohq(*(int64_t*) data));
+                    field->setInt64(readInt8(data));
                     break;
 
-                case PG_FLOAT4: {
-                    int32_t v = ntohl(*(int32_t*) data);
-                    field->setFloat(*(float*) (void*) &v);
+                case PG_FLOAT4:
+                    field->setFloat(readFloat4(data));
                     break;
-                }
 
-                case PG_FLOAT8: {
-                    int64_t v = ntohq(*(int64_t*) data);
-                    field->setFloat(*(double*) (void*) &v);
+                case PG_FLOAT8:
+                    field->setFloat(readFloat8(data));
                     break;
-                }
 
                 case PG_NUMERIC:
-                    field->setFloat(numericBinaryToLongDouble(data));
+                    field->setFloat(readNumeric(data));
                     break;
 
                 default:
@@ -702,26 +833,29 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
                     field->setExternalBuffer(data, dataLength);
                     break;
 
-                case PG_DATE: {
-                    int32_t dt = ntohl(*(int32_t*) data);
-                    field->setDateTime(dt + (int32_t) epochDate);
+                case PG_DATE:
+                    field->setDateTime(readDate(data));
                     break;
-                }
 
                 case PG_TIMESTAMPTZ:
-                case PG_TIMESTAMP: {
-                    int64_t v = ntohq(*(int64_t*) data);
-                    double val = (double) epochDate;
-                    if (timestampsFormat == PG_INT64_TIMESTAMPS) {
-                        // time is in usecs
-                        val += v / 1000000.0 / 3600.0 / 24.0;
-                    } else {
-                        // time is in secs
-                        val += *(double*) (void*) &v / 3600.0 / 24.0;
-                    }
-                    field->setDateTime(val);
+                case PG_TIMESTAMP:
+                    field->setDateTime(readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS));
                     break;
-                }
+
+                case PG_CHAR_ARRAY:
+                case PG_INT2_VECTOR:
+                case PG_INT2_ARRAY:
+                case PG_INT4_ARRAY:
+                case PG_TEXT_ARRAY:
+                case PG_VARCHAR_ARRAY:
+                case PG_INT8_ARRAY:
+                case PG_FLOAT4_ARRAY:
+                case PG_FLOAT8_ARRAY:
+                case PG_TIMESTAMP_ARRAY:
+                case PG_TIMESTAMPTZ_ARRAY:
+                    decodeArray(data, field);
+                    break;
+                    
                 }
             }
 

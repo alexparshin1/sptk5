@@ -33,6 +33,7 @@
 #if HAVE_POSTGRESQL == 1
 
 #include <libpq-fe.h>
+#include <netinet/in.h>
 
 namespace sptk
 {
@@ -53,7 +54,7 @@ class SP_EXPORT CPostgreSQLConnection: public CDatabaseConnection
 private:
 
     PGconn* m_connect;  ///< PostgreSQL database connection
-
+    
 protected:
 
     /// @brief Begins the transaction
