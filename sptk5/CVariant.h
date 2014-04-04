@@ -85,7 +85,7 @@ struct CMoneyData
     static int64_t dividers[16];
     
     int64_t      quantity;     ///< Integer value 
-    unsigned     scale:4;      ///< Scale (1..15)
+    uint8_t      scale:4;      ///< Scale (1..15)
     
     operator double () const;  ///< Convert to double value
     operator int64_t () const; ///< Convert to integer value
@@ -314,6 +314,9 @@ public:
 
     /// @brief Assignment method
     virtual void setImageNdx(uint32_t value);
+
+    /// @brief Assignment method
+    virtual void setMoney(const CMoneyData& value);
 
     /// @brief Assignment operator
     virtual CVariant& operator =(const CVariant &C)

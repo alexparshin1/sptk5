@@ -297,6 +297,15 @@ void CVariant::setImageNdx(uint32_t value) {
     m_data.imageNdx = value;
 }
 //---------------------------------------------------------------------------
+void CVariant::setMoney(const CMoneyData& value) {
+    if (dataType() != VAR_MONEY) {
+        releaseBuffers();
+        dataType(VAR_MONEY);
+    }
+    dataSize(sizeof(value));
+    m_data.moneyData = value;
+}
+//---------------------------------------------------------------------------
 void CVariant::setData(const CVariant &C) {
     switch (C.dataType()) {
     case VAR_BOOL:

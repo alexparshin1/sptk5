@@ -624,7 +624,7 @@ static inline double readTimestamp(char* data, bool integerTimestamps)
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
-static inline long double readNumeric(char* v)
+static inline long double readNumericToFloat(char* v)
 {
     int16_t ndigits = ntohs(*(int16_t*) v);
     int16_t weight = ntohs(*(int16_t*) (v + 2));
@@ -659,6 +659,60 @@ static inline long double readNumeric(char* v)
         finalValue = -finalValue;
 
     return finalValue;
+}
+
+
+// Converts internal NUMERIC Postgresql binary to long double
+static inline CMoneyData readNumericToScaledInteger(char* v)
+{
+    int16_t ndigits = ntohs(*(int16_t*) v);
+    int16_t weight = ntohs(*(int16_t*) (v + 2));
+    int16_t sign = ntohs(*(int16_t*) (v + 4));
+    uint16_t dscale = ntohs(*(int16_t*)(v+6));
+
+    v += 8;
+    int64_t value = 0;
+    int64_t divider = 1;
+
+    int scale = 0;
+    if (weight < 0) {
+        for (int i = 0; i < -(weight + 1); i++) {
+            divider *= 10000;
+            scale += 4;
+        }
+    }
+
+    int16_t digitWeight = weight;
+    for (int i = 0; i < ndigits; i++, v += 2, digitWeight--) {
+        int16_t digit = ntohs(*(int16_t*) v);
+
+        value = value * 10000 + digit;
+        if (digitWeight < 0)
+            scale += 4;
+    }
+    
+    while (scale < dscale - 4) {
+        value *= 10000;
+        scale += 4;
+    }
+    
+    switch (scale - dscale) {
+        case -3: value *= 1000; break;
+        case -2: value *= 100; break;
+        case -1: value *= 10; break;
+        case 1: value /= 10; break;
+        case 2: value /= 100; break;
+        case 3: value /= 1000; break;
+    }
+    
+    scale = dscale;
+
+    if (sign)
+        value = -value;
+
+    CMoneyData moneyData = {value, uint8_t(dscale) };
+    
+    return moneyData;
 }
 
 
@@ -772,6 +826,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
     CDatabaseField* field = 0;
     const PGresult* stmt = statement->stmt();
     int currentRow = statement->currentRow();
+    int scale;
 
     for (int column = 0; column < fieldCount; column++) {
         try {
@@ -822,7 +877,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
                     break;
 
                 case PG_NUMERIC:
-                    field->setFloat(readNumeric(data));
+                    field->setMoney(readNumericToScaledInteger(data));
                     break;
 
                 default:
