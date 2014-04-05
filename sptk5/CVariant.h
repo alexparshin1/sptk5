@@ -90,6 +90,7 @@ struct CMoneyData
     operator double () const;  ///< Convert to double value
     operator int64_t () const; ///< Convert to integer value
     operator int32_t () const; ///< Convert to integer value
+    operator bool () const;    ///< Convert to bool value
 };
 
 /// @brief Universal data storage.
@@ -107,7 +108,7 @@ protected:
         int64_t             int64Data;       ///< 64 bit integer data
         double              floatData;       ///< Floating point data
         double              timeData;        ///< CDateTime data
-        CVariantDataBuffer  buffer; ///< A buffer for data with the variable length like strings, or just generic buffers
+        CVariantDataBuffer  buffer;          ///< A buffer for data with the variable length like strings, or just generic buffers
         void*               imagePtr;        ///< Image pointer
         int32_t             imageNdx;        ///< Image index in object-specific table of image pointers
         CMoneyData          moneyData;       ///< Money data

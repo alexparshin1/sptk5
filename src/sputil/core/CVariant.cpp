@@ -60,6 +60,11 @@ CMoneyData::operator int32_t () const
 {
     return int32_t(quantity / dividers[scale]);
 }
+
+CMoneyData::operator bool () const
+{
+    return quantity != 0;
+}
 //---------------------------------------------------------------------------
 void CVariant::releaseBuffers() {
     if (m_dataType & (VAR_STRING|VAR_BUFFER|VAR_TEXT)) {

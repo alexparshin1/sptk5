@@ -826,7 +826,6 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
     CDatabaseField* field = 0;
     const PGresult* stmt = statement->stmt();
     int currentRow = statement->currentRow();
-    int scale;
 
     for (int column = 0; column < fieldCount; column++) {
         try {
