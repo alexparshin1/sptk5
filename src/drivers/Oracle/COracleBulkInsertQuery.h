@@ -1,0 +1,81 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          COracleBulkInsertQuery.h  -  description
+                             -------------------
+    begin                : Sat Mar 29 2014
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
+#ifndef __CORACLEBULKINSERTQUERY_H__
+#define __CORACLEBULKINSERTQUERY_H__
+
+#include <sptk5/db/CQuery.h>
+#include <sptk5/db/COracleConnection.h>
+#include <sptk5/CException.h>
+
+namespace sptk {
+
+/// @addtogroup Database Database Support
+/// @{
+
+/// @brief Oracle bulk insert query
+///
+/// This class is dedicated for internal use only
+class SP_EXPORT COracleBulkInsertQuery : public CQuery
+{
+    friend class COracleConnection;
+
+    size_t              m_recordCount;
+    size_t              m_recordNumber;
+    size_t              m_batchSize;
+    bool                m_lastIteration;
+    CColumnTypeSizeMap  m_columnTypeSizes;
+
+protected:
+    /// @brief Constructor
+    /// @param db CDatabaseConnection, the database to connect to, optional
+    /// @param sql std::string, the SQL query text to use, optional
+    /// @param recordCount size_t, number of records to insert
+    COracleBulkInsertQuery(CDatabaseConnection *db, std::string sql, size_t recordCount, const CColumnTypeSizeMap& columnTypeSizes)
+    : CQuery(db, sql), m_recordCount(recordCount), m_recordNumber(0), m_batchSize(2), m_lastIteration(false), m_columnTypeSizes(columnTypeSizes)
+    {
+        m_bulkMode = true;
+    }
+
+public:
+    void execNext() throw (std::exception)
+    {
+        m_recordNumber++;
+        if (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0)
+            m_lastIteration = true;
+        else
+            m_lastIteration = false;
+        exec();
+    }
+
+    size_t batchSize() const { return m_batchSize; }
+    bool lastIteration() const { return m_lastIteration; }
+    const CColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
+};
+/// @}
+}
+#endif
