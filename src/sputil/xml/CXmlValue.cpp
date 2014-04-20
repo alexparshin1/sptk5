@@ -67,7 +67,7 @@ CXmlValue& CXmlValue::operator =(uint32_t v)
 CXmlValue& CXmlValue::operator =(int64_t v)
 {
     char buff[64];
-#if SIZEOF_LONG == 8
+#if BITNESS == 64
     uint32_t sz = sprintf(buff,"%li",v);
 #else
     uint32_t sz = sprintf(buff, "%lli", v);
@@ -79,7 +79,7 @@ CXmlValue& CXmlValue::operator =(int64_t v)
 CXmlValue& CXmlValue::operator =(uint64_t v)
 {
     char buff[64];
-#if SIZEOF_LONG == 8
+#if BITNESS == 64
     uint32_t sz = sprintf(buff,"%lu",v);
 #else
     uint32_t sz = sprintf(buff, "%llu", v);

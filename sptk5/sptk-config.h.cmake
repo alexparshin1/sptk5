@@ -41,6 +41,7 @@
 #define HAVE_ASPELL      @ASPELL_FLAG@
 #define HAVE_PCRE        @PCRE_FLAG@
 #define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@
+#define BITNESS          @BITNESS@
 
 #define USE_CXX11        @CXX11_FLAG@
 

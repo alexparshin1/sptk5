@@ -12,7 +12,7 @@ PROJECT (SPTK)
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
-SET (VERSION "5.1.1")
+SET (VERSION "5.1.5")
 
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
@@ -34,14 +34,12 @@ INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
-#CHECK_TYPE_SIZE(int INT)
-#CHECK_TYPE_SIZE(long LONG)
-#CHECK_TYPE_SIZE(short SHORT)
-#CHECK_TYPE_SIZE(double DOUBLE)
+SET (BITNESS 32)
+IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  SET (BITNESS 64)
+ENDIF()
 
-TEST_BIG_ENDIAN(BIG_ENDIAN_INIT)
-
-MESSAGE ("Build type:         " ${CMAKE_BUILD_TYPE})
+MESSAGE ("Build type:         ${CMAKE_BUILD_TYPE} ${BITNESS} bit")
 IF (WIN32)
   ADD_DEFINITIONS (-DHAVE_CONFIG_H -DWIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)

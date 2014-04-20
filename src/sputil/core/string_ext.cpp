@@ -127,7 +127,7 @@ string int2string(uint32_t value) {
 
 string int2string(int64_t value) {
     char buff[128];
-#if SIZEOF_LONG == 8
+#if BITNESS == 64
     sprintf(buff,"%li",value);
 #else
     sprintf(buff,"%lli",value);
@@ -137,7 +137,7 @@ string int2string(int64_t value) {
 
 string int2string(uint64_t value) {
     char buff[128];
-#if SIZEOF_LONG == 8
+#if BITNESS == 64
     sprintf(buff,"%lu",value);
 #else
     sprintf(buff,"%llu",value);

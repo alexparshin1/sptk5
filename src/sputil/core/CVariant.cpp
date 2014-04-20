@@ -489,7 +489,7 @@ string CVariant::asString() const throw(CException) {
         sprintf(print_buffer,"%i",m_data.intData);
         return string(print_buffer);
     case VAR_INT64:
-#if SIZEOF_LONG == 8
+#if BITNESS == 64
         sprintf(print_buffer,"%li",m_data.int64Data);
 #else
         sprintf(print_buffer,"%lli",m_data.int64Data);
