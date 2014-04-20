@@ -89,7 +89,7 @@ size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets
     if (!m_pcre)
         throwException(m_error);
 
-    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), text.length(), offset, 0, (int*)matchOffsets, matchOffsetsSize * 2);
+    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int*)matchOffsets, (int) matchOffsetsSize * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
@@ -131,15 +131,15 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const throw (CExcept
 
     size_t  offset = 0;
     Match   matchOffsets[MAX_MATCHES];
-    int     totalMatches = 0;
+    size_t  totalMatches = 0;
     
     do {
-        int matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
         totalMatches += matchCount;
 
-        for(int matchIndex = 1; matchIndex < matchCount; matchIndex++) {
+        for(size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
             Match& match = matchOffsets[matchIndex];
             matchedStrings.push_back(string(text.c_str() + match.m_start, match.m_end - match.m_start));
         }
@@ -154,7 +154,7 @@ string CRegExp::s(string text, string outputPattern) const throw (CException)
     size_t  offset = 0;
     size_t  lastOffset = 0;
     Match   matchOffsets[MAX_MATCHES];
-    int     totalMatches = 0;
+    size_t  totalMatches = 0;
     string  result;
     
     do {
@@ -198,7 +198,7 @@ string CRegExp::s(string text, string outputPattern) const throw (CException)
         }
         
         // Append text from fragment start to match start
-        int fragmentStartLength = matchOffsets[0].m_start - fragmentOffset;
+        size_t fragmentStartLength = matchOffsets[0].m_start - fragmentOffset;
         if (fragmentStartLength)
             result += text.substr(offset, fragmentStartLength);
         

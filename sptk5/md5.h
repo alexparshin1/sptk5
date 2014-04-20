@@ -33,6 +33,7 @@ documentation and/or software.
 #ifndef BZF_MD5_H
 #define BZF_MD5_H
 
+#include <sptk5/sptk.h>
 #include <string>
 #include <iostream>
 

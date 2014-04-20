@@ -1,13 +1,13 @@
 IF (WIN32)
-   SET (PCRE_POSSIBLE_INCLUDE_PATHS $ENV{SystemDrive}/*/include $ENV{ProgramFiles}/*/include)
-   SET (PCRE_POSSIBLE_LIB_PATHS $ENV{SystemDrive}/*/lib $ENV{ProgramFiles}/*/lib)
+   SET (PCRE_POSSIBLE_INCLUDE_PATHS $ENV{SystemDrive}/*/include $ENV{ProgramFiles}/*/include $ENV{ProgramFiles}/*/inc)
+   SET (PCRE_POSSIBLE_LIB_PATHS $ENV{SystemDrive}/*/lib/x64 $ENV{ProgramFiles}/*/lib/x64 $ENV{SystemDrive}/*/lib $ENV{ProgramFiles}/*/lib)
 ELSE (WIN32)
    SET (PCRE_POSSIBLE_INCLUDE_PATHS $ENV{HOME}/local/include /usr/local/include /usr/include)
    SET (PCRE_POSSIBLE_LIB_PATHS $ENV{HOME}/local/lib /usr/local/lib /usr/lib)
 ENDIF (WIN32)
 
 FIND_PATH(PCRE_INCLUDE_DIR pcre.h ${PCRE_POSSIBLE_INCLUDE_PATHS})
-FIND_LIBRARY(PCRE_LIBRARY NAMES pcre PATHS ${PCRE_POSSIBLE_LIB_PATHS})
+FIND_LIBRARY(PCRE_LIBRARY NAMES pcre pcre3 PATHS ${PCRE_POSSIBLE_LIB_PATHS})
 
 IF (PCRE_INCLUDE_DIR AND PCRE_LIBRARY)
    SET(PCRE_FOUND TRUE)

@@ -51,7 +51,7 @@ int main( int argc, char* argv[] ) {
       server.port(3000);
       server.host("localhost");
 
-      int clientSocketFD;
+      SOCKET clientSocketFD;
       struct sockaddr_in clientInfo;
 
       server.listen();
@@ -84,7 +84,7 @@ int main( int argc, char* argv[] ) {
 
          server.close();
       }
-      catch (std::exception& e) {}
+      catch (std::exception&) {}
    }
    catch (std::exception& e) {
       std::cout << "Exception was caught: " << e.what() << "\nExiting.\n";

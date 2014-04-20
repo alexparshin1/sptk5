@@ -34,10 +34,10 @@ INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
-CHECK_TYPE_SIZE(int INT)
-CHECK_TYPE_SIZE(long LONG)
-CHECK_TYPE_SIZE(short SHORT)
-CHECK_TYPE_SIZE(double DOUBLE)
+#CHECK_TYPE_SIZE(int INT)
+#CHECK_TYPE_SIZE(long LONG)
+#CHECK_TYPE_SIZE(short SHORT)
+#CHECK_TYPE_SIZE(double DOUBLE)
 
 TEST_BIG_ENDIAN(BIG_ENDIAN_INIT)
 
@@ -217,7 +217,6 @@ IF (USE_PCRE)
   ENDIF (PCRE_FOUND)
 ENDIF (USE_PCRE)
 
-
 SET (CXX11_FLAG "0")
 IF (USE_CXX11)
   INCLUDE(cmake/CXX11.cmake)
@@ -229,6 +228,12 @@ IF (USE_CXX11)
   ELSE (CXX11_COMPILER)
   ENDIF (CXX11_COMPILER)
 ENDIF (USE_CXX11)
+
+# Always use CXX11 compiler for Windows (Visual Studio)
+IF (WIN32)
+  SET (USE_CXX11 "1")
+  SET (CXX11_FLAG "1")
+ENDIF (WIN32)
 
 IF (CXX11_FLAG)
   MESSAGE("CXX11 compiler:     use")
@@ -257,7 +262,7 @@ IF (UNIX)
     ENDIF (PTHREAD_RWLOCK_TIMEDRDLOCK)
 ENDIF (UNIX)
 
-CONFIGURE_FILE ("sptk5/sptk-config.h.cmake" "sptk5/sptk-config.h" @ONLY)
+CONFIGURE_FILE ("${PROJECT_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${PROJECT_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 IF (FLTK_FLAG)
   ADD_SUBDIRECTORY (themes)

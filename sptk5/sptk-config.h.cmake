@@ -40,10 +40,6 @@
 #define HAVE_ORACLE      @ORACLE_FLAG@
 #define HAVE_ASPELL      @ASPELL_FLAG@
 #define HAVE_PCRE        @PCRE_FLAG@
-#define SIZEOF_INT       @INT@
-#define SIZEOF_LONG      @LONG@
-#define SIZEOF_SHORT     @SHORT@
-#define SIZEOF_DOUBLE    @DOUBLE@
 #define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@
 
 #define USE_CXX11        @CXX11_FLAG@

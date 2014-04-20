@@ -606,7 +606,7 @@ void CODBCConnection::queryFetch(CQuery *query)
         try {
             field = (CODBCField *) &(*query)[column];
             const int16_t fieldType = (int16_t) field->fieldType();
-            uint32_t readSize = field->bufferSize();
+            size_t readSize = field->bufferSize();
             char* buffer = field->getData();
 
             column++;
@@ -637,7 +637,7 @@ void CODBCConnection::queryFetch(CQuery *query)
                 buffer = (char *) field->getBuffer();
                 rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
                 if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
-                    field->checkSize(dataLength + 1);
+                    field->checkSize(uint32_t(dataLength + 1));
                     buffer = (char *) field->getBuffer();
                     char *offset = buffer + readSize - 1;
                     readSize = dataLength - readSize + 2;
@@ -655,13 +655,12 @@ void CODBCConnection::queryFetch(CQuery *query)
             }
 
             if (fieldType == SQL_C_CHAR && dataLength > 0)
-                dataLength = (SQLINTEGER) trimField(buffer, dataLength);
+                dataLength = (SQLINTEGER) trimField(buffer, (uint32_t) dataLength);
 
-            if (dataLength <= 0) {
+            if (dataLength <= 0)
                 field->setNull();
-            } else {
+            else
                 field->dataSize(dataLength);
-            }
         } catch (exception& e) {
             query->logAndThrow("CODBCConnection::queryFetch", "Can't read field " + field->fieldName() + "\n" + string(e.what()));
         }
