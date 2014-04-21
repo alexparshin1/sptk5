@@ -158,7 +158,7 @@ CPackedStrings& CPackedStrings::operator=(const CPackedStrings& newData) {
 }
 
 CPackedStrings& CPackedStrings::operator=(const CStrings& strings) {
-   int       cnt = strings.size();
+   size_t    cnt = strings.size();
    int       offsetsSpace = cnt * sizeof(uint16_t);
    uint16_t* offset = (uint16_t *)alloca(offsetsSpace*2);
    uint16_t* len = offset + cnt;

@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CPngImage.h>
 #include <zlib.h>
@@ -49,7 +51,7 @@ static void png_read(png_structp pp, png_bytep buf, png_size_t len) {
     if (len > tail)
         len = tail;
     memcpy(buf,p->buffer->data()+p->read_offset,len);
-    p->read_offset += len;
+    p->read_offset += (int) len;
 }
 
 void CPngImage::load(const CBuffer& imagedata) {

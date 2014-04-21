@@ -209,17 +209,20 @@ void CShapedWindow::restore() {
 }
 
 int main(int argc, char *argv[]) {
-   try {
-      CShapedWindow* w = new CShapedWindow(100, 100, 300, 300);
+    // Initialize themes
+    CThemes themes;
+
+    try {
+        CShapedWindow* w = new CShapedWindow(100, 100, 300, 300);
       
-      w->show(argc, argv);
+        w->show(argc, argv);
       
-      Fl::run();
-   } catch (exception& e) {
-      spError(e.what());
-   } catch (...) {
-      spError("Unknown Error");
-   }
+        Fl::run();
+    } catch (exception& e) {
+        spError(e.what());
+    } catch (...) {
+        spError("Unknown Error");
+    }
    
-   return 0;
+    return 0;
 }

@@ -17,6 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 
+ #include <sptk5/sptk.h>
+
 #ifdef __BORLANDC__
 #include <vcl.h>
 #pragma hdrstop
@@ -52,78 +54,82 @@ void theme_cb(Fl_Widget *w, void *) {
    window->redraw();
 }
 
-int main(int argc, char **argv) {
-   Fl::visual(FL_DOUBLE|FL_INDEX);
+int main(int argc, char **argv)
+{
+    // Initialize themes
+    CThemes allThemes;
 
-   CXmlDoc doc;
-   CWindow w(550, 450, "SPTK themes test");
+    Fl::visual(FL_DOUBLE | FL_INDEX);
 
-   w.layoutSpacing(10);
+    CXmlDoc doc;
+    CWindow w(550, 450, "SPTK themes test");
 
-   CGroup group1("", 10);
-   group1.box(FL_DOWN_BOX);
-   CButton testButton1(SP_OK_BUTTON, SP_ALIGN_LEFT);
-   CButton testButton2(SP_CANCEL_BUTTON, SP_ALIGN_LEFT);
-   testButton1.defaultButton(true);
-   group1.end();
+    w.layoutSpacing(10);
 
-   CCheckButtons checkButtons("Check buttons");
-   checkButtons.buttons(CStrings("button 1|button 2","|"));
-   checkButtons.data("button 1");
+    CGroup group1("", 10);
+    group1.box(FL_DOWN_BOX);
+    CButton testButton1(SP_OK_BUTTON, SP_ALIGN_LEFT);
+    CButton testButton2(SP_CANCEL_BUTTON, SP_ALIGN_LEFT);
+    testButton1.defaultButton(true);
+    group1.end();
 
-   CRadioButtons radioButtons("Radio buttons");
-   radioButtons.buttons(CStrings("button 1|button 2","|"));
-   radioButtons.data("button 1");
+    CCheckButtons checkButtons("Check buttons");
+    checkButtons.buttons(CStrings("button 1|button 2","|"));
+    checkButtons.data("button 1");
 
-   CInput inp1("input 1");
-   CInput inp2("input 2");
+    CRadioButtons radioButtons("Radio buttons");
+    radioButtons.buttons(CStrings("button 1|button 2","|"));
+    radioButtons.data("button 1");
 
-   CDBListView listView("List View:", 10, SP_ALIGN_CLIENT);
-   listView.columns().push_back(CColumn("column 1", VAR_INT, 70));
-   listView.columns().push_back(CColumn("column 2", VAR_INT, 70));
-   listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
-   listView.columns().push_back(CColumn("column 4", VAR_STRING, 300));
+    CInput inp1("input 1");
+    CInput inp2("input 2");
 
-   listView.showGrid(false);
+    CDBListView listView("List View:", 10, SP_ALIGN_CLIENT);
+    listView.columns().push_back(CColumn("column 1", VAR_INT, 70));
+    listView.columns().push_back(CColumn("column 2", VAR_INT, 70));
+    listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
+    listView.columns().push_back(CColumn("column 4", VAR_STRING, 300));
 
-   char buffer1[10];
-   char buffer2[10];
-   int maxItems = 20;
-   for(int a=0; a<maxItems; a++) {
-      sprintf(buffer1, "%i", a);
-      sprintf(buffer2, "%i", maxItems-a);
-      cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-      CPackedStrings *ps = new CPackedStrings(4, rowData);
-      listView.addRow(ps);
-   }
+    listView.showGrid(false);
 
-   CProgressBar progressBar("Progress",20,SP_ALIGN_TOP);
-   progressBar.data(50);
+    char buffer1[10];
+    char buffer2[10];
+    int maxItems = 20;
+    for(int a=0; a<maxItems; a++) {
+        sprintf(buffer1, "%i", a);
+        sprintf(buffer2, "%i", maxItems-a);
+        cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
+        CPackedStrings *ps = new CPackedStrings(4, rowData);
+        listView.addRow(ps);
+    }
 
-   CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
-   buttonGroup.box(FL_DOWN_BOX);
+    CProgressBar progressBar("Progress",20,SP_ALIGN_TOP);
+    progressBar.data(50);
 
-   CComboBox themesCombo("Theme:", 350, SP_ALIGN_LEFT);
-   CStrings themes = CThemes::availableThemes();
-   themesCombo.addRows("Theme", themes);
-   themesCombo.callback(theme_cb);
-   themesCombo.labelWidth(70);
+    CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+    buttonGroup.box(FL_DOWN_BOX);
 
-   CButton* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
-   exitButton->callback((Fl_Callback*)exit_cb);
-   exitButton->defaultButton(true);
+    CComboBox themesCombo("Theme:", 350, SP_ALIGN_LEFT);
+    CStrings themes = CThemes::availableThemes();
+    themesCombo.addRows("Theme", themes);
+    themesCombo.callback(theme_cb);
+    themesCombo.labelWidth(70);
 
-   buttonGroup.end();
+    CButton* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+    exitButton->callback((Fl_Callback*)exit_cb);
+    exitButton->defaultButton(true);
 
-   themesCombo.data("Default");
-   //themesCombo.data("GTK:Brushed");
+    buttonGroup.end();
 
-   w.end();
-   w.resizable(w);
+    themesCombo.data("Default");
+    //themesCombo.data("GTK:Brushed");
 
-   w.show(argc, argv);
+    w.end();
+    w.resizable(w);
 
-   w.relayout();
+    w.show(argc, argv);
 
-   return Fl::run();
+    w.relayout();
+
+    return Fl::run();
 }

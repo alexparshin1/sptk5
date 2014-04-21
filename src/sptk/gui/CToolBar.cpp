@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/fl_draw.h>
 #include <FL/Fl_Window.h>
 #include <sptk5/gui/CToolBar.h>

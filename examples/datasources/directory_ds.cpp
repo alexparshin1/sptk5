@@ -61,39 +61,43 @@ void list_view_cb(Fl_Widget *w,void *) {
    }
 }
 
-int main(int argc,char *argv[]) {
-   CWindow mainWindow(500,400,"CDirectoryDS Test");
+int main(int argc,char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
 
-   CGroup agroup;
-   directoryInput = new CInput("Local directory:",10,SP_ALIGN_CLIENT);
-   directoryInput->labelWidth(120);
-#ifdef _WIN32
-   directoryInput->data("C:\\");
-#else
-   directoryInput->data("/");
-#endif   
-   CButton goButton(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Chdir");
-   goButton.callback(go_cb);
-   agroup.end();
+    CWindow mainWindow(500, 400, "CDirectoryDS Test");
 
-   CGroup agroup2("",10,SP_ALIGN_BOTTOM);
-   CButton exitButton(SP_EXIT_BUTTON,SP_ALIGN_RIGHT);
-   exitButton.callback(exit_cb);
-   agroup2.end();
+    CGroup agroup;
+    directoryInput = new CInput("Local directory:",10,SP_ALIGN_CLIENT);
+    directoryInput->labelWidth(120);
+    #ifdef _WIN32
+    directoryInput->data("C:\\");
+    #else
+    directoryInput->data("/");
+    #endif   
+    CButton goButton(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Chdir");
+    goButton.callback(go_cb);
+    agroup.end();
 
-   filesListView = new CListView("",10,SP_ALIGN_CLIENT);
-   filesListView->callback(list_view_cb);
-   directoryDS = new CDirectoryDS();
+    CGroup agroup2("",10,SP_ALIGN_BOTTOM);
+    CButton exitButton(SP_EXIT_BUTTON,SP_ALIGN_RIGHT);
+    exitButton.callback(exit_cb);
+    agroup2.end();
 
-   mainWindow.end();
-   mainWindow.resizable(mainWindow);
-   mainWindow.show(argc,argv);
+    filesListView = new CListView("",10,SP_ALIGN_CLIENT);
+    filesListView->callback(list_view_cb);
+    directoryDS = new CDirectoryDS();
 
-   goButton.do_callback();
+    mainWindow.end();
+    mainWindow.resizable(mainWindow);
+    mainWindow.show(argc,argv);
 
-   int rc = Fl::run();
+    goButton.do_callback();
 
-   delete directoryDS;
+    int rc = Fl::run();
 
-   return rc;
+    delete directoryDS;
+
+    return rc;
 }

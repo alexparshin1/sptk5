@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <FL/Fl_Widget.H>
@@ -421,7 +423,7 @@ int CListView::item_compute_height(CPackedStrings *l)
     if (cells.size()) {
         short colmax = cells.size();
         if (colmax > (short) m_columnList.size())
-            colmax = m_columnList.size();
+            colmax = (short) m_columnList.size();
         for (short c = 0; c < colmax; c++) {
             CColumn& column = m_columnList[c];
             if (column.visible()) {
@@ -459,14 +461,14 @@ int CListView::item_compute_height(CPackedStrings *l)
 
 int CListView::item_width(unsigned) const
 {
-    unsigned w = 6;
-    unsigned cnt = m_columnList.size();
-    for (unsigned i = 0; i < cnt; i++) {
+    size_t w = 6;
+    size_t cnt = m_columnList.size();
+    for (size_t i = 0; i < cnt; i++) {
         if (m_columnList[i].visible())
             w += m_columnList[i].width();
     }
 
-    return w;
+    return (int) w;
 }
 
 void CListView::sortColumn(int column, bool sortNow)
@@ -520,8 +522,8 @@ void CListView::header_draw(int xx, int y, int hh) const
 {
     fl_push_clip(x() + 2, y, w() - 3, hh);
     fl_font(m_textFont, m_textSize);
-    unsigned cnt = m_columnList.size();
-    for (unsigned i = 0; i < cnt; i++) {
+    size_t cnt = m_columnList.size();
+    for (size_t i = 0; i < cnt; i++) {
         const CColumn& column = m_columnList[i];
         bool sortColumn = (int(i) == m_rows.sortColumn());
         if (column.visible()) {
@@ -611,8 +613,8 @@ void CListView::item_draw(unsigned index, const CPackedStrings *item, int xx, in
     //fl_push_clip(this->x(),yy,this->w(),hh);
 
     fl_font(m_textFont, m_textSize);
-    unsigned cnt = m_columnList.size();
-    if (item && (unsigned) item->size() < cnt)
+    size_t cnt = m_columnList.size();
+    if (item && (size_t) item->size() < cnt)
         cnt = item->size();
     Fl_Align align = Fl_Align(FL_ALIGN_LEFT | verticalAlign);
     int borderWidth = cellBorderWidth();
@@ -1129,7 +1131,7 @@ void CListView::getSelections(CIntList& sel) const
 
 void CListView::setSelections(const CIntList& sel)
 {
-    unsigned scnt = sel.size();
+    size_t scnt = sel.size();
     if (scnt)
         data(sel[0]);
     else
@@ -1138,11 +1140,11 @@ void CListView::setSelections(const CIntList& sel)
     if (!m_multipleSelection)
         return;
 
-    for (unsigned si = 1; si < scnt; si++) {
+    for (size_t si = 1; si < scnt; si++) {
         int selectedKey = sel[si];
-        unsigned cnt = m_rows.size();
-        for (unsigned i = 0; i < cnt; i++) {
-            CPackedStrings *r = m_rows[i];
+        size_t cnt = m_rows.size();
+        for (size_t i = 0; i < cnt; i++) {
+            CPackedStrings *r = m_rows[(uint32_t)i];
             if (r->argument() == selectedKey) {
                 r->flags |= CLV_SELECTED;
                 continue;
@@ -1557,7 +1559,7 @@ int CListView::handle(int event)
                     return 1;
                 }
                 // Type-in search
-                unsigned ln = m_searchPhrase.length();
+                size_t ln = m_searchPhrase.length();
                 switch (ch) {
                     case FL_BackSpace:
                         if (ln)
@@ -1850,12 +1852,12 @@ unsigned CListView::fullHeight()
 
 unsigned CListView::fullWidth() const
 {
-    unsigned cnt = m_columnList.size();
-    unsigned ww = 0;
-    for (unsigned i = 0; i < cnt; i++)
+    size_t cnt = m_columnList.size();
+    size_t ww = 0;
+    for (size_t i = 0; i < cnt; i++)
         if (m_columnList[i].visible())
             ww += m_columnList[i].width();
-    return ww;
+    return (unsigned) ww;
 }
 
 bool CListView::select(unsigned index, bool i, int docallbacks)
@@ -1976,7 +1978,7 @@ void CListView::loadList(const CXmlNode* node)
 
         if (anode->name() == "rows") {
             CXmlNode::const_iterator itor = anode->begin();
-            unsigned colCount = m_columnList.size();
+            size_t colCount = m_columnList.size();
             if (colCount > 0) {
                 cpchar *strings = new cpchar[colCount];
                 for (; itor != anode->end(); itor++) {
@@ -2001,7 +2003,7 @@ void CListView::loadList(const CXmlNode* node)
                     for (c = 0; c < colCount; c++)
                         if (strings[c] == 0)
                             strings[c] = "";
-                    addRow(colCount, strings, rowID);
+                    addRow((int)colCount, strings, rowID);
                 }
                 delete [] strings;
             }
@@ -2014,15 +2016,15 @@ void CListView::saveList(CXmlNode* node) const
     m_columnList.save(*(new CXmlElement(node, "columns")));
     CXmlNode* rowsNode = new CXmlElement(node, "rows");
     unsigned rowCount = m_rows.size();
-    unsigned colCount = m_columnList.size();
+    size_t colCount = m_columnList.size();
     for (unsigned i = 0; i < rowCount; i++) {
         CPackedStrings *row = m_rows[i];
         CXmlNode* rowNode = new CXmlElement(*rowsNode, "row");
         if (row->argument())
             rowNode->setAttribute("id", row->argument());
-        unsigned index = 0;
-        for (unsigned c = 0; c < colCount; c++) {
-            const char *cell = (*row)[c];
+        size_t index = 0;
+        for (size_t c = 0; c < colCount; c++) {
+            const char *cell = (*row)[(uint16_t)c];
             if (*cell) {
                 CXmlNode* cellNode = new CXmlElement(*rowNode, "cell");
                 new CXmlText(*cellNode, cell);

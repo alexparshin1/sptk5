@@ -162,7 +162,7 @@ ENDIF (SQLITE3_FLAG)
 SET (FLTK_FLAG "0")
 SET (ASPELL_FLAG "0")
 IF (USE_FLTK)
-    FIND_PACKAGE (FLTK QUIET)
+    FIND_PACKAGE (FLTK13 QUIET)
     IF (FLTK_FOUND)
         SET (FLTK_FLAG "1")
         #ADD_DEFINITIONS (${FLTK_CXX_FLAGS})
@@ -260,6 +260,8 @@ IF (UNIX)
     ENDIF (PTHREAD_RWLOCK_TIMEDRDLOCK)
 ENDIF (UNIX)
 
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
+
 CONFIGURE_FILE ("${PROJECT_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${PROJECT_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 IF (FLTK_FLAG)
@@ -300,14 +302,14 @@ IF (POSTGRESQL_FLAG)
   FILE (GLOB pgSQLscripts "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.pl")
   INSTALL (PROGRAMS ${pgSQLscripts} DESTINATION bin)
   FILE (GLOB pgSQLscriptConfigs "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.conf")
-  INSTALL (FILES ${pgSQLscriptConfigs} DESTINATION share/sptk/doc)
+  INSTALL (FILES ${pgSQLscriptConfigs} DESTINATION share/sptk5/doc)
 ENDIF (POSTGRESQL_FLAG)
 
 # create uninstall configuration file
 CONFIGURE_FILE(
   "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 #  "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
-  "share/sptk/cmake_uninstall.cmake"
+  "share/sptk5/cmake_uninstall.cmake"
   IMMEDIATE @ONLY
 )
 

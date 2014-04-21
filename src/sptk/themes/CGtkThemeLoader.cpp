@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include "CGtkThemeLoader.h"
 
 using namespace std;

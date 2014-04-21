@@ -159,6 +159,8 @@ void theme_cb(Fl_Widget *w, void *)
 
 int main(int argc, char **argv)
 {
+    // Initialize themes
+    CThemes allThemes;
 
     CWindow w(550, 450, "SPTK general test");
 

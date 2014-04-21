@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <ctype.h>
@@ -139,7 +141,7 @@ void CControl::defaultControlMenuCopy(Fl_Widget *w, void *)
     CControl *control = dynamic_cast<CControl *>(w->parent());
     if (control) {
         std::string text = control->data().asString();
-        Fl::copy(text.c_str(), text.length(), 1);
+        Fl::copy(text.c_str(), (int) text.length(), 1);
     }
 }
 
@@ -148,7 +150,7 @@ void CControl::defaultControlMenuCut(Fl_Widget *w, void *)
     CControl *control = dynamic_cast<CControl *>(w->parent());
     if (control) {
         std::string text = control->data().asString();
-        Fl::copy(text.c_str(), text.length(), 1);
+        Fl::copy(text.c_str(), (int) text.length(), 1);
         control->data("");
     }
 }
@@ -332,13 +334,13 @@ void CControl::onExit()
 
 bool sptk::checkFieldName(std::string fieldName)
 {
-    unsigned len = fieldName.length();
+    size_t len = fieldName.length();
     if (len > 80)
         return false;
     if (!len)
         return true;
 
-    for (unsigned i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         if (!isalnum(fieldName[i]))
             if (fieldName[i] != '_')
                 return false;

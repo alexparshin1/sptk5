@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
@@ -77,7 +79,7 @@ void CButtonGroup::clearButtons() {
 void CButtonGroup::buttons(const CStrings& sl) {
    clearButtons();
    m_buttonLabels = sl;
-   unsigned buttonsCount = m_buttonLabels.size();
+   size_t buttonsCount = m_buttonLabels.size();
    CGroup *group = (CGroup *)m_control;
    group->begin();
    const idstring *otherLabel = NULL;

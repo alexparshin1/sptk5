@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/Fl_Input.H>
 #include <FL/fl_draw.H>
@@ -56,9 +58,9 @@ static string reformatPhoneNumber(const char *st) {
    string result(st);
 
    // Leave only digits!
-   unsigned len = strlen(st);
-   unsigned j = 0;
-   for (unsigned i = 0; i < len; i++) {
+   size_t len = strlen(st);
+   size_t j = 0;
+   for (size_t i = 0; i < len; i++) {
       if (isdigit(st[i])) {
          result[j] = st[i];
          j++;
@@ -88,9 +90,9 @@ void CInput_::mask(const char *m) {
    char *bg_mask_ptr = (char *) m_backgroundMask.c_str();
    char *input_mask_ptr = (char *) m_inputMask.c_str();
 
-   unsigned l = m_mask.length();
-   unsigned j = 0;
-   for (unsigned i = 0; i < l; i++,j++) {
+   size_t l = m_mask.length();
+   size_t j = 0;
+   for (size_t i = 0; i < l; i++,j++) {
       if (m[i] == '\\' || !strchr(maskControlCharacters,m[i])) {   // background char
          if (m[i] == '\\') i++;
          bg_mask_ptr[j] = m[i];
@@ -153,7 +155,7 @@ bool CInput_::checkCharacter(int pos,char& key) {
    if (!m_inputMask[0]) return true;
    char et[] = { 0, 0 };
    int rc = 1;
-   int maxPos = m_inputMask.length();
+   size_t maxPos = m_inputMask.length();
    while (pos < maxPos) {
       if (m_inputMask[pos] == ' ') {
             // use background mask
@@ -278,12 +280,12 @@ void CInput_::maskValue() {
    if (strcmp(m_mask.c_str(),phoneMask)==0) 
       val = reformatPhoneNumber(val.c_str());
 
-   unsigned cnt = val.length();
+   size_t cnt = val.length();
    if (cnt > m_inputMask.length())
       cnt = m_inputMask.length();
 
-   for (unsigned pos = 0; pos < cnt; pos++) {
-      if (!checkCharacterAtPos(pos,val[pos]))
+   for (size_t pos = 0; pos < cnt; pos++) {
+      if (!checkCharacterAtPos((int) pos, val[pos]))
          val[pos] = m_backgroundMask[pos];
    }
    val[cnt] = 0;

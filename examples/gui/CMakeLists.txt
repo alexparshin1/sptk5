@@ -14,15 +14,19 @@ IF (FLTK_FLAG)
 
     SET (GUI_TESTS calendar_test ceditor_test cgroup_test check_buttons combo_test cscroll_test 
                   #db_list_view sptk_test tree_test
-                  dialog_test file_dialogs font_combo shaped_window spell_checker splitter
+                  dialog_test file_dialogs font_combo shaped_window splitter
                   tabs_test themes_test tree_view)
+
+    IF (ASPELL_FLAG)
+        SET (GUI_TESTS ${GUI_TESTS} spell_checker)
+    ENDIF (ASPELL_FLAG)
 
     FOREACH (GUI_TEST ${GUI_TESTS})
         ADD_EXECUTABLE (${GUI_TEST} ${GUI_TEST}.cpp)
     ENDFOREACH (GUI_TEST)
 
     INSTALL(TARGETS ${GUI_TESTS}
-        RUNTIME DESTINATION share/sptk/bin
+        RUNTIME DESTINATION share/sptk5/bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
     )

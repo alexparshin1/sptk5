@@ -42,7 +42,7 @@
 using namespace std;
 using namespace sptk;
 
-CInput *i;
+CInput        *i;
 CCheckButtons *cb;
 Fl_Box        *bx;
 
@@ -52,8 +52,12 @@ void button_cb(Fl_Widget *b, void *) {
    else  cb->data(i->data());
 }
 
-int main(int argc, char *argv[]) {
-   CWindow w(400, 250);
+int main(int argc, char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
+
+    CWindow w(400, 250);
    
    CCheckButtons cbl("Check Boxes: ");
    cbl.buttons(CStrings("first,second,third,a very long choice text meant to occupy two rows,*", ","));

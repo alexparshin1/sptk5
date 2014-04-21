@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.h>
 #include <FL/fl_draw.h>
 #include <sptk5/gui/CButton.h>
@@ -261,8 +263,8 @@ bool CBaseListBox::preferredSize(int& w, int& h)
         maxWidth += m_buttonSpace;
 
     CColumnList& columns = m_list->columns();
-    unsigned cnt = columns.size();
-    for (unsigned i = 0; i < cnt; i++)
+    size_t cnt = columns.size();
+    for (size_t i = 0; i < cnt; i++)
         maxWidth += columns[i].width();
 
     if (maxWidth < 30)
@@ -525,9 +527,9 @@ void CBaseListBox::addRows(string columnName, CStrings strings)
 
     newColumns.push_back(newColumn);
     columns(newColumns);
-    unsigned cnt = strings.size();
+    size_t cnt = strings.size();
 
-    for (unsigned i = 0; i < cnt; i++) {
+    for (size_t i = 0; i < cnt; i++) {
         idstring& str = strings[i];
         cpchar strs[2] = { str.c_str(), 0 };
         CPackedStrings *psl = new CPackedStrings(1, strs);

@@ -28,6 +28,8 @@
 #ifndef __THEMEUTILS_H__
 #define	__THEMEUTILS_H__
 
+#include <sptk5/sptk.h>
+
 #include <sptk5/cgui>
 #include "ThemeUtils.h"
 

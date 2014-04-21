@@ -25,6 +25,7 @@
 
 #include <sptk5/cnet>
 #include <sptk5/cutils>
+#include <sptk5/cgui>
 
 using namespace std;
 using namespace sptk;
@@ -36,8 +37,12 @@ void printResponse(const CStrings& response) {
 	puts("---------------------------------");
 }
 
-int main( int argc, char *argv[] ) {
-	char           buffer[128];
+int main( int argc, char *argv[] )
+{
+    // Initialize themes
+    CThemes themes;
+
+    char           buffer[128];
 	CImapConnect   IMAP;
 	std::string    user, password, server;
 	CRegistry      registry("imap_connect.ini","");

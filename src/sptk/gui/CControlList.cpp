@@ -25,8 +25,9 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <FL/Fl_Group.H>
+#include <sptk5/sptk.h>
 
+#include <FL/Fl_Group.H>
 #include <string.h>
 #include <stdlib.h>
 #include <sptk5/CException.h>

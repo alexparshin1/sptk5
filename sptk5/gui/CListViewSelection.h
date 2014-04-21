@@ -77,7 +77,7 @@ public:
 
     /// Returns the number of selected rows
     uint32_t size() const {
-        return m_selectedRows.size();
+        return (uint32_t) m_selectedRows.size();
     }
 
     /// Element access to the selection, const version only

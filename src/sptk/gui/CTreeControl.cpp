@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <string.h>
 
 #include <FL/Fl.h>
@@ -363,7 +365,7 @@ CTreeItem *CTreeItem::findData(const void *itemData) const {
 
 CTreeItem *CTreeItem::addPathOffset(const vector<string>& pathFolders,unsigned offset,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage,void *data) {
     CTreeItem *node = this;
-    int cnt = pathFolders.size();
+    int cnt = (int) pathFolders.size();
     for (int i = offset; i < cnt - 1; i++) {
         const string& folder = pathFolders[i];
         CTreeItem *n = node->findItem(folder.c_str());

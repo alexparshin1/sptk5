@@ -1,7 +1,15 @@
 // vim:set ts=4:
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <sptk5/sptk.h>
+
+#ifndef _WIN32
+    #include <unistd.h>
+#else
+    #include <io.h>
+#endif
+
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -27,7 +35,12 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+#ifdef _WIN32
+    fd = _open(argv[1], _O_RDONLY|_O_BINARY);
+#else
 	fd = open(argv[1], O_RDONLY|O_BINARY);
+#endif
+
 	if (fd < 0) {
 		fprintf(stderr, "Open on \"%s\" failed! (errno=%d)\n", argv[1], errno);
 		return 1;

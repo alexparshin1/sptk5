@@ -122,6 +122,9 @@ extern int autoLayoutCounter;
 
 int main(int argc, char **argv)
 {
+    // Initialize themes
+    CThemes themes;
+
     string fileName;
     if (argc == 2) {
         fileName = argv[1];

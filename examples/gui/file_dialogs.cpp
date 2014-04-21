@@ -73,9 +73,12 @@ void dir_open_dialog_cb(Fl_Widget *,void *) {
        spInformation("Selected directory:\n"+dialog.directory());
 }
 
-int main(int argc,char *argv[]) {
+int main(int argc,char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
 
-	CWindow w(200,150);
+    CWindow w(200, 150);
 
 	CButton b1(SP_OPEN_BUTTON,SP_ALIGN_TOP,"Open File Dialog");
 	b1.callback(file_open_dialog_cb);

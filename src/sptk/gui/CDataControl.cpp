@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Check_Button.H>

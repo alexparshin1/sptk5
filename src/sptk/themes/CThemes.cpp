@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/fl_draw.h>
 #include <FL/Enumerations.h>
 #include <sptk5/sptk.h>
@@ -49,6 +51,8 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <windows.h>
+#include <io.h>
+#define X_OK 0
 #endif
 
 using namespace std;
@@ -91,9 +95,8 @@ bool CThemes::m_desaturateInactiveButtons;
 int CThemes::m_buttonFocusRadius;
 string CThemes::m_themeFolder;
 
-CThemes themes;
-
-CThemes::CThemes() {
+CThemes::CThemes()
+{
     m_flatBox = Fl::get_boxtype(FL_FLAT_BOX);
     m_thinUpBox = Fl::get_boxtype(FL_THIN_UP_BOX);
     m_upBox = Fl::get_boxtype(FL_UP_BOX);
@@ -125,12 +128,14 @@ CThemes::CThemes() {
     set("Default");
 }
 
-CThemes::~CThemes() {
+CThemes::~CThemes()
+{
     if (m_registry)
         delete m_registry;
 }
 
-CIcon* CThemes::getIcon(std::string iconName, CIconSize iconSize) {
+CIcon* CThemes::getIcon(std::string iconName, CIconSize iconSize)
+{
     CIconMap::iterator itor = m_icons[iconSize].find(iconName);
     if (itor == m_icons[iconSize].end()) {
         cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
@@ -139,18 +144,21 @@ CIcon* CThemes::getIcon(std::string iconName, CIconSize iconSize) {
     return itor->second;
 }
 
-CPngImage* CThemes::getIconImage(std::string iconName, CIconSize iconSize) {
+CPngImage* CThemes::getIconImage(std::string iconName, CIconSize iconSize)
+{
     CIcon* icon = getIcon(iconName, iconSize);
     if (icon)
         return icon->image();
     return 0;
 }
 
-void CThemes::registerIcon(CIcon* icon, CIconSize iconSize) {
+void CThemes::registerIcon(CIcon* icon, CIconSize iconSize)
+{
     m_icons[iconSize].insert(icon);
 }
 
-const CStrings& CThemes::searchDirectories() {
+const CStrings& CThemes::searchDirectories()
+{
     static CStrings sd;
     if (sd.size())
         return sd;
@@ -166,7 +174,8 @@ const CStrings& CThemes::searchDirectories() {
     return sd;
 }
 
-void CThemes::reset() {
+void CThemes::reset()
+{
     m_gtkTheme = false;
     m_flatButtons = false;
 
@@ -204,7 +213,8 @@ void CThemes::reset() {
     m_scrollBarStepperSize = 14;
 }
 
-CThemeImageCollection& CThemes::sizeToButtonImages(CThemeButtonType sz) {
+CThemeImageCollection& CThemes::sizeToButtonImages(CThemeButtonType sz)
+{
     switch (sz) {
         case THM_BUTTON_COMBO:
             return m_comboButtons;
@@ -218,7 +228,8 @@ CThemeImageCollection& CThemes::sizeToButtonImages(CThemeButtonType sz) {
     return m_normalButtons;
 }
 
-void CThemes::replaceImage(CPngImage *images[], int ndx, string fileName) {
+void CThemes::replaceImage(CPngImage *images[], int ndx, string fileName)
+{
     if (images[ndx])
         delete images[ndx];
     try {
@@ -228,7 +239,8 @@ void CThemes::replaceImage(CPngImage *images[], int ndx, string fileName) {
     }
 }
 
-void CThemes::set(string theThemeName) {
+void CThemes::set(string theThemeName)
+{
     string themeName(theThemeName);
     if (themeName == "" || themeName.find("GTK:") == 0)
         themeName = "Default";
@@ -385,7 +397,8 @@ void CThemes::set(string theThemeName) {
         loadGtkTheme(theThemeName.substr(4,255));
 }
 
-CPngImage *CThemes::imageForColor(Fl_Color clr) {
+CPngImage *CThemes::imageForColor(Fl_Color clr)
+{
     if (clr >= FL_DARK3 && clr <= FL_LIGHT3) {
         int ndx = 0;
         switch (clr) {
@@ -417,7 +430,8 @@ CPngImage *CThemes::imageForColor(Fl_Color clr) {
     return 0L;
 }
 
-void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage *image) {
+void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage *image)
+{
     if (!image)
         return;
     if (ww < 0 || hh < 0)
@@ -437,7 +451,8 @@ void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage *image) 
     fl_pop_clip();
 }
 
-void CThemes::drawThemeBox(int x, int y, int w, int h, Fl_Color clr, Fl_Boxtype frameType) {
+void CThemes::drawThemeBox(int x, int y, int w, int h, Fl_Color clr, Fl_Boxtype frameType)
+{
     CPngImage *image = imageForColor(clr);
     if (image) {
         paintBackground(x + Fl::box_dx(frameType), y + Fl::box_dy(frameType), w - Fl::box_dw(frameType), h - Fl::box_dh(frameType), image);
@@ -448,27 +463,33 @@ void CThemes::drawThemeBox(int x, int y, int w, int h, Fl_Color clr, Fl_Boxtype 
     fl_draw_box(frameType, x, y, w, h, clr);
 }
 
-void CThemes::drawFlatBox(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawFlatBox(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeBox(x, y, w, h, clr, FL_NO_BOX);
 }
 
-void CThemes::drawThinUpBox(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawThinUpBox(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeBox(x, y, w, h, clr, FL_THIN_UP_FRAME);
 }
 
-void CThemes::drawUpBox(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawUpBox(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeBox(x, y, w, h, clr, FL_UP_FRAME);
 }
 
-void CThemes::drawThinDownBox(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawThinDownBox(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeBox(x, y, w, h, clr, FL_THIN_DOWN_FRAME);
 }
 
-void CThemes::drawDownBox(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawDownBox(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeBox(x, y, w, h, clr, FL_DOWN_FRAME);
 }
 
-void CThemes::drawThemeFrame(int x, int y, int w, int h, Fl_Boxtype frameType) {
+void CThemes::drawThemeFrame(int x, int y, int w, int h, Fl_Boxtype frameType)
+{
     CFrame* frame = m_frames.find(frameType);
     if (frame)
         frame->drawResized(x, y, w, h, false);
@@ -476,23 +497,28 @@ void CThemes::drawThemeFrame(int x, int y, int w, int h, Fl_Boxtype frameType) {
         fl_draw_box(frameType, x, y, w, h, FL_BLACK);
 }
 
-void CThemes::drawThinUpFrame(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawThinUpFrame(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeFrame(x, y, w, h, FL_THIN_UP_FRAME);
 }
 
-void CThemes::drawUpFrame(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawUpFrame(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeFrame(x, y, w, h, FL_UP_FRAME);
 }
 
-void CThemes::drawThinDownFrame(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawThinDownFrame(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeFrame(x, y, w, h, FL_THIN_DOWN_FRAME);
 }
 
-void CThemes::drawDownFrame(int x, int y, int w, int h, Fl_Color clr) {
+void CThemes::drawDownFrame(int x, int y, int w, int h, Fl_Color clr)
+{
     drawThemeFrame(x, y, w, h, FL_DOWN_FRAME);
 }
 
-bool CThemes::sizeButton(CThemeButtonType sz, int& w, int& h) {
+bool CThemes::sizeButton(CThemeButtonType sz, int& w, int& h)
+{
     CThemeImageCollection& buttons = sizeToButtonImages(sz);
     CPngImage *image = buttons.image(THM_IMAGE_NORMAL);
     if (!image) {
@@ -508,7 +534,8 @@ bool CThemes::sizeButton(CThemeButtonType sz, int& w, int& h) {
     return true;
 }
 
-bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool highlited, bool pressed, bool defaultButton) {
+bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool highlited, bool pressed, bool defaultButton)
+{
     int ndx = THM_IMAGE_NORMAL;
 
     if (pressed)
@@ -550,7 +577,8 @@ bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool
     return true;
 }
 
-bool CThemes::drawCheckOrRadioButton(CThemeImageCollection& buttonImages, int x, int y, bool checked, bool highlited) {
+bool CThemes::drawCheckOrRadioButton(CThemeImageCollection& buttonImages, int x, int y, bool checked, bool highlited)
+{
     int ndx = THM_IMAGE_NORMAL;
     if (checked)
         ndx = THM_IMAGE_ACTIVE;
@@ -570,15 +598,18 @@ bool CThemes::drawCheckOrRadioButton(CThemeImageCollection& buttonImages, int x,
     return true;
 }
 
-bool CThemes::drawCheckButton(int x, int y, bool checked, bool highlited) {
+bool CThemes::drawCheckButton(int x, int y, bool checked, bool highlited)
+{
     return drawCheckOrRadioButton(m_checkButtons, x, y, checked, highlited);
 }
 
-bool CThemes::drawRadioButton(int x, int y, bool checked, bool highlited) {
+bool CThemes::drawRadioButton(int x, int y, bool checked, bool highlited)
+{
     return drawCheckOrRadioButton(m_radioButtons, x, y, checked, highlited);
 }
 
-bool CThemes::sizeProgressBar(int& w, int& h) {
+bool CThemes::sizeProgressBar(int& w, int& h)
+{
     CPngImage *image = m_progressBar[0].image(THM_IMAGE_NORMAL);
     if (image && image->data()) {
         w = image->w();
@@ -590,7 +621,8 @@ bool CThemes::sizeProgressBar(int& w, int& h) {
     }
 }
 
-bool CThemes::drawProgressBar(int x, int y, int w, float percent) {
+bool CThemes::drawProgressBar(int x, int y, int w, float percent)
+{
     if (percent > 100)
         percent = 100;
     if (percent < 0)
@@ -624,7 +656,8 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent) {
     }
 }
 
-CStrings CThemes::availableThemes() {
+CStrings CThemes::availableThemes()
+{
     CStrings themes;
     themes.push_back("Default");
     //themes.push_back("GTK");
@@ -683,7 +716,8 @@ CStrings CThemes::availableThemes() {
     return themes;
 }
 
-bool CThemes::drawTab(int x, int y, int w, int h, bool active) {
+bool CThemes::drawTab(int x, int y, int w, int h, bool active)
+{
     CTabImage* tabImage;
     if (active)
         tabImage = m_tabImages.tabImage("active");
@@ -695,6 +729,7 @@ bool CThemes::drawTab(int x, int y, int w, int h, bool active) {
     return true;
 }
 
-bool CThemes::drawTabFrame(int x, int y, int w, int h) {
+bool CThemes::drawTabFrame(int x, int y, int w, int h)
+{
     return false;
 }

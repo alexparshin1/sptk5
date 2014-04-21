@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.h>
 #include <FL/fl_draw.h>
 #include <sptk5/gui/CLayoutManager.h>

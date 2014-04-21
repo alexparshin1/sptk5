@@ -45,22 +45,26 @@ void font_cb(Fl_Widget *fc, void *data) {
    }
 }
 
-int main(int argc, char *argv[]) {
-   CWindow w(300, 200, "Font Combo test");
-   w.resizable(w);
-   w.color(0xC0C8FF00);
-   w.layoutSpacing(4);
+int main(int argc, char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
+
+    CWindow w(300, 200, "Font Combo test");
+    w.resizable(w);
+    w.color(0xC0C8FF00);
+    w.layoutSpacing(4);
    
-   CFontComboBox fontCombo("Fonts:");
-   fontCombo.callback(font_cb);
+    CFontComboBox fontCombo("Fonts:");
+    fontCombo.callback(font_cb);
    
-   memoInput = new CMemoInput("Font Sample:", 10, SP_ALIGN_CLIENT);
-   memoInput->data("This is just some text");
+    memoInput = new CMemoInput("Font Sample:", 10, SP_ALIGN_CLIENT);
+    memoInput->data("This is just some text");
    
-   w.end();
-   w.show(argc, argv);
+    w.end();
+    w.show(argc, argv);
    
-   Fl::run();
+    Fl::run();
    
-   return 0;
+    return 0;
 }

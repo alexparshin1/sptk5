@@ -247,7 +247,7 @@ public:
     /// @brief Returns the number of controls inside the dialog with defined field names
     uint32_t fieldCount() const
     {
-        return m_allFields.size();
+        return (uint32_t) m_allFields.size();
     }
 
     /// @brief Index operator to access controls with defined field name

@@ -529,8 +529,8 @@ void find2_cb(Fl_Widget* w, void* v) {
    int found = textbuf->search_forward(pos, e->search.c_str(), &pos);
    if (found) {
       // Found a match; select and update the position...
-      textbuf->select(pos, pos+strlen(e->search.c_str()));
-      e->editor->insert_position(pos+strlen(e->search.c_str()));
+      textbuf->select(pos, pos+(int)strlen(e->search.c_str()));
+      e->editor->insert_position(pos+(int)strlen(e->search.c_str()));
       e->editor->show_insert_position();
    } else fl_alert("No occurrences of \'%s\' found!", e->search.c_str());
 }
@@ -647,11 +647,11 @@ void replace2_cb(Fl_Widget*, void* v) {
    
    if (found) {
       // Found a match; update the position and replace text...
-      textbuf->select(pos, pos+strlen(find.c_str()));
+      textbuf->select(pos, pos + (int)strlen(find.c_str()));
       textbuf->remove_selection();
       textbuf->insert(pos, replace.c_str());
-      textbuf->select(pos, pos+strlen(replace.c_str()));
-      e->editor->insert_position(pos+strlen(replace.c_str()));
+      textbuf->select(pos, pos + (int)strlen(replace.c_str()));
+      e->editor->insert_position(pos + (int)strlen(replace.c_str()));
       e->editor->show_insert_position();
    } else fl_alert("No occurrences of \'%s\' found!", find.c_str());
 }
@@ -679,10 +679,10 @@ void replall_cb(Fl_Widget*, void* v) {
       
       if (found) {
          // Found a match; update the position and replace text...
-         textbuf->select(pos, pos+strlen(find.c_str()));
+         textbuf->select(pos, pos + (int)strlen(find.c_str()));
          textbuf->remove_selection();
          textbuf->insert(pos, replace.c_str());
-         e->editor->insert_position(pos+strlen(replace.c_str()));
+         e->editor->insert_position(pos + (int)strlen(replace.c_str()));
          e->editor->show_insert_position();
          times++;
       }
@@ -784,8 +784,12 @@ CWindow* new_view() {
    return w;
 }
 
-int main(int argc, char *argv[]) {
-   int fontCount;
+int main(int argc, char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
+
+    int fontCount;
 #ifdef _WIN32
    fontCount = Fl::set_fonts("*");
 #elif __APPLE__

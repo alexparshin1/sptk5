@@ -65,7 +65,11 @@ void maximize_cb(Fl_Widget *w, void *) {
    w->window()->resize(Fl::x(), Fl::y(), Fl::w(), Fl::h());
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
+
    try {
       CWindow w(500, 400, "CGroup test");
       w.resizable(w);

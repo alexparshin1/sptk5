@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -51,32 +53,37 @@
 using namespace std;
 using namespace sptk;
 
-string CFileDialog::removeTrailingSlash(std::string dirname) {
-   int dlen = dirname.length();
+string CFileDialog::removeTrailingSlash(std::string dirname)
+{
+   size_t dlen = dirname.length();
    if (dlen && (dirname[dlen-1] == '/' || dirname[dlen-1] == '\\'))
          return dirname.substr(0,dlen-1);
    return dirname;
 }
 
-void CFileDialog::new_folder_cb(Fl_Widget *w,void *) {
+void CFileDialog::new_folder_cb(Fl_Widget *w,void *)
+{
    CFileDialog *fileDialog = (CFileDialog *)w->window();
    fileDialog->createFolder();
 }
 
-void CFileDialog::home_cb(Fl_Widget *w,void *) {
+void CFileDialog::home_cb(Fl_Widget *w,void *)
+{
    CFileDialog *fileDialog = (CFileDialog *)w->window();
    string homeDirectory = CRegistry::homeDirectory();
    fileDialog->directory(homeDirectory);
    fileDialog->refreshDirectory();
 }
 
-void CFileDialog::up_cb(Fl_Widget *w,void *) {
+void CFileDialog::up_cb(Fl_Widget *w,void *)
+{
    CFileDialog *fileDialog = (CFileDialog *)w->window();
    fileDialog->directory(fileDialog->directory()+"..");
    fileDialog->refreshDirectory();
 }
 
-void CFileDialog::dirview_cb(Fl_Widget *w,void *) {
+void CFileDialog::dirview_cb(Fl_Widget *w,void *)
+{
    bool directoryClicked = false;
 
    CFileDialog *fileDialog = (CFileDialog *)w->window();
@@ -274,7 +281,7 @@ void CFileDialog::directory(string p) {
    string dirName = m_directory.directory();
    m_lookInCombo->data(dirName);
 
-   int estimatedColumnWidth = m_lookInCombo->textSize() * incrementalPath.length() * 2 / 3;
+   int estimatedColumnWidth = (int) m_lookInCombo->textSize() * (int) incrementalPath.length() * 2 / 3;
    int minColWidth = 280;
    if (estimatedColumnWidth < minColWidth )
       estimatedColumnWidth = minColWidth;

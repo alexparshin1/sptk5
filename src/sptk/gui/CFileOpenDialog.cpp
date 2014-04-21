@@ -26,6 +26,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #ifdef _WIN32
 #include <io.h>
 #endif

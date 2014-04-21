@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <sptk5/gui/CWindow.h>
 #include <FL/fl_draw.h>
 #include <FL/x.H>
@@ -68,7 +70,7 @@ void CWindowShape::shapeApply() {
     if (m_shapePoints.size()) {
         CShapePoint* array = &m_shapePoints[0];
 #ifdef _WIN32
-        HRGN region = CreatePolygonRgn((CONST POINT*)array, m_shapePoints.size(), WINDING);
+        HRGN region = CreatePolygonRgn((CONST POINT*)array, (int) m_shapePoints.size(), WINDING);
         SetWindowRgn(fl_xid(m_window), region, TRUE);
         if (!m_borderCleared) {
             //ShowWindow(fl_xid(m_window),SW_HIDE);

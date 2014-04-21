@@ -25,8 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-//#include <FL/Fl.H>
-//#include <FL/fl_draw.H>
+#include <sptk5/sptk.h>
+
 #include <FL/Fl_Help_View.H>
 
 #include <sptk5/gui/CHtmlBox.h>

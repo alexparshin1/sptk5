@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
@@ -138,7 +140,7 @@ CVariant CCheckButtons::data() const {
             result += "|";
         }
     }
-    int len = result.length();
+    size_t len = result.length();
     if (len)
         result[len - 1] = 0;
 
@@ -151,7 +153,7 @@ void CCheckButtons::data(const CVariant s) {
         m_otherInput->value("");
     string st = s;
     CStrings sl(st, "|");
-    unsigned cnt = sl.size();
+    size_t cnt = sl.size();
     CScroll *g = (CScroll *) m_control;
     for (unsigned i = 0; i < cnt; i++) {
         int ndx = buttonIndex(sl[i].c_str());

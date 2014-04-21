@@ -124,15 +124,17 @@ public:
     int32_t indexOf(CPackedStrings *row) const;
 
     /// Returns the row count
-    uint32_t size() const {
-        return m_rows.size();
+    uint32_t size() const
+    {
+        return (uint32_t) m_rows.size();
     }
 
     /// Sorts rows
     void     sort();
 
     /// Returns the sort column number
-    int32_t sortColumn() const {
+    int32_t sortColumn() const
+    {
         return m_sortColumn;
     }
 

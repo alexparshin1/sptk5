@@ -67,16 +67,6 @@ int main()
    printf("Day:   %i, %s\n", dt.day(), dt.dayOfWeekName().c_str());
    printf("Date:  %s\n", dt.dateString().c_str());
    printf("Time:  %s\n", dt.timeString().c_str());
-
-   CDateTime	dd(2000,1,1);
-   for (unsigned day = 0; day < 732; day++) {
-      CDateTime nd = double(dd) + 1.0;
-      if (nd.month() != dd.month()) {
-        printf("%i/%i, %s %i\n", dd.day(), dd.month(), dd.monthName().c_str(),dd.year());
-        printf("%i/%i, %s %i\n", nd.day(), nd.month(), nd.monthName().c_str(),nd.year());
-      }
-      dd = nd;
-   }
    
    return 0;
 }

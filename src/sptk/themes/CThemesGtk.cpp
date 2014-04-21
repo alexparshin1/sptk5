@@ -7,9 +7,6 @@
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
-#include <sptk5/gui/CThemeImageCollection.h>
-
-
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU Library General Public License as published by
@@ -29,6 +26,8 @@
  ***************************************************************************/
 
 #include <sptk5/sptk.h>
+
+#include <sptk5/gui/CThemeImageCollection.h>
 #include <sptk5/cutils>
 #include <sptk5/cgui>
 

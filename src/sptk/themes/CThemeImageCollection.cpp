@@ -26,6 +26,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include "ThemeUtils.h"
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CThemeImageCollection.h>

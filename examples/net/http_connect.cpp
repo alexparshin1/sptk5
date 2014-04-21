@@ -75,42 +75,46 @@ void go_callback(Fl_Widget *,void *)
    }
 }
 
-int main(int argc,char *argv[]) {
-   CHttpConnect socket;
-   sock = &socket;
+int main(int argc,char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
 
-   CWindow main_window(600,400,"CHttpConnect test");
+    CHttpConnect socket;
+    sock = &socket;
 
-   CToolBar urlToolBar;
-   urlInput = new CInput("http://",300,SP_ALIGN_LEFT);
-   urlInput->labelWidth(40);
-   urlInput->data("www.tts-sf.com/index.html");
-   CButton go_button(SP_EXEC_BUTTON,SP_ALIGN_LEFT,"Go");
-   go_button.callback(go_callback);
-   urlToolBar.end();
+    CWindow main_window(600,400,"CHttpConnect test");
 
-   CToolBar paramsToolBar;
-   paramsToolBar.layoutSize(150);
-   paramsCombo = new CComboBox("Mode",10,SP_ALIGN_TOP);
-   paramsCombo->labelWidth(40);
-   paramsCombo->addRows("http mode",CStrings("HTTP Get|HTTP Post","|"));
-   paramsCombo->columns()[0].width(100);
-   paramsCombo->data("HTTP Post");
-   paramsInput = new CMemoInput("",100,SP_ALIGN_CLIENT);
-   paramsToolBar.end();
+    CToolBar urlToolBar;
+    urlInput = new CInput("http://",300,SP_ALIGN_LEFT);
+    urlInput->labelWidth(40);
+    urlInput->data("www.tts-sf.com/index.html");
+    CButton go_button(SP_EXEC_BUTTON,SP_ALIGN_LEFT,"Go");
+    go_button.callback(go_callback);
+    urlToolBar.end();
 
-   CEditor  editor(10,SP_ALIGN_CLIENT);
+    CToolBar paramsToolBar;
+    paramsToolBar.layoutSize(150);
+    paramsCombo = new CComboBox("Mode",10,SP_ALIGN_TOP);
+    paramsCombo->labelWidth(40);
+    paramsCombo->addRows("http mode",CStrings("HTTP Get|HTTP Post","|"));
+    paramsCombo->columns()[0].width(100);
+    paramsCombo->data("HTTP Post");
+    paramsInput = new CMemoInput("",100,SP_ALIGN_CLIENT);
+    paramsToolBar.end();
 
-   textdisp = &editor;
+    CEditor  editor(10,SP_ALIGN_CLIENT);
 
-   CGroup status_line("",25,SP_ALIGN_BOTTOM);
-   status_line.layoutSpacing(1);
+    textdisp = &editor;
 
-   status_line.end();
+    CGroup status_line("",25,SP_ALIGN_BOTTOM);
+    status_line.layoutSpacing(1);
 
-   main_window.end();
-   main_window.resizable(main_window);
-   main_window.show(argc,argv);
+    status_line.end();
 
-   return Fl::run();
+    main_window.end();
+    main_window.resizable(main_window);
+    main_window.show(argc,argv);
+
+    return Fl::run();
 }

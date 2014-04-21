@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <stdio.h>
 #include <FL/Fl.h>
 #include <FL/Fl_Window.h>

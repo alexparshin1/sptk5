@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 
@@ -52,9 +54,9 @@ CListViewRows::~CListViewRows() {
 }
 
 void CListViewRows::truncate(unsigned cnt) {
-   unsigned rowCount = m_rows.size();
+   size_t rowCount = m_rows.size();
    if (cnt < rowCount) {
-      for (unsigned i = cnt; i < rowCount; i++) {
+      for (size_t i = cnt; i < rowCount; i++) {
          CPackedStrings *row = (CPackedStrings *)m_rows[i];
          m_fullHeight -= row->height;
          delete (CPackedStrings *)row;
@@ -135,7 +137,7 @@ void CListViewRows::sort() {
    fl_cursor(FL_CURSOR_WAIT);
    Fl::check();
 
-   int m_size = m_rows.size();
+   size_t m_size = m_rows.size();
    if (m_sortColumn >= 0 && m_size > 1) {
       CListViewRows::currentSortColumn = m_sortColumn;
       switch (m_sortColumnType) {
@@ -158,10 +160,10 @@ void CListViewRows::sort() {
       }
       if (!m_sortAscending) {
          // reversing sort order for the descending sort
-         unsigned cnt = m_rows.size();
-         unsigned mid = cnt / 2;
-         unsigned j = cnt - 1;
-         for (unsigned i = 0; i < mid; i++, j--) {
+         size_t cnt = m_rows.size();
+         size_t mid = cnt / 2;
+         size_t j = cnt - 1;
+         for (size_t i = 0; i < mid; i++, j--) {
             CPackedStrings *item = m_rows[i];
             m_rows[i] = m_rows[j];
             m_rows[j] = item;
@@ -186,5 +188,5 @@ void CListViewRows::sortAscending(bool ascending,bool sortNow) {
 int CListViewRows::indexOf(CPackedStrings * ss) const {
    CPSVector::const_iterator itor = find(m_rows.begin(),m_rows.end(),ss);
    if (itor == m_rows.end()) return -1;
-   return distance(m_rows.begin(),itor);
+   return (int) distance(m_rows.begin(),itor);
 }

@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <FL/fl_ask.h>
 #include <sptk5/gui/CEditorSpellChecker.h>
 #include <sptk5/CException.h>

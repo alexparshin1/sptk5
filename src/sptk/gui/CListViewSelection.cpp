@@ -25,6 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/sptk.h>
+
 #include <sptk5/gui/CListViewSelection.h>
 #include <string>
 #include <algorithm>
@@ -46,8 +48,8 @@ void CSelection::deselect(CPackedStrings *row) {
 }
 
 void CSelection::deselectAll() {
-   unsigned cnt = m_selectedRows.size();
-   for (unsigned i=0; i < cnt; i++) {
+   size_t cnt = m_selectedRows.size();
+   for (size_t i=0; i < cnt; i++) {
       CPackedStrings *row = (CPackedStrings *)m_selectedRows[i];
       row->flags &= ~CLV_SELECTED;
    }
@@ -65,9 +67,9 @@ void CSelection::clear() {
 }
 
 CPackedStrings *CSelection::findKey(int keyValue) const {
-   unsigned cnt = m_selectedRows.size();
+   size_t cnt = m_selectedRows.size();
    CPackedStrings *row = 0L;
-   for (unsigned i=0; i < cnt; i++) {
+   for (size_t i=0; i < cnt; i++) {
       row = (CPackedStrings *)m_selectedRows[i];
       if (row->argument() == keyValue)
          return row;
@@ -76,9 +78,9 @@ CPackedStrings *CSelection::findKey(int keyValue) const {
 }
 
 CPackedStrings *CSelection::findCaption(std::string caption) const {
-   unsigned cnt = m_selectedRows.size();
+   size_t cnt = m_selectedRows.size();
    CPackedStrings *row = 0L;
-   for (unsigned i=0; i < cnt; i++) {
+   for (size_t i=0; i < cnt; i++) {
       row = (CPackedStrings *)m_selectedRows[i];
       if ((*row)[0] == caption)
          return row;

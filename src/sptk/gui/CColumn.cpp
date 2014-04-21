@@ -25,13 +25,13 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <stdlib.h>
+#include <sptk5/sptk.h>
 
 #include <FL/Fl.H>
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CColumn.h>
 #include <sptk5/CException.h>
 #include <sptk5/string_ext.h>
+#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;
@@ -81,11 +81,11 @@ void CColumn::save(CXmlNode& node) const
 
 int CColumnList::indexOf(const char *colname) const
 {
-    unsigned cnt = size();
-    for (unsigned i = 0; i < cnt; i++) {
+    size_t cnt = size();
+    for (size_t i = 0; i < cnt; i++) {
         const CColumn& column = operator[](i);
         if (column.name() == colname)
-            return i;
+            return int(i);
     }
     return -1;
 }
@@ -112,8 +112,8 @@ void CColumnList::save(CXmlNode& node) const
 {
     node.clear();
     node.name("columns");
-    unsigned counter = size();
-    for (unsigned i = 0; i < counter; i++) {
+    size_t counter = size();
+    for (size_t i = 0; i < counter; i++) {
         try {
             const CColumn& column = (*this)[i];
             CXmlNode& columnNode = *(new CXmlElement(node, "column"));

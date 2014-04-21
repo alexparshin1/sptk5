@@ -101,84 +101,88 @@ void remove_item_cb(Fl_Widget *w, void *) {
    tree->removeItem(item);
 }
 
-int main(int argc, char *argv[]) {
-   CWindow window(400, 300);
-   window.resizable(window);
+int main(int argc, char *argv[])
+{
+    // Initialize themes
+    CThemes themes;
+
+    CWindow window(400, 300);
+    window.resizable(window);
    
-   tree = new CTreeView("", 10, SP_ALIGN_CLIENT);
-   tree->end();
+    tree = new CTreeView("", 10, SP_ALIGN_CLIENT);
+    tree->end();
    
-   CTreeItem* node;
+    CTreeItem* node;
    
-   // Add some nodes with icons -- some open, some closed.
+    // Add some nodes with icons -- some open, some closed.
    
-   node = tree->addItem("aaa", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("bbb 1", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->open();
+    node = tree->addItem("aaa", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("bbb 1", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->open();
    
-   node = tree->addItem("bbb 2", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->close();
-   node = node->addItem("ccc", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("ddd", CTreeItem::document);
+    node = tree->addItem("bbb 2", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->close();
+    node = node->addItem("ccc", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("ddd", CTreeItem::document);
    
-   node = tree->addItem("eee", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("fff", CTreeItem::document);
+    node = tree->addItem("eee", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("fff", CTreeItem::document);
    
-   node = tree->addItem("ggg", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node = node->addItem("hhh", CTreeItem::document);
-   node->close();
-   node->addItem("iii", CTreeItem::document);
+    node = tree->addItem("ggg", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node = node->addItem("hhh", CTreeItem::document);
+    node->close();
+    node->addItem("iii", CTreeItem::document);
    
-   node = tree->addItem("jjj", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("kkk", CTreeItem::document);
+    node = tree->addItem("jjj", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("kkk", CTreeItem::document);
    
-   node = tree->addItem("lll", CTreeItem::document);
-   node = tree->addItem("mmm", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->close();
-   node = node->addItem("nnn", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("ooo", CTreeItem::document);
+    node = tree->addItem("lll", CTreeItem::document);
+    node = tree->addItem("mmm", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->close();
+    node = node->addItem("nnn", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("ooo", CTreeItem::document);
    
-   node = tree->addItem("ppp", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("qqq", CTreeItem::document);
+    node = tree->addItem("ppp", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("qqq", CTreeItem::document);
    
-   node = tree->addItem("rrr", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node = node->addItem("sss", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("ttt", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node = tree->addItem("rrr", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node = node->addItem("sss", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("ttt", CTreeItem::folderOpened, CTreeItem::folderClosed);
    
-   node = tree->addItem("uuu", CTreeItem::folderOpened, CTreeItem::folderClosed);
-   node->addItem("vvv", CTreeItem::document);
+    node = tree->addItem("uuu", CTreeItem::folderOpened, CTreeItem::folderClosed);
+    node->addItem("vvv", CTreeItem::document);
    
-   node = tree->addItem("www", CTreeItem::document);
-   node = node->addItem("xxx", CTreeItem::document);
-   node = node->addItem("yyy", CTreeItem::document);
-   node->addItem("zzz", CTreeItem::document);
+    node = tree->addItem("www", CTreeItem::document);
+    node = node->addItem("xxx", CTreeItem::document);
+    node = node->addItem("yyy", CTreeItem::document);
+    node->addItem("zzz", CTreeItem::document);
    
-   //tree->end();
+    //tree->end();
    
-   tree->callback(changed_cb);
+    tree->callback(changed_cb);
    
-   CGroup  group("", 10, SP_ALIGN_BOTTOM);
-   group.box(FL_THIN_DOWN_BOX);
-   group.color(FL_LIGHT1);
+    CGroup  group("", 10, SP_ALIGN_BOTTOM);
+    group.box(FL_THIN_DOWN_BOX);
+    group.color(FL_LIGHT1);
    
-   CButton   btn1(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
-   btn1.callback(exit_cb);
+    CButton   btn1(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+    btn1.callback(exit_cb);
    
-   CButton   btn2(SP_DELETE_BUTTON, SP_ALIGN_RIGHT);
-   btn2.callback(remove_item_cb);
+    CButton   btn2(SP_DELETE_BUTTON, SP_ALIGN_RIGHT);
+    btn2.callback(remove_item_cb);
    
-   CButton   btn3(SP_ADD_BUTTON, SP_ALIGN_RIGHT);
-   btn3.callback(add_item_cb);
+    CButton   btn3(SP_ADD_BUTTON, SP_ALIGN_RIGHT);
+    btn3.callback(add_item_cb);
    
-   window.end();
-   window.resizable(&window);
+    window.end();
+    window.resizable(&window);
    
-   window.show(argc, argv);
+    window.show(argc, argv);
    
-   CThemes::set
-   ("OSX");
+    CThemes::set
+    ("OSX");
    
-   Fl::run();
+    Fl::run();
    
-   return 0;
+    return 0;
 }

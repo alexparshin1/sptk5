@@ -26,13 +26,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-#include <FL/Fl.H>
 #include <sptk5/cgui>
+#include <FL/Fl.H>
 
 using namespace std;
 using namespace sptk;
@@ -48,6 +43,10 @@ void cb_clicked(Fl_Widget *w, void *)
 
 int main(int argc, char *argv[])
 {
+    // Initialize themes
+    CThemes themes;
+
+    // Main window
     CWindow w(200, 240, "Calendar Demo");
 
     w.layoutSpacing(10);
