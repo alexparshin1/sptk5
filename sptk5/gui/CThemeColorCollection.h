@@ -49,7 +49,8 @@ enum CThemeColorIndex {
 
 #define THM_MAX_COLOR_INDEX 4
 
-enum CThemeColorState {
+enum CThemeColorState
+{
     THM_COLOR_UNDEFINED=-1,
     THM_COLOR_NORMAL=0,
     THM_COLOR_PRELIGHT,
@@ -62,7 +63,8 @@ enum CThemeColorState {
 
 typedef Fl_Color (*gtk_color_function)(std::string expression);
 
-class CThemeColorCollection {
+class CThemeColorCollection 
+{
     static std::map<std::string,gtk_color_function>* m_gtkColorFunctionMap;
     static std::map<std::string,Fl_Color> m_colorMap;
     Fl_Color    m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];

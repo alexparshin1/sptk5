@@ -39,7 +39,8 @@ using namespace sptk;
 std::map<std::string,gtk_color_function>*    CThemeColorCollection::m_gtkColorFunctionMap;
 std::map<std::string,Fl_Color>               CThemeColorCollection::m_colorMap;
 
-CThemeColorCollection::CThemeColorCollection() {
+CThemeColorCollection::CThemeColorCollection()
+{
     if (!m_gtkColorFunctionMap) {
         m_gtkColorFunctionMap = new std::map<std::string,gtk_color_function>;
         (*m_gtkColorFunctionMap)["darker"] = darker;
@@ -49,7 +50,8 @@ CThemeColorCollection::CThemeColorCollection() {
     }
 }
 
-static Fl_Color colorFromHexString(string colorStr) {
+static Fl_Color colorFromHexString(string colorStr)
+{
     char* eptr;
     uint32_t rgbColor = strtol(colorStr.c_str(),&eptr,16);
     uint32_t blue, green, red;
@@ -64,7 +66,8 @@ static Fl_Color colorFromHexString(string colorStr) {
     return (Fl_Color) (rgbColor << 8);
 }
 
-static void splitArguments(const string& expression, CStrings& arguments) {
+static void splitArguments(const string& expression, CStrings& arguments)
+{
     int subExpressionLevel = 0;
 
     const char* ptr1 = expression.c_str();
@@ -98,7 +101,8 @@ static void splitArguments(const string& expression, CStrings& arguments) {
     arguments.push_back(ptr1);
 }
 
-static void splitExpression(const string& colorValue,string& function,string& arguments) {
+static void splitExpression(const string& colorValue,string& function,string& arguments)
+{
     size_t pos1 = colorValue.find("(");
     size_t pos2 = colorValue.rfind(")");
     if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
@@ -107,19 +111,23 @@ static void splitExpression(const string& colorValue,string& function,string& ar
     }
 }
 
-Fl_Color CThemeColorCollection::passby(std::string expression) {
+Fl_Color CThemeColorCollection::passby(std::string expression)
+{
     return gtkColorFunction(expression);
 }
 
-Fl_Color CThemeColorCollection::lighter(std::string expression) {
+Fl_Color CThemeColorCollection::lighter(std::string expression)
+{
     return fl_lighter(gtkColorFunction(expression));
 }
 
-Fl_Color CThemeColorCollection::darker(std::string expression) {
+Fl_Color CThemeColorCollection::darker(std::string expression)
+{
     return fl_darker(gtkColorFunction(expression));
 }
 
-Fl_Color CThemeColorCollection::mix(std::string expression) {
+Fl_Color CThemeColorCollection::mix(std::string expression)
+{
     CStrings args;
     splitArguments(expression,args);
     double weight = atof(args[0].c_str());
@@ -128,14 +136,16 @@ Fl_Color CThemeColorCollection::mix(std::string expression) {
     return fl_color_average(color1,color2,weight);
 }
 
-static unsigned char shadeColorComponent(unsigned colorComponent, double multiplier) {
+static unsigned char shadeColorComponent(unsigned colorComponent, double multiplier)
+{
     colorComponent *= multiplier;
     if (colorComponent > 255)
         colorComponent = 255;
     return (unsigned char) colorComponent;
 }
 
-Fl_Color CThemeColorCollection::shade(std::string expression) {
+Fl_Color CThemeColorCollection::shade(std::string expression)
+{
     CStrings args;
     splitArguments(expression,args);
     if (args.size() < 2)
@@ -152,7 +162,8 @@ Fl_Color CThemeColorCollection::shade(std::string expression) {
     return fl_rgb_color(r,g,b);
 }
 
-Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression) {
+Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
+{
     string function, arguments;
     string colorValue(trim(expression));
     switch (colorValue[0]) {
@@ -179,7 +190,8 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression) {
     return FL_BLACK;
 }
 
-void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex) {
+void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex)
+{
     static const CStrings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
     CXmlAttributes::iterator itor = colorNode->attributes().begin();
     for (; itor != colorNode->attributes().end(); itor++) {
@@ -195,8 +207,9 @@ void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex color
 
 static const char* colorNames[THM_MAX_COLOR_INDEX] = { "fg", "bg", "base", "text" };
 
-void CThemeColorCollection::loadFromSptkTheme(CXmlDoc& sptkTheme) {
-    loadColorMap(sptkTheme,"/color_sheme");
+void CThemeColorCollection::loadFromSptkTheme(CXmlDoc& sptkTheme)
+{
+    loadColorMap(sptkTheme,"/color_scheme");
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath = string("/color_scheme/") + colorNames[colorIndex];
         CXmlNodeVector colorNodes;
@@ -208,7 +221,8 @@ void CThemeColorCollection::loadFromSptkTheme(CXmlDoc& sptkTheme) {
     }
 }
 
-void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
+void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme)
+{
     loadColorMap(gtkTheme,"/gtk_color_scheme");
 
     string stylesXPath = "/styles/style";
@@ -242,7 +256,8 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme) {
     Fl::set_color(FL_SELECTION_COLOR,bgColor(THM_COLOR_SELECTED));
 }
 
-void CThemeColorCollection::loadColorMap(CXmlDoc& gtkTheme,string colorMapXPath) {
+void CThemeColorCollection::loadColorMap(CXmlDoc& gtkTheme,string colorMapXPath)
+{
     m_colorMap.clear();
 
     CXmlNodeVector colorMapNodes;
@@ -252,7 +267,7 @@ void CThemeColorCollection::loadColorMap(CXmlDoc& gtkTheme,string colorMapXPath)
 
     CXmlNode* colorMapNode = *(colorMapNodes.begin());
 
-    CStrings colorMapStrings(colorMapNode->getAttribute("value"),"\\n");
+    CStrings colorMapStrings(colorMapNode->getAttribute("colors"),"\\n");
 
     for (unsigned i = 0; i < colorMapStrings.size(); i++) {
         CStrings colorInfo(colorMapStrings[i],":#");

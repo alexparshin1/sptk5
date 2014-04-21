@@ -138,7 +138,7 @@ CIcon* CThemes::getIcon(std::string iconName, CIconSize iconSize)
 {
     CIconMap::iterator itor = m_icons[iconSize].find(iconName);
     if (itor == m_icons[iconSize].end()) {
-        cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
+        //cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
         return 0L;
     }
     return itor->second;
