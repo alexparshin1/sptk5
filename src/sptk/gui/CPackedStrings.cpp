@@ -170,7 +170,7 @@ CPackedStrings& CPackedStrings::operator=(const CStrings& strings) {
    int sz = offsetsSpace + sizeof(uint16_t);
 
    // compute buffer size and offsets
-   for (int i = 0; i < cnt; i++) {
+   for (size_t i = 0; i < cnt; i++) {
       register uint16_t l = uint16_t(strings[i].length() + 1);
       offset[i] = uint16_t(sz);
       len[i] = l;
@@ -183,7 +183,7 @@ CPackedStrings& CPackedStrings::operator=(const CStrings& strings) {
 
    *(uint16_t *)m_buffer = uint16_t(cnt);
    memcpy((uint16_t *)m_buffer + 1,offset,offsetsSpace);
-   for (int j = 0; j < cnt; j++)
+   for (size_t j = 0; j < cnt; j++)
       memcpy(pchar(m_buffer)+offset[j],strings[j].c_str(),len[j]);
 
    return *this;

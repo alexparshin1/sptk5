@@ -54,7 +54,8 @@ static const char phoneMask[] = "(999)-999-9999";
 
 static const char maskControlCharacters[] = "@0123456789AaLlZz#Tt";
 
-static string reformatPhoneNumber(const char *st) {
+static string reformatPhoneNumber(const char *st)
+{
    string result(st);
 
    // Leave only digits!
@@ -80,7 +81,8 @@ static string reformatPhoneNumber(const char *st) {
    return result;
 }
 
-void CInput_::mask(const char *m) {
+void CInput_::mask(const char *m)
+{
    m_mask = m;
    m_inputMask = m;
    m_backgroundMask = m;
@@ -106,7 +108,8 @@ void CInput_::mask(const char *m) {
    input_mask_ptr[j] = 0;
 }
 
-bool CInput_::checkCharacterAtPos(int pos,char key) {
+bool CInput_::checkCharacterAtPos(int pos,char key)
+{
    bool rc = false;
    if (pos >= (int)m_inputMask.length()) return false;
    switch (m_inputMask[pos]) {
@@ -151,12 +154,13 @@ bool CInput_::checkCharacterAtPos(int pos,char key) {
    return rc;
 }
 
-bool CInput_::checkCharacter(int pos,char& key) {
+bool CInput_::checkCharacter(int pos,char& key)
+{
    if (!m_inputMask[0]) return true;
    char et[] = { 0, 0 };
    int rc = 1;
    size_t maxPos = m_inputMask.length();
-   while (pos < maxPos) {
+   while (pos < (int) maxPos) {
       if (m_inputMask[pos] == ' ') {
             // use background mask
          et[0] = m_backgroundMask[pos];
@@ -175,8 +179,8 @@ bool CInput_::checkCharacter(int pos,char& key) {
    return 1;
 }
 
-int CInput_::handle(int event) {
-
+int CInput_::handle(int event)
+{
    if (event != FL_KEYBOARD) {
       switch (event) {
 
@@ -246,18 +250,21 @@ int CInput_::handle(int event) {
 }
 
 CInput_::CInput_(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-: Fl_Input(0, 0, layoutSize, layoutSize, label), CLayoutClient(this,layoutSize,layoutAlignment) {
+: Fl_Input(0, 0, layoutSize, layoutSize, label), CLayoutClient(this,layoutSize,layoutAlignment)
+{
    m_maxLength = 0;
 }
 
 #ifdef __COMPATIBILITY_MODE__    
 CInput_::CInput_(int x, int y, int w, int h, const char *l)
-: Fl_Input(x, y, w, h, l), CLayoutClient(this,w,SP_ALIGN_NONE) {
+: Fl_Input(x, y, w, h, l), CLayoutClient(this,w,SP_ALIGN_NONE)
+{
    m_maxLength = 0;
 }
 #endif
 
-bool CInput_::preferredSize(int& w,int& h) {
+bool CInput_::preferredSize(int& w,int& h)
+{
    h = textSize() + 6 + Fl::box_dh(box());
 
    int ml = maxLength();
@@ -271,7 +278,8 @@ bool CInput_::preferredSize(int& w,int& h) {
    return false;
 }
 
-void CInput_::maskValue() {
+void CInput_::maskValue()
+{
    if (!m_inputMask[0])
       return;
 
@@ -292,7 +300,8 @@ void CInput_::maskValue() {
    value(val.c_str());
 }
 //=========================================================================================
-void CInput::ctor_init(bool autoCreate) {
+void CInput::ctor_init(bool autoCreate)
+{
     if (autoCreate) {
         m_control = new CInput_("");
         m_control->align(FL_ALIGN_LEFT);
@@ -307,96 +316,113 @@ void CInput::ctor_init(bool autoCreate) {
 }
 
 CInput::CInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CControl(label,layoutSize,layoutAlignment) {
+        : CControl(label,layoutSize,layoutAlignment)
+{
     ctor_init(true);
 }
 
 CInput::CInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment,bool autoCreate)
-        : CControl(label,layoutSize,layoutAlignment) {
+        : CControl(label,layoutSize,layoutAlignment)
+{
     ctor_init(autoCreate);
 }
 
 #ifdef __COMPATIBILITY_MODE__
 CInput::CInput(int x,int y,int w,int h,const char *label,bool autoCreate)
-        : CControl(x,y,w,h,label) {
+        : CControl(x,y,w,h,label)
+{
     ctor_init(autoCreate);
 }
 #endif
 
 CInput::~CInput() {}
 
-CLayoutClient* CInput::creator(CXmlNode *node) {
+CLayoutClient* CInput::creator(CXmlNode *node)
+{
     CInput* widget = new CInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
 }
 
-int CInput::maxLength() const {
+int CInput::maxLength() const
+{
     CInput_ *input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         return input->maxLength();
     return 0;
 }
 
-void CInput::maxLength(int ml) {
+void CInput::maxLength(int ml)
+{
     CInput_ *input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         input->maxLength(ml);
 }
 
-int CInput::controlType() const {
+int CInput::controlType() const
+{
     CInput_ *input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         return input->type();
     return 0;
 }
 
-void CInput::controlType(int type) {
+void CInput::controlType(int type)
+{
     CInput_ *input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         input->type((unsigned char)(type));
 }
 
-Fl_Font CInput::textFont() const {
+Fl_Font CInput::textFont() const
+{
     return ((CInput_ *)m_control)->textfont();
 }
 
-void CInput::textFont(Fl_Font f) {
+void CInput::textFont(Fl_Font f)
+{
     ((CInput_ *)m_control)->textfont(f);
 }
 
-uchar CInput::textSize() const {
+uchar CInput::textSize() const
+{
     return ((CInput_ *)m_control)->textsize();
 }
 
-void CInput::textSize(uchar s) {
+void CInput::textSize(uchar s)
+{
     ((CInput_ *)m_control)->textsize(s);
 }
 
-void CInput::load(CQuery *loadQuery) {
+void CInput::load(CQuery *loadQuery)
+{
     if (!m_fieldName.length())
         return;
     CField& fld = (*loadQuery)[m_fieldName.c_str()];
     data( fld );
 }
 
-void CInput::save(CQuery *updateQuery) {
+void CInput::save(CQuery *updateQuery)
+{
     if (!m_fieldName.length())
         return;
     CParam& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }
 
-CVariant CInput::data() const {
+CVariant CInput::data() const
+{
     return ((CInput_ *)m_control)->value();
 }
 
-void CInput::data(const CVariant s) {
+void CInput::data(const CVariant s)
+{
     std::string strValue = s.asString();
     ((CInput_ *)m_control)->value(strValue.c_str());
 }
 
-void CInput::preferredWidth(int& w) const {
+void CInput::preferredWidth(int& w) const
+{
     int ml = maxLength();
     if (ml > 0 && ml <= 80) {
         w = (int) (ml * fl_width('W')) + m_labelWidth + 4 + Fl::box_dw(box());
@@ -406,7 +432,8 @@ void CInput::preferredWidth(int& w) const {
     }
 }
 
-void CInput::preferredHeight(int& h) const {
+void CInput::preferredHeight(int& h) const
+{
     int hh = textSize() + 6 + Fl::box_dh(box());
     if (hh < (int)labelHeight())
         hh = labelHeight();
@@ -418,7 +445,8 @@ void CInput::preferredHeight(int& h) const {
     }
 }
 
-bool CInput::preferredSize(int& w,int& h) {
+bool CInput::preferredSize(int& w,int& h)
+{
     fl_font(textFont(),textSize());
     preferredWidth(w);
     preferredHeight(h);
