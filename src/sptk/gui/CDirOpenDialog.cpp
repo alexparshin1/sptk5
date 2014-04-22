@@ -57,6 +57,7 @@ bool CDirOpenDialog::okPressed() {
       }
       dname = removeTrailingSlash(dname) + slashStr;
 
+      memset(&st, 0, sizeof(struct stat));
       lstat((dname + string(".")).c_str(), &st);
       if (!S_ISDIR(st.st_mode))
          dname = directory();

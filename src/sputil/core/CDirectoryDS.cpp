@@ -269,7 +269,7 @@ string absolutePath(string path) {
             i--;
         }
     }
-    path = pathItems.asString(slashStr);
+    path = "/" + pathItems.asString(slashStr);
     if (!path.length())
         path = slashStr;
     return path;

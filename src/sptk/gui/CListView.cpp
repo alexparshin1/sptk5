@@ -1406,7 +1406,7 @@ void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned records
             }
 
             if (selectedIDs)
-                delete selectedIDs;
+                delete [] selectedIDs;
 
             // check if we have any selection in SELECT_BROWSER
             if (!m_multipleSelection && !m_selection.size()) {

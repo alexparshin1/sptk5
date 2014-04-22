@@ -116,7 +116,8 @@ CBaseButton::CBaseButton(CButtonKind kind,CLayoutAlign layoutAlign,bool is_small
 }
 
 CBaseButton::CBaseButton(const char *l,CLayoutAlign layoutAlign,CThemeButtonType tbt)
-: Fl_Button(0,0,20,20), CLayoutClient(this,20,layoutAlign) {
+: Fl_Button(0,0,20,20), CLayoutClient(this,20,layoutAlign), m_kind(SP_UNDEFINED_BUTTON)
+{
    m_default = false;
    m_type = tbt;
    m_image = 0L;
@@ -124,7 +125,8 @@ CBaseButton::CBaseButton(const char *l,CLayoutAlign layoutAlign,CThemeButtonType
    box(FL_THIN_UP_BOX);
 }
 
-void CBaseButton::defaultButton(bool isDefault) {
+void CBaseButton::defaultButton(bool isDefault)
+{
    m_default = isDefault;
    if (isDefault)
       box(FL_UP_BOX);
@@ -132,7 +134,8 @@ void CBaseButton::defaultButton(bool isDefault) {
    redraw();
 }
 
-void CBaseButton::drawFocusLine(int xs,int ys,int xe,int ye) {
+void CBaseButton::drawFocusLine(int xs,int ys,int xe,int ye)
+{
     // Since FLTK under Win32 doesn't support the dotted line,
     // draw it with dots.
    int xp = xs;
@@ -146,7 +149,8 @@ void CBaseButton::drawFocusLine(int xs,int ys,int xe,int ye) {
       fl_point(xp,yp);
 }
 
-void CBaseButton::drawFocus(bool usingTheme) {
+void CBaseButton::drawFocus(bool usingTheme)
+{
    fl_color(FL_FOREGROUND_COLOR);
    int r = 0;
    if (usingTheme) r = CThemes::buttonFocusRadius();
@@ -171,7 +175,8 @@ void CBaseButton::drawFocus(bool usingTheme) {
    drawFocusLine(xx,yy+r,xx+r,yy);
 }
 
-void CBaseButton::draw() {
+void CBaseButton::draw()
+{
    if (m_kind != SP_UNDEFINED_BUTTON)
      image(m_kind,m_iconSize,m_label.c_str());
 #if FL_MAJOR_VERSION > 1
