@@ -17,32 +17,26 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-#include <FL/Fl.H>
-#include <stdio.h>
-
 #include <sptk5/cgui>
 
 using namespace sptk;
 
 CMemoInput *memoInput;
 
-void font_cb(Fl_Widget *fc, void *data) {
-   CFontComboBox *fontCombo = dynamic_cast<CFontComboBox *>(fc);
-   if (!fontCombo) return;
-   if (fontCombo->eventType() == CE_DATA_CHANGED) {
-      std::string fontName = fontCombo->fontName();
-      fontName = fontName + "  " + fontName + "  ";
-      fontName = fontName + "\n" + fontName + "\n";
-      fontName = fontName + fontName;
-      memoInput->textFont(fontCombo->font());
-      memoInput->data(fontName);
-      memoInput->redraw();
-   }
+void font_cb(Fl_Widget *fc, void *data)
+{
+    CFontComboBox *fontCombo = dynamic_cast<CFontComboBox *>(fc);
+    if (!fontCombo)
+        return;
+    if (fontCombo->eventType() == CE_DATA_CHANGED) {
+        std::string fontName = fontCombo->fontName();
+        fontName = fontName + "  " + fontName + "  ";
+        fontName = fontName + "\n" + fontName + "\n";
+        fontName = fontName + fontName;
+        memoInput->textFont(fontCombo->font());
+        memoInput->data(fontName);
+        memoInput->redraw();
+    }
 }
 
 int main(int argc, char *argv[])
@@ -54,17 +48,17 @@ int main(int argc, char *argv[])
     w.resizable(w);
     w.color(0xC0C8FF00);
     w.layoutSpacing(4);
-   
+
     CFontComboBox fontCombo("Fonts:");
     fontCombo.callback(font_cb);
-   
+
     memoInput = new CMemoInput("Font Sample:", 10, SP_ALIGN_CLIENT);
     memoInput->data("This is just some text");
-   
+
     w.end();
     w.show(argc, argv);
-   
+
     Fl::run();
-   
+
     return 0;
 }

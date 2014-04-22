@@ -281,7 +281,7 @@ void CThemes::set(string theThemeName)
                 CXmlNode* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                     continue;
-                string iconsSizeStr = iconsNode->getAttribute("size", "large") + " ";
+                string iconsSizeStr = iconsNode->getAttribute("size", "large");
                 CIconSize iconsSize;
                 switch (iconsSizeStr[0]) {
                     case 'c':
