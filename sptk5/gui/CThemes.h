@@ -28,7 +28,7 @@
 #ifndef __CTHEMES_H__
 #define __CTHEMES_H__
 
-#include <FL/Fl.h>
+#include <FL/Fl.H>
 #include <sptk5/gui/CFrame.h>
 #include <sptk5/gui/CRect.h>
 #include <sptk5/gui/CFont.h>

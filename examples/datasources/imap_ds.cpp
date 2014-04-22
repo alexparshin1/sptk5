@@ -16,8 +16,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <FL/Fl.h>
-#include <FL/fl_ask.h>
+#include <FL/Fl.H>
+#include <FL/fl_ask.H>
 #include <sptk5/cgui>
 #include <sptk5/cnet>
 

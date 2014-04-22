@@ -27,8 +27,8 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl_Box.h>
-#include <FL/Fl_Button.h>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Button.H>
 
 #include <sptk5/gui/CCalendar.h>
 #include <sptk5/string_ext.h>

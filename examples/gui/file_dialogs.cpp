@@ -31,8 +31,6 @@
 #pragma hdrstop
 #endif
 
-#include <FL/Fl.h>
-#include <FL/fl_ask.h>
 #include <stdio.h>
 
 #include <locale.h>
@@ -41,7 +39,8 @@
 
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w,void *) {
+void exit_cb(Fl_Widget *w,void *)
+{
 	w->window()->hide();
 }
 

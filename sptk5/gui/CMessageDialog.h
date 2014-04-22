@@ -33,7 +33,7 @@
 
 #include <string>
 
-#include <FL/Fl_Pixmap.h>
+#include <FL/Fl_Pixmap.H>
 
 namespace sptk {
 

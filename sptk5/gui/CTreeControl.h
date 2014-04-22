@@ -28,8 +28,8 @@
 #ifndef __CTREECONTROL_H__
 #define __CTREECONTROL_H__
 
-#include <FL/Fl_Widget.h>
-#include <FL/Fl_Pixmap.h>
+#include <FL/Fl_Widget.H>
+#include <FL/Fl_Pixmap.H>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CScroll.h>
 #include <sptk5/gui/CGroup.h>

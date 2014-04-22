@@ -27,7 +27,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl.h>
+#include <FL/Fl.H>
 
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CTreeControl.h>

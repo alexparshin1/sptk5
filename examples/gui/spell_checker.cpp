@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <FL/fl_ask.h>
+#include <FL/fl_ask.H>
 #include <sptk5/cgui>
 #include <sptk5/gui/CEditorSpellChecker.h>
 #include <sptk5/CException.h>
@@ -10,7 +10,8 @@ using namespace sptk;
 
 CEditor  *editor;
 
-void cb_spellCheck(Fl_Widget *,void *) {
+void cb_spellCheck(Fl_Widget *,void *)
+{
    CEditorSpellChecker sc(editor);
    try {
       sc.spellCheck();
@@ -20,9 +21,11 @@ void cb_spellCheck(Fl_Widget *,void *) {
    }
 }
 
-int main(int argc,char *argv[]) {
-
+int main(int argc,char *argv[])
+{
+   CThemes  themes;
    CWindow  window(400,300,"CSpellChecker test");
+   
    editor = new CEditor(10,SP_ALIGN_CLIENT);
 
    editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");

@@ -31,9 +31,9 @@
 #pragma warning (disable: 4786)
 #endif
 
-#include <FL/Fl.h>
-#include <FL/Fl_Group.h>
-#include <FL/fl_draw.h>
+#include <FL/Fl.H>
+#include <FL/Fl_Group.H>
+#include <FL/fl_draw.H>
 #include <sptk5/gui/CScrollBar.h>
 #include <sptk5/gui/CThemes.h>
 #include <iostream>

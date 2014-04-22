@@ -27,7 +27,7 @@
 #ifndef __CEDITORSPELLCHECKER_H__
 #define __CEDITORSPELLCHECKER_H__
 
-#include <FL/Fl.h>
+#include <FL/Fl.H>
 
 #include <sptk5/sptk.h>
 #include <sptk5/cgui>

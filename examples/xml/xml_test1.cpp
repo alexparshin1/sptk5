@@ -23,7 +23,7 @@
 #endif
 
 #include <FL/fl_ask.H>
-#include <FL/Fl.h>
+#include <FL/Fl.H>
 
 #include <sptk5/CDateTime.h>
 #include <sptk5/cgui>

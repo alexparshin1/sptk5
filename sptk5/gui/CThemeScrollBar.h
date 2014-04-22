@@ -28,8 +28,8 @@
 #ifndef __CTHEMESCROLLBAR_H__
 #define __CTHEMESCROLLBAR_H__
 
-#include <FL/Fl.h>
-#include <FL/Enumerations.h>
+#include <FL/Fl.H>
+#include <FL/Enumerations.H>
 #include <sptk5/cxml>
 #include <sptk5/gui/CThemeImageCollection.h>
 #include <map>

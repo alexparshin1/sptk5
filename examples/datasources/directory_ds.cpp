@@ -28,8 +28,6 @@
 
 #include <stdio.h>
 
-#include <FL/Fl.h>
-
 #include <sptk5/cgui>
 #include <sptk5/CDirectoryDS.h>
 
@@ -39,16 +37,19 @@ CListView      *filesListView;
 CDirectoryDS   *directoryDS;
 CInput         *directoryInput;
 
-void exit_cb(Fl_Widget *w,void *) {
+void exit_cb(Fl_Widget *w,void *)
+{
    w->window()->hide();
 }
 
-void go_cb(Fl_Widget *w,void *) {
+void go_cb(Fl_Widget *w,void *)
+{
    directoryDS->directory(directoryInput->data().asString());
    filesListView->fill(*directoryDS);
 }
 
-void list_view_cb(Fl_Widget *w,void *) {
+void list_view_cb(Fl_Widget *w,void *)
+{
    CListView *listView = (CListView *)w;
    if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK) {
       CPackedStrings& row = listView->selectedRow(); 

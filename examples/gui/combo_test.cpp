@@ -33,8 +33,6 @@
 
 #include <stdio.h>
 
-#include <FL/Fl.h>
-
 #include <sptk5/cgui>
 
 using namespace std;

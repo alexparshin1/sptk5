@@ -27,8 +27,8 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl.h>
-#include <FL/fl_draw.h>
+#include <FL/Fl.H>
+#include <FL/fl_draw.H>
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/gui/CProgressBar.h>
 #include <sptk5/gui/CThemes.h>

@@ -41,7 +41,7 @@
 using namespace std;
 using namespace sptk;
 
-static const CStrings driverNames("sqlite|postgres|postgresql|oracle|mysql|firebird", "|");
+static const CStrings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird", "|");
 
 void CDatabaseConnectionString::parse() throw (CDatabaseException)
 {

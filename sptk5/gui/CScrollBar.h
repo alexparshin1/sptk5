@@ -29,7 +29,7 @@
 #ifndef __CSCROLLBAR_H__
 #define __CSCROLLBAR_H__
 
-#include <FL/Fl_Scrollbar.h>
+#include <FL/Fl_Scrollbar.H>
 #include <sptk5/sptk.h>
 #include <sptk5/gui/CLayoutClient.h>
 

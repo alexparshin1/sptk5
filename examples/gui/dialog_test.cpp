@@ -31,7 +31,6 @@
 #pragma hdrstop
 #endif
 
-#include <FL/Fl.h>
 #include <stdio.h>
 
 #include <sptk5/cgui>
@@ -40,20 +39,24 @@
 using namespace std;
 using namespace sptk;
 
-void example_dialog_cb(Fl_Widget *w, void *) {
+void example_dialog_cb(Fl_Widget *w, void *)
+{
    CButton *btn = dynamic_cast<CButton *>(w);
    if (btn)
       spInformation(string(btn->label())+" button was pressed.\nIt is different from <B>Ok</B> and <B>Cancel</B> buttons that are processed by default.");
 }
 
-void exit_cb(Fl_Widget *w, void *) {
+void exit_cb(Fl_Widget *w, void *)
+{
    w->window()->hide();
 }
 
-class CExampleDialog : public CDialog {
+class CExampleDialog : public CDialog
+{
    CRegistry   m_registry;  ///< An XML file where we store dialog controls data
 public:
-   CExampleDialog() : CDialog(300, 260, "Example Dialog"), m_registry("dialog_test.xml", "sptk_test", USER_REGISTRY) {
+   CExampleDialog() : CDialog(300, 260, "Example Dialog"), m_registry("dialog_test.xml", "sptk_test", USER_REGISTRY)
+   {
       CInput *inp;
       
       newPage("Company", true);
@@ -96,7 +99,8 @@ public:
       relayout();
    }
    
-   void loadState() {
+   void loadState()
+   {
       try {
          /// Try to load the prior values of the dialog controls.
          /// If the XML file doesn't exist yet - this will throw an exception that we trap.
@@ -107,7 +111,8 @@ public:
       } catch (...) {}
    }
    
-   void saveState() {
+   void saveState()
+   {
       try {
          /// Save data from dialog controls into XML file
          save(&m_registry);
@@ -125,7 +130,8 @@ public:
 };
 
 
-void dialog_cb(Fl_Widget *, void *) {
+void dialog_cb(Fl_Widget *, void *)
+{
    CExampleDialog dialog;
    
    /// Setting the default values for the dialog controls.

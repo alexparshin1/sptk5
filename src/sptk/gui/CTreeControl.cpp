@@ -29,9 +29,9 @@
 
 #include <string.h>
 
-#include <FL/Fl.h>
-#include <FL/fl_draw.h>
-#include <FL/Fl_Image.h>
+#include <FL/Fl.H>
+#include <FL/fl_draw.H>
+#include <FL/Fl_Image.H>
 
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CTreeControl.h>

@@ -29,7 +29,7 @@
 
 #include <FL/Fl.H>
 
-#include <FL/fl_draw.h>
+#include <FL/fl_draw.H>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CControl.h>

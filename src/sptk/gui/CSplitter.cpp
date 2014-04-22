@@ -28,9 +28,9 @@
 #include <sptk5/sptk.h>
 
 #include <stdio.h>
-#include <FL/Fl.h>
-#include <FL/Fl_Window.h>
-#include <FL/fl_draw.h>
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/fl_draw.H>
 #include <sptk5/gui/CSplitter.h>
 #include <sptk5/gui/CGroup.h>
 

@@ -28,7 +28,7 @@
 #ifndef __LISTVIEW_H__
 #define __LISTVIEW_H__
 
-#include <FL/Fl_Group.h>
+#include <FL/Fl_Group.H>
 
 #include <sptk5/CIntList.h>
 #include <sptk5/CDataSource.h>

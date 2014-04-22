@@ -27,7 +27,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/fl_ask.h>
+#include <FL/fl_ask.H>
 #include <sptk5/gui/CEditorSpellChecker.h>
 #include <sptk5/CException.h>
 #include <sptk5/string_ext.h>

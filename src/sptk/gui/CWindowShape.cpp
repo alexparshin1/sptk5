@@ -28,7 +28,7 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CWindow.h>
-#include <FL/fl_draw.h>
+#include <FL/fl_draw.H>
 #include <FL/x.H>
 #include <FL/Fl.H>
 

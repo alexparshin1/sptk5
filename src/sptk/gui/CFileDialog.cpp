@@ -31,8 +31,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <FL/filename.h>
-#include <FL/fl_ask.h>
+#include <FL/filename.H>
+#include <FL/fl_ask.H>
 
 #include <sptk5/gui/CFileDialog.h>
 #include <sptk5/gui/CGroup.h>

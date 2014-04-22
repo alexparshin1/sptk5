@@ -27,7 +27,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl.h>
+#include <FL/Fl.H>
 #include <FL/Enumerations.H>
 
 #include <sptk5/gui/CThemeColorCollection.h>

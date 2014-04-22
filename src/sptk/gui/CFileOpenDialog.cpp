@@ -33,7 +33,7 @@
 #endif
 #include <fcntl.h>
 
-#include <FL/fl_ask.h>
+#include <FL/fl_ask.H>
 
 #include <sptk5/gui/CFileOpenDialog.h>
 #include <sptk5/gui/CMessageDialog.h>

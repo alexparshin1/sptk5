@@ -28,7 +28,7 @@
 #ifndef __CSCROLL_H__
 #define __CSCROLL_H__
 
-#include <FL/Fl_Group.h>
+#include <FL/Fl_Group.H>
 
 #include <sptk5/gui/CScrollBar.h>
 #include <sptk5/gui/CLayoutClient.h>

@@ -28,7 +28,7 @@
 #ifndef __CCOLORSCHEMA_H__
 #define	__CCOLORSCHEMA_H__
 
-#include <FL/Fl.h>
+#include <FL/Fl.H>
 #include <map>
 
 namespace sptk {
