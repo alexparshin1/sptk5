@@ -145,7 +145,7 @@ public:
         CTabButtons::const_iterator itor = std::find(m_buttons.begin(),m_buttons.end(), m_activeTabButton);
         if (itor == m_buttons.end())
             return -1;
-        return distance(m_buttons.begin(),itor);
+        return (int) distance(m_buttons.begin(),itor);
     }
 
     /// @brief Sets selected page by number
@@ -489,7 +489,7 @@ Fl_Group* CTabs::newPage(const char* label,bool autoColor) {
 }
 
 uint32_t CTabs::pageCount() const {
-    return m_tabs->m_buttons.size();
+    return (uint32_t) m_tabs->m_buttons.size();
 }
 
 uint32_t CTabs::pageNumber() const {

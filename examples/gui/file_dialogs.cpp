@@ -26,11 +26,6 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #include <stdio.h>
 
 #include <locale.h>

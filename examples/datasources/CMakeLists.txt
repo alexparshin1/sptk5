@@ -16,7 +16,11 @@ IF (FLTK_FLAG)
     SET (DATASOURCE_EXAMPLE directory_ds imap_ds)
 
     FOREACH (DS_TEST ${DATASOURCE_EXAMPLE})
-        ADD_EXECUTABLE (${DS_TEST} ${DS_TEST}.cpp)
+        IF (WIN32)
+            ADD_EXECUTABLE (${DS_TEST} WIN32 ${DS_TEST}.cpp)
+        ELSE (WIN32)
+            ADD_EXECUTABLE (${DS_TEST} ${DS_TEST}.cpp)
+        ENDIF (WIN32)
         TARGET_LINK_LIBRARIES (${DS_TEST} sputil5)
     ENDFOREACH (DS_TEST)
 

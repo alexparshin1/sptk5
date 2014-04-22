@@ -97,7 +97,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
             size_t pos2 = row.find_first_of("\"", pos);
             if (pos2 == STRING_NPOS)
                 throw runtime_error("Error parsing value for " + name + " in row " + row);
-            maxValueSize = pos2 - pos;
+            maxValueSize = int(pos2 - pos);
         }
         CXmlNode* node = NULL;
         string value = trim(row.substr(pos, maxValueSize));
@@ -226,7 +226,7 @@ void CGtkThemeParser::load(std::string themeName) throw (std::exception)
     try {
         gtkrcSource.loadFromFile(gtkrcFile);
     }
-    catch (exception& e) {
+    catch (...) {
         m_themeFolder = "/usr/share/themes/" + themeName + "/gtk-2.0/";
         gtkrcFile = m_themeFolder + "gtkrc";
         gtkrcSource.loadFromFile(gtkrcFile);

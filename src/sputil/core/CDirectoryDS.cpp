@@ -269,7 +269,11 @@ string absolutePath(string path) {
             i--;
         }
     }
+#ifdef _WIN32
+    path = pathItems.asString(slashStr);
+#else
     path = "/" + pathItems.asString(slashStr);
+#endif
     if (!path.length())
         path = slashStr;
     return path;

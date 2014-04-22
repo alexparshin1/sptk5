@@ -133,12 +133,12 @@ Fl_Color CThemeColorCollection::mix(std::string expression)
     double weight = atof(args[0].c_str());
     Fl_Color color1 = gtkColorFunction(args[1]);
     Fl_Color color2 = gtkColorFunction(args[2]);
-    return fl_color_average(color1,color2,weight);
+    return fl_color_average(color1,color2,float(weight));
 }
 
 static unsigned char shadeColorComponent(unsigned colorComponent, double multiplier)
 {
-    colorComponent *= multiplier;
+    colorComponent = unsigned(colorComponent * multiplier);
     if (colorComponent > 255)
         colorComponent = 255;
     return (unsigned char) colorComponent;
@@ -242,7 +242,7 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme)
         string colorXPath(colorNames[colorIndex]);
         CXmlNodeVector colorNodes;
         defaultStyleNode->select(colorNodes,colorXPath);
-        unsigned elements = colorNodes.size();
+        size_t elements = colorNodes.size();
         if (elements == 1) {
             CXmlNode* colorNode = *(colorNodes.begin());
             loadColor(colorNode,CThemeColorIndex(colorIndex));
