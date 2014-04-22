@@ -138,10 +138,12 @@ bool CTar::loadFile() throw(CException) {
         m_files[fileName] = buffer;
 
         off_t emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
+        char buff[T_BLOCKSIZE];
         if (m_memoryRead) {
             mem_read(tar->fd,NULL,emptyTail);
         } else {
-            if (lseek(tar->fd,emptyTail,SEEK_CUR) == (off_t) -1)
+            if (::read(tar->fd, buff, emptyTail) == -1)
+            //if (lseek(tar->fd,emptyTail,SEEK_CUR) == (off_t) -1)
                 throwError(m_fileName);
         }
     }

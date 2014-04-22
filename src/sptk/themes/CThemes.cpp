@@ -163,9 +163,10 @@ const CStrings& CThemes::searchDirectories()
     if (sd.size())
         return sd;
 #ifdef _WIN32
-    char windir[128];
-    GetWindowsDirectory(windir, 128);
-    sd.push_back(windir + string("\\.themes.sptk"));
+    char windir[256];
+    GetEnvironmentVariable("PROGRAMFILES", windir, sizeof(windir));
+    if (strlen(windir))
+        sd.push_back(windir + string("\\SPTK\\share\\sptk5"));
 #else
     sd.push_back("/usr/share/sptk");
     sd.push_back("/usr/local/share/sptk");
