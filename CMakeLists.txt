@@ -174,20 +174,34 @@ IF (USE_FLTK)
         ELSE (ASPELL_FOUND)
             SET (ASPELL_LIBRARIES "")
         ENDIF (ASPELL_FOUND)
+
+        IF (NOT WIN32)
+            FIND_PACKAGE (PNG)
+            IF (NOT PNG_FOUND)
+                MESSAGE(FATAL_ERROR "Please istall libpng (devel)")
+            ENDIF()
+
+            FIND_PACKAGE (X11)
+            IF (NOT X11_Xshape_FOUND)
+                MESSAGE(FATAL_ERROR "Please istall libXext (devel)")
+            ENDIF()
+        ENDIF()
+
     ENDIF (FLTK_FOUND)
 ENDIF (USE_FLTK)
 
 IF (FLTK_FOUND)
   MESSAGE("FLTK support:       compile")
+
+  IF (ASPELL_FLAG)
+    MESSAGE("ASPELL support:     compile")
+  ELSE (ASPELL_FLAG)
+    MESSAGE("ASPELL support:     don't compile")
+  ENDIF (ASPELL_FLAG)
+
 ELSE (FLTK_FOUND)
   MESSAGE("FLTK support:       don't compile")
 ENDIF (FLTK_FOUND)
-
-IF (ASPELL_FLAG)
-  MESSAGE("ASPELL support:     compile")
-ELSE (ASPELL_FLAG)
-  MESSAGE("ASPELL support:     don't compile")
-ENDIF (ASPELL_FLAG)
 
 
 IF (WIN32)

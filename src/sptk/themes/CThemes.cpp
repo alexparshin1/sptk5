@@ -168,8 +168,8 @@ const CStrings& CThemes::searchDirectories()
     if (strlen(windir))
         sd.push_back(windir + string("\\SPTK\\share\\sptk5"));
 #else
-    sd.push_back("/usr/share/sptk");
-    sd.push_back("/usr/local/share/sptk");
+    sd.push_back("/usr/share/sptk5");
+    sd.push_back("/usr/local/share/sptk5");
 #endif
 
     return sd;
