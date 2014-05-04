@@ -53,10 +53,10 @@ namespace sptk
 /// after server name and '/' delimiter.
 ///
 /// Example:
-///   drivername://[username:password]@servername[:port]/databasename
+///   drivername://[username:password]\@servername[:port]/databasename
 ///
 /// Some driver-specific parameters may be passed after '?':
-///   drivername://username:password@servername/databasename?timeout=10&reconnect=30
+///   drivername://username:password\@servername/databasename?timeout=10&reconnect=30
 ///
 /// This class is thread-safe.
 class SP_EXPORT CDatabaseConnectionString
@@ -66,7 +66,7 @@ public:
 
 protected:
     /// @brief Parses connection string
-    void parse() throw (CDatabaseException);
+    void parse() THROWS_EXCEPTIONS;
 
     std::string     m_connectionString;         ///< Database connection string
     std::string     m_driverName;               ///< Database driver name
@@ -94,6 +94,22 @@ public:
         m_portNumber(0)
     {
         parse();
+    }
+
+    /// @brief Assignment
+    /// @param cs const CDatabaseConnectionString&, Database connection string object to copy from
+    CDatabaseConnectionString& operator = (const CDatabaseConnectionString& cs)
+    {
+        m_connectionString = cs.m_connectionString;
+        m_driverName = "";
+        m_hostName = "";
+        m_portNumber = 0;
+        m_userName = "";
+        m_password = "";
+        m_databaseName = "";
+        m_parameters.clear();
+        parse();
+        return *this;
     }
 
     /// @brief Returns connection string

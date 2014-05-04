@@ -31,6 +31,7 @@
 
 #include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CException.h>
+#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
@@ -63,7 +64,7 @@ int32_t CTCPSocketReader::bufferedRead (char *dest, size_t sz, bool read_line, s
         m_readOffset = 0;
         if (from) {
             socklen_t flen = sizeof (sockaddr_in);
-            m_bytes = recvfrom (m_socket.handle(), m_buffer, int (m_size - 2), 0, (sockaddr*) from, &flen);
+            m_bytes = (size_t) recvfrom (m_socket.handle(), m_buffer, m_size - 2, 0, (sockaddr*) from, &flen);
         } else {
             m_bytes = m_socket.recv (m_buffer, m_size - 2);
         }
@@ -95,12 +96,12 @@ int32_t CTCPSocketReader::bufferedRead (char *dest, size_t sz, bool read_line, s
     }
 
     // copy data to dest, advance the read offset
-    memcpy (dest, readPosition, bytesToRead);
+    memcpy (dest, readPosition, size_t(bytesToRead));
 
     if (read_line || bytesToRead < int (sz))
         dest[bytesToRead] = 0;
 
-    m_readOffset += bytesToRead;
+    m_readOffset += uint32_t(bytesToRead);
     if (eol) // Indicate, that we have a complete string
         return -bytesToRead;
 
@@ -116,11 +117,11 @@ size_t CTCPSocketReader::read (char *dest, size_t sz, bool read_line, sockaddr_i
         throw CException ("Can't read from closed socket", __FILE__, __LINE__);
 
     while (!eol) {
-        int bytesToRead = int (sz - total);
+        int bytesToRead = int (int(sz) - total);
         if (bytesToRead <= 0)
             return sz;
 
-        int bytes = bufferedRead (dest, bytesToRead, read_line, from);
+        int bytes = bufferedRead (dest, size_t(bytesToRead), read_line, from);
 
         if (!bytes) // No more data
             break;
@@ -133,12 +134,12 @@ size_t CTCPSocketReader::read (char *dest, size_t sz, bool read_line, sockaddr_i
         total += bytes;
         dest += bytes;
     }
-    return total - eol;
+    return size_t(total - eol);
 }
 
 size_t CTCPSocketReader::readLine (CBuffer& destBuffer)
 {
-    int total = 0;
+    size_t total = 0;
     int eol = 0;
 
     if (m_socket.handle() <= 0)
@@ -153,7 +154,7 @@ size_t CTCPSocketReader::readLine (CBuffer& destBuffer)
 
         char *dest = destBuffer.data() + total;
 
-        int bytes = bufferedRead (dest, bytesToRead, true);
+        int bytes = bufferedRead(dest, size_t(bytesToRead), true);
 
         if (!bytes) // No more data
             break;
@@ -163,10 +164,10 @@ size_t CTCPSocketReader::readLine (CBuffer& destBuffer)
             bytes = -bytes;
         }
 
-        total += bytes;
+        total += size_t(bytes);
     }
-    destBuffer.data() [total] = 0;
-    destBuffer.bytes (total);
+    destBuffer.data()[total] = 0;
+    destBuffer.bytes(total);
     return destBuffer.bytes();
 }
 
@@ -181,7 +182,7 @@ CTCPSocket::~CTCPSocket()
 {
 }
 
-void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMode) throw(CException)
+void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode openMode) THROWS_EXCEPTIONS
 {
     if (hostName.length())
         m_host = hostName;
@@ -198,9 +199,9 @@ void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode ope
         throw CException ("Can't connect. Host is unknown.", __FILE__, __LINE__);
 
     memset (&addr, 0, sizeof (addr));
-    addr.sin_family = m_domain;
-    memcpy (&addr.sin_addr, host_info->h_addr, host_info->h_length);
-    addr.sin_port = htons (m_port);
+    addr.sin_family = (sa_family_t) m_domain;
+    memcpy (&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+    addr.sin_port = htons(uint16_t(m_port));
 
     if (active())
         close();
@@ -217,9 +218,9 @@ void CTCPSocket::listen (uint32_t portNumber)
     sockaddr_in addr;
 
     memset (&addr, 0, sizeof (addr));
-    addr.sin_family = m_domain;
+    addr.sin_family = (sa_family_t) m_domain;
     addr.sin_addr.s_addr = htonl (INADDR_ANY);
-    addr.sin_port = htons (m_port);
+    addr.sin_port = htons(uint16_t(m_port));
 
     open_addr (SOM_BIND, &addr);
 }
@@ -238,7 +239,7 @@ char CTCPSocket::getChar()
 #ifdef _WIN32
     int bytes = ::recv (m_sockfd, &ch, 1, 0);
 #else
-    int bytes = ::read (m_sockfd, &ch, 1);
+    ssize_t bytes = ::read (m_sockfd, &ch, 1);
 #endif
     if (!bytes)
         return 0;
@@ -262,13 +263,13 @@ size_t CTCPSocket::readLine (std::string& s)
     return m_stringBuffer.size() - 1;
 }
 
-size_t CTCPSocket::read (char *buffer, size_t size, sockaddr_in* from) throw(CException)
+size_t CTCPSocket::read (char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     m_reader.read (buffer, size, false, from);
     return size;
 }
 
-size_t CTCPSocket::read (CBuffer& buffer, size_t size, sockaddr_in* from) throw(CException)
+size_t CTCPSocket::read (CBuffer& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.checkSize(size);
     size_t rc = m_reader.read (buffer.data(), size, false, from);
@@ -276,7 +277,7 @@ size_t CTCPSocket::read (CBuffer& buffer, size_t size, sockaddr_in* from) throw(
     return rc;
 }
 
-size_t CTCPSocket::read (string& buffer, size_t size, sockaddr_in* from) throw(CException)
+size_t CTCPSocket::read (string& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.resize(size);
     size_t rc = m_reader.read ((char*)buffer.c_str(), size, false, from);

@@ -77,10 +77,10 @@ protected:
     int                 m_refcount;
 
     /// @brief Generates C++ class declaration
-    void generateDefinition(std::ostream& classDeclaration) throw (std::exception);
+    void generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS;
 
     /// @brief Generates C++ class implementation
-    void generateImplementation(std::ostream& classImplementation) throw (std::exception);
+    void generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS;
     
 public:
     static std::string wsClassName(std::string);
@@ -126,12 +126,12 @@ public:
     }
     
     /// @brief Parses WSDL complexType element
-    virtual void parse() throw (std::exception);
+    virtual void parse() THROWS_EXCEPTIONS;
     
-    void parseSequence(CXmlElement* sequence) throw (std::exception);
+    void parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS;
     
     /// @brief Generates C++ class declaration and implementation
-    void generate(std::ostream& classDeclaration, std::ostream& classImplementation) throw (std::exception);
+    void generate(std::ostream& classDeclaration, std::ostream& classImplementation) THROWS_EXCEPTIONS;
 };
 
 class CWSParserElement

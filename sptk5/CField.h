@@ -49,132 +49,165 @@ class CFieldList;
 /// @brief Data field for CDataSource.
 ///
 /// Contains field name, field type, field data and field format information.
-class SP_EXPORT CField : public CVariant {
+
+class SP_EXPORT CField : public CVariant
+{
     friend class CFieldList;
 protected:
-    std::string       m_name;     ///< Field name
+    std::string m_name; ///< Field name
 
 public:
-    std::string       displayName;///< Optional display field name
+    std::string displayName; ///< Optional display field name
 public:
     /// @brief Constructor
     /// @param name const char *, field name
     CField(const char *name);
 
-    int32_t           width;      ///< Field width
-    int32_t           precision;  ///< Field precision
-    int32_t           flags;      ///< Field flags like alignment, etc
-    bool              visible;    ///< Is field visible?
+    int32_t width; ///< Field width
+    int32_t precision; ///< Field precision
+    int32_t flags; ///< Field flags like alignment, etc
+    bool visible; ///< Is field visible?
 
-	/// Returns field name
-	const std::string& fieldName() const {
-		return m_name;
-	}
+    /// Returns field name
+
+    const std::string& fieldName() const
+    {
+        return m_name;
+    }
 
     /// @brief Sets the NULL state
     ///
     /// Useful for the database operations.
     /// Retains the data type. Sets the data to zero(s).
     /// @param vtype CVariantType, optional variant type to enforce
-    virtual void setNull(CVariantType vtype=VAR_NONE);
+    virtual void setNull(CVariantType vtype = VAR_NONE);
 
     /// Assignment operation
-	virtual CField& operator = (const CVariant &C)    {
-		if (this == &C)
-			return *this;
-		setData(C);
-		return *this;
-	};
 
-	/// Assignment operation
-	virtual CField& operator = (int64_t value)            {
-		setInt64(value);
-		return *this;
-	}
+    virtual CField& operator =(const CVariant &C)
+    {
+        if (this == &C)
+            return *this;
 
-	/// Assignment operation
-	virtual CField& operator = (uint64_t value)       {
-		setInt64(value);
-		return *this;
-	}
+        setData(C);
+        return *this;
+    }
 
-	/// Assignment operation
-	virtual CField& operator = (int32_t value)            {
-		setInteger(value);
-		return *this;
-	}
+    /// Assignment operation
 
-	/// Assignment operation
-	virtual CField& operator = (uint32_t value)       {
-		setInteger(value);
-		return *this;
-	}
+    virtual CField& operator =(int64_t value)
+    {
+        setInt64(value);
+        return *this;
+    }
 
-	/// Assignment operation
-	virtual CField& operator = (int16_t value)          {
-		setInteger(value);
-		return *this;
-	}
+    /// Assignment operation
 
-	/// Assignment operation
-	virtual CField& operator = (uint16_t value) {
-		setInteger(value);
-		return *this;
-	}
+    virtual CField& operator =(uint64_t value)
+    {
+        setInt64((int64_t) value);
+        return *this;
+    }
 
-	/// Assignment operation
-	virtual CField& operator = (float value)          {
-		setFloat(value);
-		return *this;
-	}
+    /// Assignment operation
 
-	/// Assignment operation
-	virtual CField& operator = (double value)         {
-		setFloat(value);
-		return *this;
-	}
+    virtual CField& operator =(int32_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
 
-	/// Assignment operation
-	virtual CField& operator = (const char * value)   {
-		setString(value);
-		return *this;
-	}
+    /// Assignment operation
 
-	/// Assignment operation
-	virtual CField& operator = (const std::string& value) {
-		setString(value.c_str(),(uint32_t)value.length());
-		return *this;
-	}
+    virtual CField& operator =(uint32_t value)
+    {
+        setInteger((int32_t) value);
+        return *this;
+    }
 
-	/// Assignment operation
-	virtual CField& operator = (CDateTime value)      {
-		setDateTime(value);
-		return *this;
-	}
+    /// Assignment operation
 
-	/// Assignment operation
-	virtual CField& operator = (const void *value)    {
-		setImagePtr(value);
-		return *this;
-	}
+    virtual CField& operator =(int16_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
 
-	/// Assignment operator
-	virtual CField& operator = (const CBuffer& value) {
-		setBuffer(value.data(),value.bytes());
-		return *this;
-	}
+    /// Assignment operation
 
-	/// Better (than in base class) conversion method
-	virtual std::string asString() const throw(CException);
+    virtual CField& operator =(uint16_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
 
-	/// @brief Exports the field data into XML node
-	///
-	/// If the compactXmlMode flag is true, the field is exported as an attribute.
-	/// Otherwise, the field is exported as subnodes.
-	/// For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
-	/// @param node CXmlNode&, a node to export field data into
-	/// @param compactXmlMode bool, compact XML mode flag
-	void toXML(CXmlNode& node,bool compactXmlMode) const;
+    /// Assignment operation
+
+    virtual CField& operator =(float value)
+    {
+        setFloat(value);
+        return *this;
+    }
+
+    /// Assignment operation
+
+    virtual CField& operator =(double value)
+    {
+        setFloat(value);
+        return *this;
+    }
+
+    /// Assignment operation
+
+    virtual CField& operator =(const char * value)
+    {
+        setString(value);
+        return *this;
+    }
+
+    /// Assignment operation
+
+    virtual CField& operator =(const std::string& value)
+    {
+        setString(value.c_str(), (uint32_t) value.length());
+        return *this;
+    }
+
+    /// Assignment operation
+
+    virtual CField& operator =(CDateTime value)
+    {
+        setDateTime(value);
+        return *this;
+    }
+
+    /// Assignment operation
+
+    virtual CField& operator =(const void *value)
+    {
+        setImagePtr(value);
+        return *this;
+    }
+
+    /// Assignment operator
+
+    virtual CField& operator =(const CBuffer& value)
+    {
+        setBuffer(value.data(), value.bytes());
+        return *this;
+    }
+
+    /// Better (than in base class) conversion method
+    virtual std::string asString() const THROWS_EXCEPTIONS;
+
+    /// @brief Exports the field data into XML node
+    ///
+    /// If the compactXmlMode flag is true, the field is exported as an attribute.
+    /// Otherwise, the field is exported as subnodes.
+    /// For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
+    /// @param node CXmlNode&, a node to export field data into
+    /// @param compactXmlMode bool, compact XML mode flag
+    void toXML(CXmlNode& node, bool compactXmlMode) const;
 };
 /// @}
 }

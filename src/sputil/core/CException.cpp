@@ -31,12 +31,29 @@
 using namespace std;
 using namespace sptk;
 
-CException::CException(string text, string file, int line, string description) :
-    m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
+CException::CException(string text, string file, int line, string description)
+: m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
 {
     if (m_line && !m_file.empty())
         m_fullMessage += " " + m_file + "(" + int2string(uint32_t(m_line)) + ") ";
 
     if (!m_description.empty())
         m_fullMessage += "\n" + m_description;
+}
+
+CException::CException(const CException& other)
+: m_file(other.m_file), m_line(other.m_line), m_text(other.m_text), m_description(other.m_description), m_fullMessage(other.m_fullMessage)
+{
+}
+
+CException::~CException() DOESNT_THROW
+{
+}
+
+CTimeoutException::~CTimeoutException() DOESNT_THROW
+{
+}
+
+CDatabaseException::~CDatabaseException() DOESNT_THROW
+{
 }

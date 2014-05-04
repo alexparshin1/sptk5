@@ -50,9 +50,7 @@ public:
     }
 
     /// @brief Removes named entity
-    ///
     /// @param name const char *, entity name to remove
-    /// @returns true, if operation succeeds
     void removeEntity(const char *name)
     {
         erase(name);

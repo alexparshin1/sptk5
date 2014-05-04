@@ -179,7 +179,7 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS
     {
     }
 
@@ -214,12 +214,7 @@ public:
 
     /// @brief Destructor
     /// Flushes the log and releases any allocated resources
-    virtual ~CBaseLog()
-    {
-        SYNCHRONIZED_CODE;
-        flush();
-        delete m_buffer;
-    }
+    virtual ~CBaseLog();
 
     /// @brief Sets log options
     /// @param ops int, a bit combination of CLogOption
@@ -249,7 +244,7 @@ public:
 
     /// @brief Restarts the log, if applicable
     /// In CBaseLog it does nothing
-    virtual void reset() throw (CException)
+    virtual void reset() THROWS_EXCEPTIONS
     {
     }
 

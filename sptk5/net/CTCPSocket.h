@@ -97,7 +97,7 @@ public:
     /// @returns bytes read from the internal buffer
     size_t read(char *dest, size_t sz, bool readLine = false, struct sockaddr_in* from = NULL);
 
-    /// @brief Performs the buffered read of '\n'-terminated string
+    /// @brief Performs the buffered read of LF-terminated string
     /// @param dest CBuffer&, destination buffer
     /// @returns bytes read from the internal buffer
     size_t readLine(CBuffer& dest);
@@ -131,7 +131,7 @@ public:
     /// @param hostName std::string, the host name
     /// @param port uint32_t, the port number
     /// @param openMode CSocketOpenMode, socket open mode
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) throw (CException);
+    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) THROWS_EXCEPTIONS;
 
     /// @brief Opens the server socket connection on port (binds/listens)
     /// @param portNumber uint32_t, the port number
@@ -169,7 +169,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -177,7 +177,7 @@ public:
     /// @param buffer CBuffer&, the memory buffer
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
+    size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -185,7 +185,7 @@ public:
     /// @param buffer std::string&, the memory buffer
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
+    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 };
 
 /// @}

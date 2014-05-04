@@ -357,7 +357,7 @@ int
 libtar_list_add_str(libtar_list_t *l,
 			       char *str, char *delim)
 {
-	char tmp[10240];
+	char tmp[10241];
 	char *tokp, *nextp = tmp;
 
 	strncpy(tmp, str, sizeof(tmp));

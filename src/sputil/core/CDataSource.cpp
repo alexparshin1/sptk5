@@ -30,36 +30,40 @@
 using namespace std;
 using namespace sptk;
 
-bool CDataSource::load() {
-   // Loading data into DS
-   return loadData();
+bool CDataSource::load()
+{
+    // Loading data into DS
+    return loadData();
 }
 
-bool CDataSource::save() { 
-   // Storing data from DS
-   return saveData();
+bool CDataSource::save()
+{
+    // Storing data from DS
+    return saveData();
 }
 
-void CDataSource::rowToXML(CXmlNode& node,bool compactXmlMode) const {
-   uint32_t cnt = fieldCount();
-   for (uint32_t i = 0; i < cnt; i++) {
-     const CField& field = operator[](i);
-     field.toXML(node,compactXmlMode);
-   }
+void CDataSource::rowToXML(CXmlNode& node, bool compactXmlMode) const
+{
+    uint32_t cnt = fieldCount();
+    for (uint32_t i = 0; i < cnt; i++) {
+        const CField& field = operator[](i);
+        field.toXML(node, compactXmlMode);
+    }
 }
 
-void CDataSource::toXML(CXmlNode& parentNode,std::string nodeName,bool compactXmlMode) {
-   try {
-      open();
-      while (!eof()) {
-         CXmlNode& node = *(new CXmlElement(parentNode,nodeName));
-         rowToXML(node,compactXmlMode);
-         next();
-      }
-      close();
-   }
-   catch (...) {
-      close();
-      throw;
-   }
+void CDataSource::toXML(CXmlNode& parentNode, std::string nodeName, bool compactXmlMode)
+{
+    try {
+        open();
+        while (!eof()) {
+            CXmlNode& node = *(new CXmlElement(parentNode, nodeName));
+            rowToXML(node, compactXmlMode);
+            next();
+        }
+        close();
+    }
+    catch (...) {
+        close();
+        throw;
+    }
 }

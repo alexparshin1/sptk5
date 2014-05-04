@@ -41,11 +41,6 @@ int CQuery::nextObjectIndex = 0;
 
 static const char cantAllocateStmt[] = "Can't allocate statement";
 
-static inline bool successful(int ret)
-{
-    return (ret & 1) == ret;
-}
-
 void CQuery::allocStmt()
 {
     if (!m_db) {
@@ -261,10 +256,10 @@ void CQuery::sql(string _sql)
                 param = new CParam(paramStart);
                 m_params.add(param);
             }
-            param->bindAdd(paramNumber);
+            param->bindAdd(uint32_t(paramNumber));
             if (!m_db)
                 throw CDatabaseException("Query isn't connected to the database");
-            odbcSQL += m_db->paramMark(paramNumber) + delimitter;
+            odbcSQL += m_db->paramMark(uint32_t(paramNumber)) + delimitter;
             paramNumber++;
         } else {
             odbcSQL += ":";
@@ -278,7 +273,7 @@ void CQuery::sql(string _sql)
 
     for (int i = (int) m_params.size() - 1; i >= 0; i--)
         if (!m_params[i].bindCount())
-            m_params.remove(i);
+            m_params.remove(uint32_t(i));
 
     if (m_sql != odbcSQL) {
         m_sql = odbcSQL;
@@ -289,7 +284,7 @@ void CQuery::sql(string _sql)
     }
 }
 
-bool CQuery::open() throw (std::exception)
+bool CQuery::open() THROWS_EXCEPTIONS
 {
     if (!m_db)
         throw CDatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
@@ -319,7 +314,7 @@ bool CQuery::open() throw (std::exception)
     return true;
 }
 
-void CQuery::fetch() throw (std::exception)
+void CQuery::fetch() THROWS_EXCEPTIONS
 {
     m_fields.rewind();
     if (!m_db || !m_active) {
@@ -393,7 +388,7 @@ void CQuery::logText(std::string text, const CLogPriority& priority)
     }
 }
 
-void CQuery::logAndThrow(string method, string error) throw (CDatabaseException)
+void CQuery::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, CLP_ERROR);

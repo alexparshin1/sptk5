@@ -571,7 +571,7 @@ CControl *createControl(int controlKind, std::string label, std::string fieldNam
 /// The group node may contain other controls. If the control type or parameter is not recognized,
 /// the exception is thrown.
 /// @param xmlControls const CXmlNodeList&, the controls description in XML
-void createControls(const CXmlNodeList& xmlControls) throw (std::exception);
+void createControls(const CXmlNodeList& xmlControls) THROWS_EXCEPTIONS;
 
 /// @}
 }

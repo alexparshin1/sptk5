@@ -45,10 +45,10 @@ namespace sptk
 class SP_EXPORT CBaseMailConnect
 {
 protected:
-    std::string         m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd@noname.com>"
-    std::string         m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
-    std::string         m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
-    std::string         m_bcc;      ///< Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd@noname.com>; Jane Doe <janed@noname.com>"
+    std::string         m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
+    std::string         m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    std::string         m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    std::string         m_bcc;      ///< Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
     std::string         m_subject;  ///< Mail SUBJECT:
     CMailMessageBody    m_body;     ///< Mail text (plain-text and html parts of the message)
     std::string         m_attachments; ///< The list of attachment files separated with ';'
@@ -65,12 +65,9 @@ public:
     }
 
     /// Default destructor
-    virtual ~CBaseMailConnect()
-    {
-    }
+    virtual ~CBaseMailConnect();
 
-    /// Method from() returns the current value of 'FROM:' field
-    /// of e-mail message.
+    /// Method from() returns the current value of 'FROM:' field of e-mail message.
     /// @returns a single e-mail address.
     std::string from() const
     {
@@ -80,7 +77,7 @@ public:
     /// Method from() sets the current value of 'FROM:' field
     /// of e-mail message.
     /// @param addr should be an e-mail address in format:
-    /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
+    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
     void from(std::string addr)
     {
         m_from = addr;
@@ -96,7 +93,7 @@ public:
     /// Method from() sets the current value of 'TO:' field
     /// of e-mail message.
     /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-    /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
+    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
     void to(std::string addr)
     {
         m_to = addr;
@@ -113,7 +110,7 @@ public:
     /// Method cc() sets the current value of 'CC:' field
     /// of e-mail message.
     /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-    /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
+    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
     void cc(std::string addr)
     {
         m_cc = addr;
@@ -127,33 +124,29 @@ public:
         return m_bcc;
     }
 
-    /// Method bcc() sets the current value of 'BCC:' field
-    /// of e-mail message.
+    /// Method bcc() sets the current value of 'BCC:' field of e-mail message.
     /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-    /// Real sender name <sender@host.net>. The example: John Doe <johnd@unknown.org>
+    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
     void bcc(std::string addr)
     {
         m_bcc = addr;
     }
 
-    /// Method subject() returns the current value of 'SUBJECT:' field
-    /// of e-mail message.
+    /// Method subject() returns the current value of 'SUBJECT:' field of e-mail message.
     /// @returns current message subject
     std::string subject() const
     {
         return m_subject;
     }
 
-    /// Method subject() sets the current value of 'BCC:' field
-    /// of e-mail message.
+    /// Method subject() sets the current value of 'BCC:' field of e-mail message.
     /// @param subj A message subject
     void subject(std::string subj)
     {
         m_subject = subj;
     }
 
-    /// Method subject() returns the current plain text part
-    /// of e-mail message.
+    /// Method subject() returns the current plain text part of e-mail message.
     /// @returns current message plain-text part
     std::string body() const
     {
@@ -161,7 +154,6 @@ public:
     }
 
     /// @brief Sets the current plain text part of e-mail message.
-    ///
     /// @param body std::string&, message body
     /// @param smtp bool, do we need special pre-processing for SMTP?
     void body(const std::string& body, bool smtp)

@@ -55,7 +55,7 @@ void CWSParser::clear()
     m_elements.clear();
 }
 
-void CWSParser::parseElement(const CXmlElement* elementNode) throw (std::exception)
+void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
 {
     string elementName = elementNode->getAttribute("name");
     string elementType = elementNode->getAttribute("type");
@@ -83,7 +83,7 @@ void CWSParser::parseElement(const CXmlElement* elementNode) throw (std::excepti
     m_elements[elementName] = element;
 }
 
-void CWSParser::parseComplexType(const CXmlElement* complexTypeElement) throw (std::exception)
+void CWSParser::parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS
 {
     string complexTypeName = complexTypeElement->getAttribute("name");
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
@@ -93,7 +93,7 @@ void CWSParser::parseComplexType(const CXmlElement* complexTypeElement) throw (s
     complexType->parse();
 }
 
-void CWSParser::parseOperation(const CXmlElement* operationNode) throw (std::exception)
+void CWSParser::parseOperation(const CXmlElement* operationNode) THROWS_EXCEPTIONS
 {
     CWSOperation operation;
     for (CXmlElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); itor++) {
@@ -114,7 +114,7 @@ void CWSParser::parseOperation(const CXmlElement* operationNode) throw (std::exc
     m_operations[operationNode->getAttribute("name")] = operation;
 }
 
-void CWSParser::parseSchema(const CXmlElement* schemaElement) throw (std::exception)
+void CWSParser::parseSchema(const CXmlElement* schemaElement) THROWS_EXCEPTIONS
 {
     for (CXmlElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); itor++) {
         const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
@@ -128,7 +128,7 @@ void CWSParser::parseSchema(const CXmlElement* schemaElement) throw (std::except
     }
 }
 
-void CWSParser::parse(std::string wsdlFile) throw (std::exception)
+void CWSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
 {
     CXmlDoc wsdlXML;
     CBuffer buffer;
@@ -157,7 +157,7 @@ string capitalize(string name)
 {
     CStrings parts(lowerCase(name),"_");
     for (unsigned i = 0; i < parts.size(); i++) {
-        parts[i][0] = toupper(parts[i][0]);
+        parts[i][0] = (char) toupper(parts[i][0]);
     }
     return parts.asString("");
 }
@@ -170,7 +170,7 @@ string CWSParser::strip_namespace(const string& name)
     return name.substr(pos + 1);
 }
 
-void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& serviceDefinition) throw (exception)
+void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     string defname = "__" + upperCase(serviceClassName) + "__";
@@ -195,7 +195,7 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
         string requestName = strip_namespace(itor->second.m_input->name());
         serviceDefinition << "   /// @brief Internal Web Service " << requestName << " processing" << endl;
         serviceDefinition << "   /// @param requestNode sptk::CXmlElement*, Operation input/output XML data" << endl;
-        serviceDefinition << "   void process_" << requestName << "(sptk::CXmlElement* requestNode) throw (std::exception);" << endl << endl;
+        serviceDefinition << "   void process_" << requestName << "(sptk::CXmlElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
     }
     serviceDefinition << "protected:" << endl;
     serviceDefinition << "   /// @brief SOAP body processor" << endl;
@@ -203,7 +203,7 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
     serviceDefinition << "   /// Receives incoming SOAP body of Web Service requests, and returns" << endl;
     serviceDefinition << "   /// application response." << endl;
     serviceDefinition << "   /// @param soapBody sptk::CXmlElement*, Incoming and outgoing SOAP element" << endl;
-    serviceDefinition << "   virtual void requestBroker(sptk::CXmlElement* requestBroker) throw (std::exception);" << endl;
+    serviceDefinition << "   virtual void requestBroker(sptk::CXmlElement* requestBroker) THROWS_EXCEPTIONS;" << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "   /// @brief Constructor" << endl;
     serviceDefinition << "   " << serviceClassName << "() {}" << endl << endl;
@@ -220,13 +220,13 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
         serviceDefinition
             << "   virtual void " << itor->first 
             << "(const " << operation.m_input->className() << "& input, "
-            << operation.m_output->className() << "& output) throw (std::exception) = 0;" << endl;
+            << operation.m_output->className() << "& output) THROWS_EXCEPTIONS = 0;" << endl;
     }
     serviceDefinition << "};" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
 
-void CWSParser::generateImplementation(ostream& serviceImplementation) throw (exception)
+void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
@@ -243,7 +243,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) throw (ex
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
-    serviceImplementation << "void " << serviceClassName << "::requestBroker(CXmlElement* requestNode) throw (std::exception)" << endl;
+    serviceImplementation << "void " << serviceClassName << "::requestBroker(CXmlElement* requestNode) THROWS_EXCEPTIONS" << endl;
     serviceImplementation << "{" << endl;
     serviceImplementation << "   static const CStrings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
     serviceImplementation << "   string requestName = CWSParser::strip_namespace(requestNode->name());" << endl;
@@ -272,7 +272,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) throw (ex
             requestName = nameParts[1];
         }
         CWSOperation& operation = itor->second;
-        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(CXmlElement* requestNode) throw (std::exception)" << endl;
+        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(CXmlElement* requestNode) THROWS_EXCEPTIONS" << endl;
         serviceImplementation << "{" << endl;
         serviceImplementation << "   C" << operation.m_input->name() << " inputData;" << endl;
         serviceImplementation << "   C" << operation.m_output->name() << " outputData;" << endl;
@@ -288,7 +288,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) throw (ex
 
 /// @brief Stores parsed classes to files in source directory
 /// @param sourceDirectory std::string, Directory to store output classes
-void CWSParser::generate(std::string sourceDirectory) throw (std::exception)
+void CWSParser::generate(std::string sourceDirectory) THROWS_EXCEPTIONS
 {
     CStrings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {

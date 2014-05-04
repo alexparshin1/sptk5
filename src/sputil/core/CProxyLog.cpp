@@ -30,13 +30,13 @@
 using namespace std;
 using namespace sptk;
 
-void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
+void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS
 {
     if (options() & CLO_ENABLE)
         m_destination.saveMessage(date, message, sz, priority);
 }
 
-void CProxyLog::reset() throw (CException)
+void CProxyLog::reset() THROWS_EXCEPTIONS
 {
     m_destination.reset();
 }

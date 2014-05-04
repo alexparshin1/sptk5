@@ -56,38 +56,39 @@ using namespace std;
 using namespace sptk;
 
 /* That function is adapted from Rich Salz. */
-bool fl_file_match(const char *s, const char *p) {
+bool fl_file_match(const char *s, const char *p)
+{
     int nesting;
 
     for (;;) {
-        switch(*p++) {
+        switch (*p++) {
 
-        case '?' :           // match any single character
-            if (!*s++)
-                return false;
-            break;
-
-        case '*' :           // match 0-n of any characters
-            // do trailing * quickly
-            if (!*p)
-                return true;
-            while (!fl_file_match(s, p))
+            case '?': // match any single character
                 if (!*s++)
                     return false;
-            return true;
+                break;
 
-        case '[':            // match one character in set of form [abc-d] or [^a-b]
+            case '*': // match 0-n of any characters
+                // do trailing * quickly
+                if (!*p)
+                    return true;
+                while (!fl_file_match(s, p))
+                    if (!*s++)
+                        return false;
+                return true;
+
+            case '[': // match one character in set of form [abc-d] or [^a-b]
             {
                 if (!*s)
                     return false;
-                bool reverse = (*p=='^' || *p=='!');
+                bool reverse = (*p == '^' || *p == '!');
                 if (reverse)
                     p++;
                 bool matched = false;
                 char last = 0;
                 while (*p) {
-                    if (*p=='-' && last) {
-                        if (*s <= *++p && *s >= last )
+                    if (*p == '-' && last) {
+                        if (*s <= *++p && *s >= last)
                             matched = true;
                         last = 0;
                     } else {
@@ -95,7 +96,7 @@ bool fl_file_match(const char *s, const char *p) {
                             matched = true;
                     }
                     last = *p++;
-                    if (*p==']')
+                    if (*p == ']')
                         break;
                 }
                 if (matched == reverse)
@@ -103,87 +104,89 @@ bool fl_file_match(const char *s, const char *p) {
                 s++;
                 p++;
             }
-            break;
+                break;
 
-        case '{' :           // {pattern1|pattern2|pattern3}
-NEXTCASE:
-            if (fl_file_match(s,p))
-                return true;
-            for (nesting = 0;;) {
-                switch (*p++) {
-                case '\\':
-                    if (*p)
-                        p++;
-                    break;
-                case '{':
-                    nesting++;
-                    break;
-                case '}':
-                    if (!nesting--)
-                        return false;
-                    break;
-                case '|':
-                case ',':
-                    if (nesting==0)
-                        goto NEXTCASE;
-                case 0:
-                    return false;
+            case '{': // {pattern1|pattern2|pattern3}
+                NEXTCASE :
+                if (fl_file_match(s, p))
+                    return true;
+                for (nesting = 0;;) {
+                    switch (*p++) {
+                        case '\\':
+                            if (*p)
+                                p++;
+                            break;
+                        case '{':
+                            nesting++;
+                            break;
+                        case '}':
+                            if (!nesting--)
+                                return false;
+                            break;
+                        case '|':
+                        case ',':
+                            if (nesting == 0)
+                                goto NEXTCASE;
+                        case 0:
+                            return false;
+                    }
                 }
-            }
-        case '|':            // skip rest of |pattern|pattern} when called recursively
-        case ',':
-            for (nesting = 0; *p && nesting >= 0;) {
-                switch (*p++) {
-                case '\\':
-                    if (*p)
-                        p++;
-                    break;
-                case '{':
-                    nesting++;
-                    break;
-                case '}':
-                    nesting--;
-                    break;
+            case '|': // skip rest of |pattern|pattern} when called recursively
+            case ',':
+                for (nesting = 0; *p && nesting >= 0;) {
+                    switch (*p++) {
+                        case '\\':
+                            if (*p)
+                                p++;
+                            break;
+                        case '{':
+                            nesting++;
+                            break;
+                        case '}':
+                            nesting--;
+                            break;
+                    }
                 }
-            }
-            break;
-        case '}':
-            break;
+                break;
+            case '}':
+                break;
 
-        case 0:              // end of pattern
-            return !*s;
+            case 0: // end of pattern
+                return !*s;
 
 #if CASE_INSENSITIVE
 
-        case '\\':           // quote next character
-            if (*p)
-                p++;
-            if (*s++ != *(p-1))
-                return false;
-            break;
-        default:
-            if (*s != *(p-1) && tolower(*s) != *(p-1))
-                return false;
-            s++;
-            break;
+            case '\\': // quote next character
+                if (*p)
+                    p++;
+                if (*s++ != *(p - 1))
+                    return false;
+                break;
+            default:
+                if (*s != *(p - 1) && tolower(*s) != *(p - 1))
+                    return false;
+                s++;
+                break;
 #else
 
-        case '\\':           // quote next character
-            if (*p)
-                p++;
-        default:
-            if (*s++ != *(p-1))
-                return false;
-            break;
+            case '\\': // quote next character
+                if (*p)
+                    p++;
+            default:
+                if (*s++ != *(p - 1))
+                    return false;
+                break;
 #endif
 
         }
     }
-    return false;
+    //return false;
 }
 
 // Returns typename
-string CDirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image,const char *fname) const {
+
+string CDirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, const char *fname) const
+{
     bool executable = S_ISEXEC(st.st_mode);
     bool directory = false;
     image = SXPM_DOCUMENT;
@@ -205,17 +208,17 @@ string CDirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image,
         image = SXPM_EXECUTABLE;
     } else {
         if (!directory) {
-            const char *ext = strrchr(fname,'.');
-            const char *sep = strrchr(fname,slash);
+            const char *ext = strrchr(fname, '.');
+            const char *sep = strrchr(fname, slash);
             if (ext && ext > sep) {
                 ext++;
-                if (strcasecmp(ext,"doc") == 0)
+                if (strcasecmp(ext, "doc") == 0)
                     image = SXPM_DOC_DOCUMENT;
-                if (strcasecmp(ext,"txt") == 0)
+                if (strcasecmp(ext, "txt") == 0)
                     image = SXPM_TXT_DOCUMENT;
-                if (strcasecmp(ext,"xls") == 0)
+                if (strcasecmp(ext, "xls") == 0)
                     image = SXPM_XLS_DOCUMENT;
-                if (strcasecmp(ext,"csv") == 0)
+                if (strcasecmp(ext, "csv") == 0)
                     image = SXPM_XLS_DOCUMENT;
             }
         }
@@ -226,37 +229,38 @@ string CDirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image,
 
 // Define access mode constants if they aren't already defined.
 #ifndef R_OK
-# define R_OK 04
+#define R_OK 04
 #endif
 
 // dataset navigation
 
-string absolutePath(string path) {
-    char slashStr[] = { slash, 0 };
+string absolutePath(string path)
+{
+    char slashStr[] = {slash, 0};
     char currentDir[256];
     string fullPath;
-    getcwd(currentDir,255);
+    getcwd(currentDir, 255);
 #ifdef _WIN32
 
-    path = replaceAll(path,"/","\\");
+    path = replaceAll(path, "/", "\\");
     if (path[1] == ':')
         fullPath = path;
     else if (path[0] == '\\') {
-        fullPath = string(currentDir).substr(0,2) + path;
+        fullPath = string(currentDir).substr(0, 2) + path;
     } else
         fullPath = string(currentDir) + slashStr + path;
 #else
 
-    path = replaceAll(path,"\\","/");
+    path = replaceAll(path, "\\", "/");
     if (path[0] == slash)
         fullPath = path;
     else
         fullPath = string(currentDir) + slashStr + path;
 #endif
 
-    CStrings pathItems(fullPath,slashStr);
+    CStrings pathItems(fullPath, slashStr);
     for (unsigned i = 0; i < pathItems.size(); i++) {
-        if ( pathItems[i] == ".." ) {
+        if (pathItems[i] == "..") {
             pathItems.remove(i);
             i--;
             if (i > 0) {
@@ -264,7 +268,7 @@ string absolutePath(string path) {
                 i--;
             }
         }
-        if ( pathItems[i] == "." ) {
+        if (pathItems[i] == ".") {
             pathItems.remove(i);
             i--;
         }
@@ -279,22 +283,25 @@ string absolutePath(string path) {
     return path;
 }
 
-void CDirectoryDS::directory(string d) {
+void CDirectoryDS::directory(string d)
+{
     m_directory = absolutePath(d);
 }
 
 // read the directory() and move item into the first entry
-bool CDirectoryDS::open() throw (std::exception) {
+
+bool CDirectoryDS::open() THROWS_EXCEPTIONS
+{
     clear();
 
-    size_t dlen = m_directory.length()-1;
+    size_t dlen = m_directory.length() - 1;
     if (dlen) {
         if (m_directory[dlen] != slash)
             m_directory += slash;
     }
 #ifdef _WIN32
     WIN32_FIND_DATA FindFileData;
-    HANDLE hFind = FindFirstFile((m_directory+"*.*").c_str(), &FindFileData);
+    HANDLE hFind = FindFirstFile((m_directory + "*.*").c_str(), &FindFileData);
     if (hFind == INVALID_HANDLE_VALUE)
         return false;
 #else
@@ -321,14 +328,14 @@ bool CDirectoryDS::open() throw (std::exception) {
             n++;
             continue;
         }
-        char* file = (char *)files[n]->d_name;
+        char* file = (char *) files[n]->d_name;
 #endif
 
         size_t len = strlen(file);
-        if (len && file[len-1] == '/')
-            file[len-1] = 0;
+        if (len && file[len - 1] == '/')
+            file[len - 1] = 0;
 
-        if ((showPolicy() & DDS_HIDE_DOT_FILES) && file[0]=='.') {
+        if ((showPolicy() & DDS_HIDE_DOT_FILES) && file[0] == '.') {
             n++;
             continue;
         }
@@ -379,19 +386,19 @@ bool CDirectoryDS::open() throw (std::exception) {
             useEntry = (showPolicy() & DDS_HIDE_FILES) == 0;
 
         if (useEntry) {
-            CFieldList   *df = new CFieldList(false);
-            df->push_back(" ",false).setImageNdx(pixmapType);
-            df->push_back("Name",false)      = file;
+            CFieldList *df = new CFieldList(false);
+            df->push_back(" ", false).setImageNdx(pixmapType);
+            df->push_back("Name", false) = file;
             if (modeName == "Directory")
-                df->push_back("Size",false)   = "";
+                df->push_back("Size", false) = "";
             else
-                df->push_back("Size",false) = (uint32_t)st.st_size;
-            df->push_back("Type",false)      = modeName;
-            df->push_back("Modified",false)  = CDateTime::convertCTime(st.st_mtime);
-            df->push_back("",false)          = (uint32_t)index; // Fake key value
+                df->push_back("Size", false) = (uint32_t) st.st_size;
+            df->push_back("Type", false) = modeName;
+            df->push_back("Modified", false) = CDateTime::convertCTime(st.st_mtime);
+            df->push_back("", false) = (uint32_t) index; // Fake key value
             index++;
 
-            if (access(fullName.c_str(), R_OK)!=0) {
+            if (access(fullName.c_str(), R_OK) != 0) {
                 (*df)[uint32_t(0)].flags = FL_ALIGN_LEFT;
                 (*df)[uint32_t(1)].flags = FL_ALIGN_LEFT;
             }
@@ -403,7 +410,7 @@ bool CDirectoryDS::open() throw (std::exception) {
         }
 
 #ifndef _WIN32
-        free((struct dirent*)files[n]);
+        free((struct dirent*) files[n]);
         files[n] = 0;
 #endif
 
@@ -412,18 +419,17 @@ bool CDirectoryDS::open() throw (std::exception) {
 #ifdef _WIN32
     while (FindNextFile(hFind, &FindFileData));
 #else
-
     while (n < num_files)
         ;
 #endif
 
     for (unsigned i = 0; i < fileList.size(); i++)
-        m_list.push_back( fileList[i] );
+        m_list.push_back(fileList[i]);
     fileList.clear();
 
     first();
 
-    int defaultWidths[5] = { 3, 30, 10, 10, 16 };
+    int defaultWidths[5] = {3, 30, 10, 10, 16};
     if (m_current)
         for (unsigned f = 0; f < 5; f++) {
             (*this)[f].flags = FL_ALIGN_LEFT;
@@ -431,8 +437,8 @@ bool CDirectoryDS::open() throw (std::exception) {
         }
 
 #ifndef _WIN32
-    free((struct dirent**)files);
+    free((struct dirent**) files);
 #endif
 
-    return m_list.size()>0;
+    return m_list.size() > 0;
 }

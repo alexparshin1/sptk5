@@ -182,7 +182,7 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement, int nodePositi
 void CXmlNode::scanDescendents(CXmlNodeVector& nodes, const std::vector<CXPathElement>& pathElements, int pathPosition,
         const std::string* starPointer)
 {
-    const CXPathElement& pathElement = pathElements[pathPosition];
+    const CXPathElement& pathElement = pathElements[size_t(pathPosition)];
     CXmlNode* lastNode = 0;
     int currentPosition = 1;
     for (iterator itor = begin(); itor != end(); itor++) {
@@ -210,7 +210,7 @@ void CXmlNode::matchNode(CXmlNodeVector& nodes, const vector<CXPathElement>& pat
 {
     pathPosition++;
     if (pathPosition == (int) pathElements.size()) {
-        const CXPathElement& pathElement = pathElements[pathPosition - 1];
+        const CXPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
         if (pathElement.elementName)
             nodes.insert(nodes.end(), this);
         else if (pathElement.attributeName) {
@@ -221,7 +221,7 @@ void CXmlNode::matchNode(CXmlNodeVector& nodes, const vector<CXPathElement>& pat
         return;
     }
 
-    const CXPathElement& pathElement = pathElements[pathPosition];
+    const CXPathElement& pathElement = pathElements[size_t(pathPosition)];
 
     CXmlNode* lastNode = 0;
     int currentPosition = 1;
@@ -329,7 +329,7 @@ void CXmlNode::save(CBuffer &buffer, int indent) const
 {
     // output indendation spaces
     if (indent > 0)
-        buffer.append(indentsString.c_str(), indent);
+        buffer.append(indentsString.c_str(), size_t(indent));
 
     if (type() == DOM_ELEMENT) {
         // Output tag name
@@ -405,7 +405,7 @@ void CXmlNode::save(CBuffer &buffer, int indent) const
             }
             // output indendation spaces
             if (!only_cdata && indent > 0)
-                buffer.append(indentsString.c_str(), indent);
+                buffer.append(indentsString.c_str(), size_t(indent));
 
             // output closing tag
             buffer.append("</", 2);

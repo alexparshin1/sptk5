@@ -90,6 +90,11 @@ string CContentTypes::type (string fileName)
         return "application/octet-stream";
 }
 
+CBaseMailConnect::~CBaseMailConnect()
+{
+}
+
+
 void CBaseMailConnect::mimeFile (string fileName, string fileAlias, stringstream& message)
 {
     CBuffer  bufSource;

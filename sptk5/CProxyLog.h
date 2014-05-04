@@ -54,15 +54,15 @@ protected:
     ///
     /// Does nothing since the priority should be defined for the shared (parent) log object
     /// @param priority CLogPriority, new default priority
-    virtual void defaultPriority(CLogPriority)
+    virtual void defaultPriority(CLogPriority priority)
     {
     }
 
     /// @brief Sets min message priority
     ///
     /// Does nothing since the min message priority should be defined for the shared (parent) log object
-    /// @param CLogPriority, min message priority
-    virtual void minPriority(CLogPriority)
+    /// @param priority CLogPriority, min message priority
+    virtual void minPriority(CLogPriority priority)
     {
     }
 
@@ -71,7 +71,7 @@ protected:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException);
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor
@@ -79,15 +79,15 @@ public:
     /// Creates a new log object based on the file name.
     /// If this file doesn't exist - it will be created.
     /// @param destination CBaseLog&, destination log object
-    CProxyLog(CBaseLog& destination) :
-            m_destination(destination)
+    CProxyLog(CBaseLog& destination)
+    : m_destination(destination)
     {
     }
 
     /// @brief Restarts the log
     ///
     /// The current log content is cleared. The file is recreated.
-    virtual void reset() throw (CException);
+    virtual void reset() THROWS_EXCEPTIONS;
 
     /// @brief Returns the default priority
     ///

@@ -115,13 +115,13 @@ th_read(TAR *t)
 	/* check for GNU long link extention */
 	if (TH_ISLONGLINK(t))
 	{
-		sz = th_get_size(t);
+		sz = (size_t) th_get_size(t);
 		j = (int) ( (sz / T_BLOCKSIZE) + (sz % T_BLOCKSIZE ? 1 : 0) );
 #ifdef LIBTAR_DEBUG
 		printf("    th_read(): GNU long linkname detected "
 		       "(%ld bytes, %d blocks)\n", sz, j);
 #endif
-		t->th_buf.gnu_longlink = (char *)malloc(j * T_BLOCKSIZE);
+		t->th_buf.gnu_longlink = (char *)malloc(size_t(j) * T_BLOCKSIZE);
 		if (t->th_buf.gnu_longlink == NULL)
 			return -1;
 
@@ -160,13 +160,13 @@ th_read(TAR *t)
 	/* check for GNU long name extention */
 	if (TH_ISLONGNAME(t))
 	{
-		sz = th_get_size(t);
+		sz = (size_t) th_get_size(t);
 		j = (int) ( (sz / T_BLOCKSIZE) + (sz % T_BLOCKSIZE ? 1 : 0) );
 #ifdef LIBTAR_DEBUG
 		printf("    th_read(): GNU long filename detected "
 		       "(%ld bytes, %d blocks)\n", sz, j);
 #endif
-		t->th_buf.gnu_longname = (char *)malloc(j * T_BLOCKSIZE);
+		t->th_buf.gnu_longname = (char *)malloc(size_t(j) * T_BLOCKSIZE);
 		if (t->th_buf.gnu_longname == NULL)
 			return -1;
 
@@ -177,7 +177,7 @@ th_read(TAR *t)
 			printf("    th_read(): reading long filename "
 			       "(%d blocks left, ptr == %ld)\n", j, ptr);
 #endif
-			i = tar_block_read(t, ptr);
+			i = (int) tar_block_read(t, ptr);
 			if (i != T_BLOCKSIZE)
 			{
 				if (i != -1)

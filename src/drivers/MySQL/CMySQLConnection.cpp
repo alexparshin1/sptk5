@@ -61,7 +61,7 @@ CMySQLConnection::~CMySQLConnection()
 }
 
 
-void CMySQLConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
+void CMySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -93,7 +93,7 @@ void CMySQLConnection::openDatabase(string newConnectionString) throw (CDatabase
     }
 }
 
-void CMySQLConnection::closeDatabase() throw (CDatabaseException)
+void CMySQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -130,7 +130,7 @@ string CMySQLConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void CMySQLConnection::driverBeginTransaction() throw (CDatabaseException)
+void CMySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connection)
         open();
@@ -150,7 +150,7 @@ void CMySQLConnection::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void CMySQLConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
+void CMySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throwDatabaseException("Transaction isn't started.");
@@ -226,12 +226,12 @@ void CMySQLConnection::queryUnprepare(CQuery *query)
 
 int CMySQLConnection::queryColCount(CQuery *query)
 {
-    int              colCount = 0;
+    int colCount = 0;
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not opened");
-        colCount = statement->colCount();
+        colCount = (int) statement->colCount();
     }
     catch (exception& e) {
         query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
@@ -287,7 +287,7 @@ void CMySQLConnection::queryOpen(CQuery *query)
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
 
     queryExecute(query);
-    short fieldCount = queryColCount(query);
+    short fieldCount = (short) queryColCount(query);
     if (fieldCount < 1) {
         return;
     } else {
@@ -326,7 +326,7 @@ void CMySQLConnection::queryFetch(CQuery *query)
     }
 }
 
-void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -365,7 +365,7 @@ void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) t
     }
 }
 
-void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
 {
     char    fileName[256];
     sprintf(fileName, ".bulk.insert.%i.%i", getpid(), rand());

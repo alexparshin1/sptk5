@@ -153,7 +153,6 @@ public:
     /// @brief Wakes up list semaphore to interrupt waiting
     ///
     /// Any waiting pop() operation immediately returns false.
-    /// @brief Wakes up a sleeping object
     virtual void wakeup()
     {
         m_semaphore.post();

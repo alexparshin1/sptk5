@@ -49,7 +49,7 @@ struct entity
 
 typedef map<std::string, struct entity *> CEntityMap;
 
-struct entity builtin_ent_xml[] = {
+static struct entity builtin_ent_xml[] = {
         { "amp", 1, "&" },
         { "lt", 1, "<" },
         { "gt", 1, ">" },
@@ -91,7 +91,7 @@ const struct entity *CEntityCache::encode(const char* str) const
     map<int, CEntityMap>::const_iterator maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); maps++) {
         int len = maps->first;
-        string fragment(str, len);
+        string fragment(str, size_t(len));
         const CEntityMap& replacements = maps->second;
         CEntityMap::const_iterator itor = replacements.find(fragment);
         if (itor != replacements.end())
@@ -226,7 +226,7 @@ const char* CXmlDocType::getReplacement(const char *name, uint32_t& replacementL
     // Find in built-ins, see entities.h
     const struct entity *entity = xml_entities.find(name);
     if (entity) {
-        replacementLength = entity->replacement_len;
+        replacementLength = uint32_t(entity->replacement_len);
         return entity->replacement;
     }
 

@@ -44,6 +44,29 @@ IF (WIN32)
   ADD_DEFINITIONS (-DHAVE_CONFIG_H -DWIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)
 ELSE (WIN32)
+  IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    ADD_DEFINITIONS (
+        -Wall -pedantic
+        -Wno-c++98-compat
+        -Wno-c++98-compat-pedantic
+        -Wno-cast-align
+        -Wno-exit-time-destructors
+        -Wno-float-equal
+        -Wno-format-nonliteral
+        -Wno-global-constructors
+        -Wno-implicit-fallthrough
+        -Wno-long-long
+        -Wno-missing-prototypes
+        -Wno-missing-noreturn
+        -Wno-padded
+        -Wno-shadow
+        -Wno-switch-enum
+        -Wno-unused-parameter
+    )
+  ELSE()
+    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
+  ENDIF()
+
   ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   LINK_LIBRARIES(pthread rt dl)
 ENDIF (WIN32)
@@ -237,7 +260,6 @@ IF (USE_CXX11)
   IF (CXX11_COMPILER)
     enable_cxx11()
     SET (CXX11_FLAG "1")
-  ELSE (CXX11_COMPILER)
   ENDIF (CXX11_COMPILER)
 ENDIF (USE_CXX11)
 

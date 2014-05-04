@@ -74,7 +74,7 @@ protected:
     /// @brief Loads database driver
     ///
     /// First successfull driver load places driver into driver cache.
-    void load() throw (CDatabaseException);
+    void load() THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor
@@ -91,7 +91,7 @@ public:
     ~CDatabaseConnectionPool();
 
     /// @brief Creates database connection
-    CDatabaseConnection* createConnection() throw (CDatabaseException);
+    CDatabaseConnection* createConnection() THROWS_EXCEPTIONS;
 
     /// @brief Returns used database connection back to the pool
     /// @param connection CDatabaseConnection*, Database that is no longer in use and may be returned to the pool

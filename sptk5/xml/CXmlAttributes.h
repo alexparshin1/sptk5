@@ -71,26 +71,17 @@ protected:
 
 public:
     /// @brief Returns the value of the node
-    virtual const std::string& value() const
-    {
-        return m_value;
-    }
+    virtual const std::string& value() const;
 
     /// @brief Sets new value to node.
     /// @param new_value const std::string &, new value
     /// @see value()
-    virtual void value(const std::string &new_value)
-    {
-        m_value = new_value;
-    }
+    virtual void value(const std::string &new_value);
 
     /// @brief Sets new value to node
     /// @param new_value const char *, value to set
     /// @see value()
-    virtual void value(const char *new_value)
-    {
-        m_value = new_value;
-    }
+    virtual void value(const char *new_value);
 };
 
 class CXmlNode;

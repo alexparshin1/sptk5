@@ -53,37 +53,45 @@ enum CDirectoryDSpolicies {
 /// as any other datasource. You set up the parameters, call open()
 /// and may use the list. Method close() should be called aftewards
 /// to release any allocated resourses.
-class CDirectoryDS : public CMemoryDS  {
+class CDirectoryDS: public CMemoryDS
+{
 protected:
     /// Sets up an appropriate image and a name for the file type
     /// @param st const struct stat &, the file type information
     /// @param image CSmallPixmapType&, the image type
     /// @param fname const char *, file name
     /// @returns the file type name
-    std::string getFileType(const struct stat& st,CSmallPixmapType& image,const char *fname) const;
+    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
 
 private:
-    std::string    m_directory;   ///< Current directory
-    CStrings       m_pattern;     ///< Current file pattern
-    int            m_showPolicy;  ///< Show policy, see CDirectoryDSpolicies for more information
+    std::string     m_directory;   ///< Current directory
+    CStrings        m_pattern;     ///< Current file pattern
+    int             m_showPolicy;  ///< Show policy, see CDirectoryDSpolicies for more information
 
 public:
     /// Default Constructor
-    CDirectoryDS() : CMemoryDS(), m_showPolicy(0) {}
+    CDirectoryDS() :
+            CMemoryDS(),
+            m_showPolicy(0)
+    {
+    }
 
     /// Destructor
-    virtual ~CDirectoryDS() {
+    virtual ~CDirectoryDS()
+    {
         close();
     }
 
     /// Returns current show policy, @see CDirectoryDSpolicies for more information
     /// @returns current show policy
-    int showPolicy() const {
+    int showPolicy() const
+    {
         return m_showPolicy;
     }
 
     /// Sets current show policy, see CDirectoryDSpolicies for more information
-    void showPolicy(int type) {
+    void showPolicy(int type)
+    {
         m_showPolicy = type;
     }
 
@@ -91,22 +99,26 @@ public:
     void directory(std::string d);
 
     /// Sets current directory
-    const std::string &directory() const {
+    const std::string &directory() const
+    {
         return m_directory;
     }
 
     /// Sets pattern in format like: "*.txt;*.csv;*.xls"
-    void pattern(std::string pattern) {
-        m_pattern.fromString(pattern,";");
+    void pattern(std::string pattern)
+    {
+        m_pattern.fromString(pattern, ";");
     }
 
     /// Returns pattern in format like: "*.txt;*.csv;*.xls"
-    const std::string pattern() const {
+    const std::string pattern() const
+    {
         return m_pattern.asString(";");
     }
 
     /// Opens the directory and fills in the dataset
-    virtual bool open() throw (std::exception);
+    virtual bool open()
+    THROWS_EXCEPTIONS;
 };
 /// @}
 }

@@ -111,7 +111,7 @@ public:
     ///
     /// @param node const CXmlNode*, node to load data from
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
-    virtual void load(const CXmlNode* node,CLayoutXMLmode xmlMode) throw(CException);
+    virtual void load(const CXmlNode* node,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS;
 
     /// @brief Saves window coordinates and widgets into XML node
     ///

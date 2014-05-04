@@ -43,19 +43,26 @@ namespace sptk {
 ///
 /// Allows CListView to work with one or few selected rows
 /// without scanning through all the rows in list view for selected rows.
-class SP_EXPORT CSelection {
+
+class SP_EXPORT CSelection
+{
     typedef CPackedStrings * PPackedStrings;
     typedef std::vector<PPackedStrings> CPSVector;
 
-    CPSVector          m_selectedRows;  ///< The list of the rows
+    CPSVector m_selectedRows; ///< The list of the rows
 
 public:
 
     /// Default constructor
-    CSelection()  {}
+
+    CSelection()
+    {
+    }
 
     /// Destructor
-    ~CSelection() {
+
+    ~CSelection()
+    {
         clear();
     }
 
@@ -67,7 +74,7 @@ public:
 
     /// Removes the row from the selection list
     void remove
-        (CPackedStrings *row);
+    (CPackedStrings *row);
 
     /// Deselects all the rows in the selection list and empties the list
     void deselectAll();
@@ -76,14 +83,17 @@ public:
     void clear();
 
     /// Returns the number of selected rows
-    uint32_t size() const {
-        return (uint32_t) m_selectedRows.size();
+
+    uint32_t size() const
+    {
+        return(uint32_t) m_selectedRows.size();
     }
 
     /// Element access to the selection, const version only
     /// @param index int, index in the selection list
-    CPackedStrings& operator[] (int index) const {
-        return *m_selectedRows[index];
+    CPackedStrings& operator[] (int index) const
+    {
+        return *m_selectedRows[size_t(index)];
     }
 
     /// Finds an item with a particular key value. Returns NULL if not found.

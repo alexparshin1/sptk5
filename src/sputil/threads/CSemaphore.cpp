@@ -37,7 +37,7 @@ using namespace sptk;
 CSemaphore::CSemaphore(uint32_t startingValue)
 {
 #if USE_CXX11
-    m_value = startingValue;
+    m_value = (int) startingValue;
 #else
     int rc = sem_init(&m_semaphore, 0, startingValue);
     if (rc != 0)
@@ -52,7 +52,7 @@ CSemaphore::~CSemaphore()
 #endif
 }
 
-void CSemaphore::post() throw (exception)
+void CSemaphore::post() THROWS_EXCEPTIONS
 {
 #if USE_CXX11
     m_value++;
@@ -63,7 +63,7 @@ void CSemaphore::post() throw (exception)
 #endif
 }
 
-bool CSemaphore::wait(uint32_t timeoutMS) throw (exception)
+bool CSemaphore::wait(uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
 #if USE_CXX11
     unique_lock<mutex>  lock(m_mutex);

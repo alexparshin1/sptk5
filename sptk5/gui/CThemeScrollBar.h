@@ -41,36 +41,47 @@ namespace sptk {
 /// @{
 
 /// @brief Theme scroll bar type - defines the scroll bar direction
-enum CThemeScrollBarType { THM_SCROLLBAR_VERTICAL, THM_SCROLLBAR_HORIZONTAL };
+
+enum CThemeScrollBarType
+{
+    THM_SCROLLBAR_VERTICAL, THM_SCROLLBAR_HORIZONTAL
+};
 
 /// @brief The complete set of four images to draw a scroll bar
-class CScrollBarImages {
+
+class CScrollBarImages
+{
 public:
 
     /// @brief Type of the scroll bar image
-    enum type {
-        TROUGH,  ///< Image of the scroll bar without slider and buttons
-        SLIDER   ///< Image of the scroll bar slider
+    enum type
+    {
+        TROUGH, ///< Image of the scroll bar without slider and buttons
+        SLIDER ///< Image of the scroll bar slider
     };
 
-    CThemeScrollBarType     m_orientation;
-    CThemeImageCollection   m_parts[2];     ///< Scrollbar parts
-    CThemeImageCollection   m_steppers[2];  ///< Stepper buttons, 0/1 - (left or upper)normal/pressed, 2/3 - (right or buttom)normal/pressed
+    CThemeScrollBarType m_orientation;
+    CThemeImageCollection m_parts[2]; ///< Scrollbar parts
+    CThemeImageCollection m_steppers[2]; ///< Stepper buttons, 0/1 - (left or upper)normal/pressed, 2/3 - (right or buttom)normal/pressed
 public:
+
     /// @brief Default constructor
-    CScrollBarImages() {}
+    CScrollBarImages()
+    {
+    }
 
     /// @brief Loads the images from SPTK theme files
     /// @param atype CThemeScrollBarType, scroll bar type
     /// @param desaturateInactiveButtons bool, if true then inactive buttons are desaturated
     /// @param externalFile bool, if true then the file belongs to GTK theme and not to SPTK theme tar
-    void load(CThemeScrollBarType atype,bool desaturateInactiveButtons,bool externalFile=false);
+    void load(CThemeScrollBarType atype, bool desaturateInactiveButtons, bool externalFile = false);
 
     /// @brief Clears the scrollbar images for the default theme
     void clear();
 };
- 
-class CThemeScrollBar {
+
+class CThemeScrollBar
+{
 public:
     /// @brief Images for painting a scroll bar (horizontal and vertical)
     ///
@@ -80,32 +91,32 @@ public:
     static CScrollBarImages m_scrollBar[2];
 
     static int m_scrollBarTroughBorder; ///< Trough border width
-    static int m_scrollBarSliderWidth;  ///< Slider width
-    static int m_scrollBarStepperSize;  ///< Button width
+    static int m_scrollBarSliderWidth; ///< Slider width
+    static int m_scrollBarStepperSize; ///< Button width
 
     /// @brief Loads GTK theme scrollbar button images from <style> node
-    /// @brief xml CXmlDoc&, GTK theme converted to XML
+    /// @param xml CXmlDoc&, GTK theme converted to XML
     /// @param orientation std::string, scrollbar button orientation ("UP","DOWN","LEFT","RIGHT")
     /// @param buttonImages CThemeImageCollection&, output button images
-    static void loadGtkScrollbarButtons(CXmlDoc& xml,std::string orientation,CThemeImageCollection& buttonImages);
+    static void loadGtkScrollbarButtons(CXmlDoc& xml, std::string orientation, CThemeImageCollection& buttonImages);
 
     /// @brief Loads GTK theme scrollbar troughs
-    /// @brief xml CXmlDoc&, GTK theme converted to XML
+    /// @param xml CXmlDoc&, GTK theme converted to XML
     static void loadGtkScrollbarTroughs(CXmlDoc& xml);
 
     /// @brief Loads GTK theme scrollbar sliders
-    /// @brief xml CXmlDoc&, GTK theme converted to XML
+    /// @param xml CXmlDoc&, GTK theme converted to XML
     static void loadGtkScrollbarSliders(CXmlDoc& xml);
 
     /// @brief Loads GTK theme scrollbar button images from GTK theme
-    /// @brief xml CXmlDoc&, GTK theme converted to XML
+    /// @param xml CXmlDoc&, GTK theme converted to XML
     static void loadGtkScrollbars(CXmlDoc& xml);
 
-    /// Computes and returns the minimum size of the scroll bar
+    /// @brief Computes and returns the minimum size of the scroll bar
     /// @param w int&, scroll bar width, may be altered by scroll bar to meet the scroll bar size requirements
     /// @param h int&, scroll bar height, may be altered by scroll bar to meet the scroll bar size requirements
     /// @returns false, if theme has no pixmaps for the scroll bar, or true otherwise
-    static bool sizeScrollBar(int& w,int& h);
+    static bool sizeScrollBar(int& w, int& h);
 
     /// @brief Draws a scroll bar image.
     ///
@@ -121,7 +132,7 @@ public:
     /// @param size float, size of the scroll bar
     /// @param activeZone int, 0 - no active zone, 1 - button 1, 2 - button 2, 3 - slider, +8 - pushed
     /// @param active bool, true if scrollbar is active (enabled)
-    static bool drawScrollBar(int x,int y,int w,int h,float minimum,float maximum,float value,float size,int activeZone,bool active);
+    static bool drawScrollBar(int x, int y, int w, int h, float minimum, float maximum, float value, float size, int activeZone, bool active);
 };
 
 /// @}

@@ -64,11 +64,11 @@ public:
 
     /// Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
     /// @param timeout int, timeout in milliseconds
-    int lockR(int timeout = SP_INFINITY);
+    int lockR(int timeout);
 
     /// Try to lock the object for writing. Blocks if object is locked for reading or writing.
     /// @param timeout int, timeout in milliseconds
-    int lockRW(int timeout = SP_INFINITY);
+    int lockRW(int timeout);
 
     /// Releases lock on the object.
     void unlock();

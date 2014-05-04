@@ -30,6 +30,29 @@
 using namespace std;
 using namespace sptk;
 
+void WSType::load(const CXmlNode* attr)
+{
+    m_data = attr->text();
+}
+
+void WSType::load(std::string attr)
+{
+    m_data = attr;
+}
+
+std::string WSType::asString() const
+{
+    return m_data;
+}
+
+CXmlElement* WSType::addElement(CXmlElement* parent, std::string name)
+{
+    CXmlElement* element = new CXmlElement(*parent, name);
+    element->text(m_data);
+    return element;
+}
+
+
 void WSBool::load(const CXmlNode* attr)
 {
     m_data.setBool(attr->text() == "true");

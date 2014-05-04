@@ -53,12 +53,12 @@ public:
     CXmlException(const char* error, const char* xmlbase, const char* position);
 
     /// @brief Destructor
-    ~CXmlException() throw ()
+    ~CXmlException() DOESNT_THROW
     {
     }
 
     /// @brief Returns human readable error string.
-    const char *what() const throw ()
+    const char *what() const DOESNT_THROW
     {
         return m_message.c_str();
     }

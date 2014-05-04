@@ -84,7 +84,7 @@ CRegExp::~CRegExp()
 }
 
 #define MAX_MATCHES 128
-size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const throw (sptk::CException)
+size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const THROWS_EXCEPTIONS
 {
     if (!m_pcre)
         throwException(m_error);
@@ -106,26 +106,26 @@ size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets
     
     int matchCount = rc ? rc : MAX_MATCHES; // If match count is zero - there are too many matches
 
-    offset = matchOffsets[0].m_end;
+    offset = (size_t) matchOffsets[0].m_end;
     
-    return matchCount;
+    return (size_t) matchCount;
 }
 
-bool CRegExp::operator == (std::string text) const throw (CException)
+bool CRegExp::operator == (std::string text) const THROWS_EXCEPTIONS
 {
     size_t  offset = 0;
     Match   matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
-bool CRegExp::operator != (std::string text) const throw (CException)
+bool CRegExp::operator != (std::string text) const THROWS_EXCEPTIONS
 {
     size_t  offset = 0;
     Match   matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
-bool CRegExp::m(std::string text, CStrings& matchedStrings) const throw (CException)
+bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
@@ -141,7 +141,7 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const throw (CExcept
 
         for(size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
             Match& match = matchOffsets[matchIndex];
-            matchedStrings.push_back(string(text.c_str() + match.m_start, match.m_end - match.m_start));
+            matchedStrings.push_back(string(text.c_str() + match.m_start, size_t(match.m_end - match.m_start)));
         }
         
     } while (offset);
@@ -149,7 +149,7 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const throw (CExcept
     return totalMatches > 0;
 }
 
-string CRegExp::s(string text, string outputPattern) const throw (CException)
+string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
 {
     size_t  offset = 0;
     size_t  lastOffset = 0;
@@ -187,18 +187,18 @@ string CRegExp::s(string text, string outputPattern) const throw (CException)
 
             nextReplacement += outputPattern.substr(pos, placeHolderStart - pos);
             placeHolderStart++;
-            size_t placeHolderIndex = atoi(outputPattern.c_str() + placeHolderStart);
+            size_t placeHolderIndex = (size_t) atoi(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
                 Match& match = matchOffsets[placeHolderIndex];
                 const char* matchPtr = text.c_str() + match.m_start;
-                nextReplacement += string(matchPtr, match.m_end - match.m_start);
+                nextReplacement += string(matchPtr, size_t(match.m_end) - size_t(match.m_start));
             }
             pos = placeHolderEnd;
         }
         
         // Append text from fragment start to match start
-        size_t fragmentStartLength = matchOffsets[0].m_start - fragmentOffset;
+        size_t fragmentStartLength = size_t(matchOffsets[0].m_start) - size_t(fragmentOffset);
         if (fragmentStartLength)
             result += text.substr(offset, fragmentStartLength);
         
@@ -210,12 +210,12 @@ string CRegExp::s(string text, string outputPattern) const throw (CException)
     return result + text.substr(lastOffset);
 }
 
-bool operator == (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException)
+bool operator == (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS
 {
     return regexp == text;
 }
 
-bool operator != (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException)
+bool operator != (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS
 {
     return regexp != text;
 }

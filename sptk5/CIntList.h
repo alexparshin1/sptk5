@@ -43,13 +43,15 @@ class CControl;
 ///
 /// Extends the std::vector<int>
 /// with CSV string encoders and decoders.
-class SP_EXPORT CIntList : public std::vector<uint32_t> {
+class SP_EXPORT CIntList : public std::vector<uint32_t>
+{
 public:
     /// Constructor
     CIntList() {}
 
     /// Assigns another CIntList
-    CIntList& operator = (const CIntList& list) {
+    CIntList& operator = (const CIntList& list)
+    {
         resize(list.size());
         std::copy(list.begin(),list.end(),begin());
         return *this;

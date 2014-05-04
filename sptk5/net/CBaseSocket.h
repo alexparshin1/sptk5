@@ -98,10 +98,10 @@ public:
     };
 
     /// @brief Throws socket exception with error description retrieved from socket state
-    /// @param std::string message, error message
-    /// @param const char* file, source file name
-    /// @param int line, source file line number
-    static void throwSocketError(std::string message, const char* file, int line) throw (CException);
+    /// @param message std::string, error message
+    /// @param file const char*, source file name
+    /// @param line int, source file line number
+    static void throwSocketError(std::string message, const char* file, int line) THROWS_EXCEPTIONS;
 
     /// @brief Opens the socket connection by address.
     /// @param openMode CSocketOpenMode, SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
@@ -149,7 +149,7 @@ public:
     /// @returns port number
     int32_t port() const
     {
-        return m_port;
+        return (int32_t) m_port;
     }
 
     /// @brief In server mode, waits for the incoming connection.
@@ -174,12 +174,12 @@ public:
 
     /// @brief Sets socket option value
     /// Throws an error if not succeeded
-    void setOption(int level, int option, int value) throw (sptk::CException);
+    void setOption(int level, int option, int value) THROWS_EXCEPTIONS;
 
     /// @brief Gets socket option value
     ///
     /// Throws an error if not succeeded
-    void getOption(int level, int option, int& value) throw (CException);
+    void getOption(int level, int option, int& value) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket in regular or TLS mode
     /// @param buffer void *, the destination buffer
@@ -198,7 +198,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -207,7 +207,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
+    virtual size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -216,7 +216,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) throw (CException);
+    virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Writes data to the socket
     ///
@@ -225,17 +225,17 @@ public:
     /// @param size uint32_t, the memory buffer size
     /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const char *buffer, size_t size = -1, const sockaddr_in* peer = NULL) throw (CException);
+    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Writes data to the socket
     /// @param buffer const CBuffer&, the memory buffer
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const CBuffer& buffer, const sockaddr_in* peer = NULL) throw (CException);
+    virtual size_t write(const CBuffer& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Writes data to the socket
     /// @param buffer const std::string&, the memory buffer
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL) throw (CException);
+    virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reports true if socket is ready for reading from it
     /// @param waitmsec size_t, read timeout in msec

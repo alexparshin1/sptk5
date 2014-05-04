@@ -69,13 +69,13 @@ public:
     /// @brief Returns column width in pixels
     int16_t width() const
     {
-        return m_width;
+        return (int16_t) m_width;
     }
 
     /// @brief Sets column width in pixels
     void width(int16_t w)
     {
-        m_width = w;
+        m_width = (uint32_t) w;
     }
 
     /// @brief Returns column visibility

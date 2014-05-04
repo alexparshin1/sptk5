@@ -68,7 +68,7 @@ CDatabaseConnectionPool::~CDatabaseConnectionPool()
     m_connections.each(closeConnectionCB,this);
 }
 
-void CDatabaseConnectionPool::load() throw (CDatabaseException)
+void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
 
@@ -145,7 +145,7 @@ void CDatabaseConnectionPool::load() throw (CDatabaseException)
     m_loadedDrivers[driverName] = this;
 }
 
-CDatabaseConnection* CDatabaseConnectionPool::createConnection() throw (CDatabaseException)
+CDatabaseConnection* CDatabaseConnectionPool::createConnection() THROWS_EXCEPTIONS
 {
     if (!m_handle)
         load();

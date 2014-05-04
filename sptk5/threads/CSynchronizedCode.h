@@ -70,10 +70,10 @@ public:
     /// Automatically locks the lock object. That is needed for thread safety.
     /// If the lock isn't acquired within timeout period, CTimeoutException is thrown.
     /// @param object CSynchronized&, Synchronization object to lock.
-    /// @param timeoutMS int, lock timeout, milliseconds
+    /// @param timeoutMS uint32_t, lock timeout, milliseconds
     /// @param fileName const char*, lock location fileName, default is NULL
     /// @param lineNumber int, lock location line number, default is 0
-    CSynchronizedCode(CSynchronized& object, int timeoutMS, const char* fileName = NULL, int lineNumber = 0) :
+    CSynchronizedCode(CSynchronized& object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0) :
         m_object(&object)
     {
         m_object->lock(timeoutMS, fileName, lineNumber);

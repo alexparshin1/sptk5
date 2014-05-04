@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __SPTK_H_
+#ifndef __SPTK_H__
 #define __SPTK_H__
 
 #if defined(__GNUC__) || defined(__SUNPRO_CC)

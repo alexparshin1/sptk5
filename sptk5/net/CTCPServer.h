@@ -41,10 +41,9 @@ class CTCPServer;
 /// @brief Internal TCP server listener thread
 class CTCPServerListener: public CThread
 {
-    CTCPServer* m_server;
-    CTCPSocket m_listenerSocket;
-    int32_t m_port;
-    std::string m_error;
+    CTCPServer*		m_server;
+    CTCPSocket		m_listenerSocket;
+    std::string		m_error;
 public:
     /// @brief Constructor
     /// @param port int, Listener port number
@@ -70,18 +69,20 @@ protected:
     CTCPServer*     m_server;
 public:
     /// @brief Constructor
-    /// @brief server CTCPServer*, Parent TCP server
-    /// @brief connectionSocket SOCKET, Already accepted incoming connection socket
-    /// @brief peer sockaddr_in*, Incoming connection information
+    /// @param connectionSocket SOCKET, Already accepted incoming connection socket
     CTCPConnection(SOCKET connectionSocket) :
             CThread("CTCPServer::Connection")
     {
         m_socket.attach(connectionSocket);
     }
-    ~CTCPConnection()
-    {
-    }
+	    
+    /// @brief Destructor
+    virtual ~CTCPConnection();
+
+    /// @brief Thread function
     virtual void threadFunction() = 0;
+    
+    /// @brief Method that is called upon thread exit
     virtual void onThreadExit();
 };
 
@@ -104,10 +105,7 @@ protected:
     /// Method is called right after connection request is accepted,
     /// and allows ignore unwanted connections. By default simply returns true.
     /// @param connectionRequest sockaddr_in*, Incoming connection information
-    virtual bool allowConnection(sockaddr_in* connectionRequest)
-    {
-        return true;
-    }
+    virtual bool allowConnection(sockaddr_in* connectionRequest);
 
     /// @brief Creates connection thread derived from CTCPConnection
     ///

@@ -50,13 +50,14 @@ class CTreeControl;
 /// An item body should be any CLayoutClient-derived widget.
 /// By default (if that callback isn't redefined, SPTK creates CBox widget.
 /// @param item CTreeItem*, a tree item that would be a parent for the new item
-typedef CLayoutClient* (*CTreeItemCreator)(CTreeItem *item);
+typedef CLayoutClient* (*CTreeItemCreator) (CTreeItem *item);
 
 /// @brief Tree widget item.
 ///
 /// A group widget with the extra information about item pixmaps
 /// and current state.
-class CTreeItem : public CGroup {
+class CTreeItem : public CGroup
+{
     int             m_itemHeight;   ///< Returns the height of the item text
     int             m_indent;       ///< The width of the indent zone
     int             m_labelWidth;   ///< The width of the label computed by fl_measure
@@ -72,16 +73,16 @@ protected:
     CTreeControl   *m_tree;         ///< The tree control
 
     /** Adds a child item to the item using the path. The required path items are created automatically.
-     * This methos is used internally only.
+     * This method is used internally only.
      * @param pathFolders const std::vector<std::string>&, the path to the new child item relatively to the item
-     * @param offset uint32_t, the offset in pathFolders where the path starts 
+     * @param offset uint32_t, the offset in pathFolders where the path starts
      * @param openedImage Fl_Image, the image for the opened folder
      * @param closedImage Fl_Image, the image for the closed folder
      * @param itemImage Fl_Image, the image for the child item
      * @param data void *, the user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPathOffset(const std::vector<std::string>& pathFolders,uint32_t offset,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L);
+    CTreeItem *addPathOffset (const std::vector<std::string>& pathFolders,uint32_t offset,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L);
 
 public:
     static const Fl_Image* treeOpened;            ///< Default image of the opened tree
@@ -97,7 +98,7 @@ public:
      * @param closedImage Fl_Image, the image for the closed state
      * @param data void *, the user data or ID attached to the item
      */
-    CTreeItem(const char *label,const Fl_Image *openedImage=0L,const Fl_Image *closedImage=0L,void *data=0L);
+    CTreeItem (const char *label,const Fl_Image *openedImage=0L,const Fl_Image *closedImage=0L,void *data=0L);
 
     /** Adds a child item to the item. If the closedImage parameter is omitted the openedImage is used instead.
      * @param label const char *, the item label
@@ -106,7 +107,7 @@ public:
      * @param data void *, the user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addItem(const char *label,const Fl_Image *openedImage=0L,const Fl_Image *closedImage=0L,void *data=0L);
+    CTreeItem *addItem (const char *label,const Fl_Image *openedImage=0L,const Fl_Image *closedImage=0L,void *data=0L);
 
     /** Adds a child item to the item using the path. The required path items are created automatically.
      * @param path const std::vector<std::string>&, the path to the new child item relatively to the item
@@ -116,7 +117,7 @@ public:
      * @param data void *, the user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L);
+    CTreeItem *addPath (const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L);
 
     /** Adds a child item to the item using the path. The required path items are created automatically.
      * The default images are used for the folders in the path.
@@ -125,114 +126,127 @@ public:
      * @param data void *, the user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *itemImage=0L,void *data=0L);
+    CTreeItem *addPath (const std::vector<std::string>& path,const Fl_Image *itemImage=0L,void *data=0L);
 
-    /// The widget that represents the item without children
-    CLayoutClient *body() {
+    /// @brief The widget that represents the item without children
+    CLayoutClient *body()
+    {
         return m_body;
     }
 
-    /// Sets the item's caption
+    /// @brief Sets the item's caption
     /// @param lbl const char *, the new item caption
-    void label(const char *lbl);
+    void label (const char *lbl);
 
-    /// Returns the item's caption
-    const char * label() const {
+    /// @brief Returns the item's caption
+    const char * label() const
+    {
         return m_body->label().c_str();
     }
 
-    /// Removes all the child items of the item
+    /// @brief Removes all the child items of the item
     virtual void clear();
 
-    /// Finds an item among the child items
+    /// @brief Finds an item among the child items
     /// @returns the child item (if found) or NULL
-    CTreeItem *findItem(const char *label) const;
+    CTreeItem *findItem (const char *label) const;
 
-    /// Finds an item by the item user data in the whole tree
+    /// @brief Finds an item by the item user data in the whole tree
     /// @param data void *, user data to find
     /// @returns the child item (if found) or NULL
-    CTreeItem *findData(const void *data) const;
+    CTreeItem *findData (const void *data) const;
 
-    /// Removes an item from the child items.
+    /// @brief Removes an item from the child items.
+    ///
     /// Only the intermediate children are considered
     /// @param item CTreeItem *, item to remove
-    void removeItem(CTreeItem *item);
+    void removeItem (CTreeItem *item);
 
-    /// Returns the parent item
+    /// @brief Returns the parent item
     /// @returns the parent item or NULL (for the root item)
     CTreeItem *parentItem() const;
 
-    /// Returns the tree control this item belongs to
-    CTreeControl *tree() const {
+    /// @brief Returns the tree control this item belongs to
+    CTreeControl *tree() const
+    {
         return m_tree;
     }
 
-    /// Moves the immediate child before another immediate child
+    /// @brief Moves the immediate child before another immediate child
+    ///
     /// If beforeItem is 0L then moves to the end of the children
     /// @param item CTreeItem *, the item to move
     /// @param beforeItem CTreeItem *, the item to insert before
-    void moveItem(CTreeItem *item,CTreeItem *beforeItem=0L);
+    void moveItem (CTreeItem *item,CTreeItem *beforeItem=0L);
 
-    /// Moves the immediate child up or down in the list of items
+    /// @brief Moves the immediate child up or down in the list of items
     /// @param item CTreeItem *, the item to move
     /// @param direction int, the direction to move. -1 to move up, 1 to move down
-    void moveItem(CTreeItem *item,int direction);
+    void moveItem (CTreeItem *item,int direction);
 
-    /// Shows or hides all the child items. Changes the item state accordingly.
+    /// @brief Shows or hides all the child items. Changes the item state accordingly.
     /// @param vc bool, show(true) or hide(false) children
-    void visibleChildren(bool vc);
+    void visibleChildren (bool vc);
 
-    /// Shows all the child items. Changes the item state accordingly.
-    void open()         {
-        visibleChildren(true);
+    /// @brief Shows all the child items. Changes the item state accordingly.
+    void open()
+    {
+        visibleChildren (true);
     }
 
-    /// Hides all the child items. Changes the item state accordingly.
-    void close()        {
-        visibleChildren(false);
+    /// @brief Hides all the child items. Changes the item state accordingly.
+    void close()
+    {
+        visibleChildren (false);
     }
 
-    /// Reports the item state - opened or closed.
-    bool opened() const {
+    /// @brief Reports the item state - opened or closed.
+    bool opened() const
+    {
         return m_opened;
     }
 
-    /// Reports the item indent from the left.
-    uint32_t indent() const {
+    /// @brief Reports the item indent from the left.
+    uint32_t indent() const
+    {
         return m_indent;
     }
-    /// Sets image(s) for the item
+    
+    /// @brief Sets image(s) for the item
     /// @param openedImage Fl_Image *, the image for the opened state
     /// @param closedImage Fl_Image *, the image for the closed state
-    void setImage(const Fl_Image *openedImage,const Fl_Image *closedImage=0L) {
+    void setImage (const Fl_Image *openedImage,const Fl_Image *closedImage=0L)
+    {
         m_openedImage = openedImage;
         m_closedImage = closedImage;
     }
 
-    /// The event handle function. Internal. See Fl_Widget for details.
+    /// @brief The event handle function. Internal. See Fl_Widget for details.
     /// @param event int, event type.
     /// @returns true if event was processed.
-    int handle(int event);
+    int handle (int event);
 
-    /// The draw function. Internal. See Fl_Widget for details.
+    /// @brief The draw function. Internal. See Fl_Widget for details.
     virtual void draw();
 
-    /// Computes the preferred size of the item based on the font of the parent widget,
-    /// the image size, and the text (label) of the item.
+    /// @brief Computes the preferred size of the item based on the font of the parent widget, the image size, and the text (label) of the item.
     /// @param w int, input/output desirable widget width
     /// @param h int, input/output desirable widget heigth
     /// @returns true if the size is stable (doesn't depend on input sizes)
-    virtual bool preferredSize(int& w,int& h);
+    virtual bool preferredSize (int& w,int& h);
 
-    /// Resizes item and sub items
-    void resize(int xx,int yy,int ww,int hh);
+    /// @brief Resizes item and sub items
+    void resize (int xx,int yy,int ww,int hh);
 
     /// @brief Selects or unselects item
     /// @param flag bool, true is item shoud be selected
-    virtual void select(bool flag);
+    virtual void select (bool flag);
 
     /// @brief Returns selection state of the item
-    bool selected() const { return m_selected; }
+    bool selected() const
+    {
+        return m_selected;
+    }
 
     /// @brief Selects the next item in the tree
     bool selectNext();
@@ -251,18 +265,19 @@ public:
 
     /// @brief Selects the last visible item in the child tree
     /// @param recursive bool, should we search the child items
-    CTreeItem* findLast(bool recursive) const;
+    CTreeItem* findLast (bool recursive) const;
 
     /// @brief Selects the next visible item in the child tree
     /// @param recursive bool, should we search the child items
-    CTreeItem* findNext(bool recursive) const;
+    CTreeItem* findNext (bool recursive) const;
 
     /// @brief Selects the prior visible item in the child tree
     /// @param recursive bool, should we search the child items
-    CTreeItem* findPrior(bool recursive) const;
+    CTreeItem* findPrior (bool recursive) const;
 
     /// @brief Returns widget class name (internal SPTK RTTI).
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "treeitem";
     }
 };
@@ -275,7 +290,8 @@ typedef std::vector<CTreeItem*> CTreeItemVector;
 /// Designed to be used inside
 /// CTreeView widget, but also can be used by itself. It's missing for data connection
 /// support of CTreeView, though.
-class CTreeControl : public CScroll {
+class CTreeControl : public CScroll
+{
     friend class CTreeItem;
 private:
     CTreeItemVector   m_selectedItems; ///< The selected items
@@ -287,23 +303,25 @@ protected:
     /// @brief The default tree item creator
     ///
     /// Creates a tree item' body as CBox, @see CTreeItemCreator
-    static CLayoutClient* defaultItemCreator(CTreeItem *item);
+    static CLayoutClient* defaultItemCreator (CTreeItem *item);
 public:
-    /// The constructor.
+    /// @brief The constructor.
     /// @param label const char *, the widget's label
     /// @param layoutSize int, size of widget in layout. See CLayoutClient for details
     /// @param align CLayoutAlign, widget align in the layout
-    CTreeControl(const char *label,int layoutSize=50,CLayoutAlign align=SP_ALIGN_TOP);
+    CTreeControl (const char *label,int layoutSize=50,CLayoutAlign align=SP_ALIGN_TOP);
 
-    /// Adds a child item to the root item. If the closedImage parameter is omitted the openedImage is used instead.
+    /// @brief Adds a child item to the root item. If the closedImage parameter is omitted the openedImage is used instead.
     /// @param label const char *, the item label
     /// @param openedImage Fl_Image, the image for the opened state
     /// @param closedImage Fl_Image, the image for the closed state
     /// @param data void *, the user data or ID attached to the item
     /// @returns the new child item
-    CTreeItem *addItem(const char *label,const Fl_Image *openedImage=0L,const Fl_Image *closedImage=0L,void *data=0L);
+    CTreeItem *addItem (const char *label,const Fl_Image *openedImage=0L,const Fl_Image *closedImage=0L,void *data=0L);
 
-    /// Adds a child item to the root item using the path. The required path items are created automatically.
+    /// @brief Adds a child item to the root item using the path. 
+    ///
+    /// The required path items are created automatically.
     /// Path elements are separated with '/'. The default images are used for the folders in the path.
     /// @param path const std::vector<std::string>&, the path to the new child item
     /// @param openedImage Fl_Image, the image for the folders in opened state
@@ -311,7 +329,7 @@ public:
     /// @param itemImage Fl_Image, the image for the child item
     /// @param data void *, the user data or ID attached to the item
     /// @returns the new child item
-    CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L);
+    CTreeItem *addPath (const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L);
 
     /** Adds a child item to the root item using the path. The required path items are created automatically.
      * Path elements are separated with '/'. The default images are used for the folders in the path.
@@ -320,20 +338,21 @@ public:
      * @param data void *, the user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *itemImage=0L,void *data=0L);
+    CTreeItem *addPath (const std::vector<std::string>& path,const Fl_Image *itemImage=0L,void *data=0L);
 
     /// @brief Finds an item by the item label in the whole tree
     /// @param item const char *, item label to find
     /// @returns the child item (if found) or NULL
-    CTreeItem *findItem(const char *item) const;
+    CTreeItem *findItem (const char *item) const;
 
     /// @brief Finds an item by the item user data in the whole tree
     /// @param data void *, user data to find
     /// @returns the child item (if found) or NULL
-    CTreeItem *findData(const void *data) const;
+    CTreeItem *findData (const void *data) const;
 
     /// @brief Removes all the items in the tree.
-    virtual void clear() {
+    virtual void clear()
+    {
         m_selectedItems.clear();
         m_root->clear();
     }
@@ -341,40 +360,44 @@ public:
     /// @brief Moves the item in the tree.
     /// @param item CTreeItem *, item to insert
     /// @param beforeItem CTreeItem *, item before the insert point. If 0L - it's moved to the very last position in parent item list of items.
-    void moveItem(CTreeItem *item,CTreeItem *beforeItem=0L);
+    void moveItem (CTreeItem *item,CTreeItem *beforeItem=0L);
 
     /// @brief Removes all the item and underlying structure from the tree.
     /// @param item CTreeItem *, item to remove
-    void removeItem(CTreeItem *item);
+    void removeItem (CTreeItem *item);
 
     /// @brief Reports the root item.
-    CTreeItem *root() const {
+    CTreeItem *root() const
+    {
         return m_root;
     }
 
     /// @brief Reports the currently selected item.
-    CTreeItem *selected() const {
+    CTreeItem *selected() const
+    {
         if (m_selectedItems.empty())
             return 0;
+
         return m_selectedItems[0];
     }
 
     /// @brief Selects only one item.
     /// @param item CTreeItem, item to select
     /// @param giveFocus bool, should the item be focused?
-    void selectOnly(CTreeItem *item,bool giveFocus=false);
+    void selectOnly (CTreeItem *item,bool giveFocus=false);
 
     /// @brief Makes the item visible if it's outside the visible area.
     /// @param item CTreeItem, item to make visible
-    void makeVisible(CTreeItem *item);
+    void makeVisible (CTreeItem *item);
 
     /// @brief Special handle() function.
     /// @param event int, an FLTK event
     /// @returns true, if event was processed
-    int handle(int event);
+    int handle (int event);
 
     /// @brief The tree item creator creates a tree item' body, @see CTreeItemCreator
-    void itemCreator(CTreeItemCreator ic) {
+    void itemCreator (CTreeItemCreator ic)
+    {
         m_itemCreator = ic;
     }
 
@@ -382,30 +405,33 @@ public:
     ///
     /// @param node const CXmlNode&, node to load data from
     /// @param autoCreate bool, create widgets if they are not found
-    virtual void load(const CXmlNode& node,bool autoCreate=false) throw(CException);
+    virtual void load (const CXmlNode& node,bool autoCreate=false) THROWS_EXCEPTIONS;
 
     /// @brief Loads group controls data from XML node
     ///
     /// @param node const CXmlNode*, node to load data from
     /// @param autoCreate bool, create widgets if they are not found
-    virtual void load(const CXmlNode* node,bool autoCreate=false)  throw(CException) {
-        load(*node,autoCreate);
+    virtual void load (const CXmlNode* node,bool autoCreate=false) THROWS_EXCEPTIONS
+    {
+        load (*node,autoCreate);
     }
 
     /// @brief Saves group controls data into XML node
     ///
     /// @param node const CXmlNode&, node to save data into
-    virtual void save(CXmlNode& node) const;
+    virtual void save (CXmlNode& node) const;
 
     /// @brief Saves group controls data into XML node
     ///
     /// @param node const CXmlNode*, node to save data into
-    virtual void save(CXmlNode* node) const {
-        save(*node);
+    virtual void save (CXmlNode* node) const
+    {
+        save (*node);
     }
 
     /// @brief Returns widget class name (internal SPTK RTTI).
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "tree";
     }
 };

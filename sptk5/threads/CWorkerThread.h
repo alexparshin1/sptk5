@@ -72,13 +72,13 @@ public:
     /// @param maxIdleSeconds int32_t, Maximum time the thread is idle, seconds
     CWorkerThread(CSynchronizedQueue<CRunable*>* queue=NULL,
                   CThreadEvent* threadEvent=NULL,
-                  int32_t maxIdleSeconds=SP_INFINITY);
+                  uint32_t maxIdleSeconds=SP_INFINITY);
 
     /// @brief Destructor
     ~CWorkerThread();
 
     /// @brief Execute runable task
-    /// @parm task CRunable*, Task to execute in the worker thread
+    /// @param task CRunable*, Task to execute in the worker thread
     void execute(CRunable* task);
 };
 

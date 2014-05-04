@@ -107,14 +107,14 @@ class SP_EXPORT CStrings : public std::vector<idstring>
     /// Consequent delimiters create empty strings.
     /// @param src const std::string&, a source string
     /// @param delimiter const char *, a delimiter string
-    void splitByDelimiter(const std::string& src, const char *delimitter);
+    void splitByDelimiter(const std::string& src, const char *delimiter);
     
     /// @brief Splits source string on substrings using any char in delimiter
     ///
     /// Consequent delimiters are treated as a single one.
     /// @param src const std::string&, a source string
     /// @param delimiter const char *, a delimiter string
-    void splitByAnyChar(const std::string& src, const char *delimitter);
+    void splitByAnyChar(const std::string& src, const char *delimiter);
 
 public:
 
@@ -132,10 +132,10 @@ public:
     }
 
     /// @brief Copy constructor
-    CStrings(const CStrings& src) : std::vector<idstring>()
+    /// @param src const CStrings&, other object
+    CStrings(const CStrings& src)
+    : std::vector<idstring>(src), m_userData(src.m_userData)
     {
-        resize(src.size());
-        std::copy(src.begin(),src.end(),begin());
     }
 
     /// @brief Constructor from a string with elements separated by a delimiter string
@@ -143,6 +143,7 @@ public:
     /// @param delimiter const char *, a delimiter string
     /// @param mode SplitMode, delimiter string usage
     CStrings(const std::string& src, const char *delimiter, SplitMode mode=SM_DELIMITER)
+    : m_userData(0)
     {
         fromString(src.c_str(), delimiter, mode);
     }
@@ -152,11 +153,21 @@ public:
     /// @param delimiter const char *, a delimiter string
     /// @param mode SplitMode, delimiter string usage
     CStrings(const char *src,const char *delimiter, SplitMode mode=SM_DELIMITER)
+    : m_userData(0)
     {
         clear();
         fromString(src,delimiter);
     }
 
+    /// @brief Assignment operator
+    /// @param other const CStrings&, other object
+    CStrings& operator = (const CStrings& other)
+    {
+        m_userData = other.m_userData;
+        assign(other.begin(), other.end());
+        return *this;
+    }
+    
     /// @brief Assigns strings from a string with elements separated by a delimiter string
     /// @param src const std::string&, a source string
     /// @param delimiter const char *, a delimiter string
@@ -174,11 +185,11 @@ public:
 
     /// @brief Saves strings to file. String ids are discarded.
     /// @param fileName std::string, the name of the file
-    void saveToFile(std::string fileName) const throw(CException);
+    void saveToFile(std::string fileName) const THROWS_EXCEPTIONS;
 
     /// @brief Loads strings from file. String ids are not loaded.
     /// @param fileName std::string, the name of the file
-    void loadFromFile(std::string fileName) throw(CException);
+    void loadFromFile(std::string fileName) THROWS_EXCEPTIONS;
 
     /// @brief Returns user data as integer
     int32_t argument() const

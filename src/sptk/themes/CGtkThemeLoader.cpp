@@ -217,7 +217,7 @@ void CGtkThemeParser::parse(const CStrings& gtkrc)
     buffer.saveToFile("gtkrc.xml");
 }
 
-void CGtkThemeParser::load(std::string themeName) throw (std::exception)
+void CGtkThemeParser::load(std::string themeName) THROWS_EXCEPTIONS
 {
     m_themeFolder = CRegistry::homeDirectory() + ".themes/" + themeName + "/gtk-2.0/";
     string gtkrcFile = m_themeFolder + "gtkrc";

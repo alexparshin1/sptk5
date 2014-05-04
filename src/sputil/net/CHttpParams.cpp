@@ -95,7 +95,7 @@ string CHttpParams::decodeString(string& str) {
             break;
         case '%':
             src++;
-            *dest = char(hexCharToInt(*src) * 16 + hexCharToInt(src[1]));
+            *dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
             src += 2;
             break;
         }

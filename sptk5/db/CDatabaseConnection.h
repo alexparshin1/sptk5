@@ -84,6 +84,15 @@ struct CCallStatistic
         m_calls = cs.m_calls;
         m_sql = cs.m_sql;
     }
+
+    /// @brief Assignment
+    CCallStatistic& operator =(const CCallStatistic& cs)
+    {
+        m_duration = cs.m_duration;
+        m_calls = cs.m_calls;
+        m_sql = cs.m_sql;
+        return *this;
+    }
 };
 
 /// @brief Map to store statistical data about query calls
@@ -203,17 +212,17 @@ protected:
     ///
     /// This method should be overwritten in derived classes
     /// @param connectionString std::string, the ODBC connection string
-    virtual void openDatabase(std::string connectionString = "") throw (CDatabaseException);
+    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
     /// @brief Closes the database connection.
     ///
     /// This method should be overwritten in derived classes
-    virtual void closeDatabase() throw (CDatabaseException);
+    virtual void closeDatabase() THROWS_EXCEPTIONS;
 
     /// @brief Begins the transaction
     ///
     /// This method should be implemented in derived driver
-    virtual void driverBeginTransaction() throw (CDatabaseException)
+    virtual void driverBeginTransaction() THROWS_EXCEPTIONS
     {
         notImplemented("driverBeginTransaction");
     }
@@ -222,7 +231,7 @@ protected:
     ///
     /// This method should be implemented in derived driver
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) throw (CDatabaseException)
+    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS
     {
         notImplemented("driverEndTransaction");
     }
@@ -232,7 +241,7 @@ protected:
     /// Before exception is thrown, it is logged into the logfile (if the logfile is defined)
     /// @param method std::string, method name where error has occured
     /// @param error std::string, error text
-    void logAndThrow(std::string method, std::string error) throw (CDatabaseException);
+    void logAndThrow(std::string method, std::string error) THROWS_EXCEPTIONS;
 
 public:
     /// @brief Destructor
@@ -245,10 +254,10 @@ public:
     ///
     /// If unsuccessful throws an exception.
     /// @param connectionString std::string, the ODBC connection string
-    void open(std::string connectionString = "") throw (CDatabaseException);
+    void open(std::string connectionString = "") THROWS_EXCEPTIONS;
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
-    void close() throw (CDatabaseException);
+    void close() THROWS_EXCEPTIONS;
 
     /// @brief Returns true if database is opened
     virtual bool active() const;
@@ -278,13 +287,13 @@ public:
     }
 
     /// @brief Begins the transaction
-    void beginTransaction() throw (CDatabaseException);
+    void beginTransaction() THROWS_EXCEPTIONS;
 
     /// @brief Commits the transaction
-    void commitTransaction() throw (CDatabaseException);
+    void commitTransaction() THROWS_EXCEPTIONS;
 
     /// @brief Rolls back the transaction
-    void rollbackTransaction() throw (CDatabaseException);
+    void rollbackTransaction() THROWS_EXCEPTIONS;
 
     /// @brief Reports true if in transaction
     int inTransaction()
@@ -298,7 +307,7 @@ public:
     /// must provide its own implementation
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException) = 0;
+    virtual void objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS = 0;
 
     /// @brief Sets a log file for the database operations.
     ///
@@ -330,11 +339,11 @@ public:
     ///
     /// Data is inserted the fastest possible way. The server-specific format definition provides extra information
     /// about data. If format is empty than default server-specific data format is used.
-    /// For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\t', '\n', '\r') and "\\N" for NULLs.
+    /// For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
     /// @param tableName std::string, table name to insert into
     /// @param columnNames const CStrings&, list of table columns to populate
     /// @param data const CStrings&, data for bulk insert
-    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") throw (CDatabaseException);
+    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") THROWS_EXCEPTIONS;
 };
 /// @}
 }

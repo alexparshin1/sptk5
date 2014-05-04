@@ -134,6 +134,11 @@ void CRegistry::load(const CStrings& inputData) {
     CXmlDoc::load(buffer);
 }
 
+void CRegistry::load(const char* inputData) {
+    clear();
+    CXmlDoc::load(inputData);
+}
+
 void CRegistry::load() {
     CBuffer inputData;
     inputData.loadFromFile(m_fileName);

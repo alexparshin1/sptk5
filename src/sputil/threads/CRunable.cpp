@@ -39,7 +39,7 @@ CRunable::~CRunable()
 {
 }
 
-void CRunable::execute() throw (std::exception)
+void CRunable::execute() THROWS_EXCEPTIONS
 {
     CSynchronizedCode   sc(m_running);
     m_terminated = false;
@@ -56,7 +56,7 @@ bool CRunable::terminated()
     return m_terminated;
 }
 
-bool CRunable::completed(uint32_t timeoutMS) throw (std::exception)
+bool CRunable::completed(uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     try {
         m_running.lock(timeoutMS);

@@ -62,7 +62,7 @@ public:
     /// @param bufDest CBuffer destination buffer
     /// @param bufSource CBuffer source buffer that holds base64 decoded data
     /// @returns length of returned buffer
-    static int decode(CBuffer &bufDest, const CBuffer &bufSource) throw(CException);
+    static int decode(CBuffer &bufDest, const CBuffer &bufSource) THROWS_EXCEPTIONS;
 
     /// @brief Data decoding.
     /// Decodes base64 encoded string strSource into buffer bufDest.
@@ -70,7 +70,7 @@ public:
     /// @param bufDest CBuffer, destination buffer
     /// @param strSource const std::string &, source string that holds base64 decoded data
     /// @returns length of the returned string
-    static int decode(CBuffer &bufDest, const std::string &strSource) throw(CException);
+    static int decode(CBuffer &bufDest, const std::string &strSource) THROWS_EXCEPTIONS;
 };
 /// @}
 }

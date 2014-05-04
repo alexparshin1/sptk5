@@ -56,7 +56,8 @@ using namespace sptk;
 
 namespace sptk {
 
-    class SP_EXPORT CDateTimeFormat {
+    class SP_EXPORT CDateTimeFormat
+    {
         public:
             CDateTimeFormat();
             string dateFormat();
@@ -217,7 +218,7 @@ CDateTimeFormat::CDateTimeFormat()
     t.tm_hour = 0;
     t.tm_min  = 0;
     t.tm_sec  = 0;
-    for (unsigned wday = 0; wday < 7; wday++) {
+    for (int wday = 0; wday < 7; wday++) {
         t.tm_wday = wday;
         strftime(dateBuffer,32,"%A",&t);
         CDateTime::weekDayNames[wday] = dateBuffer;
@@ -232,7 +233,7 @@ CDateTimeFormat::CDateTimeFormat()
     t.tm_min  = 0;
     t.tm_sec  = 0;
     t.tm_wday = 3;
-    for (unsigned month = 0; month < 12; month++) {
+    for (int month = 0; month < 12; month++) {
         t.tm_mon = month;
         strftime(dateBuffer,32,"%B",&t);
         CDateTime::monthNames[month] = dateBuffer;
@@ -437,7 +438,7 @@ int decodeTZOffset(const char* tzOffset)
         case '-': p++; sign = -1; break;
     }
     char* p1 = strchr(p,':');
-    int   hours, minutes;
+    int   hours, minutes = 0;
     if (p1) {
         *p1 = 0;
         minutes = atoi(p1+1);
@@ -519,7 +520,7 @@ void CDateTime::decodeTime(const double dt,short& h,short& m,short& s,short& ms)
     double floatSecs = t * S1;
     double msecs = int(floatSecs * 1000 + 0.5);
     int secs = int(msecs/1000);
-    ms = int((msecs / 1000 - secs) * 1000);
+    ms = short((msecs / 1000 - secs) * 1000);
     h = short(secs / 3600);
     secs = secs % 3600;
     m = short(secs / 60);
@@ -562,7 +563,7 @@ void CDateTime::decodeDate(const double dat,short& year,short& month,short& day)
         D += D1;
     }
     Y += I;
-    year = Y;
+    year = (short) Y;
     //year  = short (Y + 1900);
 
     int leapYear = isLeapYear(short(year));
@@ -763,7 +764,7 @@ void CDateTime::formatDate(char *str, bool universalDateFormat) const
     }
     decodeDate(m_dateTime,year,month,day);
     if (universalDateFormat) {
-        size_t bytes = sprintf(str, "%04d-%02d-%02d", year, month, day);
+        int bytes = sprintf(str, "%04d-%02d-%02d", year, month, day);
         ptr += bytes;
         *ptr = 0;
     } else {
@@ -788,10 +789,6 @@ void CDateTime::formatDate(char *str, bool universalDateFormat) const
 void CDateTime::formatTime(char *str,bool ampm,bool showSeconds,bool showTimezone) const {
     short h,m,s,ms;
 
-    if (m_dateTime == 0) {
-        *str = 0;
-        return;
-    }
     decodeTime(m_dateTime,h,m,s,ms);
     const char *appendix = 0L;
     if (ampm) {
@@ -876,7 +873,7 @@ uint32_t CDateTime::TimeOfDayMs() {
 #ifndef _WIN32
     timeval tp;
     gettimeofday(&tp,0L);
-    return tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    return uint32_t(tp.tv_sec * 1000 + tp.tv_usec / 1000);
 #else
     SYSTEMTIME systemTime;
     GetLocalTime(&systemTime);

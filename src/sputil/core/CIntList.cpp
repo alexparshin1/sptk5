@@ -27,27 +27,35 @@
 
 #include <sptk5/CStrings.h>
 #include <sptk5/CIntList.h>
+#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
 
 //---------------------------------------------------------------------------
-string CIntList::toString(const char * separator) const {
-   string s;
-   uint32_t cnt = (uint32_t) size();
-   if (!cnt) return s;
-   s = int2string( (uint32_t)(*this)[0] );
-   for (uint32_t i = 1; i < cnt; i++) 
-      s += separator + int2string( (int32_t) (*this)[i] );   
-   return s;
+string CIntList::toString (const char * separator) const
+{
+    string s;
+    uint32_t cnt = (uint32_t) size();
+
+    if (!cnt) return s;
+
+    s = int2string ( (uint32_t) (*this) [0]);
+
+    for (uint32_t i = 1; i < cnt; i++)
+        s += separator + int2string ( (int32_t) (*this) [i]);
+
+    return s;
 }
 
-void CIntList::fromString(const char *s,const char * separator) {
-   string   str = s;
-   CStrings sl(s,separator);
+void CIntList::fromString (const char *s,const char * separator)
+{
+    string   str = s;
+    CStrings sl (s,separator);
 
-   clear();
-   uint32_t cnt = (uint32_t) sl.size();
-   for (uint32_t i = 0; i < cnt; i++) 
-      push_back( atol(sl[i].c_str()) );
+    clear();
+    uint32_t cnt = (uint32_t) sl.size();
+
+    for (uint32_t i = 0; i < cnt; i++)
+        push_back((uint32_t) atol(sl[i].c_str()));
 }

@@ -99,7 +99,7 @@ void CWindow::draw() {
     x(savex);
 }
 
-void CWindow::load(const CXmlNode* node,CLayoutXMLmode xmlMode) throw(CException) {
+void CWindow::load(const CXmlNode* node,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS {
     CLayoutManager::loadLayout(node,xmlMode);
     loadPosition(node);
 }

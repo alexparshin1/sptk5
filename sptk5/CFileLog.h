@@ -57,7 +57,7 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException);
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor
@@ -78,7 +78,7 @@ public:
     /// @brief Restarts the log
     ///
     /// The current log content is cleared. The file is recreated.
-    virtual void reset() throw (CException);
+    virtual void reset() THROWS_EXCEPTIONS;
 
     /// @brief Returns log file name
     std::string fileName() const

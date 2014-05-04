@@ -34,17 +34,19 @@
 using namespace std;
 using namespace sptk;
 
-CField::CField(const char *name) {
-   m_name = name;
-   displayName = name;
-   width = -1;
-   flags = 4; // FL_ALIGN_LEFT
-   dataSize(0);
-   visible = true;
-   precision = 3; // default precision, only affects floating point fields
+CField::CField (const char *name)
+{
+    m_name = name;
+    displayName = name;
+    width = -1;
+    flags = 4; // FL_ALIGN_LEFT
+    dataSize (0);
+    visible = true;
+    precision = 3; // default precision, only affects floating point fields
 }
 
-void CField::setNull(CVariantType vtype) {
+void CField::setNull (CVariantType vtype)
+{
     switch (dataType()) {
     default:
         m_data.int64Data = 0;
@@ -57,95 +59,116 @@ void CField::setNull(CVariantType vtype) {
             m_data.buffer.data = 0;
         else if (m_data.buffer.data)
             m_data.buffer.data[0] = 0;
+
         break;
     }
+
     m_dataType |= VAR_NULL;
 }
 
-string CField::asString() const throw(CException) {
-   char print_buffer[32];
-   if (m_dataType & VAR_NULL) return "";
-   switch (dataType()) {
-      case VAR_BOOL:
-         if (m_data.intData)
-	    return "true";
-	 else
-	    return "false";
-      case VAR_INT:
-         sprintf(print_buffer,"%i",m_data.intData);
-         return string(print_buffer);
-      case VAR_INT64:
+string CField::asString() const THROWS_EXCEPTIONS
+{
+    char print_buffer[32];
+
+    if (m_dataType & VAR_NULL) return "";
+
+    switch (dataType()) {
+    case VAR_BOOL:
+        if (m_data.intData)
+            return "true";
+        else
+            return "false";
+
+    case VAR_INT:
+        sprintf (print_buffer,"%i",m_data.intData);
+        return string (print_buffer);
+
+    case VAR_INT64:
 #if BITNESS == 64
-         sprintf(print_buffer,"%li",m_data.int64Data);
+        sprintf (print_buffer,"%li",m_data.int64Data);
 #else
-         sprintf(print_buffer,"%lli",m_data.int64Data);
+        sprintf (print_buffer,"%lli",m_data.int64Data);
 #endif
-         return string(print_buffer);
-      case VAR_FLOAT:
-         {
-            char formatString[10];
-            sprintf(formatString,"%%0.%if",precision);
-            sprintf(print_buffer,formatString,m_data.floatData);
-            return string(print_buffer);
-         }
-      case VAR_MONEY: {
-            char format[16];
-            int64_t absValue;
-            char *formatPtr = format;
-            if (m_data.moneyData.quantity < 0) {
-                *formatPtr = '-';
-                formatPtr++;
-                absValue = -m_data.moneyData.quantity;
-            } else
-                absValue = m_data.moneyData.quantity;
-            sprintf(formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
-            int64_t intValue = absValue / CMoneyData::dividers[m_data.moneyData.scale];
-            int64_t fraction = absValue % CMoneyData::dividers[m_data.moneyData.scale];
-            sprintf(print_buffer, format, intValue, fraction);
-            return string(print_buffer);
-        }
-      case VAR_STRING:
-      case VAR_TEXT:
-      case VAR_BUFFER:     
-         if (!m_data.buffer.data)
+        return string (print_buffer);
+
+    case VAR_FLOAT: {
+        char formatString[10];
+        sprintf (formatString,"%%0.%if",precision);
+        sprintf (print_buffer,formatString,m_data.floatData);
+        return string (print_buffer);
+    }
+
+    case VAR_MONEY: {
+        char format[16];
+        int64_t absValue;
+        char *formatPtr = format;
+
+        if (m_data.moneyData.quantity < 0) {
+            *formatPtr = '-';
+            formatPtr++;
+            absValue = -m_data.moneyData.quantity;
+        } else
+            absValue = m_data.moneyData.quantity;
+
+        sprintf (formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
+        int64_t intValue = absValue / CMoneyData::dividers[m_data.moneyData.scale];
+        int64_t fraction = absValue % CMoneyData::dividers[m_data.moneyData.scale];
+        sprintf (print_buffer, format, intValue, fraction);
+        return string (print_buffer);
+    }
+
+    case VAR_STRING:
+    case VAR_TEXT:
+    case VAR_BUFFER:
+        if (!m_data.buffer.data)
             return "";
-         return m_data.buffer.data;
-      case VAR_DATE:       return CDateTime(m_data.floatData).dateString();
-      case VAR_DATE_TIME:   
-         {
-            CDateTime dt(m_data.floatData);
-            return dt.dateString() + " " + dt.timeString();
-         }
-      case VAR_IMAGE_PTR:
-         sprintf(print_buffer,"%p",(char *)m_data.imagePtr);
-         return string(print_buffer);
-      case VAR_IMAGE_NDX:
-         sprintf(print_buffer,"%i",m_data.imageNdx);
-         return string(print_buffer);
-      default:             
-         throw CException("Can't convert field for that type");
-   }
+
+        return m_data.buffer.data;
+
+    case VAR_DATE:
+        return CDateTime (m_data.floatData).dateString();
+
+    case VAR_DATE_TIME: {
+        CDateTime dt (m_data.floatData);
+        return dt.dateString() + " " + dt.timeString();
+    }
+
+    case VAR_IMAGE_PTR:
+        sprintf (print_buffer,"%p", (char *) m_data.imagePtr);
+        return string (print_buffer);
+
+    case VAR_IMAGE_NDX:
+        sprintf (print_buffer,"%i",m_data.imageNdx);
+        return string (print_buffer);
+
+    default:
+        throw CException ("Can't convert field for that type");
+    }
 }
 
-void CField::toXML(CXmlNode& node,bool compactXmlMode) const {
-   string value = asString();
-   if (!value.empty()) {
-      CXmlElement* element = 0;
-      if (dataType() == VAR_TEXT) {
-         element = new CXmlElement(node,fieldName());
-         new CXmlCDataSection(*element,value);
-      } else {
-    	 if (compactXmlMode)
-            node.setAttribute(fieldName(),value);
-         else {
-	        element = new CXmlElement(node,"field");
-	        element->value(value);
-         }
-      }
-      if (!compactXmlMode) {
-         element->setAttribute("name",fieldName());
-         element->setAttribute("type",CVariant::typeName(dataType()));
-         element->setAttribute("size",int2string((uint32_t)dataSize()));
-      }
-   }
+void CField::toXML (CXmlNode& node,bool compactXmlMode) const
+{
+    string value = asString();
+
+    if (!value.empty()) {
+        CXmlElement* element = 0;
+
+        if (dataType() == VAR_TEXT) {
+            element = new CXmlElement (node,fieldName());
+            new CXmlCDataSection (*element,value);
+        } else {
+            if (compactXmlMode)
+                node.setAttribute (fieldName(),value);
+            else {
+                element = new CXmlElement (node,"field");
+                element->value (value);
+            }
+        }
+
+        if (!compactXmlMode) {
+            element->setAttribute ("name",fieldName());
+            element->setAttribute ("type",CVariant::typeName (dataType()));
+            element->setAttribute ("size",int2string ( (uint32_t) dataSize()));
+        }
+    }
 }

@@ -68,12 +68,12 @@ bool CDatabaseConnection::unlinkQuery(CQuery *q)
     return true;
 }
 
-void CDatabaseConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
+void CDatabaseConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     notImplemented("openDatabase");
 }
 
-void CDatabaseConnection::open(string newConnectionString) throw (CDatabaseException)
+void CDatabaseConnection::open(string newConnectionString) THROWS_EXCEPTIONS
 {
     clearStatistics();
     openDatabase(newConnectionString);
@@ -81,12 +81,12 @@ void CDatabaseConnection::open(string newConnectionString) throw (CDatabaseExcep
         *m_log << "Opened database: " << m_connString.str() << endl;
 }
 
-void CDatabaseConnection::closeDatabase() throw (CDatabaseException)
+void CDatabaseConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     closeDatabase();
 }
 
-void CDatabaseConnection::close() throw (CDatabaseException)
+void CDatabaseConnection::close() THROWS_EXCEPTIONS
 {
     if (active()) {
         if (m_inTransaction) {
@@ -116,21 +116,21 @@ bool CDatabaseConnection::active() const
     return true;
 }
 
-void CDatabaseConnection::beginTransaction() throw (CDatabaseException)
+void CDatabaseConnection::beginTransaction() THROWS_EXCEPTIONS
 {
     if (m_log)
         *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
-void CDatabaseConnection::commitTransaction() throw (CDatabaseException)
+void CDatabaseConnection::commitTransaction() THROWS_EXCEPTIONS
 {
     if (m_log)
         *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
-void CDatabaseConnection::rollbackTransaction() throw (CDatabaseException)
+void CDatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
 {
     if (m_log)
         *m_log << "Rollback transaction" << endl;
@@ -251,7 +251,7 @@ void CDatabaseConnection::queryHandle(CQuery *query, void *handle)
     query->m_statement = handle;
 }
 
-void CDatabaseConnection::logAndThrow(string method, string error) throw (CDatabaseException)
+void CDatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
     if (m_log)
@@ -278,7 +278,7 @@ void CDatabaseConnection::addStatistics(const std::string& location, double tota
     }
 }
 
-void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
 {
     CQuery insertQuery(this,
                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 

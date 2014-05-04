@@ -46,7 +46,8 @@ namespace sptk {
 /// Tries to create a mutex object and check if it's unique for the
 /// program with the instance name. If one instance per user is desired
 /// simply incorporate the user name into the instance.
-class SP_EXPORT CUniqueInstance {
+class SP_EXPORT CUniqueInstance
+{
     std::string  m_instanceName;    ///< Instance name
     bool     m_lockCreated;       ///< Lock is created
 

@@ -98,10 +98,10 @@ public:
     /// If queue is empty then waits until timeoutMS milliseconds timeout occurs.
     /// Returns false if timeout occurs.
     /// @param item T&, A queue item (output)
-    /// @param timeoutMS int32_t, Operation timeout in milliseconds, -1 is forever
-    bool pop(T& item, int32_t timeoutMS=-1)
+    /// @param timeoutMS int32_t, Operation timeout in milliseconds
+    bool pop(T& item, int32_t timeoutMS)
     {
-        if (m_semaphore.wait(timeoutMS)) {
+        if (m_semaphore.wait(uint32_t(timeoutMS))) {
             CSynchronizedCode sc(m_sync);
             if (!m_queue->empty()) {
                 item = m_queue->front();
@@ -115,7 +115,6 @@ public:
     /// @brief Wakes up queue semaphore to interrupt waiting
     ///
     /// Any waiting pop() operation immediately returns false.
-    /// @brief Wakes up a sleeping object
     virtual void wakeup()
     {
         m_semaphore.post();
@@ -167,7 +166,8 @@ public:
             if (rc) {
                 try {
                     rc = callbackFunction(item, data);
-                } catch (std::exception& e) {
+                }
+                catch (std::exception&) {
                     rc = false;
                 }
             }

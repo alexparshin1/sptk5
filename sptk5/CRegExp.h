@@ -62,11 +62,11 @@ class SP_EXPORT CRegExp
 
     /// @brief Computes match positions and lengths
     /// @param text const std::string&, Input text
-    /// @param offset& size_t, starting match offset, advanced with every successful match
+    /// @param offset size_t&, starting match offset, advanced with every successful match
     /// @param matchOffsets Match*, Output match positions array
     /// @param matchOffsetsSize size_t, Output match positions array size (in elements)
     /// @return number of matches
-    size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const throw (sptk::CException);
+    size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor
@@ -87,31 +87,31 @@ public:
     /// @brief Returns true if text matches with regular expression
     /// @param text std::string, Input text
     /// @return true if match found
-    bool operator == (std::string text) const throw (sptk::CException);
+    bool operator == (std::string text) const THROWS_EXCEPTIONS;
 
     /// @brief Returns true if text doesn't match with regular expression
     /// @param text std::string, Input text
     /// @return true if match found
-    bool operator != (std::string text) const throw (sptk::CException);
+    bool operator != (std::string text) const THROWS_EXCEPTIONS;
 
     /// @brief Returns list of strings matched with regular expression
     /// @param text std::string, Text to process
     /// @param matchedStrings sptk::CStrings&, list of matched strings
     /// @return true if match found
-    bool m(std::string text, sptk::CStrings& matchedStrings) const throw (sptk::CException);
+    bool m(std::string text, sptk::CStrings& matchedStrings) const THROWS_EXCEPTIONS;
 
     /// @brief Replaces matches with replacement string
     /// @param text std::string, text to process
     /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
     /// @return processed text
-    std::string s(std::string text, std::string outputPattern) const throw (sptk::CException);
+    std::string s(std::string text, std::string outputPattern) const THROWS_EXCEPTIONS;
 };
 
 /// @}
 }
 
-bool SP_EXPORT operator == (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException);
-bool SP_EXPORT operator != (std::string text, const sptk::CRegExp& regexp) throw (sptk::CException);
+bool SP_EXPORT operator == (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS;
+bool SP_EXPORT operator != (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS;
 
 #endif
 

@@ -91,7 +91,7 @@ tar_close(TAR *t)
 {
 	int i;
 
-	i = (*(t->type->closefunc))(t->fd);
+	i = (*(t->type->closefunc))((int)t->fd);
 
 	if (t->h != NULL)
 		libtar_hash_free(t->h, free);

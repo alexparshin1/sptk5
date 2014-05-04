@@ -58,12 +58,12 @@ class CControlKindIndex
     void registerType(CControlKind type,const char *name);
 public:
     CControlKindIndex();
-    static string name(CControlKind type) throw (exception);
-    static CControlKind type(const string& name) throw (exception)
+    static string name(CControlKind type) THROWS_EXCEPTIONS;
+    static CControlKind type(const string& name) THROWS_EXCEPTIONS
     {
         return type(name.c_str());
     }
-    static CControlKind type(const char* name) throw (exception);
+    static CControlKind type(const char* name) THROWS_EXCEPTIONS;
 };
 
 struct CControlKindName
@@ -118,7 +118,7 @@ void CControlKindIndex::registerType(CControlKind type, const char *name)
     m_typeNameMap[type] = &itor->first;
 }
 
-string CControlKindIndex::name(CControlKind type) throw (exception)
+string CControlKindIndex::name(CControlKind type) THROWS_EXCEPTIONS
 {
     CTypeNameMap::iterator itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
@@ -126,7 +126,7 @@ string CControlKindIndex::name(CControlKind type) throw (exception)
     return *itor->second;
 }
 
-CControlKind CControlKindIndex::type(const char* name) throw (exception)
+CControlKind CControlKindIndex::type(const char* name) THROWS_EXCEPTIONS
 {
     CNameTypeMap::iterator itor = m_nameTypeMap.find(name);
     if (itor == m_nameTypeMap.end())
@@ -569,7 +569,7 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     }
 }
 
-void sptk::createControls(const CXmlNodeList& xmlControls) throw (exception)
+void sptk::createControls(const CXmlNodeList& xmlControls) THROWS_EXCEPTIONS
 {
     CXmlNodeList::const_iterator itor = xmlControls.begin();
     CXmlNodeList::const_iterator iend = xmlControls.end();

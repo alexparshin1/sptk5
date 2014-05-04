@@ -64,28 +64,28 @@ private:
 protected:
     /// @brief Parses xsd:element nodes directly under xsd:schema
     /// @param element const CXmlElement*, Schema element
-    void parseElement(const CXmlElement* element) throw (std::exception);
+    void parseElement(const CXmlElement* element) THROWS_EXCEPTIONS;
 
     /// @brief Parses xsd:complexType nodes directly under xsd:schema
     /// @param complexTypeElement const CXmlElement*, Schema complex type
-    void parseComplexType(const CXmlElement* complexTypeElement) throw (std::exception);
+    void parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS;
 
     /// @brief Parses wsdl:operation nodes directly under xsd:schema
     /// @param operation const CXmlElement*, Schema complex type
-    void parseOperation(const CXmlElement* operation) throw (std::exception);
+    void parseOperation(const CXmlElement* operation) THROWS_EXCEPTIONS;
 
     /// @brief Parses xsd:schema
     /// @param schemaElement const CXmlElement*, Schema element
-    void parseSchema(const CXmlElement* schemaElement) throw (std::exception);
+    void parseSchema(const CXmlElement* schemaElement) THROWS_EXCEPTIONS;
 
     /// @brief Generates service definition to output stream
     /// @param usedClasses const CStrings&, List of this service complex types (classes)
     /// @param output std::ostream, Output stream
-    void generateDefinition(const CStrings& usedClasses, std::ostream& output) throw (std::exception);
+    void generateDefinition(const CStrings& usedClasses, std::ostream& output) THROWS_EXCEPTIONS;
 
     /// @brief Generates service implementation to output stream
     /// @param output std::ostream, Output stream
-    void generateImplementation(std::ostream& output) throw (std::exception);
+    void generateImplementation(std::ostream& output) THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor
@@ -99,11 +99,11 @@ public:
 
     /// @brief Loads WSDL-file and parses it to output classes
     /// @param wsdlFile std::string, WSDL file name
-    void parse(std::string wsdlFile) throw (std::exception);
+    void parse(std::string wsdlFile) THROWS_EXCEPTIONS;
 
     /// @brief Stores parsed classes to files in source directory
     /// @param sourceDirectory std::string, Directory to store output classes
-    void generate(std::string sourceDirectory=".") throw (std::exception);
+    void generate(std::string sourceDirectory=".") THROWS_EXCEPTIONS;
 
     static std::string strip_namespace(const std::string& name);
 };

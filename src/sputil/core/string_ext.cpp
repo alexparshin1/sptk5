@@ -35,33 +35,44 @@
 
 using namespace std;
 
-namespace sptk {
+namespace sptk
+{
 
-string upperCase(const string& str) {
+string upperCase (const string& str)
+{
     uint32_t len = (uint32_t) str.length();
     string result;
-    result.resize(len);
-    for (uint32_t i = 0; i < len; i++) 
-        result[i] = (char) toupper(str[i]);
+    result.resize (len);
+
+    for (uint32_t i = 0; i < len; i++)
+        result[i] = (char) toupper (str[i]);
+
     return result;
 }
 
-string lowerCase(const string& str) {
+string lowerCase (const string& str)
+{
     uint32_t len = (uint32_t) str.length();
     string result;
-    result.resize(len);
-    for (uint32_t i = 0; i < len; i++) 
-        result[i] = (char) tolower(str[i]);
+    result.resize (len);
+
+    for (uint32_t i = 0; i < len; i++)
+        result[i] = (char) tolower (str[i]);
+
     return result;
 }
 
-string trim(const string& str) {
+string trim (const string& str)
+{
     uint32_t len = (uint32_t) str.length();
+
     if (!len)
         return "";
-    const unsigned char *s = (const unsigned char *)str.c_str();
-    int i, startpos = 0, endpos = int(len - 1);
+
+    const unsigned char *s = (const unsigned char *) str.c_str();
+    int i, startpos = 0, endpos = int (len - 1);
     bool found = false;
+
     for (i = endpos; i >= 0; i--) {
         if (s[i] > 32) {
             endpos = i;
@@ -69,156 +80,191 @@ string trim(const string& str) {
             break;
         }
     }
+
     if (!found)
         return "";
+
     for (i = 0; i <= endpos; i++) {
         if (s[i] > 32) {
             startpos = i;
             break;
         }
     }
-    return str.substr(startpos,endpos-startpos+1);
+
+    return str.substr(size_t(startpos), size_t(endpos-startpos+1));
 }
 
-void join(string& dest, const vector<string> src, string separator) {
+void join (string& dest, const vector<string> src, string separator)
+{
     dest = "";
     vector<string>::const_iterator itor = src.begin();
+
     for (; itor != src.end(); itor++) {
         dest += *itor + separator;
     }
 }
 
-void split(vector<string> dest, const string& src, string delimitter) {
+void split (vector<string> dest, const string& src, string delimitter)
+{
     dest.clear();
-    char *buffer = (char *)src.c_str();
-    if (!strlen(buffer))
+    char *buffer = (char *) src.c_str();
+
+    if (!strlen (buffer))
         return;
+
     uint32_t dlen = (uint32_t) delimitter.length();
+
     if (!dlen)
         return;
+
     char *p = buffer;
+
     for (;;) {
-        char *end = strstr(p,delimitter.c_str());
+        char *end = strstr (p,delimitter.c_str());
+
         if (end) {
             //int len = end - p;
             char sc = *end;
             *end = 0;
-            dest.push_back(p);
+            dest.push_back (p);
             *end = sc;
             p = end + dlen;
         } else {
-            dest.push_back(p);
+            dest.push_back (p);
             break;
         }
     }
 }
 
-string int2string(int32_t value) {
+string int2string (int32_t value)
+{
     char buff[32];
-    sprintf(buff,"%i",value);
+    sprintf (buff,"%i",value);
     return buff;
 }
 
-string int2string(uint32_t value) {
+string int2string (uint32_t value)
+{
     char buff[64];
-    sprintf(buff,"%u",value);
+    sprintf (buff,"%u",value);
     return buff;
 }
 
-string int2string(int64_t value) {
+string int2string (int64_t value)
+{
     char buff[128];
 #if BITNESS == 64
-    sprintf(buff,"%li",value);
+    sprintf (buff,"%li",value);
 #else
-    sprintf(buff,"%lli",value);
+    sprintf (buff,"%lli",value);
 #endif
     return buff;
 }
 
-string int2string(uint64_t value) {
+string int2string (uint64_t value)
+{
     char buff[128];
 #if BITNESS == 64
-    sprintf(buff,"%lu",value);
+    sprintf (buff,"%lu",value);
 #else
-    sprintf(buff,"%llu",value);
+    sprintf (buff,"%llu",value);
 #endif
     return buff;
 }
 
-int string2int(const string& str,int defaultValue) {
+int string2int (const string& str,int defaultValue)
+{
     char *endptr;
     errno = 0;
-    int result = strtol(str.c_str(),&endptr,10);
+    int result = (int) strtol(str.c_str(),&endptr,10);
+
     if (errno)
         return defaultValue;
+
     return result;
 }
 
-string capitalizeWords(const std::string& str) {
-    string s(str);
-    char *current = (char *)s.c_str();
+string capitalizeWords (const std::string& str)
+{
+    string s (str);
+    char *current = (char *) s.c_str();
     char *wordStart = NULL;
+
     if (*current) {
         for (;;) {
-            if (isalnum(*current)) {
+            if (isalnum (*current)) {
                 if (!wordStart)
                     wordStart = current;
             } else {
                 if (current - wordStart > 3) {
                     if (wordStart)
-                        *wordStart = (char) toupper(*wordStart);
+                        *wordStart = (char) toupper (*wordStart);
                     else
                         wordStart = current;
+
                     for (char *ptr = wordStart + 1; ptr < current; ptr++)
-                        *ptr = (char) tolower(*ptr);
+                        *ptr = (char) tolower (*ptr);
                 }
+
                 wordStart = NULL;
             }
+
             if (!*current)
                 break;
+
             current++;
         }
     }
+
     return s;
 }
 
-string replaceAll(const string& src,const string& pattern,const string& replacement) {
-    string str(src);
+string replaceAll (const string& src,const string& pattern,const string& replacement)
+{
+    string str (src);
 
     if (pattern.empty())
         return src;
-	
+
     size_t patternLength = pattern.length();
     size_t replacementLength = replacement.length();
 
-    size_t i = str.find(pattern);
+    size_t i = str.find (pattern);
 
     while (i != STRING_NPOS) { // While not at the end of the string
-        str.replace(i,patternLength,replacement);
-        i = str.find(pattern, i + replacementLength);
+        str.replace (i,patternLength,replacement);
+        i = str.find (pattern, i + replacementLength);
     }
+
     return str;
 }
 
-void stringToStringVector(const string& src,vector<string> dest,string delimitter) {
-    string buffer(src);
+void stringToStringVector (const string& src,vector<string> dest,string delimitter)
+{
+    string buffer (src);
     dest.clear();
+
     if (!buffer[0])
         return;
+
     uint32_t dlen = (uint32_t) delimitter.length();
+
     if (!dlen)
         return;
-    char *p = (char *)buffer.c_str();
+
+    char *p = (char *) buffer.c_str();
+
     for (;;) {
-        char *end = strstr(p,delimitter.c_str());
+        char *end = strstr (p,delimitter.c_str());
+
         if (end) {
             char sc = *end;
             *end = 0;
-            dest.push_back(p);
+            dest.push_back (p);
             *end = sc;
             p = end + dlen;
         } else {
-            dest.push_back(p);
+            dest.push_back (p);
             break;
         }
     }

@@ -89,39 +89,39 @@ void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime times
     short year, month, day, hour, minute, second, msecond;
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
     timestamp.decodeDate(&year, &month, &day);
-    mysqlDate.year = year;
-    mysqlDate.month = month;
-    mysqlDate.day = day;
+    mysqlDate.year = (unsigned) year;
+    mysqlDate.month = (unsigned) month;
+    mysqlDate.day = (unsigned) day;
     if (timeType == VAR_DATE)
         mysqlDate.time_type = MYSQL_TIMESTAMP_DATE;
     else {
         timestamp.decodeTime(&hour, &minute, &second, &msecond);
-        mysqlDate.hour = hour;
-        mysqlDate.minute = minute;
-        mysqlDate.second = second;
-        mysqlDate.second_part = msecond;
+        mysqlDate.hour = (unsigned) hour;
+        mysqlDate.minute = (unsigned) minute;
+        mysqlDate.second = (unsigned) second;
+        mysqlDate.second_part = (unsigned) msecond;
         mysqlDate.time_type = MYSQL_TIMESTAMP_DATETIME;
     }
 }
 
 void CMySQLStatement::mysqlDateToDateTime(CDateTime& timestamp, const MYSQL_TIME& mysqlDate)
 {
-    CDateTime dt(mysqlDate.year, short(mysqlDate.month), short(mysqlDate.day),
+    CDateTime dt(short(mysqlDate.year), short(mysqlDate.month), short(mysqlDate.day),
                 short(mysqlDate.hour), short(mysqlDate.minute), short(mysqlDate.second));
     if (mysqlDate.time_type == MYSQL_TIMESTAMP_DATE)
         timestamp = CDateTime(
-                        mysqlDate.year, mysqlDate.month, mysqlDate.day,
-                        0, 0, 0);
+                        (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,
+                        (short) 0, (short) 0, (short) 0);
     else
         timestamp = CDateTime(
-                        mysqlDate.year, mysqlDate.month, mysqlDate.day,
-                        mysqlDate.hour, mysqlDate.minute, mysqlDate.second);
+                        (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,
+                        (short) mysqlDate.hour, (short) mysqlDate.minute, (short) mysqlDate.second);
 }
 
 void CMySQLStatement::enumerateParams(CParamList& queryParams)
 {
     CDatabaseStatement<CMySQLConnection,MYSQL_STMT>::enumerateParams(queryParams);
-    uint32_t paramCount = m_enumeratedParams.size();
+    uint32_t paramCount = (uint32_t) m_enumeratedParams.size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);
     MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
@@ -213,7 +213,7 @@ void CMySQLStatement::setParameterValues()
 {
     static my_bool nullValue = 1;
 
-    unsigned paramCount = m_enumeratedParams.size();
+    unsigned paramCount = (unsigned) m_enumeratedParams.size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
         CParam*     param = m_enumeratedParams[paramIndex];
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
@@ -298,10 +298,10 @@ void CMySQLStatement::bindResult(CFieldList& fields)
         if (columnName[0] == 0)
             sprintf(columnName, "column_%02i", columnIndex + 1);
         CVariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
-        unsigned fieldLength = fieldMetadata->length;
+        unsigned fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)
             fieldLength = FETCH_BUFFER;
-        fields.push_back(new CMySQLStatementField(columnName, columnIndex, fieldMetadata->type, fieldType, fieldLength));
+        fields.push_back(new CMySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
     }
     mysql_free_result(metadata);
 
@@ -374,7 +374,7 @@ void CMySQLStatement::fetchResult(CFieldList& fields)
         }
 
         CVariantType    fieldType = field->dataType();
-        uint32_t        dataLength = *(bind.length);
+        uint32_t        dataLength = (uint32_t) *(bind.length);
 
         switch (fieldType) {
 
@@ -422,7 +422,7 @@ void CMySQLStatement::fetchResult(CFieldList& fields)
                 if (bind.buffer_length < dataLength) {
                     /// Fetch truncated, enlarge buffer and fetch again
                     field->checkSize(dataLength);
-                    for (uint32_t offset = bind.buffer_length; offset < dataLength; offset += bind.buffer_length) {
+                    for (uint32_t offset = (uint32_t) bind.buffer_length; offset < dataLength; offset += bind.buffer_length) {
                         bind.buffer = (char*) field->getBuffer() + offset;
                         if (mysql_stmt_fetch_column(m_statement, &bind, fieldIndex, offset) != 0)
                             throwMySQLError;

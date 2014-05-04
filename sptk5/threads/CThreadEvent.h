@@ -57,6 +57,10 @@ public:
     /// @param thread CThread*, Thread where event occured
     /// @param eventType Type, Thread event type
     virtual void threadEvent(CThread* thread, Type eventType) = 0;
+
+    /// @brief Destructor
+    virtual ~CThreadEvent()
+    {}
 };
 
 /// @}

@@ -39,11 +39,17 @@ class SP_EXPORT CSystemException : public CException
 {
 public:
     /// @brief Constructor
-    /// @param text std::string, the exception context
+    /// @param context std::string, the exception context
     /// @param file std::string, the file name where exception occurs
     /// @param line int, the line number in the file where exception occurs
-    /// @param description std::string, the optional description information
     CSystemException(std::string context, std::string file="", int line=0);
+
+    /// @brief Copy constructor
+    /// @param other const CSystemException&, the other exception object
+    CSystemException(const CSystemException& other);
+
+    /// @brief Destructor
+    ~CSystemException() DOESNT_THROW;
 
     /// @brief Returns OS error
     static std::string osError();

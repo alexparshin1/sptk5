@@ -139,7 +139,7 @@ protected:
     /// @brief Sets the data type
     void dataType(uint32_t dt)
     {
-        m_dataType = dt;
+        m_dataType = (uint16_t) dt;
     }
 
 public:
@@ -162,7 +162,7 @@ public:
     CVariant(uint32_t value)
     {
         m_dataType = VAR_INT;
-        m_data.intData = value;
+        m_data.intData = (int32_t) value;
     }
 
     /// @brief Constructor
@@ -171,7 +171,7 @@ public:
         if (scale > 1) {
             m_dataType = VAR_MONEY;
             m_data.moneyData.quantity = value;
-            m_data.moneyData.scale = scale;
+            m_data.moneyData.scale = (uint8_t) scale;
         } else {
             m_dataType = VAR_INT64;
             m_data.int64Data = value;
@@ -182,7 +182,7 @@ public:
     CVariant(uint64_t value)
     {
         m_dataType = VAR_INT64;
-        m_data.int64Data = value;
+        m_data.int64Data = (int64_t) value;
     }
 
     /// @brief Constructor
@@ -327,7 +327,6 @@ public:
         setData(C);
         return *this;
     }
-    ;
 
     /// @brief Assignment operator
     virtual CVariant& operator =(int32_t value)
@@ -346,14 +345,14 @@ public:
     /// @brief Assignment operator
     virtual CVariant& operator =(uint32_t value)
     {
-        setInteger(value);
+        setInteger((int32_t) value);
         return *this;
     }
 
     /// @brief Assignment operator
     virtual CVariant& operator =(uint64_t value)
     {
-        setInt64(value);
+        setInt64((int64_t)value);
         return *this;
     }
 
@@ -496,7 +495,7 @@ public:
     /// @brief Directly reads the internal data
     virtual uint32_t getImageNdx() const
     {
-        return m_data.imageNdx;
+        return (uint32_t) m_data.imageNdx;
     }
 
     /// @brief Returns the data type
@@ -524,101 +523,101 @@ public:
     }
 
     /// @brief Conversion operator
-    operator bool() const throw (CException)
+    operator bool() const THROWS_EXCEPTIONS
     {
         return asBool();
     }
 
     /// @brief Conversion operator
-    operator int32_t() const throw (CException)
+    operator int32_t() const THROWS_EXCEPTIONS
     {
         return asInteger();
     }
 
     /// @brief Conversion operator
-    operator uint32_t() const throw (CException)
+    operator uint32_t() const THROWS_EXCEPTIONS
     {
-        return asInteger();
+        return (uint32_t) asInteger();
     }
 
     /// @brief Conversion operator
-    operator int64_t() const throw (CException)
-    {
-        return asInt64();
-    }
-
-    /// @brief Conversion operator
-    operator uint64_t() const throw (CException)
+    operator int64_t() const THROWS_EXCEPTIONS
     {
         return asInt64();
     }
 
     /// @brief Conversion operator
-    operator float() const throw (CException)
+    operator uint64_t() const THROWS_EXCEPTIONS
+    {
+        return (uint64_t) asInt64();
+    }
+
+    /// @brief Conversion operator
+    operator float() const THROWS_EXCEPTIONS
     {
         return (float) asFloat();
     }
 
     /// @brief Conversion operator
-    operator double() const throw (CException)
+    operator double() const THROWS_EXCEPTIONS
     {
         return asFloat();
     }
 
     /// @brief Conversion operator
-    operator std::string() const throw (CException)
+    operator std::string() const THROWS_EXCEPTIONS
     {
         return asString();
     }
 
     /// @brief Conversion operator
-    operator CDateTime() const throw (CException)
+    operator CDateTime() const THROWS_EXCEPTIONS
     {
         return asDateTime();
     }
 
-    /// @brief @brief Conversion method
+    /// @brief Conversion method
     ///
     /// Converts variant value to double.
-    int32_t asInteger() const throw (CException);
+    int32_t asInteger() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
     /// Converts variant value to double.
-    int64_t asInt64() const throw (CException);
+    int64_t asInt64() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion to bool
     ///
     /// Converts variant string value with first char one of 'Y','y','T','t' to true,
     /// and one of 'N','n','F','f' to false.
     /// For the integer and float values, the value <=0 is false, and > 0 is true.
-    bool asBool() const throw (CException);
+    bool asBool() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion to double
     ///
     /// Converts variant value to double.
-    double asFloat() const throw (CException);
+    double asFloat() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion to string
     ///
     /// Converts variant value to string.
-    virtual std::string asString() const throw (CException);
+    virtual std::string asString() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
     /// Converts variant value to CDateTime. The time part of CDdatetime is empty.
-    CDateTime asDate() const throw (CException);
+    CDateTime asDate() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
     /// Converts variant value to CDateTime.
-    CDateTime asDateTime() const throw (CException);
+    CDateTime asDateTime() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
     /// Simply returns the internal data pointer for string/text/blob types.
     /// For incompatible types throws an exception.
-    void *asImagePtr() const throw (CException);
+    void *asImagePtr() const THROWS_EXCEPTIONS;
 
     /// @brief Sets the NULL state
     ///

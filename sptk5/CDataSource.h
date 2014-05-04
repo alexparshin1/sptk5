@@ -134,7 +134,7 @@ public:
 public:
 
     /// @brief Opens the datasource. Implemented in derved class.
-    virtual bool open() throw (std::exception)
+    virtual bool open() THROWS_EXCEPTIONS
     {
         return false;
     }
@@ -170,7 +170,7 @@ public:
     }
 
     /// @brief Moves to the specified record position of the datasource. Implemented in derved class.
-    virtual bool find(CVariant position)
+    virtual bool find(CVariant /*position*/)
     {
         return false;
     }

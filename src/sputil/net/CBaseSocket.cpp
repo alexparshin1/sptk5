@@ -39,7 +39,7 @@ using namespace sptk;
     static bool  m_inited(false);
 #endif
 
-void CBaseSocket::throwSocketError (std::string operation, const char* file, int line) throw (CException)
+void CBaseSocket::throwSocketError (std::string operation, const char* file, int line) THROWS_EXCEPTIONS
 {
 #ifdef _WIN32
     LPCTSTR lpMsgBuf;
@@ -113,14 +113,14 @@ uint32_t CBaseSocket::socketBytes()
     return bytes;
 }
 
-size_t CBaseSocket::recv (void* buffer, size_t len)
+size_t CBaseSocket::recv(void* buffer, size_t len)
 {
-    return ::recv(m_sockfd, (char*) buffer, (int) len, 0);
+    return (size_t) ::recv(m_sockfd, (char*) buffer, (size_t) len, 0);
 }
 
-size_t CBaseSocket::send (const void* buffer, size_t len)
+size_t CBaseSocket::send(const void* buffer, size_t len)
 {
-    return ::send(m_sockfd, (char*) buffer, (int) len, 0);
+    return (size_t) ::send(m_sockfd, (char*) buffer, (size_t) len, 0);
 }
 
 int32_t CBaseSocket::control (int flag, uint32_t *check)
@@ -139,7 +139,7 @@ void CBaseSocket::host (string hostName)
 
 void CBaseSocket::port (int32_t portNumber)
 {
-    m_port = portNumber;
+    m_port = (uint32_t) portNumber;
 }
 
 // Connect & disconnect
@@ -197,22 +197,22 @@ void CBaseSocket::attach (SOCKET socketHandle)
     m_sockfd = socketHandle;
 }
 
-size_t CBaseSocket::read(char *buffer,size_t size,sockaddr_in* from) throw(CException)
+size_t CBaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
 {
-    int bytes;
+    ssize_t bytes;
     if (from) {
         socklen_t flen = sizeof (sockaddr_in);
-        bytes = ::recvfrom (m_sockfd, buffer, (int) size, 0, (sockaddr*) from, &flen);
+        bytes = ::recvfrom(m_sockfd, buffer, (size_t) size, 0, (sockaddr*) from, &flen);
     } else
-        bytes = ::recv(m_sockfd, (char*) buffer, (int) size, 0);
+        bytes = ::recv(m_sockfd, (char*) buffer, (size_t) size, 0);
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
     
-    return bytes;
+    return (size_t) bytes;
 }
 
-size_t CBaseSocket::read(CBuffer& buffer,size_t size,sockaddr_in* from) throw(CException)
+size_t CBaseSocket::read(CBuffer& buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.checkSize(size);
     size_t bytes = read(buffer.data(),size,from);
@@ -221,7 +221,7 @@ size_t CBaseSocket::read(CBuffer& buffer,size_t size,sockaddr_in* from) throw(CE
     return bytes;
 }
 
-size_t CBaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) throw(CException)
+size_t CBaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.resize(size);
     size_t bytes = read((char*)buffer.data(),size,from);
@@ -230,34 +230,35 @@ size_t CBaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) thro
     return bytes;
 }
 
-size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* peer) throw(CException)
+size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
     size_t      bytes;
-    const char *p = buffer;
+    const char* p = buffer;
 
     if (int(size) == -1)
         size = strlen(buffer);
 
-    size_t    total = size;
-    while (size > 0) {
+    size_t  total = size;
+    int remaining = (int) size;
+    while (remaining > 0) {
         if (peer)
-            bytes = sendto (m_sockfd, p, int (size), 0, (sockaddr *) peer, sizeof (sockaddr_in));
+            bytes = (size_t) sendto(m_sockfd, p, size_t(size), 0, (sockaddr *) peer, sizeof(sockaddr_in));
         else
-            bytes = send (p, int (size));
-        if (bytes < 0)
+            bytes = send(p, size_t(size));
+        if (bytes == size_t(-1))
             THROW_SOCKET_ERROR("Can't write to socket");
-        size -= bytes;
+        remaining -= bytes;
         p += bytes;
     }
     return total;
 }
 
-size_t CBaseSocket::write (const CBuffer& buffer, const sockaddr_in* peer) throw(CException)
+size_t CBaseSocket::write (const CBuffer& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
     return write(buffer.data(), buffer.bytes(), peer);
 }
 
-size_t CBaseSocket::write (const std::string& buffer, const sockaddr_in* peer) throw(CException)
+size_t CBaseSocket::write (const std::string& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
     return write(buffer.c_str(), buffer.length(), peer);
 }
@@ -290,14 +291,14 @@ bool CBaseSocket::readyToWrite()
 # define VALUE_TYPE(val) (void*)(val)
 #endif
 
-void CBaseSocket::setOption (int level, int option, int value) throw (CException)
+void CBaseSocket::setOption (int level, int option, int value) THROWS_EXCEPTIONS
 {
     socklen_t len = sizeof (int);
     if (setsockopt (m_sockfd, level, option, VALUE_TYPE (&value), len))
         THROW_SOCKET_ERROR("Can't set socket option");
 }
 
-void CBaseSocket::getOption (int level, int option, int& value) throw (CException)
+void CBaseSocket::getOption (int level, int option, int& value) THROWS_EXCEPTIONS
 {
     socklen_t len = sizeof (int);
     if (getsockopt (m_sockfd, level, option, VALUE_TYPE (&value), &len))

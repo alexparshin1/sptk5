@@ -52,7 +52,7 @@ public:
     ~CFTPSocket();
 
     /// Establish the connection
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) throw (CException);
+    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) THROWS_EXCEPTIONS;
 
     /// Returns a reference to server response string list
     const CStrings& response() const

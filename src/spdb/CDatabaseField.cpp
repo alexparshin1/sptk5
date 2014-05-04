@@ -63,19 +63,19 @@ CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fie
 
     case VAR_STRING:
         setString("");
-        checkSize(fieldLength + 1);
+        checkSize((uint32_t)fieldLength + 1);
         width = fieldLength;
         break;
 
     case VAR_TEXT:
         setText("");
-        checkSize(fieldLength + 1);
+        checkSize((uint32_t)fieldLength + 1);
         width = fieldLength;
         break;
 
     case VAR_BUFFER:
         setBuffer("", 1);
-        checkSize(fieldLength);
+        checkSize((uint32_t)fieldLength);
         width = 1;
         break;
 
@@ -93,7 +93,7 @@ CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fie
 
     default:
         setString("");
-        checkSize(fieldLength + 1);
+        checkSize((uint32_t)fieldLength + 1);
         width = fieldLength;
         break;
     }

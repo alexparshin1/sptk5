@@ -104,7 +104,7 @@ string CWSParserComplexType::className() const
     return "C" + m_typeName.substr(pos + 1);
 }
 
-void CWSParserComplexType::parseSequence(CXmlElement* sequence) throw (std::exception)
+void CWSParserComplexType::parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS
 {
     for (CXmlElement::const_iterator itor = sequence->begin(); itor != sequence->end(); itor++) {
         CXmlElement* element = (CXmlElement*) *itor;
@@ -114,7 +114,7 @@ void CWSParserComplexType::parseSequence(CXmlElement* sequence) throw (std::exce
     }
 }
 
-void CWSParserComplexType::parse() throw (exception)
+void CWSParserComplexType::parse() THROWS_EXCEPTIONS
 {
     m_attributes.clear();
     if (!m_element)
@@ -138,7 +138,7 @@ std::string CWSParserComplexType::wsClassName(std::string name)
     return name;
 }
 
-void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) throw (std::exception)
+void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS
 {
     string className = "C" + wsClassName(m_name);
     set<string> usedClasses;
@@ -189,14 +189,14 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) th
     classDeclaration << "public:" << endl;
     classDeclaration << "   " << className << "() {}" << endl;
     classDeclaration << "   ~" << className << "();" << endl;
-    classDeclaration << "   void load(const sptk::CXmlElement* input) throw (std::exception);" << endl;
-    classDeclaration << "   void unload(sptk::CXmlElement* output) throw (std::exception);" << endl;
+    classDeclaration << "   void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS;" << endl;
+    classDeclaration << "   void unload(sptk::CXmlElement* output) THROWS_EXCEPTIONS;" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "#endif" << endl;
 }
 
-void CWSParserComplexType::generateImplementation(std::ostream& classImplementation) throw (std::exception)
+void CWSParserComplexType::generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS
 {
     string className = "C" + wsClassName(m_name);
 
@@ -217,7 +217,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     classImplementation << "}" << endl << endl;
 
     // Loader
-    classImplementation << "void " << className << "::load(const CXmlElement* input) throw (std::exception)" << endl;
+    classImplementation << "void " << className << "::load(const CXmlElement* input) THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
     if (m_attributes.size()) {
         classImplementation << "   // Load attributes" << endl;
@@ -248,7 +248,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     classImplementation << "}" << endl << endl;
 
     // Unloader
-    classImplementation << "void " << className << "::unload(CXmlElement* output) throw (std::exception)" << endl;
+    classImplementation << "void " << className << "::unload(CXmlElement* output) THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
     if (m_attributes.size()) {
         classImplementation << "   // Unload attributes" << endl;
@@ -278,7 +278,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     classImplementation << "}" << endl;
 }
 
-void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation) throw (exception)
+void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation) THROWS_EXCEPTIONS
 {
     generateDefinition(classDeclaration);
     generateImplementation(classImplementation);

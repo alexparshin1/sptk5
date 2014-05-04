@@ -52,7 +52,7 @@ protected:
     /// @brief Method that is executed by worker thread
     ///
     /// Should be overwritten by derived class.
-    virtual void run() throw (std::exception) = 0;
+    virtual void run() THROWS_EXCEPTIONS = 0;
 
 public:
 
@@ -66,7 +66,7 @@ public:
     ///
     /// Task may be executed multiple times, but only one caller
     /// may execute same task at a time.
-    void execute() throw (std::exception);
+    void execute() THROWS_EXCEPTIONS;
 
     /// @brief Requests execution termination
     void terminate();
@@ -76,7 +76,7 @@ public:
 
     /// @brief Returns true, if the task is completed
     /// @param timeoutMS uint32_t, Wait timeout, milliseconds
-    bool completed(uint32_t timeoutMS=SP_INFINITY) throw (std::exception);
+    bool completed(uint32_t timeoutMS=SP_INFINITY) THROWS_EXCEPTIONS;
 };
 /// @}
 }

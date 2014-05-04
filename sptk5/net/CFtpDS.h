@@ -107,13 +107,13 @@ public:
     /// FTP port number
     void port(int p)
     {
-        m_port = p;
+        m_port = uint32_t(p);
     }
 
     /// FTP port number
     int port() const
     {
-        return m_port;
+        return int(m_port);
     }
 
     /// FTP user name
@@ -156,7 +156,7 @@ public:
     /// selects the FTP folder(),
     /// reads the list of files and directories,
     /// closes the FTP connection
-    virtual bool open() throw (std::exception);
+    virtual bool open() THROWS_EXCEPTIONS;
 
     /// Sets the callback for the open() progression
     void callback(CProgressCallback cb)

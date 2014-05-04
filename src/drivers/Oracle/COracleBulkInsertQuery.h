@@ -62,7 +62,7 @@ protected:
     }
 
 public:
-    void execNext() throw (std::exception)
+    void execNext() THROWS_EXCEPTIONS
     {
         m_recordNumber++;
         if (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0)

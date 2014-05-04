@@ -39,18 +39,22 @@ namespace sptk {
 /// @brief Frame information class
 ///
 /// Contains the frame image and frame width
-class CFrame : public CPngImage {
+
+class CFrame : public CPngImage
+{
 public:
     /// @brief An expected usage of the frame
-    enum CFrameKind {
-        FLTK_STANDARD,          ///< The frame should be used to draw standard FLTK frames
-        USER_EXTENDED           ///< The frame should be used to draw user frames
+
+    enum CFrameKind
+    {
+        FLTK_STANDARD, ///< The frame should be used to draw standard FLTK frames
+        USER_EXTENDED ///< The frame should be used to draw user frames
     };
 protected:
-    uint32_t            m_frameWidth;   ///< Frame width, to keep widgets inside the frame w/o overlaping
-    uint32_t            m_cornerZone;   ///< Corner zone width to draw the frame corners without changes
-    CPatternDrawMode    m_drawMode;     ///< Pattern draw mode
-    CFrameKind          m_kind;         ///< Frame kind (standard or user-extended)
+    uint32_t m_frameWidth; ///< Frame width, to keep widgets inside the frame w/o overlaping
+    uint32_t m_cornerZone; ///< Corner zone width to draw the frame corners without changes
+    CPatternDrawMode m_drawMode; ///< Pattern draw mode
+    CFrameKind m_kind; ///< Frame kind (standard or user-extended)
 public:
     /// @brief Constructor
     /// @param imageData const CBuffer&, an image data presented as memory buffer
@@ -58,8 +62,10 @@ public:
     /// @param cornerZone uint32_t, corner zone width to draw the frame corners without changes
     /// @param drawMode CPatternDrawMode, pattern draw mode
     /// @param kind CFrameKind, frame kind (standard or user-extended)
-    CFrame(const CBuffer& imageData,uint32_t frameWidth,uint32_t cornerZone,CPatternDrawMode drawMode=CPngImage::PDM_STRETCH,CFrameKind kind=USER_EXTENDED)
-            : CPngImage(imageData) {
+
+    CFrame(const CBuffer& imageData, uint32_t frameWidth, uint32_t cornerZone, CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
+    : CPngImage(imageData)
+    {
         m_frameWidth = frameWidth;
         m_cornerZone = cornerZone;
         m_kind = kind;
@@ -73,43 +79,58 @@ public:
     /// @param w int, the width to draw image
     /// @param h int, the height to draw image
     /// @param drawBackground bool, if true then the internal area of the image is used for background
-    void drawResized(int x,int y,int w,int h,bool drawBackground) {
-        CPngImage::drawResized(x,y,w,h,m_cornerZone,m_drawMode,drawBackground);
+
+    void drawResized(int x, int y, int w, int h, bool drawBackground)
+    {
+        CPngImage::drawResized(x, y, w, h, (int) m_cornerZone, m_drawMode, drawBackground);
     }
 
     /// @brief Returns frame width, to keep widgets inside the frame w/o overlaping
-    uint32_t frameWidth() const {
+
+    uint32_t frameWidth() const
+    {
         return m_frameWidth;
     }
 
     /// @brief Returns corner zone width to draw the frame corners without changes
-    uint32_t cornerZone() const {
+
+    uint32_t cornerZone() const
+    {
         return m_cornerZone;
     }
 
     /// @brief Returns an expected usage of the frame
-    CFrameKind kind() const {
+
+    CFrameKind kind() const
+    {
         return m_kind;
     }
 };
 
 /// @brief Frame images collection
-class CFrames {
-    typedef std::map<std::string,CFrame*> CFrameMap;     ///< String (frame name) to frame map
-    typedef std::map<Fl_Boxtype,CFrame*>  CFltkFrameMap; ///< Box type to frame map
 
-    CFrameMap      m_frames;     ///< All the registered frames
-    CFltkFrameMap  m_fltkFrames; ///< All the frames that are FLTK standard frames replacement
+class CFrames
+{
+    typedef std::map<std::string, CFrame*> CFrameMap; ///< String (frame name) to frame map
+    typedef std::map<Fl_Boxtype, CFrame*> CFltkFrameMap; ///< Box type to frame map
 
-    static const CStrings   frameTypeNames;
+    CFrameMap m_frames; ///< All the registered frames
+    CFltkFrameMap m_fltkFrames; ///< All the frames that are FLTK standard frames replacement
+
+    static const CStrings frameTypeNames;
     static const Fl_Boxtype frameTypes[4];
 
 public:
     /// @brief Constructor
-    CFrames() {}
+
+    CFrames()
+    {
+    }
 
     /// @brief Destructor
-    ~CFrames() {
+
+    ~CFrames()
+    {
         clear();
     }
 
@@ -121,13 +142,13 @@ public:
     /// @brief Loads the frames from the tar archive by the XML description
     /// @param tar CTar&, tar archive with the images
     /// @param frameNode CXmlNode*, XML description of the frames
-    void load(CTar& tar,CXmlNode* frameNode);
+    void load(CTar& tar, CXmlNode* frameNode);
 
     /// @brief Registers a single frame image in the collection
     /// @param frameName std::string, symbolic name for the frame
     /// @param frame CFrame*, a frame image
     /// @param frameType Fl_Boxtype, FLTK frame type if applicable
-    void registerFrame(std::string frameName,CFrame* frame,Fl_Boxtype frameType=FL_NO_BOX);
+    void registerFrame(std::string frameName, CFrame* frame, Fl_Boxtype frameType = FL_NO_BOX);
 
     /// @brief Returns a standard FLTK frame image, or NULL if not defined in the collection
     /// @param frameType Fl_Boxtype, standard FLTK frame type to find

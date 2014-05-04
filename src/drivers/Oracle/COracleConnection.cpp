@@ -62,7 +62,7 @@ COracleConnection::~COracleConnection()
     }
 }
 
-void COracleConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
+void COracleConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -90,7 +90,7 @@ void COracleConnection::openDatabase(string newConnectionString) throw (CDatabas
     }
 }
 
-void COracleConnection::closeDatabase() throw (CDatabaseException)
+void COracleConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -130,7 +130,7 @@ string COracleConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void COracleConnection::driverBeginTransaction() throw (CDatabaseException)
+void COracleConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connection)
         open();
@@ -141,7 +141,7 @@ void COracleConnection::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void COracleConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
+void COracleConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throwOracleException("Transaction isn't started.");
@@ -498,7 +498,7 @@ void COracleConnection::queryFetch(CQuery *query)
     }
 }
 
-void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -525,7 +525,7 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
     query.close();
 }
 
-void COracleConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+void COracleConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
 {
     CQuery tableColumnsQuery(this, 
                         "SELECT column_name, data_type, data_length "

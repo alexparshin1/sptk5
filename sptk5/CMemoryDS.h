@@ -110,7 +110,7 @@ public:
     virtual bool              writeField(const char *fieldName,const CVariant& fieldValue);
 
     /// Opens the datasource. Implemented in derved class.
-    virtual bool              open() throw (std::exception) {
+    virtual bool              open() THROWS_EXCEPTIONS {
         throw CException("Not implemented yet");
     }
 

@@ -64,7 +64,7 @@ public:
             case SQL_TEXT:
             case SQL_BLOB:
             case SQL_VARYING:
-                setBuffer(NULL,fieldSize + 1);
+                setBuffer(NULL, (size_t) fieldSize + 1);
                 m_sqlvar.sqldata = (ISC_SCHAR*) getBuffer();
                 break;
         }
@@ -118,7 +118,7 @@ void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, CDateTi
 
 void CFirebirdStatement::firebirdDateToDateTime(CDateTime& timestamp, const struct tm& firebirdData)
 {
-    timestamp = CDateTime(firebirdData.tm_year + 1900, short(firebirdData.tm_mon + 1), short(firebirdData.tm_mday),
+    timestamp = CDateTime(short(firebirdData.tm_year + 1900), short(firebirdData.tm_mon + 1), short(firebirdData.tm_mday),
                 short(firebirdData.tm_hour), short(firebirdData.tm_min), short(firebirdData.tm_sec));
 }
 
@@ -129,7 +129,7 @@ void CFirebirdStatement::enumerateParams(CParamList& queryParams)
     isc_dsql_describe_bind(m_status_vector, m_statement, 1, psqlda);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
     if (psqlda->sqln != psqlda->sqld) {
-        m_paramBuffers.resize(psqlda->sqld);
+        m_paramBuffers.resize(size_t(psqlda->sqld));
         isc_dsql_describe_bind(m_status_vector, m_statement, 1, psqlda);
         m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
     }
@@ -183,7 +183,7 @@ CVariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int
 
 void CFirebirdStatement::setParameterValues()
 {
-    unsigned        paramCount = m_enumeratedParams.size();
+    unsigned        paramCount = (unsigned) m_enumeratedParams.size();
     struct tm       firebirdDateTime;
     ISC_TIMESTAMP*  pts;
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
@@ -244,7 +244,7 @@ void CFirebirdStatement::setParameterValues()
             case VAR_STRING:
                 sqlvar.sqltype = SQL_TEXT + 1;
                 sqlvar.sqlsubtype = 0;
-                sqlvar.sqllen = param->dataSize();
+                sqlvar.sqllen = (ISC_SHORT) param->dataSize();
                 sqlvar.sqldata = (ISC_SCHAR*) param->getBuffer();
                 break;
 
@@ -317,13 +317,13 @@ void CFirebirdStatement::execute(bool)
     XSQLDA* osqlda = &m_outputBuffers.sqlda();
     isc_dsql_describe(m_status_vector, m_statement, 1, osqlda);
     if (osqlda->sqln < osqlda->sqld) {
-        m_outputBuffers.resize(osqlda->sqld);
+        m_outputBuffers.resize(size_t(osqlda->sqld));
         isc_dsql_describe(m_status_vector, m_statement, 1, osqlda);
     }
             
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
     
-    m_state.columnCount = osqlda->sqld;
+    m_state.columnCount = (unsigned) osqlda->sqld;
 }
 
 void CFirebirdStatement::bindResult(CFieldList& fields)
@@ -332,7 +332,7 @@ void CFirebirdStatement::bindResult(CFieldList& fields)
 
     char columnName[256];
     for (int columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
-        XSQLVAR& sqlvar = m_outputBuffers[columnIndex];
+        XSQLVAR& sqlvar = m_outputBuffers[size_t(columnIndex)];
         ISC_SHORT type = sqlvar.sqltype;
         
         if (type == SQL_TEXT && sqlvar.sqlsubtype)
@@ -344,12 +344,12 @@ void CFirebirdStatement::bindResult(CFieldList& fields)
             sprintf(columnName, "column_%02i", columnIndex + 1);
 
         CVariantType fieldType = firebirdTypeToVariantType(sqlvar.sqltype, sqlvar.sqlsubtype);
-        unsigned fieldLength = sqlvar.sqllen;
-        fields.push_back(new CFirebirdStatementField(columnName, columnIndex, sqlvar.sqltype, fieldType, fieldLength, sqlvar));
+        unsigned fieldLength = (unsigned) sqlvar.sqllen;
+        fields.push_back(new CFirebirdStatementField(columnName, columnIndex, sqlvar.sqltype, fieldType, (int) fieldLength, sqlvar));
     }
 }
 
-isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, CParam* param) throw(CDatabaseException)
+isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, CParam* param) THROWS_EXCEPTIONS
 {
     isc_db_handle   db = m_connection->connection();
     isc_blob_handle blob_handle = 0;
@@ -373,7 +373,7 @@ isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, CParam* param)
         isc_put_segment(
             m_status_vector,
             &blob_handle,
-            segmentSize,
+            (unsigned short) segmentSize,
             segment
         );
         m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
@@ -386,7 +386,7 @@ isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, CParam* param)
     return blob_handle;
 }
 
-size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) throw(CDatabaseException)
+size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) THROWS_EXCEPTIONS
 {
     isc_db_handle   db = m_connection->connection();
     
@@ -400,21 +400,21 @@ size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) t
     size_t  dataLength = 0;
     size_t  fragmentSize = 8192;
     
-    field->checkSize(fragmentSize);
+    field->checkSize(uint32_t(fragmentSize));
     
     while (true) {
         char* currentFragment = (char*) field->getBuffer() + dataLength;
         unsigned short  fragmentLength = 0;
-        isc_get_segment(m_status_vector, &blob_handle, &fragmentLength, fragmentSize, currentFragment);
+        isc_get_segment(m_status_vector, &blob_handle, &fragmentLength, (unsigned short) fragmentSize, currentFragment);
         if (fragmentLength == 0)
             break;
         dataLength += fragmentLength;
-        field->checkSize(dataLength + fragmentSize);
+        field->checkSize(uint32_t(dataLength + fragmentSize));
     }
 
     isc_close_blob(m_status_vector, &blob_handle);
     
-    field->setDataSize(dataLength);
+    field->setDataSize(uint32_t(dataLength));
     
     return field->dataSize();
 }
@@ -440,36 +440,40 @@ void CFirebirdStatement::fetchResult(CFieldList& fields)
             // Date and time types
             case SQL_TYPE_DATE:
                 isc_decode_sql_date((ISC_DATE*)sqlvar.sqldata, &times);
-                field->setDate(CDateTime(times.tm_year + 1900, times.tm_mon + 1, times.tm_mday));
+                field->setDate(CDateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday)));
                 break;
                         
             case SQL_TYPE_TIME:
                 isc_decode_sql_time((ISC_TIME*)sqlvar.sqldata, &times);
-                field->setDateTime(CDateTime(times.tm_year + 1900, times.tm_mon + 1, times.tm_mday, times.tm_hour, times.tm_min, times.tm_sec));
+                field->setDateTime(
+                    CDateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
+                              short(times.tm_hour), short(times.tm_min), short(times.tm_sec)));
                 break;
                         
             case SQL_TIMESTAMP:
                 isc_decode_timestamp((ISC_TIMESTAMP*)sqlvar.sqldata, &times);
-                field->setDateTime(CDateTime(times.tm_year + 1900, times.tm_mon + 1, times.tm_mday, times.tm_hour, times.tm_min, times.tm_sec));
+                field->setDateTime(
+                    CDateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
+                              short(times.tm_hour), short(times.tm_min), short(times.tm_sec)));
                 break;
                         
             case SQL_SHORT:
                 if (sqlvar.sqlsubtype == 1)
-                    field->setMoney(*(short*) sqlvar.sqldata, -sqlvar.sqlscale);
+                    field->setMoney(*(short*) sqlvar.sqldata, (unsigned) -sqlvar.sqlscale);
                 else
                     field->setInteger(*(short*) sqlvar.sqldata);
                 break;
                         
             case SQL_LONG:
                 if (sqlvar.sqlsubtype == 1)
-                    field->setMoney(*(int32_t*) sqlvar.sqldata, -sqlvar.sqlscale);
+                    field->setMoney(*(int32_t*) sqlvar.sqldata, (unsigned) -sqlvar.sqlscale);
                 else
                     field->setInteger(*(int32_t*) sqlvar.sqldata);
                 break;
                         
             case SQL_INT64:
                 if (sqlvar.sqlsubtype == 1)
-                    field->setMoney(*(int64_t*) sqlvar.sqldata, -sqlvar.sqlscale);
+                    field->setMoney(*(int64_t*) sqlvar.sqldata, (unsigned) -sqlvar.sqlscale);
                 else
                     field->setInt64(*(int64_t*) sqlvar.sqldata);
                 break;

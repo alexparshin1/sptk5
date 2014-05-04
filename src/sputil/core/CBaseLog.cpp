@@ -80,6 +80,14 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
     return traits_type::not_eof(c);
 }
 //==========================================================================================
+CBaseLog::~CBaseLog()
+{
+    SYNCHRONIZED_CODE;
+    flush();
+    delete m_buffer;
+}
+
+
 SP_EXPORT CBaseLog& sptk::operator <<(CBaseLog &stream, CLogPriority priority)
 {
     stream.priority(priority);
@@ -109,4 +117,3 @@ string CBaseLog::priorityName(CLogPriority prt)
     }
     return "";
 }
-//==========================================================================================

@@ -117,7 +117,7 @@ public:
 
     /// @brief Assign operator
     CParam& operator = (uint32_t v) {
-        setInteger(v);
+        setInteger((int32_t)v);
         return *this;
     }
 
@@ -129,7 +129,7 @@ public:
 
     /// @brief Assign operator
     CParam& operator = (uint64_t v) {
-        setInt64(v);
+        setInt64((int64_t)v);
         return *this;
     }
 
@@ -180,8 +180,8 @@ public:
     /// In contrast to CVariant::setString() method, this method
     /// tries not to decrease the allocated buffer.
     /// @param value const char*, string to assign
-    /// @param maxlen uint32_t, maximum length of the assigned string
-    virtual void setString(const char* value, uint32_t maxlen = 0);
+    /// @param maxlen size_t, maximum length of the assigned string
+    virtual void setString(const char* value, size_t maxlen = 0);
 
     /// @brief String assignment method
     ///

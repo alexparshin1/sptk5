@@ -82,7 +82,7 @@ public:
     /// the string is removed from SST. If the string doesn't exist,
     /// the exception is thrown.
     /// @param str const char *, a string to release
-    void releaseString(const char *str) throw(std::exception);
+    void releaseString(const char *str) THROWS_EXCEPTIONS;
 
     /// @brief Releases a shared string
     ///
@@ -91,7 +91,7 @@ public:
     /// the string is removed from SST. If the string doesn't exist,
     /// the exception is thrown.
     /// @param str const std::string&, a string to release
-    void releaseString(const std::string& str) throw(std::exception)
+    void releaseString(const std::string& str) THROWS_EXCEPTIONS
     {
         releaseString(str.c_str());
     }

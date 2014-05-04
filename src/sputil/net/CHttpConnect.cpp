@@ -76,18 +76,18 @@ void CHttpConnect::getResponse() {
 
     bool chunked = 0;
     for (unsigned i = 0; i < headers.size(); i++) {
-        char* header = (char* ) headers[i].c_str();
-        char* headerValue = strstr(header,": ");
+        char* headerStr = (char* ) headers[i].c_str();
+        char* headerValue = strstr(headerStr,": ");
         if (!headerValue)
             continue;
         *headerValue = 0;
         headerValue += 2;
-        m_responseHeaders[header] = headerValue;
-        if (strcmp(header,"Transfer-Encoding") == 0) {
+        m_responseHeaders[headerStr] = headerValue;
+        if (strcmp(headerStr,"Transfer-Encoding") == 0) {
             chunked = strcmp(headerValue,"chunked") == 0;
 	    continue;
         }
-        if (strcmp(header,"Content-Length") == 0) {
+        else if (strcmp(headerStr,"Content-Length") == 0) {
             contentLength = atoi(headerValue);
 	    continue;
         }
@@ -115,7 +115,7 @@ void CHttpConnect::getResponse() {
                 readLine(chunkSizeStr);
             if (chunkSizeStr == "0")
                 break;
-            long chunkSize = strtol(chunkSizeStr.c_str(),0L,16);
+            size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(),0L,16);
             read_buffer.checkSize(chunkSize);
             bytes = (int) read(read_buffer.data(),chunkSize,0);
             if (bytes > 0) {

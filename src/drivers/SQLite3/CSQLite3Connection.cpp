@@ -34,6 +34,7 @@
 #include <sptk5/db/CParamList.h>
 #include <string>
 #include <stdio.h>
+#include <stdint.h>
 
 namespace sptk
 {
@@ -94,7 +95,7 @@ string CSQLite3Connection::nativeConnectionString() const
     return m_connString.databaseName();
 }
 
-void CSQLite3Connection::openDatabase(const string newConnectionString) throw (CDatabaseException)
+void CSQLite3Connection::openDatabase(const string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -111,7 +112,7 @@ void CSQLite3Connection::openDatabase(const string newConnectionString) throw (C
     }
 }
 
-void CSQLite3Connection::closeDatabase() throw (CDatabaseException)
+void CSQLite3Connection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -135,7 +136,7 @@ bool CSQLite3Connection::active() const
     return m_connect != 0L;
 }
 
-void CSQLite3Connection::driverBeginTransaction() throw (CDatabaseException)
+void CSQLite3Connection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connect)
         open();
@@ -151,7 +152,7 @@ void CSQLite3Connection::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void CSQLite3Connection::driverEndTransaction(bool commit) throw (CDatabaseException)
+void CSQLite3Connection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throw CDatabaseException("Transaction isn't started.");
@@ -383,7 +384,7 @@ void CSQLite3Connection::queryOpen(CQuery* query)
     queryBindParameters(query);
     queryExecute(query);
 
-    short count = queryColCount(query);
+    short count = (short) queryColCount(query);
 
     query->fields().clear();
 
@@ -425,7 +426,7 @@ void CSQLite3Connection::queryOpen(CQuery* query)
 
 static uint32_t trimField(char* s, uint32_t sz)
 {
-    register char* p = s + sz;
+    char* p = s + sz;
     char ch = s[0];
     s[0] = '!';
 
@@ -474,15 +475,15 @@ void CSQLite3Connection::queryFetch(CQuery* query)
 
     for (uint32_t column = 0; column < fieldCount; column++) {
         try {
-            field = (CSQLite3Field*) & (*query)[(int) column];
+            field = (CSQLite3Field*) & (*query)[(uint32_t) column];
             short fieldType = (short) field->fieldType();
 
             if (!fieldType) {
-                fieldType = sqlite3_column_type(statement, int(column));
+                fieldType = (short) sqlite3_column_type(statement, int(column));
                 field->setFieldType(fieldType, 0, 0);
             }
 
-            dataLength = sqlite3_column_bytes(statement, int(column));
+            dataLength = (uint32_t) sqlite3_column_bytes(statement, int(column));
 
             if (dataLength) {
                 switch (fieldType) {
@@ -522,7 +523,7 @@ void CSQLite3Connection::queryFetch(CQuery* query)
     }
 }
 
-void CSQLite3Connection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void CSQLite3Connection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     string objectTypeName;
     objects.clear();

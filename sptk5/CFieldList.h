@@ -123,29 +123,26 @@ public:
     /// @returns field reference
     CField& operator [](int32_t index)
     {
-        return *(CField *) m_list[index];
+        return *(CField *) m_list[size_t(index)];
     }
 
     /// @brief Field access by field index, const version
-    ///
     /// @param index uint32_t, field index
     /// @returns field reference
     const CField& operator [](uint32_t index) const
     {
-        return *(CField *) m_list[index];
+        return *(CField *) m_list[size_t(index)];
     }
 
     /// @brief Field access by field index, const version
-    ///
     /// @param index int32_t, field index
     /// @returns field reference
     const CField& operator [](int32_t index) const
     {
-        return *(CField *) m_list[index];
+        return *(CField *) m_list[size_t(index)];
     }
 
     /// @brief Field access by field name, non-const version
-    ///
     /// @param fname const char *, field name
     /// @returns field reference
     CField& operator [](const char *fname)
@@ -162,7 +159,6 @@ public:
     }
 
     /// @brief Field access by field name, non-const version
-    ///
     /// @param fname const std::string&, field name
     /// @returns field reference
     CField& operator [](const std::string& fname)
@@ -171,7 +167,6 @@ public:
     }
 
     /// @brief Field access by field name, const version
-    ///
     /// @param fname const std::string&, field name
     /// @returns field reference
     const CField& operator [](const std::string& fname) const

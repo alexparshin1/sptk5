@@ -81,11 +81,11 @@ protected:
 protected:
 
     /// @brief Begins the transaction
-    virtual void driverBeginTransaction() throw (CDatabaseException);
+    virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
     /// @brief Ends the transaction
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) throw (CDatabaseException);
+    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by CQuery
     virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
@@ -145,10 +145,10 @@ public:
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the Oracle connection string
-    virtual void openDatabase(std::string connectionString = "") throw (CDatabaseException);
+    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
-    virtual void closeDatabase() throw (CDatabaseException);
+    virtual void closeDatabase() THROWS_EXCEPTIONS;
 
     /// @brief Returns true if database is opened
     virtual bool active() const;
@@ -165,7 +165,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException);
+    virtual void objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS;
 
     /// @brief Executes bulk inserts of data from memory buffer
     ///
@@ -175,7 +175,7 @@ public:
     /// @param tableName std::string, table name to insert into
     /// @param columnNames const CStrings&, list of table columns to populate
     /// @param data const CStrings&, data for bulk insert
-    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") throw (CDatabaseException);
+    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") THROWS_EXCEPTIONS;
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }

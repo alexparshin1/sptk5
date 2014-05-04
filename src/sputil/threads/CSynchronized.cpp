@@ -48,7 +48,7 @@ CSynchronized::~CSynchronized()
 #endif
 }
 
-void CSynchronized::throwError(const char* fileName, int lineNumber) throw (std::exception)
+void CSynchronized::throwError(const char* fileName, int lineNumber) THROWS_EXCEPTIONS
 {
     string error("Lock failed");
 
@@ -64,7 +64,7 @@ void CSynchronized::throwError(const char* fileName, int lineNumber) throw (std:
 
 void CSynchronized::lock(const char* fileName, int lineNumber)
 {
-    lock(-1, fileName, lineNumber);
+    lock(uint32_t(-1), fileName, lineNumber);
 }
 
 #if USE_CXX11 == 0
@@ -99,10 +99,8 @@ int CSynchronized::msleep(int timeoutMS)
 
 #endif
 
-void CSynchronized::lock(int timeoutMS, const char* fileName, int lineNumber) throw (exception)
+void CSynchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber) THROWS_EXCEPTIONS
 {
-    if (timeoutMS < 0)
-        timeoutMS = 999999999;
 #if USE_CXX11
     if (!m_synchronized.try_lock_for(chrono::milliseconds(timeoutMS)))
         throwError(fileName, lineNumber);
@@ -126,8 +124,8 @@ void CSynchronized::lock(int timeoutMS, const char* fileName, int lineNumber) th
             rc = pthread_mutex_timedlock(&m_synchronized, &abs_time);
         } while (rc == EINTR);
         #else
-        int step = 50;   // Check every 50 milliseconds
-        int elapsed = 0;
+        uint32_t step = 50;   // Check every 50 milliseconds
+        uint32_t elapsed = 0;
         while (elapsed < timeoutMS) {
             int rc = pthread_mutex_trylock(&m_synchronized);
             switch (rc) {

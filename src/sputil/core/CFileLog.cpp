@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPriority priority) throw (CException)
+void CFileLog::saveMessage(CDateTime date, const char *message, uint32_t, CLogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (options() & CLO_ENABLE) {
@@ -80,7 +80,7 @@ CFileLog::~CFileLog()
         m_fileStream.close();
 }
 
-void CFileLog::reset() throw (CException)
+void CFileLog::reset() THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_fileStream.is_open())

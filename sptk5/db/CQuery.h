@@ -235,7 +235,7 @@ public:
     ///
     /// It is necessary for the select queries and some stored procedures
     /// that may return the dataset. First-time call for open() also prepares the query.
-    virtual bool open() throw (std::exception);
+    virtual bool open() THROWS_EXCEPTIONS;
 
     /// @brief Closes the query
     ///
@@ -261,7 +261,7 @@ public:
 
 public:
     /// @brief Executes the query and closes the statement.
-    virtual void exec() throw (std::exception)
+    virtual void exec() THROWS_EXCEPTIONS
     {
         open();
     }
@@ -270,14 +270,14 @@ public:
     ///
     /// Query SQL would be set to the new SQL statement
     /// @param newSQL std::string, an SQL statement to execute
-    virtual void exec(std::string newSQL) throw (std::exception)
+    virtual void exec(std::string newSQL) THROWS_EXCEPTIONS
     {
         sql(newSQL);
         open();
     }
 
     /// @brief Fetches the next row from the recordset, same as next()
-    void fetch() throw (std::exception);
+    void fetch() THROWS_EXCEPTIONS;
 
     /// @brief Connects a query to a database
     ///
@@ -323,7 +323,7 @@ public:
     /// @see CParamList
     CParam& param(uint32_t paramIndex) const
     {
-        return m_params[paramIndex];
+        return m_params[int32_t(paramIndex)];
     }
 
     /// @brief Returns query statement handle
@@ -402,7 +402,7 @@ public:
     /// Before exception is thrown, it is logged into the logfile (if the logfile is defined)
     /// @param method std::string, method name where error has occured
     /// @param error std::string, error text
-    void logAndThrow(std::string method, std::string error) throw (CDatabaseException);
+    void logAndThrow(std::string method, std::string error) THROWS_EXCEPTIONS;
 
     /// @brief Access to diag messages
     ///

@@ -34,40 +34,29 @@
 namespace sptk {
 
     uint64_t htonq(uint64_t val) {
-    #if WORDS_BIGENDIAN == 1
-        return val;
-    #else
         uint64_t result;
-        int32_t* src = (int32_t *)(void *)&val;
-        int32_t* dst = (int32_t *)(void *)&result;
+        uint32_t* src = (uint32_t *)(void *)&val;
+        uint32_t* dst = (uint32_t *)(void *)&result;
         dst[0] = htonl(src[1]);
         dst[1] = htonl(src[0]);
         return result;
-    #endif
     }
 
     uint64_t ntohq(uint64_t val) {
-    #if WORDS_BIGENDIAN == 1
-        return val;
-    #else
         uint64_t result;
-        int32_t* src = (int32_t *)(void *)&val;
-        int32_t* dst = (int32_t *)(void *)&result;
+        uint32_t* src = (uint32_t *)(void *)&val;
+        uint32_t* dst = (uint32_t *)(void *)&result;
         dst[0] = htonl(src[1]);
         dst[1] = htonl(src[0]);
         return result;
-    #endif
     }
 
-    void htonq_inplace(uint64_t* in,uint64_t* out) {
-    #if WORDS_BIGENDIAN == 1
-        return;
-    #else
-        int32_t* src = (int32_t *)(void *)in;
-        int32_t* dst = (int32_t *)(void *)out;
+    void htonq_inplace(uint64_t* in, uint64_t* out)
+    {
+        uint32_t* src = (uint32_t *)(void *)in;
+        uint32_t* dst = (uint32_t *)(void *)out;
         dst[1] = htonl(src[0]);
         dst[0] = htonl(src[1]);
-    #endif
     }
 
 }

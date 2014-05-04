@@ -92,7 +92,7 @@ int CStrings::indexOf(string s) const {
     return (int) distance(begin(),itor);
 }
 
-void CStrings::saveToFile(string fileName) const throw(CException)
+void CStrings::saveToFile(string fileName) const THROWS_EXCEPTIONS
 {
     CBuffer buffer;
     for (const_iterator str = begin(); str != end(); str++) {
@@ -102,7 +102,7 @@ void CStrings::saveToFile(string fileName) const throw(CException)
     buffer.saveToFile(fileName);
 }
 
-void CStrings::loadFromFile(string fileName) throw(CException)
+void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
 {
     CBuffer buffer;
     buffer.loadFromFile(fileName);

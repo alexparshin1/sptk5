@@ -27,6 +27,7 @@
 
 #include <sptk5/cxml>
 #include <stdio.h>
+#include <stdint.h>
 
 using namespace sptk;
 
@@ -51,7 +52,7 @@ CXmlValue& CXmlValue::operator =(bool v)
 CXmlValue& CXmlValue::operator =(int32_t v)
 {
     char buff[64];
-    uint32_t sz = sprintf(buff, "%i", v);
+    uint32_t sz = (uint32_t) sprintf(buff, "%i", v);
     m_value.assign(buff, sz);
     return *this;
 }
@@ -59,7 +60,7 @@ CXmlValue& CXmlValue::operator =(int32_t v)
 CXmlValue& CXmlValue::operator =(uint32_t v)
 {
     char buff[64];
-    uint32_t sz = sprintf(buff, "%u", v);
+    uint32_t sz = (uint32_t) sprintf(buff, "%u", v);
     m_value.assign(buff, sz);
     return *this;
 }
@@ -68,9 +69,9 @@ CXmlValue& CXmlValue::operator =(int64_t v)
 {
     char buff[64];
 #if BITNESS == 64
-    uint32_t sz = sprintf(buff,"%li",v);
+    uint32_t sz = (uint32_t) sprintf(buff,"%li",v);
 #else
-    uint32_t sz = sprintf(buff, "%lli", v);
+    uint32_t sz = (uint32_t) sprintf(buff, "%lli", v);
 #endif
     m_value.assign(buff, sz);
     return *this;
@@ -80,9 +81,9 @@ CXmlValue& CXmlValue::operator =(uint64_t v)
 {
     char buff[64];
 #if BITNESS == 64
-    uint32_t sz = sprintf(buff,"%lu",v);
+    uint32_t sz = (uint32_t) sprintf(buff,"%lu",v);
 #else
-    uint32_t sz = sprintf(buff, "%llu", v);
+    uint32_t sz = (uint32_t) sprintf(buff, "%llu", v);
 #endif
     m_value.assign(buff, sz);
     return *this;
@@ -91,7 +92,7 @@ CXmlValue& CXmlValue::operator =(uint64_t v)
 CXmlValue& CXmlValue::operator =(double v)
 {
     char buff[64];
-    uint32_t sz = sprintf(buff, "%f", v);
+    uint32_t sz = (uint32_t) sprintf(buff, "%f", v);
     m_value.assign(buff, sz);
     return *this;
 }

@@ -47,7 +47,7 @@ const std::string& CSharedStrings::shareString(const char* str) {
     return itor->first;
 }
 
-void CSharedStrings::releaseString(const char* str) throw(std::exception) {
+void CSharedStrings::releaseString(const char* str) THROWS_EXCEPTIONS {
     CSIMap::iterator itor = m_stringIdMap.find(str);
     if (itor == m_stringIdMap.end())
         throw CException("The string "+std::string(str)+" isn't registered in SST");

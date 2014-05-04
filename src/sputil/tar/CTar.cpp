@@ -108,7 +108,7 @@ CTar::CTar() {
     }
 }
 
-bool CTar::loadFile() throw(CException) {
+bool CTar::loadFile() THROWS_EXCEPTIONS {
     TAR* tar = (TAR*)m_tar;
     // Read file header
     int rc = th_read(tar);
@@ -116,7 +116,7 @@ bool CTar::loadFile() throw(CException) {
     if (rc < 0) throwError(m_fileName);
 
     string fileName = th_get_pathname(tar);
-    uint32_t fileSize = th_get_size(tar);
+    uint32_t fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize) {
         CBuffer *buffer = new CBuffer(fileSize + 1);
@@ -124,12 +124,12 @@ bool CTar::loadFile() throw(CException) {
 
         uint32_t offset = 0;
         while (offset != fileSize) {
-            int k = tar->type->readfunc(tar->fd, buf + offset, unsigned(fileSize - offset));
+            int k = tar->type->readfunc((int)tar->fd, buf + offset, unsigned(fileSize - offset));
             if (k < 0) {
                 delete buffer;
                 throw CException("Error reading file '"+fileName+"' from tar archive");
             }
-            offset += k;
+            offset += unsigned(k);
         }
         buf[fileSize] = '\0';
         buffer->bytes(fileSize);
@@ -140,9 +140,9 @@ bool CTar::loadFile() throw(CException) {
         off_t emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
         char buff[T_BLOCKSIZE];
         if (m_memoryRead) {
-            mem_read(tar->fd,NULL,emptyTail);
+            mem_read((int)tar->fd, NULL, size_t(emptyTail));
         } else {
-            if (::read(tar->fd, buff, emptyTail) == -1)
+            if (::read((int)tar->fd, buff, size_t(emptyTail)) == -1)
             //if (lseek(tar->fd,emptyTail,SEEK_CUR) == (off_t) -1)
                 throwError(m_fileName);
         }
@@ -150,14 +150,14 @@ bool CTar::loadFile() throw(CException) {
     return true;
 }
 
-void CTar::throwError(string fileName) throw(CException) {
+void CTar::throwError(string fileName) THROWS_EXCEPTIONS {
     char* ptr = strerror(errno);
     if (fileName.empty())
         throw CException(ptr);
     throw CException(fileName+": " + string(ptr));
 }
 
-void CTar::read(const char* fileName) throw(CException) {
+void CTar::read(const char* fileName) THROWS_EXCEPTIONS {
     m_fileName = fileName;
     m_memoryRead = false;
     TAR* tar;
@@ -170,13 +170,13 @@ void CTar::read(const char* fileName) throw(CException) {
     m_tar = 0;
 }
 
-void CTar::read(const CBuffer& tarData) throw(CException) {
+void CTar::read(const CBuffer& tarData) THROWS_EXCEPTIONS {
     m_fileName = "";
     m_memoryRead = true;
     TAR* tar;
     clear();
     tar_open(&tar,(char *)"memory",&memtype,0,0,TAR_GNU);
-    CMemoryTarHandle* memHandle = tarMemoryHandle(tar->fd);
+    CMemoryTarHandle* memHandle = tarMemoryHandle((int)tar->fd);
     if (!memHandle)
         throw CException("Can't open the archive",__FILE__,__LINE__);
     memHandle->sourceBuffer = tarData.data();
@@ -195,7 +195,7 @@ void CTar::clear() {
     m_fileNames.clear();
 }
 
-const CBuffer& CTar::file(std::string fileName) const throw(CException) {
+const CBuffer& CTar::file(std::string fileName) const THROWS_EXCEPTIONS {
     CFileCollection::const_iterator itor = m_files.find(fileName);
     if (itor == m_files.end())
         throw CException("File '"+fileName+"' isn't found",__FILE__,__LINE__);

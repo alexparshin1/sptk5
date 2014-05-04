@@ -38,6 +38,7 @@
 #include <string>
 #include <stdio.h>
 #include <sstream>
+#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
@@ -49,18 +50,18 @@ const CDateTime epochDate(2000, 1, 1);
 
 class CPostgreSQLStatement
 {
-    PGresult*         m_stmt;
-    char              m_stmtName[20];
-    static unsigned   index;
-    int               m_rows;
-    int               m_cols;
-    int               m_currentRow;
+    PGresult* m_stmt;
+    char m_stmtName[20];
+    static unsigned index;
+    int m_rows;
+    int m_cols;
+    int m_currentRow;
 public:
-    CPostgreSQLParamValues      m_paramValues;
+    CPostgreSQLParamValues m_paramValues;
 public:
+
     CPostgreSQLStatement(bool int64timestamps)
-    : m_paramValues(int64timestamps)
-    {
+    : m_paramValues(int64timestamps) {
         m_stmt = NULL;
         sprintf(m_stmtName, "S%04i", ++index);
     }
@@ -90,10 +91,10 @@ public:
             PQclear(m_stmt);
 
         m_stmt = st;
-        m_rows = rows;
+        m_rows = (int) rows;
 
         if (cols != 99999)
-            m_cols = cols;
+            m_cols = (int) cols;
 
         m_currentRow = -1;
     }
@@ -101,23 +102,29 @@ public:
     const PGresult* stmt() const {
         return m_stmt;
     }
+
     string name() const {
         return m_stmtName;
     }
+
     void fetch() {
         m_currentRow++;
     }
+
     bool eof() {
         return m_currentRow >= m_rows;
     }
+
     unsigned currentRow() const {
-        return m_currentRow;
+        return (unsigned) m_currentRow;
     }
+
     unsigned colCount() const {
-        return m_cols;
+        return (unsigned) m_cols;
     }
+
     unsigned rowCount() const {
-        return m_rows;
+        return (unsigned) m_rows;
     }
 
     const CParamVector& params() const {
@@ -184,7 +191,7 @@ string CPostgreSQLConnection::nativeConnectionString() const
     return result;
 }
 
-void CPostgreSQLConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
+void CPostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -211,7 +218,7 @@ void CPostgreSQLConnection::openDatabase(string newConnectionString) throw (CDat
     }
 }
 
-void CPostgreSQLConnection::closeDatabase() throw (CDatabaseException)
+void CPostgreSQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -235,7 +242,7 @@ bool CPostgreSQLConnection::active() const
     return m_connect != 0L;
 }
 
-void CPostgreSQLConnection::driverBeginTransaction() throw (CDatabaseException)
+void CPostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connect)
         open();
@@ -257,7 +264,7 @@ void CPostgreSQLConnection::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void CPostgreSQLConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
+void CPostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throw CDatabaseException("Transaction isn't started.");
@@ -352,7 +359,7 @@ void CPostgreSQLConnection::queryPrepare(CQuery* query)
     const Oid* paramTypes = params.types();
     unsigned paramCount = params.size();
 
-    PGresult* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), paramCount, paramTypes);
+    PGresult* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), (int) paramCount, paramTypes);
 
     if (PQresultStatus(stmt) != PGRES_COMMAND_OK) {
         string error = "PREPARE command failed: ";
@@ -362,7 +369,7 @@ void CPostgreSQLConnection::queryPrepare(CQuery* query)
     }
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    unsigned fieldCount = PQnfields(stmt2);
+    unsigned fieldCount = (unsigned) PQnfields(stmt2);
 
     if (fieldCount && PQftype(stmt2, 0) == VOIDOID)
         fieldCount = 0;   // VOID result considered as no result
@@ -384,7 +391,7 @@ int CPostgreSQLConnection::queryColCount(CQuery* query)
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
 
-    return statement->colCount();
+    return (int) statement->colCount();
 }
 
 void CPostgreSQLConnection::queryBindParameters(CQuery* query)
@@ -406,7 +413,7 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
     if (!statement->colCount())
         resultFormat = 0;   // VOID result or NO results, using text format
 
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), paramValues.size(), paramValues.values(),
+    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), paramValues.values(),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
     ExecStatusType rc = PQresultStatus(stmt);
@@ -417,7 +424,7 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
         break;
 
     case PGRES_TUPLES_OK:
-        statement->stmt(stmt, PQntuples(stmt));
+        statement->stmt(stmt, (unsigned) PQntuples(stmt));
         break;
 
     default: {
@@ -533,7 +540,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
     //if (statement->rowCount() == 0)
     //    return;
 
-    short count = queryColCount(query);
+    short count = (short) queryColCount(query);
 
     if (count < 1) {
         //queryCloseStmt(query);
@@ -558,9 +565,9 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
 
                 Oid dataType = PQftype(stmt, column);
                 CVariantType fieldType;
-                PostgreTypeToCType(dataType, fieldType);
+                PostgreTypeToCType((int)dataType, fieldType);
                 int fieldLength = PQfsize(stmt, column);
-                CDatabaseField* field = new CDatabaseField(columnName, column, dataType, fieldType, fieldLength);
+                CDatabaseField* field = new CDatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
                 query->fields().push_back(field);
             }
         }
@@ -578,40 +585,40 @@ static inline bool readBool(char* data)
 
 static inline int16_t readInt2(char* data)
 {
-    return ntohs(*(int16_t*) data);
+    return (int16_t) ntohs(*(uint16_t*) data);
 }
 
 static inline int32_t readInt4(char* data)
 {
-    return ntohl(*(int32_t*) data);
+    return (int32_t) ntohl(*(uint32_t*) data);
 }
 
 static inline int64_t readInt8(char* data)
 {
-    return ntohq(*(int64_t*) data);
+    return (int64_t) ntohq(*(uint64_t*) data);
 }
 
 static inline float readFloat4(char* data)
 {
-    int32_t v = ntohl(*(int32_t*) data);
+    int32_t v = (int32_t) ntohl(*(uint32_t*) data);
     return *(float*) (void*) &v;
 }
 
 static inline double readFloat8(char* data)
 {
-    int64_t v = ntohq(*(int64_t*) data);
+    int64_t v = (int64_t) ntohq(*(uint64_t*) data);
     return *(double*) (void*) &v;
 }
 
 static inline double readDate(char* data)
 {
-    int32_t dt = ntohl(*(int32_t*) data);
+    int32_t dt = (int32_t) ntohl(*(uint32_t*) data);
     return dt + (int32_t) epochDate;
 }
 
 static inline double readTimestamp(char* data, bool integerTimestamps)
 {
-    int64_t v = ntohq(*(int64_t*) data);
+    int64_t v = (int64_t) ntohq(*(uint64_t*) data);
     double dt = (double) epochDate;
     if (integerTimestamps) {
         // time is in usecs
@@ -624,6 +631,7 @@ static inline double readTimestamp(char* data, bool integerTimestamps)
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
+/*
 static inline long double readNumericToFloat(char* v)
 {
     int16_t ndigits = ntohs(*(int16_t*) v);
@@ -660,15 +668,15 @@ static inline long double readNumericToFloat(char* v)
 
     return finalValue;
 }
-
+*/
 
 // Converts internal NUMERIC Postgresql binary to long double
 static inline CMoneyData readNumericToScaledInteger(char* v)
 {
-    int16_t ndigits = ntohs(*(int16_t*) v);
-    int16_t weight = ntohs(*(int16_t*) (v + 2));
-    int16_t sign = ntohs(*(int16_t*) (v + 4));
-    uint16_t dscale = ntohs(*(int16_t*)(v+6));
+    int16_t ndigits = (int16_t) ntohs(*(uint16_t*) v);
+    int16_t weight = (int16_t) ntohs(*(uint16_t*) (v + 2));
+    int16_t sign = (int16_t) ntohs(*(uint16_t*) (v + 4));
+    uint16_t dscale = ntohs(*(uint16_t*)(v+6));
 
     v += 8;
     int64_t value = 0;
@@ -684,7 +692,7 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
 
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; i++, v += 2, digitWeight--) {
-        int16_t digit = ntohs(*(int16_t*) v);
+        int16_t digit = (int16_t) ntohs(*(int16_t*) v);
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
@@ -817,7 +825,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
         return;
     }
 
-    int fieldCount = query->fieldCount();
+    int fieldCount = (int) query->fieldCount();
     int dataLength = 0;
 
     if (!fieldCount)
@@ -880,11 +888,11 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
                     break;
 
                 default:
-                    field->setExternalString(data, dataLength);
+                    field->setExternalString(data, size_t(dataLength));
                     break;
 
                 case PG_BYTEA:
-                    field->setExternalBuffer(data, dataLength);
+                    field->setExternalBuffer(data, size_t(dataLength));
                     break;
 
                 case PG_DATE:
@@ -920,7 +928,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
     }
 }
 
-void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     string tablesSQL("SELECT table_schema || '.' || table_name "
                      "FROM information_schema.tables "
@@ -970,7 +978,7 @@ std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
     return mark;
 }
 
-void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) throw (CDatabaseException)
+void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
 {
     string      sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
     PGresult*   res = PQexec(m_connect, sql.c_str());
@@ -990,7 +998,7 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
         buffer.append('\n');
     }
 
-    if (PQputCopyData(m_connect, buffer.c_str(), buffer.bytes()) != 1) {
+    if (PQputCopyData(m_connect, buffer.c_str(), (int) buffer.bytes()) != 1) {
         string error = "COPY command send data failed: ";
         error += PQerrorMessage(m_connect);
         throw CDatabaseException(error);

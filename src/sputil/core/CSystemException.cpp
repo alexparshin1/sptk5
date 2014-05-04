@@ -30,8 +30,17 @@
 using namespace std;
 using namespace sptk;
 
-CSystemException::CSystemException(string context, std::string file, int line) :
-    CException(context + ": " + osError(), file, line)
+CSystemException::CSystemException(string context, std::string file, int line)
+: CException(context + ": " + osError(), file, line)
+{
+}
+
+CSystemException::CSystemException(const CSystemException& other)
+: CException(other)
+{
+}
+
+CSystemException::~CSystemException() DOESNT_THROW
 {
 }
 

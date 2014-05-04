@@ -346,7 +346,7 @@ bool CDialog::save()
     return true;
 }
 
-void CDialog::load(const CXmlNode* node) throw (CException)
+void CDialog::load(const CXmlNode* node) THROWS_EXCEPTIONS
 {
     CLayoutManager::loadLayout(node, LXM_DATA);
     loadPosition(node);

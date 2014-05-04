@@ -93,7 +93,7 @@ CParam& CParamList::operator[](const std::string& paramName) const
 
 CParam& CParamList::operator[](int32_t index) const
 {
-    return *m_items[index];
+    return *m_items[size_t(index)];
 }
 
 uint32_t CParamList::size() const

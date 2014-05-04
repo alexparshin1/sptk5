@@ -138,14 +138,12 @@ public:
     /// Allocates memory if needed.
     /// @param data const char*, external data buffer
     /// @param sz size_t, required memory size
-    /// @returns success (true) or failure (false)
     void set(const char* data, size_t sz);
 
     /// @brief Copies the external data of size sz into the current buffer.
     ///
     /// Allocates memory if needed.
     /// @param data const CBuffer&, external data buffer
-    /// @returns success (true) or failure (false)
     void set(const CBuffer& data)
     {
         set(data.m_buffer, data.m_bytes);

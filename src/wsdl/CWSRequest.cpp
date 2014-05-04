@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-void CWSRequest::processRequest(CXmlDoc* request) throw (exception)
+void CWSRequest::processRequest(CXmlDoc* request) THROWS_EXCEPTIONS
 {
     CXmlElement* soapEnvelope = NULL;
     for (CXmlElement::iterator itor = request->begin(); itor != request->end(); itor++) {

@@ -156,8 +156,7 @@ private:
 
 protected:
     /// @brief Always returns false for CXmlNode since it has no name
-    /// @param sstName const string*, SST name pointer to compare node name with
-    virtual bool nameIs(const std::string* sstName) const
+    virtual bool nameIs(const std::string* /*sstName*/) const
     {
         return false;
     }
@@ -285,18 +284,12 @@ public:
     virtual const std::string& value() const;
 
     /// @brief Sets new value to node.
-    ///
-    /// @param new_value const std::string &, new value
-    /// @see value()
-    virtual void value(const std::string &new_value)
+    virtual void value(const std::string& /*new_value*/)
     {
     }
 
     /// @brief Sets new value to node
-    ///
-    /// @param new_value const char *, value to set
-    /// @see value()
-    virtual void value(const char *new_value)
+    virtual void value(const char* /*new_value*/)
     {
     }
 
@@ -335,8 +328,7 @@ public:
     }
 
     /// @brief Returns true, if given attribute is found
-    /// @param attr const char *, attribute to search
-    virtual bool hasAttribute(const char *attr) const
+    virtual bool hasAttribute(const char* attr) const
     {
         return false;
     }

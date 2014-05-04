@@ -222,22 +222,22 @@ public:
     /// @brief Returns the value with the conversion
     operator uint32_t() const
     {
-        return atol(m_value.c_str());
+        return (uint32_t) atol(m_value.c_str());
     }
 
     /// @brief Returns the value with the conversion
     operator int32_t() const
     {
-        return atol(m_value.c_str());
+        return (int32_t) atol(m_value.c_str());
     }
 
     /// @brief Returns the value with the conversion
     operator uint64_t() const
     {
 #ifdef __UNIX_COMPILER__
-        return atoll(m_value.c_str());
+        return (uint64_t) atoll(m_value.c_str());
 #else
-        return _atoi64(m_value.c_str());
+        return (uint64_t) _atoi64(m_value.c_str());
 #endif
     }
 
@@ -245,9 +245,9 @@ public:
     operator int64_t() const
     {
 #ifdef __UNIX_COMPILER__
-        return atoll(m_value.c_str());
+        return (int64_t) atoll(m_value.c_str());
 #else
-        return _atoi64(m_value.c_str());
+        return (int64_t) _atoi64(m_value.c_str());
 #endif
     }
 

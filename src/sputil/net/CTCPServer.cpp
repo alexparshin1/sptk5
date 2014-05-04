@@ -32,6 +32,15 @@
 using namespace std;
 using namespace sptk;
 
+CTCPConnection::~CTCPConnection()
+{
+}
+
+bool CTCPServer::allowConnection(sockaddr_in* connectionRequest)
+{
+    return true;
+}
+
 CTCPServerListener::CTCPServerListener(CTCPServer* server, int port)
 : CThread("CTCPServer::Listener"), m_server(server)
 {

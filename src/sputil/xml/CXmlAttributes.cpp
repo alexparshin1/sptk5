@@ -46,6 +46,28 @@ CXmlAttribute::CXmlAttribute(CXmlElement* parent, const std::string& tagname, CX
     parent->attributes().push_back(this);
 }
 
+/// @brief Returns the value of the node
+const std::string& CXmlAttribute::value() const
+{
+    return m_value;
+}
+
+/// @brief Sets new value to node.
+/// @param new_value const std::string &, new value
+/// @see value()
+void CXmlAttribute::value(const std::string &new_value)
+{
+    m_value = new_value;
+}
+
+/// @brief Sets new value to node
+/// @param new_value const char *, value to set
+/// @see value()
+void CXmlAttribute::value(const char *new_value)
+{
+    m_value = new_value;
+}
+
 CXmlAttributes& CXmlAttributes::operator =(const CXmlAttributes& s)
 {
     clear();

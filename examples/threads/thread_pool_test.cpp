@@ -51,7 +51,7 @@ public:
     CMyTask(CBaseLog& sharedLog);
 
     // The thread function.
-    virtual void run() throw (exception);
+    virtual void run() THROWS_EXCEPTIONS;
 
     string name() const
     {
@@ -68,7 +68,7 @@ CMyTask::CMyTask(CBaseLog& sharedLog) :
 }
 
 // The task function. Prints a message once a second till terminated
-void CMyTask::run() throw (exception)
+void CMyTask::run() THROWS_EXCEPTIONS
 {
     m_log << name() << " started" << endl;
 

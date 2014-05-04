@@ -74,10 +74,10 @@ class CTar {
     std::string           m_fileName;    ///< Tar file name
 
     /// @brief Loads tar file into memory
-    bool loadFile() throw (CException);
+    bool loadFile() THROWS_EXCEPTIONS;
 
     /// @brief Throws an error
-    void throwError(std::string fileName) throw (CException);
+    void throwError(std::string fileName) THROWS_EXCEPTIONS;
 public:
     static int            lastTarHandle; ///< The last generated tar handle
     static CTarHandleMap *tarHandleMap;  ///< The map of tar handles
@@ -116,7 +116,7 @@ public:
     ///
     /// The archive content is red into the internal set of buffers
     /// @param fileName std::string, file name to open
-    void read(const std::string& fileName) throw (CException) {
+    void read(const std::string& fileName) THROWS_EXCEPTIONS {
         read(fileName.c_str());
     }
 
@@ -124,20 +124,20 @@ public:
     ///
     /// The archive content is red into the internal set of buffers
     /// @param fileName std::string, file name to open
-    void read(const char* fileName) throw (CException);
+    void read(const char* fileName) THROWS_EXCEPTIONS;
 
     /// @brief Reads tar archive from buffer
     ///
     /// The archive content is red into the internal set of buffers
     /// @param tarData const CBuffer&, tar file buffer
-    void read(const CBuffer& tarData) throw (CException);
+    void read(const CBuffer& tarData) THROWS_EXCEPTIONS;
 
     /// @brief returns a list of files in tar archive
     const CStrings& fileList() const { return m_fileNames; }
 
     /// @brief Returns file data by file name
     /// @param fileName std::string, file name
-    const CBuffer& file(std::string fileName) const throw (CException);
+    const CBuffer& file(std::string fileName) const THROWS_EXCEPTIONS;
 
     /// @brief Clears the allocated memory
     void clear();

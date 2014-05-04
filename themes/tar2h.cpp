@@ -49,9 +49,9 @@ int main(int argc, char **argv)
 	printf("static size_t %s_len = %ld;\n", argv[2], (long) st.st_size);
 	printf("static unsigned char %s[%ld] = {\n", argv[2], (long) st.st_size);
 
-	x = (unsigned char *)malloc(st.st_size);
+	x = (unsigned char *)malloc((size_t)st.st_size);
 
-	if (read(fd, x, st.st_size) != st.st_size) {
+	if (read(fd, x, (size_t)st.st_size) != st.st_size) {
 		fprintf(stderr, "Read from \"%s\" failed! (errno=%d)\n", argv[1], errno);
 		close(fd);
 		return 1;

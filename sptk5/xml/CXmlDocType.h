@@ -120,8 +120,6 @@ public:
     bool hasEntity(const char *name);
 
     /// @brief Removes named entity from entity map
-    ///
-    /// @returns true, if entity removed.
     /// @param name entity to remove
     void removeEntity(const char *name)
     {

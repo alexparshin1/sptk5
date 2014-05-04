@@ -43,7 +43,7 @@ using namespace sptk;
 
 static const CStrings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird", "|");
 
-void CDatabaseConnectionString::parse() throw (CDatabaseException)
+void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
 {
     size_t pos;
     string connStr(m_connectionString);
@@ -89,5 +89,5 @@ void CDatabaseConnectionString::parse() throw (CDatabaseException)
     CStrings hostAndPort(connStr, ":");
     m_hostName = hostAndPort[0];
     if (hostAndPort.size() > 1)
-        m_portNumber = atoi(hostAndPort[1].c_str());
+        m_portNumber = (uint16_t) atoi(hostAndPort[1].c_str());
 }

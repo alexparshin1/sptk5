@@ -82,22 +82,22 @@ CFieldList *parse_file_info_string(string& file_info) {
       time[2] = 0;
       time[5] = 0;
 
-      int month   = strtol(time, NULL, 10);
-      int day     = strtol(time+3, NULL, 10);
-      int year = strtol(time+6, NULL, 10);
+      int month = (int) strtol(time, NULL, 10);
+      int day = (int) strtol(time+3, NULL, 10);
+      int year = (int) strtol(time+6, NULL, 10);
 
       bool pm = false;
       if(strstr(dtime, "PM")) pm = true;
       dtime[2] = 0;
       dtime[5] = 0;
-      int hour = strtol(dtime, NULL, 10);
-      int min     = strtol(dtime+3, NULL, 10);     
+      int hour = (int) strtol(dtime, NULL, 10);
+      int min = (int) strtol(dtime+3, NULL, 10);     
       if(pm) hour+=12;
 
       if(year<50) year+=2000;
       else year+=1900;
 
-      CDateTime dosDate(year, (short)month, (short)day, (short)hour, (short)min);
+      CDateTime dosDate((short)year, (short)month, (short)day, (short)hour, (short)min);
       dt = dosDate;
    } else {
       ptr = next_dir_item(ptr,&permissions); 
@@ -117,7 +117,7 @@ CFieldList *parse_file_info_string(string& file_info) {
       if (m >= 0) {
          int d = atoi(day);
          int y = atoi(year);
-         CDateTime unixDate(y,m,d);
+         CDateTime unixDate((short)y,(short)m,(short)d);
          dt = unixDate;
       }
    }
@@ -148,7 +148,7 @@ CFieldList *parse_file_info_string(string& file_info) {
 }
 
 // read the folder() and move item into the first entry
-bool sptk::CFtpDS::open() throw (std::exception) {
+bool sptk::CFtpDS::open() THROWS_EXCEPTIONS {
    clear();
 
    // Connect to the server
@@ -170,7 +170,7 @@ bool sptk::CFtpDS::open() throw (std::exception) {
       if (m_callback)
          m_callback(cnt,0);
       for (int i = 0; i < cnt; i++) {
-         CFieldList *df = parse_file_info_string(dirlist[i]);
+         CFieldList *df = parse_file_info_string(dirlist[size_t(i)]);
          if (df)
             m_list.push_back(df);
 

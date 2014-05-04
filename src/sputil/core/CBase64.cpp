@@ -52,10 +52,11 @@ static char B64Chars[64] = {
                                '8', '9', '+', '/'
                            };
 
-#define base64val(c) Index_64[(uint32_t)(c)]
+//#define base64val(c) Index_64[(uint32_t)(c)]
 #define base64chars(c) B64Chars[(uint32_t)((c) & 0x3F)]
 
-void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource) {
+void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource)
+{
     char   c;
     char*  current = bufSource.data();
     uint32_t len = (uint32_t) bufSource.bytes();
@@ -99,17 +100,19 @@ void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource) {
     }
 }
 
-void CBase64::encode(string& strDest, const CBuffer& bufSource) {
+void CBase64::encode(string& strDest, const CBuffer& bufSource)
+{
     CBuffer bufOut;
     encode(bufOut, bufSource);
 
     strDest = bufOut.data();
 }
 
-static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t src_len) {
+static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t src_len)
+{
     const unsigned char *current = src;
     unsigned char c;
-    int ch, j=0;
+    int ch, j = 0;
 
     if (!src_len)
         return 0;
@@ -119,7 +122,7 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
 
     bufDest.reset();
 
-    for (unsigned i=0; i < src_len; i++) {
+    for (unsigned i = 0; i < src_len; i++) {
         ch = current[i];
 
         if (ch == '=')
@@ -130,25 +133,26 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
         if (ch < 0)
             continue;
 
-        switch (i % 4) {
+        switch (i % 4)
+        {
         case 0:
-            c = (unsigned char)((ch << 2) & 0xFF);
-            bufDest.append((char *)&c, 1);
+            c = (unsigned char) ((ch << 2) & 0xFF);
+            bufDest.append((char *) &c, 1);
             break;
         case 1:
             bufDest.data()[j] |= ((ch >> 4) & 0xFF);
             j++;
-            if (current[i+1] != '=') {
-                c = (unsigned char)((ch << 4) & 0xFF);
-                bufDest.append((char *)&c, 1);
+            if (current[i + 1] != '=') {
+                c = (unsigned char) ((ch << 4) & 0xFF);
+                bufDest.append((char *) &c, 1);
             } /* if */
             break;
         case 2:
             bufDest.data()[j] |= ((ch >> 2) & 0x0f);
             j++;
-            if (current[i+1] != '=') {
-                c = (unsigned char)((ch << 6) & 0xFF);
-                bufDest.append((char *)&c, 1);
+            if (current[i + 1] != '=') {
+                c = (unsigned char) ((ch << 6) & 0xFF);
+                bufDest.append((char *) &c, 1);
             }
             break;
         case 3:
@@ -160,10 +164,12 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
     return j;
 }
 
-int CBase64::decode(CBuffer &bufDest, const CBuffer& bufSource) throw(CException) {
+int CBase64::decode(CBuffer &bufDest, const CBuffer& bufSource) THROWS_EXCEPTIONS
+{
     return internal_decode(bufDest, (const unsigned char *)bufSource.data(), (uint32_t)bufSource.bytes());
 }
 
-int CBase64::decode(CBuffer &bufDest, const string& strSource) throw(CException) {
+int CBase64::decode(CBuffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
+{
     return internal_decode(bufDest,(const unsigned char *)strSource.c_str(),(uint32_t)strSource.length());
 }

@@ -41,32 +41,23 @@ protected:
 public:
     WSType() {}
     
-    virtual void load(const CXmlNode* attr)
-    {
-        m_data = attr->text();
-    }
+    virtual ~WSType() {}
     
-    virtual void load(std::string attr)
-    {
-        m_data = attr;
-    }
+    virtual void load(const CXmlNode* attr);
     
-    virtual std::string asString() const
-    {
-        return m_data;
-    }
+    virtual void load(std::string attr);
+    
+    virtual std::string asString() const;
 
-    CXmlElement* addElement(CXmlElement* parent, std::string name)
-    {
-        CXmlElement* element = new CXmlElement(*parent, name);
-        element->text(m_data);
-        return element;
-    }
+    CXmlElement* addElement(CXmlElement* parent, std::string name);
 };
 
 class WSBool : public WSType
 {
 public:
+    
+    virtual ~WSBool() {}
+    
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
     virtual std::string asString() const;
@@ -86,6 +77,9 @@ public:
 class WSDate : public WSType
 {
 public:
+    
+    virtual ~WSDate() {}
+    
     virtual void load(const CXmlNode* attr);
     virtual void load(std::string attr);
     virtual std::string asString() const;

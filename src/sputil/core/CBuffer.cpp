@@ -181,7 +181,7 @@ void CBuffer::loadFromFile(string fileName)
 
     struct stat st;
     fstat(fileno(f), &st);
-    int size = st.st_size;
+    size_t size = (size_t) st.st_size;
 
     reset(size + 1);
     m_buffer[size] = 0;

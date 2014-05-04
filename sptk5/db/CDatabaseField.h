@@ -45,14 +45,16 @@ class CDatabase;
 /// @brief database field
 ///
 /// A special variation of CField to support database field essentials
-class SP_EXPORT CDatabaseField : public CField {
+
+class SP_EXPORT CDatabaseField : public CField
+{
     friend class CQuery;
     friend class CDatabase;
 protected:
-    int          m_fldType;     ///< Native database data type
-    int          m_fldColumn;   ///< Field column number in recordset
-    int          m_fldSize;     ///< Field size
-    int          m_fldScale;    ///< Field scale, optional, for floating point fields
+    int     m_fldType;      ///< Native database data type
+    int     m_fldColumn;    ///< Field column number in recordset
+    int     m_fldSize;      ///< Field size
+    int     m_fldScale;     ///< Field scale, optional, for floating point fields
 
 public:
 
@@ -63,12 +65,12 @@ public:
     /// @param dataType CVariantType, variant data type
     /// @param fieldLength int, database field length
     /// @param fieldScale int, database field scale
-    CDatabaseField(const std::string fieldName,int fieldColumn,int fieldType,CVariantType dataType,int fieldLength,int fieldScale=4);
+    CDatabaseField(const std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale = 4);
 
-    std::string      displayName;       ///< Column display name
-    std::string      displayFormat;     ///< Column display format
-    int              alignment;         ///< Column alignment
-    bool             visible;           ///< Is column visible?
+    std::string     displayName;    ///< Column display name
+    std::string     displayFormat;  ///< Column display format
+    int             alignment;      ///< Column alignment
+    bool            visible;        ///< Is column visible?
 
     /// @brief Checks the internal buffer size
     ///
@@ -81,25 +83,31 @@ public:
     ///
     /// The internal buffer is not modified, only the data size is set.
     /// @param sz uint32_t, data size (in bytes)
-    /// @returns true if success
+
     void setDataSize(uint32_t sz)
     {
         dataSize(sz);
     }
 
     /// Reports field column number
-    int          fieldColumn() const {
+
+    int fieldColumn() const
+    {
         return m_fldColumn;
     }
 
     /// Reports database field type
-    int          fieldType()   const {
+
+    int fieldType() const
+    {
         return m_fldType;
     }
 
     /// Reports field size
-    uint32_t     fieldSize()   const {
-        return m_fldSize;
+
+    uint32_t fieldSize() const
+    {
+        return (uint32_t) m_fldSize;
     }
 };
 /// @}

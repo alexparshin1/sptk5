@@ -61,7 +61,7 @@ CFirebirdConnection::~CFirebirdConnection()
     }
 }
 
-void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char* file, int line) throw (CDatabaseException)
+void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS
 {
     if (status_vector[0] == 1 && status_vector[1])
     {
@@ -76,7 +76,7 @@ void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const cha
         m_lastStatus.clear();
 }
 
-void CFirebirdConnection::openDatabase(string newConnectionString) throw (CDatabaseException)
+void CFirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
     
@@ -93,26 +93,26 @@ void CFirebirdConnection::openDatabase(string newConnectionString) throw (CDatab
         *dpb++ = isc_dpb_num_buffers;
         *dpb++ = 1;
         *dpb++ = 90;
-        dpb_length = dpb - dpb_buffer;
+        dpb_length = short(dpb - dpb_buffer);
         
         dpb = dpb_buffer;
         
         const string& username = m_connString.userName();
         if (!username.empty())
-            isc_modify_dpb(&dpb, &dpb_length, isc_dpb_user_name, username.c_str(), username.length());
+            isc_modify_dpb(&dpb, &dpb_length, isc_dpb_user_name, username.c_str(), (short) username.length());
         
         const string& password = m_connString.password();
         if (!password.empty())
-            isc_modify_dpb(&dpb, &dpb_length, isc_dpb_password, password.c_str(), password.length());
+            isc_modify_dpb(&dpb, &dpb_length, isc_dpb_password, password.c_str(), (short) password.length());
         
         m_connection = 0;
         string fullDatabaseName = m_connString.hostName() + ":/" + m_connString.databaseName();
-        isc_attach_database(status_vector, fullDatabaseName.length(), fullDatabaseName.c_str(), &m_connection, dpb_length, dpb);
+        isc_attach_database(status_vector, (short) fullDatabaseName.length(), fullDatabaseName.c_str(), &m_connection, dpb_length, dpb);
         checkStatus(status_vector, __FILE__, __LINE__);
     }
 }
 
-void CFirebirdConnection::closeDatabase() throw (CDatabaseException)
+void CFirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
     
@@ -159,7 +159,7 @@ string CFirebirdConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void CFirebirdConnection::driverBeginTransaction() throw (CDatabaseException)
+void CFirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
     
@@ -179,7 +179,7 @@ void CFirebirdConnection::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void CFirebirdConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
+void CFirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
     
@@ -256,10 +256,10 @@ void CFirebirdConnection::queryUnprepare(CQuery *query)
 
 int CFirebirdConnection::queryColCount(CQuery *query)
 {
-    int              colCount = 0;
+    int colCount = 0;
     CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
     try {
-        colCount = statement->colCount();
+        colCount = (int) statement->colCount();
     }
     catch (exception& e) {
         query->logAndThrow("CFirebirdConnection::queryColCount", e.what());
@@ -315,7 +315,7 @@ void CFirebirdConnection::queryOpen(CQuery *query)
     CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
 
     queryExecute(query);
-    short fieldCount = queryColCount(query);
+    short fieldCount = (short) queryColCount(query);
     if (fieldCount < 1) {
         return;
     } else {
@@ -355,7 +355,7 @@ void CFirebirdConnection::queryFetch(CQuery *query)
     }
 }
 
-void CFirebirdConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void CFirebirdConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();

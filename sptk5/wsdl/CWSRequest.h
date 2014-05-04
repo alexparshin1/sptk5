@@ -41,7 +41,7 @@ class CWSRequest
 {
 protected:
     std::string m_namespace;
-    virtual void requestBroker(CXmlElement* requestNode) throw (std::exception) = 0;
+    virtual void requestBroker(CXmlElement* requestNode) THROWS_EXCEPTIONS = 0;
 public:
     /// @brief Constructor
     CWSRequest() {}
@@ -53,7 +53,7 @@ public:
     ///
     /// The processing results are stored in the same request XML
     /// @param request CXmlDoc*, Incoming request and outgoing response
-    void processRequest(CXmlDoc* request) throw (std::exception);
+    void processRequest(CXmlDoc* request) THROWS_EXCEPTIONS;
 };
 
 }

@@ -353,7 +353,7 @@ void CLayoutManager::paintBackground() {
         m_frame->drawResized(m_group->x(),m_group->y(),m_group->w(),m_group->h(),m_frameDrawBackground);
 }
 
-void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode) throw(CException) {
+void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS {
     if (m_noXml)
         return;
 

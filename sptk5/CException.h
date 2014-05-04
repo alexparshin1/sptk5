@@ -33,6 +33,14 @@
 #include <stdexcept>
 
 namespace sptk {
+    
+#if USE_CXX11
+    #define DOESNT_THROW        noexcept
+    #define THROWS_EXCEPTIONS   noexcept(false)
+#else
+    #define DOESNT_THROW        throw()
+    #define THROWS_EXCEPTIONS   throw(std::exception)
+#endif
 
 /// @addtogroup utility Utility Classes
 /// @{
@@ -58,13 +66,15 @@ public:
     /// @param description std::string, the optional description information
     CException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
+    /// @brief Copy constructor
+    /// @param other const CException&, the other exception object
+    CException(const CException& other);
+
     /// @brief Destructor
-    virtual ~CException() throw ()
-    {
-    }
+    ~CException() DOESNT_THROW;
 
     /// @brief Returns complete text of exception
-    virtual const char * what() const throw ()
+    virtual const char * what() const DOESNT_THROW
     {
         return m_fullMessage.c_str();
     }
@@ -110,6 +120,16 @@ public:
             CException(text, file, line, description)
     {
     }
+            
+    /// @brief Copy constructor
+    /// @param other const CTimeoutException&, other exception object
+    CTimeoutException(const CTimeoutException& other)
+    : CException(other)
+    {
+    }
+	    
+    /// @brief Destructor
+    ~CTimeoutException() DOESNT_THROW;
 };
 
 /// @brief Database operation exception
@@ -118,7 +138,7 @@ public:
 class SP_EXPORT CDatabaseException: public CException
 {
 public:
-    /// Constructor
+    /// @brief Constructor
     /// @param text std::string, the exception text
     /// @param file std::string, the file where exception occurs
     /// @param line int, the line number in the file where exception occurs
@@ -128,6 +148,16 @@ public:
             CException(text, file, line, description)
     {
     }
+
+    /// @brief Copy constructor
+    /// @param other const CDatabaseException&, other exception object
+    CDatabaseException(const CDatabaseException& other)
+    : CException(other)
+    {
+    }
+	    
+    /// @brief Destructor
+    ~CDatabaseException() DOESNT_THROW;
 };
 
 /// Defines a handy macros that automatically registers filename and line number

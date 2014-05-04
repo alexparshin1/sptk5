@@ -68,15 +68,15 @@ public:
     /// @brief Posts the semaphore
     ///
     /// The semaphore value is increased by one.
-    void post() throw (std::exception);
+    void post() THROWS_EXCEPTIONS;
 
     /// @brief Waits until semaphore value is greater than zero, or until timeout occurs
     ///
     /// If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-    /// Timeout interval can be -1 (wait forever), or number of milliseconds.
+    /// Timeout interval is in milliseconds.
     /// @param timeoutMS int32_t, wait timeout in milliseconds
     /// @return true if semaphore was posted (signaled), or false if timeout occurs
-    bool wait(uint32_t timeoutMS=-1) throw (std::exception);
+    bool wait(uint32_t timeoutMS) THROWS_EXCEPTIONS;
 };
 /// @}
 }

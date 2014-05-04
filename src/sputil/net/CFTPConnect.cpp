@@ -47,7 +47,7 @@ CFTPSocket::~CFTPSocket() {
         write("QUIT\n",6);
 }
 
-void CFTPSocket::open(std::string hostName, uint32_t port,CSocketOpenMode openMode) throw(CException) {
+void CFTPSocket::open(std::string hostName, uint32_t port,CSocketOpenMode openMode) THROWS_EXCEPTIONS {
     CTCPSocket::open(hostName,port,openMode);
     get_response();
     int on = 1;
@@ -147,12 +147,8 @@ void CFTPConnect::openDataPort() {
             throw CException(resp);
         cp++;
         sscanf(cp,"%u,%u,%u,%u,%u,%u",&v[2],&v[3],&v[4],&v[5],&v[0],&v[1]);
-        sin.sa.sa_data[2] = v[2];
-        sin.sa.sa_data[3] = v[3];
-        sin.sa.sa_data[4] = v[4];
-        sin.sa.sa_data[5] = v[5];
-        sin.sa.sa_data[0] = v[0];
-        sin.sa.sa_data[1] = v[1];
+        for (unsigned i = 0; i < 6; i++)
+            sin.sa.sa_data[i] = (char) v[i];
     }
     // Current implementation supports only passive mode, sorry
     //if (m_passive) {

@@ -90,7 +90,7 @@ string CODBCConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void CODBCConnection::openDatabase(const string newConnectionString) throw (CDatabaseException)
+void CODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -102,7 +102,7 @@ void CODBCConnection::openDatabase(const string newConnectionString) throw (CDat
     }
 }
 
-void CODBCConnection::closeDatabase() throw (CDatabaseException)
+void CODBCConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -123,7 +123,7 @@ bool CODBCConnection::active() const
     return m_connect->isConnected();
 }
 
-void CODBCConnection::driverBeginTransaction() throw (CDatabaseException)
+void CODBCConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connect->isConnected())
         open();
@@ -135,7 +135,7 @@ void CODBCConnection::driverBeginTransaction() throw (CDatabaseException)
     m_inTransaction = true;
 }
 
-void CODBCConnection::driverEndTransaction(bool commit) throw (CDatabaseException)
+void CODBCConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction) {
         if (commit)
@@ -674,7 +674,7 @@ string CODBCConnection::driverDescription() const
         return "";
 }
 
-void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) throw (CDatabaseException)
+void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     CSynchronizedCode lock(m_connect);
 

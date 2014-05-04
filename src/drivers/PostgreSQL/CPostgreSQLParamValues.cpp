@@ -33,7 +33,7 @@ using namespace sptk;
 
 void CPostgreSQLParamValues::setParameters(CParamList& params) {
     params.enumerate(m_params);
-    m_count = m_params.size();
+    m_count = (unsigned) m_params.size();
     resize(m_count);
     for (unsigned i = 0; i < m_count; i++) {
         CParam* param = m_params[i];
@@ -74,7 +74,7 @@ void CPostgreSQLParamValues::setParameters(CParamList& params) {
     }
 }
 
-void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* param) throw (CDatabaseException)
+void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* param) THROWS_EXCEPTIONS
 {
     static const char* booleanTrue = "t";
     static const char* booleanFalse = "f";
@@ -93,8 +93,8 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
                 break;
 
             case VAR_INT: {
-                int32_t* bufferToSend = (int32_t*) param->conversionBuffer();
-                *bufferToSend = htonl(param->getInteger());
+                uint32_t* bufferToSend = (uint32_t*) param->conversionBuffer();
+                *bufferToSend = htonl((uint32_t) param->getInteger());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1, PG_INT4);
             }
             break;
@@ -113,7 +113,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
 
             case VAR_DATE_TIME: {
                 if (m_int64timestamps) {
-                    int64_t dt = (param->getDateTime() - epochDate) * 3600 * 24 * 1000000;
+                    int64_t dt = int64_t((param->getDateTime() - epochDate) * 3600 * 24 * 1000000);
                     htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 } else {
                 double dt = (param->getDateTime() - epochDate) * 3600 * 24;
@@ -124,15 +124,15 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
             break;
 
             case VAR_INT64: {
-                int64_t* bufferToSend = (int64_t*) param->conversionBuffer();
-                *bufferToSend = htonq(param->getInt64());
+                uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
+                *bufferToSend = htonq((uint64_t)param->getInt64());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_INT8);
             }
             break;
 
             case VAR_FLOAT: {
-                int64_t* bufferToSend = (int64_t*) param->conversionBuffer();
-                *bufferToSend = htonq(*(int64_t*)param->dataBuffer());
+                uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
+                *bufferToSend = htonq(*(uint64_t*)param->dataBuffer());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
             }
             break;
@@ -140,7 +140,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
             case VAR_STRING:
             case VAR_TEXT:
             case VAR_BUFFER:
-                setParameterValue(paramIndex, param->getString(), param->dataSize(), 0, PG_VARCHAR);
+                setParameterValue(paramIndex, param->getString(), (unsigned) param->dataSize(), 0, PG_VARCHAR);
                 break;
 
             default:

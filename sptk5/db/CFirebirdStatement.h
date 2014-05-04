@@ -74,7 +74,7 @@ public:
         m_size = size;
         m_sqlda = (XSQLDA *) realloc(m_sqlda, XSQLDA_LENGTH(m_size));
         m_sqlda->version = SQLDA_VERSION1;
-        m_sqlda->sqln = m_size;
+        m_sqlda->sqln = (ISC_SHORT) m_size;
         m_cbNulls = (short*) realloc(m_cbNulls, size * sizeof(short));
         short* cbNull = m_cbNulls;
         for (unsigned i = 0; i < m_size; i++, cbNull++)
@@ -121,12 +121,12 @@ public:
     /// @brief Creates new BLOB from parameter data
     /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id
     /// @param param CParam*, BLOB field
-    isc_blob_handle createBLOB(ISC_QUAD* blob_id, CParam* param) throw(CDatabaseException);
+    isc_blob_handle createBLOB(ISC_QUAD* blob_id, CParam* param) THROWS_EXCEPTIONS;
     
     /// @brief Fetches BLOB data during fetch of query results
     /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id
     /// @param field CDatabaseField*, BLOB field
-    size_t fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) throw(CDatabaseException);
+    size_t fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) THROWS_EXCEPTIONS;
     
 public:
     /// @brief Constructor

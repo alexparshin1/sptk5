@@ -32,12 +32,13 @@
 
 #ifndef _WIN32
 # include <unistd.h>
+#include <stdint.h>
 #endif
 
 using namespace sptk;
 
 // read the folder() and move item into the first entry
-bool CImapDS::open() throw (std::exception) {
+bool CImapDS::open() THROWS_EXCEPTIONS {
    clear();
 
     // Connect to the server
@@ -60,18 +61,18 @@ bool CImapDS::open() throw (std::exception) {
          df->user_data((void *)(size_t)msg_id);
 
          if (m_fetchbody)
-            m_imap.cmd_fetch_message(msg_id,*df);
-         else m_imap.cmd_fetch_headers(msg_id,*df);
+            m_imap.cmd_fetch_message((int32_t)msg_id,*df);
+         else m_imap.cmd_fetch_headers((int32_t)msg_id,*df);
 
          CField *fld = new CField("msg_id");
          fld->width = 0;
-         fld->setInteger(msg_id);
+         fld->setInteger((int32_t)msg_id);
          df->push_back(fld);
 
          m_list.push_back(df);
 
          if (m_callback)
-            m_callback(total_messages,msg_id);
+            m_callback(total_messages,(int)msg_id);
       }
       if (m_callback)
          m_callback(total_messages,total_messages);

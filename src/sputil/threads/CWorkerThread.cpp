@@ -64,7 +64,7 @@ void CWorkerThread::threadFunction()
         m_threadEvent->threadEvent(this, CThreadEvent::THREAD_FINISHED);
 }
 
-CWorkerThread::CWorkerThread(CSynchronizedQueue<CRunable*>* queue, CThreadEvent* threadEvent, int32_t maxIdleSeconds) :
+CWorkerThread::CWorkerThread(CSynchronizedQueue<CRunable*>* queue, CThreadEvent* threadEvent, uint32_t maxIdleSeconds) :
     CThread("worker"),
     m_threadEvent(threadEvent),
     m_maxIdleSeconds(maxIdleSeconds)

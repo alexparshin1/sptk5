@@ -1,14 +1,14 @@
 /*
-**  Copyright 1998-2003 University of Illinois Board of Trustees
-**  Copyright 1998-2003 Mark D. Roth
-**  All rights reserved.
-**
-**  util.c - miscellaneous utility code for libtar
-**
-**  Mark D. Roth <roth@uiuc.edu>
-**  Campus Information Technologies and Educational Services
-**  University of Illinois at Urbana-Champaign
-*/
+ **  Copyright 1998-2003 University of Illinois Board of Trustees
+ **  Copyright 1998-2003 Mark D. Roth
+ **  All rights reserved.
+ **
+ **  util.c - miscellaneous utility code for libtar
+ **
+ **  Mark D. Roth <roth@uiuc.edu>
+ **  Campus Information Technologies and Educational Services
+ **  University of Illinois at Urbana-Champaign
+ */
 
 #include <sptk5/sptk.h>
 #include "libtar.h"
@@ -30,41 +30,37 @@
 #define basename(s) (strrchr(s,'\\')==NULL?(basename2(s)):(strrchr(s,'\\')+1))
 
 /* hashing function for pathnames */
-int
-path_hashfunc(char *key, int numbuckets)
+int path_hashfunc(char *key, int numbuckets)
 {
-	char buf[MAXPATHLEN];
-	char *p;
+    char buf[MAXPATHLEN];
+    char *p;
 
-	strcpy(buf, key);
-	p = basename(buf);
+    strcpy(buf, key);
+    p = basename(buf);
 
-	return (((unsigned int)p[0]) % numbuckets);
+    return (((int) p[0]) % numbuckets);
 }
 
-int
-th_crc_calc(TAR *t)
+int th_crc_calc(TAR *t)
 {
-	int i, sum = 0;
+    int i, sum = 0;
 
-	for (i = 0; i < T_BLOCKSIZE; i++)
-		sum += ((unsigned char *)(&(t->th_buf)))[i];
-	for (i = 0; i < 8; i++)
-		sum += (' ' - (unsigned char)t->th_buf.chksum[i]);
+    for (i = 0; i < T_BLOCKSIZE; i++)
+        sum += ((unsigned char *) (&(t->th_buf)))[i];
+    for (i = 0; i < 8; i++)
+        sum += (' ' - (unsigned char) t->th_buf.chksum[i]);
 
-	return sum;
+    return sum;
 }
-
 
 /* string-octal to integer conversion */
-int
-oct_to_int(char *oct)
+int oct_to_int(char *oct)
 {
-	unsigned i;
+    unsigned i;
 
-	sscanf(oct, "%o", &i);
+    sscanf(oct, "%o", &i);
 
-	return i;
+    return int(i);
 }
 
 /*
@@ -80,27 +76,27 @@ oct_to_int(char *oct)
  */
 char* libtar_strsep(register char **stringp, register const char *delim)
 {
-	register char *s;
-	register const char *spanp;
-	register int c, sc;
-	char *tok;
+    char *s;
+    const char *spanp;
+    int c, sc;
+    char *tok;
 
-	if ((s = *stringp) == NULL)
-		return NULL;
-	for (tok = s;;) {
-		c = *s++;
-		spanp = delim;
-		do {
-			if ((sc = *spanp++) == c) {
-				if (c == 0)
-					s = NULL;
-				else
-					s[-1] = 0;
-				*stringp = s;
-				return (tok);
-			}
-		} while (sc != 0);
-	}
-	/* NOTREACHED */
-	return NULL;
+    if ((s = *stringp) == NULL)
+        return NULL;
+    for (tok = s;;) {
+        c = *s++;
+        spanp = delim;
+        do {
+            if ((sc = *spanp++) == c) {
+                if (c == 0)
+                    s = NULL;
+                else
+                    s[-1] = 0;
+                *stringp = s;
+                return (tok);
+            }
+        } while (sc != 0);
+    }
+    /* NOTREACHED */
+    return NULL;
 }

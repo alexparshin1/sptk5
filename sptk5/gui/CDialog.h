@@ -266,7 +266,7 @@ public:
     ///
     /// @param node const CXmlNode*, the XML node to load data from
     /// @see CXmlNode
-    virtual void load(const CXmlNode* node) throw (CException);
+    virtual void load(const CXmlNode* node) THROWS_EXCEPTIONS;
 
     /// @brief Saves the dialog controls into XML
     ///

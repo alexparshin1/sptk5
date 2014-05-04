@@ -70,14 +70,14 @@ CSysLog::CSysLog(uint32_t facilities) :
 #endif
 }
 
-void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) throw (CException)
+void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_options & CLO_ENABLE) {
 #ifndef _WIN32
         if (!m_logOpened)
             openlog(m_programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
-        syslog(m_facilities | (int) priority, "[%s] %s", priorityName(priority).c_str(), message);
+        syslog(int(m_facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
 #else
 
         if (!m_logHandle) {

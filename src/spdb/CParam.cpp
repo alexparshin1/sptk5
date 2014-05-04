@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/db/CParam.h>
+#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
@@ -78,12 +79,12 @@ CParam& CParam::operator = (const CVariant& param)
     return *this;
 }
 
-void CParam::setString(const char * value, uint32_t maxlen)
+void CParam::setString(const char * value, size_t maxlen)
 {
     uint32_t valueLength;
     uint32_t dtype = VAR_STRING;
     if (maxlen)
-        valueLength = maxlen;
+        valueLength = (uint32_t) maxlen;
     else
         valueLength = (uint32_t) strlen(value);
     if (m_dataType == VAR_STRING && m_data.buffer.size >= valueLength + 1) {

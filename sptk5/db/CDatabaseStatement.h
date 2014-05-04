@@ -54,6 +54,10 @@ public:
     : m_connection(connection)
     {}
 
+    /// @brief Destructor
+    virtual ~CDatabaseStatement()
+    {}
+    
     /// @brief Returns current DB statement handle
     Statement* stmt() const
     {

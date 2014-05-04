@@ -29,6 +29,7 @@
 #define __SYNCHRONIZED_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/CException.h>
 #include <sptk5/threads/CLocation.h>
 
 #if USE_CXX11
@@ -47,7 +48,7 @@ class SP_EXPORT CSynchronized
     /// @brief Throws error description for the error code
     /// @param fileName const char*, File name where lock is invoked
     /// @param lineNumber int, Line number where lock is invoked
-    void throwError(const char* fileName=NULL, int lineNumber=0) throw (std::exception);
+    void throwError(const char* fileName=NULL, int lineNumber=0) THROWS_EXCEPTIONS;
 
 protected:
 
@@ -82,10 +83,10 @@ public:
     ///
     /// Throws CTimeoutException exception if timeout.
     /// Throws CException exception if lock was interrupted.
-    /// @param timeoutMS int, lock timeout, milliseconds
+    /// @param timeoutMS uint32_t, lock timeout, milliseconds
     /// @param fileName const char*, lock location fileName, default is NULL
     /// @param lineNumber int, lock location line number, default is 0
-    virtual void lock(int timeoutMS, const char* fileName=NULL, int lineNumber = 0) throw (std::exception);
+    virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0) THROWS_EXCEPTIONS;
 
     /// @brief Tries to lock synchronization object.
     /// @return true is lock may be acquired, or false if not.

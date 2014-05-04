@@ -108,6 +108,9 @@ public:
     /// @brief Loads registry from the string list
     virtual void load(const CStrings& data);
 
+    /// @brief Loads registry from buffer
+    virtual void load(const char* data);
+
     /// @brief Loads registry from XML node
     ///
     /// Any XML node that has subnodes is considered as section.
