@@ -206,7 +206,7 @@ void COracleConnection::queryPrepare(CQuery *query)
     statement->enumerateParams(query->params());
     if (query->bulkMode()) {
         CParamVector& enumeratedParams = statement->enumeratedParams();
-        int paramIndex = 1;
+        unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
         COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
         const CColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
@@ -215,12 +215,12 @@ void COracleConnection::queryPrepare(CQuery *query)
             CColumnTypeSizeMap::const_iterator xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
                 if (xtor->second.length)
-                    stmt->setMaxParamSize(paramIndex, xtor->second.length);
+                    stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
                 else
                     stmt->setMaxParamSize(paramIndex, 32);
             }
         }
-        stmt->setMaxIterations(bulkInsertQuery->batchSize());
+        stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
     }
     querySetStmt(query, statement);
     querySetPrepared(query, true);
@@ -236,7 +236,7 @@ int COracleConnection::queryColCount(CQuery *query)
     COracleStatement* statement = (COracleStatement*) query->statement();
     if (!statement)
         throwOracleException("Query not opened");
-    return statement->colCount();
+    return (int) statement->colCount();
 }
 
 void COracleConnection::queryBindParameters(CQuery *query)
@@ -341,7 +341,7 @@ void COracleConnection::queryOpen(CQuery *query)
     COracleStatement* statement = (COracleStatement*) query->statement();
 
     queryExecute(query);
-    short count = queryColCount(query);
+    int count = queryColCount(query);
     if (count < 1) {
         //queryCloseStmt(query);
         return;
@@ -393,18 +393,18 @@ void COracleConnection::queryFetch(CQuery *query)
         return;
     }
 
-    int fieldCount = query->fieldCount();
+    uint32_t fieldCount = query->fieldCount();
     if (!fieldCount)
         return;
 
     ResultSet* resultSet = statement->resultSet();
     CDatabaseField* field = 0;
-    for (int fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+    for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         try {
             field = (CDatabaseField*) &(*query)[fieldIndex];
 
             // Result set column index starts from 1
-            int columnIndex = fieldIndex + 1;
+            unsigned columnIndex = fieldIndex + 1;
 
             if (resultSet->isNull(columnIndex)) {
                 field->setNull();
@@ -438,7 +438,7 @@ void COracleConnection::queryFetch(CQuery *query)
                 case SQLT_DATE:
                     {
                         resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
-                        field->setDate(CDateTime(year, month, day, 0, 0, 0));
+                        field->setDate(CDateTime(short(year), short(month), short(day), short(0), short(0), short(0)));
                     }
                     break;
 
@@ -450,7 +450,7 @@ void COracleConnection::queryFetch(CQuery *query)
                         Timestamp timestamp = resultSet->getTimestamp(columnIndex);
                         timestamp.getDate(year, month, day);
                         timestamp.getTime(hour, min, sec, ms);
-                        field->setDateTime(CDateTime(year, month, day, hour, min, sec));
+                        field->setDateTime(CDateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
                     }
                     break;
 
@@ -513,8 +513,6 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
     case DOT_VIEWS:
         objectsSQL = "SELECT view_name FROM user_views";
         break;
-    default:
-        return; // no information about objects of other types
     }
     CQuery query(this, objectsSQL);
     query.open();
@@ -541,7 +539,7 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
     while (!tableColumnsQuery.eof()) {
         string columnName = column_name.asString();
         string columnType = data_type.asString();
-        int maxDataLength = data_length.asInteger();
+        size_t maxDataLength = (size_t) data_length.asInteger();
         CColumnTypeSize columnTypeSize;
         columnTypeSize.type = VAR_STRING;
         columnTypeSize.length = 0;

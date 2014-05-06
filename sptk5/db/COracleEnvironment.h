@@ -68,7 +68,7 @@ public:
 
     /// @brief Terminates database connection
     /// @param connection oracle::occi::Connection*, Oracle connection
-    void terminateConnection(oracle::occi::Connection*);
+    void terminateConnection(oracle::occi::Connection* connection);
 };
 
 /// @}

@@ -44,33 +44,25 @@ class SP_EXPORT COracleBulkInsertQuery : public CQuery
 {
     friend class COracleConnection;
 
-    size_t              m_recordCount;
-    size_t              m_recordNumber;
-    size_t              m_batchSize;
-    bool                m_lastIteration;
-    CColumnTypeSizeMap  m_columnTypeSizes;
+    size_t              m_recordCount;      ///< Inserted record count
+    size_t              m_recordNumber;     ///< Current record number
+    size_t              m_batchSize;        ///< Batch size
+    bool                m_lastIteration;    ///< Last iteration
+    CColumnTypeSizeMap  m_columnTypeSizes;  ///< Column type sizes
 
 protected:
     /// @brief Constructor
     /// @param db CDatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param recordCount size_t, number of records to insert
-    COracleBulkInsertQuery(CDatabaseConnection *db, std::string sql, size_t recordCount, const CColumnTypeSizeMap& columnTypeSizes)
-    : CQuery(db, sql), m_recordCount(recordCount), m_recordNumber(0), m_batchSize(2), m_lastIteration(false), m_columnTypeSizes(columnTypeSizes)
-    {
-        m_bulkMode = true;
-    }
+    COracleBulkInsertQuery(CDatabaseConnection *db, std::string sql, size_t recordCount, const CColumnTypeSizeMap& columnTypeSizes);
 
+    /// @brief Destructor
+    ~COracleBulkInsertQuery();
+    
 public:
-    void execNext() THROWS_EXCEPTIONS
-    {
-        m_recordNumber++;
-        if (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0)
-            m_lastIteration = true;
-        else
-            m_lastIteration = false;
-        exec();
-    }
+    /// @brief Executes next iteration of bulk insert
+    void execNext() THROWS_EXCEPTIONS;
 
     size_t batchSize() const { return m_batchSize; }
     bool lastIteration() const { return m_lastIteration; }

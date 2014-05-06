@@ -29,6 +29,7 @@
 #ifndef __CXML_H__
 #define __CXML_H__
 
+#include <sptk5/CException.h>
 #include <sptk5/xml/CXmlDoc.h>
 #include <sptk5/xml/CXmlNode.h>
 

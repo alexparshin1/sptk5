@@ -330,7 +330,8 @@ void CImapConnect::cmd_fetch_message(int32_t msg_id, CFieldList& result) {
 string CImapConnect::cmd_fetch_flags(int32_t msg_id) {
     string result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
-    for (unsigned i = 0; i < m_response.size() - 1; i++) {
+    size_t count = m_response.size() - 1;
+    for (size_t i = 0; i < count;) {
         std::string& st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (!fpos)

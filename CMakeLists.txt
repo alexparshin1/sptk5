@@ -50,6 +50,7 @@ ELSE (WIN32)
         -Wno-c++98-compat
         -Wno-c++98-compat-pedantic
         -Wno-cast-align
+        -Wcovered-switch-default
         -Wno-exit-time-destructors
         -Wno-float-equal
         -Wno-format-nonliteral

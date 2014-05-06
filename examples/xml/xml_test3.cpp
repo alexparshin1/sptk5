@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
             endOfPath = strrchr(argv[0],'\\');
         string workDirectory;
         if (endOfPath)
-            workDirectory.assign(argv[0], endOfPath - argv[0]);
+            workDirectory.assign(argv[0], size_t(endOfPath - argv[0]));
         else
             workDirectory = "/";
         chdir(workDirectory.c_str());

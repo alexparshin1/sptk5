@@ -63,7 +63,7 @@ public:
     /// @brief Map callback function used in each() method.
     ///
     /// Iterates through list until false is returned.
-    /// @param const key K&, Map item key
+    /// @param key const K&, Map item key
     /// @param item T&, Map item
     /// @param data void*, Optional function-specific data
     typedef bool (CallbackFunction)(const K& key, T& item, void* data);

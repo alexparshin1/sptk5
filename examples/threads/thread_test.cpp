@@ -26,10 +26,6 @@
  ***************************************************************************/
 
 // This example demonstrates thread manipulation and logging.
-#if __BORLANDC__ > 0x500
-#include <condefs.h>
-#endif
-
 #include <sptk5/cutils>
 #include <sptk5/cthreads>
 #include <vector>
