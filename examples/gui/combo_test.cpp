@@ -4,7 +4,7 @@
                           combo_test.cpp  -  description
                              -------------------
     begin                : Fri Jun  6 10:43:19 PDT 2003
-    copyright            : (C) 1999-2013 by Alexey Parshin
+    copyright            : (C) 1999-2014 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

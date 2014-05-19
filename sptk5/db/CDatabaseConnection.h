@@ -3,7 +3,7 @@
                           CDatabaseConnection.h  -  description
                              -------------------
     begin                : Wed Dec 15 1999
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

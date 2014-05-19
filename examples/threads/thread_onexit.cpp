@@ -2,7 +2,7 @@
               thread_onexit.cpp  -  test onThreadExit() function
                         -------------------
             begin                : Mon Sep 26, 2005
-            copyright            : (C) 1999-2013 Ilya A. Volynets-Evenbakh
+            copyright            : (C) 1999-2014 Ilya A. Volynets-Evenbakh
             email                : ilya@total-knowledge.com
  ***************************************************************************/
 

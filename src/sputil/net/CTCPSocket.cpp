@@ -3,7 +3,7 @@
                           CTCPSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -208,21 +208,6 @@ void CTCPSocket::open (string hostName, uint32_t portNumber, CSocketOpenMode ope
 
     open_addr (openMode, &addr);
     m_reader.open();
-}
-
-void CTCPSocket::listen (uint32_t portNumber)
-{
-    if (portNumber)
-        m_port = portNumber;
-
-    sockaddr_in addr;
-
-    memset (&addr, 0, sizeof (addr));
-    addr.sin_family = (sa_family_t) m_domain;
-    addr.sin_addr.s_addr = htonl (INADDR_ANY);
-    addr.sin_port = htons(uint16_t(m_port));
-
-    open_addr (SOM_BIND, &addr);
 }
 
 void CTCPSocket::accept (SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)

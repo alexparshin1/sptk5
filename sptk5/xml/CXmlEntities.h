@@ -4,7 +4,7 @@
                              -------------------
     begin                : Tue Jun 27 2006
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

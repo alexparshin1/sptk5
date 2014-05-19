@@ -3,7 +3,7 @@
                           CTabImage.cpp  -  description
                              -------------------
     begin                : Thu Nov 09 2006
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

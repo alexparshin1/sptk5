@@ -3,7 +3,7 @@
                           syslog_test.cpp  -  description
                              -------------------
     begin                : Fri Feb 3, 2006
-    copyright            : (C) 1999-2013 by Alexey Parshin
+    copyright            : (C) 1999-2014 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

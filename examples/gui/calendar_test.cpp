@@ -4,7 +4,7 @@
                           calendar_test.cpp  -  description
                              -------------------
     begin                : October 6, 2003
-    copyright            : (C) 1999-2013 by Alexey S.Parshin
+    copyright            : (C) 1999-2014 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

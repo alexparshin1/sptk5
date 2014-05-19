@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CTransaction.h  -  description
+                          udp_server_test.cpp  -  description
                              -------------------
-    begin                : Mon Apr 17 2000
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    begin                : Sat May 17, 2014
+    copyright            : (C) 1999-2014 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -25,43 +25,57 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/db/CTransaction.h>
+#include <iostream>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef _WIN32
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/time.h>
+#endif
+
+#include <sptk5/cnet>
 
 using namespace std;
 using namespace sptk;
 
-CTransaction::CTransaction(CDatabaseConnection& db)
+int main (int argc, char* argv[])
 {
-    m_active = false;
-    m_db = &db;
-}
+    try {
+        // Create the socket
+        CUDPSocket server;
+        server.port(3000);
+        server.host("localhost");
 
-CTransaction::~CTransaction()
-{
-    if (m_active)
-        m_db->rollbackTransaction();
-}
+        struct sockaddr_in clientInfo;
 
-void CTransaction::begin()
-{
-    if (m_active)
-        throw CDatabaseException("This transaction is already active");
-    m_active = true;
-    m_db->beginTransaction();
-}
+        server.listen();
 
-void CTransaction::commit()
-{
-    if (!m_active)
-        throw CDatabaseException("This transaction is not active");
-    m_db->commitTransaction();
-    m_active = false;
-}
+        cout << "Listening: Test SPTK UDP server 1.00\n";
 
-void CTransaction::rollback()
-{
-    if (!m_active)
-        throw CDatabaseException("This transaction is not active");
-    m_db->rollbackTransaction();
-    m_active = false;
+        char readBuffer[1024];
+
+        for (;;) {
+            if (server.readyToRead(1000)) {
+                int bytes = server.read(readBuffer,sizeof (readBuffer),&clientInfo);
+
+                string data(readBuffer, bytes);
+                cout << "Received data: " << data << endl;
+                
+                if (data.find("EOD") == 0) {
+                    server.close();
+                    cout << "Server session closed" << endl;
+                    break;
+                }
+            }
+        }
+    } catch (exception& e) {
+        cout << "Exception was caught: " << e.what() << "\nExiting.\n";
+    }
+
+    return 0;
 }

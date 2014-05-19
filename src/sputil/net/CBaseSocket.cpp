@@ -3,7 +3,7 @@
                           CBaseSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -49,9 +49,7 @@ void CBaseSocket::throwSocketError (std::string operation, const char* file, int
         NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL );
     string errorStr(lpMsgBuf);
 #else
-    char buffer[256];
-    strerror_r (errno, buffer, sizeof (buffer));
-    string errorStr (buffer);
+    string errorStr( strerror(errno) );
 #endif
     throw CException (operation + ": " + errorStr, file, line);
 }
@@ -179,6 +177,21 @@ void CBaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr)
     }
 }
 
+void CBaseSocket::listen (uint32_t portNumber)
+{
+    if (portNumber)
+        m_port = portNumber;
+
+    sockaddr_in addr;
+
+    memset (&addr, 0, sizeof (addr));
+    addr.sin_family = (sa_family_t) m_domain;
+    addr.sin_addr.s_addr = htonl (INADDR_ANY);
+    addr.sin_port = htons(uint16_t(m_port));
+
+    open_addr (SOM_BIND, &addr);
+}
+
 void CBaseSocket::close()
 {
     if (m_sockfd != INVALID_SOCKET) {
@@ -232,7 +245,7 @@ size_t CBaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) THRO
 
 size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
-    size_t      bytes;
+    int         bytes;
     const char* p = buffer;
 
     if (int(size) == -1)
@@ -242,7 +255,7 @@ size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* pe
     int remaining = (int) size;
     while (remaining > 0) {
         if (peer)
-            bytes = (size_t) sendto(m_sockfd, p, size_t(size), 0, (sockaddr *) peer, sizeof(sockaddr_in));
+            bytes = sendto(m_sockfd, p, size_t(size), 0, (sockaddr *) peer, sizeof(sockaddr_in));
         else
             bytes = send(p, size_t(size));
         if (bytes == size_t(-1))

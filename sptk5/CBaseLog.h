@@ -3,7 +3,7 @@
                           CBaseLog.h  -  description
                              -------------------
     begin                : Mon Jan 30 2006
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
 
     This module creation was sponsored by Total Knowledge

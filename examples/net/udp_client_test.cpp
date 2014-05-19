@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CTransaction.h  -  description
+                          udp_client_test.cpp  -  description
                              -------------------
-    begin                : Mon Apr 17 2000
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    begin                : Sat May 17, 2014
+    copyright            : (C) 1999-2014 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -12,56 +12,62 @@
    under the terms of the GNU Library General Public License as published by
    the Free Software Foundation; either version 2 of the License, or (at
    your option) any later version.
-
+ 
    This library is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
    General Public License for more details.
-
+ 
    You should have received a copy of the GNU Library General Public License
    along with this library; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-
+ 
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/db/CTransaction.h>
+#include <iostream>
+
+#include <sptk5/cnet>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef _WIN32
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/time.h>
+#endif
 
 using namespace std;
 using namespace sptk;
 
-CTransaction::CTransaction(CDatabaseConnection& db)
+int main (int argc, char* argv[])
 {
-    m_active = false;
-    m_db = &db;
-}
+    try {
+        CUDPSocket client;
+        client.port(3000);
+        client.host("127.0.0.1");
 
-CTransaction::~CTransaction()
-{
-    if (m_active)
-        m_db->rollbackTransaction();
-}
+        string data;
 
-void CTransaction::begin()
-{
-    if (m_active)
-        throw CDatabaseException("This transaction is already active");
-    m_active = true;
-    m_db->beginTransaction();
-}
+        struct sockaddr_in serv;
+        memset (&serv, 0, sizeof (serv));
+        serv.sin_family = AF_INET;
+        serv.sin_port = htons(client.port());
+        serv.sin_addr.s_addr = inet_addr(client.host().c_str());
+        
+        data = "Data 1";
+        client.write(data, &serv);
 
-void CTransaction::commit()
-{
-    if (!m_active)
-        throw CDatabaseException("This transaction is not active");
-    m_db->commitTransaction();
-    m_active = false;
-}
+        data = "EOD";
+        client.write(data, &serv);
+    } catch (exception& e) {
+        cout << "Exception was caught:" << e.what() << "\nExiting.\n";
+    }
 
-void CTransaction::rollback()
-{
-    if (!m_active)
-        throw CDatabaseException("This transaction is not active");
-    m_db->rollbackTransaction();
-    m_active = false;
+    cout << "Exiting\n";
+
+    return 0;
 }

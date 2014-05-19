@@ -3,7 +3,7 @@
                           CBaseSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -152,6 +152,10 @@ public:
         return (int32_t) m_port;
     }
 
+    /// @brief Opens the server socket connection on port (binds/listens)
+    /// @param portNumber uint32_t, the port number
+    void listen(uint32_t portNumber = 0);
+    
     /// @brief In server mode, waits for the incoming connection.
     ///
     /// When incoming connection is made, exits returning the connection info

@@ -3,7 +3,7 @@
                           CTCPSocket.cpp  -  description
                              -------------------
     begin                : July 10 2002
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -132,10 +132,6 @@ public:
     /// @param port uint32_t, the port number
     /// @param openMode CSocketOpenMode, socket open mode
     virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) THROWS_EXCEPTIONS;
-
-    /// @brief Opens the server socket connection on port (binds/listens)
-    /// @param portNumber uint32_t, the port number
-    void listen(uint32_t portNumber = 0);
 
     /// @brief In server mode, waits for the incoming connection.
     ///

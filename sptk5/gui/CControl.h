@@ -3,7 +3,7 @@
                           ccontrol.h  -  description
                              -------------------
     begin                : Tue Apr 4 2000
-    copyright            : (C) 1999-2013 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

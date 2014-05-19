@@ -3,7 +3,7 @@
                          CRunable.cpp  -  description
                              -------------------
     begin                : Fri Mar 1 2012
-    copyright            : (C) 1999-2013 by Alexey Parshin
+    copyright            : (C) 1999-2014 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

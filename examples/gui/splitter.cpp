@@ -4,7 +4,7 @@
                           splitter.cpp  -  description
                              -------------------
     begin                : January 27, 2004
-    copyright            : (C) 1999-2013 by Alexey S.Parshin
+    copyright            : (C) 1999-2014 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

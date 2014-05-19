@@ -3,7 +3,7 @@
                           CRWLock.h  -  description
                              -------------------
     begin                : Thu Apr 28 2005
-    copyright            : (C) 1999-2013 by Ilya A. Volynets-Evenbakh
+    copyright            : (C) 1999-2014 by Ilya A. Volynets-Evenbakh
     email                : ilya@total-knowledge.com
  ***************************************************************************/
 
