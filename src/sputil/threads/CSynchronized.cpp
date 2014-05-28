@@ -71,6 +71,11 @@ void CSynchronized::lock(const char* fileName, int lineNumber)
 int CSynchronized::msleep(int timeoutMS)
 {
     lock();
+    return msleepUnlocked(timeoutMS);
+}
+
+int CSynchronized::msleepUnlocked(int timeoutMS)
+{
     if (timeoutMS > 0) {
         timespec abstime;
 
@@ -133,7 +138,7 @@ void CSynchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumbe
                     return;
                 case EBUSY:
                 case EINTR:
-                    msleep(step);
+                    msleepUnlocked(step);
                     elapsed += step;
                     break;
                 default:

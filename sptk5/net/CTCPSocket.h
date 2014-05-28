@@ -74,10 +74,11 @@ class SP_EXPORT CTCPSocketReader: protected CBuffer
     /// Data is read from the opened socket into a character buffer of limited size
     /// @param dest char *, destination buffer
     /// @param sz size_t, size of the destination buffer
+    /// @param delimiter char, line delimiter
     /// @param readLine bool, true if we want to read one line (ended with CRLF) only
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns number of bytes read
-    int32_t bufferedRead(char *dest, size_t sz, bool readLine, struct sockaddr_in* from = NULL);
+    int32_t bufferedRead(char *dest, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
 
 public:
 
@@ -92,15 +93,17 @@ public:
     /// @brief Performs the buffered read
     /// @param dest char *, destination buffer
     /// @param sz size_t, size of the destination buffer
+    /// @param delimiter char, line delimiter
     /// @param readLine bool, true if we want to read one line (ended with CRLF) only
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns bytes read from the internal buffer
-    size_t read(char *dest, size_t sz, bool readLine = false, struct sockaddr_in* from = NULL);
+    size_t read(char *dest, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
 
     /// @brief Performs the buffered read of LF-terminated string
     /// @param dest CBuffer&, destination buffer
+    /// @param delimiter char, line delimiter
     /// @returns bytes read from the internal buffer
-    size_t readLine(CBuffer& dest);
+    size_t readLine(CBuffer& dest, char delimiter);
 };
 
 /// @brief Generic TCP socket.
@@ -140,25 +143,28 @@ public:
     /// @param clientInfo sockaddr_in&, connected client info
     void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
 
-    /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
+    /// @brief Reads one line from the socket into existing memory buffer
     ///
     /// The output string should fit the buffer or it will be returned incomplete.
     /// @param buffer char *, the destination buffer
     /// @param size size_t, the destination buffer size
+    /// @param delimiter char, line delimiter 
     /// @returns the number of bytes read from the socket
-    size_t readLine(char *buffer, size_t size);
+    size_t readLine(char *buffer, size_t size, char delimiter='\n');
 
     /// @brief Reads one line (terminated with CRLF) from the socket into existing memory buffer
     ///
     /// The memory buffer is extended automatically to fit the string.
     /// @param buffer CBuffer&, the destination buffer
+    /// @param delimiter char, line delimiter 
     /// @returns the number of bytes read from the socket
-    size_t readLine(CBuffer& buffer);
+    size_t readLine(CBuffer& buffer, char delimiter='\n');
 
     /// @brief Reads one line (terminated with CRLF) from the socket into string
     /// @param s std::string&, the destination string
+    /// @param delimiter char, line delimiter 
     /// @returns the number of bytes read from the socket
-    size_t readLine(std::string& s);
+    size_t readLine(std::string& s, char delimiter='\n');
 
     /// @brief Reads data from the socket
     /// @param buffer char *, the memory buffer

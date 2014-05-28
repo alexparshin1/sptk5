@@ -97,6 +97,25 @@ CBaseSocket::~CBaseSocket()
 #endif
 }
 
+void CBaseSocket::blockingMode(bool blocking) THROWS_EXCEPTIONS
+{
+#ifdef _WIN32
+    uint32_t arg = blocking ? 0 : 1;
+    control(FIONBIO, &arg);
+    u_long arg2 = arg;
+    int rc = ioctlsocket(m_sockfd, FIONBIO, &arg2);
+#else
+    int flags = fcntl(m_sockfd, F_GETFL);
+    if (flags & O_NONBLOCK)
+        flags -= O_NONBLOCK;
+    if (!blocking)
+        flags |= O_NONBLOCK;
+    int rc = fcntl(m_sockfd, F_SETFL, flags);
+#endif
+    if (rc)
+        THROW_SOCKET_ERROR("Can't set socket blocking mode");
+}
+
 uint32_t CBaseSocket::socketBytes()
 {
     uint32_t bytes = 0;
@@ -196,7 +215,7 @@ void CBaseSocket::close()
 {
     if (m_sockfd != INVALID_SOCKET) {
 #ifndef _WIN32
-        ::close (m_sockfd);
+        shutdown(m_sockfd, SHUT_RDWR);
 #else
         closesocket (m_sockfd);
 #endif
@@ -258,7 +277,7 @@ size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* pe
             bytes = sendto(m_sockfd, p, size_t(size), 0, (sockaddr *) peer, sizeof(sockaddr_in));
         else
             bytes = send(p, size_t(size));
-        if (bytes == size_t(-1))
+        if (bytes == -1)
             THROW_SOCKET_ERROR("Can't write to socket");
         remaining -= bytes;
         p += bytes;

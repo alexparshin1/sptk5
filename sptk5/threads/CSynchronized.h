@@ -50,6 +50,11 @@ class SP_EXPORT CSynchronized
     /// @param lineNumber int, Line number where lock is invoked
     void throwError(const char* fileName=NULL, int lineNumber=0) THROWS_EXCEPTIONS;
 
+    /// @brief Sleeps until timeout occurs (unlocked)
+    /// @param timeoutMS int, timeout in milliseconds
+    /// @return 0 on success or -1 on timeout or error
+    int msleepUnlocked(int timeoutMS);
+    
 protected:
 
 #if USE_CXX11
