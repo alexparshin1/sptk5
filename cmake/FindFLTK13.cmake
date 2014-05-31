@@ -3,7 +3,7 @@ IF (WIN32)
    SET (FLTK_POSSIBLE_LIB_PATHS $ENV{SYSTEMDRIVE}/*/lib $ENV{ProgramFiles}/*/lib)
 ELSE (WIN32)
    SET (FLTK_POSSIBLE_INCLUDE_PATHS $ENV{HOME}/local/include /usr/local/include /usr/include /usr/include/fltk-1)
-   SET (FLTK_POSSIBLE_LIB_PATHS $ENV{HOME}/local/lib /usr/local/lib /usr/lib /usr/lib/fltk-1)
+   SET (FLTK_POSSIBLE_LIB_PATHS $ENV{HOME}/local/lib /usr/local/lib /usr/lib /usr/lib/* /usr/lib/fltk-1)
 ENDIF (WIN32)
 
 FIND_PATH(FLTK_INCLUDE_DIR FL/Fl.H ${FLTK_POSSIBLE_INCLUDE_PATHS})

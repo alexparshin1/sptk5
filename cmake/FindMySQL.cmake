@@ -17,6 +17,7 @@ ELSE (WIN32)
    SET (MYSQL_POSSIBLE_LIB_PATHS
         /usr/lib64
         /usr/lib
+        /usr/lib/*
         /usr/local/lib)
 ENDIF (WIN32)
 

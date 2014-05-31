@@ -303,9 +303,9 @@ bool CBaseSocket::readyToRead (size_t wait_msec)
 
     fd_set  inputs;
     FD_ZERO(&inputs);
-    FD_SET (m_sockfd, &inputs);
+    FD_SET(m_sockfd, &inputs);
 
-    int rc = select (FD_SETSIZE, &inputs, NULL, NULL, &timeout);
+    int rc = select(FD_SETSIZE, &inputs, NULL, NULL, &timeout);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
 
