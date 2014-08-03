@@ -81,7 +81,7 @@ public:
     /// then thread pool waits while threads are destroyed
     virtual ~CThreadPool();
 
-    /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
+    /// @brief Executes task
     void execute(CRunable* task);
 
     /// @brief Thread event callback function

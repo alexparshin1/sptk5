@@ -124,7 +124,7 @@ size_t CTCPSocketReader::read(char *dest, size_t sz, char delimiter, bool read_l
         if (bytesToRead <= 0)
             return sz;
 
-        int bytes = bufferedRead(dest, size_t(bytesToRead), read_line, from);
+        int bytes = bufferedRead(dest, size_t(bytesToRead), delimiter, read_line, from);
 
         if (!bytes) // No more data
             break;
@@ -176,7 +176,7 @@ size_t CTCPSocketReader::readLine(CBuffer& destBuffer, char delimiter)
 
 // Constructor
 CTCPSocket::CTCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-        : CBaseSocket(domain, type, protocol), m_reader(*this, 1024)
+        : CBaseSocket(domain, type, protocol), m_reader(*this, 16384)
 {
 }
 

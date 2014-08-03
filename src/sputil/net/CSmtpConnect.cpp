@@ -76,6 +76,12 @@ int CSmtpConnect::getResponse(bool decode)
             rc = atoi(longLine.c_str());
         }
 
+        if (!longLine.empty()) {
+            size_t lastCharPos = longLine.length() - 1;
+            if (longLine[lastCharPos] == '\r')
+                longLine.erase(lastCharPos);
+        }
+        
         const char * text = longLine.c_str() + 4;
         if (rc < 500 && decode) {
             longLine = unmime(text);
