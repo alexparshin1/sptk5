@@ -14,6 +14,7 @@ ELSE (WIN32)
    SET (FIREBIRD_POSSIBLE_LIB_PATHS
         /usr/lib64
         /usr/lib
+        /usr/lib/*
         /usr/local/lib
         /opt/firebird/lib)
 ENDIF (WIN32)
