@@ -43,24 +43,25 @@
 using namespace sptk;
 
 // Constructor
-CUniqueInstance::CUniqueInstance(std::string instanceName) {
+CUniqueInstance::CUniqueInstance(std::string instanceName)
+{
     m_lockCreated = false;
     m_instanceName = instanceName;
 #ifndef _WIN32
-
-    m_fileName = "/tmp/" + m_instanceName + ".lock";
+    std::string home = getenv("HOME");
+    m_fileName = home + "/" + m_instanceName + ".lock";
     if (read_pid() == 0)
         write_pid();
 #else
-
     m_mutex = CreateMutex(NULL,true,m_instanceName.c_str());
-    if (GetLastError()==0)
+    if (GetLastError() == 0)
         m_lockCreated = true;
 #endif
 }
 
 // Destructor
-CUniqueInstance::~CUniqueInstance() {
+CUniqueInstance::~CUniqueInstance()
+{
     // Cleanup
     if (m_lockCreated) {
 #ifndef _WIN32
@@ -75,7 +76,8 @@ CUniqueInstance::~CUniqueInstance() {
 
 #ifndef _WIN32
 // Get the existing process id (if any) from the file
-int CUniqueInstance::read_pid() {
+int CUniqueInstance::read_pid()
+{
     char   buffer[32];
 
     // Try to read process id from the file
@@ -103,7 +105,8 @@ int CUniqueInstance::read_pid() {
     return pid;
 }
 
-int CUniqueInstance::write_pid() {
+int CUniqueInstance::write_pid()
+{
     FILE  *f = fopen(m_fileName.c_str(),"w+b");
     if (!f)
         return 0;
