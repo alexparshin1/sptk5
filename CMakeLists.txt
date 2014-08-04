@@ -34,8 +34,11 @@ INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
+
+INCLUDE (CheckTypeSize)
+check_type_size("void*" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
 SET (BITNESS 32)
-IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
+IF (SIZEOF_VOID_P EQUAL 8)
   SET (BITNESS 64)
 ENDIF()
 
