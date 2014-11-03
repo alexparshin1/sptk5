@@ -10,9 +10,10 @@ SET (SPUTIL_SOURCES
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/CProxyLog.cpp core/CSystemException.cpp
     core/md5.cpp
     net/CBaseMailConnect.cpp net/CBaseSocket.cpp net/CCGI.cpp net/CFTPConnect.cpp
-    net/CHttpConnect.cpp net/CHttpParams.cpp net/CImapConnect.cpp net/CMailMessageBody.cpp
-    net/CSmtpConnect.cpp net/CTCPServer.cpp  net/CTCPSocket.cpp
-    net/CUDPSocket.cpp net/CFtpDS.cpp net/CImapDS.cpp 
+    net/CHttpConnect.cpp net/CHttpParams.cpp net/CImapConnect.cpp net/CMailMessageBody.cpp net/CSmtpConnect.cpp
+    net/COpenSSLContext.cpp net/COpenSSLSocket.cpp
+    net/CTCPServer.cpp  net/CTCPSocket.cpp
+    net/CUDPSocket.cpp net/CFtpDS.cpp net/CImapDS.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
     tar/block.cpp tar/CTar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp

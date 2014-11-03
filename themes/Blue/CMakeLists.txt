@@ -10,7 +10,7 @@ IF (NOT WIN32)
     )
 
     ADD_CUSTOM_TARGET(
-        "${THEME} Theme" ALL
+        "${THEME}_Theme" ALL
         DEPENDS ${THEME}.tar
     )
 

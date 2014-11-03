@@ -40,6 +40,7 @@
 #define HAVE_ORACLE      @ORACLE_FLAG@
 #define HAVE_ASPELL      @ASPELL_FLAG@
 #define HAVE_PCRE        @PCRE_FLAG@
+#define HAVE_OPENSSL     @OPENSSL_FLAG@
 #define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@
 #define BITNESS          @BITNESS@
 

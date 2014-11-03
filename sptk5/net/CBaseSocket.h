@@ -121,7 +121,7 @@ public:
     void blockingMode(bool blocking) THROWS_EXCEPTIONS;
 
     /// @brief Returns number of bytes available in socket
-    uint32_t socketBytes();
+    virtual uint32_t socketBytes();
 
     /// @brief Returns socket handle
     int handle() const

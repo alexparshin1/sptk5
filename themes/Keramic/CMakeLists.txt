@@ -10,7 +10,7 @@ ADD_CUSTOM_COMMAND(
 )
 
 ADD_CUSTOM_TARGET(
-    "${THEME} Theme" ALL
+    "${THEME}_Theme" ALL
     DEPENDS ${THEME}.tar
 )
 

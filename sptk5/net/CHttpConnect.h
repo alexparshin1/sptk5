@@ -45,9 +45,10 @@ typedef std::map<std::string, std::string> CHttpHeaders;
 ///
 /// Implements the GET and POST methods of HTTP protocol.
 /// Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
-class SP_EXPORT CHttpConnect: public CTCPSocket
+class SP_EXPORT CHttpConnect
 {
     CBuffer         m_readBuffer;           ///< Internal read buffer
+    CTCPSocket&     m_socket;               ///< External socket
 
 protected:
     CHttpHeaders    m_requestHeaders;       ///< HTTP request headers
@@ -62,8 +63,12 @@ protected:
 
 public:
 
-    /// @brief Default constructor
-    CHttpConnect();
+    /// @brief Constructor
+    ///
+    /// External socket has to be active before HTTP operations.
+    /// In order to use HTTPS protocol, use COpenSSLSocket.
+    /// @param socket CTCPSocket&, external socket
+    CHttpConnect(CTCPSocket& socket);
 
     /// @brief Destructor
     ~CHttpConnect();

@@ -85,7 +85,7 @@ public:
     /// @brief Constructor
     /// @param socket CBaseSocket&, socket to work with
     /// @param bufferSize size_t, the desirable size of the internal buffer
-    CTCPSocketReader(CBaseSocket& socket, size_t bufferSize = 4096);
+    CTCPSocketReader(CBaseSocket& socket, size_t bufferSize = 65536);
 
     /// @brief Connects the reader to the socket handle
     void open();

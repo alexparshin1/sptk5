@@ -12,11 +12,11 @@ IF (NOT WIN32)
     )
 
     ADD_CUSTOM_TARGET(
-        "${THEME} Theme" ALL
+        "${THEME}_Theme" ALL
         DEPENDS ${THEME}.tar
     )
 
-    ADD_DEPENDENCIES ("Default Theme" tar2h)
+    ADD_DEPENDENCIES ("Default_Theme" tar2h)
 
 ENDIF()
 

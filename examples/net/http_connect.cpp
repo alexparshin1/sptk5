@@ -1,3 +1,21 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          http_connect.cpp  -  description
+                             -------------------
+    begin                : 26 June 2003
+    copyright            : (C) 1999-2013 by Alexey S.Parshin
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #include <FL/Fl.H>
 #include <FL/fl_ask.H>
 #include <sptk5/cnet>
@@ -6,73 +24,96 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sptk5/CRegExp.h>
+#include <sptk5/net/COpenSSLSocket.h>
 
 using namespace std;
 using namespace sptk;
 
-// Buffer size for read buffer
-// The smaller it is, more responsible interface will be.
-// Though, you may loose in speed lil bit.
-//#define BUFFER_SIZE 16384
-//#define BUFFER_SIZE 4096
-#define BUFFER_SIZE 1024
-
-CHttpConnect   *sock;
 CInput         *urlInput;
+CInput         *statsInput;
 CMemoInput     *paramsInput;
 CComboBox      *paramsCombo;
 CEditor        *textdisp;
 
-void go_callback(Fl_Widget *,void *) 
+void go_callback(Fl_Widget *,void *)
 {
-   textdisp->textBuffer()->text("");    
-   textdisp->redraw();
+    textdisp->textBuffer()->text("");
+    textdisp->redraw();
 
-   std::string  pageName = urlInput->data();
-   string hostName = pageName;
+    std::string  input = urlInput->data();
 
-   try {
-      //sock->host(hostName);
-      sock->host("192.168.1.14");
-      sock->port(8080);
-      sock->open();
+    CRegExp     getpage("^(http://|https://){0,1}([^/]+)(/.*)*", "i");
+    CStrings    matches;
+    
+    getpage.m(input, matches);
+    
+    int         port = 80;
+    string      protocol = matches[0];
+    bool        https = false;
+    if (lowerCase(protocol) == "https://") {
+        https = true;
+        port = 443;
+    }
+    
+    string      hostName = matches[1];
+    std::string pageName = matches[2];
+    
+    size_t portPos = hostName.find(":");
+    if (portPos != string::npos) {
+        portPos++;
+        port = string2int(hostName.c_str() + portPos);
+    }
 
-	  CBuffer response;
-	  sock->write("CONNECT "+hostName+":443 HTTP/1.0\r\n\r\n\r\n");
-	  do {
-			sock->readLine(response);
-	  }
-	  while (response.bytes() > 2);
+    CTCPSocket*     socket;
+    COpenSSLContext sslContext;
+    try {
+        CDateTime        started = CDateTime::Now();
+        
+        if (!https)
+            socket = new CTCPSocket;
+        else
+            socket = new COpenSSLSocket(sslContext);
+        
+        CHttpConnect sock(*socket);
 
-      CStrings text(paramsInput->data(),"\n");
-      CHttpParams httpFields;
-      if (paramsCombo->data() == "HTTP Get") {
+        socket->open(hostName, port);
 
-         for (unsigned i = 0; i < text.size(); i++) {
-            CStrings data(text[i],"=");
-            if (data.size() == 2) {
-               httpFields["first_name"] = text[0];
-               httpFields["last_name"] = text[1];
+        CStrings text(paramsInput->data(),"\n");
+        CHttpParams httpFields;
+
+        if (paramsCombo->data() == "HTTP Get") {
+
+            for (unsigned i = 0; i < text.size(); i++) {
+                CStrings data(text[i],"=");
+                if (data.size() == 2) {
+                    httpFields["first_name"] = text[0];
+                    httpFields["last_name"] = text[1];
+                }
             }
-         }
 
-         sock->cmd_get(pageName,httpFields);
-      } else {
-         for (unsigned i = 0; i < text.size(); i++) {
-            CStrings data(text[i],"=");
-            if (data.size() == 2) {
-               httpFields["first_name"] = text[0];
-               httpFields["last_name"] = text[1];
+            sock.cmd_get(pageName,httpFields);
+        } else {
+            for (unsigned i = 0; i < text.size(); i++) {
+                CStrings data(text[i],"=");
+
+                if (data.size() == 2) {
+                    httpFields["first_name"] = text[0];
+                    httpFields["last_name"] = text[1];
+                }
             }
-         }
-      }
-      sock->close();
-      textdisp->textBuffer()->text(sock->htmlData().data());
-   }
-   catch(CException &e) {
-      spError(e.what());
-      return;
-   }
+        }
+
+        CDateTime    finished = CDateTime::Now();
+        int durationMS = int(started.secondsTo(finished) * 1000);
+        textdisp->textBuffer()->text(sock.htmlData().data());
+        statsInput->data("Received " + int2string(sock.htmlData().bytes()) + " bytes for " + int2string(durationMS) + "ms");
+    } catch (CException &e) {
+        delete socket;
+        spError(e.what());
+        return;
+    }
+    delete socket;
 }
 
 int main(int argc,char *argv[])
@@ -80,27 +121,23 @@ int main(int argc,char *argv[])
     // Initialize themes
     CThemes themes;
 
-    CHttpConnect socket;
-    sock = &socket;
-
     CWindow main_window(600,400,"CHttpConnect test");
 
     CToolBar urlToolBar;
-    urlInput = new CInput("http://",300,SP_ALIGN_LEFT);
-    urlInput->labelWidth(40);
-    urlInput->data("www.tts-sf.com/index.html");
-    CButton go_button(SP_EXEC_BUTTON,SP_ALIGN_LEFT,"Go");
+    CButton go_button(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Go");
     go_button.callback(go_callback);
+    urlInput = new CInput("http/https", 300, SP_ALIGN_CLIENT);
     urlToolBar.end();
 
     CToolBar paramsToolBar;
     paramsToolBar.layoutSize(150);
     paramsCombo = new CComboBox("Mode",10,SP_ALIGN_TOP);
-    paramsCombo->labelWidth(40);
+    //paramsCombo->labelWidth(80);
     paramsCombo->addRows("http mode",CStrings("HTTP Get|HTTP Post","|"));
     paramsCombo->columns()[0].width(100);
     paramsCombo->data("HTTP Post");
-    paramsInput = new CMemoInput("",100,SP_ALIGN_CLIENT);
+    statsInput = new CInput("Stats");
+    paramsInput = new CMemoInput("",80,SP_ALIGN_CLIENT);
     paramsToolBar.end();
 
     CEditor  editor(10,SP_ALIGN_CLIENT);

@@ -176,7 +176,7 @@ size_t CTCPSocketReader::readLine(CBuffer& destBuffer, char delimiter)
 
 // Constructor
 CTCPSocket::CTCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-        : CBaseSocket(domain, type, protocol), m_reader(*this, 16384)
+        : CBaseSocket(domain, type, protocol), m_reader(*this, 65536)
 {
 }
 

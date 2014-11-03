@@ -301,15 +301,18 @@ bool CBaseSocket::readyToRead (size_t wait_msec)
     timeout.tv_sec = int32_t (wait_msec) / 1000;
     timeout.tv_usec = int32_t (wait_msec) % 1000 * 1000;
 
-    fd_set  inputs;
+    fd_set  inputs, errors;
     FD_ZERO(&inputs);
+    FD_ZERO(&errors);
     FD_SET(m_sockfd, &inputs);
+    FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, &inputs, NULL, NULL, &timeout);
+    int rc = select(FD_SETSIZE, &inputs, NULL, &errors, &timeout);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-
-    return rc > 0;
+    if (FD_ISSET(m_sockfd, &errors))
+        THROW_SOCKET_ERROR("Socket closed");
+    return FD_ISSET(m_sockfd, &inputs);
 }
 
 bool CBaseSocket::readyToWrite()
