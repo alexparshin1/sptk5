@@ -64,7 +64,7 @@ int32_t CTCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, bo
         m_readOffset = 0;
         if (from) {
             socklen_t flen = sizeof(sockaddr_in);
-            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_size - 2, 0, (sockaddr*) from, &flen);
+            m_bytes = recvfrom(m_socket.handle(), m_buffer, int32_t(m_size - 2), 0, (sockaddr*) from, &flen);
         } else {
             m_bytes = m_socket.recv(m_buffer, m_size - 2);
         }
@@ -83,9 +83,9 @@ int32_t CTCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, bo
 
     if (read_line) {
         if (delimiter == 0) {
-            int len = strlen(readPosition);
+            size_t len = strlen(readPosition);
             eol = m_readOffset + len < m_bytes;
-            bytesToRead = len;
+            bytesToRead = (int) len;
             if (eol)
                 bytesToRead++;
         } else {
@@ -202,7 +202,7 @@ void CTCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode open
         throw CException("Can't connect. Host is unknown.", __FILE__, __LINE__);
 
     memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (sa_family_t) m_domain;
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
     memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
     addr.sin_port = htons(uint16_t(m_port));
 
@@ -253,14 +253,14 @@ size_t CTCPSocket::readLine(std::string& s, char delimiter)
 
 size_t CTCPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
-    m_reader.read(buffer, size, false, from);
+    m_reader.read(buffer, size, 0, false, from);
     return size;
 }
 
 size_t CTCPSocket::read(CBuffer& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.checkSize(size);
-    size_t rc = m_reader.read(buffer.data(), size, false, from);
+    size_t rc = m_reader.read(buffer.data(), size, 0, false, from);
     buffer.bytes(rc);
     return rc;
 }
@@ -268,7 +268,7 @@ size_t CTCPSocket::read(CBuffer& buffer, size_t size, sockaddr_in* from) THROWS_
 size_t CTCPSocket::read(string& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.resize(size);
-    size_t rc = m_reader.read((char*)buffer.c_str(), size, false, from);
+    size_t rc = m_reader.read((char*)buffer.c_str(), size, 0, false, from);
     buffer.resize(rc);
     return rc;
 }

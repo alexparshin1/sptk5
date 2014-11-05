@@ -33,8 +33,8 @@
 #include <stdexcept>
 
 namespace sptk {
-    
-#if USE_CXX11
+
+#if USE_CXX11 && __UNIX_COMPILER__
     #define DOESNT_THROW        noexcept
     #define THROWS_EXCEPTIONS   noexcept(false)
 #else

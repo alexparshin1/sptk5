@@ -81,7 +81,7 @@ int COpenSSLContext::passwordReplyCallback(char *replyBuffer, int replySize, int
 {
     strncpy(replyBuffer, (const char *) userdata, replySize);
     replyBuffer[replySize - 1] = '\0';
-    return strlen(replyBuffer);
+    return (int) strlen(replyBuffer);
 }
 
 void COpenSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw (exception)

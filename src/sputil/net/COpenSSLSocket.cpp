@@ -57,7 +57,7 @@ void COpenSSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMo
 
     SYNCHRONIZED_CODE;
 
-    SSL_set_fd(m_ssl, m_sockfd);
+    SSL_set_fd(m_ssl, (int) m_sockfd);
 
     int rc = SSL_connect(m_ssl);
     if (rc <= 0) {
@@ -79,7 +79,7 @@ void COpenSSLSocket::attach(SOCKET socketHandle) throw (std::exception)
     int rc = 1;
     if (m_sockfd != socketHandle) {
         CTCPSocket::attach(socketHandle);
-        rc = SSL_set_fd(m_ssl, socketHandle);
+        rc = SSL_set_fd(m_ssl, (int) socketHandle);
     }
     
     if (rc > 0)
@@ -138,7 +138,7 @@ uint32_t COpenSSLSocket::socketBytes()
 
 size_t COpenSSLSocket::recv(void* buffer, size_t size) throw (exception)
 {
-    int rc = SSL_read(m_ssl, buffer, size);
+    int rc = SSL_read(m_ssl, buffer, (int) size);
     if (rc == 0)
         throw CException("Connection terminated");
     if (rc < 0)
@@ -150,13 +150,13 @@ size_t COpenSSLSocket::recv(void* buffer, size_t size) throw (exception)
 size_t COpenSSLSocket::send(const void* buffer, size_t len) throw (exception)
 {
     const char* ptr = (const char*) buffer;
-    uint32_t    totalLen = len;
+    uint32_t    totalLen = (uint32_t)len;
     int         rc;
     for (;;) {
         size_t writeLen = totalLen;
         if (totalLen > WRITE_BLOCK)
             writeLen = WRITE_BLOCK;
-        rc = SSL_write(m_ssl, ptr, writeLen);
+        rc = SSL_write(m_ssl, ptr, (int) writeLen);
         if (rc > 0) {
             ptr += rc;
             totalLen -= rc;

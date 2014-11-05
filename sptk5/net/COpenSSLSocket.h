@@ -50,11 +50,6 @@ class COpenSSLSocket: public sptk::CTCPSocket, public sptk::CSynchronized
 
 protected:
 
-    /// @brief Closes the socket connection
-    ///
-    /// This method is not thread-safe.
-    virtual void close();
-
     /// @brief Reads data from SSL socket
     /// @param buffer void *, destination buffer
     /// @param size size_t, destination buffer size
@@ -97,6 +92,11 @@ public:
     /// obtained with accept().
     /// @param socketHandle SOCKET, existing socket handle
     void attach(SOCKET socketHandle) throw (std::exception);
+
+    /// @brief Closes the socket connection
+    ///
+    /// This method is not thread-safe.
+    virtual void close();
 };
 
 /// @}

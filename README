@@ -57,7 +57,7 @@ b) In the directory of your choice, create the following structure:
     L---sptk3
    The libraries you will be installing should be placed in that structure,
    otherwise you have to update the project files
-   
+
 c) Install FLTK version 1.1.6 or higher (but not 2.x!).
    You can get it from http://www.fltk.org.
    Move/rename the FLTK directory into your BuildDirectory.
@@ -77,6 +77,10 @@ e) Install latest SPTK from this web site. Unpack it to local directory.
 
    Open the VC workspace and build the solution.
    Verify that test programs (in sptk5/bin/) run properly.
+
+f) Install OpenSSL from http://slproweb.com/products/Win32OpenSSL.html.
+
+g) Install PCRE from http://www.airesoft.co.uk/pcre, into C:\Windows\Program Files (x86)\PCRE
 
 3. Linux
 

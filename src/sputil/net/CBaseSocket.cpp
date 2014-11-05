@@ -132,12 +132,12 @@ uint32_t CBaseSocket::socketBytes()
 
 size_t CBaseSocket::recv(void* buffer, size_t len)
 {
-    return (size_t) ::recv(m_sockfd, (char*) buffer, (size_t) len, 0);
+    return (size_t) ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
 }
 
 size_t CBaseSocket::send(const void* buffer, size_t len)
 {
-    return (size_t) ::send(m_sockfd, (char*) buffer, (size_t) len, 0);
+    return (size_t) ::send(m_sockfd, (char*) buffer, (int32_t) len, 0);
 }
 
 int32_t CBaseSocket::control (int flag, uint32_t *check)
@@ -204,7 +204,7 @@ void CBaseSocket::listen (uint32_t portNumber)
     sockaddr_in addr;
 
     memset (&addr, 0, sizeof (addr));
-    addr.sin_family = (sa_family_t) m_domain;
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY)m_domain;
     addr.sin_addr.s_addr = htonl (INADDR_ANY);
     addr.sin_port = htons(uint16_t(m_port));
 
@@ -231,12 +231,12 @@ void CBaseSocket::attach (SOCKET socketHandle)
 
 size_t CBaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
 {
-    ssize_t bytes;
+    int bytes;
     if (from) {
         socklen_t flen = sizeof (sockaddr_in);
-        bytes = ::recvfrom(m_sockfd, buffer, (size_t) size, 0, (sockaddr*) from, &flen);
+        bytes = ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
     } else
-        bytes = ::recv(m_sockfd, (char*) buffer, (size_t) size, 0);
+        bytes = ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
@@ -274,9 +274,9 @@ size_t CBaseSocket::write(const char *buffer, size_t size, const sockaddr_in* pe
     int remaining = (int) size;
     while (remaining > 0) {
         if (peer)
-            bytes = sendto(m_sockfd, p, size_t(size), 0, (sockaddr *) peer, sizeof(sockaddr_in));
+            bytes = sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr *) peer, sizeof(sockaddr_in));
         else
-            bytes = send(p, size_t(size));
+            bytes = (int) send(p, (int32_t) size);
         if (bytes == -1)
             THROW_SOCKET_ERROR("Can't write to socket");
         remaining -= bytes;
@@ -312,7 +312,7 @@ bool CBaseSocket::readyToRead (size_t wait_msec)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
         THROW_SOCKET_ERROR("Socket closed");
-    return FD_ISSET(m_sockfd, &inputs);
+    return FD_ISSET(m_sockfd, &inputs) != 0;
 }
 
 bool CBaseSocket::readyToWrite()

@@ -40,7 +40,7 @@ CUDPSocket::CUDPSocket(SOCKET_ADDRESS_FAMILY domain)
 size_t CUDPSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
 {
     socklen_t addrLength = sizeof(sockaddr_in);
-    ssize_t bytes = recvfrom(m_sockfd, (char*) buffer, size, 0, (sockaddr*) from, &addrLength);
+    int bytes = (int) recvfrom(m_sockfd, (char*) buffer, size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read to socket");
     return (size_t) bytes;
