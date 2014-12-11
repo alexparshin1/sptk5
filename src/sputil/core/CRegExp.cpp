@@ -200,7 +200,7 @@ string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
         // Append text from fragment start to match start
         size_t fragmentStartLength = size_t(matchOffsets[0].m_start) - size_t(fragmentOffset);
         if (fragmentStartLength)
-            result += text.substr(offset, fragmentStartLength);
+            result += text.substr(fragmentOffset, fragmentStartLength);
         
         // Append next replacement
         result += nextReplacement;

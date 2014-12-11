@@ -152,6 +152,9 @@ public:
     /// @brief Print the date into str
     void formatTime(char *str,bool ampm=true,bool showSeconds=false,bool showTimezone=false) const;
 
+    /// @brief Returns current time as Unix epoch time.
+    time_t toEpoch() const;
+    
     /// @brief Set the current date and time for this program only.
     ///
     /// The system time is not affected. Useful for synchronization between
@@ -169,7 +172,7 @@ public:
 
     /// @brief Reports the current time.
     static CDateTime Time();
-
+    
     /// @brief Reports the current time of day in milliseconds
     ///
     /// This is fast method to get a time of day without considering dateTimeOffset.

@@ -53,7 +53,7 @@ void CStrings::splitByDelimiter(const string& src, const char *delimitter)
 void CStrings::splitByAnyChar(const string& src, const char *delimitter)
 {
     size_t  pos = 0, end = 0;
-    while (true) {
+    while (pos != string::npos) {
         end = src.find_first_of(delimitter, pos);
         if (end != string::npos) {
             push_back(src.substr(pos, end - pos));

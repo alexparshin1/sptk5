@@ -941,6 +941,12 @@ CDateTime CDateTime::convertCTime(const time_t tt) {
     return dat + tim;
 }
 
+time_t CDateTime::toEpoch() const
+{
+    static const CDateTime epoch("1970-01-01 00:00:00");
+    return (time_t)( (double(m_dateTime) - double(epoch)) * 86400.0 + 0.5 );
+}
+
 bool CDateTime::time24Mode()
 {
     return _time24Mode;
