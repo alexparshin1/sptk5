@@ -59,9 +59,12 @@ void CHttpConnect::getResponse()
     int    bytes, contentLength = 0;
     string header;
 
+    if (!m_socket.readyToRead(600000)) {
+        m_socket.close();
+        throw CException("Response timeout");
+    }
+        
     /// Reading HTTP headers
-    m_socket.readyToRead(1000);
-
     for (;;) {
         m_socket.readLine(header);
         char* tail = (char*) strpbrk(header.c_str(),"\r\n");
@@ -183,8 +186,7 @@ void CHttpConnect::cmd_get(string pageName,CHttpParams& postData)
 
     CBuffer buff;
     buff.append(command);
-    //buff.saveToFile("/tmp/http.cmd");
-
+    
     sendCommand(command);
 
     getResponse();

@@ -40,7 +40,15 @@ namespace sptk {
     void CThread::threadStart(void* athread)
     {
         CThread* th = (CThread*) athread;
-        th->threadFunction();
+        try {
+            th->threadFunction();
+        }
+        catch (exception& e) {
+            cerr << "Exception in thread '" << th->name() << "': " << e.what() << endl;
+        }
+        catch (...) {
+            cerr << "Unknown Exception in thread '" << th->name() << "'" << endl;
+        }
     }
 #else
     void* CThread::threadStart(void *athread)
@@ -118,7 +126,15 @@ void CThread::join()
 void CThread::runThread()
 {
     m_id = pthread_self();
-    threadFunction();
+    try {
+        threadFunction();
+    }
+    catch (exception& e) {
+        cerr << "Exception in thread '" << m_name << "': " << e.what() << endl;
+    }
+    catch (...) {
+        cerr << "Unknown Exception in thread '" << m_name << "'" << endl;
+    }
     m_id = 0;
     pthread_exit(NULL);
 }

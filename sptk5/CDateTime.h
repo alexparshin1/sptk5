@@ -111,7 +111,7 @@ public:
 
     /// @brief Constructor
     /// @param dt double, floating point date and time value
-    CDateTime (const double dt=0);
+    CDateTime (double dt=0);
 
     /// @brief Conversion to double
     operator double () const;
@@ -152,8 +152,11 @@ public:
     /// @brief Print the date into str
     void formatTime(char *str,bool ampm=true,bool showSeconds=false,bool showTimezone=false) const;
 
-    /// @brief Returns current time as Unix epoch time.
+    /// @brief Returns value as Unix epoch time.
     time_t toEpoch() const;
+    
+    /// @brief Sets value as Unix epoch time.
+    void fromEpoch(time_t dt);
     
     /// @brief Set the current date and time for this program only.
     ///

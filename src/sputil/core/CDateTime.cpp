@@ -80,6 +80,8 @@ static const short _monthDaySums[2][13] =
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
 };
 
+static const CDateTime epoch(1970,1,1);
+
 #define DateDelta 693594
 
 static bool     _time24Mode;
@@ -627,10 +629,11 @@ CDateTime::CDateTime(const CDateTime &dt)
     m_dateTime = dt.m_dateTime;
 }
 
-CDateTime::CDateTime(const double dt)
+CDateTime::CDateTime(double dt)
 {
     m_dateTime = dt;
 }
+
 //----------------------------------------------------------------
 // Assignments
 //----------------------------------------------------------------
@@ -944,7 +947,12 @@ CDateTime CDateTime::convertCTime(const time_t tt) {
 time_t CDateTime::toEpoch() const
 {
     static const CDateTime epoch("1970-01-01 00:00:00");
-    return (time_t)( (double(m_dateTime) - double(epoch)) * 86400.0 + 0.5 );
+    return (time_t)( (double(m_dateTime) - double(epoch)) * 86400.0 + 0.01 );
+}
+
+void CDateTime::fromEpoch(time_t dt)
+{
+    m_dateTime = double(dt) / 86400.0 + double(epoch);
 }
 
 bool CDateTime::time24Mode()
