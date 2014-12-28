@@ -68,7 +68,7 @@ namespace sptk {
 
 }
 
-static const short _monthDays[2][13] = 
+static const short _monthDays[2][13] =
 {
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
     {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
@@ -431,7 +431,7 @@ int decodeTZOffset(const char* tzOffset)
 {
     char tzo[10];
     strncpy(tzo,tzOffset,sizeof(tzo) - 1);
-    
+
     char* p = tzo;
     int   sign = 1;
     switch (*p) {
@@ -607,7 +607,7 @@ CDateTime::CDateTime(const char * dat)
         *s2 = 0;
         s2++;
     }
-    
+
     try {
         if (strchr(s1,dateSeparator) || strchr(s1,'-')) {
             encodeDate(m_dateTime, s1);
@@ -618,6 +618,7 @@ CDateTime::CDateTime(const char * dat)
             }
         } else
             encodeTime(m_dateTime, s1);
+        free(s1);
     } catch (...) {
         free(s1);
         throw;
