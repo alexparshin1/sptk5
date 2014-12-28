@@ -111,7 +111,7 @@ void CSynchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumbe
         throwError(fileName, lineNumber);
 #else
     int rc = 0;
-    if (timeoutMS < 1) {
+    if (timeoutMS < 1 || timeoutMS == uint32_t(-1)) {
         do {
             rc = pthread_mutex_lock(&m_synchronized);
         } while (rc == EINTR);
