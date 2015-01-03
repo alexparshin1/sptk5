@@ -91,6 +91,8 @@ public:
     static std::string    timeZoneName;           ///< Time zone abbbreviastion
     static int            timeZoneOffset;         ///< Time zone offset from GMT in hours
 
+    static void tzset();                          ///< Call that function if ::tzset() was called
+
 public:
 
     /// @brief Constructor
@@ -154,10 +156,10 @@ public:
 
     /// @brief Returns value as Unix epoch time.
     time_t toEpoch() const;
-    
+
     /// @brief Sets value as Unix epoch time.
     void fromEpoch(time_t dt);
-    
+
     /// @brief Set the current date and time for this program only.
     ///
     /// The system time is not affected. Useful for synchronization between
@@ -175,7 +177,7 @@ public:
 
     /// @brief Reports the current time.
     static CDateTime Time();
-    
+
     /// @brief Reports the current time of day in milliseconds
     ///
     /// This is fast method to get a time of day without considering dateTimeOffset.

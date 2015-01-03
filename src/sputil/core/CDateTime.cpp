@@ -60,6 +60,7 @@ namespace sptk {
     {
         public:
             CDateTimeFormat();
+            void init();
             string dateFormat();
             string timeFormat();
             void    weekDayNames(string wdn[7]);
@@ -184,6 +185,11 @@ char CDateTimeFormat::parseDateOrTime(char *format,const char *dateOrTime)
 
 CDateTimeFormat::CDateTimeFormat()
 {
+    init();
+}
+
+void CDateTimeFormat::init()
+{
     char  dateBuffer[32];
     char  timeBuffer[32];
     // make a special date and time - today :)
@@ -268,12 +274,17 @@ CDateTimeFormat::CDateTimeFormat()
         struct tm* tt = gmtime(&at);
         CDateTime::timeZoneOffset = (int) tt->tm_gmtoff  / 60;
     #else
-        CDateTime::timeZoneOffset = -(int) timezone / 60 + daylight * 60;
+        CDateTime::timeZoneOffset = -(int) timezone / 60; // + daylight * 60;
     #endif
 #endif
 }
 
 static CDateTimeFormat dateTimeFormatInitializer;
+
+void CDateTime::tzset()
+{
+    dateTimeFormatInitializer.init();
+}
 
 void CDateTime::time24Mode(bool t24mode)
 {
@@ -471,13 +482,19 @@ void CDateTime::encodeTime(double& dt,const char *tim)
         int tzOffsetMin = 0;
         char *p = strpbrk(bdat,"APZ+-"); // Looking for AM, PM, or timezone
         if (p) {
-            if (*p == 'P') {
-                afternoon = true;
-                char *p1 = strpbrk(bdat,"Z+-");
-                if (p1)
-                    tzOffsetMin = -decodeTZOffset(p1);
-            } else
-                tzOffsetMin = -decodeTZOffset(p);
+            char *p1;
+            switch (*p) {
+                case 'P':
+                    afternoon = true;
+                case 'A':
+                    p1 = strpbrk(bdat,"Z+-");
+                    if (p1)
+                        tzOffsetMin = -decodeTZOffset(p1);
+                    break;
+                default:
+                    tzOffsetMin = -decodeTZOffset(p);
+                    break;
+            }
             *p = 0;
             tzOffsetMin += CDateTime::timeZoneOffset;
         }

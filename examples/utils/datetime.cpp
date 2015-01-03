@@ -33,7 +33,7 @@ using namespace sptk;
 
 int main()
 {
-    CDateTime now = CDateTime::Now();
+    CDateTime now("2014-01-01 10:00:00");
     cout << now.dateString(true) + " " + now.timeString(true,true) << endl;
 
     cout << "Decode date and time in PST timezone and print it in local timezone:" << endl;
