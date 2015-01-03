@@ -96,8 +96,8 @@ void testBLOBs(CDatabaseConnection* db)
     CQuery selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", __FILE__, __LINE__);
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
-        cout << selectBlobsQuery["id"].asInteger() 
-            << ": " 
+        cout << selectBlobsQuery["id"].asInteger()
+            << ": "
             << selectBlobsQuery["data"].asString() << endl;
         selectBlobsQuery.fetch();
     }
@@ -178,7 +178,7 @@ int testDatabase(string connectionString)
         step2Query.param(uint32_t(3)).setDate(CDateTime::Now());
         step2Query.param(4) = 12340.001234;
         step2Query.exec();
-        
+
         // And, finally - the fastest method: using CParam& variables.
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
@@ -193,7 +193,7 @@ int testDatabase(string connectionString)
         id_param = 4;
         name_param = "Buffy";
         position_param = "Fearless fiction vampire slayer";
-        hire_date_param.setDate(CDateTime::Now());
+        hire_date_param.setDateTime(CDateTime::Now());
         rate_param = 81.2345;
         step2Query.exec();
 
@@ -324,11 +324,11 @@ int testDatabase(string connectionString)
 int main(int argc, const char* argv[])
 {
     CFileLog logFile("all_drivers_test.log");
-    
+
     string connectionString;
     if (argc == 2)
         connectionString = argv[1];
-    
+
     const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1
         "mysql",
@@ -359,7 +359,7 @@ int main(int argc, const char* argv[])
             if (databaseTypes.indexOf(dbtype) != -1)
                 break;
         }
-        
+
         if (dbtype == "odbc") {
             cout << "DSN name > ";
             cin >> hostOrDSN;
@@ -372,13 +372,13 @@ int main(int argc, const char* argv[])
 
         cout << "User name > ";
         cin >> username;
-        
+
         cout << "Password > ";
         cin >> password;
-        
+
         // Creating connection string in the following format:
         // <dbtype>://[username[:password]@]<host_or_DSN>[:port_number][/dbname]
-        
+
         string connectionString = dbtype + "://";
         if (!username.empty()) {
             connectionString += username;
@@ -386,7 +386,7 @@ int main(int argc, const char* argv[])
                 connectionString += ":" + password;
             connectionString += "@";
         }
-        
+
         connectionString += hostOrDSN;
         if (!dbname.empty()) {
             if (dbname[0] == '/')
@@ -397,6 +397,6 @@ int main(int argc, const char* argv[])
     }
 
     cout << "Connection string: " << connectionString << endl;
-    
+
     testDatabase(connectionString);
 }
