@@ -261,7 +261,7 @@ CDateTimeFormat::CDateTimeFormat()
     zname[cnt] = 0;
     CDateTime::timeZoneName = zname;
 #if defined(__BORLANDC__)
-    CDateTime::timeZoneOffset = -_timezone / 60 + _daylight * 60;
+    CDateTime::timeZoneOffset = -_timezone / 60; // + _daylight * 60;
 #else
     #ifdef __FreeBSD__
         time_t at = time(NULL);
@@ -473,9 +473,9 @@ void CDateTime::encodeTime(double& dt,const char *tim)
         if (p) {
             if (*p == 'P') {
                 afternoon = true;
-                p = strpbrk(bdat,"Z+-");
-                if (p)
-                    tzOffsetMin = -decodeTZOffset(p);
+                char *p1 = strpbrk(bdat,"Z+-");
+                if (p1)
+                    tzOffsetMin = -decodeTZOffset(p1);
             } else
                 tzOffsetMin = -decodeTZOffset(p);
             *p = 0;
@@ -795,6 +795,8 @@ void CDateTime::formatTime(char *str,bool ampm,bool showSeconds,bool showTimezon
 
     decodeTime(m_dateTime,h,m,s,ms);
     const char *appendix = 0L;
+    if (showTimezone)
+        ampm = false;
     if (ampm) {
         if (h > 11)
             appendix = "PM";
