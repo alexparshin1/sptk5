@@ -306,6 +306,30 @@ string ODBCEnvironment::errorInformation(const char *action)
     return string(errorDescription);
 }
 
+string extract_error(
+    SQLHANDLE handle,
+    SQLSMALLINT type)
+{
+    SQLINTEGER i = 0;
+    SQLINTEGER native;
+    SQLCHAR state[ 7 ];
+    SQLCHAR text[256];
+    SQLSMALLINT len;
+    SQLRETURN ret;
+
+    string error;
+    do
+    {
+        ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len );
+        if (ret != SQL_SUCCESS)
+            break;
+        error += removeDriverIdentification((char*)text) + string(". ");
+    }
+    while( ret == SQL_SUCCESS );
+
+    return error;
+}
+
 string ODBCConnection::errorInformation(const char * function)
 {
     if (!function)
@@ -321,7 +345,9 @@ string ODBCConnection::errorInformation(const char * function)
 
     int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, (SQLINTEGER *) &nativeError,
             (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
-    if (rc != SQL_SUCCESS) {
+    if (rc == SQL_SUCCESS)
+        return extract_error(m_hConnection, SQL_HANDLE_DBC);
+    else {
         rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState,
                 (SQLINTEGER *) &nativeError, (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
         if (rc != SQL_SUCCESS)
