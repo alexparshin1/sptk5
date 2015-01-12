@@ -96,7 +96,7 @@ IF (USE_ODBC)
     SET (ODBC_FLAG "1")
     SET (ODBC_LIBRARY "odbc32")
   ELSE (WIN32)
-    FIND_LIBRARY (ODBC_LIBRARY NAMES odbc PATHS /usr/lib /usr/local/lib)
+    FIND_LIBRARY (ODBC_LIBRARY NAMES odbc PATHS /usr/lib /usr/lib/* /usr/local/lib)
   ENDIF (WIN32)
 
   IF (ODBC_LIBRARY)
