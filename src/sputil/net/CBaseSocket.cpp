@@ -216,6 +216,7 @@ void CBaseSocket::close()
     if (m_sockfd != INVALID_SOCKET) {
 #ifndef _WIN32
         shutdown(m_sockfd, SHUT_RDWR);
+        ::close(m_sockfd);
 #else
         closesocket (m_sockfd);
 #endif
