@@ -114,11 +114,10 @@ void CHttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/) {
         string& s = sl[i];
         size_t pos = s.find("=");
         if (pos != STRING_NPOS) {
-            string value = s.substr(pos+1,s.length());
-            s[pos] = 0;
-            (*this)[s] = decodeString(value);
-        } else
-            (*this)[s] = "";
+            string key = s.substr(0, pos);
+            string value = s.substr(pos+1);
+            (*this)[key] = decodeString(value);
+        }
     }
 }
 
