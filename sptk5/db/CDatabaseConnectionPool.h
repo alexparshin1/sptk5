@@ -57,14 +57,22 @@ typedef void CDestroyDriverInstance(CDatabaseConnection*);
     typedef void*   CDriverHandle;                   ///< Unix: Driver shared library handle type
 #endif
 
+/// @brief Information about loaded database driver
+struct SP_EXPORT CDatabaseDriver
+{
+    CDriverHandle                               m_handle;               ///< Driver SO/DLL handle after load
+    CCreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
+    CDestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
+};
+
 /// @brief Database driver loader
 ///
 /// Loads and initializes SPTK database driver by request.
 /// Already loaded drivers are cached.
 class SP_EXPORT CDatabaseConnectionPool : public CSynchronized, public CDatabaseConnectionString
 {
+    CDatabaseDriver*                            m_driver;               ///< Database driver
 protected:
-    CDriverHandle                               m_handle;               ///< Driver SO/DLL handle after load
     CCreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
     CDestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
     unsigned                                    m_maxConnections;       ///< Maximum number of connections in the pool
@@ -84,7 +92,7 @@ public:
     /// @param connectionString std::string, Database connection string
     /// @param maxConnections unsigned, Maximum number of connections in the pool
     CDatabaseConnectionPool(std::string connectionString, unsigned maxConnections=100);
-    
+
     /// @brief Destructor
     ///
     /// Closes and destroys all created connections
