@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <sptk5/CDateTime.h>
+#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;
@@ -56,7 +57,7 @@ int main()
     cout << "Date:   " << dt.dateString() << endl;
     cout << "Time:   " << dt.timeString() << endl;
 
-    cout << endl << "Get the date and time from the system, and print the date components:" << endl;
+    cout << endl << "Get the date and time from the system, and print the date components:" << endl << endl;
     dt = CDateTime::Now();
 
     /// Printing the date components:
@@ -65,6 +66,22 @@ int main()
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
     cout << "Date:   " << dt.dateString() << endl;
     cout << "Time:   " << dt.timeString() << endl;
+
+    cout << endl << "Get the date and time from the system for TZ='US/Los_Angeles', and print the date components:" << endl << endl;
+    cout << "TZ offset is " << CDateTime::timeZoneOffset << endl;
+
+    setenv("TZ", ":US/Los_Angeles", true);
+    CDateTime::tzset();
+
+    dt = CDateTime::Now();
+
+    /// Printing the date components:
+    cout << "Year:   " << dt.year() << endl;
+    cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
+    cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
+    cout << "Date:   " << dt.dateString() << endl;
+    cout << "Time:   " << dt.timeString() << endl;
+    cout << "TZ offset is " << CDateTime::timeZoneOffset << endl;
 
     return 0;
 }

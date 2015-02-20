@@ -252,20 +252,12 @@ void CDateTimeFormat::init()
 #else
     const char *ptr = tzname[0];
 #endif
+    int len = strlen(ptr);
+    const char* p1 = strchr(ptr,' ');
+    if (p1)
+        len = int(p1 - ptr);
 
-    char zname[4];
-    int cnt = 0;
-    if (strlen(ptr) < 4)
-        strcpy(zname,ptr);
-    else
-        while (ptr && cnt < 3) {
-            zname[cnt++] = *ptr;
-            ptr = strchr(ptr,' ');
-            if (ptr)
-                ptr++;
-        }
-    zname[cnt] = 0;
-    CDateTime::timeZoneName = zname;
+    CDateTime::timeZoneName = string(ptr, len);
 #if defined(__BORLANDC__)
     CDateTime::timeZoneOffset = -_timezone / 60; // + _daylight * 60;
 #else
