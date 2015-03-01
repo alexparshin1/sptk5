@@ -93,8 +93,8 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     // Load the library
 #ifdef WIN32
     string driverFileName = "spdb5_"+driverName+".dll";
-    m_handle = LoadLibrary (driverFileName.c_str());
-    if (!m_handle)
+    CDriverHandle handle = LoadLibrary(driverFileName.c_str());
+    if (!handle)
         throw CDatabaseException("Cannot load library: " + driverFileName);
 #else
     string driverFileName = "libspdb5_"+driverName+".so";

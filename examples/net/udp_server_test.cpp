@@ -61,7 +61,7 @@ int main (int argc, char* argv[])
 
         for (;;) {
             if (server.readyToRead(1000)) {
-                int bytes = server.read(readBuffer,sizeof (readBuffer),&clientInfo);
+                size_t bytes = server.read(readBuffer, sizeof(readBuffer),&clientInfo);
 
                 string data(readBuffer, bytes);
                 cout << "Received data: " << data << endl;

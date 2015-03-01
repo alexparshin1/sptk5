@@ -263,14 +263,16 @@ void CODBCConnection::queryExecute(CQuery *query)
 
         int rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                 &textLength);
-        if (!successful(rc))
-            query->logAndThrow("CODBCConnection::queryExecute", "Unable to retrieve diag records");
-        for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; recordNumber++) {
-            rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
-                    &textLength);
-            if (!successful(rc))
-                break;
-            query->messages().push_back(removeDriverIdentification((const char *) text));
+        if (successful(rc)) {
+            CStrings errors;
+            for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; recordNumber++) {
+                rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
+                        &textLength);
+                if (!successful(rc))
+                    break;
+                errors.push_back(removeDriverIdentification((const char *) text));
+            }
+            query->logAndThrow("CODBCConnection::queryExecute", errors.asString("; "));
         }
     }
 

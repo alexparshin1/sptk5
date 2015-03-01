@@ -70,6 +70,7 @@ int main()
     cout << endl << "Get the date and time from the system for TZ='US/Los_Angeles', and print the date components:" << endl << endl;
     cout << "TZ offset is " << CDateTime::timeZoneOffset << endl;
 
+#ifndef _WIN32
     setenv("TZ", ":US/Los_Angeles", true);
     CDateTime::tzset();
 
@@ -82,6 +83,7 @@ int main()
     cout << "Date:   " << dt.dateString() << endl;
     cout << "Time:   " << dt.timeString() << endl;
     cout << "TZ offset is " << CDateTime::timeZoneOffset << endl;
+#endif
 
     return 0;
 }

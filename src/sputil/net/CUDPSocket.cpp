@@ -32,15 +32,15 @@ using namespace std;
 using namespace sptk;
 
 CUDPSocket::CUDPSocket(SOCKET_ADDRESS_FAMILY domain)
- : CBaseSocket(domain,SOCK_DGRAM)
+ : CBaseSocket(domain, SOCK_DGRAM)
 {
     m_sockfd = socket (m_domain, m_type, m_protocol);
 }
 
-size_t CUDPSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
+size_t CUDPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     socklen_t addrLength = sizeof(sockaddr_in);
-    int bytes = (int) recvfrom(m_sockfd, (char*) buffer, size, 0, (sockaddr*) from, &addrLength);
+    int bytes = (int) recvfrom(m_sockfd, (char*) buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read to socket");
     return (size_t) bytes;

@@ -310,11 +310,11 @@ string extract_error(
     SQLHANDLE handle,
     SQLSMALLINT type)
 {
-    SQLINTEGER i = 0;
-    SQLINTEGER native;
-    SQLCHAR state[ 7 ];
-    SQLCHAR text[256];
-    SQLSMALLINT len;
+    SQLSMALLINT     i = 0;
+    SQLINTEGER      native;
+    SQLCHAR         state[ 7 ];
+    SQLCHAR         text[256];
+    SQLSMALLINT     len;
     SQLRETURN ret;
 
     string error;

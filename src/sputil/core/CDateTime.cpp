@@ -252,7 +252,7 @@ void CDateTimeFormat::init()
 #else
     const char *ptr = tzname[0];
 #endif
-    int len = strlen(ptr);
+    int len = (int) strlen(ptr);
     const char* p1 = strchr(ptr,' ');
     if (p1)
         len = int(p1 - ptr);

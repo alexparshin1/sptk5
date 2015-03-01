@@ -47,7 +47,7 @@
 #endif
 
 #ifndef __UNIX_COMPILER__
-#  if defined(SP_DLL) && defined(WIN32)
+#  if defined(WIN32)
 #    ifdef SP_DRIVER_LIBRARY
 #      define SP_DRIVER_EXPORT   __declspec(dllexport)
 #    else
