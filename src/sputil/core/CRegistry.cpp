@@ -77,7 +77,8 @@ string CRegistry::homeDirectory() {
     if (homeDir == "\\")
         homeDir = homeDrive + "\\";
     else
-        homeDir = homeDrive + "\\" + homeDir;
+        homeDir = homeDrive + homeDir;
+    homeDir += "\\Local Settings\\Application Data\\Programs\\";
 #endif
 
     return homeDir;
@@ -121,7 +122,6 @@ void CRegistry::prepareDirectory() {
 #ifdef _WIN32
         mkdir(directory.c_str());
 #else
-
         mkdir(directory.c_str(),0770);
 #endif
 

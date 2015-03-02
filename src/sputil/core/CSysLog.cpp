@@ -180,16 +180,17 @@ void CSysLog::programName(string progName)
         unsigned long len = _MAX_PATH;
         unsigned long vtype = REG_EXPAND_SZ;
         if (RegQueryValueEx(
-                        keyHandle,       // handle to key to query
-                        "EventMessageFile",
-                        0,
-                        &vtype,
-                        (BYTE *)buffer,// buffer for returned string
-                        &len// receives size of returned string
-                ) != ERROR_SUCCESS)
-        throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
+            keyHandle,       // handle to key to query
+            "EventMessageFile",
+            0,
+            &vtype,
+            (BYTE *)buffer,// buffer for returned string
+            &len// receives size of returned string
+            ) != ERROR_SUCCESS) {
+            buffer[0] = 0;
+        }
 
-        if (strcmp(buffer,m_moduleFileName.c_str()) != 0) {
+        if (buffer[0] == 0 || strcmp(buffer, m_moduleFileName.c_str()) != 0) {
 
             if (RegSetValueEx(
                             keyHandle,          // handle to key to set value for
