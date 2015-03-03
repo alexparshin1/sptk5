@@ -74,23 +74,22 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
 {
     SYNCHRONIZED_CODE;
     if (m_options & CLO_ENABLE) {
-#ifndef _WIN32
+#ifdef UNIX_COMPILER
         if (!m_logOpened)
             openlog(m_programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
         syslog(int(m_facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
 #else
-
         if (!m_logHandle) {
             OSVERSIONINFO version;
             version.dwOSVersionInfoSize = sizeof(version);
             if (!GetVersionEx(&version))
-            throw CException("Can't determine Windows version");
+                throw CException("Can't determine Windows version");
             if (version.dwPlatformId != VER_PLATFORM_WIN32_NT)
-            throw CException("EventLog is only implemented on NT-based Windows");
+                throw CException("EventLog is only implemented on NT-based Windows");
             m_logHandle = RegisterEventSource(0,m_programName.c_str());
         }
         if (!m_logHandle)
-        throw CException("Can't open Application Event Log");
+            throw CException("Can't open Application Event Log");
 
         unsigned eventType;
         switch (priority) {
@@ -118,10 +117,11 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
                         SPTK_MESSAGE,// event identifier
                         0,// user security identifier (optional)
                         1,// number of strings to merge with message
-                        sz,// size of binary data, in bytes
+                        0,// size of binary data, in bytes
                         messageStrings,// array of strings to merge with message
                         0// address of binary data
-                )) {
+                ))
+        {
             throw CException("Can't write an event to Application Event Log ");
         }
 #endif

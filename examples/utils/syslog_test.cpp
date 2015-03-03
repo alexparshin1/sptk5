@@ -31,7 +31,8 @@
 using namespace std;
 using namespace sptk;
 
-int main(int,char*[]) {
+int main(int,char*[])
+{
 #ifdef _WIN32
    cout << "Attention: This example project must include file VC6\\events.rc." << endl;
    cout << "You should also have enough access rights to write into HKEY_LOCAL_MACHINE" << endl;
