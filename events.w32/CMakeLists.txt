@@ -19,7 +19,7 @@ IF (WIN32)
     FILE (
         GLOB resourceFiles
         ${CMAKE_CURRENT_SOURCE_DIR}/README
-        ${CMAKE_CURRENT_SOURCE_DIR}/eventlog.rc
+        ${CMAKE_CURRENT_SOURCE_DIR}/events.rc
         ${CMAKE_CURRENT_SOURCE_DIR}/MSG00409.bin
     )
 
