@@ -74,7 +74,7 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
 {
     SYNCHRONIZED_CODE;
     if (m_options & CLO_ENABLE) {
-#ifdef UNIX_COMPILER
+#ifndef _WIN32
         if (!m_logOpened)
             openlog(m_programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
         syslog(int(m_facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
