@@ -107,8 +107,12 @@ int CSynchronized::msleepUnlocked(int timeoutMS)
 void CSynchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber) THROWS_EXCEPTIONS
 {
 #if USE_CXX11
-    if (!m_synchronized.try_lock_for(chrono::milliseconds(timeoutMS)))
-        throwError(fileName, lineNumber);
+    if (timeoutMS == uint32_t(-1))
+        m_synchronized.lock();
+    else {
+        if (!m_synchronized.try_lock_for(chrono::milliseconds(timeoutMS)))
+            throwError(fileName, lineNumber);
+    }
 #else
     int rc = 0;
     if (timeoutMS < 1 || timeoutMS == uint32_t(-1)) {
