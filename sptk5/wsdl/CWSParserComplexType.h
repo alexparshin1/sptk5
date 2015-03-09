@@ -32,6 +32,8 @@
 #include <sptk5/wsdl/CWSBasicTypes.h>
 #include <iostream>
 #include <list>
+#include <set>
+#include "CWSRestriction.h"
 
 namespace sptk
 {
@@ -67,21 +69,25 @@ class CWSParserComplexType
 {
     typedef std::map<std::string,CWSParserAttribute*>   AttributeMap;
     typedef std::list<CWSParserComplexType*>            ElementList;
+    typedef std::set<std::string>                       UniqueStrings;
 protected:
-    std::string         m_name;
-    std::string         m_typeName;
-    const CXmlElement*  m_element;
-    AttributeMap        m_attributes;
-    ElementList         m_sequence;
-    CWSMultiplicity     m_multiplicity;
-    int                 m_refcount;
+    std::string             m_name;
+    std::string             m_typeName;
+    const CXmlElement*      m_element;
+    AttributeMap            m_attributes;
+    ElementList             m_sequence;
+    CWSMultiplicity         m_multiplicity;
+    int                     m_refcount;
+    WSRestriction*          m_restriction;
+
+    static UniqueStrings    m_anonymousTypeNames;
 
     /// @brief Generates C++ class declaration
     void generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS;
 
     /// @brief Generates C++ class implementation
     void generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS;
-    
+
 public:
     static std::string wsClassName(std::string);
 
@@ -94,7 +100,7 @@ public:
 
     /// @brief Destructor
     virtual ~CWSParserComplexType();
-    
+
     int refCount()
     {
         return m_refcount;
@@ -117,19 +123,19 @@ public:
     {
         return m_name;
     }
-    
+
     std::string className() const;
 
     CWSMultiplicity multiplicity() const
     {
         return m_multiplicity;
     }
-    
+
     /// @brief Parses WSDL complexType element
     virtual void parse() THROWS_EXCEPTIONS;
-    
+
     void parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS;
-    
+
     /// @brief Generates C++ class declaration and implementation
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation) THROWS_EXCEPTIONS;
 };

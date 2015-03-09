@@ -28,6 +28,8 @@
 #include <sptk5/wsdl/CWSParser.h>
 #include <sptk5/wsdl/CSourceModule.h>
 
+#include <iomanip>
+
 using namespace std;
 using namespace sptk;
 
@@ -59,7 +61,7 @@ void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
 {
     string elementName = elementNode->getAttribute("name");
     string elementType = elementNode->getAttribute("type");
-    
+
     size_t namespacePos = elementType.find(":");
     if (namespacePos != string::npos)
         elementType = elementType.substr(namespacePos + 1);
@@ -69,14 +71,9 @@ void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
         complexType = m_complexTypes[elementType];
         complexType->increaseRefCount();
     } else {
-        const CXmlElement* complexTypeElement = (const CXmlElement*) elementNode->findFirst("xsd:complexType");
-        if (!complexTypeElement)
-            throwException("Element "+elementName+" has no type and doesn't define complexType inline");
         // Element defines type inline
-        complexType = new CWSParserComplexType(complexTypeElement, elementName);
-        if (m_complexTypes.find(elementName) != m_complexTypes.end())
-            throwException("Element "+elementName+" defines duplicate type inline");
-        complexType->parse();
+        complexType = m_complexTypes[elementName];
+        complexType->increaseRefCount();
     }
     m_complexTypes[elementName] = complexType;
     CWSParserElement* element = new CWSParserElement(elementName, complexType);
@@ -86,15 +83,38 @@ void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
 void CWSParser::parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS
 {
     string complexTypeName = complexTypeElement->getAttribute("name");
+
+    if (complexTypeName.empty()) {
+        const CXmlNode* parent = complexTypeElement->parent();
+        complexTypeName = parent->getAttribute("name").c_str();
+    }
+
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
         throwException("Duplicate complexType definition: " + complexTypeName);
-    CWSParserComplexType* complexType = new CWSParserComplexType(complexTypeElement);
+    CWSParserComplexType* complexType = new CWSParserComplexType(complexTypeElement, complexTypeName);
     m_complexTypes[complexTypeName] = complexType;
+    if (complexTypeName == "HandlerType")
+        cout << endl;
     complexType->parse();
 }
 
-void CWSParser::parseOperation(const CXmlElement* operationNode) THROWS_EXCEPTIONS
+void CWSParser::parseOperation(CXmlElement* operationNode) THROWS_EXCEPTIONS
 {
+    CXmlNodeVector messageNodes;
+    operationNode->document()->select(messageNodes, "//wsdl:message");
+
+    map<string, string> messageToElementMap;
+    for (CXmlNode::const_iterator itor = messageNodes.begin(); itor != messageNodes.end(); itor++) {
+        CXmlElement* message = dynamic_cast<CXmlElement*>(*itor);
+        CXmlNode* part = message->findFirst("wsdl:part");
+        string messageName = message->getAttribute("name").c_str();
+        string elementName = part->getAttribute("element").c_str();
+        size_t pos = elementName.find(":");
+        if (pos != string::npos)
+            elementName = elementName.substr(pos + 1);
+        messageToElementMap[messageName] = elementName;
+    }
+
     CWSOperation operation;
     for (CXmlElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); itor++) {
         const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
@@ -102,8 +122,9 @@ void CWSParser::parseOperation(const CXmlElement* operationNode) THROWS_EXCEPTIO
         size_t pos = message.find(":");
         if (pos != string::npos)
             message = message.substr(pos+1);
+        string elementName = messageToElementMap[message];
         if (element->name() == "wsdl:input") {
-            operation.m_input = m_complexTypes[message];
+            operation.m_input = m_complexTypes[elementName];
             continue;
         }
         if (element->name() == "wsdl:output") {
@@ -111,16 +132,24 @@ void CWSParser::parseOperation(const CXmlElement* operationNode) THROWS_EXCEPTIO
             continue;
         }
     }
-    m_operations[operationNode->getAttribute("name")] = operation;
+    string operationName = operationNode->getAttribute("name");
+    m_operations[operationName] = operation;
 }
 
-void CWSParser::parseSchema(const CXmlElement* schemaElement) THROWS_EXCEPTIONS
+void CWSParser::parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS
 {
-    for (CXmlElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); itor++) {
+    CXmlNodeVector complexTypeNodes;
+    schemaElement->select(complexTypeNodes, "//xsd:complexType");
+
+    for (CXmlNode::const_iterator itor = complexTypeNodes.begin(); itor != complexTypeNodes.end(); itor++) {
         const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
         if (element && element->name() == "xsd:complexType")
             parseComplexType(element);
     }
+
+    //for (ComplexTypeMap::iterator itor =  m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++)
+    //    cout << setw(20) << itor->first + ": " + itor->second->className() << endl;
+
     for (CXmlElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); itor++) {
         const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
         if (element && element->name() == "xsd:element")
@@ -137,7 +166,7 @@ void CWSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
 
     CXmlElement* service = (CXmlElement*) wsdlXML.findFirst("wsdl:service");
     m_serviceName = service->getAttribute("name").str();
-    
+
     CXmlElement* schemaElement = dynamic_cast<CXmlElement*>(wsdlXML.findFirst("xsd:schema"));
     if (!schemaElement)
         throwException("Can't find xsd:schema element");
@@ -147,7 +176,7 @@ void CWSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
     if (!portElement)
         throwException("Can't find wsdl:portType element");
     for (CXmlElement::const_iterator itor = portElement->begin(); itor != portElement->end(); itor++) {
-        const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
+        CXmlElement* element = dynamic_cast<CXmlElement*>(*itor);
         if (element && element->name() == "wsdl:operation")
             parseOperation(element);
     }
@@ -174,17 +203,17 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     string defname = "__" + upperCase(serviceClassName) + "__";
-    
+
     serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl << endl;
     serviceDefinition << "#ifndef " << defname << endl;
     serviceDefinition << "#define " << defname << endl << endl;
-    
+
     serviceDefinition << "#include <sptk5/wsdl/CWSRequest.h>" << endl << endl;
     serviceDefinition << "// This Web Service types" << endl;
     for (CStrings::const_iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
         serviceDefinition << "#include \"" << *itor << ".h\"" << endl;
     serviceDefinition << endl;
-    
+
     serviceDefinition << "/// @brief Base class for service method." << endl;
     serviceDefinition << "///" << endl;
     serviceDefinition << "/// Web Service application derives its service class from this class" << endl;
@@ -218,7 +247,7 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
         serviceDefinition << "   /// @param input " << operation.m_input->className() << "&, Operation input data" << endl;
         serviceDefinition << "   /// @param output " << operation.m_output->className() << "&, Operation response data" << endl;
         serviceDefinition
-            << "   virtual void " << itor->first 
+            << "   virtual void " << itor->first
             << "(const " << operation.m_input->className() << "& input, "
             << operation.m_output->className() << "& output) THROWS_EXCEPTIONS = 0;" << endl;
     }
@@ -236,10 +265,10 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
         serviceOperations.push_back(requestName);
     }
     string operationNames = serviceOperations.asString("|");
-    
+
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
     serviceImplementation << "#include <sptk5/wsdl/CWSParser.h>" << endl << endl;
-    
+
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
@@ -305,7 +334,7 @@ void CWSParser::generate(std::string sourceDirectory) THROWS_EXCEPTIONS
 
     CSourceModule serviceModule(serviceClassName, sourceDirectory);
     serviceModule.open();
-    
+
     generateDefinition(usedClasses, serviceModule.header());
     generateImplementation(serviceModule.source());
 }

@@ -41,10 +41,10 @@ struct CWSOperation
     CWSParserComplexType*   m_input;
     CWSParserComplexType*   m_output;
 };
-    
+
 /// @brief Parser of WSDL files
 ///
-/// Loads a WSDL file and converts it to a set of abstract classes that can be saved 
+/// Loads a WSDL file and converts it to a set of abstract classes that can be saved
 /// as C++ source files to a directory.
 /// The actual web service is built by deriving concrete classes from these abstract classes.
 class SP_EXPORT CWSParser
@@ -71,12 +71,12 @@ protected:
     void parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS;
 
     /// @brief Parses wsdl:operation nodes directly under xsd:schema
-    /// @param operation const CXmlElement*, Schema complex type
-    void parseOperation(const CXmlElement* operation) THROWS_EXCEPTIONS;
+    /// @param operation CXmlElement*, Schema complex type
+    void parseOperation(CXmlElement* operation) THROWS_EXCEPTIONS;
 
     /// @brief Parses xsd:schema
-    /// @param schemaElement const CXmlElement*, Schema element
-    void parseSchema(const CXmlElement* schemaElement) THROWS_EXCEPTIONS;
+    /// @param schemaElement CXmlElement*, Schema element
+    void parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS;
 
     /// @brief Generates service definition to output stream
     /// @param usedClasses const CStrings&, List of this service complex types (classes)
@@ -93,7 +93,7 @@ public:
 
     /// @brief Destructor
     virtual ~CWSParser();
-    
+
     /// @brief Clears parsed data
     void clear();
 

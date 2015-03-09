@@ -6,7 +6,9 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     CWSBasicTypes.cpp
     CWSParser.cpp
     CWSParserComplexType.cpp
+    CWSParserSimpleType.cpp
     CWSRequest.cpp
+    CWSRestriction.cpp
     CWSTypeTranslator.cpp
     )
 
