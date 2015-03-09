@@ -41,7 +41,7 @@ namespace sptk {
 class WSType
 {
 protected:
-    CVariant    m_data;
+    CVariant    m_data; ///< Type' data
 public:
     /// @brief Default constructor
     WSType() {}
@@ -219,6 +219,7 @@ public:
 class WSString : public WSType
 {
 public:
+    /// @brief Assignment from string
     WSType& operator = (std::string value)
     {
         m_data = value;
