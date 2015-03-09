@@ -82,15 +82,15 @@ struct CVariantDataBuffer
 /// A money value is quantity / 10^(scale)
 struct CMoneyData
 {
-    static int64_t dividers[16];
-    
-    int64_t      quantity;     ///< Integer value 
-    uint8_t      scale:4;      ///< Scale (1..15)
-    
-    operator double () const;  ///< Convert to double value
-    operator int64_t () const; ///< Convert to integer value
-    operator int32_t () const; ///< Convert to integer value
-    operator bool () const;    ///< Convert to bool value
+    static int64_t dividers[16];///< Dividers that help formatting money data
+
+    int64_t      quantity;      ///< Integer value 
+    uint8_t      scale:4;       ///< Scale (1..15)
+
+    operator double () const;   ///< Convert to double value
+    operator int64_t () const;  ///< Convert to integer value
+    operator int32_t () const;  ///< Convert to integer value
+    operator bool () const;     ///< Convert to bool value
 };
 
 /// @brief Universal data storage.

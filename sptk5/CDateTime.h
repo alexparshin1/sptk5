@@ -91,7 +91,7 @@ public:
     static std::string    timeZoneName;           ///< Time zone abbbreviastion
     static int            timeZoneOffset;         ///< Time zone offset from GMT in hours
 
-    static void tzset();                          ///< Call that function if ::tzset() was called
+    static void tzset();                          ///< Call that function if standard tzset() was called
 
 public:
 

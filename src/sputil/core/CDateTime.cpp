@@ -246,7 +246,7 @@ void CDateTimeFormat::init()
         strftime(dateBuffer,32,"%B",&t);
         CDateTime::monthNames[month] = dateBuffer;
     }
-    tzset();
+    ::tzset();
 #ifdef __BORLANDC__
     const char *ptr = _tzname[0];
 #else
