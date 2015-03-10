@@ -38,23 +38,27 @@ void CWSRequest::processRequest(CXmlDoc* request) THROWS_EXCEPTIONS
         if (!node)
             continue;
         CStrings nameParts(node->name(),":");
-        if (nameParts[1] == "Envelope") {
+        if (nameParts.size() > 1 && nameParts[1] == "Envelope") {
             soapEnvelope = node;
-            m_namespace = nameParts[0];
+            m_namespace = nameParts[0] + ":";
+            break;
+        }
+        else if (node->name() == "Envelope") {
+            soapEnvelope = node;
             break;
         }
     }
     if (!soapEnvelope)
         throwException("Can't find SOAP Envelope node");
 
-    CXmlElement* soapBody = dynamic_cast<CXmlElement*>(soapEnvelope->findFirst(m_namespace + ":Body"));
+    CXmlElement* soapBody = dynamic_cast<CXmlElement*>(soapEnvelope->findFirst(m_namespace + "Body"));
     if (!soapBody)
         throwException("Can't find SOAP Body node in incoming request");
-    
+
     CXmlElement* requestNode = NULL;
     for (CXmlElement::iterator itor = soapBody->begin(); itor != soapBody->end(); itor++) {
         CXmlElement* node = dynamic_cast<CXmlElement*>(*itor);
-        if (node && node->name().find("ns1:") != string::npos) {
+        if (node) {
             requestNode = node;
             break;
         }

@@ -227,17 +227,20 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
         serviceDefinition << "   void process_" << requestName << "(sptk::CXmlElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
     }
     serviceDefinition << "protected:" << endl;
-    serviceDefinition << "   /// @brief SOAP body processor" << endl;
+    serviceDefinition << "   /// @brief Internal SOAP body processor" << endl;
     serviceDefinition << "   ///" << endl;
     serviceDefinition << "   /// Receives incoming SOAP body of Web Service requests, and returns" << endl;
     serviceDefinition << "   /// application response." << endl;
-    serviceDefinition << "   /// @param soapBody sptk::CXmlElement*, Incoming and outgoing SOAP element" << endl;
-    serviceDefinition << "   virtual void requestBroker(sptk::CXmlElement* requestBroker) THROWS_EXCEPTIONS;" << endl;
+    serviceDefinition << "   /// @param requestNode sptk::CXmlElement*, Incoming and outgoing SOAP element" << endl;
+    serviceDefinition << "   virtual void requestBroker(sptk::CXmlElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "   /// @brief Constructor" << endl;
     serviceDefinition << "   " << serviceClassName << "() {}" << endl << endl;
     serviceDefinition << "   /// @brief Destructor" << endl;
     serviceDefinition << "   ~" << serviceClassName << "() {}" << endl << endl;
+    serviceDefinition << "   // Abstract methods below correspond to WSDL-defined operations. " << endl;
+    serviceDefinition << "   // Application must overwrite these methods with processing of corresponding" << endl;
+    serviceDefinition << "   // requests, reading data from input and writing data to output structures." << endl;
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
         CWSOperation& operation = itor->second;
         serviceDefinition << endl;
