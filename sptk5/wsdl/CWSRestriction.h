@@ -41,7 +41,7 @@ namespace sptk {
     public:
         WSRestriction(std::string typeName, CXmlNode* simpleTypeElement);
         WSRestriction(std::string typeName, std::string enumerations, const char* delimiter="|");
-        void check(std::string value);
+        void check(std::string value) const;
         std::string generateConstructor(std::string variableName) const;
     };
 

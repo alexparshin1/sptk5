@@ -48,7 +48,7 @@ WSRestriction::WSRestriction(string typeName, string enumerations, const char* d
 {
 }
 
-void WSRestriction::check(std::string value)
+void WSRestriction::check(std::string value) const
 {
     if (!m_enumerations.empty() && m_enumerations.indexOf(value) == -1)
         throw CException("value '" + value + "' is invalid for restriction on " + m_typeName);

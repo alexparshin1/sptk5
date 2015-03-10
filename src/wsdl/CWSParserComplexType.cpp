@@ -171,6 +171,7 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << endl;
     classDeclaration << "#include <sptk5/sptk.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/CWSBasicTypes.h>" << endl;
+    classDeclaration << "#include <sptk5/wsdl/CWSRestriction.h>" << endl;
     for (set<string>::iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
         classDeclaration << "#include \"" << *itor << ".h\"" << endl;
     classDeclaration << endl;
@@ -245,17 +246,17 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
             CWSParserComplexType* complexType = *itor;
             classImplementation << "      if (element->name() == \"" << complexType->name() << "\") {" << endl;
             if (complexType->m_restriction)
-                classImplementation << "         static const " << complexType->m_restriction->generateConstructor("restriction") << endl;
+                classImplementation << "         static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
             if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE)) {
                 classImplementation << "         " << complexType->className() << "* item = new " << complexType->className() << ";" << endl;
                 classImplementation << "         item->load(element);" << endl;
                 if (complexType->m_restriction)
-                    classImplementation << "         restriction.check(item->asString());" << endl;
+                    classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
                 classImplementation << "         m_" << complexType->name() << ".push_back(item);" << endl;
             } else {
                 classImplementation << "         m_" << complexType->name() << ".load(element);" << endl;
                 if (complexType->m_restriction)
-                    classImplementation << "         restriction.check(item->asString());" << endl;
+                    classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
                 classImplementation << "         continue;" << endl;
             }
             classImplementation << "      }" << endl;
