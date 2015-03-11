@@ -312,7 +312,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
         serviceImplementation << "   CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
         serviceImplementation << "   soapBody->clearChildren();" << endl;
         serviceImplementation << "   " << operationName << "(inputData,outputData);" << endl;
-        serviceImplementation << "   CXmlElement* response = new CXmlElement(soapBody, \"ns1:" << operation.m_output->name() << "\");" << endl;
+        serviceImplementation << "   CXmlElement* response = new CXmlElement(soapBody, (m_namespace + \"" << operation.m_output->name() << "\").c_str());" << endl;
         serviceImplementation << "   outputData.unload(response);" << endl;
         serviceImplementation << "}" << endl << endl;
     }

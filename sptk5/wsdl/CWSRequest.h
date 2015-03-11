@@ -48,7 +48,7 @@ public:
 
     /// @brief Destructor
     virtual ~CWSRequest() {}
-    
+
     /// @brief Processes incoming requests
     ///
     /// The processing results are stored in the same request XML
