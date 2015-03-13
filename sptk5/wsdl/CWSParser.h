@@ -36,10 +36,11 @@ namespace sptk
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
+/// @brief WSDL operation
 struct CWSOperation
 {
-    CWSParserComplexType*   m_input;
-    CWSParserComplexType*   m_output;
+    CWSParserComplexType*   m_input;    ///< WSDL operation input
+    CWSParserComplexType*   m_output;   ///< WSDL operation output
 };
 
 /// @brief Parser of WSDL files
@@ -50,9 +51,16 @@ struct CWSOperation
 class SP_EXPORT CWSParser
 {
 public:
+    /// @brief Map of element names to element objects
     typedef std::map<std::string,CWSParserElement*>     ElementMap;
+    
+    /// @brief Map of complex type names to complex type objects
     typedef std::map<std::string,CWSParserComplexType*> ComplexTypeMap;
+    
+    /// @brief Map of element names to corresponding WSDL (XML) elements
     typedef std::map<std::string,const CXmlElement*>    XmlTypeMap;
+    
+    /// @brief Map of operation names to operation objects
     typedef std::map<std::string,CWSOperation>          OperationMap;
 
 private:
@@ -105,6 +113,8 @@ public:
     /// @param sourceDirectory std::string, Directory to store output classes
     void generate(std::string sourceDirectory=".") THROWS_EXCEPTIONS;
 
+    /// @brief Utility function that removes namespace from the element name
+    /// @param name const std::string&, Element name
     static std::string strip_namespace(const std::string& name);
 };
 
