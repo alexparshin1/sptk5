@@ -76,8 +76,7 @@ void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
         complexType->increaseRefCount();
     }
     m_complexTypes[elementName] = complexType;
-    CWSParserElement* element = new CWSParserElement(elementName, complexType);
-    m_elements[elementName] = element;
+    m_elements[elementName] = complexType;
 }
 
 void CWSParser::parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS
