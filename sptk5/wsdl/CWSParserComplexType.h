@@ -41,46 +41,62 @@ namespace sptk
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
+/// @brief Multiplicity flag
 enum CWSMultiplicity {
-    CWSM_REQUIRED       = 1,
-    CWSM_OPTIONAL       = 2,
-    CWSM_ZERO_OR_MORE   = 4,
-    CWSM_ONE_OR_MORE    = 8
+    CWSM_REQUIRED       = 1,    ///< Element is required
+    CWSM_OPTIONAL       = 2,    ///< Element is optional
+    CWSM_ZERO_OR_MORE   = 4,    ///< Element may occur 0 or more times
+    CWSM_ONE_OR_MORE    = 8     ///< Element may occur one or more times
 };
 
+/// @brief WSDL element attribute
 class CWSParserAttribute
 {
-    std::string     m_name;
-    std::string     m_wsTypeName;
-    std::string     m_cxxTypeName;
-    CWSMultiplicity m_multiplicity;
+    std::string     m_name;         ///< Attribute name
+    std::string     m_wsTypeName;   ///< Attribute type name
+    std::string     m_cxxTypeName;  ///< C++ type name
+    CWSMultiplicity m_multiplicity; ///< Multiplicity flag
 
 public:
+    /// @brief Constructor
+    /// @param name std::string, Attribute name
+    /// @param typeName std::string, Attribute WSDL type name
     CWSParserAttribute(std::string name="", std::string typeName="");
+    
+    /// @brief Copy constructor
+    /// @param const CWSParserAttribute&, Attribute to copy from
     CWSParserAttribute(const CWSParserAttribute& attr);
+    
+    /// @brief Returns attribute name
     std::string name() const { return m_name; }
+    
+    /// @brief Generates attribute presentation in C++ skeleton
     std::string generate() const;
+    
+    /// @brief Returns attribute C++ type name
     std::string cxxTypeName() const { return m_cxxTypeName; }
+    
+    /// @brief Returns attribute WSDL type name
     std::string wsTypeName() const { return m_wsTypeName; }
 };
 
 /// @brief Parses WSDL complexType element
 class CWSParserComplexType
 {
+    /// @brief Map of attribute names to attribute objects
     typedef std::map<std::string,CWSParserAttribute*>   AttributeMap;
-    typedef std::list<CWSParserComplexType*>            ElementList;
-    typedef std::set<std::string>                       UniqueStrings;
-protected:
-    std::string             m_name;
-    std::string             m_typeName;
-    const CXmlElement*      m_element;
-    AttributeMap            m_attributes;
-    ElementList             m_sequence;
-    CWSMultiplicity         m_multiplicity;
-    int                     m_refcount;
-    WSRestriction*          m_restriction;
 
-    static UniqueStrings    m_anonymousTypeNames;
+    /// @brief List of complex type elements
+    typedef std::list<CWSParserComplexType*>            ElementList;
+protected:
+    std::string             m_name;             ///< Element name
+    std::string             m_typeName;         ///< WSDL type name
+    const CXmlElement*      m_element;          ///< XML element for that WSDL element
+    AttributeMap            m_attributes;       ///< Element attributes
+    ElementList             m_sequence;         ///< Child element sequence
+    CWSMultiplicity         m_multiplicity;     ///< Multiplicity flag
+    int                     m_refcount;         ///< Object reference count
+    WSRestriction*          m_restriction;      ///< Element restriction (if any) or NULL
 
     /// @brief Generates C++ class declaration
     void generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS;
@@ -89,6 +105,7 @@ protected:
     void generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS;
 
 public:
+    /// @brief WSDL class name
     static std::string wsClassName(std::string);
 
 public:
@@ -101,16 +118,19 @@ public:
     /// @brief Destructor
     virtual ~CWSParserComplexType();
 
+    /// @brief Returns element reference count
     int refCount()
     {
         return m_refcount;
     }
 
+    /// @brief Increases element reference count
     void increaseRefCount()
     {
         m_refcount++;
     }
 
+    /// @brief Decreases element reference count
     void decreaseRefCount()
     {
         if (m_refcount > 0)
@@ -119,13 +139,16 @@ public:
             throwException("Can't decrease complex type refcount: refcount is less than 1");
     }
 
+    /// @brief WSDL element name
     std::string name() const
     {
         return m_name;
     }
 
+    /// @brief Generated C++ class name
     std::string className() const;
 
+    /// @brief Multiplicity flag
     CWSMultiplicity multiplicity() const
     {
         return m_multiplicity;
@@ -134,25 +157,15 @@ public:
     /// @brief Parses WSDL complexType element
     virtual void parse() THROWS_EXCEPTIONS;
 
+    /// @brief Parses WSDL child sequence
     void parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS;
 
     /// @brief Generates C++ class declaration and implementation
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation) THROWS_EXCEPTIONS;
 };
 
-class CWSParserElement
-{
-public:
-    std::string                 m_name;
-    const CWSParserComplexType* m_complexType;
-public:
-    /// @brief Constructor
-    /// @param name std::string, Element name
-    /// @param complexType const CWSParserComplexType*, Complex type used by element
-    CWSParserElement(std::string name, const CWSParserComplexType* complexType)
-    : m_name(name), m_complexType(complexType)
-    {}
-};
+/// @brief Alias for WSDL complex type
+typedef CWSParserComplexType CWSParserElement;
 
 /// @}
 

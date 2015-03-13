@@ -238,6 +238,7 @@ public:
 class WSTime : public WSType
 {
 public:
+    /// @brief Assignment from string
     WSType& operator = (std::string value)
     {
         m_data = value;

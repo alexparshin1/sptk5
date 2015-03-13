@@ -68,11 +68,11 @@ protected:
     bool                m_terminated;   ///< Flag: is the thread terminated?
 
 public:
-    
+
 #if USE_CXX11
-    typedef std::thread::id Id;
+    typedef std::thread::id Id;         ///< Thread ID type
 #else
-    typedef uint64_t Id;
+    typedef uint64_t Id;                ///< Thread ID type
 #endif
 
     /// @brief Constructor

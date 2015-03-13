@@ -34,16 +34,34 @@
 
 namespace sptk {
 
+    /// @brief WSDL Restriction
     class WSRestriction
     {
-        std::string m_typeName;
-        CStrings    m_enumerations;
+        std::string m_typeName;     ///< WSDL type name
+        CStrings    m_enumerations; ///< List of enumerations if any
     public:
+        /// @brief Constructor from WSDL (XML) definition
+        /// @param typeName std::string, WSDL type name
+        /// @param simpleTypeElement CXmlNode*, Simple type XML node
         WSRestriction(std::string typeName, CXmlNode* simpleTypeElement);
+
+        /// @brief Constructor from WSDL (XML) definition
+        /// @param typeName std::string, WSDL type name
+        /// @param enumerations std::string, Enumerations or empty string
+        /// @param delimiter const char*, Enumerations delimiter
         WSRestriction(std::string typeName, std::string enumerations, const char* delimiter="|");
+        
+        /// @brief Restriction check
+        ///
+        /// Checks value to satisfy restriction.
+        /// If value violates restriction, throws exception.
+        /// @param value std::string, Value to check
         void check(std::string value) const;
+        
+        /// @brief Generates restriction constructor for C++ skeleton
         std::string generateConstructor(std::string variableName) const;
     };
 
 }
 #endif
+

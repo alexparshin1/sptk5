@@ -34,8 +34,6 @@
 using namespace std;
 using namespace sptk;
 
-CWSParserComplexType::UniqueStrings CWSParserComplexType::m_anonymousTypeNames;
-
 CWSParserAttribute::CWSParserAttribute(std::string name, std::string typeName)
 :   m_name(name),
     m_wsTypeName(typeName),
