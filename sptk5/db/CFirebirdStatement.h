@@ -43,28 +43,35 @@ namespace sptk
 
 class CFirebirdConnection;
 
-class CFirebirdBindBuffers {
-    size_t  m_size;
-    XSQLDA* m_sqlda;
-    short*  m_cbNulls;
+/// @brief Firebird-specific bind buffers
+class CFirebirdBindBuffers
+{
+    size_t  m_size;     ///< Buffer count
+    XSQLDA* m_sqlda;    ///< Buffers structure
+    short*  m_cbNulls;  ///< Null flags (callback)
 public:
+    /// @brief Constructor
     CFirebirdBindBuffers()
     : m_size(0), m_sqlda(NULL), m_cbNulls(NULL)
     {
         resize(16);
     }
 
+    /// @brief Destructor
     ~CFirebirdBindBuffers()
     {
         free(m_sqlda);
         free(m_cbNulls);
     }
     
+    /// @brief Returns buffer structure
     XSQLDA& sqlda()
     {
         return *m_sqlda;
     }
     
+    /// @brief Resize bind buffers
+    /// @param size size_t, New size of buffer array
     void resize(size_t size)
     {
         if (size < 1)
@@ -81,23 +88,26 @@ public:
             m_sqlda->sqlvar[i].sqlind = cbNull;
     }
     
+    /// @brief Returns individual buffer
     XSQLVAR& operator [] (size_t index)
     {
         return m_sqlda->sqlvar[index];
     }
     
+    /// @brief Returns number of buffers
     size_t size() const
     {
         return m_size;
     }
 };
 
+/// @brief Firebird SQL statement
 class CFirebirdStatement : public CDatabaseStatement<CFirebirdConnection,isc_stmt_handle>
 {
-    CFirebirdBindBuffers    m_outputBuffers;
-    CFirebirdBindBuffers    m_paramBuffers;
-    ISC_STATUS              m_status_vector[20];
-    CBuffer                 m_blobData;
+    CFirebirdBindBuffers    m_outputBuffers;        ///< Output result buffers
+    CFirebirdBindBuffers    m_paramBuffers;         ///< Parameter buffers
+    ISC_STATUS              m_status_vector[20];    ///< Execution result
+    CBuffer                 m_blobData;             ///< BLOB fetch buffer
     
 public:
 
@@ -169,3 +179,4 @@ public:
 }
 
 #endif
+

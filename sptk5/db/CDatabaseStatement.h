@@ -107,11 +107,13 @@ public:
     /// @brief Fetches next record
     virtual void fetch() = 0;
 
+    /// @brief Returns true if recordset is in EOF state
     bool eof() const
     {
         return m_state.eof;
     }
 
+    /// @brief Returns recordset number of columns
     unsigned colCount() const
     {
         return m_state.columnCount;
@@ -121,3 +123,4 @@ public:
 }
 
 #endif
+
