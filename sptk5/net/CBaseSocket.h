@@ -118,6 +118,8 @@ public:
     /// @brief Destructor
     virtual ~CBaseSocket();
 
+    /// @brief Set blocking mode
+    /// @param blocking bool, socket blocking mode flag
     void blockingMode(bool blocking) THROWS_EXCEPTIONS;
 
     /// @brief Returns number of bytes available in socket
