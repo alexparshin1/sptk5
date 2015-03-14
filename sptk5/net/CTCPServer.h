@@ -41,9 +41,9 @@ class CTCPServer;
 /// @brief Internal TCP server listener thread
 class CTCPServerListener: public CThread
 {
-    CTCPServer*		m_server;
-    CTCPSocket		m_listenerSocket;
-    std::string		m_error;
+    CTCPServer*     m_server;
+    CTCPSocket      m_listenerSocket;
+    std::string     m_error;
 public:
     /// @brief Constructor
     /// @param port int, Listener port number
@@ -51,6 +51,11 @@ public:
 
     /// @brief Thread function.
     virtual void threadFunction();
+
+    void listen()
+    {
+        m_listenerSocket.listen();
+    }
 
     std::string error() const
     {
@@ -75,13 +80,13 @@ public:
     {
         m_socket.attach(connectionSocket);
     }
-	    
+
     /// @brief Destructor
     virtual ~CTCPConnection();
 
     /// @brief Thread function
     virtual void threadFunction() = 0;
-    
+
     /// @brief Method that is called upon thread exit
     virtual void onThreadExit();
 };
@@ -96,7 +101,7 @@ class CTCPServer: public CSynchronized
 {
     friend class CTCPServerListener;
     friend class CTCPConnection;
-    CThread*                    m_listenerThread;
+    CTCPServerListener*         m_listenerThread;
     std::set<CTCPConnection*>   m_connectionThreads;
     CSynchronized               m_connectionThreadsLock;
 protected:

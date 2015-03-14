@@ -51,7 +51,6 @@ CTCPServerListener::CTCPServerListener(CTCPServer* server, int port)
 void CTCPServerListener::threadFunction()
 {
     try {
-        m_listenerSocket.listen();
         while (!terminated()) {
             if (m_listenerSocket.readyToRead(1000)) {
                 SOCKET connectionFD;
@@ -92,6 +91,7 @@ void CTCPServer::listen(int port)
     if (m_listenerThread)
         throwException("Server already listens");
     m_listenerThread = new CTCPServerListener(this, port);
+    m_listenerThread->listen();
     m_listenerThread->run();
 }
 
