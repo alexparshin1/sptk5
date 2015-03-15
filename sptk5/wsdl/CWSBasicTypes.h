@@ -61,7 +61,7 @@ public:
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
     /// @param name std::string, New element tag name
-    CXmlElement* addElement(CXmlElement* parent, std::string name);
+    CXmlElement* addElement(CXmlElement* parent, std::string name) const;
 };
 
 /// @brief Wrapper for WSDL bool type

@@ -45,7 +45,7 @@ std::string WSType::asString() const
     return m_data;
 }
 
-CXmlElement* WSType::addElement(CXmlElement* parent, std::string name)
+CXmlElement* WSType::addElement(CXmlElement* parent, std::string name) const
 {
     CXmlElement* element = new CXmlElement(*parent, name);
     element->text(m_data);
