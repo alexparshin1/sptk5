@@ -103,6 +103,9 @@ public:
 class WSDate : public WSType
 {
 public:
+    /// @brief Destructor
+    virtual ~WSDate() {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -134,6 +137,9 @@ public:
 class WSDateTime : public WSType
 {
 public:
+    /// @brief Destructor
+    virtual ~WSDateTime() {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -165,6 +171,9 @@ public:
 class WSDouble : public WSType
 {
 public:
+    /// @brief Destructor
+    virtual ~WSDouble() {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -192,6 +201,9 @@ public:
 class WSInteger : public WSType
 {
 public:
+    /// @brief Destructor
+    virtual ~WSInteger() {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -219,6 +231,9 @@ public:
 class WSString : public WSType
 {
 public:
+    /// @brief Destructor
+    virtual ~WSString() {}
+
     /// @brief Assignment from string
     WSType& operator = (std::string value)
     {
@@ -238,6 +253,9 @@ public:
 class WSTime : public WSType
 {
 public:
+    /// @brief Destructor
+    virtual ~WSTime() {}
+
     /// @brief Assignment from string
     WSType& operator = (std::string value)
     {
