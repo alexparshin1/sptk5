@@ -72,7 +72,6 @@ ELSE (WIN32)
     ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   ENDIF()
 
-  ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   LINK_LIBRARIES(pthread rt dl)
 ENDIF (WIN32)
 
