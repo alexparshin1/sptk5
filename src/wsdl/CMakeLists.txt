@@ -4,6 +4,7 @@ ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     CWSBasicTypes.cpp
+    CWSComplexType.cpp
     CWSParser.cpp
     CWSParserComplexType.cpp
     CWSRequest.cpp

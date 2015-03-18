@@ -169,13 +169,14 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << endl;
     classDeclaration << "#include <sptk5/sptk.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/CWSBasicTypes.h>" << endl;
+    classDeclaration << "#include <sptk5/wsdl/CWSComplexType.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/CWSRestriction.h>" << endl;
     for (set<string>::iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
         classDeclaration << "#include \"" << *itor << ".h\"" << endl;
     classDeclaration << endl;
 
     classDeclaration << "/// @brief WSDL complex type class " << className << endl;
-    classDeclaration << "class " << className << endl;
+    classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
     classDeclaration << "public:" << endl;
     if (m_sequence.size()) {
@@ -201,17 +202,13 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "   /// @brief Constructor" << endl;
     classDeclaration << "   " << className << "() {}" << endl << endl;
     classDeclaration << "   /// @brief Destructor" << endl;
-    classDeclaration << "   ~" << className << "();" << endl << endl;
+    classDeclaration << "   virtual ~" << className << "();" << endl << endl;
     classDeclaration << "   /// @brief Loads " << className << " from XML node" << endl;
     classDeclaration << "   /// @param input const sptk::CXmlElement*, XML node containing " << className << " data" << endl;
     classDeclaration << "   void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS;" << endl << endl;
     classDeclaration << "   /// @brief Unloads " << className << " to existing XML node" << endl;
     classDeclaration << "   /// @param output sptk::CXmlElement*, existing XML node" << endl << endl;
     classDeclaration << "   void unload(sptk::CXmlElement* output) const THROWS_EXCEPTIONS;" << endl;
-    classDeclaration << "   /// @brief Unloads " << className << " to new XML node" << endl;
-    classDeclaration << "   /// @param parent sptk::CXmlElement*, parent XML node where new node is created" << endl << endl;
-    classDeclaration << "   /// @param name std::string, new XML node name" << endl << endl;
-    classDeclaration << "   void addElement(sptk::CXmlElement* parent, std::string name) const THROWS_EXCEPTIONS;" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "#endif" << endl;
@@ -274,12 +271,6 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     }
     classImplementation << "}" << endl << endl;
 
-    // Unloader to new node
-    classImplementation << "void " << className << "::addElement(CXmlElement* parent, std::string name) const THROWS_EXCEPTIONS" << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "   unload(new CXmlElement(parent, name.c_str()));" << endl;
-    classImplementation << "}" << endl << endl;
-
     // Unloader
     classImplementation << "void " << className << "::unload(CXmlElement* output) const THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
@@ -298,16 +289,10 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
                 classImplementation << "   for (vector<" << complexType->className() << "*>::const_iterator itor = m_" << complexType->name() << ".begin(); "
                                     << " itor != m_" << complexType->name() << ".end(); itor++) {" << endl;
                 classImplementation << "      " << complexType->className() << "* item = *itor;" << endl;
-                if (complexType->className().find("sptk::") == 0)
-                    classImplementation << "      item->addElement(output,\"" << complexType->name() << "\");" << endl;
-                else
-                    classImplementation << "      item->unload(new CXmlElement(output, \"" << complexType->name() << "\"));" << endl;
+                classImplementation << "      item->addElement(output,\"" << complexType->name() << "\");" << endl;
                 classImplementation << "   }" << endl;
             } else {
-                if (complexType->className().find("sptk::") == 0)
-                    classImplementation << "   m_" << complexType->name() << ".addElement(output,\"" << complexType->name() << "\");" << endl;
-                else
-                    classImplementation << "   m_" << complexType->name() << ".unload(new CXmlElement(output, \"" << complexType->name() << "\"));" << endl;
+                classImplementation << "   m_" << complexType->name() << ".addElement(output,\"" << complexType->name() << "\");" << endl;
             }
         }
     }
@@ -319,3 +304,4 @@ void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImp
     generateDefinition(classDeclaration);
     generateImplementation(classImplementation);
 }
+
