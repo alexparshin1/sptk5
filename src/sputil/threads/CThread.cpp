@@ -117,8 +117,10 @@ void CThread::join()
     if (m_thread.joinable())
         m_thread.join();
 #else
-    if (m_thread)
+    if (m_thread) {
         pthread_join(m_thread, 0);
+        m_thread = NULL;
+    }
 #endif
 }
 

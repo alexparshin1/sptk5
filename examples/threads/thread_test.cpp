@@ -60,9 +60,10 @@ void CMyThread::threadFunction()
 
     unsigned counter = 0;
     while (!terminated()) {
-        m_log << "Output " << counter << " from " << name() << endl;
+        m_log << "Output (1) " << counter << " from " << name() << endl;
+        m_log << "Output (2) " << counter << " from " << name() << endl;
         counter++;
-        msleep(100);
+        //msleep(1);
     }
 
     m_log << name() << " is terminated" << endl;
@@ -95,8 +96,8 @@ int main()
     for (i = 0; i < threads.size(); i++)
         threads[i]->run();
 
-    puts("Waiting 2 seconds while threads are running..");
-    CThread::msleep(2000);
+    puts("Waiting 1 second while threads are running..");
+    CThread::msleep(1000);
 
     log << "Sending 'terminate' signal to all the threads." << endl;
     // That signal suggests thread to terminate and exits ASAP.

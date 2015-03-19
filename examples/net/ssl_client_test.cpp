@@ -37,36 +37,22 @@ int main(int, const char**)
 {
     try {
         COpenSSLContext sslContext;
-        sslContext.loadKeys("keys/private/client-key.pem", "keys/certs/client.pem", "password", "keys/cacert.pem");
+        sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
 
         COpenSSLSocket client(sslContext);
+        CBuffer buffer;
 
-        client.open("localhost", 3000);
-        //client.open("atl0901.zonarsystems.net", 443);
+        for (unsigned i = 0; i < 10; i++) {
+            client.open("localhost", 443);
 
-        client.blockingMode(false);
-        cout << "Connected\n";
+            client.write("GET /\n",6);
+            client.readLine(buffer, '\n');
+            cout << "Receiving: ";
+            cout << buffer.data() << "\n";
+            client.close();
+            sleep(3);
+        }
 
-        CBuffer buffer(1024);
-
-        client.write("GET /\n",6);
-        client.readLine(buffer, '\n');
-        cout << "Receiving: ";
-        cout << buffer.data() << "\n";
-
-        string data = "Several copies of a single string";
-        cout << "Sending: test data\n";
-        client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
-
-        cout << "Sending: end data\n";
-        client.write("EOD\n");
-
-        client.readLine(buffer, '\n');
-        cout << "Receiving: ";
-        cout << buffer.data() << "\n";
-
-        cout << "Sending: end session\n";
-        client.write("EOS\n");
     } catch (exception& e) {
         cout << "Exception was caught: ";
         cout << e.what() << "\nExiting.\n";
