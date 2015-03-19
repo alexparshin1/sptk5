@@ -4,7 +4,7 @@
                              -------------------
     begin                : Mon Jan 30 2006
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
- 
+
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
     for defining the requirements for this class.
@@ -54,8 +54,8 @@ CLogStreamBuf::CLogStreamBuf()
 
 streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
 {
-    SYNCHRONIZED_CODE;
-    
+    //SYNCHRONIZED_CODE;
+
     bool bufferOverflow = m_bytes > m_size - 2;
     bool lineBreak = c <= 13;
 

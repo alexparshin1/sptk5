@@ -93,7 +93,7 @@ enum CLogPriority {
 };
 
 /// @brief Internal buffer for the CLogStream class
-class SP_EXPORT CLogStreamBuf: public CSynchronized, public std::streambuf
+class SP_EXPORT CLogStreamBuf: public std::streambuf //, public CSynchronized
 {
     friend class CBaseLog;
 private:
@@ -110,7 +110,7 @@ protected:
     /// @param par CBaseLog *, parent log object
     void parent(CBaseLog *par)
     {
-        SYNCHRONIZED_CODE;
+        //SYNCHRONIZED_CODE;
         m_parent = par;
     }
 
@@ -130,8 +130,7 @@ public:
     /// then releases the allocated memory
     ~CLogStreamBuf()
     {
-        //flush();
-        SYNCHRONIZED_CODE;
+        //SYNCHRONIZED_CODE;
         free(m_buffer);
     }
 
@@ -148,7 +147,7 @@ public:
     /// @param prt CLogPriority, current message priority
     void priority(CLogPriority prt)
     {
-        SYNCHRONIZED_CODE;
+        //SYNCHRONIZED_CODE;
         m_priority = prt;
     }
 };
