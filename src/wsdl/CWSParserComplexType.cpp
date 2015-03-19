@@ -205,10 +205,10 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "   virtual ~" << className << "();" << endl << endl;
     classDeclaration << "   /// @brief Loads " << className << " from XML node" << endl;
     classDeclaration << "   /// @param input const sptk::CXmlElement*, XML node containing " << className << " data" << endl;
-    classDeclaration << "   void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS;" << endl << endl;
+    classDeclaration << "   virtual void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS;" << endl << endl;
     classDeclaration << "   /// @brief Unloads " << className << " to existing XML node" << endl;
     classDeclaration << "   /// @param output sptk::CXmlElement*, existing XML node" << endl << endl;
-    classDeclaration << "   void unload(sptk::CXmlElement* output) const THROWS_EXCEPTIONS;" << endl;
+    classDeclaration << "   virtual void unload(sptk::CXmlElement* output) const THROWS_EXCEPTIONS;" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "#endif" << endl;
