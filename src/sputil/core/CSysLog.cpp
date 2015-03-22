@@ -128,16 +128,17 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
     }
 
     if (m_options & CLO_STDOUT) {
+        string messagePrefix;
         if (m_options & CLO_DATE)
-            cout << date.dateString() << " ";
+            messagePrefix += date.dateString() + " ";
 
         if (m_options & CLO_TIME)
-            cout << date.timeString(true) << " ";
+            messagePrefix += date.timeString(true) + " ";
 
         if (m_options & CLO_PRIORITY)
-            cout << "[" << priorityName(priority) << "] ";
+            messagePrefix += "[" + priorityName(priority) + "] ";
 
-        cout << message << endl;
+        cout << messagePrefix + message + "\n";
     }
 }
 

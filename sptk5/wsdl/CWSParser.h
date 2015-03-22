@@ -53,21 +53,25 @@ class SP_EXPORT CWSParser
 public:
     /// @brief Map of element names to element objects
     typedef std::map<std::string,CWSParserElement*>     ElementMap;
-    
+
     /// @brief Map of complex type names to complex type objects
     typedef std::map<std::string,CWSParserComplexType*> ComplexTypeMap;
-    
+
     /// @brief Map of element names to corresponding WSDL (XML) elements
     typedef std::map<std::string,const CXmlElement*>    XmlTypeMap;
-    
+
     /// @brief Map of operation names to operation objects
     typedef std::map<std::string,CWSOperation>          OperationMap;
 
+    /// @brief Map of operation names to operation objects
+    typedef std::map<std::string,std::string>          DocumentationMap;
+
 private:
-    std::string     m_serviceName;      ///< Service name, defining service class name and source file names
-    ElementMap      m_elements;         ///< Map of all elements
-    ComplexTypeMap  m_complexTypes;     ///< Map of all parsed complex types
-    OperationMap    m_operations;       ///< Map of all operations
+    std::string         m_serviceName;      ///< Service name, defining service class name and source file names
+    ElementMap          m_elements;         ///< Map of all elements
+    ComplexTypeMap      m_complexTypes;     ///< Map of all parsed complex types
+    OperationMap        m_operations;       ///< Map of all operations
+    DocumentationMap    m_documentation;    ///< Map of all operation documentation if any
 
 protected:
     /// @brief Parses xsd:element nodes directly under xsd:schema

@@ -69,6 +69,7 @@ public:
 /// to use with CTCPServer as connection template
 class CTCPConnection: public CThread
 {
+    friend class CTCPServer;
 protected:
     CTCPSocket      m_socket;
     CTCPServer*     m_server;

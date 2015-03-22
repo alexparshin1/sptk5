@@ -107,11 +107,11 @@ void CWSParser::parseOperation(CXmlElement* operationNode) THROWS_EXCEPTIONS
         CXmlElement* message = dynamic_cast<CXmlElement*>(*itor);
         CXmlNode* part = message->findFirst("wsdl:part");
         string messageName = message->getAttribute("name").c_str();
-        string elementName = part->getAttribute("element").c_str();
-        size_t pos = elementName.find(":");
-        if (pos != string::npos)
-            elementName = elementName.substr(pos + 1);
+        string elementName = strip_namespace(part->getAttribute("element"));
         messageToElementMap[messageName] = elementName;
+        CXmlNode* documentationNode = part->findFirst("wsdl:documentation");
+        if (documentationNode)
+            m_documentation[elementName] = documentationNode->text();
     }
 
     CWSOperation operation;
@@ -245,7 +245,13 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
         serviceDefinition << endl;
         serviceDefinition << "   /// @brief Web Service " << itor->first << " operation" << endl;
         serviceDefinition << "   ///" << endl;
-        serviceDefinition << "   /// Abstract method, must be overwritten by derived Web Service implementation class." << endl;
+        string documentation = m_documentation[operation.m_input->name()];
+        if (!documentation.empty()) {
+            CStrings documentationRows(documentation, "\n");
+            for (unsigned i = 0; i < documentationRows.size(); i++)
+                serviceDefinition << "   /// " << documentationRows[i] << endl;
+        }
+        serviceDefinition << "   /// This method is abstract and must be overwritten by derived Web Service implementation class." << endl;
         serviceDefinition << "   /// @param input " << operation.m_input->className() << "&, Operation input data" << endl;
         serviceDefinition << "   /// @param output " << operation.m_output->className() << "&, Operation response data" << endl;
         serviceDefinition

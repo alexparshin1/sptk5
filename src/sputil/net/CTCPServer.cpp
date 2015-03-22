@@ -104,12 +104,13 @@ void CTCPServer::stop()
 
         for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
             (*itor)->terminate();
-    }
-    for (;;) {
-        CThread::msleep(100);
-        CSynchronizedCode   m_sync(m_connectionThreadsLock);
-        if (m_connectionThreads.empty())
-            break;
+
+        for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++) {
+            (*itor)->join();
+            delete *itor;
+        }
+
+        m_connectionThreads.clear();
     }
 
     if (m_listenerThread) {
@@ -124,12 +125,13 @@ void CTCPServer::registerConnection(CTCPConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
-    cout << "Connection created" << endl;
+    connection->m_server = this;
+    //cout << "Connection created" << endl;
 }
 
 void CTCPServer::unregisterConnection(CTCPConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);
-    cout << "Connection closed" << endl;
+    //cout << "Connection closed" << endl;
 }

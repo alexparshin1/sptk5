@@ -42,6 +42,7 @@ namespace sptk {
         CThread* th = (CThread*) athread;
         try {
             th->threadFunction();
+            th->onThreadExit();
         }
         catch (exception& e) {
             cerr << "Exception in thread '" << th->name() << "': " << e.what() << endl;
@@ -130,6 +131,7 @@ void CThread::runThread()
     m_id = pthread_self();
     try {
         threadFunction();
+        onThreadExit();
     }
     catch (exception& e) {
         cerr << "Exception in thread '" << m_name << "': " << e.what() << endl;

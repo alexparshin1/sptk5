@@ -64,7 +64,7 @@ protected:
     uint64_t            m_id;           ///< Thread id
     pthread_t           m_thread;       ///< Thread handle
     CSynchronized       m_mutex;        ///< Thread synchronization object
-#endif    
+#endif
     bool                m_terminated;   ///< Flag: is the thread terminated?
 
 public:
@@ -90,6 +90,9 @@ public:
 
     /// @brief Requests to terminate the thread
     virtual void terminate();
+
+    /// @brief This method is executed immediately after thread function exit
+    virtual void onThreadExit() {}
 
     /// @brief Returns true if the thread is terminated
     bool terminated();
