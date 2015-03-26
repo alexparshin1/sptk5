@@ -79,10 +79,19 @@ void CTCPServerListener::threadFunction()
     }
 }
 
+void CTCPServerListener::terminate()
+{
+    CThread::terminate();
+    m_listenerSocket.close();
+}
+
 void CTCPConnection::onThreadExit()
 {
-    m_server->unregisterConnection(this);
-    delete this;
+    try {
+        m_server->unregisterConnection(this);
+        delete this;
+    }
+    catch (...) {}
 }
 
 void CTCPServer::listen(int port)
@@ -100,17 +109,18 @@ void CTCPServer::stop()
     SYNCHRONIZED_CODE;
     {
         CSynchronizedCode   m_sync(m_connectionThreadsLock);
+
         set<CTCPConnection*>::iterator itor;
 
         for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
             (*itor)->terminate();
+    }
 
-        for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++) {
-            (*itor)->join();
-            delete *itor;
-        }
-
-        m_connectionThreads.clear();
+    while (true) {
+        CThread::msleep(100);
+        CSynchronizedCode   m_sync(m_connectionThreadsLock);
+        if (m_connectionThreads.empty())
+            break;
     }
 
     if (m_listenerThread) {

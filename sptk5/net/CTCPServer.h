@@ -51,6 +51,7 @@ public:
 
     /// @brief Thread function.
     virtual void threadFunction();
+    virtual void terminate();
 
     void listen()
     {
