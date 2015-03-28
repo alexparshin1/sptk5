@@ -203,6 +203,8 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "   " << className << "() {}" << endl << endl;
     classDeclaration << "   /// @brief Destructor" << endl;
     classDeclaration << "   virtual ~" << className << "();" << endl << endl;
+    classDeclaration << "   /// @brief Clears content and releases allocated memory" << endl;
+    classDeclaration << "   virtual void clear();" << endl << endl;
     classDeclaration << "   /// @brief Loads " << className << " from XML node" << endl;
     classDeclaration << "   /// @param input const sptk::CXmlElement*, XML node containing " << className << " data" << endl;
     classDeclaration << "   virtual void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS;" << endl << endl;
@@ -229,7 +231,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     classImplementation << "}" << endl << endl;
 
     // Clear content
-    classImplementation << className << "::clear()" << endl;
+    classImplementation << "void " << className << "::clear()" << endl;
     classImplementation << "{" << endl;
     for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
         CWSParserComplexType* complexType = *itor;

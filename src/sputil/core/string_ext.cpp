@@ -153,10 +153,10 @@ string int2string (uint32_t value)
 string int2string (int64_t value)
 {
     char buff[128];
-#if BITNESS == 64
+#ifdef _WIN32
     sprintf (buff,"%lli",value);
 #else
-    sprintf (buff,"%lli",value);
+    sprintf (buff,"%li",value);
 #endif
     return buff;
 }
@@ -164,10 +164,10 @@ string int2string (int64_t value)
 string int2string (uint64_t value)
 {
     char buff[128];
-#if BITNESS == 64
-    sprintf (buff,"%lu",value);
-#else
+#ifdef _WIN32
     sprintf (buff,"%llu",value);
+#else
+    sprintf (buff,"%lu",value);
 #endif
     return buff;
 }
