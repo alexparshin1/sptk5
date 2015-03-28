@@ -100,13 +100,17 @@ struct CCallStatistic
 /// The map index is the query creation location in (file:line) format
 typedef std::map<std::string, CCallStatistic> CCallStatisticMap;
 
+/// @brief Column type and size structure
 struct CColumnTypeSize
 {
-    CVariantType    type;
-    size_t          length;
+    CVariantType    type;   ///< Column type
+    size_t          length; ///< Column data size
 };
 
+/// @brief Vector of column type and size structures
 typedef std::vector<CColumnTypeSize> CColumnTypeSizeVector;
+
+/// @brief Map of column names to column type and size structures
 typedef std::map<std::string,CColumnTypeSize> CColumnTypeSizeMap;
 
 /// @brief Database connector
@@ -119,14 +123,15 @@ class SP_EXPORT CDatabaseConnection: public CSynchronized
     friend class CQuery;
 
 public:
+    /// @brief Database connection type
     enum Type {
-        DCT_UNKNOWN=0,
-        DCT_MYSQL=1,
-        DCT_ORACLE=2,
-        DCT_POSTGRES=4,
-        DCT_SQLITE3=8,
-        DCT_ODBC=16,
-        DCT_FIREBIRD=32
+        DCT_UNKNOWN=0,      ///< Unknown
+        DCT_MYSQL=1,        ///< MySQL
+        DCT_ORACLE=2,       ///< Oracle
+        DCT_POSTGRES=4,     ///< PostgreSQL
+        DCT_SQLITE3=8,      ///< SQLite3
+        DCT_ODBC=16,        ///< Generic ODBC
+        DCT_FIREBIRD=32     ///< Firebird
     };
 
 protected:
@@ -343,6 +348,7 @@ public:
     /// @param tableName std::string, table name to insert into
     /// @param columnNames const CStrings&, list of table columns to populate
     /// @param data const CStrings&, data for bulk insert
+    /// @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
     virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") THROWS_EXCEPTIONS;
 };
 /// @}

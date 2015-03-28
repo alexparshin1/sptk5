@@ -41,18 +41,18 @@ namespace sptk
 
 class COracleConnection;
 
-class COracleStatement 
+class COracleStatement
 : public CDatabaseStatement<COracleConnection,oracle::occi::Statement>
 {
 public:
-    typedef oracle::occi::Connection    Connection;
-    typedef oracle::occi::Statement     Statement;
-    typedef oracle::occi::ResultSet     ResultSet;
-    typedef oracle::occi::MetaData      MetaData;
+    typedef oracle::occi::Connection    Connection; ///< Oracle connection type
+    typedef oracle::occi::Statement     Statement;  ///< Oracle statement type
+    typedef oracle::occi::ResultSet     ResultSet;  ///< Oracle result set type
+    typedef oracle::occi::MetaData      MetaData;   ///< Oracle result set metdata type
 private:
-    Statement*          m_createClobStatement;  ///< Statement for creating CLOBs
-    Statement*          m_createBlobStatement;  ///< Statement for creating BLOBs
-    ResultSet*          m_resultSet;            ///< Result set (if returned by statement)
+    Statement*          m_createClobStatement;      ///< Statement for creating CLOBs
+    Statement*          m_createBlobStatement;      ///< Statement for creating BLOBs
+    ResultSet*          m_resultSet;                ///< Result set (if returned by statement)
 
     /// @brief Sets character data to a CLOB parameter
     /// @param parameterIndex uint32_t, Parameter index
@@ -98,6 +98,7 @@ public:
         }
     }
 
+    /// @brief Returns result set (if returned by a statement)
     ResultSet* resultSet()
     {
         return m_resultSet;

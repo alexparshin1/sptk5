@@ -49,15 +49,19 @@ public:
     /// @param port int, Listener port number
     CTCPServerListener(CTCPServer* server, int port);
 
-    /// @brief Thread function.
+    /// @brief Thread function
     virtual void threadFunction();
+
+    /// @brief Custom thread terminate method
     virtual void terminate();
 
+    /// @brief Start socket listening
     void listen()
     {
         m_listenerSocket.listen();
     }
 
+    /// @brief Returns latest socket error (if any)
     std::string error() const
     {
         return m_error;
