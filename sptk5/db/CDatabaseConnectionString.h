@@ -62,6 +62,7 @@ namespace sptk
 class SP_EXPORT CDatabaseConnectionString
 {
 public:
+    /// @brief Connection string parameters
     typedef std::map<std::string,std::string> Parameters;
 
 protected:

@@ -48,7 +48,10 @@ namespace sptk
 /// @addtogroup Database Database Support
 /// @{
 
+/// @brief Create driver instance function type
 typedef CDatabaseConnection* CCreateDriverInstance(const char*);
+
+/// @brief Destroy driver instance function type
 typedef void CDestroyDriverInstance(CDatabaseConnection*);
 
 #ifdef WIN32
