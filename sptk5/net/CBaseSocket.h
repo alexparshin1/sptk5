@@ -159,7 +159,7 @@ public:
     /// @brief Opens the server socket connection on port (binds/listens)
     /// @param portNumber uint32_t, the port number
     void listen(uint32_t portNumber = 0);
-    
+
     /// @brief In server mode, waits for the incoming connection.
     ///
     /// When incoming connection is made, exits returning the connection info
@@ -237,11 +237,13 @@ public:
 
     /// @brief Writes data to the socket
     /// @param buffer const CBuffer&, the memory buffer
+    /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
     virtual size_t write(const CBuffer& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Writes data to the socket
     /// @param buffer const std::string&, the memory buffer
+    /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
     virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
