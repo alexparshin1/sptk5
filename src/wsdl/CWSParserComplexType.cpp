@@ -225,9 +225,15 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     // Destructor
     classImplementation << className << "::~" << className << "()" << endl;
     classImplementation << "{" << endl;
+    classImplementation << "   clear();" << endl;
+    classImplementation << "}" << endl << endl;
+
+    // Clear content
+    classImplementation << className << "::clear()" << endl;
+    classImplementation << "{" << endl;
     for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
         CWSParserComplexType* complexType = *itor;
-        if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE)) {
+        if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE | CWSM_ONE_OR_MORE)) {
             classImplementation << "   for (vector<" << complexType->className() << "*>::iterator itor = m_" << complexType->name() << ".begin(); itor != m_" << complexType->name() << ".end(); itor++)" << endl;
             classImplementation << "      delete *itor;" << endl;
         }
@@ -245,6 +251,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         }
     }
     if (m_sequence.size()) {
+        classImplementation << "   clear();" << endl;
         classImplementation << "   // Load elements" << endl;
         classImplementation << "   for (CXmlElement::const_iterator itor = input->begin(); itor != input->end(); itor++) {" << endl;
         classImplementation << "      CXmlElement* element = (CXmlElement*) *itor;" << endl;

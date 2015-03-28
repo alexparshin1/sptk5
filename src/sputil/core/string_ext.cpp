@@ -154,7 +154,7 @@ string int2string (int64_t value)
 {
     char buff[128];
 #if BITNESS == 64
-    sprintf (buff,"%li",value);
+    sprintf (buff,"%lli",value);
 #else
     sprintf (buff,"%lli",value);
 #endif
