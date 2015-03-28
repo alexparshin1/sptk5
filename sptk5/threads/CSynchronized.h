@@ -39,7 +39,7 @@
 
 namespace sptk {
 
-/// @addtogroup threads Threads Classes
+/// @addtogroup threads Thread Classes
 /// @{
 
 /// @brief Synchronization object
@@ -54,7 +54,7 @@ class SP_EXPORT CSynchronized
     /// @param timeoutMS int, timeout in milliseconds
     /// @return 0 on success or -1 on timeout or error
     int msleepUnlocked(int timeoutMS);
-    
+
 protected:
 
 #if USE_CXX11

@@ -34,7 +34,7 @@
 
 namespace sptk {
 
-/// @addtogroup threads Threads Classes
+/// @addtogroup threads Thread Classes
 /// @{
 
 /// @brief Thread event interface

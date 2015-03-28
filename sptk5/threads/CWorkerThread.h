@@ -35,7 +35,7 @@
 
 namespace sptk {
 
-/// @addtogroup threads Threads Classes
+/// @addtogroup threads Thread Classes
 /// @{
 
 /// @brief Worker thread for thread manager

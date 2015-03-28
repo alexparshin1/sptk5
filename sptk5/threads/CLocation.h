@@ -32,7 +32,7 @@
 
 namespace sptk {
 
-/// @addtogroup threads Threads Classes
+/// @addtogroup threads Thread Classes
 /// @{
 
 /// @brief Location object
