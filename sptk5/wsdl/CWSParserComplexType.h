@@ -64,7 +64,7 @@ public:
     CWSParserAttribute(std::string name="", std::string typeName="");
     
     /// @brief Copy constructor
-    /// @param const CWSParserAttribute&, Attribute to copy from
+    /// @param attr const CWSParserAttribute&, Attribute to copy from
     CWSParserAttribute(const CWSParserAttribute& attr);
     
     /// @brief Returns attribute name

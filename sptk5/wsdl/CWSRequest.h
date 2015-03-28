@@ -40,7 +40,14 @@ namespace sptk
 class CWSRequest
 {
 protected:
-    std::string m_namespace;
+    std::string m_namespace;    ///< Detected request namespace
+
+    /// @brief Internal SOAP body processor
+    ///
+    /// Receives incoming SOAP body of Web Service requests, and returns
+    /// application response.
+    /// This method is abstract and overwritten in derived generated classes.
+    /// @param requestNode sptk::CXmlElement*, Incoming and outgoing SOAP element
     virtual void requestBroker(CXmlElement* requestNode) THROWS_EXCEPTIONS = 0;
 public:
     /// @brief Constructor

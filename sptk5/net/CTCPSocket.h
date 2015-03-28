@@ -148,7 +148,7 @@ public:
     /// The output string should fit the buffer or it will be returned incomplete.
     /// @param buffer char *, the destination buffer
     /// @param size size_t, the destination buffer size
-    /// @param delimiter char, line delimiter 
+    /// @param delimiter char, line delimiter
     /// @returns the number of bytes read from the socket
     size_t readLine(char *buffer, size_t size, char delimiter='\n');
 
@@ -156,13 +156,13 @@ public:
     ///
     /// The memory buffer is extended automatically to fit the string.
     /// @param buffer CBuffer&, the destination buffer
-    /// @param delimiter char, line delimiter 
+    /// @param delimiter char, line delimiter
     /// @returns the number of bytes read from the socket
     size_t readLine(CBuffer& buffer, char delimiter='\n');
 
     /// @brief Reads one line (terminated with CRLF) from the socket into string
     /// @param s std::string&, the destination string
-    /// @param delimiter char, line delimiter 
+    /// @param delimiter char, line delimiter
     /// @returns the number of bytes read from the socket
     size_t readLine(std::string& s, char delimiter='\n');
 
@@ -177,6 +177,7 @@ public:
     ///
     /// Buffer bytes() is set to number of bytes read
     /// @param buffer CBuffer&, the memory buffer
+    /// @param size size_t, number of bytes to read from socket
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
     size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
@@ -185,6 +186,7 @@ public:
     ///
     /// Buffer bytes() is set to number of bytes read
     /// @param buffer std::string&, the memory buffer
+    /// @param size size_t, number of bytes to read from socket
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
     size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;

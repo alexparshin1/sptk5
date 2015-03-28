@@ -72,8 +72,8 @@ class CTCPConnection: public CThread
 {
     friend class CTCPServer;
 protected:
-    CTCPSocket      m_socket;
-    CTCPServer*     m_server;
+    CTCPSocket      m_socket;   ///< Connection socket
+    CTCPServer*     m_server;   ///< Parent server object
 public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted incoming connection socket
@@ -103,9 +103,9 @@ class CTCPServer: public CSynchronized
 {
     friend class CTCPServerListener;
     friend class CTCPConnection;
-    CTCPServerListener*         m_listenerThread;
-    std::set<CTCPConnection*>   m_connectionThreads;
-    CSynchronized               m_connectionThreadsLock;
+    CTCPServerListener*         m_listenerThread;           ///< Server listener object
+    std::set<CTCPConnection*>   m_connectionThreads;        ///< Per-connection thread set
+    CSynchronized               m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
 protected:
     /// @brief Screens incoming connection request
     ///
