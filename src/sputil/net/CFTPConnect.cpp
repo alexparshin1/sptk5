@@ -146,7 +146,8 @@ void CFTPConnect::openDataPort() {
         if (cp == NULL)
             throw CException(resp);
         cp++;
-        sscanf(cp,"%u,%u,%u,%u,%u,%u",&v[2],&v[3],&v[4],&v[5],&v[0],&v[1]);
+        if (sscanf(cp, "%u,%u,%u,%u,%u,%u", &v[2], &v[3], &v[4], &v[5], &v[0], &v[1]) < 6)
+            throw CException("Can't understand server response");
         for (unsigned i = 0; i < 6; i++)
             sin.sa.sa_data[i] = (char) v[i];
     }
@@ -220,7 +221,7 @@ void CFTPConnect::cmd_retr(std::string fileName) {
     m_dataSocket.close();
     fclose(outfile);
     m_commandSocket.get_response();
-    delete buffer;
+    delete [] buffer;
 }
 
 void CFTPConnect::cmd_store(std::string fileName) {

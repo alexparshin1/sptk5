@@ -41,15 +41,17 @@ using namespace sptk;
 
 void CBaseSocket::throwSocketError (std::string operation, const char* file, int line) THROWS_EXCEPTIONS
 {
+    string errorStr;
 #ifdef _WIN32
-    LPCTSTR lpMsgBuf;
+    LPCTSTR lpMsgBuf = 0;
     DWORD dw = GetLastError();
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL );
-    string errorStr(lpMsgBuf);
+    if (lpMsgBuf)
+        errorStr = lpMsgBuf;
 #else
-    string errorStr( strerror(errno) );
+    errorStr = strerror(errno);
 #endif
     throw CException (operation + ": " + errorStr, file, line);
 }

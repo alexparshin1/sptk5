@@ -156,8 +156,10 @@ void CVariant::setString (const char * value,size_t maxlen)
                 dataSize (maxlen);
                 m_data.buffer.size = maxlen + 1;
                 m_data.buffer.data = (char *) malloc (m_data.buffer.size);
-                strncpy (m_data.buffer.data,value,maxlen);
-                m_data.buffer.data[maxlen] = 0;
+                if (m_data.buffer.data) {
+                    strncpy(m_data.buffer.data, value, maxlen);
+                    m_data.buffer.data[maxlen] = 0;
+                }
             } else {
                 dataSize (strlen (value));
                 m_data.buffer.size = dataSize() + 1;
@@ -261,7 +263,7 @@ void CVariant::setBuffer (const void * value, size_t sz)
         dataSize (sz);
         m_data.buffer.data = (char *) malloc (sz);
 
-        if (value)
+        if (m_data.buffer.data && value)
             memcpy (m_data.buffer.data,value,sz);
     } else
         setNull();
@@ -278,7 +280,8 @@ void CVariant::setBuffer (const string& value)
         m_data.buffer.size = sz;
         dataSize (sz);
         m_data.buffer.data = (char *) malloc (sz);
-        memcpy (m_data.buffer.data,value.c_str(),sz);
+        if (m_data.buffer.data && value.c_str())
+            memcpy (m_data.buffer.data,value.c_str(),sz);
     } else
         setNull();
 }
@@ -594,7 +597,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
         return string (print_buffer);
 
     case VAR_INT64:
-#if BITNESS == 64
+#ifndef _WIN32
         sprintf (print_buffer,"%li",m_data.int64Data);
 #else
         sprintf (print_buffer,"%lli",m_data.int64Data);

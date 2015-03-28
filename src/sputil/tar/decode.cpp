@@ -44,10 +44,11 @@ th_get_pathname(TAR *t)
 	}
 
 #ifdef _MSC_VER
-	_snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
+	int sz = _snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
 #else
-	snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
+	int sz = snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
 #endif
+    filename[sz] = 0;
 	return strdup(filename);
 }
 

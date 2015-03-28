@@ -157,7 +157,7 @@ bool CCGIApplication::begin(HTML_TAGS tag, const char *params) {
 
         printString(buffer);
 
-        delete buffer;
+        delete [] buffer;
 
         return true;
     }

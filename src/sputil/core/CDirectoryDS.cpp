@@ -239,7 +239,8 @@ string absolutePath(string path)
     char slashStr[] = {slash, 0};
     char currentDir[256];
     string fullPath;
-    getcwd(currentDir, 255);
+    if (getcwd(currentDir, 255) == NULL)
+        currentDir[0] = 0;
 #ifdef _WIN32
 
     path = replaceAll(path, "/", "\\");

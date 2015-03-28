@@ -115,6 +115,7 @@ void CWSParser::parseOperation(CXmlElement* operationNode) THROWS_EXCEPTIONS
     }
 
     CWSOperation operation;
+    bool found = false;
     for (CXmlElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); itor++) {
         const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
         string message = element->getAttribute("message");
@@ -124,15 +125,20 @@ void CWSParser::parseOperation(CXmlElement* operationNode) THROWS_EXCEPTIONS
         string elementName = messageToElementMap[message];
         if (element->name() == "wsdl:input") {
             operation.m_input = m_complexTypes[elementName];
+            found = true;
             continue;
         }
         if (element->name() == "wsdl:output") {
             operation.m_output = m_complexTypes[message];
+            found = true;
             continue;
         }
     }
-    string operationName = operationNode->getAttribute("name");
-    m_operations[operationName] = operation;
+
+    if (found) {
+        string operationName = operationNode->getAttribute("name");
+        m_operations[operationName] = operation;
+    }
 }
 
 void CWSParser::parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS

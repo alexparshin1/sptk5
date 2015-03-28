@@ -103,8 +103,10 @@ void CParam::setString(const char * value, size_t maxlen)
             m_data.buffer.size = valueLength + 1;
             if (maxlen) {
                 m_data.buffer.data = (char *) realloc(m_data.buffer.data, m_data.buffer.size);
-                strncpy(m_data.buffer.data, value, maxlen);
-                m_data.buffer.data[maxlen] = 0;
+                if (m_data.buffer.data) {
+                    strncpy(m_data.buffer.data, value, maxlen);
+                    m_data.buffer.data[maxlen] = 0;
+                }
             } else {
                 if (m_dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER) && m_data.buffer.data)
                     free(m_data.buffer.data);

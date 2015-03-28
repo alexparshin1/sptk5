@@ -43,6 +43,8 @@ string CHttpParams::encodeString(string& str) {
     uint32_t cnt = (uint32_t) str.length();
     const char *src = str.c_str();
     char *buffer = (char *)calloc(cnt*3+1,1);
+    if (!buffer)
+        throw CException("Out of memory");
     char *dest = buffer;
     while (*src) {
         if (isalnum(*src)) {
@@ -82,6 +84,8 @@ string CHttpParams::decodeString(string& str) {
     uint32_t cnt = (uint32_t) str.length();
     const char *src = str.c_str();
     char *buffer = (char *)calloc(cnt+1,1);
+    if (!buffer)
+        throw CException("Out of memory");
     char *dest = buffer;
     while (*src) {
         switch (*src) {

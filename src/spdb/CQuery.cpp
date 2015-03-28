@@ -403,7 +403,7 @@ void CQuery::storeStatistics()
         char* buffer = new char[strlen(m_createdFile) + 16];
         sprintf(buffer, "%s:%i", m_createdFile, m_createdLine);
         m_db->addStatistics(buffer, m_totalDuration, m_totalCalls, m_sql);
-        delete buffer;
+        delete [] buffer;
         m_totalDuration = 0;
         m_totalCalls = 0;
     }

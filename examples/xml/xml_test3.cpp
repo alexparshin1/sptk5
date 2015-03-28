@@ -80,7 +80,9 @@ int main(int argc, char *argv[])
             workDirectory.assign(argv[0], size_t(endOfPath - argv[0]));
         else
             workDirectory = "/";
-        chdir(workDirectory.c_str());
+        
+        if (chdir(workDirectory.c_str()))
+            throw CException("Can't change directory to " + workDirectory);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
         testXPath("xpath_test1.xml", "/AAA", 1);          // Select the root element AAA

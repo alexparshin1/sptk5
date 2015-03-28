@@ -13,6 +13,8 @@
 */
 
 #include <sptk5/sptk.h>
+#include <sptk5/CException.h>
+
 #include "libtar_listhash.h"
 
 #include <stdio.h>
@@ -67,6 +69,8 @@ libtar_list_new(int flags, libtar_cmpfunc_t cmpfunc)
 	}
 
 	newlist = (libtar_list_t *)calloc(1, sizeof(libtar_list_t));
+    if (!newlist)
+        return NULL;
 	if (cmpfunc != NULL)
 		newlist->cmpfunc = cmpfunc;
 	else

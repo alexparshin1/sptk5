@@ -11,6 +11,8 @@
  */
 
 #include <sptk5/sptk.h>
+#include <sptk5/CException.h>
+
 #include "libtar.h"
 
 #include <stdio.h>
@@ -58,7 +60,8 @@ int oct_to_int(char *oct)
 {
     unsigned i;
 
-    sscanf(oct, "%o", &i);
+    if (sscanf(oct, "%o", &i) != 1)
+        i = 0;
 
     return int(i);
 }

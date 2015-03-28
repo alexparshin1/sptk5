@@ -84,7 +84,7 @@ string CField::asString() const THROWS_EXCEPTIONS
         return string (print_buffer);
 
     case VAR_INT64:
-#if BITNESS == 64
+#ifndef _WIN32
         sprintf (print_buffer,"%li",m_data.int64Data);
 #else
         sprintf (print_buffer,"%lli",m_data.int64Data);

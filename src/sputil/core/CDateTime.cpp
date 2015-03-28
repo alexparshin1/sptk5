@@ -433,7 +433,8 @@ static int trimRight(char *s)
 int decodeTZOffset(const char* tzOffset)
 {
     char tzo[10];
-    strncpy(tzo,tzOffset,sizeof(tzo) - 1);
+    strncpy(tzo, tzOffset, sizeof(tzo) - 1);
+    tzo[9] = 0;
 
     char* p = tzo;
     int   sign = 1;

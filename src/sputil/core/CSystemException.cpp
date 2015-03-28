@@ -57,7 +57,10 @@ string CSystemException::osError()
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR) &lpMsgBuf,
         0, NULL );
-    return lpMsgBuf;
+    if (lpMsgBuf)
+        return lpMsgBuf;
+    else
+        return "Unknown system error";
 #else
     // Get Unix errno-based error
     char buffer[256];

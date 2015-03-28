@@ -117,12 +117,14 @@ void CRegistry::prepareDirectory() {
     string directory = m_fileName.substr(0,pos);
     if (stat(directory.c_str(),&st) == 0) {
         if (!S_ISDIR(st.st_mode))
-            throw CException("Can't create directory '"+directory+"'");
+            throw CException("Can't open directory '"+directory+"'");
     } else {
 #ifdef _WIN32
-        mkdir(directory.c_str());
+        if (mkdir(directory.c_str()))
+            throw CException("Can't create directory '"+directory+"'");
 #else
         mkdir(directory.c_str(),0770);
+            throw CException("Can't create directory '" + directory + "'");
 #endif
 
     }

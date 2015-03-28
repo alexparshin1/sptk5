@@ -32,6 +32,7 @@ using namespace sptk;
 
 int main() {
    char buffer[1024];
+   memset(buffer, 0, sizeof(buffer));
    
    // Define the unique-instance name
    CUniqueInstance instance("mytest");
@@ -43,7 +44,8 @@ int main() {
       
       // Unique instance, wait here
       while (strcmp(buffer, "end") != 0) {
-         scanf("%s", buffer);
+          if (scanf("%s", buffer) == 0)
+              continue;
       }
    } else {
       puts("Another instance of the program is running. Exiting.");

@@ -62,11 +62,13 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
     if (lineBreak || bufferOverflow) {
         if (m_bytes) {
             m_buffer[m_bytes] = 0;
-            if (m_parent && m_priority <= m_parent->minPriority())
-                m_parent->saveMessage(m_date, m_buffer, m_bytes, m_priority);
-            if (!bufferOverflow) {
-                m_priority = m_parent->defaultPriority();
-                m_date = CDateTime::Now();
+            if (m_parent) {
+                if (m_priority <= m_parent->minPriority())
+                    m_parent->saveMessage(m_date, m_buffer, m_bytes, m_priority);
+                if (!bufferOverflow) {
+                    m_priority = m_parent->defaultPriority();
+                    m_date = CDateTime::Now();
+                }
             }
             m_bytes = 0;
         }
