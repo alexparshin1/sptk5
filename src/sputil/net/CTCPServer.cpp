@@ -56,7 +56,9 @@ void CTCPServerListener::threadFunction()
                 SOCKET connectionFD;
                 struct sockaddr_in connectionInfo;
                 m_listenerSocket.accept(connectionFD, connectionInfo);
-                if (m_server->allowConnection(&connectionInfo)) {
+				if (int(connectionFD) == -1)
+					continue;
+				if (m_server->allowConnection(&connectionInfo)) {
                     CTCPConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
                     m_server->registerConnection(connection);
                     connection->run();
