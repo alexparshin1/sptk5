@@ -639,7 +639,10 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     case VAR_STRING:
     case VAR_TEXT:
     case VAR_BUFFER:
-        return m_data.buffer.data;
+        if (m_data.buffer.data)
+            return m_data.buffer.data;
+        else
+            return "";
 
     case VAR_DATE:
         return CDateTime (m_data.floatData).dateString();
