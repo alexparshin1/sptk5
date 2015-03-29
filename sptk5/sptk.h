@@ -26,10 +26,10 @@
  ***************************************************************************/
 
 #ifndef __SPTK_H__
-#define __SPTK_H__
+#define __SPTK_H__ ///< sptk.h
 
 #if defined(__GNUC__) || defined(__SUNPRO_CC)
-    #define __UNIX_COMPILER__
+    #define __UNIX_COMPILER__ ///< Unix compiler flag
 #endif
 
 #ifndef __UNIX_COMPILER__
@@ -43,7 +43,7 @@
 #    define SP_EXPORT
 #  endif
 #else
-#  define SP_EXPORT
+#  define SP_EXPORT     ///< DLL/SO classes load attributes
 #endif
 
 #ifndef __UNIX_COMPILER__
@@ -57,7 +57,7 @@
 #    define SP_DRIVER_EXPORT
 #  endif
 #else
-#  define SP_DRIVER_EXPORT
+#  define SP_DRIVER_EXPORT  ///< DLL/SO driver classes load attributes
 #endif
 
 #include <sptk5/sptk-config.h>
@@ -80,7 +80,7 @@
 #endif
 
 #ifndef STRING_NPOS
-    #define STRING_NPOS string::npos
+    #define STRING_NPOS string::npos    ///< Definition for string::npos missing in some compilers
 #endif
 
 #include <map>
