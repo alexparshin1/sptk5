@@ -41,11 +41,12 @@ class CTCPServer;
 /// @brief Internal TCP server listener thread
 class CTCPServerListener: public CThread
 {
-    CTCPServer*     m_server;
-    CTCPSocket      m_listenerSocket;
-    std::string     m_error;
+    CTCPServer*     m_server;           ///< TCP server created connection
+    CTCPSocket      m_listenerSocket;   ///< Listener socket
+    std::string     m_error;            ///< Last socket error
 public:
     /// @brief Constructor
+    /// @param server CTCPServer*, TCP server created connection
     /// @param port int, Listener port number
     CTCPServerListener(CTCPServer* server, int port);
 

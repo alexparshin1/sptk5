@@ -43,15 +43,15 @@ class CWSTypeTranslator
 public:
     /// @brief Constructor
     CWSTypeTranslator();
-    
+
     /// @brief Translates WSDL type names to C++ type names
     /// @param wsType std::string, WSDL type name
     /// @param defaultType std::type, C++ type name returned when match is not found
     std::string toCxxType(std::string wsType,std::string defaultType="std::string") const;
 };
 
+/// @brief Global WSDL translation object
 extern CWSTypeTranslator wsTypeTranslator;
-
 
 /// @}
 

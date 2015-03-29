@@ -40,11 +40,16 @@ namespace sptk {
 
 /// @brief Stores and restores the color schema
 class CColorSchema {
-    static Fl_Color             m_colorMapIndex[];
-    std::map<Fl_Color,unsigned> m_colorMap;
+    static Fl_Color             m_colorMapIndex[];  ///< Color map index
+    std::map<Fl_Color,unsigned> m_colorMap;         ///< Color values
 public:
+    /// @brief Store FLTK color schema to color map
     void store();
+
+    /// @brief Restore FLTK color schema from color map
     void restore();
+
+    /// @brief Number of colors in color schema
     size_t size() const { return m_colorMap.size(); }
 };
 

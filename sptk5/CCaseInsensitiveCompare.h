@@ -41,6 +41,9 @@ namespace sptk {
 class SP_EXPORT CCaseInsensitiveCompare
 {
 public:
+    /// @brief Compare method
+    /// @param s1 const std::string&, First compare string
+    /// @param s2 const std::string&, Second compare string
     bool operator()(const std::string& s1, const std::string& s2) const
     {
 #ifdef WIN32

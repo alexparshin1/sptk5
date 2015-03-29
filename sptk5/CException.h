@@ -120,14 +120,14 @@ public:
             CException(text, file, line, description)
     {
     }
-            
+
     /// @brief Copy constructor
     /// @param other const CTimeoutException&, other exception object
     CTimeoutException(const CTimeoutException& other)
     : CException(other)
     {
     }
-	    
+
     /// @brief Destructor
     ~CTimeoutException() DOESNT_THROW;
 };
@@ -155,15 +155,21 @@ public:
     : CException(other)
     {
     }
-	    
+
     /// @brief Destructor
     ~CDatabaseException() DOESNT_THROW;
 };
 
 /// Defines a handy macros that automatically registers filename and line number
 /// for the place an exception is thrown from
+
+/// @brief Throws exception with file name and line number
 #define throwException(msg) throw CException(msg,__FILE__,__LINE__)
+
+/// @brief Throws timeout exception with file name and line number
 #define throwTimeoutException(msg) throw CTimeoutException(msg,__FILE__,__LINE__)
+
+/// @brief Throws database exception with file name and line number
 #define throwDatabaseException(msg) throw CDatabaseException(msg,__FILE__,__LINE__)
 
 /// @}
