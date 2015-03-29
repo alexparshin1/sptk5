@@ -11,7 +11,7 @@ IF (WIN32)
 
     # Build target for events.rc
     ADD_CUSTOM_TARGET (
-        "Windows event log resources" ALL
+        "Windows_Event_Log_Resources" ALL
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/events.rc
     )
 
