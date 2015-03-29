@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #ifndef __CDATETIME_H__
-#define __CDATETIME_H__
+#define __CDATETIME_H__ ///< CDateTime.h
 
 #include <sptk5/sptk.h>
 #include <time.h>
