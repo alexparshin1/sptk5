@@ -231,6 +231,15 @@ public:
 class WSString : public WSType
 {
 public:
+    /// @brief Default constructor
+    WSString() {}
+
+    /// @brief Constructor
+    WSString(std::string value)
+    {
+        m_data = value;
+    }
+
     /// @brief Destructor
     virtual ~WSString() {}
 
