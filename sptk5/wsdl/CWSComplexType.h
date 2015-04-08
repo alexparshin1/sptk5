@@ -63,8 +63,7 @@ public:
 
    /// @brief Unloads CAddHandler to new XML node
    /// @param parent sptk::CXmlElement*, parent XML node where new node is created
-   /// @param name std::string, new XML node name
-   virtual void addElement(sptk::CXmlElement* parent, std::string name) const THROWS_EXCEPTIONS;
+   virtual void addElement(sptk::CXmlElement* parent) const THROWS_EXCEPTIONS;
 };
 
 /// @}

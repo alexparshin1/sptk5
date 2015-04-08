@@ -209,13 +209,13 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "   " << className << "(const char* elementName)" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
     classDeclaration << "   /// @brief Destructor" << endl;
     classDeclaration << "   virtual ~" << className << "();" << endl << endl;
-    classDeclaration << "   /// @brief Clears content and releases allocated memory" << endl;
+    classDeclaration << "   /// @brief Clear content and releases allocated memory" << endl;
     classDeclaration << "   virtual void clear();" << endl << endl;
-    classDeclaration << "   /// @brief Loads " << className << " from XML node" << endl;
+    classDeclaration << "   /// @brief Load " << className << " from XML node" << endl;
     classDeclaration << "   /// @param input const sptk::CXmlElement*, XML node containing " << className << " data" << endl;
     classDeclaration << "   virtual void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS;" << endl << endl;
-    classDeclaration << "   /// @brief Unloads " << className << " to existing XML node" << endl;
-    classDeclaration << "   /// @param output sptk::CXmlElement*, existing XML node" << endl << endl;
+    classDeclaration << "   /// @brief Unload " << className << " to existing XML node" << endl;
+    classDeclaration << "   /// @param output sptk::CXmlElement*, existing XML node" << endl;
     classDeclaration << "   virtual void unload(sptk::CXmlElement* output) const THROWS_EXCEPTIONS;" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
@@ -306,10 +306,10 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
                 classImplementation << "   for (vector<" << complexType->className() << "*>::const_iterator itor = m_" << complexType->name() << ".begin(); "
                                     << " itor != m_" << complexType->name() << ".end(); itor++) {" << endl;
                 classImplementation << "      " << complexType->className() << "* item = *itor;" << endl;
-                classImplementation << "      item->addElement(output,\"" << complexType->name() << "\");" << endl;
+                classImplementation << "      item->addElement(output);" << endl;
                 classImplementation << "   }" << endl;
             } else {
-                classImplementation << "   m_" << complexType->name() << ".addElement(output,\"" << complexType->name() << "\");" << endl;
+                classImplementation << "   m_" << complexType->name() << ".addElement(output);" << endl;
             }
         }
     }

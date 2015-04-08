@@ -40,9 +40,9 @@ void WSString::load(std::string attr)
     setString(attr);
 }
 
-CXmlElement* WSString::addElement(CXmlElement* parent, std::string name) const
+CXmlElement* WSString::addElement(CXmlElement* parent) const
 {
-    CXmlElement* element = new CXmlElement(*parent, name);
+    CXmlElement* element = new CXmlElement(*parent, m_name);
     element->text(asString());
     return element;
 }

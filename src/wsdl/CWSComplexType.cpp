@@ -38,8 +38,8 @@ void WSComplexType::copyFrom(const WSComplexType& other)
     load(element);
 }
 
-void WSComplexType::addElement(CXmlElement* parent, std::string name) const THROWS_EXCEPTIONS
+void WSComplexType::addElement(CXmlElement* parent) const THROWS_EXCEPTIONS
 {
-   unload(new CXmlElement(parent, name.c_str()));
+   unload(new CXmlElement(parent, m_name.c_str()));
 }
 
