@@ -34,18 +34,17 @@
 using namespace std;
 using namespace sptk;
 
-CField::CField (const char *name)
+CField::CField(const char *name)
+: m_name(name), displayName(name)
 {
-    m_name = name;
-    displayName = name;
-    width = -1;
-    flags = 4; // FL_ALIGN_LEFT
+    view.width = -1;
+    view.flags = 4; // FL_ALIGN_LEFT
+    view.visible = true;
+    view.precision = 3; // default precision, only affects floating point fields
     dataSize (0);
-    visible = true;
-    precision = 3; // default precision, only affects floating point fields
 }
 
-void CField::setNull (CVariantType vtype)
+void CField::setNull(CVariantType vtype)
 {
     switch (dataType()) {
     default:
@@ -93,8 +92,8 @@ string CField::asString() const THROWS_EXCEPTIONS
 
     case VAR_FLOAT: {
         char formatString[10];
-        sprintf (formatString,"%%0.%if",precision);
-        sprintf (print_buffer,formatString,m_data.floatData);
+        sprintf (formatString, "%%0.%if", view.precision);
+        sprintf (print_buffer, formatString, m_data.floatData);
         return string (print_buffer);
     }
 

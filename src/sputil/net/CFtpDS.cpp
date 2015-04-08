@@ -66,13 +66,13 @@ CFieldList *parse_file_info_string(string& file_info) {
    bool  is_executable = false;
 
    CDateTime dt;
-   CSmallPixmapType pixmapType = SXPM_DOCUMENT; 
+   CSmallPixmapType pixmapType = SXPM_DOCUMENT;
 
    if (isdigit(*ptr)) {
       // MS Dos style
       char *dtime = 0L;
 
-      ptr = next_dir_item(ptr,&time);     
+      ptr = next_dir_item(ptr,&time);
       ptr = next_dir_item(ptr, &dtime);
 
       ptr = next_dir_item(ptr,&size);
@@ -91,7 +91,7 @@ CFieldList *parse_file_info_string(string& file_info) {
       dtime[2] = 0;
       dtime[5] = 0;
       int hour = (int) strtol(dtime, NULL, 10);
-      int min = (int) strtol(dtime+3, NULL, 10);     
+      int min = (int) strtol(dtime+3, NULL, 10);
       if(pm) hour+=12;
 
       if(year<50) year+=2000;
@@ -100,7 +100,7 @@ CFieldList *parse_file_info_string(string& file_info) {
       CDateTime dosDate((short)year, (short)month, (short)day, (short)hour, (short)min);
       dt = dosDate;
    } else {
-      ptr = next_dir_item(ptr,&permissions); 
+      ptr = next_dir_item(ptr,&permissions);
         // Unix style
       if (permissions[0] == 'd')
          is_directory = true;
@@ -138,11 +138,11 @@ CFieldList *parse_file_info_string(string& file_info) {
    df->push_back("Size",false)     = (uint32_t) atoi(size);
    df->push_back("Modified",false) = dt;
 
-   (*df)[uint32_t(0)].width = 3;
-   (*df)[uint32_t(1)].width = 30;
-   (*df)[uint32_t(2)].width = 10;
-   (*df)[uint32_t(2)].flags = FL_ALIGN_RIGHT;
-   (*df)[uint32_t(3)].width = 16;
+   (*df)[uint32_t(0)].view.width = 3;
+   (*df)[uint32_t(1)].view.width = 30;
+   (*df)[uint32_t(2)].view.width = 10;
+   (*df)[uint32_t(2)].view.flags = FL_ALIGN_RIGHT;
+   (*df)[uint32_t(3)].view.width = 16;
 
    return df;
 }

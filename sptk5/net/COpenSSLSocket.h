@@ -41,11 +41,10 @@ namespace sptk {
 class COpenSSLSocket: public sptk::CTCPSocket, public sptk::CSynchronized
 {
     SSL*        m_ssl;          ///< SSL socket
-    bool        m_readInitted;  ///< Read initialized flag
 
     /// @brief Returns number of bytes in the SSL socket
     virtual uint32_t socketBytes();
-    
+
     void throwOpenSSLError(int rc);
 
 protected:

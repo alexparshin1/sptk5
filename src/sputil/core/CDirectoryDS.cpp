@@ -400,8 +400,8 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
             index++;
 
             if (access(fullName.c_str(), R_OK) != 0) {
-                (*df)[uint32_t(0)].flags = FL_ALIGN_LEFT;
-                (*df)[uint32_t(1)].flags = FL_ALIGN_LEFT;
+                (*df)[uint32_t(0)].view.flags = FL_ALIGN_LEFT;
+                (*df)[uint32_t(1)].view.flags = FL_ALIGN_LEFT;
             }
 
             if (is_dir)
@@ -433,8 +433,8 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
     int defaultWidths[5] = {3, 30, 10, 10, 16};
     if (m_current)
         for (unsigned f = 0; f < 5; f++) {
-            (*this)[f].flags = FL_ALIGN_LEFT;
-            (*this)[f].width = defaultWidths[f];
+            (*this)[f].view.flags = FL_ALIGN_LEFT;
+            (*this)[f].view.width = defaultWidths[f];
         }
 
 #ifndef _WIN32

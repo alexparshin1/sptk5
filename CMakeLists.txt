@@ -44,6 +44,7 @@ IF (SIZEOF_VOID_P EQUAL 8)
 ENDIF()
 
 MESSAGE ("Build type:         ${CMAKE_BUILD_TYPE} ${BITNESS} bit")
+MESSAGE ("Compiler:           ${CMAKE_CXX_COMPILER_ID}")
 IF (WIN32)
   ADD_DEFINITIONS (-DHAVE_CONFIG_H -DWIN32)
   LINK_LIBRARIES(wsock32 ole32 uuid comctl32)

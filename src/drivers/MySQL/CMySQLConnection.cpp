@@ -333,23 +333,21 @@ void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) T
     switch (objectType)
     {
     case DOT_PROCEDURES:
-        objectsSQL = 
+        objectsSQL =
             "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
             "FROM information_schema.routines";
         break;
     case DOT_TABLES:
-        objectsSQL = 
+        objectsSQL =
             "SELECT CONCAT(table_schema, '.', table_name) object_name "
             "FROM information_schema.tables "
             "WHERE NOT table_schema IN ('mysql','information_schema')";
         break;
     case DOT_VIEWS:
-        objectsSQL = 
+        objectsSQL =
             "SELECT CONCAT(table_schema, '.', table_name) object_name "
             "FROM information_schema.views";
         break;
-    default:
-        return; // no information about objects of other types
     }
     CQuery query(this, objectsSQL);
     try {
@@ -377,7 +375,7 @@ void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnN
     if (rc) {
         string error = mysql_error(m_connection);
         throwDatabaseException(error);
-    }    
+    }
 }
 
 std::string CMySQLConnection::driverDescription() const
