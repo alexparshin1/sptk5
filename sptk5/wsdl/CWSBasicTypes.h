@@ -63,6 +63,107 @@ public:
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
     CXmlElement* addElement(CXmlElement* parent) const;
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(const CVariant &C)
+    {
+        if (this == &C)
+            return *this;
+
+        setData(C);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(int64_t value)
+    {
+        setInt64(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(uint64_t value)
+    {
+        setInt64((int64_t) value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(int32_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(uint32_t value)
+    {
+        setInteger((int32_t) value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(int16_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(uint16_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(float value)
+    {
+        setFloat(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(double value)
+    {
+        setFloat(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(const char * value)
+    {
+        setString(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(const std::string& value)
+    {
+        setString(value.c_str(), (uint32_t) value.length());
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(CDateTime value)
+    {
+        setDateTime(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(const void *value)
+    {
+        setImagePtr(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(const CBuffer& value)
+    {
+        setBuffer(value.data(), value.bytes());
+        return *this;
+    }
 };
 
 /// @brief Wrapper for WSDL bool type
