@@ -32,17 +32,12 @@ using namespace sptk;
 
 void WSType::load(const CXmlNode* attr)
 {
-    m_data = attr->text();
+    setString(attr->text());
 }
 
 void WSType::load(std::string attr)
 {
-    m_data = attr;
-}
-
-std::string WSType::asString() const
-{
-    return m_data;
+    setString(attr);
 }
 
 CXmlElement* WSType::addElement(CXmlElement* parent, std::string name) const
@@ -55,66 +50,56 @@ CXmlElement* WSType::addElement(CXmlElement* parent, std::string name) const
 
 void WSBool::load(const CXmlNode* attr)
 {
-    m_data.setBool(attr->text() == "true");
+    setBool(attr->text() == "true");
 }
 
 void WSBool::load(string attr)
 {
-    m_data.setBool(attr == "true");
-}
-
-string WSBool::asString() const
-{
-    return m_data.getBool() ? "true" : "false";
+    setBool(attr == "true");
 }
 
 void WSDate::load(const CXmlNode* attr)
 {
-    m_data.setDate(CDateTime(attr->text().c_str()));
+    setDate(CDateTime(attr->text().c_str()));
 }
 
 void WSDate::load(string attr)
 {
-    m_data.setDate(CDateTime(attr.c_str()));
-}
-
-string WSDate::asString() const
-{
-    return m_data.asString();
+    setDate(CDateTime(attr.c_str()));
 }
 
 void WSDateTime::load(const CXmlNode* attr)
 {
-    m_data.setDateTime(CDateTime(attr->text().c_str()));
+    setDateTime(CDateTime(attr->text().c_str()));
 }
 
 void WSDateTime::load(string attr)
 {
-    m_data.setDateTime(CDateTime(attr.c_str()));
+    setDateTime(CDateTime(attr.c_str()));
 }
 
 string WSDateTime::asString() const
 {
-    CDateTime dt = m_data.asDateTime();
+    CDateTime dt = asDateTime();
     return dt.dateString(true) + "T" + dt.timeString(true,true);
 }
 
 void WSDouble::load(const CXmlNode* attr)
 {
-    m_data.setFloat(atof(attr->text().c_str()));
+    setFloat(atof(attr->text().c_str()));
 }
 
 void WSDouble::load(string attr)
 {
-    m_data.setFloat(atof(attr.c_str()));
+    setFloat(atof(attr.c_str()));
 }
 
 void WSInteger::load(const CXmlNode* attr)
 {
-    m_data.setInteger(atoi(attr->text().c_str()));
+    setInteger(atoi(attr->text().c_str()));
 }
 
 void WSInteger::load(string attr)
 {
-    m_data.setInteger(atoi(attr.c_str()));
+    setInteger(atoi(attr.c_str()));
 }

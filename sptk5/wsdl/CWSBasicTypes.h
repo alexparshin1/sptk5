@@ -29,7 +29,7 @@
 #define __CWSBASICTYPES_H__
 
 #include <sptk5/cxml>
-#include <sptk5/CVariant.h>
+#include <sptk5/CField.h>
 #include <sptk5/xml/CXmlElement.h>
 
 namespace sptk {
@@ -38,14 +38,9 @@ namespace sptk {
 /// @{
 
 /// @brief Base type for all standard WSDL types
-class WSType
+class WSType : public sptk::CField
 {
-protected:
-    CVariant    m_data; ///< Type' data
 public:
-    /// @brief Default constructor
-    WSType() {}
-
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -53,10 +48,6 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
-
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
 
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
@@ -68,10 +59,6 @@ public:
 class WSBool : public WSType
 {
 public:
-
-    /// @brief Destructor
-    virtual ~WSBool() {}
-
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -79,33 +66,12 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
-
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
-
-    /// @brief Assignment from bool
-    WSType& operator = (bool value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as bool
-    /// @returns Type data as bool
-    operator bool () const
-    {
-        return m_data.asBool();
-    }
 };
 
 /// @brief Wrapper for WSDL date type
 class WSDate : public WSType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSDate() {}
-
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -113,33 +79,12 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
-
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
-
-    /// @brief Assignment from CDateTime
-    WSType& operator = (CDateTime value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as CDateTime
-    /// @returns Type data as CDateTime
-    operator CDateTime () const
-    {
-        return m_data.asDate();
-    }
 };
 
 /// @brief Wrapper for WSDL dateTime type
 class WSDateTime : public WSType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSDateTime() {}
-
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -148,32 +93,14 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
-
-    /// @brief Assignment from CDateTime
-    WSType& operator = (CDateTime value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as CDateTime
-    /// @returns Type data as CDateTime
-    operator CDateTime () const
-    {
-        return m_data.asDateTime();
-    }
+    /// @brief Better (than in base class) conversion method
+    virtual std::string asString() const THROWS_EXCEPTIONS;
 };
 
 /// @brief Wrapper for WSDL double type
 class WSDouble : public WSType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSDouble() {}
-
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -181,29 +108,12 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
-
-    /// @brief Assignment from double
-    WSType& operator = (double value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as double
-    /// @returns Type data as double
-    operator double () const
-    {
-        return m_data.asFloat();
-    }
 };
 
 /// @brief Wrapper for WSDL int type
 class WSInteger : public WSType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSInteger() {}
-
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -211,73 +121,12 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
-
-    /// @brief Assignment from int
-    WSType& operator = (int value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as integer
-    /// @returns Type data as integer
-    operator int () const
-    {
-        return m_data.asInteger();
-    }
 };
 
 /// @brief Wrapper for WSDL string type
 class WSString : public WSType
 {
 public:
-    /// @brief Default constructor
-    WSString() {}
-
-    /// @brief Constructor
-    WSString(std::string value)
-    {
-        m_data = value;
-    }
-
-    /// @brief Destructor
-    virtual ~WSString() {}
-
-    /// @brief Assignment from string
-    WSType& operator = (std::string value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    operator std::string () const
-    {
-        return m_data.asString();
-    }
-};
-
-/// @brief Wrapper for WSDL time type
-class WSTime : public WSType
-{
-public:
-    /// @brief Destructor
-    virtual ~WSTime() {}
-
-    /// @brief Assignment from string
-    WSType& operator = (std::string value)
-    {
-        m_data = value;
-        return *this;
-    }
-
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    operator std::string () const
-    {
-        return m_data.asString();
-    }
 };
 
 /// @}
