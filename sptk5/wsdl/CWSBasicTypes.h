@@ -38,9 +38,19 @@ namespace sptk {
 /// @{
 
 /// @brief Base type for all standard WSDL types
-class WSType : public sptk::CField
+class WSType : public CField
 {
+protected:
+    bool m_optional;    ///< Element optionality flag
+
 public:
+    /// @brief Default constructor
+    WSType(std::string name) : CField(name.c_str()), m_optional(false) {}
+
+    /// @brief Sets optionality flag
+    /// @param opt bool, Element optionality flag
+    void optional(bool opt) { m_optional = opt; }
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);

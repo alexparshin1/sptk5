@@ -263,6 +263,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
             classImplementation << "      if (element->name() == \"" << complexType->name() << "\") {" << endl;
             if (complexType->m_restriction)
                 classImplementation << "         static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
+            bool optional = complexType->multiplicity() & CWSM_OPTIONAL;
             if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE)) {
                 classImplementation << "         " << complexType->className() << "* item = new " << complexType->className() << ";" << endl;
                 classImplementation << "         item->load(element);" << endl;
