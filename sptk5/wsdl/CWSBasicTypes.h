@@ -38,14 +38,15 @@ namespace sptk {
 /// @{
 
 /// @brief Base type for all standard WSDL types
-class WSType : public CField
+class WSString : public CField
 {
 protected:
     bool m_optional;    ///< Element optionality flag
 
 public:
-    /// @brief Default constructor
-    WSType(std::string name) : CField(name.c_str()), m_optional(false) {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    WSString(const char* name) : CField(name), m_optional(false) {}
 
     /// @brief Sets optionality flag
     /// @param opt bool, Element optionality flag
@@ -66,9 +67,13 @@ public:
 };
 
 /// @brief Wrapper for WSDL bool type
-class WSBool : public WSType
+class WSBool : public WSString
 {
 public:
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    WSBool(const char* name) : WSString(name) {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -79,9 +84,13 @@ public:
 };
 
 /// @brief Wrapper for WSDL date type
-class WSDate : public WSType
+class WSDate : public WSString
 {
 public:
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    WSDate(const char* name) : WSString(name) {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -92,9 +101,13 @@ public:
 };
 
 /// @brief Wrapper for WSDL dateTime type
-class WSDateTime : public WSType
+class WSDateTime : public WSString
 {
 public:
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    WSDateTime(const char* name) : WSString(name) {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -108,9 +121,13 @@ public:
 };
 
 /// @brief Wrapper for WSDL double type
-class WSDouble : public WSType
+class WSDouble : public WSString
 {
 public:
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    WSDouble(const char* name) : WSString(name) {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -121,9 +138,13 @@ public:
 };
 
 /// @brief Wrapper for WSDL int type
-class WSInteger : public WSType
+class WSInteger : public WSString
 {
 public:
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    WSInteger(const char* name) : WSString(name) {}
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr);
@@ -131,12 +152,6 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
-};
-
-/// @brief Wrapper for WSDL string type
-class WSString : public WSType
-{
-public:
 };
 
 /// @}

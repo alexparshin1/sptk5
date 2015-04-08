@@ -40,9 +40,11 @@ namespace sptk {
 /// @brief Base type for all user WSDL types
 class WSComplexType
 {
+protected:
+   std::string m_name; ///< WSDL element name
 public:
    /// @brief Default constructor
-   WSComplexType() {}
+   WSComplexType(const char* name) : m_name(name) {}
 
    /// @brief Destructor
    virtual ~WSComplexType() {}

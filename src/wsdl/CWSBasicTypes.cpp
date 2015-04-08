@@ -30,17 +30,17 @@
 using namespace std;
 using namespace sptk;
 
-void WSType::load(const CXmlNode* attr)
+void WSString::load(const CXmlNode* attr)
 {
     setString(attr->text());
 }
 
-void WSType::load(std::string attr)
+void WSString::load(std::string attr)
 {
     setString(attr);
 }
 
-CXmlElement* WSType::addElement(CXmlElement* parent, std::string name) const
+CXmlElement* WSString::addElement(CXmlElement* parent, std::string name) const
 {
     CXmlElement* element = new CXmlElement(*parent, name);
     element->text(asString());

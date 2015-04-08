@@ -317,8 +317,8 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
         CWSOperation& operation = itor->second;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(CXmlElement* requestNode) THROWS_EXCEPTIONS" << endl;
         serviceImplementation << "{" << endl;
-        serviceImplementation << "   C" << operation.m_input->name() << " inputData;" << endl;
-        serviceImplementation << "   C" << operation.m_output->name() << " outputData;" << endl;
+        serviceImplementation << "   C" << operation.m_input->name() << " inputData((m_namespace + \"" << operation.m_input->name() << "\").c_str());" << endl;
+        serviceImplementation << "   C" << operation.m_output->name() << " outputData((m_namespace + \"" << operation.m_output->name() << "\").c_str());" << endl;
         serviceImplementation << "   inputData.load(requestNode);" << endl;
         serviceImplementation << "   CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
         serviceImplementation << "   soapBody->clearChildren();" << endl;
