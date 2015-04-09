@@ -42,9 +42,11 @@ class WSComplexType
 {
 protected:
    std::string m_name; ///< WSDL element name
+   bool m_optional;    ///< Element optionality flag
 public:
    /// @brief Default constructor
-   WSComplexType(const char* name) : m_name(name) {}
+   /// @param optional bool, Element optionality flag
+   WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional) {}
 
    /// @brief Destructor
    virtual ~WSComplexType() {}

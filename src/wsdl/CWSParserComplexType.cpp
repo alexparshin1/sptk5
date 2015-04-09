@@ -80,11 +80,11 @@ CWSParserComplexType::CWSParserComplexType(const CXmlElement* complexTypeElement
     if (complexTypeElement->hasAttribute("minOccurs"))
         minOccurs = (string) complexTypeElement->getAttribute("minOccurs");
 
-    m_multiplicity = CWSM_OPTIONAL;
+    m_multiplicity = CWSM_REQUIRED;
 
     // Relaxed defaults, in case of incomplete or missing multiplicity
     if (minOccurs.empty())
-        minOccurs = "0";
+        minOccurs = "1";
     if (maxOccurs.empty())
         maxOccurs = "1";
 
@@ -180,7 +180,7 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "{" << endl;
     classDeclaration << "public:" << endl;
     CStrings ctorInitializer;
-    ctorInitializer.push_back("sptk::WSComplexType(elementName)");
+    ctorInitializer.push_back("sptk::WSComplexType(elementName, optional)");
     if (m_sequence.size()) {
         classDeclaration << "   // Elements" << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
@@ -189,8 +189,10 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
             string cxxType = complexType->className();
             if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE))
                 cxxType = "std::vector<" + cxxType + "*>";
-            else
-                ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\")");
+            else {
+                string optional = complexType->multiplicity() & CWSM_OPTIONAL ? ", true" : "";
+                ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
+            }
             sprintf(buffer, "%-20s m_%s", cxxType.c_str(), complexType->name().c_str());
             classDeclaration << "   " << buffer << ";" << endl;
         }
@@ -206,7 +208,8 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "public:" << endl;
     classDeclaration << "   /// @brief Constructor" << endl;
     classDeclaration << "   /// @param elementName const char*, WSDL element name" << endl;
-    classDeclaration << "   " << className << "(const char* elementName)" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
+    classDeclaration << "   /// @param optional bool, Is element optional flag" << endl;
+    classDeclaration << "   " << className << "(const char* elementName, bool optional=false)" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
     classDeclaration << "   /// @brief Destructor" << endl;
     classDeclaration << "   virtual ~" << className << "();" << endl << endl;
     classDeclaration << "   /// @brief Clear content and releases allocated memory" << endl;
@@ -269,7 +272,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
             classImplementation << "      if (element->name() == \"" << complexType->name() << "\") {" << endl;
             if (complexType->m_restriction)
                 classImplementation << "         static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
-            //bool optional = complexType->multiplicity() & CWSM_OPTIONAL;
+            //string optional = complexType->multiplicity() & CWSM_OPTIONAL ? "true" : "false";
             if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE)) {
                 classImplementation << "         " << complexType->className() << "* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 classImplementation << "         item->load(element);" << endl;

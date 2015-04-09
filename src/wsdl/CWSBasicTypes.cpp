@@ -42,8 +42,11 @@ void WSString::load(std::string attr)
 
 CXmlElement* WSString::addElement(CXmlElement* parent) const
 {
+    string text(asString());
+    if (m_optional && text.empty())
+        return NULL;
     CXmlElement* element = new CXmlElement(*parent, m_name);
-    element->text(asString());
+    element->text(text);
     return element;
 }
 

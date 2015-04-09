@@ -46,7 +46,8 @@ protected:
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
-    WSString(const char* name) : CField(name), m_optional(false) {}
+    /// @param optional bool, Element optionality flag
+    WSString(const char* name, bool optional=false) : CField(name), m_optional(optional) {}
 
     /// @brief Sets optionality flag
     /// @param opt bool, Element optionality flag
@@ -172,7 +173,8 @@ class WSBool : public WSString
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
-    WSBool(const char* name) : WSString(name) {}
+    /// @param optional bool, Element optionality flag
+    WSBool(const char* name, bool optional=false) : WSString(name, optional) {}
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -189,7 +191,8 @@ class WSDate : public WSString
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
-    WSDate(const char* name) : WSString(name) {}
+    /// @param optional bool, Element optionality flag
+    WSDate(const char* name, bool optional=false) : WSString(name, optional) {}
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -206,7 +209,7 @@ class WSDateTime : public WSString
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
-    WSDateTime(const char* name) : WSString(name) {}
+    WSDateTime(const char* name, bool optional=false) : WSString(name, optional) {}
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -226,7 +229,8 @@ class WSDouble : public WSString
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
-    WSDouble(const char* name) : WSString(name) {}
+    /// @param optional bool, Element optionality flag
+    WSDouble(const char* name, bool optional=false) : WSString(name, optional) {}
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -243,7 +247,8 @@ class WSInteger : public WSString
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
-    WSInteger(const char* name) : WSString(name) {}
+    /// @param optional bool, Element optionality flag
+    WSInteger(const char* name, bool optional=false) : WSString(name, optional) {}
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node

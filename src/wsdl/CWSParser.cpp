@@ -234,7 +234,7 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
     serviceDefinition << "protected:" << endl;
     serviceDefinition << "   /// @brief Internal SOAP body processor" << endl;
     serviceDefinition << "   ///" << endl;
-    serviceDefinition << "   /// Receives incoming SOAP body of Web Service requests, and returns" << endl;
+    serviceDefinition << "   /// Receive incoming SOAP body of Web Service requests, and returns" << endl;
     serviceDefinition << "   /// application response." << endl;
     serviceDefinition << "   /// @param requestNode sptk::CXmlElement*, Incoming and outgoing SOAP element" << endl;
     serviceDefinition << "   virtual void requestBroker(sptk::CXmlElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
