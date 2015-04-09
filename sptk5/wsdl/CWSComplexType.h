@@ -45,6 +45,7 @@ protected:
    bool m_optional;    ///< Element optionality flag
 public:
    /// @brief Default constructor
+   /// @param name const char*, Element name
    /// @param optional bool, Element optionality flag
    WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional) {}
 

@@ -62,6 +62,7 @@ public:
     /// @param name const char *, field name
     CField(const char *name);
 
+    /// @brief Combination of field view attributes
     struct {
         int     width:10;       ///< Field width
         int     precision:5;    ///< Field precision
