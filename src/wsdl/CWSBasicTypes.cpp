@@ -30,17 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-void WSString::load(const CXmlNode* attr)
-{
-    setString(attr->text());
-}
-
-void WSString::load(std::string attr)
-{
-    setString(attr);
-}
-
-CXmlElement* WSString::addElement(CXmlElement* parent) const
+CXmlElement* WSBasicType::addElement(CXmlElement* parent) const
 {
     string text(asString());
     if (m_optional && text.empty())
@@ -50,6 +40,15 @@ CXmlElement* WSString::addElement(CXmlElement* parent) const
     return element;
 }
 
+void WSString::load(const CXmlNode* attr)
+{
+    setString(attr->text());
+}
+
+void WSString::load(std::string attr)
+{
+    setString(attr);
+}
 
 void WSBool::load(const CXmlNode* attr)
 {
