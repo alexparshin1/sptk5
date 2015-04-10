@@ -47,7 +47,7 @@ public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
     /// @param optional bool, Element optionality flag
-    WSBasicType(const char* name, bool optional=false) : CField(name), m_optional(optional)
+    WSBasicType(const char* name, bool optional) : CField(name), m_optional(optional)
     {}
 
     /// @brief Sets optionality flag
@@ -74,7 +74,7 @@ public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
     /// @param optional bool, Element optionality flag
-    WSString(const char* name, bool optional=false) : WSBasicType(name)
+    WSString(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
         setNull(VAR_STRING);
     }

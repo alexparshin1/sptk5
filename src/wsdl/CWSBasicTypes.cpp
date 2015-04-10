@@ -33,7 +33,7 @@ using namespace sptk;
 CXmlElement* WSBasicType::addElement(CXmlElement* parent) const
 {
     string text(asString());
-    if (m_optional && text.empty())
+    if (m_optional && (isNull() || text.empty()))
         return NULL;
     CXmlElement* element = new CXmlElement(*parent, m_name);
     element->text(text);
