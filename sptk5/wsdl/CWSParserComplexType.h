@@ -62,20 +62,20 @@ public:
     /// @param name std::string, Attribute name
     /// @param typeName std::string, Attribute WSDL type name
     CWSParserAttribute(std::string name="", std::string typeName="");
-    
+
     /// @brief Copy constructor
     /// @param attr const CWSParserAttribute&, Attribute to copy from
     CWSParserAttribute(const CWSParserAttribute& attr);
-    
+
     /// @brief Returns attribute name
     std::string name() const { return m_name; }
-    
+
     /// @brief Generates attribute presentation in C++ skeleton
     std::string generate() const;
-    
+
     /// @brief Returns attribute C++ type name
     std::string cxxTypeName() const { return m_cxxTypeName; }
-    
+
     /// @brief Returns attribute WSDL type name
     std::string wsTypeName() const { return m_wsTypeName; }
 };
@@ -161,7 +161,7 @@ public:
     void parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS;
 
     /// @brief Generates C++ class declaration and implementation
-    void generate(std::ostream& classDeclaration, std::ostream& classImplementation) THROWS_EXCEPTIONS;
+    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, std::string externalHeader) THROWS_EXCEPTIONS;
 };
 
 /// @brief Alias for WSDL complex type

@@ -331,15 +331,19 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 
 /// @brief Stores parsed classes to files in source directory
 /// @param sourceDirectory std::string, Directory to store output classes
-void CWSParser::generate(std::string sourceDirectory) THROWS_EXCEPTIONS
+void CWSParser::generate(std::string sourceDirectory, std::string headerFile) THROWS_EXCEPTIONS
 {
+    CBuffer externalHeader;
+    if (!headerFile.empty())
+        externalHeader.loadFromFile(headerFile);
+
     CStrings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
         CWSParserComplexType* complexType = itor->second;
         string name = itor->first;
         CSourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
-        complexType->generate(module.header(), module.source());
+        complexType->generate(module.header(), module.source(), externalHeader.c_str());
         usedClasses.push_back("C" + complexType->name());
     }
 
@@ -348,6 +352,11 @@ void CWSParser::generate(std::string sourceDirectory) THROWS_EXCEPTIONS
 
     CSourceModule serviceModule(serviceClassName, sourceDirectory);
     serviceModule.open();
+
+    if (externalHeader.bytes()) {
+        serviceModule.header() << externalHeader.c_str() << endl;
+        serviceModule.source() << externalHeader.c_str() << endl;
+    }
 
     generateDefinition(usedClasses, serviceModule.header());
     generateImplementation(serviceModule.source());

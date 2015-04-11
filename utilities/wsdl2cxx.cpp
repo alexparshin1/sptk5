@@ -36,7 +36,7 @@ void help()
     cout << "WSDL to C++ prototype parser. (C) 2012-2013 Alexey Parshin" << endl << endl;
     cout << "Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl;
     cout << "Usage:" << endl << endl;
-    cout << "  wsdl2cxx <WSDL file> [output directory]" << endl;
+    cout << "  wsdl2cxx <WSDL file> [output directory] [header file]" << endl;
 }
 
 int main(int argc, const char* argv[])
@@ -46,21 +46,25 @@ int main(int argc, const char* argv[])
         help();
         return 1;
     }
-    
+
     string outputDirectory;
     if (argc > 2)
         outputDirectory = argv[2];
     else
         outputDirectory = ".";
-    
+
+    string headerFile;
+    if (argc > 3)
+        headerFile = argv[3];
+
     int rc = system(("mkdir -p " + outputDirectory).c_str());
     if (rc != 0) {
         cerr << "Can't open or create output directory '" << outputDirectory << "'." << endl;
         return 1;
     }
-    
+
     wsParser.parse(argv[1]);
-    wsParser.generate(outputDirectory);
-    
+    wsParser.generate(outputDirectory, headerFile);
+
     return 0;
 }

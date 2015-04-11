@@ -152,8 +152,6 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     string className = "C" + wsClassName(m_name);
     set<string> usedClasses;
 
-    classDeclaration << "// Complex type " << className << " declaration" << endl << endl;
-
     string defname = "__" + upperCase(className) + "__";
     classDeclaration << "#ifndef " << defname << endl;
     classDeclaration << "#define " << defname << endl;
@@ -319,8 +317,13 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     classImplementation << "}" << endl;
 }
 
-void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation) THROWS_EXCEPTIONS
+void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation, string externalHeader) THROWS_EXCEPTIONS
 {
+    if (externalHeader.length()) {
+        classDeclaration << externalHeader << endl;
+        classImplementation << externalHeader << endl;
+    }
+
     generateDefinition(classDeclaration);
     generateImplementation(classImplementation);
 }

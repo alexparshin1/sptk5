@@ -93,7 +93,7 @@ protected:
     /// @brief Generates service definition to output stream
     /// @param usedClasses const CStrings&, List of this service complex types (classes)
     /// @param output std::ostream, Output stream
-    void generateDefinition(const CStrings& usedClasses, std::ostream& output) THROWS_EXCEPTIONS;
+    void generateDefinition(const CStrings& usedClasses, std::ostream& serviceDefinition) THROWS_EXCEPTIONS;
 
     /// @brief Generates service implementation to output stream
     /// @param output std::ostream, Output stream
@@ -115,7 +115,8 @@ public:
 
     /// @brief Stores parsed classes to files in source directory
     /// @param sourceDirectory std::string, Directory to store output classes
-    void generate(std::string sourceDirectory=".") THROWS_EXCEPTIONS;
+    /// @param headerFile std::string, Optional header file to insert at the start of each generated file
+    void generate(std::string sourceDirectory=".", std::string headerFile="") THROWS_EXCEPTIONS;
 
     /// @brief Utility function that removes namespace from the element name
     /// @param name const std::string&, Element name
