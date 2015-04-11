@@ -93,7 +93,7 @@ protected:
     /// @brief Generates service definition to output stream
     /// @param usedClasses const CStrings&, List of this service complex types (classes)
     /// @param output std::ostream, Output stream
-    void generateDefinition(const CStrings& usedClasses, std::ostream& serviceDefinition) THROWS_EXCEPTIONS;
+    void generateDefinition(const CStrings& usedClasses, std::ostream& output) THROWS_EXCEPTIONS;
 
     /// @brief Generates service implementation to output stream
     /// @param output std::ostream, Output stream
