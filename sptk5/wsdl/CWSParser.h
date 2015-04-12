@@ -121,6 +121,10 @@ public:
     /// @brief Utility function that removes namespace from the element name
     /// @param name const std::string&, Element name
     static std::string strip_namespace(const std::string& name);
+
+    /// @brief Utility function that returns namespace from the element name
+    /// @param name const std::string&, Element name
+    static std::string get_namespace(const std::string& name);
 };
 
 }

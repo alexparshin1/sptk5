@@ -57,3 +57,7 @@ CTimeoutException::~CTimeoutException() DOESNT_THROW
 CDatabaseException::~CDatabaseException() DOESNT_THROW
 {
 }
+
+CSOAPException::~CSOAPException() DOESNT_THROW
+{
+}
