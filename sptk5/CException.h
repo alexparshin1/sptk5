@@ -160,6 +160,34 @@ public:
     ~CDatabaseException() DOESNT_THROW;
 };
 
+/// @brief SOAP exception
+///
+/// Thrown every time when SOAP fault occurs.
+class SP_EXPORT CSOAPException: public CException
+{
+public:
+    /// Constructor
+    /// @param text std::string, the exception text
+    /// @param file std::string, the file where exception occurs
+    /// @param line int, the line number in the file where exception occurs
+    /// @param description std::string, the optional description information
+    CSOAPException(std::string text, std::string file = "", int line = 0,
+                      std::string description = "") :
+                      CException(text, file, line, description)
+    {
+    }
+
+    /// @brief Copy constructor
+    /// @param other const CSOAPException&, other exception object
+    CSOAPException(const CSOAPException& other)
+    : CException(other)
+    {
+    }
+
+    /// @brief Destructor
+    ~CSOAPException() DOESNT_THROW;
+};
+
 /// Defines a handy macros that automatically registers filename and line number
 /// for the place an exception is thrown from
 
@@ -171,6 +199,9 @@ public:
 
 /// @brief Throws database exception with file name and line number
 #define throwDatabaseException(msg) throw CDatabaseException(msg,__FILE__,__LINE__)
+
+/// @brief Throws SOAP exception with file name and line number
+#define throwSOAPException(msg) throw CSOAPException(msg,__FILE__,__LINE__)
 
 /// @}
 }

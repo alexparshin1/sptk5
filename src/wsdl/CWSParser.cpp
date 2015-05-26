@@ -204,6 +204,14 @@ string CWSParser::strip_namespace(const string& name)
     return name.substr(pos + 1);
 }
 
+string CWSParser::get_namespace(const string& name)
+{
+    size_t pos = name.find(":");
+    if (pos == string::npos)
+        return name;
+    return name.substr(0, pos);
+}
+
 void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
@@ -291,16 +299,30 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
     serviceImplementation << "   static const CStrings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
     serviceImplementation << "   string requestName = CWSParser::strip_namespace(requestNode->name());" << endl;
     serviceImplementation << "   int messageIndex = messageNames.indexOf(requestName);" << endl;
-    serviceImplementation << "   switch (messageIndex) {" << endl;
+    serviceImplementation << "   try {" << endl;
+    serviceImplementation << "      switch (messageIndex) {" << endl;
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
         string requestName = strip_namespace(itor->second.m_input->name());
         int messageIndex = serviceOperations.indexOf(requestName);
-        serviceImplementation << "   case " << messageIndex << ":" << endl;
-        serviceImplementation << "      process_" << requestName << "(requestNode);" << endl;
-        serviceImplementation << "      break;" << endl;
+        serviceImplementation << "      case " << messageIndex << ":" << endl;
+        serviceImplementation << "         process_" << requestName << "(requestNode);" << endl;
+        serviceImplementation << "         break;" << endl;
     }
-    serviceImplementation << "   default:" << endl;
-    serviceImplementation << "      throwException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\");" << endl;
+    serviceImplementation << "      default:" << endl;
+    serviceImplementation << "         throwSOAPException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\");" << endl;
+    serviceImplementation << "      }" << endl;
+    serviceImplementation << "   }" << endl;
+    serviceImplementation << "   catch (const CSOAPException& e) {" << endl;
+    serviceImplementation << "      CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
+    serviceImplementation << "      soapBody->clearChildren();" << endl;
+    serviceImplementation << "      string soap_namespace = CWSParser::get_namespace(soapBody->name());" << endl;
+    serviceImplementation << "      if (!soap_namespace.empty()) soap_namespace += \":\";" << endl;
+    serviceImplementation << "      CXmlElement* faultNode = new CXmlElement(soapBody, (soap_namespace + \"Fault\").c_str());" << endl;
+    serviceImplementation << "      CXmlElement* faultCodeNode = new CXmlElement(faultNode, \"faultcode\");" << endl;
+    serviceImplementation << "      faultCodeNode->text(soap_namespace + \"Client\");" << endl;
+    serviceImplementation << "      CXmlElement* faultStringNode = new CXmlElement(faultNode, \"faultstring\");" << endl;
+    serviceImplementation << "      faultStringNode->text(e.what());" << endl;
+    serviceImplementation << "      new CXmlElement(faultNode, \"detail\");" << endl;
     serviceImplementation << "   }" << endl;
     serviceImplementation << "}" << endl << endl;
 
@@ -331,15 +353,19 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 
 /// @brief Stores parsed classes to files in source directory
 /// @param sourceDirectory std::string, Directory to store output classes
-void CWSParser::generate(std::string sourceDirectory) THROWS_EXCEPTIONS
+void CWSParser::generate(std::string sourceDirectory, std::string headerFile) THROWS_EXCEPTIONS
 {
+    CBuffer externalHeader;
+    if (!headerFile.empty())
+        externalHeader.loadFromFile(headerFile);
+
     CStrings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
         CWSParserComplexType* complexType = itor->second;
         string name = itor->first;
         CSourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
-        complexType->generate(module.header(), module.source());
+        complexType->generate(module.header(), module.source(), externalHeader.c_str());
         usedClasses.push_back("C" + complexType->name());
     }
 
@@ -348,6 +374,11 @@ void CWSParser::generate(std::string sourceDirectory) THROWS_EXCEPTIONS
 
     CSourceModule serviceModule(serviceClassName, sourceDirectory);
     serviceModule.open();
+
+    if (externalHeader.bytes()) {
+        serviceModule.header() << externalHeader.c_str() << endl;
+        serviceModule.source() << externalHeader.c_str() << endl;
+    }
 
     generateDefinition(usedClasses, serviceModule.header());
     generateImplementation(serviceModule.source());

@@ -152,8 +152,6 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     string className = "C" + wsClassName(m_name);
     set<string> usedClasses;
 
-    classDeclaration << "// Complex type " << className << " declaration" << endl << endl;
-
     string defname = "__" + upperCase(className) + "__";
     classDeclaration << "#ifndef " << defname << endl;
     classDeclaration << "#define " << defname << endl;
@@ -255,6 +253,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     // Loader
     classImplementation << "void " << className << "::load(const CXmlElement* input) THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
+    classImplementation << "   m_loaded = true;" << endl << endl;
     if (m_attributes.size()) {
         classImplementation << "   // Load attributes" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
@@ -267,6 +266,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         classImplementation << "   // Load elements" << endl;
         classImplementation << "   for (CXmlElement::const_iterator itor = input->begin(); itor != input->end(); itor++) {" << endl;
         classImplementation << "      CXmlElement* element = (CXmlElement*) *itor;" << endl;
+        CStrings requiredElements;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
             CWSParserComplexType* complexType = *itor;
             classImplementation << "      if (element->name() == \"" << complexType->name() << "\") {" << endl;
@@ -284,11 +284,19 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
                 if (complexType->m_restriction)
                     classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
                 classImplementation << "         continue;" << endl;
+                if (complexType->multiplicity() & CWSM_REQUIRED)
+                    requiredElements.push_back(complexType->name());
             }
             classImplementation << "      }" << endl;
         }
         classImplementation << "   }" << endl;
+
+        for (string& requiredElement: requiredElements) {
+            classImplementation << "   if (m_" << requiredElement << ".isNull())" << endl;
+            classImplementation << "      throw CSOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
+        }
     }
+
     classImplementation << "}" << endl << endl;
 
     // Unloader
@@ -319,8 +327,13 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     classImplementation << "}" << endl;
 }
 
-void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation) THROWS_EXCEPTIONS
+void CWSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation, string externalHeader) THROWS_EXCEPTIONS
 {
+    if (externalHeader.length()) {
+        classDeclaration << externalHeader << endl;
+        classImplementation << externalHeader << endl;
+    }
+
     generateDefinition(classDeclaration);
     generateImplementation(classImplementation);
 }

@@ -115,11 +115,16 @@ public:
 
     /// @brief Stores parsed classes to files in source directory
     /// @param sourceDirectory std::string, Directory to store output classes
-    void generate(std::string sourceDirectory=".") THROWS_EXCEPTIONS;
+    /// @param headerFile std::string, Optional header file to insert at the start of each generated file
+    void generate(std::string sourceDirectory=".", std::string headerFile="") THROWS_EXCEPTIONS;
 
     /// @brief Utility function that removes namespace from the element name
     /// @param name const std::string&, Element name
     static std::string strip_namespace(const std::string& name);
+
+    /// @brief Utility function that returns namespace from the element name
+    /// @param name const std::string&, Element name
+    static std::string get_namespace(const std::string& name);
 };
 
 }
