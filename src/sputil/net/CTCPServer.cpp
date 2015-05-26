@@ -32,10 +32,6 @@
 using namespace std;
 using namespace sptk;
 
-CTCPConnection::~CTCPConnection()
-{
-}
-
 bool CTCPServer::allowConnection(sockaddr_in* connectionRequest)
 {
     return true;
@@ -56,10 +52,10 @@ void CTCPServerListener::threadFunction()
                 SOCKET connectionFD;
                 struct sockaddr_in connectionInfo;
                 m_listenerSocket.accept(connectionFD, connectionInfo);
-				if (int(connectionFD) == -1)
-					continue;
-				if (m_server->allowConnection(&connectionInfo)) {
-                    CTCPConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
+                if (int(connectionFD) == -1)
+                    continue;
+                if (m_server->allowConnection(&connectionInfo)) {
+                    CTCPServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
                     m_server->registerConnection(connection);
                     connection->run();
                 } else {
@@ -87,7 +83,7 @@ void CTCPServerListener::terminate()
     m_listenerSocket.close();
 }
 
-void CTCPConnection::onThreadExit()
+void CTCPServerConnection::onThreadExit()
 {
     try {
         m_server->unregisterConnection(this);
@@ -112,7 +108,7 @@ void CTCPServer::stop()
     {
         CSynchronizedCode   m_sync(m_connectionThreadsLock);
 
-        set<CTCPConnection*>::iterator itor;
+        set<CTCPServerConnection*>::iterator itor;
 
         for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
             (*itor)->terminate();
@@ -133,7 +129,7 @@ void CTCPServer::stop()
     }
 }
 
-void CTCPServer::registerConnection(CTCPConnection* connection)
+void CTCPServer::registerConnection(CTCPServerConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
@@ -141,7 +137,7 @@ void CTCPServer::registerConnection(CTCPConnection* connection)
     //cout << "Connection created" << endl;
 }
 
-void CTCPServer::unregisterConnection(CTCPConnection* connection)
+void CTCPServer::unregisterConnection(CTCPServerConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);

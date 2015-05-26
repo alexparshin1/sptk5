@@ -29,14 +29,16 @@
 #ifndef __CTCPSERVER_H__
 #define __CTCPSERVER_H__
 
-#include <sptk5/net/CTCPSocket.h>
-#include <sptk5/threads/CThread.h>
+#include <sptk5/net/CTCPServerConnection.h>
 #include <set>
 
 namespace sptk
 {
 
 class CTCPServer;
+
+/// @addtogroup net Networking Classes
+/// @{
 
 /// @brief Internal TCP server listener thread
 class CTCPServerListener: public CThread
@@ -69,48 +71,16 @@ public:
     }
 };
 
-/// @brief Abstract TCP connection thread
-///
-/// Application creates concrete TCP connection based on this class
-/// to use with CTCPServer as connection template
-class CTCPConnection: public CThread
-{
-    friend class CTCPServer;
-protected:
-    CTCPSocket      m_socket;   ///< Connection socket
-    CTCPServer*     m_server;   ///< Parent server object
-public:
-    /// @brief Constructor
-    /// @param connectionSocket SOCKET, Already accepted incoming connection socket
-    CTCPConnection(SOCKET connectionSocket) :
-            CThread("CTCPServer::Connection")
-    {
-        m_socket.attach(connectionSocket);
-    }
-
-    /// @brief Destructor
-    virtual ~CTCPConnection();
-
-    /// @brief Thread function
-    virtual void threadFunction() = 0;
-
-    /// @brief Method that is called upon thread exit
-    virtual void onThreadExit();
-};
-
-/// @addtogroup net Networking Classes
-/// @{
-
 /// @brief TCP server
 ///
 /// For every incoming connection, creates connection thread.
 class CTCPServer: public CSynchronized
 {
     friend class CTCPServerListener;
-    friend class CTCPConnection;
-    CTCPServerListener*         m_listenerThread;           ///< Server listener object
-    std::set<CTCPConnection*>   m_connectionThreads;        ///< Per-connection thread set
-    CSynchronized               m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
+    friend class CTCPServerConnection;
+    CTCPServerListener*             m_listenerThread;           ///< Server listener object
+    std::set<CTCPServerConnection*> m_connectionThreads;        ///< Per-connection thread set
+    CSynchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
 protected:
     /// @brief Screens incoming connection request
     ///
@@ -119,23 +89,23 @@ protected:
     /// @param connectionRequest sockaddr_in*, Incoming connection information
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
-    /// @brief Creates connection thread derived from CTCPConnection
+    /// @brief Creates connection thread derived from CTCPServerConnection
     ///
     /// Application should override this method to create concrete connection object.
     /// Created connection object is maintained by CTCPServer.
     /// @param connectionSocket SOCKET, Already accepted incoming connection socket
     /// @param peer sockaddr_in*, Incoming connection information
-    virtual CTCPConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
+    virtual CTCPServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
     /// @brief Receives notification on connection thread created
-    /// @param connection CTCPConnection*, Newly created connection thread
-    void registerConnection(CTCPConnection* connection);
+    /// @param connection CTCPServerConnection*, Newly created connection thread
+    void registerConnection(CTCPServerConnection* connection);
 
     /// @brief Receives notification on connection thread exited
     ///
     /// Connection thread is self-destructing immediately after exiting this method
-    /// @param connection CTCPConnection*, Exited connection thread
-    void unregisterConnection(CTCPConnection* connection);
+    /// @param connection CTCPServerConnection*, Exited connection thread
+    void unregisterConnection(CTCPServerConnection* connection);
 
 public:
     /// @brief Constructor
