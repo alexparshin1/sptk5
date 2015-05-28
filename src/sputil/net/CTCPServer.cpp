@@ -55,7 +55,7 @@ void CTCPServerListener::threadFunction()
                 if (int(connectionFD) == -1)
                     continue;
                 if (m_server->allowConnection(&connectionInfo)) {
-                    CTCPServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
+                    CServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
                     m_server->registerConnection(connection);
                     connection->run();
                 } else {
@@ -83,15 +83,6 @@ void CTCPServerListener::terminate()
     m_listenerSocket.close();
 }
 
-void CTCPServerConnection::onThreadExit()
-{
-    try {
-        m_server->unregisterConnection(this);
-        delete this;
-    }
-    catch (...) {}
-}
-
 void CTCPServer::listen(int port)
 {
     SYNCHRONIZED_CODE;
@@ -108,7 +99,7 @@ void CTCPServer::stop()
     {
         CSynchronizedCode   m_sync(m_connectionThreadsLock);
 
-        set<CTCPServerConnection*>::iterator itor;
+        set<CServerConnection*>::iterator itor;
 
         for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
             (*itor)->terminate();
@@ -129,7 +120,7 @@ void CTCPServer::stop()
     }
 }
 
-void CTCPServer::registerConnection(CTCPServerConnection* connection)
+void CTCPServer::registerConnection(CServerConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
@@ -137,7 +128,7 @@ void CTCPServer::registerConnection(CTCPServerConnection* connection)
     //cout << "Connection created" << endl;
 }
 
-void CTCPServer::unregisterConnection(CTCPServerConnection* connection)
+void CTCPServer::unregisterConnection(CServerConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);

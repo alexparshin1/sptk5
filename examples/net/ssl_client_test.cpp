@@ -28,7 +28,7 @@
 #include <iostream>
 #include <sptk5/cutils>
 #include <sptk5/cnet>
-#include <sptk5/net/COpenSSLSocket.h>
+#include <sptk5/net/CSSLSocket.h>
 
 using namespace std;
 using namespace sptk;
@@ -36,10 +36,10 @@ using namespace sptk;
 int main(int, const char**)
 {
     try {
-        COpenSSLContext sslContext;
+        CSSLContext sslContext;
         sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
 
-        COpenSSLSocket client(sslContext);
+        CSSLSocket client(sslContext);
         CBuffer buffer;
 
         for (unsigned i = 0; i < 10; i++) {

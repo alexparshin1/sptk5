@@ -29,7 +29,7 @@
 #ifndef __CTCPSERVER_H__
 #define __CTCPSERVER_H__
 
-#include <sptk5/net/CTCPServerConnection.h>
+#include <sptk5/net/CServerConnection.h>
 #include <set>
 
 namespace sptk
@@ -77,9 +77,9 @@ public:
 class CTCPServer: public CSynchronized
 {
     friend class CTCPServerListener;
-    friend class CTCPServerConnection;
+    friend class CServerConnection;
     CTCPServerListener*             m_listenerThread;           ///< Server listener object
-    std::set<CTCPServerConnection*> m_connectionThreads;        ///< Per-connection thread set
+    std::set<CServerConnection*>    m_connectionThreads;        ///< Per-connection thread set
     CSynchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
 protected:
     /// @brief Screens incoming connection request
@@ -89,23 +89,23 @@ protected:
     /// @param connectionRequest sockaddr_in*, Incoming connection information
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
-    /// @brief Creates connection thread derived from CTCPServerConnection
+    /// @brief Creates connection thread derived from CTCPServerConnection or CSSLServerConnection
     ///
     /// Application should override this method to create concrete connection object.
     /// Created connection object is maintained by CTCPServer.
     /// @param connectionSocket SOCKET, Already accepted incoming connection socket
     /// @param peer sockaddr_in*, Incoming connection information
-    virtual CTCPServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
+    virtual CServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
     /// @brief Receives notification on connection thread created
-    /// @param connection CTCPServerConnection*, Newly created connection thread
-    void registerConnection(CTCPServerConnection* connection);
+    /// @param connection CServerConnection*, Newly created connection thread
+    void registerConnection(CServerConnection* connection);
 
     /// @brief Receives notification on connection thread exited
     ///
     /// Connection thread is self-destructing immediately after exiting this method
-    /// @param connection CTCPServerConnection*, Exited connection thread
-    void unregisterConnection(CTCPServerConnection* connection);
+    /// @param connection CServerConnection*, Exited connection thread
+    void unregisterConnection(CServerConnection* connection);
 
 public:
     /// @brief Constructor

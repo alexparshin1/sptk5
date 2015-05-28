@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CTCPServerConnection.h  -  description
+                          CServerConnection.h  -  description
                              -------------------
     begin                : Jul 13 2013
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -26,33 +26,50 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CTCPSERVERCONNECTION_H__
-#define __CTCPSERVERCONNECTION_H__
+#ifndef __CSERVERCONNECTION_H__
+#define __CSERVERCONNECTION_H__
 
-#include <sptk5/net/CServerConnection.h>
+#include <sptk5/net/CTCPSocket.h>
+#include <sptk5/threads/CThread.h>
 
 namespace sptk
 {
 
+class CTCPServer;
+
 /// @addtogroup net Networking Classes
 /// @{
 
-/// @brief Abstract TCP server connection thread
+/// @brief Abstract TCP or SSL server connection thread
 ///
-/// Application derives concrete TCP server connections based on this class,
-/// to use with CTCPServer as connection template
-class CTCPServerConnection: public CServerConnection
+/// Used a base class for CTCPServerConnection and COpenSSLServerConnection
+class CServerConnection: public CThread
 {
+    friend class CTCPServer;
+protected:
+    CTCPSocket*     m_socket;   ///< Connection socket
+    CTCPServer*     m_server;   ///< Parent server object
 public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param socket CTCPSocket*, Optional external socket object
-    CTCPServerConnection(SOCKET connectionSocket)
-    : CServerConnection(connectionSocket, "TCPServerConnection")
+    /// @param threadName std::string, Already accepted by accept() function incoming connection socket
+    CServerConnection(SOCKET connectionSocket, std::string threadName)
+    : CThread(threadName), m_socket(NULL)
     {
-        m_socket = new CTCPSocket;
-        m_socket->attach(connectionSocket);
     }
+
+    /// @brief Destructor
+    virtual ~CServerConnection()
+    {
+        if (m_socket)
+            delete m_socket;
+    }
+
+    /// @brief Thread function
+    virtual void threadFunction() = 0;
+
+    /// @brief Method that is called upon thread exit
+    virtual void onThreadExit();
 };
 
 /// @}

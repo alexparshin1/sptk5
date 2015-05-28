@@ -1,8 +1,8 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CTCPServerConnection.h  -  description
+                          CSSLServerConnection.h  -  description
                              -------------------
-    begin                : Jul 13 2013
+    begin                : Feb 24 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
@@ -26,8 +26,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CTCPSERVERCONNECTION_H__
-#define __CTCPSERVERCONNECTION_H__
+#ifndef __CSSLSERVERCONNECTION_H__
+#define __CSSLSERVERCONNECTION_H__
 
 #include <sptk5/net/CServerConnection.h>
 
@@ -41,16 +41,17 @@ namespace sptk
 ///
 /// Application derives concrete TCP server connections based on this class,
 /// to use with CTCPServer as connection template
-class CTCPServerConnection: public CServerConnection
+class CSSLServerConnection: public CServerConnection
 {
+    CSSLContext     m_sslContext;
 public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
     /// @param socket CTCPSocket*, Optional external socket object
-    CTCPServerConnection(SOCKET connectionSocket)
-    : CServerConnection(connectionSocket, "TCPServerConnection")
+    CSSLServerConnection(SOCKET connectionSocket)
+    : CServerConnection(connectionSocket, "SSLServerConnection")
     {
-        m_socket = new CTCPSocket;
+        m_socket = new CSSLSocket(m_sslContext);
         m_socket->attach(connectionSocket);
     }
 };

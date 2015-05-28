@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          COpenSSLContext.cpp  -  description
+                          CSSLContext.cpp  -  description
                              -------------------
     begin                : Oct 30 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -28,22 +28,22 @@
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <sptk5/net/COpenSSLContext.h>
+#include <sptk5/net/CSSLContext.h>
 
 using namespace std;
 using namespace sptk;
 
 static int s_server_session_id_context = 1;
-bool COpenSSLContext::m_loaded(false);
+bool CSSLContext::m_loaded(false);
 
-void COpenSSLContext::throwError(string humanDescription)
+void CSSLContext::throwError(string humanDescription)
 {
     int error = ERR_get_error();
     string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
     throwException(humanDescription + "\n" + errorStr);
 }
 
-void COpenSSLContext::init()
+void CSSLContext::init()
 {
     static CSynchronized sync;
     
@@ -57,7 +57,7 @@ void COpenSSLContext::init()
     }
 }
 
-COpenSSLContext::COpenSSLContext()
+CSSLContext::CSSLContext()
 {
     init();
     m_ctx = SSL_CTX_new(SSLv23_method());
@@ -65,26 +65,26 @@ COpenSSLContext::COpenSSLContext()
     SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context, sizeof s_server_session_id_context);
 }
 
-COpenSSLContext::~COpenSSLContext()
+CSSLContext::~CSSLContext()
 {
     SYNCHRONIZED_CODE;
     SSL_CTX_free(m_ctx);
 }
 
-SSL_CTX* COpenSSLContext::handle()
+SSL_CTX* CSSLContext::handle()
 {
     SYNCHRONIZED_CODE;
     return m_ctx;
 }
 
-int COpenSSLContext::passwordReplyCallback(char *replyBuffer, int replySize, int/*rwflag*/, void *userdata)
+int CSSLContext::passwordReplyCallback(char *replyBuffer, int replySize, int/*rwflag*/, void *userdata)
 {
     strncpy(replyBuffer, (const char *) userdata, replySize);
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }
 
-void COpenSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw (exception)
+void CSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw (exception)
 {
     SYNCHRONIZED_CODE;
 

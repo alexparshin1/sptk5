@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CTCPServerConnection.h  -  description
+                          CServerConnection.cpp  -  description
                              -------------------
     begin                : Jul 13 2013
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -26,35 +26,16 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CTCPSERVERCONNECTION_H__
-#define __CTCPSERVERCONNECTION_H__
+#include <sptk5/net/CTCPServer.h>
 
-#include <sptk5/net/CServerConnection.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk
+void CServerConnection::onThreadExit()
 {
-
-/// @addtogroup net Networking Classes
-/// @{
-
-/// @brief Abstract TCP server connection thread
-///
-/// Application derives concrete TCP server connections based on this class,
-/// to use with CTCPServer as connection template
-class CTCPServerConnection: public CServerConnection
-{
-public:
-    /// @brief Constructor
-    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param socket CTCPSocket*, Optional external socket object
-    CTCPServerConnection(SOCKET connectionSocket)
-    : CServerConnection(connectionSocket, "TCPServerConnection")
-    {
-        m_socket = new CTCPSocket;
-        m_socket->attach(connectionSocket);
+    try {
+        m_server->unregisterConnection(this);
+        delete this;
     }
-};
-
-/// @}
+    catch (...) {}
 }
-#endif

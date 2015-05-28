@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          COpenSSLSocket.cpp  -  description
+                          CSSLSocket.cpp  -  description
                              -------------------
     begin                : Oct 30 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -28,30 +28,30 @@
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <sptk5/net/COpenSSLSocket.h>
+#include <sptk5/net/CSSLSocket.h>
 #include <sptk5/threads/CThread.h>
 
 using namespace std;
 using namespace sptk;
 
-void COpenSSLSocket::throwOpenSSLError(int rc)
+void CSSLSocket::throwSSLError(int rc)
 {
     int errorCode = SSL_get_error(m_ssl, rc);
-    string error = getOpenSSLError("SSL_connect", errorCode);
+    string error = getSSLError("SSL_connect", errorCode);
     throw CException(error, __FILE__, __LINE__);
 }
 
-COpenSSLSocket::COpenSSLSocket(COpenSSLContext& sslContext)
+CSSLSocket::CSSLSocket(CSSLContext& sslContext)
 : m_ssl(SSL_new(sslContext.handle()))
 {
 }
 
-COpenSSLSocket::~COpenSSLSocket()
+CSSLSocket::~CSSLSocket()
 {
     SSL_free(m_ssl);
 }
 
-void COpenSSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode) THROWS_EXCEPTIONS
+void CSSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode) THROWS_EXCEPTIONS
 {
     CTCPSocket::open(hostName, port, openMode);
 
@@ -62,17 +62,17 @@ void COpenSSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMo
     int rc = SSL_connect(m_ssl);
     if (rc <= 0) {
         close();
-        throwOpenSSLError(rc);
+        throwSSLError(rc);
     }
 }
 
-void COpenSSLSocket::close()
+void CSSLSocket::close()
 {
     SSL_set_fd(m_ssl, -1);
     CTCPSocket::close();
 }
 
-void COpenSSLSocket::attach(SOCKET socketHandle) throw (std::exception)
+void CSSLSocket::attach(SOCKET socketHandle) throw (std::exception)
 {
     SYNCHRONIZED_CODE;
 
@@ -87,7 +87,7 @@ void COpenSSLSocket::attach(SOCKET socketHandle) throw (std::exception)
     
     if (rc <= 0) {
         int32_t errorCode = SSL_get_error(m_ssl, rc);
-        string error = getOpenSSLError("SSL_accept", errorCode);
+        string error = getSSLError("SSL_accept", errorCode);
 
         // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
         if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
@@ -98,7 +98,7 @@ void COpenSSLSocket::attach(SOCKET socketHandle) throw (std::exception)
     }
 }
 
-string COpenSSLSocket::getOpenSSLError(std::string function, int32_t openSSLError) const
+string CSSLSocket::getSSLError(std::string function, int32_t openSSLError) const
 {
     string error("ERROR " + function + ": ");
 
@@ -126,7 +126,7 @@ string COpenSSLSocket::getOpenSSLError(std::string function, int32_t openSSLErro
     return error + ERR_func_error_string(openSSLError) + string(": ") + ERR_reason_error_string(openSSLError);
 }
 
-uint32_t COpenSSLSocket::socketBytes()
+uint32_t CSSLSocket::socketBytes()
 {
     if (m_ssl) {
         char dummy[8];
@@ -136,18 +136,18 @@ uint32_t COpenSSLSocket::socketBytes()
     return 0;
 }
 
-size_t COpenSSLSocket::recv(void* buffer, size_t size) throw (exception)
+size_t CSSLSocket::recv(void* buffer, size_t size) throw (exception)
 {
     int rc = SSL_read(m_ssl, buffer, (int) size);
     if (rc == 0)
         throw CException("Connection terminated");
     if (rc < 0)
-        throwOpenSSLError(rc);
+        throwSSLError(rc);
     return rc;
 }
 
 #define WRITE_BLOCK 16384
-size_t COpenSSLSocket::send(const void* buffer, size_t len) throw (exception)
+size_t CSSLSocket::send(const void* buffer, size_t len) throw (exception)
 {
     const char* ptr = (const char*) buffer;
     uint32_t    totalLen = (uint32_t)len;
@@ -166,7 +166,7 @@ size_t COpenSSLSocket::send(const void* buffer, size_t len) throw (exception)
         }
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         if (errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
-            throw CException(getOpenSSLError("writing to SSL connection", errorCode));
+            throw CException(getSSLError("writing to SSL connection", errorCode));
         CThread::msleep(10);
     }
     return rc;
