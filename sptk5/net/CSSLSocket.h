@@ -90,7 +90,7 @@ public:
     /// This method is designed to only attach socket handles
     /// obtained with accept().
     /// @param socketHandle SOCKET, existing socket handle
-    void attach(SOCKET socketHandle) throw (std::exception);
+    virtual void attach(SOCKET socketHandle) throw (std::exception);
 
     /// @brief Closes the socket connection
     ///
