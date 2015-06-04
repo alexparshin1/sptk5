@@ -5,8 +5,7 @@
     begin                : Feb 24 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
- ***************************************************************************/
-
+**************************************************************************/
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -24,7 +23,7 @@
    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
    Please report all bugs and problems to "alexeyp@gmail.com"
- ***************************************************************************/
+***************************************************************************/
 
 #ifndef __CSSLSERVERCONNECTION_H__
 #define __CSSLSERVERCONNECTION_H__
@@ -33,7 +32,6 @@
 
 namespace sptk
 {
-
 /// @addtogroup net Networking Classes
 /// @{
 
@@ -43,16 +41,30 @@ namespace sptk
 /// to use with CTCPServer as connection template
 class CSSLServerConnection: public CServerConnection
 {
-    CSSLContext     m_sslContext;
+    CSSLContext*    m_sslContext;
 public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param socket CTCPSocket*, Optional external socket object
-    CSSLServerConnection(SOCKET connectionSocket)
+    /// @param sslContext CSSLContext*, Optional SSL context (deleted automatically in destructor)
+    CSSLServerConnection(SOCKET connectionSocket, CSSLContext* sslContext=NULL)
     : CServerConnection(connectionSocket, "SSLServerConnection")
     {
-        m_socket = new CSSLSocket(m_sslContext);
+        if (sslContext == NULL)
+            sslContext = new CSSLContext;
+        m_sslContext = sslContext;
+        m_socket = new CSSLSocket(*m_sslContext);
         m_socket->attach(connectionSocket);
+    }
+
+    /// @brief Destructor
+    virtual ~CSSLServerConnection()
+    {
+        if (m_socket) {
+            delete m_socket;
+            m_socket = NULL;
+        }
+        if (m_sslContext)
+            delete m_sslContext;
     }
 };
 
