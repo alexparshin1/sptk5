@@ -40,5 +40,6 @@
 #include <sptk5/net/CTCPServer.h>
 #include <sptk5/net/CTCPServerConnection.h>
 #include <sptk5/net/CUDPSocket.h>
+#include <sptk5/net/CSSLSocket.h>
 
 #endif

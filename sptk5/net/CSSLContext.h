@@ -62,7 +62,7 @@ public:
 
     /// @brief Loads private key and certificate(s)
     ///
-    /// Private key and certificates must be encoded with PEM format. 
+    /// Private key and certificates must be encoded with PEM format.
     /// A single file containing private key and certificate can be used by supplying it for both,
     /// private key and certificate parameters.
     /// If private key is protected with password, then password can be supplied to auto-answer.

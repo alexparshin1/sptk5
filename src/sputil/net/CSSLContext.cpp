@@ -92,7 +92,7 @@ void CSSLContext::loadKeys(string privateKeyFileName, string certificateFileName
     m_password = password;
 
     // Load keys and certificates
-    if ( SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
+    if (SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
         throwError("Can't use certificate file " + certificateFileName);
 
     // Define password for auto-answer in callback function
@@ -101,8 +101,11 @@ void CSSLContext::loadKeys(string privateKeyFileName, string certificateFileName
     if (SSL_CTX_use_PrivateKey_file(m_ctx, privateKeyFileName.c_str(), SSL_FILETYPE_PEM) <= 0)
         throwError("Can't use private key file " + privateKeyFileName);
 
+    if (!SSL_CTX_check_private_key(m_ctx))
+        throwError("Can't check private key file " + privateKeyFileName);
+
     // Load the CAs we trust
-    if (caFileName.empty() || SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), 0) <= 0)
+    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), 0) <= 0)
         throwError("Can't load or verify CA file " + caFileName);
 
     if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)

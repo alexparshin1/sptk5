@@ -81,10 +81,10 @@ void CSSLSocket::attach(SOCKET socketHandle) throw (std::exception)
         CTCPSocket::attach(socketHandle);
         rc = SSL_set_fd(m_ssl, (int) socketHandle);
     }
-    
+
     if (rc > 0)
         rc = SSL_accept(m_ssl);
-    
+
     if (rc <= 0) {
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         string error = getSSLError("SSL_accept", errorCode);
@@ -139,8 +139,8 @@ uint32_t CSSLSocket::socketBytes()
 size_t CSSLSocket::recv(void* buffer, size_t size) throw (exception)
 {
     int rc = SSL_read(m_ssl, buffer, (int) size);
-    if (rc == 0)
-        throw CException("Connection terminated");
+    //if (rc == 0)
+    //    throw CException("Connection terminated");
     if (rc < 0)
         throwSSLError(rc);
     return rc;

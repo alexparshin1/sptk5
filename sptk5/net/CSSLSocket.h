@@ -43,6 +43,7 @@ class CSSLSocket: public sptk::CTCPSocket, public sptk::CSynchronized
     SSL*        m_ssl;          ///< SSL socket
 
     /// @brief Returns number of bytes in the SSL socket
+public:
     virtual uint32_t socketBytes();
 
     void throwSSLError(int rc);
@@ -96,6 +97,12 @@ public:
     ///
     /// This method is not thread-safe.
     virtual void close();
+
+    /// @brief Returns SSL handle
+    SSL* handle()
+    {
+        return m_ssl;
+    }
 };
 
 /// @}
