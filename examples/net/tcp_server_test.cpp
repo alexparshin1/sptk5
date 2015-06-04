@@ -42,7 +42,8 @@
 
 using namespace sptk;
 
-int main( int argc, char* argv[] ) {
+int main( int argc, char* argv[] )
+{
    std::cout << "running....\n";
 
    try {

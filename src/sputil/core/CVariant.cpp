@@ -659,9 +659,6 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     case VAR_IMAGE_NDX:
         sprintf (print_buffer,"%i",m_data.imageNdx);
         return string (print_buffer);
-
-    default:
-        return "";
     }
 }
 
