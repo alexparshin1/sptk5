@@ -583,7 +583,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     char print_buffer[64];
 
     switch (dataType()) {
-    case VAR_NONE:
+    default:
         return "";
 
     case VAR_BOOL:

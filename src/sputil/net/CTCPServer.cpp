@@ -49,32 +49,41 @@ void CTCPServerListener::threadFunction()
     try {
         while (!terminated()) {
             if (m_listenerSocket.readyToRead(1000)) {
-                SOCKET connectionFD;
-                struct sockaddr_in connectionInfo;
-                m_listenerSocket.accept(connectionFD, connectionInfo);
-                if (int(connectionFD) == -1)
-                    continue;
-                if (m_server->allowConnection(&connectionInfo)) {
-                    CServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
-                    m_server->registerConnection(connection);
-                    connection->run();
-                } else {
-                    #ifndef _WIN32
-                        shutdown(connectionFD,SHUT_RDWR);
-                        ::close (connectionFD);
-                    #else
-                        closesocket (connectionFD);
-                    #endif
-                }
-            }
+				try {
+					SOCKET connectionFD;
+					struct sockaddr_in connectionInfo;
+					m_listenerSocket.accept(connectionFD, connectionInfo);
+					if (int(connectionFD) == -1)
+						continue;
+					if (m_server->allowConnection(&connectionInfo)) {
+						CServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
+						m_server->registerConnection(connection);
+						connection->run();
+					}
+					else {
+#ifndef _WIN32
+						shutdown(connectionFD,SHUT_RDWR);
+						::close (connectionFD);
+#else
+						closesocket(connectionFD);
+#endif
+					}
+				}
+				catch (exception& e) {
+					m_server->log(CLP_ERROR, e.what());
+				}
+				catch (...) {
+					m_server->log(CLP_ERROR, "Unknown exception");
+				}
+			}
         }
     }
-    catch (exception& e) {
-        m_error = e.what();
-    }
-    catch (...) {
-        m_error = "Unknown exception";
-    }
+	catch (exception& e) {
+		m_server->log(CLP_ERROR, e.what());
+	}
+	catch (...) {
+		m_server->log(CLP_ERROR, "Unknown exception");
+	}
 }
 
 void CTCPServerListener::terminate()
