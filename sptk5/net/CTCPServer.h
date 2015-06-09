@@ -66,6 +66,11 @@ public:
         m_listenerSocket.listen();
     }
 
+    int port() const
+    {
+        return m_listenerSocket.port();
+    }
+
     /// @brief Returns latest socket error (if any)
     std::string error() const
     {
@@ -81,7 +86,7 @@ class CTCPServer: public CSynchronized
     friend class CTCPServerListener;
     friend class CServerConnection;
     CTCPServerListener*             m_listenerThread;           ///< Server listener object
-	CBaseLog*						m_logger;					///< Optional logger
+    CBaseLog*                       m_logger;                   ///< Optional logger
     std::set<CServerConnection*>    m_connectionThreads;        ///< Per-connection thread set
     CSynchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
 protected:
@@ -113,7 +118,7 @@ protected:
 public:
     /// @brief Constructor
     CTCPServer(CBaseLog* logger=NULL)
-		: m_listenerThread(NULL), m_logger(logger)
+    : m_listenerThread(NULL), m_logger(logger)
     {
     }
 
@@ -121,6 +126,13 @@ public:
     virtual ~CTCPServer()
     {
         stop();
+    }
+
+    int port() const
+    {
+        if (!m_listenerThread)
+            return 0;
+        return m_listenerThread->port();
     }
 
     /// @brief Starts listener
@@ -136,12 +148,12 @@ public:
         return m_listenerThread != NULL;
     }
 
-	/// @brief Server operation log
-	void log(CLogPriority priority, std::string message)
-	{
-		if (m_logger)
-			*m_logger << priority << message << std::endl;
-	}
+    /// @brief Server operation log
+    void log(CLogPriority priority, std::string message)
+    {
+        if (m_logger)
+            *m_logger << priority << message << std::endl;
+    }
 };
 
 /// @}

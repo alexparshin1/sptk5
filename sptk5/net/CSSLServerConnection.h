@@ -41,18 +41,14 @@ namespace sptk
 /// to use with CTCPServer as connection template
 class CSSLServerConnection: public CServerConnection
 {
-    CSSLContext*    m_sslContext;
 public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param sslContext CSSLContext*, Optional SSL context (deleted automatically in destructor)
-    CSSLServerConnection(SOCKET connectionSocket, CSSLContext* sslContext=NULL)
+    /// @param sslContext CSSLContext&, Server SSL context (shared between connections)
+    CSSLServerConnection(SOCKET connectionSocket, CSSLContext& sslContext)
     : CServerConnection(connectionSocket, "SSLServerConnection")
     {
-        if (sslContext == NULL)
-            sslContext = new CSSLContext;
-        m_sslContext = sslContext;
-        m_socket = new CSSLSocket(*m_sslContext);
+        m_socket = new CSSLSocket(sslContext);
         m_socket->attach(connectionSocket);
     }
 
@@ -63,8 +59,6 @@ public:
             delete m_socket;
             m_socket = NULL;
         }
-        if (m_sslContext)
-            delete m_sslContext;
     }
 };
 
