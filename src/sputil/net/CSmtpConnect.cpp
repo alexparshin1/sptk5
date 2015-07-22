@@ -1,28 +1,28 @@
 /***************************************************************************
-                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSmtpConnect.h  -  description
-                             -------------------
-    begin                : Jun 25 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
-    email                : alexeyp@gmail.com
+ *                          SIMPLY POWERFUL TOOLKIT (SPTK)
+ *                          CSmtpConnect.h  -  description
+ *                             -------------------
+ *    begin                : Jun 25 2003
+ *    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+ *    email                : alexeyp@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
-   This library is free software; you can redistribute it and/or modify it
-   under the terms of the GNU Library General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or (at
-   your option) any later version.
-
-   This library is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
-   General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public License
-   along with this library; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-
-   Please report all bugs and problems to "alexeyp@gmail.com"
+ *   This library is free software; you can redistribute it and/or modify it
+ *   under the terms of the GNU Library General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or (at
+ *   your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful, but
+ *   WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+ *   General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public License
+ *   along with this library; if not, write to the Free Software Foundation,
+ *   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ *
+ *   Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
 #include <stdio.h>
@@ -81,7 +81,7 @@ int CSmtpConnect::getResponse(bool decode)
             if (longLine[lastCharPos] == '\r')
                 longLine.erase(lastCharPos);
         }
-        
+
         const char * text = longLine.c_str() + 4;
         if (rc < 500 && decode) {
             longLine = unmime(text);
@@ -101,7 +101,7 @@ void CSmtpConnect::sendCommand(string cmd, bool encode)
         cmd = mime(cmd);
     if (m_log)
         *m_log << "[SEND] " << cmd << endl;
-    cmd += "\n";
+    cmd += "\r\n";
     write (cmd.c_str(), (uint32_t) cmd.length());
 }
 
@@ -152,11 +152,14 @@ void CSmtpConnect::cmd_auth(string user, string password, string method)
 
     method = trim(lowerCase(method));
     if (trim(user).length()) {
+        if (method.empty())
+            return;
+
         if (method == "login") {
-            rc = command("AUTH LOGIN", false, true);
+            rc = command("auth login", false, true);
             if (rc > 432)
                 throw CException(m_response.asString("\n"));
-            
+
             rc = command(user, true, true);
             if (rc > 432)
                 throw CException(m_response.asString("\n"));
@@ -181,7 +184,7 @@ void CSmtpConnect::cmd_auth(string user, string password, string method)
                 throw CException(m_response.asString("\n"));
             return;
         }
-        
+
         throw CException("AUTH method " + method + " is not supported");
     }
 }
