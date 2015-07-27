@@ -246,9 +246,8 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE | CWSM_ONE_OR_MORE)) {
             classImplementation << "   for (vector<" << complexType->className() << "*>::iterator itor = m_" << complexType->name() << ".begin(); itor != m_" << complexType->name() << ".end(); itor++)" << endl;
             classImplementation << "      delete *itor;" << endl;
-            classImplementation << "   m_" << complexType->name() << ".clear();" << endl;
-        } else
-            classImplementation << "   m_" << complexType->name() << ".setNull();" << endl;
+        }
+        classImplementation << "   m_" << complexType->name() << ".clear();" << endl;
     }
     if (m_attributes.size()) {
         classImplementation << "   // Clear attributes" << endl;

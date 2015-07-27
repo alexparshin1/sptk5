@@ -54,6 +54,9 @@ public:
     /// @param opt bool, Element optionality flag
     void optional(bool opt) { m_optional = opt; }
 
+    /// @brief Clears content (sets to NULL)
+    void clear() { setNull(); }
+
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
     virtual void load(const CXmlNode* attr) = 0;
