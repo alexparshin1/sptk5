@@ -240,12 +240,21 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     // Clear content
     classImplementation << "void " << className << "::clear()" << endl;
     classImplementation << "{" << endl;
+    classImplementation << "   // Clear elements" << endl;
     for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
         CWSParserComplexType* complexType = *itor;
         if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE | CWSM_ONE_OR_MORE)) {
             classImplementation << "   for (vector<" << complexType->className() << "*>::iterator itor = m_" << complexType->name() << ".begin(); itor != m_" << complexType->name() << ".end(); itor++)" << endl;
             classImplementation << "      delete *itor;" << endl;
             classImplementation << "   m_" << complexType->name() << ".clear();" << endl;
+        } else
+            classImplementation << "   m_" << complexType->name() << ".setNull();" << endl;
+    }
+    if (m_attributes.size()) {
+        classImplementation << "   // Clear attributes" << endl;
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+            CWSParserAttribute& attr = *(itor->second);
+            classImplementation << "   m_" << attr.name() << ".setNull();" << endl;
         }
     }
     classImplementation << "}" << endl << endl;
