@@ -83,7 +83,7 @@ int CSmtpConnect::getResponse(bool decode)
         }
 
         const char * text = longLine.c_str() + 4;
-        if (rc < 500 && decode) {
+        if (rc <= 432 && decode) {
             longLine = unmime(text);
             m_response.push_back(longLine);
         } else {
