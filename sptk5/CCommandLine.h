@@ -60,6 +60,8 @@ public:
 
 private:
     std::string     m_name;             ///< Full name of the parameter or option
+    std::string     m_valueType;        ///< Value type to print in parameter help, i.e. "file name"
+    char            m_shortcut;         ///< Option/parameter name shortcut
     std::string     m_help;             ///< Description of the parameter or option
     Type            m_type;             ///< Argument definition type
     std::string     m_defaultValue;     ///< Optional default value (parameter only)
@@ -68,12 +70,13 @@ private:
 protected:
     /// @brief Protected constructor (is used only by derived classes)
     /// @param name std::string, Full name of the parameter or option
+    /// @param valueType std::string, Value type to print in parameter help, i.e. "file name"
     /// @param shortcut char, Single character shortcut
     /// @param help std::string, Description of the parameter or option
     /// @param type CArgumentDefinition::Type, Argument definition type
     /// @param defaultValue std::string, Optional default value (parameter only)
     /// @param validateRegexp std::string, Optional value validation regexp (parameter only)
-    CArgumentDefinition(std::string name, char shortcut, std::string help, Type type, std::string defaultValue="", std::string validateRegexp="");
+    CArgumentDefinition(std::string name, std::string valueType, char shortcut, std::string help, Type type, std::string defaultValue="", std::string validateRegexp="");
 
 public:
     /// @brief Validate value using optional parameter validation regexep
@@ -85,6 +88,9 @@ public:
 
     /// @brief Get parameter or option definition full name
     const std::string& name() const { return m_name; }
+    
+    /// @brief Get parameter or option definition shortcut
+    char shortcut() const { return m_shortcut; }
 
     /// @brief Get parameter or option definition description
     const std::string& help() const { return m_help; }
@@ -95,6 +101,9 @@ public:
     /// @brief Get parameter definition default value
     const std::string& defaultValue() const { return m_defaultValue; }
 
+    /// @brief Get value type
+    const std::string& valueType() const { return m_valueType; }
+    
     /// @brief Get global list of parameter/option definitions
     static const std::map<std::string, CArgumentDefinition*>& definitions()
     {
@@ -117,7 +126,7 @@ public:
     /// @param shortcut char, Single character shortcut
     /// @param help std::string, Description of the parameter or option
     CCommandLineOption(std::string name, char shortcut=0, std::string help="")
-    : CArgumentDefinition(name, shortcut, help, OPTION) {}
+    : CArgumentDefinition(name, "", shortcut, help, OPTION) {}
 };
 
 /// @brief Definition of command line parameter
@@ -133,12 +142,13 @@ class CCommandLineParameter : public CArgumentDefinition
 public:
     /// @brief Constructor
     /// @param name std::string, Full name of the parameter or option
+    /// @param valueType std::string, Value type to print in parameter help, i.e. "file name"
     /// @param shortcut char, Single character shortcut
     /// @param help std::string, Description of the parameter or option
     /// @param defaultValue std::string, Optional default value (parameter only)
     /// @param validateRegexp std::string, Optional value validation regexp (parameter only)
-    CCommandLineParameter(std::string name, char shortcut=0, std::string help="", std::string defaultValue="", std::string validateRegexp="")
-    : CArgumentDefinition(name, shortcut, help, PARAMETER, defaultValue, validateRegexp) {}
+    CCommandLineParameter(std::string name, std::string valueType, char shortcut=0, std::string help="", std::string defaultValue="", std::string validateRegexp="")
+    : CArgumentDefinition(name, valueType, shortcut, help, PARAMETER, defaultValue, validateRegexp) {}
 };
 
 /// @brief Command line arguments parser

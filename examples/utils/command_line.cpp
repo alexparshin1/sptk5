@@ -35,8 +35,8 @@ CCommandLineOption
     help("help", 'h', "Prints this help.");
 
 CCommandLineParameter
-    archiveMode("archive-mode", 'a', "Archive mode may be one of {copy,zip,bzip2,xz}.", "copy", "^(copy|zip|bzip2|xz)$"),
-    date("archive-date", 'd', "Date in the format 'YYYY-MM-DD'.", "", "^\\d{4}-\\d\\d-\\d\\d$");
+    archiveMode("archive-mode", "mode", 'a', "Archive mode may be one of {copy,zip,bzip2,xz}.", "copy", "^(copy|zip|bzip2|xz)$"),
+    date("archive-date", "date", 'd', "Date in the format 'YYYY-MM-DD'.", "", "^\\d{4}-\\d\\d-\\d\\d$");
 
 int main(int argc, const char* argv[])
 {

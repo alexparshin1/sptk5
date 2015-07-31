@@ -1,3 +1,30 @@
+/***************************************************************************
+                          SIMPLY POWERFUL TOOLKIT (SPTK)
+                          CCommandLine.cpp  -  description
+                             -------------------
+    begin                : Jun 20 2015
+    copyright            : (C) 1999-2015 by Alexey Parshin. All rights reserved.
+    email                : alexeyp@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+   This library is free software; you can redistribute it and/or modify it
+   under the terms of the GNU Library General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or (at
+   your option) any later version.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
+   General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public License
+   along with this library; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+   Please report all bugs and problems to "alexeyp@gmail.com"
+ ***************************************************************************/
+
 #include <sptk5/CCommandLine.h>
 #include <iomanip>
 
@@ -6,32 +33,32 @@ using namespace sptk;
 
 map<string, CArgumentDefinition*> CArgumentDefinition::argumentNamesAndShortcuts;
 
-CArgumentDefinition::CArgumentDefinition(string name, char shortcut, string help, Type type, string defaultValue, string validateRegexp)
-: m_name(name), m_help(help), m_type(type), m_defaultValue(defaultValue)
-    {
-        if (!name.empty())
-            argumentNamesAndShortcuts[name] = this;
-        if (shortcut != char(0))
-            argumentNamesAndShortcuts[string(1,shortcut)] = this;
-        if (validateRegexp.empty())
-            m_validateRegexp = NULL;
-        else
-            m_validateRegexp = new sptk::CRegExp(validateRegexp);
-    }
+CArgumentDefinition::CArgumentDefinition(string name, string valueType, char shortcut, string help, Type type, string defaultValue, string validateRegexp)
+: m_name(name), m_valueType(valueType), m_shortcut(shortcut), m_help(help), m_type(type), m_defaultValue(defaultValue)
+{
+    if (!name.empty())
+        argumentNamesAndShortcuts[name] = this;
+    if (shortcut != char(0))
+        argumentNamesAndShortcuts[string(1,shortcut)] = this;
+    if (validateRegexp.empty())
+        m_validateRegexp = NULL;
+    else
+        m_validateRegexp = new sptk::CRegExp(validateRegexp);
+}
 
-    void CArgumentDefinition::validate(string value)
-    {
-        if (m_validateRegexp && *m_validateRegexp == value)
-            throw sptk::CException("Value '" + value + "' is invalid for parameter --" + m_name);
-    }
+void CArgumentDefinition::validate(string value)
+{
+    if (m_validateRegexp && *m_validateRegexp == value)
+        throw sptk::CException("Value '" + value + "' is invalid for parameter --" + m_name);
+}
 
-    CArgumentDefinition* CArgumentDefinition::get(string nameOrShortcut)
-    {
-        map<string, CArgumentDefinition*>::iterator itor = argumentNamesAndShortcuts.find(nameOrShortcut);
-        if (itor == argumentNamesAndShortcuts.end())
-            return NULL;
-        return itor->second;
-    }
+CArgumentDefinition* CArgumentDefinition::get(string nameOrShortcut)
+{
+    map<string, CArgumentDefinition*>::iterator itor = argumentNamesAndShortcuts.find(nameOrShortcut);
+    if (itor == argumentNamesAndShortcuts.end())
+        return NULL;
+    return itor->second;
+}
 
 void CCommandLine::init(int argc, const char* argv[]) throw (exception)
 {
@@ -157,13 +184,19 @@ void CCommandLine::printTypeHelp(CArgumentDefinition::Type type, unsigned screen
         const CArgumentDefinition* argdef = itor.second;
 
         if (argdef->type() == type && name == argdef->name()) {
+            if (argdef->shortcut() != char(0))
+                name += "|-" + string(1,argdef->shortcut());
+            
+            if (!argdef->valueType().empty())
+                name += " <" + argdef->valueType() + ">";
+            
             CStrings helpText;
             string description = replaceAll(argdef->help(), "${DEFAULT}", argdef->defaultValue());
             formatText(helpText, description, screenColumns - commandColumns);
             int rowNumber = 0;
             for (string& helpRow: helpText) {
                 if (rowNumber == 0)
-                    cout << setw(commandColumns) << left << argdef->name();
+                    cout << setw(commandColumns) << left << "--" + name;
                 else
                     cout << setw(commandColumns) << " ";
                 cout << helpRow << endl;
@@ -198,8 +231,13 @@ void CCommandLine::printHelp(string argumentType) const
                 hasOptions = true;
                 break;
         }
-        if (maxNameLength < argdef->name().length())
-            maxNameLength = argdef->name().length();
+        size_t nameLength = argdef->name().length() + 2;
+        if (!argdef->valueType().empty())
+            nameLength += argdef->valueType().length() + 3;
+        if (argdef->shortcut() != char(0))
+            nameLength += 3;
+        if (maxNameLength < nameLength)
+            maxNameLength = nameLength;
     }
 
     cout << "Syntax:\n\n";
