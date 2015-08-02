@@ -48,8 +48,11 @@ CArgumentDefinition::CArgumentDefinition(string name, string valueType, char sho
 
 void CArgumentDefinition::validate(string value)
 {
+    if (!m_validateRegexp)
+        return;
     if (m_validateRegexp && *m_validateRegexp == value)
-        throw sptk::CException("Value '" + value + "' is invalid for parameter --" + m_name);
+        return;
+    throw sptk::CException("Value '" + value + "' is invalid for parameter --" + m_name);
 }
 
 CArgumentDefinition* CArgumentDefinition::get(string nameOrShortcut)
@@ -186,10 +189,10 @@ void CCommandLine::printTypeHelp(CArgumentDefinition::Type type, unsigned screen
         if (argdef->type() == type && name == argdef->name()) {
             if (argdef->shortcut() != char(0))
                 name += "|-" + string(1,argdef->shortcut());
-            
+
             if (!argdef->valueType().empty())
                 name += " <" + argdef->valueType() + ">";
-            
+
             CStrings helpText;
             string description = replaceAll(argdef->help(), "${DEFAULT}", argdef->defaultValue());
             formatText(helpText, description, screenColumns - commandColumns);
