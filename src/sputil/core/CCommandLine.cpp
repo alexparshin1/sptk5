@@ -212,15 +212,22 @@ void CCommandLine::printTypeHelp(CArgumentDefinition::Type type, unsigned screen
 
 void CCommandLine::printHelp(string argumentType) const
 {
-    size_t screenColumns = 80;
-    const char* envterm = getenv("TERM");
-    if (envterm) {
-        FILE* tput = popen("tput cols", "r");
-        if (tput) {
-            fscanf(tput, "%lu", &screenColumns);
-            fclose(tput);
+    unsigned screenColumns = 80;
+    const char* envcols = getenv("COLS");
+    if (envcols)
+        screenColumns = atoi(envcols);
+#ifndef WIN32
+    else {
+        const char* envterm = getenv("TERM");
+        if (envterm) {
+            FILE* tput = popen("tput cols", "r");
+            if (tput) {
+                fscanf(tput, "%u", &screenColumns);
+                fclose(tput);
+            }
         }
     }
+#endif
 
     size_t maxNameLength = 0;
     bool hasOptions = false, hasParameters = false;
