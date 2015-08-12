@@ -214,6 +214,7 @@ void CQuery::sql(string _sql)
                 paramEnd++;
                 *paramEnd = char(0);
                 odbcSQL += paramStart;
+                odbcSQL += ":";
                 paramStart = paramEnd + 1;
                 continue;
             }
