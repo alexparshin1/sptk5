@@ -148,7 +148,7 @@ int testDatabase(string connectionString)
             timestampTypeName = "DATETIME";
 
         CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " + timestampTypeName + ", rate NUMERIC(16,10))", __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)",  __FILE__, __LINE__);
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id::integer,:person_name,:position_name,:hire_date,:rate)",  __FILE__, __LINE__);
         CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
         CQuery step4Query(db, "DROP TABLE " + tableName, __FILE__, __LINE__);
 
@@ -173,17 +173,25 @@ int testDatabase(string connectionString)
         step2Query.param("person_name") = "John Doe";
         step2Query.param("position_name") = "CIO";
         step2Query.param("hire_date") = CDateTime::Now();
-        step2Query.param("rate") = "0.0000123";
+        step2Query.param("rate") = 0.0000123;
         step2Query.exec();
 
         // Here is the example of using parameters by index.
         // This is the even faster than stream
         step2Query.param(uint32_t(0)) = 3;
-        step2Query.param(uint32_t(1)) = "UTF-8: тестик (Russian, 6 chars)";
-        step2Query.param(uint32_t(2)) = "Manager";
-        step2Query.param(uint32_t(3)).setDate(CDateTime::Now());
+        step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
+        step2Query.param(2) = "Manager";
+        step2Query.param(3).setDate(CDateTime::Now());
         step2Query.param(4) = 12340.001234;
         step2Query.exec();
+        /*
+        step2Query.param(uint32_t(0)) = 3;
+        step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
+        step2Query.param(2) = "Manager";
+        step2Query.param(3).setDate(CDateTime::Now());
+        step2Query.param(4).setFloat(12340.001234);
+        step2Query.exec();
+        */
 
         // And, finally - the fastest method: using CParam& variables.
         // If you have to call the same query multiple times with the different parameters,

@@ -183,92 +183,63 @@ void CQuery::sql(string _sql)
 {
     // Looking up for SQL parameters
     string paramName;
-    char delimitter[] = " ";
-    char delimitters[] = "'\":'";
+    char delimitters[] = "':";
     char *s = strdup(_sql.c_str());
     char *paramStart = s;
-    char *paramEnd;
+    char *paramEnd = s;
     int paramNumber = 0;
 
     m_params.clear();
 
-    string odbcSQL = "";
-    bool endOfString;
+    string odbcSQL;
     for (;;) {
-        paramEnd = strpbrk(paramStart, delimitters);
-        if (!paramEnd) {
-            odbcSQL += paramStart;
-            break;
-        }
-        *delimitter = *paramEnd;
+        // Find param start
+        paramStart = strpbrk(paramEnd, delimitters);
+        if (!paramStart)
+            break;      // No more parameters
 
-        if (*paramEnd == ':') {
-            if (paramEnd != s && isalnum(*(paramEnd - 1))) {
-                *paramEnd = char(0);
-                odbcSQL += paramStart;
-                odbcSQL += ":";
-                paramStart = paramEnd + 1;
-                continue;
-            }
-            if (paramEnd[1] == ':') {
-                paramEnd++;
-                *paramEnd = char(0);
-                odbcSQL += paramStart;
-                odbcSQL += ":";
-                paramStart = paramEnd + 1;
-                continue;
-            }
+        if (*paramStart == '\'') {
+            // Started string constant
+            const char* nextQuote = strchr(paramStart + 1, '\'');
+            if (!nextQuote)
+                break;  // Quote opened but never closed?
         }
 
-        if (*paramEnd == '\'' || *paramEnd == '"') {
-            paramEnd = strpbrk(paramEnd + 1, delimitter);
-            if (!paramEnd) {
-                break; // Unmatched quotes
-            }
-            *paramEnd = char(0);
-            odbcSQL += paramStart;
-            odbcSQL += delimitter;
-            paramStart = paramEnd + 1;
+        if (paramStart[1] == ':') {
+            // Started PostgreSQL type qualifier
+            odbcSQL += string(paramEnd, paramStart - paramEnd + 2);
+            paramEnd = paramStart + 2;
             continue;
         }
 
-        *paramEnd = char(0);
-        odbcSQL += paramStart;
-        paramStart = paramEnd + 1;
+        odbcSQL += string(paramEnd, paramStart - paramEnd);
 
-        delimitter[0] = 0;
-        char *ptr = paramStart;
-        for (; *ptr; ptr++) {
-            char c = *ptr;
-            if (c == '_')
+        paramEnd = paramStart + 1;
+        for (; *paramEnd; paramEnd++) {
+
+            if (isalnum(*paramEnd))
                 continue;
-            if (!isalnum(c)) {
-                delimitter[0] = c;
-                break;
-            }
-        }
 
-        paramEnd = ptr;
-        endOfString = (*paramEnd == 0);
-        *paramEnd = char(0);
-        if (ptr != paramStart) {
-            CParam *param = m_params.find(paramStart);
+            if (*paramEnd == '_')
+                continue;
+
+            string paramName(paramStart + 1, paramEnd - paramStart - 1);
+            CParam *param = m_params.find(paramName.c_str());
             if (!param) {
-                param = new CParam(paramStart);
+                param = new CParam(paramName.c_str());
                 m_params.add(param);
             }
             param->bindAdd(uint32_t(paramNumber));
             if (!m_db)
                 throw CDatabaseException("Query isn't connected to the database");
-            odbcSQL += m_db->paramMark(uint32_t(paramNumber)) + delimitter;
+            odbcSQL += m_db->paramMark(uint32_t(paramNumber));
             paramNumber++;
-        } else {
-            odbcSQL += ":";
-        }
-        paramStart = paramEnd + 1;
-        if (endOfString)
+
             break;
+        }
     }
+
+    odbcSQL += paramEnd;
 
     free(s);
 
