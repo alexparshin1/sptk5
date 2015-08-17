@@ -70,6 +70,9 @@ void CMySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTION
 
         m_connection = mysql_init(m_connection);
 
+        mysql_options(m_connection, MYSQL_SET_CHARSET_NAME, "utf8");
+        mysql_options(m_connection, MYSQL_INIT_COMMAND, "SET NAMES utf8");
+
         string connectionError;
         if (!m_connection)
             connectionError = "Can't initialize MySQL environment";
