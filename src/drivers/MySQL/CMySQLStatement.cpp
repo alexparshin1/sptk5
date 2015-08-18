@@ -35,7 +35,7 @@ using namespace sptk;
 #define throwMySQLError throw CDatabaseException(mysql_stmt_error(m_statement))
 
 // When TEXT field is large, fetch in chunks:
-#define FETCH_BUFFER 8192
+#define FETCH_BUFFER 256
 
 class CMySQLStatementField: public CDatabaseField {
 public:
@@ -420,14 +420,17 @@ void CMySQLStatement::fetchResult(CFieldList& fields)
                 field->setDataSize(0);
             } else {
                 if (bind.buffer_length < dataLength) {
-                    /// Fetch truncated, enlarge buffer and fetch again
-                    field->checkSize(dataLength);
-                    for (uint32_t offset = (uint32_t) bind.buffer_length; offset < dataLength; offset += bind.buffer_length) {
-                        bind.buffer = (char*) field->getBuffer() + offset;
-                        if (mysql_stmt_fetch_column(m_statement, &bind, fieldIndex, offset) != 0)
-                            throwMySQLError;
-                    }
+                    /// Fetch truncated, enlarge buffer and fetch remaining part
+                    uint32_t remainingBytes = dataLength - bind.buffer_length;
+                    uint32_t offset = (uint32_t) bind.buffer_length;
+                    field->checkSize(dataLength+1);
+                    bind.buffer = (char*) field->getBuffer() + offset;
+                    bind.buffer_length = remainingBytes;
+                    if (mysql_stmt_fetch_column(m_statement, &bind, fieldIndex, offset) != 0)
+                        throwMySQLError;
+                    bind.buffer_length = field->bufferSize();
                     bind.buffer = (void*) field->getBuffer();
+                    fieldSizeChanged = true;
                 }
                 ((char *)bind.buffer)[dataLength] = 0;
                 field->setDataSize(dataLength);
