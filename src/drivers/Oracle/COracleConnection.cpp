@@ -246,7 +246,12 @@ void COracleConnection::queryBindParameters(CQuery *query)
     COracleStatement* statement = (COracleStatement*) query->statement();
     if (!statement)
         throwDatabaseException("Query not prepared");
-    statement->setParameterValues();
+    try {
+        statement->setParameterValues();
+    }
+    catch (const SQLException& e) {
+        throwOracleException(e.what());
+    }
 }
 
 CVariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
@@ -310,15 +315,20 @@ Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
 
 void COracleConnection::queryExecute(CQuery *query)
 {
-    COracleStatement* statement = (COracleStatement*) query->statement();
-    if (!statement)
-        throwOracleException("Query is not prepared");
-    if (query->bulkMode()) {
-        COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
-        statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());
+    try {
+        COracleStatement* statement = (COracleStatement*) query->statement();
+        if (!statement)
+            throwOracleException("Query is not prepared");
+        if (query->bulkMode()) {
+            COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+            statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());
+        }
+        else
+            statement->execute(m_inTransaction);
     }
-    else
-        statement->execute(m_inTransaction);
+    catch (const SQLException& e) {
+        throwOracleException(e.what());
+    }
 }
 
 void COracleConnection::queryOpen(CQuery *query)
@@ -461,7 +471,7 @@ void COracleConnection::queryFetch(CQuery *query)
                         unsigned bytes = blob.length();
                         field->checkSize(bytes);
                         blob.read(bytes,
-                                  (unsigned char*) field->getBuffer(), 
+                                  (unsigned char*) field->getBuffer(),
                                   bytes,
                                   1);
                         blob.close();
@@ -478,7 +488,7 @@ void COracleConnection::queryFetch(CQuery *query)
                         unsigned clobBytes = clobChars * 4;
                         field->checkSize(clobBytes);
                         unsigned bytes = clob.read(clobChars,
-                                                   (unsigned char*) field->getBuffer(), 
+                                                   (unsigned char*) field->getBuffer(),
                                                    clobBytes,
                                                    1);
                         clob.close();
@@ -525,7 +535,7 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
 
 void COracleConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
 {
-    CQuery tableColumnsQuery(this, 
+    CQuery tableColumnsQuery(this,
                         "SELECT column_name, data_type, data_length "
                         "FROM user_tab_columns "
                         "WHERE table_name = :table_name");
@@ -563,7 +573,7 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
     }
 
     COracleBulkInsertQuery insertQuery(this,
-                                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
+                                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
                                        ") VALUES (:" + columnNames.asString(",:") + ")",
                                        data.size(),
                                        columnTypeSizeMap);
