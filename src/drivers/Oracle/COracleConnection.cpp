@@ -376,6 +376,8 @@ void COracleConnection::queryOpen(CQuery *query)
                     sprintf(alias, "column_%02i", columnIndex + 1);
                     columnName = alias;
                 }
+                if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
+                    resultSet->setMaxColumnSize(columnIndex + 1, 16384);
                 CVariantType dataType = OracleTypeToVariantType(columnType);
                 CDatabaseField* field = new CDatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize);
                 query->fields().push_back(field);
