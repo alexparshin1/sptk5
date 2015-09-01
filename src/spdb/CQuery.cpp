@@ -203,6 +203,9 @@ void CQuery::sql(string _sql)
             const char* nextQuote = strchr(paramStart + 1, '\'');
             if (!nextQuote)
                 break;  // Quote opened but never closed?
+            odbcSQL += string(paramEnd, nextQuote - paramEnd + 1);
+            paramEnd = (char*) nextQuote + 1;
+            continue;
         }
 
         if (paramStart[1] == ':') {
