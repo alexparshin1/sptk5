@@ -105,6 +105,13 @@ public:
     /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
     /// @return processed text
     std::string s(std::string text, std::string outputPattern) const THROWS_EXCEPTIONS;
+
+    /// @brief Replaces matches with replacement string
+    /// @param text std::string, text to process
+    /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
+    /// @param replaced bool&, optional flag if replacement was made
+    /// @return processed text
+    std::string replaceAll(std::string text, std::string outputPattern, bool& replaced) const THROWS_EXCEPTIONS;
 };
 
 /// @}

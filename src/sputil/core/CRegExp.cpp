@@ -149,13 +149,15 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTI
     return totalMatches > 0;
 }
 
-string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
+string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) const THROWS_EXCEPTIONS
 {
     size_t  offset = 0;
     size_t  lastOffset = 0;
     Match   matchOffsets[MAX_MATCHES];
     size_t  totalMatches = 0;
     string  result;
+    
+    replaced = false; 
     
     do {
         size_t fragmentOffset = offset;
@@ -171,6 +173,7 @@ string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
         // Create next replacement
         size_t pos = 0;
         string nextReplacement;
+        replaced = true; 
         while (pos != string::npos) {
             size_t placeHolderStart = pos;
             for (;;) {
@@ -208,6 +211,12 @@ string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
     } while (offset);
     
     return result + text.substr(lastOffset);
+}
+
+string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
+{
+    bool replaced;
+    return replaceAll(text, outputPattern, replaced);
 }
 
 bool operator == (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS
