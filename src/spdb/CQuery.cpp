@@ -208,8 +208,8 @@ void CQuery::sql(string _sql)
             continue;
         }
 
-        if (paramStart[1] == ':') {
-            // Started PostgreSQL type qualifier
+        if (paramStart[1] == ':' || paramStart[1] == '=') {
+            // Started PostgreSQL type qualifier or ':='
             odbcSQL += string(paramEnd, paramStart - paramEnd + 2);
             paramEnd = paramStart + 2;
             continue;
@@ -225,6 +225,13 @@ void CQuery::sql(string _sql)
 
             if (*paramEnd == '_')
                 continue;
+
+            if (*paramEnd == '.') {
+                // Oracle ':new.' or ':old.'
+                odbcSQL += string(paramStart, paramEnd - paramStart + 1);
+                paramEnd++;
+                break;
+            }
 
             string paramName(paramStart + 1, paramEnd - paramStart - 1);
             CParam *param = m_params.find(paramName.c_str());

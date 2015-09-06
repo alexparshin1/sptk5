@@ -97,17 +97,17 @@ size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets
         switch (rc) {
             case PCRE_ERROR_NULL         : throwException("Null argument");
             case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option");
-            case PCRE_ERROR_BADMAGIC     : 
+            case PCRE_ERROR_BADMAGIC     :
             case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n");
             case PCRE_ERROR_NOMEMORY     : throwException("Out of memory");
             default                      : throwException("Unknown error");
         }
     }
-    
+
     int matchCount = rc ? rc : MAX_MATCHES; // If match count is zero - there are too many matches
 
     offset = (size_t) matchOffsets[0].m_end;
-    
+
     return (size_t) matchCount;
 }
 
@@ -132,7 +132,7 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTI
     size_t  offset = 0;
     Match   matchOffsets[MAX_MATCHES];
     size_t  totalMatches = 0;
-    
+
     do {
         size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
@@ -143,9 +143,9 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTI
             Match& match = matchOffsets[matchIndex];
             matchedStrings.push_back(string(text.c_str() + match.m_start, size_t(match.m_end - match.m_start)));
         }
-        
+
     } while (offset);
-    
+
     return totalMatches > 0;
 }
 
@@ -156,24 +156,24 @@ string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) co
     Match   matchOffsets[MAX_MATCHES];
     size_t  totalMatches = 0;
     string  result;
-    
-    replaced = false; 
-    
+
+    replaced = false;
+
     do {
         size_t fragmentOffset = offset;
         size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
-        if (matchCount == 1) // String matched but no strings extracted
-            break;
+        //if (matchCount == 1) // String matched but no strings extracted
+        //    break;
         if (offset)
             lastOffset = offset;
         totalMatches += matchCount;
-        
+
         // Create next replacement
         size_t pos = 0;
         string nextReplacement;
-        replaced = true; 
+        replaced = true;
         while (pos != string::npos) {
             size_t placeHolderStart = pos;
             for (;;) {
@@ -199,17 +199,17 @@ string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) co
             }
             pos = placeHolderEnd;
         }
-        
+
         // Append text from fragment start to match start
         size_t fragmentStartLength = size_t(matchOffsets[0].m_start) - size_t(fragmentOffset);
         if (fragmentStartLength)
             result += text.substr(fragmentOffset, fragmentStartLength);
-        
+
         // Append next replacement
         result += nextReplacement;
-        
+
     } while (offset);
-    
+
     return result + text.substr(lastOffset);
 }
 
