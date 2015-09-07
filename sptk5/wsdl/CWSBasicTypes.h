@@ -204,6 +204,7 @@ class WSDateTime : public WSBasicType
 public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
     WSDateTime(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
         setNull(VAR_DATE_TIME);
