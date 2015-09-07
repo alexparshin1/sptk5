@@ -66,6 +66,7 @@ public:
         m_listenerSocket.listen();
     }
 
+    /// @brief Returns listener port number
     int port() const
     {
         return m_listenerSocket.port();
