@@ -53,7 +53,8 @@ public:
     : m_name(moduleName), m_path(modulePath)
     {
     }
-    
+
+    /// @brief Destructor
     ~CSourceModule()
     {
         if (m_header.is_open())
@@ -61,7 +62,8 @@ public:
         if (m_source.is_open())
             m_source.close();
     }
-    
+
+    /// @brief Opens module output files
     void open()
     {
         if (m_path.empty())
@@ -80,7 +82,7 @@ public:
     {
         return m_header;
     }
-    
+
     /// @brief Returns source file stream
     std::ofstream& source()
     {

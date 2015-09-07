@@ -46,7 +46,6 @@ class CTCPServerConnection: public CServerConnection
 public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param socket CTCPSocket*, Optional external socket object
     CTCPServerConnection(SOCKET connectionSocket)
     : CServerConnection(connectionSocket, "TCPServerConnection")
     {

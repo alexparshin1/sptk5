@@ -129,6 +129,7 @@ public:
         stop();
     }
 
+    /// @brief Returns listener port number
     int port() const
     {
         if (!m_listenerThread)

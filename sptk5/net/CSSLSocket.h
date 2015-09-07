@@ -42,10 +42,12 @@ class CSSLSocket: public sptk::CTCPSocket, public sptk::CSynchronized
 {
     SSL*        m_ssl;          ///< SSL socket
 
-    /// @brief Returns number of bytes in the SSL socket
 public:
-    virtual uint32_t socketBytes();
+    /// @brief Returns number of bytes available for read
+    virtual uint32_t socketBytes(); 
 
+    /// @brief Throws SSL error based on SSL function return code
+    /// @param rc int, SSL function return code
     void throwSSLError(int rc);
 
 protected:
