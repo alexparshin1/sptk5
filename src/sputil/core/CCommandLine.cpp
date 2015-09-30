@@ -115,7 +115,7 @@ void CCommandLine::init(int argc, const char* argv[]) throw (exception)
         }
 
         i++;
-        if (i > arguments.size())
+        if (i >= arguments.size())
             throw CException("Parameter " + argument + " doesn't have a value");
 
         const string& value = arguments[i];

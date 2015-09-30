@@ -218,7 +218,7 @@ void CQuery::sql(string _sql)
         odbcSQL += string(paramEnd, paramStart - paramEnd);
 
         paramEnd = paramStart + 1;
-        for (; *paramEnd; paramEnd++) {
+        for (;; paramEnd++) {
 
             if (isalnum(*paramEnd))
                 continue;
