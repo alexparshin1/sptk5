@@ -2,14 +2,17 @@ IF (WIN32)
    SET (SPTK_POSSIBLE_INCLUDE_PATHS
         $ENV{SystemDrive}/SPTK/include
         $ENV{ProgramFiles}/SPTK/include
+        $ENV{ProgramW6432}/SPTK/include
         "$ENV{SystemDrive}/Program Files/*/include")
    SET (SPTK_POSSIBLE_LIB_PATHS
         $ENV{SystemDrive}/SPTK/lib
         $ENV{ProgramFiles}/SPTK/lib
+        $ENV{ProgramW6432}/SPTK/lib
         "$ENV{SystemDrive}/Program Files/*/LIB")
    SET (SPTK_POSSIBLE_SHARE_PATHS
         $ENV{SystemDrive}/SPTK/share
         $ENV{ProgramFiles}/SPTK/share
+        $ENV{ProgramW6432}/SPTK/share
         "$ENV{SystemDrive}/Program Files/*/share")
 ELSE (WIN32)
    SET (SPTK_POSSIBLE_INCLUDE_PATHS

@@ -3,12 +3,16 @@ IF (WIN32)
         $ENV{SystemDrive}/*/include
         $ENV{SystemDrive}/MySQL/*/include
         $ENV{ProgramFiles}/*/include
-        $ENV{ProgramFiles}/MySQL/*/include)
+        $ENV{ProgramFiles}/MySQL/*/include
+        $ENV{ProgramW6432}/*/include
+        $ENV{ProgramW6432}/MySQL/*/include)
    SET (MYSQL_POSSIBLE_LIB_PATHS
         $ENV{SystemDrive}/*/lib
         $ENV{SystemDrive}/MySQL/*/lib/opt
         $ENV{ProgramFiles}/*/lib
-        $ENV{ProgramFiles}/MySQL/*/lib/opt)
+        $ENV{ProgramFiles}/MySQL/*/lib/opt
+        $ENV{ProgramW6432}/*/lib
+        $ENV{ProgramW6432}/MySQL/*/lib/opt)
 ELSE (WIN32)
    SET (MYSQL_POSSIBLE_INCLUDE_PATHS
         /usr/include

@@ -4,8 +4,10 @@ IF (WIN32)
    SET (ORACLE_POSSIBLE_INCLUDE_PATHS
         $ENV{SystemDrive}/*/include
         $ENV{ProgramFiles}/*/include
-        $ENV{ProgramFiles}/*/include/oracle)
-   SET (ORACLE_POSSIBLE_LIB_PATHS $ENV{SystemDrive}/*/lib $ENV{ProgramFiles}/*/lib)
+        $ENV{ProgramFiles}/*/include/oracle
+        $ENV{ProgramW6432}/*/include
+        $ENV{ProgramW6432}/*/include/oracle)
+   SET (ORACLE_POSSIBLE_LIB_PATHS $ENV{SystemDrive}/*/lib $ENV{ProgramFiles}/*/lib $ENV{ProgramW6432}/*/lib)
 ELSE (WIN32)
    SET (ORACLE_POSSIBLE_INCLUDE_PATHS
         ${ORACLE_HOME}/include

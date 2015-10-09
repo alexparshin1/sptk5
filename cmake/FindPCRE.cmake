@@ -1,9 +1,27 @@
 IF (WIN32)
-   SET (PCRE_POSSIBLE_INCLUDE_PATHS $ENV{SystemDrive}/*/include $ENV{ProgramFiles}/*/include $ENV{ProgramFiles}/*/inc)
-   SET (PCRE_POSSIBLE_LIB_PATHS $ENV{SystemDrive}/*/lib/x64 $ENV{ProgramFiles}/*/lib/x64 $ENV{SystemDrive}/*/lib $ENV{ProgramFiles}/*/lib)
+   SET (PCRE_POSSIBLE_INCLUDE_PATHS
+        $ENV{SystemDrive}/*/include
+        $ENV{ProgramFiles}/*/include
+        $ENV{ProgramFiles}/*/inc
+        $ENV{ProgramW6432}/*/include
+        $ENV{ProgramW6432}/*/inc)
+   SET (PCRE_POSSIBLE_LIB_PATHS
+        $ENV{SystemDrive}/*/lib/x64
+        $ENV{ProgramFiles}/*/lib/x64
+        $ENV{SystemDrive}/*/lib
+        $ENV{ProgramFiles}/*/lib
+        $ENV{ProgramW6432}/*/lib/x64
+        $ENV{SystemDrive}/*/lib
+        $ENV{ProgramW6432}/*/lib)
 ELSE (WIN32)
-   SET (PCRE_POSSIBLE_INCLUDE_PATHS $ENV{HOME}/local/include /usr/local/include /usr/include)
-   SET (PCRE_POSSIBLE_LIB_PATHS $ENV{HOME}/local/lib /usr/local/lib /usr/lib /usr/lib/*)
+   SET (PCRE_POSSIBLE_INCLUDE_PATHS
+        $ENV{HOME}/local/include
+        /usr/local/include
+        /usr/include)
+   SET (PCRE_POSSIBLE_LIB_PATHS
+        $ENV{HOME}/local/lib
+        /usr/local/lib
+        /usr/lib /usr/lib/*)
 ENDIF (WIN32)
 
 FIND_PATH(PCRE_INCLUDE_DIR pcre.h ${PCRE_POSSIBLE_INCLUDE_PATHS})

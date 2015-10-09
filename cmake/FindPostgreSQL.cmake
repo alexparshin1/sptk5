@@ -3,12 +3,16 @@ IF (WIN32)
         $ENV{SystemDrive}/*/include
         $ENV{SystemDrive}/PostgreSQL/*/include
         $ENV{ProgramFiles}/*/include
-        $ENV{ProgramFiles}/PostgreSQL/*/include)
+        $ENV{ProgramFiles}/PostgreSQL/*/include
+        $ENV{ProgramW6432}/*/include
+        $ENV{ProgramW6432}/PostgreSQL/*/include)
    SET (PGSQL_POSSIBLE_LIB_PATHS
         $ENV{SystemDrive}/*/lib
         $ENV{SystemDrive}/PostgreSQL/*/lib
         $ENV{ProgramFiles}/*/lib
-        $ENV{ProgramFiles}/PostgreSQL/*/lib)
+        $ENV{ProgramFiles}/PostgreSQL/*/lib
+        $ENV{ProgramW6432}/*/lib
+        $ENV{ProgramW6432}/PostgreSQL/*/lib)
    FIND_PATH(PostgreSQL_INCLUDE_DIR libpq-fe.h ${PGSQL_POSSIBLE_INCLUDE_PATHS})
    FIND_LIBRARY(PostgreSQL_LIBRARY NAMES libpq PATHS ${PGSQL_POSSIBLE_LIB_PATHS})
 ELSE (WIN32)

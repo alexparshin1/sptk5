@@ -1,10 +1,12 @@
 IF (WIN32)
    SET (FIREBIRD_POSSIBLE_INCLUDE_PATHS
         $ENV{SystemDrive}/*/include
-        $ENV{ProgramFiles}/*/include)
+        $ENV{ProgramFiles}/*/include
+        $ENV{ProgramW6432}/*/include)
    SET (FIREBIRD_POSSIBLE_LIB_PATHS
         $ENV{SystemDrive}/*/lib
-        $ENV{ProgramFiles}/*/lib)
+        $ENV{ProgramFiles}/*/lib
+        $ENV{ProgramW6432}/*/lib)
 ELSE (WIN32)
    SET (FIREBIRD_POSSIBLE_INCLUDE_PATHS
         /usr/include
