@@ -1,11 +1,12 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cnet  -  description
+                          CTCPServerConnection.h  -  description
                              -------------------
-    begin                : Jul 10 2013
-    copyright            : (C) 2006-2013 by Alexey Parshin
+    begin                : Jul 13 2013
+    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
+
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -25,21 +26,34 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CNET_H__
-#define __CNET_H__
+#ifndef __CTCPSERVERCONNECTION_H__
+#define __CTCPSERVERCONNECTION_H__
 
-#include <sptk5/net/CCGI.h>
-#include <sptk5/net/CFTPConnect.h>
-#include <sptk5/net/CFtpDS.h>
-#include <sptk5/net/CHttpConnect.h>
-#include <sptk5/net/CHttpParams.h>
-#include <sptk5/net/CImapConnect.h>
-#include <sptk5/net/CImapDS.h>
-#include <sptk5/net/CMailMessageBody.h>
-#include <sptk5/net/CSmtpConnect.h>
-#include <sptk5/net/CTCPServer.h>
-#include <sptk5/net/CTCPServerConnection.h>
-#include <sptk5/net/CUDPSocket.h>
-#include <sptk5/net/CSSLSocket.h>
+#include <sptk5/net/CServerConnection.h>
 
+namespace sptk
+{
+
+/// @addtogroup net Networking Classes
+/// @{
+
+/// @brief Abstract TCP server connection thread
+///
+/// Application derives concrete TCP server connections based on this class,
+/// to use with CTCPServer as connection template
+class CTCPServerConnection: public CServerConnection
+{
+public:
+    /// @brief Constructor
+    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+    CTCPServerConnection(SOCKET connectionSocket)
+    : CServerConnection(connectionSocket, "TCPServerConnection")
+    {
+        m_socket = new CTCPSocket;
+        m_socket->attach(connectionSocket);
+    }
+};
+
+/// @}
+}
 #endif

@@ -29,7 +29,7 @@
 #define __CWSBASICTYPES_H__
 
 #include <sptk5/cxml>
-#include <sptk5/CVariant.h>
+#include <sptk5/CField.h>
 #include <sptk5/xml/CXmlElement.h>
 
 namespace sptk {
@@ -38,39 +38,49 @@ namespace sptk {
 /// @{
 
 /// @brief Base type for all standard WSDL types
-class WSType
+class WSBasicType : public CField
 {
 protected:
-    CVariant    m_data; ///< Type' data
+    bool m_optional;    ///< Element optionality flag
+
 public:
-    /// @brief Default constructor
-    WSType() {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSBasicType(const char* name, bool optional) : CField(name), m_optional(optional)
+    {}
+
+    /// @brief Sets optionality flag
+    /// @param opt bool, Element optionality flag
+    void optional(bool opt) { m_optional = opt; }
+
+    /// @brief Clears content (sets to NULL)
+    void clear() { setNull(); }
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    virtual void load(const CXmlNode* attr) = 0;
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
-    virtual void load(std::string attr);
-
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
+    virtual void load(std::string attr) = 0;
 
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
-    /// @param name std::string, New element tag name
-    CXmlElement* addElement(CXmlElement* parent, std::string name) const;
+    CXmlElement* addElement(CXmlElement* parent) const;
 };
 
-/// @brief Wrapper for WSDL bool type
-class WSBool : public WSType
+/// @brief Base type for all standard WSDL types
+class WSString : public WSBasicType
 {
 public:
-
-    /// @brief Destructor
-    virtual ~WSBool() {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSString(const char* name, bool optional=false) : WSBasicType(name, optional)
+    {
+        setNull(VAR_STRING);
+    }
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -80,31 +90,85 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
-
-    /// @brief Assignment from bool
-    WSType& operator = (bool value)
+    /// @brief Assignment operation
+    virtual WSString& operator =(const char * value)
     {
-        m_data = value;
+        setString(value);
         return *this;
     }
 
-    /// @brief Returns type data as bool
-    /// @returns Type data as bool
-    operator bool () const
+    /// @brief Assignment operation
+    virtual WSString& operator =(const std::string& value)
     {
-        return m_data.asBool();
+        setString(value.c_str(), (uint32_t) value.length());
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSString& operator =(const CBuffer& value)
+    {
+        setBuffer(value.data(), value.bytes());
+        return *this;
+    }
+
+    /// @brief Conversion operator
+    operator std::string() const THROWS_EXCEPTIONS
+    {
+        return asString();
+    }
+};
+
+/// @brief Wrapper for WSDL bool type
+class WSBool : public WSBasicType
+{
+public:
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSBool(const char* name, bool optional=false) : WSBasicType(name, optional)
+    {
+        setNull(VAR_BOOL);
+    }
+
+    /// @brief Loads type data from request XML node
+    /// @param attr const CXmlNode*, XML node
+    virtual void load(const CXmlNode* attr);
+
+    /// @brief Loads type data from string
+    /// @param attr std::string, A string
+    virtual void load(std::string attr);
+
+    /// @brief Assignment operation
+    virtual WSBool& operator =(bool value)
+    {
+        setBool(value);
+        return *this;
+    }
+
+    /// @brief Conversion to bool
+    bool asBool() const THROWS_EXCEPTIONS
+    {
+        return CField::asBool();
+    }
+
+    /// @brief Conversion operator
+    operator std::string() const THROWS_EXCEPTIONS
+    {
+        return asString();
     }
 };
 
 /// @brief Wrapper for WSDL date type
-class WSDate : public WSType
+class WSDate : public WSBasicType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSDate() {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSDate(const char* name, bool optional=false) : WSBasicType(name, optional)
+    {
+        setNull(VAR_DATE);
+    }
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -114,31 +178,37 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
-
-    /// @brief Assignment from CDateTime
-    WSType& operator = (CDateTime value)
+    /// @brief Assignment operation
+    virtual WSDate& operator =(CDateTime value)
     {
-        m_data = value;
+        setDate(value);
         return *this;
     }
 
-    /// @brief Returns type data as CDateTime
-    /// @returns Type data as CDateTime
-    operator CDateTime () const
+    /// @brief Conversion operator
+    operator CDateTime() const THROWS_EXCEPTIONS
     {
-        return m_data.asDate();
+        return asDate();
+    }
+
+    /// @brief Conversion operator
+    operator std::string() const THROWS_EXCEPTIONS
+    {
+        return asString();
     }
 };
 
 /// @brief Wrapper for WSDL dateTime type
-class WSDateTime : public WSType
+class WSDateTime : public WSBasicType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSDateTime() {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSDateTime(const char* name, bool optional=false) : WSBasicType(name, optional)
+    {
+        setNull(VAR_DATE_TIME);
+    }
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -148,31 +218,40 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    virtual std::string asString() const;
+    /// @brief Better (than in base class) conversion method
+    virtual std::string asString() const THROWS_EXCEPTIONS;
 
-    /// @brief Assignment from CDateTime
-    WSType& operator = (CDateTime value)
+    /// @brief Assignment operation
+    virtual WSDateTime& operator =(CDateTime value)
     {
-        m_data = value;
+        setDateTime(value);
         return *this;
     }
 
-    /// @brief Returns type data as CDateTime
-    /// @returns Type data as CDateTime
-    operator CDateTime () const
+    /// @brief Conversion operator
+    operator CDateTime() const THROWS_EXCEPTIONS
     {
-        return m_data.asDateTime();
+        return asDateTime();
+    }
+
+    /// @brief Conversion operator
+    operator std::string() const THROWS_EXCEPTIONS
+    {
+        return asString();
     }
 };
 
 /// @brief Wrapper for WSDL double type
-class WSDouble : public WSType
+class WSDouble : public WSBasicType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSDouble() {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSDouble(const char* name, bool optional=false) : WSBasicType(name, optional)
+    {
+        setNull(VAR_FLOAT);
+    }
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -182,27 +261,49 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
-    /// @brief Assignment from double
-    WSType& operator = (double value)
+    /// @brief Assignment operation
+    virtual WSDouble& operator =(float value)
     {
-        m_data = value;
+        setFloat(value);
         return *this;
     }
 
-    /// @brief Returns type data as double
-    /// @returns Type data as double
-    operator double () const
+    /// @brief Assignment operation
+    virtual WSDouble& operator =(double value)
     {
-        return m_data.asFloat();
+        setFloat(value);
+        return *this;
+    }
+    /// @brief Conversion operator
+    operator float() const THROWS_EXCEPTIONS
+    {
+        return (float) asFloat();
+    }
+
+    /// @brief Conversion operator
+    operator double() const THROWS_EXCEPTIONS
+    {
+        return asFloat();
+    }
+
+    /// @brief Conversion operator
+    operator std::string() const THROWS_EXCEPTIONS
+    {
+        return asString();
     }
 };
 
 /// @brief Wrapper for WSDL int type
-class WSInteger : public WSType
+class WSInteger : public WSBasicType
 {
 public:
-    /// @brief Destructor
-    virtual ~WSInteger() {}
+    /// @brief Constructor
+    /// @param name const char*, WSDL element name
+    /// @param optional bool, Element optionality flag
+    WSInteger(const char* name, bool optional=false) : WSBasicType(name, optional)
+    {
+        setNull(VAR_INT);
+    }
 
     /// @brief Loads type data from request XML node
     /// @param attr const CXmlNode*, XML node
@@ -212,62 +313,76 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
-    /// @brief Assignment from int
-    WSType& operator = (int value)
+    /// @brief Assignment operation
+    virtual WSInteger& operator =(int64_t value)
     {
-        m_data = value;
+        setInt64(value);
         return *this;
     }
 
-    /// @brief Returns type data as integer
-    /// @returns Type data as integer
-    operator int () const
+    /// @brief Assignment operation
+    virtual WSInteger& operator =(uint64_t value)
     {
-        return m_data.asInteger();
-    }
-};
-
-/// @brief Wrapper for WSDL string type
-class WSString : public WSType
-{
-public:
-    /// @brief Destructor
-    virtual ~WSString() {}
-
-    /// @brief Assignment from string
-    WSType& operator = (std::string value)
-    {
-        m_data = value;
+        setInt64((int64_t) value);
         return *this;
     }
 
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    operator std::string () const
+    /// @brief Assignment operation
+    virtual WSInteger& operator =(int32_t value)
     {
-        return m_data.asString();
-    }
-};
-
-/// @brief Wrapper for WSDL time type
-class WSTime : public WSType
-{
-public:
-    /// @brief Destructor
-    virtual ~WSTime() {}
-
-    /// @brief Assignment from string
-    WSType& operator = (std::string value)
-    {
-        m_data = value;
+        setInteger(value);
         return *this;
     }
 
-    /// @brief Returns type data as string
-    /// @returns Type data as string
-    operator std::string () const
+    /// @brief Assignment operation
+    virtual WSInteger& operator =(uint32_t value)
     {
-        return m_data.asString();
+        setInteger((int32_t) value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSInteger& operator =(int16_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
+
+    /// @brief Assignment operation
+    virtual WSInteger& operator =(uint16_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
+
+    /// @brief Conversion operator
+    operator int32_t() const THROWS_EXCEPTIONS
+    {
+        return asInteger();
+    }
+
+    /// @brief Conversion operator
+    operator uint32_t() const THROWS_EXCEPTIONS
+    {
+        return (uint32_t) asInteger();
+    }
+
+    /// @brief Conversion operator
+    operator int64_t() const THROWS_EXCEPTIONS
+    {
+        return asInt64();
+    }
+
+    /// @brief Conversion operator
+    operator uint64_t() const THROWS_EXCEPTIONS
+    {
+        return (uint64_t) asInt64();
+    }
+
+    /// @brief Conversion operator
+    operator std::string() const THROWS_EXCEPTIONS
+    {
+        return asString();
     }
 };
 

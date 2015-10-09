@@ -40,7 +40,6 @@ using namespace sptk;
 
 static const char
     cantSetConnectOption[] = "Can't set connect option",
-    cantStartTranscation[] = "Can't start transaction",
     cantEndTranscation[] = "Can't end transaction",
     cantGetInformation[] = "Can't get connect information";
 

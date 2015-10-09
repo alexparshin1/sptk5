@@ -133,7 +133,7 @@ public:
 
     /// @brief Attaches socket handle
     /// @param socketHandle SOCKET, existing socket handle
-    void attach(SOCKET socketHandle);
+    virtual void attach(SOCKET socketHandle);
 
     /// @brief Sets the host name
     /// @param hostName std::string, the host name

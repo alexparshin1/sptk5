@@ -272,9 +272,9 @@ void CImapConnect::parseMessage(CFieldList& results, bool headers_only) {
         string headerName = required_headers[i];
         CField *fld = new CField(lowerCase(headerName).c_str());
         switch (i) {
-            case 0: fld->width = 16;
+            case 0: fld->view.width = 16;
                 break;
-            default: fld->width = 32;
+            default: fld->view.width = 32;
                 break;
         }
         results.push_back(fld);

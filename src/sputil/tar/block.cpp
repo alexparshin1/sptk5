@@ -113,7 +113,7 @@ th_read(TAR *t)
 	}
 
 	/* check for GNU long link extention */
-	if (TH_ISLONGLINK(t))
+	if TH_ISLONGLINK(t)
 	{
 		sz = (size_t) th_get_size(t);
 		j = (int) ( (sz / T_BLOCKSIZE) + (sz % T_BLOCKSIZE ? 1 : 0) );
@@ -158,7 +158,7 @@ th_read(TAR *t)
 	}
 
 	/* check for GNU long name extention */
-	if (TH_ISLONGNAME(t))
+	if TH_ISLONGNAME(t)
 	{
 		sz = (size_t) th_get_size(t);
 		j = (int) ( (sz / T_BLOCKSIZE) + (sz % T_BLOCKSIZE ? 1 : 0) );

@@ -49,27 +49,28 @@ class CFieldList;
 /// @brief Data field for CDataSource.
 ///
 /// Contains field name, field type, field data and field format information.
-
 class SP_EXPORT CField : public CVariant
 {
     friend class CFieldList;
 protected:
-    std::string m_name; ///< Field name
+    std::string m_name;         ///< Field name
 
 public:
-    std::string displayName; ///< Optional display field name
+    std::string displayName;    ///< Optional display field name
 public:
     /// @brief Constructor
     /// @param name const char *, field name
     CField(const char *name);
 
-    int32_t width; ///< Field width
-    int32_t precision; ///< Field precision
-    int32_t flags; ///< Field flags like alignment, etc
-    bool visible; ///< Is field visible?
+    /// @brief Combination of field view attributes
+    struct {
+        int     width:10;       ///< Field width
+        int     precision:5;    ///< Field precision
+        int     flags:16;       ///< Field flags like alignment, etc
+        bool    visible:1;      ///< Is field visible?
+    } view;
 
-    /// Returns field name
-
+    /// @brief Returns field name
     const std::string& fieldName() const
     {
         return m_name;
@@ -82,8 +83,7 @@ public:
     /// @param vtype CVariantType, optional variant type to enforce
     virtual void setNull(CVariantType vtype = VAR_NONE);
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(const CVariant &C)
     {
         if (this == &C)
@@ -93,111 +93,98 @@ public:
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(int64_t value)
     {
         setInt64(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(uint64_t value)
     {
         setInt64((int64_t) value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(int32_t value)
     {
         setInteger(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(uint32_t value)
     {
         setInteger((int32_t) value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(int16_t value)
     {
         setInteger(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(uint16_t value)
     {
         setInteger(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(float value)
     {
         setFloat(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(double value)
     {
         setFloat(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(const char * value)
     {
         setString(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(const std::string& value)
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(CDateTime value)
     {
         setDateTime(value);
         return *this;
     }
 
-    /// Assignment operation
-
+    /// @brief Assignment operation
     virtual CField& operator =(const void *value)
     {
         setImagePtr(value);
         return *this;
     }
 
-    /// Assignment operator
-
+    /// @brief Assignment operation
     virtual CField& operator =(const CBuffer& value)
     {
         setBuffer(value.data(), value.bytes());
         return *this;
     }
 
-    /// Better (than in base class) conversion method
+    /// @brief Better (than in base class) conversion method
     virtual std::string asString() const THROWS_EXCEPTIONS;
 
     /// @brief Exports the field data into XML node

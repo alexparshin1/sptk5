@@ -1,11 +1,12 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          wsdl2cxx.cpp  -  description
+                          CServerConnection.h  -  description
                              -------------------
-    begin                : 03 Aug 2012
+    begin                : Jul 13 2013
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
+
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -25,46 +26,52 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/wsdl/CWSParser.h>
-#include <sys/stat.h>
+#ifndef __CSERVERCONNECTION_H__
+#define __CSERVERCONNECTION_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/net/CTCPSocket.h>
+#include <sptk5/threads/CThread.h>
 
-void help()
+namespace sptk
 {
-    cout << "WSDL to C++ prototype parser. (C) 2012-2013 Alexey Parshin" << endl << endl;
-    cout << "Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl;
-    cout << "Usage:" << endl << endl;
-    cout << "  wsdl2cxx <WSDL file> [output directory] [header file]" << endl;
-}
 
-int main(int argc, const char* argv[])
+class CTCPServer;
+
+/// @addtogroup net Networking Classes
+/// @{
+
+/// @brief Abstract TCP or SSL server connection thread
+///
+/// Used a base class for CTCPServerConnection and COpenSSLServerConnection
+class CServerConnection: public CThread
 {
-    CWSParser   wsParser;
-    if (argc < 2) {
-        help();
-        return 1;
+    friend class CTCPServer;
+protected:
+    CTCPSocket*     m_socket;   ///< Connection socket
+    CTCPServer*     m_server;   ///< Parent server object
+public:
+    /// @brief Constructor
+    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+    /// @param threadName std::string, Already accepted by accept() function incoming connection socket
+    CServerConnection(SOCKET connectionSocket, std::string threadName)
+    : CThread(threadName), m_socket(NULL)
+    {
     }
 
-    string outputDirectory;
-    if (argc > 2)
-        outputDirectory = argv[2];
-    else
-        outputDirectory = ".";
-
-    string headerFile;
-    if (argc > 3)
-        headerFile = argv[3];
-
-    int rc = system(("mkdir -p " + outputDirectory).c_str());
-    if (rc != 0) {
-        cerr << "Can't open or create output directory '" << outputDirectory << "'." << endl;
-        return 1;
+    /// @brief Destructor
+    virtual ~CServerConnection()
+    {
+        if (m_socket)
+            delete m_socket;
     }
 
-    wsParser.parse(argv[1]);
-    wsParser.generate(outputDirectory, headerFile);
+    /// @brief Thread function
+    virtual void threadFunction() = 0;
 
-    return 0;
+    /// @brief Method that is called upon thread exit
+    virtual void onThreadExit();
+};
+
+/// @}
 }
+#endif

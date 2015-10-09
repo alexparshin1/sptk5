@@ -32,10 +32,6 @@
 using namespace std;
 using namespace sptk;
 
-CTCPConnection::~CTCPConnection()
-{
-}
-
 bool CTCPServer::allowConnection(sockaddr_in* connectionRequest)
 {
     return true;
@@ -53,31 +49,40 @@ void CTCPServerListener::threadFunction()
     try {
         while (!terminated()) {
             if (m_listenerSocket.readyToRead(1000)) {
-                SOCKET connectionFD;
-                struct sockaddr_in connectionInfo;
-                m_listenerSocket.accept(connectionFD, connectionInfo);
-				if (int(connectionFD) == -1)
-					continue;
-				if (m_server->allowConnection(&connectionInfo)) {
-                    CTCPConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
-                    m_server->registerConnection(connection);
-                    connection->run();
-                } else {
-                    #ifndef _WIN32
+                try {
+                    SOCKET connectionFD;
+                    struct sockaddr_in connectionInfo;
+                    m_listenerSocket.accept(connectionFD, connectionInfo);
+                    if (int(connectionFD) == -1)
+                        continue;
+                    if (m_server->allowConnection(&connectionInfo)) {
+                        CServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
+                        m_server->registerConnection(connection);
+                        connection->run();
+                    }
+                    else {
+#ifndef _WIN32
                         shutdown(connectionFD,SHUT_RDWR);
                         ::close (connectionFD);
-                    #else
-                        closesocket (connectionFD);
-                    #endif
+#else
+                        closesocket(connectionFD);
+#endif
+                    }
+                }
+                catch (exception& e) {
+                    m_server->log(CLP_ERROR, e.what());
+                }
+                catch (...) {
+                    m_server->log(CLP_ERROR, "Unknown exception");
                 }
             }
         }
     }
     catch (exception& e) {
-        m_error = e.what();
+        m_server->log(CLP_ERROR, e.what());
     }
     catch (...) {
-        m_error = "Unknown exception";
+        m_server->log(CLP_ERROR, "Unknown exception");
     }
 }
 
@@ -87,20 +92,14 @@ void CTCPServerListener::terminate()
     m_listenerSocket.close();
 }
 
-void CTCPConnection::onThreadExit()
-{
-    try {
-        m_server->unregisterConnection(this);
-        delete this;
-    }
-    catch (...) {}
-}
-
 void CTCPServer::listen(int port)
 {
     SYNCHRONIZED_CODE;
-    if (m_listenerThread)
-        throwException("Server already listens");
+    if (m_listenerThread) {
+        m_listenerThread->terminate();
+        m_listenerThread->join();
+        delete m_listenerThread;
+    }
     m_listenerThread = new CTCPServerListener(this, port);
     m_listenerThread->listen();
     m_listenerThread->run();
@@ -112,7 +111,7 @@ void CTCPServer::stop()
     {
         CSynchronizedCode   m_sync(m_connectionThreadsLock);
 
-        set<CTCPConnection*>::iterator itor;
+        set<CServerConnection*>::iterator itor;
 
         for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
             (*itor)->terminate();
@@ -133,7 +132,7 @@ void CTCPServer::stop()
     }
 }
 
-void CTCPServer::registerConnection(CTCPConnection* connection)
+void CTCPServer::registerConnection(CServerConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
@@ -141,7 +140,7 @@ void CTCPServer::registerConnection(CTCPConnection* connection)
     //cout << "Connection created" << endl;
 }
 
-void CTCPServer::unregisterConnection(CTCPConnection* connection)
+void CTCPServer::unregisterConnection(CServerConnection* connection)
 {
     CSynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);

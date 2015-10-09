@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          COpenSSLSocket.h  -  description
+                          CSSLSocket.h  -  description
                              -------------------
     begin                : Oct 30 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -25,11 +25,11 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __COPENSSLSOCKET_H__
-#define __COPENSSLSOCKET_H__
+#ifndef __CSSLSOCKET_H__
+#define __CSSLSOCKET_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/net/COpenSSLContext.h>
+#include <sptk5/net/CSSLContext.h>
 #include <sptk5/net/CTCPSocket.h>
 
 namespace sptk {
@@ -38,15 +38,17 @@ namespace sptk {
 /// @{
 
 /// @brief Encrypted TCP Socket
-class COpenSSLSocket: public sptk::CTCPSocket, public sptk::CSynchronized
+class CSSLSocket: public sptk::CTCPSocket, public sptk::CSynchronized
 {
     SSL*        m_ssl;          ///< SSL socket
-    bool        m_readInitted;  ///< Read initialized flag
 
-    /// @brief Returns number of bytes in the SSL socket
-    virtual uint32_t socketBytes();
-    
-    void throwOpenSSLError(int rc);
+public:
+    /// @brief Returns number of bytes available for read
+    virtual uint32_t socketBytes(); 
+
+    /// @brief Throws SSL error based on SSL function return code
+    /// @param rc int, SSL function return code
+    void throwSSLError(int rc);
 
 protected:
 
@@ -62,22 +64,22 @@ protected:
     /// @return the number of bytes sent the socket
     virtual size_t send(const void* buffer, size_t len) throw (std::exception);
 
-    /// @brief Get error description for OpenSSL error code
-    /// @param function std::string, OpenSSL function
-    /// @param openSSLError int32_t, error code returned by SSL_get_error() result
+    /// @brief Get error description for SSL error code
+    /// @param function std::string, SSL function
+    /// @param SSLError int32_t, error code returned by SSL_get_error() result
     /// @return Error description
-    virtual std::string getOpenSSLError(std::string function, int32_t openSSLError) const;
+    virtual std::string getSSLError(std::string function, int32_t SSLError) const;
 
 public:
 
     /// @brief Constructor
-    /// @param sslContext COpenSSLContext&, SSL context that is used as SSL connection template
-    COpenSSLSocket(COpenSSLContext& sslContext);
+    /// @param sslContext CSSLContext&, SSL context that is used as SSL connection template
+    CSSLSocket(CSSLContext& sslContext);
 
     /// @brief Destructor
-    virtual ~COpenSSLSocket();
+    virtual ~CSSLSocket();
 
-    /// @brief Opens the socket connection by host and port
+    /// @brief opens the socket connection by host and port
     ///
     /// Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
     /// They could be defined by previous calls of  open(), port(), or host() methods.
@@ -91,12 +93,18 @@ public:
     /// This method is designed to only attach socket handles
     /// obtained with accept().
     /// @param socketHandle SOCKET, existing socket handle
-    void attach(SOCKET socketHandle) throw (std::exception);
+    virtual void attach(SOCKET socketHandle) throw (std::exception);
 
     /// @brief Closes the socket connection
     ///
     /// This method is not thread-safe.
     virtual void close();
+
+    /// @brief Returns SSL handle
+    SSL* handle()
+    {
+        return m_ssl;
+    }
 };
 
 /// @}

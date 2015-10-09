@@ -698,12 +698,12 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
         if (digitWeight < 0)
             scale += 4;
     }
-    
+
     while (scale < dscale - 4) {
         value *= 10000;
         scale += 4;
     }
-    
+
     switch (scale - dscale) {
         case -3: value *= 1000; break;
         case -2: value *= 100; break;
@@ -712,14 +712,14 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
         case 2: value /= 100; break;
         case 3: value /= 1000; break;
     }
-    
+
     scale = dscale;
 
     if (sign)
         value = -value;
 
     CMoneyData moneyData = {value, uint8_t(dscale) };
-    
+
     return moneyData;
 }
 
@@ -731,18 +731,18 @@ static void decodeArray(char* data, CDatabaseField* field)
         uint32_t hasNull;
         uint32_t elementType;
     };
-    
+
     struct PGArrayDimension {
         uint32_t elementCount;
         uint32_t lowerBound;
     };
-    
+
     PGArrayHeader* arrayHeader = (PGArrayHeader*) data;
     arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
     arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
     arrayHeader->elementType = ntohl(arrayHeader->elementType);
     data += sizeof(PGArrayHeader);
-    
+
     PGArrayDimension* dimensions = (PGArrayDimension*) data;
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
@@ -755,19 +755,19 @@ static void decodeArray(char* data, CDatabaseField* field)
         for (size_t element = 0; element < dimension->elementCount; element++) {
             if (element)
                 output << ",";
-            
+
             uint32_t dataSize = ntohl(*(uint32_t*) data);
             data += sizeof(uint32_t);
-            
+
             switch (arrayHeader->elementType) {
                 case PG_INT2:
                     output << readInt2(data);
                     break;
-                
+
                 case PG_INT4:
                     output << readInt4(data);
                     break;
-                
+
                 case PG_INT8:
                     output << readInt8(data);
                     break;
@@ -775,30 +775,30 @@ static void decodeArray(char* data, CDatabaseField* field)
                 case PG_FLOAT4:
                     output << readFloat4(data);
                     break;
-                
+
                 case PG_FLOAT8:
                     output << readFloat8(data);
                     break;
-                
+
                 case PG_TEXT:
                 case PG_CHAR:
                 case PG_VARCHAR:
                     output << string(data, dataSize);
                     break;
-                    
+
                 case PG_DATE: {
                     CDateTime dt = readDate(data);
                     output << dt.dateString();
                     break;
                 }
-                
+
                 case PG_TIMESTAMPTZ:
                 case PG_TIMESTAMP: {
                     CDateTime dt = readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS);
                     output << dt.dateString();
                     break;
                 }
-                
+
                 default:
                     throw CDatabaseException("Unsupported array element type");
             }
@@ -917,7 +917,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
                 case PG_TIMESTAMPTZ_ARRAY:
                     decodeArray(data, field);
                     break;
-                    
+
                 }
             }
 
@@ -950,9 +950,6 @@ void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objec
     case DOT_VIEWS:
         objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
         break;
-
-    default:
-        return; // no information about objects of other types
     }
 
     CQuery query(this, objectsSQL);

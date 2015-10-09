@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          COpenSSLContext.h  -  description
+                          CSSLContext.h  -  description
                              -------------------
     begin                : Oct 30 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -25,8 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __COPENSSLCONTEXT_H__
-#define __COPENSSLCONTEXT_H__
+#ifndef __CSSLCONTEXT_H__
+#define __CSSLCONTEXT_H__
 
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
@@ -38,31 +38,31 @@ namespace sptk {
 /// @{
 
 /// @brief SSL connection context
-class COpenSSLContext : public sptk::CSynchronized
+class CSSLContext : public sptk::CSynchronized
 {
-    static bool     m_loaded;   ///< OpenSSL is initialized flag
-    
+    static bool     m_loaded;   ///< SSL is initialized flag
+
     SSL_CTX*        m_ctx;      ///< SSL connection context
     std::string     m_password; ///< Password for auto-answer in callback function
-    
+
     /// @brief Initialize OpenSSL library if not initialized yet
     void init();
-    
+
     /// @brief Password auto-reply callback function
     static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);
 
     void throwError(std::string humanDescription);
-    
+
 public:
     /// @brief Default constructor
-    COpenSSLContext();
+    CSSLContext();
 
     /// @brief Destructor
-    virtual ~COpenSSLContext();
+    virtual ~CSSLContext();
 
     /// @brief Loads private key and certificate(s)
     ///
-    /// Private key and certificates must be encoded with PEM format. 
+    /// Private key and certificates must be encoded with PEM format.
     /// A single file containing private key and certificate can be used by supplying it for both,
     /// private key and certificate parameters.
     /// If private key is protected with password, then password can be supplied to auto-answer.

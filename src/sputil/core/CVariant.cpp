@@ -583,7 +583,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     char print_buffer[64];
 
     switch (dataType()) {
-    case VAR_NONE:
+    default:
         return "";
 
     case VAR_BOOL:
@@ -659,9 +659,6 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     case VAR_IMAGE_NDX:
         sprintf (print_buffer,"%i",m_data.imageNdx);
         return string (print_buffer);
-
-    default:
-        throw CException ("Can't convert field for that type");
     }
 }
 

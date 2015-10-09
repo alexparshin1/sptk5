@@ -40,29 +40,40 @@ namespace sptk {
 /// @brief Base type for all user WSDL types
 class WSComplexType
 {
+protected:
+   std::string  m_name;         ///< WSDL element name
+   bool         m_optional;     ///< Element optionality flag
+   bool         m_loaded;       ///< Is data loaded flage
 public:
    /// @brief Default constructor
-   WSComplexType() {}
+   /// @param name const char*, Element name
+   /// @param optional bool, Element optionality flag
+    WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional), m_loaded(false) {}
 
    /// @brief Destructor
    virtual ~WSComplexType() {}
 
-   /// @brief Copies data from other object
+   /// @brief Copy data from other object
    /// @brief other const WSComplexType&, Object to copy from
    void copyFrom(const WSComplexType& other);
 
-   /// @brief Loads CAddHandler from XML node
+   /// @brief Load CAddHandler from XML node
    /// @param input const sptk::CXmlElement*, XML node containing CAddHandler data
    virtual void load(const sptk::CXmlElement* input) THROWS_EXCEPTIONS = 0;
 
-   /// @brief Unloads CAddHandler to existing XML node
+   /// @brief Unload CAddHandler to existing XML node
    /// @param output sptk::CXmlElement*, existing XML node
    virtual void unload(sptk::CXmlElement* output) const THROWS_EXCEPTIONS = 0;
 
-   /// @brief Unloads CAddHandler to new XML node
+   /// @brief Unload CAddHandler to new XML node
    /// @param parent sptk::CXmlElement*, parent XML node where new node is created
-   /// @param name std::string, new XML node name
-   virtual void addElement(sptk::CXmlElement* parent, std::string name) const THROWS_EXCEPTIONS;
+   virtual void addElement(sptk::CXmlElement* parent) const THROWS_EXCEPTIONS;
+
+   /// @brief True is data was loaded
+   virtual bool isNull() const
+   {
+       return !m_loaded;
+   }
 };
 
 /// @}

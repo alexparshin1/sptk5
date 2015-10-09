@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          cnet  -  description
+                          datetime.cpp  -  description
                              -------------------
-    begin                : Jul 10 2013
-    copyright            : (C) 2006-2013 by Alexey Parshin
+    begin                : June 28, 2015
+    copyright            : (C) 1999-2015 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -25,21 +25,40 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CNET_H__
-#define __CNET_H__
+#include <iostream>
+#include <sptk5/CCommandLine.h>
 
-#include <sptk5/net/CCGI.h>
-#include <sptk5/net/CFTPConnect.h>
-#include <sptk5/net/CFtpDS.h>
-#include <sptk5/net/CHttpConnect.h>
-#include <sptk5/net/CHttpParams.h>
-#include <sptk5/net/CImapConnect.h>
-#include <sptk5/net/CImapDS.h>
-#include <sptk5/net/CMailMessageBody.h>
-#include <sptk5/net/CSmtpConnect.h>
-#include <sptk5/net/CTCPServer.h>
-#include <sptk5/net/CTCPServerConnection.h>
-#include <sptk5/net/CUDPSocket.h>
-#include <sptk5/net/CSSLSocket.h>
+using namespace std;
+using namespace sptk;
 
-#endif
+CCommandLineOption
+    help("help", 'h', "Prints this help.");
+
+CCommandLineParameter
+    archiveMode("archive-mode", "mode", 'a', "Archive mode may be one of {copy,zip,bzip2,xz}.", "copy", "^(copy|zip|bzip2|xz)$"),
+    date("archive-date", "date", 'd', "Date in the format 'YYYY-MM-DD'.", "", "^\\d{4}-\\d\\d-\\d\\d$");
+
+int main(int argc, const char* argv[])
+{
+    CCommandLine    commandLine;
+    try {
+        commandLine.init(argc, argv);
+    }
+    catch (const exception& e) {
+        cerr << "Error in command line arguments:" << endl;
+        cerr << e.what() << endl;
+        cout << endl;
+        commandLine.printHelp();
+        return 1;
+    }
+
+    if (commandLine.hasOption("help")) {
+        commandLine.printHelp();
+    } else {
+        cout << "Archive mode: " << commandLine.parameterValue("archive-mode") << endl;
+        cout << "Archive date: " << commandLine.parameterValue("archive-date") << endl;
+    }
+
+    return 0;
+}
+

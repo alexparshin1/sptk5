@@ -79,7 +79,7 @@ void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const cha
 void CFirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
-    
+
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
@@ -87,24 +87,24 @@ void CFirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPT
 
         char dpb_buffer[256], *dpb;
         short dpb_length;
-        
+
         dpb = dpb_buffer;
         *dpb++ = isc_dpb_version1;
         *dpb++ = isc_dpb_num_buffers;
         *dpb++ = 1;
         *dpb++ = 90;
         dpb_length = short(dpb - dpb_buffer);
-        
+
         dpb = dpb_buffer;
-        
+
         const string& username = m_connString.userName();
         if (!username.empty())
             isc_modify_dpb(&dpb, &dpb_length, isc_dpb_user_name, username.c_str(), (short) username.length());
-        
+
         const string& password = m_connString.password();
         if (!password.empty())
             isc_modify_dpb(&dpb, &dpb_length, isc_dpb_password, password.c_str(), (short) password.length());
-        
+
         m_connection = 0;
         string fullDatabaseName = m_connString.hostName() + ":/" + m_connString.databaseName();
         isc_attach_database(status_vector, (short) fullDatabaseName.length(), fullDatabaseName.c_str(), &m_connection, dpb_length, dpb);
@@ -115,10 +115,10 @@ void CFirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPT
 void CFirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
-    
+
     if (m_transaction)
         driverEndTransaction(false);
-    
+
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
             CQuery *query = (CQuery *) m_queryList[i];
@@ -126,7 +126,7 @@ void CFirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
         } catch (...) {
         }
     }
-    
+
     if (m_connection) {
         isc_detach_database(status_vector, &m_connection);
         m_connection = 0;
@@ -162,7 +162,7 @@ string CFirebirdConnection::nativeConnectionString() const
 void CFirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
-    
+
     if (!m_connection)
         open();
 
@@ -182,7 +182,7 @@ void CFirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 void CFirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
-    
+
     if (!m_inTransaction)
         throwDatabaseException("Transaction isn't started.");
 
@@ -342,7 +342,7 @@ void CFirebirdConnection::queryFetch(CQuery *query)
         CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
 
         statement->fetch();
-        
+
         if (statement->eof()) {
             querySetEof(query, true);
             return;
@@ -362,27 +362,25 @@ void CFirebirdConnection::objectList(CDbObjectType objectType, CStrings& objects
     switch (objectType)
     {
     case DOT_PROCEDURES:
-        objectsSQL = 
+        objectsSQL =
             "SELECT rdb$procedure_name object_name "
             "FROM rdb$procedures "
             "ORDER BY 1";
         break;
     case DOT_TABLES:
-        objectsSQL = 
+        objectsSQL =
             "SELECT rdb$relation_name object_name "
             "FROM rdb$relations "
             "WHERE rdb$system_flag = 0 AND rdb$view_source IS NULL "
             "ORDER BY 1";
         break;
     case DOT_VIEWS:
-        objectsSQL = 
+        objectsSQL =
             "SELECT rdb$relation_name object_name "
             "FROM rdb$relations "
             "WHERE rdb$system_flag = 0 AND rdb$view_source IS NOT NULL "
             "ORDER BY 1";
         break;
-    default:
-        return; // no information about objects of other types
     }
     CQuery query(this, objectsSQL);
     try {

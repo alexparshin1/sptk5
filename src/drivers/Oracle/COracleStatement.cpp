@@ -101,6 +101,7 @@ void COracleStatement::setParameterValues()
     CParamVector::iterator
         itor = m_enumeratedParams.begin(),
         iend = m_enumeratedParams.end();
+        
     for (int parameterIndex = 1; itor != iend; itor++, parameterIndex++)
     {
         CParam& parameter = *(*itor);

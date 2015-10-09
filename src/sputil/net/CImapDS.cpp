@@ -65,7 +65,7 @@ bool CImapDS::open() THROWS_EXCEPTIONS {
          else m_imap.cmd_fetch_headers((int32_t)msg_id,*df);
 
          CField *fld = new CField("msg_id");
-         fld->width = 0;
+         fld->view.width = 0;
          fld->setInteger((int32_t)msg_id);
          df->push_back(fld);
 

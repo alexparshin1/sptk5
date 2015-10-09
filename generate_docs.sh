@@ -1,6 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 SPTKDIR=`pwd`
+
+CXX_INCLUDE_DIR=$(gcc -v 2>&1 | grep 'Configured with:' | sed -r 's/^.*--with-gxx-include-dir=(\S+) .*$/\1/')
+
+#sed -i -r "s|^(INCLUDE_PATH\s+=).*$|\1 sptk5 /usr/include $CXX_INCLUDE_DIR|" sptk5.doxygen
 
 echo Starting in $SPTKDIR
 echo Generating HTML documentation

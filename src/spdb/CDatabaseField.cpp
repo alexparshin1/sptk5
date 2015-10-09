@@ -47,54 +47,54 @@ CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fie
     {
     case VAR_BOOL:
         setBool(false);
-        width = 6;
+        view.width = 6;
         break;
 
     case VAR_INT:
         setInteger(0);
-        width = 10;
+        view.width = 10;
         break;
 
     case VAR_FLOAT:
         setFloat(0);
-        width = 16;
-        precision = fieldScale;
+        view.width = 16;
+        view.precision = fieldScale;
         break;
 
     case VAR_STRING:
         setString("");
         checkSize((uint32_t)fieldLength + 1);
-        width = fieldLength;
+        view.width = fieldLength;
         break;
 
     case VAR_TEXT:
         setText("");
         checkSize((uint32_t)fieldLength + 1);
-        width = fieldLength;
+        view.width = fieldLength;
         break;
 
     case VAR_BUFFER:
         setBuffer("", 1);
         checkSize((uint32_t)fieldLength);
-        width = 1;
+        view.width = 1;
         break;
 
     case VAR_DATE:
     case VAR_DATE_TIME:
         setDateTime(0.0);
         CField::dataType(dataType);
-        width = 10;
+        view.width = 10;
         break;
 
     case VAR_INT64:
         setInt64(0);
-        width = 16;
+        view.width = 16;
         break;
 
     default:
         setString("");
         checkSize((uint32_t)fieldLength + 1);
-        width = fieldLength;
+        view.width = fieldLength;
         break;
     }
 }

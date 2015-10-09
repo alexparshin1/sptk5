@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          COpenSSLContext.cpp  -  description
+                          CSSLContext.cpp  -  description
                              -------------------
     begin                : Oct 30 2014
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -28,25 +28,25 @@
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <sptk5/net/COpenSSLContext.h>
+#include <sptk5/net/CSSLContext.h>
 
 using namespace std;
 using namespace sptk;
 
 static int s_server_session_id_context = 1;
-bool COpenSSLContext::m_loaded(false);
+bool CSSLContext::m_loaded(false);
 
-void COpenSSLContext::throwError(string humanDescription)
+void CSSLContext::throwError(string humanDescription)
 {
     int error = ERR_get_error();
     string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
     throwException(humanDescription + "\n" + errorStr);
 }
 
-void COpenSSLContext::init()
+void CSSLContext::init()
 {
     static CSynchronized sync;
-    
+
     CSynchronizedCode lock(sync);
     if (!m_loaded) {
         SSL_library_init();
@@ -57,41 +57,42 @@ void COpenSSLContext::init()
     }
 }
 
-COpenSSLContext::COpenSSLContext()
+CSSLContext::CSSLContext()
 {
     init();
     m_ctx = SSL_CTX_new(SSLv23_method());
+    SSL_CTX_set_cipher_list(m_ctx, "ALL");
     SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context, sizeof s_server_session_id_context);
 }
 
-COpenSSLContext::~COpenSSLContext()
+CSSLContext::~CSSLContext()
 {
     SYNCHRONIZED_CODE;
     SSL_CTX_free(m_ctx);
 }
 
-SSL_CTX* COpenSSLContext::handle()
+SSL_CTX* CSSLContext::handle()
 {
     SYNCHRONIZED_CODE;
     return m_ctx;
 }
 
-int COpenSSLContext::passwordReplyCallback(char *replyBuffer, int replySize, int/*rwflag*/, void *userdata)
+int CSSLContext::passwordReplyCallback(char *replyBuffer, int replySize, int/*rwflag*/, void *userdata)
 {
     strncpy(replyBuffer, (const char *) userdata, replySize);
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }
 
-void COpenSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw (exception)
+void CSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw (exception)
 {
     SYNCHRONIZED_CODE;
 
     m_password = password;
 
     // Load keys and certificates
-    if ( SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
+    if (SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
         throwError("Can't use certificate file " + certificateFileName);
 
     // Define password for auto-answer in callback function
@@ -100,8 +101,11 @@ void COpenSSLContext::loadKeys(string privateKeyFileName, string certificateFile
     if (SSL_CTX_use_PrivateKey_file(m_ctx, privateKeyFileName.c_str(), SSL_FILETYPE_PEM) <= 0)
         throwError("Can't use private key file " + privateKeyFileName);
 
+    if (!SSL_CTX_check_private_key(m_ctx))
+        throwError("Can't check private key file " + privateKeyFileName);
+
     // Load the CAs we trust
-    if (caFileName.empty() || SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), 0) <= 0)
+    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), 0) <= 0)
         throwError("Can't load or verify CA file " + caFileName);
 
     if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)
