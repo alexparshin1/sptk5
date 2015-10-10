@@ -31,23 +31,23 @@
 #define VERSION          "@VERSION@"
 #define THEMES_PREFIX    "@THEMES_PREFIX@"
 
-#define HAVE_FLTK        @FLTK_FLAG@
-#define HAVE_ODBC        @ODBC_FLAG@
-#define HAVE_SQLITE3     @SQLITE3_FLAG@
-#define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@
-#define HAVE_FIREBIRD    @FIREBIRD_FLAG@
-#define HAVE_MYSQL       @MYSQL_FLAG@
-#define HAVE_ORACLE      @ORACLE_FLAG@
-#define HAVE_ASPELL      @ASPELL_FLAG@
-#define HAVE_PCRE        @PCRE_FLAG@
-#define HAVE_OPENSSL     @OPENSSL_FLAG@
-#define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@
-#define BITNESS          @BITNESS@
+#define HAVE_FLTK        @FLTK_FLAG@        
+#define HAVE_ODBC        @ODBC_FLAG@        ///< Flag indicating if ODBC library is installed
+#define HAVE_SQLITE3     @SQLITE3_FLAG@     ///< Flag indicating if SQLite3 library is installed
+#define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@  ///< Flag indicating if LibPQ (PostgreSQL client) library is installed
+#define HAVE_FIREBIRD    @FIREBIRD_FLAG@    ///< Flag indicating if Firebird client library is installed
+#define HAVE_MYSQL       @MYSQL_FLAG@       ///< Flag indicating if MySQL client library is installed
+#define HAVE_ORACLE      @ORACLE_FLAG@      ///< Flag indicating if Oracle client library is installed
+#define HAVE_ASPELL      @ASPELL_FLAG@      ///< Flag indicating if ASpell library is installed
+#define HAVE_PCRE        @PCRE_FLAG@        ///< Flag indicating if PCRE library is installed
+#define HAVE_OPENSSL     @OPENSSL_FLAG@     ///< Flag indicating if OpenSSL library is installed
+#define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@  ///< Flag indicating if byte order for mashine is big endian
+#define BITNESS          @BITNESS@          ///< Number of machine bits
 
-#define USE_CXX11        @CXX11_FLAG@
+#define USE_CXX11        @CXX11_FLAG@       ///< Flag indicating if C++ 0x11 specific code can be used
 
-#define HAVE_PTHREAD_MUTEX_TIMEDLOCK    @HAVE_PTHREAD_MUTEX_TIMEDLOCK@
-#define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK @HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@
-#define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK @HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@
+#define HAVE_PTHREAD_MUTEX_TIMEDLOCK    @HAVE_PTHREAD_MUTEX_TIMEDLOCK@      ///< Flag indicating if pthreads library has pthread_mutex_timelock() function
+#define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK @HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@   ///< Flag indicating if pthreads library has pthread_rdlock_timedrdlock() function
+#define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK @HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@   ///< Flag indicating if pthreads library has pthread_wrlock_timedrdlock() function
 
 #endif
