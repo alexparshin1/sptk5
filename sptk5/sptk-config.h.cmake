@@ -31,7 +31,10 @@
 #define VERSION          "@VERSION@"
 #define THEMES_PREFIX    "@THEMES_PREFIX@"
 
-#define HAVE_FLTK        @FLTK_FLAG@        
+/// @addtogroup utility Utility Classes
+/// @{
+
+#define HAVE_FLTK        @FLTK_FLAG@        ///< Flag indicating if FLTK library is installed
 #define HAVE_ODBC        @ODBC_FLAG@        ///< Flag indicating if ODBC library is installed
 #define HAVE_SQLITE3     @SQLITE3_FLAG@     ///< Flag indicating if SQLite3 library is installed
 #define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@  ///< Flag indicating if LibPQ (PostgreSQL client) library is installed
@@ -49,5 +52,7 @@
 #define HAVE_PTHREAD_MUTEX_TIMEDLOCK    @HAVE_PTHREAD_MUTEX_TIMEDLOCK@      ///< Flag indicating if pthreads library has pthread_mutex_timelock() function
 #define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK @HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@   ///< Flag indicating if pthreads library has pthread_rdlock_timedrdlock() function
 #define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK @HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@   ///< Flag indicating if pthreads library has pthread_wrlock_timedrdlock() function
+
+/// @}
 
 #endif
