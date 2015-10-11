@@ -27,14 +27,6 @@
 
 #include <sptk5/CVariant.h>
 #include <sptk5/CField.h>
-#include <sptk5/CException.h>
-#include <sptk5/string_ext.h>
-
-#include <map>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
@@ -501,7 +493,7 @@ bool CVariant::asBool() const THROWS_EXCEPTIONS
     char ch;
 
     if (m_dataType & VAR_NULL)
-        return true;
+        return false;
 
     switch (dataType()) {
     case VAR_BOOL:
@@ -653,7 +645,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     }
 
     case VAR_IMAGE_PTR:
-        sprintf (print_buffer,"%p", (char *) m_data.imagePtr);
+        sprintf (print_buffer,"%p", m_data.imagePtr);
         return string (print_buffer);
 
     case VAR_IMAGE_NDX:
