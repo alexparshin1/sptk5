@@ -192,16 +192,16 @@ public:
 /// for the place an exception is thrown from
 
 /// @brief Throws exception with file name and line number
-#define throwException(msg) throw CException(msg,__FILE__,__LINE__)
+#define throwException(msg) throw sptk::CException(msg,__FILE__,__LINE__)
 
 /// @brief Throws timeout exception with file name and line number
-#define throwTimeoutException(msg) throw CTimeoutException(msg,__FILE__,__LINE__)
+#define throwTimeoutException(msg) throw sptk::CTimeoutException(msg,__FILE__,__LINE__)
 
 /// @brief Throws database exception with file name and line number
-#define throwDatabaseException(msg) throw CDatabaseException(msg,__FILE__,__LINE__)
+#define throwDatabaseException(msg) throw sptk::CDatabaseException(msg,__FILE__,__LINE__)
 
 /// @brief Throws SOAP exception with file name and line number
-#define throwSOAPException(msg) throw CSOAPException(msg,__FILE__,__LINE__)
+#define throwSOAPException(msg) throw sptk::CSOAPException(msg,__FILE__,__LINE__)
 
 /// @}
 }
