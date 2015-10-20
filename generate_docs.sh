@@ -11,7 +11,6 @@ if [ "$SPTKVER" == "" ]; then
 fi
 
 sed -r "s|@SPTK_VERSION@|$SPTKVER|g" sptk5.doxygen.in > sptk5.doxygen
-exit 1
 
 #sed -i -r "s|^(INCLUDE_PATH\s+=).*$|\1 sptk5 /usr/include $CXX_INCLUDE_DIR|" sptk5.doxygen
 
