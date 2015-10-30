@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Loading SPTK from SVN"
+svn -q checkout file:///mnt/data/repos/svn/public/sptk sptk3

@@ -1,0 +1,82 @@
+#!/bin/sh
+
+CWD=`pwd`
+
+SPTK_MAJOR=`cut -d '.' -f 2 .current_version`
+SPTK_MINOR=`cut -d '.' -f 3 .current_version`
+
+if [ "$1" == "-n" ] || [ "$1" == "--next-version" ] ; then
+  SPTK_MINOR=$(($SPTK_MINOR+1))
+fi
+
+SPTK_VERSION="5.${SPTK_MAJOR}.${SPTK_MINOR}"
+SPTK_REVISION=""
+SPTK_DIR="sptk-$SPTK_VERSION"
+CURR_DIR=`pwd`
+
+if [ -d $SPTK_DIR ]; then
+  rm -rf $SPTK_DIR
+fi
+
+echo "Updating SPTK $SPTK_VERSION from GIT"
+cd sptk5 && git pull
+if [ ! $? = 0 ]; then
+   echo ERRORS, exiting
+   exit 1
+fi
+
+cd $CURR_DIR
+mkdir -p $SPTK_DIR && rsync -a sptk5/* $SPTK_DIR --exclude .git
+if [ ! $? = 0 ]; then
+   echo ERRORS, exiting
+   exit 1
+fi
+
+echo Making bzip2 archive
+zip -r ${SPTK_DIR}${SPTK_REVISION}.zip $SPTK_DIR
+tar jcf ${SPTK_DIR}${SPTK_REVISION}.tbz2 $SPTK_DIR
+if [ ! $? = 0 ]; then
+   echo ERRORS, exiting
+   exit 1
+fi
+
+#echo Making zip archive
+#zip -r ${SPTK_DIR}${SPTK_REVISION}.zip $SPTK_DIR > /dev/null
+#if [ ! $? = 0 ]; then
+#   echo ERRORS, exiting
+#   exit 1
+#fi
+
+build_doc="1"
+if [ "$build_doc" = "1" ]; then
+
+   echo "Creating Doxygen documentation"
+   cp sptk-config.h $SPTK_DIR/sptk5/
+   cd $SPTK_DIR
+   sh ./generate_docs.sh $SPTK_VERSION 2>&1 | grep -v '(macro definition)'
+   if [ ! $? = 0 ]; then
+      echo ERRORS, exiting
+      exit 1
+   fi
+
+   rm $SPTK_DIR/sptk5/sptk-config.h
+   cd $CURR_DIR
+
+   if [ -f $SPTK_DIR/docs/sptk5_reference.pdf ]; then
+     echo Installing SPTK reference
+     mv $SPTK_DIR/docs/sptk5_reference.pdf .. > /dev/null
+     if [ ! $? = 0 ]; then
+       echo ERRORS, exiting
+       exit 1
+     fi
+   fi
+fi
+
+echo Installing the distribution archives
+mv ${SPTK_DIR}${SPTK_REVISION}.{tbz2,zip} ..
+cd ..
+ln -sf ${SPTK_DIR}${SPTK_REVISION}.tbz2 sptk.tbz2
+
+cd $CWD
+echo "5.$SPTK_MAJOR.$SPTK_MINOR" > .current_version
+exit 0
