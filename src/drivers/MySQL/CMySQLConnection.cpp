@@ -28,6 +28,7 @@
 #include <sptk5/db/CMySQLConnection.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
+#include <sptk5/threads/CSynchronized.h>
 
 #include <string>
 #include <stdio.h>
@@ -63,12 +64,17 @@ CMySQLConnection::~CMySQLConnection()
 
 void CMySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
+    static CSynchronized libraryInitMutex;
+    
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
             m_connString = newConnectionString;
 
-        m_connection = mysql_init(m_connection);
+        {
+            CSynchronizedCode libraryInitCode(libraryInitMutex);
+            m_connection = mysql_init(m_connection);
+        }
 
         mysql_options(m_connection, MYSQL_SET_CHARSET_NAME, "utf8");
         mysql_options(m_connection, MYSQL_INIT_COMMAND, "SET NAMES utf8");
