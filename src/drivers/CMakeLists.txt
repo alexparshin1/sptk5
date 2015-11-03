@@ -27,7 +27,7 @@ IF (POSTGRESQL_FLAG)
         PostgreSQL/htonq.cpp
     )
     INCLUDE_DIRECTORIES (${PostgreSQL_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES(spdb5_postgresql ${PostgreSQL_LIBRARY})
+    TARGET_LINK_LIBRARIES(spdb5_postgresql spdb5 sputil5 ${PostgreSQL_LIBRARY})
     INSTALL(TARGETS spdb5_postgresql RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (POSTGRESQL_FLAG)
 
@@ -38,7 +38,7 @@ IF (ORACLE_FLAG)
         Oracle/COracleConnection.cpp
         Oracle/COracleBulkInsertQuery.cpp
     )
-    TARGET_LINK_LIBRARIES (spdb5_oracle ${Oracle_LIBRARIES})
+    TARGET_LINK_LIBRARIES (spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
     INSTALL(TARGETS spdb5_oracle RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (ORACLE_FLAG)
 
@@ -48,7 +48,7 @@ IF (MYSQL_FLAG)
         MySQL/CMySQLConnection.cpp
     )
     INCLUDE_DIRECTORIES (${MySQL_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES (spdb5_mysql ${MySQL_LIBRARY})
+    TARGET_LINK_LIBRARIES (spdb5_mysql spdb5 sputil5 ${MySQL_LIBRARY})
     INSTALL(TARGETS spdb5_mysql RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (MYSQL_FLAG)
 
@@ -58,6 +58,6 @@ IF (FIREBIRD_FLAG)
         Firebird/CFirebirdStatement.cpp
     )
     INCLUDE_DIRECTORIES (${Firebird_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES (spdb5_firebird ${Firebird_LIBRARY})
+    TARGET_LINK_LIBRARIES (spdb5_firebird spdb5 sputil5 ${Firebird_LIBRARY})
     INSTALL(TARGETS spdb5_firebird RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 ENDIF (FIREBIRD_FLAG)

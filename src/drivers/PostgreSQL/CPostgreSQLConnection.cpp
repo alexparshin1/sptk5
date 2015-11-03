@@ -580,7 +580,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
 
 static inline bool readBool(char* data)
 {
-    return (bool) *data;
+    return *data != 0;
 }
 
 static inline int16_t readInt2(char* data)
@@ -845,7 +845,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
 
             if (!dataLength) {
                 if (fieldType & (VAR_STRING | VAR_TEXT | VAR_BUFFER))
-                    isNull = PQgetisnull(stmt, currentRow, column);
+                    isNull = PQgetisnull(stmt, currentRow, column) == 1;
                 else
                     isNull = true;
 
