@@ -62,7 +62,7 @@ string CHttpParams::encodeString(string& str) {
                 dest++;
                 break;
             default:
-                sprintf(dest,"%%%02X",(unsigned)*src);
+                sprintf(dest,"%%%02X",(unsigned char)*src);
                 dest += 3;
                 break;
             }

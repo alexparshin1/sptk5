@@ -111,11 +111,16 @@ void CHttpConnect::getResponse()
         }
     }
 
+    int bytesToRead = contentLength;
     if (!chunked) {
         int totalBytes = 0;
 
         for (;;) {
-            bytes = (int) m_socket.read(read_buffer, 64*1024);
+            if (contentLength) {
+                bytes = (int) m_socket.read(read_buffer, bytesToRead);
+                bytesToRead -= bytes;
+            } else
+                bytes = (int) m_socket.read(read_buffer, 64*1024);
 
             if (bytes <= 0) // No more data
                 break;
