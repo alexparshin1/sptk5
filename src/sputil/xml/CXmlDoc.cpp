@@ -42,6 +42,13 @@ CXmlDoc::CXmlDoc() :
 {
 }
 
+CXmlDoc::CXmlDoc(string xml) :
+CXmlElement(*this),
+m_indentSpaces(2)
+{
+    load(xml);
+}
+
 CXmlDoc::CXmlDoc(const char *aname, const char *public_id, const char *system_id) :
     CXmlElement(*this),
     m_doctype(aname, public_id, system_id),
