@@ -271,16 +271,13 @@ void CXmlDoc::load(const char* xmlData)
                 }
                 if (strncmp(nodeName, "![CDATA[", 8) == 0) {
                     /// CDATA section
-                    if (ch != '>') {
-                        nodeEnd = strstr(tokenEnd + 1, "]]>");
-                        *tokenEnd = ch;
-                    } else
-                        nodeEnd = strstr(nodeName + 8, "]]");
+                    *tokenEnd = ch;
+                    nodeEnd = strstr(nodeName + 1, "]]>");
                     if (!nodeEnd)
                         throw CException("Invalid CDATA section");
                     *nodeEnd = 0;
                     new CXmlCDataSection(currentNode, nodeName + 8);
-                    tokenEnd = nodeEnd + 3;
+                    tokenEnd = nodeEnd + 2;
                     break;
                 }
                 if (strncmp(nodeName, "!DOCTYPE", 8) == 0) {
