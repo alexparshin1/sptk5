@@ -313,7 +313,7 @@ void CXmlDoc::load(const char* xmlData)
                     throw CException("Invalid PI section");
                 *nodeEnd = 0;
                 new CXmlPI(currentNode, nodeName + 1, value);
-                tokenEnd = nodeEnd + 2;
+                tokenEnd = nodeEnd + 1;
             }
                 break;
 
