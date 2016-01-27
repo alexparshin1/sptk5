@@ -80,11 +80,15 @@ public:
     /// @brief Constructs an empty document, without doctype.
     CXmlDoc();
 
+    /// @brief Constructs a document from XML string
+    /// @param xml std::string, XML string
+    CXmlDoc(std::string xml);
+    
     /// @brief Constructs an empty document, with doctype.
     /// @param name const char *, name of the document.
     /// @param public_id const char *, public id of the document, placed on DOCTYPE declaration
     /// @param system_id const char *, system id of the document, placed on DOCTYPE declaration
-    CXmlDoc(const char *name, const char *public_id = 0, const char *system_id = 0);
+    CXmlDoc(const char *name, const char *public_id, const char *system_id);
 
     /// @brief Destructor
     virtual ~CXmlDoc()

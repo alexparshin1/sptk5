@@ -358,6 +358,7 @@ void CXmlNode::save(CBuffer &buffer, int indent) const
     }
 
     // depending on the nodetype, do output
+    string v;
     switch (type())
     {
     case DOM_PI:
@@ -365,7 +366,10 @@ void CXmlNode::save(CBuffer &buffer, int indent) const
         break;
 
     case DOM_TEXT:
-        document()->docType().encodeEntities(value().c_str(), buffer);
+        if (value().substr(0,9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
+            buffer.append(value());
+        else
+            document()->docType().encodeEntities(value().c_str(), buffer);
         break;
 
     case DOM_CDATA_SECTION:

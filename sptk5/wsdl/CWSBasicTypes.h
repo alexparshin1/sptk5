@@ -111,6 +111,20 @@ public:
         return *this;
     }
 
+    /// @brief Assignment operation
+    virtual WSString& operator =(int32_t value)
+    {
+        setInteger(value);
+        return *this;
+    }
+    
+    /// @brief Assignment operation
+    virtual WSString& operator =(int64_t value)
+    {
+        setInt64(value);
+        return *this;
+    }
+    
     /// @brief Conversion operator
     operator std::string() const THROWS_EXCEPTIONS
     {
