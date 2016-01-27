@@ -159,6 +159,13 @@ public:
     /// @param buffer const char*, source buffer
     virtual void load(const char* buffer);
 
+    /// @brief Loads document from std::string.
+    /// @param str const std::string&, source string
+    virtual void load(const std::string& str)
+    {
+        load(str.c_str());
+    }
+
     /// @brief Loads document from buffer.
     /// @param buffer const CBuffer&, source buffer
     virtual void load(const CBuffer& buffer)

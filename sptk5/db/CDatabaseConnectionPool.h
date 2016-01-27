@@ -110,9 +110,41 @@ public:
 
     /// @brief Destroys connection
     /// @param connection CDatabaseConnection*, destroys the driver instance
-    /// @param unlink bool, should always be true for any eternal use
-    void destroyConnection(CDatabaseConnection* connection,bool unlink=true);
+    /// @param unlink bool, should always be true for any external use
+    void destroyConnection(CDatabaseConnection* connection, bool unlink=true);
 };
+
+/// @brief Wrapper for CDatabase connection that automatically handles connection create and release
+class CAutoDatabaseConnection
+{
+    CDatabaseConnectionPool&    m_connectionPool;   ///< Database connection pool
+    CDatabaseConnection*        m_connection;       ///< Database connection
+public:
+
+    /// @brief Constructor
+    /// Automatically gets connection from connection pool
+    /// @param connectionPool CDatabaseConnectionPool&, Database connection pool
+    CAutoDatabaseConnection(CDatabaseConnectionPool& connectionPool)
+    : m_connectionPool(connectionPool)
+    {
+        m_connection = m_connectionPool.createConnection();
+    }
+
+    /// @brief Destructor
+    /// Releases connection to connection pool
+    ~CAutoDatabaseConnection()
+    {
+        if (m_connection)
+            m_connectionPool.releaseConnection(m_connection);
+    }
+
+    /// @brief Returns database connection acquired from the connection pool
+    CDatabaseConnection* connection()
+    {
+        return m_connection;
+    }
+};
+
 /// @}
 }
 #endif
