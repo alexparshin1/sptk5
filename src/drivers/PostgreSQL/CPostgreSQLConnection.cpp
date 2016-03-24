@@ -418,6 +418,7 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
 
     ExecStatusType rc = PQresultStatus(stmt);
 
+    string error;
     switch (rc) {
     case PGRES_COMMAND_OK:
         statement->stmt(stmt, 0, 0);
@@ -426,14 +427,21 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
     case PGRES_TUPLES_OK:
         statement->stmt(stmt, (unsigned) PQntuples(stmt));
         break;
+        
+    case PGRES_EMPTY_QUERY:
+        error = "EXECUTE command failed: EMPTY QUERY";
+        break;
 
-    default: {
-        string error = "EXECUTE command failed: ";
+    default: 
+        error = "EXECUTE command failed: ";
         error += PQerrorMessage(m_connect);
+        break;
+    }
+    
+    if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
         query->logAndThrow("CPostgreSQLConnection::queryBindParameters", error);
-    }
     }
 }
 
