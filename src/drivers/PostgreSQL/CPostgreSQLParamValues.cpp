@@ -130,6 +130,14 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
             }
             break;
 
+            case VAR_MONEY: {
+                double value = param->asFloat();
+                uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
+                *bufferToSend = htonq(*(uint64_t*)&value);
+                setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
+            }
+            break;
+
             case VAR_FLOAT: {
                 uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
                 *bufferToSend = htonq(*(uint64_t*)param->dataBuffer());

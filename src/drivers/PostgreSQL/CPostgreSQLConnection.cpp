@@ -486,6 +486,10 @@ void CPostgreSQLConnection::CTypeToPostgreType(CVariantType dataType, Oid& postg
         postgreType = PG_INT4;
         return;        ///< Integer 4 bytes
 
+    case VAR_MONEY:
+        postgreType = PG_FLOAT8;
+        return;        ///< Floating-point (double)
+
     case VAR_FLOAT:
         postgreType = PG_FLOAT8;
         return;        ///< Floating-point (double)
