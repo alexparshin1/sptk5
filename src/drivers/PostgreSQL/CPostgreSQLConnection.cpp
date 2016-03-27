@@ -315,15 +315,15 @@ void CPostgreSQLConnection::queryFreeStmt(CQuery* query)
         if (statement->stmt()) {
             string deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
             PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+            /*
             ExecStatusType rc = PQresultStatus(res);
-
             if (rc >= PGRES_BAD_RESPONSE) {
                 string error = "DEALLOCATE command failed: ";
                 error += PQerrorMessage(m_connect);
                 PQclear(res);
                 query->logAndThrow("CPostgreSQLConnection::queryFreeStmt", error);
             }
-
+            */
             PQclear(res);
         }
 
