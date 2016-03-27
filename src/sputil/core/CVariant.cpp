@@ -738,11 +738,11 @@ void *CVariant::asImagePtr() const THROWS_EXCEPTIONS
     }
 }
 
-void CVariant::setNull (CVariantType vtype)
+void CVariant::setNull(CVariantType vtype)
 {
     if (vtype != sptk::VAR_NONE) {
         releaseBuffers();
-        dataType (VAR_BUFFER);
+        dataType (vtype);
     }
 
     switch (dataType()) {
