@@ -173,7 +173,10 @@ CQuery::CQuery(const CQuery& srcQuery) :
 
 CQuery::~CQuery()
 {
-    closeQuery(true);
+    try {
+        closeQuery(true);
+    }
+    catch (...) {}
     storeStatistics();
     if (m_db)
         m_db->unlinkQuery(this);
