@@ -33,6 +33,7 @@
 namespace sptk
 {
 
+/// @brief Template class for database statements for different database drivers
 template <class Connection, class Statement> class CDatabaseStatement
 {
 protected:
@@ -57,7 +58,7 @@ public:
     /// @brief Destructor
     virtual ~CDatabaseStatement()
     {}
-    
+
     /// @brief Returns current DB statement handle
     Statement* stmt() const
     {
