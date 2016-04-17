@@ -69,6 +69,8 @@ void CQuery::closeStmt()
 
 void CQuery::prepare()
 {
+    if (!m_autoPrepare)
+        throw CDatabaseException("Can't prepare this statement");
     if (m_prepared)
         return;
     if (m_db && m_statement) {
@@ -122,13 +124,13 @@ string CQuery::getError() const
     return "";
 }
 //==============================================================================
-CQuery::CQuery(CDatabaseConnection *_db, string _sql, const char* createdFile, unsigned createdLine) :
+CQuery::CQuery(CDatabaseConnection *_db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine) :
         CDataSource(), m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
     m_statement = 0L;
-    m_autoPrepare = true;
+    m_autoPrepare = autoPrepare;
     m_prepared = false;
     m_active = false;
     m_eof = true;
@@ -152,6 +154,7 @@ CQuery::CQuery(const CQuery& srcQuery) :
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
     m_statement = 0L;
+    m_autoPrepare = srcQuery.m_autoPrepare;
     m_prepared = false;
     m_active = false;
     m_eof = true;

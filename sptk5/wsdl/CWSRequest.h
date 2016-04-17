@@ -61,6 +61,22 @@ public:
     /// The processing results are stored in the same request XML
     /// @param request CXmlDoc*, Incoming request and outgoing response
     void processRequest(CXmlDoc* request) THROWS_EXCEPTIONS;
+
+    /// @brief Returns service title (for service handshake)
+    ///
+    /// Application should overwrite this method to return mor appropriate text
+    virtual std::string title() const
+    {
+        return "Generic SPTK WS Request Broker";
+    }
+
+    /// @brief Returns service default HTML page
+    ///
+    /// Application should overwrite this method to return mor appropriate text
+    virtual std::string defaultPage() const
+    {
+        return "index.html";
+    }
 };
 
 }

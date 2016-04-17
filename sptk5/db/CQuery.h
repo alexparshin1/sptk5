@@ -127,9 +127,10 @@ public:
     /// calls statistics is stored to the database object during the query dtor.
     /// @param db CDatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
+    /// @param autoPrepare bool, if true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
     /// @param createdFile const char*, the name of the file this query was created in (optional)
     /// @param createdLine unsigned, the line of the file this query was created at (optional)
-    CQuery(CDatabaseConnection *db = 0L, std::string sql = "", const char* createdFile = 0, unsigned createdLine = 0);
+    CQuery(CDatabaseConnection *db = 0L, std::string sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
 
     /// @brief Copy constructor
     CQuery(const CQuery&);

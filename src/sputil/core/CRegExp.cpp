@@ -176,7 +176,7 @@ string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) co
         replaced = true;
         while (pos != string::npos) {
             size_t placeHolderStart = pos;
-            for (;;) {
+            for (;; placeHolderStart++) {
                 placeHolderStart = outputPattern.find("\\", placeHolderStart);
                 if (placeHolderStart == string::npos)
                     break;

@@ -68,6 +68,12 @@ public:
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
     CXmlElement* addElement(CXmlElement* parent) const;
+
+    /// @brief Returns element name
+    std::string name() const
+    {
+ 	   return fieldName();
+    }
 };
 
 /// @brief Base type for all standard WSDL types

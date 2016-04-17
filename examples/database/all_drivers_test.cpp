@@ -29,8 +29,8 @@ using namespace sptk;
 int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(db, "DELETE FROM " + tableName, __FILE__, __LINE__);
-        CQuery step6Query(db, "SELECT count(*) FROM " + tableName, __FILE__, __LINE__);
+        CQuery step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
+        CQuery step6Query(db, "SELECT count(*) FROM " + tableName, true, __FILE__, __LINE__);
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
@@ -77,7 +77,7 @@ string fieldToString(const CField& field)
 
 void testBLOBs(CDatabaseConnection* db)
 {
-    CQuery createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", __FILE__, __LINE__);
+    CQuery createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true, __FILE__, __LINE__);
     try {
         createTableQuery.exec();
     }
@@ -85,7 +85,7 @@ void testBLOBs(CDatabaseConnection* db)
         cout << e.what() << endl;
     }
 
-    CQuery createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", __FILE__, __LINE__);
+    CQuery createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true, __FILE__, __LINE__);
 
     for (unsigned i = 0; i < 1000; i++) {
         createBlobQuery.param("id").setInteger(i);
@@ -93,7 +93,7 @@ void testBLOBs(CDatabaseConnection* db)
         createBlobQuery.exec();
     }
 
-    CQuery selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", __FILE__, __LINE__);
+    CQuery selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", true, __FILE__, __LINE__);
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
         cout << selectBlobsQuery["id"].asInteger()
@@ -103,7 +103,7 @@ void testBLOBs(CDatabaseConnection* db)
     }
     selectBlobsQuery.close();
 
-    CQuery dropTableQuery(db, "DROP TABLE sptk_blob_test", __FILE__, __LINE__);
+    CQuery dropTableQuery(db, "DROP TABLE sptk_blob_test", true, __FILE__, __LINE__);
     dropTableQuery.exec();
 }
 
@@ -147,10 +147,10 @@ int testDatabase(string connectionString)
         if (db->driverDescription().find("Microsoft") != string::npos)
             timestampTypeName = "DATETIME";
 
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " + timestampTypeName + ", rate NUMERIC(16,10))", __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id::integer,:person_name,:position_name,:hire_date,:rate)",  __FILE__, __LINE__);
-        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", __FILE__, __LINE__);
-        CQuery step4Query(db, "DROP TABLE " + tableName, __FILE__, __LINE__);
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " + timestampTypeName + ", rate NUMERIC(16,10))", true, __FILE__, __LINE__);
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id::integer,:person_name,:position_name,:hire_date,:rate)", true,  __FILE__, __LINE__);
+        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", true, __FILE__, __LINE__);
+        CQuery step4Query(db, "DROP TABLE " + tableName, true, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {

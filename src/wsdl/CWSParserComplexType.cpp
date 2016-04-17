@@ -177,8 +177,9 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
     classDeclaration << "public:" << endl;
-    CStrings ctorInitializer;
+    CStrings ctorInitializer, copyInitializer;
     ctorInitializer.push_back("sptk::WSComplexType(elementName, optional)");
+    copyInitializer.push_back("sptk::WSComplexType(other.name().c_str(), other.isOptional())");
     if (m_sequence.size()) {
         classDeclaration << "   // Elements" << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
@@ -190,6 +191,7 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
             else {
                 string optional = complexType->multiplicity() & CWSM_OPTIONAL ? ", true" : "";
                 ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
+                copyInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
             }
             sprintf(buffer, "%-20s m_%s", cxxType.c_str(), complexType->name().c_str());
             classDeclaration << "   " << buffer << ";" << endl;
@@ -201,6 +203,7 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
             CWSParserAttribute& attr = *(itor->second);
             classDeclaration << "   " << attr.generate() << ";" << endl;
             ctorInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
+            copyInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
         }
     }
     classDeclaration << "public:" << endl;
@@ -208,6 +211,12 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "   /// @param elementName const char*, WSDL element name" << endl;
     classDeclaration << "   /// @param optional bool, Is element optional flag" << endl;
     classDeclaration << "   " << className << "(const char* elementName, bool optional=false)" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
+    classDeclaration << "   /// @brief Copy constructor" << endl;
+    classDeclaration << "   /// @param other const " << className << "&, other element to copy from" << endl;
+    classDeclaration << "   " << className << "(const " << className << "& other)" << endl << "   : " << copyInitializer.asString(", ") << endl
+    		         << "   {" << endl
+    		         <<	"       copyFrom(other);" << endl
+                     << "   }" << endl << endl;
     classDeclaration << "   /// @brief Destructor" << endl;
     classDeclaration << "   virtual ~" << className << "();" << endl << endl;
     classDeclaration << "   /// @brief Clear content and releases allocated memory" << endl;

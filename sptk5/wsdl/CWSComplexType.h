@@ -74,6 +74,18 @@ public:
    {
        return !m_loaded;
    }
+
+   /// @brief Returns element name
+   std::string name() const
+   {
+	   return m_name;
+   }
+
+   /// @brief True is element is optional
+   virtual bool isOptional() const
+   {
+       return m_optional;
+   }
 };
 
 /// @}
