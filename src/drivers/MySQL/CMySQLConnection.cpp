@@ -184,7 +184,7 @@ string CMySQLConnection::queryError(const CQuery *) const
 void CMySQLConnection::queryAllocStmt(CQuery *query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new CMySQLStatement(this, query->sql()));
+    querySetStmt(query, new CMySQLStatement(this, query->sql(), query->autoPrepare()));
 }
 
 void CMySQLConnection::queryFreeStmt(CQuery *query)
@@ -287,11 +287,10 @@ void CMySQLConnection::queryOpen(CQuery *query)
     if (!query->statement())
         queryAllocStmt(query);
 
-    if (!query->prepared())
+    if (query->autoPrepare() && !query->prepared()) {
         queryPrepare(query);
-
-    // Bind parameters also executes a query
-    queryBindParameters(query);
+		queryBindParameters(query);
+    }
 
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
 

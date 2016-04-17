@@ -90,15 +90,21 @@ public:
 };
 
 
-CMySQLStatement::CMySQLStatement(CMySQLConnection* connection, string sql)
-: CDatabaseStatement<CMySQLConnection,MYSQL_STMT>(connection)
+CMySQLStatement::CMySQLStatement(CMySQLConnection* connection, string sql, bool autoPrepare)
+: CDatabaseStatement<CMySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(NULL)
 {
-    m_statement = mysql_stmt_init((MYSQL*)connection->handle());
+	if (autoPrepare)
+		m_statement = mysql_stmt_init((MYSQL*)connection->handle());
+	else
+		m_statement = NULL; // direct execution
 }
 
 CMySQLStatement::~CMySQLStatement()
 {
-    mysql_stmt_close(m_statement);
+	if (m_statement)
+		mysql_stmt_close(m_statement);
+	if (m_result)
+		mysql_free_result(m_result);
 }
 
 void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, CVariantType timeType)
@@ -294,16 +300,37 @@ void CMySQLStatement::CMySQLStatement::prepare(const string& sql)
 void CMySQLStatement::execute(bool)
 {
     m_state.eof = false;
-    if (mysql_stmt_execute(m_statement) != 0)
-        throwMySQLError;
-    m_state.columnCount = mysql_stmt_field_count(m_statement);
+    if (m_statement) {
+		if (mysql_stmt_execute(m_statement) != 0)
+			throwMySQLError;
+	    m_state.columnCount = mysql_stmt_field_count(m_statement);
+    } else {
+    	MYSQL* conn = m_connection->m_connection;
+		if (mysql_query(conn, m_sql.c_str()) != 0) {
+			string error = mysql_error(conn);
+			throw CDatabaseException(error);
+		}
+		m_result = mysql_store_result(conn);
+		if (m_result) {
+			m_state.columnCount = mysql_field_count(conn);
+			MYSQL_ROW row;
+			row = mysql_fetch_row(m_result);
+			for (int i = 0; i < m_state.columnCount; i++)
+				cout << "[" << row[i] << "]" << endl;
+		} else
+			m_state.columnCount = 0;
+    }
 }
 
 void CMySQLStatement::bindResult(CFieldList& fields)
 {
     fields.clear();
 
-    MYSQL_RES*  metadata = mysql_stmt_result_metadata(m_statement);
+    MYSQL_RES*  metadata = NULL;
+    if (m_statement)
+    	metadata = mysql_stmt_result_metadata(m_statement);
+    else
+    	metadata = m_result;
     if (!metadata)
         throwMySQLError;
     char columnName[256];
@@ -321,7 +348,8 @@ void CMySQLStatement::bindResult(CFieldList& fields)
             fieldLength = FETCH_BUFFER;
         fields.push_back(new CMySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
     }
-    mysql_free_result(metadata);
+    if (m_statement)
+    	mysql_free_result(metadata);
 
     // Bind initialized fields to MySQL bind buffers
     m_fieldBuffers.resize(m_state.columnCount);

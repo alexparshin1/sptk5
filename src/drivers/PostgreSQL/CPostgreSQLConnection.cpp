@@ -443,6 +443,57 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
     }
 }
 
+void CPostgreSQLConnection::queryExecDirect(CQuery* query)
+{
+    SYNCHRONIZED_CODE;
+
+    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    CPostgreSQLParamValues& paramValues = statement->m_paramValues;
+    const CParamVector& params = paramValues.params();
+    uint32_t paramNumber = 0;
+
+    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
+        CParam* param = *ptor;
+        paramValues.setParameterValue(paramNumber, param);
+    }
+
+    int resultFormat = 1;   // Results are presented in binary format
+
+    if (!statement->colCount())
+        resultFormat = 0;   // VOID result or NO results, using text format
+
+    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), paramValues.values(),
+                                    paramValues.lengths(), paramValues.formats(), resultFormat);
+
+    ExecStatusType rc = PQresultStatus(stmt);
+
+    string error;
+    switch (rc) {
+    case PGRES_COMMAND_OK:
+        statement->stmt(stmt, 0, 0);
+        break;
+
+    case PGRES_TUPLES_OK:
+        statement->stmt(stmt, (unsigned) PQntuples(stmt));
+        break;
+
+    case PGRES_EMPTY_QUERY:
+        error = "EXECUTE command failed: EMPTY QUERY";
+        break;
+
+    default:
+        error = "EXECUTE command failed: ";
+        error += PQerrorMessage(m_connect);
+        break;
+    }
+
+    if (!error.empty()) {
+        PQclear(stmt);
+        statement->clear();
+        query->logAndThrow("CPostgreSQLConnection::queryBindParameters", error);
+    }
+}
+
 void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, CVariantType& dataType)
 {
     switch (postgreType) {
@@ -538,17 +589,14 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
     if (!query->statement())
         queryAllocStmt(query);
 
-    if (!query->prepared())
+    if (query->autoPrepare() && !query->prepared()) {
         queryPrepare(query);
-
-    // Bind parameters also executes a query
-    queryBindParameters(query);
-
-    //query->fields().clear();
+		// Bind parameters also executes a query
+		queryBindParameters(query);
+	} else
+        queryExecDirect(query);
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
-    //if (statement->rowCount() == 0)
-    //    return;
 
     short count = (short) queryColCount(query);
 

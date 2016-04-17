@@ -44,9 +44,12 @@ class CMySQLConnection;
 
 class CMySQLStatement : public CDatabaseStatement<CMySQLConnection,MYSQL_STMT>
 {
-    std::vector<MYSQL_BIND>         m_paramBuffers;
+	std::string 					m_sql;
+	std::vector<MYSQL_BIND>         m_paramBuffers;
     std::vector<unsigned long>      m_paramLengths;
     std::vector<MYSQL_BIND>         m_fieldBuffers;
+
+    MYSQL_RES*						m_result;
 
 public:
 
@@ -75,7 +78,7 @@ public:
     /// @brief Constructor
     /// @param connection Connection*, MySQL connection
     /// @param sql std::string, SQL statement
-    CMySQLStatement(CMySQLConnection* connection, std::string sql);
+    CMySQLStatement(CMySQLConnection* connection, std::string sql, bool autoPrepare);
 
     /// @brief Destructor
     virtual ~CMySQLStatement();

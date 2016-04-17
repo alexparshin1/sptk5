@@ -147,10 +147,10 @@ int testDatabase(string connectionString)
         if (db->driverDescription().find("Microsoft") != string::npos)
             timestampTypeName = "DATETIME";
 
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " + timestampTypeName + ", rate NUMERIC(16,10))", true, __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id::integer,:person_name,:position_name,:hire_date,:rate)", true,  __FILE__, __LINE__);
-        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", true, __FILE__, __LINE__);
-        CQuery step4Query(db, "DROP TABLE " + tableName, true, __FILE__, __LINE__);
+        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " + timestampTypeName + ", rate NUMERIC(16,10))", false, __FILE__, __LINE__);
+        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true,  __FILE__, __LINE__);
+        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > 1 OR id IS NULL", false, __FILE__, __LINE__);
+        CQuery step4Query(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
@@ -228,7 +228,6 @@ int testDatabase(string connectionString)
         step2Query.exec();
 
         cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
-        step3Query.param("some_id") = 1;
         step3Query.open();
 
         while (!step3Query.eof()) {
@@ -343,7 +342,7 @@ int main(int argc, const char* argv[])
     if (argc == 2)
         connectionString = argv[1];
     else
-        connectionString = "odbc://aparshin:N3xtH0bb1t@zonar";
+        connectionString = "mysql://root:stealth10@localhost/test";
 
     const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1

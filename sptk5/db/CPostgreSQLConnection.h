@@ -72,7 +72,8 @@ protected:
     virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
     virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
     virtual void queryExecute(CQuery *query) {}      ///< Executes a statement
-    virtual int queryColCount(CQuery *query);        ///< Counts columns of the dataset (if any) returned by query
+    virtual void queryExecDirect(CQuery *query);     ///< Executes unprepared statement
+    virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
     virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
     virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
     virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
