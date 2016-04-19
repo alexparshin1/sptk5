@@ -109,7 +109,7 @@ void testBLOBs(CDatabaseConnection* db)
 
 void testBatch(CDatabaseConnection* db)
 {
-	db->executeBatchFile("udf/udf_postgresql.sql");
+    db->executeBatchFile("udf/udf_oracle.sql");
 }
 
 int testDatabase(string connectionString)

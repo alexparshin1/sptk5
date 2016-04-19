@@ -610,29 +610,40 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
     sqlBatch.loadFromFile(batchFile);
 
     CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
-    CRegExp  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION");
+    CRegExp  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
     CRegExp  matchGo("^/\\s*$");
     CRegExp  matchEscapeChars("([$.])", "g");
+    CRegExp  matchShowErrors("^SHOW\\s+ERRORS", "i");
 
     CStrings statements, matches;
     string statement;
     bool routineStarted = false;
     for (string row: sqlBatch) {
+
+        if (!routineStarted) {
+            row = trim(row);
+            if (row.empty())
+                continue;
+            if (matchShowErrors.m(row, matches))
+                continue;
+        }
+
         if (matchRoutineStart.m(row, matches))
             routineStarted = true;
 
         if (!routineStarted && matchStatementEnd->m(row, matches)) {
             row = matchStatementEnd->s(row, "");
             statement += row;
-            statements.push_back(statement);
+            statements.push_back(trim(statement));
             statement = "";
             continue;
         }
 
         if (matchGo.m(row, matches)) {
             routineStarted = false;
-            statements.push_back(statement);
+            statements.push_back(trim(statement));
             statement = "";
+            continue;
         }
 
         statement += row + "\n";
@@ -643,6 +654,7 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
 
     for (string statement: statements) {
         CQuery query(this, statement, false);
+        //cout << "[ " << statement << " ]" << endl;
         query.exec();
     }
 }
