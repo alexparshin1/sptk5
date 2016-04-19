@@ -70,7 +70,7 @@ ELSE (WIN32)
         -Wno-unused-parameter
     )
   ELSE()
-    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
+    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -D_GLIBCXX_USE_CXX11_ABI=0)
   ENDIF()
 
   LINK_LIBRARIES(pthread rt dl)
