@@ -32,6 +32,7 @@
 
 #include <string>
 #include <stdio.h>
+#include <sptk5/CRegExp.h>
 
 using namespace std;
 using namespace sptk;
@@ -601,6 +602,49 @@ std::string COracleConnection::paramMark(unsigned paramIndex)
     char mark[16];
     sprintf(mark, ":%i", paramIndex + 1);
     return mark;
+}
+
+void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+{
+    CStrings sqlBatch;
+    sqlBatch.loadFromFile(batchFile);
+
+    CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
+    CRegExp  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION");
+    CRegExp  matchGo("^/\\s*$");
+    CRegExp  matchEscapeChars("([$.])", "g");
+
+    CStrings statements, matches;
+    string statement;
+    bool routineStarted = false;
+    for (string row: sqlBatch) {
+        if (matchRoutineStart.m(row, matches))
+            routineStarted = true;
+
+        if (!routineStarted && matchStatementEnd->m(row, matches)) {
+            row = matchStatementEnd->s(row, "");
+            statement += row;
+            statements.push_back(statement);
+            statement = "";
+            continue;
+        }
+
+        if (matchGo.m(row, matches)) {
+            routineStarted = false;
+            statements.push_back(statement);
+            statement = "";
+        }
+
+        statement += row + "\n";
+    }
+
+    if (!trim(statement).empty())
+        statements.push_back(statement);
+
+    for (string statement: statements) {
+        CQuery query(this, statement, false);
+        query.exec();
+    }
 }
 
 

@@ -347,7 +347,7 @@ int main(int argc, const char* argv[])
     if (argc == 2)
         connectionString = argv[1];
     else
-        connectionString = "postgresql://localhost/test";
+        connectionString = "oracle://protis:wsxedc@oracledb:1521/protis";
 
     const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1
