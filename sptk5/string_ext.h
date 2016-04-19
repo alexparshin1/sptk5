@@ -60,7 +60,11 @@ std::string SP_EXPORT int2string(uint64_t);
 
 /// Converts string to integer. The optional default value is used
 /// for unsuccessful conversion
-int SP_EXPORT string2int(const std::string& str,int defaultValue=0);
+int SP_EXPORT string2int(const std::string& str, int defaultValue=0);
+
+/// Converts string to int64. The optional default value is used
+/// for unsuccessful conversion
+int64_t SP_EXPORT string2int64(const std::string& str, int64_t defaultValue=0);
 
 /// Replaces all the pattern in str with replacement
 std::string SP_EXPORT replaceAll(const std::string& str,const std::string& pattern,const std::string& replacement);

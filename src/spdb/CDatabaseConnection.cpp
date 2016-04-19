@@ -290,3 +290,8 @@ void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& colu
         insertQuery.exec();
     }
 }
+
+void CDatabaseConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+{
+	throw CDatabaseException("Method executeBatchFile id not implemented for this database driver");
+}

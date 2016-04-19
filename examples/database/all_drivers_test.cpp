@@ -107,6 +107,11 @@ void testBLOBs(CDatabaseConnection* db)
     dropTableQuery.exec();
 }
 
+void testBatch(CDatabaseConnection* db)
+{
+	db->executeBatchFile("udf/udf_postgresql.sql");
+}
+
 int testDatabase(string connectionString)
 {
     CDatabaseConnectionPool connectionPool(connectionString);
@@ -120,6 +125,8 @@ int testDatabase(string connectionString)
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
         //testBLOBs(db);
+        testBatch(db);
+        return 0;
 
         CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
@@ -138,7 +145,7 @@ int testDatabase(string connectionString)
         }
         cout << "-------------------------------------------------" << endl;
 
-        // Defining the queries
+        // Defining the statements
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
 
@@ -180,7 +187,7 @@ int testDatabase(string connectionString)
         // This is the even faster than stream
         step2Query.param(uint32_t(0)) = 3;
         step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
-        step2Query.param(2) = "Manager";
+        step2Query.param(2).setNull(VAR_STRING);
         step2Query.param(3).setDate(CDateTime::Now());
         step2Query.param(4) = 12340.001234;
         step2Query.exec();
@@ -255,7 +262,6 @@ int testDatabase(string connectionString)
         step3Query.close();
 
         cout << "Ok.\nStep 4: Selecting the information through the stream .." << endl;
-        step3Query.param("some_id") = 1;
         step3Query.open();
 
         while (!step3Query.eof()) {
@@ -272,7 +278,6 @@ int testDatabase(string connectionString)
         step3Query.close();
 
         cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
-        step3Query.param("some_id") = 1;
         step3Query.open();
 
         // First, find the field references by name or by number
@@ -342,7 +347,7 @@ int main(int argc, const char* argv[])
     if (argc == 2)
         connectionString = argv[1];
     else
-        connectionString = "mysql://root:stealth10@localhost/test";
+        connectionString = "postgresql://localhost/test";
 
     const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1

@@ -172,11 +172,23 @@ string int2string (uint64_t value)
     return buff;
 }
 
-int string2int (const string& str,int defaultValue)
+int string2int (const string& str, int defaultValue)
 {
     char *endptr;
     errno = 0;
-    int result = (int) strtol(str.c_str(),&endptr,10);
+    int result = (int) strtol(str.c_str(), &endptr, 10);
+
+    if (errno)
+        return defaultValue;
+
+    return result;
+}
+
+int64_t string2int64 (const string& str, int64_t defaultValue)
+{
+    char *endptr;
+    errno = 0;
+    int64_t result = strtoll(str.c_str(), &endptr, 10);
 
     if (errno)
         return defaultValue;

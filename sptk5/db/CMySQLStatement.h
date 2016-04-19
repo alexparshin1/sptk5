@@ -44,13 +44,22 @@ class CMySQLConnection;
 
 class CMySQLStatement : public CDatabaseStatement<CMySQLConnection,MYSQL_STMT>
 {
-	std::string 					m_sql;
-	std::vector<MYSQL_BIND>         m_paramBuffers;
+    std::string                     m_sql;
+    std::vector<MYSQL_BIND>         m_paramBuffers;
     std::vector<unsigned long>      m_paramLengths;
     std::vector<MYSQL_BIND>         m_fieldBuffers;
 
-    MYSQL_RES*						m_result;
+    MYSQL_RES*                      m_result;
+    MYSQL_ROW                       m_row;
 
+    /// @brief Reads not prepared statement result row to query fields
+    /// @param fields CFieldList&, query fields (if any)
+    void readUnpreparedResultRow(CFieldList& fields);
+
+    /// @brief Reads prepared statement result row to query fields
+    /// @param fields CFieldList&, query fields (if any)
+    void readPreparedResultRow(CFieldList& fields);
+    
 public:
 
     /// @brief Translates MySQL native type to CVariant type
@@ -103,7 +112,7 @@ public:
 
     /// @brief Fetches statement result metadata to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void fetchResult(CFieldList& fields);
+    void readResultRow(CFieldList& fields);
 
     /// @brief Closes statement and releases allocated resources
     void close();

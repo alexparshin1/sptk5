@@ -29,6 +29,7 @@
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/threads/CSynchronized.h>
+#include <sptk5/CRegExp.h>
 
 #include <string>
 #include <stdio.h>
@@ -287,8 +288,9 @@ void CMySQLConnection::queryOpen(CQuery *query)
     if (!query->statement())
         queryAllocStmt(query);
 
-    if (query->autoPrepare() && !query->prepared()) {
-        queryPrepare(query);
+    if (query->autoPrepare()) {
+    	if (!query->prepared())
+    		queryPrepare(query);
 		queryBindParameters(query);
     }
 
@@ -327,7 +329,7 @@ void CMySQLConnection::queryFetch(CQuery *query)
             return;
         }
 
-        statement->fetchResult(query->fields());
+        statement->readResultRow(query->fields());
     }
     catch (exception& e) {
         query->logAndThrow("CMySQLConnection::queryFetch", e.what());
@@ -383,6 +385,45 @@ void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnN
     if (rc) {
         string error = mysql_error(m_connection);
         throwDatabaseException(error);
+    }
+}
+
+void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+{
+    CStrings sqlBatch;
+    sqlBatch.loadFromFile(batchFile);
+
+    CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
+    CRegExp  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
+    CRegExp  matchEscapeChars("([$.])", "g");
+
+    CStrings statements, matches;
+    string statement, delimiter = ";";
+    for (string row: sqlBatch) {
+    	if (matchDelimiterChange.m(row, matches)) {
+    		delimiter = matches[0];
+    		delimiter = matchEscapeChars.s(delimiter, "\\\\1");
+    		delete matchStatementEnd;
+    		matchStatementEnd = new CRegExp("(" + delimiter + ")(\\s*|-- .*)$");
+    		statement = "";
+    		continue;
+    	}
+    	if (matchStatementEnd->m(row, matches)) {
+    		row = matchStatementEnd->s(row, "");
+        	statement += row;
+    		statements.push_back(statement);
+    		statement = "";
+    		continue;
+    	}
+    	statement += row + "\n";
+    }
+
+    if (!trim(statement).empty())
+		statements.push_back(statement);
+
+    for (string statement: statements) {
+		CQuery query(this, statement, false);
+		query.exec();
     }
 }
 

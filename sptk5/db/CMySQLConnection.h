@@ -139,6 +139,16 @@ public:
     /// @param columnNames const CStrings&, list of table columns to populate
     /// @param data const CStrings&, data for bulk insert
     virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") THROWS_EXCEPTIONS;
+
+    /// @brief Executes SQL batch file
+    ///
+    /// Queries are executed in not prepared mode.
+    /// Syntax of the SQL batch file is matching the native for the database.
+    /// @param batchFile std::string, SQL batch file
+    /// @param columnNames const CStrings&, list of table columns to populate
+    /// @param data const CStrings&, data for bulk insert
+    /// @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
+    virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
 };
 
 #define throwMySQLException(info) throw CDatabaseException(string(info) + ":" + string(mysql_error(m_connection)))

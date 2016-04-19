@@ -28,6 +28,7 @@
 #include <sptk5/db/CPostgreSQLConnection.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
+#include <sptk5/CRegExp.h>
 
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
@@ -1064,6 +1065,68 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
         error += PQerrorMessage(m_connect);
         throw CDatabaseException(error);
     }
+}
+
+void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+{
+	CStrings sqlBatch;
+	sqlBatch.loadFromFile(batchFile);
+
+	CRegExp matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
+	CRegExp matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
+	CRegExp matchStatementEnd(";(\\s*|\\s*--.*)$");
+	CRegExp matchEscapeChars("([$.])", "g");
+
+	CStrings statements, matches;
+	string statement, delimiter;
+	bool functionHeader = false;
+	bool functionBody = false;
+	for (string row : sqlBatch) {
+		if (!functionHeader && !functionBody) {
+			row = trim(row);
+			if (row.empty())
+				continue;
+		}
+		if (!functionHeader) {
+			if (matchFunction.m(row, matches)) {
+				functionHeader = true;
+				statement += row + "\n";
+				continue;
+			}
+		}
+
+		if (functionHeader && !functionBody && matchFunctionBodyStart.m(row, matches)) {
+			functionBody = true;
+			functionHeader = false;
+			delimiter = matches[0];
+			statement += row + "\n";
+			continue;
+		}
+
+		if (functionBody && row.find(delimiter) != string::npos) {
+			delimiter = "";
+			functionBody = false;
+		}
+
+		if (!functionBody) {
+			if (matchStatementEnd.m(row, matches)) {
+				statement += row;
+				statements.push_back(statement);
+				statement = "";
+				continue;
+			}
+		}
+
+		statement += row + "\n";
+	}
+
+    if (!trim(statement).empty())
+		statements.push_back(statement);
+
+	for (string statement : statements) {
+		CQuery query(this, statement);
+		query.exec();
+	}
 }
 
 void* postgresql_create_connection(const char* connectionString)
