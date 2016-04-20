@@ -61,23 +61,30 @@ public:
     CPostgreSQLParamValues m_paramValues;
 public:
 
-    CPostgreSQLStatement(bool int64timestamps)
-    : m_paramValues(int64timestamps) {
+    CPostgreSQLStatement(bool int64timestamps, bool prepared)
+    : m_paramValues(int64timestamps) 
+    {
         m_stmt = NULL;
-        sprintf(m_stmtName, "S%04i", ++index);
+        if (prepared)
+            sprintf(m_stmtName, "S%04i", ++index);
+        else
+            m_stmtName[0] = 0;
     }
 
-    ~CPostgreSQLStatement() {
+    ~CPostgreSQLStatement() 
+    {
         if (m_stmt)
             PQclear(m_stmt);
     }
 
-    void clear() {
+    void clear() 
+    {
         clearRows();
         m_cols = 0;
     }
 
-    void clearRows() {
+    void clearRows() 
+    {
         if (m_stmt) {
             PQclear(m_stmt);
             m_stmt = 0;
@@ -87,7 +94,8 @@ public:
         m_currentRow = -1;
     }
 
-    void stmt(PGresult* st, unsigned rows, unsigned cols = 99999) {
+    void stmt(PGresult* st, unsigned rows, unsigned cols = 99999) 
+    {
         if (m_stmt)
             PQclear(m_stmt);
 
@@ -100,35 +108,43 @@ public:
         m_currentRow = -1;
     }
 
-    const PGresult* stmt() const {
+    const PGresult* stmt() const
+    {
         return m_stmt;
     }
 
-    string name() const {
+    string name() const
+    {
         return m_stmtName;
     }
 
-    void fetch() {
+    void fetch() 
+    {
         m_currentRow++;
     }
 
-    bool eof() {
+    bool eof() 
+    {
         return m_currentRow >= m_rows;
     }
 
-    unsigned currentRow() const {
+    unsigned currentRow() const 
+    {
         return (unsigned) m_currentRow;
     }
 
-    unsigned colCount() const {
+    unsigned colCount() const 
+    {
         return (unsigned) m_cols;
     }
 
-    unsigned rowCount() const {
+    unsigned rowCount() const 
+    {
         return (unsigned) m_rows;
     }
 
-    const CParamVector& params() const {
+    const CParamVector& params() const 
+    {
         return m_paramValues.m_params;
     }
 };
@@ -303,7 +319,7 @@ string CPostgreSQLConnection::queryError(const CQuery* query) const
 void CPostgreSQLConnection::queryAllocStmt(CQuery* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS));
+    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 }
 
 void CPostgreSQLConnection::queryFreeStmt(CQuery* query)
@@ -314,16 +330,18 @@ void CPostgreSQLConnection::queryFreeStmt(CQuery* query)
 
     if (statement) {
         if (statement->stmt()) {
-            string deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
-            PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-            ExecStatusType rc = PQresultStatus(res);
-            if (rc >= PGRES_BAD_RESPONSE) {
-                string error = "DEALLOCATE command failed: ";
-                error += PQerrorMessage(m_connect);
+            if (!statement->name().empty()) {
+                string deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
+                PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+                ExecStatusType rc = PQresultStatus(res);
+                if (rc >= PGRES_BAD_RESPONSE) {
+                    string error = "DEALLOCATE command failed: ";
+                    error += PQerrorMessage(m_connect);
+                    PQclear(res);
+                    query->logAndThrow("CPostgreSQLConnection::queryFreeStmt", error);
+                }
                 PQclear(res);
-                query->logAndThrow("CPostgreSQLConnection::queryFreeStmt", error);
             }
-            PQclear(res);
         }
 
         delete statement;
@@ -348,7 +366,7 @@ void CPostgreSQLConnection::queryPrepare(CQuery* query)
 
     SYNCHRONIZED_CODE;
 
-    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS));
+    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
 
@@ -459,11 +477,7 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
     }
 
     int resultFormat = 1;   // Results are presented in binary format
-
-    if (!statement->colCount())
-        resultFormat = 0;   // VOID result or NO results, using text format
-
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), paramValues.values(),
+    PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), (int) paramValues.size(), paramValues.types(), paramValues.values(),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
     ExecStatusType rc = PQresultStatus(stmt);
@@ -475,7 +489,7 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
         break;
 
     case PGRES_TUPLES_OK:
-        statement->stmt(stmt, (unsigned) PQntuples(stmt));
+        statement->stmt(stmt, (unsigned) PQntuples(stmt), (unsigned) PQnfields(stmt));
         break;
 
     case PGRES_EMPTY_QUERY:
@@ -590,11 +604,11 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
     if (!query->statement())
         queryAllocStmt(query);
 
-    if (query->autoPrepare() && !query->prepared()) {
-        queryPrepare(query);
-		// Bind parameters also executes a query
-		queryBindParameters(query);
-	} else
+    if (query->autoPrepare()) {
+        if (!query->prepared())
+            queryPrepare(query);
+        queryBindParameters(query);
+    } else
         queryExecDirect(query);
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
