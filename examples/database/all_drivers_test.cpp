@@ -107,11 +107,6 @@ void testBLOBs(CDatabaseConnection* db)
     dropTableQuery.exec();
 }
 
-void testBatch(CDatabaseConnection* db)
-{
-    db->executeBatchFile("udf/udf_oracle.sql");
-}
-
 int testDatabase(string connectionString)
 {
     CDatabaseConnectionPool connectionPool(connectionString);
@@ -125,8 +120,6 @@ int testDatabase(string connectionString)
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
         //testBLOBs(db);
-        testBatch(db);
-        return 0;
 
         CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
@@ -346,8 +339,10 @@ int main(int argc, const char* argv[])
     string connectionString;
     if (argc == 2)
         connectionString = argv[1];
-    else
-        connectionString = "oracle://protis:wsxedc@oracledb:1521/protis";
+    else {
+        //connectionString = "oracle://protis:wsxedc@oracledb:1521/protis";
+        connectionString = "postgresql://localhost/protis_global";
+    }
 
     const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1
