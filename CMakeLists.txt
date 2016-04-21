@@ -68,6 +68,7 @@ ELSE (WIN32)
         -Wno-shadow
         -Wno-switch-enum
         -Wno-unused-parameter
+        -D_GLIBCXX_USE_CXX11_ABI=0
     )
   ELSE()
     ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -D_GLIBCXX_USE_CXX11_ABI=0)

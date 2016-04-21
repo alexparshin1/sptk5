@@ -1,270 +1,535 @@
-/***************************************************************************
-                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CCommandLine.cpp  -  description
-                             -------------------
-    begin                : Jun 20 2015
-    copyright            : (C) 1999-2015 by Alexey Parshin. All rights reserved.
-    email                : alexeyp@gmail.com
- ***************************************************************************/
-
-/***************************************************************************
-   This library is free software; you can redistribute it and/or modify it
-   under the terms of the GNU Library General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or (at
-   your option) any later version.
-
-   This library is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library
-   General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public License
-   along with this library; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-
-   Please report all bugs and problems to "alexeyp@gmail.com"
- ***************************************************************************/
-
 #include <sptk5/CCommandLine.h>
-#include <iomanip>
 
 using namespace std;
 using namespace sptk;
 
-map<string, CArgumentDefinition*> CArgumentDefinition::argumentNamesAndShortcuts;
-
-CArgumentDefinition::CArgumentDefinition(string name, string valueType, char shortcut, string help, Type type, string defaultValue, string validateRegexp)
-: m_name(name), m_valueType(valueType), m_shortcut(shortcut), m_help(help), m_type(type), m_defaultValue(defaultValue)
+CCommandLine::Visibility::Visibility(string pattern, bool _mustMatch)
+        : m_inverted(!_mustMatch), m_pattern(pattern)
 {
-    if (!name.empty())
-        argumentNamesAndShortcuts[name] = this;
-    if (shortcut != char(0))
-        argumentNamesAndShortcuts[string(1,shortcut)] = this;
-    if (validateRegexp.empty())
-        m_validateRegexp = NULL;
+    if (m_pattern.empty())
+        m_regexp = NULL;
     else
-        m_validateRegexp = new sptk::CRegExp(validateRegexp);
+        m_regexp = new CRegExp(m_pattern);
 }
 
-void CArgumentDefinition::validate(string value)
+CCommandLine::Visibility::Visibility(const Visibility& other)
+        : m_inverted(other.m_inverted), m_pattern(other.m_pattern)
 {
-    if (!m_validateRegexp)
-        return;
-    if (m_validateRegexp && *m_validateRegexp == value)
-        return;
-    throw sptk::CException("Value '" + value + "' is invalid for parameter --" + m_name);
+    if (m_pattern.empty())
+        m_regexp = NULL;
+    else
+        m_regexp = new CRegExp(m_pattern);
 }
 
-CArgumentDefinition* CArgumentDefinition::get(string nameOrShortcut)
+CCommandLine::Visibility::~Visibility()
 {
-    map<string, CArgumentDefinition*>::iterator itor = argumentNamesAndShortcuts.find(nameOrShortcut);
-    if (itor == argumentNamesAndShortcuts.end())
-        return NULL;
-    return itor->second;
+    if (m_regexp)
+        delete m_regexp;
 }
 
-void CCommandLine::init(int argc, const char* argv[]) throw (exception)
+bool CCommandLine::Visibility::any()
 {
-    m_progname = argv[0];
-
-    // Convert combined options into singles
-    CStrings arguments;
-    for (int i = 1; i < argc; i++) {
-        const char* arg = argv[i];
-
-        if (arg[0] != '-') {
-            // Argument isn't an option
-            arguments.push_back(arg);
-            continue;
-        }
-
-        if (arg[1] == '-') {
-            // Argument is a parameter
-            arguments.push_back(arg);
-            continue;
-        }
-
-        // Argument is on or more options
-        for (size_t j = 1; j < strlen(arg); j++) {
-            string option(1, arg[j]);
-            CArgumentDefinition* argdef = CArgumentDefinition::get(option);
-            if (!argdef)
-                throw CException("Option -" + option + " is not defined");
-            arguments.push_back("--" + argdef->name());
-        }
-    }
-
-    m_names.clear();
-    for (size_t i = 0; i < arguments.size(); i++) {
-        const string& argument = arguments[i];
-
-        if (argument.substr(0,2) != "--") {
-            if (!m_allowNames)
-                throw CException("Argument " + argument + " is not an option or parameter name");
-            m_names.push_back(argument);
-        }
-
-        string name = argument.substr(2);
-        CArgumentDefinition* argdef = CArgumentDefinition::get(name);
-        if (!argdef)
-            throw CException("Option --" + name + " is unknown");
-
-        if (argdef->type() == CArgumentDefinition::Type::OPTION) {
-            m_options.insert(argdef->name());
-            continue;
-        }
-
-        i++;
-        if (i >= arguments.size())
-            throw CException("Parameter " + argument + " doesn't have a value");
-
-        const string& value = arguments[i];
-        argdef->validate(value);
-        m_parameters[name] = value;
-    }
+    return m_regexp == NULL;
 }
 
-bool CCommandLine::hasOption(string name) const throw (exception)
+bool CCommandLine::Visibility::matches(string command)
 {
-    if (m_options.find(name) != m_options.end())
-        return true;
+    CStrings matches;
+    if (m_inverted)
+        return !m_regexp->m(command, matches);
+    return m_regexp->m(command, matches);
+}
+//=============================================================================
+CCommandLine::CommandLineElement::CommandLineElement(string name, string shortName, string help,
+        const Visibility& useWithCommands)
+        : m_name(name), m_shortName(shortName), m_help(help), m_useWithCommands(useWithCommands)
+{
+    if (m_name.empty())
+        throw CException("Command line elements must have a name");
+}
 
-    CArgumentDefinition* argdef = CArgumentDefinition::get(name);
-    if (!argdef || argdef->type() != CArgumentDefinition::Type::OPTION)
-        throw CException("Option --" + name + " is invalid");
+CCommandLine::CommandLineElement::~CommandLineElement()
+{
+}
 
+CCommandLine::CommandLineElement::Type CCommandLine::CommandLineElement::type()
+{
+    return IS_UNKNOWN;
+}
+
+string CCommandLine::CommandLineElement::name()
+{
+    return m_name;
+}
+
+bool CCommandLine::CommandLineElement::hasValue()
+{
     return false;
 }
 
-string CCommandLine::parameterValue(string name) const throw (exception)
+void CCommandLine::CommandLineElement::validate(string value)
 {
-    map<string,string>::const_iterator itor = m_parameters.find(name);
-    if (itor != m_parameters.end())
-        return itor->second;
-
-    CArgumentDefinition* argdef = CArgumentDefinition::get(name);
-    if (!argdef || argdef->type() != CArgumentDefinition::Type::PARAMETER)
-        throw CException("Parameter --" + name + " is invalid");
-
-    return argdef->defaultValue();
 }
 
-void formatText(CStrings& text, string fromText, size_t width)
+string CCommandLine::CommandLineElement::printableName()
 {
-    CStrings words(fromText, " \n\r", CStrings::SM_ANYCHAR);
-    string   row;
+    return m_name;
+}
 
-    for (string word: words) {
-        if (row.length() + word.length() >= width) {
-            text.push_back(row);
-            row = "";
+bool CCommandLine::CommandLineElement::useWithCommand(string command)
+{
+    if (command.empty())
+        return true;
+    if (m_useWithCommands.any())
+        return true;
+    return m_useWithCommands.matches(command);
+}
+
+void CCommandLine::CommandLineElement::formatHelp(int textWidth, CStrings& formattedText)
+{
+    CStrings words(m_help, "\\s+");
+
+    formattedText.clear();
+
+    string row = "";
+    for (string word : words) {
+        if (row.empty()) {
+            row = word;
+            continue;
         }
-        if (!row.empty())
-            row += " ";
-        row += word;
+        if (int(row.length() + word.length() + 1) > textWidth) {
+            formattedText.push_back(row);
+            row = word;
+            continue;
+        }
+        row += " " + word;
     }
-
     if (!row.empty())
-        text.push_back(row);
+        formattedText.push_back(row);
 }
 
-void CCommandLine::printTypeHelp(CArgumentDefinition::Type type, size_t screenColumns, size_t commandColumns) const
+void CCommandLine::CommandLineElement::printHelp(int nameWidth, int textWidth, string optionDefaultValue)
 {
-    switch (type) {
-        case CArgumentDefinition::Type::PARAMETER:
-            cout << "Parameters:" << endl << endl;
-            break;
-        case CArgumentDefinition::Type::OPTION:
-            cout << "Options:" << endl << endl;
-            break;
-    }
+    static const CRegExp doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
-    if (screenColumns < commandColumns + 20)
-        screenColumns = commandColumns + 20;
-
-    for (auto& itor: CArgumentDefinition::definitions()) {
-        string name = itor.first;
-        const CArgumentDefinition* argdef = itor.second;
-
-        if (argdef->type() == type && name == argdef->name()) {
-            if (argdef->shortcut() != char(0))
-                name += "|-" + string(1,argdef->shortcut());
-
-            if (!argdef->valueType().empty())
-                name += " <" + argdef->valueType() + ">";
-
-            CStrings helpText;
-            string description = replaceAll(argdef->help(), "${DEFAULT}", argdef->defaultValue());
-            formatText(helpText, description, screenColumns - commandColumns);
-            int rowNumber = 0;
-            for (string& helpRow: helpText) {
-                if (rowNumber == 0)
-                    cout << setw(commandColumns) << left << "--" + name;
-                else
-                    cout << setw(commandColumns) << " ";
-                cout << helpRow << endl;
-                rowNumber++;
-            }
+    CStrings helpText;
+    formatHelp(textWidth, helpText);
+    bool firstRow = true;
+    string printFormat = "%-" + int2string(nameWidth) + "s  %s";
+    char rowBuffer[1024];
+    for (string helpRow : helpText) {
+        if (firstRow) {
+            sprintf(rowBuffer, printFormat.c_str(), printableName().c_str(), helpRow.c_str());
+            cout << rowBuffer << endl;
+            firstRow = false;
+        }
+        else {
+            sprintf(rowBuffer, printFormat.c_str(), "", helpRow.c_str());
+            cout << rowBuffer << endl;
         }
     }
+
+    if (!optionDefaultValue.empty()) {
+        CStrings matches;
+        if (!doesntNeedQuotes.m(optionDefaultValue, matches))
+            optionDefaultValue = "'" + optionDefaultValue + "'";
+        string defaultValueStr = "The default value is " + optionDefaultValue + ".";
+        sprintf(rowBuffer, printFormat.c_str(), "", defaultValueStr.c_str());
+        cout << rowBuffer << endl;
+    }
+}
+//=============================================================================
+CCommandLine::CommandLineArgument::CommandLineArgument(string name, string help)
+        : CommandLineElement(name, "", help, Visibility(""))
+{
+}
+
+CCommandLine::CommandLineArgument::~CommandLineArgument()
+{
+}
+//=============================================================================
+CCommandLine::CommandLineOption::CommandLineOption(string name, string shortName,
+        const Visibility& useWithCommands, string help)
+        : CommandLineElement(name, shortName, help, useWithCommands)
+{
+}
+
+CCommandLine::CommandLineOption::~CommandLineOption()
+{
+}
+
+bool CCommandLine::CommandLineOption::hasValue()
+{
+    return false;
+}
+
+CCommandLine::CommandLineElement::Type CCommandLine::CommandLineOption::type()
+{
+    return CommandLineElement::IS_OPTION;
+}
+
+string CCommandLine::CommandLineOption::printableName()
+{
+    string result = "";
+
+    result += "--" + m_name;
+
+    if (!result.empty())
+        result += ", ";
+
+    if (!m_shortName.empty())
+        result += "-" + m_shortName;
+
+    return result;
+}
+//=============================================================================
+CCommandLine::CommandLineParameter::CommandLineParameter(string name, string shortName, string valueInfo,
+        string validateValue, const Visibility& useWithCommands, string help)
+        : CommandLineElement(name, shortName, help, useWithCommands), m_valueInfo(valueInfo)
+{
+    if (validateValue.empty())
+        m_validateValue = NULL;
+    else
+        m_validateValue = new CRegExp(validateValue);
+    if (m_valueInfo.empty())
+        throw CException("Command line parameters must have a value info");
+}
+
+CCommandLine::CommandLineParameter::~CommandLineParameter()
+{
+    if (m_validateValue)
+        delete m_validateValue;
+}
+
+string CCommandLine::CommandLineParameter::printableName()
+{
+    string result = "";
+
+    result += "--" + m_name;
+
+    if (!result.empty())
+        result += ", ";
+
+    if (!m_shortName.empty())
+        result += "-" + m_shortName;
+
+    result += " <" + m_valueInfo + ">";
+
+    return result;
+}
+
+void CCommandLine::CommandLineParameter::validate(string value)
+{
+    if (!m_validateValue)
+        return;
+    CStrings matches;
+    if (!m_validateValue->m(value, matches))
+        throw CException("Parameter " + m_name + " has invalid value");
+}
+
+bool CCommandLine::CommandLineParameter::hasValue()
+{
+    return true;
+}
+
+CCommandLine::CommandLineElement::Type CCommandLine::CommandLineParameter::type()
+{
+    return IS_VALUE_OPTION;
+}
+//=============================================================================
+bool CCommandLine::startsWith(string str, string pattern)
+{
+    return str.substr(0, pattern.length()) == pattern;
+}
+
+bool CCommandLine::endsWith(string str, string pattern)
+{
+    int pos = str.length() - pattern.length() - 1;
+    if (pos < 0)
+        return false;
+    return str.substr(pos) == pattern;
+}
+
+CCommandLine::CCommandLine(string programVersion, string description, string commandLinePrototype)
+        : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype)
+{
+}
+
+CCommandLine::~CCommandLine()
+{
+    for (CommandLineElement* element : m_allElements)
+        delete element;
+}
+
+void CCommandLine::defineOption(string fullName, string shortName, Visibility useForCommands,
+        string help)
+{
+    if (fullName.empty() && shortName.empty())
+        return;
+
+    CommandLineOption* optionTemplate = new CommandLineOption(fullName, shortName, useForCommands, help);
+    m_allElements.push_back(optionTemplate);
+    if (!fullName.empty())
+        m_optionTemplates[fullName] = optionTemplate;
+    if (!shortName.empty())
+        m_optionTemplates[shortName] = optionTemplate;
+}
+
+void CCommandLine::defineParameter(string fullName, string shortName, string valueName,
+        string validateValue, Visibility useForCommands, string defaultValue, string help)
+{
+    if (fullName.empty() && shortName.empty())
+        return;
+
+    CommandLineParameter* argumentTemplate = new CommandLineParameter(fullName, shortName, valueName, validateValue,
+            useForCommands, help);
+    m_allElements.push_back(argumentTemplate);
+
+    string name;
+    if (!shortName.empty()) {
+        m_optionTemplates[shortName] = argumentTemplate;
+        name = shortName;
+    }
+
+    if (!fullName.empty()) {
+        m_optionTemplates[fullName] = argumentTemplate;
+        name = fullName;
+    }
+
+    if (!defaultValue.empty()) {
+        argumentTemplate->validate(defaultValue);
+        m_values[name] = defaultValue;
+    }
+}
+
+void CCommandLine::defineArgument(string fullName, string helpText)
+{
+    if (!fullName.empty()) {
+        CommandLineArgument* argumentTemplate = new CommandLineArgument(fullName, helpText);
+        m_allElements.push_back(argumentTemplate);
+        m_argumentTemplates[fullName] = argumentTemplate;
+    }
+}
+
+void CCommandLine::init(int argc, const char* argv[])
+{
+    CStrings args;
+    for (int i = 1; i < argc; i++)
+        args.push_back(argv[i]);
+
+    // Pre-process command line arguments
+    CStrings arguments;
+    string quote = "";
+    string quotedString = "";
+    for (string arg : args) {
+        if (quote.empty()) {
+            if (startsWith(arg, "'")) {
+                quote = arg.substr(0, 1);
+                quotedString = arg.substr(1);
+                if (endsWith(quotedString, quote)) {
+                    quotedString = quotedString.substr(0, arg.length() - 1);
+                    arguments.push_back(quotedString);
+                    quote = "";
+                    quotedString = "";
+                }
+            }
+            else {
+                arguments.push_back(arg);
+                continue;
+            }
+        }
+        else {
+            if (endsWith(arg, quote)) {
+                arg = arg.substr(0, arg.length() - 1);
+                quote = "";
+                quotedString += " " + arg;
+                arguments.push_back(quotedString);
+            }
+            else
+                quotedString += " " + arg;
+        }
+    }
+
+    // Re-write arguments
+    CStrings digestedArgs;
+    for (string arg : arguments) {
+        if (startsWith(arg, "--")) {
+            // Full option name
+            digestedArgs.push_back(arg);
+            continue;
+        }
+
+        if (startsWith(arg, "-")) {
+            // Short option name(s)
+            for (unsigned j = 1; j < arg.length(); j++) {
+                string opt = "-" + arg.substr(j, j + 1);
+                digestedArgs.push_back(opt);
+            }
+            continue;
+        }
+
+        digestedArgs.push_back(arg);
+    }
+
+    for (unsigned i = 0; i < digestedArgs.size(); i++) {
+        string arg = digestedArgs[i];
+        string value;
+
+        if (startsWith(arg, "-")) {
+            string optionName;
+            if (startsWith(arg, "--")) {
+                // Full option name
+                optionName = arg.substr(2);
+            }
+            else {
+                // Short option name
+                optionName = arg.substr(1);
+            }
+            CommandLineElement* element = m_optionTemplates[optionName];
+            if (element == NULL)
+                throw CException("Command line option or parameter " + arg + " is not supported");
+            if (element->hasValue()) {
+                i++;
+                if (i >= digestedArgs.size())
+                    throw CException("Command line parameter " + arg + " should have value");
+                value = digestedArgs[i];
+                element->validate(value);
+                m_values[element->name()] = value;
+            }
+            else
+                m_values[element->name()] = "true";
+            continue;
+        }
+
+        m_arguments.push_back(arg);
+    }
+}
+
+string CCommandLine::getOptionValue(string name)
+{
+    return m_values[name];
+}
+
+bool CCommandLine::hasOption(string name)
+{
+    return m_values.find(name) != m_values.end();
+}
+
+void CCommandLine::setOptionValue(string name, string value)
+{
+    CommandLineElement* element = m_optionTemplates[name];
+    if (!element)
+        throw CException("Invalid option or parameter name: " + name);
+    element->validate(value);
+    m_values[name] = value;
+}
+
+void CCommandLine::setOption(string name)
+{
+    setOptionValue(name, "yes");
+}
+
+void CCommandLine::clearOption(string name)
+{
+    setOptionValue(name, "no");
+}
+
+const CStrings& CCommandLine::arguments()
+{
+    return m_arguments;
+}
+
+void CCommandLine::printLine(string ch, int count)
+{
+    for (int i = 0; i < count; i++)
+        cout << ch;
     cout << endl;
 }
 
-void CCommandLine::printHelp(string argumentType) const
+void CCommandLine::printHelp(int screenColumns)
 {
-    unsigned screenColumns = 80;
-    const char* envcols = getenv("COLS");
-    if (envcols)
-        screenColumns = atoi(envcols);
-#ifndef WIN32
-    else {
-        const char* envterm = getenv("TERM");
-        if (envterm) {
-            FILE* tput = popen("tput cols", "r");
-            if (tput) {
-                fscanf(tput, "%u", &screenColumns);
-                fclose(tput);
-            }
-        }
-    }
-#endif
+    printHelp("", screenColumns);
+}
 
-    size_t maxNameLength = 0;
-    bool hasOptions = false, hasParameters = false;
-    for (auto& itor: CArgumentDefinition::definitions()) {
-        CArgumentDefinition* argdef = itor.second;
-        switch (argdef->type()) {
-            case CArgumentDefinition::PARAMETER:
-                hasParameters = true;
-                break;
-            case CArgumentDefinition::OPTION:
-                hasOptions = true;
-                break;
-        }
-        size_t nameLength = argdef->name().length() + 2;
-        if (!argdef->valueType().empty())
-            nameLength += argdef->valueType().length() + 3;
-        if (argdef->shortcut() != char(0))
-            nameLength += 3;
-        if (maxNameLength < nameLength)
-            maxNameLength = nameLength;
+void CCommandLine::printHelp(string onlyForCommand, int screenColumns)
+{
+    if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
+        cerr << "Command '" + onlyForCommand + "' is not defined" << endl;
+        return;
     }
 
-    cout << "Syntax:\n\n";
-    cout << " " << m_progname << " ";
-    if (hasOptions)
-        cout << "[options] ";
-    if (hasParameters)
-        cout << "[parameters] ";
-    if (m_allowNames)
-        cout << argumentType << "(s)";
-    cout << endl;
+    cout << m_programVersion << endl;
+    printLine("═", screenColumns);
+    cout << m_description << endl;
 
-    cout << "" << endl;
+    cout << "\nSyntax:" << endl;
+    printLine("─", screenColumns);
 
-    if (hasParameters)
-        printTypeHelp(CArgumentDefinition::Type::PARAMETER, screenColumns, maxNameLength + 2);
+    string commandLinePrototype = m_commandLinePrototype;
+    if (!onlyForCommand.empty())
+        commandLinePrototype = replaceAll(m_commandLinePrototype, "<command>", onlyForCommand);
+    cout << commandLinePrototype << endl;
 
-    if (hasOptions)
-        printTypeHelp(CArgumentDefinition::Type::OPTION, screenColumns, maxNameLength + 2);
+    // Find out space needed for command and option names
+    unsigned nameColumns = 10;
+    CStrings sortedCommands;
+    for (auto& itor : m_argumentTemplates)
+        sortedCommands.push_back(itor.first);
+
+    for (string commandName : sortedCommands) {
+        if (!onlyForCommand.empty() && commandName != onlyForCommand)
+            continue;
+        if (nameColumns < commandName.length())
+            nameColumns = commandName.length();
+    }
+
+    CStrings sortedOptions;
+    for (auto& itor : m_optionTemplates) {
+        string optionName = itor.first;
+        if (optionName.length() > 1)
+            sortedOptions.push_back(optionName);
+    }
+
+    for (string optionName : sortedOptions) {
+        CommandLineElement* optionTemplate = m_optionTemplates[optionName];
+        if (!optionTemplate->useWithCommand(onlyForCommand))
+            continue;
+        unsigned width = optionTemplate->printableName().length();
+        if (nameColumns < width)
+            nameColumns = width;
+    }
+
+    int helpTextColumns = screenColumns - (nameColumns + 2);
+    if (helpTextColumns < 10) {
+        cerr << "Can't print help information - the screen width is too small" << endl;
+        return;
+    }
+
+    if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
+        cout << "\nCommands:" << endl;
+        printLine("─", screenColumns);
+        for (string commandName : sortedCommands) {
+            CommandLineArgument* commandTemplate = m_argumentTemplates[commandName];
+            if (!onlyForCommand.empty() && commandName != onlyForCommand)
+                continue;
+            commandTemplate->printHelp(nameColumns, helpTextColumns, "");
+        }
+    }
+
+    if (!m_optionTemplates.empty()) {
+        cout << "\nOptions:" << endl;
+        printLine("─", screenColumns);
+        for (string commandName : sortedOptions) {
+            CommandLineElement* optionTemplate = m_optionTemplates[commandName];
+            if (!optionTemplate->useWithCommand(onlyForCommand))
+                continue;
+            string defaultValue = m_values[optionTemplate->name()];
+            optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue);
+        }
+    }
+}
+
+void CCommandLine::printVersion()
+{
+    cout << m_programVersion << endl;
 }

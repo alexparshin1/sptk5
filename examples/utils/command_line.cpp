@@ -31,16 +31,18 @@
 using namespace std;
 using namespace sptk;
 
-CCommandLineOption
-    help("help", 'h', "Prints this help.");
-
-CCommandLineParameter
-    archiveMode("archive-mode", "mode", 'a', "Archive mode may be one of {copy,zip,bzip2,xz}.", "copy", "^(copy|zip|bzip2|xz)$"),
-    date("archive-date", "date", 'd', "Date in the format 'YYYY-MM-DD'.", "", "^\\d{4}-\\d\\d-\\d\\d$");
-
 int main(int argc, const char* argv[])
 {
-    CCommandLine    commandLine;
+    CCommandLine commandLine(
+    		"Command Line Arguments demo v.1.00",
+			"Demonstrates basic command line support.",
+			"command_line <command> [options]");
+
+    commandLine.defineOption("help", "h", CCommandLine::Visibility(""), "Prints this help.");
+    commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CCommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
+    commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CCommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
+    commandLine.defineArgument("archive", "Archive data (does nothing)");
+    commandLine.defineArgument("restore", "Restore data (does nothing)");
     try {
         commandLine.init(argc, argv);
     }
@@ -48,15 +50,26 @@ int main(int argc, const char* argv[])
         cerr << "Error in command line arguments:" << endl;
         cerr << e.what() << endl;
         cout << endl;
-        commandLine.printHelp();
+        commandLine.printHelp(80);
         return 1;
     }
 
+    string command = "";
+    if (!commandLine.arguments().empty())
+        command = commandLine.arguments()[0];
+
+    if (command == "help") {
+    	// Print full help
+        commandLine.printHelp(80);
+        return 0;
+    }
+
     if (commandLine.hasOption("help")) {
-        commandLine.printHelp();
+    	// Print help on command (if any) or full help
+        commandLine.printHelp(command, 80);
     } else {
-        cout << "Archive mode: " << commandLine.parameterValue("archive-mode") << endl;
-        cout << "Archive date: " << commandLine.parameterValue("archive-date") << endl;
+        cout << "Archive mode: " << commandLine.getOptionValue("archive-mode") << endl;
+        cout << "Archive date: " << commandLine.getOptionValue("archive-date") << endl;
     }
 
     return 0;
