@@ -27,9 +27,6 @@ using namespace sptk;
 
 int main()
 {
-    Strings strings("1,2-3", "[,\\-]+", Strings::SM_REGEXP);
-    for (string str:strings)
-        cout << str << endl;
     string text;
 
     text = "This text contains number: ABCDEF";
