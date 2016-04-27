@@ -652,8 +652,8 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
     if (!trim(statement).empty())
         statements.push_back(statement);
 
-    for (string statement: statements) {
-        CQuery query(this, statement, false);
+    for (string stmt: statements) {
+        CQuery query(this, stmt, false);
         //cout << "[ " << statement << " ]" << endl;
         query.exec();
     }

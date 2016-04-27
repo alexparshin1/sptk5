@@ -152,7 +152,7 @@ void CRegistry::save(CStrings& outputData) {
     prepareDirectory();
     outputData.clear();
     CXmlDoc::save(buffer);
-    outputData.fromString(buffer.data(),"\n");
+    outputData.fromString(buffer.data(), "\n", Strings::SM_DELIMITER);
 }
 
 void CRegistry::save() {

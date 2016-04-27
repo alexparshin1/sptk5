@@ -123,7 +123,7 @@ static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CX
 
         if (nodePosition == 0) {
             if (criteria[0] == '@') {
-                size_t pos = criteria.find("=");
+                pos = criteria.find("=");
                 if (pos == STRING_NPOS)
                     pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
                 else {

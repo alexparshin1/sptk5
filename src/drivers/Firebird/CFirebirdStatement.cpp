@@ -71,11 +71,6 @@ public:
         m_sqlvar.sqlind = &m_cbNull;
     }
 
-    void setDataSize(uint32_t sz)
-    {
-        dataSize(sz);
-    }
-    
     void clearNull()
     {
         m_dataType &= ~VAR_NULL;

@@ -32,10 +32,8 @@
 #include <sptk5/CException.h>
 #include <sptk5/threads/CLocation.h>
 
-#if USE_CXX11
-    #include <condition_variable>
-    #include <chrono>
-#endif
+#include <condition_variable>
+#include <chrono>
 
 namespace sptk {
 
@@ -57,18 +55,7 @@ class SP_EXPORT CSynchronized
 
 protected:
 
-#if USE_CXX11
     std::timed_mutex        m_synchronized;     ///< Mutex object
-#else
-    // PThreads native objects, use CXX11-compatible compiler for Windows
-    pthread_mutex_t         m_synchronized;     ///< Mutex object
-    pthread_cond_t          m_condition;        ///< Mutex condition object
-
-    /// @brief Sleeps until timeout occurs
-    /// @param timeoutMS int, timeout in milliseconds
-    /// @return 0 on success or -1 on timeout or error
-    virtual int msleep(int timeoutMS);
-#endif
     CLocation               m_location;         ///< Location of latest successfull lock()
 
 public:

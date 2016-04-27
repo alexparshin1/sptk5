@@ -85,11 +85,6 @@ public:
     {
         return m_tempBuffer;
     }
-    
-    void setDataSize(uint32_t sz)
-    {
-        dataSize(sz);
-    }
 };
 
 

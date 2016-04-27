@@ -1089,7 +1089,6 @@ void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEP
 	CRegExp matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
 	CRegExp matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
 	CRegExp matchStatementEnd(";(\\s*|\\s*--.*)$");
-	CRegExp matchEscapeChars("([$.])", "g");
 
 	CStrings statements, matches;
 	string statement, delimiter;

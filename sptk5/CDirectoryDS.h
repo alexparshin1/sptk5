@@ -107,7 +107,7 @@ public:
     /// Sets pattern in format like: "*.txt;*.csv;*.xls"
     void pattern(std::string pattern)
     {
-        m_pattern.fromString(pattern, ";");
+        m_pattern.fromString(pattern, ";", Strings::SM_DELIMITER);
     }
 
     /// Returns pattern in format like: "*.txt;*.csv;*.xls"

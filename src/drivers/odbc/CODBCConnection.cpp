@@ -261,7 +261,7 @@ void CODBCConnection::queryExecute(CQuery *query)
         SQLINTEGER recordCount = 0;
         SQLSMALLINT textLength = 0;
 
-        int rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
+        rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                 &textLength);
         if (successful(rc)) {
             CStrings errors;
@@ -718,7 +718,7 @@ void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) TH
         while (true) {
             objectSchema[0] = 0;
             objectName[0] = 0;
-            int rc = SQLFetch(stmt);
+            rc = SQLFetch(stmt);
             if (rc == SQL_NO_DATA_FOUND)
                 break;
             if (!successful(rc))

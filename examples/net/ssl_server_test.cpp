@@ -88,7 +88,7 @@ int main(int argc, const char *argv[])
             struct sockaddr_in clientInfo;
 
             server.accept(clientSocketFD, clientInfo);
-            printf("Connection: %s:%d\n", inet_ntoa(clientInfo.sin_addr), ntohs(clientInfo.sin_port));
+            printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), ntohs(clientInfo.sin_port));
 
             CSSLSocket connection(sslContext);
             try {

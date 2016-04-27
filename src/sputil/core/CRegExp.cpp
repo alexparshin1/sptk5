@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/CRegExp.h>
-#include <sptk5/string_ext.h>
 
 #if HAVE_PCRE
 
@@ -38,25 +37,27 @@ CRegExp::CRegExp(std::string pattern, string options) :
 {
     for (unsigned i = 0; i < options.length(); i++) {
         switch (options[i]) {
-        case 'i':
-            m_pcreOptions |= PCRE_CASELESS;
-            break;
-        case 'm':
-            m_pcreOptions |= PCRE_MULTILINE;
-            break;
-        case 's':
-            m_pcreOptions |= PCRE_DOTALL;
-            break;
-        case 'x':
-            m_pcreOptions |= PCRE_EXTENDED;
-            break;
-        case 'g': // Special case
-            m_global = true;
-            break;
+            case 'i':
+                m_pcreOptions |= PCRE_CASELESS;
+                break;
+            case 'm':
+                m_pcreOptions |= PCRE_MULTILINE;
+                break;
+            case 's':
+                m_pcreOptions |= PCRE_DOTALL;
+                break;
+            case 'x':
+                m_pcreOptions |= PCRE_EXTENDED;
+                break;
+            case 'g': // Special case
+                m_global = true;
+                break;
+            default:
+                break;
         }
     }
 
-    const char* error;
+    const char *error;
     int errorOffset;
     m_pcre = pcre_compile(m_pattern.c_str(), m_pcreOptions, &error, &errorOffset, NULL);
     if (!m_pcre)
@@ -64,7 +65,7 @@ CRegExp::CRegExp(std::string pattern, string options) :
 #if PCRE_MAJOR > 7
     else {
         m_pcreExtra = pcre_study(m_pcre, 0, &error);
-        if (!m_pcreExtra) {
+        if (!m_pcreExtra && error) {
             pcre_free(m_pcre);
             m_pcre = NULL;
             m_error = "PCRE pattern study error : " + string(error);
@@ -84,23 +85,31 @@ CRegExp::~CRegExp()
 }
 
 #define MAX_MATCHES 128
-size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const THROWS_EXCEPTIONS
+
+size_t CRegExp::nextMatch(const string &text, size_t &offset, Match matchOffsets[],
+                          size_t matchOffsetsSize) const THROWS_EXCEPTIONS
 {
     if (!m_pcre)
         throwException(m_error);
 
-    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int*)matchOffsets, (int) matchOffsetsSize * 2);
+    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int *) matchOffsets,
+                       (int) matchOffsetsSize * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
     if (rc < 0) {
         switch (rc) {
-            case PCRE_ERROR_NULL         : throwException("Null argument");
-            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option");
+            case PCRE_ERROR_NULL         :
+                throwException("Null argument");
+            case PCRE_ERROR_BADOPTION    :
+                throwException("Invalid regular expression option");
             case PCRE_ERROR_BADMAGIC     :
-            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n");
-            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory");
-            default                      : throwException("Unknown error");
+            case PCRE_ERROR_UNKNOWN_NODE :
+                throwException("Invalid compiled regular expression\n");
+            case PCRE_ERROR_NOMEMORY     :
+                throwException("Out of memory");
+            default                      :
+                throwException("Unknown error");
         }
     }
 
@@ -111,27 +120,35 @@ size_t CRegExp::nextMatch(const string& text, size_t& offset, Match matchOffsets
     return (size_t) matchCount;
 }
 
-bool CRegExp::operator == (std::string text) const THROWS_EXCEPTIONS
+bool CRegExp::operator==(std::string text) const THROWS_EXCEPTIONS
 {
-    size_t  offset = 0;
-    Match   matchOffsets[MAX_MATCHES];
+    size_t offset = 0;
+    Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
-bool CRegExp::operator != (std::string text) const THROWS_EXCEPTIONS
+bool CRegExp::operator!=(std::string text) const THROWS_EXCEPTIONS
 {
-    size_t  offset = 0;
-    Match   matchOffsets[MAX_MATCHES];
+    size_t offset = 0;
+    Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
-bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTIONS
+bool CRegExp::matches(std::string text) const THROWS_EXCEPTIONS
+{
+    size_t offset = 0;
+    Match matchOffsets[MAX_MATCHES];
+    size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+    return matchCount > 0;
+}
+
+bool CRegExp::m(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
-    size_t  offset = 0;
-    Match   matchOffsets[MAX_MATCHES];
-    size_t  totalMatches = 0;
+    size_t offset = 0;
+    Match matchOffsets[MAX_MATCHES];
+    size_t totalMatches = 0;
 
     do {
         size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
@@ -139,8 +156,8 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTI
             break;
         totalMatches += matchCount;
 
-        for(size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
-            Match& match = matchOffsets[matchIndex];
+        for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
+            Match &match = matchOffsets[matchIndex];
             matchedStrings.push_back(string(text.c_str() + match.m_start, size_t(match.m_end - match.m_start)));
         }
 
@@ -149,13 +166,42 @@ bool CRegExp::m(std::string text, CStrings& matchedStrings) const THROWS_EXCEPTI
     return totalMatches > 0;
 }
 
-string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) const THROWS_EXCEPTIONS
+bool CRegExp::split(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
 {
-    size_t  offset = 0;
-    size_t  lastOffset = 0;
-    Match   matchOffsets[MAX_MATCHES];
-    size_t  totalMatches = 0;
-    string  result;
+    matchedStrings.clear();
+
+    size_t offset = 0;
+    Match matchOffsets[MAX_MATCHES];
+    size_t totalMatches = 0;
+
+    int lastMatchEnd = 0;
+    do {
+        size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        if (matchCount == 0) // No matches
+            break;
+
+        totalMatches += matchCount;
+
+        for (size_t matchIndex = 0; matchIndex < matchCount; matchIndex++) {
+            Match &match = matchOffsets[matchIndex];
+            matchedStrings.push_back(string(text.c_str() + lastMatchEnd, size_t(match.m_start - lastMatchEnd)));
+            lastMatchEnd = match.m_end;
+        }
+
+    } while (offset);
+
+    matchedStrings.push_back(string(text.c_str() + lastMatchEnd));
+
+    return totalMatches > 0;
+}
+
+string CRegExp::replaceAll(string text, string outputPattern, bool &replaced) const THROWS_EXCEPTIONS
+{
+    size_t offset = 0;
+    size_t lastOffset = 0;
+    Match matchOffsets[MAX_MATCHES];
+    size_t totalMatches = 0;
+    string result;
 
     replaced = false;
 
@@ -176,7 +222,7 @@ string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) co
         replaced = true;
         while (pos != string::npos) {
             size_t placeHolderStart = pos;
-            for (;; placeHolderStart++) {
+            for (; ; placeHolderStart++) {
                 placeHolderStart = outputPattern.find("\\", placeHolderStart);
                 if (placeHolderStart == string::npos)
                     break;
@@ -193,8 +239,8 @@ string CRegExp::replaceAll(string text, string outputPattern, bool& replaced) co
             size_t placeHolderIndex = (size_t) atoi(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
-                Match& match = matchOffsets[placeHolderIndex];
-                const char* matchPtr = text.c_str() + match.m_start;
+                Match &match = matchOffsets[placeHolderIndex];
+                const char *matchPtr = text.c_str() + match.m_start;
                 nextReplacement += string(matchPtr, size_t(match.m_end) - size_t(match.m_start));
             }
             pos = placeHolderEnd;
@@ -219,12 +265,12 @@ string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
     return replaceAll(text, outputPattern, replaced);
 }
 
-bool operator == (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS
+bool operator==(std::string text, const sptk::CRegExp &regexp) THROWS_EXCEPTIONS
 {
     return regexp == text;
 }
 
-bool operator != (std::string text, const sptk::CRegExp& regexp) THROWS_EXCEPTIONS
+bool operator!=(std::string text, const sptk::CRegExp &regexp) THROWS_EXCEPTIONS
 {
     return regexp != text;
 }

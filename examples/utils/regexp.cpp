@@ -1,11 +1,11 @@
 /***************************************************************************
-                          SIMPLY POWERFUL TOOLKIT (SPTK)
-                               DEMO PROGRAMS SET
-                          regexp.cpp  -  description
-                             -------------------
-    begin                : Jul 8, 2013
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
-    email                : alexeyp@gmail.com
+ SIMPLY POWERFUL TOOLKIT (SPTK)
+ DEMO PROGRAMS SET
+ regexp.cpp  -  description
+ -------------------
+ begin                : Jul 8, 2013
+ copyright            : (C) 1999-2014 by Alexey S.Parshin
+ email                : alexeyp@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -18,7 +18,7 @@
  ***************************************************************************/
 
 #include <sptk5/cutils>
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 
 #include <iostream>
 
@@ -27,14 +27,18 @@ using namespace sptk;
 
 int main()
 {
+    Strings strings("1,2-3", "[,\\-]+", Strings::SM_REGEXP);
+    for (string str:strings)
+        cout << str << endl;
     string text;
 
     text = "This text contains number: ABCDEF";
     cout << "Test: does '" << text << "' contain number? ";
-    CRegExp regexp("[\\d]+");
+    RegularExpression regexp("[\\d]+");
     if (text == regexp) {
         cout << "yes" << endl;
-    } else {
+    }
+    else {
         cout << "no" << endl;
     }
 
@@ -42,30 +46,31 @@ int main()
     cout << "Test: does '" << text << "' contain number? ";
     if (text == regexp) {
         cout << "yes" << endl;
-    } else {
+    }
+    else {
         cout << "no" << endl;
     }
 
     text = "This text contains phone number: (415)-123-4567";
     cout << "Test: does '" << text << "' contain valid phone number? ";
-    CRegExp phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
+    RegularExpression phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
     if (text == phoneRegexp) {
         cout << "yes" << endl;
-    } else {
+    }
+    else {
         cout << "no" << endl;
     }
     text = "This text contains phone number: 415/123/4567";
     cout << "Test: does '" << text << "' contain valid phone number? ";
-    if (text != CRegExp("\\(\\d{3}\\)-\\d{3}-\\d{4}")) {
+    if (text != RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
         cout << "no" << endl;
-    } else {
+    else
         cout << "yes" << endl;
-    }
 
     text = "user='horse' noice='some' password='haystack' host='localhost'";
     cout << "\nParsing the text: " << text << endl;
-    CRegExp connectionParser("(user|password|host)='([\\S]+)'","g");
-    CRegExp parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
+    RegularExpression connectionParser("(user|password|host)='([\\S]+)'", "g");
+    RegularExpression parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
     CStrings matches;
     connectionParser.m(text, matches);
     for (unsigned i = 0; i < matches.size(); i++) {
@@ -77,7 +82,7 @@ int main()
 
     text = "Area code: 415 Phone: 123-4567";
     cout << "\nParsing the text: " << text << endl;
-    CRegExp phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
+    RegularExpression phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
     string phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
     cout << "Reformatted phone number: " << phoneNumber << endl << endl;
 
@@ -86,7 +91,7 @@ int main()
     unsigned counter = 0;
     unsigned tests = 1000000;
     for (unsigned i = 0; i < tests; i++) {
-        if (text == CRegExp("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
+        if (text == RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
             counter++;
     }
     CDateTime finished = CDateTime::Now();
@@ -97,9 +102,8 @@ int main()
     started = CDateTime::Now();
     counter = 0;
     for (unsigned i = 0; i < tests; i++) {
-        if (text == phoneRegexp) {
+        if (text == phoneRegexp)
             counter++;
-        }
     }
     finished = CDateTime::Now();
     cout << "Executed " << tests << " regexp tests (precompiled) for " << (finished - started) * 86400 << " seconds." << endl;

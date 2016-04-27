@@ -94,6 +94,11 @@ public:
     /// @return true if match found
     bool operator != (std::string text) const THROWS_EXCEPTIONS;
 
+    /// @brief Returns true if text matches with regular expression
+    /// @param text std::string, Text to process
+    /// @return true if match found
+    bool matches(std::string text) const THROWS_EXCEPTIONS;
+
     /// @brief Returns list of strings matched with regular expression
     /// @param text std::string, Text to process
     /// @param matchedStrings sptk::CStrings&, list of matched strings
@@ -106,6 +111,12 @@ public:
     /// @return processed text
     std::string s(std::string text, std::string outputPattern) const THROWS_EXCEPTIONS;
 
+    /// @brief Returns list of strings split by regular expression
+    /// @param text std::string, Text to process
+    /// @param outputStrings sptk::CStrings&, list of matched strings
+    /// @return true if match found
+    bool split(std::string text, sptk::CStrings& outputStrings) const THROWS_EXCEPTIONS;
+
     /// @brief Replaces matches with replacement string
     /// @param text std::string, text to process
     /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
@@ -113,6 +124,8 @@ public:
     /// @return processed text
     std::string replaceAll(std::string text, std::string outputPattern, bool& replaced) const THROWS_EXCEPTIONS;
 };
+
+typedef CRegExp RegularExpression;
 
 /// @}
 }

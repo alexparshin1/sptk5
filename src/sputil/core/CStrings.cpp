@@ -28,21 +28,22 @@
 #include <fstream>
 #include <string.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/string_ext.h>
 #include <sptk5/CBuffer.h>
+#include <sptk5/CRegExp.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-void CStrings::splitByDelimiter(const string& src, const char *delimitter)
+void CStrings::splitByDelimiter(const string &src, const char *delimitter)
 {
-    size_t  pos = 0, end = 0;
-    size_t  dlen = strlen(delimitter);
+    size_t pos = 0, end = 0;
+    size_t delimitterLength = strlen(delimitter);
     while (true) {
         end = src.find(delimitter, pos);
         if (end != string::npos) {
             push_back(src.substr(pos, end - pos));
-            pos = end + dlen;
+            pos = end + delimitterLength;
         } else {
             push_back(src.substr(pos));
             break;
@@ -50,9 +51,9 @@ void CStrings::splitByDelimiter(const string& src, const char *delimitter)
     }
 }
 
-void CStrings::splitByAnyChar(const string& src, const char *delimitter)
+void CStrings::splitByAnyChar(const string &src, const char *delimitter)
 {
-    size_t  pos = 0, end = 0;
+    size_t pos = 0, end = 0;
     while (pos != string::npos) {
         end = src.find_first_of(delimitter, pos);
         if (end != string::npos) {
@@ -65,15 +66,29 @@ void CStrings::splitByAnyChar(const string& src, const char *delimitter)
     }
 }
 
-void CStrings::fromString(const string& src, const char *delimitter, SplitMode mode) {
-    clear();
-    if (mode == SM_DELIMITER)
-        splitByDelimiter(src, delimitter);
-    else
-        splitByAnyChar(src, delimitter);
+void CStrings::splitByRegExp(const std::string &src, const char *pattern)
+{
+    RegularExpression regularExpression(pattern);
+    regularExpression.split(src, *this);
 }
 
-string CStrings::asString(const char *delimiter) const 
+void CStrings::fromString(const string &src, const char *delimitter, SplitMode mode)
+{
+    clear();
+    switch (mode) {
+        case SM_DELIMITER:
+            splitByDelimiter(src, delimitter);
+            break;
+        case SM_ANYCHAR:
+            splitByAnyChar(src, delimitter);
+            break;
+        case SM_REGEXP:
+            splitByRegExp(src, delimitter);
+            break;
+    }
+}
+
+string CStrings::asString(const char *delimiter) const
 {
     string result;
     for (const_iterator str = begin(); str != end(); str++) {
@@ -85,11 +100,12 @@ string CStrings::asString(const char *delimiter) const
     return result;
 }
 
-int CStrings::indexOf(string s) const {
-    const_iterator itor = find(begin(),end(),s.c_str());
+int CStrings::indexOf(string s) const
+{
+    const_iterator itor = find(begin(), end(), s.c_str());
     if (itor == end())
         return -1;
-    return (int) distance(begin(),itor);
+    return (int) distance(begin(), itor);
 }
 
 void CStrings::saveToFile(string fileName) const THROWS_EXCEPTIONS
@@ -106,10 +122,10 @@ void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
 {
     CBuffer buffer;
     buffer.loadFromFile(fileName);
-    
+
     // Load text
     string text(buffer.c_str(), buffer.bytes());
-    
+
     // Determine delimiter
     size_t pos1 = text.find_first_of("\n\r");
     size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
@@ -118,6 +134,22 @@ void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
         if (text[pos1] != text[pos2]) // Two chars delimiter
             delimiter = text.substr(pos1, 2);
     }
-    
+
     splitByDelimiter(text, delimiter.c_str());
+}
+
+string CStrings::join(string delimiter)
+{
+    return asString(delimiter.c_str());
+}
+
+CStrings CStrings::grep(string pattern)
+{
+    RegularExpression regularExpression(pattern);
+    CStrings output;
+    for (idstring &str: *(this)) {
+        if (str == regularExpression)
+            output.push_back(str);
+    }
+    return output;
 }

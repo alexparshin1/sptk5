@@ -34,7 +34,7 @@
 
 namespace sptk {
 
-#if USE_CXX11 && !_WIN32
+#ifndef _WIN32
     #define DOESNT_THROW        noexcept
     #define THROWS_EXCEPTIONS   noexcept(false)
 #else

@@ -254,7 +254,7 @@ IF (USE_PCRE)
     LINK_LIBRARIES(${PCRE_LIBRARY})
     SET (PCRE_FLAG "1")
   ELSE (PCRE_FOUND)
-    MESSAGE("PCRE support:       don't compile")
+    MESSAGE(FATAL_ERROR "PCRE library not found")
   ENDIF (PCRE_FOUND)
 ENDIF (USE_PCRE)
 
@@ -279,21 +279,10 @@ IF (USE_CXX11)
   IF (CXX11_COMPILER)
     enable_cxx11()
     SET (CXX11_FLAG "1")
+  ELSE (CXX11_COMPILER)
+    MESSAGE(FATAL_ERROR "C++11 compiler is not available")
   ENDIF (CXX11_COMPILER)
 ENDIF (USE_CXX11)
-
-# Always use CXX11 compiler for Windows (Visual Studio)
-IF (WIN32)
-  SET (USE_CXX11 "1")
-  SET (CXX11_FLAG "1")
-ENDIF (WIN32)
-
-IF (CXX11_FLAG)
-  MESSAGE("CXX11 compiler:     use")
-ELSE (CXX11_FLAG)
-  MESSAGE("CXX11 compiler:     don't use")
-ENDIF (CXX11_FLAG)
-
 
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 

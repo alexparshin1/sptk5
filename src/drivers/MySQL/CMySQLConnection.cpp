@@ -421,7 +421,7 @@ void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
     if (!trim(statement).empty())
 		statements.push_back(statement);
 
-    for (string statement: statements) {
+    for (string stmt: statements) {
 		CQuery query(this, statement, false);
 		query.exec();
     }

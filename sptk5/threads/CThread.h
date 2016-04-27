@@ -30,11 +30,9 @@
 
 #include <sptk5/threads/CSynchronizedCode.h>
 
-#if USE_CXX11
-    #include <thread>
-    #include <atomic>
-    #include <mutex>
-#endif
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 namespace sptk
 {
@@ -48,32 +46,17 @@ namespace sptk
 /// by overwriting threadFunction().
 class SP_EXPORT CThread
 {
-#if USE_CXX11
     static void threadStart(void* athread);
-#else
-    static void* threadStart(void* athread);
-    void runThread();
-#endif
 
 protected:
     std::string         m_name;         ///< Thread name
-#if USE_CXX11
     std::thread         m_thread;       ///< Thread object
     std::mutex          m_mutex;        ///< Thread synchronization object
-#else
-    uint64_t            m_id;           ///< Thread id
-    pthread_t           m_thread;       ///< Thread handle
-    CSynchronized       m_mutex;        ///< Thread synchronization object
-#endif
     bool                m_terminated;   ///< Flag: is the thread terminated?
 
 public:
 
-#if USE_CXX11
     typedef std::thread::id Id;         ///< Thread ID type
-#else
-    typedef uint64_t Id;                ///< Thread ID type
-#endif
 
     /// @brief Constructor
     /// @param name CString, name of the thread for future references.
