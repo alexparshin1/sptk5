@@ -357,9 +357,6 @@ public:
     /// Queries are executed in not prepared mode.
     /// Syntax of the SQL batch file is matching the native for the database.
     /// @param batchFile std::string, SQL batch file
-    /// @param columnNames const CStrings&, list of table columns to populate
-    /// @param data const CStrings&, data for bulk insert
-    /// @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
     virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
 };
 /// @}
