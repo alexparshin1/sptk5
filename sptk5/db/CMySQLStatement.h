@@ -87,6 +87,7 @@ public:
     /// @brief Constructor
     /// @param connection Connection*, MySQL connection
     /// @param sql std::string, SQL statement
+    /// @param autoPrepare bool, If true then statement is executed as prepared.
     CMySQLStatement(CMySQLConnection* connection, std::string sql, bool autoPrepare);
 
     /// @brief Destructor
