@@ -36,7 +36,7 @@ void readAndReply(CSSLSocket& socket)
 {
     char        buffer[1024];
     char        reply[2048];
-    uint32_t    bytes;
+    size_t      bytes;
     const char* HTMLecho="<html><body><pre>%s</pre></body></html>\n\n";
 
     if (!socket.readyToRead(3000)) {

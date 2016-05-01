@@ -94,12 +94,12 @@ CWSParserComplexType::CWSParserComplexType(const CXmlElement* complexTypeElement
 
 CWSParserComplexType::~CWSParserComplexType()
 {
-    if (m_refcount > 0)
-        throwException("Can't delete complex type: refcount is greater than 0");
-    for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++)
-        delete *itor;
-    for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++)
-        delete itor->second;
+	if (m_refcount == 0) {
+		for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++)
+			delete *itor;
+		for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++)
+			delete itor->second;
+	}
 }
 
 string CWSParserComplexType::className() const

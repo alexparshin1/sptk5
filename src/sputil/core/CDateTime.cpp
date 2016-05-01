@@ -245,7 +245,7 @@ void CDateTimeFormat::init()
         CDateTime::monthNames[month] = string(dateBuffer);
     }
     ::tzset();
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) || _MSC_VER > 1800
     const char *ptr = _tzname[0];
 #else
     const char *ptr = tzname[0];
@@ -256,7 +256,7 @@ void CDateTimeFormat::init()
         len = int(p1 - ptr);
 
     CDateTime::timeZoneName = string(ptr, (unsigned)len);
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) || _MSC_VER > 1800
     CDateTime::timeZoneOffset = -_timezone / 60 + _daylight * 60;
 #else
 #ifdef __FreeBSD__

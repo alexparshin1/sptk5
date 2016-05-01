@@ -82,9 +82,9 @@ bool CCommandLine::CommandLineElement::useWithCommand(string command)
     return m_useWithCommands.matches(command);
 }
 
-void CCommandLine::CommandLineElement::formatHelp(int textWidth, CStrings& formattedText)
+void CCommandLine::CommandLineElement::formatHelp(size_t textWidth, CStrings& formattedText)
 {
-    CStrings words(m_help, "\\s+");
+    CStrings words(m_help, "\\s+", CStrings::SM_REGEXP);
 
     formattedText.clear();
 
@@ -105,7 +105,7 @@ void CCommandLine::CommandLineElement::formatHelp(int textWidth, CStrings& forma
         formattedText.push_back(row);
 }
 
-void CCommandLine::CommandLineElement::printHelp(int nameWidth, int textWidth, string optionDefaultValue)
+void CCommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, string optionDefaultValue)
 {
     static const CRegExp doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
@@ -237,8 +237,8 @@ bool CCommandLine::startsWith(string str, string pattern)
 
 bool CCommandLine::endsWith(string str, string pattern)
 {
-    int pos = str.length() - pattern.length() - 1;
-    if (pos < 0)
+    size_t pos = str.length() - pattern.length() - 1;
+    if (int(pos) < 0)
         return false;
     return str.substr(pos) == pattern;
 }
@@ -430,19 +430,19 @@ const CStrings& CCommandLine::arguments()
     return m_arguments;
 }
 
-void CCommandLine::printLine(string ch, int count)
+void CCommandLine::printLine(string ch, size_t count)
 {
     for (int i = 0; i < count; i++)
         cout << ch;
     cout << endl;
 }
 
-void CCommandLine::printHelp(int screenColumns)
+void CCommandLine::printHelp(size_t screenColumns)
 {
     printHelp("", screenColumns);
 }
 
-void CCommandLine::printHelp(string onlyForCommand, int screenColumns)
+void CCommandLine::printHelp(string onlyForCommand, size_t screenColumns)
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
         cerr << "Command '" + onlyForCommand + "' is not defined" << endl;
@@ -462,7 +462,7 @@ void CCommandLine::printHelp(string onlyForCommand, int screenColumns)
     cout << commandLinePrototype << endl;
 
     // Find out space needed for command and option names
-    unsigned nameColumns = 10;
+    size_t nameColumns = 10;
     CStrings sortedCommands;
     for (auto& itor : m_argumentTemplates)
         sortedCommands.push_back(itor.first);
@@ -485,13 +485,13 @@ void CCommandLine::printHelp(string onlyForCommand, int screenColumns)
         CommandLineElement* optionTemplate = m_optionTemplates[optionName];
         if (!optionTemplate->useWithCommand(onlyForCommand))
             continue;
-        unsigned width = optionTemplate->printableName().length();
+        size_t width = optionTemplate->printableName().length();
         if (nameColumns < width)
             nameColumns = width;
     }
 
-    int helpTextColumns = screenColumns - (nameColumns + 2);
-    if (helpTextColumns < 10) {
+    size_t helpTextColumns = screenColumns - (nameColumns + 2);
+    if ((int)helpTextColumns < 10) {
         cerr << "Can't print help information - the screen width is too small" << endl;
         return;
     }

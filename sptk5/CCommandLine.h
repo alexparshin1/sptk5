@@ -74,8 +74,7 @@ private:
         Visibility m_useWithCommands;
     public:
 
-        CommandLineElement(std::string name, std::string shortName, std::string help,
-                const Visibility& useWithCommands);
+        CommandLineElement(std::string name, std::string shortName, std::string help, const Visibility& useWithCommands);
         virtual ~CommandLineElement();
         virtual Type type();
         virtual std::string name();
@@ -83,8 +82,8 @@ private:
         virtual void validate(std::string value);
         virtual std::string printableName();
         bool useWithCommand(std::string command);
-        void formatHelp(int textWidth, CStrings& formattedText);
-        void printHelp(int nameWidth, int textWidth, std::string optionDefaultValue);
+        void formatHelp(size_t textWidth, CStrings& formattedText);
+        void printHelp(size_t nameWidth, size_t textWidth, std::string optionDefaultValue);
 
     };
 
@@ -133,7 +132,7 @@ private:
     bool startsWith(std::string str, std::string pattern);
     bool endsWith(std::string str, std::string pattern);
 
-    static void printLine(std::string ch, int count);
+    static void printLine(std::string ch, size_t count);
 
 public:
     CCommandLine(std::string programVersion, std::string description, std::string commandLinePrototype);
@@ -155,8 +154,8 @@ public:
 
     const CStrings& arguments();
 
-    void printHelp(int screenColumns);
-    void printHelp(std::string onlyForCommand, int screenColumns);
+    void printHelp(size_t screenColumns);
+    void printHelp(std::string onlyForCommand, size_t screenColumns);
     void printVersion();
 };
 

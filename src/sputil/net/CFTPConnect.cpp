@@ -71,7 +71,7 @@ const CStrings& CFTPSocket::get_response()
     m_response.clear();
 
     // read the first line of response
-    int bytes = readLine(readBuffer, 255);
+    size_t bytes = readLine(readBuffer, 255);
     m_response.push_back(std::string(readBuffer, bytes));
 
     // read the return code
