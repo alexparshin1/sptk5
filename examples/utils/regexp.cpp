@@ -1,11 +1,11 @@
 /***************************************************************************
- SIMPLY POWERFUL TOOLKIT (SPTK)
- DEMO PROGRAMS SET
- regexp.cpp  -  description
- -------------------
- begin                : Jul 8, 2013
- copyright            : (C) 1999-2014 by Alexey S.Parshin
- email                : alexeyp@gmail.com
+                         SIMPLY POWERFUL TOOLKIT (SPTK)
+                         regexp.cpp  -  description
+                             -------------------
+
+    begin                : Jul 8, 2013
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
+    email                : alexeyp@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,11 +27,12 @@ using namespace sptk;
 
 int main()
 {
-    string text;
+    String text;
 
     text = "This text contains number: ABCDEF";
+    
     cout << "Test: does '" << text << "' contain number? ";
-    RegularExpression regexp("[\\d]+");
+    RegularExpression regexp("\\d+");
     if (text == regexp) {
         cout << "yes" << endl;
     }
@@ -41,22 +42,19 @@ int main()
 
     text = "This text contains number: 12345";
     cout << "Test: does '" << text << "' contain number? ";
-    if (text == regexp) {
+    if (text == regexp)
         cout << "yes" << endl;
-    }
-    else {
+    else
         cout << "no" << endl;
-    }
 
     text = "This text contains phone number: (415)-123-4567";
     cout << "Test: does '" << text << "' contain valid phone number? ";
     RegularExpression phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
-    if (text == phoneRegexp) {
+    if (text == phoneRegexp)
         cout << "yes" << endl;
-    }
-    else {
+    else
         cout << "no" << endl;
-    }
+
     text = "This text contains phone number: 415/123/4567";
     cout << "Test: does '" << text << "' contain valid phone number? ";
     if (text != RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
