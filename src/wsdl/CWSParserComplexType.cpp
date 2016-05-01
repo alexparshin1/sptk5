@@ -3,7 +3,7 @@
                           CWSParserComplexType.cpp  -  description
                              -------------------
     begin                : 03 Aug 2012
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -35,26 +35,24 @@ using namespace std;
 using namespace sptk;
 
 CWSParserAttribute::CWSParserAttribute(std::string name, std::string typeName)
-:   m_name(name),
-    m_wsTypeName(typeName),
-    m_multiplicity(CWSM_OPTIONAL)
+: m_name(name),
+m_wsTypeName(typeName),
+m_multiplicity(CWSM_OPTIONAL)
 {
     m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
 }
 
 CWSParserAttribute::CWSParserAttribute(const CWSParserAttribute& attr)
-:   m_name(attr.m_name),
-    m_wsTypeName(attr.m_wsTypeName),
-    m_cxxTypeName(attr.m_cxxTypeName),
-    m_multiplicity(attr.m_multiplicity)
-{
-}
+: m_name(attr.m_name),
+m_wsTypeName(attr.m_wsTypeName),
+m_cxxTypeName(attr.m_cxxTypeName),
+m_multiplicity(attr.m_multiplicity) { }
 
 string CWSParserAttribute::generate() const
 {
     char buffer[256];
     sprintf(buffer, "%-20s m_%s", m_cxxTypeName.c_str(), m_name.c_str());
-    return buffer;
+    return string(buffer);
 }
 
 CWSParserComplexType::CWSParserComplexType(const CXmlElement* complexTypeElement, string name, string typeName)
@@ -106,7 +104,7 @@ CWSParserComplexType::~CWSParserComplexType()
 
 string CWSParserComplexType::className() const
 {
-    string cxxType = wsTypeTranslator.toCxxType(m_typeName,"");
+    string cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
     if (!cxxType.empty())
         return cxxType;
     size_t pos = m_typeName.find(":");
@@ -116,7 +114,7 @@ string CWSParserComplexType::className() const
 void CWSParserComplexType::parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS
 {
     for (CXmlElement::const_iterator itor = sequence->begin(); itor != sequence->end(); itor++) {
-        CXmlElement* element = (CXmlElement*) *itor;
+        CXmlElement* element = (CXmlElement*) * itor;
         string elementName = element->name();
         if (elementName == "xsd:element")
             m_sequence.push_back(new CWSParserComplexType(element));
@@ -129,7 +127,7 @@ void CWSParserComplexType::parse() THROWS_EXCEPTIONS
     if (!m_element)
         return;
     for (CXmlElement::const_iterator itor = m_element->begin(); itor != m_element->end(); itor++) {
-        CXmlElement* element = (CXmlElement*) *itor;
+        CXmlElement* element = (CXmlElement*) * itor;
         if (element->name() == "xsd:attribute") {
             string attrName = element->getAttribute("name");
             m_attributes[attrName] = new CWSParserAttribute(attrName, element->getAttribute("type"));
@@ -178,15 +176,15 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "{" << endl;
     classDeclaration << "public:" << endl;
     CStrings ctorInitializer, copyInitializer;
-    ctorInitializer.push_back("sptk::WSComplexType(elementName, optional)");
-    copyInitializer.push_back("sptk::WSComplexType(other.name().c_str(), other.isOptional())");
+    ctorInitializer.push_back(string("sptk::WSComplexType(elementName, optional)"));
+    copyInitializer.push_back(string("sptk::WSComplexType(other.name().c_str(), other.isOptional())"));
     if (m_sequence.size()) {
         classDeclaration << "   // Elements" << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
             CWSParserComplexType* complexType = *itor;
             char buffer[256];
             string cxxType = complexType->className();
-            if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE))
+            if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE | CWSM_ONE_OR_MORE))
                 cxxType = "std::vector<" + cxxType + "*>";
             else {
                 string optional = complexType->multiplicity() & CWSM_OPTIONAL ? ", true" : "";
@@ -214,9 +212,9 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "   /// @brief Copy constructor" << endl;
     classDeclaration << "   /// @param other const " << className << "&, other element to copy from" << endl;
     classDeclaration << "   " << className << "(const " << className << "& other)" << endl << "   : " << copyInitializer.asString(", ") << endl
-    		         << "   {" << endl
-    		         <<	"       copyFrom(other);" << endl
-                     << "   }" << endl << endl;
+        << "   {" << endl
+        << "       copyFrom(other);" << endl
+        << "   }" << endl << endl;
     classDeclaration << "   /// @brief Destructor" << endl;
     classDeclaration << "   virtual ~" << className << "();" << endl << endl;
     classDeclaration << "   /// @brief Clear content and releases allocated memory" << endl;
@@ -290,13 +288,14 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
             if (complexType->m_restriction)
                 classImplementation << "         static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
             //string optional = complexType->multiplicity() & CWSM_OPTIONAL ? "true" : "false";
-            if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE)) {
+            if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE | CWSM_ONE_OR_MORE)) {
                 classImplementation << "         " << complexType->className() << "* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 classImplementation << "         item->load(element);" << endl;
                 if (complexType->m_restriction)
                     classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
                 classImplementation << "         m_" << complexType->name() << ".push_back(item);" << endl;
-            } else {
+            }
+            else {
                 classImplementation << "         m_" << complexType->name() << ".load(element);" << endl;
                 if (complexType->m_restriction)
                     classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
@@ -308,7 +307,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         }
         classImplementation << "   }" << endl;
 
-        for (string& requiredElement: requiredElements) {
+        for (string& requiredElement : requiredElements) {
             classImplementation << "   if (m_" << requiredElement << ".isNull())" << endl;
             classImplementation << "      throw CSOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
         }
@@ -330,13 +329,14 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         classImplementation << "   // Unload elements" << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
             CWSParserComplexType* complexType = *itor;
-            if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE|CWSM_ONE_OR_MORE)) {
+            if (complexType->multiplicity() & (CWSM_ZERO_OR_MORE | CWSM_ONE_OR_MORE)) {
                 classImplementation << "   for (vector<" << complexType->className() << "*>::const_iterator itor = m_" << complexType->name() << ".begin(); "
-                                    << " itor != m_" << complexType->name() << ".end(); itor++) {" << endl;
+                    << " itor != m_" << complexType->name() << ".end(); itor++) {" << endl;
                 classImplementation << "      " << complexType->className() << "* item = *itor;" << endl;
                 classImplementation << "      item->addElement(output);" << endl;
                 classImplementation << "   }" << endl;
-            } else {
+            }
+            else {
                 classImplementation << "   m_" << complexType->name() << ".addElement(output);" << endl;
             }
         }

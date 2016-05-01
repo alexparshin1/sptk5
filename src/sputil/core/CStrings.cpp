@@ -3,7 +3,7 @@
                           CStrings.cpp  -  description
                              -------------------
     begin                : Thu August 11 2005
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -35,6 +35,39 @@
 using namespace std;
 using namespace sptk;
 
+bool String::matches(string pattern, string options) const
+{
+    RegularExpression regexp(pattern, options);
+    return *this == RegularExpression(pattern, options);
+}
+
+string String::toUpperCase() const
+{
+    return upperCase(*this);
+}
+
+string String::toLowerCase() const
+{
+    return lowerCase(*this);
+}
+
+CStrings String::split(string pattern) const
+{
+    return CStrings(*this, pattern.c_str(), CStrings::SM_REGEXP);
+}
+
+bool String::startsWith(std::string subject) const
+{
+    return find(subject) == 0;
+}
+
+/// @brief Returns true if the string ends with subject
+/// @param subject, std::string Subject to look for
+bool String::endsWith(std::string subject) const
+{
+    return rfind(subject) == length() - subject.length();
+}
+
 void CStrings::splitByDelimiter(const string &src, const char *delimitter)
 {
     size_t pos = 0, end = 0;
@@ -44,7 +77,8 @@ void CStrings::splitByDelimiter(const string &src, const char *delimitter)
         if (end != string::npos) {
             push_back(src.substr(pos, end - pos));
             pos = end + delimitterLength;
-        } else {
+        }
+        else {
             push_back(src.substr(pos));
             break;
         }
@@ -59,7 +93,8 @@ void CStrings::splitByAnyChar(const string &src, const char *delimitter)
         if (end != string::npos) {
             push_back(src.substr(pos, end - pos));
             pos = src.find_first_not_of(delimitter, end + 1);
-        } else {
+        }
+        else {
             push_back(src.substr(pos));
             break;
         }
@@ -147,7 +182,7 @@ CStrings CStrings::grep(string pattern)
 {
     RegularExpression regularExpression(pattern);
     CStrings output;
-    for (idstring &str: *(this)) {
+    for (String &str : *(this)) {
         if (str == regularExpression)
             output.push_back(str);
     }

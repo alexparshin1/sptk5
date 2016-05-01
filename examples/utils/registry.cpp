@@ -4,7 +4,7 @@
                           registry.cpp  -  description
                              -------------------
     begin                : January 3, 2003
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -51,10 +51,10 @@ void printRegistry(CRegistryMode mode) {
                << (int) node->getAttribute("y") << endl;
             else if (node->name() == "colors") {
                // Processing the subnodes of <colors>
-               CXmlNode::iterator itor = node->begin();
+               CXmlNode::iterator stor = node->begin();
                cout << "Window colors:" << endl;
-               for (; itor != node->end(); itor++) {
-                  CXmlNode* colorNode = *itor;
+               for (; stor != node->end(); stor++) {
+                  CXmlNode* colorNode = *stor;
                   cout << "  " << (string) colorNode->getAttribute("name")
                   << ": fg " << (string) colorNode->getAttribute("foreground")
                   << ", bg " << (string) colorNode->getAttribute("background")

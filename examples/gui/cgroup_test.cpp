@@ -4,7 +4,7 @@
                           cgroup_test.cpp  -  description
                              -------------------
     begin                : January 3, 2003
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -27,8 +27,8 @@
  ***************************************************************************/
 
 #ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
+#    include <vcl.h>
+#    pragma hdrstop
 #endif
 
 #include <FL/Fl.H>
@@ -40,29 +40,33 @@
 using namespace std;
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w, void *) {
-   w->window()->hide();
+void exit_cb(Fl_Widget *w, void *)
+{
+    w->window()->hide();
 }
 
-void theme_cb(Fl_Widget *w, void *) {
-   try {
-      CComboBox *themesCombo = (CComboBox *)w;
-      std::string themeName = themesCombo->data();
-      
-      if (themesCombo->eventType() == CE_DATA_CHANGED) {
-         CThemes::set(themeName);
-         
-         CWindow *window = (CWindow *)w->window();
-         window->relayout();
-         window->redraw();
-      }
-   } catch (exception& e) {
-      spError(e.what());
-   }
+void theme_cb(Fl_Widget *w, void *)
+{
+    try {
+        CComboBox *themesCombo = (CComboBox *) w;
+        std::string themeName = themesCombo->data();
+
+        if (themesCombo->eventType() == CE_DATA_CHANGED) {
+            CThemes::set(themeName);
+
+            CWindow *window = (CWindow *) w->window();
+            window->relayout();
+            window->redraw();
+        }
+    }
+    catch (exception& e) {
+        spError(e.what());
+    }
 }
 
-void maximize_cb(Fl_Widget *w, void *) {
-   w->window()->resize(Fl::x(), Fl::y(), Fl::w(), Fl::h());
+void maximize_cb(Fl_Widget *w, void *)
+{
+    w->window()->resize(Fl::x(), Fl::y(), Fl::w(), Fl::h());
 }
 
 int main(int argc, char *argv[])
@@ -70,81 +74,82 @@ int main(int argc, char *argv[])
     // Initialize themes
     CThemes themes;
 
-   try {
-      CWindow w(500, 400, "CGroup test");
-      w.resizable(w);
-      w.layoutSpacing(4);
-      
-      CGroup buttonsGroup("Buttons Group", 10, SP_ALIGN_TOP);
-      buttonsGroup.align(FL_ALIGN_RIGHT);
-      buttonsGroup.layoutSpacing(4);
-      buttonsGroup.box(FL_THIN_DOWN_BOX);
-      
-      // CCheckButtons figures out the size from the list
-      // of choices. The default alignment is SP_ALIGN_TOP,
-      // and you can change it in ctor
-      CCheckButtons cbl("Check Buttons: ");
-      cbl.buttons(CStrings("first,second,third,*", ","));
-      
-      CRadioButtons rbl("Radio Buttons: ");
-      rbl.buttons(CStrings("first,second,third,*", ","));
-      
-      buttonsGroup.end();
-      
-      CProgressBar progressBar("Progress: ");
-      progressBar.data(50);
-      
-      // CListView is more flexible, than CCheckButtons or
-      // CRadioButtons, it's vertical size is defined with
-      // the layoutSize parameter in ctor as 150.
-      // SP_ALIGN_CLIENT allows that widget to occupy all
-      // the space left after all the other widgets are
-      // put in place
-      CListView listView("List View:", 10, SP_ALIGN_CLIENT);
-      listView.columns().push_back(CColumn("column 1", VAR_INT, 100));
-      listView.columns().push_back(CColumn("column 2", VAR_INT, 100));
-      listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
-      listView.columns().push_back(CColumn("column 4", VAR_STRING, 200));
-      
-      // Add 10 items
-      char buffer1[10];
-      char buffer2[10];
-      for(int a=0; a<10; a++) {
-         sprintf(buffer1, "%i", a);
-         sprintf(buffer2, "%i", 100000-a);
-         cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-         CPackedStrings *ps = new CPackedStrings(4, rowData);
-         listView.addRow(ps);
-      }
-      
-      // That group keeps togeteher the buttons. These
-      // buttons use the default alignment for buttons -
-      // SP_ALIGN_RIGHT, and the text/icon defined by the
-      // button kind.
-      CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
-      buttonGroup.color(FL_LIGHT1);
-      
-      CButton exitButton(SP_EXIT_BUTTON);
-      exitButton.callback(exit_cb);
-      
-      CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
-      CStrings themes = CThemes::availableThemes();
-      themes.push_back("GTK");
-      themesCombo.addRows("Theme", themes);
-      themesCombo.callback(theme_cb);
-      themesCombo.data("GTK");
-      
-      buttonGroup.end();
-      
-      w.end();
-      w.relayout();
-      w.show(argc, argv);
-      
-      Fl::run();
-      
-   } catch (exception& e) {
-      spError(e.what());
-   }
-   
-   return 0;
+    try {
+        CWindow w(500, 400, "CGroup test");
+        w.resizable(w);
+        w.layoutSpacing(4);
+
+        CGroup buttonsGroup("Buttons Group", 10, SP_ALIGN_TOP);
+        buttonsGroup.align(FL_ALIGN_RIGHT);
+        buttonsGroup.layoutSpacing(4);
+        buttonsGroup.box(FL_THIN_DOWN_BOX);
+
+        // CCheckButtons figures out the size from the list
+        // of choices. The default alignment is SP_ALIGN_TOP,
+        // and you can change it in ctor
+        CCheckButtons cbl("Check Buttons: ");
+        cbl.buttons(CStrings("first,second,third,*", ","));
+
+        CRadioButtons rbl("Radio Buttons: ");
+        rbl.buttons(CStrings("first,second,third,*", ","));
+
+        buttonsGroup.end();
+
+        CProgressBar progressBar("Progress: ");
+        progressBar.data(50);
+
+        // CListView is more flexible, than CCheckButtons or
+        // CRadioButtons, it's vertical size is defined with
+        // the layoutSize parameter in ctor as 150.
+        // SP_ALIGN_CLIENT allows that widget to occupy all
+        // the space left after all the other widgets are
+        // put in place
+        CListView listView("List View:", 10, SP_ALIGN_CLIENT);
+        listView.columns().push_back(CColumn("column 1", VAR_INT, 100));
+        listView.columns().push_back(CColumn("column 2", VAR_INT, 100));
+        listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
+        listView.columns().push_back(CColumn("column 4", VAR_STRING, 200));
+
+        // Add 10 items
+        char buffer1[10];
+        char buffer2[10];
+        for (int a = 0; a < 10; a++) {
+            sprintf(buffer1, "%i", a);
+            sprintf(buffer2, "%i", 100000 - a);
+            cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
+            CPackedStrings *ps = new CPackedStrings(4, rowData);
+            listView.addRow(ps);
+        }
+
+        // That group keeps togeteher the buttons. These
+        // buttons use the default alignment for buttons -
+        // SP_ALIGN_RIGHT, and the text/icon defined by the
+        // button kind.
+        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        buttonGroup.color(FL_LIGHT1);
+
+        CButton exitButton(SP_EXIT_BUTTON);
+        exitButton.callback(exit_cb);
+
+        CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
+        CStrings themes = CThemes::availableThemes();
+        themes.push_back("GTK");
+        themesCombo.addRows("Theme", themes);
+        themesCombo.callback(theme_cb);
+        themesCombo.data("GTK");
+
+        buttonGroup.end();
+
+        w.end();
+        w.relayout();
+        w.show(argc, argv);
+
+        Fl::run();
+
+    }
+    catch (exception& e) {
+        spError(e.what());
+    }
+
+    return 0;
 }

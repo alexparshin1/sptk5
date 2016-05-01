@@ -3,7 +3,7 @@
                           CODBCConnection.cpp  -  description
                              -------------------
     begin                : Fri Oct 03 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -270,7 +270,7 @@ void CODBCConnection::queryExecute(CQuery *query)
                         &textLength);
                 if (!successful(rc))
                     break;
-                errors.push_back(removeDriverIdentification((const char *) text));
+                errors.push_back(string(removeDriverIdentification((const char *) text)));
             }
             query->logAndThrow("CODBCConnection::queryExecute", errors.asString("; "));
         }

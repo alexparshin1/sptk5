@@ -3,7 +3,7 @@
                           CFontComboBox.cpp  -  description
                              -------------------
     begin                : 11 June 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -42,7 +42,7 @@ void CFontComboBox::loadFonts() {
    int k = Fl::set_fonts("*");
    for (int i = 0; i < k; i++) {
       int t;
-      idstring fontIdString(Fl::get_font_name((Fl_Font)i,&t),i);
+      String fontIdString(Fl::get_font_name((Fl_Font)i,&t),i);
       fontNames.push_back(fontIdString);
    }
    addRows("Fonts",fontNames);

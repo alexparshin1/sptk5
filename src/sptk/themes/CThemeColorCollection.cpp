@@ -3,7 +3,7 @@
                           CThemeColorCollection.cpp  -  description
                              -------------------
     begin                : Sat Jul 03 2008
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -185,9 +185,7 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
                 gtk_color_function cfunction = itor->second;
                 return cfunction(arguments);
             }
-            break;
     }
-    return FL_BLACK;
 }
 
 void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex)

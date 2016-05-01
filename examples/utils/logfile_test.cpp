@@ -3,7 +3,7 @@
                           logfile_test.cpp  -  description
                              -------------------
     begin                : Mon Jan 30, 2006
-    copyright            : (C) 1999-2014 by Alexey Parshin
+    copyright            : (C) 1999-2016 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

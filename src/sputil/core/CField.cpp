@@ -3,7 +3,7 @@
                           cfields.cpp  -  description
                              -------------------
     begin                : Wed Dec 15 1999
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -26,10 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/CField.h>
-#include <sptk5/CException.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 using namespace std;
 using namespace sptk;
@@ -62,7 +58,7 @@ void CField::setNull(CVariantType vtype)
         break;
     }
 
-    m_dataType |= VAR_NULL;
+    m_dataType = vtype | VAR_NULL;
 }
 
 string CField::asString() const THROWS_EXCEPTIONS
@@ -133,7 +129,7 @@ string CField::asString() const THROWS_EXCEPTIONS
     }
 
     case VAR_IMAGE_PTR:
-        sprintf (print_buffer,"%p", (char *) m_data.imagePtr);
+        sprintf (print_buffer,"%p", m_data.imagePtr);
         return string (print_buffer);
 
     case VAR_IMAGE_NDX:

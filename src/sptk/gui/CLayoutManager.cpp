@@ -3,7 +3,7 @@
                           clayoutmanager.cpp  -  description
                              -------------------
     begin                : Sun May 18 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -115,7 +115,7 @@ void CLayoutManager::relayout() {
         } catch (...) {
             continue;
         }
-        if (!ca || ca->layoutAlign() == SP_ALIGN_NONE)
+        if (ca->layoutAlign() == SP_ALIGN_NONE)
             continue;
         ca->m_lastPreferredW = 0;
         ca->m_lastPreferredH = 0;
@@ -175,7 +175,7 @@ bool CLayoutManager::autoLayout(int x,int y,int& w,int& h,bool resizeWidgets) co
             } catch (...) {
                 continue;
             }
-            if (!ca || ca->layoutAlign() == SP_ALIGN_NONE)
+            if (ca->layoutAlign() == SP_ALIGN_NONE)
                 continue;
 
             preferred_w = ww;

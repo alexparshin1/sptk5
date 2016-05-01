@@ -3,7 +3,7 @@
                           CParamList.cpp  -  description
                              -------------------
     begin                : Sun Jul 14 2013
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

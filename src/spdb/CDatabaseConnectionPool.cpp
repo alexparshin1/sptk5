@@ -3,7 +3,7 @@
                           CDatabaseConnectionPool.cpp  -  description
                              -------------------
     begin                : Sun Mar 11 2012
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -130,7 +130,7 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     conv.void_ptr = dlsym(handle, create_connectionFunctionName.c_str());
     CCreateDriverInstance* createConnection = conv.create_func_ptr;
 
-    CDestroyDriverInstance* destroyConnection;
+    CDestroyDriverInstance* destroyConnection = NULL;
     const char* dlsym_error = dlerror();
     if (!dlsym_error) {
         conv.void_ptr = dlsym(handle, destroy_connectionFunctionName.c_str());

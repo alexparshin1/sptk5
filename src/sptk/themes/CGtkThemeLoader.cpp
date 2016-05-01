@@ -3,7 +3,7 @@
                           CGtkThemeLoader.h  -  description
                              -------------------
     begin                : Thu May 22 2008
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -109,8 +109,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
                 parentNode->setAttribute(name, value);
                 node = parentNode;
             } else {
-                if (attemptGrouping)
-                    node = parentNode->findFirst(name);
+                node = parentNode->findFirst(name);
                 if (!node)
                     node = new CXmlElement(parentNode, name.c_str());
                 if (!subName.empty())

@@ -3,7 +3,7 @@
                          thread_pool_test.cpp  -  description
                              -------------------
     begin                : Sat Feb 14 2012
-    copyright            : (C) 1999-2014 by Alexey Parshin
+    copyright            : (C) 1999-2016 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

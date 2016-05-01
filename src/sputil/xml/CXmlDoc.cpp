@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -219,15 +219,14 @@ void CXmlDoc::parseDocType(char* docTypeSection)
             break;
         case 2:
         case 4:
-            if (t == 0) {
-                m_doctype.m_system_id = start;
-                break;
+            switch (t) {
+                case 0:
+                    m_doctype.m_system_id = start;
+                    break;
+                case 1:
+                    m_doctype.m_public_id = start;
+                    break;
             }
-            if (t == 1) {
-                m_doctype.m_public_id = start;
-                break;
-            }
-            delimiter = ' ';
             break;
         }
         if (!end)

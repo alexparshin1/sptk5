@@ -3,7 +3,7 @@
                           CWSRestriction.cpp  -  description
                              -------------------
     begin                : 03 Aug 2012
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -39,7 +39,7 @@ WSRestriction::WSRestriction(string typeName, CXmlNode* simpleTypeElement)
     for (CXmlNode::iterator itor = enumerationNodes.begin(); itor != enumerationNodes.end(); itor++) {
         CXmlElement* enumerationNode = dynamic_cast<CXmlElement*>(*itor);
         if (enumerationNode)
-            m_enumerations.push_back(enumerationNode->getAttribute("value").c_str());
+            m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));
     }
 }
 

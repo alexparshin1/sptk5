@@ -4,7 +4,7 @@
                           postgresql_test.cpp  -  description
                              -------------------
     begin                : September 20, 2007
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -133,8 +133,8 @@ int testDatabase(string connectionString)
             } catch (exception& e) {
                 cout << e.what() << endl;
             }
-            for (unsigned i = 0; i < objectList.size() && i < 10; i++)
-                cout << "  " << objectList[i] << endl;
+            for (unsigned j = 0; j < objectList.size() && j < 10; j++)
+                cout << "  " << objectList[j] << endl;
         }
         cout << "-------------------------------------------------" << endl;
 
@@ -365,7 +365,7 @@ int main(int argc, const char* argv[])
     if (connectionString.empty()) {
         CStrings databaseTypes;
         for (size_t i = 0; availableDatabaseTypes[i] != NULL; i++)
-            databaseTypes.push_back(availableDatabaseTypes[i]);
+            databaseTypes.push_back(string(availableDatabaseTypes[i]));
 
         string dbtype, dbname, username, password, hostOrDSN;
         for (;;) {
@@ -394,7 +394,7 @@ int main(int argc, const char* argv[])
         // Creating connection string in the following format:
         // <dbtype>://[username[:password]@]<host_or_DSN>[:port_number][/dbname]
 
-        string connectionString = dbtype + "://";
+        connectionString = dbtype + "://";
         if (!username.empty()) {
             connectionString += username;
             if (!password.empty())

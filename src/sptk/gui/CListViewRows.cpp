@@ -3,7 +3,7 @@
                           clistviewrows.cpp  -  description
                              -------------------
     begin                : Tue Jul 23 2002
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -81,7 +81,7 @@ unsigned CListViewRows::insert(unsigned position,CPackedStrings *ss) {
 unsigned CListViewRows::update(unsigned index,CPackedStrings *ss) {
    CPackedStrings *s = (CPackedStrings *)m_rows[index];
    int oldh = s->height;
-   if (s) delete s;
+   delete s;
    m_fullHeight += ss->height - oldh;
    m_rows[index] = ss;
    return index;

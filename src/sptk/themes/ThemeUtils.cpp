@@ -3,7 +3,7 @@
                           ThemesUtils.cpp  -  description
                              -------------------
     begin                : Sat Jun 28 2008
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -48,12 +48,10 @@ namespace sptk {
                 const CBuffer& imageBuffer = CThemes::m_tar.file(fileName);
                 img = new CPngImage(imageBuffer);
             }
-            if (img) {
-                if (img->data())
-                    return img;
-                delete img;
-                img = 0L;
-            }
+            if (img->data())
+                return img;
+            delete img;
+            img = 0L;
             return img;
         } catch (...) {}
         return 0;

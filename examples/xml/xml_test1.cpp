@@ -4,7 +4,7 @@
                           cxml_test1.cpp  -  description
                              -------------------
     begin                : August 10, 2003
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

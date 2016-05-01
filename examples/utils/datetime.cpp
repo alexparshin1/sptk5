@@ -3,7 +3,7 @@
                           datetime.cpp  -  description
                              -------------------
     begin                : Mon Sep 28, 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin
+    copyright            : (C) 1999-2016 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

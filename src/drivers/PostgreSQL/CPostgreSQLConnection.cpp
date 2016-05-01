@@ -3,7 +3,7 @@
                           CPostgreSQLConnection.cpp  -  description
                              -------------------
     begin                : Mon Sep 17 2007
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -1045,7 +1045,7 @@ std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, "$%i", paramIndex + 1);
-    return mark;
+    return string(mark);
 }
 
 void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
@@ -1136,8 +1136,8 @@ void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEP
     if (!trim(statement).empty())
 		statements.push_back(statement);
 
-	for (string statement : statements) {
-		CQuery query(this, statement);
+	for (string stmt : statements) {
+		CQuery query(this, stmt);
 		query.exec();
 	}
 }

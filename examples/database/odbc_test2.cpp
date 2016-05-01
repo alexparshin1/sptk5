@@ -4,7 +4,7 @@
                           odbc_test2.cpp  -  description
                              -------------------
     begin                : October 23, 2005
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

@@ -4,7 +4,7 @@
                           tree_view.cpp  -  description
                              -------------------
     begin                : Sun Jun 8, 2003
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -52,8 +52,8 @@ void add_item_cb(Fl_Widget *w, void *) {
    CComboBox typeCombo("Item Type:");
    typeCombo.labelWidth(80);
    CStrings typeChoices;
-   typeChoices.push_back(idstring("Folder", 1));
-   typeChoices.push_back(idstring("Document", 2));
+   typeChoices.push_back(String("Folder", 1));
+   typeChoices.push_back(String("Document", 2));
    typeCombo.addRows("type", typeChoices);
    typeCombo.columns()[(unsigned)0].width(150);
    typeCombo.dataMode(LV_DATA_KEY);
@@ -62,8 +62,8 @@ void add_item_cb(Fl_Widget *w, void *) {
    CComboBox modeCombo("Add Mode:");
    modeCombo.labelWidth(80);
    CStrings modeChoices;
-   modeChoices.push_back(idstring("To the root level", 1));
-   modeChoices.push_back(idstring("To selected item", 2));
+   modeChoices.push_back(String("To the root level", 1));
+   modeChoices.push_back(String("To selected item", 2));
    modeCombo.addRows("type", modeChoices);
    modeCombo.columns()[(unsigned)0].width(150);
    modeCombo.dataMode(LV_DATA_KEY);

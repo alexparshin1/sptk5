@@ -3,7 +3,7 @@
                           CMailMessageBody.cpp  -  description
                              -------------------
     begin                : 25 Oct 2004
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

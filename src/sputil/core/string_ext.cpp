@@ -3,7 +3,7 @@
                           string_ext.cpp  -  description
                              -------------------
     begin                : Thu July 14 2005
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -29,7 +29,6 @@
 #include <string.h>
 #include <fstream>
 #include <iostream>
-#include <errno.h>
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
 
@@ -140,14 +139,14 @@ string int2string (int32_t value)
 {
     char buff[32];
     sprintf (buff,"%i",value);
-    return buff;
+    return string(buff);
 }
 
 string int2string (uint32_t value)
 {
     char buff[64];
     sprintf (buff,"%u",value);
-    return buff;
+    return string(buff);
 }
 
 string int2string (int64_t value)
@@ -156,7 +155,7 @@ string int2string (int64_t value)
 #ifdef _WIN32
     sprintf (buff,"%lli",value);
 #else
-    sprintf (buff,"%li",value);
+    sprintf (buff,"%li", value);
 #endif
     return buff;
 }
@@ -169,7 +168,7 @@ string int2string (uint64_t value)
 #else
     sprintf (buff,"%lu",value);
 #endif
-    return buff;
+    return string(buff);
 }
 
 int string2int (const string& str, int defaultValue)
@@ -188,7 +187,7 @@ int64_t string2int64 (const string& str, int64_t defaultValue)
 {
     char *endptr;
     errno = 0;
-    int64_t result = strtoll(str.c_str(), &endptr, 10);
+    int64_t result = (int64_t) strtoll(str.c_str(), &endptr, 10);
 
     if (errno)
         return defaultValue;

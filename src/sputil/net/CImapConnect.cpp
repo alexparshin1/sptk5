@@ -3,7 +3,7 @@
                           CImapConnect.cpp  -  description
                              -------------------
     begin                : July 19 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -37,21 +37,24 @@ using namespace sptk;
 // Implementation is based on
 // http://www.course.molina.com.br/RFC/Orig/rfc2060.txt
 
-CImapConnect::CImapConnect() {
+CImapConnect::CImapConnect()
+{
     m_port = 143;
     m_ident = 1;
 }
 
-CImapConnect::~CImapConnect() {
+CImapConnect::~CImapConnect()
+{
     close();
 }
 
 #define RSP_BLOCK_SIZE 1024
 
-bool CImapConnect::getResponse(string ident) {
+bool CImapConnect::getResponse(string ident)
+{
     char readBuffer[RSP_BLOCK_SIZE + 1];
 
-    for (;;) {
+    for (; ;) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         string longLine = readBuffer;
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
@@ -85,11 +88,13 @@ bool CImapConnect::getResponse(string ident) {
 
 const string CImapConnect::empty_quotes;
 
-static string quotes(string st) {
+static string quotes(string st)
+{
     return "\"" + st + "\"";
 }
 
-string CImapConnect::sendCommand(string cmd) {
+string CImapConnect::sendCommand(string cmd)
+{
     char id_str[10];
     sprintf(id_str, "a%03i ", m_ident++);
     string ident(id_str);
@@ -100,7 +105,8 @@ string CImapConnect::sendCommand(string cmd) {
     return ident;
 }
 
-void CImapConnect::command(string cmd, const std::string& arg1, const std::string& arg2) {
+void CImapConnect::command(string cmd, const std::string &arg1, const std::string &arg2)
+{
     if (arg1.length() || &arg1 == &empty_quotes)
         cmd += " " + quotes(arg1);
     if (arg2.length() || &arg2 == &empty_quotes)
@@ -110,7 +116,8 @@ void CImapConnect::command(string cmd, const std::string& arg1, const std::strin
     getResponse(ident);
 }
 
-void CImapConnect::cmd_login(string user, string password) {
+void CImapConnect::cmd_login(string user, string password)
+{
     close();
     open();
     m_response.clear();
@@ -131,7 +138,8 @@ CBuffer testMsg(
    "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
    "Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
  */
-void CImapConnect::cmd_append(string mail_box, const CBuffer& message) {
+void CImapConnect::cmd_append(string mail_box, const CBuffer &message)
+{
     string cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
     string ident = sendCommand(cmd);
     getResponse(ident);
@@ -140,10 +148,11 @@ void CImapConnect::cmd_append(string mail_box, const CBuffer& message) {
     getResponse(ident);
 }
 
-void CImapConnect::cmd_select(string mail_box, int32_t& total_msgs) {
+void CImapConnect::cmd_select(string mail_box, int32_t &total_msgs)
+{
     command("select", mail_box);
     for (unsigned i = 0; i < m_response.size(); i++) {
-        std::string& st = m_response[i];
+        std::string &st = m_response[i];
         if (st[0] == '*') {
             size_t p = st.find("EXISTS");
             if (p != STRING_NPOS) {
@@ -154,21 +163,24 @@ void CImapConnect::cmd_select(string mail_box, int32_t& total_msgs) {
     }
 }
 
-void CImapConnect::parseSearch(std::string& result) {
+void CImapConnect::parseSearch(std::string &result)
+{
     result = "";
     for (unsigned i = 0; i < m_response.size(); i++) {
-        std::string& st = m_response[i];
+        std::string &st = m_response[i];
         if (st.find("* SEARCH") == 0)
             result += st.substr(8, st.length());
     }
 }
 
-void CImapConnect::cmd_search_all(std::string& result) {
+void CImapConnect::cmd_search_all(std::string &result)
+{
     command("search all");
     parseSearch(result);
 }
 
-void CImapConnect::cmd_search_new(std::string& result) {
+void CImapConnect::cmd_search_new(std::string &result)
+{
     command("search unseen");
     parseSearch(result);
 }
@@ -185,7 +197,8 @@ static const char *required_headers[] = {
     NULL
 };
 
-static void parse_header(const string& header, string& header_name, string& header_value) {
+static void parse_header(const string &header, string &header_name, string &header_value)
+{
     if (header[0] == ' ')
         return;
 
@@ -198,7 +211,8 @@ static void parse_header(const string& header, string& header_name, string& head
     }
 }
 
-static CDateTime decodeDate(const std::string& dt) {
+static CDateTime decodeDate(const std::string &dt)
+{
     char temp[40];
     strcpy(temp, dt.c_str() + 5);
     // 1. get the day of the month
@@ -265,16 +279,19 @@ static CDateTime decodeDate(const std::string& dt) {
     return double(date) + double(time);
 }
 
-void CImapConnect::parseMessage(CFieldList& results, bool headers_only) {
+void CImapConnect::parseMessage(CFieldList &results, bool headers_only)
+{
     results.clear();
     unsigned i;
     for (i = 0; required_headers[i]; i++) {
         string headerName = required_headers[i];
         CField *fld = new CField(lowerCase(headerName).c_str());
         switch (i) {
-            case 0: fld->view.width = 16;
+            case 0:
+                fld->view.width = 16;
                 break;
-            default: fld->view.width = 32;
+            default:
+                fld->view.width = 32;
                 break;
         }
         results.push_back(fld);
@@ -283,14 +300,14 @@ void CImapConnect::parseMessage(CFieldList& results, bool headers_only) {
     // parse headers
     i = 1;
     for (; i < m_response.size() - 1; i++) {
-        std::string& st = m_response[i];
+        std::string &st = m_response[i];
         if (!st.length())
             break;
         string header_name, header_value;
         parse_header(st, header_name, header_value);
         if (header_name.length()) {
             try {
-                CField& field = results[header_name];
+                CField &field = results[header_name];
                 if (header_name == "date")
                     field.setDate(decodeDate(header_value));
                 else
@@ -301,7 +318,7 @@ void CImapConnect::parseMessage(CFieldList& results, bool headers_only) {
     }
 
     for (i = 0; i < results.size(); i++) {
-        CField& field = results[i];
+        CField &field = results[i];
         if (field.dataType() == VAR_NONE)
             field.setString("");
     }
@@ -313,26 +330,29 @@ void CImapConnect::parseMessage(CFieldList& results, bool headers_only) {
         body += m_response[i] + "\n";
     }
 
-    CField& bodyField = results.push_back(new CField("body"));
+    CField &bodyField = results.push_back(new CField("body"));
     bodyField.setString(body);
 }
 
-void CImapConnect::cmd_fetch_headers(int32_t msg_id, CFieldList& result) {
+void CImapConnect::cmd_fetch_headers(int32_t msg_id, CFieldList &result)
+{
     command("FETCH " + int2string(msg_id) + " (BODY[HEADER])");
     parseMessage(result, true);
 }
 
-void CImapConnect::cmd_fetch_message(int32_t msg_id, CFieldList& result) {
+void CImapConnect::cmd_fetch_message(int32_t msg_id, CFieldList &result)
+{
     command("FETCH " + int2string(msg_id) + " (BODY[])");
     parseMessage(result, false);
 }
 
-string CImapConnect::cmd_fetch_flags(int32_t msg_id) {
+string CImapConnect::cmd_fetch_flags(int32_t msg_id)
+{
     string result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
     size_t count = m_response.size() - 1;
     for (size_t i = 0; i < count;) {
-        std::string& st = m_response[i];
+        std::string &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (!fpos)
             return "";
@@ -345,21 +365,24 @@ string CImapConnect::cmd_fetch_flags(int32_t msg_id) {
     return result;
 }
 
-void CImapConnect::cmd_store_flags(int32_t msg_id, const char *flags) {
+void CImapConnect::cmd_store_flags(int32_t msg_id, const char *flags)
+{
     command("STORE " + int2string(msg_id) + " FLAGS " + std::string(flags));
 }
 
-static string strip_framing_quotes(string st) {
+static string strip_framing_quotes(string st)
+{
     if (st[0] == '\"')
         return st.substr(1, st.length() - 2);
     else return st;
 }
 
-void CImapConnect::parseFolderList() {
+void CImapConnect::parseFolderList()
+{
     CStrings folder_names;
     string prefix = "* LIST ";
     for (unsigned i = 0; i < m_response.size(); i++) {
-        std::string& st = m_response[i];
+        std::string &st = m_response[i];
         if (st.find(prefix) == 0) {
             // passing the attribute(s)
             const char *p = strstr(st.c_str() + prefix.length(), ") ");
@@ -375,7 +398,8 @@ void CImapConnect::parseFolderList() {
     m_response = folder_names;
 }
 
-void CImapConnect::cmd_list(string mail_box_mask, bool decode) {
+void CImapConnect::cmd_list(string mail_box_mask, bool decode)
+{
     command("list", empty_quotes, mail_box_mask);
     if (decode)
         parseFolderList();

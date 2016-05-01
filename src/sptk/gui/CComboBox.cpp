@@ -3,7 +3,7 @@
                           CComboBox.cpp  -  description
                              -------------------
     begin                : Tue Apr 4 2000
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -530,7 +530,7 @@ void CBaseListBox::addRows(string columnName, CStrings strings)
     size_t cnt = strings.size();
 
     for (size_t i = 0; i < cnt; i++) {
-        idstring& str = strings[i];
+        String& str = strings[i];
         cpchar strs[2] = { str.c_str(), 0 };
         CPackedStrings *psl = new CPackedStrings(1, strs);
         int id = str.ident();

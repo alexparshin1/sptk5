@@ -3,7 +3,7 @@
                           udp_client_test.cpp  -  description
                              -------------------
     begin                : Sat May 17, 2014
-    copyright            : (C) 1999-2014 by Alexey Parshin
+    copyright            : (C) 1999-2016 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

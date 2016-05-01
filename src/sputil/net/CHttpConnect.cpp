@@ -3,7 +3,7 @@
                           CHttpConnect.cpp  -  description
                              -------------------
     begin                : July 19 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -59,7 +59,9 @@ void CHttpConnect::getResponse()
     int    bytes, contentLength = 0;
     string header;
 
-    if (!m_socket.readyToRead(600000)) {
+    int readTimeout = 600000;
+
+    if (!m_socket.readyToRead(readTimeout)) {
         m_socket.close();
         throw CException("Response timeout");
     }
@@ -116,8 +118,16 @@ void CHttpConnect::getResponse()
         int totalBytes = 0;
 
         for (;;) {
+
             if (contentLength) {
-                bytes = (int) m_socket.read(read_buffer, bytesToRead);
+                if (!m_socket.readyToRead(readTimeout)) {
+                    m_socket.close();
+                    throw CException("Response read timeout");
+                }
+                bytes = m_socket.socketBytes();
+                if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
+                    bytes = bytesToRead;
+                bytes = (int) m_socket.read(read_buffer, bytes);
                 bytesToRead -= bytes;
             } else
                 bytes = (int) m_socket.read(read_buffer, 64*1024);

@@ -4,7 +4,7 @@
                              -------------------
     begin                : Sun May 22 2003
     based on the code    : Mikko Lahteenmaki <Laza@Flashmail.com>
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -274,25 +274,25 @@ void CXmlNode::copy(const CXmlNode& node)
     const_iterator itor = node.begin();
     const_iterator iend = node.end();
     for (; itor != iend; itor++) {
-        const CXmlNode* node = *itor;
-        switch (node->type())
+        const CXmlNode*childNode = *itor;
+        switch (childNode->type())
         {
         case DOM_ELEMENT: {
             CXmlNode* element = new CXmlElement(this, "");
-            element->copy(*node);
+            element->copy(*childNode);
         }
             break;
         case DOM_PI:
-            new CXmlPI(*this, node->name(), node->value());
+            new CXmlPI(*this, childNode->name(), childNode->value());
             break;
         case DOM_TEXT:
-            new CXmlText(*this, node->value());
+            new CXmlText(*this, childNode->value());
             break;
         case DOM_CDATA_SECTION:
-            new CXmlCDataSection(*this, node->value());
+            new CXmlCDataSection(*this, childNode->value());
             break;
         case DOM_COMMENT:
-            new CXmlComment(*this, node->value());
+            new CXmlComment(*this, childNode->value());
             break;
         default:
             break;

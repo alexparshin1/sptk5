@@ -4,7 +4,7 @@
                           postgresql_test.cpp  -  description
                              -------------------
     begin                : September 20, 2007
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -67,9 +67,9 @@ int main()
         CStrings columnNames("id,name,position_name,hire_date", ",");
 
         CStrings data;
-        data.push_back("1\tAlex\tProgrammer\t01-JAN-2014");
-        data.push_back("2\tDavid\tCEO\t01-JAN-2014");
-        data.push_back("3\tRoger\tBunny\t01-JAN-2014");
+        data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
+        data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
+        data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
 
         db->bulkInsert(tableName, columnNames, data);
 

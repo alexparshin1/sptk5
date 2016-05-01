@@ -3,7 +3,7 @@
                          CWorkerThread.cpp  -  description
                              -------------------
     begin                : Sun Feb 26 2012
-    copyright            : (C) 1999-2014 by Alexey Parshin
+    copyright            : (C) 1999-2016 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

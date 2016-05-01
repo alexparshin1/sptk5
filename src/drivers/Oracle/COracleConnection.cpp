@@ -3,7 +3,7 @@
                           COracleConnection.cpp  -  description
                              -------------------
     begin                : Tue Nov 27 2012
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -601,7 +601,7 @@ std::string COracleConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, ":%i", paramIndex + 1);
-    return mark;
+    return string(mark);
 }
 
 void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS

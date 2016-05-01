@@ -3,7 +3,7 @@
                           cbuttongroup.cpp  -  description
                              -------------------
     begin                : Jan 2, 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -82,9 +82,9 @@ void CButtonGroup::buttons(const CStrings& sl) {
    size_t buttonsCount = m_buttonLabels.size();
    CGroup *group = (CGroup *)m_control;
    group->begin();
-   const idstring *otherLabel = NULL;
+   const String *otherLabel = NULL;
    for (unsigned i = 0; i < buttonsCount; i++) {
-      idstring& si = m_buttonLabels[i];
+      String& si = m_buttonLabels[i];
       if (si == "*") {
          if (otherLabel) continue;  // Only one free entry is allowed
          otherLabel = &m_buttonLabels[i];

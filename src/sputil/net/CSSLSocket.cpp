@@ -3,7 +3,7 @@
                           CSSLSocket.cpp  -  description
                              -------------------
     begin                : Oct 30 2014
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -169,5 +169,4 @@ size_t CSSLSocket::send(const void* buffer, size_t len) throw (exception)
             throw CException(getSSLError("writing to SSL connection", errorCode));
         CThread::msleep(10);
     }
-    return rc;
 }

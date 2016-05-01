@@ -3,7 +3,7 @@
                           tcp_client_test.cpp  -  description
                              -------------------
     begin                : Wed Apr 20, 2005
-    copyright            : (C) 1999-2014 by Alexey Parshin
+    copyright            : (C) 1999-2016 by Alexey Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 

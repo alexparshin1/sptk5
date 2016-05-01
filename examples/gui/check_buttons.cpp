@@ -4,7 +4,7 @@
                           check_buttons.cpp  -  description
                              -------------------
     begin                : January 3, 2003
-    copyright            : (C) 1999-2014 by Alexey S.Parshin
+    copyright            : (C) 1999-2016 by Alexey S.Parshin
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -27,8 +27,8 @@
  ***************************************************************************/
 
 #ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
+#    include <vcl.h>
+#    pragma hdrstop
 #endif
 
 #include <sptk5/cgui>
@@ -42,14 +42,15 @@
 using namespace std;
 using namespace sptk;
 
-CInput        *i;
+CInput *i;
 CCheckButtons *cb;
-Fl_Box        *bx;
+Fl_Box *bx;
 
-void button_cb(Fl_Widget *b, void *) {
-   if ( strcmp(b->label(), "Get Choices") == 0)
-      i->data(cb->data());
-   else  cb->data(i->data());
+void button_cb(Fl_Widget *b, void *)
+{
+    if (strcmp(b->label(), "Get Choices") == 0)
+        i->data(cb->data());
+    else cb->data(i->data());
 }
 
 int main(int argc, char *argv[])
@@ -58,28 +59,28 @@ int main(int argc, char *argv[])
     CThemes themes;
 
     CWindow w(400, 250);
-   
-   CCheckButtons cbl("Check Boxes: ");
-   cbl.buttons(CStrings("first,second,third,a very long choice text meant to occupy two rows,*", ","));
-   cb = &cbl;
-   
-   CInput    input("Test");
-   i = &input;
-   
-   CGroup g("", 10, SP_ALIGN_BOTTOM);
-   CButton   btn1("Set Choices", SP_ALIGN_RIGHT);
-   btn1.callback(button_cb);
-   
-   CButton   btn2("Get Choices", SP_ALIGN_RIGHT);
-   btn2.callback(button_cb);
-   
-   w.end();
-   w.show(argc, argv);
-   
-   CThemes::set("Keramic");
-   w.relayout();
-   
-   Fl::run();
-   
-   return EXIT_SUCCESS;
+
+    CCheckButtons cbl("Check Boxes: ");
+    cbl.buttons(CStrings("first,second,third,a very long choice text meant to occupy two rows,*", ","));
+    cb = &cbl;
+
+    CInput input("Test");
+    i = &input;
+
+    CGroup g("", 10, SP_ALIGN_BOTTOM);
+    CButton btn1("Set Choices", SP_ALIGN_RIGHT);
+    btn1.callback(button_cb);
+
+    CButton btn2("Get Choices", SP_ALIGN_RIGHT);
+    btn2.callback(button_cb);
+
+    w.end();
+    w.show(argc, argv);
+
+    CThemes::set("Keramic");
+    w.relayout();
+
+    Fl::run();
+
+    return EXIT_SUCCESS;
 }

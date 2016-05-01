@@ -3,7 +3,7 @@
  *                          CSmtpConnect.h  -  description
  *                             -------------------
  *    begin                : Jun 25 2003
- *    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+ *    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
  *    email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -49,12 +49,13 @@ CSmtpConnect::~CSmtpConnect()
 }
 
 #define RSP_BLOCK_SIZE 1024
+
 int CSmtpConnect::getResponse(bool decode)
 {
-    char     readBuffer[RSP_BLOCK_SIZE+1];
-    string   longLine;
-    bool     readCompleted = false;
-    int      rc = 0;
+    char readBuffer[RSP_BLOCK_SIZE + 1];
+    string longLine;
+    bool readCompleted = false;
+    int rc = 0;
 
     while (!readCompleted) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
@@ -67,7 +68,8 @@ int CSmtpConnect::getResponse(bool decode)
                 longLine += readBuffer;
                 if (m_log)
                     *m_log << "[RECV] " << readBuffer << endl;
-            } while (len == RSP_BLOCK_SIZE);
+            }
+            while (len == RSP_BLOCK_SIZE);
         }
 
         if (longLine[3] == ' ') {
@@ -86,9 +88,9 @@ int CSmtpConnect::getResponse(bool decode)
         if (rc <= 432 && decode) {
             longLine = unmime(text);
             m_response.push_back(longLine);
-        } else {
-            m_response.push_back(text);
         }
+        else
+            m_response.push_back(std::string(text));
     }
     return rc;
 }
@@ -102,7 +104,7 @@ void CSmtpConnect::sendCommand(string cmd, bool encode)
     if (m_log)
         *m_log << "[SEND] " << cmd << endl;
     cmd += "\r\n";
-    write (cmd.c_str(), (uint32_t) cmd.length());
+    write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
 int CSmtpConnect::command(string cmd, bool encodeCommand, bool decodeResponse)
@@ -125,7 +127,7 @@ string CSmtpConnect::mime(string s)
 {
     string result;
     CBuffer src;
-    src.set(s.c_str(),(uint32_t) s.length());
+    src.set(s.c_str(), (uint32_t) s.length());
     CBase64::encode(result, src);
     return result;
 }
@@ -172,7 +174,7 @@ void CSmtpConnect::cmd_auth(string user, string password, string method)
 
         if (method == "plain") {
             CBuffer userAndPassword;
-            char    nullChar = 0;
+            char nullChar = 0;
             userAndPassword.append(&nullChar, 1);
             userAndPassword.append(user.c_str(), user.size());
             userAndPassword.append(&nullChar, 1);
