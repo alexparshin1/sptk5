@@ -130,16 +130,16 @@ public:
     {
         m_id = id;
     }
-    
+
     /// @brief Checks if string is matching with regular expression pattern
     /// @param pattern std::string, Regular expression pattern
     /// @param options std::string, Regular expression options (@see class CRegExp)
     bool matches(std::string pattern, std::string options="") const;
-    
+
     /// @brief Returns strings produced from current string by splitting it using regular expression pattern
     /// @param pattern std::string, Regular expression pattern
     CStrings split(std::string pattern) const;
-    
+
     /// @brief Returns upper case version of the string
     std::string toUpperCase() const;
 
@@ -147,11 +147,11 @@ public:
     std::string toLowerCase() const;
 
     /// @brief Returns true if the string starts from subject
-    /// @param subject, std::string Subject to look for
+    /// @param subject std::string, Subject to look for
     bool startsWith(std::string subject) const;
 
     /// @brief Returns true if the string ends with subject
-    /// @param subject, std::string Subject to look for
+    /// @param subject std::string, Subject to look for
     bool endsWith(std::string subject) const;
 };
 
