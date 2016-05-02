@@ -263,7 +263,7 @@ public:
     /// Otherwise it has value 'no'.
     /// @param fullName std::string name, Element name
     /// @param shortName std::string, Short element name (single character, options only)
-    /// @param useWithCommands const Visibility&, Element visibility for a command (options only)
+    /// @param useForCommands const Visibility&, Element visibility for a command (options only)
     /// @param help std::string, Help (description) for the element
     void defineOption(std::string fullName, std::string shortName, Visibility useForCommands, std::string help);
 
@@ -272,7 +272,7 @@ public:
     /// @param shortName std::string, Short element name (single character, options only)
     /// @param valueName std::string, Value name
     /// @param validateValue std::string, Value validation regular expression
-    /// @param useWithCommands const Visibility&, Element visibility for a command (options only)
+    /// @param useForCommands const Visibility&, Element visibility for a command (options only)
     /// @param defaultValue std::string, Option default value
     /// @param help std::string, Help (description) for the element
     void defineParameter(std::string fullName, std::string shortName, std::string valueName, std::string validateValue,
