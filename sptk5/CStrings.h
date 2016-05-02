@@ -96,7 +96,7 @@ public:
 
     /// Constructor
     /// @param str const char *, source string
-    String(const char *str) : std_string(str), m_id(id)
+    String(const char *str) : std_string(str), m_id(0)
     {
     }
 

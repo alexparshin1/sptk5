@@ -187,8 +187,8 @@ void CXmlNode::scanDescendents(CXmlNodeVector& nodes, const std::vector<CXPathEl
     int currentPosition = 1;
     for (iterator itor = begin(); itor != end(); itor++) {
         CXmlNode* node = *itor;
-        bool nameMatches;
-        bool positionMatches;
+        bool nameMatches = false;
+        bool positionMatches = false;
         if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
             currentPosition++;
             node->matchNode(nodes, pathElements, pathPosition, starPointer);
