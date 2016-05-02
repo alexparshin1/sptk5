@@ -261,14 +261,14 @@ public:
     ///
     /// An option doesn't expect a value. If it is present in command line, it assumes value 'yes'.
     /// Otherwise it has value 'no'.
-    /// @param name std::string name, Element name
+    /// @param fullName std::string name, Element name
     /// @param shortName std::string, Short element name (single character, options only)
     /// @param useWithCommands const Visibility&, Element visibility for a command (options only)
     /// @param help std::string, Help (description) for the element
     void defineOption(std::string fullName, std::string shortName, Visibility useForCommands, std::string help);
 
     /// @brief Defines command line parameter
-    /// @param name std::string name, Element name
+    /// @param fullName std::string name, Element name
     /// @param shortName std::string, Short element name (single character, options only)
     /// @param valueName std::string, Value name
     /// @param validateValue std::string, Value validation regular expression
@@ -279,8 +279,8 @@ public:
             Visibility useForCommands, std::string defaultValue, std::string help);
 
     /// @brief Defines command line argument/command.
-    /// @param name std::string name, Argument/command name
-    /// @param help std::string, Help (description) for the element
+    /// @param fullName std::string, Argument/command name
+    /// @param helpText std::string, Help (description) for the element
     void defineArgument(std::string fullName, std::string helpText);
 
     /// @brief Parses actual command line arguments.
