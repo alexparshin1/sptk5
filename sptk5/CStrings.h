@@ -94,6 +94,12 @@ public:
     {
     }
 
+    /// Constructor
+    /// @param str const char *, source string
+    String(const char *str) : std_string(str), m_id(id)
+    {
+    }
+
     /// Assignment operator
     String &operator=(const std::string& si)
     {
