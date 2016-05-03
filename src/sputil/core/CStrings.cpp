@@ -56,14 +56,19 @@ CStrings String::split(string pattern) const
     return CStrings(*this, pattern.c_str(), CStrings::SM_REGEXP);
 }
 
-bool String::startsWith(std::string subject) const
+bool String::startsWith(string subject) const
 {
     return find(subject) == 0;
 }
 
-/// @brief Returns true if the string ends with subject
-/// @param subject, std::string Subject to look for
-bool String::endsWith(std::string subject) const
+string String::replace(string pattern, string replacement) const
+{
+    RegularExpression regexp(pattern);
+    bool replaced = false;
+    return regexp.replaceAll(*this, replacement, replaced);
+}
+
+bool String::endsWith(string subject) const
 {
     return rfind(subject) == length() - subject.length();
 }
@@ -101,7 +106,7 @@ void CStrings::splitByAnyChar(const string &src, const char *delimitter)
     }
 }
 
-void CStrings::splitByRegExp(const std::string &src, const char *pattern)
+void CStrings::splitByRegExp(const string &src, const char *pattern)
 {
     RegularExpression regularExpression(pattern);
     regularExpression.split(src, *this);
