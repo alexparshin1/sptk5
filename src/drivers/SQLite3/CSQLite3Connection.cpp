@@ -307,26 +307,6 @@ void CSQLite3Connection::queryBindParameters(CQuery* query)
                 case VAR_DATE:
                 case VAR_DATE_TIME:
                     throwException("Date and time types isn't yet supported for SQLite3");
-                    /*
-                     {
-                     paramType = SQL_C_TIMESTAMP;
-                     sqlType   = SQL_TIMESTAMP;
-                     len = sizeof(TIMESTAMP_STRUCT);
-                     TIMESTAMP_STRUCT *t = (TIMESTAMP_STRUCT *)param->conversionBuffer();
-                     CDateTime dt = param->getDateTime();
-                     buff = t;
-                     if (dt) {
-                     dt.decodeDate((short *)&t->year,(short *)&t->month,(short *)&t->day);
-                     t->hour = t->minute = t->second = 0;
-                     t->fraction = 0;
-                     } else {
-                     paramType = SQL_C_CHAR;
-                     sqlType   = SQL_CHAR;
-                     *(char *)buff = 0;
-                     }
-                     }
-                     */
-                    break;
 
                 default:
                     throw CDatabaseException("Unsupported type of parameter " + int2string(paramNumber), __FILE__, __LINE__,

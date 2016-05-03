@@ -12,64 +12,78 @@
 		p { margin-bottom: 0.25cm; line-height: 120% }
 		h1 { margin-bottom: 0.21cm }
 		h1.western { font-family: "Liberation Sans", sans-serif; font-size: 18pt }
-		h1.cjk { font-family: "WenQuanYi Zen Hei"; font-size: 18pt }
-		h1.ctl { font-family: "Gurumaa-1.50"; font-size: 18pt }
 	-->
 	</style>
 </head>
 <body lang="en-AU" dir="ltr">
 <h1 class="western">HowTo Compile SPTK on Windows</h1>
 <ol>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Install MS
-	Visual Studio 2012 or newer that supports C++.</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Download PCRE
+	<li><p style="margin-bottom: 0; line-height: 100%">Install MS
+	Visual Studio 2012 or newer that supports C++.
+</p>
+	<li><p style="margin-bottom: 0; line-height: 100%">
+Download PCRE
 	binaries: http://www.airesoft.co.uk/pcre. Unzip PCRE binaries into
 	&quot;Program Files/pcre&quot; directory. If you're using 32 bit
 	Windows, add &quot;Program Files/pcre/bin&quot; to the path. For 64
 	bit Windows, add &quot;Program Files/pcre/bin/x64&quot; to the
-	path.</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Repeat step 2
+	path.
+</p>
+	<li><p style="margin-bottom: 0; line-height: 100%">Repeat step 2
 	for any other libraries supported by SPTK that you may need:
 	PostgreSQL (libpq), MySQL (mysql client), Oracle (OCCI client),
 	Firebird (fbclient), SQLite3, Aspell.</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Install CMake
+	<li><p style="margin-bottom: 0; line-height: 100%">
+Install CMake
 	version 2.8 or higher: http://www.cmake.com.</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Download FLTK
+	<li><p style="margin-bottom: 0; line-height: 100%">
+Download FLTK
 	1.3.x: http://www.fltk.org/software.php. Untar the downloaded file
 	into some temporary/development directory. Start CMake GUI and point
 	it to that directory for source and build directories. Usually, I
 	append '/build' or '/vs2013' to the source directory to make build
 	directory name. Configure and Generate. Now you should have Visual
 	Studio solution files in your build directory. Start Visual Studio,
-	open and build FLTK solution in Release mode. The INSTALL target in
+	open and build FLTK solution in Release mode.
+ The INSTALL target in
 	FLTK solution didn't work for me, so I manually created &quot;Program
 	Files/FLTK/lib&quot; directory, and copied there *.dll and *.lib
 	files from your &lt;build directory&gt;/lib/Debug. Also you need to
 	copy into &quot;Program Files/FLTK&quot; directory the following
 	FLTK include file directories: FL, GL, png(only .h files), and zlib
-	(only .h files). This is minimal and crippled FLTK install, but
-	fixing it is out of scope of this document.</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Download
+	(only .h files). 
+This is minimal and crippled FLTK install, but
+	fixing it is out of scope of this document.
+</p>
+	<li><p style="margin-bottom: 0; line-height: 100%">
+Download
 	latest SPTK (5.1.6 or newer). Start CMake GUI  and point it to that
 	directory for source and build directories - same as before.
 	Configure and Generate. Verify that CMake found FLTK (and any other
 	libraries you need from items 2 and 3): CMake output should print
 	'FLTK support: compile' for FLTK. Compile SPTK, and finally build
 	'INSTALL' target in SPTK solution. SPTK will be installed into
-	C:\Program Files\SPTK.</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">Any project
-	designed with SPTK should add (in project properties):</p>
+	C:\Program Files\SPTK.
+</p>
+	<li><p style="margin-bottom: 0; line-height: 100%">
+Any project
+	designed with SPTK should add (in project properties):
+</p>
 </ol>
 <ul>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">SPTK directory
-	to &quot;C++ -&gt; General -&gt; Additional Include Directories&quot;</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">SPTK lib
+	<li><p style="margin-bottom: 0; line-height: 100%">SPTK directory
+	to &quot;C++ -&gt; General -&gt; Additional Include Directories&quot;
+</p>
+	<li><p style="margin-bottom: 0; line-height: 100%">SPTK lib
 	directory to &quot;Linker -&gt; General -&gt; Additional Library
-	Directories&quot;</p>
-	<li><p style="margin-bottom: 0cm; line-height: 100%">SPTK libraries
-	to &quot;Linker -&gt; Input -&gt; Additional Dependencies&quot;</p>
+	Directories&quot;
+</p>
+	<li><p style="margin-bottom: 0; line-height: 100%">SPTK libraries
+	to &quot;Linker -&gt; Input -&gt; Additional Dependencies&quot;
+</p>
 </ul>
-<p style="margin-left: 1.25cm; margin-bottom: 0cm; line-height: 100%">
-You most likely need to do the same thing for FLTK libraries.</p>
+<p style="margin-left: 1.25cm; margin-bottom: 0; line-height: 100%">
+You most likely need to do the same thing for FLTK libraries.
+</p>
 </body>
 </html>
