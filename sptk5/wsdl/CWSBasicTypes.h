@@ -65,6 +65,10 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr) = 0;
 
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field) = 0;
+
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
     CXmlElement* addElement(CXmlElement* parent) const;
@@ -72,7 +76,7 @@ public:
     /// @brief Returns element name
     std::string name() const
     {
- 	   return fieldName();
+        return fieldName();
     }
 };
 
@@ -95,6 +99,10 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
+
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field);
 
     /// @brief Assignment operation
     virtual WSString& operator =(const char * value)
@@ -123,14 +131,14 @@ public:
         setInteger(value);
         return *this;
     }
-    
+
     /// @brief Assignment operation
     virtual WSString& operator =(int64_t value)
     {
         setInt64(value);
         return *this;
     }
-    
+
     /// @brief Conversion operator
     operator std::string() const THROWS_EXCEPTIONS
     {
@@ -157,6 +165,10 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
+
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field);
 
     /// @brief Assignment operation
     virtual WSBool& operator =(bool value)
@@ -198,6 +210,10 @@ public:
     /// @param attr std::string, A string
     virtual void load(std::string attr);
 
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field);
+
     /// @brief Assignment operation
     virtual WSDate& operator =(CDateTime value)
     {
@@ -237,6 +253,10 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
+
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field);
 
     /// @brief Better (than in base class) conversion method
     virtual std::string asString() const THROWS_EXCEPTIONS;
@@ -280,6 +300,10 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
+
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field);
 
     /// @brief Assignment operation
     virtual WSDouble& operator =(float value)
@@ -332,6 +356,10 @@ public:
     /// @brief Loads type data from string
     /// @param attr std::string, A string
     virtual void load(std::string attr);
+
+    /// @brief Loads type data from database field
+    /// @param field const CField&, Database field
+    virtual void load(const CField& field);
 
     /// @brief Assignment operation
     virtual WSInteger& operator =(int64_t value)

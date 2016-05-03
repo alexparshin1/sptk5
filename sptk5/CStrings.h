@@ -90,7 +90,7 @@ public:
     /// @param str const char *, source string
     /// @param len int, optional string length
     /// @param id int, optional string id
-    String(const char *str, int32_t len, int32_t id) : std_string(str, len), m_id(id)
+    String(const char *str, int32_t len, int32_t id=0) : std_string(str, len), m_id(id)
     {
     }
 
@@ -145,6 +145,14 @@ public:
     /// @brief Returns strings produced from current string by splitting it using regular expression pattern
     /// @param pattern std::string, Regular expression pattern
     CStrings split(std::string pattern) const;
+
+    /// @brief Returns string with regular expression pattern replaced to replacement string
+    ///
+    /// Replacement string may optionally use references to pattern's group
+    /// @return Processed string
+    /// @param pattern std::string, Regular expression pattern
+    /// @param replacement std::string, Replacement string
+    std::string replace(std::string pattern, std::string replacement) const;
 
     /// @brief Returns upper case version of the string
     std::string toUpperCase() const;

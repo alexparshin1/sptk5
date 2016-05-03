@@ -78,7 +78,7 @@ public:
    /// @brief Returns element name
    std::string name() const
    {
-	   return m_name;
+       return m_name;
    }
 
    /// @brief True is element is optional
