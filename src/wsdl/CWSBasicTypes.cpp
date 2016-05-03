@@ -50,6 +50,11 @@ void WSString::load(std::string attr)
     setString(attr);
 }
 
+void WSString::load(const CField& field)
+{
+    setString(field);
+}
+
 void WSBool::load(const CXmlNode* attr)
 {
     setBool(attr->text() == "true");
@@ -58,6 +63,11 @@ void WSBool::load(const CXmlNode* attr)
 void WSBool::load(string attr)
 {
     setBool(attr == "true");
+}
+
+void WSBool::load(const CField& field)
+{
+    setBool(field);
 }
 
 void WSDate::load(const CXmlNode* attr)
@@ -70,6 +80,11 @@ void WSDate::load(string attr)
     setDate(CDateTime(attr.c_str()));
 }
 
+void WSDate::load(const CField& field)
+{
+    setDate(field);
+}
+
 void WSDateTime::load(const CXmlNode* attr)
 {
     setDateTime(CDateTime(attr->text().c_str()));
@@ -78,6 +93,11 @@ void WSDateTime::load(const CXmlNode* attr)
 void WSDateTime::load(string attr)
 {
     setDateTime(CDateTime(attr.c_str()));
+}
+
+void WSDateTime::load(const CField& field)
+{
+    setDateTime(field);
 }
 
 string WSDateTime::asString() const
@@ -96,6 +116,11 @@ void WSDouble::load(string attr)
     setFloat(atof(attr.c_str()));
 }
 
+void WSDouble::load(const CField& field)
+{
+    setFloat(field);
+}
+
 void WSInteger::load(const CXmlNode* attr)
 {
     setInteger(atoi(attr->text().c_str()));
@@ -104,4 +129,9 @@ void WSInteger::load(const CXmlNode* attr)
 void WSInteger::load(string attr)
 {
     setInteger(atoi(attr.c_str()));
+}
+
+void WSInteger::load(const CField& field)
+{
+    setInteger(field);
 }
