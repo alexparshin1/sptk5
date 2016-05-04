@@ -304,11 +304,11 @@ public:
 
     /// @brief Returns concatenated string
     /// @param delimiter std::string, delimiter
-    std::string join(std::string delimiter);
+    std::string join(std::string delimiter) const;
 
     /// @brief Returns strings matching regex pattern
     /// @param pattern std::string, regex pattern
-    CStrings grep(std::string pattern);
+    CStrings grep(std::string pattern) const;
 };
 
 typedef CStrings Strings;

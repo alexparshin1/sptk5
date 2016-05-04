@@ -178,16 +178,16 @@ void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
     splitByDelimiter(text, delimiter.c_str());
 }
 
-string CStrings::join(string delimiter)
+string CStrings::join(string delimiter) const
 {
     return asString(delimiter.c_str());
 }
 
-CStrings CStrings::grep(string pattern)
+CStrings CStrings::grep(string pattern) const
 {
     RegularExpression regularExpression(pattern);
     CStrings output;
-    for (String &str : *(this)) {
+    for (const String& str : *(this)) {
         if (str == regularExpression)
             output.push_back(str);
     }
