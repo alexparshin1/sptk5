@@ -84,7 +84,8 @@ void CStrings::splitByDelimiter(const string &src, const char *delimitter)
             pos = end + delimitterLength;
         }
         else {
-            push_back(src.substr(pos));
+            if (pos + 1 < src.length())
+                push_back(src.substr(pos));
             break;
         }
     }
@@ -100,7 +101,8 @@ void CStrings::splitByAnyChar(const string &src, const char *delimitter)
             pos = src.find_first_not_of(delimitter, end + 1);
         }
         else {
-            push_back(src.substr(pos));
+            if (pos + 1 < src.length())
+                push_back(src.substr(pos));
             break;
         }
     }
