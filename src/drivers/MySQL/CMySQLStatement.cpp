@@ -483,14 +483,14 @@ void CMySQLStatement::readPreparedResultRow(CFieldList& fields)
         CMySQLStatementField*   field = (CMySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND&             bind = m_fieldBuffers[fieldIndex];
 
+        CVariantType fieldType = field->dataType();
         if (*(bind.is_null)) {
             // Field data is null, no more processing
             field->setNull();
             continue;
         }
 
-        CVariantType    fieldType = field->dataType();
-        uint32_t        dataLength = (uint32_t) *(bind.length);
+        uint32_t dataLength = (uint32_t) *(bind.length);
 
         switch (fieldType) {
 

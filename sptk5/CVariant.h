@@ -124,15 +124,11 @@ protected:
 
 protected:
     /// @brief Sets the data size
-    ///
-    /// If data size is 0, the NULL flag is set. Otherwise, the NULL flag is set to false.
     /// @param ds size_t, data size (in bytes).
     void dataSize(size_t ds)
     {
         m_dataSize = ds;
-        if (m_dataSize == 0)
-            m_dataType |= VAR_NULL;
-        else
+        if (m_dataSize > 0)
             m_dataType &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
     }
 
@@ -149,6 +145,7 @@ public:
     {
         m_dataType = VAR_NONE | VAR_NULL;
         m_data.int64Data = 0;
+        m_data.buffer.size = 0;
     }
 
     /// @brief Constructor

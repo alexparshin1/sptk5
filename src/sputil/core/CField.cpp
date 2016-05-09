@@ -58,7 +58,10 @@ void CField::setNull(CVariantType vtype)
         break;
     }
 
-    m_dataType = vtype | VAR_NULL;
+    if (vtype == VAR_NONE)
+        m_dataType |= VAR_NULL;
+    else
+        m_dataType = vtype | VAR_NULL;
 }
 
 string CField::asString() const THROWS_EXCEPTIONS
