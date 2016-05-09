@@ -75,7 +75,7 @@ public:
         bool matches(std::string command) const;
     };
 
-private:
+protected:
     /// @brief Command line element that could be argument/command, option, or option with value
     class CommandLineElement
     {
