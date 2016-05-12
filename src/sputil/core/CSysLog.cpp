@@ -169,14 +169,17 @@ void CSysLog::programName(string progName)
     m_moduleFileName = buffer;
 
     if (!m_registrySet) {
-        string keyName = "SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName;
+		HKEY keyHandle;
+		string keyName = "SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName;
 
-        HKEY keyHandle;
-        if (RegCreateKey(
-                        HKEY_LOCAL_MACHINE,
-                        ("SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName).c_str(),
-                        &keyHandle) != ERROR_SUCCESS)
-        throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_READ, &keyHandle) == ERROR_SUCCESS) {
+			RegCloseKey(keyHandle);
+			m_registrySet = true;
+			return;
+		}
+
+        if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
+			throw CException("Can't open registry (HKEY_LOCAL_MACHINE : " + keyName + ") for write");
 
         unsigned long len = _MAX_PATH;
         unsigned long vtype = REG_EXPAND_SZ;

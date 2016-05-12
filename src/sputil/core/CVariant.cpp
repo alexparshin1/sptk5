@@ -649,7 +649,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
 
         case VAR_DATE_TIME: {
             CDateTime dt(m_data.floatData);
-            return dt.dateString() + " " + dt.timeString();
+            return dt.dateString() + " " + dt.timeString(true);
         }
 
         case VAR_IMAGE_PTR:
