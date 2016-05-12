@@ -215,7 +215,6 @@ IF (USE_FLTK)
                 MESSAGE(FATAL_ERROR "Please istall libXext (devel)")
             ENDIF()
         ENDIF()
-
     ENDIF (FLTK_FOUND)
 ENDIF (USE_FLTK)
 
@@ -235,7 +234,11 @@ ENDIF (FLTK_FOUND)
 
 IF (WIN32)
   # Windows message resource compiler (included with Windows SDK)
-  FIND_PROGRAM (MC_COMPILER mc PATHS "$ENV{ProgramFiles}/Windows Kits/*")
+  FIND_PROGRAM (MC_COMPILER mc PATHS
+					"$ENV{ProgramFiles}/Windows Kits/*"
+					"$ENV{ProgramW6432}/Windows Kits/*"
+					"$ENV{ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
+					"$ENV{ProgramW6432}/Microsoft SDKs/Windows/*/Bin/x64")
   IF (MC_COMPILER)
     MESSAGE("Windows SDK mc:     found")
     ADD_SUBDIRECTORY (events.w32)
