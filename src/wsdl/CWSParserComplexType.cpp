@@ -94,12 +94,12 @@ CWSParserComplexType::CWSParserComplexType(const CXmlElement* complexTypeElement
 
 CWSParserComplexType::~CWSParserComplexType()
 {
-	if (m_refcount == 0) {
-		for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++)
-			delete *itor;
-		for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++)
-			delete itor->second;
-	}
+    if (m_refcount == 0) {
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++)
+            delete *itor;
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++)
+            delete itor->second;
+    }
 }
 
 string CWSParserComplexType::className() const
@@ -268,6 +268,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
     // Loader
     classImplementation << "void " << className << "::load(const CXmlElement* input) THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
+    classImplementation << "   clear();" << endl;
     classImplementation << "   m_loaded = true;" << endl << endl;
     if (m_attributes.size()) {
         classImplementation << "   // Load attributes" << endl;
@@ -275,9 +276,9 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
             CWSParserAttribute& attr = *(itor->second);
             classImplementation << "   m_" << attr.name() << ".load(input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
+        classImplementation << endl;
     }
     if (m_sequence.size()) {
-        classImplementation << "   clear();" << endl;
         classImplementation << "   // Load elements" << endl;
         classImplementation << "   for (CXmlElement::const_iterator itor = input->begin(); itor != input->end(); itor++) {" << endl;
         classImplementation << "      CXmlElement* element = (CXmlElement*) *itor;" << endl;
