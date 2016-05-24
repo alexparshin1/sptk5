@@ -365,6 +365,8 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
                     }
                 }
                 if (!matchFound) {
+                    free((struct dirent*) files[n]);
+                    files[n] = 0;
                     n++;
                     continue;
                 }
