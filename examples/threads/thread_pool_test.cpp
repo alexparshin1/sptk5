@@ -44,7 +44,7 @@ class CMyTask: public CRunable
 public:
 
     // Constructor
-    CMyTask(FileLogger& sharedLog);
+    CMyTask(FileLogEngine& sharedLog);
 
     // The thread function.
     virtual void run() THROWS_EXCEPTIONS;
@@ -57,7 +57,7 @@ public:
 
 uint32_t CMyTask::taskCount;
 
-CMyTask::CMyTask(FileLogger& sharedLog) :
+CMyTask::CMyTask(FileLogEngine& sharedLog) :
     m_name("Task " + int2string(++taskCount)),
     m_log(sharedLog)
 {
@@ -89,7 +89,7 @@ int main(int, char*[])
     /// The log file would get messages from all the tasks.
     /// Threads send messages through their own CProxyLog objects.
     /// Multiple CProxyLog objects can share same log object thread-safely.
-    FileLogger sharedLog("task_test.log");
+    FileLogEngine sharedLog("task_test.log");
 
     /// Trancate the log file
     sharedLog.reset();

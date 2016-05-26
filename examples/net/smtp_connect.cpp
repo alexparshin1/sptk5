@@ -31,7 +31,7 @@ using namespace sptk;
 
 int main(int argc, char *argv[])
 {
-    FileLogger logEngine("smtp.log");
+    FileLogEngine logEngine("smtp.log");
     logEngine.option(LogEngine::LO_STDOUT, true);
     
     CProxyLog logger(logEngine);

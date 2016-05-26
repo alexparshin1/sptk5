@@ -39,10 +39,10 @@ int main(int,char*[])
 #endif
    try {
       cout << "Defining a log attributes: " << endl;
-      CSysLog   logger1("syslog_test", LOG_USER);
+      SysLogEngine   logger1("syslog_test", LOG_USER);
       CProxyLog sysLog(logger1);
       
-      CSysLog   logger2("syslog_test", LOG_AUTH);
+      SysLogEngine   logger2("syslog_test", LOG_AUTH);
       CProxyLog authLog(logger2);
       
       cout << "Sending 'Hello, World!' to the log.." << endl;

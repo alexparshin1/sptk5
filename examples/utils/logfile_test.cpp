@@ -34,7 +34,7 @@ using namespace sptk;
 int main() {
    try {
       cout << "Creating a log file ./logfile_test.log: " << endl;
-      FileLogger fileLog("logfile_test.log");
+      FileLogEngine fileLog("logfile_test.log");
       CProxyLog  log(fileLog);
 
       /// Cleaning log file before test.

@@ -28,12 +28,12 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/FileLogger.h>
+#include <sptk5/FileLogEngine.h>
 
 using namespace std;
 using namespace sptk;
 
-void FileLogger::saveMessage(CDateTime date, const char *message, uint32_t, LogPriority priority) THROWS_EXCEPTIONS
+void FileLogEngine::saveMessage(CDateTime date, const char *message, uint32_t, LogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_options & LO_ENABLE) {
@@ -72,13 +72,13 @@ void FileLogger::saveMessage(CDateTime date, const char *message, uint32_t, LogP
         throw CException("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
 }
 
-FileLogger::~FileLogger()
+FileLogEngine::~FileLogEngine()
 {
     if (m_fileStream.is_open())
         m_fileStream.close();
 }
 
-void FileLogger::reset() THROWS_EXCEPTIONS
+void FileLogEngine::reset() THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_fileStream.is_open())

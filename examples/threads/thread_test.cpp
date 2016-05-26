@@ -40,13 +40,13 @@ class CMyThread: public CThread
 public:
 
     // Constructor
-    CMyThread(string threadName, FileLogger& sharedLog);
+    CMyThread(string threadName, FileLogEngine& sharedLog);
 
     // The thread function.
     virtual void threadFunction();
 };
 
-CMyThread::CMyThread(string threadName, FileLogger& sharedLog) :
+CMyThread::CMyThread(string threadName, FileLogEngine& sharedLog) :
         CThread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
@@ -77,7 +77,7 @@ int main()
     /// The log file would get messages from all the threads.
     /// Threads send messages through their own CProxyLog objects.
     /// Multiple CProxyLog objects can share same log object thread-safely.
-    FileLogger sharedLog("thread_test.log");
+    FileLogEngine sharedLog("thread_test.log");
     CProxyLog  log(sharedLog);
     
     /// Trancate the log file

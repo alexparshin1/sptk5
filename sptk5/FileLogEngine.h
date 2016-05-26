@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSysLog.h  -  description
+                          FileLogEngine.h  -  description
                              -------------------
     begin                : Tue Jan 31 2006
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -29,69 +29,54 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CSYSLOG_H__
-#define __CSYSLOG_H__
-
-#ifndef _WIN32
-#include <syslog.h>
-#else
-#include <winsock2.h>
-#include <windows.h>
-#endif
+#ifndef __FILELOGGER_H__
+#define __FILELOGGER_H__
 
 #include <sptk5/LogEngine.h>
+#include <fstream>
 
-namespace sptk
-{
+namespace sptk {
 
 /// @addtogroup log Log Classes
 /// @{
 
-/// @brief A log stored in the system log.
+/// @brief A log stored in the regular file.
 ///
-/// On *nix , the log is sent to *nix syslog daemon.
-/// On Windows NT/2000+/XP the log is sent to Event Log (Application).
-/// On Windows 95/98/ME the system log isn't supported..
-/// The facility method allows to define - which system log is used
+/// A simplest possible way to implement logging.
+/// The log file is created automatically if it doesn't exist.
 /// @see CBaseLog for more information about basic log abilities.
-class SP_EXPORT CSysLog: public LogEngine
+class SP_EXPORT FileLogEngine: public LogEngine
 {
-#ifdef _WIN32
-    HANDLE              m_logHandle;    ///< (Windows) The handle of the log file
-#endif
-    
-    uint32_t            m_facilities;   ///< List of facilities allows to define one or more system logs where messages would be sent
-    std::string         m_programName;
+    std::ofstream   m_fileStream;   ///< Log file stream
+    std::string     m_fileName;     ///< Log file name
 
-    void programName(std::string progName);
-    
 public:
     /// @brief Stores or sends log message to actual destination
-    ///
-    /// This method should be overwritten by the actual log implementation
     /// @param date CDateTime, message timestamp
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
-    /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
+    /// @param priority LogPriority, message priority. @see LogPriority for more information.
     virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
+
 public:
     /// @brief Constructor
     ///
-    /// Creates a new log object based on the syslog facility (or facilities).
-    /// For Windows, parameter facilities is ignored and messages are stored
-    /// into Application event log.
-    /// The program name is optional. It is set for all the CSysLog objects at once.
-    /// If set, it appears in the log as a message prefix. Every time the program
-    /// name is changed, the log is closed to be re-opened on next message.
-    /// @param progName std::string, a program name
-    /// @param facilities int, log facility or a set of facilities.
-    CSysLog(std::string programName = "", uint32_t facilities = LOG_USER);
+    /// Creates a new log object based on the file name.
+    /// If this file doesn't exist - it will be created.
+    /// @param fileName string, log file name
+    FileLogEngine(std::string fileName) : m_fileName(fileName) {}
 
     /// @brief Destructor
     ///
-    /// Destructs the log object, closes the log descriptor, releases all the allocated resources
-    virtual ~CSysLog();
+    /// Destructs the log object, closes the log file, releases all the allocated resources
+    virtual ~FileLogEngine();
+
+    /// @brief Restarts the log
+    ///
+    /// The current log content is cleared. The file is recreated.
+    virtual void reset() THROWS_EXCEPTIONS;
 };
 /// @}
 }
+
 #endif

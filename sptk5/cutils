@@ -30,11 +30,11 @@
 
 #include <sptk5/CBuffer.h>
 #include <sptk5/CDataSource.h>
-#include <sptk5/FileLogger.h>
+#include <sptk5/FileLogEngine.h>
 #include <sptk5/CProxyLog.h>
 #include <sptk5/CRegistry.h>
 #include <sptk5/CRegExp.h>
-#include <sptk5/CSysLog.h>
+#include <sptk5/SysLogEngine.h>
 #include <sptk5/CUniqueInstance.h>
 #include <sptk5/string_ext.h>
 

@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CSysLog.cpp  -  description
+                          SysLogEngine.cpp  -  description
                              -------------------
     begin                : Tue Jan 31 2006
     copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
@@ -28,7 +28,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CSysLog.h>
+#include <sptk5/SysLogEngine.h>
 
 using namespace std;
 using namespace sptk;
@@ -57,7 +57,7 @@ using namespace sptk;
  { "uucp", LOG_UUCP },
  */
 
-CSysLog::CSysLog(string _programName, uint32_t facilities)
+SysLogEngine::SysLogEngine(string _programName, uint32_t facilities)
 : m_facilities(facilities)
 {
 #ifndef _WIN32
@@ -68,7 +68,7 @@ CSysLog::CSysLog(string _programName, uint32_t facilities)
     programName(_programName);
 }
 
-void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+void SysLogEngine::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_options & LO_ENABLE) {
@@ -140,7 +140,7 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, LogP
     }
 }
 
-CSysLog::~CSysLog()
+SysLogEngine::~SysLogEngine()
 {
 #ifndef _WIN32
     m_objectCounter--;
@@ -152,7 +152,7 @@ CSysLog::~CSysLog()
 #endif
 }
 
-void CSysLog::programName(string progName)
+void SysLogEngine::programName(string progName)
 {
     m_programName = progName;
 #ifndef _WIN32
