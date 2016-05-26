@@ -3,9 +3,9 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 SET (SPUTIL_SOURCES
-    core/CBase64.cpp core/CBaseLog.cpp 
+    core/CBase64.cpp core/LogEngine.cpp 
     core/CBuffer.cpp core/CDataSource.cpp core/CDateTime.cpp core/CException.cpp core/CCommandLine.cpp
-    core/CField.cpp core/CFieldList.cpp core/CFileLog.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
+    core/CField.cpp core/CFieldList.cpp core/FileLogger.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
     core/CStrings.cpp core/CSysLog.cpp core/CUniqueInstance.cpp core/CVariant.cpp core/string_ext.cpp
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/CProxyLog.cpp core/CSystemException.cpp
     core/md5.cpp

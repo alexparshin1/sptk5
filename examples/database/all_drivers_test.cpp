@@ -334,8 +334,6 @@ int testDatabase(string connectionString)
 // use it as database connection string
 int main(int argc, const char* argv[])
 {
-    CFileLog logFile("all_drivers_test.log");
-
     string connectionString;
     if (argc == 2)
         connectionString = argv[1];

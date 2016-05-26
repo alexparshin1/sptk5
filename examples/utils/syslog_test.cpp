@@ -25,8 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <iostream>
-#include <sptk5/CSysLog.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -40,15 +39,17 @@ int main(int,char*[])
 #endif
    try {
       cout << "Defining a log attributes: " << endl;
-      CSysLog::programName("syslog_test");
-      CSysLog sysLog(LOG_USER);
-      CSysLog authLog(LOG_AUTH);
-
+      CSysLog   logger1("syslog_test", LOG_USER);
+      CProxyLog sysLog(logger1);
+      
+      CSysLog   logger2("syslog_test", LOG_AUTH);
+      CProxyLog authLog(logger2);
+      
       cout << "Sending 'Hello, World!' to the log.." << endl;
       sysLog  << "Hello, World!" << endl;
       sysLog  << "Welcome to SPTK." << endl;
-      authLog << CLP_ALERT << "This is SPTK test message" << endl;
-      sysLog  << CLP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+      authLog << LP_ALERT << "This is SPTK test message" << endl;
+      sysLog  << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
    }
    catch (exception& e) {
       puts(e.what());

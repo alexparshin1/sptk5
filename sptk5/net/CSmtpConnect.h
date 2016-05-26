@@ -31,7 +31,7 @@
 #include <sptk5/net/CTCPSocket.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/net/CBaseMailConnect.h>
-#include <sptk5/CBaseLog.h>
+#include <sptk5/CProxyLog.h>
 
 #include <string>
 
@@ -49,7 +49,7 @@ namespace sptk
 class SP_EXPORT CSmtpConnect: public CBaseMailConnect,
                               public CTCPSocket
 {
-    CBaseLog*   m_log;
+    CProxyLog*  m_log;
     CStrings    m_response;
 
     /// @brief Processes tag for strippedHtml.
@@ -92,8 +92,8 @@ protected:
 public:
 
     /// @brief Default constructor
-    /// @param log CBaseLog*, Optional log object
-    CSmtpConnect(CBaseLog* log=NULL);
+    /// @param log CProxyLog*, Optional log object
+    CSmtpConnect(CProxyLog* log=NULL);
 
     /// Destructor
     ~CSmtpConnect();

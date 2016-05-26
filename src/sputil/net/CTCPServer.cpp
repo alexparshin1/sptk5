@@ -70,19 +70,19 @@ void CTCPServerListener::threadFunction()
                     }
                 }
                 catch (exception& e) {
-                    m_server->log(CLP_ERROR, e.what());
+                    m_server->log(LP_ERROR, e.what());
                 }
                 catch (...) {
-                    m_server->log(CLP_ERROR, "Unknown exception");
+                    m_server->log(LP_ERROR, "Unknown exception");
                 }
             }
         }
     }
     catch (exception& e) {
-        m_server->log(CLP_ERROR, e.what());
+        m_server->log(LP_ERROR, e.what());
     }
     catch (...) {
-        m_server->log(CLP_ERROR, "Unknown exception");
+        m_server->log(LP_ERROR, "Unknown exception");
     }
 }
 

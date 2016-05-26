@@ -38,11 +38,6 @@ int main()
     CDatabaseConnectionPool connectionPool("oracle://protis:wsxedc@theater/XE");
     CDatabaseConnection* db = connectionPool.createConnection();
 
-    CFileLog logFile("postgresql_test.log");
-
-    db->logFile(&logFile);
-    logFile.reset();
-
     try {
         cout << "Openning the database.. ";
         db->open();

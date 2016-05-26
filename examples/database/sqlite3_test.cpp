@@ -71,12 +71,6 @@ int main()
     CDatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
     CDatabaseConnection* db = connectionPool.createConnection();
 
-    /// Defining a log for the application. This is optional - you can omit this step
-    CFileLog logFile("sqlite_test.log");
-    /// If the log is defined for the database, the database operations would be logged it.
-    /// You can also print to the log your own messages.
-    db->logFile(&logFile);
-
     try {
         cout << "Openning the database.. ";
         db->open();
@@ -205,8 +199,6 @@ int main()
         cout << "Sorry, you have to fix your database or database connection." << endl;
         cout << "Please, read the README.txt for more information." << endl;
     }
-
-    logFile << "sqlite3 finished" << endl;
 
     return 0;
 }

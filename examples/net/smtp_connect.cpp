@@ -31,8 +31,10 @@ using namespace sptk;
 
 int main(int argc, char *argv[])
 {
-    CFileLog        logger("smtp.log");
-    logger.option(CBaseLog::CLO_STDOUT, true);
+    FileLogger logEngine("smtp.log");
+    logEngine.option(LogEngine::LO_STDOUT, true);
+    
+    CProxyLog logger(logEngine);
 
     CSmtpConnect    SMTP(&logger);
     std::string     user, password, email, host, portStr;

@@ -76,9 +76,10 @@ int main()
     CDatabaseConnectionPool connectionPool("odbc://demo_odbc");
     CDatabaseConnection* db = connectionPool.createConnection();
 
-    CFileLog logFile("odbc_test.log");
+    FileLogger  logFile("odbc_test.log");
+    CProxyLog   logger(logFile);
 
-    db->logFile(&logFile);
+    db->logFile(&logger);
     logFile.reset();
 
     try {

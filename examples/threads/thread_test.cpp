@@ -40,13 +40,13 @@ class CMyThread: public CThread
 public:
 
     // Constructor
-    CMyThread(string threadName, CBaseLog& sharedLog);
+    CMyThread(string threadName, FileLogger& sharedLog);
 
     // The thread function.
     virtual void threadFunction();
 };
 
-CMyThread::CMyThread(string threadName, CBaseLog& sharedLog) :
+CMyThread::CMyThread(string threadName, FileLogger& sharedLog) :
         CThread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
@@ -77,14 +77,14 @@ int main()
     /// The log file would get messages from all the threads.
     /// Threads send messages through their own CProxyLog objects.
     /// Multiple CProxyLog objects can share same log object thread-safely.
-    CFileLog sharedLog("thread_test.log");
-    CProxyLog log(sharedLog);
-
+    FileLogger sharedLog("thread_test.log");
+    CProxyLog  log(sharedLog);
+    
     /// Trancate the log file
     sharedLog.reset();
 
     /// Adding 'duplicate messages to stdout' option to log options
-    sharedLog.options(sharedLog.options() | CBaseLog::CLO_STDOUT);
+    sharedLog.options(sharedLog.options() | LogEngine::LO_STDOUT);
 
     // Creating several threads
     for (i = 0; i < 5; i++) {

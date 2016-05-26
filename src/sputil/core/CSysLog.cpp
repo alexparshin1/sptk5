@@ -42,8 +42,6 @@ using namespace sptk;
     static bool     m_registrySet(false);
 #endif
 
-static string       m_programName;
-
 /* Unix facilities
  { "auth", LOG_AUTH },
  { "authpriv", LOG_AUTHPRIV },
@@ -59,21 +57,21 @@ static string       m_programName;
  { "uucp", LOG_UUCP },
  */
 
-CSysLog::CSysLog(uint32_t facilities) :
-        m_facilities(facilities)
+CSysLog::CSysLog(string _programName, uint32_t facilities)
+: m_facilities(facilities)
 {
 #ifndef _WIN32
     m_objectCounter++;
 #else
-
     m_logHandle = 0;
 #endif
+    programName(_programName);
 }
 
-void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS
+void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
-    if (m_options & CLO_ENABLE) {
+    if (m_options & LO_ENABLE) {
 #ifndef _WIN32
         if (!m_logOpened)
             openlog(m_programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
@@ -127,15 +125,15 @@ void CSysLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLog
 #endif
     }
 
-    if (m_options & CLO_STDOUT) {
+    if (m_options & LO_STDOUT) {
         string messagePrefix;
-        if (m_options & CLO_DATE)
+        if (m_options & LO_DATE)
             messagePrefix += date.dateString() + " ";
 
-        if (m_options & CLO_TIME)
+        if (m_options & LO_TIME)
             messagePrefix += date.timeString(true) + " ";
 
-        if (m_options & CLO_PRIORITY)
+        if (m_options & LO_PRIORITY)
             messagePrefix += "[" + priorityName(priority) + "] ";
 
         cout << messagePrefix + message + "\n";
@@ -149,9 +147,8 @@ CSysLog::~CSysLog()
     if (m_logOpened && m_objectCounter < 1)
         closelog();
 #else
-
     if (m_logHandle)
-    CloseEventLog(m_logHandle);
+        CloseEventLog(m_logHandle);
 #endif
 }
 
@@ -159,27 +156,22 @@ void CSysLog::programName(string progName)
 {
     m_programName = progName;
 #ifndef _WIN32
-
     m_logOpened = false;
     closelog();
 #else
-
     char *buffer = new char[_MAX_PATH];
     GetModuleFileName(0,buffer,_MAX_PATH);
     m_moduleFileName = buffer;
 
     if (!m_registrySet) {
-		HKEY keyHandle;
-		string keyName = "SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName;
+        string keyName = "SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName;
 
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_READ, &keyHandle) == ERROR_SUCCESS) {
-			RegCloseKey(keyHandle);
-			m_registrySet = true;
-			return;
-		}
-
-        if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
-			throw CException("Can't open registry (HKEY_LOCAL_MACHINE : " + keyName + ") for write");
+        HKEY keyHandle;
+        if (RegCreateKey(
+                        HKEY_LOCAL_MACHINE,
+                        ("SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName).c_str(),
+                        &keyHandle) != ERROR_SUCCESS)
+        throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
 
         unsigned long len = _MAX_PATH;
         unsigned long vtype = REG_EXPAND_SZ;

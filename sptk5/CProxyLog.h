@@ -25,16 +25,82 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CProxyLog_H__
-#define __CProxyLog_H__
+#ifndef __PROXYLOG_H__
+#define __PROXYLOG_H__
 
-#include <sptk5/CBaseLog.h>
+#include <sptk5/LogEngine.h>
 #include <fstream>
 
 namespace sptk {
 
+/// Class name aliases, to make M$ VC-- compile the the class
+typedef std::ostream _ostream;
+typedef std::ios _ios;
+
+class CProxyLog;
+
 /// @addtogroup log Log Classes
 /// @{
+
+/// @brief Internal buffer for the CLogStream class
+class SP_EXPORT CLogStreamBuf: public std::streambuf //, public CSynchronized
+{
+    friend class CProxyLog;
+private:
+    char*           m_buffer;           ///< Internal buffer to store the current log message
+    uint32_t        m_size;             ///< The size of the internal buffer
+    uint32_t        m_bytes;            ///< The number of characters in the buffer
+    CDateTime       m_date;             ///< Message timestamp
+    LogPriority     m_priority;         ///< Current message priority, should be defined for every message
+    CProxyLog*      m_parent;           ///< Parent log object
+
+protected:
+    /// @brief Assignes the parent log object
+    ///
+    /// @param par CProxyLog *, parent log object
+    void parent(CProxyLog *par)
+    {
+        //SYNCHRONIZED_CODE;
+        m_parent = par;
+    }
+
+    /// Overwritten virtual method for std::streambuf
+    /// @param c int_type, a character sent to the stream on overflow
+    virtual int_type overflow(int_type c);
+
+public:
+    /// @brief Constructor
+    ///
+    /// Constructs a buffer for CBaseLog.
+    CLogStreamBuf();
+
+    /// @brief Destructor
+    ///
+    /// Sends the remaining part of the message to the log,
+    /// then releases the allocated memory
+    ~CLogStreamBuf()
+    {
+        //SYNCHRONIZED_CODE;
+        free(m_buffer);
+    }
+
+    /// @brief Flushes message buffer
+    ///
+    /// Sends the remaining part of the message to the log
+    void flush()
+    {
+        overflow(char(13));
+    }
+
+    /// @brief Sets current message priority
+    ///
+    /// @param prt LogPriority, current message priority
+    void priority(LogPriority prt)
+    {
+        //SYNCHRONIZED_CODE;
+        m_priority = prt;
+    }
+};
 
 /// @brief A log that sends all the log messages into another log.
 ///
@@ -44,68 +110,51 @@ namespace sptk {
 /// The log options defining message format and min priority are used
 /// from destination log.
 /// @see CBaseLog for more information about basic log abilities.
-class SP_EXPORT CProxyLog: public CBaseLog
+class SP_EXPORT CProxyLog: public _ostream
 {
-    CBaseLog& m_destination;  /// The actual log to store messages to (destination log)
+    friend class CLogStreamBuf;
+
+    LogEngine&      m_destination;      ///< The actual log to store messages to (destination log)
+    CLogStreamBuf*  m_buffer;           ///< Log buffer
+    LogPriority     m_messagePriority;  ///< Message priority
 
 protected:
-
-    /// @brief Sets the default priority
-    ///
-    /// Does nothing since the priority should be defined for the shared (parent) log object
-    /// @param priority CLogPriority, new default priority
-    virtual void defaultPriority(CLogPriority priority)
-    {
-    }
-
-    /// @brief Sets min message priority
-    ///
-    /// Does nothing since the min message priority should be defined for the shared (parent) log object
-    /// @param priority CLogPriority, min message priority
-    virtual void minPriority(CLogPriority priority)
-    {
-    }
 
     /// @brief Sends log message to actual destination
     /// @param date CDateTime, message timestamp
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
-    /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS;
+    /// @param priority LogPriority, message priority. @see LogPriority for more information.
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor
-    ///
-    /// Creates a new log object based on the file name.
-    /// If this file doesn't exist - it will be created.
-    /// @param destination CBaseLog&, destination log object
-    CProxyLog(CBaseLog& destination)
-    : m_destination(destination)
+    /// @param destination LogEngine&, destination logger
+    CProxyLog(LogEngine& destination);
+
+    /// @brief Destructor
+    ~CProxyLog();
+
+    /// @brief Sets the message priority
+    void messagePriority(LogPriority prt) const
     {
+        m_destination.minPriority(prt);
     }
 
-    /// @brief Restarts the log
-    ///
-    /// The current log content is cleared. The file is recreated.
-    virtual void reset() THROWS_EXCEPTIONS;
-
-    /// @brief Returns the default priority
-    ///
-    /// The default priority is used for the new message,
-    /// if you are not defining priority.
-    virtual CLogPriority defaultPriority() const
+    /// @brief Returns log engine (destination logger)
+    LogEngine& destination()
     {
-        return m_destination.defaultPriority();
-    }
-
-    /// @brief Returns the min priority
-    ///
-    /// Messages with priority less than requested are ignored
-    virtual CLogPriority minPriority() const
-    {
-        return m_destination.minPriority();
+        return m_destination;
     }
 };
+
+/// @brief Sets the message priority
+///
+/// By default, the message priority is CLP_NOTICE.
+/// Changing the priority would hold till the new log message.
+/// The new message would start with the default priority.
+SP_EXPORT sptk::CProxyLog& operator <<(sptk::CProxyLog&, sptk::LogPriority);
+
 /// @}
 }
 

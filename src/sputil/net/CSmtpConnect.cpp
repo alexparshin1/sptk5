@@ -30,14 +30,12 @@
 #include <sptk5/net/CSmtpConnect.h>
 #include <sptk5/CException.h>
 
-#include <sptk5/CFileLog.h>
-
 #include <iostream>
 
 using namespace std;
 using namespace sptk;
 
-CSmtpConnect::CSmtpConnect(CBaseLog* log)
+CSmtpConnect::CSmtpConnect(CProxyLog* log)
 : m_log(log)
 {
     m_port = 25;

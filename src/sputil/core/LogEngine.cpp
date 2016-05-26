@@ -1,11 +1,10 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CFileLog.h  -  description
+                          LogEngine.cpp  -  description
                              -------------------
-    begin                : Tue Jan 31 2006
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
-    email                : alexeyp@gmail.com
- 
+    begin                : Mon Jan 30 2006
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
+
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
     for defining the requirements for this class.
@@ -29,14 +28,47 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CLOGFILE_H__
-#define __CLOGFILE_H__
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <sptk5/CFileLog.h>
+#include <sptk5/LogEngine.h>
 
-// For compatibility with the old implementation
-namespace sptk {
-typedef CFileLog CLogFile;
+using namespace std;
+using namespace sptk;
+
+LogEngine::LogEngine()
+{
+    m_defaultPriority = LP_INFO;
+    m_minPriority = LP_INFO;
+    m_options = LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY;
 }
 
-#endif
+LogEngine::~LogEngine()
+{
+}
+
+
+void LogEngine::option(Option option, bool flag)
+{
+    SYNCHRONIZED_CODE;
+    if (flag)
+        m_options |= option;
+    else
+        m_options &= ~option;
+}
+
+string LogEngine::priorityName(LogPriority prt)
+{
+    switch (prt) {
+    case LP_DEBUG:     return "DEBUG";
+    case LP_INFO:      return "INFO";
+    case LP_NOTICE:    return "NOTICE";
+    case LP_WARNING:   return "WARNING";
+    case LP_ERROR:     return "ERROR";
+    case LP_CRITICAL:  return "CRITICAL";
+    case LP_ALERT:     return "ALERT";
+    case LP_PANIC:     return "PANIC";
+    }
+    return "";
+}

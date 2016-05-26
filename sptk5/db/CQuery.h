@@ -395,8 +395,8 @@ public:
     /// The log file should be set to active, otherwise no text is added to the log file.
     /// Every successful call of this method adds a new line to the log file.
     /// @param text std::string, log text
-    /// @param logPriority const CLogPriority&, log message priority
-    void logText(std::string text, const CLogPriority& logPriority = CLP_DEBUG);
+    /// @param logPriority const LogPriority&, log message priority
+    void logText(std::string text, const LogPriority& logPriority = LP_DEBUG);
 
     /// @brief Throws an exception
     ///

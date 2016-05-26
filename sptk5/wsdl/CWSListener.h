@@ -14,7 +14,7 @@ class CWSListener : public sptk::CTCPServer
 {
 protected:
     sptk::CWSRequest&   m_service;              ///< Web Service request processor
-    sptk::CBaseLog&     m_logger;               ///< Logger object
+    sptk::CProxyLog&     m_logger;               ///< Logger object
     const std::string   m_staticFilesDirectory; ///< Web Service static files directory
 
     /// @brief Creates connection thread derived from CTCPServerConnection
@@ -28,9 +28,9 @@ protected:
 public:
     /// @brief Constructor
     /// @param service sptk::CWSRequest&, Web Service request processor
-    /// @param logger sptk::CBaseLog&, Logger
+    /// @param logger sptk::CProxyLog&, Logger
     /// @param staticFilesDirectory const std::string&, Web Service static files directory
-    CWSListener(sptk::CWSRequest& service, sptk::CBaseLog& logger, std::string staticFilesDirectory);
+    CWSListener(sptk::CWSRequest& service, sptk::CProxyLog& logger, std::string staticFilesDirectory);
 
     /// @brief Destructor
     ~CWSListener();

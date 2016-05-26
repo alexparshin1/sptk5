@@ -39,8 +39,7 @@
 #include <windows.h>
 #endif
 
-#include <sptk5/CBaseLog.h>
-#include <string>
+#include <sptk5/LogEngine.h>
 
 namespace sptk
 {
@@ -55,15 +54,17 @@ namespace sptk
 /// On Windows 95/98/ME the system log isn't supported..
 /// The facility method allows to define - which system log is used
 /// @see CBaseLog for more information about basic log abilities.
-class SP_EXPORT CSysLog: public CBaseLog
+class SP_EXPORT CSysLog: public LogEngine
 {
 #ifdef _WIN32
-    HANDLE              m_logHandle;     ///< (Windows) The handle of the log file
+    HANDLE              m_logHandle;    ///< (Windows) The handle of the log file
 #endif
+    
+    uint32_t            m_facilities;   ///< List of facilities allows to define one or more system logs where messages would be sent
+    std::string         m_programName;
 
-    /// List of facilities allows to define one or more system logs where messages would be sent
-    uint32_t m_facilities;
-
+    void programName(std::string progName);
+    
 public:
     /// @brief Stores or sends log message to actual destination
     ///
@@ -72,28 +73,24 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS;
+    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
 public:
     /// @brief Constructor
     ///
     /// Creates a new log object based on the syslog facility (or facilities).
     /// For Windows, parameter facilities is ignored and messages are stored
-    /// into Application event log
+    /// into Application event log.
+    /// The program name is optional. It is set for all the CSysLog objects at once.
+    /// If set, it appears in the log as a message prefix. Every time the program
+    /// name is changed, the log is closed to be re-opened on next message.
+    /// @param progName std::string, a program name
     /// @param facilities int, log facility or a set of facilities.
-    CSysLog(uint32_t facilities = LOG_USER);
+    CSysLog(std::string programName = "", uint32_t facilities = LOG_USER);
 
     /// @brief Destructor
     ///
     /// Destructs the log object, closes the log descriptor, releases all the allocated resources
     virtual ~CSysLog();
-
-    /// @brief Sets program name
-    ///
-    /// The program name is optional. It is set for all the CSysLog objects at once.
-    /// If set, it appears in the log as a message prefix. Every time the program
-    /// name is changed, the log is closed to be re-opened on next message.
-    /// @param progName std::string, a program name
-    static void programName(std::string progName);
 };
 /// @}
 }

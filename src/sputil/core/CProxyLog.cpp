@@ -25,18 +25,70 @@
  ***************************************************************************/
 
 #include <sptk5/CProxyLog.h>
-#include <sptk5/threads/CSynchronizedCode.h>
 
 using namespace std;
 using namespace sptk;
 
-void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, CLogPriority priority) THROWS_EXCEPTIONS
+CLogStreamBuf::CLogStreamBuf()
 {
-    if (options() & CLO_ENABLE)
-        m_destination.saveMessage(date, message, sz, priority);
+    m_parent = NULL;
+    m_bytes = 0;
+    m_size = 1024;
+    m_buffer = (char *) malloc(m_size);
+    m_priority = LP_NOTICE;
+    m_date = CDateTime::Now();
 }
 
-void CProxyLog::reset() THROWS_EXCEPTIONS
+streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
 {
-    m_destination.reset();
+    //SYNCHRONIZED_CODE;
+    
+    bool bufferOverflow = m_bytes > m_size - 2;
+    bool lineBreak = c <= 13;
+    
+    if (lineBreak || bufferOverflow) {
+        if (m_bytes) {
+            m_buffer[m_bytes] = 0;
+            if (m_parent) {
+                if (m_priority <= m_parent->m_destination.minPriority())
+                    m_parent->saveMessage(m_date, m_buffer, m_bytes, m_priority);
+                if (!bufferOverflow) {
+                    m_priority = m_parent->m_destination.defaultPriority();
+                    m_date = CDateTime::Now();
+                }
+            }
+            m_bytes = 0;
+        }
+    }
+    if (!lineBreak) {
+        if (m_bytes == 0)
+            m_date = CDateTime::Now();
+        m_buffer[m_bytes] = (char) c;
+        m_bytes++;
+    }
+    return traits_type::not_eof(c);
+}
+//==========================================================================================
+
+CProxyLog::CProxyLog(LogEngine& destination)
+: _ios(0), _ostream((m_buffer = new CLogStreamBuf)), m_destination(destination)
+{
+    m_buffer->parent(this);
+}
+
+CProxyLog::~CProxyLog()
+{
+    flush();
+    delete m_buffer;
+}
+
+void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+{
+    m_destination.saveMessage(date, message, sz, priority);
+}
+
+SP_EXPORT CProxyLog& sptk::operator <<(CProxyLog& stream, LogPriority priority)
+{
+    stream.messagePriority(priority);
+    return stream;
 }

@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/threads/CWorkerThread.h>
+#include <iostream>
 
 using namespace std;
 using namespace sptk;

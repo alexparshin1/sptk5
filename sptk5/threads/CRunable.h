@@ -29,7 +29,6 @@
 #define __CRUNABLE_H__
 
 #include <sptk5/threads/CSynchronizedCode.h>
-#include <sptk5/CFileLog.h>
 #include <sptk5/CStrings.h>
 
 namespace sptk

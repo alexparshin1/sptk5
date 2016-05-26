@@ -290,7 +290,7 @@ bool CQuery::open() THROWS_EXCEPTIONS
     if (m_db->logFile()) {
         char buffer[64];
         sprintf(buffer, "[Q%i] Duration %0.3f sec", m_objectIndex, m_duration);
-        *m_db->logFile() << CLP_DEBUG << buffer << endl;
+        *m_db->logFile() << LP_DEBUG << buffer << endl;
     }
 
     m_totalDuration += m_duration;
@@ -362,13 +362,13 @@ void CQuery::notImplemented(string functionName) const
     throw CDatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
-void CQuery::logText(std::string text, const CLogPriority& priority)
+void CQuery::logText(std::string text, const LogPriority& priority)
 {
     if (!m_db)
         return;
-    CBaseLog* alog = m_db->logFile();
+    CProxyLog* alog = m_db->logFile();
     if (alog) {
-        CBaseLog& blog = *alog;
+        CProxyLog& blog = *alog;
         blog << priority;
         blog << "[Q" << m_objectIndex << "] ";
         blog << text.c_str() << endl;
@@ -378,7 +378,7 @@ void CQuery::logText(std::string text, const CLogPriority& priority)
 void CQuery::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
-    logText(errorText, CLP_ERROR);
+    logText(errorText, LP_ERROR);
     throw CDatabaseException(errorText);
 }
 

@@ -25,8 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
+#include <sptk5/cutils>
 #include <iostream>
-#include <sptk5/CFileLog.h>
 
 using namespace std;
 using namespace sptk;
@@ -34,7 +34,8 @@ using namespace sptk;
 int main() {
    try {
       cout << "Creating a log file ./logfile_test.log: " << endl;
-      CFileLog	fileLog("logfile_test.log");
+      FileLogger fileLog("logfile_test.log");
+      CProxyLog  log(fileLog);
 
       /// Cleaning log file before test.
       fileLog.reset();
@@ -43,14 +44,14 @@ int main() {
       /// Any messages with the less priority are ignored.
       /// This means, in this example, that no messages with CLP_DEBUG priority
       /// would make it to the log.
-      fileLog.minPriority(CLP_NOTICE);
+      fileLog.minPriority(LP_NOTICE);
       
       cout << "Sending 'Hello, World!' to this file.." << endl;
-      fileLog << "Hello, World!" << endl;
-      fileLog << "Welcome to SPTK." << endl;
-      fileLog << CLP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
-      fileLog << CLP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
-      fileLog << "This is the end of the log." << endl;
+      log << "Hello, World!" << endl;
+      log << "Welcome to SPTK." << endl;
+      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
+      log << "This is the end of the log." << endl;
    }
    catch (exception& e) {
       puts(e.what());

@@ -9,11 +9,11 @@ class CWSConnection : public CTCPServerConnection
 {
 protected:
     CWSRequest&     m_service;
-    CBaseLog&       m_logger;
+    CProxyLog&       m_logger;
     const string&   m_staticFilesDirectory;
 public:
 
-    CWSConnection(SOCKET connectionSocket, sockaddr_in*, CWSRequest& service, CBaseLog& logger, const string& staticFilesDirectory)
+    CWSConnection(SOCKET connectionSocket, sockaddr_in*, CWSRequest& service, CProxyLog& logger, const string& staticFilesDirectory)
     : CTCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
     {
     }
@@ -45,7 +45,7 @@ void CWSConnection::threadFunction()
     try {
         if (!m_socket->readyToRead(30000)) {
             m_socket->close();
-            m_logger <<CLP_DEBUG << "Client closed connection" << endl;
+            m_logger << LP_DEBUG << "Client closed connection" << endl;
             return;
         }
 
@@ -80,11 +80,11 @@ void CWSConnection::threadFunction()
             }
         }
         catch (CException& e) {
-            m_logger <<CLP_ERROR << e.message() << endl;
+            m_logger << LP_ERROR << e.message() << endl;
             return;
         }
         catch (exception& e) {
-            m_logger <<CLP_ERROR << e.what() << endl;
+            m_logger << LP_ERROR << e.what() << endl;
             return;
         }
 
@@ -182,15 +182,15 @@ void CWSConnection::threadFunction()
     }
     catch (exception& e) {
         if (!terminated())
-            m_logger <<CLP_ERROR << "Error in thread " << name() << ": " << e.what() << endl;
+            m_logger << LP_ERROR << "Error in thread " << name() << ": " << e.what() << endl;
     }
     catch (...) {
         if (!terminated())
-            m_logger <<CLP_ERROR << "Unknown error in thread " << name() << endl;
+            m_logger << LP_ERROR << "Unknown error in thread " << name() << endl;
     }
 }
 
-CWSListener::CWSListener(CWSRequest& service, CBaseLog& logger, string staticFilesDirectory)
+CWSListener::CWSListener(CWSRequest& service, CProxyLog& logger, string staticFilesDirectory)
 : CTCPServer(), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
