@@ -297,7 +297,6 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
     if (hFind == INVALID_HANDLE_VALUE)
         return false;
 #else
-
     dirent **files;
     //int num_files = fl_filename_list(m_directory.c_str(), &files);
     int num_files = scandir(m_directory.c_str(), &files, 0, alphasort);
@@ -339,7 +338,6 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
         lstat(fullName.c_str(), &st);
 
 #ifndef _WIN32
-
         if ((st.st_mode & S_IFLNK) == S_IFLNK) {
             is_link = true;
             stat(fullName.c_str(), &st);
@@ -356,9 +354,11 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
                     }
                 }
                 if (!matchFound) {
-                    free((struct dirent*) files[n]);
+#ifndef _WIN32
+					free((struct dirent*) files[n]);
                     files[n] = 0;
                     n++;
+#endif
                     continue;
                 }
             }
