@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/cutils>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -35,7 +34,7 @@ int main() {
    try {
       cout << "Creating a log file ./logfile_test.log: " << endl;
       FileLogEngine fileLog("logfile_test.log");
-      CProxyLog  log(fileLog);
+      Logger  log(fileLog);
 
       /// Cleaning log file before test.
       fileLog.reset();

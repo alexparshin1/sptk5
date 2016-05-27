@@ -28,13 +28,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include <sptk5/sptk.h>
 #include <sptk5/CBuffer.h>
 #include <sptk5/CException.h>
 #include <sptk5/net/CCGI.h>
-#include <sptk5/net/CHttpParams.h>
 
 using namespace sptk;
 

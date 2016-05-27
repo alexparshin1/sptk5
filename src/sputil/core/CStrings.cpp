@@ -30,14 +30,12 @@
 #include <sptk5/CStrings.h>
 #include <sptk5/CBuffer.h>
 #include <sptk5/CRegExp.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
 bool String::matches(string pattern, string options) const
 {
-    RegularExpression regexp(pattern, options);
     return *this == RegularExpression(pattern, options);
 }
 

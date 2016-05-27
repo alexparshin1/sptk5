@@ -26,11 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/db/CMySQLConnection.h>
-#include <sptk5/db/CMySQLStatement.h>
 #include <sptk5/CFieldList.h>
-#include <sptk5/string_ext.h>
-
-#include <sptk5/db/CMySQLStatement.h>
 
 using namespace std;
 using namespace sptk;
@@ -127,8 +123,6 @@ void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime times
 
 void CMySQLStatement::mysqlDateToDateTime(CDateTime& timestamp, const MYSQL_TIME& mysqlDate)
 {
-    CDateTime dt(short(mysqlDate.year), short(mysqlDate.month), short(mysqlDate.day),
-                short(mysqlDate.hour), short(mysqlDate.minute), short(mysqlDate.second));
     if (mysqlDate.time_type == MYSQL_TIMESTAMP_DATE)
         timestamp = CDateTime(
                         (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,

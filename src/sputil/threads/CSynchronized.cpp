@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/threads/CSynchronized.h>
-#include <sptk5/CException.h>
 
 using namespace std;
 using namespace sptk;

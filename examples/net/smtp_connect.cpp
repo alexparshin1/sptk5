@@ -21,8 +21,6 @@
 #pragma hdrstop
 #endif
 
-#include <stdio.h>
-#include <iostream>
 #include <sptk5/cnet>
 #include <sptk5/cutils>
 
@@ -34,7 +32,7 @@ int main(int argc, char *argv[])
     FileLogEngine logEngine("smtp.log");
     logEngine.option(LogEngine::LO_STDOUT, true);
     
-    CProxyLog logger(logEngine);
+    Logger logger(logEngine);
 
     CSmtpConnect    SMTP(&logger);
     std::string     user, password, email, host, portStr;

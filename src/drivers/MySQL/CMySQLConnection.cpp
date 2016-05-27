@@ -26,13 +26,8 @@
  ***************************************************************************/
 
 #include <sptk5/db/CMySQLConnection.h>
-#include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/threads/CSynchronized.h>
 #include <sptk5/CRegExp.h>
-
-#include <string>
-#include <stdio.h>
 
 using namespace std;
 using namespace sptk;

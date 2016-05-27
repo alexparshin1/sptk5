@@ -13,9 +13,8 @@
 #include <sptk5/sptk.h>
 #include "libtar.h"
 
-#include <stdio.h>
 #if defined(__GNUC__) || defined(__SUNPRO_C)
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
 #include <string.h>
 

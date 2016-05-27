@@ -37,10 +37,6 @@
 #include <sptk5/net/CBaseMailConnect.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/CDateTime.h>
-#include <sptk5/string_ext.h>
-#include <time.h>
-
-#include <map>
 
 #define LINE_CHARS 72
 
@@ -49,11 +45,14 @@ using namespace sptk;
 
 class CContentTypes
 {
-        static map<string, string> m_contentTypes;
-    public:
-        CContentTypes() { if (!m_contentTypes.size()) init(); }
-        void init();
-        static string type (string fileName);
+    static map<string, string> m_contentTypes;
+public:
+    CContentTypes()
+    { if (!m_contentTypes.size()) init(); }
+
+    void init();
+
+    static string type(string fileName);
 };
 
 map<string, string> CContentTypes::m_contentTypes;
@@ -76,15 +75,15 @@ void CContentTypes::init()
     m_contentTypes["wav"] = "application/data";
 }
 
-string CContentTypes::type (string fileName)
+string CContentTypes::type(string fileName)
 {
-    const char *extension = strrchr (fileName.c_str(), '.');
+    const char* extension = strrchr(fileName.c_str(), '.');
     if (!extension)
         return "application/octet-stream";
     extension++;
-    if (strlen (extension) > 4)
+    if (strlen(extension) > 4)
         return "application/octet-stream";
-    const map<string, string>::iterator itor = m_contentTypes.find (extension);
+    const map<string, string>::iterator itor = m_contentTypes.find(extension);
     if (itor != m_contentTypes.end()) return itor->second;
     else
         return "application/octet-stream";
@@ -95,15 +94,15 @@ CBaseMailConnect::~CBaseMailConnect()
 }
 
 
-void CBaseMailConnect::mimeFile (string fileName, string fileAlias, stringstream& message)
+void CBaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& message)
 {
-    CBuffer  bufSource;
-    string  strDest;
+    CBuffer bufSource;
+    string strDest;
     //char    *header = new char[1024];
 
-    bufSource.loadFromFile (fileName.c_str());
+    bufSource.loadFromFile(fileName.c_str());
 
-    string ctype = contentTypes.type (trim (fileName));
+    string ctype = contentTypes.type(trim(fileName));
 
     message << "Content-Type: " << ctype << "; name=\"" << fileAlias << "\"" << endl;
     message << "Content-Transfer-Encoding: base64" << endl;
@@ -111,24 +110,24 @@ void CBaseMailConnect::mimeFile (string fileName, string fileAlias, stringstream
 
     CBuffer buffer;
 
-    CBase64::encode (strDest, bufSource);
+    CBase64::encode(strDest, bufSource);
     uint32_t cnt = (uint32_t) strDest.length();
-    const char *data = strDest.c_str();
+    const char* data = strDest.c_str();
     char line[90];
     for (uint32_t p = 0; p < cnt; p += LINE_CHARS) {
         uint32_t length = cnt - p;
         if (length > LINE_CHARS) length = LINE_CHARS;
-        memcpy (line, data + p, 80);
+        memcpy(line, data + p, 80);
         line[length] = '\n';
         //line[length+1] = '\n';
         length++;
         line[length] = 0;
-        buffer.append (line, length);
+        buffer.append(line, length);
     }
     message << buffer.data();
 }
 
-void CBaseMailConnect::mimeMessage (CBuffer& buffer)
+void CBaseMailConnect::mimeMessage(CBuffer& buffer)
 {
     static const char boundary[] = "--MESSAGE-MIME-BOUNDARY--";
     static const char boundary2[] = "--TEXT-MIME-BOUNDARY--";
@@ -139,7 +138,7 @@ void CBaseMailConnect::mimeMessage (CBuffer& buffer)
     else
         message << "From: postmaster" << endl;
 
-    replaceAll (m_to, ";", ", ");
+    replaceAll(m_to, ";", ", ");
     message << "To: " << m_to << endl;
 
     if (m_cc.length()) {
@@ -149,30 +148,30 @@ void CBaseMailConnect::mimeMessage (CBuffer& buffer)
 
     message << "Subject: " << m_subject << endl;
 
-    CDateTime   date = CDateTime::Now();
+    CDateTime date = CDateTime::Now();
     short dy, dm, dd, th, tm, ts, tms;
-    date.decodeDate (&dy, &dm, &dd);
-    date.decodeTime (&th, &tm, &ts, &tms);
+    date.decodeDate(&dy, &dm, &dd);
+    date.decodeTime(&th, &tm, &ts, &tms);
 
-    char        dateBuffer[128];
+    char dateBuffer[128];
     const char* sign = "-";
-    int   offset = CDateTime::timeZoneOffset;
+    int offset = CDateTime::timeZoneOffset;
     if (offset >= 0)
         sign = "";
     else
         offset = -offset;
 
     sprintf(dateBuffer,
-             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
-             date.dayOfWeekName().substr (0, 3).c_str(),
-             dd,
-             CDateTime::monthNames[dm-1].substr (0, 3).c_str(),
-             dy,
-             th, tm, ts,
-             sign,
-             offset * 100,
-             CDateTime::timeZoneName.c_str()
-            );
+            "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
+            date.dayOfWeekName().substr(0, 3).c_str(),
+            dd,
+            CDateTime::monthNames[dm - 1].substr(0, 3).c_str(),
+            dy,
+            th, tm, ts,
+            sign,
+            offset * 100,
+            CDateTime::timeZoneName.c_str()
+    );
 
     message << dateBuffer << endl;
 
@@ -207,20 +206,20 @@ void CBaseMailConnect::mimeMessage (CBuffer& buffer)
 
     //message << endl << "--" << boundary << "--" << endl;
 
-    CStrings sl (m_attachments, ";");
+    CStrings sl(m_attachments, ";");
     for (unsigned i = 0; i < sl.size(); i++) {
         string attachment = sl[i];
         string attachmentAlias = attachment;
-        const char *separator = "\\";
-        if (attachment.find ("/") != STRING_NPOS)
+        const char* separator = "\\";
+        if (attachment.find("/") != STRING_NPOS)
             separator = "/";
-        CStrings attachmentParts (attachment, separator);
+        CStrings attachmentParts(attachment, separator);
         uint32_t attachmentPartsCount = (uint32_t) attachmentParts.size();
         if (attachmentPartsCount > 1)
-            attachmentAlias = attachmentParts[attachmentPartsCount-1].c_str();
+            attachmentAlias = attachmentParts[attachmentPartsCount - 1].c_str();
         if (attachment.length()) {
             message << endl << "--" << boundary << endl;
-            mimeFile (attachment, attachmentAlias, message);
+            mimeFile(attachment, attachmentAlias, message);
             //message << "--" << boundary << "--" << endl;
         }
     }

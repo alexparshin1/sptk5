@@ -25,7 +25,6 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 #include <sptk5/CMemoryDS.h>
-#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;

@@ -33,7 +33,7 @@
 #include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 #include <sptk5/CVariant.h>
-#include <sptk5/CProxyLog.h>
+#include <sptk5/Logger.h>
 
 #include <vector>
 
@@ -140,7 +140,7 @@ protected:
     CDatabaseConnectionString   m_connString;     ///< The connection string
     Type                        m_connType;       ///< The connection type
     bool                        m_inTransaction;  ///< The in-transaction flag
-    CProxyLog*                  m_log;            ///< Log for the database events (optional)
+    Logger*                  m_log;            ///< Log for the database events (optional)
     std::string                 m_objectName;     ///< Object name for logs and error messages
 
     /// @brief Attaches (links) query to the database
@@ -319,15 +319,15 @@ public:
     ///
     /// If the database log is set, the database would log the events in CDatabaseConnection and CQuery objects
     /// into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
-    /// @param logFile CProxyLog *, the log file object to use.
-    void logFile(CProxyLog *logFile)
+    /// @param logFile Logger *, the log file object to use.
+    void logFile(Logger *logFile)
     {
         m_log = logFile;
     }
 
     /// @brief Returns a log file for the database operations.
     /// @returns current log file ptr, ot NULL if log file isn't set
-    CProxyLog *logFile()
+    Logger *logFile()
     {
         return m_log;
     }

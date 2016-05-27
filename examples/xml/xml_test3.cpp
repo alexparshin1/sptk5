@@ -30,8 +30,6 @@
 #include <sptk5/cxml>
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
-#include <iomanip>
 
 using namespace std;
 using namespace sptk;

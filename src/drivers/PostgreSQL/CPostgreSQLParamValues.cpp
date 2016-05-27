@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include "CPostgreSQLParamValues.h"
-#include "pgtypes.h"
 #include "htonq.h"
 
 using namespace sptk;

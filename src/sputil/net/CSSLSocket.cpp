@@ -116,8 +116,7 @@ string CSSLSocket::getSSLError(std::string function, int32_t openSSLError) const
         return error + "Connect failed";
     case SSL_ERROR_WANT_ACCEPT:
         return error + "Accept failed";
-    case SSL_ERROR_SYSCALL:
-    case SSL_ERROR_SSL:
+    default:
         openSSLError = ERR_get_error();
         if (!openSSLError)
             return error + "System call or protocol error";

@@ -27,11 +27,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include <sptk5/net/CTCPSocket.h>
-#include <sptk5/CException.h>
-#include <stdint.h>
 
 using namespace std;
 using namespace sptk;

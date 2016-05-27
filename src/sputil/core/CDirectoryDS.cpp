@@ -25,18 +25,9 @@
  ***************************************************************************/
 
 #include <string>
-#include <stdio.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <stdlib.h>
-#include <ctype.h>
-
-//#include <FL/filename.H>
 
 #include <sptk5/CDirectoryDS.h>
-#include <sptk5/CException.h>
-#include <sptk5/CSmallPixmapIDs.h>
-#include <sptk5/CStrings.h>
 
 #include <sptk5/filedefs.h>
 

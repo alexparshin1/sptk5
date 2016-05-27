@@ -11,18 +11,13 @@
  */
 
 #include <sptk5/sptk.h>
-#include <sptk5/CException.h>
 
+#include <string.h>
 #include "libtar.h"
-
-#include <stdio.h>
-#include <errno.h>
 
 #if defined(__GNUC__) || defined(__SUNPRO_C)
 #include <sys/param.h>
 #endif
-
-#include <string.h>
 
 #ifndef MAXPATHLEN
 #define MAXPATHLEN 255

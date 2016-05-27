@@ -362,7 +362,7 @@ void CWSParser::generate(std::string sourceDirectory, std::string headerFile) TH
     CStrings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
         CWSParserComplexType* complexType = itor->second;
-        string name = itor->first;
+        //string name = itor->first;
         CSourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
         complexType->generate(module.header(), module.source(), externalHeader.c_str());

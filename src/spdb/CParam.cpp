@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/db/CParam.h>
-#include <stdint.h>
 
 using namespace std;
 using namespace sptk;

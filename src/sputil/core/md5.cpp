@@ -34,7 +34,6 @@ documentation and/or software.
 #include <sptk5/md5.h>
 
 /* system implementation headers */
-#include <stdio.h>
 #include <string.h>
 
 

@@ -28,14 +28,11 @@
 #include <stdio.h>
 #include <sptk5/CBase64.h>
 #include <sptk5/net/CSmtpConnect.h>
-#include <sptk5/CException.h>
-
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
 
-CSmtpConnect::CSmtpConnect(CProxyLog* log)
+CSmtpConnect::CSmtpConnect(Logger* log)
 : m_log(log)
 {
     m_port = 25;

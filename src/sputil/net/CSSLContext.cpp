@@ -78,14 +78,14 @@ SSL_CTX* CSSLContext::handle()
     return m_ctx;
 }
 
-int CSSLContext::passwordReplyCallback(char *replyBuffer, int replySize, int/*rwflag*/, void *userdata)
+int CSSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
 {
-    strncpy(replyBuffer, (const char *) userdata, replySize);
+    strncpy(replyBuffer, (const char*) userdata, replySize);
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }
 
-void CSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw (exception)
+void CSSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw(exception)
 {
     SYNCHRONIZED_CODE;
 

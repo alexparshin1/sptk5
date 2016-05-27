@@ -25,8 +25,9 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <stdio.h>
-#include <string>
+#include <sptk5/CDateTime.h>
+#include <sptk5/CException.h>
+
 #include <string.h>
 
 #ifndef _WIN32
@@ -39,12 +40,6 @@
 #endif
 #endif
 
-#include <time.h>
-#include <ctype.h>
-
-#include <sptk5/CDateTime.h>
-#include <sptk5/CException.h>
-
 #ifdef _WIN32
 #include <winsock2.h>
 #include <windows.h>
@@ -56,29 +51,29 @@ using namespace sptk;
 namespace sptk
 {
 
-    class SP_EXPORT CDateTimeFormat
-    {
-    public:
-        CDateTimeFormat();
+class SP_EXPORT CDateTimeFormat
+{
+public:
+    CDateTimeFormat();
 
-        void init();
+    void init();
 
-        static char parseDateOrTime(char *format, const char *dt);
-    };
+    static char parseDateOrTime(char* format, const char* dt);
+};
 
 }
 
 static const short _monthDays[2][13] =
-    {
-        {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-        {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-    };
+        {
+                {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+                {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+        };
 
 static const short _monthDaySums[2][13] =
-    {
-        {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
-        {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
-    };
+        {
+                {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
+                {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
+        };
 
 static const CDateTime epoch(1970, 1, 1);
 
@@ -98,7 +93,7 @@ string   CDateTime::monthNames[12];
 string   CDateTime::timeZoneName;
 int      CDateTime::timeZoneOffset;
 
-static void upperCase(char *dest, const char *src)
+static void upperCase(char* dest, const char* src)
 {
     int i = 0;
     int len = (int) strlen(src);
@@ -107,7 +102,7 @@ static void upperCase(char *dest, const char *src)
     dest[i] = 0;
 }
 
-char CDateTimeFormat::parseDateOrTime(char *format, const char *dateOrTime)
+char CDateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
 {
     char separator[] = " ";
     char dt[32];
@@ -131,7 +126,7 @@ char CDateTimeFormat::parseDateOrTime(char *format, const char *dateOrTime)
     strcpy(format, "");
 
     bool processingTime = false;
-    const char *pattern;
+    const char* pattern;
     while (ptr) {
         int number = atoi(ptr);
         switch (number) {
@@ -248,14 +243,14 @@ void CDateTimeFormat::init()
 #if defined(__BORLANDC__) || _MSC_VER > 1800
     const char *ptr = _tzname[0];
 #else
-    const char *ptr = tzname[0];
+    const char* ptr = tzname[0];
 #endif
     int len = (int) strlen(ptr);
-    const char *p1 = strchr(ptr, ' ');
+    const char* p1 = strchr(ptr, ' ');
     if (p1)
         len = int(p1 - ptr);
 
-    CDateTime::timeZoneName = string(ptr, (unsigned)len);
+    CDateTime::timeZoneName = string(ptr, (unsigned) len);
 #if defined(__BORLANDC__) || _MSC_VER > 1800
     CDateTime::timeZoneOffset = -_timezone / 60 + _daylight * 60;
 #else
@@ -278,7 +273,7 @@ void CDateTime::tzset()
 
 void CDateTime::time24Mode(bool t24mode)
 {
-    const char *timeBuffer = "10:48:59AM";
+    const char* timeBuffer = "10:48:59AM";
 
     if (t24mode)
         timeBuffer = "22:48:59";
@@ -286,7 +281,7 @@ void CDateTime::time24Mode(bool t24mode)
     _time24Mode = t24mode;
     CDateTime::timeSeparator = CDateTimeFormat::parseDateOrTime(CDateTime::fullTimeFormat, timeBuffer);
     strcpy(CDateTime::shortTimeFormat, CDateTime::fullTimeFormat);
-    char *p = strchr(CDateTime::shortTimeFormat, CDateTime::timeSeparator);
+    char* p = strchr(CDateTime::shortTimeFormat, CDateTime::timeSeparator);
     if (p) {
         p = strchr(p + 1, CDateTime::timeSeparator);
         if (p)
@@ -298,7 +293,7 @@ void CDateTime::time24Mode(bool t24mode)
     }
 }
 
-void CDateTime::encodeDate(double &dt, short year, short month, short day)
+void CDateTime::encodeDate(double& dt, short year, short month, short day)
 {
     if (year == 0 && month == 0 && day == 0) {
         dt = 0;
@@ -318,11 +313,11 @@ void CDateTime::encodeDate(double &dt, short year, short month, short day)
     dt = i * 365 + i / 4 - i / 100 + i / 400 + day - DateDelta;
 }
 
-void CDateTime::encodeDate(double &dt, const char *dat)
+void CDateTime::encodeDate(double& dt, const char* dat)
 {
     char bdat[64];
     short datePart[7], partNumber = 0;
-    char *ptr = NULL;
+    char* ptr = NULL;
     char actualDateSeparator = 0;
 
     memset(datePart, 0, sizeof(datePart));
@@ -405,7 +400,7 @@ void CDateTime::encodeDate(double &dt, const char *dat)
     }
 }
 
-void CDateTime::encodeTime(double &dt, short h, short m, short s, short ms)
+void CDateTime::encodeTime(double& dt, short h, short m, short s, short ms)
 {
     double seconds = s + ms / 1000.0;
     double minutes = m + seconds / 60.0;
@@ -413,7 +408,7 @@ void CDateTime::encodeTime(double &dt, short h, short m, short s, short ms)
     dt = hours / 24.0;
 }
 
-static int trimRight(char *s)
+static int trimRight(char* s)
 {
     int len = (int) strlen(s);
 
@@ -430,13 +425,13 @@ static int trimRight(char *s)
 // Returns timezone offset in minutes from formats:
 // "Z" - UTC
 // "[+-]HH24:MM - TZ offset
-int decodeTZOffset(const char *tzOffset)
+int decodeTZOffset(const char* tzOffset)
 {
     char tzo[10];
     strncpy(tzo, tzOffset, sizeof(tzo) - 1);
     tzo[9] = 0;
 
-    char *p = tzo;
+    char* p = tzo;
     int sign = 1;
     switch (*p) {
         case 'Z':
@@ -451,7 +446,7 @@ int decodeTZOffset(const char *tzOffset)
         default:
             break;
     }
-    char *p1 = strchr(p, ':');
+    char* p1 = strchr(p, ':');
     int hours, minutes = 0;
     if (p1) {
         *p1 = 0;
@@ -461,12 +456,12 @@ int decodeTZOffset(const char *tzOffset)
     return sign * (hours * 60 + minutes);
 }
 
-void CDateTime::encodeTime(double &dt, const char *tim)
+void CDateTime::encodeTime(double& dt, const char* tim)
 {
     char bdat[32];
     short timePart[4] = {0, 0, 0, 0};
     short partNumber = 0;
-    char *ptr = NULL;
+    char* ptr = NULL;
     bool afternoon = false;
 
     ::upperCase(bdat, tim);
@@ -481,9 +476,9 @@ void CDateTime::encodeTime(double &dt, const char *tim)
         return;
     } else {
         int tzOffsetMin = 0;
-        char *p = strpbrk(bdat, "APZ+-"); // Looking for AM, PM, or timezone
+        char* p = strpbrk(bdat, "APZ+-"); // Looking for AM, PM, or timezone
         if (p) {
-            char *p1;
+            char* p1;
             switch (*p) {
                 case 'P':
                     afternoon = true;
@@ -530,7 +525,7 @@ void CDateTime::encodeTime(double &dt, const char *tim)
 
 const int S1 = 24 * 3600; // seconds in 1 day
 
-void CDateTime::decodeTime(const double dt, short &h, short &m, short &s, short &ms)
+void CDateTime::decodeTime(const double dt, short& h, short& m, short& s, short& ms)
 {
     double t = dt - (int) dt;
 
@@ -553,13 +548,13 @@ const int D4 = D1 * 4 + 1;       // Days in 4 years
 const int D100 = D4 * 25 - 1;    // Days in 100 years
 const int D400 = D100 * 4 + 1;   // Days in 400 years
 
-inline void DivMod(int op1, int op2, int &div, int &mod)
+inline void DivMod(int op1, int op2, int& div, int& mod)
 {
     div = op1 / op2;
     mod = op1 % op2;
 }
 
-void CDateTime::decodeDate(const double dat, short &year, short &month, short &day)
+void CDateTime::decodeDate(const double dat, short& year, short& month, short& day)
 {
     int M, D, I;
     int T = (int) dat + DateDelta - 1;
@@ -611,7 +606,7 @@ CDateTime::CDateTime(short year, short month, short day, short hour, short minut
     m_dateTime += t;
 }
 
-CDateTime::CDateTime(const char *dat)
+CDateTime::CDateTime(const char* dat)
 {
     while (*dat && *dat == ' ') dat++;
     if (!*dat) {
@@ -619,8 +614,8 @@ CDateTime::CDateTime(const char *dat)
         return;
     }
 
-    char *s1 = strdup(dat);
-    char *s2 = strpbrk(s1, " T");
+    char* s1 = strdup(dat);
+    char* s2 = strpbrk(s1, " T");
     if (s2) {
         *s2 = 0;
         s2++;
@@ -643,7 +638,7 @@ CDateTime::CDateTime(const char *dat)
     }
 }
 
-CDateTime::CDateTime(const CDateTime &dt)
+CDateTime::CDateTime(const CDateTime& dt)
 {
     m_dateTime = dt.m_dateTime;
 }
@@ -656,12 +651,12 @@ CDateTime::CDateTime(double dt)
 //----------------------------------------------------------------
 // Assignments
 //----------------------------------------------------------------
-void CDateTime::operator=(const CDateTime &dt)
+void CDateTime::operator=(const CDateTime& dt)
 {
     m_dateTime = dt.m_dateTime;
 }
 
-void CDateTime::operator=(const char *dat)
+void CDateTime::operator=(const char* dat)
 {
     if (dat)
         encodeDate(m_dateTime, dat);
@@ -682,47 +677,47 @@ CDateTime::operator double(void) const
 //----------------------------------------------------------------
 // Date Arithmetic
 //----------------------------------------------------------------
-CDateTime CDateTime::operator+(CDateTime &dt)
+CDateTime CDateTime::operator+(CDateTime& dt)
 {
     return CDateTime(m_dateTime + dt.m_dateTime);
 }
 
-CDateTime CDateTime::operator-(CDateTime &dt)
+CDateTime CDateTime::operator-(CDateTime& dt)
 {
     return CDateTime(m_dateTime - dt.m_dateTime);
 }
 
-CDateTime &CDateTime::operator+=(CDateTime &dt)
+CDateTime& CDateTime::operator+=(CDateTime& dt)
 {
     m_dateTime += dt.m_dateTime;
     return *this;
 }
 
-CDateTime &CDateTime::operator-=(CDateTime &dt)
+CDateTime& CDateTime::operator-=(CDateTime& dt)
 {
     m_dateTime -= dt.m_dateTime;
     return *this;
 }
 
-CDateTime &CDateTime::operator++()
+CDateTime& CDateTime::operator++()
 {
     m_dateTime += 1;
     return *this;
 }
 
-CDateTime &CDateTime::operator++(int)
+CDateTime& CDateTime::operator++(int)
 {
     m_dateTime += 1;
     return *this;
 }
 
-CDateTime &CDateTime::operator--()
+CDateTime& CDateTime::operator--()
 {
     m_dateTime -= 1;
     return *this;
 }
 
-CDateTime &CDateTime::operator--(int)
+CDateTime& CDateTime::operator--(int)
 {
     m_dateTime -= 1;
     return *this;
@@ -732,42 +727,42 @@ CDateTime &CDateTime::operator--(int)
 // Date comparison
 //----------------------------------------------------------------
 
-bool operator<(const CDateTime &dt1, const CDateTime &dt2)
+bool operator<(const CDateTime& dt1, const CDateTime& dt2)
 {
     return ((double) dt1 < (double) dt2);
 }
 
-bool operator<=(const CDateTime &dt1, const CDateTime &dt2)
+bool operator<=(const CDateTime& dt1, const CDateTime& dt2)
 {
     return ((double) dt1 <= (double) dt2);
 }
 
-bool operator>(const CDateTime &dt1, const CDateTime &dt2)
+bool operator>(const CDateTime& dt1, const CDateTime& dt2)
 {
     return ((double) dt1 > (double) dt2);
 }
 
-bool operator>=(const CDateTime &dt1, const CDateTime &dt2)
+bool operator>=(const CDateTime& dt1, const CDateTime& dt2)
 {
     return ((double) dt1 >= (double) dt2);
 }
 
-bool operator==(const CDateTime &dt1, const CDateTime &dt2)
+bool operator==(const CDateTime& dt1, const CDateTime& dt2)
 {
     return ((double) dt1 == (double) dt2);
 }
 
-bool operator!=(const CDateTime &dt1, const CDateTime &dt2)
+bool operator!=(const CDateTime& dt1, const CDateTime& dt2)
 {
     return ((double) dt1 != (double) dt2);
 }
 
-CDateTime operator+(const CDateTime &dt1, const CDateTime &dt2)
+CDateTime operator+(const CDateTime& dt1, const CDateTime& dt2)
 {
     return double(dt1) + double(dt2);
 }
 
-CDateTime operator-(const CDateTime &dt1, const CDateTime &dt2)
+CDateTime operator-(const CDateTime& dt1, const CDateTime& dt2)
 {
     return double(dt1) - double(dt2);
 }
@@ -775,9 +770,9 @@ CDateTime operator-(const CDateTime &dt1, const CDateTime &dt2)
 //----------------------------------------------------------------
 // Format routine
 //----------------------------------------------------------------
-void CDateTime::formatDate(char *str, bool universalDateFormat) const
+void CDateTime::formatDate(char* str, bool universalDateFormat) const
 {
-    char *ptr = str;
+    char* ptr = str;
     short month, day, year;
 
     if (m_dateTime == 0) {
@@ -810,12 +805,12 @@ void CDateTime::formatDate(char *str, bool universalDateFormat) const
     }
 }
 
-void CDateTime::formatTime(char *str, bool ampm, bool showSeconds, bool showTimezone) const
+void CDateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimezone) const
 {
     short h, m, s, ms;
 
     decodeTime(m_dateTime, h, m, s, ms);
-    const char *appendix = 0L;
+    const char* appendix = 0L;
     if (showTimezone)
         ampm = false;
     if (ampm) {
@@ -824,7 +819,7 @@ void CDateTime::formatTime(char *str, bool ampm, bool showSeconds, bool showTime
         else
             appendix = "AM";
         if (h > 12)
-            h = h % 12;
+            h = short(h % 12);
     }
     int length;
     if (!showSeconds)
@@ -864,7 +859,7 @@ CDateTime CDateTime::System()
     timeval tp;
     time_t tt;
     time(&tt);
-    struct tm *t = localtime(&tt);
+    struct tm* t = localtime(&tt);
     encodeDate(dat, short(t->tm_year + 1900), short(t->tm_mon + 1), short(t->tm_mday));
     gettimeofday(&tp, 0L);
     short msec = short(tp.tv_usec / 1000);
@@ -980,7 +975,7 @@ string CDateTime::timeString(bool showSeconds, bool showTimezone) const
 
 CDateTime CDateTime::convertCTime(const time_t tt)
 {
-    struct tm *t = localtime((time_t *) &tt);
+    struct tm* t = localtime((time_t*) &tt);
     double dat, tim;
     encodeDate(dat, short(t->tm_year + 1900), short(t->tm_mon + 1), short(t->tm_mday));
     encodeTime(tim, short(t->tm_hour), short(t->tm_min), short(t->tm_sec), short(0));

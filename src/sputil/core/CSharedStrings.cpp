@@ -28,7 +28,6 @@
 #include <sptk5/sptk.h>
 #include <sptk5/CException.h>
 #include <sptk5/CSharedStrings.h>
-#include <sptk5/string_ext.h>
 
 using namespace sptk;
 

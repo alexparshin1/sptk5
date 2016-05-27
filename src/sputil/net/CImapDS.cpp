@@ -26,14 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/net/CImapDS.h>
-#include <sptk5/CException.h>
-
-#include <stdlib.h>
-
-#ifndef _WIN32
-# include <unistd.h>
-#include <stdint.h>
-#endif
 
 using namespace sptk;
 

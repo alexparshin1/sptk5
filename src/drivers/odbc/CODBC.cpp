@@ -27,21 +27,16 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
-#include <ctype.h>
 
 #include <sptk5/db/CODBC.h>
-
-#include <iostream>
-#include <stdexcept>
 
 using namespace std;
 using namespace sptk;
 
 static const char
-    cantSetConnectOption[] = "Can't set connect option",
-    cantEndTranscation[] = "Can't end transaction",
-    cantGetInformation[] = "Can't get connect information";
+        cantSetConnectOption[] = "Can't set connect option",
+        cantEndTranscation[] = "Can't end transaction",
+        cantGetInformation[] = "Can't get connect information";
 
 // Returns true if result code indicates success
 static inline bool Successful(RETCODE ret)
@@ -68,10 +63,12 @@ void ODBCBase::exception(string text, int line) const
 {
     throw CException(text, __FILE__, line);
 }
+
 //---------------------------------------------------------------------------
 // ODBC Environment class
 //---------------------------------------------------------------------------
-ODBCEnvironment::ODBCEnvironment() :
+ODBCEnvironment::ODBCEnvironment()
+        :
         m_hEnvironment(SQL_NULL_HENV)
 {
 }
@@ -106,10 +103,11 @@ void ODBCEnvironment::freeEnv()
 // ODBC Connection class
 //--------------------------------------------------------------------------------------------
 
-ODBCConnection::ODBCConnection() :
-    m_cEnvironment(GetStaticEnv()),
-    m_hConnection(SQL_NULL_HDBC),
-    m_connected(false)
+ODBCConnection::ODBCConnection()
+        :
+        m_cEnvironment(GetStaticEnv()),
+        m_hConnection(SQL_NULL_HDBC),
+        m_connected(false)
 {
 }
 
@@ -121,7 +119,7 @@ ODBCConnection::~ODBCConnection()
 }
 
 // Static environment object inside this function
-ODBCEnvironment & ODBCConnection::GetStaticEnv()
+ODBCEnvironment& ODBCConnection::GetStaticEnv()
 {
     static ODBCEnvironment Env;
     return Env;
@@ -177,16 +175,16 @@ void ODBCConnection::connect(const string& ConnectionString, string& pFinalStrin
 
     m_connectString = ConnectionString;
 
-    char *buff = new char[2048];
+    char* buff = new char[2048];
     SWORD bufflen = 0;
 
 #ifdef WIN32
     HWND ParentWnd = 0;
 #else
-    void *ParentWnd = 0;
+    void* ParentWnd = 0;
 #endif
-    m_Retcode = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR *) ConnectionString.c_str(), SQL_NTS,
-            (UCHAR FAR *) buff, (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+    m_Retcode = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) ConnectionString.c_str(), SQL_NTS,
+                                   (UCHAR FAR*) buff, (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
 
     if (!Successful(m_Retcode)) {
         string errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
@@ -203,11 +201,11 @@ void ODBCConnection::connect(const string& ConnectionString, string& pFinalStrin
     SQLSMALLINT descriptionLength = 0;
     m_Retcode = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription, 2048, &descriptionLength);
     if (Successful(m_Retcode))
-        m_driverDescription = (char *) driverDescription;
+        m_driverDescription = (char*) driverDescription;
 
     m_Retcode = SQLGetInfo(m_hConnection, SQL_DBMS_VER, driverDescription, 2048, &descriptionLength);
     if (Successful(m_Retcode))
-        m_driverDescription += " " + string((char *) driverDescription);
+        m_driverDescription += " " + string((char*) driverDescription);
 
     delete[] driverDescription;
 }
@@ -257,22 +255,23 @@ void ODBCConnection::getInfo(UWORD fInfoType, LPSTR str, int size)
     if (!Successful(m_Retcode))
         exception(errorInformation(cantGetInformation), __LINE__);
 }
+
 //==============================================================================
-const char *sptk::removeDriverIdentification(const char *error)
+const char* sptk::removeDriverIdentification(const char* error)
 {
-    char *p = (char *) error;
-    const char *p1 = error;
+    char* p = (char*) error;
+    const char* p1 = error;
     while (p1) {
         p1 = strstr(p, "][");
         if (p1)
-            p = (char *) p1 + 1;
+            p = (char*) p1 + 1;
     }
     p1 = strstr(p, "]");
     if (p1)
-        p = (char *) p1 + 1;
+        p = (char*) p1 + 1;
     p1 = strstr(p, "sqlerrm(");
     if (p1) {
-        p = (char *) p1 + 8;
+        p = (char*) p1 + 8;
         int len = (int) strlen(p);
         if (p[len - 1] == ')')
             p[len - 1] = 0;
@@ -280,11 +279,9 @@ const char *sptk::removeDriverIdentification(const char *error)
     return p;
 }
 
-string ODBCEnvironment::errorInformation(const char *action)
+string ODBCEnvironment::errorInformation()
 {
-    if (!action)
-        action = " ";
-    assert(m_Retcode!=SQL_SUCCESS);
+    assert(m_Retcode != SQL_SUCCESS);
 
     char errorDescription[SQL_MAX_MESSAGE_LENGTH];
     char errorState[SQL_MAX_MESSAGE_LENGTH];
@@ -297,7 +294,7 @@ string ODBCEnvironment::errorInformation(const char *action)
     *errorState = 0;
 
     if (SQL_SUCCESS
-            != SQLError(m_hEnvironment, SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, (SQLINTEGER *) &nativeError,
+        != SQLError(m_hEnvironment, SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, &nativeError,
                     (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg))
         exception(cantGetInformation, __LINE__);
 
@@ -306,34 +303,30 @@ string ODBCEnvironment::errorInformation(const char *action)
 }
 
 string extract_error(
-    SQLHANDLE handle,
-    SQLSMALLINT type)
+        SQLHANDLE handle,
+        SQLSMALLINT type)
 {
-    SQLSMALLINT     i = 0;
-    SQLINTEGER      native;
-    SQLCHAR         state[ 7 ];
-    SQLCHAR         text[256];
-    SQLSMALLINT     len;
+    SQLSMALLINT i = 0;
+    SQLINTEGER native;
+    SQLCHAR state[7];
+    SQLCHAR text[256];
+    SQLSMALLINT len;
     SQLRETURN ret;
 
     string error;
-    do
-    {
-        ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len );
+    for (;;) {
+        ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len);
         if (ret != SQL_SUCCESS)
             break;
-        error += removeDriverIdentification((char*)text) + string(". ");
+        error += removeDriverIdentification((char*) text) + string(". ");
     }
-    while( ret == SQL_SUCCESS );
 
     return error;
 }
 
-string ODBCConnection::errorInformation(const char * function)
+string ODBCConnection::errorInformation(const char* function)
 {
-    if (!function)
-        function = " ";
-    assert(m_Retcode!=SQL_SUCCESS);
+    assert(m_Retcode != SQL_SUCCESS);
 
     char errorDescription[SQL_MAX_MESSAGE_LENGTH];
     char errorState[SQL_MAX_MESSAGE_LENGTH];
@@ -342,52 +335,16 @@ string ODBCConnection::errorInformation(const char * function)
     *errorState = 0;
     *errorDescription = 0;
 
-    int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, (SQLINTEGER *) &nativeError,
-            (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
+    int rc = SQLError(SQL_NULL_HENV, m_hConnection, SQL_NULL_HSTMT, (UCHAR FAR*) errorState, &nativeError,
+                      (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
     if (rc == SQL_SUCCESS)
         return extract_error(m_hConnection, SQL_HANDLE_DBC);
     else {
         rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState,
-                (SQLINTEGER *) &nativeError, (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
+                      &nativeError, (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
         if (rc != SQL_SUCCESS)
             exception(cantGetInformation, __LINE__);
     }
 
     return removeDriverIdentification(errorDescription);
-}
-//----------------------------------------------------------------------------------------------------------------
-// Convert from a CTime to a TIMESTAMP_STRUCT
-bool CTime_to_TIMESTAMP_STRUCT(const time_t & time, TIMESTAMP_STRUCT & t)
-{
-    struct tm tt;
-
-    memcpy(&tt, localtime(&time), sizeof(struct tm));
-
-    t.year = short(tt.tm_year + 1900);
-    t.month = short(tt.tm_mon);
-    t.day = short(tt.tm_mday);
-    t.hour = short(tt.tm_hour);
-    t.minute = short(tt.tm_min);
-    t.second = short(tt.tm_sec);
-    t.fraction = 0;
-
-    return true;
-}
-
-// Convert a TIMESTAMP_STRUCT to a CTime
-bool TIMESTAMP_STRUCT_to_CTime(const TIMESTAMP_STRUCT & t, time_t & time)
-{
-    struct tm tt;
-
-    tt.tm_year = t.year - 1900;
-    tt.tm_mon = t.month;
-    tt.tm_mday = t.day;
-    tt.tm_hour = t.hour;
-    tt.tm_min = t.minute;
-    tt.tm_sec = t.second;
-    tt.tm_isdst = -1;
-
-    time = mktime(&tt);
-
-    return true;
 }

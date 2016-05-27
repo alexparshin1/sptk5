@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CProxyLog.h  -  description
+                          Logger.h  -  description
                              -------------------
     begin                : Tue Jan 11 2008
     copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
@@ -25,8 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __PROXYLOG_H__
-#define __PROXYLOG_H__
+#ifndef __LOGGER_H__
+#define __LOGGER_H__
 
 #include <sptk5/LogEngine.h>
 #include <fstream>
@@ -37,7 +37,7 @@ namespace sptk {
 typedef std::ostream _ostream;
 typedef std::ios _ios;
 
-class CProxyLog;
+class Logger;
 
 /// @addtogroup log Log Classes
 /// @{
@@ -45,20 +45,20 @@ class CProxyLog;
 /// @brief Internal buffer for the CLogStream class
 class SP_EXPORT CLogStreamBuf: public std::streambuf //, public CSynchronized
 {
-    friend class CProxyLog;
+    friend class Logger;
 private:
     char*           m_buffer;           ///< Internal buffer to store the current log message
     uint32_t        m_size;             ///< The size of the internal buffer
     uint32_t        m_bytes;            ///< The number of characters in the buffer
     CDateTime       m_date;             ///< Message timestamp
     LogPriority     m_priority;         ///< Current message priority, should be defined for every message
-    CProxyLog*      m_parent;           ///< Parent log object
+    Logger*         m_parent;           ///< Parent log object
 
 protected:
     /// @brief Assignes the parent log object
     ///
-    /// @param par CProxyLog *, parent log object
-    void parent(CProxyLog *par)
+    /// @param par Logger *, parent log object
+    void parent(Logger *par)
     {
         //SYNCHRONIZED_CODE;
         m_parent = par;
@@ -105,12 +105,12 @@ public:
 /// @brief A log that sends all the log messages into another log.
 ///
 /// The destination log is locked for a message adding period.
-/// Multiple CProxyLog objects may send messages from different threads
+/// Multiple Logger objects may send messages from different threads
 /// into the same destination log.
 /// The log options defining message format and min priority are used
 /// from destination log.
 /// @see CBaseLog for more information about basic log abilities.
-class SP_EXPORT CProxyLog: public _ostream
+class SP_EXPORT Logger: public _ostream
 {
     friend class CLogStreamBuf;
 
@@ -130,10 +130,10 @@ protected:
 public:
     /// @brief Constructor
     /// @param destination LogEngine&, destination logger
-    CProxyLog(LogEngine& destination);
+    Logger(LogEngine& destination);
 
     /// @brief Destructor
-    ~CProxyLog();
+    ~Logger();
 
     /// @brief Sets the message priority
     void messagePriority(LogPriority prt) const
@@ -153,7 +153,7 @@ public:
 /// By default, the message priority is CLP_NOTICE.
 /// Changing the priority would hold till the new log message.
 /// The new message would start with the default priority.
-SP_EXPORT sptk::CProxyLog& operator <<(sptk::CProxyLog&, sptk::LogPriority);
+SP_EXPORT sptk::Logger& operator <<(sptk::Logger&, sptk::LogPriority);
 
 /// @}
 }

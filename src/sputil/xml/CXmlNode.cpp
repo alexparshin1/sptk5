@@ -28,7 +28,6 @@
 
 #include <sptk5/CException.h>
 #include <sptk5/cxml>
-#include <algorithm>
 
 using namespace std;
 using namespace sptk;
@@ -229,7 +228,7 @@ void CXmlNode::matchNode(CXmlNodeVector& nodes, const vector<CXPathElement>& pat
         CXmlNode* node = *itor;
         bool nameMatches;
         bool positionMatches;
-        string nodeName = node->name();
+        //string nodeName = node->name();
         if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
             currentPosition++;
             node->matchNode(nodes, pathElements, pathPosition, starPointer);
@@ -358,7 +357,6 @@ void CXmlNode::save(CBuffer &buffer, int indent) const
     }
 
     // depending on the nodetype, do output
-    string v;
     switch (type())
     {
     case DOM_PI:

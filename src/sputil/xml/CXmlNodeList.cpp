@@ -28,7 +28,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/cxml>
-#include <algorithm>
 
 using namespace std;
 using namespace sptk;

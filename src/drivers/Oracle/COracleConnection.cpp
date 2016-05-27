@@ -30,8 +30,6 @@
 #include <sptk5/db/CQuery.h>
 #include "COracleBulkInsertQuery.h"
 
-#include <string>
-#include <stdio.h>
 #include <sptk5/CRegExp.h>
 
 using namespace std;
@@ -547,7 +545,7 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
     CField& column_name = tableColumnsQuery["column_name"];
     CField& data_type = tableColumnsQuery["data_type"];
     CField& data_length = tableColumnsQuery["data_length"];
-    string numericTypes("DECIMAL|FLOAT|DOUBLE|NUMBER");
+    //string numericTypes("DECIMAL|FLOAT|DOUBLE|NUMBER");
     CColumnTypeSizeMap columnTypeSizeMap;
     while (!tableColumnsQuery.eof()) {
         string columnName = column_name.asString();
@@ -612,7 +610,7 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
     CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
     CRegExp  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
     CRegExp  matchGo("^/\\s*$");
-    CRegExp  matchEscapeChars("([$.])", "g");
+    //CRegExp  matchEscapeChars("([$.])", "g");
     CRegExp  matchShowErrors("^SHOW\\s+ERRORS", "i");
 
     CStrings statements, matches;

@@ -26,15 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/net/CHttpParams.h>
-#include <sptk5/CBuffer.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/string_ext.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-
-#include <vector>
 
 using namespace std;
 using namespace sptk;

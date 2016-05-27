@@ -28,17 +28,14 @@
 // This example demonstrates basic thread manager usage
 #include <sptk5/cutils>
 #include <sptk5/cthreads>
-#include <vector>
-#include <iostream>
-#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;
 
-class CMyTask: public CRunable
+class CMyTask : public CRunable
 {
-    string      m_name; /// Task name, for distinguishing different tasks output
-    CProxyLog   m_log;  /// Task proxy log
+    string          m_name; /// Task name, for distinguishing different tasks output
+    Logger       m_log;  /// Task proxy log
 
     static uint32_t taskCount;
 public:
@@ -57,9 +54,10 @@ public:
 
 uint32_t CMyTask::taskCount;
 
-CMyTask::CMyTask(FileLogEngine& sharedLog) :
-    m_name("Task " + int2string(++taskCount)),
-    m_log(sharedLog)
+CMyTask::CMyTask(FileLogEngine& sharedLog)
+        :
+        m_name("Task " + int2string(++taskCount)),
+        m_log(sharedLog)
 {
 }
 
@@ -78,7 +76,7 @@ void CMyTask::run() THROWS_EXCEPTIONS
     m_log << name() << " is terminated" << endl;
 }
 
-int main(int, char*[])
+int main(int, char* [])
 {
     unsigned i;
     vector<CMyTask*> tasks;
@@ -87,8 +85,8 @@ int main(int, char*[])
     CThreadPool threadPool;
 
     /// The log file would get messages from all the tasks.
-    /// Threads send messages through their own CProxyLog objects.
-    /// Multiple CProxyLog objects can share same log object thread-safely.
+    /// Threads send messages through their own Logger objects.
+    /// Multiple Logger objects can share same log object thread-safely.
     FileLogEngine sharedLog("task_test.log");
 
     /// Trancate the log file

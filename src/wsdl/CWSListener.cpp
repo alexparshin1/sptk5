@@ -1,6 +1,4 @@
 #include <sptk5/wsdl/CWSListener.h>
-#include <sstream>
-#include <sptk5/net/CTCPServerConnection.h>
 
 using namespace std;
 using namespace sptk;
@@ -9,11 +7,11 @@ class CWSConnection : public CTCPServerConnection
 {
 protected:
     CWSRequest&     m_service;
-    CProxyLog&       m_logger;
+    Logger&       m_logger;
     const string&   m_staticFilesDirectory;
 public:
 
-    CWSConnection(SOCKET connectionSocket, sockaddr_in*, CWSRequest& service, CProxyLog& logger, const string& staticFilesDirectory)
+    CWSConnection(SOCKET connectionSocket, sockaddr_in*, CWSRequest& service, Logger& logger, const string& staticFilesDirectory)
     : CTCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
     {
     }
@@ -190,7 +188,7 @@ void CWSConnection::threadFunction()
     }
 }
 
-CWSListener::CWSListener(CWSRequest& service, CProxyLog& logger, string staticFilesDirectory)
+CWSListener::CWSListener(CWSRequest& service, Logger& logger, string staticFilesDirectory)
 : CTCPServer(), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
 {
 }

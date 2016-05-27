@@ -18,9 +18,6 @@
  ***************************************************************************/
 
 #include <sptk5/cutils>
-#include <sptk5/RegularExpression.h>
-
-#include <iostream>
 
 using namespace std;
 using namespace sptk;

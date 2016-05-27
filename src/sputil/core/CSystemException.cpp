@@ -23,9 +23,7 @@
  ***************************************************************************/
 
 #include <sptk5/CSystemException.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;

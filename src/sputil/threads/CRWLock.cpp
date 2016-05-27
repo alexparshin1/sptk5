@@ -27,9 +27,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/threads/CRWLock.h>
-#include <time.h>
-#include <errno.h>
-#include <thread>
 
 using namespace sptk;
 using namespace std;

@@ -28,7 +28,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include <sptk5/CException.h>
 #include <sptk5/CUniqueInstance.h>
@@ -37,7 +36,6 @@
 #ifndef __USE_XOPEN_EXTENDED
 #define __USE_XOPEN_EXTENDED
 #endif
-#include <unistd.h>
 #endif
 
 using namespace sptk;

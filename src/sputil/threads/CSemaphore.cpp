@@ -26,10 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/threads/CSemaphore.h>
-#include <sptk5/CSystemException.h>
-
-#include <limits.h>
-#include <time.h>
 
 using namespace std;
 using namespace sptk;

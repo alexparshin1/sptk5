@@ -26,7 +26,6 @@
 #include <iomanip>
 
 #include <sptk5/cdatabase>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;

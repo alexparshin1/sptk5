@@ -26,8 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/cxml>
-#include <stdio.h>
-#include <stdint.h>
 
 using namespace sptk;
 

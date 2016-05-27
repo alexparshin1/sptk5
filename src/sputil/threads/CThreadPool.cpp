@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/threads/CThreadPool.h>
-#include <stdint.h>
 
 using namespace std;
 using namespace sptk;

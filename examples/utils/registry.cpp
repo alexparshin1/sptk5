@@ -24,7 +24,6 @@
 
 #include <sptk5/CVariant.h>
 #include <sptk5/CRegistry.h>
-#include <sptk5/CException.h>
 
 #include <iostream>
 

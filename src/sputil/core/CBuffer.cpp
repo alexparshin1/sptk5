@@ -28,9 +28,6 @@
 #include <sptk5/CBuffer.h>
 #include <sptk5/CSystemException.h>
 #include <sptk5/filedefs.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;

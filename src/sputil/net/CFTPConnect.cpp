@@ -30,8 +30,6 @@
 #endif
 
 #include <sptk5/net/CFTPConnect.h>
-#include <stdio.h>
-#include <string.h>
 
 using namespace sptk;
 

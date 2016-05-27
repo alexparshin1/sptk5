@@ -26,7 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/wsdl/CWSParser.h>
-#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;

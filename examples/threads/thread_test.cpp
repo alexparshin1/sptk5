@@ -28,15 +28,13 @@
 // This example demonstrates thread manipulation and logging.
 #include <sptk5/cutils>
 #include <sptk5/cthreads>
-#include <vector>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
 
 class CMyThread: public CThread
 {
-    CProxyLog m_log; /// Thread proxy log
+    Logger m_log; /// Thread proxy log
 public:
 
     // Constructor
@@ -75,10 +73,10 @@ int main()
     vector<CMyThread*> threads;
 
     /// The log file would get messages from all the threads.
-    /// Threads send messages through their own CProxyLog objects.
-    /// Multiple CProxyLog objects can share same log object thread-safely.
+    /// Threads send messages through their own Logger objects.
+    /// Multiple Logger objects can share same log object thread-safely.
     FileLogEngine sharedLog("thread_test.log");
-    CProxyLog  log(sharedLog);
+    Logger  log(sharedLog);
     
     /// Trancate the log file
     sharedLog.reset();

@@ -32,14 +32,8 @@
 
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
 
-#include <string>
-#include <stdio.h>
 #include <sstream>
-#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
@@ -62,7 +56,7 @@ public:
 public:
 
     CPostgreSQLStatement(bool int64timestamps, bool prepared)
-    : m_paramValues(int64timestamps) 
+            : m_paramValues(int64timestamps)
     {
         m_stmt = NULL;
         if (prepared)
@@ -71,19 +65,19 @@ public:
             m_stmtName[0] = 0;
     }
 
-    ~CPostgreSQLStatement() 
+    ~CPostgreSQLStatement()
     {
         if (m_stmt)
             PQclear(m_stmt);
     }
 
-    void clear() 
+    void clear()
     {
         clearRows();
         m_cols = 0;
     }
 
-    void clearRows() 
+    void clearRows()
     {
         if (m_stmt) {
             PQclear(m_stmt);
@@ -94,7 +88,7 @@ public:
         m_currentRow = -1;
     }
 
-    void stmt(PGresult* st, unsigned rows, unsigned cols = 99999) 
+    void stmt(PGresult* st, unsigned rows, unsigned cols = 99999)
     {
         if (m_stmt)
             PQclear(m_stmt);
@@ -118,45 +112,40 @@ public:
         return m_stmtName;
     }
 
-    void fetch() 
+    void fetch()
     {
         m_currentRow++;
     }
 
-    bool eof() 
+    bool eof()
     {
         return m_currentRow >= m_rows;
     }
 
-    unsigned currentRow() const 
+    unsigned currentRow() const
     {
         return (unsigned) m_currentRow;
     }
 
-    unsigned colCount() const 
+    unsigned colCount() const
     {
         return (unsigned) m_cols;
     }
 
-    unsigned rowCount() const 
-    {
-        return (unsigned) m_rows;
-    }
-
-    const CParamVector& params() const 
-    {
-        return m_paramValues.m_params;
-    }
 };
 
 unsigned CPostgreSQLStatement::index;
 }
 
-enum CPostgreSQLTimestampFormat { PG_UNKNOWN_TIMESTAMPS, PG_DOUBLE_TIMESTAMPS, PG_INT64_TIMESTAMPS };
+enum CPostgreSQLTimestampFormat
+{
+    PG_UNKNOWN_TIMESTAMPS, PG_DOUBLE_TIMESTAMPS, PG_INT64_TIMESTAMPS
+};
 static CPostgreSQLTimestampFormat timestampsFormat;
 
-CPostgreSQLConnection::CPostgreSQLConnection(string connectionString) :
-    CDatabaseConnection(connectionString)
+CPostgreSQLConnection::CPostgreSQLConnection(string connectionString)
+        :
+        CDatabaseConnection(connectionString)
 {
     m_connect = 0;
     m_connType = DCT_POSTGRES;
@@ -199,11 +188,11 @@ string CPostgreSQLConnection::nativeConnectionString() const
         port = int2string(m_connString.portNumber());
 
     string result =
-        csParam("dbname", m_connString.databaseName()) +
-        csParam("host", m_connString.hostName()) +
-        csParam("user", m_connString.userName()) +
-        csParam("password", m_connString.password()) +
-        csParam("port", port);
+            csParam("dbname", m_connString.databaseName()) +
+            csParam("host", m_connString.hostName()) +
+            csParam("user", m_connString.userName()) +
+            csParam("password", m_connString.password()) +
+            csParam("port", port);
 
     return result;
 }
@@ -226,7 +215,7 @@ void CPostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCE
         }
 
         if (timestampsFormat == PG_UNKNOWN_TIMESTAMPS) {
-            const char* val = PQparameterStatus(m_connect,"integer_datetimes");
+            const char* val = PQparameterStatus(m_connect, "integer_datetimes");
             if (upperCase(val) == "ON")
                 timestampsFormat = PG_INT64_TIMESTAMPS;
             else
@@ -309,7 +298,7 @@ void CPostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 
 //-----------------------------------------------------------------------------------------------
 
-string CPostgreSQLConnection::queryError(const CQuery* query) const
+string CPostgreSQLConnection::queryError(const CQuery*) const
 {
     return PQerrorMessage(m_connect);
 }
@@ -437,24 +426,24 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
 
     string error;
     switch (rc) {
-    case PGRES_COMMAND_OK:
-        statement->stmt(stmt, 0, 0);
-        break;
+        case PGRES_COMMAND_OK:
+            statement->stmt(stmt, 0, 0);
+            break;
 
-    case PGRES_TUPLES_OK:
-        statement->stmt(stmt, (unsigned) PQntuples(stmt));
-        break;
-        
-    case PGRES_EMPTY_QUERY:
-        error = "EXECUTE command failed: EMPTY QUERY";
-        break;
+        case PGRES_TUPLES_OK:
+            statement->stmt(stmt, (unsigned) PQntuples(stmt));
+            break;
 
-    default: 
-        error = "EXECUTE command failed: ";
-        error += PQerrorMessage(m_connect);
-        break;
+        case PGRES_EMPTY_QUERY:
+            error = "EXECUTE command failed: EMPTY QUERY";
+            break;
+
+        default:
+            error = "EXECUTE command failed: ";
+            error += PQerrorMessage(m_connect);
+            break;
     }
-    
+
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
@@ -478,28 +467,28 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
 
     int resultFormat = 1;   // Results are presented in binary format
     PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), (int) paramValues.size(), paramValues.types(), paramValues.values(),
-                                    paramValues.lengths(), paramValues.formats(), resultFormat);
+                                  paramValues.lengths(), paramValues.formats(), resultFormat);
 
     ExecStatusType rc = PQresultStatus(stmt);
 
     string error;
     switch (rc) {
-    case PGRES_COMMAND_OK:
-        statement->stmt(stmt, 0, 0);
-        break;
+        case PGRES_COMMAND_OK:
+            statement->stmt(stmt, 0, 0);
+            break;
 
-    case PGRES_TUPLES_OK:
-        statement->stmt(stmt, (unsigned) PQntuples(stmt), (unsigned) PQnfields(stmt));
-        break;
+        case PGRES_TUPLES_OK:
+            statement->stmt(stmt, (unsigned) PQntuples(stmt), (unsigned) PQnfields(stmt));
+            break;
 
-    case PGRES_EMPTY_QUERY:
-        error = "EXECUTE command failed: EMPTY QUERY";
-        break;
+        case PGRES_EMPTY_QUERY:
+            error = "EXECUTE command failed: EMPTY QUERY";
+            break;
 
-    default:
-        error = "EXECUTE command failed: ";
-        error += PQerrorMessage(m_connect);
-        break;
+        default:
+            error = "EXECUTE command failed: ";
+            error += PQerrorMessage(m_connect);
+            break;
     }
 
     if (!error.empty()) {
@@ -512,84 +501,84 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
 void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, CVariantType& dataType)
 {
     switch (postgreType) {
-    case PG_BOOL:
-        dataType = VAR_BOOL;
-        return;
+        case PG_BOOL:
+            dataType = VAR_BOOL;
+            return;
 
-    case PG_OID:
-    case PG_INT2:
-    case PG_INT4:
-        dataType = VAR_INT;
-        return;
+        case PG_OID:
+        case PG_INT2:
+        case PG_INT4:
+            dataType = VAR_INT;
+            return;
 
-    case PG_INT8:
-        dataType = VAR_INT64;
-        return;
+        case PG_INT8:
+            dataType = VAR_INT64;
+            return;
 
-    case PG_NUMERIC:
-    case PG_FLOAT4:
-    case PG_FLOAT8:
-        dataType = VAR_FLOAT;
-        return;
+        case PG_NUMERIC:
+        case PG_FLOAT4:
+        case PG_FLOAT8:
+            dataType = VAR_FLOAT;
+            return;
 
-    case PG_BYTEA:
-        dataType = VAR_BUFFER;
-        return;
+        case PG_BYTEA:
+            dataType = VAR_BUFFER;
+            return;
 
-    case PG_DATE:
-        dataType = VAR_DATE;
-        return;
+        case PG_DATE:
+            dataType = VAR_DATE;
+            return;
 
-    case PG_TIME:
-    case PG_TIMESTAMP:
-        dataType = VAR_DATE_TIME;
-        return;
+        case PG_TIME:
+        case PG_TIMESTAMP:
+            dataType = VAR_DATE_TIME;
+            return;
 
-    default:
-        dataType = VAR_STRING;
-        return;
+        default:
+            dataType = VAR_STRING;
+            return;
     }
 }
 
 void CPostgreSQLConnection::CTypeToPostgreType(CVariantType dataType, Oid& postgreType)
 {
     switch (dataType) {
-    case VAR_INT:
-        postgreType = PG_INT4;
-        return;        ///< Integer 4 bytes
+        case VAR_INT:
+            postgreType = PG_INT4;
+            return;        ///< Integer 4 bytes
 
-    case VAR_MONEY:
-        postgreType = PG_FLOAT8;
-        return;        ///< Floating-point (double)
+        case VAR_MONEY:
+            postgreType = PG_FLOAT8;
+            return;        ///< Floating-point (double)
 
-    case VAR_FLOAT:
-        postgreType = PG_FLOAT8;
-        return;        ///< Floating-point (double)
+        case VAR_FLOAT:
+            postgreType = PG_FLOAT8;
+            return;        ///< Floating-point (double)
 
-    case VAR_STRING:
-    case VAR_TEXT:
-        postgreType = PG_VARCHAR;
-        return;        ///< Varchar
+        case VAR_STRING:
+        case VAR_TEXT:
+            postgreType = PG_VARCHAR;
+            return;        ///< Varchar
 
-    case VAR_BUFFER:
-        postgreType = PG_BYTEA;
-        return;        ///< Bytea
+        case VAR_BUFFER:
+            postgreType = PG_BYTEA;
+            return;        ///< Bytea
 
-    case VAR_DATE:
-    case VAR_DATE_TIME:
-        postgreType = PG_TIMESTAMP;
-        return;        ///< Timestamp
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+            postgreType = PG_TIMESTAMP;
+            return;        ///< Timestamp
 
-    case VAR_INT64:
-        postgreType = PG_INT8;
-        return;        ///< Integer 8 bytes
+        case VAR_INT64:
+            postgreType = PG_INT8;
+            return;        ///< Integer 8 bytes
 
-    case VAR_BOOL:
-        postgreType = PG_BOOL;
-        return;           ///< Boolean
+        case VAR_BOOL:
+            postgreType = PG_BOOL;
+            return;           ///< Boolean
 
-    default:
-        throwException("Unsupported SPTK data type: " + int2string(dataType));
+        default:
+            throwException("Unsupported SPTK data type: " + int2string(dataType));
     }
 }
 
@@ -638,7 +627,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
 
                 Oid dataType = PQftype(stmt, column);
                 CVariantType fieldType;
-                PostgreTypeToCType((int)dataType, fieldType);
+                PostgreTypeToCType((int) dataType, fieldType);
                 int fieldLength = PQfsize(stmt, column);
                 CDatabaseField* field = new CDatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
                 query->fields().push_back(field);
@@ -749,7 +738,7 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
     int16_t ndigits = (int16_t) ntohs(*(uint16_t*) v);
     int16_t weight = (int16_t) ntohs(*(uint16_t*) (v + 2));
     int16_t sign = (int16_t) ntohs(*(uint16_t*) (v + 4));
-    uint16_t dscale = ntohs(*(uint16_t*)(v+6));
+    uint16_t dscale = ntohs(*(uint16_t*) (v + 6));
 
     v += 8;
     int64_t value = 0;
@@ -778,20 +767,32 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
     }
 
     switch (scale - dscale) {
-        case -3: value *= 1000; break;
-        case -2: value *= 100; break;
-        case -1: value *= 10; break;
-        case 1: value /= 10; break;
-        case 2: value /= 100; break;
-        case 3: value /= 1000; break;
+        case -3:
+            value *= 1000;
+            break;
+        case -2:
+            value *= 100;
+            break;
+        case -1:
+            value *= 10;
+            break;
+        case 1:
+            value /= 10;
+            break;
+        case 2:
+            value /= 100;
+            break;
+        case 3:
+            value /= 1000;
+            break;
+        default:
+            break;
     }
-
-    scale = dscale;
 
     if (sign)
         value = -value;
 
-    CMoneyData moneyData = {value, uint8_t(dscale) };
+    CMoneyData moneyData = {value, uint8_t(dscale)};
 
     return moneyData;
 }
@@ -799,13 +800,15 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
 
 static void decodeArray(char* data, CDatabaseField* field)
 {
-    struct PGArrayHeader {
+    struct PGArrayHeader
+    {
         uint32_t dimensionNumber;
         uint32_t hasNull;
         uint32_t elementType;
     };
 
-    struct PGArrayDimension {
+    struct PGArrayDimension
+    {
         uint32_t elementCount;
         uint32_t lowerBound;
     };
@@ -910,7 +913,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
 
     for (int column = 0; column < fieldCount; column++) {
         try {
-            field = (CDatabaseField*) & (*query)[(int) column];
+            field = (CDatabaseField*) &(*query)[column];
             short fieldType = (short) field->fieldType();
 
             bool isNull = false;
@@ -931,65 +934,65 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
 
                 switch (fieldType) {
 
-                case PG_BOOL:
-                    field->setBool(readBool(data));
-                    break;
+                    case PG_BOOL:
+                        field->setBool(readBool(data));
+                        break;
 
-                case PG_INT2:
-                    field->setInteger(readInt2(data));
-                    break;
+                    case PG_INT2:
+                        field->setInteger(readInt2(data));
+                        break;
 
-                case PG_OID:
-                case PG_INT4:
-                    field->setInteger(readInt4(data));
-                    break;
+                    case PG_OID:
+                    case PG_INT4:
+                        field->setInteger(readInt4(data));
+                        break;
 
-                case PG_INT8:
-                    field->setInt64(readInt8(data));
-                    break;
+                    case PG_INT8:
+                        field->setInt64(readInt8(data));
+                        break;
 
-                case PG_FLOAT4:
-                    field->setFloat(readFloat4(data));
-                    break;
+                    case PG_FLOAT4:
+                        field->setFloat(readFloat4(data));
+                        break;
 
-                case PG_FLOAT8:
-                    field->setFloat(readFloat8(data));
-                    break;
+                    case PG_FLOAT8:
+                        field->setFloat(readFloat8(data));
+                        break;
 
-                case PG_NUMERIC:
-                    field->setMoney(readNumericToScaledInteger(data));
-                    break;
+                    case PG_NUMERIC:
+                        field->setMoney(readNumericToScaledInteger(data));
+                        break;
 
-                default:
-                    field->setExternalString(data, size_t(dataLength));
-                    break;
+                    default:
+                        field->setExternalString(data, dataLength);
+                        break;
 
-                case PG_BYTEA:
-                    field->setExternalBuffer(data, size_t(dataLength));
-                    break;
+                    case PG_BYTEA:
+                        field->setExternalBuffer(data, dataLength);
+                        break;
 
-                case PG_DATE:
-                    field->setDateTime(readDate(data));
-                    break;
+                    case PG_DATE:
+                        field->setDateTime(readDate(data));
+                        break;
 
-                case PG_TIMESTAMPTZ:
-                case PG_TIMESTAMP:
-                    field->setDateTime(readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS));
-                    break;
+                    case PG_TIMESTAMPTZ:
+                    case PG_TIMESTAMP:
+                        field->setDateTime(readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS));
+                        break;
 
-                case PG_CHAR_ARRAY:
-                case PG_INT2_VECTOR:
-                case PG_INT2_ARRAY:
-                case PG_INT4_ARRAY:
-                case PG_TEXT_ARRAY:
-                case PG_VARCHAR_ARRAY:
-                case PG_INT8_ARRAY:
-                case PG_FLOAT4_ARRAY:
-                case PG_FLOAT8_ARRAY:
-                case PG_TIMESTAMP_ARRAY:
-                case PG_TIMESTAMPTZ_ARRAY:
-                    decodeArray(data, field);
-                    break;
+                    case PG_CHAR_ARRAY:
+                    case PG_INT2_VECTOR:
+                    case PG_INT2_ARRAY:
+                    case PG_INT4_ARRAY:
+                    case PG_TEXT_ARRAY:
+                    case PG_VARCHAR_ARRAY:
+                    case PG_INT8_ARRAY:
+                    case PG_FLOAT4_ARRAY:
+                    case PG_FLOAT8_ARRAY:
+                    case PG_TIMESTAMP_ARRAY:
+                    case PG_TIMESTAMPTZ_ARRAY:
+                        decodeArray(data, field);
+                        break;
 
                 }
             }
@@ -1004,25 +1007,25 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
 void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
 {
     string tablesSQL("SELECT table_schema || '.' || table_name "
-                     "FROM information_schema.tables "
-                     "WHERE table_schema NOT IN ('information_schema','pg_catalog') ");
+                             "FROM information_schema.tables "
+                             "WHERE table_schema NOT IN ('information_schema','pg_catalog') ");
     string objectsSQL;
     objects.clear();
 
     switch (objectType) {
-    case DOT_PROCEDURES:
-        objectsSQL = "SELECT DISTINCT routine_schema || '.' || routine_name "
-                     "FROM information_schema.routines "
-                     "WHERE routine_schema NOT IN ('information_schema','pg_catalog')";
-        break;
+        case DOT_PROCEDURES:
+            objectsSQL = "SELECT DISTINCT routine_schema || '.' || routine_name "
+                    "FROM information_schema.routines "
+                    "WHERE routine_schema NOT IN ('information_schema','pg_catalog')";
+            break;
 
-    case DOT_TABLES:
-        objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
-        break;
+        case DOT_TABLES:
+            objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
+            break;
 
-    case DOT_VIEWS:
-        objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
-        break;
+        case DOT_VIEWS:
+            objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
+            break;
     }
 
     CQuery query(this, objectsSQL);
@@ -1050,8 +1053,8 @@ std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
 
 void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
 {
-    string      sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
-    PGresult*   res = PQexec(m_connect, sql.c_str());
+    string sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
+    PGresult* res = PQexec(m_connect, sql.c_str());
 
     ExecStatusType rc = PQresultStatus(res);
     if (rc < 0) {
@@ -1083,63 +1086,63 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
 
 void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-	CStrings sqlBatch;
-	sqlBatch.loadFromFile(batchFile);
+    CStrings sqlBatch;
+    sqlBatch.loadFromFile(batchFile);
 
-	CRegExp matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
-	CRegExp matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
-	CRegExp matchStatementEnd(";(\\s*|\\s*--.*)$");
+    CRegExp matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
+    CRegExp matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
+    CRegExp matchStatementEnd(";(\\s*|\\s*--.*)$");
 
-	CStrings statements, matches;
-	string statement, delimiter;
-	bool functionHeader = false;
-	bool functionBody = false;
-	for (string row : sqlBatch) {
-		if (!functionHeader && !functionBody) {
-			row = trim(row);
-			if (row.empty())
-				continue;
-		}
-		if (!functionHeader) {
-			if (matchFunction.m(row, matches)) {
-				functionHeader = true;
-				statement += row + "\n";
-				continue;
-			}
-		}
+    CStrings statements, matches;
+    string statement, delimiter;
+    bool functionHeader = false;
+    bool functionBody = false;
+    for (string row : sqlBatch) {
+        if (!functionHeader && !functionBody) {
+            row = trim(row);
+            if (row.empty())
+                continue;
+        }
+        if (!functionHeader) {
+            if (matchFunction.m(row, matches)) {
+                functionHeader = true;
+                statement += row + "\n";
+                continue;
+            }
+        }
 
-		if (functionHeader && !functionBody && matchFunctionBodyStart.m(row, matches)) {
-			functionBody = true;
-			functionHeader = false;
-			delimiter = matches[0];
-			statement += row + "\n";
-			continue;
-		}
+        if (functionHeader && !functionBody && matchFunctionBodyStart.m(row, matches)) {
+            functionBody = true;
+            functionHeader = false;
+            delimiter = matches[0];
+            statement += row + "\n";
+            continue;
+        }
 
-		if (functionBody && row.find(delimiter) != string::npos) {
-			delimiter = "";
-			functionBody = false;
-		}
+        if (functionBody && row.find(delimiter) != string::npos) {
+            delimiter = "";
+            functionBody = false;
+        }
 
-		if (!functionBody) {
-			if (matchStatementEnd.m(row, matches)) {
-				statement += row;
-				statements.push_back(statement);
-				statement = "";
-				continue;
-			}
-		}
+        if (!functionBody) {
+            if (matchStatementEnd.m(row, matches)) {
+                statement += row;
+                statements.push_back(statement);
+                statement = "";
+                continue;
+            }
+        }
 
-		statement += row + "\n";
-	}
+        statement += row + "\n";
+    }
 
     if (!trim(statement).empty())
-		statements.push_back(statement);
+        statements.push_back(statement);
 
-	for (string stmt : statements) {
-		CQuery query(this, stmt);
-		query.exec();
-	}
+    for (string stmt : statements) {
+        CQuery query(this, stmt);
+        query.exec();
+    }
 }
 
 void* postgresql_create_connection(const char* connectionString)
@@ -1148,7 +1151,7 @@ void* postgresql_create_connection(const char* connectionString)
     return connection;
 }
 
-void  postgresql_destroy_connection(void* connection)
+void postgresql_destroy_connection(void* connection)
 {
     delete (CPostgreSQLConnection*) connection;
 }

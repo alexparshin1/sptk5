@@ -28,10 +28,6 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <sptk5/LogEngine.h>
 
 using namespace std;

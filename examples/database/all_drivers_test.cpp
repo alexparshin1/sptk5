@@ -97,8 +97,8 @@ void testBLOBs(CDatabaseConnection* db)
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
         cout << selectBlobsQuery["id"].asInteger()
-            << ": "
-            << selectBlobsQuery["data"].asString() << endl;
+        << ": "
+        << selectBlobsQuery["data"].asString() << endl;
         selectBlobsQuery.fetch();
     }
     selectBlobsQuery.close();
@@ -121,8 +121,8 @@ int testDatabase(string connectionString)
 
         //testBLOBs(db);
 
-        CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
-        string objectTypeNames[] = { "tables", "views", "stored procedures" };
+        CDbObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+        string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
@@ -147,8 +147,11 @@ int testDatabase(string connectionString)
         if (db->driverDescription().find("Microsoft") != string::npos)
             timestampTypeName = "DATETIME";
 
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " + timestampTypeName + ", rate NUMERIC(16,10))", false, __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true,  __FILE__, __LINE__);
+        CQuery step1Query(db,
+                          "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " +
+                          timestampTypeName + ", rate NUMERIC(16,10))", false, __FILE__, __LINE__);
+        CQuery step2Query(db, "INSERT INTO " + tableName +
+                              " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__, __LINE__);
         CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > 1 OR id IS NULL", false, __FILE__, __LINE__);
         CQuery step4Query(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
@@ -167,8 +170,6 @@ int testDatabase(string connectionString)
 
         // The following example shows how to use the paramaters,
         // addressing them by name
-        CDateTime start, end;
-
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
         step2Query.param("position_name") = "CIO";
@@ -248,7 +249,8 @@ int testDatabase(string connectionString)
             string date = fieldToString(step3Query[3]);
             string rate = fieldToString(step3Query[4]);
 
-            cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate << endl;
+            cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
+            endl;
 
             step3Query.fetch();
         }
@@ -264,7 +266,8 @@ int testDatabase(string connectionString)
 
             step3Query.fields() >> id >> name >> position_name >> hire_date >> rate;
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate << endl;
+            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
+            hire_date << " | " << rate << endl;
 
             step3Query.fetch();
         }
@@ -288,7 +291,8 @@ int testDatabase(string connectionString)
             string hire_date = dateField;
             string rate = rateField;
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate << endl;
+            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
+            hire_date << " | " << rate << endl;
 
             step3Query.fetch();
         }
@@ -318,7 +322,8 @@ int testDatabase(string connectionString)
         CCallStatisticMap::const_iterator etor = db->callStatistics().end();
         for (; itor != etor; itor++) {
             const CCallStatistic& cs = itor->second;
-            cout << setw(60) << cs.m_sql << ": " << cs.m_calls << " calls, " << cs.m_duration << " seconds total" << endl;
+            cout << setw(60) << cs.m_sql << ": " << cs.m_calls << " calls, " << cs.m_duration << " seconds total" <<
+            endl;
         }
 
         cout << "Ok." << endl;
@@ -344,21 +349,21 @@ int main(int argc, const char* argv[])
 
     const char* availableDatabaseTypes[] = {
 #if HAVE_MYSQL == 1
-        "mysql",
+            "mysql",
 #endif
 #if HAVE_ORACLE == 1
-        "oracle",
+            "oracle",
 #endif
 #if HAVE_POSTGRESQL == 1
-        "postgres",
+            "postgres",
 #endif
 #if HAVE_ODBC == 1
-        "odbc",
+            "odbc",
 #endif
 #if HAVE_FIREBIRD == 1
-        "firebird",
+            "firebird",
 #endif
-        NULL };
+            NULL};
 
     if (connectionString.empty()) {
         CStrings databaseTypes;
@@ -366,7 +371,7 @@ int main(int argc, const char* argv[])
             databaseTypes.push_back(string(availableDatabaseTypes[i]));
 
         string dbtype, dbname, username, password, hostOrDSN;
-        for (;;) {
+        for (; ;) {
             cout << "Please select database type (" << databaseTypes.asString(",") << ")> ";
             cin >> dbtype;
             if (databaseTypes.indexOf(dbtype) != -1)

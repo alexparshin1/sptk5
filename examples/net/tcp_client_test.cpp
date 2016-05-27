@@ -25,20 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <iostream>
-
 #include <sptk5/cnet>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifndef _WIN32
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <sys/time.h>
-#endif
 
 using namespace sptk;
 

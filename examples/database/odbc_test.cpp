@@ -77,7 +77,7 @@ int main()
     CDatabaseConnection* db = connectionPool.createConnection();
 
     FileLogEngine  logFile("odbc_test.log");
-    CProxyLog   logger(logFile);
+    Logger   logger(logFile);
 
     db->logFile(&logger);
     logFile.reset();
@@ -99,8 +99,8 @@ int main()
             } catch (exception& e) {
                 cout << e.what() << endl;
             }
-            for (unsigned i = 0; i < objectList.size() && i < 10; i++)
-                cout << "  " << objectList[i] << endl;
+            for (unsigned j = 0; j < objectList.size() && j < 10; j++)
+                cout << "  " << objectList[j] << endl;
         }
         cout << "-------------------------------------------------" << endl;
 

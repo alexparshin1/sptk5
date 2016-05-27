@@ -25,14 +25,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/CException.h>
 
 using namespace std;
 using namespace sptk;
@@ -111,7 +105,7 @@ void CQuery::colAttributes(int16_t column, int16_t descType, int32_t& value)
         m_db->queryColAttributes(this, column, descType, value);
 }
 
-void CQuery::colAttributes(int16_t column, int16_t descType, char *buff, int32_t len)
+void CQuery::colAttributes(int16_t column, int16_t descType, char* buff, int32_t len)
 {
     if (m_db && m_statement)
         m_db->queryColAttributes(this, column, descType, buff, len);
@@ -123,8 +117,10 @@ string CQuery::getError() const
         return m_db->queryError(this);
     return "";
 }
+
 //==============================================================================
-CQuery::CQuery(CDatabaseConnection *_db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine) :
+CQuery::CQuery(CDatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+        :
         CDataSource(), m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
@@ -148,7 +144,8 @@ CQuery::CQuery(CDatabaseConnection *_db, string _sql, bool autoPrepare, const ch
     sql(_sql);
 }
 
-CQuery::CQuery(const CQuery& srcQuery) :
+CQuery::CQuery(const CQuery& srcQuery)
+        :
         CDataSource(), m_fields(true)
 {
     m_objectIndex = nextObjectIndex;
@@ -179,7 +176,7 @@ CQuery::~CQuery()
     try {
         closeQuery(true);
     }
-    catch (...) {}
+    catch (...) { }
     storeStatistics();
     if (m_db)
         m_db->unlinkQuery(this);
@@ -189,15 +186,15 @@ void CQuery::sql(string _sql)
 {
     // Looking up for SQL parameters
     char delimitters[] = "':";
-    char *s = strdup(_sql.c_str());
-    char *paramStart = s;
-    char *paramEnd = s;
+    char* s = strdup(_sql.c_str());
+    char* paramStart;
+    char* paramEnd = s;
     int paramNumber = 0;
 
     m_params.clear();
 
     string odbcSQL;
-    for (;;) {
+    for (; ;) {
         // Find param start
         paramStart = strpbrk(paramEnd, delimitters);
         if (!paramStart)
@@ -223,7 +220,7 @@ void CQuery::sql(string _sql)
         odbcSQL += string(paramEnd, paramStart - paramEnd);
 
         paramEnd = paramStart + 1;
-        for (;; paramEnd++) {
+        for (; ; paramEnd++) {
 
             if (isalnum(*paramEnd))
                 continue;
@@ -239,7 +236,7 @@ void CQuery::sql(string _sql)
             }
 
             string paramName(paramStart + 1, paramEnd - paramStart - 1);
-            CParam *param = m_params.find(paramName.c_str());
+            CParam* param = m_params.find(paramName.c_str());
             if (!param) {
                 param = new CParam(paramName.c_str());
                 m_params.add(param);
@@ -328,7 +325,7 @@ void CQuery::closeQuery(bool releaseStatement)
     //m_fields.clear();
 }
 
-void CQuery::connect(CDatabaseConnection *_db)
+void CQuery::connect(CDatabaseConnection* _db)
 {
     if (m_db == _db)
         return;
@@ -345,13 +342,13 @@ void CQuery::disconnect()
     m_db = NULL;
 }
 
-bool CQuery::readField(const char *, CVariant&)
+bool CQuery::readField(const char*, CVariant&)
 {
     //fvalue = m_fields[fname];
     return true;
 }
 
-bool CQuery::writeField(const char *, const CVariant&)
+bool CQuery::writeField(const char*, const CVariant&)
 {
     //m_fields[fname] = fvalue;
     return true;
@@ -366,9 +363,9 @@ void CQuery::logText(std::string text, const LogPriority& priority)
 {
     if (!m_db)
         return;
-    CProxyLog* alog = m_db->logFile();
+    Logger* alog = m_db->logFile();
     if (alog) {
-        CProxyLog& blog = *alog;
+        Logger& blog = *alog;
         blog << priority;
         blog << "[Q" << m_objectIndex << "] ";
         blog << text.c_str() << endl;
@@ -390,7 +387,7 @@ void CQuery::storeStatistics()
         char* buffer = new char[strlen(m_createdFile) + 16];
         sprintf(buffer, "%s:%i", m_createdFile, m_createdLine);
         m_db->addStatistics(buffer, m_totalDuration, m_totalCalls, m_sql);
-        delete [] buffer;
+        delete[] buffer;
         m_totalDuration = 0;
         m_totalCalls = 0;
     }

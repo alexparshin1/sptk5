@@ -22,12 +22,11 @@
 #pragma hdrstop
 #endif
 
+#include <sptk5/cdatabase>
+#include <sptk5/db/CSQLite3Connection.h>
+
 #include <iostream>
 #include <iomanip>
-#include <stdlib.h>
-
-#include <sptk5/db/CSQLite3Connection.h>
-#include <sptk5/cdatabase>
 
 using namespace std;
 using namespace sptk;

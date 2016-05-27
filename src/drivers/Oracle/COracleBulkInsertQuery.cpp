@@ -16,9 +16,6 @@ COracleBulkInsertQuery::~COracleBulkInsertQuery()
 void COracleBulkInsertQuery::execNext() THROWS_EXCEPTIONS
 {
     m_recordNumber++;
-    if (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0)
-        m_lastIteration = true;
-    else
-        m_lastIteration = false;
+    m_lastIteration = (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0);
     exec();
 }

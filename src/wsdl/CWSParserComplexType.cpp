@@ -28,8 +28,6 @@
 #include <sptk5/wsdl/CWSParserComplexType.h>
 #include <sptk5/wsdl/CWSTypeTranslator.h>
 #include <sstream>
-#include <stdio.h>
-#include <set>
 
 using namespace std;
 using namespace sptk;

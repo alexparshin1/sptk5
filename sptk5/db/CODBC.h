@@ -42,34 +42,38 @@
 #else
     #define LPCVOID  const void *
 #endif
+
 #include <sqlext.h>
 #include <assert.h>
 
 #include <sptk5/db/CParamList.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup Database Database Support
 /// @{
 
 class CODBCConnection;
+
 class ODBCEnvironment;
+
 class ODBCConnection;
+
 class CParam;
 
 /// @brief ODBC base
 ///
 /// Base class for all ODBC classes
-class SP_DRIVER_EXPORT ODBCBase: public CSynchronized
+class SP_DRIVER_EXPORT ODBCBase : public CSynchronized
 {
 protected:
     /// Last RETCODE returned from ODBC function
     SQLRETURN m_Retcode;
 
     /// Constructor
-    ODBCBase() :
-            m_Retcode(SQL_SUCCESS)
+    ODBCBase() : m_Retcode(SQL_SUCCESS)
     {
     }
 
@@ -92,18 +96,19 @@ public:
 private:
 
     /// Assignment operator, disabled
-    ODBCBase & operator =(const ODBCBase & d);
+    ODBCBase& operator=(const ODBCBase& d);
 
     /// Copy constructor, disabled
-    ODBCBase(const ODBCBase &);
+    ODBCBase(const ODBCBase&);
 };
 
 /// @brief ODBC environment
 ///
 /// Environment is only used by ODBCConnection class
-class SP_DRIVER_EXPORT ODBCEnvironment: public ODBCBase
+class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
 {
     friend class ODBCConnection;
+
 private:
 
     /// ODBC environment handle
@@ -133,9 +138,9 @@ protected:
     }
 
     /// Returns the error information
-    /// @param action const char *, user action name for the error message
     /// @returns ODBC driver error message with the user action
-    std::string errorInformation(const char *action);
+    std::string errorInformation();
+
 public:
 
     /// Destructor
@@ -146,9 +151,9 @@ public:
 ///
 /// Class ODBCConnection represents the connection to a database.
 /// You need one object of this class for each database you want to access.
-class SP_DRIVER_EXPORT ODBCConnection: public ODBCBase
+class SP_DRIVER_EXPORT ODBCConnection : public ODBCBase
 {
-    ODBCEnvironment&   m_cEnvironment;      ///< ODBC environment
+    ODBCEnvironment&    m_cEnvironment;      ///< ODBC environment
     SQLHDBC             m_hConnection;       ///< ODBC connection handle
     bool                m_connected;         ///< Is connection active?
     std::string         m_connectString;     ///< ODBC connection string
@@ -159,6 +164,7 @@ protected:
     {
         return m_hConnection != SQL_NULL_HDBC;
     }
+
 public:
 
     /// Default constructor
@@ -199,13 +205,13 @@ public:
     void getInfo(uint16_t fInfoType, LPSTR str, int size);
 
     /// Gets the connection information
-    void getInfo(uint16_t fInfoType, int16_t *num)
+    void getInfo(uint16_t fInfoType, int16_t* num)
     {
         getInfo(fInfoType, (LPSTR) num, sizeof(num));
     }
 
     /// Gets the connection information
-    void getInfo(uint16_t fInfoType, DWORD *num)
+    void getInfo(uint16_t fInfoType, DWORD* num)
     {
         getInfo(fInfoType, (LPSTR) num, sizeof(num));
     }
@@ -246,18 +252,17 @@ public:
 private:
 
     /// Returns the only environment needed
-    static ODBCEnvironment & GetStaticEnv();
+    static ODBCEnvironment& GetStaticEnv();
 
 protected:
 
     /// Retrieves an error information for user action name
-    /// @param action const char *, user action name for the error message
     /// @returns ODBC driver error message with the user action
-    std::string errorInformation(const char *action);
+    std::string errorInformation(const char* action);
 };
 
 /// Removes excessive driver information from error message
-const char *removeDriverIdentification(const char *error);
+const char* removeDriverIdentification(const char* error);
 
 /// @}
 }

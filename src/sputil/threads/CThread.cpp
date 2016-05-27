@@ -26,10 +26,6 @@
  ***************************************************************************/
 
 #include <sptk5/threads/CThread.h>
-#include <sptk5/CException.h>
-
-#include <stdio.h>
-#include <string.h>
 #include <iostream>
 
 using namespace std;

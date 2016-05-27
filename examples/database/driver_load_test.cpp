@@ -17,16 +17,12 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <sptk5/cdatabase>
+
 #ifdef __BORLANDC__
 #include <vcl.h>
 #pragma hdrstop
 #endif
-
-#include <iostream>
-#include <iomanip>
-
-#include <sptk5/cdatabase>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;

@@ -31,8 +31,9 @@
 using namespace std;
 using namespace sptk;
 
-int64_t CMoneyData::dividers[16] = { 1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL, 10000000000LL, 100000000000LL,
-        1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL };
+int64_t CMoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL,
+                                    10000000000LL, 100000000000LL,
+                                    1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL};
 
 CMoneyData::operator double() const
 {
@@ -53,6 +54,7 @@ CMoneyData::operator bool() const
 {
     return quantity != 0;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::releaseBuffers()
 {
@@ -66,6 +68,7 @@ void CVariant::releaseBuffers()
         }
     }
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setBool(bool value)
 {
@@ -77,6 +80,7 @@ void CVariant::setBool(bool value)
 
     m_data.boolData = value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setInteger(int32_t value)
 {
@@ -88,6 +92,7 @@ void CVariant::setInteger(int32_t value)
 
     m_data.intData = value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setInt64(int64_t value)
 {
@@ -99,6 +104,7 @@ void CVariant::setInt64(int64_t value)
 
     m_data.int64Data = value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setFloat(double value)
 {
@@ -110,6 +116,7 @@ void CVariant::setFloat(double value)
 
     m_data.floatData = value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setMoney(int64_t value, unsigned scale)
 {
@@ -122,8 +129,9 @@ void CVariant::setMoney(int64_t value, unsigned scale)
     m_data.moneyData.quantity = value;
     m_data.moneyData.scale = (uint8_t) scale;
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setString(const char * value, size_t maxlen)
+void CVariant::setString(const char* value, size_t maxlen)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -144,7 +152,7 @@ void CVariant::setString(const char * value, size_t maxlen)
             if (maxlen) {
                 dataSize(maxlen);
                 m_data.buffer.size = maxlen + 1;
-                m_data.buffer.data = (char *) malloc(m_data.buffer.size);
+                m_data.buffer.data = (char*) malloc(m_data.buffer.size);
                 if (m_data.buffer.data) {
                     strncpy(m_data.buffer.data, value, maxlen);
                     m_data.buffer.data[maxlen] = 0;
@@ -167,8 +175,9 @@ void CVariant::setString(const char * value, size_t maxlen)
 
     dataType(dtype);
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setExternalString(const char * value, int length)
+void CVariant::setExternalString(const char* value, int length)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -192,8 +201,9 @@ void CVariant::setExternalString(const char * value, int length)
     m_data.buffer.data = (char*) value;
     m_dataType = (uint16_t) dtype;
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setText(const char * value)
+void CVariant::setText(const char* value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -210,6 +220,7 @@ void CVariant::setText(const char * value)
         dataSize(0);
     }
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setText(const string& value)
 {
@@ -229,8 +240,9 @@ void CVariant::setText(const string& value)
         dataSize(0);
     }
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setExternalText(const char * value)
+void CVariant::setExternalText(const char* value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -248,8 +260,9 @@ void CVariant::setExternalText(const char * value)
         dataSize(0);
     }
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setBuffer(const void * value, size_t sz)
+void CVariant::setBuffer(const void* value, size_t sz)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -257,7 +270,7 @@ void CVariant::setBuffer(const void * value, size_t sz)
     if (value || sz) {
         m_data.buffer.size = sz;
         dataSize(sz);
-        m_data.buffer.data = (char *) malloc(sz);
+        m_data.buffer.data = (char*) malloc(sz);
 
         if (m_data.buffer.data && value)
             memcpy(m_data.buffer.data, value, sz);
@@ -265,6 +278,7 @@ void CVariant::setBuffer(const void * value, size_t sz)
     else
         setNull();
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setBuffer(const string& value)
 {
@@ -276,15 +290,16 @@ void CVariant::setBuffer(const string& value)
         size_t sz = vlen + 1;
         m_data.buffer.size = sz;
         dataSize(sz);
-        m_data.buffer.data = (char *) malloc(sz);
+        m_data.buffer.data = (char*) malloc(sz);
         if (m_data.buffer.data && value.c_str())
             memcpy(m_data.buffer.data, value.c_str(), sz);
     }
     else
         setNull();
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setExternalBuffer(const void * value, size_t sz)
+void CVariant::setExternalBuffer(const void* value, size_t sz)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -300,6 +315,7 @@ void CVariant::setExternalBuffer(const void * value, size_t sz)
         m_dataType |= VAR_NULL;
     }
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setDateTime(CDateTime value)
 {
@@ -311,6 +327,7 @@ void CVariant::setDateTime(CDateTime value)
 
     m_data.floatData = value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setDate(CDateTime value)
 {
@@ -322,8 +339,9 @@ void CVariant::setDate(CDateTime value)
 
     m_data.floatData = value;
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setImagePtr(const void *value)
+void CVariant::setImagePtr(const void* value)
 {
     if (m_dataType != VAR_IMAGE_PTR) {
         releaseBuffers();
@@ -331,8 +349,9 @@ void CVariant::setImagePtr(const void *value)
         dataSize(sizeof(value));
     }
 
-    m_data.imagePtr = (void *) value;
+    m_data.imagePtr = (void*) value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setImageNdx(uint32_t value)
 {
@@ -344,6 +363,7 @@ void CVariant::setImageNdx(uint32_t value)
     dataSize(sizeof(value));
     m_data.imageNdx = (int32_t) value;
 }
+
 //---------------------------------------------------------------------------
 void CVariant::setMoney(const CMoneyData& value)
 {
@@ -355,8 +375,9 @@ void CVariant::setMoney(const CMoneyData& value)
     dataSize(sizeof(value));
     m_data.moneyData = value;
 }
+
 //---------------------------------------------------------------------------
-void CVariant::setData(const CVariant &C)
+void CVariant::setData(const CVariant& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
@@ -413,6 +434,7 @@ void CVariant::setData(const CVariant &C)
 
     m_dataType = C.m_dataType;
 }
+
 //---------------------------------------------------------------------------
 // convertors
 int32_t CVariant::asInteger() const THROWS_EXCEPTIONS
@@ -606,7 +628,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
         case VAR_MONEY: {
             char format[16];
             int64_t absValue;
-            char *formatPtr = format;
+            char* formatPtr = format;
 
             if (m_data.moneyData.quantity < 0) {
                 *formatPtr = '-';
@@ -624,7 +646,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
         }
 
         case VAR_FLOAT: {
-            const char *formatString = "%0.4f";
+            const char* formatString = "%0.4f";
 
             if (floor(m_data.floatData) == m_data.floatData)
                 formatString = "%0.0f";
@@ -732,7 +754,7 @@ CDateTime CVariant::asDateTime() const THROWS_EXCEPTIONS
     }
 }
 
-void *CVariant::asImagePtr() const THROWS_EXCEPTIONS
+void* CVariant::asImagePtr() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0;

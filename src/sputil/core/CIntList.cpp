@@ -27,7 +27,6 @@
 
 #include <sptk5/CStrings.h>
 #include <sptk5/CIntList.h>
-#include <stdint.h>
 
 using namespace std;
 using namespace sptk;
@@ -50,7 +49,6 @@ string CIntList::toString (const char * separator) const
 
 void CIntList::fromString (const char *s,const char * separator)
 {
-    string   str = s;
     CStrings sl (s,separator);
 
     clear();

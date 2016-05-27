@@ -100,7 +100,6 @@ int main(int argc, const char *argv[])
                 cerr << e.what() << endl;
             }
         }
-        server.close();
     }
     catch (CException e) {
         cerr << e.what() << endl;

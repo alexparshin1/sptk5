@@ -28,32 +28,35 @@
 #include <sptk5/db/CODBCConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/db/CDatabaseField.h>
-#include <string>
-#include <stdio.h>
 
 using namespace std;
 using namespace sptk;
 
-namespace sptk {
+namespace sptk
+{
 
-    class CODBCField : public CDatabaseField
+class CODBCField : public CDatabaseField
+{
+    friend class CODBCConnection;
+
+protected:
+    char* getData()
     {
-        friend class CODBCConnection;
-    protected:
-        char *getData()
-        {
-            return (char *) &m_data;
-        }
-    public:
-        CODBCField(const std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale) :
+        return (char*) &m_data;
+    }
+
+public:
+    CODBCField(const std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale)
+            :
             CDatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
-        {
-        }
-    };
+    {
+    }
+};
 }
 
-CODBCConnection::CODBCConnection(string connectionString) :
-    CDatabaseConnection(connectionString)
+CODBCConnection::CODBCConnection(string connectionString)
+        :
+        CDatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnection;
     m_connType = DCT_ODBC;
@@ -67,7 +70,7 @@ CODBCConnection::~CODBCConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery *query = (CQuery *) m_queryList[0];
+                CQuery* query = (CQuery*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -175,24 +178,23 @@ string CODBCConnection::queryError(SQLHSTMT stmt) const
     *errorState = 0;
 
     int rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), stmt, errorState, &nativeError, errorDescription,
-            sizeof(errorDescription), &pcnmsg);
+                      sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS) {
         rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), 0L, errorState, &nativeError, errorDescription,
-                sizeof(errorDescription), &pcnmsg);
-        if (rc != SQL_SUCCESS)
-            if (!*errorDescription)
-                strcpy((char *) errorDescription, "Unknown error");
+                      sizeof(errorDescription), &pcnmsg);
+        if (rc != SQL_SUCCESS) if (!*errorDescription)
+            strcpy((char*) errorDescription, "Unknown error");
     }
 
-    return string(removeDriverIdentification((char *) errorDescription));
+    return string(removeDriverIdentification((char*) errorDescription));
 }
 
-string CODBCConnection::queryError(const CQuery *query) const
+string CODBCConnection::queryError(const CQuery* query) const
 {
     return queryError(query->statement());
 }
 
-void CODBCConnection::queryAllocStmt(CQuery *query)
+void CODBCConnection::queryAllocStmt(CQuery* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -206,13 +208,13 @@ void CODBCConnection::queryAllocStmt(CQuery *query)
     if (rc != SQL_SUCCESS) {
         string error = queryError(query);
         querySetStmt(query, SQL_NULL_HSTMT);
-        logAndThrow("CODBCConnection::queryAllocStmt", "Can't allocate statement. ");
+        logAndThrow("CODBCConnection::queryAllocStmt", error);
     }
 
     querySetStmt(query, stmt);
 }
 
-void CODBCConnection::queryFreeStmt(CQuery *query)
+void CODBCConnection::queryFreeStmt(CQuery* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -221,30 +223,30 @@ void CODBCConnection::queryFreeStmt(CQuery *query)
     querySetPrepared(query, false);
 }
 
-void CODBCConnection::queryCloseStmt(CQuery *query)
+void CODBCConnection::queryCloseStmt(CQuery* query)
 {
     CSynchronizedCode lock(m_connect);
 
     SQLFreeStmt(query->statement(), SQL_CLOSE);
 }
 
-void CODBCConnection::queryPrepare(CQuery *query)
+void CODBCConnection::queryPrepare(CQuery* query)
 {
     CSynchronizedCode lock(m_connect);
 
     query->fields().clear();
 
-    if (!successful(SQLPrepare(query->statement(), (SQLCHAR *) query->sql().c_str(), SQL_NTS)))
+    if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS)))
         query->logAndThrow("CODBCConnection::queryPrepare", queryError(query));
 }
 
-void CODBCConnection::queryUnprepare(CQuery *query)
+void CODBCConnection::queryUnprepare(CQuery* query)
 {
     queryFreeStmt(query);
     query->fields().clear();
 }
 
-void CODBCConnection::queryExecute(CQuery *query)
+void CODBCConnection::queryExecute(CQuery* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -252,7 +254,7 @@ void CODBCConnection::queryExecute(CQuery *query)
     if (query->prepared())
         rc = SQLExecute(query->statement());
     else
-        rc = SQLExecDirect(query->statement(), (SQLCHAR *) query->sql().c_str(), SQL_NTS);
+        rc = SQLExecDirect(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS);
 
     if (rc != SQL_SUCCESS) {
         SQLCHAR state[16];
@@ -262,15 +264,15 @@ void CODBCConnection::queryExecute(CQuery *query)
         SQLSMALLINT textLength = 0;
 
         rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
-                &textLength);
+                             &textLength);
         if (successful(rc)) {
             CStrings errors;
             for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; recordNumber++) {
                 rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
-                        &textLength);
+                                   &textLength);
                 if (!successful(rc))
                     break;
-                errors.push_back(string(removeDriverIdentification((const char *) text)));
+                errors.push_back(string(removeDriverIdentification((const char*) text)));
             }
             query->logAndThrow("CODBCConnection::queryExecute", errors.asString("; "));
         }
@@ -280,7 +282,7 @@ void CODBCConnection::queryExecute(CQuery *query)
         query->logAndThrow("CODBCConnection::queryExecute", queryError(query));
 }
 
-int CODBCConnection::queryColCount(CQuery *query)
+int CODBCConnection::queryColCount(CQuery* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -291,7 +293,7 @@ int CODBCConnection::queryColCount(CQuery *query)
     return count;
 }
 
-void CODBCConnection::queryColAttributes(CQuery *query, int16_t column, int16_t descType, int32_t& value)
+void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t descType, int32_t& value)
 {
     CSynchronizedCode lock(m_connect);
     SQLLEN result;
@@ -301,7 +303,7 @@ void CODBCConnection::queryColAttributes(CQuery *query, int16_t column, int16_t 
     value = (int32_t) result;
 }
 
-void CODBCConnection::queryColAttributes(CQuery *query, int16_t column, int16_t descType, LPSTR buff, int len)
+void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t descType, LPSTR buff, int len)
 {
     int16_t available;
     if (!buff || len <= 0)
@@ -313,7 +315,7 @@ void CODBCConnection::queryColAttributes(CQuery *query, int16_t column, int16_t 
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
 }
 
-void CODBCConnection::queryBindParameters(CQuery *query)
+void CODBCConnection::queryBindParameters(CQuery* query)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
@@ -321,98 +323,97 @@ void CODBCConnection::queryBindParameters(CQuery *query)
     int rc;
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
-        CParam *param = &query->param(i);
+        CParam* param = &query->param(i);
         CVariantType ptype = param->dataType();
         SQLLEN& cblen = (SQLLEN&) param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
             int16_t paramType = 0, sqlType = 0, scale = 0;
-            void *buff = param->dataBuffer();
+            void* buff = param->dataBuffer();
             long len = 0;
             int16_t paramNumber = int16_t(param->bindIndex(j) + 1);
 
             int16_t parameterMode = SQL_PARAM_INPUT;
-            switch (ptype)
-            {
-            case VAR_BOOL:
-                paramType = SQL_C_BIT;
-                sqlType = SQL_BIT;
-                break;
-            case VAR_INT:
-                paramType = SQL_C_SLONG;
-                sqlType = SQL_INTEGER;
-                break;
-            case VAR_INT64:
-                paramType = SQL_C_SBIGINT;
-                sqlType = SQL_BIGINT;
-                break;
-            case VAR_FLOAT:
-                paramType = SQL_C_DOUBLE;
-                sqlType = SQL_DOUBLE;
-                break;
-            case VAR_STRING:
-                buff = (void *) param->getString();
-                len = (long) param->dataSize();
-                paramType = SQL_C_CHAR;
-                sqlType = SQL_CHAR;
-                break;
-            case VAR_TEXT:
-                buff = (void *) param->getString();
-                len = (long) param->dataSize();
-                paramType = SQL_C_CHAR;
-                sqlType = SQL_LONGVARCHAR;
-                break;
-            case VAR_BUFFER: {
-                buff = (void *) param->getString();
-                len = (long) param->dataSize();
-                paramType = SQL_C_BINARY;
-                sqlType = SQL_LONGVARBINARY;
-                cblen = len;
-                rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, SQL_C_BINARY,
-                        SQL_LONGVARBINARY, len, scale, buff, SQLINTEGER(len), &cblen);
-                continue;
-            }
-                break;
-            case VAR_DATE: {
-                paramType = SQL_C_TIMESTAMP;
-                sqlType = SQL_TIMESTAMP;
-                len = sizeof(TIMESTAMP_STRUCT);
-                TIMESTAMP_STRUCT *t = (TIMESTAMP_STRUCT *) param->conversionBuffer();
-                CDateTime dt = param->getDateTime();
-                buff = t;
-                if (dt) {
-                    dt.decodeDate((int16_t *) &t->year, (int16_t *) &t->month, (int16_t *) &t->day);
-                    t->hour = t->minute = t->second = 0;
-                    t->fraction = 0;
-                } else {
+            switch (ptype) {
+                case VAR_BOOL:
+                    paramType = SQL_C_BIT;
+                    sqlType = SQL_BIT;
+                    break;
+                case VAR_INT:
+                    paramType = SQL_C_SLONG;
+                    sqlType = SQL_INTEGER;
+                    break;
+                case VAR_INT64:
+                    paramType = SQL_C_SBIGINT;
+                    sqlType = SQL_BIGINT;
+                    break;
+                case VAR_FLOAT:
+                    paramType = SQL_C_DOUBLE;
+                    sqlType = SQL_DOUBLE;
+                    break;
+                case VAR_STRING:
+                    buff = (void*) param->getString();
+                    len = (long) param->dataSize();
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;
-                    *(char *) buff = 0;
-                }
-            }
-                break;
-            case VAR_DATE_TIME: {
-                paramType = SQL_C_TIMESTAMP;
-                sqlType = SQL_TIMESTAMP;
-                len = sizeof(TIMESTAMP_STRUCT);
-                TIMESTAMP_STRUCT *t = (TIMESTAMP_STRUCT *) param->conversionBuffer();
-                CDateTime dt = param->getDateTime();
-                int16_t ms;
-                buff = t;
-                if (dt) {
-                    dt.decodeDate((int16_t *) &t->year, (int16_t *) &t->month, (int16_t *) &t->day);
-                    dt.decodeTime((int16_t *) &t->hour, (int16_t *) &t->minute, (int16_t *) &t->second, &ms);
-                    t->fraction = 0;
-                } else {
+                    break;
+                case VAR_TEXT:
+                    buff = (void*) param->getString();
+                    len = (long) param->dataSize();
                     paramType = SQL_C_CHAR;
-                    sqlType = SQL_CHAR;
-                    *(char *) buff = 0;
+                    sqlType = SQL_LONGVARCHAR;
+                    break;
+                case VAR_BUFFER: {
+                    buff = (void*) param->getString();
+                    len = (long) param->dataSize();
+                    paramType = SQL_C_BINARY;
+                    sqlType = SQL_LONGVARBINARY;
+                    cblen = len;
+                    rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, SQL_C_BINARY,
+                                          SQL_LONGVARBINARY, len, scale, buff, SQLINTEGER(len), &cblen);
+                    continue;
                 }
-            }
-                break;
-            default:
-                query->logAndThrow("CODBCConnection::queryBindParameters",
-                        "Unknown type of parameter " + int2string(paramNumber));
+                    break;
+                case VAR_DATE: {
+                    paramType = SQL_C_TIMESTAMP;
+                    sqlType = SQL_TIMESTAMP;
+                    len = sizeof(TIMESTAMP_STRUCT);
+                    TIMESTAMP_STRUCT* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
+                    CDateTime dt = param->getDateTime();
+                    buff = t;
+                    if (dt) {
+                        dt.decodeDate((int16_t*) &t->year, (int16_t*) &t->month, (int16_t*) &t->day);
+                        t->hour = t->minute = t->second = 0;
+                        t->fraction = 0;
+                    } else {
+                        paramType = SQL_C_CHAR;
+                        sqlType = SQL_CHAR;
+                        *(char*) buff = 0;
+                    }
+                }
+                    break;
+                case VAR_DATE_TIME: {
+                    paramType = SQL_C_TIMESTAMP;
+                    sqlType = SQL_TIMESTAMP;
+                    len = sizeof(TIMESTAMP_STRUCT);
+                    TIMESTAMP_STRUCT* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
+                    CDateTime dt = param->getDateTime();
+                    int16_t ms;
+                    buff = t;
+                    if (dt) {
+                        dt.decodeDate((int16_t*) &t->year, (int16_t*) &t->month, (int16_t*) &t->day);
+                        dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
+                        t->fraction = 0;
+                    } else {
+                        paramType = SQL_C_CHAR;
+                        sqlType = SQL_CHAR;
+                        *(char*) buff = 0;
+                    }
+                }
+                    break;
+                default:
+                    query->logAndThrow("CODBCConnection::queryBindParameters",
+                                       "Unknown type of parameter " + int2string(paramNumber));
             }
             SQLLEN* cbValue = NULL;
             if (param->isNull()) {
@@ -421,79 +422,81 @@ void CODBCConnection::queryBindParameters(CQuery *query)
             }
 
             rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, paramType, sqlType, len, scale,
-                    buff, SQLINTEGER(len), cbValue);
+                                  buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
                 param->m_binding.reset(false);
-                query->logAndThrow("CODBCConnection::queryBindParameters", "Can't bind parameter " + int2string(paramNumber));
+                query->logAndThrow("CODBCConnection::queryBindParameters",
+                                   "Can't bind parameter " + int2string(paramNumber));
             }
         }
     }
 }
 
-void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t &cType, CVariantType& dataType)
+void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, CVariantType& dataType)
 {
-    switch (odbcType)
-    {
-    case SQL_BIGINT:
-    case SQL_TINYINT:
-    case SQL_SMALLINT:
-    case SQL_INTEGER:
-        cType = SQL_C_SLONG;
-        dataType = VAR_INT;
-        return;
+    switch (odbcType) {
+        case SQL_BIGINT:
+        case SQL_TINYINT:
+        case SQL_SMALLINT:
+        case SQL_INTEGER:
+            cType = SQL_C_SLONG;
+            dataType = VAR_INT;
+            break;
 
-    case SQL_NUMERIC:
-    case SQL_REAL:
-    case SQL_DECIMAL:
-    case SQL_DOUBLE:
-    case SQL_FLOAT:
-        cType = SQL_C_DOUBLE;
-        dataType = VAR_FLOAT;
-        return;
+        case SQL_NUMERIC:
+        case SQL_REAL:
+        case SQL_DECIMAL:
+        case SQL_DOUBLE:
+        case SQL_FLOAT:
+            cType = SQL_C_DOUBLE;
+            dataType = VAR_FLOAT;
+            break;
 
-    case SQL_LONGVARCHAR:
-    case SQL_VARCHAR:
-    case SQL_CHAR:
-        cType = SQL_C_CHAR;
-        dataType = VAR_STRING;
-        return;
+        case SQL_LONGVARCHAR:
+        case SQL_VARCHAR:
+        case SQL_CHAR:
+            cType = SQL_C_CHAR;
+            dataType = VAR_STRING;
+            break;
 
-    case SQL_DATE: // ODBC 2.0 only
-    case SQL_TYPE_DATE: // ODBC 3.0 only
-        cType = SQL_C_TIMESTAMP;
-        dataType = VAR_DATE;
-        return;
-
-    case SQL_TIME:
-    case SQL_TIMESTAMP:
-    case SQL_TYPE_TIME:
-    case SQL_TYPE_TIMESTAMP:
-        if (odbcType == SQL_TYPE_DATE) {
+        case SQL_DATE: // ODBC 2.0 only
+        case SQL_TYPE_DATE: // ODBC 3.0 only
             cType = SQL_C_TIMESTAMP;
             dataType = VAR_DATE;
-        } else {
-            cType = SQL_C_TIMESTAMP;
-            dataType = VAR_DATE_TIME;
-        }
-        return;
+            break;
 
-    case SQL_BINARY:
-    case SQL_LONGVARBINARY:
-    case SQL_VARBINARY:
-        cType = SQL_C_BINARY;
-        dataType = VAR_BUFFER;
-        return;
+        case SQL_TIME:
+        case SQL_TIMESTAMP:
+        case SQL_TYPE_TIME:
+        case SQL_TYPE_TIMESTAMP:
+            if (odbcType == SQL_TYPE_DATE) {
+                cType = SQL_C_TIMESTAMP;
+                dataType = VAR_DATE;
+            } else {
+                cType = SQL_C_TIMESTAMP;
+                dataType = VAR_DATE_TIME;
+            }
+            break;
 
-    case SQL_BIT:
-        cType = SQL_C_BIT;
-        dataType = VAR_BOOL;
-        return;
+        case SQL_BINARY:
+        case SQL_LONGVARBINARY:
+        case SQL_VARBINARY:
+            cType = SQL_C_BINARY;
+            dataType = VAR_BUFFER;
+            break;
+
+        case SQL_BIT:
+            cType = SQL_C_BIT;
+            dataType = VAR_BOOL;
+            break;
+
+        default:
+            cType = 0;
+            dataType = VAR_NONE;
     }
-    cType = 0;
-    dataType = VAR_NONE;
 }
 
-void CODBCConnection::queryOpen(CQuery *query)
+void CODBCConnection::queryOpen(CQuery* query)
 {
     if (!active())
         open();
@@ -550,7 +553,7 @@ void CODBCConnection::queryOpen(CQuery *query)
                 if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
                     columnScale = 0;
 
-                CField *field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
+                CField* field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
                 query->fields().push_back(field);
             }
         }
@@ -559,9 +562,9 @@ void CODBCConnection::queryOpen(CQuery *query)
     queryFetch(query);
 }
 
-static uint32_t trimField(char *s, uint32_t sz)
+static uint32_t trimField(char* s, uint32_t sz)
 {
-    char *p = s + sz;
+    char* p = s + sz;
     char ch = s[0];
     s[0] = '!';
     while (*(--p) == ' ') {
@@ -575,7 +578,7 @@ static uint32_t trimField(char *s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-void CODBCConnection::queryFetch(CQuery *query)
+void CODBCConnection::queryFetch(CQuery* query)
 {
     if (!query->active())
         query->logAndThrow("CODBCConnection::queryFetch", "Dataset isn't open");
@@ -603,57 +606,56 @@ void CODBCConnection::queryFetch(CQuery *query)
     if (!fieldCount)
         return;
 
-    CODBCField *field = 0;
+    CODBCField* field = 0;
     for (unsigned column = 0; column < fieldCount;)
         try {
-            field = (CODBCField *) &(*query)[column];
+            field = (CODBCField*) &(*query)[column];
             const int16_t fieldType = (int16_t) field->fieldType();
             size_t readSize = field->bufferSize();
             char* buffer = field->getData();
 
             column++;
 
-            switch (fieldType)
-            {
+            switch (fieldType) {
 
-            case SQL_C_SLONG:
-            case SQL_C_DOUBLE:
-                rc = SQLGetData(statement, column, fieldType, buffer, 0, &dataLength);
-                break;
+                case SQL_C_SLONG:
+                case SQL_C_DOUBLE:
+                    rc = SQLGetData(statement, column, fieldType, buffer, 0, &dataLength);
+                    break;
 
-            case SQL_C_TIMESTAMP: {
-                TIMESTAMP_STRUCT t;
-                rc = SQLGetData(statement, column, fieldType, &t, 0, &dataLength);
-                if (dataLength > 0) {
-                    CDateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
-                    if (field->dataType() == VAR_DATE)
-                        field->setDate(dt);
-                    else
-                        field->setDateTime(dt);
+                case SQL_C_TIMESTAMP: {
+                    TIMESTAMP_STRUCT t;
+                    rc = SQLGetData(statement, column, fieldType, &t, 0, &dataLength);
+                    if (dataLength > 0) {
+                        CDateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
+                        if (field->dataType() == VAR_DATE)
+                            field->setDate(dt);
+                        else
+                            field->setDateTime(dt);
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case SQL_C_BINARY:
-            case SQL_C_CHAR:
-                buffer = (char *) field->getBuffer();
-                rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
-                if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
-                    field->checkSize(uint32_t(dataLength + 1));
-                    buffer = (char *) field->getBuffer();
-                    char *offset = buffer + readSize - 1;
-                    readSize = dataLength - readSize + 2;
-                    rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), NULL);
-                }
-                break;
+                case SQL_C_BINARY:
+                case SQL_C_CHAR:
+                    buffer = (char*) field->getBuffer();
+                    rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
+                    if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
+                        field->checkSize(uint32_t(dataLength + 1));
+                        buffer = (char*) field->getBuffer();
+                        char* offset = buffer + readSize - 1;
+                        readSize = dataLength - readSize + 2;
+                        rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), NULL);
+                    }
+                    break;
 
-            case SQL_BIT:
-                rc = SQLGetData(statement, column, fieldType, buffer, 1, &dataLength);
-                break;
+                case SQL_BIT:
+                    rc = SQLGetData(statement, column, fieldType, buffer, 1, &dataLength);
+                    break;
 
-            default:
-                dataLength = 0;
-                break;
+                default:
+                    dataLength = 0;
+                    break;
             }
 
             if (fieldType == SQL_C_CHAR && dataLength > 0)
@@ -664,7 +666,8 @@ void CODBCConnection::queryFetch(CQuery *query)
             else
                 field->dataSize(dataLength);
         } catch (exception& e) {
-            query->logAndThrow("CODBCConnection::queryFetch", "Can't read field " + field->fieldName() + "\n" + string(e.what()));
+            query->logAndThrow("CODBCConnection::queryFetch",
+                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));
         }
 }
 
@@ -687,23 +690,22 @@ void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) TH
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
             throw CDatabaseException("CODBCConnection::queryAllocStmt");
 
-        switch (objectType)
-        {
-        case DOT_TABLES:
-            if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
-                throw CDatabaseException("SQLTables");
-            break;
+        switch (objectType) {
+            case DOT_TABLES:
+                if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
+                    throw CDatabaseException("SQLTables");
+                break;
 
-        case DOT_VIEWS:
-            if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
-                throw CDatabaseException("SQLTables");
-            break;
+            case DOT_VIEWS:
+                if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
+                    throw CDatabaseException("SQLTables");
+                break;
 
-        case DOT_PROCEDURES:
-            rc = SQLProcedures(stmt, NULL, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
-            if (rc != SQL_SUCCESS)
-                throw CDatabaseException("SQLProcedures");
-            break;
+            case DOT_PROCEDURES:
+                rc = SQLProcedures(stmt, NULL, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
+                if (rc != SQL_SUCCESS)
+                    throw CDatabaseException("SQLProcedures");
+                break;
         }
 
         SQLCHAR objectSchema[256];

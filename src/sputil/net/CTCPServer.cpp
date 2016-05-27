@@ -27,7 +27,6 @@
  ***************************************************************************/
 
 #include <sptk5/net/CTCPServer.h>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;

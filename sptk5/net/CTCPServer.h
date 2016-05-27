@@ -30,7 +30,7 @@
 #define __CTCPSERVER_H__
 
 #include <sptk5/net/CServerConnection.h>
-#include <sptk5/CProxyLog.h>
+#include <sptk5/Logger.h>
 #include <set>
 #include <iostream>
 
@@ -87,7 +87,7 @@ class CTCPServer: public CSynchronized
     friend class CTCPServerListener;
     friend class CServerConnection;
     CTCPServerListener*             m_listenerThread;           ///< Server listener object
-    CProxyLog*                      m_logger;                   ///< Optional logger
+    Logger*                      m_logger;                   ///< Optional logger
     std::set<CServerConnection*>    m_connectionThreads;        ///< Per-connection thread set
     CSynchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
 protected:
@@ -118,7 +118,7 @@ protected:
 
 public:
     /// @brief Constructor
-    CTCPServer(CProxyLog* logger=NULL)
+    CTCPServer(Logger* logger=NULL)
     : m_listenerThread(NULL), m_logger(logger)
     {
     }

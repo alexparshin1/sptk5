@@ -27,7 +27,6 @@
 
 #include <iostream>
 #include <sptk5/CDateTime.h>
-#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;

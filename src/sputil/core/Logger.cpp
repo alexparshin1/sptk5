@@ -1,6 +1,6 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CProxyLog.cpp  -  description
+                          Logger.cpp  -  description
                              -------------------
     begin                : Tue Jan 11 2008
     copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
@@ -24,7 +24,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/CProxyLog.h>
+#include <sptk5/Logger.h>
 
 using namespace std;
 using namespace sptk;
@@ -70,24 +70,24 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
 }
 //==========================================================================================
 
-CProxyLog::CProxyLog(LogEngine& destination)
+Logger::Logger(LogEngine& destination)
 : _ios(0), _ostream((m_buffer = new CLogStreamBuf)), m_destination(destination)
 {
     m_buffer->parent(this);
 }
 
-CProxyLog::~CProxyLog()
+Logger::~Logger()
 {
     flush();
     delete m_buffer;
 }
 
-void CProxyLog::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+void Logger::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     m_destination.saveMessage(date, message, sz, priority);
 }
 
-SP_EXPORT CProxyLog& sptk::operator <<(CProxyLog& stream, LogPriority priority)
+SP_EXPORT Logger& sptk::operator <<(Logger& stream, LogPriority priority)
 {
     stream.messagePriority(priority);
     return stream;

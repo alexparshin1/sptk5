@@ -35,8 +35,6 @@
 
 #include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/CStrings.h>
-#include <string.h>
-#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;

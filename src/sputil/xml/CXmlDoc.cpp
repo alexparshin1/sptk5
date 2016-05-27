@@ -26,7 +26,6 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <ctype.h>
 #include <stdlib.h>
 
 #include <sptk5/CStrings.h>

@@ -27,9 +27,6 @@
 
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/CException.h>
-
-#include <algorithm>
 
 using namespace std;
 using namespace sptk;

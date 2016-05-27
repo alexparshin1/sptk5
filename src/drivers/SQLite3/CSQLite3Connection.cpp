@@ -26,27 +26,30 @@
  ***************************************************************************/
 
 #include <sptk5/sptk.h>
+
 #if HAVE_SQLITE3
+
 #include <sqlite3.h>
 #include <sptk5/db/CSQLite3Connection.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/db/CParamList.h>
-#include <string>
-#include <stdio.h>
-#include <stdint.h>
 
 namespace sptk
 {
 
-class CSQLite3Field: public CDatabaseField
+class CSQLite3Field : public CDatabaseField
 {
     friend class CSQLite3Connection;
+
 public:
-    CSQLite3Field(const std::string fieldName, int fieldColumn) :
-        CDatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0) {
+    CSQLite3Field(const std::string fieldName, int fieldColumn)
+            :
+            CDatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
+    {
     }
-    void setFieldType(int fieldType, int fieldLength, int fieldScale) {
+
+    void setFieldType(int fieldType, int fieldLength, int fieldScale)
+    {
         m_fldType = fieldType;
         m_fldSize = fieldLength;
         m_fldScale = fieldScale;
@@ -59,11 +62,12 @@ using namespace std;
 using namespace sptk;
 
 extern "C" {
-    typedef void (*sqlite3cb)(void*);
+typedef void (* sqlite3cb)(void*);
 }
 
-CSQLite3Connection::CSQLite3Connection(string connectionString) :
-    CDatabaseConnection(connectionString)
+CSQLite3Connection::CSQLite3Connection(string connectionString)
+        :
+        CDatabaseConnection(connectionString)
 {
     m_connect = 0;
     m_connType = DCT_SQLITE3;
@@ -280,43 +284,45 @@ void CSQLite3Connection::queryBindParameters(CQuery* query)
                 rc = sqlite3_bind_null(stmt, paramNumber);
             else
                 switch (ptype) {
-                case VAR_BOOL:
-                case VAR_INT:
-                    rc = sqlite3_bind_int(stmt, paramNumber, param->getInteger());
-                    break;
+                    case VAR_BOOL:
+                    case VAR_INT:
+                        rc = sqlite3_bind_int(stmt, paramNumber, param->getInteger());
+                        break;
 
-                case VAR_INT64:
-                    rc = sqlite3_bind_int64(stmt, paramNumber, param->getInt64());
-                    break;
+                    case VAR_INT64:
+                        rc = sqlite3_bind_int64(stmt, paramNumber, param->getInt64());
+                        break;
 
-                case VAR_FLOAT:
-                    rc = sqlite3_bind_double(stmt, paramNumber, param->getFloat());
-                    break;
+                    case VAR_FLOAT:
+                        rc = sqlite3_bind_double(stmt, paramNumber, param->getFloat());
+                        break;
 
-                case VAR_STRING:
-                case VAR_TEXT:
-                    rc = sqlite3_bind_text(stmt, paramNumber, param->getString(), int(param->dataSize()),
-                                           (sqlite3cb) SQLITE_STATIC);
-                    break;
+                    case VAR_STRING:
+                    case VAR_TEXT:
+                        rc = sqlite3_bind_text(stmt, paramNumber, param->getString(), int(param->dataSize()),
+                                               (sqlite3cb) SQLITE_STATIC);
+                        break;
 
-                case VAR_BUFFER:
-                    rc = sqlite3_bind_blob(stmt, paramNumber, param->getString(), int(param->dataSize()),
-                                           (sqlite3cb) SQLITE_STATIC);
-                    break;
+                    case VAR_BUFFER:
+                        rc = sqlite3_bind_blob(stmt, paramNumber, param->getString(), int(param->dataSize()),
+                                               (sqlite3cb) SQLITE_STATIC);
+                        break;
 
-                case VAR_DATE:
-                case VAR_DATE_TIME:
-                    throwException("Date and time types isn't yet supported for SQLite3");
+                    case VAR_DATE:
+                    case VAR_DATE_TIME:
+                        throwException("Date and time types isn't yet supported for SQLite3");
 
-                default:
-                    throw CDatabaseException("Unsupported type of parameter " + int2string(paramNumber), __FILE__, __LINE__,
-                                             query->sql().c_str());
+                    default:
+                        throw CDatabaseException(
+                                "Unsupported type of parameter " + int2string(paramNumber), __FILE__, __LINE__,
+                                query->sql().c_str());
                 }
 
             if (rc != SQLITE_OK) {
                 string error = sqlite3_errmsg(m_connect);
-                throw CDatabaseException(error + ", in binding parameter " + int2string(paramNumber), __FILE__, __LINE__,
-                                         query->sql().c_str());
+                throw CDatabaseException(
+                        error + ", in binding parameter " + int2string(paramNumber), __FILE__, __LINE__,
+                        query->sql().c_str());
             }
         }
     }
@@ -326,25 +332,27 @@ void CSQLite3Connection::SQLITEtypeToCType(int sqliteType, CVariantType& dataTyp
 {
     switch (sqliteType) {
 
-    case SQLITE_INTEGER:
-        dataType = VAR_INT64;
-        return;
+        case SQLITE_INTEGER:
+            dataType = VAR_INT64;
+            break;
 
-    case SQLITE_FLOAT:
-        dataType = VAR_FLOAT;
-        return;
+        case SQLITE_FLOAT:
+            dataType = VAR_FLOAT;
+            break;
 
-    case 0:
-    case SQLITE_TEXT:
-        dataType = VAR_STRING;
-        return;
+        case 0:
+        case SQLITE_TEXT:
+            dataType = VAR_STRING;
+            break;
 
-    case SQLITE_BLOB:
-        dataType = VAR_BUFFER;
-        return;
+        case SQLITE_BLOB:
+            dataType = VAR_BUFFER;
+            break;
+
+        default:
+            dataType = VAR_NONE;
+            break;
     }
-
-    dataType = VAR_NONE;
 }
 
 void CSQLite3Connection::queryOpen(CQuery* query)
@@ -434,15 +442,15 @@ void CSQLite3Connection::queryFetch(CQuery* query)
     int rc = sqlite3_step(statement);
 
     switch (rc) {
-    case SQLITE_DONE:
-        querySetEof(query, true);
-        return;
+        case SQLITE_DONE:
+            querySetEof(query, true);
+            return;
 
-    case SQLITE_ROW:
-        break;
+        case SQLITE_ROW:
+            break;
 
-    default:
-        throw CDatabaseException(queryError(query), __FILE__, __LINE__, query->sql().c_str());
+        default:
+            throw CDatabaseException(queryError(query), __FILE__, __LINE__, query->sql().c_str());
     }
 
     uint32_t fieldCount = query->fieldCount();
@@ -455,7 +463,7 @@ void CSQLite3Connection::queryFetch(CQuery* query)
 
     for (uint32_t column = 0; column < fieldCount; column++) {
         try {
-            field = (CSQLite3Field*) & (*query)[(uint32_t) column];
+            field = (CSQLite3Field*) &(*query)[(uint32_t) column];
             short fieldType = (short) field->fieldType();
 
             if (!fieldType) {
@@ -468,26 +476,26 @@ void CSQLite3Connection::queryFetch(CQuery* query)
             if (dataLength) {
                 switch (fieldType) {
 
-                case SQLITE_INTEGER:
-                    field->setInt64(sqlite3_column_int64(statement, int(column)));
-                    break;
+                    case SQLITE_INTEGER:
+                        field->setInt64(sqlite3_column_int64(statement, int(column)));
+                        break;
 
-                case SQLITE_FLOAT:
-                    field->setFloat(sqlite3_column_double(statement, int(column)));
-                    break;
+                    case SQLITE_FLOAT:
+                        field->setFloat(sqlite3_column_double(statement, int(column)));
+                        break;
 
-                case SQLITE_TEXT:
-                    field->setString((const char*) sqlite3_column_text(statement, int(column)), dataLength);
-                    dataLength = trimField((char*) field->getString(), dataLength);
-                    break;
+                    case SQLITE_TEXT:
+                        field->setString((const char*) sqlite3_column_text(statement, int(column)), dataLength);
+                        dataLength = trimField((char*) field->getString(), dataLength);
+                        break;
 
-                case SQLITE_BLOB:
-                    field->setBuffer(sqlite3_column_blob(statement, int(column)), dataLength);
-                    break;
+                    case SQLITE_BLOB:
+                        field->setBuffer(sqlite3_column_blob(statement, int(column)), dataLength);
+                        break;
 
-                default:
-                    dataLength = 0;
-                    break;
+                    default:
+                        dataLength = 0;
+                        break;
                 }
 
                 field->dataSize(dataLength);
@@ -497,8 +505,9 @@ void CSQLite3Connection::queryFetch(CQuery* query)
                 field->setNull();
             }
         } catch (exception& e) {
-            throw CDatabaseException("Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
-                                     query->sql().c_str());
+            throw CDatabaseException(
+                    "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
+                    query->sql().c_str());
         }
     }
 }
@@ -509,16 +518,16 @@ void CSQLite3Connection::objectList(CDbObjectType objectType, CStrings& objects)
     objects.clear();
 
     switch (objectType) {
-    case DOT_TABLES:
-        objectTypeName = "table";
-        break;
+        case DOT_TABLES:
+            objectTypeName = "table";
+            break;
 
-    case DOT_VIEWS:
-        objectTypeName = "view";
-        break;
+        case DOT_VIEWS:
+            objectTypeName = "view";
+            break;
 
-    default:
-        return; // no information about objects of other types
+        default:
+            return; // no information about objects of other types
     }
 
     CQuery query(this, "SELECT name FROM sqlite_master WHERE type='" + objectTypeName + "'");

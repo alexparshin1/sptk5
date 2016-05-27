@@ -25,22 +25,13 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-
 #include <sptk5/CRegistry.h>
-#include <sptk5/CException.h>
-#include <sptk5/xml/CXml.h>
-#include <sptk5/string_ext.h>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;
 
-#ifndef _WIN32
-    #include <unistd.h>
-#else
+#ifdef _WIN32
     #include <winsock2.h>
     #include <windows.h>
     #include <io.h>
@@ -54,8 +45,10 @@ using namespace sptk;
         #define S_ISBLK(m)      (((m) & _S_IFBLK) == _S_IFBLK)
     #endif
 #endif
+
 //----------------------------------------------------------------------------
-string CRegistry::homeDirectory() {
+string CRegistry::homeDirectory()
+{
 #ifndef _WIN32
     string homeDir = trim(getenv("HOME"));
     if (homeDir.empty())
@@ -84,8 +77,9 @@ string CRegistry::homeDirectory() {
     return homeDir;
 }
 
-CRegistry::CRegistry(string fileName,string programGroupName,CRegistryMode mode)
-        : CXmlDoc("Configuration"), m_fileName(fileName) {
+CRegistry::CRegistry(string fileName, string programGroupName, CRegistryMode mode)
+        : CXmlDoc("Configuration"), m_fileName(fileName)
+{
     if (m_fileName.length()) {
         string directory;
         if (mode == USER_REGISTRY)
@@ -94,60 +88,66 @@ CRegistry::CRegistry(string fileName,string programGroupName,CRegistryMode mode)
         if (programGroupName != "") {
             while (programGroupName[0] == '.')
                 programGroupName = programGroupName.substr(1);
-            programGroupName = replaceAll(programGroupName,"\\","_");
-            programGroupName = replaceAll(programGroupName,"/","_");
+            programGroupName = replaceAll(programGroupName, "\\", "_");
+            programGroupName = replaceAll(programGroupName, "/", "_");
         }
         if (programGroupName != "")
             directory += "." + programGroupName + "/";
         m_fileName = directory + m_fileName;
     }
-    m_fileName = replaceAll(m_fileName,"\\","/");
-    m_fileName = replaceAll(m_fileName,"//","/");
+    m_fileName = replaceAll(m_fileName, "\\", "/");
+    m_fileName = replaceAll(m_fileName, "//", "/");
 }
 
-CRegistry::~CRegistry() {
+CRegistry::~CRegistry()
+{
     clear();
 }
 
-void CRegistry::prepareDirectory() {
+void CRegistry::prepareDirectory()
+{
     struct stat st;
     size_t pos = m_fileName.rfind("/");
     if (pos == STRING_NPOS)
         return;
-    string directory = m_fileName.substr(0,pos);
-    if (stat(directory.c_str(),&st) == 0) {
+    string directory = m_fileName.substr(0, pos);
+    if (stat(directory.c_str(), &st) == 0) {
         if (!S_ISDIR(st.st_mode))
-            throw CException("Can't open directory '"+directory+"'");
+            throw CException("Can't open directory '" + directory + "'");
     } else {
 #ifdef _WIN32
         if (mkdir(directory.c_str()))
             throw CException("Can't create directory '"+directory+"'");
 #else
-        mkdir(directory.c_str(),0770);
-            throw CException("Can't create directory '" + directory + "'");
+        mkdir(directory.c_str(), 0770);
+        throw CException("Can't create directory '" + directory + "'");
 #endif
 
     }
 }
 
-void CRegistry::load(const CStrings& inputData) {
+void CRegistry::load(const CStrings& inputData)
+{
     clear();
     CBuffer buffer = inputData.asString("\n");
     CXmlDoc::load(buffer);
 }
 
-void CRegistry::load(const char* inputData) {
+void CRegistry::load(const char* inputData)
+{
     clear();
     CXmlDoc::load(inputData);
 }
 
-void CRegistry::load() {
+void CRegistry::load()
+{
     CBuffer inputData;
     inputData.loadFromFile(m_fileName);
     CXmlDoc::load(inputData);
 }
 
-void CRegistry::save(CStrings& outputData) {
+void CRegistry::save(CStrings& outputData)
+{
     CBuffer buffer;
     prepareDirectory();
     outputData.clear();
@@ -155,18 +155,20 @@ void CRegistry::save(CStrings& outputData) {
     outputData.fromString(buffer.data(), "\n", Strings::SM_DELIMITER);
 }
 
-void CRegistry::save() {
+void CRegistry::save()
+{
     CBuffer outputData;
     prepareDirectory();
     CXmlDoc::save(outputData);
     outputData.saveToFile(m_fileName);
 }
 
-void CRegistry::clean(CXmlNode* node) {
+void CRegistry::clean(CXmlNode* node)
+{
     CXmlNode::iterator itor = node->begin();
     CXmlNode::iterator iend = node->end();
-    CXmlNodeVector     toDelete;
-    for (; itor != iend; itor++ ) {
+    CXmlNodeVector toDelete;
+    for (; itor != iend; itor++) {
         CXmlNode* anode = *itor;
         if (anode->type() != DOM_ELEMENT) {
             toDelete.push_back(anode);
@@ -176,17 +178,19 @@ void CRegistry::clean(CXmlNode* node) {
             clean(anode);
     }
     CXmlNodeVector::iterator it = toDelete.begin();
-    for ( ; it != toDelete.end(); it++)
+    for (; it != toDelete.end(); it++)
         node->remove
-        (*it);
+                    (*it);
 }
 
-void CRegistry::load(const CXmlDoc& data) {
+void CRegistry::load(const CXmlDoc& data)
+{
     clear();
     copy(data);
     clean(this);
 }
 
-void CRegistry::save(CXmlDoc& data) const {
+void CRegistry::save(CXmlDoc& data) const
+{
     data.copy(*this);
 }

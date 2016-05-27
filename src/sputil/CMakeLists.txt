@@ -7,7 +7,7 @@ SET (SPUTIL_SOURCES
     core/CBuffer.cpp core/CDataSource.cpp core/CDateTime.cpp core/CException.cpp core/CCommandLine.cpp
     core/CField.cpp core/CFieldList.cpp core/FileLogEngine.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
     core/CStrings.cpp core/SysLogEngine.cpp core/CUniqueInstance.cpp core/CVariant.cpp core/string_ext.cpp
-    core/CDirectoryDS.cpp core/CMemoryDS.cpp core/CProxyLog.cpp core/CSystemException.cpp
+    core/CDirectoryDS.cpp core/CMemoryDS.cpp core/Logger.cpp core/CSystemException.cpp
     core/md5.cpp
     net/CBaseMailConnect.cpp net/CBaseSocket.cpp net/CCGI.cpp net/CFTPConnect.cpp
     net/CHttpConnect.cpp net/CHttpParams.cpp net/CImapConnect.cpp net/CMailMessageBody.cpp net/CSmtpConnect.cpp

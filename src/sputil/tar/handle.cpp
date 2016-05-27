@@ -13,25 +13,16 @@
 #include <sptk5/sptk.h>
 #include "libtar.h"
 
-#include <stdio.h>
 #include <fcntl.h>
-#include <errno.h>
 
-#if defined(__GNUC__) || defined(__SUNPRO_C)
-#include <unistd.h>
-#else
+#ifdef _WIN32
 #include <io.h>
 #endif
-
-#include <stdlib.h>
 
 
 static tartype_t default_type = { (openfunc_t)open, (closefunc_t)close, (readfunc_t)read, (writefunc_t)write };
 
-
-static int
-tar_init(TAR **t, char *pathname, tartype_t *type,
-	 int oflags, int mode, int options)
+static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int mode, int options)
 {
 	if ((oflags & (O_RDWR|O_RDONLY|O_WRONLY)) == O_RDWR)
 	{

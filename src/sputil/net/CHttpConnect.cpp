@@ -27,9 +27,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/net/CHttpConnect.h>
-#include <sptk5/net/CHttpParams.h>
-
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
