@@ -251,17 +251,15 @@ void CDateTimeFormat::init()
         len = int(p1 - ptr);
 
     CDateTime::timeZoneName = string(ptr, (unsigned) len);
-#if defined(__BORLANDC__) || _MSC_VER > 1800
-    CDateTime::timeZoneOffset = -_timezone / 60 + _daylight * 60;
-#else
-#ifdef __FreeBSD__
-    time_t at = time(NULL);
-    struct tm* tt = gmtime(&at);
-    CDateTime::timeZoneOffset = (int) tt->tm_gmtoff  / 60;
-#else
-    CDateTime::timeZoneOffset = -(int) timezone / 60 + daylight * 60;
-#endif
-#endif
+
+    time_t ts = 0;
+    char buf[16];
+    localtime_r(&ts, &t);
+    strftime(buf, sizeof(buf), "%z", &t);
+    int minutes = atoi(buf + 3);
+    buf[3] = 0;
+    int hours = atoi(buf);
+    CDateTime::timeZoneOffset = hours * 60 + minutes;
 }
 
 static CDateTimeFormat dateTimeFormatInitializer;
