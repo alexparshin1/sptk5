@@ -182,6 +182,42 @@ CTCPSocket::~CTCPSocket()
 {
 }
 
+void CTCPSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
+{
+    struct hostent hostbuf, *host_info;
+    int tmplen = 1024;
+    char* tmp = (char*) malloc(tmplen);
+
+    try {
+        int herr, hres;
+        while ( (hres = gethostbyname_r(hostname.c_str(), &hostbuf, tmp, tmplen, &host_info, &herr) ) == ERANGE) {
+            // realloc
+            tmplen *=2;
+            tmp = (char*) realloc(tmp, tmplen);
+        }
+            
+        if (!host_info) {
+            // error translation.
+            switch (herr) {
+                case HOST_NOT_FOUND:    throw CException("Host not found: " + hostname);
+                case NO_ADDRESS:        throw CException("Hostname " + hostname + " doesn't have an IP address");
+                case NO_RECOVERY:       throw CException("A non-recoverable name server error occurred while resolving " + hostname);
+                case TRY_AGAIN:         throw CException("A temporary name server error while resolving " + hostname);
+                default:                throw CException("Unknown error from gethostbyname_r for " + hostname);
+            }
+        }
+    }
+    catch (...) {
+        free(tmp);
+        throw;
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+    addr.sin_port = htons(uint16_t(m_port));
+}
+
 void CTCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode) THROWS_EXCEPTIONS
 {
     if (hostName.length())
@@ -192,16 +228,7 @@ void CTCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode open
         m_port = portNumber;
 
     sockaddr_in addr;
-    struct hostent *host_info;
-
-    host_info = gethostbyname(m_host.c_str());
-    if (!host_info)
-        throw CException("Can't connect. Host is unknown.", __FILE__, __LINE__);
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
-    memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
-    addr.sin_port = htons(uint16_t(m_port));
+    getHostAddress(m_host, addr);
 
     if (active())
         close();
