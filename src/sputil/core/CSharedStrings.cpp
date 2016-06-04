@@ -29,17 +29,17 @@
 #include <sptk5/CException.h>
 #include <sptk5/CSharedStrings.h>
 
+using namespace std;
 using namespace sptk;
 
 CSharedStrings::CSharedStrings() {
     shareString("");
 }
 
-const std::string& CSharedStrings::shareString(const char* str) {
+const string& CSharedStrings::shareString(const char* str) {
     CSIMap::iterator itor = m_stringIdMap.find(str);
     if (itor == m_stringIdMap.end()) {
-        std::pair<CSIMap::iterator,bool> insertResult;
-        insertResult = m_stringIdMap.insert(CSIMap::value_type(str,0));
+        pair<CSIMap::iterator,bool> insertResult = m_stringIdMap.insert(CSIMap::value_type(str,0));
         itor = insertResult.first;
     }
     itor->second++;
@@ -49,7 +49,7 @@ const std::string& CSharedStrings::shareString(const char* str) {
 void CSharedStrings::releaseString(const char* str) THROWS_EXCEPTIONS {
     CSIMap::iterator itor = m_stringIdMap.find(str);
     if (itor == m_stringIdMap.end())
-        throw CException("The string "+std::string(str)+" isn't registered in SST");
+        throw CException("The string "+string(str)+" isn't registered in SST");
     if (itor->second > 1)
         itor->second--;
     else

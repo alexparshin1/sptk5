@@ -29,10 +29,71 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <sptk5/net/CSSLSocket.h>
+#include <sptk5/threads/CSynchronized.h>
 #include <sptk5/threads/CThread.h>
 
 using namespace std;
 using namespace sptk;
+
+// OpenSSL library initialization
+class CSSLLibraryLoader
+{
+    static CSynchronized*  m_locks;
+
+    void load_library()
+    {
+        SSL_library_init();
+        SSL_load_error_strings();
+        ERR_load_BIO_strings();
+        OpenSSL_add_all_algorithms();
+    }
+    
+    static void lock_callback(int mode, int type, char *file, int line)
+    {
+        if (mode & CRYPTO_LOCK)
+            m_locks[type].lock();
+        else
+            m_locks[type].unlock();
+    }
+
+    static unsigned long thread_id(void)
+    {
+        unsigned long ret;
+
+        // TODO: Add Windows and Solaris support
+        ret=(unsigned long)pthread_self();
+        return(ret);
+    }
+
+    static void init_locks(void)
+    {
+        m_locks = new CSynchronized[CRYPTO_num_locks()];
+        CRYPTO_set_id_callback(thread_id);
+        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
+    }
+
+    static void kill_locks(void)
+    {
+        CRYPTO_set_locking_callback(NULL);
+        delete [] m_locks;
+    }
+    
+public:
+    CSSLLibraryLoader()
+    {
+        load_library();
+        init_locks();
+    }
+
+    ~CSSLLibraryLoader()
+    {
+        kill_locks();
+    }
+};
+
+CSynchronized* CSSLLibraryLoader::m_locks;
+
+static CSSLLibraryLoader loader;
 
 void CSSLSocket::throwSSLError(int rc)
 {

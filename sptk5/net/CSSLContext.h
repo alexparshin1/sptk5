@@ -40,13 +40,8 @@ namespace sptk {
 /// @brief SSL connection context
 class CSSLContext : public sptk::CSynchronized
 {
-    static bool     m_loaded;   ///< SSL is initialized flag
-
     SSL_CTX*        m_ctx;      ///< SSL connection context
     std::string     m_password; ///< Password for auto-answer in callback function
-
-    /// @brief Initialize OpenSSL library if not initialized yet
-    void init();
 
     /// @brief Password auto-reply callback function
     static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);

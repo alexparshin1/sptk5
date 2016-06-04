@@ -34,7 +34,6 @@ using namespace std;
 using namespace sptk;
 
 static int s_server_session_id_context = 1;
-bool CSSLContext::m_loaded(false);
 
 void CSSLContext::throwError(string humanDescription)
 {
@@ -43,23 +42,8 @@ void CSSLContext::throwError(string humanDescription)
     throwException(humanDescription + "\n" + errorStr);
 }
 
-void CSSLContext::init()
-{
-    static CSynchronized sync;
-
-    CSynchronizedCode lock(sync);
-    if (!m_loaded) {
-        SSL_library_init();
-        SSL_load_error_strings();
-        ERR_load_BIO_strings();
-        OpenSSL_add_all_algorithms();
-        m_loaded = true;
-    }
-}
-
 CSSLContext::CSSLContext()
 {
-    init();
     m_ctx = SSL_CTX_new(SSLv23_method());
     SSL_CTX_set_cipher_list(m_ctx, "ALL");
     SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
