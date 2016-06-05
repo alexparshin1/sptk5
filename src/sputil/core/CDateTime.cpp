@@ -254,8 +254,8 @@ void CDateTimeFormat::init()
 
     time_t ts = 0;
     char buf[16];
-    localtime_r(&ts, &t);
-    strftime(buf, sizeof(buf), "%z", &t);
+	struct tm *ltime = localtime(&ts);
+    strftime(buf, sizeof(buf), "%z", ltime);
     int minutes = atoi(buf + 3);
     buf[3] = 0;
     int hours = atoi(buf);

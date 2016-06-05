@@ -184,7 +184,12 @@ TCPSocket::~TCPSocket()
 
 void TCPSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
 {
-    struct hostent hostbuf, *host_info;
+    struct hostent* host_info;
+
+#ifdef _WIN32
+	host_info = gethostbyname(hostname.c_str());
+#else
+	struct hostent hostbuf;
     int tmplen = 1024;
     char* tmp = (char*) malloc(tmplen);
 
@@ -211,7 +216,7 @@ void TCPSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
         free(tmp);
         throw;
     }
-
+#endif
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
     memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));

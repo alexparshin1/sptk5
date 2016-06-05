@@ -235,10 +235,10 @@ ENDIF (FLTK_FOUND)
 IF (WIN32)
   # Windows message resource compiler (included with Windows SDK)
   FIND_PROGRAM (MC_COMPILER mc PATHS
-					"$ENV{ProgramFiles}/Windows Kits/*"
-					"$ENV{ProgramW6432}/Windows Kits/*"
-					"$ENV{ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
-					"$ENV{ProgramW6432}/Microsoft SDKs/Windows/*/Bin/x64")
+                    "$ENV{ProgramFiles}/Windows Kits/*/bin/x64"
+                    "$ENV{ProgramW6432}/Windows Kits/*/bin/x64"
+                    "$ENV{ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
+                    "$ENV{ProgramW6432}/Microsoft SDKs/Windows/*/Bin/x64")
   IF (MC_COMPILER)
     MESSAGE("Windows SDK mc:     found")
     ADD_SUBDIRECTORY (events.w32)

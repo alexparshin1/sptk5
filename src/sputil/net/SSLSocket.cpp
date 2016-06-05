@@ -59,9 +59,11 @@ class CSSLLibraryLoader
     static unsigned long thread_id(void)
     {
         unsigned long ret;
-
-        // TODO: Add Windows and Solaris support
+#ifdef _WIN32
+		ret = GetCurrentThreadId();
+#else
         ret=(unsigned long)pthread_self();
+#endif
         return(ret);
     }
 

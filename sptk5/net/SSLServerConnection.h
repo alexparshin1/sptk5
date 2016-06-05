@@ -46,9 +46,9 @@ public:
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
     /// @param sslContext CSSLContext&, Server SSL context (shared between connections)
     SSLServerConnection(SOCKET connectionSocket, SSLContext& sslContext)
-    : CServerConnection(connectionSocket, "SSLServerConnection")
+    : ServerConnection(connectionSocket, "SSLServerConnection")
     {
-        m_socket = new CSSLSocket(sslContext);
+        m_socket = new SSLSocket(sslContext);
         m_socket->attach(connectionSocket);
     }
 
