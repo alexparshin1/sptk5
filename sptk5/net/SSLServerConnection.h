@@ -45,7 +45,7 @@ public:
     /// @brief Constructor
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
     /// @param sslContext CSSLContext&, Server SSL context (shared between connections)
-    SSLServerConnection(SOCKET connectionSocket, CSSLContext& sslContext)
+    SSLServerConnection(SOCKET connectionSocket, SSLContext& sslContext)
     : CServerConnection(connectionSocket, "SSLServerConnection")
     {
         m_socket = new CSSLSocket(sslContext);
