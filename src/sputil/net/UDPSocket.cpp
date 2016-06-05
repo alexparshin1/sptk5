@@ -1,11 +1,12 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          tcp_client_test.cpp  -  description
+                          CUDPSocket.h  -  description
                              -------------------
-    begin                : Wed Apr 20, 2005
-    copyright            : (C) 2000-2011 by Alexey Parshin
+    begin                : Jul 10 2013
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
+
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -25,39 +26,22 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <iostream>
-#include <sptk5/cutils>
-#include <sptk5/cnet>
+#include <sptk5/net/UDPSocket.h>
 
 using namespace std;
 using namespace sptk;
 
-int main(int, const char**)
+UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY domain)
+ : BaseSocket(domain, SOCK_DGRAM)
 {
-    try {
-        SSLContext sslContext;
-        sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
+    m_sockfd = socket (m_domain, m_type, m_protocol);
+}
 
-        SSLSocket client(sslContext);
-        CBuffer buffer;
-
-        for (unsigned i = 0; i < 10; i++) {
-            client.open("localhost", 443);
-
-            client.write("GET /\n",6);
-            client.readLine(buffer, '\n');
-            cout << "Receiving: ";
-            cout << buffer.data() << "\n";
-            client.close();
-            CThread::msleep(3000);
-        }
-
-    } catch (exception& e) {
-        cout << "Exception was caught: ";
-        cout << e.what() << "\nExiting.\n";
-    }
-
-    cout << "Exiting\n";
-
-    return 0;
+size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
+{
+    socklen_t addrLength = sizeof(sockaddr_in);
+    int bytes = (int) recvfrom(m_sockfd, (char*) buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    if (bytes == -1)
+        THROW_SOCKET_ERROR("Can't read to socket");
+    return (size_t) bytes;
 }

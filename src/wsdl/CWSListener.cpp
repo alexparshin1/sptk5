@@ -3,7 +3,7 @@
 using namespace std;
 using namespace sptk;
 
-class CWSConnection : public CTCPServerConnection
+class CWSConnection : public TCPServerConnection
 {
 protected:
     CWSRequest&     m_service;
@@ -12,7 +12,7 @@ protected:
 public:
 
     CWSConnection(SOCKET connectionSocket, sockaddr_in*, CWSRequest& service, Logger& logger, const string& staticFilesDirectory)
-    : CTCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
+    : TCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
     {
     }
 
@@ -189,7 +189,7 @@ void CWSConnection::threadFunction()
 }
 
 CWSListener::CWSListener(CWSRequest& service, Logger& logger, string staticFilesDirectory)
-: CTCPServer(), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
+: TCPServer(), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
 
@@ -197,7 +197,7 @@ CWSListener::~CWSListener()
 {
 }
 
-CServerConnection* CWSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
+ServerConnection* CWSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
     return new CWSConnection(connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory);
 }

@@ -3,17 +3,17 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 SET (SPUTIL_SOURCES
-    core/CBase64.cpp core/LogEngine.cpp 
+    core/CBase64.cpp core/LogEngine.cpp
     core/CBuffer.cpp core/CDataSource.cpp core/CDateTime.cpp core/CException.cpp core/CCommandLine.cpp
     core/CField.cpp core/CFieldList.cpp core/FileLogEngine.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
     core/CStrings.cpp core/SysLogEngine.cpp core/CUniqueInstance.cpp core/CVariant.cpp core/string_ext.cpp
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/Logger.cpp core/CSystemException.cpp
     core/md5.cpp
-    net/CBaseMailConnect.cpp net/CBaseSocket.cpp net/CCGI.cpp net/CFTPConnect.cpp
-    net/CHttpConnect.cpp net/CHttpParams.cpp net/CImapConnect.cpp net/CMailMessageBody.cpp net/CSmtpConnect.cpp
-    net/CSSLContext.cpp net/CSSLSocket.cpp
-    net/CTCPServer.cpp net/CTCPSocket.cpp net/CServerConnection.cpp
-    net/CUDPSocket.cpp net/CFtpDS.cpp net/CImapDS.cpp
+    net/BaseMailConnect.cpp net/BaseSocket.cpp net/CGI.cpp net/FTPConnect.cpp
+    net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
+    net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp
+    net/TCPServer.cpp net/TCPSocket.cpp net/ServerConnection.cpp
+    net/UDPSocket.cpp net/FtpDS.cpp net/ImapDS.cpp
     xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
     tar/block.cpp tar/CTar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp

@@ -34,7 +34,7 @@ int main (int argc, char* argv[])
 {
     try {
         // Create the socket
-        CUDPSocket server;
+        UDPSocket server;
         server.port(3000);
         server.host("localhost");
 

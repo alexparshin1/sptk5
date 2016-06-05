@@ -33,7 +33,7 @@ using namespace sptk;
 int main (int argc, char* argv[])
 {
     try {
-        CUDPSocket client;
+        UDPSocket client;
         client.port(3000);
         client.host("127.0.0.1");
 

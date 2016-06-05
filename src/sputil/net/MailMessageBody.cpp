@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          tcp_client_test.cpp  -  description
+                          CMailMessageBody.cpp  -  description
                              -------------------
-    begin                : Wed Apr 20, 2005
-    copyright            : (C) 2000-2011 by Alexey Parshin
+    begin                : 25 Oct 2004
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -25,39 +25,47 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <iostream>
-#include <sptk5/cutils>
-#include <sptk5/cnet>
+#include <sptk5/net/MailMessageBody.h>
+#include <sptk5/CStrings.h>
 
 using namespace std;
 using namespace sptk;
 
-int main(int, const char**)
+string MailMessageBody::stripHtml(const string& origHtml)
 {
-    try {
-        SSLContext sslContext;
-        sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
+    CStrings html(origHtml, "<");
+    unsigned i = 0;
 
-        SSLSocket client(sslContext);
-        CBuffer buffer;
-
-        for (unsigned i = 0; i < 10; i++) {
-            client.open("localhost", 443);
-
-            client.write("GET /\n",6);
-            client.readLine(buffer, '\n');
-            cout << "Receiving: ";
-            cout << buffer.data() << "\n";
-            client.close();
-            CThread::msleep(3000);
+    // Remove comments and scripts
+    for (i = 0; i < html.size(); i++) {
+        string& str = html[i];
+        size_t pos = str.find(">");
+        if (pos == STRING_NPOS)
+            continue;
+        str = str.substr(pos + 1);
+        if (str.empty()) {
+            html.erase(html.begin() + i);
+            i--;
         }
-
-    } catch (exception& e) {
-        cout << "Exception was caught: ";
-        cout << e.what() << "\nExiting.\n";
     }
 
-    cout << "Exiting\n";
+    return trim(replaceAll(replaceAll(html.asString(" "), "   ", " "), "  ", " "));
+}
 
-    return 0;
+void MailMessageBody::text(const string& messageText, bool smtp)
+{
+    string msg;
+    if (smtp)
+        msg = replaceAll(messageText, "\n.\n", "\n \n");
+    else
+        msg = messageText;
+    if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS) {
+        m_type = MMT_PLAIN_TEXT_MESSAGE;
+        m_plainText = msg;
+        m_htmlText = "";
+    } else {
+        m_type = MMT_HTML_MESSAGE;
+        m_plainText = stripHtml(msg);
+        m_htmlText = msg;
+    }
 }

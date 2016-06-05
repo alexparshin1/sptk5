@@ -1,9 +1,9 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          CFtpDS.h - description
+                          FtpDS.h - description
                              -------------------
     begin                : Mar 19 2003
-    copyright            : (C) 1999-2014 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
 
@@ -25,11 +25,11 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#ifndef __CFTPDS_H__
-#define __CFTPDS_H__
+#ifndef __FTPDS_H__
+#define __FTPDS_H__
 
 #include <sptk5/CMemoryDS.h>
-#include <sptk5/net/CFTPConnect.h>
+#include <sptk5/net/FTPConnect.h>
 
 namespace sptk
 {
@@ -41,7 +41,7 @@ namespace sptk
 typedef void (*CProgressCallback)(int total, int progress);
 
 /// Show policy defines what will be shown
-enum CFtpShowPolicy
+enum FtpShowPolicy
 {
     SHOW_ALL = 0,        /// Show everything
     HIDE_MESSAGES = 1,      /// Hide messages
@@ -53,7 +53,7 @@ enum CFtpShowPolicy
 ///
 /// Class CFtpDS allows to browse the list of files on FTP server.
 /// It returns a dataset with file names, sizes, modification times etc.
-class CFtpDS: public CMemoryDS
+class FtpDS: public CMemoryDS
 {
 private:
     CFTPConnect         m_ftp;            /// FTP socket
@@ -66,7 +66,7 @@ private:
     CProgressCallback   m_callback;       /// Internal callback to indicate the progress on open()
 public:
     /// Default Constructor
-    CFtpDS() :
+    FtpDS() :
             CMemoryDS(),
             m_port(21),
             m_showpolicy(0),
@@ -75,7 +75,7 @@ public:
     }
 
     /// Destructor
-    virtual ~CFtpDS()
+    virtual ~FtpDS()
     {
         close();
     }

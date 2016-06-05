@@ -65,22 +65,22 @@ void go_callback(Fl_Widget *,void *)
         port = string2int(hostName.c_str() + portPos);
     }
 
-    CTCPSocket*     socket;
+    TCPSocket*     socket;
     COpenSSLContext sslContext;
     try {
         CDateTime        started = CDateTime::Now();
         
         if (!https)
-            socket = new CTCPSocket;
+            socket = new TCPSocket;
         else
             socket = new COpenSSLSocket(sslContext);
         
-        CHttpConnect sock(*socket);
+        HttpConnect sock(*socket);
 
         socket->open(hostName, port);
 
         CStrings text(paramsInput->data(),"\n");
-        CHttpParams httpFields;
+        HttpParams httpFields;
 
         if (paramsCombo->data() == "HTTP Get") {
 

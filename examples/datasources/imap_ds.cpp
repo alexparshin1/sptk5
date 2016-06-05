@@ -25,7 +25,7 @@ using namespace std;
 using namespace sptk;
 
 CListView      *filesListView;
-CImapDS        *imapDS;
+ImapDS        *imapDS;
 CInput         *imapServer;
 CInput         *imapUser;
 CPasswordInput *imapPassword;
@@ -75,7 +75,7 @@ int main(int argc,char *argv[])
     agroup2.end();
 
     filesListView = new CListView("",10,SP_ALIGN_CLIENT);
-    imapDS = new CImapDS();
+    imapDS = new ImapDS();
 
     mainWindow.end();
     mainWindow.resizable(mainWindow);

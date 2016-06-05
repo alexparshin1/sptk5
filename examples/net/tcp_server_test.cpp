@@ -35,7 +35,7 @@ int main( int argc, char* argv[] )
 
    try {
       // Create the socket
-      CTCPSocket server;
+      TCPSocket server;
       server.port(3000);
       server.host("localhost");
 
@@ -45,7 +45,7 @@ int main( int argc, char* argv[] )
       server.listen();
       server.accept(clientSocketFD, clientInfo);
 
-      CTCPSocket new_sock;
+      TCPSocket new_sock;
       new_sock.attach(clientSocketFD);
 
       try {

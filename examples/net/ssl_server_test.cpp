@@ -25,14 +25,14 @@
   Please report all bugs and problems to "alexeyp@gmail.com"
 ***************************************************************************/
 
-#include <sptk5/net/CSSLContext.h>
-#include <sptk5/net/CSSLSocket.h>
+#include <sptk5/net/SSLContext.h>
+#include <sptk5/net/SSLSocket.h>
 #include <iostream>
 
 using namespace std;
 using namespace sptk;
 
-void readAndReply(CSSLSocket& socket)
+void readAndReply(SSLSocket& socket)
 {
     char        buffer[1024];
     char        reply[2048];
@@ -69,14 +69,14 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    CSSLContext sslContext;
+    SSLContext sslContext;
 
     try {
         sslContext.loadKeys("key.pem", "cert.pem", "");
 
         //int server = OpenListener(atoi(portnum));    /* create server socket */
 
-        CTCPSocket server;
+        TCPSocket server;
         server.port(port);
         server.host("localhost");
 
@@ -90,7 +90,7 @@ int main(int argc, const char *argv[])
             server.accept(clientSocketFD, clientInfo);
             printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), ntohs(clientInfo.sin_port));
 
-            CSSLSocket connection(sslContext);
+            SSLSocket connection(sslContext);
             try {
                 connection.attach(clientSocketFD);
                 readAndReply(connection);         /* service connection */

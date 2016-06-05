@@ -28,18 +28,18 @@
 #ifndef __CNET_H__
 #define __CNET_H__
 
-#include <sptk5/net/CCGI.h>
-#include <sptk5/net/CFTPConnect.h>
+#include <sptk5/net/CGI.h>
+#include <sptk5/net/FTPConnect.h>
 #include <sptk5/net/CFtpDS.h>
-#include <sptk5/net/CHttpConnect.h>
-#include <sptk5/net/CHttpParams.h>
-#include <sptk5/net/CImapConnect.h>
-#include <sptk5/net/CImapDS.h>
-#include <sptk5/net/CMailMessageBody.h>
-#include <sptk5/net/CSmtpConnect.h>
-#include <sptk5/net/CTCPServer.h>
-#include <sptk5/net/CTCPServerConnection.h>
-#include <sptk5/net/CUDPSocket.h>
-#include <sptk5/net/CSSLSocket.h>
+#include <sptk5/net/HttpConnect.h>
+#include <sptk5/net/HttpParams.h>
+#include <sptk5/net/ImapConnect.h>
+#include <sptk5/net/ImapDS.h>
+#include <sptk5/net/MailMessageBody.h>
+#include <sptk5/net/SmtpConnect.h>
+#include <sptk5/net/TCPServer.h>
+#include <sptk5/net/TCPServerConnection.h>
+#include <sptk5/net/UDPSocket.h>
+#include <sptk5/net/SSLSocket.h>
 
 #endif

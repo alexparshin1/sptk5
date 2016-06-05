@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     
     Logger logger(logEngine);
 
-    CSmtpConnect    SMTP(&logger);
+    SmtpConnect    SMTP(&logger);
     std::string     user, password, email, host, portStr;
 
     cout << "Testing SMTP connectivity." << endl;

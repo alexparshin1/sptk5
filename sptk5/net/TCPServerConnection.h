@@ -1,11 +1,12 @@
 /***************************************************************************
                           SIMPLY POWERFUL TOOLKIT (SPTK)
-                          tcp_client_test.cpp  -  description
+                          TCPServerConnection.h  -  description
                              -------------------
-    begin                : Wed Apr 20, 2005
-    copyright            : (C) 2000-2011 by Alexey Parshin
+    begin                : Jul 13 2013
+    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
     email                : alexeyp@gmail.com
  ***************************************************************************/
+
 
 /***************************************************************************
    This library is free software; you can redistribute it and/or modify it
@@ -25,39 +26,34 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <iostream>
-#include <sptk5/cutils>
-#include <sptk5/cnet>
+#ifndef __TCPSERVERCONNECTION_H__
+#define __TCPSERVERCONNECTION_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/net/ServerConnection.h>
 
-int main(int, const char**)
+namespace sptk
 {
-    try {
-        SSLContext sslContext;
-        sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
 
-        SSLSocket client(sslContext);
-        CBuffer buffer;
+/// @addtogroup net Networking Classes
+/// @{
 
-        for (unsigned i = 0; i < 10; i++) {
-            client.open("localhost", 443);
-
-            client.write("GET /\n",6);
-            client.readLine(buffer, '\n');
-            cout << "Receiving: ";
-            cout << buffer.data() << "\n";
-            client.close();
-            CThread::msleep(3000);
-        }
-
-    } catch (exception& e) {
-        cout << "Exception was caught: ";
-        cout << e.what() << "\nExiting.\n";
+/// @brief Abstract TCP server connection thread
+///
+/// Application derives concrete TCP server connections based on this class,
+/// to use with CTCPServer as connection template
+class TCPServerConnection: public ServerConnection
+{
+public:
+    /// @brief Constructor
+    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+    TCPServerConnection(SOCKET connectionSocket)
+    : ServerConnection(connectionSocket, "TCPServerConnection")
+    {
+        m_socket = new TCPSocket;
+        m_socket->attach(connectionSocket);
     }
+};
 
-    cout << "Exiting\n";
-
-    return 0;
+/// @}
 }
+#endif

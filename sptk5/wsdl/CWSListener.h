@@ -10,7 +10,7 @@ namespace sptk {
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
-class CWSListener : public sptk::CTCPServer
+class CWSListener : public sptk::TCPServer
 {
 protected:
     sptk::CWSRequest&   m_service;              ///< Web Service request processor
@@ -23,7 +23,7 @@ protected:
     /// Created connection object is maintained by CTCPServer.
     /// @param connectionSocket SOCKET, Already accepted incoming connection socket
     /// @param peer sockaddr_in*, Incoming connection information
-    virtual sptk::CServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
+    virtual sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
     
 public:
     /// @brief Constructor

@@ -43,7 +43,7 @@ int main( int argc, char *argv[] )
     CThemes themes;
 
     char           buffer[128];
-	CImapConnect   IMAP;
+	ImapConnect   IMAP;
 	std::string    user, password, server;
 	CRegistry      registry("imap_connect.ini","");
 
