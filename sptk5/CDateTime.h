@@ -222,7 +222,8 @@ public:
     std::string timeString(bool showSeconds=false, bool showTimezone=false) const;
 
     /// @brief Returns date and time as a string
-    operator std::string () const {
+    operator std::string () const
+    {
         return dateString() + " " + timeString();
     }
 
@@ -233,12 +234,14 @@ public:
     }
 
     /// @brief Decodes date into y,m,d
-    void decodeDate(int16_t *y,int16_t *m,int16_t *d) const {
+    void decodeDate(int16_t *y,int16_t *m,int16_t *d) const
+    {
         decodeDate(m_dateTime,*y,*m,*d);
     }
 
     /// @brief Decodes time into h,m,s,ms
-    void decodeTime(int16_t *h,int16_t *m,int16_t *s,int16_t *ms) const {
+    void decodeTime(int16_t *h,int16_t *m,int16_t *s,int16_t *ms) const
+    {
         decodeTime(m_dateTime,*h,*m,*s,*ms);
     }
 

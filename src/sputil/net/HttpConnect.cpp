@@ -48,7 +48,7 @@ HttpConnect::~HttpConnect()
 void HttpConnect::getResponse()
 {
     CBuffer read_buffer(RSP_BLOCK_SIZE);
-    
+
     m_readBuffer.reset();
 
     CStrings headers;
@@ -62,7 +62,7 @@ void HttpConnect::getResponse()
         m_socket.close();
         throw CException("Response timeout");
     }
-        
+
     /// Reading HTTP headers
     for (;;) {
         m_socket.readLine(header);
@@ -176,7 +176,7 @@ void HttpConnect::sendCommand(string cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
-void HttpConnect::cmd_get(string pageName,HttpParams& postData)
+void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
 {
     m_readBuffer.checkSize(1024);
 
@@ -198,13 +198,13 @@ void HttpConnect::cmd_get(string pageName,HttpParams& postData)
 
     CBuffer buff;
     buff.append(command);
-    
+
     sendCommand(command);
 
     getResponse();
 }
 
-void HttpConnect::cmd_post(string pageName,HttpParams& postData)
+void HttpConnect::cmd_post(string pageName, const HttpParams& postData)
 {
     CStrings headers;
 

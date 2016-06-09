@@ -49,7 +49,7 @@ class SP_EXPORT CRegExp
         int         m_start;        ///< Match start
         int         m_end;          ///< Match end
     } Match;
-    
+
     typedef std::vector<Match> Matches; ///< Vector of match positions
 
     std::string     m_pattern;      ///< Match pattern

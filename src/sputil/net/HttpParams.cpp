@@ -31,7 +31,8 @@
 using namespace std;
 using namespace sptk;
 
-string HttpParams::encodeString(string& str) {
+string HttpParams::encodeString(const string& str)
+{
     uint32_t cnt = (uint32_t) str.length();
     const char *src = str.c_str();
     char *buffer = (char *)calloc(cnt*3+1,1);
@@ -66,13 +67,15 @@ string HttpParams::encodeString(string& str) {
     return result;
 }
 
-int hexCharToInt(unsigned char ch) {
+int hexCharToInt(unsigned char ch)
+{
     if (ch > '@')
         return ch - 'A' + 10;
     return ch - '0';
 }
 
-string HttpParams::decodeString(string& str) {
+string HttpParams::decodeString(const string& str)
+{
     uint32_t cnt = (uint32_t) str.length();
     const char *src = str.c_str();
     char *buffer = (char *)calloc(cnt+1,1);
@@ -102,7 +105,8 @@ string HttpParams::decodeString(string& str) {
     return result;
 }
 
-void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/) {
+void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/)
+{
     clear();
 
     CStrings sl(cb.data(),"&");
@@ -117,8 +121,9 @@ void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/) {
     }
 }
 
-void HttpParams::encode(CBuffer& result) {
-    HttpParams::iterator itor = begin();
+void HttpParams::encode(CBuffer& result) const
+{
+    HttpParams::const_iterator itor = begin();
     unsigned cnt = 0;
     for (; itor != end(); itor++) {
         string param;

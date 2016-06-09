@@ -51,10 +51,10 @@ typedef std::map<std::string, std::string, CCaseInsensitiveCompare> StringHttpFi
 class HttpParams: public StringHttpFieldMap
 {
     /// @brief Encodes a string into HTML parameters
-    static std::string encodeString(std::string& str);
+    static std::string encodeString(const std::string& str);
 
     /// @brief Decodes a string from HTML parameters
-    static std::string decodeString(std::string& str);
+    static std::string decodeString(const std::string& str);
 public:
     /// @brief Default constructor.
     HttpParams() :
@@ -64,7 +64,7 @@ public:
 
     /// @brief Encodes HTTP parameters for sending to the server.
     /// @param result CBuffer&, output - encoded parameters string (if any) as the buffer.
-    void encode(CBuffer& result);
+    void encode(CBuffer& result) const;
 
     /// @brief Decodes HTTP parameters that came from the server as a string into parameters map.
     /// @param paramString CBuffer, parameters string from HTTP server

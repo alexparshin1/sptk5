@@ -113,15 +113,15 @@ public:
     ///
     /// Retrieves the server response into internal read buffer.
     /// @param pageName std::string, the name of the page without the server name.
-    /// @param postData CHttpParams&, the list of HTTP data to pass to the server
-    void cmd_get(std::string pageName, HttpParams& postData);
+    /// @param getData const HttpParams&, the list of HTTP data to pass to the server
+    void cmd_get(std::string pageName, const HttpParams& getData);
 
     /// @brief Sends the POST command to the server
     ///
     /// Retrieves the server response into internal read buffer.
     /// @param pageName std::string, the name of the page without the server name.
-    /// @param postData CHttpParams&, the list of HTTP data to pass to the server
-    void cmd_post(std::string pageName, HttpParams& postData);
+    /// @param postData const HttpParams&, the list of HTTP data to pass to the server
+    void cmd_post(std::string pageName, const HttpParams& postData);
 };
 /// @}
 }
