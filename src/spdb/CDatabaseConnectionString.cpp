@@ -51,7 +51,7 @@ void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
     if (pos != string::npos) {
         CStrings parameters(connStr.substr(pos + 1),"&");
         for (CStrings::iterator item = parameters.begin(); item != parameters.end(); item++) {
-            CStrings pair(*item, "='");
+            CStrings pair(*item, "='", CStrings::SM_ANYCHAR);
             if (pair.size() == 2)
                 m_parameters[ pair[0] ] = pair[1];
         }
