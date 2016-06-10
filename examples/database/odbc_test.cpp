@@ -66,24 +66,28 @@ int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
     return true;
 }
 
-int main()
+int main(int argc, const char* argv[])
 {
+	String connectString;
+	if (argc == 1)
+		connectString = "odbc://user:password@demo_odbc";
+	else
+		connectString = argv[1];
 
-    // If you want to test the database abilities of the data controls
-    // you have to setup the ODBC database connection.
-    // Typical connect string is something like: "odbc://odbc_demo?UID=user&PWD=password".
-    // If UID or PWD are omitted they are read from the datasource settings.
-    CDatabaseConnectionPool connectionPool("odbc://demo_odbc");
-    CDatabaseConnection* db = connectionPool.createConnection();
+	if (connectString != RegularExpression("^odbc://")) {
+		cout << "Syntax:" << endl << endl; 
+		cout << "odbc_test [connection string]" << endl << endl;
+		cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;
+		cout << "for instance:" << endl << endl;
+		cout << "  odbc://alex:secret@mydsn" << endl;
+		return 1;
+	}
 
-    FileLogEngine  logFile("odbc_test.log");
-    Logger   logger(logFile);
+	try {
+		CDatabaseConnectionPool connectionPool(connectString);
+		CDatabaseConnection* db = connectionPool.createConnection();
 
-    db->logFile(&logger);
-    logFile.reset();
-
-    try {
-        cout << "Openning the database.. ";
+        cout << "Openning the database, using connection string " << connectString << ":" << endl;
         db->open();
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
@@ -231,6 +235,8 @@ int main()
         cout << "\nSorry, you have to fix your database connection." << endl;
         cout << "Please, read the README.txt for more information." << endl;
     }
+
+	Sleep(3000);
 
     return 0;
 }
