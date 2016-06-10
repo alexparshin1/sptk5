@@ -168,8 +168,8 @@ void SysLogEngine::programName(string progName)
 
         HKEY keyHandle;
         if (RegCreateKey(
-                        HKEY_LOCAL_MACHINE,
-                        ("SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName).c_str(),
+                        HKEY_CURRENT_USER,
+                        keyName.c_str(),
                         &keyHandle) != ERROR_SUCCESS)
         throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
 
