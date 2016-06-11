@@ -29,6 +29,7 @@
  ***************************************************************************/
 
 #include <sptk5/SysLogEngine.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -84,7 +85,7 @@ void SysLogEngine::saveMessage(CDateTime date, const char *message, uint32_t sz,
                 throw CException("Can't determine Windows version");
             if (version.dwPlatformId != VER_PLATFORM_WIN32_NT)
                 throw CException("EventLog is only implemented on NT-based Windows");
-            m_logHandle = RegisterEventSource(0,m_programName.c_str());
+            m_logHandle = RegisterEventSource(NULL, m_programName.c_str());
         }
         if (!m_logHandle)
             throw CException("Can't open Application Event Log");
@@ -110,14 +111,14 @@ void SysLogEngine::saveMessage(CDateTime date, const char *message, uint32_t sz,
 
         if (!ReportEvent(
                         m_logHandle,    // handle returned by RegisterEventSource
-                        eventType,// event type to log
-                        0,// event category
-                        SPTK_MESSAGE,// event identifier
-                        0,// user security identifier (optional)
-                        1,// number of strings to merge with message
-                        0,// size of binary data, in bytes
-                        messageStrings,// array of strings to merge with message
-                        0// address of binary data
+                        eventType,		// event type to log
+                        SPTK_MSG_CATEGORY, // event category
+                        SPTK_MSG,		// event identifier
+                        NULL,			// user security identifier (optional)
+                        1,				// number of strings to merge with message
+                        0,				// size of binary data, in bytes
+                        messageStrings,	// array of strings to merge with message
+                        NULL			// address of binary data
                 ))
         {
             throw CException("Can't write an event to Application Event Log ");
@@ -163,40 +164,81 @@ void SysLogEngine::programName(string progName)
     GetModuleFileName(0,buffer,_MAX_PATH);
     m_moduleFileName = buffer;
 
-    if (!m_registrySet) {
-        string keyName = "SYSTEM\\ControlSet001\\Services\\EventLog\\Application\\"+progName;
+	std::string value;
+	if (!m_registrySet) {
+        string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\SPTK Event Provider";
 
         HKEY keyHandle;
         if (RegCreateKey(
-                        HKEY_CURRENT_USER,
+                        HKEY_LOCAL_MACHINE,
                         keyName.c_str(),
                         &keyHandle) != ERROR_SUCCESS)
-        throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
+			throw CException("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
 
         unsigned long len = _MAX_PATH;
         unsigned long vtype = REG_EXPAND_SZ;
-        if (RegQueryValueEx(
-            keyHandle,       // handle to key to query
-            "EventMessageFile",
-            0,
-            &vtype,
-            (BYTE *)buffer,// buffer for returned string
-            &len// receives size of returned string
-            ) != ERROR_SUCCESS) {
-            buffer[0] = 0;
-        }
+		if (RegQueryValueEx(
+			keyHandle,       // handle to key to query
+			"EventMessageFile",
+			0,
+			&vtype,
+			(BYTE *)buffer,// buffer for returned string
+			&len// receives size of returned string
+		) == ERROR_SUCCESS) {
+			value = buffer;
+		}
 
-        if (buffer[0] == 0 || strcmp(buffer, m_moduleFileName.c_str()) != 0) {
+        if (value.empty()) {
 
-            if (RegSetValueEx(
-                            keyHandle,          // handle to key to set value for
-                            "EventMessageFile",// name of the value to set
-                            0,// reserved
-                            REG_EXPAND_SZ,// flag for value type
-                            (CONST BYTE *)m_moduleFileName.c_str(),// address of value data
-                            DWORD(m_moduleFileName.length()+1)// size of value data
-                    ) != ERROR_SUCCESS)
-            throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
+			struct ValueData {
+				const char* name;
+				const char* strValue;
+				DWORD       intValue;
+			} valueData[5] = {
+				{ "CategoryCount", NULL, 1 },
+				{ "CategoryMessageFile", m_moduleFileName.c_str(), 0 },
+				{ "EventMessageFile", m_moduleFileName.c_str(), 0 },
+				{ "ParameterMessageFile", m_moduleFileName.c_str(), 0 },
+				{ "TypesSupported", NULL, 1 }
+			};
+
+			for (int i = 0; i < 5; i++) {
+				int rc;
+				CONST BYTE * value;
+				DWORD valueSize;
+				DWORD valueType;
+				if (valueData[i].strValue == NULL) {
+					// DWORD value
+					value = (CONST BYTE *) &(valueData[i].intValue);
+					valueSize = sizeof(valueData[i].intValue);
+					valueType = REG_DWORD;
+				}
+				else {
+					// String value
+					value = (CONST BYTE *) valueData[i].strValue;
+					valueSize = (DWORD) strlen(valueData[i].strValue) + 1;
+					valueType = REG_EXPAND_SZ;
+				}
+				rc = RegSetValueEx(
+					keyHandle,						// handle to key to set value for
+					valueData[i].name,				// name of the value to set
+					0,								// reserved
+					valueType,						// flag for value type
+					value,							// address of value data
+					valueSize						// size of value data
+				);
+
+				if (rc != ERROR_SUCCESS) {
+					stringstream error;
+					error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
+					error << "value '" << valueData[i].name << "' to ";
+					if (valueData[i].strValue == NULL)
+						error << "REG_DWORD " << valueData[i].intValue;
+					else
+						error << "REG_SZ " << valueData[i].strValue;
+					throw CException(error.str());
+				}
+			}
 
             unsigned typesSupported = 7;
             if (RegSetValueEx(
@@ -207,7 +249,7 @@ void SysLogEngine::programName(string progName)
                             (CONST BYTE *)&typesSupported,// address of value data
                             sizeof(typesSupported)// size of value data
                     ) != ERROR_SUCCESS)
-            throw CException("Can't open registry (HKEY_LOCAL_MACHINE) for write");
+				throw CException("Can't set registry key HKEY_LOCAL_MACHINE '" + keyName + "' value 'TypesSupported' to 7" + m_moduleFileName + "'");
             RegCloseKey(keyHandle);
         }
         m_registrySet = true;

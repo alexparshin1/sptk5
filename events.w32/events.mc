@@ -14,11 +14,28 @@ FacilityNames=(System=0x0:FACILITY_SYSTEM
 
 LanguageNames=(English=0x409:MSG00409)
 
+
+; // Categories of events:
+
+MessageIdTypedef=WORD
+
+MessageId=0x1
+SymbolicName=SPTK_MSG_CATEGORY
+Language=English
+SPTK events
+.
+
+
+; // Message definitions:
+
+MessageIdTypedef=WORD
+
 MessageId=0x1
 Severity=Error
 Facility=Runtime
-SymbolicName=SPTK_MESSAGE
+SymbolicName=SPTK_MSG
 Language=English
 %1
 .
 
+;

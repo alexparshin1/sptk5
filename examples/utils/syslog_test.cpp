@@ -26,6 +26,7 @@
  ***************************************************************************/
 
 #include <sptk5/cutils>
+#include <sptk5/cthreads>
 
 using namespace std;
 using namespace sptk;
@@ -53,6 +54,7 @@ int main(int,char*[])
    }
    catch (exception& e) {
       puts(e.what());
+	  CThread::msleep(5000);
    }
 
    return 0;

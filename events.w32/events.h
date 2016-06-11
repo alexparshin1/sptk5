@@ -1,3 +1,4 @@
+ // Categories of events:
 //
 //  Values are 32 bit values laid out as follows:
 //
@@ -43,11 +44,22 @@
 
 
 //
-// MessageId: SPTK_MESSAGE
+// MessageId: SPTK_MSG_CATEGORY
+//
+// MessageText:
+//
+// SPTK events
+//
+#define SPTK_MSG_CATEGORY                ((WORD)0x00000001L)
+
+ // Message definitions:
+//
+// MessageId: SPTK_MSG
 //
 // MessageText:
 //
 // %1
 //
-#define SPTK_MESSAGE                     ((DWORD)0xC0020001L)
+#define SPTK_MSG                         ((WORD)0xC0020001L)
 
+

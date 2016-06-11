@@ -14,12 +14,14 @@
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT" MultiBuildValue="DefaultBuild:Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT50" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT50Display" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT5X" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:32 bit Operating Systems" ValueLocId="-"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -41,13 +43,23 @@
     <ROW Directory="xml_Dir" Directory_Parent="sptk5_Dir" DefaultDir="xml"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="Application" ComponentId="{5AA5A3F5-A95D-43C5-9040-CD9FDBD45C17}" Directory_="APPDIR" Attributes="260" KeyPath="Application"/>
     <ROW Component="BaseMailConnect.h" ComponentId="{B04A09F3-EDFD-4B63-A206-B7A02D7F883A}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
     <ROW Component="CBase64.h" ComponentId="{AB4C93E2-DC00-4453-AEC1-0AE9A857BBB5}" Directory_="sptk5_Dir" Attributes="0" KeyPath="CBase64.h" Type="0"/>
     <ROW Component="CConnectionParameters.h" ComponentId="{9ACCAAA8-D84C-44A4-849B-1F47F5B58E39}" Directory_="db_Dir" Attributes="0" KeyPath="CConnectionParameters.h" Type="0"/>
     <ROW Component="CLocation.h" ComponentId="{0D6551CD-C491-4DB8-A268-A6302B17087C}" Directory_="threads_Dir" Attributes="0" KeyPath="CLocation.h" Type="0"/>
     <ROW Component="CSourceModule.h" ComponentId="{A40F8F66-40F6-46CF-AC04-29007CFE5BBE}" Directory_="wsdl_Dir" Attributes="0" KeyPath="CSourceModule.h" Type="0"/>
     <ROW Component="CXml.h" ComponentId="{AC595F98-0E12-4BF7-94AA-F820A17198AA}" Directory_="xml_Dir" Attributes="0" KeyPath="CXml.h" Type="0"/>
+    <ROW Component="CategoryCount" ComponentId="{BCAFF568-6B0E-4089-8707-2663C170E4CE}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryCount"/>
+    <ROW Component="CategoryMessageFile" ComponentId="{609E634C-812E-4920-8EE1-F8F16184B8BF}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryMessageFile"/>
+    <ROW Component="EventLog" ComponentId="{72558A19-B26C-43EE-B8CF-73F9C318D46F}" Directory_="APPDIR" Attributes="260" KeyPath="EventLog"/>
+    <ROW Component="EventMessageFile" ComponentId="{5D57D2E4-3290-47F9-91CD-F3DDB4B499D6}" Directory_="APPDIR" Attributes="260" KeyPath="EventMessageFile"/>
+    <ROW Component="New_Key" ComponentId="{1AC045D3-FD6C-473C-AA41-48D4F69D95AF}" Directory_="APPDIR" Attributes="260" KeyPath="New_Key"/>
+    <ROW Component="ParameterMessageFile" ComponentId="{A00B10D6-392E-4AFF-95A2-FA3FA635DC4B}" Directory_="APPDIR" Attributes="260" KeyPath="ParameterMessageFile"/>
     <ROW Component="ProductInformation" ComponentId="{9F3242C3-7926-48D4-88F7-F62CF2DBAFD5}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="SYSTEM" ComponentId="{018D2633-AEB0-4B3E-9AC6-C847985E397A}" Directory_="APPDIR" Attributes="260" KeyPath="SYSTEM"/>
+    <ROW Component="Services" ComponentId="{5139979C-7948-4BC9-96F1-0F0F087D6922}" Directory_="APPDIR" Attributes="260" KeyPath="Services"/>
+    <ROW Component="TypesSupported" ComponentId="{6D325452-8F71-49EF-BA3E-071E6365A994}" Directory_="APPDIR" Attributes="260" KeyPath="TypesSupported"/>
     <ROW Component="command_line.exe" ComponentId="{569FFCFE-4350-4811-BAC3-231EE1A7C37E}" Directory_="bin_1_Dir" Attributes="256" KeyPath="command_line.exe"/>
     <ROW Component="datetime.exe" ComponentId="{7E3B46EC-405C-4709-BD39-68045A8CBCEB}" Directory_="bin_1_Dir" Attributes="256" KeyPath="datetime.exe"/>
     <ROW Component="driver_load_test.exe" ComponentId="{A0DA77AA-2C29-4DF6-A4B2-96B1D7082D59}" Directory_="bin_1_Dir" Attributes="256" KeyPath="driver_load_test.exe"/>
@@ -68,7 +80,7 @@
     <ROW Component="unique_instance.exe" ComponentId="{FBF16FE8-15AD-4833-8ED7-918BDDDF2D7C}" Directory_="bin_1_Dir" Attributes="256" KeyPath="unique_instance.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="BaseMailConnect.h CBase64.h CConnectionParameters.h CLocation.h CSourceModule.h CXml.h ProductInformation command_line.exe datetime.exe driver_load_test.exe events.rc exceptions.exe logfile_test.exe odbc_test.exe regexp.exe registry.exe semaphore.exe spdb5.lib spdb5_odbc.dll string2md5.exe syslog_test.exe thread_pool_test.exe thread_rwlock.exe thread_test.exe unique_instance.exe"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Application BaseMailConnect.h CBase64.h CConnectionParameters.h CLocation.h CSourceModule.h CXml.h CategoryCount CategoryMessageFile EventLog EventMessageFile New_Key ParameterMessageFile ProductInformation SYSTEM Services TypesSupported command_line.exe datetime.exe driver_load_test.exe events.rc exceptions.exe logfile_test.exe odbc_test.exe regexp.exe registry.exe semaphore.exe spdb5.lib spdb5_odbc.dll string2md5.exe syslog_test.exe thread_pool_test.exe thread_rwlock.exe thread_test.exe unique_instance.exe"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -290,13 +302,24 @@
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="( Version9X OR VersionNT64 )" Description="[ProductName] cannot be installed on [WindowsTypeNTDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT64 OR ((VersionNT &lt;&gt; 501) OR (ServicePackLevel = 3))) AND ((VersionNT &lt;&gt; 502) OR (ServicePackLevel = 2))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="Application" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application" Name="+" Component_="Application"/>
+    <ROW Registry="CategoryCount" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="CategoryCount" Value="#1" Component_="CategoryCount"/>
+    <ROW Registry="CategoryMessageFile" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="CategoryMessageFile" Value="[bin_1_Dir]syslog_test.exe" Component_="CategoryMessageFile"/>
+    <ROW Registry="EventLog" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog" Name="+" Component_="EventLog"/>
+    <ROW Registry="EventMessageFile" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="EventMessageFile" Value="[bin_1_Dir]syslog_test.exe" Component_="EventMessageFile"/>
+    <ROW Registry="New_Key" Root="2" Key="SYSTEM\CurrentControlSet" Name="+" Component_="New_Key"/>
+    <ROW Registry="ParameterMessageFile" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="ParameterMessageFile" Value="[bin_1_Dir]syslog_test.exe" Component_="ParameterMessageFile"/>
     <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="SYSTEM" Root="2" Key="SYSTEM" Name="+" Component_="SYSTEM"/>
+    <ROW Registry="Services" Root="2" Key="SYSTEM\CurrentControlSet\Services" Name="+" Component_="Services"/>
+    <ROW Registry="TypesSupported" Root="2" Key="SYSTEM\CurrentControlSet\Services\EventLog\Application\SPTK Event Provider" Name="TypesSupported" Value="#7" Component_="TypesSupported"/>
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
