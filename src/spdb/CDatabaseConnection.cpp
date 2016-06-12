@@ -72,7 +72,6 @@ void CDatabaseConnection::openDatabase(string newConnectionString) THROWS_EXCEPT
 
 void CDatabaseConnection::open(string newConnectionString) THROWS_EXCEPTIONS
 {
-    clearStatistics();
     openDatabase(newConnectionString);
     if (m_log)
         *m_log << "Opened database: " << m_connString.str() << endl;
@@ -92,7 +91,6 @@ void CDatabaseConnection::close() THROWS_EXCEPTIONS
         }
         for (uint32_t i = 0; i < m_queryList.size(); i++) {
             CQuery& query = *m_queryList[i];
-            query.storeStatistics();
             query.closeQuery(true);
         }
         closeDatabase();
@@ -248,6 +246,11 @@ void CDatabaseConnection::queryHandle(CQuery *query, void *handle)
     query->m_statement = handle;
 }
 
+string CDatabaseConnection::paramMark(unsigned paramIndex)
+{
+    return "?";
+}
+
 void CDatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
@@ -256,23 +259,26 @@ void CDatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPT
     throw CDatabaseException(errorText);
 }
 
-void CDatabaseConnection::clearStatistics()
+void CDatabaseConnection::logFile(Logger *logFile)
 {
-    m_queryStatisticMap.clear();
+    m_log = logFile;
 }
 
-void CDatabaseConnection::addStatistics(const std::string& location, double totalDuration, unsigned totalCalls, const std::string& sql)
+/// @brief Returns a log file for the database operations.
+/// @returns current log file ptr, ot NULL if log file isn't set
+Logger* CDatabaseConnection::logFile()
 {
-    CCallStatisticMap::iterator itor = m_queryStatisticMap.find(location);
-    if (itor != m_queryStatisticMap.end()) {
-        CCallStatistic& stat = itor->second;
-        stat.m_duration += totalDuration;
-        stat.m_calls += totalCalls;
-        stat.m_sql = sql;
-    } else {
-        CCallStatistic stat(totalDuration, totalCalls, sql);
-        m_queryStatisticMap[location] = stat;
-    }
+    return m_log;
+}
+
+void CDatabaseConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+{
+    notImplemented("driverBeginTransaction");
+}
+
+void CDatabaseConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+{
+    notImplemented("driverEndTransaction");
 }
 
 void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS

@@ -52,54 +52,6 @@ enum CDbObjectType
     DOT_PROCEDURES      ///< Stored procedures
 };
 
-/// @brief Structure to store statistical data about query calls
-struct CCallStatistic
-{
-    double      m_duration;   ///< Total calls duration, sec
-    unsigned    m_calls;      ///< Total number of calls
-    std::string m_sql;        ///< The last used query sql
-
-    /// @brief Default constructor
-    CCallStatistic()
-    {
-        m_duration = 0;
-        m_calls = 0;
-    }
-
-    /// @brief Constructor
-    /// @param duration double, Total calls duration, sec
-    /// @param calls unsigned, Total number of calls
-    /// @param sql const std::string&, The last used query sql
-    CCallStatistic(double duration, unsigned calls, const std::string& sql)
-    {
-        m_duration = duration;
-        m_calls = calls;
-        m_sql = sql;
-    }
-
-    /// @brief Copy constructor
-    CCallStatistic(const CCallStatistic& cs)
-    {
-        m_duration = cs.m_duration;
-        m_calls = cs.m_calls;
-        m_sql = cs.m_sql;
-    }
-
-    /// @brief Assignment
-    CCallStatistic& operator =(const CCallStatistic& cs)
-    {
-        m_duration = cs.m_duration;
-        m_calls = cs.m_calls;
-        m_sql = cs.m_sql;
-        return *this;
-    }
-};
-
-/// @brief Map to store statistical data about query calls
-///
-/// The map index is the query creation location in (file:line) format
-typedef std::map<std::string, CCallStatistic> CCallStatisticMap;
-
 /// @brief Column type and size structure
 struct CColumnTypeSize
 {
@@ -140,7 +92,7 @@ protected:
     CDatabaseConnectionString   m_connString;     ///< The connection string
     Type                        m_connType;       ///< The connection type
     bool                        m_inTransaction;  ///< The in-transaction flag
-    Logger*                  m_log;            ///< Log for the database events (optional)
+    Logger*                     m_log;            ///< Log for the database events (optional)
     std::string                 m_objectName;     ///< Object name for logs and error messages
 
     /// @brief Attaches (links) query to the database
@@ -148,18 +100,6 @@ protected:
 
     /// @brief Unlinks query from the database
     bool unlinkQuery(CQuery *q);
-
-    CCallStatisticMap m_queryStatisticMap; ///< Map of query creation location to statistical information
-
-    /// @brief Clears statistical information about query calls
-    void clearStatistics();
-
-    /// @brief Adds statistical information about query calls
-    /// @param location const std::string&, query creation location (file:line)
-    /// @param totalDuration double, total execution time for query calls, sec
-    /// @param totalCalls unsigned, total number of query calls
-    /// @param sql const std::string&, last sql used by query
-    void addStatistics(const std::string& location, double totalDuration, unsigned totalCalls, const std::string& sql);
 
 protected:
     // These methods get access to CQuery's protected members
@@ -190,10 +130,7 @@ protected:
     ///
     /// Parameter mark is generated from the parameterIndex.
     /// @param paramIndex unsigned, parameter index in SQL starting from 0
-    virtual std::string paramMark(unsigned paramIndex)
-    {
-        return "?";
-    }
+    virtual std::string paramMark(unsigned paramIndex);
 
 protected:
 
@@ -228,19 +165,13 @@ protected:
     /// @brief Begins the transaction
     ///
     /// This method should be implemented in derived driver
-    virtual void driverBeginTransaction() THROWS_EXCEPTIONS
-    {
-        notImplemented("driverBeginTransaction");
-    }
+    virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
     /// @brief Ends the transaction
     ///
     /// This method should be implemented in derived driver
     /// @param commit bool, commit if true, rollback if false
-    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS
-    {
-        notImplemented("driverEndTransaction");
-    }
+    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     /// @brief Throws an exception
     ///
@@ -320,26 +251,11 @@ public:
     /// If the database log is set, the database would log the events in CDatabaseConnection and CQuery objects
     /// into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
     /// @param logFile Logger *, the log file object to use.
-    void logFile(Logger *logFile)
-    {
-        m_log = logFile;
-    }
+    void logFile(Logger *logFile);
 
     /// @brief Returns a log file for the database operations.
     /// @returns current log file ptr, ot NULL if log file isn't set
-    Logger *logFile()
-    {
-        return m_log;
-    }
-
-    /// @brief Returns statistical information about query calls
-    ///
-    /// The information is collected between database open() and close() operations.
-    /// Every open() operation resets the statistics
-    const CCallStatisticMap& callStatistics() const
-    {
-        return m_queryStatisticMap;
-    }
+    Logger *logFile();
 
     /// @brief Executes bulk inserts of data from memory buffer
     ///

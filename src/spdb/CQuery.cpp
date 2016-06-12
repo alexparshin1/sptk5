@@ -177,7 +177,6 @@ CQuery::~CQuery()
         closeQuery(true);
     }
     catch (...) { }
-    storeStatistics();
     if (m_db)
         m_db->unlinkQuery(this);
 }
@@ -377,18 +376,4 @@ void CQuery::logAndThrow(string method, string error) THROWS_EXCEPTIONS
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, LP_ERROR);
     throw CDatabaseException(errorText);
-}
-
-void CQuery::storeStatistics()
-{
-    if (!m_db)
-        return;
-    if (m_createdFile) {
-        char* buffer = new char[strlen(m_createdFile) + 16];
-        sprintf(buffer, "%s:%i", m_createdFile, m_createdLine);
-        m_db->addStatistics(buffer, m_totalDuration, m_totalCalls, m_sql);
-        delete[] buffer;
-        m_totalDuration = 0;
-        m_totalCalls = 0;
-    }
 }

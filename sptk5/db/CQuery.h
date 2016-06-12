@@ -115,9 +115,6 @@ protected:
         return false;
     }
 
-    /// @brief Stores calls statistics to the database
-    void storeStatistics();
-
 public:
     /// @brief Constructor
     ///

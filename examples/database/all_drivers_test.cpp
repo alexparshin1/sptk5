@@ -315,18 +315,6 @@ int testDatabase(string connectionString)
 
         cout << "Ok.\nStep 6: Closing the database.. ";
         db->close();
-
-        cout << "Ok.\n***********************************************\nPrinting the query statistics." << endl;
-
-        CCallStatisticMap::const_iterator itor = db->callStatistics().begin();
-        CCallStatisticMap::const_iterator etor = db->callStatistics().end();
-        for (; itor != etor; itor++) {
-            const CCallStatistic& cs = itor->second;
-            cout << setw(60) << cs.m_sql << ": " << cs.m_calls << " calls, " << cs.m_duration << " seconds total" <<
-            endl;
-        }
-
-        cout << "Ok." << endl;
     } catch (exception& e) {
         cout << "\nError: " << e.what() << endl;
         return 1;

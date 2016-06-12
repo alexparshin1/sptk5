@@ -25,9 +25,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include <sptk5/db/CODBCConnection.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cutils>
+#include <sptk5/cthreads>
 
 using namespace std;
 using namespace sptk;
@@ -236,7 +236,7 @@ int main(int argc, const char* argv[])
         cout << "Please, read the README.txt for more information." << endl;
     }
 
-	Sleep(3000);
+    CThread::msleep(3000);
 
     return 0;
 }
