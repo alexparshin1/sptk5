@@ -34,7 +34,9 @@
 #if HAVE_POSTGRESQL == 1
 
 #include <libpq-fe.h>
+#ifndef _WIN32
 #include <netinet/in.h>
+#endif
 
 namespace sptk
 {
