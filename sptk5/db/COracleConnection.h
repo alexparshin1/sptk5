@@ -72,12 +72,12 @@ protected:
     /// @brief Translates Oracle native type to CVariant type
     /// @param oracleType oracle::occi::Type, Oracle native type
     /// @returns CVariant type
-    static CVariantType OracleTypeToVariantType(Type oracleType);
+    static VariantType OracleTypeToVariantType(Type oracleType);
 
     /// @brief Translates CVariant type to Oracle native type
     /// @param dataType CVariantType&, CVariant type
     /// @returns Oracle native type
-    static Type VariantTypeToOracleType(CVariantType dataType);
+    static Type VariantTypeToOracleType(VariantType dataType);
 
 protected:
 

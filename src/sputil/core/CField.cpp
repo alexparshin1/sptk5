@@ -41,7 +41,7 @@ CField::CField(const char *name)
     dataSize (0);
 }
 
-void CField::setNull(CVariantType vtype)
+void CField::setNull(VariantType vtype)
 {
     switch (dataType()) {
     default:
@@ -110,8 +110,8 @@ string CField::asString() const THROWS_EXCEPTIONS
             absValue = m_data.moneyData.quantity;
 
         sprintf (formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
-        int64_t intValue = absValue / CMoneyData::dividers[m_data.moneyData.scale];
-        int64_t fraction = absValue % CMoneyData::dividers[m_data.moneyData.scale];
+        int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
+        int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
         sprintf (print_buffer, format, intValue, fraction);
         return string (print_buffer);
     }
@@ -166,7 +166,7 @@ void CField::toXML (CXmlNode& node,bool compactXmlMode) const
 
         if (!compactXmlMode) {
             element->setAttribute ("name",fieldName());
-            element->setAttribute ("type",CVariant::typeName (dataType()));
+            element->setAttribute ("type",Variant::typeName (dataType()));
             element->setAttribute ("size",int2string ( (uint32_t) dataSize()));
         }
     }

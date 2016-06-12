@@ -52,7 +52,7 @@ uint32_t CParam::bindIndex(uint32_t ind)
 }
 
 CParam::CParam(const char *name, bool isOutput) :
-    CVariant(),
+    Variant(),
     m_name(lowerCase(name)),
     m_timeData(new char[80]),
     m_callbackLength(0),
@@ -71,7 +71,7 @@ string CParam::name() const
     return m_name;
 }
 
-CParam& CParam::operator = (const CVariant& param)
+CParam& CParam::operator = (const Variant& param)
 {
     if (this == &param)
         return *this;
@@ -118,5 +118,5 @@ void CParam::setString(const char * value, size_t maxlen)
             dtype |= VAR_NULL;
         }
     }
-    dataType((CVariantType) dtype);
+    dataType((VariantType) dtype);
 }

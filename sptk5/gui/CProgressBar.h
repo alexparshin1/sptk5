@@ -95,10 +95,10 @@ public:
 
     /// Universal data connection, returns data from date control.
     /// Data is returned as VAR_FLOAT.
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// Universal data connection, sets data to date control
-    virtual void     data(const CVariant v);
+    virtual void     data(const Variant v);
 
     /// @brief Creates a widget based on the XML node information
     /// @param node CXmlNode*, an XML node with widget information

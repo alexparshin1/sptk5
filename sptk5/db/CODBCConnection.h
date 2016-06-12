@@ -83,7 +83,7 @@ protected:
     virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
     virtual void queryFetch(CQuery *query); ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
-    static void ODBCtypeToCType(int odbcType, int32_t &ctype, CVariantType& dataType); ///< Converts the native ODBC type into SPTK data type
+    static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType); ///< Converts the native ODBC type into SPTK data type
 
     /// Returns the ODBC connection object
     ODBCConnection *connection()

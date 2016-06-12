@@ -86,7 +86,7 @@ protected:
     }
 
     /// @brief Converts datatype from SQLite type to SPTK CVariantType
-    void SQLITEtypeToCType(int sqliteType, CVariantType& dataType);
+    void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
 
 public:
 

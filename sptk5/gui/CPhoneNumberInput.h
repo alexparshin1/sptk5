@@ -78,10 +78,10 @@ public:
     }
 
     /// @brief Universal data connection, returns data from control
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// @brief Universal data connection, sets data from control
-    virtual void     data(const CVariant v);
+    virtual void     data(const Variant v);
 
     /// @brief Returns true if the input data is valid
     virtual bool valid() const;

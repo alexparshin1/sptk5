@@ -41,7 +41,7 @@ void CParamBinding::reset(bool isOutput)
     m_output = isOutput;
 }
 
-bool CParamBinding::check(void* stmt, CVariantType type, uint32_t size, void* buffer)
+bool CParamBinding::check(void* stmt, VariantType type, uint32_t size, void* buffer)
 {
     bool changed = true;
 

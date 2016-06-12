@@ -104,14 +104,14 @@ public:
     virtual void clearButtons();
 
     /// @brief Returns the currently selected button(s) as pipe ('|') separated string
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// @brief Sets the currently selected button(s)
     ///
     /// Buttons are presented as pipe ('|') separated string.
     /// If the button group allows only one button to be selected at a time
     /// (like radio buttons), only the first item of the string will be used.
-    virtual void data(const CVariant v);
+    virtual void data(const Variant v);
 
     /// @brief Loads the the currently selected button(s)
     ///

@@ -106,7 +106,7 @@ void COracleStatement::setParameterValues()
     for (int parameterIndex = 1; itor != iend; itor++, parameterIndex++)
     {
         CParam& parameter = *(*itor);
-        CVariantType& priorDataType = parameter.m_binding.m_dataType;
+        VariantType& priorDataType = parameter.m_binding.m_dataType;
         if (priorDataType == VAR_NONE)
             priorDataType = parameter.dataType();
         if (parameter.isNull()) {

@@ -96,10 +96,10 @@ public:
 
 public:
     /// @brief Converts datatype from PostgreSQL type to SPTK CVariantType
-    static void PostgreTypeToCType(int postgreType, CVariantType& dataType);
+    static void PostgreTypeToCType(int postgreType, VariantType& dataType);
 
     /// @brief Converts datatype from SPTK CVariantType to PostgreSQL type
-    static void CTypeToPostgreType(CVariantType dataType, Oid& postgreType);
+    static void CTypeToPostgreType(VariantType dataType, Oid& postgreType);
 
 public:
 

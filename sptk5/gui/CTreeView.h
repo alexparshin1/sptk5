@@ -146,10 +146,10 @@ public:
     virtual void     resize(int x,int y,int w,int h);
 
     /// @brief Returns the currently selected item ID (or user_data)
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// @brief Selects the item with matching ID (or user_data)
-    virtual void     data(const CVariant v);
+    virtual void     data(const Variant v);
 
     /// @brief Data connection isn't implemented yet
     virtual void load(CQuery *);

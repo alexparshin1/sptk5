@@ -124,14 +124,14 @@ public:
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @param fieldValue CVariant, field value
-    virtual bool readField(const char *fieldName, CVariant& fieldValue) = 0;
+    virtual bool readField(const char *fieldName, Variant& fieldValue) = 0;
 
     /// @brief Writes the field by name from the datasource.
     ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @param fieldValue CVariant, field value
-    virtual bool writeField(const char *fieldName, const CVariant& fieldValue) = 0;
+    virtual bool writeField(const char *fieldName, const Variant& fieldValue) = 0;
 public:
 
     /// @brief Opens the datasource. Implemented in derved class.
@@ -171,7 +171,7 @@ public:
     }
 
     /// @brief Moves to the specified record position of the datasource. Implemented in derved class.
-    virtual bool find(CVariant /*position*/)
+    virtual bool find(Variant /*position*/)
     {
         return false;
     }

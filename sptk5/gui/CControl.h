@@ -371,13 +371,13 @@ public:
 
     /// @brief The universal data connector
     /// @returns control data
-    virtual CVariant data() const
+    virtual Variant data() const
     {
-        return CVariant("");
+        return Variant("");
     }
 
     /// @brief The universal data connector, sets control data
-    virtual void data(const CVariant v)
+    virtual void data(const Variant v)
     {
     }
 

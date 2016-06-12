@@ -49,7 +49,7 @@ public:
     char*           m_tempBuffer;
 
 public:
-    CMySQLStatementField(std::string fieldName, int fieldColumn, enum_field_types fieldType, CVariantType dataType, int fieldSize) :
+    CMySQLStatementField(std::string fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize) :
         CDatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize),
         m_cbLength(0), m_cbNull(0), m_cbError(0)
     {
@@ -102,7 +102,7 @@ CMySQLStatement::~CMySQLStatement()
         mysql_free_result(m_result);
 }
 
-void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, CVariantType timeType)
+void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, VariantType timeType)
 {
     short year, month, day, hour, minute, second, msecond;
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
@@ -148,7 +148,7 @@ void CMySQLStatement::enumerateParams(CParamList& queryParams)
     }
 }
 
-CVariantType CMySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
+VariantType CMySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
 {
     switch (mysqlType) {
 
@@ -190,7 +190,7 @@ CVariantType CMySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
     }
 }
 
-enum_field_types CMySQLStatement::variantTypeToMySQLType(CVariantType dataType)
+enum_field_types CMySQLStatement::variantTypeToMySQLType(VariantType dataType)
 {
     switch (dataType) {
 
@@ -330,7 +330,7 @@ void CMySQLStatement::bindResult(CFieldList& fields)
         columnName[sizeof(columnName)-1] = 0;
         if (columnName[0] == 0)
             sprintf(columnName, "column_%02i", columnIndex + 1);
-        CVariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
+        VariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
         unsigned fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)
             fieldLength = FETCH_BUFFER;
@@ -427,8 +427,8 @@ void CMySQLStatement::readUnpreparedResultRow(CFieldList& fields)
             continue;
         }
 
-        CVariantType    fieldType = field->dataType();
-        uint32_t        dataLength = (uint32_t) lengths[fieldIndex];
+        VariantType fieldType = field->dataType();
+        uint32_t    dataLength = (uint32_t) lengths[fieldIndex];
 
         switch (fieldType) {
 
@@ -478,7 +478,7 @@ void CMySQLStatement::readPreparedResultRow(CFieldList& fields)
         CMySQLStatementField*   field = (CMySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND&             bind = m_fieldBuffers[fieldIndex];
 
-        CVariantType fieldType = field->dataType();
+        VariantType fieldType = field->dataType();
         if (*(bind.is_null)) {
             // Field data is null, no more processing
             field->setNull();

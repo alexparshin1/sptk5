@@ -41,7 +41,7 @@ class CParamList;
 ///
 /// Simplifies the ODBC parameter binding.
 /// Automatically handles most of the data conversions on assignments.
-class SP_EXPORT CParam : public CVariant
+class SP_EXPORT CParam : public Variant
 {
     friend class CQuery;
     friend class CParamList;
@@ -96,7 +96,7 @@ public:
     CParam& operator = (const CParam& param);
 
     /// @brief Assign operator
-    CParam& operator = (const CVariant& param);
+    CParam& operator = (const Variant& param);
 
     /// @brief Assign operator
     CParam& operator = (int16_t v) {

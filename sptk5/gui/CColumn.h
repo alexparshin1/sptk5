@@ -45,7 +45,7 @@ class SP_EXPORT CColumn
 protected:
     std::string  m_name;        ///< Column name
     uint32_t     m_width;       ///< Column width in pixels
-    CVariantType m_type;        ///< Column data type
+    VariantType m_type;        ///< Column data type
     bool         m_visible;     ///< Column visibility
     bool         m_autoWidth;   ///< Column auto width flag
 public:
@@ -55,7 +55,7 @@ public:
     /// @param type CVariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, column visibility
-    CColumn(std::string cname = "", CVariantType type = VAR_STRING, int16_t cwidth = 100, bool cvisible = true);
+    CColumn(std::string cname = "", VariantType type = VAR_STRING, int16_t cwidth = 100, bool cvisible = true);
 
     /// @brief Copy constructor
     /// @param col const CColumn&, source column object
@@ -104,7 +104,7 @@ public:
     }
 
     /// @brief Returns column data type
-    CVariantType type() const
+    VariantType type() const
     {
         return m_type;
     }

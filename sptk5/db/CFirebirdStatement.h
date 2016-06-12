@@ -116,13 +116,13 @@ public:
     /// @param firebirdType int, Firebird native type
     /// @param firebirdSubtype int, Firebird native subtype
     /// @returns CVariant type
-    static CVariantType firebirdTypeToVariantType(int firebirdType, int firebirdSubtype);
+    static VariantType firebirdTypeToVariantType(int firebirdType, int firebirdSubtype);
 
     /// @brief Translates CDateTime to Firebird time
     /// @param firebirdDate tm&, Firebird time
     /// @param timestamp CDateTime, Timestamp
     /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
-    static void dateTimeToFirebirdDate(struct tm& firebirdDate, CDateTime timestamp, CVariantType timeType);
+    static void dateTimeToFirebirdDate(struct tm& firebirdDate, CDateTime timestamp, VariantType timeType);
 
     /// @brief Translates Firebird time to CDateTime
     /// @param timestamp CDateTime&, Timestamp

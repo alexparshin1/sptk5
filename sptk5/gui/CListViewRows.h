@@ -52,7 +52,7 @@ class SP_EXPORT CListViewRows
     friend class CListView;
 private:
     int32_t m_sortColumn; ///< The sort column number
-    CVariantType m_sortColumnType; ///< The type of the sort column - determines the sort algorithm
+    VariantType m_sortColumnType; ///< The type of the sort column - determines the sort algorithm
     bool m_sortAscending; ///< Sort direction - ascending/descending
 protected:
     uint32_t m_fullHeight; ///< The summary height of the rows
@@ -148,7 +148,7 @@ public:
     /// @param column int, sort column number (-1 means 'unsorted')
     /// @param ctype CVariantType, the sort column data type
     /// @param sortNow bool, true if you want to sort immediatedly
-    void sortColumn(int column, CVariantType ctype, bool sortNow);
+    void sortColumn(int column, VariantType ctype, bool sortNow);
 
     /// Returns the sort direction - ascending/descending
 

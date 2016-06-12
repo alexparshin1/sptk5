@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CVariant.h - description                               ║
+║                       Variant.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CVARIANT_H__
-#define __CVARIANT_H__
+#ifndef __SPTK_VARIANT_H__
+#define __SPTK_VARIANT_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/CDateTime.h>
@@ -41,7 +41,7 @@ namespace sptk {
 /// @{
 
 /// Variant types
-enum CVariantType {
+enum VariantType {
     VAR_NONE      = 0,    ///< Undefined
     VAR_INT       = 1,    ///< Integer
     VAR_FLOAT     = 2,    ///< Floating-point (double)
@@ -71,7 +71,7 @@ class CField;
 /// @brief Variant data buffer (internal).
 ///
 /// A buffer for data with the variable length like strings, or just generic buffers
-struct CVariantDataBuffer
+struct VariantDataBuffer
 {
     char*        data;         ///< String or buffer pointer
     size_t       size;         ///< Allocated buffer size
@@ -81,7 +81,7 @@ struct CVariantDataBuffer
 ///
 /// A combination of integer quantity and scale - positive integer presenting power of ten for divider.
 /// A money value is quantity / 10^(scale)
-struct CMoneyData
+struct MoneyData
 {
     static int64_t dividers[16];///< Dividers that help formatting money data
 
@@ -98,7 +98,7 @@ struct CMoneyData
 ///
 /// Reasonably compact an fast class what allows storing data of different
 /// types. It also allows conversions to and from supported types.
-class SP_EXPORT CVariant
+class SP_EXPORT Variant
 {
 protected:
     /// @brief Internal variant data storage
@@ -109,16 +109,16 @@ protected:
         int64_t             int64Data;       ///< 64 bit integer data
         double              floatData;       ///< Floating point data
         double              timeData;        ///< CDateTime data
-        CVariantDataBuffer  buffer;          ///< A buffer for data with the variable length like strings, or just generic buffers
+        VariantDataBuffer   buffer;          ///< A buffer for data with the variable length like strings, or just generic buffers
         void*               imagePtr;        ///< Image pointer
         int32_t             imageNdx;        ///< Image index in object-specific table of image pointers
-        CMoneyData          moneyData;       ///< Money data
+        MoneyData           moneyData;       ///< Money data
     } m_data;                    ///< Data storage union
     size_t   m_dataSize;         ///< Data size
     uint16_t m_dataType;         ///< Data type
 
     /// @brief Copies data from another CVariant
-    void setData(const CVariant& C);
+    void setData(const Variant& C);
 
     /// @brief Releases allocated buffer (if any)
     void releaseBuffers();
@@ -126,124 +126,54 @@ protected:
 protected:
     /// @brief Sets the data size
     /// @param ds size_t, data size (in bytes).
-    void dataSize(size_t ds)
-    {
-        m_dataSize = ds;
-        if (m_dataSize > 0)
-            m_dataType &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
-    }
+    void dataSize(size_t ds);
 
     /// @brief Sets the data type
-    void dataType(uint32_t dt)
-    {
-        m_dataType = (uint16_t) dt;
-    }
+    void dataType(uint32_t dt);
 
 public:
 
     /// @brief Constructor
-    CVariant()
-    {
-        m_dataType = VAR_NONE | VAR_NULL;
-        m_data.int64Data = 0;
-        m_data.buffer.size = 0;
-    }
+    Variant();
 
     /// @brief Constructor
-    CVariant(int32_t value)
-    {
-        m_dataType = VAR_INT;
-        m_data.intData = value;
-    }
+    Variant(int32_t value);
 
     /// @brief Constructor
-    CVariant(uint32_t value)
-    {
-        m_dataType = VAR_INT;
-        m_data.intData = (int32_t) value;
-    }
+    Variant(uint32_t value);
 
     /// @brief Constructor
-    CVariant(int64_t value, unsigned scale = 1)
-    {
-        if (scale > 1) {
-            m_dataType = VAR_MONEY;
-            m_data.moneyData.quantity = value;
-            m_data.moneyData.scale = (uint8_t) scale;
-        } else {
-            m_dataType = VAR_INT64;
-            m_data.int64Data = value;
-        }
-    }
+    Variant(int64_t value, unsigned scale = 1);
 
     /// @brief Constructor
-    CVariant(uint64_t value)
-    {
-        m_dataType = VAR_INT64;
-        m_data.int64Data = (int64_t) value;
-    }
+    Variant(uint64_t value);
 
     /// @brief Constructor
-    CVariant(float value)
-    {
-        m_dataType = VAR_FLOAT;
-        m_data.floatData = value;
-    }
+    Variant(float value);
 
     /// @brief Constructor
-    CVariant(double value)
-    {
-        m_dataType = VAR_FLOAT;
-        m_data.floatData = value;
-    }
+    Variant(double value);
 
     /// @brief Constructor
-    CVariant(const char * value)
-    {
-        m_dataType = VAR_NONE;
-        setString(value);
-    }
+    Variant(const char * value);
 
     /// @brief Constructor
-    CVariant(const std::string& v)
-    {
-        m_dataType = VAR_NONE;
-        setString(v.c_str(), v.length());
-    }
+    Variant(const std::string& v);
 
     /// @brief Constructor
-    CVariant(CDateTime v)
-    {
-        m_dataType = VAR_DATE_TIME;
-        m_data.timeData = v;
-    }
+    Variant(CDateTime v);
 
     /// @brief Constructor
-    CVariant(const void * value, size_t sz)
-    {
-        m_dataType = VAR_NONE;
-        setBuffer(value, sz);
-    }
+    Variant(const void * value, size_t sz);
 
     /// @brief Constructor
-    CVariant(const CBuffer& value)
-    {
-        m_dataType = VAR_NONE;
-        setBuffer(value.data(), value.bytes());
-    }
+    Variant(const CBuffer& value);
 
     /// @brief Constructor
-    CVariant(const CVariant& value)
-    {
-        m_dataType = VAR_NONE;
-        setData(value);
-    }
+    Variant(const Variant& value);
 
     /// @brief Destructor
-    virtual ~CVariant()
-    {
-        releaseBuffers();
-    }
+    virtual ~Variant();
 
     /// @brief Assignment method
     virtual void setBool(bool value);
@@ -264,19 +194,13 @@ public:
     virtual void setString(const char * value, size_t maxlen = 0);
 
     /// @brief Assignment method
-    virtual void setString(const std::string& value)
-    {
-        setString(value.c_str(), value.length());
-    }
+    virtual void setString(const std::string& value);
 
     /// @brief Assignment method
     void setExternalString(const char * value, int length = -1);
 
     /// @brief Assignment method
-    void setExternalString(const std::string& value)
-    {
-        setExternalString(value.c_str(), (int) value.length());
-    }
+    void setExternalString(const std::string& value);
 
     /// @brief Assignment method
     virtual void setText(const char * value);
@@ -291,10 +215,7 @@ public:
     virtual void setBuffer(const void * value, size_t sz);
 
     /// @brief Assignment method
-    virtual void setBuffer(const CBuffer& value)
-    {
-        setBuffer(value.data(), value.bytes());
-    }
+    virtual void setBuffer(const CBuffer& value);
 
     /// @brief Assignment method
     virtual void setExternalBuffer(const void * value, size_t sz);
@@ -315,264 +236,127 @@ public:
     virtual void setImageNdx(uint32_t value);
 
     /// @brief Assignment method
-    virtual void setMoney(const CMoneyData& value);
+    virtual void setMoney(const MoneyData& value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(const CVariant &C)
-    {
-        if (this == &C)
-            return *this;
-        setData(C);
-        return *this;
-    }
+    virtual Variant& operator =(const Variant &C);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(int32_t value)
-    {
-        setInteger(value);
-        return *this;
-    }
+    virtual Variant& operator =(int32_t value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(int64_t value)
-    {
-        setInt64(value);
-        return *this;
-    }
+    virtual Variant& operator =(int64_t value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(uint32_t value)
-    {
-        setInteger((int32_t) value);
-        return *this;
-    }
+    virtual Variant& operator =(uint32_t value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(uint64_t value)
-    {
-        setInt64((int64_t)value);
-        return *this;
-    }
+    virtual Variant& operator =(uint64_t value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(int16_t value)
-    {
-        setInteger(value);
-        return *this;
-    }
+    virtual Variant& operator =(int16_t value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(uint16_t value)
-    {
-        setInteger(value);
-        return *this;
-    }
+    virtual Variant& operator =(uint16_t value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(float value)
-    {
-        setFloat(value);
-        return *this;
-    }
+    virtual Variant& operator =(float value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(double value)
-    {
-        setFloat(value);
-        return *this;
-    }
+    virtual Variant& operator =(double value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(const CMoneyData& value)
-    {
-        setMoney(value.quantity, value.scale);
-        return *this;
-    }
+    virtual Variant& operator =(const MoneyData& value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(const char * value)
-    {
-        setString(value);
-        return *this;
-    }
+    virtual Variant& operator =(const char * value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(const std::string& value)
-    {
-        setString(value.c_str(), value.length());
-        return *this;
-    }
+    virtual Variant& operator =(const std::string& value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(CDateTime value)
-    {
-        setDateTime(value);
-        return *this;
-    }
+    virtual Variant& operator =(CDateTime value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(const void *value)
-    {
-        setImagePtr(value);
-        return *this;
-    }
+    virtual Variant& operator =(const void *value);
 
     /// @brief Assignment operator
-    virtual CVariant& operator =(const CBuffer& value)
-    {
-        setBuffer(value.data(), value.bytes());
-        return *this;
-    }
+    virtual Variant& operator =(const CBuffer& value);
 
     /// @brief Directly reads the internal data
-    virtual bool getBool() const
-    {
-        return m_data.boolData;
-    }
+    virtual bool getBool() const;
 
     /// @brief Directly reads the internal data
-    virtual const int32_t& getInteger() const
-    {
-        return m_data.intData;
-    }
+    virtual const int32_t& getInteger() const;
 
     /// @brief Directly reads the internal data
-    virtual const int64_t& getInt64() const
-    {
-        return m_data.int64Data;
-    }
+    virtual const int64_t& getInt64() const;
 
     /// @brief Directly reads the internal data
-    virtual const double& getFloat() const
-    {
-        return m_data.floatData;
-    }
+    virtual const double& getFloat() const;
 
     /// @brief Directly reads the internal data
-    virtual const CMoneyData& getMoney() const
-    {
-        return m_data.moneyData;
-    }
+    virtual const MoneyData& getMoney() const;
 
     /// @brief Directly reads the internal data
-    virtual const char* getString() const
-    {
-        return m_data.buffer.data;
-    }
+    virtual const char* getString() const;
 
     /// @brief Directly reads the internal data
-    virtual const char* getBuffer() const
-    {
-        return m_data.buffer.data;
-    }
+    virtual const char* getBuffer() const;
 
     /// @brief Directly reads the internal data
-    virtual const char* getText() const
-    {
-        return m_data.buffer.data;
-    }
+    virtual const char* getText() const;
 
     /// @brief Directly reads the internal data
-    virtual CDateTime getDateTime() const
-    {
-        return m_data.floatData;
-    }
+    virtual CDateTime getDateTime() const;
 
     /// @brief Directly reads the internal data
-    virtual CDateTime getDate() const
-    {
-        return (int) m_data.floatData;
-    }
+    virtual CDateTime getDate() const;
 
     /// @brief Directly reads the internal data
-    virtual void* getImagePtr() const
-    {
-        return m_data.imagePtr;
-    }
+    virtual void* getImagePtr() const;
 
     /// @brief Directly reads the internal data
-    virtual uint32_t getImageNdx() const
-    {
-        return (uint32_t) m_data.imageNdx;
-    }
+    virtual uint32_t getImageNdx() const;
 
     /// @brief Returns the data type
-    CVariantType dataType() const
-    {
-        return (CVariantType) (m_dataType & VAR_TYPES);
-    }
+    VariantType dataType() const;
 
     /// @brief Returns the data size
-    size_t dataSize() const
-    {
-        return m_dataSize;
-    }
+    size_t dataSize() const;
 
     /// @brief Returns the allocated buffer size
-    size_t bufferSize() const
-    {
-        return m_data.buffer.size;
-    }
+    size_t bufferSize() const;
 
     /// @brief Returns the internal buffer
-    void * dataBuffer() const
-    {
-        return (void *) (variantData *) &m_data;
-    }
+    void* dataBuffer() const;
 
     /// @brief Conversion operator
-    operator bool() const THROWS_EXCEPTIONS
-    {
-        return asBool();
-    }
+    operator bool() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator int32_t() const THROWS_EXCEPTIONS
-    {
-        return asInteger();
-    }
+    operator int32_t() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator uint32_t() const THROWS_EXCEPTIONS
-    {
-        return (uint32_t) asInteger();
-    }
+    operator uint32_t() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator int64_t() const THROWS_EXCEPTIONS
-    {
-        return asInt64();
-    }
+    operator int64_t() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator uint64_t() const THROWS_EXCEPTIONS
-    {
-        return (uint64_t) asInt64();
-    }
+    operator uint64_t() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator float() const THROWS_EXCEPTIONS
-    {
-        return (float) asFloat();
-    }
+    operator float() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator double() const THROWS_EXCEPTIONS
-    {
-        return asFloat();
-    }
+    operator double() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator std::string() const THROWS_EXCEPTIONS
-    {
-        return asString();
-    }
+    operator std::string() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator CDateTime() const THROWS_EXCEPTIONS
-    {
-        return asDateTime();
-    }
+    operator CDateTime() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
@@ -623,23 +407,20 @@ public:
     /// Releases the memory allocated for string/text/blob types.
     /// Retains the data type. Sets the data to zero(s).
     /// @param vtype CVariantType, optional variant type to enforce
-    virtual void setNull(CVariantType vtype=VAR_NONE);
+    virtual void setNull(VariantType vtype=VAR_NONE);
 
     /// @brief Null flag
     ///
     /// Returns true if the NULL state is set
-    bool isNull() const
-    {
-        return (m_dataType & VAR_NULL) != 0;
-    }
+    bool isNull() const;
 
     /// @brief Returns a name for a particular variant type
     /// @param type CVariantType, a variant type
-    static std::string typeName(CVariantType type);
+    static std::string typeName(VariantType type);
 
     /// @brief Returns a type for a particular variant type name
     /// @param name const char*, a variant type name
-    static CVariantType nameType(const char* name);
+    static VariantType nameType(const char* name);
 
     /// @brief Loads the data from XML node
     /// @param node const CXmlNode&, XML node to load data from
@@ -647,10 +428,7 @@ public:
 
     /// @brief Loads the data from XML node
     /// @param node const CXmlNode*, XML node to load data from
-    void load(const CXmlNode* node)
-    {
-        load(*node);
-    }
+    void load(const CXmlNode* node);
 
     /// @brief Saves the data into XML node
     /// @param node CXmlNode&, XML node to save data into
@@ -658,10 +436,7 @@ public:
 
     /// @brief Saves the data into XML node
     /// @param node CXmlNode*, XML node to save data into
-    void save(CXmlNode* node) const
-    {
-        save(*node);
-    }
+    void save(CXmlNode* node) const;
 };
 /// @}
 }

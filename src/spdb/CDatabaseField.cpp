@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale) :
+CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale) :
         CField(fName.c_str())
 {
     m_fldType = fieldType;

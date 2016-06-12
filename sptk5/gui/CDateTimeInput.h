@@ -173,10 +173,10 @@ public:
 
     /// @brief Universal data connection, returns data from date control.
     /// Data is returned as VAR_DATE.
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// @brief Universal data connection, sets data to date control
-    virtual void     data(const CVariant v);
+    virtual void     data(const Variant v);
 
     /// @brief Resizes the control and inside widgets.
     /// @param x int, x-position
@@ -286,10 +286,10 @@ public:
     virtual void     dateTimeValue(CDateTime dt);
 
     /// @brief Universal data connection, returns data from control
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// @brief Universal data connection, sets data from control
-    virtual void     data(const CVariant v);
+    virtual void     data(const Variant v);
 
     /// @brief Creates a widget based on the XML node information
     static CLayoutClient* creator(CXmlNode *node);

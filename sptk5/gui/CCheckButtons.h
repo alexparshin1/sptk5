@@ -104,11 +104,11 @@ public:
 
     /// Universal data connection reader.
     /// @returns the list of selected button labels as pipe ('|') separated strings
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// Universal data connection writer.
     /// @param v CVariant, sets the selection from the list of labels as pipe ('|') separated strings
-    virtual void     data(const CVariant v);
+    virtual void     data(const Variant v);
 
     /// Returns an internal SPTK control type information
     virtual CControlKind kind() const {

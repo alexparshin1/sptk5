@@ -499,7 +499,7 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
     }
 }
 
-void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, CVariantType& dataType)
+void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, VariantType& dataType)
 {
     switch (postgreType) {
         case PG_BOOL:
@@ -541,7 +541,7 @@ void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, CVariantType& da
     }
 }
 
-void CPostgreSQLConnection::CTypeToPostgreType(CVariantType dataType, Oid& postgreType)
+void CPostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgreType)
 {
     switch (dataType) {
         case VAR_INT:
@@ -627,7 +627,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
                     sprintf(columnName, "column%02i", column + 1);
 
                 Oid dataType = PQftype(stmt, column);
-                CVariantType fieldType;
+                VariantType fieldType;
                 PostgreTypeToCType((int) dataType, fieldType);
                 int fieldLength = PQfsize(stmt, column);
                 CDatabaseField* field = new CDatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
@@ -734,7 +734,7 @@ static inline long double readNumericToFloat(char* v)
 */
 
 // Converts internal NUMERIC Postgresql binary to long double
-static inline CMoneyData readNumericToScaledInteger(char* v)
+static inline MoneyData readNumericToScaledInteger(char* v)
 {
     int16_t ndigits = (int16_t) ntohs(*(uint16_t*) v);
     int16_t weight = (int16_t) ntohs(*(uint16_t*) (v + 2));
@@ -793,7 +793,7 @@ static inline CMoneyData readNumericToScaledInteger(char* v)
     if (sign)
         value = -value;
 
-    CMoneyData moneyData = {value, uint8_t(dscale)};
+    MoneyData moneyData = {value, uint8_t(dscale)};
 
     return moneyData;
 }

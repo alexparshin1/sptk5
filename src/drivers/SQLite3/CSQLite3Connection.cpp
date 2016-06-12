@@ -273,7 +273,7 @@ void CSQLite3Connection::queryBindParameters(CQuery* query)
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
         CParam* param = &query->param(i);
-        CVariantType ptype = param->dataType();
+        VariantType ptype = param->dataType();
 
         //SQLINTEGER& cblen = param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
@@ -329,7 +329,7 @@ void CSQLite3Connection::queryBindParameters(CQuery* query)
     }
 }
 
-void CSQLite3Connection::SQLITEtypeToCType(int sqliteType, CVariantType& dataType)
+void CSQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantType& dataType)
 {
     switch (sqliteType) {
 

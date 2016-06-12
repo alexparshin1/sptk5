@@ -254,7 +254,7 @@ void COracleConnection::queryBindParameters(CQuery *query)
     }
 }
 
-CVariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
+VariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
 {
     switch (oracleType)
     {
@@ -284,7 +284,7 @@ CVariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
     }
 }
 
-Type COracleConnection::VariantTypeToOracleType(CVariantType dataType)
+Type COracleConnection::VariantTypeToOracleType(VariantType dataType)
 {
     switch (dataType)
     {
@@ -378,7 +378,7 @@ void COracleConnection::queryOpen(CQuery *query)
                 }
                 if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
                     resultSet->setMaxColumnSize(columnIndex + 1, 16384);
-                CVariantType dataType = OracleTypeToVariantType(columnType);
+                VariantType dataType = OracleTypeToVariantType(columnType);
                 CDatabaseField* field = new CDatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize);
                 query->fields().push_back(field);
             }

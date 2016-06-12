@@ -224,10 +224,10 @@ public:
 public:
 
     /// @brief Field read access by the field name, for the universal data connection
-    virtual bool readField(const char *fname, CVariant& value);
+    virtual bool readField(const char *fname, Variant& value);
 
     /// @brief Field write access by the field name, for the universal data connection
-    virtual bool writeField(const char *fname, const CVariant& fvalue);
+    virtual bool writeField(const char *fname, const Variant& fvalue);
 
 public:
     /// @brief Opens the query and fetches the first row.

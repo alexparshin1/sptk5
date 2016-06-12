@@ -32,32 +32,32 @@
 using namespace std;
 using namespace sptk;
 
-int64_t CMoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL,
+int64_t MoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL,
                                     10000000000LL, 100000000000LL,
                                     1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL};
 
-CMoneyData::operator double() const
+MoneyData::operator double() const
 {
     return double(quantity) / dividers[scale];
 }
 
-CMoneyData::operator int64_t() const
+MoneyData::operator int64_t() const
 {
     return quantity / dividers[scale];
 }
 
-CMoneyData::operator int32_t() const
+MoneyData::operator int32_t() const
 {
     return int32_t(quantity / dividers[scale]);
 }
 
-CMoneyData::operator bool() const
+MoneyData::operator bool() const
 {
     return quantity != 0;
 }
 
 //---------------------------------------------------------------------------
-void CVariant::releaseBuffers()
+void Variant::releaseBuffers()
 {
     if (m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) {
         if (m_data.buffer.data) {
@@ -71,7 +71,125 @@ void CVariant::releaseBuffers()
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setBool(bool value)
+void Variant::dataSize(size_t ds)
+{
+    m_dataSize = ds;
+    if (m_dataSize > 0)
+        m_dataType &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
+    }
+
+//---------------------------------------------------------------------------
+void Variant::dataType(uint32_t dt)
+{
+    m_dataType = (uint16_t) dt;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant()
+{
+    m_dataType = VAR_NONE | VAR_NULL;
+    m_data.int64Data = 0;
+    m_data.buffer.size = 0;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(int32_t value)
+{
+    m_dataType = VAR_INT;
+    m_data.intData = value;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(uint32_t value)
+{
+    m_dataType = VAR_INT;
+    m_data.intData = (int32_t) value;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(int64_t value, unsigned scale)
+{
+    if (scale > 1) {
+        m_dataType = VAR_MONEY;
+        m_data.moneyData.quantity = value;
+        m_data.moneyData.scale = (uint8_t) scale;
+    } else {
+        m_dataType = VAR_INT64;
+        m_data.int64Data = value;
+    }
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(uint64_t value)
+{
+    m_dataType = VAR_INT64;
+    m_data.int64Data = (int64_t) value;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(float value)
+{
+    m_dataType = VAR_FLOAT;
+    m_data.floatData = value;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(double value)
+{
+    m_dataType = VAR_FLOAT;
+    m_data.floatData = value;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(const char * value)
+{
+    m_dataType = VAR_NONE;
+    setString(value);
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(const std::string& v)
+{
+    m_dataType = VAR_NONE;
+    setString(v.c_str(), v.length());
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(CDateTime v)
+{
+    m_dataType = VAR_DATE_TIME;
+    m_data.timeData = v;
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(const void * value, size_t sz)
+{
+    m_dataType = VAR_NONE;
+    setBuffer(value, sz);
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(const CBuffer& value)
+{
+    m_dataType = VAR_NONE;
+    setBuffer(value.data(), value.bytes());
+}
+
+//---------------------------------------------------------------------------
+Variant::Variant(const Variant& value)
+{
+    m_dataType = VAR_NONE;
+    setData(value);
+}
+
+//---------------------------------------------------------------------------
+Variant::~Variant()
+{
+    releaseBuffers();
+}
+
+//---------------------------------------------------------------------------
+void Variant::setBool(bool value)
 {
     if (m_dataType != VAR_BOOL) {
         releaseBuffers();
@@ -83,7 +201,7 @@ void CVariant::setBool(bool value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setInteger(int32_t value)
+void Variant::setInteger(int32_t value)
 {
     if (m_dataType != VAR_INT) {
         releaseBuffers();
@@ -95,7 +213,7 @@ void CVariant::setInteger(int32_t value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setInt64(int64_t value)
+void Variant::setInt64(int64_t value)
 {
     if (m_dataType != VAR_INT64) {
         releaseBuffers();
@@ -107,7 +225,7 @@ void CVariant::setInt64(int64_t value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setFloat(double value)
+void Variant::setFloat(double value)
 {
     if (m_dataType != VAR_FLOAT) {
         releaseBuffers();
@@ -119,12 +237,12 @@ void CVariant::setFloat(double value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setMoney(int64_t value, unsigned scale)
+void Variant::setMoney(int64_t value, unsigned scale)
 {
     if (m_dataType != VAR_MONEY) {
         releaseBuffers();
         m_dataType = VAR_MONEY;
-        m_dataSize = sizeof(CMoneyData);
+        m_dataSize = sizeof(MoneyData);
     }
 
     m_data.moneyData.quantity = value;
@@ -132,7 +250,7 @@ void CVariant::setMoney(int64_t value, unsigned scale)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setString(const char* value, size_t maxlen)
+void Variant::setString(const char* value, size_t maxlen)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -178,7 +296,13 @@ void CVariant::setString(const char* value, size_t maxlen)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setExternalString(const char* value, int length)
+void Variant::setString(const std::string& value)
+{
+    setString(value.c_str(), value.length());
+}
+
+//---------------------------------------------------------------------------
+void Variant::setExternalString(const char* value, int length)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -204,7 +328,13 @@ void CVariant::setExternalString(const char* value, int length)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setText(const char* value)
+void Variant::setExternalString(const std::string& value)
+{
+    setExternalString(value.c_str(), (int) value.length());
+}
+
+//---------------------------------------------------------------------------
+void Variant::setText(const char* value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -223,7 +353,7 @@ void CVariant::setText(const char* value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setText(const string& value)
+void Variant::setText(const string& value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -243,7 +373,7 @@ void CVariant::setText(const string& value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setExternalText(const char* value)
+void Variant::setExternalText(const char* value)
 {
     releaseBuffers();
     dataType(VAR_TEXT);
@@ -263,7 +393,7 @@ void CVariant::setExternalText(const char* value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setBuffer(const void* value, size_t sz)
+void Variant::setBuffer(const void* value, size_t sz)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -280,8 +410,13 @@ void CVariant::setBuffer(const void* value, size_t sz)
         setNull();
 }
 
+void Variant::setBuffer(const CBuffer& value)
+{
+    setBuffer(value.data(), value.bytes());
+}
+
 //---------------------------------------------------------------------------
-void CVariant::setBuffer(const string& value)
+void Variant::setBuffer(const string& value)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -300,7 +435,7 @@ void CVariant::setBuffer(const string& value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setExternalBuffer(const void* value, size_t sz)
+void Variant::setExternalBuffer(const void* value, size_t sz)
 {
     releaseBuffers();
     dataType(VAR_BUFFER);
@@ -318,7 +453,7 @@ void CVariant::setExternalBuffer(const void* value, size_t sz)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setDateTime(CDateTime value)
+void Variant::setDateTime(CDateTime value)
 {
     if (m_dataType != VAR_DATE_TIME) {
         releaseBuffers();
@@ -330,7 +465,7 @@ void CVariant::setDateTime(CDateTime value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setDate(CDateTime value)
+void Variant::setDate(CDateTime value)
 {
     if (m_dataType != VAR_DATE) {
         releaseBuffers();
@@ -342,7 +477,7 @@ void CVariant::setDate(CDateTime value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setImagePtr(const void* value)
+void Variant::setImagePtr(const void* value)
 {
     if (m_dataType != VAR_IMAGE_PTR) {
         releaseBuffers();
@@ -354,7 +489,7 @@ void CVariant::setImagePtr(const void* value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setImageNdx(uint32_t value)
+void Variant::setImageNdx(uint32_t value)
 {
     if (dataType() != VAR_IMAGE_NDX) {
         releaseBuffers();
@@ -366,7 +501,7 @@ void CVariant::setImageNdx(uint32_t value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setMoney(const CMoneyData& value)
+void Variant::setMoney(const MoneyData& value)
 {
     if (dataType() != VAR_MONEY) {
         releaseBuffers();
@@ -378,7 +513,7 @@ void CVariant::setMoney(const CMoneyData& value)
 }
 
 //---------------------------------------------------------------------------
-void CVariant::setData(const CVariant& C)
+void Variant::setData(const Variant& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
@@ -437,8 +572,265 @@ void CVariant::setData(const CVariant& C)
 }
 
 //---------------------------------------------------------------------------
+Variant& Variant::operator =(const Variant &C)
+{
+    if (this == &C)
+        return *this;
+    setData(C);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(int32_t value)
+{
+    setInteger(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(int64_t value)
+{
+    setInt64(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(uint32_t value)
+{
+    setInteger((int32_t) value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(uint64_t value)
+{
+    setInt64((int64_t)value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(int16_t value)
+{
+    setInteger(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(uint16_t value)
+{
+    setInteger(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(float value)
+{
+    setFloat(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(double value)
+{
+    setFloat(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(const MoneyData& value)
+{
+    setMoney(value.quantity, value.scale);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(const char * value)
+{
+    setString(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(const std::string& value)
+{
+    setString(value.c_str(), value.length());
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(CDateTime value)
+{
+    setDateTime(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(const void *value)
+{
+    setImagePtr(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator =(const CBuffer& value)
+{
+    setBuffer(value.data(), value.bytes());
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+bool Variant::getBool() const
+{
+    return m_data.boolData;
+}
+
+//---------------------------------------------------------------------------
+const int32_t& Variant::getInteger() const
+{
+    return m_data.intData;
+}
+
+//---------------------------------------------------------------------------
+const int64_t& Variant::getInt64() const
+{
+    return m_data.int64Data;
+}
+
+//---------------------------------------------------------------------------
+const double& Variant::getFloat() const
+{
+    return m_data.floatData;
+}
+
+//---------------------------------------------------------------------------
+const MoneyData& Variant::getMoney() const
+{
+    return m_data.moneyData;
+}
+
+//---------------------------------------------------------------------------
+const char* Variant::getString() const
+{
+    return m_data.buffer.data;
+}
+
+//---------------------------------------------------------------------------
+const char* Variant::getBuffer() const
+{
+    return m_data.buffer.data;
+}
+
+//---------------------------------------------------------------------------
+const char* Variant::getText() const
+{
+    return m_data.buffer.data;
+}
+
+//---------------------------------------------------------------------------
+CDateTime Variant::getDateTime() const
+{
+    return m_data.floatData;
+}
+
+//---------------------------------------------------------------------------
+CDateTime Variant::getDate() const
+{
+    return (int) m_data.floatData;
+}
+
+//---------------------------------------------------------------------------
+void* Variant::getImagePtr() const
+{
+    return m_data.imagePtr;
+}
+
+//---------------------------------------------------------------------------
+uint32_t Variant::getImageNdx() const
+{
+    return (uint32_t) m_data.imageNdx;
+}
+
+//---------------------------------------------------------------------------
+VariantType Variant::dataType() const
+{
+    return (VariantType) (m_dataType & VAR_TYPES);
+}
+
+//---------------------------------------------------------------------------
+size_t Variant::dataSize() const
+{
+    return m_dataSize;
+}
+
+//---------------------------------------------------------------------------
+size_t Variant::bufferSize() const
+{
+    return m_data.buffer.size;
+}
+
+//---------------------------------------------------------------------------
+void* Variant::dataBuffer() const
+{
+    return (void *) (variantData *) &m_data;
+}
+
+//---------------------------------------------------------------------------
+Variant::operator bool() const THROWS_EXCEPTIONS
+{
+    return asBool();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator int32_t() const THROWS_EXCEPTIONS
+{
+    return asInteger();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator uint32_t() const THROWS_EXCEPTIONS
+{
+    return (uint32_t) asInteger();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator int64_t() const THROWS_EXCEPTIONS
+{
+    return asInt64();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator uint64_t() const THROWS_EXCEPTIONS
+{
+    return (uint64_t) asInt64();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator float() const THROWS_EXCEPTIONS
+{
+    return (float) asFloat();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator double() const THROWS_EXCEPTIONS
+{
+    return asFloat();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator std::string() const THROWS_EXCEPTIONS
+{
+    return asString();
+}
+
+//---------------------------------------------------------------------------
+Variant::operator CDateTime() const THROWS_EXCEPTIONS
+{
+    return asDateTime();
+}
+
+//---------------------------------------------------------------------------
 // convertors
-int32_t CVariant::asInteger() const THROWS_EXCEPTIONS
+int32_t Variant::asInteger() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0;
@@ -473,7 +865,7 @@ int32_t CVariant::asInteger() const THROWS_EXCEPTIONS
     }
 }
 
-int64_t CVariant::asInt64() const THROWS_EXCEPTIONS
+int64_t Variant::asInt64() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return true;
@@ -518,7 +910,7 @@ int64_t CVariant::asInt64() const THROWS_EXCEPTIONS
     }
 }
 
-bool CVariant::asBool() const THROWS_EXCEPTIONS
+bool Variant::asBool() const THROWS_EXCEPTIONS
 {
     char ch;
 
@@ -562,7 +954,7 @@ bool CVariant::asBool() const THROWS_EXCEPTIONS
     }
 }
 
-double CVariant::asFloat() const THROWS_EXCEPTIONS
+double Variant::asFloat() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0;
@@ -597,7 +989,7 @@ double CVariant::asFloat() const THROWS_EXCEPTIONS
     }
 }
 
-string CVariant::asString() const THROWS_EXCEPTIONS
+string Variant::asString() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return "";
@@ -640,8 +1032,8 @@ string CVariant::asString() const THROWS_EXCEPTIONS
                 absValue = m_data.moneyData.quantity;
 
             sprintf(formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
-            int64_t intValue = absValue / CMoneyData::dividers[m_data.moneyData.scale];
-            int64_t fraction = absValue % CMoneyData::dividers[m_data.moneyData.scale];
+            int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
+            int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
             sprintf(print_buffer, format, intValue, fraction);
             return string(print_buffer);
         }
@@ -685,7 +1077,7 @@ string CVariant::asString() const THROWS_EXCEPTIONS
     }
 }
 
-CDateTime CVariant::asDate() const THROWS_EXCEPTIONS
+CDateTime Variant::asDate() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0.0;
@@ -720,7 +1112,7 @@ CDateTime CVariant::asDate() const THROWS_EXCEPTIONS
     }
 }
 
-CDateTime CVariant::asDateTime() const THROWS_EXCEPTIONS
+CDateTime Variant::asDateTime() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0.0;
@@ -755,7 +1147,7 @@ CDateTime CVariant::asDateTime() const THROWS_EXCEPTIONS
     }
 }
 
-void* CVariant::asImagePtr() const THROWS_EXCEPTIONS
+void* Variant::asImagePtr() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0;
@@ -769,7 +1161,7 @@ void* CVariant::asImagePtr() const THROWS_EXCEPTIONS
     }
 }
 
-void CVariant::setNull(CVariantType vtype)
+void Variant::setNull(VariantType vtype)
 {
     if (vtype != sptk::VAR_NONE) {
         releaseBuffers();
@@ -795,7 +1187,12 @@ void CVariant::setNull(CVariantType vtype)
     m_dataType |= VAR_NULL;
 }
 
-string CVariant::typeName(CVariantType type)
+bool Variant::isNull() const
+{
+    return (m_dataType & VAR_NULL) != 0;
+}
+
+string Variant::typeName(VariantType type)
 {
     switch (type) {
         default:
@@ -839,13 +1236,13 @@ string CVariant::typeName(CVariantType type)
     }
 }
 
-CVariantType CVariant::nameType(const char* name)
+VariantType Variant::nameType(const char* name)
 {
-    static std::map<string, CVariantType> nameToTypeMap;
+    static std::map<string, VariantType> nameToTypeMap;
 
     if (nameToTypeMap.empty()) {
         for (int type = VAR_INT; type <= VAR_BOOL; type *= 2) {
-            CVariantType vtype = (CVariantType) type;
+            VariantType vtype = (VariantType) type;
             nameToTypeMap[typeName(vtype)] = vtype;
         }
     }
@@ -853,7 +1250,7 @@ CVariantType CVariant::nameType(const char* name)
     if (!name || name[0] == 0)
         name = "string";
 
-    std::map<string, CVariantType>::iterator itor = nameToTypeMap.find(lowerCase(name));
+    std::map<string, VariantType>::iterator itor = nameToTypeMap.find(lowerCase(name));
 
     if (itor == nameToTypeMap.end())
         throw CException("Type name " + string(name) + " isn't recognized", __FILE__, __LINE__);
@@ -861,7 +1258,7 @@ CVariantType CVariant::nameType(const char* name)
     return itor->second;
 }
 
-void CVariant::load(const CXmlNode& node)
+void Variant::load(const CXmlNode& node)
 {
     const string& ntype = node.getAttribute("type").str();
     unsigned type = nameType(ntype.c_str());
@@ -890,7 +1287,12 @@ void CVariant::load(const CXmlNode& node)
     }
 }
 
-void CVariant::save(CXmlNode& node) const
+void Variant::load(const CXmlNode* node)
+{
+    load(*node);
+}
+
+void Variant::save(CXmlNode& node) const
 {
     string stringValue(asString());
     node.setAttribute("type", typeName(dataType()));
@@ -919,4 +1321,9 @@ void CVariant::save(CXmlNode& node) const
                 break;
         }
     }
+}
+
+void Variant::save(CXmlNode* node) const
+{
+    save(*node);
 }

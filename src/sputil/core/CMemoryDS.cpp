@@ -75,7 +75,7 @@ CField& CMemoryDS::operator [] (uint32_t index)
 }
 
 // read this field data into external value
-bool CMemoryDS::readField(const char *fname, CVariant& fvalue)
+bool CMemoryDS::readField(const char *fname, Variant& fvalue)
 {
     try {
         fvalue = (*this)[fname];
@@ -86,7 +86,7 @@ bool CMemoryDS::readField(const char *fname, CVariant& fvalue)
 }
 
 // write this field data from external value
-bool CMemoryDS::writeField(const char *fname, const CVariant& fvalue)
+bool CMemoryDS::writeField(const char *fname, const Variant& fvalue)
 {
     try {
         (*this)[fname] = fvalue;
@@ -152,7 +152,7 @@ bool CMemoryDS::prior()
     return false;
 }
 
-bool CMemoryDS::find(CVariant position)
+bool CMemoryDS::find(Variant position)
 {
     uint32_t cnt = (uint32_t) m_list.size();
     string name;

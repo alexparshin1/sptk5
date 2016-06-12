@@ -458,11 +458,11 @@ public:
 
     /// The universal data connector,
     /// @returns control data
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// The universal data connector, selects row with user data
     /// @param v const CVariant, user data value to find and select
-    virtual void data(const CVariant v);
+    virtual void data(const Variant v);
 
     /// Returns row pointer
     /// @param index int, row number
@@ -623,7 +623,7 @@ public:
     /// @param cwidth uint32_t, column width
     /// @param cvisible bool, is the column visible?
 
-    void addColumn(const std::string colname, CVariantType type, uint32_t cwidth = 100, bool cvisible = true)
+    void addColumn(const std::string colname, VariantType type, uint32_t cwidth = 100, bool cvisible = true)
     {
         m_columnList.push_back(CColumn(colname, type, (short) cwidth, cvisible));
     }

@@ -170,7 +170,7 @@ public:
     /// @param type CVariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, is the column visible?
-    void addColumn(std::string cname, CVariantType type = VAR_STRING, int16_t cwidth = 70, bool cvisible = true);
+    void addColumn(std::string cname, VariantType type = VAR_STRING, int16_t cwidth = 70, bool cvisible = true);
 
     /// Adds a new row to the internal list view. Doesn't make a copy - just
     /// inserts the pointer. The row will be destroyed in CCombo destructor.
@@ -209,10 +209,10 @@ public:
     virtual void resize(int x, int y, int w, int h);
 
     /// Universal data connection. Operates with selected list view item's ID.
-    virtual CVariant data() const;
+    virtual Variant data() const;
 
     /// Universal data connection. Operates with selected list view item's ID.
-    virtual void data(const CVariant v);
+    virtual void data(const Variant v);
 
     /// Sets data mode for the data() methods.
     /// Defines which information list view are working with in data() method - key value, item index, or item caption.

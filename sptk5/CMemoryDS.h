@@ -103,12 +103,12 @@ public:
     /// Reads the field by name from the datasource.
     /// @param fieldName const char *, field name
     /// @param fieldValue CVariant, field value
-    virtual bool              readField(const char *fieldName,CVariant& fieldValue);
+    virtual bool              readField(const char *fieldName,Variant& fieldValue);
 
     /// Writes the field by name from the datasource.
     /// @param fieldName const char *, field name
     /// @param fieldValue CVariant, field value
-    virtual bool              writeField(const char *fieldName,const CVariant& fieldValue);
+    virtual bool              writeField(const char *fieldName,const Variant& fieldValue);
 
     /// Opens the datasource. Implemented in derved class.
     virtual bool              open() THROWS_EXCEPTIONS {
@@ -131,7 +131,7 @@ public:
     virtual bool              last();
 
     /// Finds the record by the record position (defined by record's user_data or key).
-    virtual bool              find(CVariant position);
+    virtual bool              find(Variant position);
 
     /// Returns true if there are no more records in the datasource. Implemented in derved class.
     virtual bool              eof() const {

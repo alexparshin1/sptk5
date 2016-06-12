@@ -66,7 +66,7 @@ public:
     /// @param dataType CVariantType, variant data type
     /// @param fieldLength int, database field length
     /// @param fieldScale int, database field scale
-    CDatabaseField(const std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale = 4);
+    CDatabaseField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale = 4);
 
     std::string     displayName;    ///< Column display name
     std::string     displayFormat;  ///< Column display format

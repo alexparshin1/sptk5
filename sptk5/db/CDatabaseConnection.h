@@ -56,7 +56,7 @@ enum CDbObjectType
 /// @brief Column type and size structure
 struct CColumnTypeSize
 {
-    CVariantType    type;   ///< Column type
+    VariantType    type;   ///< Column type
     size_t          length; ///< Column data size
 };
 

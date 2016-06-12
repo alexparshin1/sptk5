@@ -66,18 +66,18 @@ public:
     /// @brief Translates MySQL native type to CVariant type
     /// @param mysqlType enum_field_types, MySQL native type
     /// @returns CVariant type
-    static CVariantType mySQLTypeToVariantType(enum_field_types mysqlType);
+    static VariantType mySQLTypeToVariantType(enum_field_types mysqlType);
 
     /// @brief Translates CVariant type to MySQL native type
     /// @param dataType CVariantType&, CVariant type
     /// @returns MySQL native type
-    static enum_field_types variantTypeToMySQLType(CVariantType dataType);
+    static enum_field_types variantTypeToMySQLType(VariantType dataType);
 
     /// @brief Translates CDateTime to MySQL time
     /// @param mysqlDate MYSQL_TIME&, MySQL time
     /// @param timestamp CDateTime, Timestamp
     /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
-    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, CVariantType timeType);
+    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, VariantType timeType);
 
     /// @brief Translates MySQL time to CDateTime
     /// @param timestamp CDateTime&, Timestamp

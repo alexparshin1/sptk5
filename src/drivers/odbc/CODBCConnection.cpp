@@ -47,7 +47,7 @@ protected:
     }
 
 public:
-    CODBCField(const std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldLength, int fieldScale)
+    CODBCField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
             :
             CDatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
@@ -325,7 +325,7 @@ void CODBCConnection::queryBindParameters(CQuery* query)
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
         CParam* param = &query->param(i);
-        CVariantType ptype = param->dataType();
+        VariantType ptype = param->dataType();
         SQLLEN& cblen = (SQLLEN&) param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
@@ -433,7 +433,7 @@ void CODBCConnection::queryBindParameters(CQuery* query)
     }
 }
 
-void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, CVariantType& dataType)
+void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantType& dataType)
 {
     switch (odbcType) {
         case SQL_BIGINT:
@@ -537,7 +537,7 @@ void CODBCConnection::queryOpen(CQuery* query)
             int32_t columnLength;
             int32_t columnScale;
             int32_t cType;
-            CVariantType dataType;
+            VariantType dataType;
             for (int16_t column = 1; column <= count; column++) {
                 queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, 255);
                 queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);

@@ -37,7 +37,7 @@ void CPostgreSQLParamValues::setParameters(CParamList& params) {
     resize(m_count);
     for (unsigned i = 0; i < m_count; i++) {
         CParam* param = m_params[i];
-        CVariantType ptype = param->dataType();
+        VariantType ptype = param->dataType();
         CPostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i]);
 
         if (ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) {
@@ -79,7 +79,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
     static const char* booleanTrue = "t";
     static const char* booleanFalse = "f";
 
-    CVariantType ptype = param->dataType();
+    VariantType ptype = param->dataType();
 
     if (param->isNull())
         setParameterValue(paramIndex, 0, 0, 0, PG_VARCHAR);

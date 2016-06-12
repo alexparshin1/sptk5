@@ -50,7 +50,7 @@ class CFieldList;
 /// @brief Data field for CDataSource.
 ///
 /// Contains field name, field type, field data and field format information.
-class SP_EXPORT CField : public CVariant
+class SP_EXPORT CField : public Variant
 {
     friend class CFieldList;
 protected:
@@ -82,10 +82,10 @@ public:
     /// Useful for the database operations.
     /// Retains the data type. Sets the data to zero(s).
     /// @param vtype CVariantType, optional variant type to enforce
-    virtual void setNull(CVariantType vtype = VAR_NONE);
+    virtual void setNull(VariantType vtype = VAR_NONE);
 
     /// @brief Assignment operation
-    virtual CField& operator =(const CVariant &C)
+    virtual CField& operator =(const Variant &C)
     {
         if (this == &C)
             return *this;

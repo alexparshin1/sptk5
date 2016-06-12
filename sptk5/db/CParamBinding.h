@@ -48,7 +48,7 @@ class SP_EXPORT CParamBinding
 {
 public:
     void*        m_stmt;        ///< Statement handle or id
-    CVariantType m_dataType;    ///< Data type
+    VariantType m_dataType;    ///< Data type
     void*        m_buffer;      ///< Buffer
     uint32_t     m_size;        ///< Buffer size
     bool         m_output;      ///< Output parameter flag
@@ -72,7 +72,7 @@ public:
     /// @param type CVariantType, data type
     /// @param size uint32_t, binding buffer size
     /// @param buffer void*, binding buffer
-    bool check(void* stmt, CVariantType type, uint32_t size, void* buffer);
+    bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
 };
 
 /// @}
