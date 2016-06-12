@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/CDateTime.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 
 #include <string.h>
 
@@ -299,13 +299,13 @@ void CDateTime::encodeDate(double& dt, short year, short month, short day)
         return;
     }
     if (month < 1 || month > 12)
-        throw CException("Invalid month in the date");
+        throw Exception("Invalid month in the date");
     int yearKind = isLeapYear(year);
     month--;
     if (day < 1 || day > _monthDays[yearKind][month])
-        throw CException("Invalid day in the date");
+        throw Exception("Invalid day in the date");
     if (year <= 0 || year > 9999)
-        throw CException("Invalid year in the date");
+        throw Exception("Invalid year in the date");
 
     day += _monthDaySums[yearKind][month];
     int i = year - 1;

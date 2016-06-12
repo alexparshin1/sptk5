@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <string>
 #include <vector>
 #include <algorithm>

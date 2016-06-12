@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/sptk.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/CSharedStrings.h>
 
 using namespace std;
@@ -50,7 +50,7 @@ const string& CSharedStrings::shareString(const char* str) {
 void CSharedStrings::releaseString(const char* str) THROWS_EXCEPTIONS {
     CSIMap::iterator itor = m_stringIdMap.find(str);
     if (itor == m_stringIdMap.end())
-        throw CException("The string "+string(str)+" isn't registered in SST");
+        throw Exception("The string "+string(str)+" isn't registered in SST");
     if (itor->second > 1)
         itor->second--;
     else

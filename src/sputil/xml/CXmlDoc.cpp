@@ -89,7 +89,7 @@ void CXmlDoc::processAttributes(CXmlNode* node, char *ptr)
     while (*tokenStart) {
         char* tokenEnd = (char*) strpbrk(tokenStart, " =");
         if (!tokenEnd)
-            throw CException("Incorrect attribute - missing '='");
+            throw Exception("Incorrect attribute - missing '='");
         *tokenEnd = 0;
 
         const char* attributeName = tokenStart;
@@ -102,7 +102,7 @@ void CXmlDoc::processAttributes(CXmlNode* node, char *ptr)
             attributeValue++;
             tokenEnd = strchr(attributeValue, delimiter);
             if (!tokenEnd)
-                throw CException("Incorrect attribute format - missing quote");
+                throw Exception("Incorrect attribute format - missing quote");
             *tokenEnd = 0;
             valueLength = uint32_t(tokenEnd - attributeValue);
         } else {
@@ -261,7 +261,7 @@ void CXmlDoc::load(const char* xmlData)
                     *tokenEnd = ch; // ' ' or '>' could be within a comment
                     nodeEnd = strstr(nodeName + 3, "-->");
                     if (!nodeEnd)
-                        throw CException("Invalid end of the comment tag");
+                        throw Exception("Invalid end of the comment tag");
                     *nodeEnd = 0;
                     new CXmlComment(currentNode, nodeName + 3);
                     tokenEnd = nodeEnd + 2;
@@ -272,7 +272,7 @@ void CXmlDoc::load(const char* xmlData)
                     *tokenEnd = ch;
                     nodeEnd = strstr(nodeName + 1, "]]>");
                     if (!nodeEnd)
-                        throw CException("Invalid CDATA section");
+                        throw Exception("Invalid CDATA section");
                     *nodeEnd = 0;
                     new CXmlCDataSection(currentNode, nodeName + 8);
                     tokenEnd = nodeEnd + 2;
@@ -289,7 +289,7 @@ void CXmlDoc::load(const char* xmlData)
                     } else {
                         nodeEnd = strchr(tokenEnd + 1, '>');
                         if (!nodeEnd)
-                            throw CException("Invalid CDATA section");
+                            throw Exception("Invalid CDATA section");
                         *nodeEnd = 0;
                     }
                     parseDocType(tokenEnd + 1);
@@ -308,7 +308,7 @@ void CXmlDoc::load(const char* xmlData)
                     nodeEnd = strstr(tokenStart, "?");
                 }
                 if (!nodeEnd)
-                    throw CException("Invalid PI section");
+                    throw Exception("Invalid PI section");
                 *nodeEnd = 0;
                 new CXmlPI(currentNode, nodeName + 1, value);
                 tokenEnd = nodeEnd + 1;
@@ -318,14 +318,14 @@ void CXmlDoc::load(const char* xmlData)
             case '/':
                 /// Closing tag
                 if (ch != '>')
-                    throw CException("Invalid tag (spaces before closing '>')");
+                    throw Exception("Invalid tag (spaces before closing '>')");
                 nodeName++;
                 if (currentNode->name() != nodeName)
-                    throw CException(
+                    throw Exception(
                             "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
                 currentNode = currentNode->parent();
                 if (!currentNode)
-                    throw CException("Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
+                    throw Exception("Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
                 break;
 
             default:
@@ -343,7 +343,7 @@ void CXmlDoc::load(const char* xmlData)
                 tokenStart = tokenEnd + 1;
                 nodeEnd = strchr(tokenStart, '>');
                 if (!nodeEnd)
-                    throw CException("Invalid tag (started, not closed)");
+                    throw Exception("Invalid tag (started, not closed)");
                 *nodeEnd = 0;
                 CXmlNode* anode;
                 if (*(nodeEnd - 1) == '/') {
@@ -360,7 +360,7 @@ void CXmlDoc::load(const char* xmlData)
             if (!tokenStart) {
                 if (currentNode == this)
                     break;
-                throw CException("Tag started but not closed");
+                throw Exception("Tag started but not closed");
             }
             unsigned char* textStart = (unsigned char*) tokenEnd + 1;
             while (*textStart <= ' ') /// Skip leading spaces

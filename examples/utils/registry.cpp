@@ -31,7 +31,7 @@
 #pragma hdrstop
 #endif
 
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/CRegistry.h>
 
 #include <iostream>

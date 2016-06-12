@@ -32,7 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/CFieldList.h>
 #include <sptk5/CDataSource.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <vector>
 
 namespace sptk {
@@ -112,7 +112,7 @@ public:
 
     /// Opens the datasource. Implemented in derved class.
     virtual bool              open() THROWS_EXCEPTIONS {
-        throw CException("Not implemented yet");
+        throw Exception("Not implemented yet");
     }
 
     /// Closes the datasource.

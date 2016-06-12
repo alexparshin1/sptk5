@@ -29,7 +29,7 @@
 #ifndef __CBASE64_H__
 #define __CBASE64_H__
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 #include <sptk5/CBuffer.h>
 #include <string>

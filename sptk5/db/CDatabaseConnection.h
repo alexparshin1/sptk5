@@ -33,7 +33,7 @@
 #include <sptk5/CStrings.h>
 #include <sptk5/db/CDatabaseConnectionString.h>
 #include <sptk5/threads/CSynchronizedCode.h>
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/Logger.h>
 
 #include <vector>

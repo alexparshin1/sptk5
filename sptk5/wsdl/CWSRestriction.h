@@ -30,7 +30,7 @@
 #define __CWSRESTRICTION_H__
 
 #include <sptk5/cxml>
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/xml/CXmlElement.h>
 
 namespace sptk {

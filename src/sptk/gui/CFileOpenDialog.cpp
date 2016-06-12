@@ -46,11 +46,11 @@ bool CFileOpenDialog::okPressed() {
    try {
       fname = fileName();
       if (!fname.length()) 
-         throw CException("Please, select or type in the filename.");
+         throw Exception("Please, select or type in the filename.");
       fname = removeTrailingSlash(directory()) + slashStr + fname;
       int fh = open(fname.c_str(),O_RDONLY);
       if (fh < 0) 
-         throw CException("File doesn't exist.");
+         throw Exception("File doesn't exist.");
       close(fh);
       return true;
    }

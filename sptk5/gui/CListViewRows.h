@@ -29,10 +29,10 @@
 #ifndef __CLISTVIEWROWS_H__
 #define __CLISTVIEWROWS_H__
 
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/CPackedStrings.h>
 #include <sptk5/CIntList.h>
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 
 #include <vector>
 

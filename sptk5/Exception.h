@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CException.h - description                             ║
+║                       Exception.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __EXCEPTION_H__
-#define __EXCEPTION_H__
+#ifndef __SPTK_EXCEPTION_H__
+#define __SPTK_EXCEPTION_H__
 
 #include <sptk5/sptk.h>
 #include <string>
@@ -52,7 +52,7 @@ namespace sptk {
 /// happened and where. It's based on std::exception, so if you
 /// just want to catch STL and SPTK exceptions - you can use
 /// try {} catch (std::exception& e) {} block.
-class SP_EXPORT CException: public std::exception
+class SP_EXPORT Exception: public std::exception
 {
     std::string m_file;         ///< The file where exception occurs
     int         m_line;         ///< The line number in the file where exception occurs
@@ -65,50 +65,35 @@ public:
     /// @param file std::string, the file where exception occurs
     /// @param line int, the line number in the file where exception occurs
     /// @param description std::string, the optional description information
-    CException(std::string text, std::string file = "", int line = 0, std::string description = "");
+    Exception(std::string text, std::string file = "", int line = 0, std::string description = "");
 
     /// @brief Copy constructor
     /// @param other const CException&, the other exception object
-    CException(const CException& other);
+    Exception(const Exception& other);
 
     /// @brief Destructor
-    ~CException() DOESNT_THROW;
+    ~Exception() DOESNT_THROW;
 
     /// @brief Returns complete text of exception
-    virtual const char * what() const DOESNT_THROW
-    {
-        return m_fullMessage.c_str();
-    }
+    virtual const char * what() const DOESNT_THROW;
 
     /// @brief Returns exception message without file name, line number, or description
-    std::string message() const
-    {
-        return m_text;
-    }
+    std::string message() const;
 
     /// @brief Returns exception file name
-    std::string file() const
-    {
-        return m_file;
-    }
+    std::string file() const;
 
     /// @brief Returns exception line number
-    int line() const
-    {
-        return m_line;
-    }
+    int line() const;
 
     /// @brief Returns exception description
-    std::string description() const
-    {
-        return m_description;
-    }
+    std::string description() const;
 };
 
 /// @brief Timeout exception
 ///
 /// Thrown every time when timeout error occurs.
-class SP_EXPORT CTimeoutException: public CException
+class SP_EXPORT CTimeoutException: public Exception
 {
 public:
     /// Constructor
@@ -116,18 +101,11 @@ public:
     /// @param file std::string, the file where exception occurs
     /// @param line int, the line number in the file where exception occurs
     /// @param description std::string, the optional description information
-    CTimeoutException(std::string text, std::string file = "", int line = 0,
-            std::string description = "") :
-            CException(text, file, line, description)
-    {
-    }
+    CTimeoutException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
     /// @brief Copy constructor
     /// @param other const CTimeoutException&, other exception object
-    CTimeoutException(const CTimeoutException& other)
-    : CException(other)
-    {
-    }
+    CTimeoutException(const CTimeoutException& other);
 
     /// @brief Destructor
     ~CTimeoutException() DOESNT_THROW;
@@ -136,7 +114,7 @@ public:
 /// @brief Database operation exception
 ///
 /// Thrown every time when database operation error occurs.
-class SP_EXPORT CDatabaseException: public CException
+class SP_EXPORT CDatabaseException: public Exception
 {
 public:
     /// @brief Constructor
@@ -144,18 +122,11 @@ public:
     /// @param file std::string, the file where exception occurs
     /// @param line int, the line number in the file where exception occurs
     /// @param description std::string, the optional description information
-    CDatabaseException(std::string text, std::string file = "", int line = 0,
-            std::string description = "") :
-            CException(text, file, line, description)
-    {
-    }
+    CDatabaseException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
     /// @brief Copy constructor
     /// @param other const CDatabaseException&, other exception object
-    CDatabaseException(const CDatabaseException& other)
-    : CException(other)
-    {
-    }
+    CDatabaseException(const CDatabaseException& other);
 
     /// @brief Destructor
     ~CDatabaseException() DOESNT_THROW;
@@ -164,7 +135,7 @@ public:
 /// @brief SOAP exception
 ///
 /// Thrown every time when SOAP fault occurs.
-class SP_EXPORT CSOAPException: public CException
+class SP_EXPORT CSOAPException: public Exception
 {
 public:
     /// Constructor
@@ -172,18 +143,11 @@ public:
     /// @param file std::string, the file where exception occurs
     /// @param line int, the line number in the file where exception occurs
     /// @param description std::string, the optional description information
-    CSOAPException(std::string text, std::string file = "", int line = 0,
-                      std::string description = "") :
-                      CException(text, file, line, description)
-    {
-    }
+    CSOAPException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
     /// @brief Copy constructor
     /// @param other const CSOAPException&, other exception object
-    CSOAPException(const CSOAPException& other)
-    : CException(other)
-    {
-    }
+    CSOAPException(const CSOAPException& other);
 
     /// @brief Destructor
     ~CSOAPException() DOESNT_THROW;
@@ -193,7 +157,7 @@ public:
 /// for the place an exception is thrown from
 
 /// @brief Throws exception with file name and line number
-#define throwException(msg) throw sptk::CException(msg,__FILE__,__LINE__)
+#define throwException(msg) throw sptk::Exception(msg,__FILE__,__LINE__)
 
 /// @brief Throws timeout exception with file name and line number
 #define throwTimeoutException(msg) throw sptk::CTimeoutException(msg,__FILE__,__LINE__)

@@ -1931,7 +1931,7 @@ CColumn& CListView::column(const char *colname)
     int index = m_columnList.indexOf(colname);
     if (index >= 0)
         return m_columnList[index];
-    throw CException("Column '" + std::string(colname) + "' is not found.");
+    throw Exception("Column '" + std::string(colname) + "' is not found.");
 }
 
 CPackedStrings *CListView::findCaption(std::string caption)

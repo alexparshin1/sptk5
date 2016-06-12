@@ -50,7 +50,7 @@ void CSynchronized::throwError(const char* fileName, int lineNumber) THROWS_EXCE
             error += ", conflicting lock at " + m_location.toString();
     }
 
-    throw CException(error + ": Lock timeout");
+    throw Exception(error + ": Lock timeout");
 }
 
 

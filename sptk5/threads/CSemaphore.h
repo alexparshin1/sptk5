@@ -30,7 +30,7 @@
 #define __CSEMAPHORE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <condition_variable>
 #include <atomic>
 #include <chrono>

@@ -54,7 +54,7 @@ void BaseSocket::throwSocketError (std::string operation, const char* file, int 
 #else
     errorStr = strerror(errno);
 #endif
-    throw CException (operation + ": " + errorStr, file, line);
+    throw Exception (operation + ": " + errorStr, file, line);
 }
 
 #ifdef _WIN32
@@ -195,7 +195,7 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr)
 
     if (rc) {
         close();
-        throw CException ("Can't open: " + currentOperation + "() failed.", __FILE__, __LINE__);
+        throw Exception ("Can't open: " + currentOperation + "() failed.", __FILE__, __LINE__);
     }
 }
 

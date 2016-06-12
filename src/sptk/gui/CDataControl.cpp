@@ -107,7 +107,7 @@ CControl *sptk::createControl(int controlKind,std::string label,std::string fiel
         control = new CComboBox(lbl,size);
         break;
     default:
-        throw CException("Unsupported control type, field name '"+fieldName+"'.");
+        throw Exception("Unsupported control type, field name '"+fieldName+"'.");
     }
 
     control->fieldName(fieldName.c_str());

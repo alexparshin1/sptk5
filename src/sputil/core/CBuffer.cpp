@@ -114,7 +114,7 @@ void CBuffer::adjustSize(size_t sz)
     char* p = (char*)realloc(m_buffer, newSize + 1);
 
     if (!p)
-        throw CException("Can't reallocate a buffer");
+        throw Exception("Can't reallocate a buffer");
 
     m_buffer = p;
     m_size = newSize;
@@ -161,7 +161,7 @@ void CBuffer::reset(size_t sz)
         char* p = (char*)realloc(m_buffer, sz + 1);
 
         if (!p)
-            throw CException("Can't reallocate a buffer");
+            throw Exception("Can't reallocate a buffer");
 
         m_buffer = p;
         m_size = sz;

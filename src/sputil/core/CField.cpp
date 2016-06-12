@@ -141,7 +141,7 @@ string CField::asString() const THROWS_EXCEPTIONS
         return string (print_buffer);
 
     default:
-        throw CException ("Can't convert field for that type");
+        throw Exception ("Can't convert field for that type");
     }
 }
 

@@ -316,13 +316,13 @@ bool CDialog::save()
         CControl* control = itor->second;
         if (!control->valid()) {
             Fl::focus(control->control());
-            throw CException(control->label() + " entry has the incorrect value!");
+            throw Exception(control->label() + " entry has the incorrect value!");
         }
         if (control->flags() & FGE_MANDATORY) {
             string test = control->data();
             if (!trim(test).length()) {
                 Fl::focus(control->control());
-                throw CException(control->label() + " entry can't be empty!");
+                throw Exception(control->label() + " entry can't be empty!");
             }
         }
     }
@@ -366,7 +366,7 @@ CControl& CDialog::operator [](string fieldName)
     CControlList::iterator itor = m_allFields.find(fieldName);
     if (itor != m_allFields.end())
         return *itor->second;
-    throw CException("The dialog window doesn't have a field '" + fieldName + "'");
+    throw Exception("The dialog window doesn't have a field '" + fieldName + "'");
 }
 
 CButton *CDialog::addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callbackFunction)

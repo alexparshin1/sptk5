@@ -30,7 +30,7 @@
 #define __CTRANSACTION_H__
 
 #include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 
 namespace sptk {
 

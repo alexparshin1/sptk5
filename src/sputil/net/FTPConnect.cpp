@@ -130,7 +130,7 @@ void CFTPConnect::close()
 void CFTPConnect::command(std::string cmd)
 {
     if (!active())
-        throw CException("Connection doesn't exist yet");
+        throw Exception("Connection doesn't exist yet");
     m_commandSocket.command(cmd);
 }
 
@@ -152,16 +152,16 @@ void CFTPConnect::openDataPort()
         command("PASV");
         const std::string& resp = response()[0];
         if (resp[0] != '2')
-            throw CException(resp);
+            throw Exception(resp);
 
         memset(&sin, 0, l);
         sin.in.sin_family = AF_INET;
         const char *cp = strchr(resp.c_str(), '(');
         if (cp == NULL)
-            throw CException(resp);
+            throw Exception(resp);
         cp++;
         if (sscanf(cp, "%u,%u,%u,%u,%u,%u", &v[2], &v[3], &v[4], &v[5], &v[0], &v[1]) < 6)
-            throw CException("Can't understand server response");
+            throw Exception("Can't understand server response");
         for (unsigned i = 0; i < 6; i++)
             sin.sa.sa_data[i] = (char) v[i];
     }
@@ -227,7 +227,7 @@ void CFTPConnect::cmd_retr(std::string fileName)
     char *buffer = new char[2048];
     FILE *outfile = fopen(fileName.c_str(), "w+b");
     if (!outfile)
-        throw CException("Can't open file <" + fileName + "> for writing");
+        throw Exception("Can't open file <" + fileName + "> for writing");
     openDataPort();
     command("RETR " + fileName);
     size_t len;
@@ -237,7 +237,7 @@ void CFTPConnect::cmd_retr(std::string fileName)
             uint32_t bytes = (uint32_t) fwrite(buffer, 1, len, outfile);
             if (bytes != len) {
                 delete buffer;
-                throw CException("Can't open file <" + fileName + "> for writing");
+                throw Exception("Can't open file <" + fileName + "> for writing");
             }
         }
     }
@@ -253,7 +253,7 @@ void CFTPConnect::cmd_store(std::string fileName)
     CBuffer buffer(8192);
     FILE *infile = fopen(fileName.c_str(), "rb");
     if (!infile)
-        throw CException("Can't open file <" + fileName + "> for reading");
+        throw Exception("Can't open file <" + fileName + "> for reading");
     openDataPort();
     command("STOR " + fileName);
     size_t len, bytes;
@@ -265,7 +265,7 @@ void CFTPConnect::cmd_store(std::string fileName)
             if (len == 0) {
                 fclose(infile);
                 m_dataSocket.close();
-                throw CException("Can't send file <" + fileName + "> - transfer interrupted");
+                throw Exception("Can't send file <" + fileName + "> - transfer interrupted");
             }
             p += len;
             bytes -= len;

@@ -32,7 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/CDateTime.h>
 #include <sptk5/CBuffer.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/cxml>
 
 namespace sptk {

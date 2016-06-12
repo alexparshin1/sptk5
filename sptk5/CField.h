@@ -31,7 +31,7 @@
 
 #include <sptk5/CBuffer.h>
 #include <sptk5/CDateTime.h>
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/cxml>
 
 #include <string>
@@ -43,7 +43,7 @@ namespace sptk {
 
 class CQuery;
 
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 
 class CFieldList;
 

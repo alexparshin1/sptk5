@@ -123,7 +123,7 @@ string CControlKindIndex::name(CControlKind type) THROWS_EXCEPTIONS
 {
     CTypeNameMap::iterator itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
-        throw CException("Control type " + int2string(type) + " is undefined");
+        throw Exception("Control type " + int2string(type) + " is undefined");
     return *itor->second;
 }
 
@@ -131,7 +131,7 @@ CControlKind CControlKindIndex::type(const char* name) THROWS_EXCEPTIONS
 {
     CNameTypeMap::iterator itor = m_nameTypeMap.find(name);
     if (itor == m_nameTypeMap.end())
-        throw CException("Control name " + string(name) + " is undefined");
+        throw Exception("Control name " + string(name) + " is undefined");
     return itor->second;
 }
 

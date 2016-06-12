@@ -61,7 +61,7 @@ void HttpConnect::getResponse()
 
     if (!m_socket.readyToRead(readTimeout)) {
         m_socket.close();
-        throw CException("Response timeout");
+        throw Exception("Response timeout");
     }
 
     /// Reading HTTP headers
@@ -81,11 +81,11 @@ void HttpConnect::getResponse()
     m_responseHeaders.clear();
 
     if (headers.empty())
-        throw CException("Can't detect HTTP headers");
+        throw Exception("Can't detect HTTP headers");
 
     /// Parsing HTTP headers
     if (headers[0].find("HTTP/1.") != 0)
-        throw CException("Broken HTTP version header");
+        throw Exception("Broken HTTP version header");
 
     m_responseHeaders["HTTP version"] = headers[0];
 
@@ -120,7 +120,7 @@ void HttpConnect::getResponse()
             if (contentLength) {
                 if (!m_socket.readyToRead(readTimeout)) {
                     m_socket.close();
-                    throw CException("Response read timeout");
+                    throw Exception("Response read timeout");
                 }
                 bytes = m_socket.socketBytes();
                 if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
@@ -172,7 +172,7 @@ void HttpConnect::sendCommand(string cmd)
     cmd += "\n";
 
     if (!m_socket.active())
-        throw CException("Socket isn't open");
+        throw Exception("Socket isn't open");
 
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }

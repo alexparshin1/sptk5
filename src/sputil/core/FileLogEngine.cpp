@@ -38,7 +38,7 @@ void FileLogEngine::saveMessage(CDateTime date, const char *message, uint32_t, L
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
-                throw CException("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
+                throw Exception("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
         }
 
         if (m_options & LO_DATE)
@@ -67,7 +67,7 @@ void FileLogEngine::saveMessage(CDateTime date, const char *message, uint32_t, L
     }
 
     if (m_fileStream.bad())
-        throw CException("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
+        throw Exception("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
 }
 
 FileLogEngine::~FileLogEngine()
@@ -82,8 +82,8 @@ void FileLogEngine::reset() THROWS_EXCEPTIONS
     if (m_fileStream.is_open())
         m_fileStream.close();
     if (m_fileName.empty())
-        throw CException("File name isn't defined", __FILE__, __LINE__);
+        throw Exception("File name isn't defined", __FILE__, __LINE__);
     m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!m_fileStream.is_open())
-        throw CException("Can't open log file '" + m_fileName + "'", __FILE__, __LINE__);
+        throw Exception("Can't open log file '" + m_fileName + "'", __FILE__, __LINE__);
 }

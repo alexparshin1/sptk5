@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/CField.h>
 
 using namespace std;
@@ -861,7 +861,7 @@ int32_t Variant::asInteger() const THROWS_EXCEPTIONS
             return (int32_t) m_data.floatData;
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -906,7 +906,7 @@ int64_t Variant::asInt64() const THROWS_EXCEPTIONS
             return int64_t(m_data.imageNdx);
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -950,7 +950,7 @@ bool Variant::asBool() const THROWS_EXCEPTIONS
             return bool(m_data.imageNdx != 0);
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -985,7 +985,7 @@ double Variant::asFloat() const THROWS_EXCEPTIONS
             return m_data.floatData;
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -1108,7 +1108,7 @@ CDateTime Variant::asDate() const THROWS_EXCEPTIONS
             return int(m_data.floatData);
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -1143,7 +1143,7 @@ CDateTime Variant::asDateTime() const THROWS_EXCEPTIONS
             return m_data.floatData;
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -1157,7 +1157,7 @@ void* Variant::asImagePtr() const THROWS_EXCEPTIONS
             return m_data.imagePtr;
 
         default:
-            throw CException("Can't convert field for that type");
+            throw Exception("Can't convert field for that type");
     }
 }
 
@@ -1253,7 +1253,7 @@ VariantType Variant::nameType(const char* name)
     std::map<string, VariantType>::iterator itor = nameToTypeMap.find(lowerCase(name));
 
     if (itor == nameToTypeMap.end())
-        throw CException("Type name " + string(name) + " isn't recognized", __FILE__, __LINE__);
+        throw Exception("Type name " + string(name) + " isn't recognized", __FILE__, __LINE__);
 
     return itor->second;
 }

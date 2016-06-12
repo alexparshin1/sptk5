@@ -199,7 +199,7 @@ void CSpellChecker::getOptions(CSpellOptions& options) {
 void CSpellChecker::checkForError() {
    if (!m_spellChecker) return;
    if (aspell_speller_error(m_spellChecker) != 0) {
-      throw CException(aspell_speller_error_message(m_spellChecker));
+      throw Exception(aspell_speller_error_message(m_spellChecker));
    }
 }
 

@@ -29,7 +29,7 @@
 #ifndef __CSHAREDSTRINGS_H__
 #define __CSHAREDSTRINGS_H__
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <string>
 #include <map>
 

@@ -97,12 +97,12 @@ int main(int argc, const char *argv[])
                 readAndReply(connection);         /* service connection */
                 connection.close();
             }
-            catch (CException e) {
+            catch (Exception e) {
                 cerr << e.what() << endl;
             }
         }
     }
-    catch (CException e) {
+    catch (Exception e) {
         cerr << e.what() << endl;
     }
 }

@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/CField.h>
 

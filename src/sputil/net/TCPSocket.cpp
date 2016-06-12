@@ -115,7 +115,7 @@ size_t TCPSocketReader::read(char *dest, size_t sz, char delimiter, bool read_li
     int eol = 0;
 
     if (m_socket.handle() <= 0)
-        throw CException("Can't read from closed socket", __FILE__, __LINE__);
+        throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (!eol) {
         int bytesToRead = int(int(sz) - total);
@@ -144,7 +144,7 @@ size_t TCPSocketReader::readLine(CBuffer& destBuffer, char delimiter)
     int eol = 0;
 
     if (m_socket.handle() <= 0)
-        throw CException("Can't read from closed socket", __FILE__, __LINE__);
+        throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (!eol) {
         int bytesToRead = int(destBuffer.size() - total);
@@ -205,11 +205,11 @@ void TCPSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
         if (!host_info) {
             // error translation.
             switch (herr) {
-                case HOST_NOT_FOUND:    throw CException("Host not found: " + hostname);
-                case NO_ADDRESS:        throw CException("Hostname " + hostname + " doesn't have an IP address");
-                case NO_RECOVERY:       throw CException("A non-recoverable name server error occurred while resolving " + hostname);
-                case TRY_AGAIN:         throw CException("A temporary name server error while resolving " + hostname);
-                default:                throw CException("Unknown error from gethostbyname_r for " + hostname);
+                case HOST_NOT_FOUND:    throw Exception("Host not found: " + hostname);
+                case NO_ADDRESS:        throw Exception("Hostname " + hostname + " doesn't have an IP address");
+                case NO_RECOVERY:       throw Exception("A non-recoverable name server error occurred while resolving " + hostname);
+                case TRY_AGAIN:         throw Exception("A temporary name server error while resolving " + hostname);
+                default:                throw Exception("Unknown error from gethostbyname_r for " + hostname);
             }
         }
     }
@@ -229,7 +229,7 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
     if (hostName.length())
         m_host = hostName;
     if (!m_host.length())
-        throw CException("Please, define the host name", __FILE__, __LINE__);
+        throw Exception("Please, define the host name", __FILE__, __LINE__);
     if (portNumber)
         m_port = portNumber;
 

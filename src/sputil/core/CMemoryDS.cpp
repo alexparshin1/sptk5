@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-#define checkDSopen(ds) if (!ds) throw CException("Dataset isn't open") 
+#define checkDSopen(ds) if (!ds) throw Exception("Dataset isn't open") 
 
 // access to the field by name
 const CField& CMemoryDS::operator [] (const char *field_name) const
@@ -79,7 +79,7 @@ bool CMemoryDS::readField(const char *fname, Variant& fvalue)
 {
     try {
         fvalue = (*this)[fname];
-    } catch (CException &) {
+    } catch (Exception &) {
         return false;
     }
     return true;
@@ -90,7 +90,7 @@ bool CMemoryDS::writeField(const char *fname, const Variant& fvalue)
 {
     try {
         (*this)[fname] = fvalue;
-    } catch (CException &) {
+    } catch (Exception &) {
         return false;
     }
     return true;

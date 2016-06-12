@@ -102,7 +102,7 @@ void SSLSocket::throwSSLError(int rc)
 {
     int errorCode = SSL_get_error(m_ssl, rc);
     string error = getSSLError("SSL_connect", errorCode);
-    throw CException(error, __FILE__, __LINE__);
+    throw Exception(error, __FILE__, __LINE__);
 }
 
 SSLSocket::SSLSocket(SSLContext& sslContext)
@@ -158,7 +158,7 @@ void SSLSocket::attach(SOCKET socketHandle) throw (std::exception)
             throw CTimeoutException(error, __FILE__, __LINE__);
 
         // The serious problem - can't accept, and it's final
-        throw CException(error, __FILE__, __LINE__);
+        throw Exception(error, __FILE__, __LINE__);
     }
 }
 
@@ -229,7 +229,7 @@ size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
         }
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         if (errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
-            throw CException(getSSLError("writing to SSL connection", errorCode));
+            throw Exception(getSSLError("writing to SSL connection", errorCode));
         CThread::msleep(10);
     }
 }

@@ -30,7 +30,7 @@
 #define __CPARAMBINDING_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 
 #include <vector>
 #include <map>

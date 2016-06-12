@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
             workDirectory = "/";
         
         if (chdir(workDirectory.c_str()))
-            throw CException("Can't change directory to " + workDirectory);
+            throw Exception("Can't change directory to " + workDirectory);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
         testXPath("xpath_test1.xml", "/AAA", 1);          // Select the root element AAA

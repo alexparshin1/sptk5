@@ -28,7 +28,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/CBuffer.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/net/CGI.h>
 
 #include <stdio.h>
@@ -62,7 +62,7 @@ CGIApplication::CGIApplication() {
     m_htmlPrint = stdout;
 
     if (objectCount)
-        throw CException("Only one instance of CCGIApplication is allowed");
+        throw Exception("Only one instance of CCGIApplication is allowed");
 
     objectCount = 1;
     m_htmlFile = NULL;

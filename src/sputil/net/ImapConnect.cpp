@@ -75,9 +75,9 @@ bool ImapConnect::getResponse(string ident)
                 case 'O': // OK
                     return true;
                 case 'N': // NO
-                    throw CException(longLine.c_str() + 8);
+                    throw Exception(longLine.c_str() + 8);
                 case 'B': // BAD
-                    throw CException(longLine.c_str() + 9);
+                    throw Exception(longLine.c_str() + 9);
             }
         }
     }
@@ -98,7 +98,7 @@ string ImapConnect::sendCommand(string cmd)
     string ident(id_str);
     cmd = ident + cmd + "\n";
     if (!active())
-        throw CException("Socket isn't open");
+        throw Exception("Socket isn't open");
     write(cmd.c_str(), (uint32_t) cmd.length());
     return ident;
 }

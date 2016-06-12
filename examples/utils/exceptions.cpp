@@ -27,7 +27,7 @@
 */
 
 #include <iostream>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/CBuffer.h>
 
 using namespace std;
@@ -39,7 +39,7 @@ int main()
 
     try {
         // If something goes wrong, we can throw an exception here
-        throw CException("Error in something", __FILE__, __LINE__, "The full description is here.");
+        throw Exception("Error in something", __FILE__, __LINE__, "The full description is here.");
     } catch (exception& e) {
         cerr << "Caught exception: " << e.what() << endl;
     }

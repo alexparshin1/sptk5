@@ -105,7 +105,7 @@ void CWSConnection::threadFunction()
                 }
             }
         }
-        catch (CException& e) {
+        catch (Exception& e) {
             m_logger << LP_ERROR << e.message() << endl;
             return;
         }

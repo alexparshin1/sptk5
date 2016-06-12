@@ -68,7 +68,7 @@ void CThreadPool::execute(CRunable* task)
 {
     SYNCHRONIZED_CODE;
     if (m_shutdown)
-        throw CException("Thread manager is stopped");
+        throw Exception("Thread manager is stopped");
 
     if (!m_availableThreads.wait(10)) {
         if (m_threads.size() < m_threadLimit)

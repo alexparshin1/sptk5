@@ -125,7 +125,7 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
         return 0;
 
     if ((src_len % 4) != 0)
-        throw CException("Can't decode Base64 data - Source buffer length must be dividable by 4");
+        throw Exception("Can't decode Base64 data - Source buffer length must be dividable by 4");
 
     bufDest.reset();
 

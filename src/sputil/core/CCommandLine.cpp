@@ -74,7 +74,7 @@ CCommandLine::CommandLineElement::CommandLineElement(string name, string shortNa
 : m_name(name), m_shortName(shortName), m_help(help), m_useWithCommands(useWithCommands)
 {
     if (m_name.empty())
-        throw CException("Command line elements must have a name");
+        throw Exception("Command line elements must have a name");
 }
 
 CCommandLine::CommandLineElement::~CommandLineElement() { }
@@ -212,7 +212,7 @@ CCommandLine::CommandLineParameter::CommandLineParameter(string name, string sho
     else
         m_validateValue = new CRegExp(validateValue);
     if (m_valueInfo.empty())
-        throw CException("Command line parameters must have a value info");
+        throw Exception("Command line parameters must have a value info");
 }
 
 CCommandLine::CommandLineParameter::~CommandLineParameter()
@@ -244,7 +244,7 @@ void CCommandLine::CommandLineParameter::validate(string value) const
         return;
     CStrings matches;
     if (!m_validateValue->m(value, matches))
-        throw CException("Parameter " + m_name + " has invalid value");
+        throw Exception("Parameter " + m_name + " has invalid value");
 }
 
 bool CCommandLine::CommandLineParameter::hasValue() const
@@ -405,11 +405,11 @@ void CCommandLine::init(int argc, const char* argv[])
             }
             CommandLineElement* element = m_optionTemplates[optionName];
             if (element == NULL)
-                throw CException("Command line option or parameter " + arg + " is not supported");
+                throw Exception("Command line option or parameter " + arg + " is not supported");
             if (element->hasValue()) {
                 i++;
                 if (i >= digestedArgs.size())
-                    throw CException("Command line parameter " + arg + " should have value");
+                    throw Exception("Command line parameter " + arg + " should have value");
                 value = digestedArgs[i];
                 element->validate(value);
                 m_values[element->name()] = value;
@@ -440,7 +440,7 @@ void CCommandLine::setOptionValue(string name, string value)
 {
     CommandLineElement* element = m_optionTemplates[name];
     if (!element)
-        throw CException("Invalid option or parameter name: " + name);
+        throw Exception("Invalid option or parameter name: " + name);
     element->validate(value);
     m_values[name] = value;
 }

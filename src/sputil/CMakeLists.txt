@@ -4,9 +4,9 @@ ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 SET (SPUTIL_SOURCES
     core/CBase64.cpp core/LogEngine.cpp
-    core/CBuffer.cpp core/CDataSource.cpp core/CDateTime.cpp core/CException.cpp core/CCommandLine.cpp
+    core/CBuffer.cpp core/CDataSource.cpp core/CDateTime.cpp core/Exception.cpp core/CCommandLine.cpp
     core/CField.cpp core/CFieldList.cpp core/FileLogEngine.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
-    core/CStrings.cpp core/SysLogEngine.cpp core/CUniqueInstance.cpp core/CVariant.cpp core/string_ext.cpp
+    core/CStrings.cpp core/SysLogEngine.cpp core/CUniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/Logger.cpp core/CSystemException.cpp
     core/md5.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/CGI.cpp net/FTPConnect.cpp

@@ -29,7 +29,7 @@
 #ifndef __CDATASOURCE_H__
 #define __CDATASOURCE_H__
 
-#include <sptk5/CVariant.h>
+#include <sptk5/Variant.h>
 #include <sptk5/CFieldList.h>
 #include <sptk5/cxml>
 

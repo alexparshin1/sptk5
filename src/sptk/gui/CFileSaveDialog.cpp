@@ -46,7 +46,7 @@ bool CFileSaveDialog::okPressed() {
    try {
       fname = fileName();
       if (!fname.length()) 
-         throw CException("Please, select or type in the filename.");
+         throw Exception("Please, select or type in the filename.");
       fname = removeTrailingSlash(directory()) + CFileDialog::slashStr + fname;
 
       int fh = open(fname.c_str(),O_RDONLY);
@@ -58,12 +58,12 @@ bool CFileSaveDialog::okPressed() {
          fh = open(fname.c_str(),O_RDWR);
          close(fh);
          if (fh < 0) 
-            throw CException("File is write-protected.");
+            throw Exception("File is write-protected.");
       } else {
          fh = creat(fname.c_str(),S_IWRITE);
          close(fh);
          if (fh < 0) 
-            throw CException("Can't be create the file.");
+            throw Exception("Can't be create the file.");
          ::remove(fname.c_str());
       }
       return true;

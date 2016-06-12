@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/cxml>
 
 using namespace std;

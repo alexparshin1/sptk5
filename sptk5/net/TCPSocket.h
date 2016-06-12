@@ -53,8 +53,8 @@
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
 
-#include <sptk5/CException.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
 #include <sptk5/CBuffer.h>
 #include <sptk5/net/BaseSocket.h>
 

@@ -118,7 +118,7 @@ void go_callback(Fl_Widget *,void *)
         int durationMS = int(started.secondsTo(finished) * 1000);
         textdisp->textBuffer()->text(sock.htmlData().data());
         statsInput->data("Received " + int2string(sock.htmlData().bytes()) + " bytes for " + int2string(durationMS) + "ms");
-    } catch (CException &e) {
+    } catch (Exception &e) {
         delete socket;
         spError(e.what());
         return;

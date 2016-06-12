@@ -26,13 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CException.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
 
-CException::CException(string text, string file, int line, string description)
+Exception::Exception(string text, string file, int line, string description)
 : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
 {
     if (m_line && !m_file.empty())
@@ -42,12 +42,47 @@ CException::CException(string text, string file, int line, string description)
         m_fullMessage += "\n" + m_description;
 }
 
-CException::CException(const CException& other)
+Exception::Exception(const Exception& other)
 : m_file(other.m_file), m_line(other.m_line), m_text(other.m_text), m_description(other.m_description), m_fullMessage(other.m_fullMessage)
 {
 }
 
-CException::~CException() DOESNT_THROW
+Exception::~Exception() DOESNT_THROW
+{
+}
+
+const char* Exception::what() const DOESNT_THROW
+{
+    return m_fullMessage.c_str();
+}
+
+std::string Exception::message() const
+{
+    return m_text;
+}
+
+string Exception::file() const
+{
+    return m_file;
+}
+
+int Exception::line() const
+{
+    return m_line;
+}
+
+string Exception::description() const
+{
+    return m_description;
+}
+
+CTimeoutException::CTimeoutException(std::string text, std::string file, int line, string description)
+: Exception(text, file, line, description)
+{
+}
+
+CTimeoutException::CTimeoutException(const CTimeoutException& other)
+: Exception(other)
 {
 }
 
@@ -55,7 +90,27 @@ CTimeoutException::~CTimeoutException() DOESNT_THROW
 {
 }
 
+CDatabaseException::CDatabaseException(std::string text, std::string file, int line, std::string description)
+: Exception(text, file, line, description)
+{
+}
+
+CDatabaseException::CDatabaseException(const CDatabaseException& other)
+: Exception(other)
+{
+}
+    
 CDatabaseException::~CDatabaseException() DOESNT_THROW
+{
+}
+
+CSOAPException::CSOAPException(std::string text, std::string file, int line, string description)
+: Exception(text, file, line, description)
+{
+}
+
+CSOAPException::CSOAPException(const CSOAPException& other)
+: Exception(other)
 {
 }
 

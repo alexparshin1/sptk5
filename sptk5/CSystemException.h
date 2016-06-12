@@ -29,7 +29,7 @@
 #ifndef __SYSTEMEXCEPTION_H__
 #define __SYSTEMEXCEPTION_H__
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 
 namespace sptk {
 
@@ -39,7 +39,7 @@ namespace sptk {
 /// @brief SPTK OS operation exception
 ///
 /// Retrieves information about OS error after failed OS operation.
-class SP_EXPORT CSystemException : public CException
+class SP_EXPORT CSystemException : public Exception
 {
 public:
     /// @brief Constructor

@@ -30,8 +30,8 @@
 #define __CTAR_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CException.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
 #include <sptk5/CBuffer.h>
 
 namespace sptk {

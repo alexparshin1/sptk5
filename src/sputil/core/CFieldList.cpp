@@ -28,7 +28,7 @@
 
 #include <string.h>
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/CFieldList.h>
 
 using namespace std;
@@ -79,7 +79,7 @@ CField& CFieldList::push_back(const char *fname,bool checkDuplicates) {
    }
 
    if (duplicate)
-      throw CException("Attempt to duplicate field name");
+      throw Exception("Attempt to duplicate field name");
 
    CField *field = new CField(fname);
 
@@ -113,7 +113,7 @@ CField *CFieldList::fieldByName(const char *fname) const {
             return field;
       }
    }
-   throw CException("Field name '" + std::string(fname) + "' not found");
+   throw Exception("Field name '" + std::string(fname) + "' not found");
 }
 
 void CFieldList::toXML(CXmlNode& node) const {

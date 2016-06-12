@@ -80,13 +80,13 @@ void SysLogEngine::saveMessage(CDateTime date, const char *message, uint32_t sz,
             OSVERSIONINFO version;
             version.dwOSVersionInfoSize = sizeof(version);
             if (!GetVersionEx(&version))
-                throw CException("Can't determine Windows version");
+                throw Exception("Can't determine Windows version");
             if (version.dwPlatformId != VER_PLATFORM_WIN32_NT)
-                throw CException("EventLog is only implemented on NT-based Windows");
+                throw Exception("EventLog is only implemented on NT-based Windows");
             m_logHandle = RegisterEventSource(NULL, m_programName.c_str());
         }
         if (!m_logHandle)
-            throw CException("Can't open Application Event Log");
+            throw Exception("Can't open Application Event Log");
 
         unsigned eventType;
         switch (priority) {
@@ -119,7 +119,7 @@ void SysLogEngine::saveMessage(CDateTime date, const char *message, uint32_t sz,
                         NULL			// address of binary data
                 ))
         {
-            throw CException("Can't write an event to Application Event Log ");
+            throw Exception("Can't write an event to Application Event Log ");
         }
 #endif
     }
@@ -171,7 +171,7 @@ void SysLogEngine::programName(string progName)
                         HKEY_LOCAL_MACHINE,
                         keyName.c_str(),
                         &keyHandle) != ERROR_SUCCESS)
-			throw CException("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+			throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
 
         unsigned long len = _MAX_PATH;
         unsigned long vtype = REG_EXPAND_SZ;
@@ -234,7 +234,7 @@ void SysLogEngine::programName(string progName)
 						error << "REG_DWORD " << valueData[i].intValue;
 					else
 						error << "REG_SZ " << valueData[i].strValue;
-					throw CException(error.str());
+					throw Exception(error.str());
 				}
 			}
 
@@ -247,7 +247,7 @@ void SysLogEngine::programName(string progName)
                             (CONST BYTE *)&typesSupported,// address of value data
                             sizeof(typesSupported)// size of value data
                     ) != ERROR_SUCCESS)
-				throw CException("Can't set registry key HKEY_LOCAL_MACHINE '" + keyName + "' value 'TypesSupported' to 7" + m_moduleFileName + "'");
+				throw Exception("Can't set registry key HKEY_LOCAL_MACHINE '" + keyName + "' value 'TypesSupported' to 7" + m_moduleFileName + "'");
             RegCloseKey(keyHandle);
         }
         m_registrySet = true;

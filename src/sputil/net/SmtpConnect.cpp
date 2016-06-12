@@ -94,7 +94,7 @@ int SmtpConnect::getResponse(bool decode)
 void SmtpConnect::sendCommand(string cmd, bool encode)
 {
     if (!active())
-        throw CException("Socket isn't open");
+        throw Exception("Socket isn't open");
     if (encode)
         cmd = mime(cmd);
     if (m_log)
@@ -107,7 +107,7 @@ int SmtpConnect::command(string cmd, bool encodeCommand, bool decodeResponse)
 {
     m_response.clear();
     if (!active())
-        throw CException("Socket isn't open");
+        throw Exception("Socket isn't open");
     sendCommand(cmd, encodeCommand);
     return getResponse(decodeResponse);
 }
@@ -146,7 +146,7 @@ void SmtpConnect::cmd_auth(string user, string password, string method)
 
     int rc = command("EHLO localhost");
     if (rc > 251)
-        throw CException(m_response.asString("\n"));
+        throw Exception(m_response.asString("\n"));
 
     method = trim(lowerCase(method));
     if (trim(user).length()) {
@@ -156,15 +156,15 @@ void SmtpConnect::cmd_auth(string user, string password, string method)
         if (method == "login") {
             rc = command("auth login", false, true);
             if (rc > 432)
-                throw CException(m_response.asString("\n"));
+                throw Exception(m_response.asString("\n"));
 
             rc = command(user, true, true);
             if (rc > 432)
-                throw CException(m_response.asString("\n"));
+                throw Exception(m_response.asString("\n"));
 
             rc = command(password, true, false);
             if (rc > 432)
-                throw CException(m_response.asString("\n"));
+                throw Exception(m_response.asString("\n"));
             return;
         }
 
@@ -179,11 +179,11 @@ void SmtpConnect::cmd_auth(string user, string password, string method)
             string userAndPasswordMimed = mime(userAndPassword);
             rc = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
             if (rc > 432)
-                throw CException(m_response.asString("\n"));
+                throw Exception(m_response.asString("\n"));
             return;
         }
 
-        throw CException("AUTH method " + method + " is not supported");
+        throw Exception("AUTH method " + method + " is not supported");
     }
 }
 
@@ -211,7 +211,7 @@ void SmtpConnect::sendMessage()
 {
     int rc = command("MAIL FROM:<" + parseAddress(m_from) + ">");
     if (rc > 251)
-        throw CException("Can't send message:\n" + m_response.asString("\n"));
+        throw Exception("Can't send message:\n" + m_response.asString("\n"));
 
     string rcpts = m_to + ";" + m_cc + ";" + m_bcc;
     rcpts = replaceAll(rcpts, ",", ";");
@@ -223,16 +223,16 @@ void SmtpConnect::sendMessage()
         if (address[0] == 0) continue;
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
         if (rc > 251)
-            throw CException("Recepient " + recepients[i] + " is not accepted.\n" + m_response.asString("\n"));
+            throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.asString("\n"));
     }
 
     mimeMessage(m_messageBuffer);
     rc = command("DATA");
     if (rc != 354)
-        throw CException("DATA command is not accepted.\n" + m_response.asString("\n"));
+        throw Exception("DATA command is not accepted.\n" + m_response.asString("\n"));
 
     sendCommand(m_messageBuffer.data());
     rc = command("\n.");
     if (rc > 251)
-        throw CException("Message body is not accepted.\n" + m_response.asString("\n"));
+        throw Exception("Message body is not accepted.\n" + m_response.asString("\n"));
 }

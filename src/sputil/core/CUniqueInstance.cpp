@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/CUniqueInstance.h>
 
 #ifndef _WIN32
