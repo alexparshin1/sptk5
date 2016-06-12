@@ -152,7 +152,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* para
                 break;
 
             default:
-                throw CDatabaseException("Unsupported type of parameter " + int2string(paramIndex));
+                throw DatabaseException("Unsupported type of parameter " + int2string(paramIndex));
         }
     }
 }

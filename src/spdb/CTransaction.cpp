@@ -46,7 +46,7 @@ CTransaction::~CTransaction()
 void CTransaction::begin()
 {
     if (m_active)
-        throw CDatabaseException("This transaction is already active");
+        throw DatabaseException("This transaction is already active");
     m_active = true;
     m_db->beginTransaction();
 }
@@ -54,7 +54,7 @@ void CTransaction::begin()
 void CTransaction::commit()
 {
     if (!m_active)
-        throw CDatabaseException("This transaction is not active");
+        throw DatabaseException("This transaction is not active");
     m_db->commitTransaction();
     m_active = false;
 }
@@ -62,7 +62,7 @@ void CTransaction::commit()
 void CTransaction::rollback()
 {
     if (!m_active)
-        throw CDatabaseException("This transaction is not active");
+        throw DatabaseException("This transaction is not active");
     m_db->rollbackTransaction();
     m_active = false;
 }

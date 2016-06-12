@@ -313,7 +313,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
     serviceImplementation << "         throwSOAPException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\");" << endl;
     serviceImplementation << "      }" << endl;
     serviceImplementation << "   }" << endl;
-    serviceImplementation << "   catch (const CSOAPException& e) {" << endl;
+    serviceImplementation << "   catch (const SOAPException& e) {" << endl;
     serviceImplementation << "      CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
     serviceImplementation << "      soapBody->clearChildren();" << endl;
     serviceImplementation << "      string soap_namespace = CWSParser::get_namespace(soapBody->name());" << endl;

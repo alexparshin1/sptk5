@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-#define throwMySQLError throw CDatabaseException(mysql_stmt_error(m_statement))
+#define throwMySQLError throw DatabaseException(mysql_stmt_error(m_statement))
 
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
@@ -271,7 +271,7 @@ void CMySQLStatement::setParameterValues()
             break;
 
         default:
-            throw CDatabaseException("Unsupported parameter type");
+            throw DatabaseException("Unsupported parameter type");
         }
         if (param->isNull())
             bind.is_null = &nullValue;
@@ -307,7 +307,7 @@ void CMySQLStatement::execute(bool)
     	MYSQL* conn = m_connection->m_connection;
         if (mysql_query(conn, m_sql.c_str()) != 0) {
             string error = mysql_error(conn);
-            throw CDatabaseException(error);
+            throw DatabaseException(error);
         }
         m_state.columnCount = mysql_field_count(conn);
         if (m_state.columnCount)

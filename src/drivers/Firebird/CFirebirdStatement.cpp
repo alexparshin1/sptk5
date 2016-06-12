@@ -279,7 +279,7 @@ void CFirebirdStatement::setParameterValues()
             {
                 char buffer[256];
                 sprintf(buffer, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
-                throw CDatabaseException(buffer);
+                throw DatabaseException(buffer);
             }
         }
     }
@@ -504,7 +504,7 @@ void CFirebirdStatement::fetchResult(CFieldList& fields)
                 {
                     char buffer[256];
                     sprintf(buffer, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
-                    throw CDatabaseException(buffer);
+                    throw DatabaseException(buffer);
                 }
         }
     }

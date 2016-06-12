@@ -40,7 +40,7 @@ void CQuery::allocStmt()
 {
     if (!m_db) {
         logText("Error in CQuery::allocStmt(): " + string(cantAllocateStmt));
-        throw CDatabaseException(cantAllocateStmt, __FILE__, __LINE__, m_sql);
+        throw DatabaseException(cantAllocateStmt, __FILE__, __LINE__, m_sql);
     }
     m_db->queryAllocStmt(this);
 }
@@ -65,7 +65,7 @@ void CQuery::closeStmt()
 void CQuery::prepare()
 {
     if (!m_autoPrepare)
-        throw CDatabaseException("Can't prepare this statement");
+        throw DatabaseException("Can't prepare this statement");
     if (m_prepared)
         return;
     if (m_db && m_statement) {
@@ -243,7 +243,7 @@ void CQuery::sql(string _sql)
             }
             param->bindAdd(uint32_t(paramNumber));
             if (!m_db)
-                throw CDatabaseException("Query isn't connected to the database");
+                throw DatabaseException("Query isn't connected to the database");
             odbcSQL += m_db->paramMark(uint32_t(paramNumber));
             paramNumber++;
 
@@ -271,7 +271,7 @@ void CQuery::sql(string _sql)
 bool CQuery::open() THROWS_EXCEPTIONS
 {
     if (!m_db)
-        throw CDatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
+        throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
 
     if (m_db->logFile())
         logText("Opening query: " + replaceAll(m_sql, "\n", " "));
@@ -303,7 +303,7 @@ void CQuery::fetch() THROWS_EXCEPTIONS
     m_fields.rewind();
     if (!m_db || !m_active) {
         logText("Error in CQuery::fetch(): Dataset isn't open");
-        throw CDatabaseException("Dataset isn't open", __FILE__, __LINE__, m_sql);
+        throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, m_sql);
     }
 
     m_db->queryFetch(this);
@@ -356,7 +356,7 @@ bool CQuery::writeField(const char*, const Variant&)
 
 void CQuery::notImplemented(string functionName) const
 {
-    throw CDatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
+    throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
 void CQuery::logText(std::string text, const LogPriority& priority)
@@ -376,5 +376,5 @@ void CQuery::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, LP_ERROR);
-    throw CDatabaseException(errorText);
+    throw DatabaseException(errorText);
 }

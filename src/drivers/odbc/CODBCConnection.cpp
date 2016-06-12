@@ -594,7 +594,7 @@ void CODBCConnection::queryFetch(CQuery* query)
         if (rc < 0) {
             string error = queryError(query);
             query->logText(error);
-            throw CDatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
+            throw DatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
         } else {
             querySetEof(query, rc == SQL_NO_DATA);
             return;
@@ -689,23 +689,23 @@ void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) TH
         SQLRETURN rc;
         SQLHDBC hdb = (SQLHDBC) handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
-            throw CDatabaseException("CODBCConnection::queryAllocStmt");
+            throw DatabaseException("CODBCConnection::queryAllocStmt");
 
         switch (objectType) {
             case DOT_TABLES:
                 if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
-                    throw CDatabaseException("SQLTables");
+                    throw DatabaseException("SQLTables");
                 break;
 
             case DOT_VIEWS:
                 if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
-                    throw CDatabaseException("SQLTables");
+                    throw DatabaseException("SQLTables");
                 break;
 
             case DOT_PROCEDURES:
                 rc = SQLProcedures(stmt, NULL, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
                 if (rc != SQL_SUCCESS)
-                    throw CDatabaseException("SQLProcedures");
+                    throw DatabaseException("SQLProcedures");
                 break;
         }
 
@@ -714,9 +714,9 @@ void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) TH
         SQLLEN cbObjectSchema;
         SQLLEN cbObjectName;
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)
-            throw CDatabaseException("SQLBindCol");
+            throw DatabaseException("SQLBindCol");
         if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName, sizeof(objectName), &cbObjectName) != SQL_SUCCESS)
-            throw CDatabaseException("SQLBindCol");
+            throw DatabaseException("SQLBindCol");
 
         while (true) {
             objectSchema[0] = 0;
@@ -725,7 +725,7 @@ void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) TH
             if (rc == SQL_NO_DATA_FOUND)
                 break;
             if (!successful(rc))
-                throw CDatabaseException("SQLFetch");
+                throw DatabaseException("SQLFetch");
             objects.push_back(string((char*) objectSchema) + "." + string((char*) objectName));
         }
 

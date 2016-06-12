@@ -88,13 +88,13 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     string driverFileName = "spdb5_"+driverName+".dll";
     CDriverHandle handle = LoadLibrary(driverFileName.c_str());
     if (!handle)
-        throw CDatabaseException("Cannot load library: " + driverFileName);
+        throw DatabaseException("Cannot load library: " + driverFileName);
 #else
     string driverFileName = "libspdb5_"+driverName+".so";
 
     CDriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
     if (!handle)
-        throw CDatabaseException("Cannot load library: " + string(dlerror()));
+        throw DatabaseException("Cannot load library: " + string(dlerror()));
 #endif
 
     // Creating the driver instance
@@ -103,11 +103,11 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
 #ifdef WIN32
     CCreateDriverInstance* createConnection = (CCreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
     if (!createConnection)
-        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + create_connectionFunctionName);
+        throw DatabaseException("Cannot load driver " + driverName + ": no function " + create_connectionFunctionName);
 
     CDestroyDriverInstance* destroyConnection = (CDestroyDriverInstance*) GetProcAddress(handle, destroy_connectionFunctionName.c_str());
     if (!destroyConnection)
-        throw CDatabaseException("Cannot load driver " + driverName + ": no function " + destroy_connectionFunctionName);
+        throw DatabaseException("Cannot load driver " + driverName + ": no function " + destroy_connectionFunctionName);
 #else
     // reset errors
     dlerror();
@@ -134,7 +134,7 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     if (dlsym_error) {
         m_createConnection = 0;
         dlclose(handle);
-        throw CDatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
+        throw DatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
     }
 
 #endif

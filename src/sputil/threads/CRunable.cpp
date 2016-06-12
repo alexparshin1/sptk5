@@ -65,7 +65,7 @@ bool CRunable::completed(uint32_t timeoutMS) THROWS_EXCEPTIONS
         // Not running
         return true;
     }
-    catch (CTimeoutException&) {
+    catch (TimeoutException&) {
         // Timeout - still running
         return false;
     }

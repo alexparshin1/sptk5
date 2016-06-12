@@ -106,7 +106,7 @@ bool CDatabaseField::checkSize(unsigned sz)
         unsigned newSize = (sz / 16 + 1) * 16;
         char *p = (char *) realloc(m_data.buffer.data, newSize + 1);
         if (!p)
-            throw CDatabaseException("Can't reallocate a buffer");
+            throw DatabaseException("Can't reallocate a buffer");
         m_data.buffer.data = p;
         m_data.buffer.size = newSize;
     }

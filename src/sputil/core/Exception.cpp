@@ -76,44 +76,44 @@ string Exception::description() const
     return m_description;
 }
 
-CTimeoutException::CTimeoutException(std::string text, std::string file, int line, string description)
+TimeoutException::TimeoutException(std::string text, std::string file, int line, string description)
 : Exception(text, file, line, description)
 {
 }
 
-CTimeoutException::CTimeoutException(const CTimeoutException& other)
+TimeoutException::TimeoutException(const TimeoutException& other)
 : Exception(other)
 {
 }
 
-CTimeoutException::~CTimeoutException() DOESNT_THROW
+TimeoutException::~TimeoutException() DOESNT_THROW
 {
 }
 
-CDatabaseException::CDatabaseException(std::string text, std::string file, int line, std::string description)
+DatabaseException::DatabaseException(std::string text, std::string file, int line, std::string description)
 : Exception(text, file, line, description)
 {
 }
 
-CDatabaseException::CDatabaseException(const CDatabaseException& other)
+DatabaseException::DatabaseException(const DatabaseException& other)
 : Exception(other)
 {
 }
     
-CDatabaseException::~CDatabaseException() DOESNT_THROW
+DatabaseException::~DatabaseException() DOESNT_THROW
 {
 }
 
-CSOAPException::CSOAPException(std::string text, std::string file, int line, string description)
+SOAPException::SOAPException(std::string text, std::string file, int line, string description)
 : Exception(text, file, line, description)
 {
 }
 
-CSOAPException::CSOAPException(const CSOAPException& other)
+SOAPException::SOAPException(const SOAPException& other)
 : Exception(other)
 {
 }
 
-CSOAPException::~CSOAPException() DOESNT_THROW
+SOAPException::~SOAPException() DOESNT_THROW
 {
 }

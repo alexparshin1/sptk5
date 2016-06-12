@@ -112,7 +112,7 @@ void CSQLite3Connection::openDatabase(const string newConnectionString) THROWS_E
             string error = sqlite3_errmsg(m_connect);
             sqlite3_close(m_connect);
             m_connect = 0;
-            throw CDatabaseException(error);
+            throw DatabaseException(error);
         }
     }
 }
@@ -147,12 +147,12 @@ void CSQLite3Connection::driverBeginTransaction() THROWS_EXCEPTIONS
         open();
 
     if (m_inTransaction)
-        throw CDatabaseException("Transaction already started.");
+        throw DatabaseException("Transaction already started.");
 
     char* zErrMsg;
 
     if (sqlite3_exec(m_connect, "BEGIN TRANSACTION", 0, 0, &zErrMsg) != SQLITE_OK)
-        throw CDatabaseException(zErrMsg);
+        throw DatabaseException(zErrMsg);
 
     m_inTransaction = true;
 }
@@ -160,7 +160,7 @@ void CSQLite3Connection::driverBeginTransaction() THROWS_EXCEPTIONS
 void CSQLite3Connection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
-        throw CDatabaseException("Transaction isn't started.");
+        throw DatabaseException("Transaction isn't started.");
 
     string action;
 
@@ -172,7 +172,7 @@ void CSQLite3Connection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
     char* zErrMsg;
 
     if (sqlite3_exec(m_connect, action.c_str(), 0, 0, &zErrMsg) != SQLITE_OK)
-        throw CDatabaseException(zErrMsg);
+        throw DatabaseException(zErrMsg);
 
     m_inTransaction = false;
 }
@@ -234,7 +234,7 @@ void CSQLite3Connection::queryPrepare(CQuery* query)
 
     if (sqlite3_prepare(m_connect, query->sql().c_str(), int(query->sql().length()), &stmt, &pzTail) != SQLITE_OK) {
         const char* errorMsg = sqlite3_errmsg(m_connect);
-        throw CDatabaseException(errorMsg, __FILE__, __LINE__, query->sql().c_str());
+        throw DatabaseException(errorMsg, __FILE__, __LINE__, query->sql().c_str());
     }
 
     //sqlite3_clear_bindings(stmt);
@@ -253,7 +253,7 @@ void CSQLite3Connection::queryExecute(CQuery* query)
     SYNCHRONIZED_CODE;
 
     if (!query->prepared())
-        throw CDatabaseException("Query isn't prepared");
+        throw DatabaseException("Query isn't prepared");
 }
 
 int CSQLite3Connection::queryColCount(CQuery* query)
@@ -314,14 +314,14 @@ void CSQLite3Connection::queryBindParameters(CQuery* query)
                         throwException("Date and time types isn't yet supported for SQLite3");
 
                     default:
-                        throw CDatabaseException(
+                        throw DatabaseException(
                                 "Unsupported type of parameter " + int2string(paramNumber), __FILE__, __LINE__,
                                 query->sql().c_str());
                 }
 
             if (rc != SQLITE_OK) {
                 string error = sqlite3_errmsg(m_connect);
-                throw CDatabaseException(
+                throw DatabaseException(
                         error + ", in binding parameter " + int2string(paramNumber), __FILE__, __LINE__,
                         query->sql().c_str());
             }
@@ -383,7 +383,7 @@ void CSQLite3Connection::queryOpen(CQuery* query)
         if (sqlite3_step(stmt) != SQLITE_DONE) {
             string error = queryError(query);
             queryCloseStmt(query);
-            throw CDatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
+            throw DatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
         }
 
         queryCloseStmt(query);
@@ -434,7 +434,7 @@ static uint32_t trimField(char* s, uint32_t sz)
 void CSQLite3Connection::queryFetch(CQuery* query)
 {
     if (!query->active())
-        throw CDatabaseException("Dataset isn't open", __FILE__, __LINE__, query->sql().c_str());
+        throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, query->sql().c_str());
 
     SQLHSTMT statement = (SQLHSTMT) query->statement();
 
@@ -451,7 +451,7 @@ void CSQLite3Connection::queryFetch(CQuery* query)
             break;
 
         default:
-            throw CDatabaseException(queryError(query), __FILE__, __LINE__, query->sql().c_str());
+            throw DatabaseException(queryError(query), __FILE__, __LINE__, query->sql().c_str());
     }
 
     uint32_t fieldCount = query->fieldCount();
@@ -506,7 +506,7 @@ void CSQLite3Connection::queryFetch(CQuery* query)
                 field->setNull();
             }
         } catch (exception& e) {
-            throw CDatabaseException(
+            throw DatabaseException(
                     "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
                     query->sql().c_str());
         }

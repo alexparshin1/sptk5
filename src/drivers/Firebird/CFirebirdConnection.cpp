@@ -72,7 +72,7 @@ void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const cha
         while (fb_interpret(error, sizeof(error), &pvector))
             errors += string(error) + " ";
         m_lastStatus = errors;
-        throw CDatabaseException(errors, file, line);
+        throw DatabaseException(errors, file, line);
     } else
         m_lastStatus.clear();
 }

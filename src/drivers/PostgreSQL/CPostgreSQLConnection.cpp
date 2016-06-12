@@ -212,7 +212,7 @@ void CPostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCE
             string error = PQerrorMessage(m_connect);
             PQfinish(m_connect);
             m_connect = NULL;
-            throw CDatabaseException(error);
+            throw DatabaseException(error);
         }
 
         if (timestampsFormat == PG_UNKNOWN_TIMESTAMPS) {
@@ -255,7 +255,7 @@ void CPostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
         open();
 
     if (m_inTransaction)
-        throw CDatabaseException("Transaction already started.");
+        throw DatabaseException("Transaction already started.");
 
     PGresult* res = PQexec(m_connect, "BEGIN");
 
@@ -263,7 +263,7 @@ void CPostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
         string error = "BEGIN command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(res);
-        throw CDatabaseException(error);
+        throw DatabaseException(error);
     }
 
     PQclear(res);
@@ -274,7 +274,7 @@ void CPostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 void CPostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
-        throw CDatabaseException("Transaction isn't started.");
+        throw DatabaseException("Transaction isn't started.");
 
     string action;
 
@@ -289,7 +289,7 @@ void CPostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
         string error = action + " command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(res);
-        throw CDatabaseException(error);
+        throw DatabaseException(error);
     }
 
     PQclear(res);
@@ -877,7 +877,7 @@ static void decodeArray(char* data, CDatabaseField* field)
                 }
 
                 default:
-                    throw CDatabaseException("Unsupported array element type");
+                    throw DatabaseException("Unsupported array element type");
             }
             data += dataSize;
         }
@@ -1062,7 +1062,7 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
         string error = "COPY command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(res);
-        throw CDatabaseException(error);
+        throw DatabaseException(error);
     }
     PQclear(res);
 
@@ -1075,13 +1075,13 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
     if (PQputCopyData(m_connect, buffer.c_str(), (int) buffer.bytes()) != 1) {
         string error = "COPY command send data failed: ";
         error += PQerrorMessage(m_connect);
-        throw CDatabaseException(error);
+        throw DatabaseException(error);
     }
 
     if (PQputCopyEnd(m_connect, NULL) != 1) {
         string error = "COPY command end copy failed: ";
         error += PQerrorMessage(m_connect);
-        throw CDatabaseException(error);
+        throw DatabaseException(error);
     }
 }
 

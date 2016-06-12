@@ -152,7 +152,7 @@ public:
     virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
 };
 
-#define throwMySQLException(info) throw CDatabaseException(string(info) + ":" + string(mysql_error(m_connection)))
+#define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection)))
 
 /// @}
 }

@@ -309,7 +309,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
 
         for (string& requiredElement : requiredElements) {
             classImplementation << "   if (m_" << requiredElement << ".isNull())" << endl;
-            classImplementation << "      throw CSOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
+            classImplementation << "      throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
         }
     }
 

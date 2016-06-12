@@ -155,7 +155,7 @@ void SSLSocket::attach(SOCKET socketHandle) throw (std::exception)
 
         // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
         if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
-            throw CTimeoutException(error, __FILE__, __LINE__);
+            throw TimeoutException(error, __FILE__, __LINE__);
 
         // The serious problem - can't accept, and it's final
         throw Exception(error, __FILE__, __LINE__);

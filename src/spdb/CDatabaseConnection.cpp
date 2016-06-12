@@ -234,7 +234,7 @@ void CDatabaseConnection::queryFetch(CQuery *)
 
 void CDatabaseConnection::notImplemented(const char *methodName) const
 {
-    throw CDatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
+    throw DatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
 }
 
 void *CDatabaseConnection::queryHandle(CQuery *query) const
@@ -257,7 +257,7 @@ void CDatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPT
     string errorText("Exception in " + method + ": " + error);
     if (m_log)
         *m_log << "errorText" << endl;
-    throw CDatabaseException(errorText);
+    throw DatabaseException(errorText);
 }
 
 void CDatabaseConnection::logFile(Logger *logFile)
@@ -297,5 +297,5 @@ void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& colu
 
 void CDatabaseConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-    throw CDatabaseException("Method executeBatchFile id not implemented for this database driver");
+    throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

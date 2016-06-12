@@ -95,7 +95,7 @@ void CMySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTION
         }
 
         if (!m_connection)
-            throw CDatabaseException("Can't connect to MySQL: " + connectionError);
+            throw DatabaseException("Can't connect to MySQL: " + connectionError);
     }
 }
 
