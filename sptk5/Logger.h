@@ -117,7 +117,6 @@ class SP_EXPORT Logger: public _ostream
 
     LogEngine&      m_destination;      ///< The actual log to store messages to (destination log)
     CLogStreamBuf*  m_buffer;           ///< Log buffer
-    LogPriority     m_messagePriority;  ///< Message priority
 
 protected:
 
@@ -136,10 +135,10 @@ public:
     /// @brief Destructor
     ~Logger();
 
-    /// @brief Sets the message priority
-    void messagePriority(LogPriority prt) const
+    /// @brief Sets the message priority for the following messages
+    void messagePriority(LogPriority prt) 
     {
-        m_destination.minPriority(prt);
+        m_buffer->priority(prt);
     }
 
     /// @brief Returns log engine (destination logger)

@@ -40,19 +40,20 @@ int main()
 
       /// Cleaning log file before test.
       fileLog.reset();
+	  fileLog.option(LogEngine::LO_STDOUT, true);
 
       /// Set the minimal priority for the messages.
       /// Any messages with the less priority are ignored.
       /// This means, in this example, that no messages with CLP_DEBUG priority
       /// would make it to the log.
-      fileLog.minPriority(LP_NOTICE);
+      fileLog.minPriority(LP_INFO);
       
       cout << "Sending 'Hello, World!' to this file.." << endl;
       log << "Hello, World!" << endl;
       log << "Welcome to SPTK." << endl;
       log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
       log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
-      log << "This is the end of the log." << endl;
+      log << LP_INFO << "This is the end of the log." << endl;
    }
    catch (exception& e) {
       puts(e.what());
