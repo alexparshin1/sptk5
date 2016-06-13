@@ -31,7 +31,7 @@
 
 #include <sptk5/gui/CListView.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 
 namespace sptk {
 
@@ -47,7 +47,7 @@ protected:
     CQuery      m_recordCountQuery;  ///< Record count Query
     std::string m_keyField;          ///< Key field name
     bool        m_fastRefreshEnabed; ///< True if fast refresh is defined properly
-    CDateTime   m_lastRefresh;       ///< Last refresh date and time
+    DateTime   m_lastRefresh;       ///< Last refresh date and time
     uint32_t    m_maxRecords;        ///< Record fetch limit
     bool        m_recordsLimited;    ///< Is the records limit enabled?
 public:
@@ -114,7 +114,7 @@ public:
     void refreshData(CRefreshKind refreshKind = LV_REFRESH_FULL);
 
     /// Returns the date and time of the last data refresh
-    CDateTime lastRefresh() const {
+    DateTime lastRefresh() const {
         return m_lastRefresh;
     }
 

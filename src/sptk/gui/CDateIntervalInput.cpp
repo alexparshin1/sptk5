@@ -87,7 +87,7 @@ CLayoutClient* CDateIntervalInput::creator(CXmlNode *node) {
 }
 
 void CDateIntervalInput::showCalendar(Fl_Widget *btn) {
-    CDateTime originalDate;
+    DateTime originalDate;
     CDateControl *dateControl;
     if (btn == m_firstDateInput->button()) {
         originalDate = beginOfInterval();
@@ -136,8 +136,8 @@ void CDateIntervalInput::resize(int x,int y,int w,int h) {
 }
 
 CVariant CDateIntervalInput::data() const {
-    CDateTime   dt1 = beginOfInterval();
-    CDateTime   dt2 = endOfInterval();
+    DateTime   dt1 = beginOfInterval();
+    DateTime   dt2 = endOfInterval();
 
     if ((double)dt1 == 0.0 && (double)dt2 == 0.0)
         return "";
@@ -167,8 +167,8 @@ void CDateIntervalInput::data(const CVariant s) {
 }
 
 bool CDateIntervalInput::valid() const {
-    CDateTime   dt1 = beginOfInterval();
-    CDateTime   dt2 = endOfInterval();
+    DateTime   dt1 = beginOfInterval();
+    DateTime   dt2 = endOfInterval();
 
     if ((double)dt1 != 0 && (double)dt2 != 0 && dt1 > dt2)
         return false;
@@ -176,18 +176,18 @@ bool CDateIntervalInput::valid() const {
     return true;
 }
 
-CDateTime CDateIntervalInput::beginOfInterval() const {
-    return CDateTime(m_firstDateInput->input()->value());
+DateTime CDateIntervalInput::beginOfInterval() const {
+    return DateTime(m_firstDateInput->input()->value());
 }
 
-void CDateIntervalInput::beginOfInterval(const CDateTime bi) {
+void CDateIntervalInput::beginOfInterval(const DateTime bi) {
     m_firstDateInput->input()->value(bi.dateString().c_str());
 }
 
-CDateTime CDateIntervalInput::endOfInterval() const {
-    return CDateTime(m_secondDateInput->input()->value());
+DateTime CDateIntervalInput::endOfInterval() const {
+    return DateTime(m_secondDateInput->input()->value());
 }
 
-void CDateIntervalInput::endOfInterval(const CDateTime ei) {
+void CDateIntervalInput::endOfInterval(const DateTime ei) {
     m_secondDateInput->input()->value(ei.dateString().c_str());
 }

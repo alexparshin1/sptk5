@@ -30,7 +30,7 @@
 #define __CFIELDS_H__
 
 #include <sptk5/CBuffer.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/Variant.h>
 #include <sptk5/cxml>
 
@@ -165,7 +165,7 @@ public:
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(CDateTime value)
+    virtual CField& operator =(DateTime value)
     {
         setDateTime(value);
         return *this;

@@ -30,7 +30,7 @@
 #define __CXMLVALUE_H__
 
 #include <sptk5/cxml>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 
 namespace sptk {
 
@@ -140,7 +140,7 @@ public:
     ///
     /// Creates an XML attribute from CDateTime
     /// @param v int32_t, value
-    CXmlValue(CDateTime v) :
+    CXmlValue(DateTime v) :
         m_value(v)
     {
     }
@@ -196,7 +196,7 @@ public:
     /// @brief Assignment of the value
     ///
     /// @param s CDateTime, a new value
-    CXmlValue& operator =(CDateTime s)
+    CXmlValue& operator =(DateTime s)
     {
         m_value = s.dateString() + " " + s.timeString(true);
         return *this;

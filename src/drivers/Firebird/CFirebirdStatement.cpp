@@ -93,7 +93,7 @@ CFirebirdStatement::~CFirebirdStatement()
     delete m_statement;
 }
 
-void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, CDateTime timestamp, CVariantType timeType)
+void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, CVariantType timeType)
 {
     short year, month, day, hour, minute, second, msecond;
     memset(&firebirdDate, 0, sizeof(firebirdDate));
@@ -112,9 +112,9 @@ void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, CDateTi
     }
 }
 
-void CFirebirdStatement::firebirdDateToDateTime(CDateTime& timestamp, const struct tm& firebirdData)
+void CFirebirdStatement::firebirdDateToDateTime(DateTime& timestamp, const struct tm& firebirdData)
 {
-    timestamp = CDateTime(short(firebirdData.tm_year + 1900), short(firebirdData.tm_mon + 1), short(firebirdData.tm_mday),
+    timestamp = DateTime(short(firebirdData.tm_year + 1900), short(firebirdData.tm_mon + 1), short(firebirdData.tm_mday),
                 short(firebirdData.tm_hour), short(firebirdData.tm_min), short(firebirdData.tm_sec));
 }
 
@@ -436,20 +436,20 @@ void CFirebirdStatement::fetchResult(CFieldList& fields)
             // Date and time types
             case SQL_TYPE_DATE:
                 isc_decode_sql_date((ISC_DATE*)sqlvar.sqldata, &times);
-                field->setDate(CDateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday)));
+                field->setDate(DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday)));
                 break;
                         
             case SQL_TYPE_TIME:
                 isc_decode_sql_time((ISC_TIME*)sqlvar.sqldata, &times);
                 field->setDateTime(
-                    CDateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
+                    DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
                               short(times.tm_hour), short(times.tm_min), short(times.tm_sec)));
                 break;
                         
             case SQL_TIMESTAMP:
                 isc_decode_timestamp((ISC_TIMESTAMP*)sqlvar.sqldata, &times);
                 field->setDateTime(
-                    CDateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
+                    DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
                               short(times.tm_hour), short(times.tm_min), short(times.tm_sec)));
                 break;
                         

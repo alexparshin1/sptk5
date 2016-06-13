@@ -159,7 +159,7 @@ public:
     }
 
     /// @brief Assign operator
-    CParam& operator = (CDateTime dt) {
+    CParam& operator = (DateTime dt) {
         setDateTime(dt);
         return *this;
     }

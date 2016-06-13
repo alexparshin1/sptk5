@@ -34,7 +34,7 @@
 #include <FL/fl_ask.H>
 #include <FL/Fl.H>
 
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/cgui>
 #include <sptk5/cxml>
 
@@ -168,10 +168,10 @@ int main(int argc, char **argv)
 
     try {
 
-        CDateTime start = CDateTime::Now();
+        DateTime start = DateTime::Now();
         CXmlDoc *doc = new CXmlDoc;
         doc->load(buffer);
-        CDateTime end = CDateTime::Now();
+        DateTime end = DateTime::Now();
 
         char message[128];
         sprintf(message, "XML Test - loaded file in %0.2f sec", ((double) end - double(start)) * 24 * 3600);
@@ -179,17 +179,17 @@ int main(int argc, char **argv)
         puts(message);
 
         build_tree(doc, tree, 0L);
-        start = CDateTime::Now();
+        start = DateTime::Now();
         tree->relayout();
-        end = CDateTime::Now();
+        end = DateTime::Now();
         printf("XML Test - relayouted tree in %0.2f sec\n", ((double) end - double(start)) * 24 * 3600);
 
         try {
-            CDateTime start = CDateTime::Now();
+            DateTime start = DateTime::Now();
             CBuffer savebuffer;
             doc->save(savebuffer);
             savebuffer.saveToFile("MyXML.xml");
-            end = CDateTime::Now();
+            end = DateTime::Now();
             printf("XML Test - saved for %0.2f sec\n", ((double) end - double(start)) * 24 * 3600);
         }
         catch (...) {

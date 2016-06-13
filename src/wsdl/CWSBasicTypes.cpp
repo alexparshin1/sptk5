@@ -73,12 +73,12 @@ void WSBool::load(const CField& field)
 
 void WSDate::load(const CXmlNode* attr)
 {
-    setDate(CDateTime(attr->text().c_str()));
+    setDate(DateTime(attr->text().c_str()));
 }
 
 void WSDate::load(string attr)
 {
-    setDate(CDateTime(attr.c_str()));
+    setDate(DateTime(attr.c_str()));
 }
 
 void WSDate::load(const CField& field)
@@ -88,12 +88,12 @@ void WSDate::load(const CField& field)
 
 void WSDateTime::load(const CXmlNode* attr)
 {
-    setDateTime(CDateTime(attr->text().c_str()));
+    setDateTime(DateTime(attr->text().c_str()));
 }
 
 void WSDateTime::load(string attr)
 {
-    setDateTime(CDateTime(attr.c_str()));
+    setDateTime(DateTime(attr.c_str()));
 }
 
 void WSDateTime::load(const CField& field)
@@ -103,7 +103,7 @@ void WSDateTime::load(const CField& field)
 
 string WSDateTime::asString() const
 {
-    CDateTime dt = asDateTime();
+    DateTime dt = asDateTime();
     return dt.dateString(true) + "T" + dt.timeString(true,true);
 }
 

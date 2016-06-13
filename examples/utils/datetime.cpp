@@ -27,30 +27,30 @@
 */
 
 #include <iostream>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    CDateTime now("2014-01-01 10:00:00");
+    DateTime now("2014-01-01 10:00:00");
     cout << now.dateString(true) + " " + now.timeString(true,true) << endl;
 
     cout << "Decode date and time in PST timezone and print it in local timezone:" << endl;
     const char*  pstDateTimeStr = "2013-10-01 10:00:00-7:00";
-    CDateTime    pstDateTime(pstDateTimeStr);
+    DateTime    pstDateTime(pstDateTimeStr);
     cout << "From PST(-7:00): " << pstDateTimeStr
          << " to local: " << pstDateTime.dateString(true) << "T" << pstDateTime.timeString(true,true) << endl;
 
     const char*  utcDateTimeStr = "2013-10-01T10:00:00Z";
-    CDateTime    utcDateTime(utcDateTimeStr);
+    DateTime     utcDateTime(utcDateTimeStr);
     cout << "From UTC: " << utcDateTimeStr
          << " to local: " << utcDateTime.dateString(true) << "T" << utcDateTime.timeString(true,true) << endl;
 
     cout << endl << "Define the date as 2003/09/28, and print the date components:" << endl;
 
-    CDateTime   dt(2003, 9, 28);
+    DateTime   dt(2003, 9, 28);
     cout << "Year:  " << dt.year() << endl;
     cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
@@ -58,7 +58,7 @@ int main()
     cout << "Time:   " << dt.timeString() << endl;
 
     cout << endl << "Get the date and time from the system, and print the date components:" << endl << endl;
-    dt = CDateTime::Now();
+    dt = DateTime::Now();
 
     /// Printing the date components:
     cout << "Year:   " << dt.year() << endl;
@@ -68,13 +68,13 @@ int main()
     cout << "Time:   " << dt.timeString() << endl;
 
     cout << endl << "Get the date and time from the system for TZ='US/Los_Angeles', and print the date components:" << endl << endl;
-    cout << "TZ offset is " << CDateTime::timeZoneOffset << endl;
+    cout << "TZ offset is " << DateTime::timeZoneOffset << endl;
 
 #ifndef _WIN32
     setenv("TZ", ":US/Los_Angeles", true);
-    CDateTime::tzset();
+    DateTime::tzset();
 
-    dt = CDateTime::Now();
+    dt = DateTime::Now();
 
     /// Printing the date components:
     cout << "Year:   " << dt.year() << endl;
@@ -82,7 +82,7 @@ int main()
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
     cout << "Date:   " << dt.dateString() << endl;
     cout << "Time:   " << dt.timeString() << endl;
-    cout << "TZ offset is " << CDateTime::timeZoneOffset << endl;
+    cout << "TZ offset is " << DateTime::timeZoneOffset << endl;
 #endif
 
     return 0;

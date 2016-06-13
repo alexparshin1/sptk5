@@ -209,14 +209,14 @@ static void parse_header(const string &header, string &header_name, string &head
     }
 }
 
-static CDateTime decodeDate(const std::string &dt)
+static DateTime decodeDate(const std::string &dt)
 {
     char temp[40];
     strcpy(temp, dt.c_str() + 5);
     // 1. get the day of the month
     char *p1 = temp;
     char *p2 = strchr(p1, ' ');
-    if (!p2) return CDateTime(0.0);
+    if (!p2) return DateTime(0.0);
     *p2 = 0;
     int mday = atoi(p1);
     // 2. get the month
@@ -272,8 +272,8 @@ static CDateTime decodeDate(const std::string &dt)
     p1 = p2 + 1;
     p2 = strchr(p1, ' ');
     if (p2) *p2 = 0;
-    CDateTime time(p1);
-    CDateTime date((short) year, (short) month, (short) mday);
+    DateTime time(p1);
+    DateTime date((short) year, (short) month, (short) mday);
     return double(date) + double(time);
 }
 

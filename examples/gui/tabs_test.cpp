@@ -249,8 +249,8 @@ int main(int argc, char **argv)
             integerInput->callback(general_cb);
 
             CDateIntervalInput *dateIntervalInput = new CDateIntervalInput("Date Interval Input:");
-            dateIntervalInput->beginOfInterval(CDateTime::Now());
-            dateIntervalInput->endOfInterval(CDateTime::Now());
+            dateIntervalInput->beginOfInterval(DateTime::Now());
+            dateIntervalInput->endOfInterval(DateTime::Now());
             dateIntervalInput->callback(general_cb);
 
             CPhoneNumberInput *phoneNumberInput = new CPhoneNumberInput("Phone Number Input:");
@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 
             // If the conversion from string to date doesn't work
             // on you system - you can use the correct date/time format
-            // or use the CDateTime to construct time
+            // or use the DateTime to construct time
             CDateInput *dateInput = new CDateInput("Date Input:");
             dateInput->data("10/02/2002");
             dateInput->callback(general_cb);
@@ -276,7 +276,7 @@ int main(int argc, char **argv)
             timeInput->data("10:25AM");
             timeInput->callback(general_cb);
 
-            CDateTimeInput *dateTimeInput = new CDateTimeInput("Date and Time Input:");
+            DateTimeInput *dateTimeInput = new CDateTimeInput("Date and Time Input:");
             dateTimeInput->data("10/02/2002 10:25AM");
             dateTimeInput->callback(general_cb);
         }

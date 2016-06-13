@@ -29,7 +29,7 @@
 #ifndef __LOGENGINE_H__
 #define __LOGENGINE_H__
 
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 
 #include <iostream>
@@ -95,7 +95,7 @@ public:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority LogPriority, message priority. @see LogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS = 0;
+    virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS = 0;
 
     /// @brief Log options
     enum Option

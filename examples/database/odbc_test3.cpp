@@ -147,7 +147,7 @@ void CInsertThread::threadFunction()
         CParam& decBaseCostPerUnit = m_query.param("decBaseCostPerUnit");
         CParam& decCostPerUnit = m_query.param("decCostPerUnit");
 
-        CDateTime dt = (int) CDateTime::Now();
+        DateTime dt = (int) DateTime::Now();
         for (int i = 1; i <= m_rowsToInsert; i++) {
             int id = m_threadIndex * m_rowsToInsert + i;
             record_id = id;
@@ -245,7 +245,7 @@ int main()
 
         vector<CInsertThread *> threads;
 
-        CDateTime started = CDateTime::Now();
+        DateTime started = DateTime::Now();
 
         int recordsTotal = (10000 / maxThreads) * maxThreads;
         int recordsPerThread = recordsTotal / maxThreads;
@@ -274,7 +274,7 @@ int main()
             }
         }
 
-        CDateTime ended = CDateTime::Now();
+        DateTime ended = DateTime::Now();
         double durationSec = (ended - started) * 24 * 3600;
 
         countTable.open();

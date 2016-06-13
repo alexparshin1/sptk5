@@ -380,7 +380,7 @@ void CODBCConnection::queryBindParameters(CQuery* query)
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
                     TIMESTAMP_STRUCT* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
-                    CDateTime dt = param->getDateTime();
+                    DateTime dt = param->getDateTime();
                     buff = t;
                     if (dt) {
                         dt.decodeDate((int16_t*) &t->year, (int16_t*) &t->month, (int16_t*) &t->day);
@@ -398,7 +398,7 @@ void CODBCConnection::queryBindParameters(CQuery* query)
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
                     TIMESTAMP_STRUCT* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
-                    CDateTime dt = param->getDateTime();
+                    DateTime dt = param->getDateTime();
                     int16_t ms;
                     buff = t;
                     if (dt) {
@@ -628,7 +628,7 @@ void CODBCConnection::queryFetch(CQuery* query)
                     TIMESTAMP_STRUCT t;
                     rc = SQLGetData(statement, column, fieldType, &t, 0, &dataLength);
                     if (dataLength > 0) {
-                        CDateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
+                        DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
                         if (field->dataType() == VAR_DATE)
                             field->setDate(dt);
                         else

@@ -123,14 +123,14 @@ bool CListViewRows::compare_floats(const PPackedStrings&a,const PPackedStrings&b
 }
 
 bool CListViewRows::compare_dates(const PPackedStrings&a,const PPackedStrings&b) {
-   CDateTime d1((*a)[currentSortColumn]);
-   CDateTime d2((*b)[currentSortColumn]);
+   DateTime d1((*a)[currentSortColumn]);
+   DateTime d2((*b)[currentSortColumn]);
    return d1 < d2;
 }
 
 bool CListViewRows::compare_datetimes(const PPackedStrings&a,const PPackedStrings&b) {
-   CDateTime d1((*a)[currentSortColumn]);
-   CDateTime d2((*b)[currentSortColumn]);
+   DateTime d1((*a)[currentSortColumn]);
+   DateTime d2((*b)[currentSortColumn]);
    return d1 < d2;
 }
 

@@ -78,7 +78,7 @@ void go_callback(Fl_Widget *,void *)
     TCPSocket*     socket;
     COpenSSLContext sslContext;
     try {
-        CDateTime        started = CDateTime::Now();
+        DateTime        started = DateTime::Now();
         
         if (!https)
             socket = new TCPSocket;
@@ -114,7 +114,7 @@ void go_callback(Fl_Widget *,void *)
             }
         }
 
-        CDateTime    finished = CDateTime::Now();
+        DateTime    finished = DateTime::Now();
         int durationMS = int(started.secondsTo(finished) * 1000);
         textdisp->textBuffer()->text(sock.htmlData().data());
         statsInput->data("Received " + int2string(sock.htmlData().bytes()) + " bytes for " + int2string(durationMS) + "ms");

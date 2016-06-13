@@ -390,7 +390,7 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
             else
                 df->push_back("Size", false) = (uint32_t) st.st_size;
             df->push_back("Type", false) = modeName;
-            df->push_back("Modified", false) = CDateTime::convertCTime(st.st_mtime);
+            df->push_back("Modified", false) = DateTime::convertCTime(st.st_mtime);
             df->push_back("", false) = (uint32_t) index; // Fake key value
             index++;
 

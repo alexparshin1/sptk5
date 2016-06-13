@@ -100,7 +100,7 @@ namespace sptk {
         const CParamVector& params() const  { return m_params;  }
     };
 
-    extern const CDateTime epochDate;
+    extern const DateTime epochDate;
 
 }
 

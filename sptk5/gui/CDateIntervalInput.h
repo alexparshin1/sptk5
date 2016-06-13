@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
 
@@ -94,18 +94,18 @@ public:
     }
 
     /// @brief Returns the date from the first date input - the beginning of interval
-    CDateTime beginOfInterval() const;
+    DateTime beginOfInterval() const;
 
     /// @brief Sets the date in the first date input - the beginning of interval
     /// @param dt const CDateTime, date and time value for the first control
-    void      beginOfInterval(const CDateTime dt);
+    void      beginOfInterval(const DateTime dt);
 
     /// @brief Returns the date from the second date input - the end of interval
-    CDateTime endOfInterval() const;
+    DateTime endOfInterval() const;
 
     /// Sets the date from the second date input - the end of interval
     /// @param dt const CDateTime, date and time value for the second control
-    void      endOfInterval(const CDateTime dt);
+    void      endOfInterval(const DateTime dt);
 
     /// @brief Returns the control kind, SPTK-style RTTI
     /// @see CControlKind for more information

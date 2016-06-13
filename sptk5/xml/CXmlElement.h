@@ -31,7 +31,7 @@
 
 #include <sptk5/CBuffer.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/xml/CXmlValue.h>
 #include <sptk5/xml/CXmlAttributes.h>
 

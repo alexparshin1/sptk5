@@ -104,7 +104,7 @@ void CCalendar::switchButtonClicked(int32_t monthChange) {
    }
    while (day > 0) {
       try {
-         CDateTime newDate(year,month,day);
+         DateTime newDate(year,month,day);
          date(newDate);
          break;
       }
@@ -134,7 +134,7 @@ void CCalendar::ctor_init() {
    unsigned long i;
    for (i = 0; i < 7; i++) {
       char *label = m_weekDayLabels + (i * 2);
-      label[0] = CDateTime::weekDayNames[i].c_str()[0];
+      label[0] = DateTime::weekDayNames[i].c_str()[0];
       label[1] = 0;
       m_dayNameBoxes[i] = new Fl_Box(xx+i*16,yy+16,16,16,label);
       m_dayNameBoxes[i]->box(FL_THIN_UP_BOX);
@@ -165,7 +165,7 @@ void CCalendar::ctor_init() {
    }
 
    end();
-   m_date = (int) CDateTime::Now();
+   m_date = (int) DateTime::Now();
 }
 
 CCalendar::CCalendar(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
@@ -196,9 +196,9 @@ void CCalendar::resize(int xx,int yy,int ww,int hh) {
 
    // compute the month start date
    short year, month, day;
-   if ((double)m_date < 1) m_date = CDateTime::Now();
+   if ((double)m_date < 1) m_date = DateTime::Now();
    m_date.decodeDate(&year,&month,&day);
-   CDateTime   monthDate(year,month,1);
+   DateTime   monthDate(year,month,1);
    m_headerLabel = monthDate.monthName() + ", " + int2string(year);
    m_monthNameBox->label(m_headerLabel.c_str());
 
@@ -244,18 +244,18 @@ void CCalendar::resize(int xx,int yy,int ww,int hh) {
    }
 }
 
-void CCalendar::date(CDateTime dt) {
+void CCalendar::date(DateTime dt) {
    m_date = dt;
    resize(x(),y(),w(),h());
    redraw();
 }
 
-CDateTime CCalendar::date() const {
+DateTime CCalendar::date() const {
    short year, month, day;
    m_date.decodeDate(&year,&month,&day);
    if (m_activeButtonIndex > -1)
       day = short(m_activeButtonIndex + 1);
-   return CDateTime(year, month, day);
+   return DateTime(year, month, day);
 }
 
 int CCalendar::maxHeight() const {

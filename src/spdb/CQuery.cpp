@@ -276,9 +276,9 @@ bool CQuery::open() THROWS_EXCEPTIONS
     if (m_db->logFile())
         logText("Opening query: " + replaceAll(m_sql, "\n", " "));
 
-    uint32_t started = CDateTime::TimeOfDayMs();
+    uint32_t started = DateTime::TimeOfDayMs();
     m_db->queryOpen(this);
-    uint32_t finished = CDateTime::TimeOfDayMs();
+    uint32_t finished = DateTime::TimeOfDayMs();
 
     // Execute duration, in seconds
     m_duration = (finished - started) / 1000.0;

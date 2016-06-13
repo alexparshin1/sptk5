@@ -27,7 +27,7 @@
 */
 
 #include <stdio.h>
-#include <sptk5/CBase64.h>
+#include <sptk5/Base64.h>
 #include <sptk5/net/SmtpConnect.h>
 
 using namespace std;
@@ -115,7 +115,7 @@ int SmtpConnect::command(string cmd, bool encodeCommand, bool decodeResponse)
 string SmtpConnect::mime(const CBuffer& buffer)
 {
     CBuffer result;
-    CBase64::encode(result, buffer);
+    Base64::encode(result, buffer);
     return result;
 }
 
@@ -124,14 +124,14 @@ string SmtpConnect::mime(string s)
     string result;
     CBuffer src;
     src.set(s.c_str(), (uint32_t) s.length());
-    CBase64::encode(result, src);
+    Base64::encode(result, src);
     return result;
 }
 
 string SmtpConnect::unmime(string s)
 {
     CBuffer dest;
-    CBase64::decode(dest, s);
+    Base64::decode(dest, s);
     string result(dest.data(), dest.bytes());
     return result;
 }

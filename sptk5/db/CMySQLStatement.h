@@ -77,12 +77,12 @@ public:
     /// @param mysqlDate MYSQL_TIME&, MySQL time
     /// @param timestamp CDateTime, Timestamp
     /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
-    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, VariantType timeType);
+    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
 
     /// @brief Translates MySQL time to CDateTime
     /// @param timestamp CDateTime&, Timestamp
     /// @param mysqlDate const MYSQL_TIME&, MySQL time
-    static void mysqlDateToDateTime(CDateTime& timestamp, const MYSQL_TIME& mysqlDate);
+    static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
 
 public:
     /// @brief Constructor

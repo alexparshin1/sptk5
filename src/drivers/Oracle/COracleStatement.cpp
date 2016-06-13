@@ -141,7 +141,7 @@ void COracleStatement::setParameterValues()
                 setBlobParameter(parameterIndex, (unsigned char*) parameter.getString(), parameter.dataSize());
                 break;
 
-            case VAR_DATE:      ///< CDateTime (double)
+            case VAR_DATE:      ///< DateTime (double)
                 {
                     int16_t year, month, day;
                     parameter.asDate().decodeDate(&year, &month, &day);
@@ -150,7 +150,7 @@ void COracleStatement::setParameterValues()
                 }
                 break;
 
-            case VAR_DATE_TIME: ///< CDateTime (double)
+            case VAR_DATE_TIME: ///< DateTime (double)
                 {
                     int16_t year, month, day;
                     parameter.asDateTime().decodeDate(&year, &month, &day);

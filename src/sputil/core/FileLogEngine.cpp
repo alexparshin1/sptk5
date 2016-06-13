@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-void FileLogEngine::saveMessage(CDateTime date, const char *message, uint32_t, LogPriority priority) THROWS_EXCEPTIONS
+void FileLogEngine::saveMessage(DateTime date, const char *message, uint32_t, LogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_options & LO_ENABLE) {

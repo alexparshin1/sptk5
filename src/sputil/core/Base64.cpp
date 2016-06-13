@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CBase64.h>
+#include <sptk5/Base64.h>
 
 using namespace std;
 using namespace sptk;
@@ -55,7 +55,7 @@ static char B64Chars[64] = {
 //#define base64val(c) Index_64[(uint32_t)(c)]
 #define base64chars(c) B64Chars[(uint32_t)((c) & 0x3F)]
 
-void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource)
+void Base64::encode(CBuffer& bufDest, const CBuffer& bufSource)
 {
     char*  current = bufSource.data();
     uint32_t len = (uint32_t) bufSource.bytes();
@@ -107,7 +107,7 @@ void CBase64::encode(CBuffer& bufDest, const CBuffer& bufSource)
     bufDest.bytes(outputLen);
 }
 
-void CBase64::encode(string& strDest, const CBuffer& bufSource)
+void Base64::encode(string& strDest, const CBuffer& bufSource)
 {
     CBuffer bufOut;
     encode(bufOut, bufSource);
@@ -171,12 +171,12 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
     return j;
 }
 
-int CBase64::decode(CBuffer &bufDest, const CBuffer& bufSource) THROWS_EXCEPTIONS
+int Base64::decode(CBuffer &bufDest, const CBuffer& bufSource) THROWS_EXCEPTIONS
 {
     return internal_decode(bufDest, (const unsigned char *)bufSource.data(), (uint32_t)bufSource.bytes());
 }
 
-int CBase64::decode(CBuffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
+int Base64::decode(CBuffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
 {
     return internal_decode(bufDest,(const unsigned char *)strSource.c_str(),(uint32_t)strSource.length());
 }

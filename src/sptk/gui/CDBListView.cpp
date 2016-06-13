@@ -109,7 +109,7 @@ void CDBListView::keyField(string keyField) {
 }
 
 void CDBListView::refreshData(CRefreshKind refreshKind) {
-   m_lastRefresh = CDateTime::Now();
+   m_lastRefresh = DateTime::Now();
 
    fl_cursor(FL_CURSOR_WAIT);
    Fl::check();

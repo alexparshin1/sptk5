@@ -262,7 +262,7 @@ SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, double& da
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data CDateTime, a data to assign to current parameter
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, sptk::CDateTime& data);
+SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, sptk::DateTime& data);
 
 /// @brief Streamed field output
 ///

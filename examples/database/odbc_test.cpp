@@ -137,7 +137,7 @@ int main(int argc, const char* argv[])
 
         // The following example shows how to use the paramaters,
         // addressing them by name
-        CDateTime start, end;
+        DateTime start, end;
 
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";

@@ -37,7 +37,7 @@
 
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 
 using namespace std;
 using namespace sptk;

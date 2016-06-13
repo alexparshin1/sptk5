@@ -90,7 +90,7 @@ class CFileListTreeItem : public CFileListTreeFolder {
    CProgressBar*   m_progress;
    CSmallButton*   m_cancel;
    CBox*           m_publishDateBox;
-   CDateTime       m_publishDate;
+   DateTime       m_publishDate;
 public:
    static CLayoutClient* itemCreator(CTreeItem *item);
    static void moreInfo_cb(Fl_Widget*, void*);
@@ -110,11 +110,11 @@ public:
       m_publisher->data(pub);
    }
    
-   CDateTime publishDate() const {
+   DateTime publishDate() const {
       return m_publishDate;
    }
    
-   void publishDate(CDateTime dt) {
+   void publishDate(DateTime dt) {
       m_publishDate = dt;
       m_publishDateBox->data(dt.monthName().substr(0, 3) + " " + int2string(dt.day()) + " " + int2string(dt.year()));
    }
@@ -156,7 +156,7 @@ class CFileManagerTree : public CTreeControl {
 public:
    CFileManagerTree(CFileListTreeHeader* header);
    void refreshData();
-   CTreeItem* addFile(CTreeItem* parent, string title, string fileName, int64_t fileSize, string publisher, CDateTime publishDate, unsigned progress);
+   CTreeItem* addFile(CTreeItem* parent, string title, string fileName, int64_t fileSize, string publisher, DateTime publishDate, unsigned progress);
    CTreeItem* addDirectory(CTreeItem* parent, string title);
    void sortFiles(unsigned column);
    virtual void position(int X, int Y);
@@ -177,7 +177,7 @@ public:
       m_tree->refreshData();
    }
    
-   CTreeItem* addFile(CTreeItem* parentItem, string title, string fileName, int64_t fileSize, string publisher, CDateTime publishDate, unsigned progress) {
+   CTreeItem* addFile(CTreeItem* parentItem, string title, string fileName, int64_t fileSize, string publisher, DateTime publishDate, unsigned progress) {
       if (!parentItem)
          parentItem = m_tree->root();
       return m_tree->addFile(parentItem, title, fileName, fileSize, publisher, publishDate, progress);
@@ -326,7 +326,7 @@ CTreeItem* CFileManagerTree::addDirectory(CTreeItem* parent, string title) {
    return item;
 }
 
-CTreeItem* CFileManagerTree::addFile(CTreeItem* parent, string title, string fileName, int64_t fileSize, string publisher, CDateTime publishDate, unsigned progress) {
+CTreeItem* CFileManagerTree::addFile(CTreeItem* parent, string title, string fileName, int64_t fileSize, string publisher, DateTime publishDate, unsigned progress) {
    parent->tree()->itemCreator(CFileListTreeItem::itemCreator);
    CTreeItem* item = parent->addItem(title.c_str(), CTreeItem::document, CTreeItem::document);
    CFileListTreeItem* fileItem = (CFileListTreeItem*)item->body();
@@ -460,7 +460,7 @@ void CFileManagerTree::refreshData() {
          int64_t filesize = files["filesize"];
          int64_t fileuint32_transferred = files["fileuint32_transferred"];
          unsigned percentage = unsigned( filesize?0:fileuint32_transferred*100.0/filesize );
-         CDateTime publishDate = CDateTime::convertCTime(files["publish_date"].asInteger());
+         DateTime publishDate = DateTime::convertCTime(files["publish_date"].asInteger());
          addFile(item, files["title"], files["filename"], filesize, files["publisher"], publishDate, percentage);
          files.next();
       }
@@ -477,7 +477,7 @@ void CFileManagerTree::refreshData() {
       int64_t filesize = files["filesize"];
       int64_t fileuint32_transferred = files["fileuint32_transferred"];
       unsigned percentage = unsigned( filesize?0:fileuint32_transferred*100.0/filesize );
-      CDateTime publishDate = CDateTime::convertCTime(files["publish_date"].asInteger());
+      DateTime publishDate = DateTime::convertCTime(files["publish_date"].asInteger());
       addFile(root(), files["title"], files["filename"], filesize, files["publisher"], publishDate, percentage);
       files.next();
       counter++;
