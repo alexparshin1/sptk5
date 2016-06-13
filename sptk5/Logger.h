@@ -51,7 +51,7 @@ private:
     char*           m_buffer;           ///< Internal buffer to store the current log message
     uint32_t        m_size;             ///< The size of the internal buffer
     uint32_t        m_bytes;            ///< The number of characters in the buffer
-    CDateTime       m_date;             ///< Message timestamp
+    DateTime       m_date;             ///< Message timestamp
     LogPriority     m_priority;         ///< Current message priority, should be defined for every message
     Logger*         m_parent;           ///< Parent log object
 
@@ -125,7 +125,7 @@ protected:
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority LogPriority, message priority. @see LogPriority for more information.
-    virtual void saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
+    virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
 
 public:
     /// @brief Constructor

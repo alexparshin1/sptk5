@@ -102,7 +102,7 @@ CMySQLStatement::~CMySQLStatement()
         mysql_free_result(m_result);
 }
 
-void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime timestamp, VariantType timeType)
+void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
 {
     short year, month, day, hour, minute, second, msecond;
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
@@ -122,14 +122,14 @@ void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, CDateTime times
     }
 }
 
-void CMySQLStatement::mysqlDateToDateTime(CDateTime& timestamp, const MYSQL_TIME& mysqlDate)
+void CMySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate)
 {
     if (mysqlDate.time_type == MYSQL_TIMESTAMP_DATE)
-        timestamp = CDateTime(
+        timestamp = DateTime(
                         (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,
                         (short) 0, (short) 0, (short) 0);
     else
-        timestamp = CDateTime(
+        timestamp = DateTime(
                         (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,
                         (short) mysqlDate.hour, (short) mysqlDate.minute, (short) mysqlDate.second);
 }
@@ -502,7 +502,7 @@ void CMySQLStatement::readPreparedResultRow(CFieldList& fields)
                     // Date returned as 0000-00-00
                     field->setNull();
                 } else {
-                    CDateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
+                    DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
                                 short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
                     if (fieldType == VAR_DATE)
                         field->setDate(dt);

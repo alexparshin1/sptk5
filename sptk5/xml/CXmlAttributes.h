@@ -30,7 +30,7 @@
 #define __CXMLATTRIBUTES_H__
 
 //#include <sptk5/cxml>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/xml/CXmlNode.h>
 #include <sptk5/xml/CXmlElement.h>
 #include <sptk5/xml/CXmlNodeList.h>

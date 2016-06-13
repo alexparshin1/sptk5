@@ -122,12 +122,12 @@ public:
     /// @param firebirdDate tm&, Firebird time
     /// @param timestamp CDateTime, Timestamp
     /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
-    static void dateTimeToFirebirdDate(struct tm& firebirdDate, CDateTime timestamp, VariantType timeType);
+    static void dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType);
 
     /// @brief Translates Firebird time to CDateTime
     /// @param timestamp CDateTime&, Timestamp
     /// @param firebirdDate const tm&, Firebird time
-    static void firebirdDateToDateTime(CDateTime& timestamp, const struct tm& firebirdDate);
+    static void firebirdDateToDateTime(DateTime& timestamp, const struct tm& firebirdDate);
 
     /// @brief Creates new BLOB from parameter data
     /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id

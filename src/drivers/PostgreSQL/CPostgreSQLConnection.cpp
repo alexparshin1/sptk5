@@ -42,7 +42,7 @@ using namespace sptk;
 namespace sptk
 {
 
-const CDateTime epochDate(2000, 1, 1);
+const DateTime epochDate(2000, 1, 1);
 
 class CPostgreSQLStatement
 {
@@ -864,14 +864,14 @@ static void decodeArray(char* data, CDatabaseField* field)
                     break;
 
                 case PG_DATE: {
-                    CDateTime dt = readDate(data);
+                    DateTime dt = readDate(data);
                     output << dt.dateString();
                     break;
                 }
 
                 case PG_TIMESTAMPTZ:
                 case PG_TIMESTAMP: {
-                    CDateTime dt = readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS);
+                    DateTime dt = readTimestamp(data, timestampsFormat == PG_INT64_TIMESTAMPS);
                     output << dt.dateString();
                     break;
                 }

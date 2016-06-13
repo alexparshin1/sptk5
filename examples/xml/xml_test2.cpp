@@ -47,8 +47,8 @@ int main()
     try {
         CXmlDoc doc;
 
-        CDateTime start = CDateTime::Now();
-        CDateTime end;
+        DateTime start = DateTime::Now();
+        DateTime end;
         double duration;
         CBuffer *buf = new CBuffer;
 
@@ -77,7 +77,7 @@ int main()
         out.setf(ios::fixed);
         out.precision(2);
 
-        end = CDateTime::Now();
+        end = DateTime::Now();
         duration = (end - start) * 3600 * 24;
         start = end;
 
@@ -86,34 +86,34 @@ int main()
         doc.save(*buf);
         buf->saveToFile("0.xml");
 
-        end = CDateTime::Now();
+        end = DateTime::Now();
         duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is saved to buffer (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         doc.clear();
 
-        end = CDateTime::Now();
+        end = DateTime::Now();
         duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is cleared (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         doc.load(*buf);
-        end = CDateTime::Now();
+        end = DateTime::Now();
         duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         doc.save(*buf);
 
-        end = CDateTime::Now();
+        end = DateTime::Now();
         duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is saved to buffer(" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
 
         buf->saveToFile("1.xml");
 
-        end = CDateTime::Now();
+        end = DateTime::Now();
         duration = (end - start) * 3600 * 24;
         start = end;
         out << "The document is saved to disk: " << duration << " seconds" << endl;

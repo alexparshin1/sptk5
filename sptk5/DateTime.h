@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDateTime.h - description                              ║
+║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATETIME_H__
-#define __CDATETIME_H__ ///< CDateTime.h
+#ifndef __SPTK_DATETIME_H__
+#define __SPTK_DATETIME_H__ 
 
 #include <sptk5/sptk.h>
 #include <time.h>
@@ -38,7 +38,6 @@ namespace sptk {
 /// @addtogroup utility Utility Classes
 /// @{
 
-class CDateTime;
 class CDateTimeFormat;
 
 /// @brief Date and Time value.
@@ -47,7 +46,7 @@ class CDateTimeFormat;
 /// a floating point number. Allows to synchronize the Now() time
 /// with the external date/time, without affecting the local host
 /// system time.
-class SP_EXPORT CDateTime
+class SP_EXPORT DateTime
 {
     friend class CDateTimeFormat;
 protected:
@@ -103,51 +102,51 @@ public:
     /// @param h int16_t, hour
     /// @param mm int16_t, minute
     /// @param s int16_t, second
-    CDateTime (int16_t y,int16_t m,int16_t d,int16_t h=0,int16_t mm=0,int16_t s=0);
+    DateTime (int16_t y,int16_t m,int16_t d,int16_t h=0,int16_t mm=0,int16_t s=0);
 
     /// @brief Constructor
     /// @param dateStr const char *, date string
-    CDateTime (const char * dateStr);
+    DateTime (const char * dateStr);
 
     /// @brief Copy constructor
-    CDateTime (const CDateTime &dt);
+    DateTime (const DateTime &dt);
 
     /// @brief Constructor
     /// @param dt double, floating point date and time value
-    CDateTime (double dt=0);
+    DateTime (double dt=0);
 
     /// @brief Conversion to double
     operator double () const;
 
     /// @brief Assignment
-    void operator = (const CDateTime& date);
+    void operator = (const DateTime& date);
 
     /// @brief Assignment
     void operator = (const char * dat);
 
     /// @brief Addition, another CDateTime
-    CDateTime  operator + (CDateTime& dt);
+    DateTime  operator + (DateTime& dt);
 
     /// @brief Substruction, another CDateTime
-    CDateTime  operator - (CDateTime& dt);
+    DateTime  operator - (DateTime& dt);
 
     /// @brief Increment by another CDateTime
-    CDateTime& operator += (CDateTime& dt);
+    DateTime& operator += (DateTime& dt);
 
     /// @brief Decrement by another CDateTime
-    CDateTime& operator -= (CDateTime& dt);
+    DateTime& operator -= (DateTime& dt);
 
     /// @brief Increment by day, prefix
-    CDateTime& operator ++ ();
+    DateTime& operator ++ ();
 
     /// @brief Increment by day, postfix
-    CDateTime& operator ++ (int);
+    DateTime& operator ++ (int);
 
     /// @brief Decrement by day, prefix
-    CDateTime& operator -- ();
+    DateTime& operator -- ();
 
     /// @brief Decrement by day, postfix
-    CDateTime& operator -- (int);
+    DateTime& operator -- (int);
 
     /// @brief Print the date into str
     void formatDate(char *str, bool universalDateFormat=false) const;
@@ -165,19 +164,19 @@ public:
     ///
     /// The system time is not affected. Useful for synchronization between
     /// different hosts' programs.
-    static void Now(CDateTime dt);
+    static void Now(DateTime dt);
 
     /// @brief Reports the system date and time.
-    static CDateTime System();
+    static DateTime System();
 
     /// @brief Reports the current date and time.
-    static CDateTime Now();
+    static DateTime Now();
 
     /// @brief Reports the current date.
-    static CDateTime Date();
+    static DateTime Date();
 
     /// @brief Reports the current time.
-    static CDateTime Time();
+    static DateTime Time();
 
     /// @brief Reports the current time of day in milliseconds
     ///
@@ -186,7 +185,7 @@ public:
     static uint32_t TimeOfDayMs();
 
     /// @brief Converts C time into CDateTime
-    static CDateTime convertCTime(const time_t tt);
+    static DateTime convertCTime(const time_t tt);
 
     /// @brief Reports the number of days in the month in this date (1..31)
     int16_t daysInMonth() const;
@@ -229,7 +228,7 @@ public:
     }
 
     /// @brief Returns interval between two dates in seconds
-    double secondsTo(CDateTime toDate) const
+    double secondsTo(DateTime toDate) const
     {
         return (toDate - m_dateTime) * 86400;
     }
@@ -256,27 +255,27 @@ public:
 }
 
 /// @brief Compares CDatetime values
-bool operator <  (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+bool operator <  (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Compares CDateTime values
-bool operator <= (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+bool operator <= (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Compares CDateTime values
-bool operator >  (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+bool operator >  (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Compares CDatetime values
-bool operator >= (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+bool operator >= (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Compares CDatetime values
-bool operator == (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+bool operator == (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Compares CDatetime values
-bool operator != (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+bool operator != (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Adds two CDatetime values
-sptk::CDateTime operator + (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+sptk::DateTime operator + (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Subtracts two CDatetime values
-sptk::CDateTime operator - (const sptk::CDateTime &dt1, const sptk::CDateTime &dt2);
+sptk::DateTime operator - (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 #endif

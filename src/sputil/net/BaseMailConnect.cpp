@@ -34,10 +34,10 @@
 #pragma warning (disable: 4786)
 #endif
 
-#include <sptk5/CBase64.h>
+#include <sptk5/Base64.h>
 #include <sptk5/net/BaseMailConnect.h>
-#include <sptk5/CStrings.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/Strings.h>
+#include <sptk5/DateTime.h>
 
 #define LINE_CHARS 72
 
@@ -111,7 +111,7 @@ void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& 
 
     CBuffer buffer;
 
-    CBase64::encode(strDest, bufSource);
+    Base64::encode(strDest, bufSource);
     uint32_t cnt = (uint32_t) strDest.length();
     const char* data = strDest.c_str();
     char line[90];
@@ -149,14 +149,14 @@ void BaseMailConnect::mimeMessage(CBuffer& buffer)
 
     message << "Subject: " << m_subject << endl;
 
-    CDateTime date = CDateTime::Now();
+    DateTime date = DateTime::Now();
     short dy, dm, dd, th, tm, ts, tms;
     date.decodeDate(&dy, &dm, &dd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
     char dateBuffer[128];
     const char* sign = "-";
-    int offset = CDateTime::timeZoneOffset;
+    int offset = DateTime::timeZoneOffset;
     if (offset >= 0)
         sign = "";
     else
@@ -166,12 +166,12 @@ void BaseMailConnect::mimeMessage(CBuffer& buffer)
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,
-            CDateTime::monthNames[dm - 1].substr(0, 3).c_str(),
+            DateTime::monthNames[dm - 1].substr(0, 3).c_str(),
             dy,
             th, tm, ts,
             sign,
             offset * 100,
-            CDateTime::timeZoneName.c_str()
+            DateTime::timeZoneName.c_str()
     );
 
     message << dateBuffer << endl;

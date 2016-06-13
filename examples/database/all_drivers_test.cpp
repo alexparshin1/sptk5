@@ -182,7 +182,7 @@ int testDatabase(string connectionString)
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
         step2Query.param("position_name") = "CIO";
-        step2Query.param("hire_date") = CDateTime::Now();
+        step2Query.param("hire_date") = DateTime::Now();
         step2Query.param("rate") = 0.0000123;
         step2Query.exec();
 
@@ -191,14 +191,14 @@ int testDatabase(string connectionString)
         step2Query.param(uint32_t(0)) = 3;
         step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
         step2Query.param(2).setNull(VAR_STRING);
-        step2Query.param(3).setDate(CDateTime::Now());
+        step2Query.param(3).setDate(DateTime::Now());
         step2Query.param(4) = 12340.001234;
         step2Query.exec();
         /*
         step2Query.param(uint32_t(0)) = 3;
         step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
         step2Query.param(2) = "Manager";
-        step2Query.param(3).setDate(CDateTime::Now());
+        step2Query.param(3).setDate(DateTime::Now());
         step2Query.param(4).setFloat(12340.001234);
         step2Query.exec();
         */
@@ -217,7 +217,7 @@ int testDatabase(string connectionString)
         id_param = 4;
         name_param = "Buffy";
         position_param = "Fearless fiction vampire slayer";
-        hire_date_param.setDateTime(CDateTime::Now());
+        hire_date_param.setDateTime(DateTime::Now());
         rate_param = 81.2345;
         step2Query.exec();
 

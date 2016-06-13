@@ -450,7 +450,7 @@ void COracleConnection::queryFetch(CQuery *query)
                 case SQLT_DATE:
                     {
                         resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
-                        field->setDate(CDateTime(short(year), short(month), short(day), short(0), short(0), short(0)));
+                        field->setDate(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)));
                     }
                     break;
 
@@ -462,7 +462,7 @@ void COracleConnection::queryFetch(CQuery *query)
                         Timestamp timestamp = resultSet->getTimestamp(columnIndex);
                         timestamp.getDate(year, month, day);
                         timestamp.getTime(hour, min, sec, ms);
-                        field->setDateTime(CDateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
+                        field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
                     }
                     break;
 

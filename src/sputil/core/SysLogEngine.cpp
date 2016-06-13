@@ -67,7 +67,7 @@ SysLogEngine::SysLogEngine(string _programName, uint32_t facilities)
     programName(_programName);
 }
 
-void SysLogEngine::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+void SysLogEngine::saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
     if (m_options & LO_ENABLE) {

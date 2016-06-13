@@ -30,7 +30,7 @@
 #define __SPTK_VARIANT_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/CBuffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/cxml>
@@ -49,8 +49,8 @@ enum VariantType {
     VAR_STRING    = 8,    ///< String pointer
     VAR_TEXT      = 16,   ///< String pointer, corresponding to BLOBS in database
     VAR_BUFFER    = 32,   ///< Data pointer, corresponding to BLOBS in database
-    VAR_DATE      = 64,   ///< CDateTime (double)
-    VAR_DATE_TIME = 128,  ///< CDateTime (double)
+    VAR_DATE      = 64,   ///< DateTime (double)
+    VAR_DATE_TIME = 128,  ///< DateTime (double)
     VAR_IMAGE_PTR = 256,  ///< Image pointer
     VAR_IMAGE_NDX = 512,  ///< Image index in object-specific table of image pointers
     VAR_INT64     = 1024, ///< 64bit integer
@@ -108,7 +108,7 @@ protected:
         int32_t             intData;         ///< Integer data
         int64_t             int64Data;       ///< 64 bit integer data
         double              floatData;       ///< Floating point data
-        double              timeData;        ///< CDateTime data
+        double              timeData;        ///< DateTime data
         VariantDataBuffer   buffer;          ///< A buffer for data with the variable length like strings, or just generic buffers
         void*               imagePtr;        ///< Image pointer
         int32_t             imageNdx;        ///< Image index in object-specific table of image pointers
@@ -161,7 +161,7 @@ public:
     Variant(const std::string& v);
 
     /// @brief Constructor
-    Variant(CDateTime v);
+    Variant(DateTime v);
 
     /// @brief Constructor
     Variant(const void * value, size_t sz);
@@ -224,10 +224,10 @@ public:
     virtual void setBuffer(const std::string& str);
 
     /// @brief Assignment method
-    virtual void setDate(CDateTime value);
+    virtual void setDate(DateTime value);
 
     /// @brief Assignment method
-    virtual void setDateTime(CDateTime value);
+    virtual void setDateTime(DateTime value);
 
     /// @brief Assignment method
     virtual void setImagePtr(const void *value);
@@ -275,7 +275,7 @@ public:
     virtual Variant& operator =(const std::string& value);
 
     /// @brief Assignment operator
-    virtual Variant& operator =(CDateTime value);
+    virtual Variant& operator =(DateTime value);
 
     /// @brief Assignment operator
     virtual Variant& operator =(const void *value);
@@ -308,10 +308,10 @@ public:
     virtual const char* getText() const;
 
     /// @brief Directly reads the internal data
-    virtual CDateTime getDateTime() const;
+    virtual DateTime getDateTime() const;
 
     /// @brief Directly reads the internal data
-    virtual CDateTime getDate() const;
+    virtual DateTime getDate() const;
 
     /// @brief Directly reads the internal data
     virtual void* getImagePtr() const;
@@ -356,7 +356,7 @@ public:
     operator std::string() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
-    operator CDateTime() const THROWS_EXCEPTIONS;
+    operator DateTime() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
@@ -387,13 +387,13 @@ public:
 
     /// @brief Conversion method
     ///
-    /// Converts variant value to CDateTime. The time part of CDdatetime is empty.
-    CDateTime asDate() const THROWS_EXCEPTIONS;
+    /// Converts variant value to DateTime. The time part of CDdatetime is empty.
+    DateTime asDate() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///
-    /// Converts variant value to CDateTime.
-    CDateTime asDateTime() const THROWS_EXCEPTIONS;
+    /// Converts variant value to DateTime.
+    DateTime asDateTime() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method
     ///

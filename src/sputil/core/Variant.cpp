@@ -155,7 +155,7 @@ Variant::Variant(const std::string& v)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(CDateTime v)
+Variant::Variant(DateTime v)
 {
     m_dataType = VAR_DATE_TIME;
     m_data.timeData = v;
@@ -453,7 +453,7 @@ void Variant::setExternalBuffer(const void* value, size_t sz)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setDateTime(CDateTime value)
+void Variant::setDateTime(DateTime value)
 {
     if (m_dataType != VAR_DATE_TIME) {
         releaseBuffers();
@@ -465,7 +465,7 @@ void Variant::setDateTime(CDateTime value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setDate(CDateTime value)
+void Variant::setDate(DateTime value)
 {
     if (m_dataType != VAR_DATE) {
         releaseBuffers();
@@ -658,7 +658,7 @@ Variant& Variant::operator =(const std::string& value)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(CDateTime value)
+Variant& Variant::operator =(DateTime value)
 {
     setDateTime(value);
     return *this;
@@ -727,13 +727,13 @@ const char* Variant::getText() const
 }
 
 //---------------------------------------------------------------------------
-CDateTime Variant::getDateTime() const
+DateTime Variant::getDateTime() const
 {
     return m_data.floatData;
 }
 
 //---------------------------------------------------------------------------
-CDateTime Variant::getDate() const
+DateTime Variant::getDate() const
 {
     return (int) m_data.floatData;
 }
@@ -823,7 +823,7 @@ Variant::operator std::string() const THROWS_EXCEPTIONS
 }
 
 //---------------------------------------------------------------------------
-Variant::operator CDateTime() const THROWS_EXCEPTIONS
+Variant::operator DateTime() const THROWS_EXCEPTIONS
 {
     return asDateTime();
 }
@@ -1060,10 +1060,10 @@ string Variant::asString() const THROWS_EXCEPTIONS
                 return "";
 
         case VAR_DATE:
-            return CDateTime(m_data.floatData).dateString();
+            return DateTime(m_data.floatData).dateString();
 
         case VAR_DATE_TIME: {
-            CDateTime dt(m_data.floatData);
+            DateTime dt(m_data.floatData);
             return dt.dateString() + " " + dt.timeString(true);
         }
 
@@ -1077,7 +1077,7 @@ string Variant::asString() const THROWS_EXCEPTIONS
     }
 }
 
-CDateTime Variant::asDate() const THROWS_EXCEPTIONS
+DateTime Variant::asDate() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0.0;
@@ -1112,7 +1112,7 @@ CDateTime Variant::asDate() const THROWS_EXCEPTIONS
     }
 }
 
-CDateTime Variant::asDateTime() const THROWS_EXCEPTIONS
+DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
         return 0.0;

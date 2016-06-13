@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
 
@@ -50,10 +50,10 @@ class SP_EXPORT CDateTimeBaseInput : public CInput {
     typedef class CInput inherited;
 
     /// @brief Mininmum date and time value to check in valid()
-    CDateTime            m_minValue;
+    DateTime            m_minValue;
 
     /// @brief Maximum date and time value to check in valid()
-    CDateTime            m_maxValue;
+    DateTime            m_maxValue;
 
     /// @brief Constructor initializer
     void ctor_init();
@@ -123,13 +123,13 @@ public:
     /// @param limited bool, true if use the limits
     /// @param min CDateTime, minimum value
     /// @param max CDateTime, maximum value
-    void setLimits(bool limited,CDateTime min=double(0),CDateTime max=double(0));
+    void setLimits(bool limited,DateTime min=double(0),DateTime max=double(0));
 
     /// @brief Returns widget date or time  value
-    virtual CDateTime dateTimeValue() const;
+    virtual DateTime dateTimeValue() const;
 
     /// @brief Sets widget date or time value
-    virtual void     dateTimeValue(CDateTime dt);
+    virtual void     dateTimeValue(DateTime dt);
 };
 
 class CTimeInput;
@@ -280,10 +280,10 @@ public:
     virtual void resize(int x,int y,int w,int h);
 
     /// @brief Returns widget date or time  value
-    virtual CDateTime dateTimeValue() const;
+    virtual DateTime dateTimeValue() const;
 
     /// @brief Sets widget date or time value
-    virtual void     dateTimeValue(CDateTime dt);
+    virtual void     dateTimeValue(DateTime dt);
 
     /// @brief Universal data connection, returns data from control
     virtual Variant data() const;

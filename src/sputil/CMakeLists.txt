@@ -3,8 +3,8 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 SET (SPUTIL_SOURCES
-    core/CBase64.cpp core/LogEngine.cpp
-    core/CBuffer.cpp core/CDataSource.cpp core/CDateTime.cpp core/Exception.cpp core/CCommandLine.cpp
+    core/Base64.cpp core/LogEngine.cpp
+    core/CBuffer.cpp core/CDataSource.cpp core/DateTime.cpp core/Exception.cpp core/CCommandLine.cpp
     core/CField.cpp core/CFieldList.cpp core/FileLogEngine.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
     core/CStrings.cpp core/SysLogEngine.cpp core/CUniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
     core/CDirectoryDS.cpp core/CMemoryDS.cpp core/Logger.cpp core/CSystemException.cpp

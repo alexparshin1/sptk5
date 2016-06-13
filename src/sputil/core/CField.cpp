@@ -125,10 +125,10 @@ string CField::asString() const THROWS_EXCEPTIONS
         return m_data.buffer.data;
 
     case VAR_DATE:
-        return CDateTime (m_data.floatData).dateString();
+        return DateTime (m_data.floatData).dateString();
 
     case VAR_DATE_TIME: {
-        CDateTime dt (m_data.floatData);
+        DateTime dt (m_data.floatData);
         return dt.dateString() + " " + dt.timeString(true);
     }
 

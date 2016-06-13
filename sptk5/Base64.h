@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CBase64.h - description                                ║
+║                       Base64.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CBASE64_H__
-#define __CBASE64_H__
+#ifndef __SPTK_BASE64_H__
+#define __SPTK_BASE64_H__
 
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
@@ -43,7 +43,8 @@ namespace sptk {
 ///
 /// This class is used for encoding and decoding the parts of mail messages.
 /// All the methods of this class are static.
-class CBase64 {
+class Base64 
+{
 public:
     /// @brief Data encoding.
     /// Encodes data (base64) in given buffer bufSource to destination buffer bufDest.

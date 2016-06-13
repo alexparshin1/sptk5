@@ -41,7 +41,7 @@ void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget *btn,void *data) {
     CDateTimeBaseInput *dateInput = (CDateTimeBaseInput *)btn->parent()->parent();
     if (!dateInput)
         return;
-    CDateTime dt = dateInput->dateTimeValue();
+    DateTime dt = dateInput->dateTimeValue();
     dateInput->showCalendar(btn);
     if (dt != dateInput->dateTimeValue())
         dateInput->m_dateInput->do_callback();
@@ -68,7 +68,7 @@ CDateTimeBaseInput::CDateTimeBaseInput(int x,int y,int w,int h,const char * labe
 }
 #endif
 
-void CDateTimeBaseInput::setLimits(bool limited,CDateTime min,CDateTime max) {
+void CDateTimeBaseInput::setLimits(bool limited,DateTime min,DateTime max) {
     m_limited = limited;
     m_minValue = min;
     m_maxValue = max;
@@ -87,7 +87,7 @@ void CDateTimeBaseInput::save(CQuery *updateQuery) {
     if (!m_fieldName.length())
         return; // no field name - no data saved
     CParam& param = updateQuery->param(m_fieldName.c_str());
-    CDateTime dt = dateTimeValue();
+    DateTime dt = dateTimeValue();
     param.setDateTime( dt );
 }
 
@@ -110,11 +110,11 @@ bool CDateTimeBaseInput::valid() const {
     return false;
 }
 
-CDateTime CDateTimeBaseInput::dateTimeValue() const {
+DateTime CDateTimeBaseInput::dateTimeValue() const {
     return data();
 }
 
-void CDateTimeBaseInput::dateTimeValue(CDateTime dt) {
+void CDateTimeBaseInput::dateTimeValue(DateTime dt) {
     if (kind() == DCV_DATE)
         data(dt.dateString());
     else
@@ -176,14 +176,14 @@ void CDateInput::resize(int xx,int yy,int ww,int hh) {
 }
 
 CVariant CDateInput::data() const {
-    CDateTime   dt(m_dateInput->input()->value());
+    DateTime   dt(m_dateInput->input()->value());
     CVariant    rc;
     rc.setDate(dt);
     return rc;
 }
 
 void CDateInput::data(const CVariant s) {
-    CDateTime dt = s;
+    DateTime dt = s;
     m_dateInput->input()->value(dt.dateString().c_str());
 }
 
@@ -195,14 +195,14 @@ void CDateInput::preferredHeight(int& h) const {
 CTimeInput::CTimeInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
         : CDateTimeBaseInput(label,layoutSize,layoutAlignment,true) {
     m_timeInput = (CInput_ *)m_control;
-    m_timeInput->mask(CDateTime::shortTimeFormat);
+    m_timeInput->mask(DateTime::shortTimeFormat);
 }
 
 #ifdef __COMPATIBILITY_MODE__
 CTimeInput::CTimeInput(int x,int y,int w,int h,const char * label)
         : CDateTimeBaseInput(x,y,w,h,label,true) {
     m_timeInput = (CInput_ *)m_control;
-    m_timeInput->mask(CDateTime::shortTimeFormat);
+    m_timeInput->mask(DateTime::shortTimeFormat);
 }
 #endif
 
@@ -271,14 +271,14 @@ void CDateTimeInput::resize(int x,int y,int w,int h) {
     m_timeInput->resize(x,y,timeWidth,m_dateInput->h());
 }
 
-void CDateTimeInput::dateTimeValue(CDateTime dt) {
+void CDateTimeInput::dateTimeValue(DateTime dt) {
     m_dateInput->input()->value(dt.dateString().c_str());
     m_timeInput->value(dt.timeString().c_str());
 }
 
-CDateTime CDateTimeInput::dateTimeValue() const {
-    CDateTime   dt = CDateTime( m_dateInput->input()->value() );
-    CDateTime   tm = CDateTime( m_timeInput->value() );
+DateTime CDateTimeInput::dateTimeValue() const {
+    DateTime   dt = DateTime( m_dateInput->input()->value() );
+    DateTime   tm = DateTime( m_timeInput->value() );
     return dt + tm;
 }
 

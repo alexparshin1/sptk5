@@ -141,7 +141,7 @@ void dialog_cb(Fl_Widget *, void *)
       dialog["company_name"] = "Tiny Soft";
       dialog["company_size"] = 2;
       dialog["business_type"] = "Software";
-      dialog["established"] = CDateTime::Now();
+      dialog["established"] = DateTime::Now();
       dialog["first_name"] = "John";
       dialog["last_name"] = "Doe";
       dialog["age"] = 35.2;

@@ -462,7 +462,7 @@ public:
     }
 
     /// @brief Control data assignment
-    CControl& operator =(CDateTime dt)
+    CControl& operator =(DateTime dt)
     {
         data(dt);
         return *this;

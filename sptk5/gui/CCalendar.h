@@ -34,7 +34,7 @@ class Fl_Button;
 
 #include <sptk5/gui/CPopupWindow.h>
 #include <sptk5/gui/CControl.h>
-#include <sptk5/CDateTime.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/gui/CLayoutClient.h>
 
 namespace sptk {
@@ -54,7 +54,7 @@ class SP_EXPORT CCalendar : public ::Fl_Group, public CLayoutClient {
     Fl_Box    *m_dayNameBoxes[7];
     Fl_Button *m_dayButtons[31];
     Fl_Button *m_switchButtons[4];
-    CDateTime  m_date;
+    DateTime  m_date;
     std::string m_headerLabel;
     int        m_activeButtonIndex;
     char       m_weekDayLabels[14];
@@ -105,10 +105,10 @@ public:
     void autoHeight(int minHeight);
 
     /// @brief Sets the calendar date
-    void      date(CDateTime dt);
+    void      date(DateTime dt);
 
     /// @brief Reports the calendar date
-    CDateTime date() const;
+    DateTime date() const;
 };
 
 /// @brief Popup Calendar
@@ -145,13 +145,13 @@ public:
 
     /// @brief Sets the calendar date
     /// @param dt CDateTime, new calendar date
-    void date(CDateTime dt) {
+    void date(DateTime dt) {
         m_calendar->date(dt);
     }
 
     /// @brief Reports the calendar date
     /// @returns CDateTime value of the currently selected date
-    CDateTime date() const       {
+    DateTime date() const       {
         return m_calendar->date();
     }
 

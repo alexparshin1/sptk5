@@ -147,7 +147,7 @@ CFieldList& operator >> (CFieldList& fieldList, double& data) {
    return fieldList;
 }
 
-CFieldList& operator >> (CFieldList& fieldList, CDateTime& data) {
+CFieldList& operator >> (CFieldList& fieldList, DateTime& data) {
    data = fieldList.next();
    return fieldList;
 }

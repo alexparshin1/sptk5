@@ -38,7 +38,7 @@ CLogStreamBuf::CLogStreamBuf()
     m_size = 1024;
     m_buffer = (char *) malloc(m_size);
     m_priority = LP_NOTICE;
-    m_date = CDateTime::Now();
+    m_date = DateTime::Now();
 }
 
 streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
@@ -56,7 +56,7 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
                     m_parent->saveMessage(m_date, m_buffer, m_bytes, m_priority);
                 if (!bufferOverflow) {
                     m_priority = m_parent->m_destination.defaultPriority();
-                    m_date = CDateTime::Now();
+                    m_date = DateTime::Now();
                 }
             }
             m_bytes = 0;
@@ -64,7 +64,7 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
     }
     if (!lineBreak) {
         if (m_bytes == 0)
-            m_date = CDateTime::Now();
+            m_date = DateTime::Now();
         m_buffer[m_bytes] = (char) c;
         m_bytes++;
     }
@@ -84,7 +84,7 @@ Logger::~Logger()
     delete m_buffer;
 }
 
-void Logger::saveMessage(CDateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+void Logger::saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     m_destination.saveMessage(date, message, sz, priority);
 }

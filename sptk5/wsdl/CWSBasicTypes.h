@@ -216,14 +216,14 @@ public:
     virtual void load(const CField& field);
 
     /// @brief Assignment operation
-    virtual WSDate& operator =(CDateTime value)
+    virtual WSDate& operator =(DateTime value)
     {
         setDate(value);
         return *this;
     }
 
     /// @brief Conversion operator
-    operator CDateTime() const THROWS_EXCEPTIONS
+    operator DateTime() const THROWS_EXCEPTIONS
     {
         return asDate();
     }
@@ -263,14 +263,14 @@ public:
     virtual std::string asString() const THROWS_EXCEPTIONS;
 
     /// @brief Assignment operation
-    virtual WSDateTime& operator =(CDateTime value)
+    virtual WSDateTime& operator =(DateTime value)
     {
         setDateTime(value);
         return *this;
     }
 
     /// @brief Conversion operator
-    operator CDateTime() const THROWS_EXCEPTIONS
+    operator DateTime() const THROWS_EXCEPTIONS
     {
         return asDateTime();
     }

@@ -63,7 +63,7 @@ CFieldList* parse_file_info_string(string& file_info)
     bool is_directory = false;
     bool is_executable = false;
 
-    CDateTime dt;
+    DateTime dt;
     CSmallPixmapType pixmapType = SXPM_DOCUMENT;
 
     if (isdigit(*ptr)) {
@@ -95,7 +95,7 @@ CFieldList* parse_file_info_string(string& file_info)
         if (year < 50) year += 2000;
         else year += 1900;
 
-        CDateTime dosDate((short) year, (short) month, (short) day, (short) hour, (short) min);
+        DateTime dosDate((short) year, (short) month, (short) day, (short) hour, (short) min);
         dt = dosDate;
     } else {
         char* month = 0L, * day = 0L, * year = 0L;
@@ -117,7 +117,7 @@ CFieldList* parse_file_info_string(string& file_info)
         if (m >= 0) {
             int d = atoi(day);
             int y = atoi(year);
-            CDateTime unixDate((short) y, (short) m, (short) d);
+            DateTime unixDate((short) y, (short) m, (short) d);
             dt = unixDate;
         }
     }

@@ -69,24 +69,24 @@ void exit_cb(Fl_Widget *w, void *data) {
    w->window()->hide();
 }
 
-int main(int argc, char **argv) {
-   
+int main(int argc, char **argv)
+{
    static char buffer[128];
    CWindow w(400, 350);
-   
+
    CDBListView listView("List View:", 10, SP_ALIGN_CLIENT);
    lView = &listView;
-   
+
    std::string operation;
-   CDateTime start = CDateTime::Now();
-   
+   DateTime start = DateTime::Now();
+
    listView.columns().push_back(CColumn("column 1", VAR_INT, 70));
    listView.columns().push_back(CColumn("column 2", VAR_INT, 70));
    listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
    listView.columns().push_back(CColumn("column 4", VAR_STRING));
-   
+
    listView.showGrid(false);
-   
+
    char buffer1[10];
    char buffer2[10];
    int maxItems = 10000;
@@ -97,8 +97,8 @@ int main(int argc, char **argv) {
       CPackedStrings *ps = new CPackedStrings(4, rowData);
       listView.addRow(ps);
    }
-   CDateTime end = CDateTime::Now();
-   
+   DateTime end = DateTime::Now();
+
    sprintf(buffer, "Filled list with 10K lines for = %0.2f sec",
            ((double)end - double(start)) * 24 * 3600
            );
