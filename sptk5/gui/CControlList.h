@@ -30,7 +30,7 @@
 #define __CCONTROLLIST_H__
 
 #include <sptk5/gui/CControl.h>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 #include <map>
 
 namespace sptk {
@@ -41,7 +41,7 @@ namespace sptk {
 /// @brief String to Control map.
 /// Uses strings and pointers to CControl.
 /// Strings are control field names.
-typedef std::map<std::string, CControl *, CCaseInsensitiveCompare> CStringControlMap;
+typedef std::map<std::string, CControl *, CaseInsensitiveCompare> CStringControlMap;
 
 /// @brief List of CControl object pointers in Fl_Group
 class CControlList: public CStringControlMap

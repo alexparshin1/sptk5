@@ -42,12 +42,12 @@ using namespace std;
 
 typedef struct {
     unsigned       read_offset;
-    const CBuffer* buffer;
+    const Buffer* buffer;
 } CMemHandle;
 
 static void png_read(png_structp pp, png_bytep buf, png_size_t len) {
     CMemHandle *p = (CMemHandle *) png_get_io_ptr(pp);
-    const CBuffer* buffer = p->buffer;
+    const Buffer* buffer = p->buffer;
     png_size_t tail = buffer->size() - p->read_offset;
     if (len > tail)
         len = tail;
@@ -55,7 +55,7 @@ static void png_read(png_structp pp, png_bytep buf, png_size_t len) {
     p->read_offset += (int) len;
 }
 
-void CPngImage::load(const CBuffer& imagedata) {
+void CPngImage::load(const Buffer& imagedata) {
     int i;
     int channels;
     png_structp pp; // PNG read pointer
@@ -138,7 +138,7 @@ void CPngImage::load(const CBuffer& imagedata) {
     png_destroy_read_struct(&pp, &info, NULL);
 }
 
-CPngImage::CPngImage(const CBuffer& imagedata)
+CPngImage::CPngImage(const Buffer& imagedata)
         : Fl_RGB_Image(0, 0, 0) {
     load(imagedata);
 }
@@ -158,7 +158,7 @@ CPngImage::CPngImage(const Fl_RGB_Image* image)
 CPngImage::CPngImage(string fileName)
     : Fl_RGB_Image(0, 0, 0) {
     try {
-        CBuffer imageData;
+        Buffer imageData;
         imageData.loadFromFile(fileName);
         load(imageData);
     } catch (...) {}

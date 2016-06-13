@@ -469,7 +469,7 @@ public:
     }
 
     /// @brief Control data assignment
-    CControl& operator =(CField& fld)
+    CControl& operator =(Field& fld)
     {
         data(fld);
         return *this;

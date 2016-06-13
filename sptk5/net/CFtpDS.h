@@ -29,7 +29,7 @@
 #ifndef __FTPDS_H__
 #define __FTPDS_H__
 
-#include <sptk5/CMemoryDS.h>
+#include <sptk5/MemoryDS.h>
 #include <sptk5/net/FTPConnect.h>
 
 namespace sptk
@@ -54,7 +54,7 @@ enum FtpShowPolicy
 ///
 /// Class CFtpDS allows to browse the list of files on FTP server.
 /// It returns a dataset with file names, sizes, modification times etc.
-class FtpDS: public CMemoryDS
+class FtpDS: public MemoryDS
 {
 private:
     CFTPConnect         m_ftp;            /// FTP socket
@@ -68,7 +68,7 @@ private:
 public:
     /// Default Constructor
     FtpDS() :
-            CMemoryDS(),
+            MemoryDS(),
             m_port(21),
             m_showpolicy(0),
             m_callback( NULL)

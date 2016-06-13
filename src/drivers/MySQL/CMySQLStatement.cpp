@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/db/CMySQLConnection.h>
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 
 using namespace std;
 using namespace sptk;
@@ -315,7 +315,7 @@ void CMySQLStatement::execute(bool)
     }
 }
 
-void CMySQLStatement::bindResult(CFieldList& fields)
+void CMySQLStatement::bindResult(FieldList& fields)
 {
     fields.clear();
     if (!m_result)
@@ -404,7 +404,7 @@ void CMySQLStatement::bindResult(CFieldList& fields)
     }
 }
 
-void CMySQLStatement::readResultRow(CFieldList& fields)
+void CMySQLStatement::readResultRow(FieldList& fields)
 {
     if (m_statement)
         readPreparedResultRow(fields);
@@ -412,7 +412,7 @@ void CMySQLStatement::readResultRow(CFieldList& fields)
         readUnpreparedResultRow(fields);
 }
 
-void CMySQLStatement::readUnpreparedResultRow(CFieldList& fields)
+void CMySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
     uint32_t        fieldCount = fields.size();
     unsigned long*  lengths = mysql_fetch_lengths(m_result);
@@ -470,7 +470,7 @@ void CMySQLStatement::readUnpreparedResultRow(CFieldList& fields)
     }
 }
 
-void CMySQLStatement::readPreparedResultRow(CFieldList& fields)
+void CMySQLStatement::readPreparedResultRow(FieldList& fields)
 {
     uint32_t    fieldCount = fields.size();
     bool        fieldSizeChanged = false;

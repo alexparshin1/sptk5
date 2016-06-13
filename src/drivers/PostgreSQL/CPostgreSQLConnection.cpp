@@ -29,7 +29,7 @@
 #include <sptk5/db/CPostgreSQLConnection.h>
 #include <sptk5/db/CDatabaseField.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
@@ -1066,7 +1066,7 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
     }
     PQclear(res);
 
-    CBuffer buffer;
+    Buffer buffer;
     for (CStrings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
         buffer.append(*itor);
         buffer.append('\n');
@@ -1090,9 +1090,9 @@ void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEP
     CStrings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
-    CRegExp matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
-    CRegExp matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
-    CRegExp matchStatementEnd(";(\\s*|\\s*--.*)$");
+    RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
+    RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
+    RegularExpression matchStatementEnd(";(\\s*|\\s*--.*)$");
 
     CStrings statements, matches;
     string statement, delimiter;

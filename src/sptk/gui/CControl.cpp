@@ -37,7 +37,7 @@
 #include <sptk5/gui/CControl.h>
 #include <sptk5/CException.h>
 #include <sptk5/string_ext.h>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 
 using namespace std;
 using namespace sptk;
@@ -53,7 +53,7 @@ const Fl_Menu_Item CControl::defaultControlMenu[] = {
 class CControlKindIndex
 {
     typedef map<CControlKind, const string*>                    CTypeNameMap;
-    typedef map<string, CControlKind, CCaseInsensitiveCompare>  CNameTypeMap;
+    typedef map<string, CControlKind, CaseInsensitiveCompare>  CNameTypeMap;
     static CTypeNameMap m_typeNameMap;
     static CNameTypeMap m_nameTypeMap;
     void registerType(CControlKind type,const char *name);

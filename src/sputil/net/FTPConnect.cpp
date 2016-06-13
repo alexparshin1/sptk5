@@ -197,7 +197,7 @@ void CFTPConnect::cmd_pwd()
 
 void CFTPConnect::getList(std::string cmd, CStrings& list)
 {
-    CBuffer buffer(1024);
+    Buffer buffer(1024);
     openDataPort();
     command(cmd);
     size_t len;
@@ -250,7 +250,7 @@ void CFTPConnect::cmd_retr(std::string fileName)
 
 void CFTPConnect::cmd_store(std::string fileName)
 {
-    CBuffer buffer(8192);
+    Buffer buffer(8192);
     FILE *infile = fopen(fileName.c_str(), "rb");
     if (!infile)
         throw Exception("Can't open file <" + fileName + "> for reading");

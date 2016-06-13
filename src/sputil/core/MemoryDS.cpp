@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CMemoryDS.cpp - description                            ║
+║                       MemoryDS.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CMemoryDS.h>
+#include <sptk5/MemoryDS.h>
 
 using namespace std;
 using namespace sptk;
@@ -34,19 +34,19 @@ using namespace sptk;
 #define checkDSopen(ds) if (!ds) throw Exception("Dataset isn't open") 
 
 // access to the field by name
-const CField& CMemoryDS::operator [] (const char *field_name) const
+const Field& MemoryDS::operator [] (const char *field_name) const
 {
     checkDSopen(m_current);
     return (*m_current)[field_name];
 }
 
-CField& CMemoryDS::operator [] (const char *field_name)
+Field& MemoryDS::operator [] (const char *field_name)
 {
     checkDSopen(m_current);
     return (*m_current)[field_name];
 }
 
-uint32_t CMemoryDS::recordCount() const
+uint32_t MemoryDS::recordCount() const
 {
     checkDSopen(m_current);
     return (uint32_t) m_list.size();
@@ -54,7 +54,7 @@ uint32_t CMemoryDS::recordCount() const
 
 // how many fields do we have in the current record?
 
-uint32_t CMemoryDS::fieldCount() const
+uint32_t MemoryDS::fieldCount() const
 {
     if (!m_current) return 0;
     checkDSopen(m_current);
@@ -62,20 +62,20 @@ uint32_t CMemoryDS::fieldCount() const
 }
 
 // access to the field by number, 0..field.size()-1
-const CField& CMemoryDS::operator [] (uint32_t index) const
+const Field& MemoryDS::operator [] (uint32_t index) const
 {
     checkDSopen(m_current);
     return (*m_current)[index];
 }
 
-CField& CMemoryDS::operator [] (uint32_t index)
+Field& MemoryDS::operator [] (uint32_t index)
 {
     checkDSopen(m_current);
     return (*m_current)[index];
 }
 
 // read this field data into external value
-bool CMemoryDS::readField(const char *fname, Variant& fvalue)
+bool MemoryDS::readField(const char *fname, Variant& fvalue)
 {
     try {
         fvalue = (*this)[fname];
@@ -86,7 +86,7 @@ bool CMemoryDS::readField(const char *fname, Variant& fvalue)
 }
 
 // write this field data from external value
-bool CMemoryDS::writeField(const char *fname, const Variant& fvalue)
+bool MemoryDS::writeField(const char *fname, const Variant& fvalue)
 {
     try {
         (*this)[fname] = fvalue;
@@ -96,17 +96,17 @@ bool CMemoryDS::writeField(const char *fname, const Variant& fvalue)
     return true;
 }
 
-bool CMemoryDS::close()
+bool MemoryDS::close()
 {
     clear();
     return true;
 }
 
-bool CMemoryDS::first()
+bool MemoryDS::first()
 {
     if (m_list.size()) {
         m_currentIndex = 0;
-        m_current = (CFieldList *) m_list[m_currentIndex];
+        m_current = (FieldList *) m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -114,12 +114,12 @@ bool CMemoryDS::first()
     return false;
 }
 
-bool CMemoryDS::last()
+bool MemoryDS::last()
 {
     uint32_t cnt = (uint32_t) m_list.size();
     if (cnt) {
         m_currentIndex = cnt - 1;
-        m_current = (CFieldList *) m_list[m_currentIndex];
+        m_current = (FieldList *) m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -127,12 +127,12 @@ bool CMemoryDS::last()
     return false;
 }
 
-bool CMemoryDS::next()
+bool MemoryDS::next()
 {
     uint32_t cnt = (uint32_t) m_list.size();
     if (m_currentIndex + 1 < cnt) {
         m_currentIndex++;
-        m_current = (CFieldList *) m_list[m_currentIndex];
+        m_current = (FieldList *) m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -140,11 +140,11 @@ bool CMemoryDS::next()
     return false;
 }
 
-bool CMemoryDS::prior()
+bool MemoryDS::prior()
 {
     if (m_currentIndex > 0) {
         m_currentIndex--;
-        m_current = (CFieldList *) m_list[m_currentIndex];
+        m_current = (FieldList *) m_list[m_currentIndex];
         m_eof = false;
         return true;
     }
@@ -152,7 +152,7 @@ bool CMemoryDS::prior()
     return false;
 }
 
-bool CMemoryDS::find(Variant position)
+bool MemoryDS::find(Variant position)
 {
     uint32_t cnt = (uint32_t) m_list.size();
     string name;
@@ -161,17 +161,17 @@ bool CMemoryDS::find(Variant position)
         case VAR_INT:
             if (position.asInteger() < (int) cnt) {
                 m_currentIndex = position;
-                m_current = (CFieldList *) m_list[m_currentIndex];
+                m_current = (FieldList *) m_list[m_currentIndex];
                 return true;
             }
             break;
         case VAR_STRING:
             name = position.asString();
             for (i = 0; i < cnt; i++) {
-                CFieldList& entry = *(CFieldList *) m_list[i];
+                FieldList& entry = *(FieldList *) m_list[i];
                 if (entry["Name"].asString() == name) {
                     m_currentIndex = i;
-                    m_current = (CFieldList *) m_list[m_currentIndex];
+                    m_current = (FieldList *) m_list[m_currentIndex];
                     return true;
                 }
             }
@@ -182,11 +182,11 @@ bool CMemoryDS::find(Variant position)
     return false;
 }
 
-void CMemoryDS::clear()
+void MemoryDS::clear()
 {
     uint32_t cnt = (uint32_t) m_list.size();
     for (uint32_t i = 0; i < cnt; i++) {
-        CFieldList *df = (CFieldList *) m_list[i];
+        FieldList *df = (FieldList *) m_list[i];
         delete df;
     }
     m_list.clear();

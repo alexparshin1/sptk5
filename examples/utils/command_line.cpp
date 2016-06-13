@@ -27,7 +27,7 @@
 */
 
 #include <iostream>
-#include <sptk5/CCommandLine.h>
+#include <sptk5/CommandLine.h>
 
 using namespace std;
 using namespace sptk;

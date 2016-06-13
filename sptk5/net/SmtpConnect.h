@@ -78,7 +78,7 @@ protected:
     /// @brief Mime-encodes the buffer
     /// @param buffer const CBuffer&, Source data
     /// @return MIME-encoded data
-    static std::string mime(const CBuffer& buffer);
+    static std::string mime(const Buffer& buffer);
 
     /// @brief Mime-encodes the string
     /// @param s std::string, Source data

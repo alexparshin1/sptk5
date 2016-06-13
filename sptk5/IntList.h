@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDirectoryDS.h - description                           ║
+║                       IntList.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,101 +26,45 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDIRECTORYDS_H__
-#define __CDIRECTORYDS_H__
+#ifndef __SPTK_INTLIST_H__
+#define __SPTK_INTLIST_H__
 
-#include <sys/stat.h>
-#include <sptk5/CMemoryDS.h>
-#include <sptk5/CStrings.h>
-#include <sptk5/CSmallPixmapIDs.h>
+#include <sptk5/sptk.h>
+#include <vector>
+#include <algorithm>
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
+class CControl;
+
+/// @addtogroup utility Utility Classes
 /// @{
 
-/// Directory Show Policies
-enum CDirectoryDSpolicies {
-    DDS_SHOW_ALL = 0,         ///< Show everything
-    DDS_HIDE_FILES = 1,       ///< Hide files
-    DDS_HIDE_DOT_FILES = 2,   ///< Hide files with the name started with '.' (Unix hidden files,mostly)
-    DDS_HIDE_DIRECTORIES = 4, ///< Hide directories
-    DDS_NO_SORT = 8           ///< Do not sort
-};
-
-/// @brief Directory datasource
+/// @brief The list of integers.
 ///
-/// A datasource with the list of files
-/// and directories along with their attributes. It works just
-/// as any other datasource. You set up the parameters, call open()
-/// and may use the list. Method close() should be called aftewards
-/// to release any allocated resourses.
-class CDirectoryDS: public CMemoryDS
+/// Extends the std::vector<int>
+/// with CSV string encoders and decoders.
+class SP_EXPORT CIntList : public std::vector<uint32_t>
 {
-protected:
-    /// Sets up an appropriate image and a name for the file type
-    /// @param st const struct stat &, the file type information
-    /// @param image CSmallPixmapType&, the image type
-    /// @param fname const char *, file name
-    /// @returns the file type name
-    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
-
-private:
-    std::string     m_directory;   ///< Current directory
-    CStrings        m_pattern;     ///< Current file pattern
-    int             m_showPolicy;  ///< Show policy, see CDirectoryDSpolicies for more information
-
 public:
-    /// Default Constructor
-    CDirectoryDS() :
-            CMemoryDS(),
-            m_showPolicy(0)
+    /// Constructor
+    CIntList() {}
+
+    /// Assigns another CIntList
+    CIntList& operator = (const CIntList& list)
     {
+        resize(list.size());
+        std::copy(list.begin(),list.end(),begin());
+        return *this;
     }
 
-    /// Destructor
-    virtual ~CDirectoryDS()
-    {
-        close();
-    }
+    /// Converts to string as a list of values, separated with user-defined character
+    /// (comma, by default)
+    std::string toString(const char * separator=",") const;
 
-    /// Returns current show policy, @see CDirectoryDSpolicies for more information
-    /// @returns current show policy
-    int showPolicy() const
-    {
-        return m_showPolicy;
-    }
-
-    /// Sets current show policy, see CDirectoryDSpolicies for more information
-    void showPolicy(int type)
-    {
-        m_showPolicy = type;
-    }
-
-    /// Returns current directory
-    void directory(std::string d);
-
-    /// Sets current directory
-    const std::string &directory() const
-    {
-        return m_directory;
-    }
-
-    /// Sets pattern in format like: "*.txt;*.csv;*.xls"
-    void pattern(std::string pattern)
-    {
-        m_pattern.fromString(pattern, ";", Strings::SM_DELIMITER);
-    }
-
-    /// Returns pattern in format like: "*.txt;*.csv;*.xls"
-    const std::string pattern() const
-    {
-        return m_pattern.asString(";");
-    }
-
-    /// Opens the directory and fills in the dataset
-    virtual bool open()
-    THROWS_EXCEPTIONS;
+    /// Converts from string of a list of values, separated with user-defined character
+    /// (comma, by default)
+    void fromString(const char * s,const char * separator=",");
 };
 /// @}
 }

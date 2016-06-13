@@ -202,7 +202,7 @@ void CGtkThemeParser::parseStyle(const CStrings& gtkrc, unsigned& currentRow, CX
 
 void CGtkThemeParser::parse(const CStrings& gtkrc)
 {
-    CBuffer buffer;
+    Buffer buffer;
     m_xml.clear();
     CXmlNode* stylesNode = new CXmlElement(&m_xml, "styles");
     //CXmlNode* paramsNode = new CXmlElement(&m_xml,"styles");

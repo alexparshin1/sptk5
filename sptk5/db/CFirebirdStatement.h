@@ -108,7 +108,7 @@ class CFirebirdStatement : public CDatabaseStatement<CFirebirdConnection,isc_stm
     CFirebirdBindBuffers    m_outputBuffers;        ///< Output result buffers
     CFirebirdBindBuffers    m_paramBuffers;         ///< Parameter buffers
     ISC_STATUS              m_status_vector[20];    ///< Execution result
-    CBuffer                 m_blobData;             ///< BLOB fetch buffer
+    Buffer                 m_blobData;             ///< BLOB fetch buffer
     
 public:
 
@@ -164,11 +164,11 @@ public:
 
     /// @brief Binds statement result metadata to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void bindResult(CFieldList& fields);
+    void bindResult(FieldList& fields);
 
     /// @brief Fetches statement result metadata to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void fetchResult(CFieldList& fields);
+    void fetchResult(FieldList& fields);
 
     /// @brief Closes statement and releases allocated resources
     void close();

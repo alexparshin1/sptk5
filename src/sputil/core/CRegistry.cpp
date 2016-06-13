@@ -130,7 +130,7 @@ void CRegistry::prepareDirectory()
 void CRegistry::load(const CStrings& inputData)
 {
     clear();
-    CBuffer buffer = inputData.asString("\n");
+    Buffer buffer = inputData.asString("\n");
     CXmlDoc::load(buffer);
 }
 
@@ -142,14 +142,14 @@ void CRegistry::load(const char* inputData)
 
 void CRegistry::load()
 {
-    CBuffer inputData;
+    Buffer inputData;
     inputData.loadFromFile(m_fileName);
     CXmlDoc::load(inputData);
 }
 
 void CRegistry::save(CStrings& outputData)
 {
-    CBuffer buffer;
+    Buffer buffer;
     prepareDirectory();
     outputData.clear();
     CXmlDoc::save(buffer);
@@ -158,7 +158,7 @@ void CRegistry::save(CStrings& outputData)
 
 void CRegistry::save()
 {
-    CBuffer outputData;
+    Buffer outputData;
     prepareDirectory();
     CXmlDoc::save(outputData);
     outputData.saveToFile(m_fileName);

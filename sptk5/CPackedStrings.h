@@ -30,7 +30,7 @@
 #define __CPACKEDSTRINGS_H__
 
 #include <sptk5/CStrings.h>
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 
 namespace sptk {
 
@@ -60,7 +60,7 @@ namespace sptk {
             /// Constructor
             /// @param fields CFieldList, the fields data
             /// @param keyField int, the key field number
-            CPackedStrings(CFieldList& fields,int keyField);
+            CPackedStrings(FieldList& fields,int keyField);
 
             /// Constructor
             /// @param strings const CStrings&, source strings

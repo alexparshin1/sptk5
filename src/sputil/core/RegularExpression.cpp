@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRegExp.cpp - description                              ║
+║                       RegularExpression.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,14 +26,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 
 #if HAVE_PCRE
 
 using namespace std;
 using namespace sptk;
 
-CRegExp::CRegExp(std::string pattern, string options) :
+RegularExpression::RegularExpression(std::string pattern, string options) :
     m_pattern(pattern), m_global(false), m_pcre(NULL), m_pcreExtra(NULL), m_pcreOptions()
 {
     for (unsigned i = 0; i < options.length(); i++) {
@@ -75,7 +75,7 @@ CRegExp::CRegExp(std::string pattern, string options) :
 #endif
 }
 
-CRegExp::~CRegExp()
+RegularExpression::~RegularExpression()
 {
 #if PCRE_MAJOR > 7
     if (m_pcreExtra)
@@ -87,7 +87,7 @@ CRegExp::~CRegExp()
 
 #define MAX_MATCHES 128
 
-size_t CRegExp::nextMatch(const string &text, size_t &offset, Match matchOffsets[],
+size_t RegularExpression::nextMatch(const string &text, size_t &offset, Match matchOffsets[],
                           size_t matchOffsetsSize) const THROWS_EXCEPTIONS
 {
     if (!m_pcre)
@@ -121,21 +121,21 @@ size_t CRegExp::nextMatch(const string &text, size_t &offset, Match matchOffsets
     return (size_t) matchCount;
 }
 
-bool CRegExp::operator==(std::string text) const THROWS_EXCEPTIONS
+bool RegularExpression::operator==(std::string text) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
-bool CRegExp::operator!=(std::string text) const THROWS_EXCEPTIONS
+bool RegularExpression::operator!=(std::string text) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
-bool CRegExp::matches(std::string text) const THROWS_EXCEPTIONS
+bool RegularExpression::matches(std::string text) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
@@ -143,7 +143,7 @@ bool CRegExp::matches(std::string text) const THROWS_EXCEPTIONS
     return matchCount > 0;
 }
 
-bool CRegExp::m(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::m(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
@@ -167,7 +167,7 @@ bool CRegExp::m(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTI
     return totalMatches > 0;
 }
 
-bool CRegExp::split(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::split(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
@@ -196,7 +196,7 @@ bool CRegExp::split(std::string text, CStrings &matchedStrings) const THROWS_EXC
     return totalMatches > 0;
 }
 
-string CRegExp::replaceAll(string text, string outputPattern, bool &replaced) const THROWS_EXCEPTIONS
+string RegularExpression::replaceAll(string text, string outputPattern, bool &replaced) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     size_t lastOffset = 0;
@@ -260,18 +260,18 @@ string CRegExp::replaceAll(string text, string outputPattern, bool &replaced) co
     return result + text.substr(lastOffset);
 }
 
-string CRegExp::s(string text, string outputPattern) const THROWS_EXCEPTIONS
+string RegularExpression::s(string text, string outputPattern) const THROWS_EXCEPTIONS
 {
     bool replaced;
     return replaceAll(text, outputPattern, replaced);
 }
 
-bool operator==(std::string text, const sptk::CRegExp &regexp) THROWS_EXCEPTIONS
+bool operator==(std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
 {
     return regexp == text;
 }
 
-bool operator!=(std::string text, const sptk::CRegExp &regexp) THROWS_EXCEPTIONS
+bool operator!=(std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
 {
     return regexp != text;
 }

@@ -29,7 +29,7 @@
 #ifndef __IMAPDS_H__
 #define __IMAPDS_H__
 
-#include <sptk5/CMemoryDS.h>
+#include <sptk5/MemoryDS.h>
 #include <sptk5/net/ImapConnect.h>
 #include <string>
 
@@ -46,7 +46,7 @@ typedef void (*ProgressCallback)(int total, int progress);
 ///
 /// Allows to browse the list of messages and folders on IMAP server.
 /// It returns a dataset with message headers.
-class ImapDS: public CMemoryDS
+class ImapDS: public MemoryDS
 {
 protected:
     ImapConnect         m_imap;        ///< IMAP socket connector
@@ -60,7 +60,7 @@ public:
 
     /// Default constructor
     ImapDS() :
-            CMemoryDS(),
+            MemoryDS(),
             m_fetchbody(false),
             m_callback(NULL)
     {

@@ -33,7 +33,7 @@
 
 #include <sptk5/Variant.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CField.h>
+#include <sptk5/Field.h>
 
 namespace sptk {
 
@@ -47,7 +47,7 @@ class CDatabase;
 ///
 /// A special variation of CField to support database field essentials
 
-class SP_EXPORT CDatabaseField : public CField
+class SP_EXPORT CDatabaseField : public Field
 {
     friend class CQuery;
     friend class CDatabase;

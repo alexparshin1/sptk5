@@ -30,7 +30,7 @@
 #define __CWSBASICTYPES_H__
 
 #include <sptk5/cxml>
-#include <sptk5/CField.h>
+#include <sptk5/Field.h>
 #include <sptk5/xml/CXmlElement.h>
 
 namespace sptk {
@@ -39,7 +39,7 @@ namespace sptk {
 /// @{
 
 /// @brief Base type for all standard WSDL types
-class WSBasicType : public CField
+class WSBasicType : public Field
 {
 protected:
     bool m_optional;    ///< Element optionality flag
@@ -48,7 +48,7 @@ public:
     /// @brief Constructor
     /// @param name const char*, WSDL element name
     /// @param optional bool, Element optionality flag
-    WSBasicType(const char* name, bool optional) : CField(name), m_optional(optional)
+    WSBasicType(const char* name, bool optional) : Field(name), m_optional(optional)
     {}
 
     /// @brief Sets optionality flag
@@ -68,7 +68,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field) = 0;
+    virtual void load(const Field& field) = 0;
 
     /// @brief Adds an element to response XML with this object data
     /// @param parent CXmlElement*, Parent XML element
@@ -103,7 +103,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field);
+    virtual void load(const Field& field);
 
     /// @brief Assignment operation
     virtual WSString& operator =(const char * value)
@@ -120,7 +120,7 @@ public:
     }
 
     /// @brief Assignment operation
-    virtual WSString& operator =(const CBuffer& value)
+    virtual WSString& operator =(const Buffer& value)
     {
         setBuffer(value.data(), value.bytes());
         return *this;
@@ -169,7 +169,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field);
+    virtual void load(const Field& field);
 
     /// @brief Assignment operation
     virtual WSBool& operator =(bool value)
@@ -181,7 +181,7 @@ public:
     /// @brief Conversion to bool
     bool asBool() const THROWS_EXCEPTIONS
     {
-        return CField::asBool();
+        return Field::asBool();
     }
 
     /// @brief Conversion operator
@@ -213,7 +213,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field);
+    virtual void load(const Field& field);
 
     /// @brief Assignment operation
     virtual WSDate& operator =(DateTime value)
@@ -257,7 +257,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field);
+    virtual void load(const Field& field);
 
     /// @brief Better (than in base class) conversion method
     virtual std::string asString() const THROWS_EXCEPTIONS;
@@ -304,7 +304,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field);
+    virtual void load(const Field& field);
 
     /// @brief Assignment operation
     virtual WSDouble& operator =(float value)
@@ -360,7 +360,7 @@ public:
 
     /// @brief Loads type data from database field
     /// @param field const CField&, Database field
-    virtual void load(const CField& field);
+    virtual void load(const Field& field);
 
     /// @brief Assignment operation
     virtual WSInteger& operator =(int64_t value)

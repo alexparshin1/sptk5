@@ -106,7 +106,7 @@ string HttpParams::decodeString(const string& str)
     return result;
 }
 
-void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/)
+void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 {
     clear();
 
@@ -122,7 +122,7 @@ void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/)
     }
 }
 
-void HttpParams::encode(CBuffer& result) const
+void HttpParams::encode(Buffer& result) const
 {
     HttpParams::const_iterator itor = begin();
     unsigned cnt = 0;

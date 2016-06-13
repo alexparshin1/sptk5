@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDirectoryDS.cpp - description                         ║
+║                       DirectoryDS.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -29,7 +29,7 @@
 #include <string>
 #include <sys/stat.h>
 
-#include <sptk5/CDirectoryDS.h>
+#include <sptk5/DirectoryDS.h>
 
 #include <sptk5/filedefs.h>
 
@@ -178,7 +178,7 @@ bool fl_file_match(const char *s, const char *p)
 
 // Returns typename
 
-string CDirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, const char *fname) const
+string DirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, const char *fname) const
 {
     bool executable = S_ISEXEC(st.st_mode);
     bool directory = false;
@@ -277,14 +277,14 @@ string absolutePath(string path)
     return path;
 }
 
-void CDirectoryDS::directory(string d)
+void DirectoryDS::directory(string d)
 {
     m_directory = absolutePath(d);
 }
 
 // read the directory() and move item into the first entry
 
-bool CDirectoryDS::open() THROWS_EXCEPTIONS
+bool DirectoryDS::open() THROWS_EXCEPTIONS
 {
     clear();
 
@@ -308,7 +308,7 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
 
     struct stat st;
 
-    vector<CFieldList*> fileList;
+    vector<FieldList*> fileList;
     int n = 0;
     unsigned index = 0;
     do {
@@ -382,7 +382,7 @@ bool CDirectoryDS::open() THROWS_EXCEPTIONS
             useEntry = (showPolicy() & DDS_HIDE_FILES) == 0;
 
         if (useEntry) {
-            CFieldList *df = new CFieldList(false);
+            FieldList *df = new FieldList(false);
             df->push_back(" ", false).setImageNdx(pixmapType);
             df->push_back("Name", false) = file;
             if (modeName == "Directory")

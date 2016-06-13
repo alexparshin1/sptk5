@@ -34,11 +34,11 @@
 #include <windows.h>
 #endif
 
-#include <sptk5/CDataSource.h>
+#include <sptk5/DataSource.h>
 
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CParamList.h>
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 
 namespace sptk {
 
@@ -50,7 +50,7 @@ namespace sptk {
 /// A CDataset connected to the database to
 /// execute a database queries. The type of the database
 /// depends on the CDatabaseConnection object query is connected to.
-class SP_EXPORT CQuery: public CDataSource, public CSynchronized
+class SP_EXPORT CQuery: public DataSource, public CSynchronized
 {
     friend class CDatabaseConnection;
 
@@ -63,7 +63,7 @@ protected:
     bool            m_active;          ///< True if query is active (opened)
     bool            m_eof;             ///< True if there is no more records to fetch
     CParamList      m_params;          ///< List of query parameters
-    CFieldList      m_fields;          ///< List of query fields - makes sense after fetch
+    FieldList      m_fields;          ///< List of query fields - makes sense after fetch
 
     double          m_duration;        ///< The duration of last execution, in seconds
     double          m_totalDuration;   ///< The total duration of executions, in seconds
@@ -139,7 +139,7 @@ public:
     /// @brief Finds a field by the field name
     /// @param fname const char *, field name
     /// @returns CField pointer, or 0L if not found
-    CField* fieldByName(const char * fname) const
+    Field* fieldByName(const char * fname) const
     {
         return m_fields.fieldByName(fname);
     }
@@ -148,7 +148,7 @@ public:
     ///
     /// Field index should be inside 0..fieldCount()-1
     /// @param fieldIndex int, field index
-    virtual const CField& operator [](uint32_t fieldIndex) const
+    virtual const Field& operator [](uint32_t fieldIndex) const
     {
         return m_fields[fieldIndex];
     }
@@ -157,31 +157,31 @@ public:
     ///
     /// Field index should be inside 0..fieldCount()-1
     /// @param fieldIndex int, field index
-    virtual CField& operator [](uint32_t fieldIndex)
+    virtual Field& operator [](uint32_t fieldIndex)
     {
         return m_fields[fieldIndex];
     }
 
     /// @brief Field access by field name, const version
-    virtual const CField& operator [](const char *fieldName) const
+    virtual const Field& operator [](const char *fieldName) const
     {
         return m_fields[fieldName];
     }
 
     /// @brief Field access by field name.
-    virtual CField& operator [](const char *fieldName)
+    virtual Field& operator [](const char *fieldName)
     {
         return m_fields[fieldName];
     }
 
     /// @brief Field access by field name, const version
-    virtual const CField& operator [](const std::string& fieldName) const
+    virtual const Field& operator [](const std::string& fieldName) const
     {
         return m_fields[fieldName.c_str()];
     }
 
     /// @brief Field access by field name.
-    virtual CField& operator [](const std::string& fieldName)
+    virtual Field& operator [](const std::string& fieldName)
     {
         return m_fields[fieldName.c_str()];
     }
@@ -210,7 +210,7 @@ public:
     }
 
     /// @brief Returns the query fields list
-    CFieldList& fields()
+    FieldList& fields()
     {
         return m_fields;
     }

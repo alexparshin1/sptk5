@@ -116,7 +116,7 @@ CXmlDoc *build_doc()
     new CXmlElement(*hello, "Hello all!");
 
     try {
-        CBuffer savebuffer;
+        Buffer savebuffer;
         doc->save(savebuffer);
         savebuffer.saveToFile("MyXML2.xml");
     }
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
     if (fileName.empty())
         return -1;
 
-    CBuffer buffer;
+    Buffer buffer;
     try {
         buffer.loadFromFile(fileName.c_str());
     }
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
 
         try {
             DateTime start = DateTime::Now();
-            CBuffer savebuffer;
+            Buffer savebuffer;
             doc->save(savebuffer);
             savebuffer.saveToFile("MyXML.xml");
             end = DateTime::Now();

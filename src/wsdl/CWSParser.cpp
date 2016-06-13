@@ -166,7 +166,7 @@ void CWSParser::parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS
 void CWSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
 {
     CXmlDoc wsdlXML;
-    CBuffer buffer;
+    Buffer buffer;
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(buffer);
 
@@ -356,7 +356,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 /// @param sourceDirectory std::string, Directory to store output classes
 void CWSParser::generate(std::string sourceDirectory, std::string headerFile) THROWS_EXCEPTIONS
 {
-    CBuffer externalHeader;
+    Buffer externalHeader;
     if (!headerFile.empty())
         externalHeader.loadFromFile(headerFile);
 

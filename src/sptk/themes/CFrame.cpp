@@ -74,7 +74,7 @@ void CFrames::load(CTar& tar,CXmlNode* framesNode) {
         CPngImage::CPatternDrawMode drawMode = CPngImage::PDM_STRETCH;
         if (frameNode->getAttribute("mode").str() == "tile")
             drawMode = CPngImage::PDM_TILE;
-        const CBuffer& imageData = tar.file(fileName);
+        const Buffer& imageData = tar.file(fileName);
         registerFrame(frameName,new CFrame(imageData,frameWidth,cornerZone,drawMode,kind),frameType);
     }
 }

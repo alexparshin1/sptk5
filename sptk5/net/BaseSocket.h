@@ -61,7 +61,7 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 
 namespace sptk
 {
@@ -216,7 +216,7 @@ public:
     /// @param size size_t, the number of bytes to read
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    virtual size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket into memory buffer
     ///
@@ -240,7 +240,7 @@ public:
     /// @param buffer const CBuffer&, the memory buffer
     /// @param peer const sockaddr_in*, optional peer information
     /// @returns the number of bytes written to the socket
-    virtual size_t write(const CBuffer& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
+    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Writes data to the socket
     /// @param buffer const std::string&, the memory buffer

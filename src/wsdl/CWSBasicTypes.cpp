@@ -51,7 +51,7 @@ void WSString::load(std::string attr)
     setString(attr);
 }
 
-void WSString::load(const CField& field)
+void WSString::load(const Field& field)
 {
     setString(field);
 }
@@ -66,7 +66,7 @@ void WSBool::load(string attr)
     setBool(attr == "true");
 }
 
-void WSBool::load(const CField& field)
+void WSBool::load(const Field& field)
 {
     setBool(field);
 }
@@ -81,7 +81,7 @@ void WSDate::load(string attr)
     setDate(DateTime(attr.c_str()));
 }
 
-void WSDate::load(const CField& field)
+void WSDate::load(const Field& field)
 {
     setDate(field);
 }
@@ -96,7 +96,7 @@ void WSDateTime::load(string attr)
     setDateTime(DateTime(attr.c_str()));
 }
 
-void WSDateTime::load(const CField& field)
+void WSDateTime::load(const Field& field)
 {
     setDateTime(field);
 }
@@ -117,7 +117,7 @@ void WSDouble::load(string attr)
     setFloat(atof(attr.c_str()));
 }
 
-void WSDouble::load(const CField& field)
+void WSDouble::load(const Field& field)
 {
     setFloat(field);
 }
@@ -132,7 +132,7 @@ void WSInteger::load(string attr)
     setInteger(atoi(attr.c_str()));
 }
 
-void WSInteger::load(const CField& field)
+void WSInteger::load(const Field& field)
 {
     setInteger(field);
 }

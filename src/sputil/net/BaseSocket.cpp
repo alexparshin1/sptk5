@@ -248,7 +248,7 @@ size_t BaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEP
     return (size_t) bytes;
 }
 
-size_t BaseSocket::read(CBuffer& buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
+size_t BaseSocket::read(Buffer& buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.checkSize(size);
     size_t bytes = read(buffer.data(),size,from);
@@ -289,7 +289,7 @@ size_t BaseSocket::write(const char *buffer, size_t size, const sockaddr_in* pee
     return total;
 }
 
-size_t BaseSocket::write (const CBuffer& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
+size_t BaseSocket::write (const Buffer& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
     return write(buffer.data(), buffer.bytes(), peer);
 }

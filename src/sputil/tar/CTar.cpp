@@ -121,7 +121,7 @@ bool CTar::loadFile() THROWS_EXCEPTIONS
     uint32_t fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize) {
-        CBuffer* buffer = new CBuffer(fileSize + 1);
+        Buffer* buffer = new Buffer(fileSize + 1);
         char* buf = buffer->data();
 
         uint32_t offset = 0;
@@ -174,7 +174,7 @@ void CTar::read(const char* fileName) THROWS_EXCEPTIONS
     m_tar = 0;
 }
 
-void CTar::read(const CBuffer& tarData) THROWS_EXCEPTIONS
+void CTar::read(const Buffer& tarData) THROWS_EXCEPTIONS
 {
     m_fileName = "";
     m_memoryRead = true;
@@ -201,7 +201,7 @@ void CTar::clear()
     m_fileNames.clear();
 }
 
-const CBuffer& CTar::file(std::string fileName) const THROWS_EXCEPTIONS
+const Buffer& CTar::file(std::string fileName) const THROWS_EXCEPTIONS
 {
     CFileCollection::const_iterator itor = m_files.find(fileName);
     if (itor == m_files.end())

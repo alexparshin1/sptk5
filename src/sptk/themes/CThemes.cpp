@@ -33,7 +33,7 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CThemeColorCollection.h>
-#include <sptk5/CDirectoryDS.h>
+#include <sptk5/DirectoryDS.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CTreeControl.h>
@@ -192,7 +192,7 @@ void CThemes::reset()
     Fl::set_boxtype(FL_THIN_DOWN_FRAME, m_thinDownFrame, 1, 1, 2, 2);
     Fl::set_boxtype(FL_DOWN_FRAME, m_downFrame, 2, 2, 4, 4);
 
-    CBuffer defaultThemeBuffer(default_icons, default_icons_len);
+    Buffer defaultThemeBuffer(default_icons, default_icons_len);
     m_tar.read(defaultThemeBuffer);
     m_registry->load(m_tar.file("theme.ini"));
 
@@ -271,7 +271,7 @@ void CThemes::set(string theThemeName)
                 continue;
             }
         } else {
-            CBuffer defaultThemeBuffer(default_icons, default_icons_len);
+            Buffer defaultThemeBuffer(default_icons, default_icons_len);
             m_tar.read(defaultThemeBuffer);
             m_registry->load(m_tar.file("theme.ini"));
             m_name = themeName;
@@ -666,7 +666,7 @@ CStrings CThemes::availableThemes()
     const CStrings& dirs = searchDirectories();
     for (unsigned i = 0; i < dirs.size(); i++) {
         try {
-            CDirectoryDS dir;
+            DirectoryDS dir;
             dir.directory(dirs[i]);
 
             dir.showPolicy(DDS_HIDE_DIRECTORIES | DDS_HIDE_DOT_FILES);
@@ -694,7 +694,7 @@ CStrings CThemes::availableThemes()
     gtkDirs.push_back(CRegistry::homeDirectory() + ".themes");
     for (unsigned i = 0; i < gtkDirs.size(); i++) {
         try {
-            CDirectoryDS dir;
+            DirectoryDS dir;
             dir.directory(gtkDirs[i]);
 
             dir.showPolicy(DDS_HIDE_FILES | DDS_HIDE_DOT_FILES);

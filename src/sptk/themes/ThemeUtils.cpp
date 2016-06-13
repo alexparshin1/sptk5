@@ -42,11 +42,11 @@ namespace sptk {
         try {
             CPngImage *img;
             if (externalFile) {
-                CBuffer imageBuffer;
+                Buffer imageBuffer;
                 imageBuffer.loadFromFile(fileName);
                 img = new CPngImage(imageBuffer);
             } else {
-                const CBuffer& imageBuffer = CThemes::m_tar.file(fileName);
+                const Buffer& imageBuffer = CThemes::m_tar.file(fileName);
                 img = new CPngImage(imageBuffer);
             }
             if (img->data())

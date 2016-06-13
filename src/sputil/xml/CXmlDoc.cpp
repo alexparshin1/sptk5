@@ -370,7 +370,7 @@ void CXmlDoc::load(const char* xmlData)
                     if (*textTrail > ' ') {
                         textTrail++;
                         *textTrail = 0;
-                        CBuffer& decoded = m_decodeBuffer;
+                        Buffer& decoded = m_decodeBuffer;
                         doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
                         new CXmlText(currentNode, decoded.c_str());
                         break;
@@ -384,7 +384,7 @@ void CXmlDoc::load(const char* xmlData)
     free(buffer);
 }
 
-void CXmlDoc::save(CBuffer &buffer, int /*indent*/) const
+void CXmlDoc::save(Buffer &buffer, int /*indent*/) const
 {
     CXmlNode *xml_pi = 0;
 

@@ -4,10 +4,10 @@ ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 SET (SPUTIL_SOURCES
     core/Base64.cpp core/LogEngine.cpp
-    core/CBuffer.cpp core/CDataSource.cpp core/DateTime.cpp core/Exception.cpp core/CCommandLine.cpp
-    core/CField.cpp core/CFieldList.cpp core/FileLogEngine.cpp core/CIntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
+    core/Buffer.cpp core/DataSource.cpp core/DateTime.cpp core/Exception.cpp core/CommandLine.cpp
+    core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/CRegistry.cpp core/CSharedStrings.cpp
     core/CStrings.cpp core/SysLogEngine.cpp core/CUniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
-    core/CDirectoryDS.cpp core/CMemoryDS.cpp core/Logger.cpp core/CSystemException.cpp
+    core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/CSystemException.cpp
     core/md5.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/CGI.cpp net/FTPConnect.cpp
     net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
@@ -21,7 +21,7 @@ SET (SPUTIL_SOURCES
     )
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/CRegExp.cpp)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp)
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})

@@ -55,11 +55,11 @@ class CMySQLStatement : public CDatabaseStatement<CMySQLConnection,MYSQL_STMT>
 
     /// @brief Reads not prepared statement result row to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void readUnpreparedResultRow(CFieldList& fields);
+    void readUnpreparedResultRow(FieldList& fields);
 
     /// @brief Reads prepared statement result row to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void readPreparedResultRow(CFieldList& fields);
+    void readPreparedResultRow(FieldList& fields);
     
 public:
 
@@ -110,11 +110,11 @@ public:
 
     /// @brief Binds statement result metadata to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void bindResult(CFieldList& fields);
+    void bindResult(FieldList& fields);
 
     /// @brief Fetches statement result metadata to query fields
     /// @param fields CFieldList&, query fields (if any)
-    void readResultRow(CFieldList& fields);
+    void readResultRow(FieldList& fields);
 
     /// @brief Closes statement and releases allocated resources
     void close();

@@ -31,7 +31,7 @@
 
 #include <sptk5/Variant.h>
 #include <sptk5/CPackedStrings.h>
-#include <sptk5/CIntList.h>
+#include <sptk5/IntList.h>
 #include <sptk5/Variant.h>
 
 #include <vector>

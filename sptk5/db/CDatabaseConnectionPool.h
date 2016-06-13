@@ -31,7 +31,7 @@
 
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CDatabaseConnectionString.h>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/threads/CSynchronizedList.h>
 #include <sptk5/threads/CSynchronizedQueue.h>
 

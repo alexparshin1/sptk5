@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/cxml>
 
@@ -66,7 +66,7 @@ enum VariantType {
 /// MASK: All the known field types w/o flags
 #define VAR_TYPES           16383
 
-class CField;
+class Field;
 
 /// @brief Variant data buffer (internal).
 ///
@@ -167,7 +167,7 @@ public:
     Variant(const void * value, size_t sz);
 
     /// @brief Constructor
-    Variant(const CBuffer& value);
+    Variant(const Buffer& value);
 
     /// @brief Constructor
     Variant(const Variant& value);
@@ -215,7 +215,7 @@ public:
     virtual void setBuffer(const void * value, size_t sz);
 
     /// @brief Assignment method
-    virtual void setBuffer(const CBuffer& value);
+    virtual void setBuffer(const Buffer& value);
 
     /// @brief Assignment method
     virtual void setExternalBuffer(const void * value, size_t sz);
@@ -281,7 +281,7 @@ public:
     virtual Variant& operator =(const void *value);
 
     /// @brief Assignment operator
-    virtual Variant& operator =(const CBuffer& value);
+    virtual Variant& operator =(const Buffer& value);
 
     /// @brief Directly reads the internal data
     virtual bool getBool() const;

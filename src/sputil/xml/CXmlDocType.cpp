@@ -102,7 +102,7 @@ const struct entity *CEntityCache::encode(const char* str) const
 
 static const CEntityCache xml_entities(builtin_ent_xml);
 
-void CXmlDocType::decodeEntities(const char* str, uint32_t sz, CBuffer& ret)
+void CXmlDocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
 {
     ret.bytes(0);
 
@@ -138,15 +138,15 @@ void CXmlDocType::decodeEntities(const char* str, uint32_t sz, CBuffer& ret)
     ret.append(start, sz);
 }
 
-bool CXmlDocType::encodeEntities(const char *str, CBuffer& ret)
+bool CXmlDocType::encodeEntities(const char *str, Buffer& ret)
 {
     entity* table = builtin_ent_xml;
 
     bool replaced = false;
 
     const char* ptr = str;
-    CBuffer* src = &m_encodeBuffers[0];
-    CBuffer* dst = &m_encodeBuffers[1];
+    Buffer* src = &m_encodeBuffers[0];
+    Buffer* dst = &m_encodeBuffers[1];
     dst->bytes(0);
     while (*ptr) {
         const char* pos = strpbrk(ptr, xml_shortcut);
@@ -163,7 +163,7 @@ bool CXmlDocType::encodeEntities(const char *str, CBuffer& ret)
             if (ptr != str) {
                 dst->append(ptr);
                 ptr = dst->data();
-                CBuffer* tmp = dst;
+                Buffer* tmp = dst;
                 dst = src;
                 src = tmp;
                 dst->bytes(0);
@@ -189,7 +189,7 @@ bool CXmlDocType::encodeEntities(const char *str, CBuffer& ret)
                 if (!pos) {
                     dst->append(ptr);
                     ptr = dst->data();
-                    CBuffer* tmp = dst;
+                    Buffer* tmp = dst;
                     dst = src;
                     src = tmp;
                     dst->bytes(0);

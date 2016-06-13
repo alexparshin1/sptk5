@@ -28,7 +28,7 @@
 
 #include <sptk5/db/CMySQLConnection.h>
 #include <sptk5/db/CQuery.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -389,9 +389,9 @@ void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
     CStrings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
-    CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
-    CRegExp  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
-    CRegExp  matchEscapeChars("([$.])", "g");
+    RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
+    RegularExpression  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
+    RegularExpression  matchEscapeChars("([$.])", "g");
 
     CStrings statements, matches;
     string statement, delimiter = ";";
@@ -400,7 +400,7 @@ void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
     		delimiter = matches[0];
     		delimiter = matchEscapeChars.s(delimiter, "\\\\1");
     		delete matchStatementEnd;
-    		matchStatementEnd = new CRegExp("(" + delimiter + ")(\\s*|-- .*)$");
+    		matchStatementEnd = new RegularExpression("(" + delimiter + ")(\\s*|-- .*)$");
     		statement = "";
     		continue;
     	}

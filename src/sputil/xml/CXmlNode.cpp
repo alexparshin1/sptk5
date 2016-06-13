@@ -324,7 +324,7 @@ void CXmlNode::text(std::string txt)
     new CXmlText(*this, txt);
 }
 
-void CXmlNode::save(CBuffer &buffer, int indent) const
+void CXmlNode::save(Buffer &buffer, int indent) const
 {
     // output indendation spaces
     if (indent > 0)
@@ -337,7 +337,7 @@ void CXmlNode::save(CBuffer &buffer, int indent) const
         const CXmlAttributes& attributes = this->attributes();
         if (attributes.size()) {
             // Output attributes
-            CBuffer real_id, real_val;
+            Buffer real_id, real_val;
             for (CXmlAttributes::const_iterator it = attributes.begin(); it != attributes.end(); it++) {
                 CXmlNode* attributeNode = *it;
                 real_id.bytes(0);

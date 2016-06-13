@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDataSource.cpp - description                          ║
+║                       DirectoryDS.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,45 +26,102 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CDataSource.h>
+#ifndef __SPTK_DIRECTORYDS_H__
+#define __SPTK_DIRECTORYDS_H__
 
-using namespace std;
-using namespace sptk;
+#include <sys/stat.h>
+#include <sptk5/MemoryDS.h>
+#include <sptk5/CStrings.h>
+#include <sptk5/CSmallPixmapIDs.h>
 
-bool CDataSource::load()
+namespace sptk {
+
+/// @addtogroup gui GUI Classes
+/// @{
+
+/// Directory Show Policies
+enum DirectoryDSpolicies {
+    DDS_SHOW_ALL = 0,         ///< Show everything
+    DDS_HIDE_FILES = 1,       ///< Hide files
+    DDS_HIDE_DOT_FILES = 2,   ///< Hide files with the name started with '.' (Unix hidden files,mostly)
+    DDS_HIDE_DIRECTORIES = 4, ///< Hide directories
+    DDS_NO_SORT = 8           ///< Do not sort
+};
+
+/// @brief Directory datasource
+///
+/// A datasource with the list of files
+/// and directories along with their attributes. It works just
+/// as any other datasource. You set up the parameters, call open()
+/// and may use the list. Method close() should be called aftewards
+/// to release any allocated resourses.
+class DirectoryDS: public MemoryDS
 {
-    // Loading data into DS
-    return loadData();
-}
+protected:
+    /// Sets up an appropriate image and a name for the file type
+    /// @param st const struct stat &, the file type information
+    /// @param image CSmallPixmapType&, the image type
+    /// @param fname const char *, file name
+    /// @returns the file type name
+    std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
 
-bool CDataSource::save()
-{
-    // Storing data from DS
-    return saveData();
-}
+private:
+    std::string     m_directory;   ///< Current directory
+    CStrings        m_pattern;     ///< Current file pattern
+    int             m_showPolicy;  ///< Show policy, see CDirectoryDSpolicies for more information
 
-void CDataSource::rowToXML(CXmlNode& node, bool compactXmlMode) const
-{
-    uint32_t cnt = fieldCount();
-    for (uint32_t i = 0; i < cnt; i++) {
-        const CField& field = operator[](i);
-        field.toXML(node, compactXmlMode);
+public:
+    /// Default Constructor
+    DirectoryDS() :
+            MemoryDS(),
+            m_showPolicy(0)
+    {
     }
-}
 
-void CDataSource::toXML(CXmlNode& parentNode, std::string nodeName, bool compactXmlMode)
-{
-    try {
-        open();
-        while (!eof()) {
-            CXmlNode& node = *(new CXmlElement(parentNode, nodeName));
-            rowToXML(node, compactXmlMode);
-            next();
-        }
+    /// Destructor
+    ~DirectoryDS()
+    {
         close();
     }
-    catch (...) {
-        close();
-        throw;
+
+    /// Returns current show policy, @see CDirectoryDSpolicies for more information
+    /// @returns current show policy
+    int showPolicy() const
+    {
+        return m_showPolicy;
     }
+
+    /// Sets current show policy, see CDirectoryDSpolicies for more information
+    void showPolicy(int type)
+    {
+        m_showPolicy = type;
+    }
+
+    /// Returns current directory
+    void directory(std::string d);
+
+    /// Sets current directory
+    const std::string &directory() const
+    {
+        return m_directory;
+    }
+
+    /// Sets pattern in format like: "*.txt;*.csv;*.xls"
+    void pattern(std::string pattern)
+    {
+        m_pattern.fromString(pattern, ";", Strings::SM_DELIMITER);
+    }
+
+    /// Returns pattern in format like: "*.txt;*.csv;*.xls"
+    const std::string pattern() const
+    {
+        return m_pattern.asString(";");
+    }
+
+    /// Opens the directory and fills in the dataset
+    virtual bool open()
+    THROWS_EXCEPTIONS;
+};
+/// @}
 }
+#endif

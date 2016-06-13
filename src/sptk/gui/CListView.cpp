@@ -1088,7 +1088,7 @@ void CListView::load(CQuery *loadQuery)
     CQuery& query = *loadQuery;
     if (!m_fieldName.length())
         return;
-    CField& fld = query[m_fieldName.c_str()];
+    Field& fld = query[m_fieldName.c_str()];
     data(fld);
 }
 
@@ -1205,7 +1205,7 @@ bool CListView::preferredSize(int& w, int& h)
     return false;
 }
 
-void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned recordsLimit, unsigned recordsEstimated, CRefreshKind refreshKind)
+void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsLimit, unsigned recordsEstimated, CRefreshKind refreshKind)
 {
 
     m_fillTerminated = false;
@@ -1250,7 +1250,7 @@ void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned records
             for (unsigned f = 0; f < ds.fieldCount(); f++) {
                 if (f == keyField)
                     continue;
-                CField& field = ds[f];
+                Field& field = ds[f];
                 std::string columnName = field.fieldName();
                 bool cvisible = columnName[0] != '_';
                 columnName = replaceAll(columnName, "_", " ");
@@ -1334,7 +1334,7 @@ void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned records
                     int keyValue = 0;
                     int j = 0;
                     for (unsigned i = 0; i < fieldCount; i++) {
-                        CField& field = ds[i];
+                        Field& field = ds[i];
                         if (i == keyField) {
                             keyValue = field.asInteger();
                             rowStrings.argument(keyValue);

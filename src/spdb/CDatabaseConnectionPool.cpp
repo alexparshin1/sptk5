@@ -36,7 +36,7 @@
 using namespace std;
 using namespace sptk;
 
-class DriverLoaders : public map<string, CDatabaseDriver*, CCaseInsensitiveCompare>
+class DriverLoaders : public map<string, CDatabaseDriver*, CaseInsensitiveCompare>
 {
 public:
     DriverLoaders() {}

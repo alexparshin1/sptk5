@@ -35,7 +35,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
-#include <sptk5/CIntList.h>
+#include <sptk5/IntList.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>

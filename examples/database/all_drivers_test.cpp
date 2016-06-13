@@ -76,7 +76,7 @@ int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 
 // This function returns field content as a string, or "<NULL>" is field
 // contains a NULL value
-string fieldToString(const CField& field)
+string fieldToString(const Field& field)
 {
     if (field.isNull())
         return "<NULL>";
@@ -286,11 +286,11 @@ int testDatabase(string connectionString)
         step3Query.open();
 
         // First, find the field references by name or by number
-        CField& idField = step3Query[uint32_t(0)];
-        CField& nameField = step3Query["name"];
-        CField& positionNameField = step3Query["position_name"];
-        CField& dateField = step3Query["hire_date"];
-        CField& rateField = step3Query["rate"];
+        Field& idField = step3Query[uint32_t(0)];
+        Field& nameField = step3Query["name"];
+        Field& positionNameField = step3Query["position_name"];
+        Field& dateField = step3Query["hire_date"];
+        Field& rateField = step3Query["rate"];
 
         while (!step3Query.eof()) {
 

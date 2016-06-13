@@ -30,7 +30,7 @@
 #define __CICON_H__
 
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/CTar.h>
 #include <sptk5/cxml>
 
@@ -73,7 +73,7 @@ public:
 
     /// @brief Loads a PNG image from buffer
     /// @param imageData const CBuffer&, an image data to load PNG image from
-    void load(const CBuffer& imageData);
+    void load(const Buffer& imageData);
 
     /// @brief Returns an icon image
     CPngImage* image()
@@ -100,7 +100,7 @@ public:
 };
 
 /// @brief A map of theme icon names to theme icons
-class CIconMap: public std::map<std::string, CIcon*, CCaseInsensitiveCompare>
+class CIconMap: public std::map<std::string, CIcon*, CaseInsensitiveCompare>
 {
     bool m_shared;
 public:

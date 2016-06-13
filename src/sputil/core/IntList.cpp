@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CIntList.cpp - description                             ║
+║                       IntList.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/CStrings.h>
-#include <sptk5/CIntList.h>
+#include <sptk5/IntList.h>
 
 using namespace std;
 using namespace sptk;

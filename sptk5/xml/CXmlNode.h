@@ -29,7 +29,7 @@
 #ifndef __CXMLNODE_H__
 #define __CXMLNODE_H__
 
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/xml/CXmlValue.h>
@@ -367,7 +367,7 @@ public:
     /// @brief Saves node to buffer.
     /// @param buffer to save
     /// @param indent how many indent spaces at start
-    virtual void save(CBuffer &buffer, int indent = 0) const;
+    virtual void save(Buffer &buffer, int indent = 0) const;
 
     /// @brief Returns the first subnode iterator
     virtual iterator begin();

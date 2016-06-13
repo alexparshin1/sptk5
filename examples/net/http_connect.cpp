@@ -34,7 +34,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/net/COpenSSLSocket.h>
 
 using namespace std;
@@ -53,7 +53,7 @@ void go_callback(Fl_Widget *,void *)
 
     std::string  input = urlInput->data();
 
-    CRegExp     getpage("^(http://|https://){0,1}([^/]+)(/.*)*", "i");
+    RegularExpression     getpage("^(http://|https://){0,1}([^/]+)(/.*)*", "i");
     CStrings    matches;
     
     getpage.m(input, matches);

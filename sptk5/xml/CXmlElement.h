@@ -29,7 +29,7 @@
 #ifndef __CXMLELEMENT_H__
 #define __CXMLELEMENT_H__
 
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/CStrings.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/xml/CXmlValue.h>

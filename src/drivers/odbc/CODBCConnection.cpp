@@ -554,7 +554,7 @@ void CODBCConnection::queryOpen(CQuery* query)
                 if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
                     columnScale = 0;
 
-                CField* field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
+                Field* field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
                 query->fields().push_back(field);
             }
         }

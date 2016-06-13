@@ -31,7 +31,7 @@
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 
 #include <string>
 
@@ -71,7 +71,7 @@ protected:
     /// @brief Parses server response as a message data (after the appropriate command) to the set of fields
     /// @param result CFieldList, the set of fields with the message information.
     /// @param headersOnly bool, true if we don't want to retrieve message body.
-    void parseMessage(CFieldList& result, bool headersOnly);
+    void parseMessage(FieldList& result, bool headersOnly);
 
     /// @brief Parses server response as a folder list (after the appropriate command), and converts the response to it
     ///
@@ -183,7 +183,7 @@ public:
     /// Appends the message to the mail box.
     /// @param mail_box std::string, the name of the mail box
     /// @param message CBuffer, the RFC-2060 defined message
-    void cmd_append(std::string mail_box, const CBuffer& message);
+    void cmd_append(std::string mail_box, const Buffer& message);
 
     // IMAPv4 commands - logged in, selected mailbox-operations
 
@@ -208,12 +208,12 @@ public:
     /// Reatrieves the headers for the message.
     /// @param msg_id int32_t, the message identifier
     /// @param result CFieldList, the message headers information
-    void cmd_fetch_headers(int32_t msg_id, CFieldList& result);
+    void cmd_fetch_headers(int32_t msg_id, FieldList& result);
 
     /// Reatrieves the message information.
     /// @param msg_id int, the message identifier
     /// @param result CFieldList, the complete message information
-    void cmd_fetch_message(int32_t msg_id, CFieldList& result);
+    void cmd_fetch_message(int32_t msg_id, FieldList& result);
 
     /// Gets message flags
     /// @param msg_id int, the message identifier

@@ -29,8 +29,8 @@
 #include <fstream>
 #include <string.h>
 #include <sptk5/CStrings.h>
-#include <sptk5/CBuffer.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/Buffer.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -151,7 +151,7 @@ int CStrings::indexOf(string s) const
 
 void CStrings::saveToFile(string fileName) const THROWS_EXCEPTIONS
 {
-    CBuffer buffer;
+    Buffer buffer;
     for (const_iterator str = begin(); str != end(); str++) {
         buffer.append(*str);
         buffer.append("\n");
@@ -161,7 +161,7 @@ void CStrings::saveToFile(string fileName) const THROWS_EXCEPTIONS
 
 void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
 {
-    CBuffer buffer;
+    Buffer buffer;
     buffer.loadFromFile(fileName);
 
     // Load text

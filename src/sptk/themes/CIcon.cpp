@@ -44,7 +44,7 @@
 using namespace std;
 using namespace sptk;
 
-void CIcon::load(const CBuffer& imageData)
+void CIcon::load(const Buffer& imageData)
 {
     if (m_image)
         m_image->load(imageData);
@@ -66,7 +66,7 @@ void CIconMap::clear()
         else if (!icon->m_shared)
             delete icon;
     }
-    map<string, CIcon*, CCaseInsensitiveCompare>::clear();
+    map<string, CIcon*, CaseInsensitiveCompare>::clear();
 }
 
 void CIconMap::insert(CIcon* icon)
@@ -92,7 +92,7 @@ void CIconMap::load(CTar& tar, CXmlNode* iconsNode)
         if (iconName.empty())
             continue;
         try {
-            const CBuffer& imageData = tar.file(fileName);
+            const Buffer& imageData = tar.file(fileName);
             CIcon* icon = NULL;
             iterator itor = find(iconName);
             if (itor == end()) {

@@ -31,8 +31,8 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/CIntList.h>
-#include <sptk5/CDataSource.h>
+#include <sptk5/IntList.h>
+#include <sptk5/DataSource.h>
 #include <sptk5/CSmallPixmapIDs.h>
 
 #include <sptk5/sptk.h>
@@ -808,7 +808,7 @@ public:
     /// @param refreshKind CRefreshKind, type of refresh - full or just changed records
     /// @see CRefreshKind
     /// @see CDataSource
-    void fill(CDataSource& ds, std::string keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0, CRefreshKind refreshKind = LV_REFRESH_FULL);
+    void fill(DataSource& ds, std::string keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0, CRefreshKind refreshKind = LV_REFRESH_FULL);
 
     /// @brief Fills the list with the data from XML node
     ///

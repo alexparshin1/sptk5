@@ -109,7 +109,7 @@ void CThemes::loadGtkTheme(string gtkThemeName) {
 
     m_themeFolder = gtkThemeLoader.themeFolder();
 
-    CBuffer buffer;
+    Buffer buffer;
     gtkThemeLoader.xml().save(buffer);
     
     try { // Debug

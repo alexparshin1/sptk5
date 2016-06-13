@@ -302,7 +302,7 @@ void CBaseListBox::load(CQuery *loadQuery)
     CQuery& query = *loadQuery;
     if (!fieldName().length())
         return;
-    CField& fld = query[fieldName().c_str()];
+    Field& fld = query[fieldName().c_str()];
     data(fld);
 }
 

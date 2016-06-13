@@ -33,7 +33,7 @@
 #include <sptk5/xml/CXmlDocType.h>
 #include <sptk5/xml/CXmlElement.h>
 #include <sptk5/CSharedStrings.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 
 #include <string>
 #include <map>
@@ -54,7 +54,7 @@ class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
 
     CXmlDocType m_doctype;          ///< Document type
     int         m_indentSpaces;     ///< Indent spaces
-    CBuffer     m_encodeBuffer;     ///< Buffer to encode entities
+    Buffer     m_encodeBuffer;     ///< Buffer to encode entities
 
     /// @brief Internal entities parser
     void parseEntities(char* entitiesSection);
@@ -67,7 +67,7 @@ class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
 
 protected:
 
-    CBuffer m_decodeBuffer;     ///< Decode and encode buffer
+    Buffer m_decodeBuffer;     ///< Decode and encode buffer
 
     /// Creates new named node of type CXmlNode::DOM_ELEMENT.
     /// It can be added to document DOM tree.
@@ -172,7 +172,7 @@ public:
 
     /// @brief Loads document from buffer.
     /// @param buffer const CBuffer&, source buffer
-    virtual void load(const CBuffer& buffer)
+    virtual void load(const Buffer& buffer)
     {
         load(buffer.c_str());
     }
@@ -180,7 +180,7 @@ public:
     /// @brief Saves document to buffer.
     /// @param buffer CBuffer&, a buffer to save document
     /// @param indent int, how many indent spaces at start
-    virtual void save(CBuffer& buffer, int indent = 0) const;
+    virtual void save(Buffer& buffer, int indent = 0) const;
 };
 /// @}
 }

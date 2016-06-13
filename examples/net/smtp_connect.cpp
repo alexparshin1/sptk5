@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     cout << "Testing SMTP connectivity." << endl;
 
     if (argc == 3) {
-        CRegExp parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
+        RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
         CStrings matches;
         if (parser.m(argv[1], matches)) {
             user = matches[1];

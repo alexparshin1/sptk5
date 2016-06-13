@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CBuffer.cpp - description                              ║
+║                       Buffer.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -75,7 +75,7 @@ Buffer::Buffer(const char* str)
     }
 }
 
-Buffer::CBuffer(const string& str)
+Buffer::Buffer(const string& str)
 {
     size_t sz = (size_t) str.length() + 1;
     m_buffer = (char*)malloc(sz);

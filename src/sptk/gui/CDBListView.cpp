@@ -28,7 +28,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 #include <sptk5/CException.h>
 #include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CMessageDialog.h>

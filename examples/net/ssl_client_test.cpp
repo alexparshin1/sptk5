@@ -40,7 +40,7 @@ int main(int, const char**)
         sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
 
         SSLSocket client(sslContext);
-        CBuffer buffer;
+        Buffer buffer;
 
         for (unsigned i = 0; i < 10; i++) {
             client.open("localhost", 443);

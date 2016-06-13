@@ -81,7 +81,7 @@ CPackedStrings::CPackedStrings(const CStrings& strings) {
    operator = (strings);
 }
 
-CPackedStrings::CPackedStrings(CFieldList& fields,int keyField) {
+CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
    int cnt = fields.size();
    int rcnt = cnt;
    if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
@@ -103,7 +103,7 @@ CPackedStrings::CPackedStrings(CFieldList& fields,int keyField) {
    long keyValue = 0;
    {
       for (int i = 0; i < cnt; i++) {
-         CField& field = fields[i];
+         Field& field = fields[i];
          if (i == keyField) {
             keyValue = field.asInteger();
             continue;

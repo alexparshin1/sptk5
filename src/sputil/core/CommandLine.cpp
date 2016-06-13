@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CCommandLine.cpp - description                         ║
+║                       CommandLine.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CCommandLine.h>
+#include <sptk5/CommandLine.h>
 
 using namespace std;
 using namespace sptk;
@@ -37,7 +37,7 @@ CCommandLine::Visibility::Visibility(string pattern, bool _mustMatch)
     if (m_pattern.empty())
         m_regexp = NULL;
     else
-        m_regexp = new CRegExp(m_pattern);
+        m_regexp = new RegularExpression(m_pattern);
 }
 
 CCommandLine::Visibility::Visibility(const Visibility& other)
@@ -46,7 +46,7 @@ CCommandLine::Visibility::Visibility(const Visibility& other)
     if (m_pattern.empty())
         m_regexp = NULL;
     else
-        m_regexp = new CRegExp(m_pattern);
+        m_regexp = new RegularExpression(m_pattern);
 }
 
 CCommandLine::Visibility::~Visibility()
@@ -135,7 +135,7 @@ void CCommandLine::CommandLineElement::formatHelp(size_t textWidth, CStrings& fo
 
 void CCommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, string optionDefaultValue) const
 {
-    static const CRegExp doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
+    static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
     CStrings helpText;
     formatHelp(textWidth, helpText);
@@ -210,7 +210,7 @@ CCommandLine::CommandLineParameter::CommandLineParameter(string name, string sho
     if (validateValue.empty())
         m_validateValue = NULL;
     else
-        m_validateValue = new CRegExp(validateValue);
+        m_validateValue = new RegularExpression(validateValue);
     if (m_valueInfo.empty())
         throw Exception("Command line parameters must have a value info");
 }

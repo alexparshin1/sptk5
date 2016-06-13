@@ -136,7 +136,7 @@ CBuffer testMsg(
    "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
    "Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
  */
-void ImapConnect::cmd_append(string mail_box, const CBuffer &message)
+void ImapConnect::cmd_append(string mail_box, const Buffer &message)
 {
     string cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
     string ident = sendCommand(cmd);
@@ -277,13 +277,13 @@ static DateTime decodeDate(const std::string &dt)
     return double(date) + double(time);
 }
 
-void ImapConnect::parseMessage(CFieldList &results, bool headers_only)
+void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 {
     results.clear();
     unsigned i;
     for (i = 0; required_headers[i]; i++) {
         string headerName = required_headers[i];
-        CField *fld = new CField(lowerCase(headerName).c_str());
+        Field *fld = new Field(lowerCase(headerName).c_str());
         switch (i) {
             case 0:
                 fld->view.width = 16;
@@ -305,7 +305,7 @@ void ImapConnect::parseMessage(CFieldList &results, bool headers_only)
         parse_header(st, header_name, header_value);
         if (header_name.length()) {
             try {
-                CField &field = results[header_name];
+                Field &field = results[header_name];
                 if (header_name == "date")
                     field.setDate(decodeDate(header_value));
                 else
@@ -316,7 +316,7 @@ void ImapConnect::parseMessage(CFieldList &results, bool headers_only)
     }
 
     for (i = 0; i < results.size(); i++) {
-        CField &field = results[i];
+        Field &field = results[i];
         if (field.dataType() == VAR_NONE)
             field.setString("");
     }
@@ -328,17 +328,17 @@ void ImapConnect::parseMessage(CFieldList &results, bool headers_only)
         body += m_response[i] + "\n";
     }
 
-    CField &bodyField = results.push_back(new CField("body"));
+    Field &bodyField = results.push_back(new Field("body"));
     bodyField.setString(body);
 }
 
-void ImapConnect::cmd_fetch_headers(int32_t msg_id, CFieldList &result)
+void ImapConnect::cmd_fetch_headers(int32_t msg_id, FieldList &result)
 {
     command("FETCH " + int2string(msg_id) + " (BODY[HEADER])");
     parseMessage(result, true);
 }
 
-void ImapConnect::cmd_fetch_message(int32_t msg_id, CFieldList &result)
+void ImapConnect::cmd_fetch_message(int32_t msg_id, FieldList &result)
 {
     command("FETCH " + int2string(msg_id) + " (BODY[])");
     parseMessage(result, false);

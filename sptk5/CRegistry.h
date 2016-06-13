@@ -121,7 +121,7 @@ public:
 
     /// @brief Loads registry from buffer.
     /// @param buffer const CBuffer&, source buffer
-    virtual void load(const CBuffer &buffer)
+    virtual void load(const Buffer &buffer)
     {
         clear();
         CXmlDoc::load(buffer);
@@ -142,7 +142,7 @@ public:
     /// @brief Saves registry to buffer.
     /// @param buffer CBuffer&, a buffer to save document
     /// @param indent int, how many indent spaces at start
-    virtual void save(CBuffer &buffer, int indent = 0) const
+    virtual void save(Buffer &buffer, int indent = 0) const
     {
         CXmlDoc::save(buffer, indent);
     }

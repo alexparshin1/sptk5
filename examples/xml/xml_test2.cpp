@@ -50,7 +50,7 @@ int main()
         DateTime start = DateTime::Now();
         DateTime end;
         double duration;
-        CBuffer *buf = new CBuffer;
+        Buffer *buf = new Buffer;
 
         out << "The XML document generation test started:" << endl;
         out << "Size of CXmlNode is : " << sizeof(CXmlNode) << endl;

@@ -40,7 +40,7 @@ using namespace sptk;
 #endif
 
 TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
-    : CBuffer(buffer_size), m_socket(socket)
+    : Buffer(buffer_size), m_socket(socket)
 {
     m_readOffset = 0;
     m_buffer[buffer_size-1] = 0;
@@ -138,7 +138,7 @@ size_t TCPSocketReader::read(char *dest, size_t sz, char delimiter, bool read_li
     return size_t(total - eol);
 }
 
-size_t TCPSocketReader::readLine(CBuffer& destBuffer, char delimiter)
+size_t TCPSocketReader::readLine(Buffer& destBuffer, char delimiter)
 {
     size_t total = 0;
     int eol = 0;
@@ -269,7 +269,7 @@ size_t TCPSocket::readLine(char *buffer, size_t size, char delimiter)
     return m_reader.read(buffer, size, delimiter, true);
 }
 
-size_t TCPSocket::readLine(CBuffer& buffer, char delimiter)
+size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
 {
     return m_reader.readLine(buffer, delimiter);
 }
@@ -287,7 +287,7 @@ size_t TCPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCE
     return size;
 }
 
-size_t TCPSocket::read(CBuffer& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
+size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.checkSize(size);
     size_t rc = m_reader.read(buffer.data(), size, 0, false, from);

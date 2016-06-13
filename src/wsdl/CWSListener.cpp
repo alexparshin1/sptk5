@@ -53,14 +53,14 @@ public:
 
 void CWSConnection::threadFunction()
 {
-    static const CRegExp parseProtocol("^(GET|POST) (\\S+)", "i");
-    static const CRegExp parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
+    static const RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
+    static const RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
 
     const char* startOfMessage = NULL;
     const char* endOfMessage = NULL;
     const char* endOfMessageMark = ":Envelope>";
 
-    CBuffer data;
+    Buffer data;
 
     // Read request data
     string      row;
@@ -115,7 +115,7 @@ void CWSConnection::threadFunction()
         }
 
         if (protocol == "http" && !url.empty() && url != "/service.html") {
-            CBuffer page;
+            Buffer page;
             try {
                 page.loadFromFile(m_staticFilesDirectory + url);
                 m_socket->write("HTTP/1.1 200 OK\n");
@@ -190,7 +190,7 @@ void CWSConnection::threadFunction()
 
             //cout << startOfMessage << endl << endl;
 
-            CBuffer output;
+            Buffer output;
             m_service.processRequest(&message);
             message.save(output);
             

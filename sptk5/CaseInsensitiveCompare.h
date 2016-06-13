@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CCaseInsensitiveCompare.h - description                ║
+║                       CaseInsensitiveCompare.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CCASEINSENSITIVECOMPARE_H__
-#define __CCASEINSENSITIVECOMPARE_H__
+#ifndef __SPTK_CASEINSENSITIVECOMPARE_H__
+#define __SPTK_CASEINSENSITIVECOMPARE_H__
 
 #include <sptk5/sptk.h>
 
@@ -39,7 +39,7 @@ namespace sptk {
 ///
 /// Lower case string compare class is really useful if we need
 /// a case-independent string map
-class SP_EXPORT CCaseInsensitiveCompare
+class SP_EXPORT CaseInsensitiveCompare
 {
 public:
     /// @brief Compare method

@@ -26,4 +26,114 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CRegExp.h>
+#ifndef __SPTK_REGULAREXPRESSION_H__
+#define __SPTK_REGULAREXPRESSION_H__
+
+#include <sptk5/sptk.h>
+
+#if HAVE_PCRE
+
+#include <sptk5/cutils>
+#include <vector>
+#include <pcre.h>
+
+namespace sptk {
+
+/// @addtogroup utility Utility Classes
+/// @{
+
+/// @brief PCRE-type regular expressions
+class SP_EXPORT RegularExpression
+{
+    /// @brief Match position information
+    typedef struct {
+        int         m_start;        ///< Match start
+        int         m_end;          ///< Match end
+    } Match;
+
+    typedef std::vector<Match> Matches; ///< Vector of match positions
+
+    std::string     m_pattern;      ///< Match pattern
+    bool            m_global;       ///< Global match (g) or first match only
+    std::string     m_error;        ///< Last pattern error (if any)
+
+    pcre*           m_pcre;         ///< Compiled PCRE expression handle
+    pcre_extra*     m_pcreExtra;    ///< Compiled PCRE expression optimization (for faster execution)
+    int32_t         m_pcreOptions;  ///< PCRE pattern options
+
+    /// @brief Computes match positions and lengths
+    /// @param text const std::string&, Input text
+    /// @param offset size_t&, starting match offset, advanced with every successful match
+    /// @param matchOffsets Match*, Output match positions array
+    /// @param matchOffsetsSize size_t, Output match positions array size (in elements)
+    /// @return number of matches
+    size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const THROWS_EXCEPTIONS;
+
+public:
+    /// @brief Constructor
+    ///
+    /// Pattern options is combination of flags matching Perl regular expression switches:
+    /// 'g'  global match, not just first one
+    /// 'i'  letters in the pattern match both upper and lower case  letters
+    /// 'm'  multiple lines match
+    /// 's'  dot character matches even newlines
+    /// 'x'  ignore whitespaces
+    /// @param pattern std::string, PCRE pattern
+    /// @param options std::string, Pattern options
+    RegularExpression(std::string pattern, std::string options="");
+
+    /// @brief Destructor
+    virtual ~RegularExpression();
+
+    /// @brief Returns true if text matches with regular expression
+    /// @param text std::string, Input text
+    /// @return true if match found
+    bool operator == (std::string text) const THROWS_EXCEPTIONS;
+
+    /// @brief Returns true if text doesn't match with regular expression
+    /// @param text std::string, Input text
+    /// @return true if match found
+    bool operator != (std::string text) const THROWS_EXCEPTIONS;
+
+    /// @brief Returns true if text matches with regular expression
+    /// @param text std::string, Text to process
+    /// @return true if match found
+    bool matches(std::string text) const THROWS_EXCEPTIONS;
+
+    /// @brief Returns list of strings matched with regular expression
+    /// @param text std::string, Text to process
+    /// @param matchedStrings sptk::CStrings&, list of matched strings
+    /// @return true if match found
+    bool m(std::string text, sptk::CStrings& matchedStrings) const THROWS_EXCEPTIONS;
+
+    /// @brief Replaces matches with replacement string
+    /// @param text std::string, text to process
+    /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
+    /// @return processed text
+    std::string s(std::string text, std::string outputPattern) const THROWS_EXCEPTIONS;
+
+    /// @brief Returns list of strings split by regular expression
+    /// @param text std::string, Text to process
+    /// @param outputStrings sptk::CStrings&, list of matched strings
+    /// @return true if match found
+    bool split(std::string text, sptk::CStrings& outputStrings) const THROWS_EXCEPTIONS;
+
+    /// @brief Replaces matches with replacement string
+    /// @param text std::string, text to process
+    /// @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
+    /// @param replaced bool&, optional flag if replacement was made
+    /// @return processed text
+    std::string replaceAll(std::string text, std::string outputPattern, bool& replaced) const THROWS_EXCEPTIONS;
+};
+
+typedef RegularExpression RegularExpression;
+
+/// @}
+}
+
+bool SP_EXPORT operator == (std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
+bool SP_EXPORT operator != (std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
+
+#endif
+
+#endif

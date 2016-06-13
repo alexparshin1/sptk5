@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale) :
-        CField(fName.c_str())
+        Field(fName.c_str())
 {
     m_fldType = fieldType;
     m_fldColumn = fieldColumn;
@@ -83,7 +83,7 @@ CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fie
     case VAR_DATE:
     case VAR_DATE_TIME:
         setDateTime(0.0);
-        CField::dataType(dataType);
+        Field::dataType(dataType);
         view.width = 10;
         break;
 

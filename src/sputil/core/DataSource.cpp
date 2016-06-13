@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CIntList.h - description                               ║
+║                       DataSource.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,46 +26,45 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CINTLIST_H__
-#define __CINTLIST_H__
+#include <sptk5/DataSource.h>
 
-#include <sptk5/sptk.h>
-#include <vector>
-#include <algorithm>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-class CControl;
-
-/// @addtogroup utility Utility Classes
-/// @{
-
-/// @brief The list of integers.
-///
-/// Extends the std::vector<int>
-/// with CSV string encoders and decoders.
-class SP_EXPORT CIntList : public std::vector<uint32_t>
+bool DataSource::load()
 {
-public:
-    /// Constructor
-    CIntList() {}
-
-    /// Assigns another CIntList
-    CIntList& operator = (const CIntList& list)
-    {
-        resize(list.size());
-        std::copy(list.begin(),list.end(),begin());
-        return *this;
-    }
-
-    /// Converts to string as a list of values, separated with user-defined character
-    /// (comma, by default)
-    std::string toString(const char * separator=",") const;
-
-    /// Converts from string of a list of values, separated with user-defined character
-    /// (comma, by default)
-    void fromString(const char * s,const char * separator=",");
-};
-/// @}
+    // Loading data into DS
+    return loadData();
 }
-#endif
+
+bool DataSource::save()
+{
+    // Storing data from DS
+    return saveData();
+}
+
+void DataSource::rowToXML(CXmlNode& node, bool compactXmlMode) const
+{
+    uint32_t cnt = fieldCount();
+    for (uint32_t i = 0; i < cnt; i++) {
+        const Field& field = operator[](i);
+        field.toXML(node, compactXmlMode);
+    }
+}
+
+void DataSource::toXML(CXmlNode& parentNode, std::string nodeName, bool compactXmlMode)
+{
+    try {
+        open();
+        while (!eof()) {
+            CXmlNode& node = *(new CXmlElement(parentNode, nodeName));
+            rowToXML(node, compactXmlMode);
+            next();
+        }
+        close();
+    }
+    catch (...) {
+        close();
+        throw;
+    }
+}

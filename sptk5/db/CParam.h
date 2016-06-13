@@ -30,7 +30,7 @@
 #define __CPARAM_H__
 
 #include <sptk5/db/CParamBinding.h>
-#include <sptk5/CIntList.h>
+#include <sptk5/IntList.h>
 
 namespace sptk
 {
@@ -171,7 +171,7 @@ public:
     }
 
     /// @brief Assign operator
-    CParam& operator = (const CBuffer& buffer) {
+    CParam& operator = (const Buffer& buffer) {
         setBuffer(buffer);
         return *this;
     }

@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/Variant.h>
-#include <sptk5/CField.h>
+#include <sptk5/Field.h>
 
 using namespace std;
 using namespace sptk;
@@ -169,7 +169,7 @@ Variant::Variant(const void * value, size_t sz)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const CBuffer& value)
+Variant::Variant(const Buffer& value)
 {
     m_dataType = VAR_NONE;
     setBuffer(value.data(), value.bytes());
@@ -410,7 +410,7 @@ void Variant::setBuffer(const void* value, size_t sz)
         setNull();
 }
 
-void Variant::setBuffer(const CBuffer& value)
+void Variant::setBuffer(const Buffer& value)
 {
     setBuffer(value.data(), value.bytes());
 }
@@ -672,7 +672,7 @@ Variant& Variant::operator =(const void *value)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const CBuffer& value)
+Variant& Variant::operator =(const Buffer& value)
 {
     setBuffer(value.data(), value.bytes());
     return *this;

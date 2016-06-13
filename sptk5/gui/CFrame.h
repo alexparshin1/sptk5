@@ -65,7 +65,7 @@ public:
     /// @param drawMode CPatternDrawMode, pattern draw mode
     /// @param kind CFrameKind, frame kind (standard or user-extended)
 
-    CFrame(const CBuffer& imageData, uint32_t frameWidth, uint32_t cornerZone, CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
+    CFrame(const Buffer& imageData, uint32_t frameWidth, uint32_t cornerZone, CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
     : CPngImage(imageData)
     {
         m_frameWidth = frameWidth;

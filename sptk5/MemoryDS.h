@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CMemoryDS.h - description                              ║
+║                       MemoryDS.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CMEMORYDS_H__
-#define __CMEMORYDS_H__
+#ifndef __SPTK_MEMORYDS_H__
+#define __SPTK_MEMORYDS_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CFieldList.h>
-#include <sptk5/CDataSource.h>
+#include <sptk5/FieldList.h>
+#include <sptk5/DataSource.h>
 #include <sptk5/Exception.h>
 #include <vector>
 
@@ -45,22 +45,23 @@ namespace sptk {
 /// Class CMemoryDS implements a special case of the datasource when the data
 /// can be loaded all at once, in the datasource open() operation. It's a base class
 /// for several actual datasources.
-class CMemoryDS : public CDataSource  {
+class MemoryDS : public DataSource
+{
 protected:
-    std::vector<CFieldList *>  m_list;            ///< Internal list of the dataset records
-    CFieldList*                m_current;         ///< Current record in the dataset.
+    std::vector<FieldList *>  m_list;            ///< Internal list of the dataset records
+    FieldList*                m_current;         ///< Current record in the dataset.
     uint32_t                   m_currentIndex;    ///< The index of the current record.
     bool                       m_eof;             ///< EOF flag for sequentual reading first(),next()..next().
 
 protected:
 
     /// Default constructor is protected, to prevent creating of the instance of that class
-    CMemoryDS() : CDataSource(), m_current(0L), m_currentIndex(0) { }
+    MemoryDS() : DataSource(), m_current(0L), m_currentIndex(0) { }
 
 public:
 
     /// Destructor
-    virtual ~CMemoryDS() {
+    virtual ~MemoryDS() {
         close();
     }
 
@@ -70,22 +71,22 @@ public:
     /// Field access by the field index, const version.
     /// @param fieldIndex int, field index
     /// @returns field reference
-    virtual const CField& operator [] (uint32_t fieldIndex) const;
+    virtual const Field& operator [] (uint32_t fieldIndex) const;
 
     /// Field access by the field index, non-const version.
     /// @param fieldIndex int, field index
     /// @returns field reference
-    virtual CField&       operator [] (uint32_t fieldIndex);
+    virtual Field&       operator [] (uint32_t fieldIndex);
 
     /// Field access by the field name, const version.
     /// @param fieldName const char *, field name
     /// @returns field reference
-    virtual const CField& operator [] (const char *fieldName) const;
+    virtual const Field& operator [] (const char *fieldName) const;
 
     /// Field access by the field name, non-const version.
     /// @param fieldName const char *, field name
     /// @returns field reference
-    virtual CField&       operator [] (const char *fieldName);
+    virtual Field&       operator [] (const char *fieldName);
 
     /// Returns user_data associated with the datasource.
     virtual void             *user_data() const {

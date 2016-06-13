@@ -31,7 +31,7 @@
 #include <sptk5/db/CQuery.h>
 #include "COracleBulkInsertQuery.h"
 
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -543,9 +543,9 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
                         "WHERE table_name = :table_name");
     tableColumnsQuery.param("table_name") = upperCase(tableName);
     tableColumnsQuery.open();
-    CField& column_name = tableColumnsQuery["column_name"];
-    CField& data_type = tableColumnsQuery["data_type"];
-    CField& data_length = tableColumnsQuery["data_length"];
+    Field& column_name = tableColumnsQuery["column_name"];
+    Field& data_type = tableColumnsQuery["data_type"];
+    Field& data_length = tableColumnsQuery["data_length"];
     //string numericTypes("DECIMAL|FLOAT|DOUBLE|NUMBER");
     CColumnTypeSizeMap columnTypeSizeMap;
     while (!tableColumnsQuery.eof()) {
@@ -608,11 +608,11 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
     CStrings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
-    CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
-    CRegExp  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
-    CRegExp  matchGo("^/\\s*$");
+    RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
+    RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
+    RegularExpression  matchGo("^/\\s*$");
     //CRegExp  matchEscapeChars("([$.])", "g");
-    CRegExp  matchShowErrors("^SHOW\\s+ERRORS", "i");
+    RegularExpression  matchShowErrors("^SHOW\\s+ERRORS", "i");
 
     CStrings statements, matches;
     string statement;

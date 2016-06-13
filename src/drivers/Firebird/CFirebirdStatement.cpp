@@ -28,8 +28,8 @@
 
 #include <sptk5/db/CFirebirdConnection.h>
 #include <sptk5/db/CFirebirdStatement.h>
-#include <sptk5/CFieldList.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/FieldList.h>
+#include <sptk5/Buffer.h>
 #include <math.h>
 
 using namespace std;
@@ -322,7 +322,7 @@ void CFirebirdStatement::execute(bool)
     m_state.columnCount = (unsigned) osqlda->sqld;
 }
 
-void CFirebirdStatement::bindResult(CFieldList& fields)
+void CFirebirdStatement::bindResult(FieldList& fields)
 {
     fields.clear();
 
@@ -415,7 +415,7 @@ size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) T
     return field->dataSize();
 }
 
-void CFirebirdStatement::fetchResult(CFieldList& fields)
+void CFirebirdStatement::fetchResult(FieldList& fields)
 {
     struct tm       times;
     uint32_t        fieldCount = fields.size();

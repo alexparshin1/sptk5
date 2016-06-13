@@ -399,7 +399,7 @@ void CInput::load(CQuery *loadQuery)
 {
     if (!m_fieldName.length())
         return;
-    CField& fld = (*loadQuery)[m_fieldName.c_str()];
+    Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data( fld );
 }
 

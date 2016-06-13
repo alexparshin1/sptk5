@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 		}
 
       // RFC 2060 test message :)
-		CBuffer msgBuffer(
+		Buffer msgBuffer(
 				"Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)\n\r"
 				"From: Fred Foobar <foobar@Blurdybloop.COM\n\r"
 				"Subject: afternoon meeting\n\r"

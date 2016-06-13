@@ -28,12 +28,12 @@
 #ifndef __CUTILS_H__
 #define __CUTILS_H__
 
-#include <sptk5/CBuffer.h>
-#include <sptk5/CDataSource.h>
+#include <sptk5/Buffer.h>
+#include <sptk5/DataSource.h>
 #include <sptk5/FileLogEngine.h>
 #include <sptk5/Logger.h>
 #include <sptk5/CRegistry.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/SysLogEngine.h>
 #include <sptk5/CUniqueInstance.h>
 #include <sptk5/string_ext.h>

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CField.cpp - description                               ║
+║                       Field.cpp - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CField.h>
+#include <sptk5/Field.h>
 
 using namespace std;
 using namespace sptk;
 
-CField::CField(const char *name)
+Field::Field(const char *name)
 : m_name(name), displayName(name)
 {
     view.width = -1;
@@ -41,7 +41,7 @@ CField::CField(const char *name)
     dataSize (0);
 }
 
-void CField::setNull(VariantType vtype)
+void Field::setNull(VariantType vtype)
 {
     switch (dataType()) {
     default:
@@ -65,7 +65,7 @@ void CField::setNull(VariantType vtype)
         m_dataType = vtype | VAR_NULL;
 }
 
-string CField::asString() const THROWS_EXCEPTIONS
+string Field::asString() const THROWS_EXCEPTIONS
 {
     char print_buffer[32];
 
@@ -145,7 +145,7 @@ string CField::asString() const THROWS_EXCEPTIONS
     }
 }
 
-void CField::toXML (CXmlNode& node,bool compactXmlMode) const
+void Field::toXML (CXmlNode& node,bool compactXmlMode) const
 {
     string value = asString();
 

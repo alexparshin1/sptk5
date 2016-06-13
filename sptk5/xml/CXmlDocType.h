@@ -48,7 +48,7 @@ class CXmlDocType
 {
     friend class CXmlDoc;
     char        m_replacementBuffer[16];    ///< The buffer used to return replacement literals
-    CBuffer     m_encodeBuffers[2];		    ///< Encode buffers
+    Buffer     m_encodeBuffers[2];		    ///< Encode buffers
 public:
 
     /// @brief Default constructor
@@ -103,7 +103,7 @@ public:
     /// @returns true, any entities replaced.
     /// @param str const char *, string to convert
     /// @param ret CBuffer&, converted text is stored here
-    bool encodeEntities(const char *str, CBuffer& ret);
+    bool encodeEntities(const char *str, Buffer& ret);
 
     /// @brief Decodes entities in string to their actual values.
     ///
@@ -111,7 +111,7 @@ public:
     /// @param str const char*, text to convert
     /// @param sz uint32_t, text length
     /// @param ret CBuffer&, converted text is stored here
-    void decodeEntities(const char *str, uint32_t sz, CBuffer& ret);
+    void decodeEntities(const char *str, uint32_t sz, Buffer& ret);
 
     /// @brief Searches for entity with given name
     ///

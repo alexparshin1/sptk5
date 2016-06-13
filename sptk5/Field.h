@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CField.h - description                                 ║
+║                       Field.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFIELDS_H__
-#define __CFIELDS_H__
+#ifndef __SPTK_FIELD_H__
+#define __SPTK_FIELD_H__
 
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Variant.h>
 #include <sptk5/cxml>
@@ -45,14 +45,14 @@ class CQuery;
 
 #include <sptk5/Variant.h>
 
-class CFieldList;
+class FieldList;
 
 /// @brief Data field for CDataSource.
 ///
 /// Contains field name, field type, field data and field format information.
-class SP_EXPORT CField : public Variant
+class SP_EXPORT Field : public Variant
 {
-    friend class CFieldList;
+    friend class FieldList;
 protected:
     std::string m_name;         ///< Field name
 
@@ -61,7 +61,7 @@ public:
 public:
     /// @brief Constructor
     /// @param name const char *, field name
-    CField(const char *name);
+    Field(const char *name);
 
     /// @brief Combination of field view attributes
     struct {
@@ -85,7 +85,7 @@ public:
     virtual void setNull(VariantType vtype = VAR_NONE);
 
     /// @brief Assignment operation
-    virtual CField& operator =(const Variant &C)
+    virtual Field& operator =(const Variant &C)
     {
         if (this == &C)
             return *this;
@@ -95,91 +95,91 @@ public:
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(int64_t value)
+    virtual Field& operator =(int64_t value)
     {
         setInt64(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(uint64_t value)
+    virtual Field& operator =(uint64_t value)
     {
         setInt64((int64_t) value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(int32_t value)
+    virtual Field& operator =(int32_t value)
     {
         setInteger(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(uint32_t value)
+    virtual Field& operator =(uint32_t value)
     {
         setInteger((int32_t) value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(int16_t value)
+    virtual Field& operator =(int16_t value)
     {
         setInteger(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(uint16_t value)
+    virtual Field& operator =(uint16_t value)
     {
         setInteger(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(float value)
+    virtual Field& operator =(float value)
     {
         setFloat(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(double value)
+    virtual Field& operator =(double value)
     {
         setFloat(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(const char * value)
+    virtual Field& operator =(const char * value)
     {
         setString(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(const std::string& value)
+    virtual Field& operator =(const std::string& value)
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(DateTime value)
+    virtual Field& operator =(DateTime value)
     {
         setDateTime(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(const void *value)
+    virtual Field& operator =(const void *value)
     {
         setImagePtr(value);
         return *this;
     }
 
     /// @brief Assignment operation
-    virtual CField& operator =(const CBuffer& value)
+    virtual Field& operator =(const Buffer& value)
     {
         setBuffer(value.data(), value.bytes());
         return *this;

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFieldList.h - description                             ║
+║                       FieldList.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFIELDLIST_H__
-#define __CFIELDLIST_H__
+#ifndef __SPTK_FIELDLIST_H__
+#define __SPTK_FIELDLIST_H__
 
-#include <sptk5/CField.h>
+#include <sptk5/Field.h>
 #include <sptk5/cxml>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 #include <map>
 #include <vector>
 
@@ -45,10 +45,10 @@ namespace sptk {
 /// Is used in CDataSource.
 /// Allows to access data fields by the field name or field index.
 /// Provides the streaming output, and export to XML.
-class SP_EXPORT CFieldList
+class SP_EXPORT FieldList
 {
-    typedef std::map<std::string, CField *, CCaseInsensitiveCompare>    CFieldMap;
-    typedef std::vector<CField *>                                       CFieldVector;
+    typedef std::map<std::string, Field *, CaseInsensitiveCompare>     CFieldMap;
+    typedef std::vector<Field *>                                       CFieldVector;
 
     void*                   m_userData;        ///< User data - any data you want to associate with that field list
     CFieldVector            m_list;            ///< The list of fields
@@ -61,11 +61,11 @@ public:
     /// @brief Default constructor
     ///
     /// @param indexed bool, if you want to have a field index by name added. Such index speeds up the search of the field by name, but increases the occupied memory.
-    /// @param compactXmlMode bool, the compact XML export flag, @see xmlMode for details.
-    CFieldList(bool indexed,bool compactXmlMode=true);
+    /// @param compactXmlMode bool, the compact XML export flag, @see xmlMode for details
+    FieldList(bool indexed, bool compactXmlMode=true);
 
     /// Destructor
-    ~CFieldList();
+    ~FieldList();
 
     /// Clears the field list
     void clear();
@@ -92,7 +92,7 @@ public:
     /// @param fname const char *, field name
     /// @param checkDuplicates bool, if true check if the field already exists in the list
     /// @returns new field reference
-    CField& push_back(const char *fname,bool checkDuplicates);
+    Field& push_back(const char *fname,bool checkDuplicates);
 
     /// @brief Adds a new field int the list without creating a new copy of the field.
     ///
@@ -100,53 +100,53 @@ public:
     /// You shouldn't delete such fields manually - they would be maintained by CFieldList class.
     /// @param fld CField *, field name
     /// @returns new field reference
-    CField& push_back(CField *fld);
+    Field& push_back(Field *fld);
 
     /// @brief Finds a field by the field name
     ///
     /// Fast field lookup using std::map.
     /// @param fname const char *, field name
     /// @returns CField pointer, or 0L if not found
-    CField* fieldByName(const char * fname) const;
+    Field* fieldByName(const char * fname) const;
 
     /// @brief Field access by field index, non-const version
     ///
     /// @param index uint32_t, field index
     /// @returns field reference
-    CField& operator [](uint32_t index)
+    Field& operator [](uint32_t index)
     {
-        return *(CField *) m_list[index];
+        return *(Field *) m_list[index];
     }
 
     /// @brief Field access by field index, non-const version
     ///
     /// @param index int32_t, field index
     /// @returns field reference
-    CField& operator [](int32_t index)
+    Field& operator [](int32_t index)
     {
-        return *(CField *) m_list[size_t(index)];
+        return *(Field *) m_list[size_t(index)];
     }
 
     /// @brief Field access by field index, const version
     /// @param index uint32_t, field index
     /// @returns field reference
-    const CField& operator [](uint32_t index) const
+    const Field& operator [](uint32_t index) const
     {
-        return *(CField *) m_list[size_t(index)];
+        return *(Field *) m_list[size_t(index)];
     }
 
     /// @brief Field access by field index, const version
     /// @param index int32_t, field index
     /// @returns field reference
-    const CField& operator [](int32_t index) const
+    const Field& operator [](int32_t index) const
     {
-        return *(CField *) m_list[size_t(index)];
+        return *(Field *) m_list[size_t(index)];
     }
 
     /// @brief Field access by field name, non-const version
     /// @param fname const char *, field name
     /// @returns field reference
-    CField& operator [](const char *fname)
+    Field& operator [](const char *fname)
     {
         return *fieldByName(fname);
     }
@@ -154,7 +154,7 @@ public:
     /// Field access by field name, const version
     /// @param fname const char *, field name
     /// @returns field reference
-    const CField& operator [](const char *fname) const
+    const Field& operator [](const char *fname) const
     {
         return *fieldByName(fname);
     }
@@ -162,7 +162,7 @@ public:
     /// @brief Field access by field name, non-const version
     /// @param fname const std::string&, field name
     /// @returns field reference
-    CField& operator [](const std::string& fname)
+    Field& operator [](const std::string& fname)
     {
         return *fieldByName(fname.c_str());
     }
@@ -170,7 +170,7 @@ public:
     /// @brief Field access by field name, const version
     /// @param fname const std::string&, field name
     /// @returns field reference
-    const CField& operator [](const std::string& fname) const
+    const Field& operator [](const std::string& fname) const
     {
         return *fieldByName(fname.c_str());
     }
@@ -204,7 +204,7 @@ public:
     ///
     /// After the last field is reached, the iterator is switched to the first field
     /// @returns current field
-    CField& next();
+    Field& next();
 
     /// @brief Exports data into XML node
     ///
@@ -222,7 +222,7 @@ public:
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data const bool&, a variable to read current field to
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, bool& data);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, bool& data);
 
 /// @brief Streamed field output
 ///
@@ -232,7 +232,7 @@ SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, bool& data
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data const std::string&, a variable to read current field to
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, std::string& data);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, std::string& data);
 
 /// @brief Streamed field output
 ///
@@ -242,7 +242,7 @@ SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, std::strin
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data int&, a variable to read current field to
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, int& data);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, int& data);
 
 /// @brief Streamed field output
 ///
@@ -252,7 +252,7 @@ SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, int& data)
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data double&, a variable to read current field to
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, double& data);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, double& data);
 
 /// @brief Streamed field output
 ///
@@ -262,7 +262,7 @@ SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, double& da
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data CDateTime, a data to assign to current parameter
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, sptk::DateTime& data);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::DateTime& data);
 
 /// @brief Streamed field output
 ///
@@ -272,14 +272,14 @@ SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, sptk::Date
 /// query open() or fetch() method calls.
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param data const CBuffer&, a variable to read current field to
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, sptk::CBuffer& data);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::Buffer& data);
 
 /// @brief Streamed fields output
 ///
 /// Exports the data from fields into XML node
 /// @param fieldList CFieldList&, a list of fields to assign
 /// @param fields const CXmlNode&, an XML node variable to read fields into
-SP_EXPORT sptk::CFieldList& operator >> (sptk::CFieldList& fieldList, sptk::CXmlNode& fields);
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::CXmlNode& fields);
 
 /// @}
 

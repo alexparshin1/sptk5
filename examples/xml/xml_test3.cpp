@@ -46,7 +46,7 @@ using namespace sptk;
 void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
 {
     CXmlDoc doc;
-    CBuffer buf;
+    Buffer buf;
 
     cout << "Test file: " << fileName << endl;
     cout << "XPath is : " << xpath << endl;

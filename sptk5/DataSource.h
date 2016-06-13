@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDataSource.h - description                            ║
+║                       DataSource.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,11 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATASOURCE_H__
-#define __CDATASOURCE_H__
+#ifndef __SPTK_DATASOURCE_H__
+#define __SPTK_DATASOURCE_H__
 
 #include <sptk5/Variant.h>
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 #include <sptk5/cxml>
 
 class Fl_Group;
@@ -45,7 +45,7 @@ namespace sptk {
 /// It's designed as a base class for multiple datasources available in SPTK.
 /// The main idea is to provide the simple interface that allows to open the datasource
 /// with certain parameters and read or write the datasource fields. And don't you forget to close it :)
-class SP_EXPORT CDataSource
+class SP_EXPORT DataSource
 {
     friend class Fl_Group;
 
@@ -64,11 +64,11 @@ protected:
 
 public:
     /// @brief Default constructor
-    CDataSource()
+    DataSource()
     {}
 
     /// @brief Destructor
-    virtual ~CDataSource()
+    virtual ~DataSource()
     {}
 
 public:
@@ -77,28 +77,28 @@ public:
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldIndex uint32_t, field index
     /// @returns field reference
-    virtual const CField& operator [] (uint32_t fieldIndex) const = 0;
+    virtual const Field& operator [] (uint32_t fieldIndex) const = 0;
 
     /// @brief Field access by the field index, non-const version
     ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldIndex uint32_t, field index
     /// @returns field reference
-    virtual CField&       operator [] (uint32_t fieldIndex) = 0;
+    virtual Field&       operator [] (uint32_t fieldIndex) = 0;
 
     /// @brief Field access by the field name, const version.
     ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @returns field reference
-    virtual const CField& operator [] (const char *fieldName) const = 0;
+    virtual const Field& operator [] (const char *fieldName) const = 0;
 
     /// @brief Field access by the field name, const version.
     ///
     /// Purely virtual. Should be implemented in derived class
     /// @param fieldName const char *, field name
     /// @returns field reference
-    virtual CField&       operator [] (const char *fieldName) = 0;
+    virtual Field&       operator [] (const char *fieldName) = 0;
 
     /// @brief Returns field count in the datasource.
     ///

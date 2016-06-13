@@ -97,7 +97,7 @@ BaseMailConnect::~BaseMailConnect()
 
 void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& message)
 {
-    CBuffer bufSource;
+    Buffer bufSource;
     string strDest;
     //char    *header = new char[1024];
 
@@ -109,7 +109,7 @@ void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& 
     message << "Content-Transfer-Encoding: base64" << endl;
     message << "Content-Disposition: attachment; filename=\"" << fileAlias << "\"" << endl << endl;
 
-    CBuffer buffer;
+    Buffer buffer;
 
     Base64::encode(strDest, bufSource);
     uint32_t cnt = (uint32_t) strDest.length();
@@ -128,7 +128,7 @@ void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& 
     message << buffer.data();
 }
 
-void BaseMailConnect::mimeMessage(CBuffer& buffer)
+void BaseMailConnect::mimeMessage(Buffer& buffer)
 {
     static const char boundary[] = "--MESSAGE-MIME-BOUNDARY--";
     static const char boundary2[] = "--TEXT-MIME-BOUNDARY--";

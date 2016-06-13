@@ -28,7 +28,7 @@
 
 #include <iostream>
 #include <sptk5/Exception.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -47,7 +47,7 @@ int main()
     cout << endl << "Now let's try to load non-existing file and catch the exception:" << endl;
 
     try {
-        CBuffer buffer;
+        Buffer buffer;
         buffer.loadFromFile("/this/file/does/not/exist");
     } catch (exception& e) {
         cerr << "Caught exception: " << e.what() << endl;

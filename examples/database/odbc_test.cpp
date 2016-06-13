@@ -213,9 +213,9 @@ int main(int argc, const char* argv[])
         step3Query.open();
 
         // First, find the field references by name or by number
-        CField& idField = step3Query[uint32_t(0)];
-        CField& nameField = step3Query["name"];
-        CField& positionField = step3Query["position"];
+        Field& idField = step3Query[uint32_t(0)];
+        Field& nameField = step3Query["name"];
+        Field& positionField = step3Query["position"];
 
         while (!step3Query.eof()) {
 

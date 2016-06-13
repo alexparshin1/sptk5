@@ -32,7 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 
 namespace sptk {
 
@@ -45,7 +45,7 @@ public:
 public:
     /// @brief Constructor
     /// @param buffer CBuffer*, source data
-    CMemoryTarHandle(CBuffer* buffer=0) {
+    CMemoryTarHandle(Buffer* buffer=0) {
         position = 0;
         if (buffer) {
             sourceBuffer = buffer->data();
@@ -64,7 +64,7 @@ typedef std::map<int,CMemoryTarHandle*> CTarHandleMap;
 /// Allows reading tar archive files into memory buffers.
 /// The main usage currently is to read an SPTK theme from tar-archive.
 class CTar {
-    typedef std::map<std::string,CBuffer*>  CFileCollection;
+    typedef std::map<std::string,Buffer*>  CFileCollection;
     void*                 m_tar;         ///< Tar file header
     CFileCollection       m_files;       ///< File name to the file data map
     CStrings              m_fileNames;   ///< List of files in archive
@@ -128,14 +128,14 @@ public:
     ///
     /// The archive content is red into the internal set of buffers
     /// @param tarData const CBuffer&, tar file buffer
-    void read(const CBuffer& tarData) THROWS_EXCEPTIONS;
+    void read(const Buffer& tarData) THROWS_EXCEPTIONS;
 
     /// @brief returns a list of files in tar archive
     const CStrings& fileList() const { return m_fileNames; }
 
     /// @brief Returns file data by file name
     /// @param fileName std::string, file name
-    const CBuffer& file(std::string fileName) const THROWS_EXCEPTIONS;
+    const Buffer& file(std::string fileName) const THROWS_EXCEPTIONS;
 
     /// @brief Clears the allocated memory
     void clear();

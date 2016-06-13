@@ -79,7 +79,7 @@ void CDateTimeBaseInput::load(CQuery *loadQuery) {
         return; // no field name - no data loaded
     if (!m_fieldName.length())
         return;
-    CField& fld = (*loadQuery)[m_fieldName.c_str()];
+    Field& fld = (*loadQuery)[m_fieldName.c_str()];
     dateTimeValue(fld.asDateTime());
 }
 
