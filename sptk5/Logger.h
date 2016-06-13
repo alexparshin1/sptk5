@@ -51,7 +51,7 @@ private:
     char*           m_buffer;           ///< Internal buffer to store the current log message
     uint32_t        m_size;             ///< The size of the internal buffer
     uint32_t        m_bytes;            ///< The number of characters in the buffer
-    DateTime       m_date;             ///< Message timestamp
+    DateTime        m_date;             ///< Message timestamp
     LogPriority     m_priority;         ///< Current message priority, should be defined for every message
     Logger*         m_parent;           ///< Parent log object
 
