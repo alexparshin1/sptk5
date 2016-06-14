@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlValue.h - description                              ║
+║                       XMLValue.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLVALUE_H__
-#define __CXMLVALUE_H__
+#ifndef __SPTK_XMLVALUE_H__
+#define __SPTK_XMLVALUE_H__
 
 #include <sptk5/cxml>
 #include <sptk5/DateTime.h>
@@ -37,20 +37,20 @@ namespace sptk {
 /// @addtogroup XML
 /// @{
 
-class CXmlNode;
-class CXmlDoc;
+class XMLNode;
+class XMLDocument;
 
 /// @brief XML value
 ///
 /// A string that has converters to and from most popular types
-class SP_EXPORT CXmlValue
+class SP_EXPORT XMLValue
 {
     std::string     m_value;    ///< XML value
 public:
     /// @brief Default constructor
     ///
     /// Creates an empty XML attribute
-    CXmlValue()
+    XMLValue()
     {
     }
 
@@ -58,7 +58,7 @@ public:
     ///
     /// Creates an XML attribute from character string
     /// @param v const char *, value
-    CXmlValue(const char *v) :
+    XMLValue(const char *v) :
         m_value(v)
     {
     }
@@ -68,7 +68,7 @@ public:
     /// Creates an XML attribute from character string
     /// @param v const char *, value
     /// @param sz size_t, value length
-    CXmlValue(const char *v, size_t sz) :
+    XMLValue(const char *v, size_t sz) :
         m_value(v, sz)
     {
     }
@@ -77,7 +77,7 @@ public:
     ///
     /// Creates an XML attribute from std::string
     /// @param v const std::string&, value
-    CXmlValue(const std::string& v) :
+    XMLValue(const std::string& v) :
         m_value(v)
     {
     }
@@ -86,7 +86,7 @@ public:
     ///
     /// Creates an XML attribute from integer
     /// @param v int32_t, value
-    CXmlValue(int32_t v)
+    XMLValue(int32_t v)
     {
         operator =(v);
     }
@@ -95,7 +95,7 @@ public:
     ///
     /// Creates an XML attribute from integer
     /// @param v uint32_t, value
-    CXmlValue(uint32_t v)
+    XMLValue(uint32_t v)
     {
         operator =(v);
     }
@@ -104,7 +104,7 @@ public:
     ///
     /// Creates an XML attribute from int32_t
     /// @param v int64_t, value
-    CXmlValue(int64_t v)
+    XMLValue(int64_t v)
     {
         operator =(v);
     }
@@ -113,7 +113,7 @@ public:
     ///
     /// Creates an XML attribute from uint32_t
     /// @param v uint64_t, value
-    CXmlValue(uint64_t v)
+    XMLValue(uint64_t v)
     {
         operator =(v);
     }
@@ -122,7 +122,7 @@ public:
     ///
     /// Creates an XML attribute from double
     /// @param v double, value
-    CXmlValue(double v)
+    XMLValue(double v)
     {
         operator =(v);
     }
@@ -131,7 +131,7 @@ public:
     ///
     /// Creates an XML attribute from bool
     /// @param v bool, value
-    CXmlValue(bool v)
+    XMLValue(bool v)
     {
         operator =(v);
     }
@@ -140,7 +140,7 @@ public:
     ///
     /// Creates an XML attribute from CDateTime
     /// @param v int32_t, value
-    CXmlValue(DateTime v) :
+    XMLValue(DateTime v) :
         m_value(v)
     {
     }
@@ -148,37 +148,37 @@ public:
     /// @brief Assignment of the value
     ///
     /// @param v bool, a new value
-    CXmlValue& operator =(bool v);
+    XMLValue& operator =(bool v);
 
     /// @brief Assignment of the value
     ///
     /// @param v int32_t, a new value
-    CXmlValue& operator =(int32_t v);
+    XMLValue& operator =(int32_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v uint32_t, a new value
-    CXmlValue& operator =(uint32_t v);
+    XMLValue& operator =(uint32_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v int64_t, a new value
-    CXmlValue& operator =(int64_t v);
+    XMLValue& operator =(int64_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v int64_t, a new value
-    CXmlValue& operator =(uint64_t v);
+    XMLValue& operator =(uint64_t v);
 
     /// @brief Assignment of the value
     ///
     /// @param v double, a new value
-    CXmlValue& operator =(double v);
+    XMLValue& operator =(double v);
 
     /// @brief Assignment of the value
     ///
     /// @param s const std::string, a new value
-    CXmlValue& operator =(const std::string& s)
+    XMLValue& operator =(const std::string& s)
     {
         m_value = s;
         return *this;
@@ -187,7 +187,7 @@ public:
     /// @brief Assignment of the value
     ///
     /// @param s const char *, a new value
-    CXmlValue& operator =(const char *s)
+    XMLValue& operator =(const char *s)
     {
         m_value = s;
         return *this;
@@ -196,7 +196,7 @@ public:
     /// @brief Assignment of the value
     ///
     /// @param s CDateTime, a new value
-    CXmlValue& operator =(DateTime s)
+    XMLValue& operator =(DateTime s)
     {
         m_value = s.dateString() + " " + s.timeString(true);
         return *this;

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlNodeList.h - description                           ║
+║                       XMLNodeList.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXML_NODELIST_H__
-#define __CXML_NODELIST_H__
+#ifndef __SPTK_XML_NODELIST_H__
+#define __SPTK_XML_NODELIST_H__
 
 #include <string>
 #include <vector>
@@ -38,24 +38,24 @@ namespace sptk {
 /// @addtogroup XML
 /// @{
 
-class CXmlNode;
+class XMLNode;
 
-/// @brief The vector of CXmlNode *
-typedef std::vector<CXmlNode *> CXmlNodeVector;
+/// @brief The vector of XMLNode *
+typedef std::vector<XMLNode *> XMLNodeVector;
 
 /// @brief XML node list
 ///
-/// The CXmlNodeList interface provides the an ordered collection of nodes,
+/// The XMLNodeList interface provides the an ordered collection of nodes,
 /// The items in the NodeList are accessible via an integral index, starting from 0.
-class SP_EXPORT CXmlNodeList : public CXmlNodeVector
+class SP_EXPORT XMLNodeList : public XMLNodeVector
 {
 public:
     /// @brief Constructor
-    CXmlNodeList()
+    XMLNodeList()
     {}
 
     /// @brief Destructor
-    ~CXmlNodeList()
+    ~XMLNodeList()
     {
         clear();
     }

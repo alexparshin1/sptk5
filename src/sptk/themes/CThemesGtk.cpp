@@ -43,7 +43,7 @@
 using namespace std;
 using namespace sptk;
 
-void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames)
+void CThemes::loadGtkButton(XMLNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames)
 {
     static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT","|"); /// DFRAME is a stub
 
@@ -68,14 +68,14 @@ void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::s
         buttonFileNames[CThemeImageState(buttonState)] = m_themeFolder + fileName;
 }
 
-void CThemes::loadGtkButtonFileNames(CXmlDoc& xml,string XPath,map<CThemeImageState,string>& buttonFileNames,string orientation)
+void CThemes::loadGtkButtonFileNames(XMLDocument& xml,string XPath,map<CThemeImageState,string>& buttonFileNames,string orientation)
 {
-    CXmlNodeVector buttonImages;
+    XMLNodeVector buttonImages;
     
     buttonFileNames.clear();
     xml.select(buttonImages,XPath);
-    for (CXmlNode::iterator itor = buttonImages.begin(); itor != buttonImages.end(); itor++) {
-        CXmlNode* imageNode = *itor;
+    for (XMLNode::iterator itor = buttonImages.begin(); itor != buttonImages.end(); itor++) {
+        XMLNode* imageNode = *itor;
         if (!orientation.empty() && imageNode->getAttribute("arrow_direction").str() != orientation)
             continue;
         loadGtkButton(imageNode,buttonFileNames);
@@ -91,7 +91,7 @@ void CThemes::loadGtkButtonFileNames(CXmlDoc& xml,string XPath,map<CThemeImageSt
         buttonFileNames[THM_IMAGE_ACTIVE_HIGHLITED] = buttonFileNames[THM_IMAGE_ACTIVE];
 }
 
-void CThemes::loadGtkButtons(CXmlDoc& xml,string styleName,CThemeImageCollection& buttons,string function) {
+void CThemes::loadGtkButtons(XMLDocument& xml,string styleName,CThemeImageCollection& buttons,string function) {
     string XPath("/styles/style[@name='" + styleName + "']/engine[@name='pixmap']/image");
     buttons.loadFromGtkTheme(xml,XPath,"function",function);
 }
@@ -119,7 +119,7 @@ void CThemes::loadGtkTheme(string gtkThemeName) {
     }
     catch (...) {}
 
-    CXmlDoc& xml = gtkThemeLoader.xml();
+    XMLDocument& xml = gtkThemeLoader.xml();
 
     /// Load theme colors
     m_colors.loadFromGtkTheme(xml);
@@ -134,7 +134,7 @@ void CThemes::loadGtkTheme(string gtkThemeName) {
     m_progressBar[0].loadFromGtkTheme(xml,"/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='trough']","orientation","HORIZONTAL");
     m_progressBar[1].loadFromGtkTheme(xml,"/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='bar']","orientation","HORIZONTAL");
 
-    CXmlNodeVector bgImageNodes;
+    XMLNodeVector bgImageNodes;
     xml.select(bgImageNodes,"/styles/style/bg_pixmap");
     if (bgImageNodes.size()) {
         string fileName = CThemeImageCollection::gtkFullFileName(bgImageNodes[0]->getAttribute("NORMAL"));

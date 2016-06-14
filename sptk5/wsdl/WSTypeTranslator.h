@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSourceModule.h - description                          ║
+║                       WSTypeTranslator.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSOURCEMODULE_H__
-#define __CSOURCEMODULE_H__
+#ifndef __SPTK_WSTYPETRANSLATOR_H__
+#define __SPTK_WSTYPETRANSLATOR_H__
 
 #include <sptk5/sptk.h>
-#include <iostream>
-#include <fstream>
 
 namespace sptk
 {
@@ -39,57 +37,22 @@ namespace sptk
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
-/// @brief Helper module to generate source files
-class CSourceModule
+/// @brief Translates WSDL type names to C++ type names
+class WSTypeTranslator
 {
-    std::string     m_name;     ///< Module name
-    std::string     m_path;     ///< Module path
-    std::ofstream   m_header;   ///< Module hpp file
-    std::ofstream   m_source;   ///< Module cpp file
+    std::map<std::string,std::string> wsTypeToCxxTypeMap;   ///< WSDL to C++ type map
 public:
     /// @brief Constructor
-    /// @param moduleName std::string, Module name
-    /// @param modulePath std::string, Module path
-    CSourceModule(std::string moduleName, std::string modulePath)
-    : m_name(moduleName), m_path(modulePath)
-    {
-    }
+    WSTypeTranslator();
 
-    /// @brief Destructor
-    ~CSourceModule()
-    {
-        if (m_header.is_open())
-            m_header.close();
-        if (m_source.is_open())
-            m_source.close();
-    }
-
-    /// @brief Opens module output files
-    void open()
-    {
-        if (m_path.empty())
-            m_path = ".";
-        std::string fileName = m_path + "/" + m_name;
-        m_header.open((fileName + ".h").c_str(), std::ofstream::out | std::ofstream::trunc);
-        if (!m_header.is_open())
-            throwException("Can't create file " + fileName + ".h");
-        m_source.open((fileName + ".cpp").c_str(), std::ofstream::out | std::ofstream::trunc);
-        if (!m_source.is_open())
-            throwException("Can't create file " + fileName + ".cpp");
-    }
-
-    /// @brief Returns header file stream
-    std::ofstream& header()
-    {
-        return m_header;
-    }
-
-    /// @brief Returns source file stream
-    std::ofstream& source()
-    {
-        return m_source;
-    }
+    /// @brief Translates WSDL type names to C++ type names
+    /// @param wsType std::string, WSDL type name
+    /// @param defaultType std::type, C++ type name returned when match is not found
+    std::string toCxxType(std::string wsType,std::string defaultType="std::string") const;
 };
+
+/// @brief Global WSDL translation object
+extern WSTypeTranslator wsTypeTranslator;
 
 /// @}
 

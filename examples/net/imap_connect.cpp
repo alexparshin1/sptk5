@@ -61,7 +61,7 @@ int main( int argc, char *argv[] )
 
     try {
         registry.load();
-        CXmlNode* hostNode = registry.findFirst("host");
+        XMLNode* hostNode = registry.findFirst("host");
         if (hostNode) {
             server = (string) hostNode->getAttribute("hostname");
             user = (string) hostNode->getAttribute("user");
@@ -94,9 +94,9 @@ int main( int argc, char *argv[] )
 
       // Connected? Save the logon parameters..
 		try {
-			CXmlNode* hostNode = registry.findFirst("host");
+			XMLNode* hostNode = registry.findFirst("host");
 			if (!hostNode)
-				hostNode = new CXmlElement(registry,"host");
+				hostNode = new XMLElement(registry,"host");
 			hostNode->setAttribute("hostname",server);
 			hostNode->setAttribute("user",user);
 			hostNode->setAttribute("password",password);

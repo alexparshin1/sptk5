@@ -31,7 +31,7 @@
 
 #include <sptk5/cxml>
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/CTar.h>
+#include <sptk5/Tar.h>
 
 namespace sptk {
 
@@ -143,8 +143,8 @@ public:
 
     /// @brief Loads the frames from the tar archive by the XML description
     /// @param tar CTar&, tar archive with the images
-    /// @param frameNode CXmlNode*, XML description of the frames
-    void load(CTar& tar, CXmlNode* frameNode);
+    /// @param frameNode XMLNode*, XML description of the frames
+    void load(Tar& tar, XMLNode* frameNode);
 
     /// @brief Registers a single frame image in the collection
     /// @param frameName std::string, symbolic name for the frame

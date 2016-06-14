@@ -91,11 +91,11 @@ void CDateTimeBaseInput::save(CQuery *updateQuery) {
     param.setDateTime( dt );
 }
 
-void CDateTimeBaseInput::load(const CXmlNode *node,CLayoutXMLmode xmlMode) {
+void CDateTimeBaseInput::load(const XMLNode *node,CLayoutXMLmode xmlMode) {
     CControl::load(node,xmlMode);
 }
 
-void CDateTimeBaseInput::save(CXmlNode *node,CLayoutXMLmode xmlMode) const {
+void CDateTimeBaseInput::save(XMLNode *node,CLayoutXMLmode xmlMode) const {
     CControl::save(node,xmlMode);
 }
 
@@ -164,7 +164,7 @@ CDateInput::~CDateInput() {
     delete m_calendarWindow;
 }
 
-CLayoutClient* CDateInput::creator(CXmlNode *node) {
+CLayoutClient* CDateInput::creator(XMLNode *node) {
     CDateInput* widget = new CDateInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
@@ -206,7 +206,7 @@ CTimeInput::CTimeInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CTimeInput::creator(CXmlNode *node) {
+CLayoutClient* CTimeInput::creator(XMLNode *node) {
     CTimeInput* widget = new CTimeInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
@@ -247,7 +247,7 @@ CDateTimeInput::CDateTimeInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CDateTimeInput::creator(CXmlNode *node) {
+CLayoutClient* CDateTimeInput::creator(XMLNode *node) {
     CDateTimeInput* widget = new CDateTimeInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;

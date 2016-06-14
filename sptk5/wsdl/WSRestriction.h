@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSTypeTranslator.cpp - description                    ║
+║                       WSRestriction.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,31 +26,43 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/CWSTypeTranslator.h>
+#ifndef __SPTK_WSRESTRICTION_H__
+#define __SPTK_WSRESTRICTION_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/cxml>
+#include <sptk5/Variant.h>
+#include <sptk5/xml/XMLElement.h>
 
 namespace sptk {
-    CWSTypeTranslator wsTypeTranslator;
-}
 
-CWSTypeTranslator::CWSTypeTranslator()
-{
-    wsTypeToCxxTypeMap["xsd:boolean"]   = "sptk::WSBool";
-    wsTypeToCxxTypeMap["xsd:date"]      = "sptk::WSDate";
-    wsTypeToCxxTypeMap["xsd:dateTime"]  = "sptk::WSDateTime";
-    wsTypeToCxxTypeMap["xsd:double"]    = "sptk::WSDouble";
-    wsTypeToCxxTypeMap["xsd:float"]     = "sptk::WSDouble";
-    wsTypeToCxxTypeMap["xsd:int"]       = "sptk::WSInteger";
-    wsTypeToCxxTypeMap["xsd:string"]    = "sptk::WSString";
-    wsTypeToCxxTypeMap["xsd:time"]      = "sptk::WSTime";
-}
+    /// @brief WSDL Restriction
+    class WSRestriction
+    {
+        std::string m_typeName;     ///< WSDL type name
+        Strings     m_enumerations; ///< List of enumerations if any
+    public:
+        /// @brief Constructor from WSDL (XML) definition
+        /// @param typeName std::string, WSDL type name
+        /// @param simpleTypeElement XMLNode*, Simple type XML node
+        WSRestriction(std::string typeName, XMLNode* simpleTypeElement);
 
-std::string CWSTypeTranslator::toCxxType(std::string wsType,std::string defaultType) const
-{
-    std::map<std::string,std::string>::const_iterator itor = wsTypeToCxxTypeMap.find(wsType);
-    if (itor == wsTypeToCxxTypeMap.end())
-        return defaultType;
-    return itor->second;
+        /// @brief Constructor from WSDL (XML) definition
+        /// @param typeName std::string, WSDL type name
+        /// @param enumerations std::string, Enumerations or empty string
+        /// @param delimiter const char*, Enumerations delimiter
+        WSRestriction(std::string typeName, std::string enumerations, const char* delimiter="|");
+
+        /// @brief Restriction check
+        ///
+        /// Checks value to satisfy restriction.
+        /// If value violates restriction, throws exception.
+        /// @param value std::string, Value to check
+        void check(std::string value) const;
+
+        /// @brief Generates restriction constructor for C++ skeleton
+        std::string generateConstructor(std::string variableName) const;
+    };
+
 }
+#endif
+

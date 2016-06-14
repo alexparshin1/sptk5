@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlDoc.h - description                                ║
+║                       XMLDoc.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,13 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLDOC_H__
-#define __CXMLDOC_H__
+#ifndef __SPTK_XMLDOCUMENT_H__
+#define __SPTK_XMLDOCUMENT_H__
 
 #include <sptk5/xml/XMLNode.h>
 #include <sptk5/xml/XMLDocType.h>
 #include <sptk5/xml/XMLElement.h>
-#include <sptk5/CSharedStrings.h>
+#include <sptk5/SharedStrings.h>
 #include <sptk5/Buffer.h>
 
 #include <string>
@@ -48,12 +48,12 @@ namespace sptk
 ///
 /// Represents the entire XML document.
 /// It provides access to document root node, which includes all nodes in XML document tree.
-class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
+class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
 {
-    friend class CXmlNode;
+    friend class XMLNode;
 
-    CXmlDocType m_doctype;          ///< Document type
-    int         m_indentSpaces;     ///< Indent spaces
+    XMLDocType m_doctype;          ///< Document type
+    int        m_indentSpaces;     ///< Indent spaces
     Buffer     m_encodeBuffer;     ///< Buffer to encode entities
 
     /// @brief Internal entities parser
@@ -63,41 +63,41 @@ class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
     void parseDocType(char* docTypeSection);
 
     /// @brief Internal attributes parser
-    void processAttributes(CXmlNode* node, char *ptr);
+    void processAttributes(XMLNode* node, char *ptr);
 
 protected:
 
     Buffer m_decodeBuffer;     ///< Decode and encode buffer
 
-    /// Creates new named node of type CXmlNode::DOM_ELEMENT.
+    /// Creates new named node of type XMLNode::DOM_ELEMENT.
     /// It can be added to document DOM tree.
     /// @param tagname const char *, name of the element
-    /// @see CXmlNode
-    CXmlNode *createElement(const char *tagname);
+    /// @see XMLNode
+    XMLNode *createElement(const char *tagname);
 
 public:
 
     /// @brief Constructs an empty document, without doctype.
-    CXmlDoc();
+    XMLDocument();
 
     /// @brief Constructs a document from XML string
     /// @param xml std::string, XML string
-    CXmlDoc(std::string xml);
+    XMLDocument(std::string xml);
     
     /// @brief Constructs an empty document, with doctype.
     /// @param name const char *, name of the document.
     /// @param public_id const char *, public id of the document, placed on DOCTYPE declaration
     /// @param system_id const char *, system id of the document, placed on DOCTYPE declaration
-    CXmlDoc(const char *name, const char *public_id, const char *system_id);
+    XMLDocument(const char *name, const char *public_id, const char *system_id);
 
     /// @brief Destructor
-    virtual ~CXmlDoc()
+    virtual ~XMLDocument()
     {
         clear();
     }
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_DOCUMENT;
     }
@@ -126,7 +126,7 @@ public:
     /// <pre>
     /// mydoc->doctype().set_entity("myentity", "myreplacement");
     /// </pre>
-    CXmlDocType &docType()
+    XMLDocType &docType()
     {
         return m_doctype;
     }
@@ -137,13 +137,13 @@ public:
     /// <pre>
     /// mydoc->doctype().set_entity("myentity", "myreplacement");
     /// </pre>
-    const CXmlDocType &docType() const
+    const XMLDocType &docType() const
     {
         return m_doctype;
     }
 
     /// @brief Returns pointer to root element of document
-    CXmlNode *rootNode();
+    XMLNode *rootNode();
 
     /// @brief Returns indentation in save
     int indentSpaces()

@@ -47,22 +47,22 @@ void printRegistry(RegistryMode mode) {
       mySettings.load();
       cout << "---> Reading " << mySettings.fileName() << endl;
 
-      CXmlNode* windowNode = mySettings.findFirst("window");
+      XMLNode* windowNode = mySettings.findFirst("window");
       if (windowNode) {
-         CXmlNode::iterator itor = windowNode->begin();
+         XMLNode::iterator itor = windowNode->begin();
          // Processing the subnodes of <window> node
          for (; itor != windowNode->end(); itor++) {
-            CXmlNode*        node = *itor;
+            XMLNode*        node = *itor;
             if (node->name() == "position")
                cout << "Window position: "
                << (int) node->getAttribute("x") << ":"
                << (int) node->getAttribute("y") << endl;
             else if (node->name() == "colors") {
                // Processing the subnodes of <colors>
-               CXmlNode::iterator stor = node->begin();
+               XMLNode::iterator stor = node->begin();
                cout << "Window colors:" << endl;
                for (; stor != node->end(); stor++) {
-                  CXmlNode* colorNode = *stor;
+                  XMLNode* colorNode = *stor;
                   cout << "  " << (string) colorNode->getAttribute("name")
                   << ": fg " << (string) colorNode->getAttribute("foreground")
                   << ", bg " << (string) colorNode->getAttribute("background")
@@ -85,22 +85,22 @@ void updateRegistry(RegistryMode mode) {
    try {
       cout << "<--- Updating " << mySettings.fileName() << endl;
 
-      CXmlNode* windowNode = mySettings.findOrCreate("window");
+      XMLNode* windowNode = mySettings.findOrCreate("window");
       windowNode->clear();
 
-      CXmlNode* positionNode = new CXmlElement(*windowNode, "position");
+      XMLNode* positionNode = new XMLElement(*windowNode, "position");
       positionNode->setAttribute("x", 100);
       positionNode->setAttribute("y", 150);
 
-      CXmlNode* colorsNode = new CXmlElement(*windowNode, "colors");
-      CXmlNode* colorNode;
+      XMLNode* colorsNode = new XMLElement(*windowNode, "colors");
+      XMLNode* colorNode;
 
-      colorNode = new CXmlElement(*colorsNode, "color");
+      colorNode = new XMLElement(*colorsNode, "color");
       colorNode->setAttribute("name", "Header");
       colorNode->setAttribute("foreground", "WHITE");
       colorNode->setAttribute("background", "BLUE");
 
-      colorNode = new CXmlElement(*colorsNode, "color");
+      colorNode = new XMLElement(*colorsNode, "color");
       colorNode->setAttribute("name", "Text");
       colorNode->setAttribute("foreground", "0x000000");
       colorNode->setAttribute("background", "0xFF80FF");

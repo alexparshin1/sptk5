@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSParser.cpp - description                            ║
+║                       WSParser.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,27 +26,27 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/CWSParser.h>
-#include <sptk5/wsdl/CSourceModule.h>
+#include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/SourceModule.h>
 
 #include <iomanip>
 
 using namespace std;
 using namespace sptk;
 
-CWSParser::CWSParser()
+WSParser::WSParser()
 {
 }
 
-CWSParser::~CWSParser()
+WSParser::~WSParser()
 {
     clear();
 }
 
-void CWSParser::clear()
+void WSParser::clear()
 {
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor != m_complexTypes.end(); itor++) {
-        CWSParserComplexType* complexType = itor->second;
+        WSParserComplexType* complexType = itor->second;
         if (complexType->refCount())
             complexType->decreaseRefCount();
         else
@@ -58,7 +58,7 @@ void CWSParser::clear()
     m_elements.clear();
 }
 
-void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
+void WSParser::parseElement(const XMLElement* elementNode) THROWS_EXCEPTIONS
 {
     string elementName = elementNode->getAttribute("name");
     string elementType = elementNode->getAttribute("type");
@@ -67,7 +67,7 @@ void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
     if (namespacePos != string::npos)
         elementType = elementType.substr(namespacePos + 1);
 
-    CWSParserComplexType* complexType;
+    WSParserComplexType* complexType;
     if (!elementType.empty()) {
         complexType = m_complexTypes[elementType];
         complexType->increaseRefCount();
@@ -80,45 +80,45 @@ void CWSParser::parseElement(const CXmlElement* elementNode) THROWS_EXCEPTIONS
     m_elements[elementName] = complexType;
 }
 
-void CWSParser::parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS
+void WSParser::parseComplexType(const XMLElement* complexTypeElement) THROWS_EXCEPTIONS
 {
     string complexTypeName = complexTypeElement->getAttribute("name");
 
     if (complexTypeName.empty()) {
-        const CXmlNode* parent = complexTypeElement->parent();
+        const XMLNode* parent = complexTypeElement->parent();
         complexTypeName = parent->getAttribute("name").c_str();
     }
 
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
         throwException("Duplicate complexType definition: " + complexTypeName);
-    CWSParserComplexType* complexType = new CWSParserComplexType(complexTypeElement, complexTypeName);
+    WSParserComplexType* complexType = new WSParserComplexType(complexTypeElement, complexTypeName);
     m_complexTypes[complexTypeName] = complexType;
     if (complexTypeName == "HandlerType")
         cout << endl;
     complexType->parse();
 }
 
-void CWSParser::parseOperation(CXmlElement* operationNode) THROWS_EXCEPTIONS
+void WSParser::parseOperation(XMLElement* operationNode) THROWS_EXCEPTIONS
 {
-    CXmlNodeVector messageNodes;
+    XMLNodeVector messageNodes;
     operationNode->document()->select(messageNodes, "//wsdl:message");
 
     map<string, string> messageToElementMap;
-    for (CXmlNode::const_iterator itor = messageNodes.begin(); itor != messageNodes.end(); itor++) {
-        CXmlElement* message = dynamic_cast<CXmlElement*>(*itor);
-        CXmlNode* part = message->findFirst("wsdl:part");
+    for (XMLNode::const_iterator itor = messageNodes.begin(); itor != messageNodes.end(); itor++) {
+        XMLElement* message = dynamic_cast<XMLElement*>(*itor);
+        XMLNode* part = message->findFirst("wsdl:part");
         string messageName = message->getAttribute("name").c_str();
         string elementName = strip_namespace(part->getAttribute("element"));
         messageToElementMap[messageName] = elementName;
-        CXmlNode* documentationNode = part->findFirst("wsdl:documentation");
+        XMLNode* documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode)
             m_documentation[elementName] = documentationNode->text();
     }
 
-    CWSOperation operation;
+    WSOperation operation;
     bool found = false;
-    for (CXmlElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); itor++) {
-        const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
+    for (XMLElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); itor++) {
+        const XMLElement* element = dynamic_cast<const XMLElement*>(*itor);
         string message = element->getAttribute("message");
         size_t pos = message.find(":");
         if (pos != string::npos)
@@ -142,13 +142,13 @@ void CWSParser::parseOperation(CXmlElement* operationNode) THROWS_EXCEPTIONS
     }
 }
 
-void CWSParser::parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS
+void WSParser::parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS
 {
-    CXmlNodeVector complexTypeNodes;
+    XMLNodeVector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
-    for (CXmlNode::const_iterator itor = complexTypeNodes.begin(); itor != complexTypeNodes.end(); itor++) {
-        const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
+    for (XMLNode::const_iterator itor = complexTypeNodes.begin(); itor != complexTypeNodes.end(); itor++) {
+        const XMLElement* element = dynamic_cast<const XMLElement*>(*itor);
         if (element && element->name() == "xsd:complexType")
             parseComplexType(element);
     }
@@ -156,33 +156,33 @@ void CWSParser::parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS
     //for (ComplexTypeMap::iterator itor =  m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++)
     //    cout << setw(20) << itor->first + ": " + itor->second->className() << endl;
 
-    for (CXmlElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); itor++) {
-        const CXmlElement* element = dynamic_cast<const CXmlElement*>(*itor);
+    for (XMLElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); itor++) {
+        const XMLElement* element = dynamic_cast<const XMLElement*>(*itor);
         if (element && element->name() == "xsd:element")
             parseElement(element);
     }
 }
 
-void CWSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
+void WSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
 {
-    CXmlDoc wsdlXML;
+    XMLDocument wsdlXML;
     Buffer buffer;
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(buffer);
 
-    CXmlElement* service = (CXmlElement*) wsdlXML.findFirst("wsdl:service");
+    XMLElement* service = (XMLElement*) wsdlXML.findFirst("wsdl:service");
     m_serviceName = service->getAttribute("name").str();
 
-    CXmlElement* schemaElement = dynamic_cast<CXmlElement*>(wsdlXML.findFirst("xsd:schema"));
+    XMLElement* schemaElement = dynamic_cast<XMLElement*>(wsdlXML.findFirst("xsd:schema"));
     if (!schemaElement)
         throwException("Can't find xsd:schema element");
     parseSchema(schemaElement);
 
-    CXmlElement* portElement = dynamic_cast<CXmlElement*>(wsdlXML.findFirst("wsdl:portType"));
+    XMLElement* portElement = dynamic_cast<XMLElement*>(wsdlXML.findFirst("wsdl:portType"));
     if (!portElement)
         throwException("Can't find wsdl:portType element");
-    for (CXmlElement::const_iterator itor = portElement->begin(); itor != portElement->end(); itor++) {
-        CXmlElement* element = dynamic_cast<CXmlElement*>(*itor);
+    for (XMLElement::const_iterator itor = portElement->begin(); itor != portElement->end(); itor++) {
+        XMLElement* element = dynamic_cast<XMLElement*>(*itor);
         if (element && element->name() == "wsdl:operation")
             parseOperation(element);
     }
@@ -197,7 +197,7 @@ string capitalize(string name)
     return parts.asString("");
 }
 
-string CWSParser::strip_namespace(const string& name)
+string WSParser::strip_namespace(const string& name)
 {
     size_t pos = name.find(":");
     if (pos == string::npos)
@@ -205,7 +205,7 @@ string CWSParser::strip_namespace(const string& name)
     return name.substr(pos + 1);
 }
 
-string CWSParser::get_namespace(const string& name)
+string WSParser::get_namespace(const string& name)
 {
     size_t pos = name.find(":");
     if (pos == string::npos)
@@ -213,7 +213,7 @@ string CWSParser::get_namespace(const string& name)
     return name.substr(0, pos);
 }
 
-void CWSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
+void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     string defname = "__" + upperCase(serviceClassName) + "__";
@@ -222,7 +222,7 @@ void CWSParser::generateDefinition(const Strings& usedClasses, ostream& serviceD
     serviceDefinition << "#ifndef " << defname << endl;
     serviceDefinition << "#define " << defname << endl << endl;
 
-    serviceDefinition << "#include <sptk5/wsdl/CWSRequest.h>" << endl << endl;
+    serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl << endl;
     serviceDefinition << "// This Web Service types" << endl;
     for (Strings::const_iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
         serviceDefinition << "#include \"" << *itor << ".h\"" << endl;
@@ -232,21 +232,21 @@ void CWSParser::generateDefinition(const Strings& usedClasses, ostream& serviceD
     serviceDefinition << "///" << endl;
     serviceDefinition << "/// Web Service application derives its service class from this class" << endl;
     serviceDefinition << "/// by overriding abstract methods" << endl;
-    serviceDefinition << "class " << serviceClassName << " : public sptk::CWSRequest" << endl;
+    serviceDefinition << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
     serviceDefinition << "{" << endl;
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
         string requestName = strip_namespace(itor->second.m_input->name());
         serviceDefinition << "   /// @brief Internal Web Service " << requestName << " processing" << endl;
-        serviceDefinition << "   /// @param requestNode sptk::CXmlElement*, Operation input/output XML data" << endl;
-        serviceDefinition << "   void process_" << requestName << "(sptk::CXmlElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
+        serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Operation input/output XML data" << endl;
+        serviceDefinition << "   void process_" << requestName << "(sptk::XMLElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
     }
     serviceDefinition << "protected:" << endl;
     serviceDefinition << "   /// @brief Internal SOAP body processor" << endl;
     serviceDefinition << "   ///" << endl;
     serviceDefinition << "   /// Receive incoming SOAP body of Web Service requests, and returns" << endl;
     serviceDefinition << "   /// application response." << endl;
-    serviceDefinition << "   /// @param requestNode sptk::CXmlElement*, Incoming and outgoing SOAP element" << endl;
-    serviceDefinition << "   virtual void requestBroker(sptk::CXmlElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
+    serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element" << endl;
+    serviceDefinition << "   virtual void requestBroker(sptk::XMLElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "   /// @brief Constructor" << endl;
     serviceDefinition << "   " << serviceClassName << "() {}" << endl << endl;
@@ -256,7 +256,7 @@ void CWSParser::generateDefinition(const Strings& usedClasses, ostream& serviceD
     serviceDefinition << "   // Application must overwrite these methods with processing of corresponding" << endl;
     serviceDefinition << "   // requests, reading data from input and writing data to output structures." << endl;
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
-        CWSOperation& operation = itor->second;
+        WSOperation& operation = itor->second;
         serviceDefinition << endl;
         serviceDefinition << "   /// @brief Web Service " << itor->first << " operation" << endl;
         serviceDefinition << "   ///" << endl;
@@ -278,7 +278,7 @@ void CWSParser::generateDefinition(const Strings& usedClasses, ostream& serviceD
     serviceDefinition << "#endif" << endl;
 }
 
-void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXCEPTIONS
+void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
@@ -290,15 +290,15 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
     string operationNames = serviceOperations.asString("|");
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
-    serviceImplementation << "#include <sptk5/wsdl/CWSParser.h>" << endl << endl;
+    serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl << endl;
 
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
-    serviceImplementation << "void " << serviceClassName << "::requestBroker(CXmlElement* requestNode) THROWS_EXCEPTIONS" << endl;
+    serviceImplementation << "void " << serviceClassName << "::requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS" << endl;
     serviceImplementation << "{" << endl;
     serviceImplementation << "   static const Strings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
-    serviceImplementation << "   string requestName = CWSParser::strip_namespace(requestNode->name());" << endl;
+    serviceImplementation << "   string requestName = WSParser::strip_namespace(requestNode->name());" << endl;
     serviceImplementation << "   int messageIndex = messageNames.indexOf(requestName);" << endl;
     serviceImplementation << "   try {" << endl;
     serviceImplementation << "      switch (messageIndex) {" << endl;
@@ -314,16 +314,16 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
     serviceImplementation << "      }" << endl;
     serviceImplementation << "   }" << endl;
     serviceImplementation << "   catch (const SOAPException& e) {" << endl;
-    serviceImplementation << "      CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
+    serviceImplementation << "      XMLElement* soapBody = (XMLElement*) requestNode->parent();" << endl;
     serviceImplementation << "      soapBody->clearChildren();" << endl;
-    serviceImplementation << "      string soap_namespace = CWSParser::get_namespace(soapBody->name());" << endl;
+    serviceImplementation << "      string soap_namespace = WSParser::get_namespace(soapBody->name());" << endl;
     serviceImplementation << "      if (!soap_namespace.empty()) soap_namespace += \":\";" << endl;
-    serviceImplementation << "      CXmlElement* faultNode = new CXmlElement(soapBody, (soap_namespace + \"Fault\").c_str());" << endl;
-    serviceImplementation << "      CXmlElement* faultCodeNode = new CXmlElement(faultNode, \"faultcode\");" << endl;
+    serviceImplementation << "      XMLElement* faultNode = new XMLElement(soapBody, (soap_namespace + \"Fault\").c_str());" << endl;
+    serviceImplementation << "      XMLElement* faultCodeNode = new XMLElement(faultNode, \"faultcode\");" << endl;
     serviceImplementation << "      faultCodeNode->text(soap_namespace + \"Client\");" << endl;
-    serviceImplementation << "      CXmlElement* faultStringNode = new CXmlElement(faultNode, \"faultstring\");" << endl;
+    serviceImplementation << "      XMLElement* faultStringNode = new XMLElement(faultNode, \"faultstring\");" << endl;
     serviceImplementation << "      faultStringNode->text(e.what());" << endl;
-    serviceImplementation << "      new CXmlElement(faultNode, \"detail\");" << endl;
+    serviceImplementation << "      new XMLElement(faultNode, \"detail\");" << endl;
     serviceImplementation << "   }" << endl;
     serviceImplementation << "}" << endl << endl;
 
@@ -337,16 +337,16 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
             requestNamespace = nameParts[0];
             requestName = nameParts[1];
         }
-        CWSOperation& operation = itor->second;
-        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(CXmlElement* requestNode) THROWS_EXCEPTIONS" << endl;
+        WSOperation& operation = itor->second;
+        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(XMLElement* requestNode) THROWS_EXCEPTIONS" << endl;
         serviceImplementation << "{" << endl;
         serviceImplementation << "   C" << operation.m_input->name() << " inputData((m_namespace + \"" << operation.m_input->name() << "\").c_str());" << endl;
         serviceImplementation << "   C" << operation.m_output->name() << " outputData((m_namespace + \"" << operation.m_output->name() << "\").c_str());" << endl;
         serviceImplementation << "   inputData.load(requestNode);" << endl;
-        serviceImplementation << "   CXmlElement* soapBody = (CXmlElement*) requestNode->parent();" << endl;
+        serviceImplementation << "   XMLElement* soapBody = (XMLElement*) requestNode->parent();" << endl;
         serviceImplementation << "   soapBody->clearChildren();" << endl;
         serviceImplementation << "   " << operationName << "(inputData,outputData);" << endl;
-        serviceImplementation << "   CXmlElement* response = new CXmlElement(soapBody, (m_namespace + \"" << operation.m_output->name() << "\").c_str());" << endl;
+        serviceImplementation << "   XMLElement* response = new XMLElement(soapBody, (m_namespace + \"" << operation.m_output->name() << "\").c_str());" << endl;
         serviceImplementation << "   outputData.unload(response);" << endl;
         serviceImplementation << "}" << endl << endl;
     }
@@ -354,7 +354,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 
 /// @brief Stores parsed classes to files in source directory
 /// @param sourceDirectory std::string, Directory to store output classes
-void CWSParser::generate(std::string sourceDirectory, std::string headerFile) THROWS_EXCEPTIONS
+void WSParser::generate(std::string sourceDirectory, std::string headerFile) THROWS_EXCEPTIONS
 {
     Buffer externalHeader;
     if (!headerFile.empty())
@@ -362,9 +362,9 @@ void CWSParser::generate(std::string sourceDirectory, std::string headerFile) TH
 
     Strings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
-        CWSParserComplexType* complexType = itor->second;
+        WSParserComplexType* complexType = itor->second;
         //string name = itor->first;
-        CSourceModule module("C" + complexType->name(), sourceDirectory);
+        SourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
         complexType->generate(module.header(), module.source(), externalHeader.c_str());
         usedClasses.push_back("C" + complexType->name());
@@ -373,7 +373,7 @@ void CWSParser::generate(std::string sourceDirectory, std::string headerFile) TH
     // Generate Service class definition
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
-    CSourceModule serviceModule(serviceClassName, sourceDirectory);
+    SourceModule serviceModule(serviceClassName, sourceDirectory);
     serviceModule.open();
 
     if (externalHeader.bytes()) {

@@ -65,7 +65,7 @@ CTreeView::CTreeView(int x,int y,int w,int h,const char *label)
 
 CTreeView::~CTreeView() {}
 
-CLayoutClient* CTreeView::creator(CXmlNode *node) {
+CLayoutClient* CTreeView::creator(XMLNode *node) {
     CTreeView* widget = new CTreeView("",10,SP_ALIGN_TOP);
     widget->load(node);
     return widget;
@@ -106,11 +106,11 @@ void CTreeView::save(CQuery *updateQuery) {
     param = data();
 }
 
-void CTreeView::load(const CXmlNode *node) {
+void CTreeView::load(const XMLNode *node) {
     m_treeControl->load(node);
 }
 
-void CTreeView::save(CXmlNode *node) const {
+void CTreeView::save(XMLNode *node) const {
     m_treeControl->save(node);
 }
 

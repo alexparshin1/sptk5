@@ -79,7 +79,7 @@ string Registry::homeDirectory()
 }
 
 Registry::Registry(string fileName, string programGroupName, RegistryMode mode)
-        : CXmlDoc("Configuration"), m_fileName(fileName)
+        : XMLDocument("Configuration"), m_fileName(fileName)
 {
     if (m_fileName.length()) {
         string directory;
@@ -131,20 +131,20 @@ void Registry::load(const Strings& inputData)
 {
     clear();
     Buffer buffer = inputData.asString("\n");
-    CXmlDoc::load(buffer);
+    XMLDocument::load(buffer);
 }
 
 void Registry::load(const char* inputData)
 {
     clear();
-    CXmlDoc::load(inputData);
+    XMLDocument::load(inputData);
 }
 
 void Registry::load()
 {
     Buffer inputData;
     inputData.loadFromFile(m_fileName);
-    CXmlDoc::load(inputData);
+    XMLDocument::load(inputData);
 }
 
 void Registry::save(Strings& outputData)
@@ -152,7 +152,7 @@ void Registry::save(Strings& outputData)
     Buffer buffer;
     prepareDirectory();
     outputData.clear();
-    CXmlDoc::save(buffer);
+    XMLDocument::save(buffer);
     outputData.fromString(buffer.data(), "\n", Strings::SM_DELIMITER);
 }
 
@@ -160,17 +160,17 @@ void Registry::save()
 {
     Buffer outputData;
     prepareDirectory();
-    CXmlDoc::save(outputData);
+    XMLDocument::save(outputData);
     outputData.saveToFile(m_fileName);
 }
 
-void Registry::clean(CXmlNode* node)
+void Registry::clean(XMLNode* node)
 {
-    CXmlNode::iterator itor = node->begin();
-    CXmlNode::iterator iend = node->end();
-    CXmlNodeVector toDelete;
+    XMLNode::iterator itor = node->begin();
+    XMLNode::iterator iend = node->end();
+    XMLNodeVector toDelete;
     for (; itor != iend; itor++) {
-        CXmlNode* anode = *itor;
+        XMLNode* anode = *itor;
         if (anode->type() != DOM_ELEMENT) {
             toDelete.push_back(anode);
             continue;
@@ -178,20 +178,20 @@ void Registry::clean(CXmlNode* node)
         if (anode->size())
             clean(anode);
     }
-    CXmlNodeVector::iterator it = toDelete.begin();
+    XMLNodeVector::iterator it = toDelete.begin();
     for (; it != toDelete.end(); it++)
         node->remove
                     (*it);
 }
 
-void Registry::load(const CXmlDoc& data)
+void Registry::load(const XMLDocument& data)
 {
     clear();
     copy(data);
     clean(this);
 }
 
-void Registry::save(CXmlDoc& data) const
+void Registry::save(XMLDocument& data) const
 {
     data.copy(*this);
 }

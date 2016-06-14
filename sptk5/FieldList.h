@@ -209,8 +209,8 @@ public:
     /// @brief Exports data into XML node
     ///
     /// @see setXmlMode() for details.
-    /// @param xml const CXmlNode&, an XML node to store fields into
-    void toXML(CXmlNode& xml) const;
+    /// @param xml const XMLNode&, an XML node to store fields into
+    void toXML(XMLNode& xml) const;
 };
 }
 
@@ -278,8 +278,8 @@ SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::Buffer
 ///
 /// Exports the data from fields into XML node
 /// @param fieldList CFieldList&, a list of fields to assign
-/// @param fields const CXmlNode&, an XML node variable to read fields into
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::CXmlNode& fields);
+/// @param fields const XMLNode&, an XML node variable to read fields into
+SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::XMLNode& fields);
 
 /// @}
 

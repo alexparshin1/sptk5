@@ -41,21 +41,21 @@
 using namespace std;
 using namespace sptk;
 
-void build_tree(CXmlElement *n, CTreeControl *tree, CTreeItem *item)
+void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
 {
     if (!n)
         return;
 
     CTreeItem *w = 0;
     CTreeItem *newItem = 0;
-    if (n->size() || n->type() & (CXmlNode::DOM_CDATA_SECTION | CXmlNode::DOM_COMMENT)) {
+    if (n->size() || n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
         // Create a new item group
         if (item)
             newItem = item->addItem("", 0L, 0L, n);
         else
             newItem = tree->addItem("", 0L, 0L, n);
         w = newItem;
-        if (n->type() & (CXmlNode::DOM_CDATA_SECTION | CXmlNode::DOM_COMMENT)) {
+        if (n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
             w->label(n->name().c_str());
             w = newItem->addItem("", 0L, 0L, n);
         }
@@ -68,26 +68,26 @@ void build_tree(CXmlElement *n, CTreeControl *tree, CTreeItem *item)
     }
 
     string label;
-    const CXmlAttributes &attr_map = n->attributes();
+    const XMLAttributes &attr_map = n->attributes();
 
     switch (n->type())
     {
-    case CXmlNode::DOM_ELEMENT:
+    case XMLNode::DOM_ELEMENT:
         label = n->name();
         if (n->hasAttributes()) {
-            CXmlAttributes::const_iterator it = attr_map.begin();
+            XMLAttributes::const_iterator it = attr_map.begin();
             for (; it != attr_map.end(); it++)
                 label += string(" ") + (*it)->name() + string("=*") + (*it)->value() + "*";
         }
         break;
 
-    case CXmlNode::DOM_PI:
+    case XMLNode::DOM_PI:
         label = n->name();
         label += ": ";
         label += n->value();
         break;
 
-    case CXmlNode::DOM_DOCUMENT:
+    case XMLNode::DOM_DOCUMENT:
         label = n->name();
         break;
 
@@ -98,22 +98,22 @@ void build_tree(CXmlElement *n, CTreeControl *tree, CTreeItem *item)
 
     w->label(label.c_str());
 
-    CXmlNode::iterator itor = n->begin();
-    CXmlNode::iterator iend = n->end();
+    XMLNode::iterator itor = n->begin();
+    XMLNode::iterator iend = n->end();
     for (; itor != iend; itor++) {
-        CXmlElement* node = dynamic_cast<CXmlElement*>(*itor);
+        XMLElement* node = dynamic_cast<XMLElement*>(*itor);
         if (node)
             build_tree(node, tree, newItem);
     }
 }
 
-CXmlDoc *build_doc()
+XMLDocument *build_doc()
 {
-    CXmlDoc *doc = new CXmlDoc();
+    XMLDocument *doc = new XMLDocument();
 
-    CXmlNode *rootNode = new CXmlElement(*doc, "MyDocument");
-    CXmlNode *hello = new CXmlElement(*rootNode, "HelloTag");
-    new CXmlElement(*hello, "Hello all!");
+    XMLNode *rootNode = new XMLElement(*doc, "MyDocument");
+    XMLNode *hello = new XMLElement(*rootNode, "HelloTag");
+    new XMLElement(*hello, "Hello all!");
 
     try {
         Buffer savebuffer;
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
     try {
 
         DateTime start = DateTime::Now();
-        CXmlDoc *doc = new CXmlDoc;
+        XMLDocument *doc = new XMLDocument;
         doc->load(buffer);
         DateTime end = DateTime::Now();
 

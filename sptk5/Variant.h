@@ -423,20 +423,20 @@ public:
     static VariantType nameType(const char* name);
 
     /// @brief Loads the data from XML node
-    /// @param node const CXmlNode&, XML node to load data from
-    void load(const CXmlNode& node);
+    /// @param node const XMLNode&, XML node to load data from
+    void load(const XMLNode& node);
 
     /// @brief Loads the data from XML node
-    /// @param node const CXmlNode*, XML node to load data from
-    void load(const CXmlNode* node);
+    /// @param node const XMLNode*, XML node to load data from
+    void load(const XMLNode* node);
 
     /// @brief Saves the data into XML node
-    /// @param node CXmlNode&, XML node to save data into
-    void save(CXmlNode& node) const;
+    /// @param node XMLNode&, XML node to save data into
+    void save(XMLNode& node) const;
 
     /// @brief Saves the data into XML node
-    /// @param node CXmlNode*, XML node to save data into
-    void save(CXmlNode* node) const;
+    /// @param node XMLNode*, XML node to save data into
+    void save(XMLNode* node) const;
 };
 /// @}
 }

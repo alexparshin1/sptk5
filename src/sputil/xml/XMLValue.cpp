@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSRequest.cpp - description                           ║
+║                       XMLValue.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,46 +26,72 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/CWSRequest.h>
+#include <sptk5/cxml>
 
-using namespace std;
 using namespace sptk;
 
-void CWSRequest::processRequest(CXmlDoc* request) THROWS_EXCEPTIONS
+XMLValue::operator bool() const
 {
-    CXmlElement* soapEnvelope = NULL;
-    for (CXmlElement::iterator itor = request->begin(); itor != request->end(); itor++) {
-        CXmlElement* node = dynamic_cast<CXmlElement*>(*itor);
-        if (!node)
-            continue;
-        Strings nameParts(node->name(),":");
-        if (nameParts.size() > 1 && nameParts[1] == "Envelope") {
-            soapEnvelope = node;
-            m_namespace = nameParts[0] + ":";
-            break;
-        }
-        else if (node->name() == "Envelope") {
-            soapEnvelope = node;
-            break;
-        }
-    }
-    if (!soapEnvelope)
-        throwException("Can't find SOAP Envelope node");
+    if (m_value.empty())
+        return false;
+    char ch = m_value.c_str()[0];
+    const char *p = strchr("TtYy1", ch);
+    return p != 0;
+}
 
-    CXmlElement* soapBody = dynamic_cast<CXmlElement*>(soapEnvelope->findFirst(m_namespace + "Body"));
-    if (!soapBody)
-        throwException("Can't find SOAP Body node in incoming request");
+XMLValue& XMLValue::operator =(bool v)
+{
+    if (v)
+        m_value.assign("Y", 1);
+    else
+        m_value.assign("N", 1);
+    return *this;
+}
 
-    CXmlElement* requestNode = NULL;
-    for (CXmlElement::iterator itor = soapBody->begin(); itor != soapBody->end(); itor++) {
-        CXmlElement* node = dynamic_cast<CXmlElement*>(*itor);
-        if (node) {
-            requestNode = node;
-            break;
-        }
-    }
-    if (!requestNode)
-        throwException("Can't find request node in SOAP Body");
+XMLValue& XMLValue::operator =(int32_t v)
+{
+    char buff[64];
+    uint32_t sz = (uint32_t) sprintf(buff, "%i", v);
+    m_value.assign(buff, sz);
+    return *this;
+}
 
-    requestBroker(requestNode);
+XMLValue& XMLValue::operator =(uint32_t v)
+{
+    char buff[64];
+    uint32_t sz = (uint32_t) sprintf(buff, "%u", v);
+    m_value.assign(buff, sz);
+    return *this;
+}
+
+XMLValue& XMLValue::operator =(int64_t v)
+{
+    char buff[64];
+#ifndef _WIN32
+    uint32_t sz = (uint32_t) sprintf(buff,"%li",v);
+#else
+    uint32_t sz = (uint32_t) sprintf(buff, "%lli", v);
+#endif
+    m_value.assign(buff, sz);
+    return *this;
+}
+
+XMLValue& XMLValue::operator =(uint64_t v)
+{
+    char buff[64];
+#ifndef _WIN32
+    uint32_t sz = (uint32_t) sprintf(buff,"%lu",v);
+#else
+    uint32_t sz = (uint32_t) sprintf(buff, "%llu", v);
+#endif
+    m_value.assign(buff, sz);
+    return *this;
+}
+
+XMLValue& XMLValue::operator =(double v)
+{
+    char buff[64];
+    uint32_t sz = (uint32_t) sprintf(buff, "%f", v);
+    m_value.assign(buff, sz);
+    return *this;
 }

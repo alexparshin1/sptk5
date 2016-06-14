@@ -25,7 +25,7 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/wsdl/CWSParser.h>
+#include <sptk5/wsdl/WSParser.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,7 +40,7 @@ void help()
 
 int main(int argc, const char* argv[])
 {
-    CWSParser   wsParser;
+    WSParser   wsParser;
     if (argc < 2) {
         help();
         return 1;

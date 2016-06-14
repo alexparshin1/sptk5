@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlNode.cpp - description                             ║
+║                       XMLNode.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -37,34 +37,34 @@ static const std::string emptyString;
 static const string indentsString(1024, ' ');
 
 /// An empty nodes set to emulate a set of stub iterators
-static CXmlNodeList emptyNodes;
+static XMLNodeList emptyNodes;
 
-const std::string& CXmlNode::value() const
+const std::string& XMLNode::value() const
 {
     return emptyString;
 }
 
-CXmlNode::iterator CXmlNode::begin()
+XMLNode::iterator XMLNode::begin()
 {
     return emptyNodes.end();
 }
 
-CXmlNode::const_iterator CXmlNode::begin() const
+XMLNode::const_iterator XMLNode::begin() const
 {
     return emptyNodes.end();
 }
 
-CXmlNode::iterator CXmlNode::end()
+XMLNode::iterator XMLNode::end()
 {
     return emptyNodes.end();
 }
 
-CXmlNode::const_iterator CXmlNode::end() const
+XMLNode::const_iterator XMLNode::end() const
 {
     return emptyNodes.end();
 }
 
-void CXmlNode::parent(CXmlNode *p)
+void XMLNode::parent(XMLNode *p)
 {
     if (m_parent == p)
         return;
@@ -77,7 +77,7 @@ void CXmlNode::parent(CXmlNode *p)
         m_parent->push_back(this);
 }
 
-static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CXPathElement& pathElement)
+static void parsePathElement(XMLDocument* document, const string& pathElementStr, XPathElement& pathElement)
 {
     pathElement.elementName = NULL;
     pathElement.attributeName = NULL;
@@ -138,7 +138,7 @@ static void parsePathElement(CXmlDoc* document, const string& pathElementStr, CX
     }
 }
 
-bool CXmlNode::matchPathElement(const CXPathElement& pathElement, int nodePosition, const string* starPointer,
+bool XMLNode::matchPathElement(const XPathElement& pathElement, int nodePosition, const string* starPointer,
         bool& nameMatches, bool& positionMatches)
 {
     if (pathElement.elementName && pathElement.elementName != starPointer && !nameIs(pathElement.elementName))
@@ -151,12 +151,12 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement, int nodePositi
     }
     // Node criteria is attribute
     else if (pathElement.attributeName && type() == DOM_ELEMENT) {
-        CXmlAttributes& attributes = this->attributes();
+        XMLAttributes& attributes = this->attributes();
         bool attributeMatch = false;
         if (pathElement.attributeValueDefined) {
             if (pathElement.attributeName == starPointer) {
-                for (CXmlAttributes::const_iterator attr = attributes.begin(); attr != attributes.end(); attr++) {
-                    CXmlNode* a = *attr;
+                for (XMLAttributes::const_iterator attr = attributes.begin(); attr != attributes.end(); attr++) {
+                    XMLNode* a = *attr;
                     if (a->name() == pathElement.attributeValue) {
                         attributeMatch = true;
                         break;
@@ -178,14 +178,14 @@ bool CXmlNode::matchPathElement(const CXPathElement& pathElement, int nodePositi
 #endif
 }
 
-void CXmlNode::scanDescendents(CXmlNodeVector& nodes, const std::vector<CXPathElement>& pathElements, int pathPosition,
+void XMLNode::scanDescendents(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
         const std::string* starPointer)
 {
-    const CXPathElement& pathElement = pathElements[size_t(pathPosition)];
-    CXmlNode* lastNode = 0;
+    const XPathElement& pathElement = pathElements[size_t(pathPosition)];
+    XMLNode* lastNode = 0;
     int currentPosition = 1;
     for (iterator itor = begin(); itor != end(); itor++) {
-        CXmlNode* node = *itor;
+        XMLNode* node = *itor;
         bool nameMatches = false;
         bool positionMatches = false;
         if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
@@ -204,28 +204,28 @@ void CXmlNode::scanDescendents(CXmlNodeVector& nodes, const std::vector<CXPathEl
         lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
 }
 
-void CXmlNode::matchNode(CXmlNodeVector& nodes, const vector<CXPathElement>& pathElements, int pathPosition,
+void XMLNode::matchNode(XMLNodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
         const std::string* starPointer)
 {
     pathPosition++;
     if (pathPosition == (int) pathElements.size()) {
-        const CXPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
+        const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
         if (pathElement.elementName)
             nodes.insert(nodes.end(), this);
         else if (pathElement.attributeName) {
-            CXmlAttribute* attributeNode = attributes().getAttributeNode(*pathElement.attributeName);
+            XMLAttribute* attributeNode = attributes().getAttributeNode(*pathElement.attributeName);
             if (attributeNode)
                 nodes.insert(nodes.end(), attributeNode);
         }
         return;
     }
 
-    const CXPathElement& pathElement = pathElements[size_t(pathPosition)];
+    const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    CXmlNode* lastNode = 0;
+    XMLNode* lastNode = 0;
     int currentPosition = 1;
     for (iterator itor = begin(); itor != end(); itor++) {
-        CXmlNode* node = *itor;
+        XMLNode* node = *itor;
         bool nameMatches;
         bool positionMatches;
         //string nodeName = node->name();
@@ -241,7 +241,7 @@ void CXmlNode::matchNode(CXmlNodeVector& nodes, const vector<CXPathElement>& pat
         lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
 }
 
-void CXmlNode::select(CXmlNodeVector& nodes, string xpath)
+void XMLNode::select(XMLNodeVector& nodes, string xpath)
 {
     const char* ptr;
     nodes.clear();
@@ -254,7 +254,7 @@ void CXmlNode::select(CXmlNodeVector& nodes, string xpath)
         ptr = xpath.c_str();
 
     Strings pathElementStrs(ptr, "/");
-    vector<CXPathElement> pathElements(pathElementStrs.size());
+    vector<XPathElement> pathElements(pathElementStrs.size());
     for (unsigned i = 0; i < pathElements.size(); i++)
         parsePathElement(document(), pathElementStrs[i], pathElements[i]);
 
@@ -262,7 +262,7 @@ void CXmlNode::select(CXmlNodeVector& nodes, string xpath)
     matchNode(nodes, pathElements, -1, starPointer);
 }
 
-void CXmlNode::copy(const CXmlNode& node)
+void XMLNode::copy(const XMLNode& node)
 {
     name(node.name());
     value(node.value());
@@ -273,25 +273,25 @@ void CXmlNode::copy(const CXmlNode& node)
     const_iterator itor = node.begin();
     const_iterator iend = node.end();
     for (; itor != iend; itor++) {
-        const CXmlNode*childNode = *itor;
+        const XMLNode*childNode = *itor;
         switch (childNode->type())
         {
         case DOM_ELEMENT: {
-            CXmlNode* element = new CXmlElement(this, "");
+            XMLNode* element = new XMLElement(this, "");
             element->copy(*childNode);
         }
             break;
         case DOM_PI:
-            new CXmlPI(*this, childNode->name(), childNode->value());
+            new XMLPI(*this, childNode->name(), childNode->value());
             break;
         case DOM_TEXT:
-            new CXmlText(*this, childNode->value());
+            new XMLText(*this, childNode->value());
             break;
         case DOM_CDATA_SECTION:
-            new CXmlCDataSection(*this, childNode->value());
+            new XMLCDataSection(*this, childNode->value());
             break;
         case DOM_COMMENT:
-            new CXmlComment(*this, childNode->value());
+            new XMLComment(*this, childNode->value());
             break;
         default:
             break;
@@ -299,7 +299,7 @@ void CXmlNode::copy(const CXmlNode& node)
     }
 }
 
-std::string CXmlNode::text() const
+std::string XMLNode::text() const
 {
     std::string ret;
 
@@ -309,7 +309,7 @@ std::string CXmlNode::text() const
         const_iterator itor = begin();
         const_iterator iend = end();
         for (; itor != iend; itor++) {
-            CXmlNode *np = *itor;
+            XMLNode *np = *itor;
             if (np->type() & (DOM_TEXT | DOM_CDATA_SECTION))
                 ret += np->value();
         }
@@ -318,13 +318,13 @@ std::string CXmlNode::text() const
     return ret;
 }
 
-void CXmlNode::text(std::string txt)
+void XMLNode::text(std::string txt)
 {
     clearChildren();
-    new CXmlText(*this, txt);
+    new XMLText(*this, txt);
 }
 
-void CXmlNode::save(Buffer &buffer, int indent) const
+void XMLNode::save(Buffer &buffer, int indent) const
 {
     // output indendation spaces
     if (indent > 0)
@@ -334,12 +334,12 @@ void CXmlNode::save(Buffer &buffer, int indent) const
         // Output tag name
         buffer.append('<');
         buffer.append(name());
-        const CXmlAttributes& attributes = this->attributes();
+        const XMLAttributes& attributes = this->attributes();
         if (attributes.size()) {
             // Output attributes
             Buffer real_id, real_val;
-            for (CXmlAttributes::const_iterator it = attributes.begin(); it != attributes.end(); it++) {
-                CXmlNode* attributeNode = *it;
+            for (XMLAttributes::const_iterator it = attributes.begin(); it != attributes.end(); it++) {
+                XMLNode* attributeNode = *it;
                 real_id.bytes(0);
                 real_val.bytes(0);
                 if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
@@ -385,7 +385,7 @@ void CXmlNode::save(Buffer &buffer, int indent) const
             bool only_cdata;
             const_iterator itor = begin();
             const_iterator iend = end();
-            CXmlNode *nd = *itor;
+            XMLNode *nd = *itor;
             if (size() == 1 && nd->type() == DOM_TEXT) {
                 only_cdata = true;
                 buffer.append('>');
@@ -396,7 +396,7 @@ void CXmlNode::save(Buffer &buffer, int indent) const
 
             // output all subnodes
             for (; itor != iend; itor++) {
-                CXmlNode *np = *itor;
+                XMLNode *np = *itor;
                 if (only_cdata)
                     np->save(buffer, -1);
                 else {
@@ -426,14 +426,14 @@ void CXmlNode::save(Buffer &buffer, int indent) const
     }
 }
 
-CXmlNode *CXmlNode::findFirst(std::string aname, bool recursively) const
+XMLNode *XMLNode::findFirst(std::string aname, bool recursively) const
 {
     for (const_iterator itor = begin(); itor != end(); itor++) {
-        CXmlNode *node = *itor;
+        XMLNode *node = *itor;
         if (node->name() == aname)
             return node;
         if (recursively && node->size()) {
-            CXmlNode *cnode = node->findFirst(aname, true);
+            XMLNode *cnode = node->findFirst(aname, true);
             if (cnode)
                 return cnode;
         }
@@ -441,42 +441,42 @@ CXmlNode *CXmlNode::findFirst(std::string aname, bool recursively) const
     return 0L;
 }
 
-CXmlNode *CXmlNode::findOrCreate(std::string aname, bool recursively)
+XMLNode *XMLNode::findOrCreate(std::string aname, bool recursively)
 {
-    CXmlNode *node = findFirst(aname, recursively);
+    XMLNode *node = findFirst(aname, recursively);
     if (node)
         return node;
-    return new CXmlElement(*this, aname);
+    return new XMLElement(*this, aname);
 }
 
-const std::string& CXmlBaseTextNode::nodeName() const
+const std::string& XMLBaseTextNode::nodeName() const
 {
     return emptyString;
 }
 
-void CXmlNamedItem::name(const std::string& name)
+void XMLNamedItem::name(const std::string& name)
 {
     m_name = &document()->shareString(name.c_str());
 }
 
-void CXmlNamedItem::name(const char *name)
+void XMLNamedItem::name(const char *name)
 {
     m_name = &document()->shareString(name);
 }
 
-void CXmlElement::insert(iterator itor, CXmlNode* node)
+void XMLElement::insert(iterator itor, XMLNode* node)
 {
     m_nodes.insert(itor, node);
     node->m_parent = this;
 }
 
-void CXmlElement::push_back(CXmlNode* node)
+void XMLElement::push_back(XMLNode* node)
 {
     m_nodes.insert(m_nodes.end(), node);
     node->m_parent = this;
 }
 
-void CXmlElement::unlink(CXmlNode* node)
+void XMLElement::unlink(XMLNode* node)
 {
     iterator itor = find(begin(), end(), node);
     if (itor == end())
@@ -484,7 +484,7 @@ void CXmlElement::unlink(CXmlNode* node)
     m_nodes.erase(itor);
 }
 
-void CXmlElement::remove(CXmlNode* node)
+void XMLElement::remove(XMLNode* node)
 {
     iterator itor = find(begin(), end(), node);
     if (itor == end())
@@ -493,41 +493,41 @@ void CXmlElement::remove(CXmlNode* node)
     m_nodes.erase(itor);
 }
 
-void CXmlElement::clearChildren()
+void XMLElement::clearChildren()
 {
     m_nodes.clear();
 }
 
-void CXmlElement::clear()
+void XMLElement::clear()
 {
-    CXmlNode::clear();
+    XMLNode::clear();
     m_nodes.clear();
     m_attributes.clear();
 }
 
-void CXmlPI::name(const std::string& name)
+void XMLPI::name(const std::string& name)
 {
     m_name = &document()->shareString(name.c_str());
 }
 
-void CXmlPI::name(const char *name)
+void XMLPI::name(const char *name)
 {
     m_name = &document()->shareString(name);
 }
 
-const std::string& CXmlComment::nodeName() const
+const std::string& XMLComment::nodeName() const
 {
     static const string nodeNameString("#comment");
     return nodeNameString;
 }
 
-const std::string& CXmlText::nodeName() const
+const std::string& XMLText::nodeName() const
 {
     static const string nodeNameString("#text");
     return nodeNameString;
 }
 
-const std::string& CXmlCDataSection::nodeName() const
+const std::string& XMLCDataSection::nodeName() const
 {
     static const string nodeNameString("#cdata-section");
     return nodeNameString;

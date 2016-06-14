@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlElement.h - description                            ║
+║                       XMLElement.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,11 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLELEMENT_H__
-#define __CXMLELEMENT_H__
+#ifndef __SPTK_XMLELEMENT_H__
+#define __SPTK_XMLELEMENT_H__
 
 #include <sptk5/Buffer.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/xml/XMLValue.h>
 #include <sptk5/xml/XMLAttributes.h>
@@ -44,55 +44,55 @@ namespace sptk {
 /// @addtogroup XML
 /// @{
 
-class CXmlDoc;
+class XMLDocument;
 
 /// @brief XML Element is a named item that may optionally have sub-nodes and attributes
-class SP_EXPORT CXmlElement : public CXmlNamedItem
+class SP_EXPORT XMLElement : public XMLNamedItem
 {
-    friend class CXmlDoc;
-    CXmlNodeList       m_nodes;              ///< The list of subnodes
+    friend class XMLDocument;
+    XMLNodeList       m_nodes;              ///< The list of subnodes
 
 protected:
-    CXmlAttributes     m_attributes;         ///< Node attributes
+    XMLAttributes     m_attributes;         ///< Node attributes
 
-    /// @brief Protected constructor for creating CXmlDoc only
+    /// @brief Protected constructor for creating XMLDoc only
     ///
-    /// @param doc CXmlDoc&, a document.
-    CXmlElement(CXmlDoc& doc) : 
-        CXmlNamedItem(doc), 
+    /// @param doc XMLDoc&, a document.
+    XMLElement(XMLDocument& doc) : 
+        XMLNamedItem(doc), 
         m_attributes(this) 
     {}
 
 public:
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param tagname const char*, a name of XML tag
-    CXmlElement(CXmlNode& parent, const char* tagname) :
-        CXmlNamedItem(parent,tagname),
+    XMLElement(XMLNode& parent, const char* tagname) :
+        XMLNamedItem(parent,tagname),
         m_attributes(this) 
     {}
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param tagname const char*, a name of XML tag
-    CXmlElement(CXmlNode* parent, const char* tagname) : 
-        CXmlNamedItem(*parent,tagname),
+    XMLElement(XMLNode* parent, const char* tagname) : 
+        XMLNamedItem(*parent,tagname),
         m_attributes(this)
     {}
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node.
+    /// @param parent XMLNode &, a parent node.
     /// @param tagname const string&, a name of XML tag
-    CXmlElement(CXmlNode& parent, const std::string& tagname) : 
-        CXmlNamedItem(parent,tagname),
+    XMLElement(XMLNode& parent, const std::string& tagname) : 
+        XMLNamedItem(parent,tagname),
         m_attributes(this)
     {}
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_ELEMENT;
     }
@@ -135,26 +135,26 @@ public:
 
     /// @brief Appends a subnode
     ///
-    /// @param node CXmlNode*, node to append
-    virtual void push_back(CXmlNode* node);
+    /// @param node XMLNode*, node to append
+    virtual void push_back(XMLNode* node);
 
     /// @brief Inserts a subnode
     ///
     /// @param pos iterator, insert position with the list of subnodes
-    /// @param node CXmlNode*, node to insert
-    virtual void insert(iterator pos, CXmlNode* node);
+    /// @param node XMLNode*, node to insert
+    virtual void insert(iterator pos, XMLNode* node);
 
     /// @brief Removes a subnode
     ///
     /// Any memory allocated for subnode is released and subnode is
     /// removed from its parent
-    /// @param node CXmlNode*, node to remove
-    virtual void remove(CXmlNode* node);
+    /// @param node XMLNode*, node to remove
+    virtual void remove(XMLNode* node);
 
     /// @brief Removes a subnode
     ///
     /// Disconnects subnode from parent (this node)
-    virtual void unlink(CXmlNode* node);
+    virtual void unlink(XMLNode* node);
 
     /// @brief Deletes all child nodes
     ///
@@ -168,13 +168,13 @@ public:
     virtual void clear();
 
     /// @brief Returns referrence to node attributes
-    virtual CXmlAttributes& attributes()
+    virtual XMLAttributes& attributes()
     {
         return m_attributes;
     }
 
     /// @brief Returns referrence to node attributes (const version)
-    virtual const CXmlAttributes& attributes() const
+    virtual const XMLAttributes& attributes() const
     {
         return m_attributes;
     }
@@ -198,7 +198,7 @@ public:
     /// @param attr std::string, name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
     /// @returns attribute value
-    virtual CXmlValue getAttribute(std::string attr, const char *defaultValue="") const
+    virtual XMLValue getAttribute(std::string attr, const char *defaultValue="") const
     {
         return m_attributes.getAttribute(attr,defaultValue);
     }
@@ -207,9 +207,9 @@ public:
     ///
     /// If attribute is not found, it's added to map.
     /// @param attr const char*, attribute name
-    /// @param value CXmlValue, attribute value
+    /// @param value XMLValue, attribute value
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    virtual void setAttribute(const char *attr, CXmlValue value, const char *defaultValue="")
+    virtual void setAttribute(const char *attr, XMLValue value, const char *defaultValue="")
     {
         m_attributes.setAttribute(attr,value,defaultValue);
     }
@@ -218,9 +218,9 @@ public:
     ///
     /// If attribute is not found, it's added to map.
     /// @param attr const string&, an attribute name
-    /// @param value CXmlValue, attribute value
+    /// @param value XMLValue, attribute value
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    virtual void setAttribute(const std::string& attr, CXmlValue value, const char *defaultValue="")
+    virtual void setAttribute(const std::string& attr, XMLValue value, const char *defaultValue="")
     {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
     }

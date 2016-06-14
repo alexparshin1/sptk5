@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSParserComplexType.h - description                   ║
+║                       WSParserComplexType.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,15 +26,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWSPARSERCOMPLEXTYPE_H__
-#define __CWSPARSERCOMPLEXTYPE_H__
+#ifndef __SPTK_WSPARSERCOMPLEXTYPE_H__
+#define __SPTK_WSPARSERCOMPLEXTYPE_H__
 
 #include <sptk5/cxml>
-#include <sptk5/wsdl/CWSBasicTypes.h>
+#include <sptk5/wsdl/WSBasicTypes.h>
 #include <iostream>
 #include <list>
 #include <set>
-#include "CWSRestriction.h"
+#include "WSRestriction.h"
 
 namespace sptk
 {
@@ -43,30 +43,30 @@ namespace sptk
 /// @{
 
 /// @brief Multiplicity flag
-enum CWSMultiplicity {
-    CWSM_REQUIRED       = 1,    ///< Element is required
-    CWSM_OPTIONAL       = 2,    ///< Element is optional
-    CWSM_ZERO_OR_MORE   = 4,    ///< Element may occur 0 or more times
-    CWSM_ONE_OR_MORE    = 8     ///< Element may occur one or more times
+enum WSMultiplicity {
+    WSM_REQUIRED       = 1,    ///< Element is required
+    WSM_OPTIONAL       = 2,    ///< Element is optional
+    WSM_ZERO_OR_MORE   = 4,    ///< Element may occur 0 or more times
+    WSM_ONE_OR_MORE    = 8     ///< Element may occur one or more times
 };
 
 /// @brief WSDL element attribute
-class CWSParserAttribute
+class WSParserAttribute
 {
     std::string     m_name;         ///< Attribute name
     std::string     m_wsTypeName;   ///< Attribute type name
     std::string     m_cxxTypeName;  ///< C++ type name
-    CWSMultiplicity m_multiplicity; ///< Multiplicity flag
+    WSMultiplicity  m_multiplicity; ///< Multiplicity flag
 
 public:
     /// @brief Constructor
     /// @param name std::string, Attribute name
     /// @param typeName std::string, Attribute WSDL type name
-    CWSParserAttribute(std::string name="", std::string typeName="");
+    WSParserAttribute(std::string name="", std::string typeName="");
 
     /// @brief Copy constructor
     /// @param attr const CWSParserAttribute&, Attribute to copy from
-    CWSParserAttribute(const CWSParserAttribute& attr);
+    WSParserAttribute(const WSParserAttribute& attr);
 
     /// @brief Returns attribute name
     std::string name() const { return m_name; }
@@ -82,20 +82,20 @@ public:
 };
 
 /// @brief Parses WSDL complexType element
-class CWSParserComplexType
+class WSParserComplexType
 {
     /// @brief Map of attribute names to attribute objects
-    typedef std::map<std::string,CWSParserAttribute*>   AttributeMap;
+    typedef std::map<std::string,WSParserAttribute*>   AttributeMap;
 
     /// @brief List of complex type elements
-    typedef std::list<CWSParserComplexType*>            ElementList;
+    typedef std::list<WSParserComplexType*>            ElementList;
 protected:
     std::string             m_name;             ///< Element name
     std::string             m_typeName;         ///< WSDL type name
-    const CXmlElement*      m_element;          ///< XML element for that WSDL element
+    const XMLElement*      m_element;          ///< XML element for that WSDL element
     AttributeMap            m_attributes;       ///< Element attributes
     ElementList             m_sequence;         ///< Child element sequence
-    CWSMultiplicity         m_multiplicity;     ///< Multiplicity flag
+    WSMultiplicity         m_multiplicity;     ///< Multiplicity flag
     int                     m_refcount;         ///< Object reference count
     WSRestriction*          m_restriction;      ///< Element restriction (if any) or NULL
 
@@ -111,13 +111,13 @@ public:
 
 public:
     /// @brief Constructor
-    /// @param complexTypeElement const CXmlElement*, WSDL complexType element
+    /// @param complexTypeElement const XMLElement*, WSDL complexType element
     /// @param name std::string, Object name
     /// @param typeName std::string, Object types
-    CWSParserComplexType(const CXmlElement* complexTypeElement, std::string name="", std::string typeName="");
+    WSParserComplexType(const XMLElement* complexTypeElement, std::string name="", std::string typeName="");
 
     /// @brief Destructor
-    virtual ~CWSParserComplexType();
+    virtual ~WSParserComplexType();
 
     /// @brief Returns element reference count
     int refCount()
@@ -150,7 +150,7 @@ public:
     std::string className() const;
 
     /// @brief Multiplicity flag
-    CWSMultiplicity multiplicity() const
+    WSMultiplicity multiplicity() const
     {
         return m_multiplicity;
     }
@@ -159,14 +159,14 @@ public:
     virtual void parse() THROWS_EXCEPTIONS;
 
     /// @brief Parses WSDL child sequence
-    void parseSequence(CXmlElement* sequence) THROWS_EXCEPTIONS;
+    void parseSequence(XMLElement* sequence) THROWS_EXCEPTIONS;
 
     /// @brief Generates C++ class declaration and implementation
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation, std::string externalHeader) THROWS_EXCEPTIONS;
 };
 
 /// @brief Alias for WSDL complex type
-typedef CWSParserComplexType CWSParserElement;
+typedef WSParserComplexType WSParserElement;
 
 /// @}
 

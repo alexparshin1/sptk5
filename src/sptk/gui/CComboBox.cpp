@@ -314,12 +314,12 @@ void CBaseListBox::save(CQuery *updateQuery)
     param = data();
 }
 
-void CBaseListBox::load(const CXmlNode *node, CLayoutXMLmode xmlMode)
+void CBaseListBox::load(const XMLNode *node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
 }
 
-void CBaseListBox::save(CXmlNode *node, CLayoutXMLmode xmlMode) const
+void CBaseListBox::save(XMLNode *node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
 }
@@ -600,7 +600,7 @@ CControlKind CComboBox::kind() const
     return DCV_INTVALUECOMBO;
 }
 
-CLayoutClient* CComboBox::creator(CXmlNode *node)
+CLayoutClient* CComboBox::creator(XMLNode *node)
 {
     CComboBox* widget = new CComboBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

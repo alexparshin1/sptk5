@@ -200,7 +200,7 @@ void CCheckButtons::setSelections(const CIntList& selection) {
     }
 }
 
-CLayoutClient* CCheckButtons::creator(CXmlNode *node) {
+CLayoutClient* CCheckButtons::creator(XMLNode *node) {
     CCheckButtons* widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;

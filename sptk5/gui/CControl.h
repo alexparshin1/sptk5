@@ -354,17 +354,17 @@ public:
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void load(const CXmlNode* node, CLayoutXMLmode xmlMode);
+    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
 
     /// @brief Returns true if the control state is valid, and the data is inside the limits (if applicable)
     virtual bool valid() const = 0;
@@ -571,8 +571,8 @@ CControl *createControl(int controlKind, std::string label, std::string fieldNam
 ///
 /// The group node may contain other controls. If the control type or parameter is not recognized,
 /// the exception is thrown.
-/// @param xmlControls const CXmlNodeList&, the controls description in XML
-void createControls(const CXmlNodeList& xmlControls) THROWS_EXCEPTIONS;
+/// @param xmlControls const XMLNodeList&, the controls description in XML
+void createControls(const XMLNodeList& xmlControls) THROWS_EXCEPTIONS;
 
 /// @}
 }

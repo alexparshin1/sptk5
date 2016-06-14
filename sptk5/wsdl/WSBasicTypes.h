@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSBasicTypes.h - description                          ║
+║                       WSBasicTypes.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWSBASICTYPES_H__
-#define __CWSBASICTYPES_H__
+#ifndef __SPTK_WSBASICTYPES_H__
+#define __SPTK_WSBASICTYPES_H__
 
 #include <sptk5/cxml>
 #include <sptk5/Field.h>
-#include <sptk5/xml/CXmlElement.h>
+#include <sptk5/xml/XMLElement.h>
 
 namespace sptk {
 
@@ -59,8 +59,8 @@ public:
     void clear() { setNull(); }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr) = 0;
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr) = 0;
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
@@ -71,8 +71,8 @@ public:
     virtual void load(const Field& field) = 0;
 
     /// @brief Adds an element to response XML with this object data
-    /// @param parent CXmlElement*, Parent XML element
-    CXmlElement* addElement(CXmlElement* parent) const;
+    /// @param parent XMLElement*, Parent XML element
+    XMLElement* addElement(XMLElement* parent) const;
 
     /// @brief Returns element name
     std::string name() const
@@ -94,8 +94,8 @@ public:
     }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr);
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
@@ -160,8 +160,8 @@ public:
     }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr);
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
@@ -204,8 +204,8 @@ public:
     }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr);
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
@@ -248,8 +248,8 @@ public:
     }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr);
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
@@ -295,8 +295,8 @@ public:
     }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr);
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string
@@ -351,8 +351,8 @@ public:
     }
 
     /// @brief Loads type data from request XML node
-    /// @param attr const CXmlNode*, XML node
-    virtual void load(const CXmlNode* attr);
+    /// @param attr const XMLNode*, XML node
+    virtual void load(const XMLNode* attr);
 
     /// @brief Loads type data from string
     /// @param attr std::string, A string

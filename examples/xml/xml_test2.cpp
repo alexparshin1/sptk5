@@ -45,7 +45,7 @@ int main()
     //out.open("xml_test3.log",ofstream::out);
 
     try {
-        CXmlDoc doc;
+        XMLDocument doc;
 
         DateTime start = DateTime::Now();
         DateTime end;
@@ -53,25 +53,25 @@ int main()
         Buffer *buf = new Buffer;
 
         out << "The XML document generation test started:" << endl;
-        out << "Size of CXmlNode is : " << sizeof(CXmlNode) << endl;
-        out << "Size of CXmlElement is : " << sizeof(CXmlElement) << endl;
-        out << "Size of CXmlAttributes is : " << sizeof(CXmlAttributes) << endl;
-        out << "Size of CXmlNodeList is : " << sizeof(CXmlNodeList) << endl;
+        out << "Size of XMLNode is : " << sizeof(XMLNode) << endl;
+        out << "Size of XMLElement is : " << sizeof(XMLElement) << endl;
+        out << "Size of XMLAttributes is : " << sizeof(XMLAttributes) << endl;
+        out << "Size of XMLNodeList is : " << sizeof(XMLNodeList) << endl;
         char buffer[64];
         string rowTag("row"), cellTag("cell");
         unsigned nodesPerRow = 7;
         for (unsigned i = 0; i < 100000; i++) {
-            CXmlNode* row = new CXmlElement(doc, rowTag);
+            XMLNode* row = new XMLElement(doc, rowTag);
 
             sprintf(buffer, "%i", i);
-            CXmlNode* cell1 = new CXmlElement(*row, cellTag);
+            XMLNode* cell1 = new XMLElement(*row, cellTag);
             cell1->setAttribute("column", 1);
-            new CXmlText(*cell1, buffer);
+            new XMLText(*cell1, buffer);
 
             sprintf(buffer, "A pretty long string number %i", i);
-            CXmlNode* cell2 = new CXmlElement(*row, cellTag);
+            XMLNode* cell2 = new XMLElement(*row, cellTag);
             cell2->setAttribute("column", 2);
-            new CXmlText(*cell2, buffer);
+            new XMLText(*cell2, buffer);
         }
 
         out.setf(ios::fixed);

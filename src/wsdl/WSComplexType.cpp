@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlAttributes.cpp - description                       ║
+║                       CWSComplexType.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,103 +26,21 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cxml>
+#include <sptk5/wsdl/WSComplexType.h>
 
+using namespace std;
 using namespace sptk;
 
-CXmlAttribute::CXmlAttribute(CXmlElement* parent, const char* tagname, CXmlValue avalue) :
-    CXmlNamedItem(*parent->document())
+void WSComplexType::copyFrom(const WSComplexType& other)
 {
-    name(tagname);
-    value(avalue);
-    parent->attributes().push_back(this);
+    XMLDocument xml;
+    XMLElement* element = new XMLElement(xml, "temp");
+    other.unload(element);
+    load(element);
 }
 
-CXmlAttribute::CXmlAttribute(CXmlElement* parent, const std::string& tagname, CXmlValue avalue) :
-    CXmlNamedItem(*parent->document())
+void WSComplexType::addElement(XMLElement* parent) const THROWS_EXCEPTIONS
 {
-    name(tagname);
-    value(avalue);
-    parent->attributes().push_back(this);
+   unload(new XMLElement(parent, m_name.c_str()));
 }
 
-/// @brief Returns the value of the node
-const std::string& CXmlAttribute::value() const
-{
-    return m_value;
-}
-
-/// @brief Sets new value to node.
-/// @param new_value const std::string &, new value
-/// @see value()
-void CXmlAttribute::value(const std::string &new_value)
-{
-    m_value = new_value;
-}
-
-/// @brief Sets new value to node
-/// @param new_value const char *, value to set
-/// @see value()
-void CXmlAttribute::value(const char *new_value)
-{
-    m_value = new_value;
-}
-
-CXmlAttributes& CXmlAttributes::operator =(const CXmlAttributes& s)
-{
-    clear();
-    for (CXmlAttributes::const_iterator it = s.begin(); it != s.end(); it++) {
-        CXmlNode* node = *it;
-        new CXmlAttribute(m_parent, node->name(), node->value());
-    }
-    return *this;
-}
-
-CXmlAttribute* CXmlAttributes::getAttributeNode(std::string attr)
-{
-    iterator itor = findFirst(attr.c_str());
-    if (itor != end())
-        return (CXmlAttribute*) *itor;
-    return NULL;
-}
-
-const CXmlAttribute* CXmlAttributes::getAttributeNode(std::string attr) const
-{
-    const_iterator itor = findFirst(attr.c_str());
-    if (itor != end())
-        return (const CXmlAttribute*) *itor;
-    return NULL;
-}
-
-CXmlValue CXmlAttributes::getAttribute(std::string attr, const char *defaultValue) const
-{
-    const_iterator itor = findFirst(attr.c_str());
-    if (itor != end())
-        return (*itor)->value();
-    CXmlValue rc;
-    if (defaultValue)
-        rc = defaultValue;
-    return rc;
-}
-
-void CXmlAttributes::setAttribute(std::string attr, CXmlValue value, const char *defaultValue)
-{
-    iterator itor = findFirst(attr.c_str());
-    if (defaultValue && value.str() == defaultValue) {
-        if (itor != end()) {
-            delete *itor;
-            erase(itor);
-        }
-        return;
-    }
-    if (itor != end())
-        (*itor)->value(value);
-    else
-        new CXmlAttribute(m_parent, attr, value);
-}
-
-bool CXmlAttributes::hasAttribute(std::string attr) const
-{
-    const_iterator itor = findFirst(attr.c_str());
-    return itor != end();
-}

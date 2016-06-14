@@ -41,7 +41,7 @@
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CListViewSelection.h>
 #include <sptk5/gui/CListViewRows.h>
-#include <sptk5/CPackedStrings.h>
+#include <sptk5/PackedStrings.h>
 #include <sptk5/gui/CColumn.h>
 
 namespace sptk {
@@ -521,17 +521,17 @@ protected:
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void load(const CXmlNode* node, CLayoutXMLmode xmlMode);
+    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
 
     /// @brief True if the data is valid
 
@@ -813,14 +813,14 @@ public:
     /// @brief Fills the list with the data from XML node
     ///
     /// The XML node should contain the columns information, and optional list items
-    /// @param node const CXmlNode&, the node to load list from
-    void loadList(const CXmlNode* node);
+    /// @param node const XMLNode&, the node to load list from
+    void loadList(const XMLNode* node);
 
     /// @brief Saves the list data into XML node
     ///
     /// The XML node should contain the columns information, and optional list items
-    /// @param node const CXmlNode&, the node to save list into
-    void saveList(CXmlNode* node) const;
+    /// @param node const XMLNode&, the node to save list into
+    void saveList(XMLNode* node) const;
 
     /// @brief Computes the optimal widgets size
     /// @param w int&, input - width offered by the program, output - width required by widget

@@ -137,7 +137,7 @@ The possible implementation of, for instance, printing nodes from our document, 
       CXmlAttributes::iterator itor = attributes.begin();
       for (; itor != attributes.end(); itor++ ) {
          std::string name = itor->first;
-         CXmlAttribute& attribute = itor->second;
+         XMLAttribute& attribute = itor->second;
 	 std::string value = attribute;
 	 printf("%s = %s ",name.c_str(),value.c_str());
       }

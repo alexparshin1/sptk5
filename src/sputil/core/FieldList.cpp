@@ -124,7 +124,7 @@ Field *FieldList::fieldByName(const char *fname) const
     throw Exception("Field name '" + std::string(fname) + "' not found");
 }
 
-void FieldList::toXML(CXmlNode& node) const
+void FieldList::toXML(XMLNode& node) const
 {
     CFieldVector::const_iterator itor = m_list.begin();
     CFieldVector::const_iterator iend = m_list.end();
@@ -178,7 +178,7 @@ FieldList& operator>>(FieldList& fieldList, bool& data)
     return fieldList;
 }
 
-FieldList& operator>>(FieldList& fieldList, CXmlNode& fields)
+FieldList& operator>>(FieldList& fieldList, XMLNode& fields)
 {
     fieldList.toXML(fields);
     return fieldList;

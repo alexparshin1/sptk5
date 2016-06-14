@@ -63,7 +63,7 @@ CDBListView::~CDBListView() {
    m_fullRefreshQuery.close();
 }
 
-CLayoutClient* CDBListView::creator(CXmlNode *node) {
+CLayoutClient* CDBListView::creator(XMLNode *node) {
     CDBListView* widget = new CDBListView("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;

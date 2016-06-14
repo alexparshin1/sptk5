@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSParser.h - description                              ║
+║                       WSParser.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWSPARSER_H__
-#define __CWSPARSER_H__
+#ifndef __SPTK_WSPARSER_H__
+#define __SPTK_WSPARSER_H__
 
-#include <sptk5/wsdl/CWSParserComplexType.h>
+#include <sptk5/wsdl/WSParserComplexType.h>
 
 namespace sptk
 {
@@ -38,10 +38,10 @@ namespace sptk
 /// @{
 
 /// @brief WSDL operation
-struct CWSOperation
+struct WSOperation
 {
-    CWSParserComplexType*   m_input;    ///< WSDL operation input
-    CWSParserComplexType*   m_output;   ///< WSDL operation output
+    WSParserComplexType*   m_input;    ///< WSDL operation input
+    WSParserComplexType*   m_output;   ///< WSDL operation output
 };
 
 /// @brief Parser of WSDL files
@@ -49,23 +49,23 @@ struct CWSOperation
 /// Loads a WSDL file and converts it to a set of abstract classes that can be saved
 /// as C++ source files to a directory.
 /// The actual web service is built by deriving concrete classes from these abstract classes.
-class SP_EXPORT CWSParser
+class SP_EXPORT WSParser
 {
 public:
     /// @brief Map of element names to element objects
-    typedef std::map<std::string,CWSParserElement*>     ElementMap;
+    typedef std::map<std::string, WSParserElement*>     ElementMap;
 
     /// @brief Map of complex type names to complex type objects
-    typedef std::map<std::string,CWSParserComplexType*> ComplexTypeMap;
+    typedef std::map<std::string,WSParserComplexType*>  ComplexTypeMap;
 
     /// @brief Map of element names to corresponding WSDL (XML) elements
-    typedef std::map<std::string,const CXmlElement*>    XmlTypeMap;
+    typedef std::map<std::string,const XMLElement*>     XmlTypeMap;
 
     /// @brief Map of operation names to operation objects
-    typedef std::map<std::string,CWSOperation>          OperationMap;
+    typedef std::map<std::string,WSOperation>          OperationMap;
 
     /// @brief Map of operation names to operation objects
-    typedef std::map<std::string,std::string>          DocumentationMap;
+    typedef std::map<std::string,std::string>           DocumentationMap;
 
 private:
     std::string         m_serviceName;      ///< Service name, defining service class name and source file names
@@ -76,20 +76,20 @@ private:
 
 protected:
     /// @brief Parses xsd:element nodes directly under xsd:schema
-    /// @param element const CXmlElement*, Schema element
-    void parseElement(const CXmlElement* element) THROWS_EXCEPTIONS;
+    /// @param element const XMLElement*, Schema element
+    void parseElement(const XMLElement* element) THROWS_EXCEPTIONS;
 
     /// @brief Parses xsd:complexType nodes directly under xsd:schema
-    /// @param complexTypeElement const CXmlElement*, Schema complex type
-    void parseComplexType(const CXmlElement* complexTypeElement) THROWS_EXCEPTIONS;
+    /// @param complexTypeElement const XMLElement*, Schema complex type
+    void parseComplexType(const XMLElement* complexTypeElement) THROWS_EXCEPTIONS;
 
     /// @brief Parses wsdl:operation nodes directly under xsd:schema
-    /// @param operation CXmlElement*, Schema complex type
-    void parseOperation(CXmlElement* operation) THROWS_EXCEPTIONS;
+    /// @param operation XMLElement*, Schema complex type
+    void parseOperation(XMLElement* operation) THROWS_EXCEPTIONS;
 
     /// @brief Parses xsd:schema
-    /// @param schemaElement CXmlElement*, Schema element
-    void parseSchema(CXmlElement* schemaElement) THROWS_EXCEPTIONS;
+    /// @param schemaElement XMLElement*, Schema element
+    void parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS;
 
     /// @brief Generates service definition to output stream
     /// @param usedClasses const Strings&, List of this service complex types (classes)
@@ -102,10 +102,10 @@ protected:
 
 public:
     /// @brief Constructor
-    CWSParser();
+    WSParser();
 
     /// @brief Destructor
-    virtual ~CWSParser();
+    virtual ~WSParser();
 
     /// @brief Clears parsed data
     void clear();

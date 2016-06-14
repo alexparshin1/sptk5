@@ -250,21 +250,21 @@ public:
     }
 
     /// @brief Creates a button based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 
     /// @brief Loads the the widget from XML node
     ///
     /// The widget information may include widget attributes
     /// and widget data
-    /// @param node CXmlNode*, XML node
-    virtual void load(const CXmlNode *node);
+    /// @param node XMLNode*, XML node
+    virtual void load(const XMLNode *node);
 
     /// @brief Saves the the widget to XML node
     ///
     /// The widget information may include widget attributes
     /// and widget data
-    /// @param node CXmlNode*, XML node
-    virtual void save(CXmlNode *node) const;
+    /// @param node XMLNode*, XML node
+    virtual void save(XMLNode *node) const;
 };
 
 /// @brief Small button widget

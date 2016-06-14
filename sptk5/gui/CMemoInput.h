@@ -123,7 +123,7 @@ public:
     virtual bool preferredSize(int& w, int& h);
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 /// @}
 }

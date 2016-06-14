@@ -43,7 +43,7 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::rowToXML(CXmlNode& node, bool compactXmlMode) const
+void DataSource::rowToXML(XMLNode& node, bool compactXmlMode) const
 {
     uint32_t cnt = fieldCount();
     for (uint32_t i = 0; i < cnt; i++) {
@@ -52,12 +52,12 @@ void DataSource::rowToXML(CXmlNode& node, bool compactXmlMode) const
     }
 }
 
-void DataSource::toXML(CXmlNode& parentNode, std::string nodeName, bool compactXmlMode)
+void DataSource::toXML(XMLNode& parentNode, std::string nodeName, bool compactXmlMode)
 {
     try {
         open();
         while (!eof()) {
-            CXmlNode& node = *(new CXmlElement(parentNode, nodeName));
+            XMLNode& node = *(new XMLElement(parentNode, nodeName));
             rowToXML(node, compactXmlMode);
             next();
         }

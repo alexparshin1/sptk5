@@ -265,15 +265,15 @@ public:
 
     /// @brief Loads the dialog controls data from XML
     ///
-    /// @param node const CXmlNode*, the XML node to load data from
-    /// @see CXmlNode
-    virtual void load(const CXmlNode* node) THROWS_EXCEPTIONS;
+    /// @param node const XMLNode*, the XML node to load data from
+    /// @see XMLNode
+    virtual void load(const XMLNode* node) THROWS_EXCEPTIONS;
 
     /// @brief Saves the dialog controls into XML
     ///
-    /// @param node CXmlNode&, the XML node to save data into
-    /// @see CXmlNode* node
-    virtual void save(CXmlNode* node) const;
+    /// @param node XMLNode&, the XML node to save data into
+    /// @see XMLNode* node
+    virtual void save(XMLNode* node) const;
 
     /// @brief Returns the modal result of the dialog.
     ///

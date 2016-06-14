@@ -185,14 +185,14 @@ void CButtonGroup::save(CQuery *updateQuery) {
    param = data();
 }
 
-void CButtonGroup::load(const CXmlNode *node,CLayoutXMLmode xmlMode) {
+void CButtonGroup::load(const XMLNode *node,CLayoutXMLmode xmlMode) {
     CControl::load(node,xmlMode);
     Strings btns(node->getAttribute("buttons"),"|");
     if (btns.size())
         buttons(btns);
 }
 
-void CButtonGroup::save(CXmlNode *node,CLayoutXMLmode xmlMode) const {
+void CButtonGroup::save(XMLNode *node,CLayoutXMLmode xmlMode) const {
     CControl::save(node,xmlMode);
     node->setAttribute("buttons",buttons().asString("|"));
 }

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSRestriction.cpp - description                       ║
+║                       WSRequest.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,40 +26,59 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/CWSRestriction.h>
-#include <sstream>
+#ifndef __SPTK_WSREQUEST_H__
+#define __SPTK_WSREQUEST_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/cxml>
 
-WSRestriction::WSRestriction(string typeName, CXmlNode* simpleTypeElement)
-: m_typeName(typeName)
+namespace sptk
 {
-    CXmlNodeVector enumerationNodes;
-    simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
-    for (CXmlNode::iterator itor = enumerationNodes.begin(); itor != enumerationNodes.end(); itor++) {
-        CXmlElement* enumerationNode = dynamic_cast<CXmlElement*>(*itor);
-        if (enumerationNode)
-            m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));
+
+/// @addtogroup wsdl WSDL-related Classes
+/// @{
+
+/// @brief Parser of WSDL requests
+class WSRequest
+{
+protected:
+    std::string m_namespace;    ///< Detected request namespace
+
+    /// @brief Internal SOAP body processor
+    ///
+    /// Receives incoming SOAP body of Web Service requests, and returns
+    /// application response.
+    /// This method is abstract and overwritten in derived generated classes.
+    /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
+    virtual void requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS = 0;
+public:
+    /// @brief Constructor
+    WSRequest() {}
+
+    /// @brief Destructor
+    virtual ~WSRequest() {}
+
+    /// @brief Processes incoming requests
+    ///
+    /// The processing results are stored in the same request XML
+    /// @param request XMLDoc*, Incoming request and outgoing response
+    void processRequest(XMLDocument* request) THROWS_EXCEPTIONS;
+
+    /// @brief Returns service title (for service handshake)
+    ///
+    /// Application should overwrite this method to return mor appropriate text
+    virtual std::string title() const
+    {
+        return "Generic SPTK WS Request Broker";
     }
-}
 
-WSRestriction::WSRestriction(string typeName, string enumerations, const char* delimiter)
-: m_typeName(typeName), m_enumerations(enumerations, delimiter)
-{
-}
+    /// @brief Returns service default HTML page
+    ///
+    /// Application should overwrite this method to return mor appropriate text
+    virtual std::string defaultPage() const
+    {
+        return "index.html";
+    }
+};
 
-void WSRestriction::check(std::string value) const
-{
-    if (!m_enumerations.empty() && m_enumerations.indexOf(value) == -1)
-        throw Exception("value '" + value + "' is invalid for restriction on " + m_typeName);
 }
-
-string sptk::WSRestriction::generateConstructor(std::string variableName) const
-{
-    stringstream str;
-    str << "WSRestriction " << variableName << "(\"" << m_typeName << "\", "
-        << "\"" << m_enumerations.asString("|") << "\", \"|\")";
-    return str.str();
-}
-
+#endif

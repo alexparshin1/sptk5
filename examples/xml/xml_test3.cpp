@@ -45,7 +45,7 @@ using namespace sptk;
 
 void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
 {
-    CXmlDoc doc;
+    XMLDocument doc;
     Buffer buf;
 
     cout << "Test file: " << fileName << endl;
@@ -55,10 +55,10 @@ void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
     buf.loadFromFile(fileName);
     doc.load(buf);
 
-    CXmlNodeVector selectedNodes;
+    XMLNodeVector selectedNodes;
     doc.select(selectedNodes, xpath);
-    for (CXmlNode::iterator itor = selectedNodes.begin(); itor != selectedNodes.end(); itor++) {
-        CXmlNode* node = *itor;
+    for (XMLNode::iterator itor = selectedNodes.begin(); itor != selectedNodes.end(); itor++) {
+        XMLNode* node = *itor;
         cout << node->name();
         if (node->hasAttribute("N"))
             cout << ", N=" << node->getAttribute("N").str();

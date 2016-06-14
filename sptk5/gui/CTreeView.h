@@ -161,15 +161,15 @@ public:
     ///
     /// The widget information may include widget attributes
     /// and widget data
-    /// @param node CXmlNode*, XML node
-    virtual void load(const CXmlNode *node);
+    /// @param node XMLNode*, XML node
+    virtual void load(const XMLNode *node);
 
     /// @brief Saves the the widget to XML node
     ///
     /// The widget information may include widget attributes
     /// and widget data
-    /// @param node CXmlNode*, XML node
-    virtual void save(CXmlNode *node) const;
+    /// @param node XMLNode*, XML node
+    virtual void save(XMLNode *node) const;
 
     /// @brief Returns tru if data is valid
     virtual bool valid() const {
@@ -177,8 +177,8 @@ public:
     }
 
     /// @brief Creates a widget based on the XML node information
-    /// @param node CXmlNode*, an XML node with widget information
-    static CLayoutClient* creator(CXmlNode* node);
+    /// @param node XMLNode*, an XML node with widget information
+    static CLayoutClient* creator(XMLNode* node);
 };
 /// @}
 }

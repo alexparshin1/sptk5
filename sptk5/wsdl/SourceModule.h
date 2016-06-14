@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CStringStack.h - description                           ║
+║                       SourceModule.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,39 +26,72 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSTRINGSTACK_H__
-#define __CSTRINGSTACK_H__
+#ifndef __SPTK_SOURCEMODULE_H__
+#define __SPTK_SOURCEMODULE_H__
 
-#include <sptk/CStringList.h>
+#include <sptk5/sptk.h>
+#include <iostream>
+#include <fstream>
 
-namespace sptk {
+namespace sptk
+{
 
-/// Simple String Stack
-class CStringStack : protected std::vector<std::string> {
+/// @addtogroup wsdl WSDL-related Classes
+/// @{
+
+/// @brief Helper module to generate source files
+class SourceModule
+{
+    std::string     m_name;     ///< Module name
+    std::string     m_path;     ///< Module path
+    std::ofstream   m_header;   ///< Module hpp file
+    std::ofstream   m_source;   ///< Module cpp file
 public:
-   /// Default constructor
-   CStringStack() {}
+    /// @brief Constructor
+    /// @param moduleName std::string, Module name
+    /// @param modulePath std::string, Module path
+    SourceModule(std::string moduleName, std::string modulePath)
+    : m_name(moduleName), m_path(modulePath)
+    {
+    }
 
-   /// Pushes a string into the stack
-   /// @param str const char *, string to push
-   void push(const char *str) { push_back(str); };
+    /// @brief Destructor
+    ~SourceModule()
+    {
+        if (m_header.is_open())
+            m_header.close();
+        if (m_source.is_open())
+            m_source.close();
+    }
 
-   /// Pushes a string into the stack
-   /// @param str const CString&, string to push
-   void push(const std::string& str) { push_back(str); };
+    /// @brief Opens module output files
+    void open()
+    {
+        if (m_path.empty())
+            m_path = ".";
+        std::string fileName = m_path + "/" + m_name;
+        m_header.open((fileName + ".h").c_str(), std::ofstream::out | std::ofstream::trunc);
+        if (!m_header.is_open())
+            throwException("Can't create file " + fileName + ".h");
+        m_source.open((fileName + ".cpp").c_str(), std::ofstream::out | std::ofstream::trunc);
+        if (!m_source.is_open())
+            throwException("Can't create file " + fileName + ".cpp");
+    }
 
-   /// Pops a string from the stack
-   /// @returns string from the stack
-   std::string pop();
+    /// @brief Returns header file stream
+    std::ofstream& header()
+    {
+        return m_header;
+    }
 
-   /// Returns a stack's top string reference
-   /// @returns string from the stack
-   std::string& top();
-
-   /// Returns true if the stack is empty
-   bool empty() const { return size() == 0; }
+    /// @brief Returns source file stream
+    std::ofstream& source()
+    {
+        return m_source;
+    }
 };
 
-}
+/// @}
 
+}
 #endif

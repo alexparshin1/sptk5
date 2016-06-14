@@ -126,7 +126,7 @@ public:
     virtual void     resize(int x,int y,int w,int h);
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 
     /// @brief Custom handle() to support drag event
     int handle(int event);

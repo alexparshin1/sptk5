@@ -1964,13 +1964,13 @@ CPackedStrings *CListView::findKey(int keyValue)
     return 0L;
 }
 
-void CListView::loadList(const CXmlNode* node)
+void CListView::loadList(const XMLNode* node)
 {
     clear();
-    CXmlNode::const_iterator itor = node->begin();
+    XMLNode::const_iterator itor = node->begin();
 
     for (; itor != node->end(); itor++) {
-        CXmlNode* anode = *itor;
+        XMLNode* anode = *itor;
 
         if (anode->name() == "columns") {
             m_columnList.load(*anode);
@@ -1978,26 +1978,26 @@ void CListView::loadList(const CXmlNode* node)
         }
 
         if (anode->name() == "rows") {
-            CXmlNode::const_iterator itor = anode->begin();
+            XMLNode::const_iterator itor = anode->begin();
             size_t colCount = m_columnList.size();
             if (colCount > 0) {
                 cpchar *strings = new cpchar[colCount];
                 for (; itor != anode->end(); itor++) {
-                    CXmlNode* rowNode = *itor;
+                    XMLNode* rowNode = *itor;
                     int rowID = rowNode->getAttribute("id");
-                    CXmlNode::iterator rtor = rowNode->begin();
+                    XMLNode::iterator rtor = rowNode->begin();
                     unsigned c = 0;
                     memset(strings, 0, sizeof (pchar) * colCount);
                     for (; rtor != rowNode->end(); rtor++, c++) {
-                        CXmlNode* cellNode = *rtor;
+                        XMLNode* cellNode = *rtor;
                         unsigned index = cellNode->getAttribute("index");
                         if (index)
                             c = index;
                         if (c >= colCount)
                             break;
-                        CXmlNode::iterator ctor = cellNode->begin();
+                        XMLNode::iterator ctor = cellNode->begin();
                         if (ctor != cellNode->end()) {
-                            CXmlNode* cdata = *ctor;
+                            XMLNode* cdata = *ctor;
                             strings[c] = (char *) cdata->value().c_str();
                         }
                     }
@@ -2012,23 +2012,23 @@ void CListView::loadList(const CXmlNode* node)
     }
 }
 
-void CListView::saveList(CXmlNode* node) const
+void CListView::saveList(XMLNode* node) const
 {
-    m_columnList.save(*(new CXmlElement(node, "columns")));
-    CXmlNode* rowsNode = new CXmlElement(node, "rows");
+    m_columnList.save(*(new XMLElement(node, "columns")));
+    XMLNode* rowsNode = new XMLElement(node, "rows");
     unsigned rowCount = m_rows.size();
     size_t colCount = m_columnList.size();
     for (unsigned i = 0; i < rowCount; i++) {
         CPackedStrings *row = m_rows[i];
-        CXmlNode* rowNode = new CXmlElement(*rowsNode, "row");
+        XMLNode* rowNode = new XMLElement(*rowsNode, "row");
         if (row->argument())
             rowNode->setAttribute("id", row->argument());
         size_t index = 0;
         for (size_t c = 0; c < colCount; c++) {
             const char *cell = (*row)[(uint16_t)c];
             if (*cell) {
-                CXmlNode* cellNode = new CXmlElement(*rowNode, "cell");
-                new CXmlText(*cellNode, cell);
+                XMLNode* cellNode = new XMLElement(*rowNode, "cell");
+                new XMLText(*cellNode, cell);
                 if (index != c) {
                     cellNode->setAttribute("index", c);
                     index = c;
@@ -2039,13 +2039,13 @@ void CListView::saveList(CXmlNode* node) const
     }
 }
 
-void CListView::load(const CXmlNode *node, CLayoutXMLmode xmlMode)
+void CListView::load(const XMLNode *node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
     loadList(node);
 }
 
-void CListView::save(CXmlNode *node, CLayoutXMLmode xmlMode) const
+void CListView::save(XMLNode *node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
     saveList(node);

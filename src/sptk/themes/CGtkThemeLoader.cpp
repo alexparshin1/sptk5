@@ -38,7 +38,7 @@ namespace sptk
 
 static const Strings notGroupingTags("styles;style;engine", ";");
 
-CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* parentNode, bool createAttributes)
+XMLNode* CGtkThemeParser::parseParameter(const std::string& row, XMLNode* parentNode, bool createAttributes)
 {
     try {
         size_t pos = row.find_first_of(":[ \t=");
@@ -100,7 +100,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
                 throw runtime_error("Error parsing value for " + name + " in row " + row);
             maxValueSize = int(pos2 - pos);
         }
-        CXmlNode* node = NULL;
+        XMLNode* node = NULL;
         string value = trim(row.substr(pos, maxValueSize));
         bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
         if (!attemptGrouping)
@@ -112,7 +112,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
             } else {
                 node = parentNode->findFirst(name);
                 if (!node)
-                    node = new CXmlElement(parentNode, name.c_str());
+                    node = new XMLElement(parentNode, name.c_str());
                 if (!subName.empty())
                     node->setAttribute(subName, value);
                 else
@@ -122,7 +122,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
             if (attemptGrouping)
                 node = parentNode->findFirst(name);
             if (!node)
-                node = new CXmlElement(parentNode, name.c_str());
+                node = new XMLElement(parentNode, name.c_str());
             if (!subName.empty())
                 node->setAttribute("name", subName);
             if (!value.empty())
@@ -136,7 +136,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
     return NULL;
 }
 
-void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
+void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
 {
     if (gtkrc[currentRow] != "image")
         throw runtime_error("Expecting 'image' in row " + gtkrc[currentRow]);
@@ -144,7 +144,7 @@ void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, CXm
     if (gtkrc[currentRow] != "{")
         throw runtime_error("Expecting '{' in row '" + gtkrc[currentRow]);
     currentRow++;
-    CXmlNode* imageNode = new CXmlElement(parentNode, "image");
+    XMLNode* imageNode = new XMLElement(parentNode, "image");
     while (gtkrc[currentRow] != "}") {
         parseParameter(gtkrc[currentRow], imageNode, true);
         currentRow++;
@@ -153,11 +153,11 @@ void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, CXm
     }
 }
 
-void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
+void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
 {
     if (gtkrc[currentRow].find("engine") != 0)
         throw runtime_error("Expecting 'engine' in row " + gtkrc[currentRow]);
-    CXmlNode* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
+    XMLNode* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
     try {
         if (gtkrc[currentRow] != "{")
             throw runtime_error("Expecting '{' in row '" + gtkrc[currentRow] + "'");
@@ -177,12 +177,12 @@ void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, CX
     }
 }
 
-void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
+void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
 {
     //const string& styleRow = gtkrc[currentRow];
     if (gtkrc[currentRow].find("style") != 0)
         throw runtime_error("Expecting 'style' in row " + gtkrc[currentRow]);
-    CXmlNode* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
+    XMLNode* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
     if (styleNode->getAttribute("name").str() == "scrollbar")
         styleNode->setAttribute("name", "scrollbars");
     if (gtkrc[currentRow] != "{")
@@ -204,8 +204,8 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
 {
     Buffer buffer;
     m_xml.clear();
-    CXmlNode* stylesNode = new CXmlElement(&m_xml, "styles");
-    //CXmlNode* paramsNode = new CXmlElement(&m_xml,"styles");
+    XMLNode* stylesNode = new XMLElement(&m_xml, "styles");
+    //XMLNode* paramsNode = new XMLElement(&m_xml,"styles");
     for (unsigned row = 0; row < gtkrc.size(); row++) {
         const string& str = gtkrc[row];
         if (str.find("style ") == 0)

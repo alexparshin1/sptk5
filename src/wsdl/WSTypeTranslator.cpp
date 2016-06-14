@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlEntities.h - description                           ║
+║                       CWSTypeTranslator.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,46 +26,31 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLENTITIES_H__
-#define __CXMLENTITIES_H__
+#include <sptk5/wsdl/WSTypeTranslator.h>
 
-#include <string>
-#include <map>
+using namespace std;
+using namespace sptk;
 
 namespace sptk {
-
-/// @addtogroup XML
-/// @{
-
-/// @brief XML entities
-///
-/// Maps an XML entity string to a presentation string.
-class CXmlEntities: public std::map<std::string, std::string>
-{
-public:
-
-    /// @brief Constructor
-    CXmlEntities()
-    {
-    }
-
-    /// @brief Removes named entity
-    /// @param name const char *, entity name to remove
-    void removeEntity(const char *name)
-    {
-        erase(name);
-    }
-
-    /// @brief Adds entity to map
-    ///
-    /// If entity named 'name' exists already in map, its value is replaced with 'replacement'
-    /// @param name const char *, entity to add/change
-    /// @param replacement const char *, value that represents entity
-    void setEntity(const char *name, const char *replacement)
-    {
-        (*this)[name] = replacement;
-    }
-};
-/// @}
+    WSTypeTranslator wsTypeTranslator;
 }
-#endif
+
+WSTypeTranslator::WSTypeTranslator()
+{
+    wsTypeToCxxTypeMap["xsd:boolean"]   = "sptk::WSBool";
+    wsTypeToCxxTypeMap["xsd:date"]      = "sptk::WSDate";
+    wsTypeToCxxTypeMap["xsd:dateTime"]  = "sptk::WSDateTime";
+    wsTypeToCxxTypeMap["xsd:double"]    = "sptk::WSDouble";
+    wsTypeToCxxTypeMap["xsd:float"]     = "sptk::WSDouble";
+    wsTypeToCxxTypeMap["xsd:int"]       = "sptk::WSInteger";
+    wsTypeToCxxTypeMap["xsd:string"]    = "sptk::WSString";
+    wsTypeToCxxTypeMap["xsd:time"]      = "sptk::WSTime";
+}
+
+std::string WSTypeTranslator::toCxxType(std::string wsType,std::string defaultType) const
+{
+    std::map<std::string,std::string>::const_iterator itor = wsTypeToCxxTypeMap.find(wsType);
+    if (itor == wsTypeToCxxTypeMap.end())
+        return defaultType;
+    return itor->second;
+}

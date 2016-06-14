@@ -60,7 +60,7 @@ public:
     void loadFromSptkTheme(const Strings& objectNames);
 
     /// @brief Loads the collection from GTK theme
-    void loadFromGtkTheme(CXmlDoc& gtkTheme,std::string imagesXPath,std::string attribute="",std::string attributeValue="");
+    void loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute="",std::string attributeValue="");
 
     /// @brief Returns border for a paticular index (0..3)
     int border(int ndx) const { return m_border[ndx]; }

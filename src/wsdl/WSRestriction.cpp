@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSBasicTypes.cpp - description                        ║
+║                       CWSRestriction.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,113 +26,40 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/CWSBasicTypes.h>
+#include <sptk5/wsdl/WSRestriction.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-CXmlElement* WSBasicType::addElement(CXmlElement* parent) const
+WSRestriction::WSRestriction(string typeName, XMLNode* simpleTypeElement)
+: m_typeName(typeName)
 {
-    string text(asString());
-    if (m_optional && (isNull() || text.empty()))
-        return NULL;
-    CXmlElement* element = new CXmlElement(*parent, m_name);
-    element->text(text);
-    return element;
+    XMLNodeVector enumerationNodes;
+    simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
+    for (XMLNode::iterator itor = enumerationNodes.begin(); itor != enumerationNodes.end(); itor++) {
+        XMLElement* enumerationNode = dynamic_cast<XMLElement*>(*itor);
+        if (enumerationNode)
+            m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));
+    }
 }
 
-void WSString::load(const CXmlNode* attr)
+WSRestriction::WSRestriction(string typeName, string enumerations, const char* delimiter)
+: m_typeName(typeName), m_enumerations(enumerations, delimiter)
 {
-    setString(attr->text());
 }
 
-void WSString::load(std::string attr)
+void WSRestriction::check(std::string value) const
 {
-    setString(attr);
+    if (!m_enumerations.empty() && m_enumerations.indexOf(value) == -1)
+        throw Exception("value '" + value + "' is invalid for restriction on " + m_typeName);
 }
 
-void WSString::load(const Field& field)
+string sptk::WSRestriction::generateConstructor(std::string variableName) const
 {
-    setString(field);
+    stringstream str;
+    str << "WSRestriction " << variableName << "(\"" << m_typeName << "\", "
+        << "\"" << m_enumerations.asString("|") << "\", \"|\")";
+    return str.str();
 }
 
-void WSBool::load(const CXmlNode* attr)
-{
-    setBool(attr->text() == "true");
-}
-
-void WSBool::load(string attr)
-{
-    setBool(attr == "true");
-}
-
-void WSBool::load(const Field& field)
-{
-    setBool(field);
-}
-
-void WSDate::load(const CXmlNode* attr)
-{
-    setDate(DateTime(attr->text().c_str()));
-}
-
-void WSDate::load(string attr)
-{
-    setDate(DateTime(attr.c_str()));
-}
-
-void WSDate::load(const Field& field)
-{
-    setDate(field);
-}
-
-void WSDateTime::load(const CXmlNode* attr)
-{
-    setDateTime(DateTime(attr->text().c_str()));
-}
-
-void WSDateTime::load(string attr)
-{
-    setDateTime(DateTime(attr.c_str()));
-}
-
-void WSDateTime::load(const Field& field)
-{
-    setDateTime(field);
-}
-
-string WSDateTime::asString() const
-{
-    DateTime dt = asDateTime();
-    return dt.dateString(true) + "T" + dt.timeString(true,true);
-}
-
-void WSDouble::load(const CXmlNode* attr)
-{
-    setFloat(atof(attr->text().c_str()));
-}
-
-void WSDouble::load(string attr)
-{
-    setFloat(atof(attr.c_str()));
-}
-
-void WSDouble::load(const Field& field)
-{
-    setFloat(field);
-}
-
-void WSInteger::load(const CXmlNode* attr)
-{
-    setInteger(atoi(attr->text().c_str()));
-}
-
-void WSInteger::load(string attr)
-{
-    setInteger(atoi(attr.c_str()));
-}
-
-void WSInteger::load(const Field& field)
-{
-    setInteger(field);
-}

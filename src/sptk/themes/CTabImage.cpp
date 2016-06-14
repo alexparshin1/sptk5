@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-CTabImage::CTabImage(const CTar& tar,const CXmlNode* tabImageNode) {
+CTabImage::CTabImage(const Tar& tar,const XMLNode* tabImageNode) {
     m_name = tabImageNode->getAttribute("name").str();
     string fileName = tabImageNode->getAttribute("image");
     m_image = new CPngImage(tar.file(fileName));
@@ -99,11 +99,11 @@ void CTabImage::draw(int x,int y,int w,int h) {
     */
 }
 
-void CTabImages::load(const CTar& tar,const CXmlNode* tabImagesNode) {
+void CTabImages::load(const Tar& tar,const XMLNode* tabImagesNode) {
     clear();
-    CXmlNode::const_iterator itor = tabImagesNode->begin();
+    XMLNode::const_iterator itor = tabImagesNode->begin();
     for (; itor != tabImagesNode->end(); itor++) {
-        CXmlNode*   tabNode = *itor;
+        XMLNode*   tabNode = *itor;
         CTabImage*  tabImage = new CTabImage(tar,tabNode);
         (*this)[tabImage->name()] = tabImage;
     }

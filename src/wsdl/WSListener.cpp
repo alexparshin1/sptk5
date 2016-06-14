@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/CWSListener.h>
+#include <sptk5/wsdl/WSListener.h>
 
 using namespace std;
 using namespace sptk;
@@ -34,12 +34,12 @@ using namespace sptk;
 class CWSConnection : public TCPServerConnection
 {
 protected:
-    CWSRequest&     m_service;
+    WSRequest&     m_service;
     Logger&       m_logger;
     const string&   m_staticFilesDirectory;
 public:
 
-    CWSConnection(SOCKET connectionSocket, sockaddr_in*, CWSRequest& service, Logger& logger, const string& staticFilesDirectory)
+    CWSConnection(SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger, const string& staticFilesDirectory)
     : TCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
     {
     }
@@ -183,7 +183,7 @@ void CWSConnection::threadFunction()
                 endOfMessage += strlen(endOfMessageMark);
             }
 
-            CXmlDoc message;
+            XMLDocument message;
             if (endOfMessage)
                 *(char *) endOfMessage = 0;
             message.load(startOfMessage);
@@ -216,16 +216,16 @@ void CWSConnection::threadFunction()
     }
 }
 
-CWSListener::CWSListener(CWSRequest& service, Logger& logger, string staticFilesDirectory)
+WSListener::WSListener(WSRequest& service, Logger& logger, string staticFilesDirectory)
 : TCPServer(), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
 
-CWSListener::~CWSListener()
+WSListener::~WSListener()
 {
 }
 
-ServerConnection* CWSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
+ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
     return new CWSConnection(connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory);
 }

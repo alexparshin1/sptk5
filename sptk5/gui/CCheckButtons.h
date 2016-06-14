@@ -121,7 +121,7 @@ public:
     }
     
     /// @brief Creates chack buttons group based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 /// @}
 }

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlNode.h - description                               ║
+║                       XMLNode.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,13 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLNODE_H__
-#define __CXMLNODE_H__
+#ifndef __SPTK_XMLNODE_H__
+#define __SPTK_XMLNODE_H__
 
 #include <sptk5/Buffer.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/xml/CXmlValue.h>
+#include <sptk5/xml/XMLValue.h>
 #include <sptk5/xml/XMLNodeList.h>
 
 #include <string>
@@ -44,13 +44,13 @@ namespace sptk {
 /// @addtogroup XML
 /// @{
 
-class CXmlDoc;
-class CXmlNode;
-class CXmlAttribute;
-class CXmlAttributes;
+class XMLDocument;
+class XMLNode;
+class XMLAttribute;
+class XMLAttributes;
 
 /// @brief XPath Axis enum
-enum CXPathAxis
+enum XPathAxis
 {
     XPA_CHILD,      ///< Child axis
     XPA_DESCENDANT, ///< Descendant axis
@@ -58,19 +58,19 @@ enum CXPathAxis
 };
 
 /// @brief Parsed element of XPath
-class SP_EXPORT CXPathElement
+class SP_EXPORT XPathElement
 {
 public:
     const std::string*  elementName;     ///< Node name, or '*'
     std::string         criteria;        ///< Criteria
-    CXPathAxis          axis;            ///< Axis
+    XPathAxis           axis;            ///< Axis
     const std::string*  attributeName;   ///< Attribute name (optional)
     std::string         attributeValue;  ///< Attribute value (optional)
     bool                attributeValueDefined; ///< true if attribute value was defined
     int                 nodePosition;    ///< 0 (not required), -1 (last), or node position
 public:
     /// @brief Default constructor
-    CXPathElement()
+    XPathElement()
     {
         axis = XPA_CHILD;
         nodePosition = 0;
@@ -81,7 +81,7 @@ public:
 
     /// @brief Copy constructor
     /// @param xpe const CXPathElement&, CXPathElement object to copy from
-    CXPathElement(const CXPathElement& xpe)
+    XPathElement(const XPathElement& xpe)
     {
         elementName = xpe.elementName;
         criteria = xpe.criteria;
@@ -96,17 +96,17 @@ public:
 /// @brief XML node
 ///
 /// Basic class for any XML node
-class SP_EXPORT CXmlNode
+class SP_EXPORT XMLNode
 {
-    friend class CXmlParser;
-    friend class CXmlNodeList;
-    friend class CXmlDoc;
-    friend class CXmlElement;
-    friend class CXmlAttribute;
-    friend class CXmlAttributes;
+    friend class XMLParser;
+    friend class XMLNodeList;
+    friend class XMLDocument;
+    friend class XMLElement;
+    friend class XMLAttribute;
+    friend class XMLAttributes;
 public:
     /// @brief Node type enumeration
-    enum CXmlNodeType
+    enum XMLNodeType
     {
         DOM_UNDEFINED = 0,      ///< Type isn't defined yet
         DOM_DOCUMENT = 1,       ///< Document node
@@ -118,22 +118,22 @@ public:
         DOM_ATTRIBUTE = 64      ///< Attribute node
     };
 
-    /// @brief CXmlNode own iterator for subnodes
-    typedef CXmlNodeList::iterator iterator;
+    /// @brief XMLNode own iterator for subnodes
+    typedef XMLNodeList::iterator iterator;
 
-    /// @brief CXmlNode own const_iterator for subnodes
-    typedef CXmlNodeList::const_iterator const_iterator;
+    /// @brief XMLNode own const_iterator for subnodes
+    typedef XMLNodeList::const_iterator const_iterator;
 
 private:
-    /// @brief Sets parent node - for CXmlParser
-    void parent(CXmlNode *p);
+    /// @brief Sets parent node - for XMLParser
+    void parent(XMLNode *p);
 
     /// @brief Checks if any descendent node matches the path element (internal)
-    /// @param nodes CXmlNodeVector&, output list of matched nodes
+    /// @param nodes XMLNodeVector&, output list of matched nodes
     /// @param pathElements const std::vector<CXPathElement>&, the path elements
     /// @param pathPosition int, current path elements position
     /// @param starPointer const std::string*, the pointer to SST '*' string
-    void scanDescendents(CXmlNodeVector& nodes, const std::vector<CXPathElement>& pathElements, int pathPosition,
+    void scanDescendents(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
             const std::string* starPointer);
 
     /// @brief Checks if the node matches the path element (internal)
@@ -143,19 +143,19 @@ private:
     /// @param nameMatches bool&, (output) true if the node name matches the XPath element
     /// @param positionMatches bool&, (output) true if the node position matches the XPath element
     /// @returns true if node matches the XPath element
-    bool matchPathElement(const CXPathElement& pathElement, int nodePosition, const std::string* starPointer, bool& nameMatches,
+    bool matchPathElement(const XPathElement& pathElement, int nodePosition, const std::string* starPointer, bool& nameMatches,
             bool& positionMatches);
 
     /// @brief Checks if the node matches the path element (internal)
-    /// @param nodes CXmlNodeVector&, output list of matched nodes
+    /// @param nodes XMLNodeVector&, output list of matched nodes
     /// @param pathElements const std::vector<CXPathElement>&, the path elements
     /// @param pathPosition int, current path elements position
     /// @param starPointer const std::string*, the pointer to SST '*' string
-    void matchNode(CXmlNodeVector& nodes, const std::vector<CXPathElement>& pathElements, int pathPosition,
+    void matchNode(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
             const std::string* starPointer);
 
 protected:
-    /// @brief Always returns false for CXmlNode since it has no name
+    /// @brief Always returns false for XMLNode since it has no name
     virtual bool nameIs(const std::string* /*sstName*/) const
     {
         return false;
@@ -163,13 +163,13 @@ protected:
 
 protected:
 
-    CXmlDoc*    m_document;           ///< Parent document pointer
-    CXmlNode*   m_parent;             ///< Parent node pointer
+    XMLDocument*    m_document;           ///< Parent document pointer
+    XMLNode*        m_parent;             ///< Parent node pointer
 
     /// @brief Protected constructor - for derived classes
     ///
-    /// @param doc CXmlDoc&, node document
-    CXmlNode(CXmlDoc& doc)
+    /// @param doc XMLDoc&, node document
+    XMLNode(XMLDocument& doc)
     {
         m_document = &doc;
         m_parent = 0;
@@ -177,15 +177,15 @@ protected:
 
     /// @brief Protected constructor - for derived classes
     ///
-    /// @param parent CXmlNode&, node document
-    CXmlNode(CXmlNode& parent)
+    /// @param parent XMLNode&, node document
+    XMLNode(XMLNode& parent)
     {
         m_document = parent.document();
         parent.push_back(this);
     }
 
     /// @brief Destructor
-    virtual ~CXmlNode()
+    virtual ~XMLNode()
     {
         clear();
     }
@@ -197,7 +197,7 @@ public:
     /// Returns node pointer or NULL, if the node with such name is not found.
     /// @param name std::string, the name to find
     /// @param recursively bool, if true, also search in all subnodes
-    CXmlNode* findFirst(std::string name, bool recursively = true) const;
+    XMLNode* findFirst(std::string name, bool recursively = true) const;
 
     /// @brief Finds the first subnode with the given name, or creates a new one.
     ///
@@ -205,20 +205,20 @@ public:
     /// node is created.
     /// @param name std::string, the name to find
     /// @param recursively bool, if true, also search in all subnodes
-    CXmlNode* findOrCreate(std::string name, bool recursively = true);
+    XMLNode* findOrCreate(std::string name, bool recursively = true);
 
     /// @brief Finds the first subnode with the given name, or creates a new one.
     ///
     /// Returns node pointer. If the node with such name is not found, then new
     /// node is created. This is a shortcut for findOrCreate(name,false);
     /// @param name std::string, the name to find
-    CXmlNode& operator[](std::string name)
+    XMLNode& operator[](std::string name)
     {
         return *findOrCreate(name, false);
     }
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const = 0;
+    virtual XMLNodeType type() const = 0;
 
     /// @brief Selects nodes as defined by XPath
     ///
@@ -226,14 +226,14 @@ public:
     /// Currently, examples 1 through 6 from http://www.zvon.org/xxl/XPathTutorial/Output/example6.html
     /// are working fine with the exceptions:
     /// - no functions are supported yet.
-    /// @param nodes CXmlNodeVector&, the resulting list of subnodes
+    /// @param nodes XMLNodeVector&, the resulting list of subnodes
     /// @param xpath std::string, the xpath for subnodes
-    void select(CXmlNodeVector& nodes, std::string xpath);
+    void select(XMLNodeVector& nodes, std::string xpath);
 
     /// @brief Performs a deep copy of node and all its subnodes
     ///
-    /// @param node const CXmlNode&, a node to copy from
-    virtual void copy(const CXmlNode& node);
+    /// @param node const XMLNode&, a node to copy from
+    virtual void copy(const XMLNode& node);
 
     /// @brief Deletes all child nodes
     ///
@@ -252,14 +252,14 @@ public:
 
     /// @brief Returns parent node of this node.
     ///
-    /// For CXmlDocument this returns 'this' pointer.
-    CXmlNode *parent() const
+    /// For XMLDocument this returns 'this' pointer.
+    XMLNode *parent() const
     {
         return m_parent;
     }
 
     /// @brief Returns document context associated with this node.
-    CXmlDoc *document() const
+    XMLDocument *document() const
     {
         return m_document;
     }
@@ -301,24 +301,24 @@ public:
     /// @brief Sets text for the node.
     ///
     /// First, the node child nodes are removed.
-    /// Then, new CXmlNodeText is added to this node.
+    /// Then, new XMLNodeText is added to this node.
     /// @param txt std::string, node text
     void text(std::string txt);
 
     /// @brief Returns referrence to node attributes
     ///
-    /// Returns 0 if node isn't CXmlElement or CXmlDocument
-    virtual CXmlAttributes& attributes()
+    /// Returns 0 if node isn't XMLElement or XMLDocument
+    virtual XMLAttributes& attributes()
     {
-        return *(CXmlAttributes*) 0;
+        return *(XMLAttributes*) 0;
     }
 
     /// @brief Returns referrence to node attributes (const version)
     ///
-    /// Returns 0 if node isn't CXmlElement or CXmlDocument
-    virtual const CXmlAttributes& attributes() const
+    /// Returns 0 if node isn't XMLElement or XMLDocument
+    virtual const XMLAttributes& attributes() const
     {
-        return *(CXmlAttributes*) 0;
+        return *(XMLAttributes*) 0;
     }
 
     /// @brief Returns true, if node has any attributes
@@ -339,7 +339,7 @@ public:
     /// @param attr name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
     /// @returns attribute value
-    virtual CXmlValue getAttribute(std::string attr, const char *defaultValue = "") const
+    virtual XMLValue getAttribute(std::string attr, const char *defaultValue = "") const
     {
         return defaultValue;
     }
@@ -350,7 +350,7 @@ public:
     /// @param attr attribute name
     /// @param value attribute value
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    virtual void setAttribute(const char *attr, CXmlValue value, const char *defaultValue = "")
+    virtual void setAttribute(const char *attr, XMLValue value, const char *defaultValue = "")
     {
     }
 
@@ -358,9 +358,9 @@ public:
     ///
     /// If attribute is not found, it's added to map.
     /// @param attr const string&, an attribute name
-    /// @param value CXmlValue, attribute value
+    /// @param value XMLValue, attribute value
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    virtual void setAttribute(const std::string& attr, CXmlValue value, const char *defaultValue = "")
+    virtual void setAttribute(const std::string& attr, XMLValue value, const char *defaultValue = "")
     {
     }
 
@@ -394,29 +394,29 @@ public:
     }
 
     /// @brief Appends a subnode
-    virtual void push_back(CXmlNode* node)
+    virtual void push_back(XMLNode* node)
     {
     }
 
     /// @brief Inserts a subnode
     ///
     /// @param pos iterator, insert position with the list of subnodes
-    /// @param node CXmlNode*, node to insert
-    virtual void insert(iterator pos, CXmlNode* node)
+    /// @param node XMLNode*, node to insert
+    virtual void insert(iterator pos, XMLNode* node)
     {
     }
 
     /// @brief Removes a subnode
     ///
     /// Release all the allocated memory and disconnects from parent (this node)
-    virtual void remove(CXmlNode* node)
+    virtual void remove(XMLNode* node)
     {
     }
 
     /// @brief Removes a subnode
     ///
     /// Disconnects subnode from parent (this node)
-    virtual void unlink(CXmlNode* node)
+    virtual void unlink(XMLNode* node)
     {
     }
 
@@ -461,19 +461,19 @@ public:
 /// @brief XML Named item
 ///
 /// Used as a base class for XML element and XML attribute
-class SP_EXPORT CXmlNamedItem: public CXmlNode
+class SP_EXPORT XMLNamedItem: public XMLNode
 {
-    friend class CXmlDoc;
-    friend class CXmlAttribute;
+    friend class XMLDocument;
+    friend class XMLAttribute;
 
     const std::string*  m_name;     ///< Node name, stored in the parent document SST
 
 protected:
-    /// @brief Protected constructor for creating CXmlDoc only
+    /// @brief Protected constructor for creating XMLDoc only
     ///
-    /// @param doc CXmlDoc&, a document.
-    CXmlNamedItem(CXmlDoc& doc) :
-            CXmlNode(doc)
+    /// @param doc XMLDoc&, a document.
+    XMLNamedItem(XMLDocument& doc) :
+            XMLNode(doc)
     {
     }
 
@@ -487,30 +487,30 @@ protected:
 public:
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param tagname const char*, a name of XML tag
-    CXmlNamedItem(CXmlNode& parent, const char* tagname) :
-            CXmlNode(parent)
+    XMLNamedItem(XMLNode& parent, const char* tagname) :
+            XMLNode(parent)
     {
         name(tagname);
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param tagname const char*, a name of XML tag
-    CXmlNamedItem(CXmlNode* parent, const char* tagname) :
-            CXmlNode(*parent)
+    XMLNamedItem(XMLNode* parent, const char* tagname) :
+            XMLNode(*parent)
     {
         name(tagname);
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node.
+    /// @param parent XMLNode &, a parent node.
     /// @param tagname const string&, a name of XML tag
-    CXmlNamedItem(CXmlNode& parent, const std::string& tagname) :
-            CXmlNode(parent)
+    XMLNamedItem(XMLNode& parent, const std::string& tagname) :
+            XMLNode(parent)
     {
         name(tagname);
     }
@@ -532,14 +532,14 @@ public:
     virtual void name(const char *name);
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_ATTRIBUTE;
     }
 };
 
 /// @brief Base class for XML nodes with value
-class SP_EXPORT CXmlBaseTextNode: public CXmlNode
+class SP_EXPORT XMLBaseTextNode: public XMLNode
 {
     std::string     m_value;        ///< Node value
 protected:
@@ -547,8 +547,8 @@ protected:
     virtual const std::string& nodeName() const;
 public:
     /// @brief Constructor
-    CXmlBaseTextNode(CXmlNode *parent, const char *data) :
-            CXmlNode(*parent)
+    XMLBaseTextNode(XMLNode *parent, const char *data) :
+            XMLNode(*parent)
     {
         value(data);
     }
@@ -603,7 +603,7 @@ public:
 };
 
 /// @brief XML Text
-class SP_EXPORT CXmlText: public CXmlBaseTextNode
+class SP_EXPORT XMLText: public XMLBaseTextNode
 {
 protected:
     /// @brief returns node name
@@ -611,40 +611,40 @@ protected:
 public:
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode&, a parent node.
+    /// @param parent XMLNode&, a parent node.
     /// @param data const char*, a text
-    CXmlText(CXmlNode& parent, const char *data) :
-            CXmlBaseTextNode(&parent, data)
+    XMLText(XMLNode& parent, const char *data) :
+            XMLBaseTextNode(&parent, data)
     {
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param data const char*, a text
-    CXmlText(CXmlNode* parent, const char *data) :
-            CXmlBaseTextNode(parent, data)
+    XMLText(XMLNode* parent, const char *data) :
+            XMLBaseTextNode(parent, data)
     {
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node.
+    /// @param parent XMLNode &, a parent node.
     /// @param data const std::string&, a text
-    CXmlText(CXmlNode& parent, const std::string& data) :
-            CXmlBaseTextNode(&parent, data.c_str())
+    XMLText(XMLNode& parent, const std::string& data) :
+            XMLBaseTextNode(&parent, data.c_str())
     {
     }
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_TEXT;
     }
 };
 
 /// @brief XML comment
-class SP_EXPORT CXmlComment: public CXmlBaseTextNode
+class SP_EXPORT XMLComment: public XMLBaseTextNode
 {
 protected:
     /// @brief returns node name
@@ -652,40 +652,40 @@ protected:
 public:
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node.
+    /// @param parent XMLNode &, a parent node.
     /// @param data const char *, a comment
-    CXmlComment(CXmlNode& parent, const char *data) :
-            CXmlBaseTextNode(&parent, data)
+    XMLComment(XMLNode& parent, const char *data) :
+            XMLBaseTextNode(&parent, data)
     {
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param data const char*, a comment
-    CXmlComment(CXmlNode* parent, const char* data) :
-            CXmlBaseTextNode(parent, data)
+    XMLComment(XMLNode* parent, const char* data) :
+            XMLBaseTextNode(parent, data)
     {
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node.
+    /// @param parent XMLNode &, a parent node.
     /// @param data const std::string&, a comment
-    CXmlComment(CXmlNode& parent, const std::string& data) :
-            CXmlBaseTextNode(&parent, data.c_str())
+    XMLComment(XMLNode& parent, const std::string& data) :
+            XMLBaseTextNode(&parent, data.c_str())
     {
     }
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_COMMENT;
     }
 };
 
 /// @brief XML CData section
-class SP_EXPORT CXmlCDataSection: public CXmlBaseTextNode
+class SP_EXPORT XMLCDataSection: public XMLBaseTextNode
 {
 protected:
     /// @brief returns node name
@@ -693,71 +693,71 @@ protected:
 public:
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode&, a parent node.
+    /// @param parent XMLNode&, a parent node.
     /// @param data const char*, a data
-    CXmlCDataSection(CXmlNode& parent, const char* data) :
-            CXmlBaseTextNode(&parent, data)
+    XMLCDataSection(XMLNode& parent, const char* data) :
+            XMLBaseTextNode(&parent, data)
     {
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode*, a parent node.
+    /// @param parent XMLNode*, a parent node.
     /// @param data const char*, a data
-    CXmlCDataSection(CXmlNode* parent, const char* data) :
-            CXmlBaseTextNode(parent, data)
+    XMLCDataSection(XMLNode* parent, const char* data) :
+            XMLBaseTextNode(parent, data)
     {
     }
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node.
+    /// @param parent XMLNode &, a parent node.
     /// @param data const std::string&, a data
-    CXmlCDataSection(CXmlNode& parent, const std::string& data) :
-            CXmlBaseTextNode(&parent, data.c_str())
+    XMLCDataSection(XMLNode& parent, const std::string& data) :
+            XMLBaseTextNode(&parent, data.c_str())
     {
     }
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_CDATA_SECTION;
     }
 };
 
-/// XML processing instructions (PI)
-class SP_EXPORT CXmlPI: public CXmlBaseTextNode
+/// @brief XML processing instructions (PI)
+class SP_EXPORT XMLPI: public XMLBaseTextNode
 {
     const std::string*  m_name;     ///< Node name, stored in the parent document SST
 public:
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node. Make sure it's a pointer to the existing node.
+    /// @param parent XMLNode &, a parent node. Make sure it's a pointer to the existing node.
     /// @param target std::string, a target tag name
     /// @param data const char *, a data
-    CXmlPI(CXmlNode& parent, std::string target, const char *data) :
-            CXmlBaseTextNode(&parent, data)
+    XMLPI(XMLNode& parent, std::string target, const char *data) :
+            XMLBaseTextNode(&parent, data)
     {
         name(target);
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode&, a parent node. Make sure it's a pointer to the existing node.
+    /// @param parent XMLNode&, a parent node. Make sure it's a pointer to the existing node.
     /// @param target std::string, a target tag name
     /// @param data const char*, a data
-    CXmlPI(CXmlNode* parent, std::string target, const char* data) :
-            CXmlBaseTextNode(parent, data)
+    XMLPI(XMLNode* parent, std::string target, const char* data) :
+            XMLBaseTextNode(parent, data)
     {
         name(target);
     }
 
     /// @brief Constructor
     ///
-    /// @param parent CXmlNode &, a parent node
+    /// @param parent XMLNode &, a parent node
     /// @param target std::string, a target tag name
     /// @param data const std::string&, a data
-    CXmlPI(CXmlNode& parent, std::string target, const std::string& data) :
-            CXmlBaseTextNode(&parent, data.c_str())
+    XMLPI(XMLNode& parent, std::string target, const std::string& data) :
+            XMLBaseTextNode(&parent, data.c_str())
     {
         name(target);
     }
@@ -779,18 +779,18 @@ public:
     virtual void name(const char *name);
 
     /// @brief Returns node type
-    virtual CXmlNodeType type() const
+    virtual XMLNodeType type() const
     {
         return DOM_PI;
     }
 };
 
-#define XML_TYPE_DOC             CXmlNode::DOM_DOCUMENT         ///< Node type is a document
-#define XML_TYPE_ELEMENT         CXmlNode::DOM_ELEMENT          ///< Node type is an element
-#define XML_TYPE_PI              CXmlNode::DOM_PI               ///< Node type is a processing instruction
-#define XML_TYPE_TEXT            CXmlNode::DOM_TEXT             ///< Node type is a text
-#define XML_TYPE_CDATA_SECTION   CXmlNode::DOM_CDATA_SECTION    ///< Node type is CDataSection
-#define XML_TYPE_COMMENT         CXmlNode::DOM_COMMENT          ///< Node type is a comment
+#define XML_TYPE_DOC             XMLNode::DOM_DOCUMENT         ///< Node type is a document
+#define XML_TYPE_ELEMENT         XMLNode::DOM_ELEMENT          ///< Node type is an element
+#define XML_TYPE_PI              XMLNode::DOM_PI               ///< Node type is a processing instruction
+#define XML_TYPE_TEXT            XMLNode::DOM_TEXT             ///< Node type is a text
+#define XML_TYPE_CDATA_SECTION   XMLNode::DOM_CDATA_SECTION    ///< Node type is CDataSection
+#define XML_TYPE_COMMENT         XMLNode::DOM_COMMENT          ///< Node type is a comment
 /// @}
 }
 #endif

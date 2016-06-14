@@ -47,7 +47,7 @@ CLayoutClient::CLayoutClient(Fl_Widget* widget,int layoutSize,CLayoutAlign ca) {
     }
 }
 
-void CLayoutClient::load(const CXmlNode* node,CLayoutXMLmode xmlMode) {
+void CLayoutClient::load(const XMLNode* node,CLayoutXMLmode xmlMode) {
     if (xmlMode & (int) LXM_LAYOUT) {
         CLayoutAlign layoutAlign;
         string alignName( lowerCase(node->getAttribute("layout_align")) );
@@ -116,7 +116,7 @@ void CLayoutClient::load(const CXmlNode* node,CLayoutXMLmode xmlMode) {
     }
 }
 
-void CLayoutClient::save(CXmlNode* node,CLayoutXMLmode xmlMode) const {
+void CLayoutClient::save(XMLNode* node,CLayoutXMLmode xmlMode) const {
     if (!node->isElement())
         throw runtime_error("Node must be an element");
     string className = "widget";

@@ -81,10 +81,10 @@ void CIconMap::insert(CIcon* icon)
     }
 }
 
-void CIconMap::load(CTar& tar, CXmlNode* iconsNode)
+void CIconMap::load(Tar& tar, XMLNode* iconsNode)
 {
-    for (CXmlNode::iterator itor = iconsNode->begin(); itor != iconsNode->end(); itor++) {
-        CXmlNode* node = *itor;
+    for (XMLNode::iterator itor = iconsNode->begin(); itor != iconsNode->end(); itor++) {
+        XMLNode* node = *itor;
         if (node->name() != "icon")
             continue;
         string iconName = node->getAttribute("name");

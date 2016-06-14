@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlEntities.h - description                           ║
+║                       XMLEntities.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLENTITIES_H__
-#define __CXMLENTITIES_H__
+#ifndef __SPTK_XMLENTITIES_H__
+#define __SPTK_XMLENTITIES_H__
 
 #include <string>
 #include <map>
@@ -40,12 +40,12 @@ namespace sptk {
 /// @brief XML entities
 ///
 /// Maps an XML entity string to a presentation string.
-class CXmlEntities: public std::map<std::string, std::string>
+class XMLEntities: public std::map<std::string, std::string>
 {
 public:
 
     /// @brief Constructor
-    CXmlEntities()
+    XMLEntities()
     {
     }
 

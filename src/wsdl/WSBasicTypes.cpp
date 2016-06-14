@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSListener.h - description                            ║
+║                       CWSBasicTypes.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,46 +26,113 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWSLISTENER_H__
-#define __CWSLISTENER_H__
+#include <sptk5/wsdl/WSBasicTypes.h>
 
-#include <sptk5/cutils>
-#include <sptk5/cnet>
-#include <sptk5/wsdl/CWSRequest.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
-
-class CWSListener : public sptk::TCPServer
+XMLElement* WSBasicType::addElement(XMLElement* parent) const
 {
-protected:
-    sptk::CWSRequest&   m_service;              ///< Web Service request processor
-    sptk::Logger&     m_logger;               ///< Logger object
-    const std::string   m_staticFilesDirectory; ///< Web Service static files directory
-
-    /// @brief Creates connection thread derived from CTCPServerConnection
-    ///
-    /// Application should override this method to create concrete connection object.
-    /// Created connection object is maintained by CTCPServer.
-    /// @param connectionSocket SOCKET, Already accepted incoming connection socket
-    /// @param peer sockaddr_in*, Incoming connection information
-    virtual sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
-    
-public:
-    /// @brief Constructor
-    /// @param service sptk::CWSRequest&, Web Service request processor
-    /// @param logger sptk::Logger&, Logger
-    /// @param staticFilesDirectory const std::string&, Web Service static files directory
-    CWSListener(sptk::CWSRequest& service, sptk::Logger& logger, std::string staticFilesDirectory);
-
-    /// @brief Destructor
-    ~CWSListener();
- };
- 
-/// @}
- 
+    string text(asString());
+    if (m_optional && (isNull() || text.empty()))
+        return NULL;
+    XMLElement* element = new XMLElement(*parent, m_name);
+    element->text(text);
+    return element;
 }
 
-#endif
+void WSString::load(const XMLNode* attr)
+{
+    setString(attr->text());
+}
+
+void WSString::load(std::string attr)
+{
+    setString(attr);
+}
+
+void WSString::load(const Field& field)
+{
+    setString(field);
+}
+
+void WSBool::load(const XMLNode* attr)
+{
+    setBool(attr->text() == "true");
+}
+
+void WSBool::load(string attr)
+{
+    setBool(attr == "true");
+}
+
+void WSBool::load(const Field& field)
+{
+    setBool(field);
+}
+
+void WSDate::load(const XMLNode* attr)
+{
+    setDate(DateTime(attr->text().c_str()));
+}
+
+void WSDate::load(string attr)
+{
+    setDate(DateTime(attr.c_str()));
+}
+
+void WSDate::load(const Field& field)
+{
+    setDate(field);
+}
+
+void WSDateTime::load(const XMLNode* attr)
+{
+    setDateTime(DateTime(attr->text().c_str()));
+}
+
+void WSDateTime::load(string attr)
+{
+    setDateTime(DateTime(attr.c_str()));
+}
+
+void WSDateTime::load(const Field& field)
+{
+    setDateTime(field);
+}
+
+string WSDateTime::asString() const
+{
+    DateTime dt = asDateTime();
+    return dt.dateString(true) + "T" + dt.timeString(true,true);
+}
+
+void WSDouble::load(const XMLNode* attr)
+{
+    setFloat(atof(attr->text().c_str()));
+}
+
+void WSDouble::load(string attr)
+{
+    setFloat(atof(attr.c_str()));
+}
+
+void WSDouble::load(const Field& field)
+{
+    setFloat(field);
+}
+
+void WSInteger::load(const XMLNode* attr)
+{
+    setInteger(atoi(attr->text().c_str()));
+}
+
+void WSInteger::load(string attr)
+{
+    setInteger(atoi(attr.c_str()));
+}
+
+void WSInteger::load(const Field& field)
+{
+    setInteger(field);
+}

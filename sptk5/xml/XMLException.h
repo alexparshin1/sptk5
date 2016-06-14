@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXml.h - description                                   ║
+║                       XMLException.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXML_H__
-#define __CXML_H__
+#ifndef __SPTK_XMLEXCEPTION_H__
+#define __SPTK_XMLEXCEPTION_H__
 
 #include <sptk5/Exception.h>
-#include <sptk5/xml/CXmlDoc.h>
-#include <sptk5/xml/CXmlNode.h>
+#include <sptk5/xml/XMLDocument.h>
+#include <sptk5/xml/XMLNode.h>
 
 namespace sptk {
 
@@ -40,29 +40,30 @@ namespace sptk {
 
 /// @brief XML exception
 ///
-/// Xml extension throws CXmlException type exceptions.
-/// You should catch always atleast these type of exceptions, when processing XML.
-class SP_EXPORT CXmlException: public std::exception
+/// XML extension throws XMLException type exceptions.
+/// You should catch always at least these type of exceptions, when processing XML.
+class SP_EXPORT XMLException: public Exception
 {
-    std::string m_message; ///< Exception text
 public:
 
-    /// @brief Constructor
-    /// @param error const char*, error text
-    /// @param xmlbase const char*, parsed xml text
-    /// @param position const char*, parsed xml error position
-    CXmlException(const char* error, const char* xmlbase, const char* position);
+    /// Constructor
+    /// @param text std::string, the exception text
+    /// @param file std::string, the file where exception occurs
+    /// @param line int, the line number in the file where exception occurs
+    /// @param description std::string, the optional description information
+    XMLException(std::string text, std::string file = "", int line = 0, std::string description = "")
+            : Exception(text, file, line, description)
+    {}
+
+    /// @brief Copy constructor
+    /// @param other const CTimeoutException&, other exception object
+    XMLException(const TimeoutException& other)
+            : Exception(other)
+    {}
 
     /// @brief Destructor
-    ~CXmlException() DOESNT_THROW
-    {
-    }
-
-    /// @brief Returns human readable error string.
-    const char *what() const DOESNT_THROW
-    {
-        return m_message.c_str();
-    }
+    ~XMLException() DOESNT_THROW
+    {}
 };
 /// @}
 }

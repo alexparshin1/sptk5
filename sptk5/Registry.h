@@ -57,7 +57,7 @@ enum RegistryMode
 /// Works with INI and XML configuration-files.
 /// Class allows to read both INI and XML files and write the output file
 /// in the same format, or change the output format before saving the file.
-class SP_EXPORT Registry: public CXmlDoc
+class SP_EXPORT Registry: public XMLDocument
 {
     std::string m_fileName;            ///< The registry file name
 
@@ -68,15 +68,15 @@ class SP_EXPORT Registry: public CXmlDoc
     ///
     /// The node is saved in INI file format.
     /// @param outputData CStrings&, the string list to save data into
-    /// @param node CXmlNode*, the XML node to save
+    /// @param node XMLNode*, the XML node to save
     /// @param currentPath string, current path to the parent node
-    void save(Strings& outputData, CXmlNode* node, std::string currentPath);
+    void save(Strings& outputData, XMLNode* node, std::string currentPath);
 
     /// @brief Cleans the node recursively
     ///
     /// Removes the empty children nodes. The empty nodes are nodes without children and attributes.
-    /// @param node CXmlNode*, the node to clean
-    void clean(CXmlNode* node);
+    /// @param node XMLNode*, the node to clean
+    void clean(XMLNode* node);
 
 public:
 
@@ -116,15 +116,15 @@ public:
     ///
     /// Any XML node that has subnodes is considered as section.
     /// Nested sections make paths with the elements separated with "/".
-    /// @param data const CXmlDoc&, the XML document to load data from
-    virtual void load(const CXmlDoc& data);
+    /// @param data const XMLDoc&, the XML document to load data from
+    virtual void load(const XMLDocument& data);
 
     /// @brief Loads registry from buffer.
     /// @param buffer const CBuffer&, source buffer
     virtual void load(const Buffer &buffer)
     {
         clear();
-        CXmlDoc::load(buffer);
+        XMLDocument::load(buffer);
     }
 
     /// @brief Saves registry to the file.
@@ -136,15 +136,15 @@ public:
     /// @brief Saves registry to XML node
     ///
     /// Nested sections with paths with the elements separated with "/" make nested XML nodes.
-    /// @param data const CXmlDoc&, the XML document to load data from
-    virtual void save(CXmlDoc& data) const;
+    /// @param data const XMLDoc&, the XML document to load data from
+    virtual void save(XMLDocument& data) const;
 
     /// @brief Saves registry to buffer.
     /// @param buffer CBuffer&, a buffer to save document
     /// @param indent int, how many indent spaces at start
     virtual void save(Buffer &buffer, int indent = 0) const
     {
-        CXmlDoc::save(buffer, indent);
+        XMLDocument::save(buffer, indent);
     }
 
 public:

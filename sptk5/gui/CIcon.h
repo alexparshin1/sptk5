@@ -31,7 +31,7 @@
 
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/CaseInsensitiveCompare.h>
-#include <sptk5/CTar.h>
+#include <sptk5/Tar.h>
 #include <sptk5/cxml>
 
 namespace sptk {
@@ -128,8 +128,8 @@ public:
     ///
     /// Any incorrect image information is ignored.
     /// @param tar CTar&, the loaded tar archive where images are located
-    /// @param node CXmlNode*, an XML node describing the theme icon images
-    void load(CTar& tar, CXmlNode* node);
+    /// @param node XMLNode*, an XML node describing the theme icon images
+    void load(Tar& tar, XMLNode* node);
 };
 
 /// @}

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlDocType.h - description                            ║
+║                       XMLDocType.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLDOCTYPE_H__
-#define __CXMLDOCTYPE_H__
+#ifndef __SPTK_XMLDOCTYPE_H__
+#define __SPTK_XMLDOCTYPE_H__
 
 #include <sptk5/xml/XMLEntities.h>
 
@@ -44,20 +44,20 @@ namespace sptk {
 /// Represents tag <DOCTYPE ...> in XML document.
 /// It can return a map of all entities().
 /// Provides the name(), public_id() and system_id() functions.
-class CXmlDocType
+class XMLDocType
 {
-    friend class CXmlDoc;
-    char        m_replacementBuffer[16];    ///< The buffer used to return replacement literals
+    friend class XMLDocument;
+    char       m_replacementBuffer[16];     ///< The buffer used to return replacement literals
     Buffer     m_encodeBuffers[2];		    ///< Encode buffers
 public:
 
     /// @brief Default constructor
-    CXmlDocType()
+    XMLDocType()
     {
     }
 
     /// @brief Constructor
-    CXmlDocType(const char *name, const char *public_id = 0, const char *system_id = 0);
+    XMLDocType(const char *name, const char *public_id = 0, const char *system_id = 0);
 
     /// @brief Returns the name of the document type as specified in the <!DOCTYPE name> tag
     const std::string &name() const
@@ -84,7 +84,7 @@ public:
     /// @brief Returns a map of all entities described in the DTD
     ///
     /// NOTE: Map doesn't hold default entities.
-    CXmlEntities &entities()
+    XMLEntities &entities()
     {
         return m_entities;
     }
@@ -92,7 +92,7 @@ public:
     /// @brief Returns a map of all entities described in the DTD
     ///
     /// NOTE: Map doesn't hold default entities.
-    const CXmlEntities &entities() const
+    const XMLEntities &entities() const
     {
         return m_entities;
     }
@@ -145,7 +145,7 @@ public:
     }
 
 private:
-    CXmlEntities m_entities;    ///< List of entities
+    XMLEntities m_entities;    ///< List of entities
 
     std::string m_name;         ///< Document type name
     std::string m_public_id;    ///< Public ID

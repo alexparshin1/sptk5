@@ -404,28 +404,28 @@ public:
 
     /// @brief Loads group controls data from XML node
     ///
-    /// @param node const CXmlNode&, node to load data from
+    /// @param node const XMLNode&, node to load data from
     /// @param autoCreate bool, create widgets if they are not found
-    virtual void load (const CXmlNode& node,bool autoCreate=false) THROWS_EXCEPTIONS;
+    virtual void load (const XMLNode& node,bool autoCreate=false) THROWS_EXCEPTIONS;
 
     /// @brief Loads group controls data from XML node
     ///
-    /// @param node const CXmlNode*, node to load data from
+    /// @param node const XMLNode*, node to load data from
     /// @param autoCreate bool, create widgets if they are not found
-    virtual void load (const CXmlNode* node,bool autoCreate=false) THROWS_EXCEPTIONS
+    virtual void load (const XMLNode* node,bool autoCreate=false) THROWS_EXCEPTIONS
     {
         load (*node,autoCreate);
     }
 
     /// @brief Saves group controls data into XML node
     ///
-    /// @param node const CXmlNode&, node to save data into
-    virtual void save (CXmlNode& node) const;
+    /// @param node const XMLNode&, node to save data into
+    virtual void save (XMLNode& node) const;
 
     /// @brief Saves group controls data into XML node
     ///
-    /// @param node const CXmlNode*, node to save data into
-    virtual void save (CXmlNode* node) const
+    /// @param node const XMLNode*, node to save data into
+    virtual void save (XMLNode* node) const
     {
         save (*node);
     }

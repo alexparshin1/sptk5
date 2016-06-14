@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSRestriction.h - description                         ║
+║                       CWSRequest.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,43 +26,46 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWSRESTRICTION_H__
-#define __CWSRESTRICTION_H__
+#include <sptk5/wsdl/WSRequest.h>
 
-#include <sptk5/cxml>
-#include <sptk5/Variant.h>
-#include <sptk5/xml/CXmlElement.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
+void WSRequest::processRequest(XMLDocument* request) THROWS_EXCEPTIONS
+{
+    XMLElement* soapEnvelope = NULL;
+    for (XMLElement::iterator itor = request->begin(); itor != request->end(); itor++) {
+        XMLElement* node = dynamic_cast<XMLElement*>(*itor);
+        if (!node)
+            continue;
+        Strings nameParts(node->name(),":");
+        if (nameParts.size() > 1 && nameParts[1] == "Envelope") {
+            soapEnvelope = node;
+            m_namespace = nameParts[0] + ":";
+            break;
+        }
+        else if (node->name() == "Envelope") {
+            soapEnvelope = node;
+            break;
+        }
+    }
+    if (!soapEnvelope)
+        throwException("Can't find SOAP Envelope node");
 
-    /// @brief WSDL Restriction
-    class WSRestriction
-    {
-        std::string m_typeName;     ///< WSDL type name
-        Strings     m_enumerations; ///< List of enumerations if any
-    public:
-        /// @brief Constructor from WSDL (XML) definition
-        /// @param typeName std::string, WSDL type name
-        /// @param simpleTypeElement CXmlNode*, Simple type XML node
-        WSRestriction(std::string typeName, CXmlNode* simpleTypeElement);
+    XMLElement* soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_namespace + "Body"));
+    if (!soapBody)
+        throwException("Can't find SOAP Body node in incoming request");
 
-        /// @brief Constructor from WSDL (XML) definition
-        /// @param typeName std::string, WSDL type name
-        /// @param enumerations std::string, Enumerations or empty string
-        /// @param delimiter const char*, Enumerations delimiter
-        WSRestriction(std::string typeName, std::string enumerations, const char* delimiter="|");
+    XMLElement* requestNode = NULL;
+    for (XMLElement::iterator itor = soapBody->begin(); itor != soapBody->end(); itor++) {
+        XMLElement* node = dynamic_cast<XMLElement*>(*itor);
+        if (node) {
+            requestNode = node;
+            break;
+        }
+    }
+    if (!requestNode)
+        throwException("Can't find request node in SOAP Body");
 
-        /// @brief Restriction check
-        ///
-        /// Checks value to satisfy restriction.
-        /// If value violates restriction, throws exception.
-        /// @param value std::string, Value to check
-        void check(std::string value) const;
-
-        /// @brief Generates restriction constructor for C++ skeleton
-        std::string generateConstructor(std::string variableName) const;
-    };
-
+    requestBroker(requestNode);
 }
-#endif
-

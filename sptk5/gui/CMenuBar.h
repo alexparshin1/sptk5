@@ -58,8 +58,8 @@ public:
     }
 
     /// @brief Creates a widget based on the XML node information
-    /// @param node CXmlNode*, an XML node with widget information
-    static CLayoutClient* creator(CXmlNode* node) {
+    /// @param node XMLNode*, an XML node with widget information
+    static CLayoutClient* creator(XMLNode* node) {
        CMenuBar* widget = new CMenuBar;
        widget->load(node,LXM_LAYOUTDATA);
        return widget;

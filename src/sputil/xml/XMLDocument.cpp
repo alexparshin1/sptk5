@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlDoc.cpp - description                              ║
+║                       XMLDoc.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -35,55 +35,55 @@
 using namespace std;
 using namespace sptk;
 
-CXmlDoc::CXmlDoc() :
-    CXmlElement(*this),
+XMLDocument::XMLDocument() :
+    XMLElement(*this),
     m_indentSpaces(2)
 {
 }
 
-CXmlDoc::CXmlDoc(string xml) :
-CXmlElement(*this),
+XMLDocument::XMLDocument(string xml) :
+XMLElement(*this),
 m_indentSpaces(2)
 {
     load(xml);
 }
 
-CXmlDoc::CXmlDoc(const char *aname, const char *public_id, const char *system_id) :
-    CXmlElement(*this),
+XMLDocument::XMLDocument(const char *aname, const char *public_id, const char *system_id) :
+    XMLElement(*this),
     m_doctype(aname, public_id, system_id),
     m_indentSpaces(2)
 {
 }
 
-CXmlNode *CXmlDoc::rootNode()
+XMLNode *XMLDocument::rootNode()
 {
     iterator itor = begin();
     iterator iend = end();
     for (; itor != iend; itor++) {
-        CXmlNode *nd = *itor;
+        XMLNode *nd = *itor;
         if (nd->type() == DOM_ELEMENT)
             return nd;
     }
     return 0;
 }
 
-void CXmlDoc::clear()
+void XMLDocument::clear()
 {
-    CXmlElement::clear();
+    XMLElement::clear();
     SharedStrings::clear();
 }
 
-CXmlNode *CXmlDoc::createElement(const char *tagname)
+XMLNode *XMLDocument::createElement(const char *tagname)
 {
-    CXmlNode *node = new CXmlElement(this, tagname);
+    XMLNode *node = new XMLElement(this, tagname);
     return node;
 }
 
-void CXmlDoc::processAttributes(CXmlNode* node, char *ptr)
+void XMLDocument::processAttributes(XMLNode* node, char *ptr)
 {
     const char* tokenStart = ptr;
 
-    CXmlAttributes& attr = node->attributes();
+    XMLAttributes& attr = node->attributes();
     while (*tokenStart && *tokenStart <= ' ')
         tokenStart++;
     while (*tokenStart) {
@@ -129,7 +129,7 @@ void CXmlDoc::processAttributes(CXmlNode* node, char *ptr)
     }
 }
 
-void CXmlDoc::parseEntities(char* entitiesSection)
+void XMLDocument::parseEntities(char* entitiesSection)
 {
     unsigned char* start = (unsigned char*) entitiesSection;
     while (start) {
@@ -171,7 +171,7 @@ void CXmlDoc::parseEntities(char* entitiesSection)
     }
 }
 
-void CXmlDoc::parseDocType(char* docTypeSection)
+void XMLDocument::parseDocType(char* docTypeSection)
 {
     m_doctype.m_name = "";
     m_doctype.m_public_id = "";
@@ -235,11 +235,11 @@ void CXmlDoc::parseDocType(char* docTypeSection)
     }
 }
 
-void CXmlDoc::load(const char* xmlData)
+void XMLDocument::load(const char* xmlData)
 {
     clear();
-    CXmlNode* currentNode = this;
-    CXmlDocType *doctype = &docType();
+    XMLNode* currentNode = this;
+    XMLDocType *doctype = &docType();
     char* buffer = strdup(xmlData);
     try {
         char* tokenStart = (char*) strchr(buffer, '<');
@@ -263,7 +263,7 @@ void CXmlDoc::load(const char* xmlData)
                     if (!nodeEnd)
                         throw Exception("Invalid end of the comment tag");
                     *nodeEnd = 0;
-                    new CXmlComment(currentNode, nodeName + 3);
+                    new XMLComment(currentNode, nodeName + 3);
                     tokenEnd = nodeEnd + 2;
                     break;
                 }
@@ -274,7 +274,7 @@ void CXmlDoc::load(const char* xmlData)
                     if (!nodeEnd)
                         throw Exception("Invalid CDATA section");
                     *nodeEnd = 0;
-                    new CXmlCDataSection(currentNode, nodeName + 8);
+                    new XMLCDataSection(currentNode, nodeName + 8);
                     tokenEnd = nodeEnd + 2;
                     break;
                 }
@@ -310,7 +310,7 @@ void CXmlDoc::load(const char* xmlData)
                 if (!nodeEnd)
                     throw Exception("Invalid PI section");
                 *nodeEnd = 0;
-                new CXmlPI(currentNode, nodeName + 1, value);
+                new XMLPI(currentNode, nodeName + 1, value);
                 tokenEnd = nodeEnd + 1;
             }
                 break;
@@ -333,9 +333,9 @@ void CXmlDoc::load(const char* xmlData)
                 if (ch == '>') {
                     if (*(tokenEnd - 1) == '/') {
                         *(tokenEnd - 1) = 0;
-                        new CXmlElement(currentNode, nodeName);
+                        new XMLElement(currentNode, nodeName);
                     } else
-                        currentNode = new CXmlElement(currentNode, nodeName);
+                        currentNode = new XMLElement(currentNode, nodeName);
                     break;
                 }
 
@@ -345,12 +345,12 @@ void CXmlDoc::load(const char* xmlData)
                 if (!nodeEnd)
                     throw Exception("Invalid tag (started, not closed)");
                 *nodeEnd = 0;
-                CXmlNode* anode;
+                XMLNode* anode;
                 if (*(nodeEnd - 1) == '/') {
-                    anode = new CXmlElement(currentNode, nodeName);
+                    anode = new XMLElement(currentNode, nodeName);
                     *(nodeEnd - 1) = 0;
                 } else {
-                    anode = currentNode = new CXmlElement(currentNode, nodeName);
+                    anode = currentNode = new XMLElement(currentNode, nodeName);
                 }
                 processAttributes(anode, tokenStart);
                 tokenEnd = nodeEnd;
@@ -372,7 +372,7 @@ void CXmlDoc::load(const char* xmlData)
                         *textTrail = 0;
                         Buffer& decoded = m_decodeBuffer;
                         doctype->decodeEntities((char*) textStart, uint32_t(textTrail - textStart), decoded);
-                        new CXmlText(currentNode, decoded.c_str());
+                        new XMLText(currentNode, decoded.c_str());
                         break;
                     }
                 }
@@ -384,9 +384,9 @@ void CXmlDoc::load(const char* xmlData)
     free(buffer);
 }
 
-void CXmlDoc::save(Buffer &buffer, int /*indent*/) const
+void XMLDocument::save(Buffer &buffer, int /*indent*/) const
 {
-    CXmlNode *xml_pi = 0;
+    XMLNode *xml_pi = 0;
 
     buffer.reset();
 
@@ -394,7 +394,7 @@ void CXmlDoc::save(Buffer &buffer, int /*indent*/) const
     const_iterator itor = begin();
     const_iterator iend = end();
     for (; itor != iend; itor++) {
-        CXmlNode *node = *itor;
+        XMLNode *node = *itor;
         if (node->type() == DOM_PI && node->name() == "XML") {
             xml_pi = node;
             xml_pi->save(buffer);
@@ -411,8 +411,8 @@ void CXmlDoc::save(Buffer &buffer, int /*indent*/) const
 
         if (docType().entities().size() > 0) {
             buffer.append(" [\n", 3);
-            const CXmlEntities& entities = docType().entities();
-            CXmlEntities::const_iterator it = entities.begin();
+            const XMLEntities& entities = docType().entities();
+            XMLEntities::const_iterator it = entities.begin();
             for (; it != entities.end(); it++) {
                 buffer.append("<!ENTITY " + it->first + " \"" + it->second + "\">\n");
             }
@@ -423,14 +423,14 @@ void CXmlDoc::save(Buffer &buffer, int /*indent*/) const
 
     // call save() method of the first (and hopefully only) node in xmldocument
     for (itor = begin(); itor != iend; itor++) {
-        CXmlNode *node = *itor;
+        XMLNode *node = *itor;
         if (node == xml_pi)
             continue;
         node->save(buffer, 0);
     }
 }
 
-const std::string& CXmlDoc::name() const
+const std::string& XMLDocument::name() const
 {
     static const string nodeNameString("#document");
     return nodeNameString;

@@ -89,8 +89,8 @@ CThemeColorCollection CThemes::m_colors;
 bool CThemes::m_flatButtons;
 bool CThemes::m_gtkTheme;
 
-CXmlDoc *CThemes::m_registry;
-CTar CThemes::m_tar;
+XMLDocument *CThemes::m_registry;
+Tar CThemes::m_tar;
 CIconMap CThemes::m_icons[4]; /// Four different sets of icons
 bool CThemes::m_desaturateInactiveButtons;
 int CThemes::m_buttonFocusRadius;
@@ -109,7 +109,7 @@ CThemes::CThemes()
     m_thinDownFrame = Fl::get_boxtype(FL_THIN_DOWN_FRAME);
     m_downFrame = Fl::get_boxtype(FL_DOWN_FRAME);
 
-    m_registry = new CXmlDoc;
+    m_registry = new XMLDocument;
     m_desaturateInactiveButtons = false;
     m_buttonFocusRadius = 0;
 
@@ -278,9 +278,9 @@ void CThemes::set(string theThemeName)
         }
 
         try {
-            CXmlNode::iterator itor = m_registry->begin();
+            XMLNode::iterator itor = m_registry->begin();
             for (; itor != m_registry->end(); itor++) {
-                CXmlNode* iconsNode = *itor;
+                XMLNode* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                     continue;
                 string iconsSizeStr = iconsNode->getAttribute("size", "large");
@@ -302,18 +302,18 @@ void CThemes::set(string theThemeName)
                 m_icons[iconsSize].load(m_tar, iconsNode);
             }
 
-            CXmlNode* buttonsNode = m_registry->findOrCreate("buttons", false);
+            XMLNode* buttonsNode = m_registry->findOrCreate("buttons", false);
             m_desaturateInactiveButtons = buttonsNode->getAttribute("DesaturateInactive", "N");
             m_buttonFocusRadius = buttonsNode->getAttribute("FocusRadius", "0");
             m_flatButtons = buttonsNode->getAttribute("FlatInactive", "N");
 
-            CXmlNode* tabsNode = m_registry->findOrCreate("tabs", false);
+            XMLNode* tabsNode = m_registry->findOrCreate("tabs", false);
             m_tabImages.load(m_tar, tabsNode);
 
-            CXmlNode* fontsTopic = m_registry->findOrCreate("fonts", false);
+            XMLNode* fontsTopic = m_registry->findOrCreate("fonts", false);
             m_fonts.clear();
             for (itor = fontsTopic->begin(); itor != fontsTopic->end(); itor++) {
-                CXmlNode* fontInfo = *itor;
+                XMLNode* fontInfo = *itor;
                 string fontName = fontInfo->getAttribute("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
@@ -333,7 +333,7 @@ void CThemes::set(string theThemeName)
                 m_fonts["default"] = new CFont(font->name(), 10, 0, font->index(), font->attributes());
             }
 
-            CXmlNode* framesNode = m_registry->findOrCreate("frames", false);
+            XMLNode* framesNode = m_registry->findOrCreate("frames", false);
             m_frames.load(m_tar, framesNode);
 
         } catch (...) {
@@ -365,7 +365,7 @@ void CThemes::set(string theThemeName)
 
         /*
         try {
-            CXmlNode& topic = *m_registry->findFirst("scrollbars", false);
+            XMLNode& topic = *m_registry->findFirst("scrollbars", false);
             if (&topic)
                 scrollBarButtonSize = topic.getAttribute("ButtonSize", "16");
         } catch (...) {}

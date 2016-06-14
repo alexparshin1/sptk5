@@ -99,17 +99,17 @@ string CThemeImageCollection::gtkFullFileName(string fileName) {
     return CThemes::themeFolder() + fileName;
 }
 
-void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string imagesXPath,std::string attribute,std::string attributeValue) {
+void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute,std::string attributeValue) {
     static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT","|");
 
-    CXmlNodeVector images;
+    XMLNodeVector images;
     
     gtkTheme.select(images,imagesXPath);
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
-    for (CXmlNode::iterator itor = images.begin(); itor != images.end(); itor++) {
-        CXmlNode* imageNode = *itor;
+    for (XMLNode::iterator itor = images.begin(); itor != images.end(); itor++) {
+        XMLNode* imageNode = *itor;
 
         if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)
             continue;

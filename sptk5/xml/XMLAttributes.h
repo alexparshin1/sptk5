@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlAttributes.h - description                         ║
+║                       XMLAttributes.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,10 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXMLATTRIBUTES_H__
-#define __CXMLATTRIBUTES_H__
+#ifndef __SPTK_XMLATTRIBUTES_H__
+#define __SPTK_XMLATTRIBUTES_H__
 
-//#include <sptk5/cxml>
 #include <sptk5/DateTime.h>
 #include <sptk5/xml/XMLNode.h>
 #include <sptk5/xml/XMLElement.h>
@@ -42,12 +41,12 @@ namespace sptk {
 /// @addtogroup XML
 /// @{
 
-class CXmlElement;
+class XMLElement;
 
 /// @brief XML attribute is just a named item
-class CXmlAttribute: public CXmlNamedItem
+class XMLAttribute: public XMLNamedItem
 {
-    friend class CXmlAttributes;
+    friend class XMLAttributes;
 protected:
     std::string m_value;  ///< Attribute value
 
@@ -55,19 +54,19 @@ protected:
     ///
     /// Creates a new attribute. 
     /// Doesn't verify if the attribute name already exists in parent element
-    /// @param parent CXmlElement*, parent element (can't be NULL)
+    /// @param parent XMLElement*, parent element (can't be NULL)
     /// @param name const std::string&, attribute name
-    /// @param value CXmlValue, attribute value
-    CXmlAttribute(CXmlElement* parent, const std::string& name, CXmlValue value);
+    /// @param value XMLValue, attribute value
+    XMLAttribute(XMLElement* parent, const std::string& name, XMLValue value);
 
     /// @brief Protected constructor (internal)
     ///
     /// Creates a new attribute. 
     /// Doesn't verify if the attribute name already exists in parent element
-    /// @param parent CXmlElement*, parent element (can't be NULL)
+    /// @param parent XMLElement*, parent element (can't be NULL)
     /// @param name const char*, attribute name
-    /// @param value CXmlValue, attribute value
-    CXmlAttribute(CXmlElement* parent, const char* name, CXmlValue value);
+    /// @param value XMLValue, attribute value
+    XMLAttribute(XMLElement* parent, const char* name, XMLValue value);
 
 public:
     /// @brief Returns the value of the node
@@ -84,26 +83,26 @@ public:
     virtual void value(const char *new_value);
 };
 
-class CXmlNode;
-class CXmlDoc;
+class XMLNode;
+class XMLDocument;
 
 /// @brief XML node attributes
 ///
-/// The CXmlAttributes class is map for node attributes.
-class SP_EXPORT CXmlAttributes: public CXmlNodeList
+/// The XMLAttributes class is map for node attributes.
+class SP_EXPORT XMLAttributes: public XMLNodeList
 {
-    friend class CXmlNode;
-    friend class CXmlElement;
+    friend class XMLNode;
+    friend class XMLElement;
 protected:
-    CXmlElement* m_parent;    ///< The parent XML element
+    XMLElement* m_parent;    ///< The parent XML element
 
 public:
 
     /// @brief Constructor
     ///
     /// The XML attributes object uses the shared strings table (SST) for attribute names
-    /// @param parent CXmlElement*, the parent XML element
-    CXmlAttributes(CXmlElement* parent) :
+    /// @param parent XMLElement*, the parent XML element
+    XMLAttributes(XMLElement* parent) :
             m_parent(parent)
     {
     }
@@ -112,7 +111,7 @@ public:
     ///
     /// Makes copy of an attribute set to another.
     /// @param src as copy source
-    CXmlAttributes& operator =(const CXmlAttributes& src);
+    XMLAttributes& operator =(const XMLAttributes& src);
 
     /// @brief Searches for named attribute
     ///
@@ -127,14 +126,14 @@ public:
     /// @param attr std::string, name of attribute
     /// @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
     /// @returns attribute value 
-    CXmlValue getAttribute(std::string attr, const char *defaultValue = "") const;
+    XMLValue getAttribute(std::string attr, const char *defaultValue = "") const;
 
     /// @brief Sets attribute value for given attribute
     ///
     /// @param attr std::string, name of attribute
-    /// @param value CXmlValue, an attribute value. See CXmlValue class description for data convertions.
+    /// @param value XMLValue, an attribute value. See XMLValue class description for data convertions.
     /// @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
-    void setAttribute(std::string attr, CXmlValue value, const char *defaultValue = "");
+    void setAttribute(std::string attr, XMLValue value, const char *defaultValue = "");
 
     /// @brief Returns an attribute node
     ///
@@ -142,7 +141,7 @@ public:
     /// HTML tags can have empty attributes, for those you should use has_attribute() method.
     /// @param attr std::string, name of attribute
     /// @returns attribute node or NULL 
-    CXmlAttribute* getAttributeNode(std::string attr);
+    XMLAttribute* getAttributeNode(std::string attr);
 
     /// @brief Returns an attribute node (const version)
     ///
@@ -150,7 +149,7 @@ public:
     /// HTML tags can have empty attributes, for those you should use has_attribute() method.
     /// @param attr std::string, name of attribute
     /// @returns attribute node or NULL 
-    const CXmlAttribute* getAttributeNode(std::string attr) const;
+    const XMLAttribute* getAttributeNode(std::string attr) const;
 };
 /// @}
 }

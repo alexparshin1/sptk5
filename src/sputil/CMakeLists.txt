@@ -14,8 +14,8 @@ SET (SPUTIL_SOURCES
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp
     net/TCPServer.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/FtpDS.cpp net/ImapDS.cpp
-    xml/CXmlAttributes.cpp xml/CXmlDoc.cpp xml/CXmlDocType.cpp xml/CXmlNode.cpp xml/CXmlNodeList.cpp xml/CXmlValue.cpp
-    tar/block.cpp tar/CTar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
+    xml/XMLAttributes.cpp xml/XMLDocument.cpp xml/XMLDocType.cpp xml/XMLNode.cpp xml/XMLNodeList.cpp xml/XMLValue.cpp
+    tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/CRWLock.cpp threads/CSynchronized.cpp threads/CThread.cpp threads/CThreadPool.cpp
     threads/CSemaphore.cpp threads/CRunable.cpp threads/CWorkerThread.cpp
     )

@@ -193,9 +193,9 @@ public:
     /// If the compactXmlMode flag is true, the field is exported as an attribute.
     /// Otherwise, the field is exported as subnodes.
     /// For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
-    /// @param node CXmlNode&, a node to export field data into
+    /// @param node XMLNode&, a node to export field data into
     /// @param compactXmlMode bool, compact XML mode flag
-    void toXML(CXmlNode& node, bool compactXmlMode) const;
+    void toXML(XMLNode& node, bool compactXmlMode) const;
 };
 /// @}
 }

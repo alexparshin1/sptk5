@@ -37,7 +37,8 @@
 namespace sptk {
 
 /// @brief Tar memory handle
-class CMemoryTarHandle {
+class MemoryTarHandle 
+{
 public:
     size_t      position;         ///< Memory buffer position
     char*       sourceBuffer;     ///< Memory buffer
@@ -45,7 +46,7 @@ public:
 public:
     /// @brief Constructor
     /// @param buffer CBuffer*, source data
-    CMemoryTarHandle(Buffer* buffer=0) {
+    MemoryTarHandle(Buffer* buffer=0) {
         position = 0;
         if (buffer) {
             sourceBuffer = buffer->data();
@@ -57,16 +58,17 @@ public:
     }
 };
 
-typedef std::map<int,CMemoryTarHandle*> CTarHandleMap;
+typedef std::map<int, MemoryTarHandle*> TarHandleMap;
 
 /// @brief A wrapper for libtar functions
 ///
 /// Allows reading tar archive files into memory buffers.
 /// The main usage currently is to read an SPTK theme from tar-archive.
-class CTar {
-    typedef std::map<std::string,Buffer*>  CFileCollection;
+class Tar
+{
+    typedef std::map<std::string,Buffer*>  FileCollection;
     void*                 m_tar;         ///< Tar file header
-    CFileCollection       m_files;       ///< File name to the file data map
+    FileCollection       m_files;       ///< File name to the file data map
     Strings               m_fileNames;   ///< List of files in archive
     bool                  m_memoryRead;  ///< Flag to indicate if tar data is red from the memory buffer
     std::string           m_fileName;    ///< Tar file name
@@ -78,11 +80,11 @@ class CTar {
     void throwError(std::string fileName) THROWS_EXCEPTIONS;
 public:
     static int            lastTarHandle; ///< The last generated tar handle
-    static CTarHandleMap *tarHandleMap;  ///< The map of tar handles
+    static TarHandleMap*  tarHandleMap;  ///< The map of tar handles
 
         /// @brief Returns memory handle
     /// @param handle int, tar handle
-    static CMemoryTarHandle* tarMemoryHandle(int handle);
+    static MemoryTarHandle* tarMemoryHandle(int handle);
 
     /// @brief Overwrites standard tar open
     static int mem_open(const char *name, int x, ...);
@@ -105,16 +107,17 @@ public:
 
 public:
     /// @brief Constructor
-    CTar();
+    Tar();
 
     /// @brief Destructor
-    ~CTar() { clear(); }
+    ~Tar() { clear(); }
 
     /// @brief Reads tar archive from file
     ///
     /// The archive content is red into the internal set of buffers
     /// @param fileName std::string, file name to open
-    void read(const std::string& fileName) THROWS_EXCEPTIONS {
+    void read(const std::string& fileName) THROWS_EXCEPTIONS
+    {
         read(fileName.c_str());
     }
 

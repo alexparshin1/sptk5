@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlNodeList.cpp - description                         ║
+║                       XMLNodeList.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -32,51 +32,51 @@
 using namespace std;
 using namespace sptk;
 
-void CXmlNodeList::clear()
+void XMLNodeList::clear()
 {
     for (iterator itor = begin(); itor != end(); itor++)
         delete *itor;
-    CXmlNodeVector::clear();
+    XMLNodeVector::clear();
 }
 
-CXmlNodeList::iterator CXmlNodeList::findFirst(const char* nodeName)
+XMLNodeList::iterator XMLNodeList::findFirst(const char* nodeName)
 {
     iterator itor;
     for (itor = begin(); itor != end(); itor++) {
-        CXmlNode *anode = *itor;
+        XMLNode *anode = *itor;
         if (anode->name() == nodeName)
             break;
     }
     return itor;
 }
 
-CXmlNodeList::iterator CXmlNodeList::findFirst(const string& nodeName)
+XMLNodeList::iterator XMLNodeList::findFirst(const string& nodeName)
 {
     iterator itor;
     for (itor = begin(); itor != end(); itor++) {
-        CXmlNode *anode = *itor;
+        XMLNode *anode = *itor;
         if (anode->name() == nodeName)
             break;
     }
     return itor;
 }
 
-CXmlNodeList::const_iterator CXmlNodeList::findFirst(const char* nodeName) const
+XMLNodeList::const_iterator XMLNodeList::findFirst(const char* nodeName) const
 {
     const_iterator itor;
     for (itor = begin(); itor != end(); itor++) {
-        CXmlNode *anode = *itor;
+        XMLNode *anode = *itor;
         if (anode->name() == nodeName)
             break;
     }
     return itor;
 }
 
-CXmlNodeList::const_iterator CXmlNodeList::findFirst(const string& nodeName) const
+XMLNodeList::const_iterator XMLNodeList::findFirst(const string& nodeName) const
 {
     const_iterator itor;
     for (itor = begin(); itor != end(); itor++) {
-        CXmlNode *anode = *itor;
+        XMLNode *anode = *itor;
         if (anode->name() == nodeName)
             break;
     }

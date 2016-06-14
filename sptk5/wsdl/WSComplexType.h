@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXmlValue.cpp - description                            ║
+║                       WSComplexType.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,72 +26,70 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#ifndef __SPTK_WSCOMPLEXTYPE_H__
+#define __SPTK_WSCOMPLEXTYPE_H__
+
 #include <sptk5/cxml>
+#include <sptk5/Variant.h>
+#include <sptk5/xml/XMLElement.h>
 
-using namespace sptk;
+namespace sptk {
 
-CXmlValue::operator bool() const
+/// @addtogroup wsdl WSDL-related Classes
+/// @{
+
+/// @brief Base type for all user WSDL types
+class WSComplexType
 {
-    if (m_value.empty())
-        return false;
-    char ch = m_value.c_str()[0];
-    const char *p = strchr("TtYy1", ch);
-    return p != 0;
+protected:
+   std::string  m_name;         ///< WSDL element name
+   bool         m_optional;     ///< Element optionality flag
+   bool         m_loaded;       ///< Is data loaded flage
+public:
+   /// @brief Default constructor
+   /// @param name const char*, Element name
+   /// @param optional bool, Element optionality flag
+    WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional), m_loaded(false) {}
+
+   /// @brief Destructor
+   virtual ~WSComplexType() {}
+
+   /// @brief Copy data from other object
+   /// @brief other const WSComplexType&, Object to copy from
+   void copyFrom(const WSComplexType& other);
+
+   /// @brief Load CAddHandler from XML node
+   /// @param input const sptk::XMLElement*, XML node containing CAddHandler data
+   virtual void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS = 0;
+
+   /// @brief Unload CAddHandler to existing XML node
+   /// @param output sptk::XMLElement*, existing XML node
+   virtual void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS = 0;
+
+   /// @brief Unload CAddHandler to new XML node
+   /// @param parent sptk::XMLElement*, parent XML node where new node is created
+   virtual void addElement(sptk::XMLElement* parent) const THROWS_EXCEPTIONS;
+
+   /// @brief True is data was loaded
+   virtual bool isNull() const
+   {
+       return !m_loaded;
+   }
+
+   /// @brief Returns element name
+   std::string name() const
+   {
+       return m_name;
+   }
+
+   /// @brief True is element is optional
+   virtual bool isOptional() const
+   {
+       return m_optional;
+   }
+};
+
+/// @}
+
 }
-
-CXmlValue& CXmlValue::operator =(bool v)
-{
-    if (v)
-        m_value.assign("Y", 1);
-    else
-        m_value.assign("N", 1);
-    return *this;
-}
-
-CXmlValue& CXmlValue::operator =(int32_t v)
-{
-    char buff[64];
-    uint32_t sz = (uint32_t) sprintf(buff, "%i", v);
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-CXmlValue& CXmlValue::operator =(uint32_t v)
-{
-    char buff[64];
-    uint32_t sz = (uint32_t) sprintf(buff, "%u", v);
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-CXmlValue& CXmlValue::operator =(int64_t v)
-{
-    char buff[64];
-#ifndef _WIN32
-    uint32_t sz = (uint32_t) sprintf(buff,"%li",v);
-#else
-    uint32_t sz = (uint32_t) sprintf(buff, "%lli", v);
 #endif
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-CXmlValue& CXmlValue::operator =(uint64_t v)
-{
-    char buff[64];
-#ifndef _WIN32
-    uint32_t sz = (uint32_t) sprintf(buff,"%lu",v);
-#else
-    uint32_t sz = (uint32_t) sprintf(buff, "%llu", v);
-#endif
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-CXmlValue& CXmlValue::operator =(double v)
-{
-    char buff[64];
-    uint32_t sz = (uint32_t) sprintf(buff, "%f", v);
-    m_value.assign(buff, sz);
-    return *this;
-}

@@ -192,9 +192,9 @@ public:
     ///
     /// If the compactXmlMode is true, the node would have fields presented as attributues.
     /// Otherwise, the fields are stored as subnodes.
-    /// @param node CXmlNode&, the XML node to fill in
+    /// @param node XMLNode&, the XML node to fill in
     /// @param compactXmlMode bool, compact XML flag
-    void rowToXML(CXmlNode& node, bool compactXmlMode) const;
+    void rowToXML(XMLNode& node, bool compactXmlMode) const;
 
     /// @brief Saves data into XML
     ///
@@ -202,10 +202,10 @@ public:
     /// For every row in the dataset, creates the node with the name nodeName.
     /// If the compactXmlMode is true, the nodes would have fields presented as attributues.
     /// Otherwise, the fields are stored as subnodes.
-    /// @param parentNode CXmlNode&, the XML node to add subnodes to
+    /// @param parentNode XMLNode&, the XML node to add subnodes to
     /// @param nodeName std::string, the name for subnodes
     /// @param compactXmlMode bool, compact XML flag
-    virtual void toXML(CXmlNode& parentNode, std::string nodeName, bool compactXmlMode);
+    virtual void toXML(XMLNode& parentNode, std::string nodeName, bool compactXmlMode);
 };
 
 /// @}

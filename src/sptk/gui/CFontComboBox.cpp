@@ -64,7 +64,7 @@ CFontComboBox::CFontComboBox(int x,int y,int w,int h,const char *l)
 }
 #endif
 
-CLayoutClient* CFontComboBox::creator(CXmlNode *node) {
+CLayoutClient* CFontComboBox::creator(XMLNode *node) {
     CFontComboBox* widget = new CFontComboBox("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;

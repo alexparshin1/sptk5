@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CXml.h - description                                   ║
+║                       WSListener.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,44 +26,46 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CXML_H__
-#define __CXML_H__
+#ifndef __SPTK_WSLISTENER_H__
+#define __SPTK_WSLISTENER_H__
 
-#include <sptk5/Exception.h>
-#include <sptk5/xml/XMLDocument.h>
-#include <sptk5/xml/XMLNode.h>
+#include <sptk5/cutils>
+#include <sptk5/cnet>
+#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
-/// @addtogroup XML
+/// @addtogroup wsdl WSDL-related Classes
 /// @{
 
-/// @brief XML exception
-///
-/// Xml extension throws CXmlException type exceptions.
-/// You should catch always atleast these type of exceptions, when processing XML.
-class SP_EXPORT CXmlException: public std::exception
+class WSListener : public TCPServer
 {
-    std::string m_message; ///< Exception text
-public:
+protected:
+    sptk::WSRequest&   m_service;              ///< Web Service request processor
+    sptk::Logger&       m_logger;               ///< Logger object
+    const std::string   m_staticFilesDirectory; ///< Web Service static files directory
 
+    /// @brief Creates connection thread derived from CTCPServerConnection
+    ///
+    /// Application should override this method to create concrete connection object.
+    /// Created connection object is maintained by CTCPServer.
+    /// @param connectionSocket SOCKET, Already accepted incoming connection socket
+    /// @param peer sockaddr_in*, Incoming connection information
+    virtual sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
+    
+public:
     /// @brief Constructor
-    /// @param error const char*, error text
-    /// @param xmlbase const char*, parsed xml text
-    /// @param position const char*, parsed xml error position
-    CXmlException(const char* error, const char* xmlbase, const char* position);
+    /// @param service sptk::CWSRequest&, Web Service request processor
+    /// @param logger sptk::Logger&, Logger
+    /// @param staticFilesDirectory const std::string&, Web Service static files directory
+    WSListener(sptk::WSRequest& service, sptk::Logger& logger, std::string staticFilesDirectory);
 
     /// @brief Destructor
-    ~CXmlException() DOESNT_THROW
-    {
-    }
-
-    /// @brief Returns human readable error string.
-    const char *what() const DOESNT_THROW
-    {
-        return m_message.c_str();
-    }
-};
+    ~WSListener();
+ };
+ 
 /// @}
+ 
 }
+
 #endif

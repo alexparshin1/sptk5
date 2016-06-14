@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
     Fl::visual(FL_DOUBLE | FL_INDEX);
 
-    CXmlDoc doc;
+    XMLDocument doc;
     CWindow w(550, 450, "SPTK themes test");
 
     w.layoutSpacing(10);
