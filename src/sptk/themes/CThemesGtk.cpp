@@ -43,8 +43,9 @@
 using namespace std;
 using namespace sptk;
 
-void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames) {
-    static const CStrings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT","|"); /// DFRAME is a stub
+void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames)
+{
+    static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT","|"); /// DFRAME is a stub
 
     bool defaultFrame = imageNode->getAttribute("detail","").str() == "buttondefault";
 
@@ -67,7 +68,8 @@ void CThemes::loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::s
         buttonFileNames[CThemeImageState(buttonState)] = m_themeFolder + fileName;
 }
 
-void CThemes::loadGtkButtonFileNames(CXmlDoc& xml,string XPath,map<CThemeImageState,string>& buttonFileNames,string orientation) {
+void CThemes::loadGtkButtonFileNames(CXmlDoc& xml,string XPath,map<CThemeImageState,string>& buttonFileNames,string orientation)
+{
     CXmlNodeVector buttonImages;
     
     buttonFileNames.clear();

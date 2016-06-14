@@ -74,7 +74,7 @@ protected:
     const char*     m_createdFile;     ///< The source file the query was created in
     unsigned        m_createdLine;     ///< The source file line the query was created at
 
-    CStrings        m_messages;        ///< Optional diag messages populated after exec() or open()
+    Strings         m_messages;        ///< Optional diag messages populated after exec() or open()
     bool            m_bulkMode;        ///< Bulk mode flag
 
     int countCols();                   ///< Counts columns of the dataset (if any) returned by query
@@ -408,7 +408,7 @@ public:
     /// Some of the database drivers (ODBC, for example) may return diag messages
     /// after the execution of the query. Usually, such messages may be generated
     /// by a stored procedure call.
-    CStrings& messages()
+    Strings& messages()
     {
         return m_messages;
     }

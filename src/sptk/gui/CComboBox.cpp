@@ -511,7 +511,7 @@ void CBaseListBox::addRow(CPackedStrings *psl)
     m_list->addRow(psl);
 }
 
-void CBaseListBox::addRow(const CStrings& ss, int rowId)
+void CBaseListBox::addRow(const Strings& ss, int rowId)
 {
     m_list->addRow(ss, rowId);
 }
@@ -521,7 +521,7 @@ void CBaseListBox::addRow(int rowId, const char *s1, const char *s2, const char 
     m_list->addRow(rowId, s1, s2, s3, s4, s5);
 }
 
-void CBaseListBox::addRows(string columnName, CStrings strings)
+void CBaseListBox::addRows(string columnName, Strings strings)
 {
     CColumn newColumn(columnName, VAR_STRING, w() - labelWidth(), true);
     CColumnList newColumns;

@@ -46,7 +46,7 @@ static char* next_dir_item(char* p, char** result)
     return start + 1;
 }
 
-static const CStrings
+static const Strings
         month_names("Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Nov|Dec", "|");
 
 FieldList* parse_file_info_string(string& file_info)
@@ -162,7 +162,7 @@ bool sptk::FtpDS::open() THROWS_EXCEPTIONS
     if (m_folder.length())
         m_ftp.cmd_cd(m_folder);
 
-    CStrings dirlist;
+    Strings dirlist;
     m_ftp.cmd_list(dirlist);
     //dirlist.print();
 

@@ -207,14 +207,14 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     //message << endl << "--" << boundary << "--" << endl;
 
-    CStrings sl(m_attachments, ";");
+    Strings sl(m_attachments, ";");
     for (unsigned i = 0; i < sl.size(); i++) {
         string attachment = sl[i];
         string attachmentAlias = attachment;
         const char* separator = "\\";
         if (attachment.find("/") != STRING_NPOS)
             separator = "/";
-        CStrings attachmentParts(attachment, separator);
+        Strings attachmentParts(attachment, separator);
         uint32_t attachmentPartsCount = (uint32_t) attachmentParts.size();
         if (attachmentPartsCount > 1)
             attachmentAlias = attachmentParts[attachmentPartsCount - 1].c_str();

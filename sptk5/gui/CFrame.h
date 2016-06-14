@@ -119,7 +119,7 @@ class CFrames
     CFrameMap m_frames; ///< All the registered frames
     CFltkFrameMap m_fltkFrames; ///< All the frames that are FLTK standard frames replacement
 
-    static const CStrings frameTypeNames;
+    static const Strings frameTypeNames;
     static const Fl_Boxtype frameTypes[4];
 
 public:

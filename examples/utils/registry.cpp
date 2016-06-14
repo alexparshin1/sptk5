@@ -32,17 +32,17 @@
 #endif
 
 #include <sptk5/Variant.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 
 #include <iostream>
 
 using namespace std;
 using namespace sptk;
 
-void printRegistry(CRegistryMode mode) {
-   CStrings strings;
+void printRegistry(RegistryMode mode) {
+   Strings strings;
    // Open user settings, file is located in user home directory
-   CRegistry   mySettings("mySettings.ini", "sptk_test", mode);
+   Registry   mySettings("mySettings.ini", "sptk_test", mode);
    try {
       mySettings.load();
       cout << "---> Reading " << mySettings.fileName() << endl;
@@ -79,9 +79,9 @@ void printRegistry(CRegistryMode mode) {
     }
 }
 
-void updateRegistry(CRegistryMode mode) {
+void updateRegistry(RegistryMode mode) {
    // Open user settings, file is located in user home directory
-   CRegistry   mySettings("mySettings.ini", "sptk_test", mode);
+   Registry   mySettings("mySettings.ini", "sptk_test", mode);
    try {
       cout << "<--- Updating " << mySettings.fileName() << endl;
 

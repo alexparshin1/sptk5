@@ -124,8 +124,8 @@ public:
 
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
-    /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS;
+    /// @param objects Strings&, object list (output)
+    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 };
 
 

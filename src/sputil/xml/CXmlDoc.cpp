@@ -28,7 +28,7 @@
 
 #include <stdlib.h>
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/cxml>
 #include <iostream>
 
@@ -70,7 +70,7 @@ CXmlNode *CXmlDoc::rootNode()
 void CXmlDoc::clear()
 {
     CXmlElement::clear();
-    CSharedStrings::clear();
+    SharedStrings::clear();
 }
 
 CXmlNode *CXmlDoc::createElement(const char *tagname)

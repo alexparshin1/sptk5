@@ -33,7 +33,7 @@
 
 #if HAVE_ODBC == 1
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 #ifdef WIN32
     #include <winsock2.h>

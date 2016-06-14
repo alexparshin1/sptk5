@@ -165,7 +165,7 @@ void CSpellChecker::getConfigStrings(AspellConfig *aconfig,CSpellOptions& option
    } while(!aspell_key_info_enumeration_at_end(keyInfoElements));
 }
 
-void CSpellChecker::getDictionaries(CStrings& dictionaries) {
+void CSpellChecker::getDictionaries(Strings& dictionaries) {
    AspellConfig *aconfig = new_aspell_config();
    AspellDictInfoList *dictInfoList = get_aspell_dict_info_list(aconfig);
    setLocalOptions(aconfig);

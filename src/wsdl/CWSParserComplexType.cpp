@@ -174,7 +174,7 @@ void CWSParserComplexType::generateDefinition(std::ostream& classDeclaration) TH
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
     classDeclaration << "public:" << endl;
-    CStrings ctorInitializer, copyInitializer;
+    Strings ctorInitializer, copyInitializer;
     ctorInitializer.push_back(string("sptk::WSComplexType(elementName, optional)"));
     copyInitializer.push_back(string("sptk::WSComplexType(other.name().c_str(), other.isOptional())"));
     if (m_sequence.size()) {
@@ -281,7 +281,7 @@ void CWSParserComplexType::generateImplementation(std::ostream& classImplementat
         classImplementation << "   // Load elements" << endl;
         classImplementation << "   for (CXmlElement::const_iterator itor = input->begin(); itor != input->end(); itor++) {" << endl;
         classImplementation << "      CXmlElement* element = (CXmlElement*) *itor;" << endl;
-        CStrings requiredElements;
+        Strings requiredElements;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
             CWSParserComplexType* complexType = *itor;
             classImplementation << "      if (element->name() == \"" << complexType->name() << "\") {" << endl;

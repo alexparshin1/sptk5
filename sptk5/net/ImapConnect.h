@@ -30,7 +30,7 @@
 #define __IMAPCONNECT_H__
 
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/FieldList.h>
 
 #include <string>
@@ -93,7 +93,7 @@ public:
     void command(std::string cmd, const std::string& arg1 = "", const std::string& arg2 = "");
 
     /// Returns reference to a last command response. */
-    const sptk::CStrings& response() const
+    const sptk::Strings& response() const
     {
         return m_response;
     }

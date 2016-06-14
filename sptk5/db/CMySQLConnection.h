@@ -128,8 +128,8 @@ public:
 
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
-    /// @param objects CStrings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS;
+    /// @param objects Strings&, object list (output)
+    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 
     /// @brief Executes bulk inserts of data from memory buffer
     ///
@@ -137,17 +137,17 @@ public:
     /// about data. If format is empty than default server-specific data format is used.
     /// For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
     /// @param tableName std::string, table name to insert into
-    /// @param columnNames const CStrings&, list of table columns to populate
-    /// @param data const CStrings&, data for bulk insert
-    virtual void bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format="") THROWS_EXCEPTIONS;
+    /// @param columnNames const Strings&, list of table columns to populate
+    /// @param data const Strings&, data for bulk insert
+    virtual void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="") THROWS_EXCEPTIONS;
 
     /// @brief Executes SQL batch file
     ///
     /// Queries are executed in not prepared mode.
     /// Syntax of the SQL batch file is matching the native for the database.
     /// @param batchFile std::string, SQL batch file
-    /// @param columnNames const CStrings&, list of table columns to populate
-    /// @param data const CStrings&, data for bulk insert
+    /// @param columnNames const Strings&, list of table columns to populate
+    /// @param data const Strings&, data for bulk insert
     /// @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
     virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
 };

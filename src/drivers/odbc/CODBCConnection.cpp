@@ -267,7 +267,7 @@ void CODBCConnection::queryExecute(CQuery* query)
         rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                              &textLength);
         if (successful(rc)) {
-            CStrings errors;
+            Strings errors;
             for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; recordNumber++) {
                 rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
                                    &textLength);
@@ -680,7 +680,7 @@ string CODBCConnection::driverDescription() const
         return "";
 }
 
-void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void CODBCConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     CSynchronizedCode lock(m_connect);
 

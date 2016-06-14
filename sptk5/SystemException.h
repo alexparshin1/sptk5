@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSystemException.h - description                       ║
+║                       SystemException.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SYSTEMEXCEPTION_H__
-#define __SYSTEMEXCEPTION_H__
+#ifndef __SPTK_SYSTEMEXCEPTION_H__
+#define __SPTK_SYSTEMEXCEPTION_H__
 
 #include <sptk5/Exception.h>
 
@@ -39,21 +39,21 @@ namespace sptk {
 /// @brief SPTK OS operation exception
 ///
 /// Retrieves information about OS error after failed OS operation.
-class SP_EXPORT CSystemException : public Exception
+class SP_EXPORT SystemException : public Exception
 {
 public:
     /// @brief Constructor
     /// @param context std::string, the exception context
     /// @param file std::string, the file name where exception occurs
     /// @param line int, the line number in the file where exception occurs
-    CSystemException(std::string context, std::string file="", int line=0);
+    SystemException(std::string context, std::string file="", int line=0);
 
     /// @brief Copy constructor
-    /// @param other const CSystemException&, the other exception object
-    CSystemException(const CSystemException& other);
+    /// @param other const SystemException&, the other exception object
+    SystemException(const SystemException& other);
 
     /// @brief Destructor
-    ~CSystemException() DOESNT_THROW;
+    ~SystemException() DOESNT_THROW;
 
     /// @brief Returns OS error
     static std::string osError();

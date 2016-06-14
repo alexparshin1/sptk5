@@ -549,29 +549,28 @@ void CFileManagerTree::sortFiles(unsigned column) {
 int main(int argc, char *argv[]) {
    try {
       CWindow window(600, 400);
-      
+
       CFileManager fileManager;
       fileManager.refreshData();
-      
+
       CComboBox themesCombo("Theme", 10, SP_ALIGN_BOTTOM);
-      CStrings themes = CThemes::availableThemes();
+      Strings themes = CThemes::availableThemes();
       themesCombo.addRows("Theme", themes);
       themesCombo.callback(theme_cb);
       themesCombo.data("Default");
-      
+
       window.relayout();
-      
+
       window.end();
       window.resizable(&window);
-      
+
       window.show(argc, argv);
-      
       Fl::run();
    } catch (exception& e) {
       spError(e.what());
    } catch (...) {
       spError("Unknown Error");
    }
-   
+
    return 0;
 }

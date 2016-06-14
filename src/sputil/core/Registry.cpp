@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRegistry.cpp - description                            ║
+║                       Registry.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 #include <sys/stat.h>
 
 using namespace std;
@@ -48,7 +48,7 @@ using namespace sptk;
 #endif
 
 //----------------------------------------------------------------------------
-string CRegistry::homeDirectory()
+string Registry::homeDirectory()
 {
 #ifndef _WIN32
     string homeDir = trim(getenv("HOME"));
@@ -78,7 +78,7 @@ string CRegistry::homeDirectory()
     return homeDir;
 }
 
-CRegistry::CRegistry(string fileName, string programGroupName, CRegistryMode mode)
+Registry::Registry(string fileName, string programGroupName, RegistryMode mode)
         : CXmlDoc("Configuration"), m_fileName(fileName)
 {
     if (m_fileName.length()) {
@@ -100,12 +100,12 @@ CRegistry::CRegistry(string fileName, string programGroupName, CRegistryMode mod
     m_fileName = replaceAll(m_fileName, "//", "/");
 }
 
-CRegistry::~CRegistry()
+Registry::~Registry()
 {
     clear();
 }
 
-void CRegistry::prepareDirectory()
+void Registry::prepareDirectory()
 {
     struct stat st;
     size_t pos = m_fileName.rfind("/");
@@ -127,27 +127,27 @@ void CRegistry::prepareDirectory()
     }
 }
 
-void CRegistry::load(const CStrings& inputData)
+void Registry::load(const Strings& inputData)
 {
     clear();
     Buffer buffer = inputData.asString("\n");
     CXmlDoc::load(buffer);
 }
 
-void CRegistry::load(const char* inputData)
+void Registry::load(const char* inputData)
 {
     clear();
     CXmlDoc::load(inputData);
 }
 
-void CRegistry::load()
+void Registry::load()
 {
     Buffer inputData;
     inputData.loadFromFile(m_fileName);
     CXmlDoc::load(inputData);
 }
 
-void CRegistry::save(CStrings& outputData)
+void Registry::save(Strings& outputData)
 {
     Buffer buffer;
     prepareDirectory();
@@ -156,7 +156,7 @@ void CRegistry::save(CStrings& outputData)
     outputData.fromString(buffer.data(), "\n", Strings::SM_DELIMITER);
 }
 
-void CRegistry::save()
+void Registry::save()
 {
     Buffer outputData;
     prepareDirectory();
@@ -164,7 +164,7 @@ void CRegistry::save()
     outputData.saveToFile(m_fileName);
 }
 
-void CRegistry::clean(CXmlNode* node)
+void Registry::clean(CXmlNode* node)
 {
     CXmlNode::iterator itor = node->begin();
     CXmlNode::iterator iend = node->end();
@@ -184,14 +184,14 @@ void CRegistry::clean(CXmlNode* node)
                     (*it);
 }
 
-void CRegistry::load(const CXmlDoc& data)
+void Registry::load(const CXmlDoc& data)
 {
     clear();
     copy(data);
     clean(this);
 }
 
-void CRegistry::save(CXmlDoc& data) const
+void Registry::save(CXmlDoc& data) const
 {
     data.copy(*this);
 }

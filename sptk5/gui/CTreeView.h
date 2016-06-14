@@ -95,7 +95,7 @@ public:
     }
 
     /// @brief Adds a child item to the item using the path. The required path items are created automatically.
-    /// @param path const CStrings&, the path to the new child item relatively to the item
+    /// @param path const Strings&, the path to the new child item relatively to the item
     /// @param openedImage const Fl_Image *, the image for the opened folder
     /// @param closedImage const Fl_Image *, the image for the closed folder
     /// @param itemImage const Fl_Image *, the image for the child item
@@ -106,7 +106,7 @@ public:
     }
 
     /// @brief Adds a child item to the item using the default folder images.
-    /// @param path const CStrings&, the item full path in the tree starting with '/'
+    /// @param path const Strings&, the item full path in the tree starting with '/'
     /// @param itemImage const Fl_Image *, the image for the child item
     /// @param data void *, the user data or ID attached to the item
     /// @returns the new child item

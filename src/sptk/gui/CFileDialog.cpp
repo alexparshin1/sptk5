@@ -38,7 +38,7 @@
 #include <sptk5/gui/CFileDialog.h>
 #include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CButton.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 #include <sptk5/string_ext.h>
 
 #ifdef WIN32
@@ -71,7 +71,7 @@ void CFileDialog::new_folder_cb(Fl_Widget *w,void *)
 void CFileDialog::home_cb(Fl_Widget *w,void *)
 {
    CFileDialog *fileDialog = (CFileDialog *)w->window();
-   string homeDirectory = CRegistry::homeDirectory();
+   string homeDirectory = Registry::homeDirectory();
    fileDialog->directory(homeDirectory);
    fileDialog->refreshDirectory();
 }
@@ -100,7 +100,7 @@ void CFileDialog::dirview_cb(Fl_Widget *w,void *)
    switch (listView->eventType()) {
       case CE_MOUSE_CLICK:
          if (!directoryClicked) {
-            CStrings fileNames;
+            Strings fileNames;
             const CSelection& selection = fileDialog->m_directoryView->selection();
             for (unsigned i=0; i < selection.size(); i++) {
                CPackedStrings& row = selection[i];
@@ -182,7 +182,7 @@ CFileDialog::CFileDialog(string label,bool saveMode)
    m_patternCombo = new CComboBox("Files of type:",10,SP_ALIGN_BOTTOM);
    m_patternCombo->addColumn("file type",VAR_STRING,150);
    m_patternCombo->addColumn("pattern",VAR_STRING,100);
-   m_patternCombo->addRow(CStrings("All Files|*.*","|"),1);
+   m_patternCombo->addRow(Strings("All Files|*.*","|"),1);
    m_patternCombo->data(1);
    m_patternCombo->callback(pattern_cb);
 
@@ -230,7 +230,7 @@ void CFileDialog::createFolder() {
 
 #ifdef WIN32
 
-static void makeDriveList(CStrings& driveList) {
+static void makeDriveList(Strings& driveList) {
    char buffer[128];
 
    driveList.clear();
@@ -250,18 +250,18 @@ void CFileDialog::directory(string p) {
    int pseudoID = 0;
 
 #ifdef WIN32
-   CStrings driveList;
+   Strings driveList;
    makeDriveList(driveList);
 
    for (unsigned d = 0; d < driveList.size(); d++) {
       pseudoID++;
-      m_lookInCombo->addRow(CStrings(driveList[d],"|"),pseudoID);
+      m_lookInCombo->addRow(Strings(driveList[d],"|"),pseudoID);
    }
 #endif
 
    m_directory.directory(p);
 
-   CStrings pathItems(m_directory.directory().c_str(),slashStr);
+   Strings pathItems(m_directory.directory().c_str(),slashStr);
    string incrementalPath;
 
    for (unsigned i = 0; i < pathItems.size(); i++) {
@@ -273,7 +273,7 @@ void CFileDialog::directory(string p) {
 #endif
       {
          pseudoID++;
-         m_lookInCombo->addRow(CStrings(incrementalPath,"|"),pseudoID);
+         m_lookInCombo->addRow(Strings(incrementalPath,"|"),pseudoID);
       }
       if (i != 0)
          incrementalPath += slashStr;
@@ -297,7 +297,7 @@ void CFileDialog::directory(string p) {
 void CFileDialog::clearPatterns() {
    m_patternCombo->callback((Fl_Callback *)0);
    m_patternCombo->clear();
-   m_patternCombo->addRow(CStrings("All Files|*.*","|"),1);
+   m_patternCombo->addRow(Strings("All Files|*.*","|"),1);
    m_patternCombo->callback((Fl_Callback *)pattern_cb);
    m_patternCombo->data(1);
    refreshDirectory();
@@ -309,7 +309,7 @@ void CFileDialog::setPattern(string patternName) {
 }
 
 void CFileDialog::addPattern(string patternName,string pattern) {
-   m_patternCombo->addRow(CStrings(patternName+"|"+pattern,"|"),0);
+   m_patternCombo->addRow(Strings(patternName+"|"+pattern,"|"),0);
 }
 
 string CFileDialog::pattern() const {
@@ -335,7 +335,7 @@ string CFileDialog::fullFileName() const {
    char doubleSlash[] = { slashChar, slashChar, 0 };
 
    string fileNamesStr = m_fileNameInput->data();
-   CStrings fileNames(fileNamesStr,";");
+   Strings fileNames(fileNamesStr,";");
    for (unsigned i = 0; i < fileNames.size(); i++) {
       string fname = m_directory.directory() + slashStr + fileNames[i];
       fileNames[i] = trim(replaceAll(fname,doubleSlash,slashStr));

@@ -39,9 +39,9 @@ namespace sptk {
 /// @brief Tar memory handle
 class CMemoryTarHandle {
 public:
-    size_t		position;         ///< Memory buffer position
+    size_t      position;         ///< Memory buffer position
     char*       sourceBuffer;     ///< Memory buffer
-    size_t		sourceBufferLen;  ///< Memory buffer len
+    size_t      sourceBufferLen;  ///< Memory buffer len
 public:
     /// @brief Constructor
     /// @param buffer CBuffer*, source data
@@ -67,7 +67,7 @@ class CTar {
     typedef std::map<std::string,Buffer*>  CFileCollection;
     void*                 m_tar;         ///< Tar file header
     CFileCollection       m_files;       ///< File name to the file data map
-    CStrings              m_fileNames;   ///< List of files in archive
+    Strings               m_fileNames;   ///< List of files in archive
     bool                  m_memoryRead;  ///< Flag to indicate if tar data is red from the memory buffer
     std::string           m_fileName;    ///< Tar file name
 
@@ -131,7 +131,7 @@ public:
     void read(const Buffer& tarData) THROWS_EXCEPTIONS;
 
     /// @brief returns a list of files in tar archive
-    const CStrings& fileList() const { return m_fileNames; }
+    const Strings& fileList() const { return m_fileNames; }
 
     /// @brief Returns file data by file name
     /// @param fileName std::string, file name

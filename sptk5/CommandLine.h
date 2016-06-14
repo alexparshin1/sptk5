@@ -131,8 +131,8 @@ protected:
 
         /// @brief Formats element help for printout
         /// @param textWidth size_t, Help text width
-        /// @param formattedText CStrings&, Formatted help text
-        void formatHelp(size_t textWidth, CStrings& formattedText) const;
+        /// @param formattedText Strings&, Formatted help text
+        void formatHelp(size_t textWidth, Strings& formattedText) const;
 
         /// @brief Prints element help
         /// @param nameWidth size_t, Option name width
@@ -230,7 +230,7 @@ protected:
     std::map<std::string, CommandLineElement*>  m_optionTemplates;      ///< All the defined options.
     std::map<std::string, CommandLineArgument*> m_argumentTemplates;    ///< All the defined arguments.
     std::map<std::string, std::string>          m_values;               ///< Recevied option values.
-    CStrings                                    m_arguments;            ///< Received arguments.
+    Strings                                     m_arguments;            ///< Received arguments.
     std::list<CommandLineElement*>              m_allElements;          ///< All defined elements.
 
     /// @brief Returns true if string start matches the pattern
@@ -305,7 +305,7 @@ public:
     void setOptionValue(std::string name, std::string value="yes");
 
     /// @brief Returns list of command line arguments
-    const CStrings& arguments() const;
+    const Strings& arguments() const;
 
     /// @brief Prints full help
     /// @param screenColumns size_t, Screen width in columns

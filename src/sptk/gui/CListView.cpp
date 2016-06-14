@@ -40,7 +40,7 @@
 
 #include <sptk5/db/CQuery.h>
 #include <sptk5/CException.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/string_ext.h>
 #include <sptk5/gui/CThemes.h>
@@ -776,7 +776,7 @@ void CListView::addRow(CPackedStrings *ptr)
     m_rows.add(ptr);
 }
 
-void CListView::addRow(const CStrings& ss, int ident)
+void CListView::addRow(const Strings& ss, int ident)
 {
     CPackedStrings *packedStrings = new CPackedStrings(ss);
     if (ident)
@@ -790,7 +790,7 @@ void CListView::insertRow(unsigned position, CPackedStrings *ptr)
     m_rows.insert(position, ptr);
 }
 
-void CListView::insertRow(unsigned position, const CStrings& ss, int ident)
+void CListView::insertRow(unsigned position, const Strings& ss, int ident)
 {
     CPackedStrings *packedStrings = new CPackedStrings(ss);
     if (ident)
@@ -807,7 +807,7 @@ void CListView::updateRow(unsigned position, CPackedStrings *ptr)
     m_rows.m_fullHeight += dh;
 }
 
-void CListView::updateRow(unsigned position, const CStrings& ss, int ident)
+void CListView::updateRow(unsigned position, const Strings& ss, int ident)
 {
     int oldh = item_height(position);
     CPackedStrings *row = m_rows[position];
@@ -1324,7 +1324,7 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
             if (fieldCount > 0) {
                 fireEvent(CE_PROGRESS, 0);
 
-                CStrings rowStrings;
+                Strings rowStrings;
                 rowStrings.resize(fieldCount);
 
                 while (!ds.eof()) {
@@ -2051,7 +2051,7 @@ void CListView::save(CXmlNode *node, CLayoutXMLmode xmlMode) const
     saveList(node);
 }
 
-void CListView::imageCollection(CStrings& iconNames)
+void CListView::imageCollection(Strings& iconNames)
 {
     m_iconNames.resize(iconNames.size());
     for (uint32_t i = 0; i < iconNames.size(); i++)

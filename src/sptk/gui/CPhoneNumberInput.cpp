@@ -32,7 +32,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sptk5/CStrings.h>
 #include <sptk5/gui/CPhoneNumberInput.h>
 #include <sptk5/gui/CInput.h>
 

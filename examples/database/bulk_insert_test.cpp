@@ -67,9 +67,9 @@ int main()
         }
 
         cout << "Ok.\nStep 2: Inserting data into the test table.. ";
-        CStrings columnNames("id,name,position_name,hire_date", ",");
+        Strings columnNames("id,name,position_name,hire_date", ",");
 
-        CStrings data;
+        Strings data;
         data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
         data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
         data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));

@@ -54,14 +54,14 @@ void CScrollBarImages::load(CThemeScrollBarType atype, bool desaturateInactiveBu
     unsigned i;
     /// Load scrollbar images
     for (i = 0; i < 3; i++)
-        m_parts[i].loadFromSptkTheme(CStrings(scrollBarDir + scrollbarParts[i],"|"));
+        m_parts[i].loadFromSptkTheme(Strings(scrollBarDir + scrollbarParts[i],"|"));
 
     CThemeImageCollection& trough = m_parts[0];
     CPngImage* troughImage = trough.image(THM_IMAGE_NORMAL);
-    
+
     /// Load scrollbar button images
     for (i = 0; i < 2; i++) {
-        CStrings buttonNames;
+        Strings buttonNames;
         for (unsigned j = 0; j < 2; j++) {
             stringstream fileName;
             fileName << scrollBarDir << "-button" << i;

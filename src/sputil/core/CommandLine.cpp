@@ -62,7 +62,7 @@ bool CCommandLine::Visibility::any() const
 
 bool CCommandLine::Visibility::matches(string command) const
 {
-    CStrings matches;
+    Strings matches;
     if (m_inverted)
         return !m_regexp->m(command, matches);
     return m_regexp->m(command, matches);
@@ -110,9 +110,9 @@ bool CCommandLine::CommandLineElement::useWithCommand(string command) const
     return m_useWithCommands.matches(command);
 }
 
-void CCommandLine::CommandLineElement::formatHelp(size_t textWidth, CStrings& formattedText) const
+void CCommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& formattedText) const
 {
-    CStrings words(m_help, "\\s+", CStrings::SM_REGEXP);
+    Strings words(m_help, "\\s+", Strings::SM_REGEXP);
 
     formattedText.clear();
 
@@ -137,7 +137,7 @@ void CCommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWi
 {
     static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
-    CStrings helpText;
+    Strings helpText;
     formatHelp(textWidth, helpText);
     bool firstRow = true;
     string printFormat = "%-" + int2string(nameWidth) + "s  %s";
@@ -155,7 +155,7 @@ void CCommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWi
     }
 
     if (!optionDefaultValue.empty()) {
-        CStrings matches;
+        Strings matches;
         if (!doesntNeedQuotes.m(optionDefaultValue, matches))
             optionDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + optionDefaultValue + ".";
@@ -242,7 +242,7 @@ void CCommandLine::CommandLineParameter::validate(string value) const
 {
     if (!m_validateValue)
         return;
-    CStrings matches;
+    Strings matches;
     if (!m_validateValue->m(value, matches))
         throw Exception("Parameter " + m_name + " has invalid value");
 }
@@ -331,12 +331,12 @@ void CCommandLine::defineArgument(string fullName, string helpText)
 
 void CCommandLine::init(int argc, const char* argv[])
 {
-    CStrings args;
+    Strings args;
     for (int i = 1; i < argc; i++)
         args.push_back(string(argv[i]));
 
     // Pre-process command line arguments
-    CStrings arguments;
+    Strings arguments;
     string quote = "";
     string quotedString = "";
     for (string arg : args) {
@@ -369,7 +369,7 @@ void CCommandLine::init(int argc, const char* argv[])
     }
 
     // Re-write arguments
-    CStrings digestedArgs;
+    Strings digestedArgs;
     for (string arg : arguments) {
         if (startsWith(arg, "--")) {
             // Full option name
@@ -445,7 +445,7 @@ void CCommandLine::setOptionValue(string name, string value)
     m_values[name] = value;
 }
 
-const CStrings& CCommandLine::arguments() const
+const Strings& CCommandLine::arguments() const
 {
     return m_arguments;
 }
@@ -483,7 +483,7 @@ void CCommandLine::printHelp(string onlyForCommand, size_t screenColumns) const
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
-    CStrings sortedCommands;
+    Strings sortedCommands;
     for (auto& itor : m_argumentTemplates)
         sortedCommands.push_back(itor.first);
 
@@ -494,7 +494,7 @@ void CCommandLine::printHelp(string onlyForCommand, size_t screenColumns) const
             nameColumns = commandName.length();
     }
 
-    CStrings sortedOptions;
+    Strings sortedOptions;
     for (auto& itor : m_optionTemplates) {
         string optionName = itor.first;
         if (optionName.length() > 1)

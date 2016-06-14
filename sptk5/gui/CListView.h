@@ -99,7 +99,7 @@ protected:
     static int m_scrollbarWidth; ///< Scrollbar width for this class of object
     int m_currentTextFont; ///< Text font, currently used to draw the list view
     int m_currentTextSize; ///< Text size, currently used to draw the list view
-    CStrings m_iconNames; ///< Icon names that may be referred from items (icon size is 16)
+    Strings m_iconNames; ///< Icon names that may be referred from items (icon size is 16)
 
     /// @brief Data mode
     /// Defines the kind of data to work through data() method
@@ -347,9 +347,9 @@ public:
     ///
     /// Optional row ID may be defined inside row parameter,
     /// or through ident parameter.
-    /// @param row const CStrings&, row data
+    /// @param row const Strings&, row data
     /// @param ident int, row argument (key value)
-    virtual void addRow(const CStrings& row, int ident = 0);
+    virtual void addRow(const Strings& row, int ident = 0);
 
     /// @brief Inserts new row
     ///
@@ -363,9 +363,9 @@ public:
     /// Optional row argument may be defined inside row parameter,
     /// or through ident parameter.
     /// @param position uint32_t, insert position
-    /// @param row const CStrings&, row data
+    /// @param row const Strings&, row data
     /// @param ident int, row argument (key value)
-    virtual void insertRow(uint32_t position, const CStrings& row, int ident = 0);
+    virtual void insertRow(uint32_t position, const Strings& row, int ident = 0);
 
     /// @brief Updates a row
     ///
@@ -376,9 +376,9 @@ public:
 
     /// @brief Updates a row. Optional row argument may be defined inside row parameter.
     /// @param position uint32_t, insert position
-    /// @param row const CStrings&, row data
+    /// @param row const Strings&, row data
     /// @param ident int, row argument (key value)
-    virtual void updateRow(uint32_t position, const CStrings& row, int ident = 0);
+    virtual void updateRow(uint32_t position, const Strings& row, int ident = 0);
 
     /// @brief Removes all the rows
     virtual void clear();
@@ -879,8 +879,8 @@ public:
     }
 
     /// @brief Sets the images that may be referred from items
-    /// @param iconNames CStrings&, a list of icon names
-    void imageCollection(CStrings& iconNames);
+    /// @param iconNames Strings&, a list of icon names
+    void imageCollection(Strings& iconNames);
 };
 /// @}
 }

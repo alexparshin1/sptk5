@@ -1005,7 +1005,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
     }
 }
 
-void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void CPostgreSQLConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string tablesSQL("SELECT table_schema || '.' || table_name "
                              "FROM information_schema.tables "
@@ -1052,7 +1052,7 @@ std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
+void CPostgreSQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     string sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
     PGresult* res = PQexec(m_connect, sql.c_str());
@@ -1067,7 +1067,7 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
     PQclear(res);
 
     Buffer buffer;
-    for (CStrings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
+    for (Strings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
         buffer.append(*itor);
         buffer.append('\n');
     }
@@ -1087,14 +1087,14 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
 
 void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-    CStrings sqlBatch;
+    Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
     RegularExpression matchStatementEnd(";(\\s*|\\s*--.*)$");
 
-    CStrings statements, matches;
+    Strings statements, matches;
     string statement, delimiter;
     bool functionHeader = false;
     bool functionBody = false;

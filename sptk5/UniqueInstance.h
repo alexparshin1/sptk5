@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CUniqueInstance.h - description                        ║
+║                       UniqueInstance.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUNIQUE_INSTANCE_H__
-#define __CUNIQUE_INSTANCE_H__
+#ifndef __SPTK_UNIQUEINSTANCE_H__
+#define __SPTK_UNIQUEINSTANCE_H__
 
 #ifdef _WIN32
     #include <winsock2.h>
@@ -35,7 +35,7 @@
 #endif
 
 #include <sptk5/sptk.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -47,14 +47,14 @@ namespace sptk {
 /// Tries to create a mutex object and check if it's unique for the
 /// program with the instance name. If one instance per user is desired
 /// simply incorporate the user name into the instance.
-class SP_EXPORT CUniqueInstance
+class SP_EXPORT UniqueInstance
 {
     std::string  m_instanceName;    ///< Instance name
-    bool     m_lockCreated;       ///< Lock is created
+    bool         m_lockCreated;       ///< Lock is created
 
 #ifdef _WIN32
 
-    HANDLE   m_mutex;             ///< The named mutex object
+    HANDLE       m_mutex;             ///< The named mutex object
 #else
 
     std::string  m_fileName;      ///< The lock file name
@@ -66,10 +66,10 @@ class SP_EXPORT CUniqueInstance
 public:
     /// Constructor
     /// @param instanceName CString, instance name
-    CUniqueInstance(std::string instanceName);
+    UniqueInstance(std::string instanceName);
 
     /// Destructor
-    ~CUniqueInstance();
+    ~UniqueInstance();
 
     /// Reports true if the instance is unique
     bool isUnique();

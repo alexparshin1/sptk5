@@ -84,7 +84,7 @@ int main()
         db->open();
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
-        CStrings tableList;
+        Strings tableList;
         db->objectList(DOT_TABLES, tableList);
         cout << "First 10 tables in the database:" << endl;
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)

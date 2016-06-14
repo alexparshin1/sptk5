@@ -252,7 +252,7 @@ string absolutePath(string path)
         fullPath = string(currentDir) + slashStr + path;
 #endif
 
-    CStrings pathItems(fullPath, slashStr);
+    Strings pathItems(fullPath, slashStr);
     for (unsigned i = 0; i < pathItems.size(); i++) {
         if (pathItems[i] == "..") {
             pathItems.remove(i);

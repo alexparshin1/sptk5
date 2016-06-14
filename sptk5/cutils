@@ -32,10 +32,10 @@
 #include <sptk5/DataSource.h>
 #include <sptk5/FileLogEngine.h>
 #include <sptk5/Logger.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SysLogEngine.h>
-#include <sptk5/CUniqueInstance.h>
+#include <sptk5/UniqueInstance.h>
 #include <sptk5/string_ext.h>
 
 #include <sptk5/md5.h>

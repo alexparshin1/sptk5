@@ -32,7 +32,7 @@
 #include <sptk5/xml/CXmlNode.h>
 #include <sptk5/xml/CXmlDocType.h>
 #include <sptk5/xml/CXmlElement.h>
-#include <sptk5/CSharedStrings.h>
+#include <sptk5/SharedStrings.h>
 #include <sptk5/Buffer.h>
 
 #include <string>
@@ -48,7 +48,7 @@ namespace sptk
 ///
 /// Represents the entire XML document.
 /// It provides access to document root node, which includes all nodes in XML document tree.
-class SP_EXPORT CXmlDoc: public CSharedStrings, public CXmlElement
+class SP_EXPORT CXmlDoc: public SharedStrings, public CXmlElement
 {
     friend class CXmlNode;
 

@@ -148,7 +148,7 @@ bool CXmlDocType::encodeEntities(const char *str, Buffer& ret)
     Buffer* src = &m_encodeBuffers[0];
     Buffer* dst = &m_encodeBuffers[1];
     dst->bytes(0);
-    while (*ptr) {
+    for (;;) {
         const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos) {
             uint32_t index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);

@@ -30,7 +30,7 @@
 #define __HTTPCONNECT_H__
 
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 
 namespace sptk

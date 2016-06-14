@@ -332,7 +332,7 @@ void CMySQLConnection::queryFetch(CQuery *query)
     }
 }
 
-void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void CMySQLConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -369,7 +369,7 @@ void CMySQLConnection::objectList(CDbObjectType objectType, CStrings& objects) T
     }
 }
 
-void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
+void CMySQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     char    fileName[256];
     sprintf(fileName, ".bulk.insert.%i.%i", getpid(), rand());
@@ -386,36 +386,36 @@ void CMySQLConnection::bulkInsert(std::string tableName, const CStrings& columnN
 
 void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-    CStrings sqlBatch;
+    Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
     RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
     RegularExpression  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
     RegularExpression  matchEscapeChars("([$.])", "g");
 
-    CStrings statements, matches;
+    Strings statements, matches;
     string statement, delimiter = ";";
     for (string row: sqlBatch) {
-    	if (matchDelimiterChange.m(row, matches)) {
-    		delimiter = matches[0];
-    		delimiter = matchEscapeChars.s(delimiter, "\\\\1");
-    		delete matchStatementEnd;
-    		matchStatementEnd = new RegularExpression("(" + delimiter + ")(\\s*|-- .*)$");
-    		statement = "";
-    		continue;
-    	}
-    	if (matchStatementEnd->m(row, matches)) {
-    		row = matchStatementEnd->s(row, "");
-        	statement += row;
-    		statements.push_back(statement);
-    		statement = "";
-    		continue;
-    	}
-    	statement += row + "\n";
+        if (matchDelimiterChange.m(row, matches)) {
+            delimiter = matches[0];
+            delimiter = matchEscapeChars.s(delimiter, "\\\\1");
+            delete matchStatementEnd;
+            matchStatementEnd = new RegularExpression("(" + delimiter + ")(\\s*|-- .*)$");
+            statement = "";
+            continue;
+        }
+        if (matchStatementEnd->m(row, matches)) {
+            row = matchStatementEnd->s(row, "");
+            statement += row;
+            statements.push_back(statement);
+            statement = "";
+            continue;
+        }
+        statement += row + "\n";
     }
 
     if (!trim(statement).empty())
-		statements.push_back(statement);
+        statements.push_back(statement);
 
     for (string stmt: statements) {
         CQuery query(this, stmt, false);

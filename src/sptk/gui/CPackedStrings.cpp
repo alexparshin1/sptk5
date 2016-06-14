@@ -76,7 +76,7 @@ CPackedStrings::CPackedStrings(int cnt,const char *strings[]) {
       memcpy(pchar(m_buffer)+offset[j],strings[j],len[j]);
 }
 
-CPackedStrings::CPackedStrings(const CStrings& strings) {
+CPackedStrings::CPackedStrings(const Strings& strings) {
    m_buffer = 0;
    operator = (strings);
 }
@@ -158,7 +158,7 @@ CPackedStrings& CPackedStrings::operator=(const CPackedStrings& newData) {
    return *this;
 }
 
-CPackedStrings& CPackedStrings::operator=(const CStrings& strings) {
+CPackedStrings& CPackedStrings::operator=(const Strings& strings) {
    size_t    cnt = strings.size();
    int       offsetsSpace = int(cnt * sizeof(uint16_t));
    uint16_t* offset = (uint16_t *)alloca(offsetsSpace*2);

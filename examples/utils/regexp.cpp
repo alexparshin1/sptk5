@@ -36,7 +36,7 @@ int main()
     String text;
 
     text = "This text contains number: ABCDEF";
-    
+
     cout << "Test: does '" << text << "' contain number? ";
     RegularExpression regexp("\\d+");
     if (text == regexp) {
@@ -72,7 +72,7 @@ int main()
     cout << "\nParsing the text: " << text << endl;
     RegularExpression connectionParser("(user|password|host)='([\\S]+)'", "g");
     RegularExpression parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
-    CStrings matches;
+    Strings matches;
     connectionParser.m(text, matches);
     for (unsigned i = 0; i < matches.size(); i++) {
         cout << matches[i] << " : ";

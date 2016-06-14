@@ -39,7 +39,7 @@ using namespace std;
 using namespace sptk;
 
 void CFontComboBox::loadFonts() {
-   CStrings fontNames;
+   Strings fontNames;
    int k = Fl::set_fonts("*");
    for (int i = 0; i < k; i++) {
       int t;

@@ -30,7 +30,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CBox.h>
 #include <sptk5/db/CQuery.h>
 

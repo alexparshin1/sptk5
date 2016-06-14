@@ -253,7 +253,7 @@ void CXmlNode::select(CXmlNodeVector& nodes, string xpath)
     else
         ptr = xpath.c_str();
 
-    CStrings pathElementStrs(ptr, "/");
+    Strings pathElementStrs(ptr, "/");
     vector<CXPathElement> pathElements(pathElementStrs.size());
     for (unsigned i = 0; i < pathElements.size(); i++)
         parsePathElement(document(), pathElementStrs[i], pathElements[i]);

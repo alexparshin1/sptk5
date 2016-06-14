@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/IntList.h>
 
 using namespace std;
@@ -50,7 +50,7 @@ string CIntList::toString (const char * separator) const
 
 void CIntList::fromString (const char *s,const char * separator)
 {
-    CStrings sl (s,separator);
+    Strings sl (s,separator);
 
     clear();
     uint32_t cnt = (uint32_t) sl.size();

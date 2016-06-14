@@ -30,7 +30,7 @@
 #define __CGROUP_H__
 
 #include <FL/Fl_Group.H>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CLayoutManager.h>
 

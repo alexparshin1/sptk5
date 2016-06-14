@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/net/HttpParams.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
@@ -110,7 +110,7 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 {
     clear();
 
-    CStrings sl(cb.data(),"&");
+    Strings sl(cb.data(),"&");
     for (unsigned i=0; i < sl.size(); i++) {
         string& s = sl[i];
         size_t pos = s.find("=");

@@ -31,7 +31,7 @@
 
 #include <sptk5/cxml>
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CTabs.h>

@@ -31,7 +31,7 @@
 
 #include <sys/stat.h>
 #include <sptk5/MemoryDS.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
 
 namespace sptk {
@@ -67,7 +67,7 @@ protected:
 
 private:
     std::string     m_directory;   ///< Current directory
-    CStrings        m_pattern;     ///< Current file pattern
+    Strings         m_pattern;     ///< Current file pattern
     int             m_showPolicy;  ///< Show policy, see CDirectoryDSpolicies for more information
 
 public:

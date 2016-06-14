@@ -67,7 +67,7 @@ static Fl_Color colorFromHexString(string colorStr)
     return (Fl_Color) (rgbColor << 8);
 }
 
-static void splitArguments(const string& expression, CStrings& arguments)
+static void splitArguments(const string& expression, Strings& arguments)
 {
     int subExpressionLevel = 0;
 
@@ -129,7 +129,7 @@ Fl_Color CThemeColorCollection::darker(std::string expression)
 
 Fl_Color CThemeColorCollection::mix(std::string expression)
 {
-    CStrings args;
+    Strings args;
     splitArguments(expression,args);
     double weight = atof(args[0].c_str());
     Fl_Color color1 = gtkColorFunction(args[1]);
@@ -147,7 +147,7 @@ static unsigned char shadeColorComponent(unsigned colorComponent, double multipl
 
 Fl_Color CThemeColorCollection::shade(std::string expression)
 {
-    CStrings args;
+    Strings args;
     splitArguments(expression,args);
     if (args.size() < 2)
         return fl_darker(gtkColorFunction(expression));
@@ -191,7 +191,7 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
 
 void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex)
 {
-    static const CStrings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
+    static const Strings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
     CXmlAttributes::iterator itor = colorNode->attributes().begin();
     for (; itor != colorNode->attributes().end(); itor++) {
         CXmlNode* colorStateNode = *itor;
@@ -266,10 +266,10 @@ void CThemeColorCollection::loadColorMap(CXmlDoc& gtkTheme,string colorMapXPath)
 
     CXmlNode* colorMapNode = *(colorMapNodes.begin());
 
-    CStrings colorMapStrings(colorMapNode->getAttribute("colors"),"\\n");
+    Strings colorMapStrings(colorMapNode->getAttribute("colors"),"\\n");
 
     for (unsigned i = 0; i < colorMapStrings.size(); i++) {
-        CStrings colorInfo(colorMapStrings[i],":#");
+        Strings colorInfo(colorMapStrings[i],":#");
         if (colorInfo.size() != 2)
             continue;
         m_colorMap[colorInfo[0]] = colorFromHexString(colorInfo[1]);

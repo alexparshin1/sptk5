@@ -64,7 +64,7 @@ void CWSConnection::threadFunction()
 
     // Read request data
     string      row;
-    CStrings    matches;
+    Strings     matches;
     string      protocol, url, requestType;
     int         contentLength = 0;
 

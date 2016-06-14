@@ -356,7 +356,7 @@ void CFirebirdConnection::queryFetch(CQuery *query)
     }
 }
 
-void CFirebirdConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void CFirebirdConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();

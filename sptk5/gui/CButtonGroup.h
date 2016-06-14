@@ -36,7 +36,7 @@
 #include <sptk5/IntList.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -50,7 +50,7 @@ class SP_EXPORT CButtonGroup : public CControl {
     int         m_maxHeight;        ///< Required group height
 protected:
     std::string m_lastValue;        ///< Last value of the group (last list of choices)
-    CStrings    m_buttonLabels;     ///< Button labels for the buttons inside
+    Strings     m_buttonLabels;     ///< Button labels for the buttons inside
     Fl_Button  *m_otherButton;      ///< The 'Other' Button if requested (add '*' in the button list)
     CInput_    *m_otherInput;       ///< The 'Other' Input if requested (add '*' in the button list)
 
@@ -94,11 +94,11 @@ protected:
 
 public:
     /// @brief Sets the list of the buttons.
-    /// @param buttonList CStrings, list of the buttons
-    void buttons(const CStrings& buttonList);
+    /// @param buttonList Strings, list of the buttons
+    void buttons(const Strings& buttonList);
 
     /// @brief Returns the list of the buttons.
-    const CStrings& buttons() const { return m_buttonLabels; }
+    const Strings& buttons() const { return m_buttonLabels; }
 
     /// @brief Clears the list of buttons.
     virtual void clearButtons();

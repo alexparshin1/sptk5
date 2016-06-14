@@ -87,7 +87,7 @@ enum FGENTRYFLAGS
 class CDBDropDownList;
 class CPackedStrings;
 class CColumnList;
-class CStrings;
+class Strings;
 
 /// @brief Internal field name validation
 SP_EXPORT bool checkFieldName(std::string fldName);

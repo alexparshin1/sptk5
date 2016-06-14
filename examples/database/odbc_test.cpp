@@ -77,24 +77,24 @@ int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
 
 int main(int argc, const char* argv[])
 {
-	String connectString;
-	if (argc == 1)
-		connectString = "odbc://user:password@demo_odbc";
-	else
-		connectString = argv[1];
+    String connectString;
+    if (argc == 1)
+        connectString = "odbc://user:password@demo_odbc";
+    else
+        connectString = argv[1];
 
-	if (connectString != RegularExpression("^odbc://")) {
-		cout << "Syntax:" << endl << endl; 
-		cout << "odbc_test [connection string]" << endl << endl;
-		cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;
-		cout << "for instance:" << endl << endl;
-		cout << "  odbc://alex:secret@mydsn" << endl;
-		return 1;
-	}
+    if (connectString != RegularExpression("^odbc://")) {
+        cout << "Syntax:" << endl << endl; 
+        cout << "odbc_test [connection string]" << endl << endl;
+        cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;
+        cout << "for instance:" << endl << endl;
+        cout << "  odbc://alex:secret@mydsn" << endl;
+        return 1;
+    }
 
-	try {
-		CDatabaseConnectionPool connectionPool(connectString);
-		CDatabaseConnection* db = connectionPool.createConnection();
+    try {
+        CDatabaseConnectionPool connectionPool(connectString);
+        CDatabaseConnection* db = connectionPool.createConnection();
 
         cout << "Openning the database, using connection string " << connectString << ":" << endl;
         db->open();
@@ -106,7 +106,7 @@ int main(int argc, const char* argv[])
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
-            CStrings objectList;
+            Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {

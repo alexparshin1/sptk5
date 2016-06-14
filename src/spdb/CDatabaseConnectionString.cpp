@@ -27,12 +27,12 @@
 */
 
 #include <sptk5/db/CDatabaseConnectionString.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
 
-static const CStrings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc", "|");
+static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc", "|");
 
 void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
 {
@@ -42,9 +42,9 @@ void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
     // Find extra parameters
     pos = connStr.find_first_of("?");
     if (pos != string::npos) {
-        CStrings parameters(connStr.substr(pos + 1),"&");
-        for (CStrings::iterator item = parameters.begin(); item != parameters.end(); item++) {
-            CStrings pair(*item, "='", CStrings::SM_ANYCHAR);
+        Strings parameters(connStr.substr(pos + 1),"&");
+        for (Strings::iterator item = parameters.begin(); item != parameters.end(); item++) {
+            Strings pair(*item, "='", Strings::SM_ANYCHAR);
             if (pair.size() == 2)
                 m_parameters[ pair[0] ] = pair[1];
         }
@@ -62,7 +62,7 @@ void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
 
     pos = connStr.find("@");
     if (pos != string::npos) {
-        CStrings usernameAndPassword(connStr.substr(0, pos),":");
+        Strings usernameAndPassword(connStr.substr(0, pos),":");
         m_userName = usernameAndPassword[0];
         if (usernameAndPassword.size() > 1)
             m_password = usernameAndPassword[1];
@@ -77,7 +77,7 @@ void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
             m_databaseName = "/" + m_databaseName;
     }
 
-    CStrings hostAndPort(connStr, ":");
+    Strings hostAndPort(connStr, ":");
     m_hostName = hostAndPort[0];
     if (hostAndPort.size() > 1)
         m_portNumber = (uint16_t) atoi(hostAndPort[1].c_str());

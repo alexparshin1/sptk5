@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/Buffer.h>
-#include <sptk5/CSystemException.h>
+#include <sptk5/SystemException.h>
 #include <sptk5/filedefs.h>
 
 using namespace std;
@@ -175,7 +175,7 @@ void Buffer::loadFromFile(string fileName)
     FILE* f = fopen(fileName.c_str(), "rb");
 
     if (!f)
-        throw CSystemException("Can't open file " + fileName + " for reading");
+        throw SystemException("Can't open file " + fileName + " for reading");
 
     struct stat st;
     fstat(fileno(f), &st);
@@ -192,7 +192,7 @@ void Buffer::saveToFile(string fileName) const
     FILE* f = fopen(fileName.c_str(), "wb");
 
     if (!f)
-        throw CSystemException("Can't open file " + fileName + " for writing");
+        throw SystemException("Can't open file " + fileName + " for writing");
 
     fwrite(m_buffer, bytes(), 1, f);
     fclose(f);

@@ -190,7 +190,7 @@ void CWSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
 
 string capitalize(string name)
 {
-    CStrings parts(lowerCase(name),"_");
+    Strings parts(lowerCase(name),"_");
     for (unsigned i = 0; i < parts.size(); i++) {
         parts[i][0] = (char) toupper(parts[i][0]);
     }
@@ -213,7 +213,7 @@ string CWSParser::get_namespace(const string& name)
     return name.substr(0, pos);
 }
 
-void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
+void CWSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     string defname = "__" + upperCase(serviceClassName) + "__";
@@ -224,7 +224,7 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
 
     serviceDefinition << "#include <sptk5/wsdl/CWSRequest.h>" << endl << endl;
     serviceDefinition << "// This Web Service types" << endl;
-    for (CStrings::const_iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
+    for (Strings::const_iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
         serviceDefinition << "#include \"" << *itor << ".h\"" << endl;
     serviceDefinition << endl;
 
@@ -262,7 +262,7 @@ void CWSParser::generateDefinition(const CStrings& usedClasses, ostream& service
         serviceDefinition << "   ///" << endl;
         string documentation = m_documentation[operation.m_input->name()];
         if (!documentation.empty()) {
-            CStrings documentationRows(documentation, "\n");
+            Strings documentationRows(documentation, "\n");
             for (unsigned i = 0; i < documentationRows.size(); i++)
                 serviceDefinition << "   /// " << documentationRows[i] << endl;
         }
@@ -282,7 +282,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
-    CStrings serviceOperations;
+    Strings serviceOperations;
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
         string requestName = strip_namespace(itor->second.m_input->name());
         serviceOperations.push_back(requestName);
@@ -297,7 +297,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 
     serviceImplementation << "void " << serviceClassName << "::requestBroker(CXmlElement* requestNode) THROWS_EXCEPTIONS" << endl;
     serviceImplementation << "{" << endl;
-    serviceImplementation << "   static const CStrings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
+    serviceImplementation << "   static const Strings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
     serviceImplementation << "   string requestName = CWSParser::strip_namespace(requestNode->name());" << endl;
     serviceImplementation << "   int messageIndex = messageNames.indexOf(requestName);" << endl;
     serviceImplementation << "   try {" << endl;
@@ -329,7 +329,7 @@ void CWSParser::generateImplementation(ostream& serviceImplementation) THROWS_EX
 
     for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
         string operationName = itor->first;
-        CStrings nameParts(itor->second.m_input->name(), ":");
+        Strings nameParts(itor->second.m_input->name(), ":");
         string requestNamespace, requestName;
         if (nameParts.size() == 1)
             requestName = nameParts[0];
@@ -360,7 +360,7 @@ void CWSParser::generate(std::string sourceDirectory, std::string headerFile) TH
     if (!headerFile.empty())
         externalHeader.loadFromFile(headerFile);
 
-    CStrings usedClasses;
+    Strings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
         CWSParserComplexType* complexType = itor->second;
         //string name = itor->first;

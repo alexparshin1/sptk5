@@ -36,7 +36,7 @@ using namespace sptk;
 namespace sptk
 {
 
-static const CStrings notGroupingTags("styles;style;engine", ";");
+static const Strings notGroupingTags("styles;style;engine", ";");
 
 CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* parentNode, bool createAttributes)
 {
@@ -136,7 +136,7 @@ CXmlNode* CGtkThemeParser::parseParameter(const std::string& row, CXmlNode* pare
     return NULL;
 }
 
-void CGtkThemeParser::parseImage(const CStrings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
+void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
 {
     if (gtkrc[currentRow] != "image")
         throw runtime_error("Expecting 'image' in row " + gtkrc[currentRow]);
@@ -153,7 +153,7 @@ void CGtkThemeParser::parseImage(const CStrings& gtkrc, unsigned& currentRow, CX
     }
 }
 
-void CGtkThemeParser::parseEngine(const CStrings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
+void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
 {
     if (gtkrc[currentRow].find("engine") != 0)
         throw runtime_error("Expecting 'engine' in row " + gtkrc[currentRow]);
@@ -177,7 +177,7 @@ void CGtkThemeParser::parseEngine(const CStrings& gtkrc, unsigned& currentRow, C
     }
 }
 
-void CGtkThemeParser::parseStyle(const CStrings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
+void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, CXmlNode* parentNode)
 {
     //const string& styleRow = gtkrc[currentRow];
     if (gtkrc[currentRow].find("style") != 0)
@@ -200,7 +200,7 @@ void CGtkThemeParser::parseStyle(const CStrings& gtkrc, unsigned& currentRow, CX
     }
 }
 
-void CGtkThemeParser::parse(const CStrings& gtkrc)
+void CGtkThemeParser::parse(const Strings& gtkrc)
 {
     Buffer buffer;
     m_xml.clear();
@@ -219,9 +219,9 @@ void CGtkThemeParser::parse(const CStrings& gtkrc)
 
 void CGtkThemeParser::load(std::string themeName) THROWS_EXCEPTIONS
 {
-    m_themeFolder = CRegistry::homeDirectory() + ".themes/" + themeName + "/gtk-2.0/";
+    m_themeFolder = Registry::homeDirectory() + ".themes/" + themeName + "/gtk-2.0/";
     string gtkrcFile = m_themeFolder + "gtkrc";
-    CStrings gtkrcSource;
+    Strings gtkrcSource;
 
     try {
         gtkrcSource.loadFromFile(gtkrcFile);
@@ -232,7 +232,7 @@ void CGtkThemeParser::load(std::string themeName) THROWS_EXCEPTIONS
         gtkrcSource.loadFromFile(gtkrcFile);
     }
 
-    CStrings gtkrc;
+    Strings gtkrc;
 
     for (unsigned i = 0; i < gtkrcSource.size(); i++) {
         string s = trim(gtkrcSource[i]);
