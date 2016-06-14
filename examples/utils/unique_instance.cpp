@@ -37,22 +37,22 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sptk5/CUniqueInstance.h>
+#include <sptk5/UniqueInstance.h>
 
 using namespace sptk;
 
 int main() {
    char buffer[1024];
    memset(buffer, 0, sizeof(buffer));
-   
+
    // Define the unique-instance name
-   CUniqueInstance instance("mytest");
-   
+   UniqueInstance instance("mytest");
+
    if (instance.isUnique()) {
       puts("-------- Test for UNIQUE APPLICATION INSTANCE ------------");
       puts("To test it, try to start another copy of application while");
       puts("the first copy is still running. Type 'end' to exit test.");
-      
+
       // Unique instance, wait here
       while (strcmp(buffer, "end") != 0) {
           if (scanf("%s", buffer) == 0)
@@ -61,6 +61,6 @@ int main() {
    } else {
       puts("Another instance of the program is running. Exiting.");
    }
-   
+
    return 0;
 }

@@ -37,7 +37,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CCalendar.h>

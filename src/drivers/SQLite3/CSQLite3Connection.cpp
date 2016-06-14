@@ -513,7 +513,7 @@ void CSQLite3Connection::queryFetch(CQuery* query)
     }
 }
 
-void CSQLite3Connection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void CSQLite3Connection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectTypeName;
     objects.clear();

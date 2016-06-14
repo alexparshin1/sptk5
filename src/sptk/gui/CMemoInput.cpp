@@ -31,7 +31,6 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 
-#include <sptk5/CStrings.h>
 #include <sptk5/gui/CMemoInput.h>
 #include <sptk5/gui/CEditor.h>
 

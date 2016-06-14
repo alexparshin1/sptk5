@@ -30,7 +30,7 @@
 #define __CCOLUMNS_H__
 
 #include <string>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 #include <sptk5/cxml>
 

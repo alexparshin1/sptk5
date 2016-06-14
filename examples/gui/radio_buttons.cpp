@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
    CWindow w(400,300);
 
    CRadioButtons cbl("RadioButtons: ");
-   cbl.buttons(CStrings("First,Second,Third,A very long choice label meant to occupy two rows,*",","));
+   cbl.buttons(Strings("First,Second,Third,A very long choice label meant to occupy two rows,*",","));
    cb = &cbl;
 
    CInput    input("Test");

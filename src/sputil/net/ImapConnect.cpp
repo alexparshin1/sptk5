@@ -377,7 +377,7 @@ static string strip_framing_quotes(string st)
 
 void ImapConnect::parseFolderList()
 {
-    CStrings folder_names;
+    Strings folder_names;
     string prefix = "* LIST ";
     for (unsigned i = 0; i < m_response.size(); i++) {
         std::string &st = m_response[i];

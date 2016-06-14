@@ -38,7 +38,7 @@ void CWSRequest::processRequest(CXmlDoc* request) THROWS_EXCEPTIONS
         CXmlElement* node = dynamic_cast<CXmlElement*>(*itor);
         if (!node)
             continue;
-        CStrings nameParts(node->name(),":");
+        Strings nameParts(node->name(),":");
         if (nameParts.size() > 1 && nameParts[1] == "Envelope") {
             soapEnvelope = node;
             m_namespace = nameParts[0] + ":";

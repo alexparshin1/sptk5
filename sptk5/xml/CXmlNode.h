@@ -30,7 +30,6 @@
 #define __CXMLNODE_H__
 
 #include <sptk5/Buffer.h>
-#include <sptk5/CStrings.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/xml/CXmlValue.h>
 #include <sptk5/xml/CXmlNodeList.h>

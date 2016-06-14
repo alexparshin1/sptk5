@@ -27,14 +27,14 @@
 */
 
 #include <sptk5/net/MailMessageBody.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
 
 string MailMessageBody::stripHtml(const string& origHtml)
 {
-    CStrings html(origHtml, "<");
+    Strings html(origHtml, "<");
     unsigned i = 0;
 
     // Remove comments and scripts

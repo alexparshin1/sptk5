@@ -31,7 +31,7 @@
 
 #include <FL/Fl_Double_Window.H>
 #include <sptk5/gui/CLayoutManager.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CWindowShape.h>
 
 namespace sptk {

@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     CWindow w(400, 250);
 
     CCheckButtons cbl("Check Boxes: ");
-    cbl.buttons(CStrings("first,second,third,a very long choice text meant to occupy two rows,*", ","));
+    cbl.buttons(Strings("first,second,third,a very long choice text meant to occupy two rows,*", ","));
     cb = &cbl;
 
     CInput input("Test");

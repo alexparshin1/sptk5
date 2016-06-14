@@ -510,7 +510,7 @@ void COracleConnection::queryFetch(CQuery *query)
     }
 }
 
-void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void COracleConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -535,7 +535,7 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
     query.close();
 }
 
-void COracleConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
+void COracleConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     CQuery tableColumnsQuery(this,
                         "SELECT column_name, data_type, data_length "
@@ -567,7 +567,7 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
     tableColumnsQuery.close();
 
     CColumnTypeSizeVector columnTypeSizeVector;
-    for (CStrings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); itor++) {
+    for (Strings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); itor++) {
         map<string,CColumnTypeSize>::iterator column = columnTypeSizeMap.find(upperCase(*itor));
         if (column == columnTypeSizeMap.end())
             throwDatabaseException("Column '" + *itor + "' doesn't belong to table " + tableName);
@@ -579,8 +579,8 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
                                        ") VALUES (:" + columnNames.asString(",:") + ")",
                                        data.size(),
                                        columnTypeSizeMap);
-    for (CStrings::const_iterator row = data.begin(); row != data.end(); row++) {
-        CStrings rowData(*row,"\t");
+    for (Strings::const_iterator row = data.begin(); row != data.end(); row++) {
+        Strings rowData(*row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++) {
             if (columnTypeSizeVector[i].type == VAR_TEXT)
                 insertQuery.param(i).setText(rowData[i]);
@@ -605,16 +605,15 @@ std::string COracleConnection::paramMark(unsigned paramIndex)
 
 void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-    CStrings sqlBatch;
+    Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
     RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
     RegularExpression  matchGo("^/\\s*$");
-    //CRegExp  matchEscapeChars("([$.])", "g");
     RegularExpression  matchShowErrors("^SHOW\\s+ERRORS", "i");
 
-    CStrings statements, matches;
+    Strings statements, matches;
     string statement;
     bool routineStarted = false;
     for (string row: sqlBatch) {

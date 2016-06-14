@@ -77,7 +77,7 @@ void CButtonGroup::clearButtons() {
    m_otherButton = 0L;
 }
 
-void CButtonGroup::buttons(const CStrings& sl) {
+void CButtonGroup::buttons(const Strings& sl) {
    clearButtons();
    m_buttonLabels = sl;
    size_t buttonsCount = m_buttonLabels.size();
@@ -187,9 +187,9 @@ void CButtonGroup::save(CQuery *updateQuery) {
 
 void CButtonGroup::load(const CXmlNode *node,CLayoutXMLmode xmlMode) {
     CControl::load(node,xmlMode);
-    CStrings btns(node->getAttribute("buttons"),"|");
+    Strings btns(node->getAttribute("buttons"),"|");
     if (btns.size())
-	buttons(btns);
+        buttons(btns);
 }
 
 void CButtonGroup::save(CXmlNode *node,CLayoutXMLmode xmlMode) const {

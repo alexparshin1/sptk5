@@ -102,9 +102,9 @@ public:
 
     /// @brief Returns list of strings matched with regular expression
     /// @param text std::string, Text to process
-    /// @param matchedStrings sptk::CStrings&, list of matched strings
+    /// @param matchedStrings sptk::Strings&, list of matched strings
     /// @return true if match found
-    bool m(std::string text, sptk::CStrings& matchedStrings) const THROWS_EXCEPTIONS;
+    bool m(std::string text, sptk::Strings& matchedStrings) const THROWS_EXCEPTIONS;
 
     /// @brief Replaces matches with replacement string
     /// @param text std::string, text to process
@@ -114,9 +114,9 @@ public:
 
     /// @brief Returns list of strings split by regular expression
     /// @param text std::string, Text to process
-    /// @param outputStrings sptk::CStrings&, list of matched strings
+    /// @param outputStrings sptk::Strings&, list of matched strings
     /// @return true if match found
-    bool split(std::string text, sptk::CStrings& outputStrings) const THROWS_EXCEPTIONS;
+    bool split(std::string text, sptk::Strings& outputStrings) const THROWS_EXCEPTIONS;
 
     /// @brief Replaces matches with replacement string
     /// @param text std::string, text to process

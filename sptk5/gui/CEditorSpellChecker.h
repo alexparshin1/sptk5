@@ -123,7 +123,7 @@ public:
     void dictionaryDirectory(std::string path);
 
     /// Downloads the list of installed dictionaries
-    void getDictionaries(CStrings& dictionaries);
+    void getDictionaries(Strings& dictionaries);
 
     /// Downloads the Aspell options
     void getOptions(CSpellOptions& options);

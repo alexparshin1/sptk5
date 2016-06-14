@@ -32,7 +32,7 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/Variant.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/Field.h>
 
 namespace sptk {

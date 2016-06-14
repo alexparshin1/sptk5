@@ -34,7 +34,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sptk5/CException.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 #include <sptk5/db/CDatabaseConnection.h>
 #include <sptk5/db/CQuery.h>
 #include <sptk5/gui/CMessageDialog.h>

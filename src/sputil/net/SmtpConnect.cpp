@@ -216,7 +216,7 @@ void SmtpConnect::sendMessage()
     string rcpts = m_to + ";" + m_cc + ";" + m_bcc;
     rcpts = replaceAll(rcpts, ",", ";");
     rcpts = replaceAll(rcpts, " ", ";");
-    CStrings recepients(rcpts, ";");
+    Strings recepients(rcpts, ";");
     uint32_t cnt = (uint32_t) recepients.size();
     for (uint32_t i = 0; i < cnt; i++) {
         string address = trim(recepients[i]);

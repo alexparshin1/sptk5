@@ -81,11 +81,11 @@ int main(int argc, char **argv)
     group1.end();
 
     CCheckButtons checkButtons("Check buttons");
-    checkButtons.buttons(CStrings("button 1|button 2","|"));
+    checkButtons.buttons(Strings("button 1|button 2","|"));
     checkButtons.data("button 1");
 
     CRadioButtons radioButtons("Radio buttons");
-    radioButtons.buttons(CStrings("button 1|button 2","|"));
+    radioButtons.buttons(Strings("button 1|button 2","|"));
     radioButtons.data("button 1");
 
     CInput inp1("input 1");
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     buttonGroup.box(FL_DOWN_BOX);
 
     CComboBox themesCombo("Theme:", 350, SP_ALIGN_LEFT);
-    CStrings themes = CThemes::availableThemes();
+    Strings themes = CThemes::availableThemes();
     themesCombo.addRows("Theme", themes);
     themesCombo.callback(theme_cb);
     themesCombo.labelWidth(70);

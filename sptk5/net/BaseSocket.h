@@ -60,7 +60,7 @@
 #endif
 
 #include <sptk5/Exception.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 
 namespace sptk

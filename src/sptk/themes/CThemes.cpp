@@ -38,7 +38,7 @@
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CTreeControl.h>
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 #include <sptk5/string_ext.h>
 
 #include <sptk5/gui/default_icons.h>
@@ -158,9 +158,9 @@ void CThemes::registerIcon(CIcon* icon, CIconSize iconSize)
     m_icons[iconSize].insert(icon);
 }
 
-const CStrings& CThemes::searchDirectories()
+const Strings& CThemes::searchDirectories()
 {
-    static CStrings sd;
+    static Strings sd;
     if (sd.size())
         return sd;
 #ifdef _WIN32
@@ -252,7 +252,7 @@ void CThemes::set(string theThemeName)
 
     reset();
 
-    const CStrings& dirs = searchDirectories();
+    const Strings& dirs = searchDirectories();
     bool defaultTheme = false;
     for (unsigned dn = 0; dn < dirs.size() && !defaultTheme; dn++) {
         string fileName = dirs[dn] + "/" + themeName + ".tar";
@@ -345,13 +345,13 @@ void CThemes::set(string theThemeName)
         for (i = 0; i < 7; i++)
             replaceImage(m_background, i, "background" + int2string(i) + ".png");
 
-        m_progressBar[0].loadFromSptkTheme(CStrings("progress0",","));
-        m_progressBar[1].loadFromSptkTheme(CStrings("progress1",","));
+        m_progressBar[0].loadFromSptkTheme(Strings("progress0",","));
+        m_progressBar[1].loadFromSptkTheme(Strings("progress1",","));
 
-        m_normalButtons.loadFromSptkTheme(CStrings("button0,button1,button2,button3,button4",","));
-        m_comboButtons.loadFromSptkTheme(CStrings("combo_button0,combo_button1,combo_button2,combo_button3",","));
-        m_checkButtons.loadFromSptkTheme(CStrings("check_button0,check_button1,check_button2,check_button3",","));
-        m_radioButtons.loadFromSptkTheme(CStrings("radio_button0,radio_button1,radio_button2,radio_button3",","));
+        m_normalButtons.loadFromSptkTheme(Strings("button0,button1,button2,button3,button4",","));
+        m_comboButtons.loadFromSptkTheme(Strings("combo_button0,combo_button1,combo_button2,combo_button3",","));
+        m_checkButtons.loadFromSptkTheme(Strings("check_button0,check_button1,check_button2,check_button3",","));
+        m_radioButtons.loadFromSptkTheme(Strings("radio_button0,radio_button1,radio_button2,radio_button3",","));
 
         CTreeItem::treeOpened = getIconImage("tree_opened", IS_SMALL_ICON); ///< Default image of the opened tree
         CTreeItem::treeClosed = getIconImage("tree_closed", IS_SMALL_ICON); ///< Default image of the closed tree
@@ -658,12 +658,12 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
     }
 }
 
-CStrings CThemes::availableThemes()
+Strings CThemes::availableThemes()
 {
-    CStrings themes;
+    Strings themes;
     themes.push_back("Default");
     //themes.push_back("GTK");
-    const CStrings& dirs = searchDirectories();
+    const Strings& dirs = searchDirectories();
     for (unsigned i = 0; i < dirs.size(); i++) {
         try {
             DirectoryDS dir;
@@ -689,9 +689,9 @@ CStrings CThemes::availableThemes()
     }
 
     /// GTK2 themes
-    CStrings gtkDirs;
+    Strings gtkDirs;
     gtkDirs.push_back("/usr/share/themes");
-    gtkDirs.push_back(CRegistry::homeDirectory() + ".themes");
+    gtkDirs.push_back(Registry::homeDirectory() + ".themes");
     for (unsigned i = 0; i < gtkDirs.size(); i++) {
         try {
             DirectoryDS dir;

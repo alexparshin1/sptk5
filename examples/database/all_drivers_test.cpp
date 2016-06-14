@@ -136,7 +136,7 @@ int testDatabase(string connectionString)
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
-            CStrings objectList;
+            Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
@@ -363,7 +363,7 @@ int main(int argc, const char* argv[])
             NULL};
 
     if (connectionString.empty()) {
-        CStrings databaseTypes;
+        Strings databaseTypes;
         for (size_t i = 0; availableDatabaseTypes[i] != NULL; i++)
             databaseTypes.push_back(string(availableDatabaseTypes[i]));
 

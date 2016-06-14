@@ -56,13 +56,13 @@ void FTPSocket::open(std::string hostName, uint32_t port, CSocketOpenMode openMo
     setsockopt(m_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof (on));
 }
 
-const CStrings& FTPSocket::login(std::string user, std::string password)
+const Strings& FTPSocket::login(std::string user, std::string password)
 {
     command("USER " + user);
     return command("PASS " + password);
 }
 
-const CStrings& FTPSocket::get_response()
+const Strings& FTPSocket::get_response()
 {
     char readBuffer[255];
     char retCode[5];
@@ -89,7 +89,7 @@ const CStrings& FTPSocket::get_response()
     return m_response;
 }
 
-const CStrings& FTPSocket::command(std::string cmd)
+const Strings& FTPSocket::command(std::string cmd)
 {
     write((cmd + "\n").c_str(), (uint32_t) cmd.length() + 1);
     return get_response();
@@ -195,7 +195,7 @@ void CFTPConnect::cmd_pwd()
     command("PWD ");
 }
 
-void CFTPConnect::getList(std::string cmd, CStrings& list)
+void CFTPConnect::getList(std::string cmd, Strings& list)
 {
     Buffer buffer(1024);
     openDataPort();
@@ -212,12 +212,12 @@ void CFTPConnect::getList(std::string cmd, CStrings& list)
     m_commandSocket.get_response();
 }
 
-void CFTPConnect::cmd_list(CStrings& result)
+void CFTPConnect::cmd_list(Strings& result)
 {
     getList("LIST", result);
 }
 
-void CFTPConnect::cmd_nlst(CStrings& result)
+void CFTPConnect::cmd_nlst(Strings& result)
 {
     getList("NLST", result);
 }

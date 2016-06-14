@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CStrings.cpp - description                             ║
+║                       Strings.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -28,7 +28,7 @@
 
 #include <fstream>
 #include <string.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
 
@@ -50,9 +50,9 @@ string String::toLowerCase() const
     return lowerCase(*this);
 }
 
-CStrings String::split(string pattern) const
+Strings String::split(string pattern) const
 {
-    return CStrings(*this, pattern.c_str(), CStrings::SM_REGEXP);
+    return Strings(*this, pattern.c_str(), Strings::SM_REGEXP);
 }
 
 bool String::startsWith(string subject) const
@@ -72,7 +72,7 @@ bool String::endsWith(string subject) const
     return rfind(subject) == length() - subject.length();
 }
 
-void CStrings::splitByDelimiter(const string &src, const char *delimitter)
+void Strings::splitByDelimiter(const string &src, const char *delimitter)
 {
     size_t pos = 0, end = 0;
     size_t delimitterLength = strlen(delimitter);
@@ -90,7 +90,7 @@ void CStrings::splitByDelimiter(const string &src, const char *delimitter)
     }
 }
 
-void CStrings::splitByAnyChar(const string &src, const char *delimitter)
+void Strings::splitByAnyChar(const string &src, const char *delimitter)
 {
     size_t pos = 0, end = 0;
     while (pos != string::npos) {
@@ -107,13 +107,13 @@ void CStrings::splitByAnyChar(const string &src, const char *delimitter)
     }
 }
 
-void CStrings::splitByRegExp(const string &src, const char *pattern)
+void Strings::splitByRegExp(const string &src, const char *pattern)
 {
     RegularExpression regularExpression(pattern);
     regularExpression.split(src, *this);
 }
 
-void CStrings::fromString(const string &src, const char *delimitter, SplitMode mode)
+void Strings::fromString(const string &src, const char *delimitter, SplitMode mode)
 {
     clear();
     switch (mode) {
@@ -129,7 +129,7 @@ void CStrings::fromString(const string &src, const char *delimitter, SplitMode m
     }
 }
 
-string CStrings::asString(const char *delimiter) const
+string Strings::asString(const char *delimiter) const
 {
     string result;
     for (const_iterator str = begin(); str != end(); str++) {
@@ -141,7 +141,7 @@ string CStrings::asString(const char *delimiter) const
     return result;
 }
 
-int CStrings::indexOf(string s) const
+int Strings::indexOf(string s) const
 {
     const_iterator itor = find(begin(), end(), s.c_str());
     if (itor == end())
@@ -149,7 +149,7 @@ int CStrings::indexOf(string s) const
     return (int) distance(begin(), itor);
 }
 
-void CStrings::saveToFile(string fileName) const THROWS_EXCEPTIONS
+void Strings::saveToFile(string fileName) const THROWS_EXCEPTIONS
 {
     Buffer buffer;
     for (const_iterator str = begin(); str != end(); str++) {
@@ -159,7 +159,7 @@ void CStrings::saveToFile(string fileName) const THROWS_EXCEPTIONS
     buffer.saveToFile(fileName);
 }
 
-void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
+void Strings::loadFromFile(string fileName) THROWS_EXCEPTIONS
 {
     Buffer buffer;
     buffer.loadFromFile(fileName);
@@ -179,15 +179,15 @@ void CStrings::loadFromFile(string fileName) THROWS_EXCEPTIONS
     splitByDelimiter(text, delimiter.c_str());
 }
 
-string CStrings::join(string delimiter) const
+string Strings::join(string delimiter) const
 {
     return asString(delimiter.c_str());
 }
 
-CStrings CStrings::grep(string pattern) const
+Strings Strings::grep(string pattern) const
 {
     RegularExpression regularExpression(pattern);
-    CStrings output;
+    Strings output;
     for (const String& str : *(this)) {
         if (str == regularExpression)
             output.push_back(str);

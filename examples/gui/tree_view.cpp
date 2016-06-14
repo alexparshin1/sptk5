@@ -55,29 +55,29 @@ void changed_cb(Fl_Widget *w, void *) {
 void add_item_cb(Fl_Widget *w, void *) {
    CTreeItem *selectedItem = tree->selected();
    CTreeItem *node = 0L;
-   
+
    CDialog dlg(300, 140, "Add new item");
-   
+
    CComboBox typeCombo("Item Type:");
    typeCombo.labelWidth(80);
-   CStrings typeChoices;
+   Strings typeChoices;
    typeChoices.push_back(String("Folder", 1));
    typeChoices.push_back(String("Document", 2));
    typeCombo.addRows("type", typeChoices);
    typeCombo.columns()[(unsigned)0].width(150);
    typeCombo.dataMode(LV_DATA_KEY);
    typeCombo.data(1);
-   
+
    CComboBox modeCombo("Add Mode:");
    modeCombo.labelWidth(80);
-   CStrings modeChoices;
+   Strings modeChoices;
    modeChoices.push_back(String("To the root level", 1));
    modeChoices.push_back(String("To selected item", 2));
    modeCombo.addRows("type", modeChoices);
    modeCombo.columns()[(unsigned)0].width(150);
    modeCombo.dataMode(LV_DATA_KEY);
    modeCombo.data(1);
-   
+
    CInput inp("Item Name:");
    inp.labelWidth(80);
    dlg.end();

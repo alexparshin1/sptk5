@@ -349,21 +349,21 @@ public:
     static bool drawTabFrame(int x,int y,int w,int h);
 
     /// Returns the list of the available themes
-    static CStrings availableThemes();
+    static Strings availableThemes();
 
     /// @brief Themes root directories
     ///
     /// On different system it may be a different set of directories.
     /// The first available correct combination of theme directory and theme name
     /// defines the theme directory
-    static const CStrings& searchDirectories();
+    static const Strings& searchDirectories();
 
     /// @brief All the available screen fonts
     static CFontsVector   screenFonts;
 
     /// @brief Returns theme name
     static std::string name() { return m_name; }
-    
+
     /// @brief Returns path to the theme folder
     static std::string themeFolder() { return m_themeFolder; }
 

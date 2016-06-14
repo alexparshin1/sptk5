@@ -179,10 +179,10 @@ public:
     void addRow(CPackedStrings *row);
 
     /// Adds a new row to the internal list view. Makes a copy of data in rowStrings.
-    /// The row ID may be defined inside CStrings object, or with rowID parameter.
-    /// @param rowStrings const CStrings&, new row
+    /// The row ID may be defined inside Strings object, or with rowID parameter.
+    /// @param rowStrings const Strings&, new row
     /// @param rowId int, optional row ID
-    void addRow(const CStrings& rowStrings, int rowId = 0);
+    void addRow(const Strings& rowStrings, int rowId = 0);
 
     /// Adds new row to the internal list view.
     /// @param rowId int, row argument (key value)
@@ -196,10 +196,10 @@ public:
 
     /// Creates the column as columnName and adds rows to the internal list view. If the column with such name
     /// already exists, it will be used. The method is good the a very simple cases of one-column
-    /// combo boxes. The row IDs may be defined inside CStrings object strings.
+    /// combo boxes. The row IDs may be defined inside Strings object strings.
     /// @param columnName std::string, new columnName
-    /// @param rows CStrings, new rows
-    void addRows(std::string columnName, CStrings rows);
+    /// @param rows Strings, new rows
+    void addRows(std::string columnName, Strings rows);
 
     /// Resizes the control and inside widgets.
     /// @param x int, x-position

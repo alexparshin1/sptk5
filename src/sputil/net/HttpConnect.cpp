@@ -52,7 +52,7 @@ void HttpConnect::getResponse()
 
     m_readBuffer.reset();
 
-    CStrings headers;
+    Strings headers;
 
     int    bytes, contentLength = 0;
     string header;
@@ -207,7 +207,7 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
 
 void HttpConnect::cmd_post(string pageName, const HttpParams& postData)
 {
-    CStrings headers;
+    Strings headers;
 
     headers.push_back("POST " + pageName + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host());

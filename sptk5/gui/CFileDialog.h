@@ -34,7 +34,7 @@
 #include <sptk5/gui/CListView.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CComboBox.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 

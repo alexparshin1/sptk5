@@ -40,11 +40,11 @@
 using namespace std;
 using namespace sptk;
 
-void printResponse(const CStrings& response) {
-	for (unsigned i = 0; i < response.size(); i++) {
-		puts(response[i].c_str());
-	}
-	puts("---------------------------------");
+void printResponse(const Strings& response) {
+    for (unsigned i = 0; i < response.size(); i++) {
+        puts(response[i].c_str());
+    }
+    puts("---------------------------------");
 }
 
 int main( int argc, char *argv[] )
@@ -53,23 +53,23 @@ int main( int argc, char *argv[] )
     CThemes themes;
 
     char           buffer[128];
-	ImapConnect   IMAP;
-	std::string    user, password, server;
-	CRegistry      registry("imap_connect.ini","");
+    ImapConnect    IMAP;
+    std::string    user, password, server;
+    Registry       registry("imap_connect.ini","");
 
-	puts("Testing IMAP connectivity.\n");
+    puts("Testing IMAP connectivity.\n");
 
-	try {
-		registry.load();
-		CXmlNode* hostNode = registry.findFirst("host");
-		if (hostNode) {
-			server = (string) hostNode->getAttribute("hostname");
-			user = (string) hostNode->getAttribute("user");
-			password = (string) hostNode->getAttribute("password");
-		}
-		IMAP.host(server);
-	}
-	catch (...) {}
+    try {
+        registry.load();
+        CXmlNode* hostNode = registry.findFirst("host");
+        if (hostNode) {
+            server = (string) hostNode->getAttribute("hostname");
+            user = (string) hostNode->getAttribute("user");
+            password = (string) hostNode->getAttribute("password");
+        }
+        IMAP.host(server);
+    }
+    catch (...) {}
 
 	if (!user.length()) {
 		printf("IMAP server name: ");

@@ -42,7 +42,7 @@ void CFrames::clear() {
     m_fltkFrames.clear();
 }
 
-const CStrings    CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame","|");
+const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame","|");
 const Fl_Boxtype  CFrames::frameTypes[] = {
             FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
         };

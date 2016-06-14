@@ -282,13 +282,13 @@ void CDatabaseConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
     notImplemented("driverEndTransaction");
 }
 
-void CDatabaseConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
+void CDatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     CQuery insertQuery(this,
                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
                        ") VALUES (:" + columnNames.asString(",:") + ")");
-    for (CStrings::const_iterator row = data.begin(); row != data.end(); row++) {
-        CStrings rowData(*row,"\t");
+    for (Strings::const_iterator row = data.begin(); row != data.end(); row++) {
+        Strings rowData(*row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++)
             insertQuery.param(i).setString(rowData[i]);
         insertQuery.exec();

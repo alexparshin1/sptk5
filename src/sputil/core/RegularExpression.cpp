@@ -143,7 +143,7 @@ bool RegularExpression::matches(std::string text) const THROWS_EXCEPTIONS
     return matchCount > 0;
 }
 
-bool RegularExpression::m(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::m(std::string text, Strings &matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
@@ -167,7 +167,7 @@ bool RegularExpression::m(std::string text, CStrings &matchedStrings) const THRO
     return totalMatches > 0;
 }
 
-bool RegularExpression::split(std::string text, CStrings &matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::split(std::string text, Strings &matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSystemException.cpp - description                     ║
+║                       SharedStrings.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,50 +26,86 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/CSystemException.h>
-#include <string.h>
+#ifndef __SPTK_SHAREDSTRINGS_H__
+#define __SPTK_SHAREDSTRINGS_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/Exception.h>
+#include <string>
+#include <map>
 
-CSystemException::CSystemException(string context, std::string file, int line)
-: Exception(context + ": " + osError(), file, line)
+namespace sptk {
+
+/// @addtogroup utility Utility Classes
+/// @{
+
+/// @brief Shared strings table
+///
+/// Contains a table of shared strings for the use with different objects
+/// such as XML node, ListView, etc
+class SP_EXPORT SharedStrings
 {
+    typedef std::map<std::string, int> CSIMap; ///< String to int map type
+    CSIMap m_stringIdMap; ///< Map of shared strings and reference counters
+public:
+    /// @brief Default constructor
+    SharedStrings();
+
+    /// @brief Destructor
+    ~SharedStrings()
+    {
+        clear();
+    }
+
+    /// @brief Obtain a shared string
+    ///
+    /// Looks for an existing shared string, and returns a const std::string&
+    /// to it. If a shared string not found, it's created with reference count one.
+    /// For an existing shared string, every call of this method encreases string
+    /// reference counter by one
+    /// @param str const char *, a string to share
+    const std::string& shareString(const char *str);
+
+    /// @brief Obtain a shared string
+    ///
+    /// Looks for an existing shared string, and returns a const char *pointer
+    /// to it. If a shared string not found, it's created with reference count one.
+    /// For an existing shared string, every call of this method encreases string
+    /// reference counter by one
+    /// @param str const std::string&, a string to share
+    const std::string& shareString(const std::string& str) 
+    {
+        return shareString(str.c_str());
+    }
+
+    /// @brief Releases a shared string
+    ///
+    /// If the shared string reference counter is greater than one,
+    /// it's decreased by one. If the reference counter is one,
+    /// the string is removed from SST. If the string doesn't exist,
+    /// the exception is thrown.
+    /// @param str const char *, a string to release
+    void releaseString(const char *str) THROWS_EXCEPTIONS;
+
+    /// @brief Releases a shared string
+    ///
+    /// If the shared string reference counter is greater than one,
+    /// it's decreased by one. If the reference counter is one,
+    /// the string is removed from SST. If the string doesn't exist,
+    /// the exception is thrown.
+    /// @param str const std::string&, a string to release
+    void releaseString(const std::string& str) THROWS_EXCEPTIONS
+    {
+        releaseString(str.c_str());
+    }
+
+    /// @brief Clears the shared string table
+    ///
+    /// Only the string containing the empty string ("") is left
+    /// after this operation
+    void clear();
+}
+;
+/// @}
 }
 
-CSystemException::CSystemException(const CSystemException& other)
-: Exception(other)
-{
-}
-
-CSystemException::~CSystemException() DOESNT_THROW
-{
-}
-
-string CSystemException::osError()
-{
-#ifdef WIN32
-    // Get Windows last error
-    LPCTSTR lpMsgBuf = NULL;
-    DWORD dw = GetLastError();
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        dw,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR) &lpMsgBuf,
-        0, NULL );
-    if (lpMsgBuf)
-        return lpMsgBuf;
-    else
-        return "Unknown system error";
-#else
-    // Get Unix errno-based error
-    char buffer[256];
-    buffer[0] = 0;
-    const char* osError = (const char*) strerror_r(errno, buffer, sizeof(buffer));
-    if (buffer[0])
-        osError = buffer;
-    return osError;
 #endif
-}

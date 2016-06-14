@@ -29,7 +29,7 @@
 #ifndef __CPACKEDSTRINGS_H__
 #define __CPACKEDSTRINGS_H__
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/FieldList.h>
 
 namespace sptk {
@@ -63,8 +63,8 @@ namespace sptk {
             CPackedStrings(FieldList& fields,int keyField);
 
             /// Constructor
-            /// @param strings const CStrings&, source strings
-            CPackedStrings(const CStrings& strings);
+            /// @param strings const Strings&, source strings
+            CPackedStrings(const Strings& strings);
 
             /// Destructor
             ~CPackedStrings();
@@ -79,7 +79,7 @@ namespace sptk {
             CPackedStrings& operator=(const CPackedStrings&);
 
             /// Assignment operator
-            CPackedStrings& operator=(const CStrings&);
+            CPackedStrings& operator=(const Strings&);
 
             /// Sets user_data as void *
             void user_data(void *d) { m_data = d;           }

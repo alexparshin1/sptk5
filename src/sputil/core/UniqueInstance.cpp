@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSharedStrings.cpp - description                       ║
+║                       UniqueInstance.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,38 +26,99 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
-#include <sptk5/CSharedStrings.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-using namespace std;
+#include <sptk5/Exception.h>
+#include <sptk5/UniqueInstance.h>
+
+#ifndef _WIN32
+#ifndef __USE_XOPEN_EXTENDED
+#define __USE_XOPEN_EXTENDED
+#endif
+#endif
+
 using namespace sptk;
 
-CSharedStrings::CSharedStrings() {
-    shareString("");
+// Constructor
+UniqueInstance::UniqueInstance(std::string instanceName)
+{
+    m_lockCreated = false;
+    m_instanceName = instanceName;
+#ifndef _WIN32
+    std::string home = getenv("HOME");
+    m_fileName = home + "/" + m_instanceName + ".lock";
+    if (read_pid() == 0)
+        write_pid();
+#else
+    m_mutex = CreateMutex(NULL,true,m_instanceName.c_str());
+    if (GetLastError() == 0)
+        m_lockCreated = true;
+#endif
 }
 
-const string& CSharedStrings::shareString(const char* str) {
-    CSIMap::iterator itor = m_stringIdMap.find(str);
-    if (itor == m_stringIdMap.end()) {
-        pair<CSIMap::iterator,bool> insertResult = m_stringIdMap.insert(CSIMap::value_type(str,0));
-        itor = insertResult.first;
+// Destructor
+UniqueInstance::~UniqueInstance()
+{
+    // Cleanup
+    if (m_lockCreated) {
+#ifndef _WIN32
+        unlink(m_fileName.c_str());
+#else
+
+        CloseHandle(m_mutex);
+#endif
+
     }
-    itor->second++;
-    return itor->first;
 }
 
-void CSharedStrings::releaseString(const char* str) THROWS_EXCEPTIONS {
-    CSIMap::iterator itor = m_stringIdMap.find(str);
-    if (itor == m_stringIdMap.end())
-        throw Exception("The string "+string(str)+" isn't registered in SST");
-    if (itor->second > 1)
-        itor->second--;
-    else
-        m_stringIdMap.erase(itor);
+#ifndef _WIN32
+// Get the existing process id (if any) from the file
+int UniqueInstance::read_pid()
+{
+    char   buffer[32];
+
+    // Try to read process id from the file
+    FILE  *f = fopen(m_fileName.c_str(),"r+b");
+    if (!f)
+        return 0;
+    fgets(buffer,32,f);
+    fclose(f);
+
+    // Is it a number?
+    buffer[31] = 0;
+    char *p = strchr(buffer,'\n');
+    if (p)
+        *p = 0;
+    int pid = atoi(buffer);
+    if (!pid)
+        return 0;
+
+    // Does the process with this id exist?
+    int sid = getsid(pid);
+
+    if (sid < 0) // No such process - stale lock file.
+        return 0;
+
+    return pid;
 }
 
-void CSharedStrings::clear() {
-    m_stringIdMap.clear();
-    shareString("");
+int UniqueInstance::write_pid()
+{
+    FILE  *f = fopen(m_fileName.c_str(),"w+b");
+    if (!f)
+        return 0;
+    int pid = getpid();
+    fprintf(f,"%i\n",pid);
+    fclose(f);
+
+    m_lockCreated = true;
+    return pid;
+}
+#endif
+
+bool UniqueInstance::isUnique()
+{
+    return m_lockCreated;
 }

@@ -38,7 +38,7 @@
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CScroll.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 #include <stdio.h>
 
@@ -153,7 +153,7 @@ void CCheckButtons::data(const CVariant s) {
     if (m_otherButton)
         m_otherInput->value("");
     string st = s;
-    CStrings sl(st, "|");
+    Strings sl(st, "|");
     size_t cnt = sl.size();
     CScroll *g = (CScroll *) m_control;
     for (unsigned i = 0; i < cnt; i++) {

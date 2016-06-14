@@ -68,11 +68,9 @@ void theme_cb(Fl_Widget *w, void *) {
    try {
       CComboBox *themesCombo = (CComboBox *)w;
       std::string themeName = themesCombo->data();
-      
+
       if (themesCombo->eventType() == CE_DATA_CHANGED) {
-         CThemes::set
-         (themeName);
-         
+         CThemes::set(themeName);
          CWindow *window = (CWindow *)w->window();
          window->relayout();
          window->redraw();
@@ -98,10 +96,10 @@ void minimize_cb(Fl_Widget *w, void *) {
 
 CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label) : CWindow(x, y, w, h, label) {
    m_maximized = false;
-   
+
    box(FL_FLAT_BOX);
    //clear_border();
-   
+
    CGroup* captionGroup = new CGroup;
    captionGroup->layoutSpacing(1);
    captionGroup->box(FL_DOWN_BOX);
@@ -110,47 +108,47 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label) : CW
    m_captionBox->labelcolor(FL_WHITE);
    m_captionBox->labelcolor(FL_WHITE);
    m_captionBox->dragable(true);
-   
+
    m_closeButton = new CButton("X");
    m_closeButton->labelfont(FL_HELVETICA_BOLD);
    m_closeButton->callback(close_cb);
-   
+
    m_maximizeButton = new CButton("@-4square");
    m_maximizeButton->labeltype(FL_ENGRAVED_LABEL);
    m_maximizeButton->callback(maximize_cb);
-   
+
    m_minimizeButton = new CButton("@-22>");
    m_minimizeButton->labeltype(FL_ENGRAVED_LABEL);
    m_minimizeButton->callback(minimize_cb);
-   
+
    captionGroup->end();
-   
+
    CToolBar* toolBar = new CToolBar;
    new CButton("Test");
    toolBar->end();
-   
+
    // That group keeps togeteher the buttons. These
    // buttons use the default alignment for buttons -
    // SP_ALIGN_RIGHT, and the text/icon defined by the
    // button kind.
    CGroup* buttonGroup = new CGroup("", 10, SP_ALIGN_BOTTOM);
    buttonGroup->color(FL_LIGHT1);
-   
+
    CButton* exitButton = new CButton(SP_EXIT_BUTTON);
    exitButton->callback(exit_cb);
-   
+
    CComboBox* themesCombo = new CComboBox("Theme", 200, SP_ALIGN_LEFT);
-   CStrings themes = CThemes::availableThemes();
+   Strings themes = CThemes::availableThemes();
    themesCombo->addRows("Theme", themes);
    themesCombo->callback(theme_cb);
    themesCombo->data("Default");
-   
+
    buttonGroup->end();
-   
+
    end();
-   
+
    initShapeExtension();
-   
+
    resizable(this);
    relayout();
 }
