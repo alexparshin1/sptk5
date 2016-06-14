@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CSQLite3Connection.h - description                    ║
+║                        ODBCConnection.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,36 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSQLITE3CONNECTION_H__
-#define __CSQLITE3CONNECTION_H__
+#ifndef __SPTK_ODBCCONNECTION_H__
+#define __SPTK_ODBCCONNECTION_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/sptk.h>
 
-#if HAVE_SQLITE3 == 1
+#if HAVE_ODBC == 1
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sqlite3.h>
+#include <sptk5/db/ODBCEnvironment.h.h>
+#include <sptk5/db/DatabaseConnection.h>
 
 namespace sptk {
+
 /// @addtogroup Database Database Support
 /// @{
 
-class CQuery;
+class CODBCConnection;
+class Query;
 
-/// @brief SQLite3 database
+/// @brief ODBC database
 ///
-/// CSQLite3Connection is thread-safe connection to SQLite3 database.
-class SP_EXPORT CSQLite3Connection: public CDatabaseConnection
+/// CODBCConnection is thread-safe connection to ODBC database.
+class SP_DRIVER_EXPORT CODBCConnection: public CDatabaseConnection
 {
-    friend class CQuery;
-
-    typedef sqlite3_stmt * SQLHSTMT;
-    typedef sqlite3 * SQLHDBC;
+    friend class Query;
 
 private:
 
-    sqlite3 *m_connect;   ///< The SQLite3 database connection object
+    ODBCConnection *m_connect;   ///< The ODBC connection object
+
+    /// @brief Retrieves an error (if any) after statement was executed
+    /// @param stmt SQLHSTMT, the statement that had an error
+    std::string queryError(SQLHSTMT stmt) const;
 
 protected:
 
@@ -67,41 +69,42 @@ protected:
     virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by CQuery
-    virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an SQLite3 statement
-    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an SQLite3 statement
-    virtual void queryCloseStmt(CQuery *query);      ///< Closes an SQLite3 statement
-    virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(CQuery *query);        ///< Executes a statement
-    virtual int queryColCount(CQuery *query);        ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
-    virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
+    virtual void queryAllocStmt(Query *query);     ///< Allocates an ODBC statement
+    virtual void queryFreeStmt(Query *query);      ///< Deallocates an ODBC statement
+    virtual void queryCloseStmt(Query *query);     ///< Closes an ODBC statement
+    virtual void queryPrepare(Query *query);       ///< Prepares a query if supported by database
+    virtual void queryUnprepare(Query *query);     ///< Unprepares a query if supported by database
+    virtual void queryExecute(Query *query);       ///< Executes a statement
+    virtual int queryColCount(Query *query);      ///< Counts columns of the dataset (if any) returned by query
+    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, int32_t& value); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, char *buff, int len); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
+    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
+    virtual void queryFetch(Query *query); ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
-    /// @brief Returns the SQLite3 connection object
-    sqlite3 *connection()
+    static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType); ///< Converts the native ODBC type into SPTK data type
+
+    /// Returns the ODBC connection object
+    ODBCConnection *connection()
     {
         return m_connect;
     }
 
-    /// @brief Converts datatype from SQLite type to SPTK CVariantType
-    void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
-
 public:
 
     /// @brief Constructor
-    /// @param connectionString std::string, the SQLite3 connection string
-    CSQLite3Connection(std::string connectionString = "");
+    /// @param connectionString std::string, the ODBC connection string
+    CODBCConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CSQLite3Connection();
+    virtual ~CODBCConnection();
 
     /// @brief Returns driver-specific connection string
-    std::string nativeConnectionString() const;
+    virtual std::string nativeConnectionString() const;
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the SQLite3 connection string
+    /// @param connectionString std::string, the ODBC connection string
     virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
@@ -113,7 +116,10 @@ public:
     /// @brief Returns the database connection handle
     virtual void* handle() const;
 
-    /// @brief Returns the SQLite3 driver description for the active connection
+    /// @brief Returns the ODBC connection string for the active connection
+    virtual std::string connectString() const;
+
+    /// @brief Returns the ODBC driver description for the active connection
     virtual std::string driverDescription() const;
 
     /// @brief Lists database objects
@@ -122,14 +128,14 @@ public:
     virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 };
 
+
 /// @}
 }
-
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  sqlite3_destroy_connection(void* connection);
+    SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  odbc_destroy_connection(void* connection);
 }
 
 #endif

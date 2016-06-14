@@ -29,8 +29,8 @@
 #ifndef __CPOSTGRESQLPARAMVALUES_H__
 #define __CPOSTGRESQLPARAMVALUES_H__
 
-#include <sptk5/db/CPostgreSQLConnection.h>
-#include <sptk5/db/CParamList.h>
+#include <sptk5/db/PostgreSQLConnection.h>
+#include <sptk5/db/ParameterList.h>
 #include "pgtypes.h"
 
 namespace sptk {

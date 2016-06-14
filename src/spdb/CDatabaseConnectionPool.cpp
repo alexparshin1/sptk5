@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CDatabaseConnectionPool.h>
+#include <sptk5/db/DatabaseConnectionPool.h>
 #ifndef WIN32
     /// *nix only
     #include <dlfcn.h>

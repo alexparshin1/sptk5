@@ -173,13 +173,13 @@ bool CButtonGroup::preferredSize(int& w,int& h) {
    return rc;
 }
 
-void CButtonGroup::load(CQuery *loadQuery) {
+void CButtonGroup::load(Query *loadQuery) {
    if (!m_fieldName.length()) return;
    Field& fld = (*loadQuery)[m_fieldName.c_str()];
    data( fld.asString() );
 }
 
-void CButtonGroup::save(CQuery *updateQuery) {
+void CButtonGroup::save(Query *updateQuery) {
    if (!m_fieldName.length()) return;
    CParam& param = updateQuery->param(m_fieldName.c_str());
    param = data();

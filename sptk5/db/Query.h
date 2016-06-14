@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CQuery.h - description                                ║
+║                        Query.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CQUERY_H__
-#define __CQUERY_H__
+#ifndef __SPTK_QUERY_H__
+#define __SPTK_QUERY_H__
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -36,8 +36,8 @@
 
 #include <sptk5/DataSource.h>
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CParamList.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/ParameterList.h>
 #include <sptk5/FieldList.h>
 
 namespace sptk {
@@ -50,7 +50,7 @@ namespace sptk {
 /// A CDataset connected to the database to
 /// execute a database queries. The type of the database
 /// depends on the CDatabaseConnection object query is connected to.
-class SP_EXPORT CQuery: public DataSource, public CSynchronized
+class SP_EXPORT Query: public DataSource, public CSynchronized
 {
     friend class CDatabaseConnection;
 
@@ -63,7 +63,7 @@ protected:
     bool            m_active;          ///< True if query is active (opened)
     bool            m_eof;             ///< True if there is no more records to fetch
     CParamList      m_params;          ///< List of query parameters
-    FieldList      m_fields;          ///< List of query fields - makes sense after fetch
+    FieldList       m_fields;          ///< List of query fields - makes sense after fetch
 
     double          m_duration;        ///< The duration of last execution, in seconds
     double          m_totalDuration;   ///< The total duration of executions, in seconds
@@ -101,7 +101,7 @@ protected:
     /// @brief In CDataset it should load data into the dataset.
     ///
     /// Since the query loads all the data by open() or fetch(),
-    /// in CQuery this method does exactly nothing
+    /// in Query this method does exactly nothing
     virtual bool loadData()
     {
         return false;
@@ -110,7 +110,7 @@ protected:
     /// @brief In CDataset it should save data into the dataset.
     ///
     /// Since the query saves all the data by execute,
-    /// in CQuery this method does exactly nothing
+    /// in Query this method does exactly nothing
     virtual bool saveData()
     {
         return false;
@@ -128,13 +128,13 @@ public:
     /// @param autoPrepare bool, if true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
     /// @param createdFile const char*, the name of the file this query was created in (optional)
     /// @param createdLine unsigned, the line of the file this query was created at (optional)
-    CQuery(CDatabaseConnection *db = 0L, std::string sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
+    Query(CDatabaseConnection *db = 0L, std::string sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
 
     /// @brief Copy constructor
-    CQuery(const CQuery&);
+    Query(const Query&);
 
     /// @brief Destructor
-    ~CQuery();
+    ~Query();
 
     /// @brief Finds a field by the field name
     /// @param fname const char *, field name

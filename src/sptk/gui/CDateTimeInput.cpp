@@ -74,7 +74,7 @@ void CDateTimeBaseInput::setLimits(bool limited,DateTime min,DateTime max) {
     m_maxValue = max;
 }
 
-void CDateTimeBaseInput::load(CQuery *loadQuery) {
+void CDateTimeBaseInput::load(Query *loadQuery) {
     if (!m_fieldName.length())
         return; // no field name - no data loaded
     if (!m_fieldName.length())
@@ -83,7 +83,7 @@ void CDateTimeBaseInput::load(CQuery *loadQuery) {
     dateTimeValue(fld.asDateTime());
 }
 
-void CDateTimeBaseInput::save(CQuery *updateQuery) {
+void CDateTimeBaseInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return; // no field name - no data saved
     CParam& param = updateQuery->param(m_fieldName.c_str());

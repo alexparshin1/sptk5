@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CDatabaseField.h - description                        ║
+║                        OracleStatement.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,91 +26,86 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATABASEFIELD_H__
-#define __CDATABASEFIELD_H__
+#ifndef __SPTK_ORACLESTATEMENT_H__
+#define __SPTK_ORACLESTATEMENT_H__
 
-#include <sptk5/sptk.h>
+#include <occi.h>
 
-#include <sptk5/Variant.h>
-#include <sptk5/Strings.h>
-#include <sptk5/Field.h>
+#include <list>
+#include <string>
+#include <stdio.h>
 
-namespace sptk {
+#include <sptk5/db/DatabaseStatement.h>
 
-/// @addtogroup Database Database Support
-/// @{
-
-class CQuery;
-class CDatabase;
-
-/// @brief database field
-///
-/// A special variation of CField to support database field essentials
-
-class SP_EXPORT CDatabaseField : public Field
+namespace sptk
 {
-    friend class CQuery;
-    friend class CDatabase;
-protected:
-    int     m_fldType;      ///< Native database data type
-    int     m_fldColumn;    ///< Field column number in recordset
-    int     m_fldSize;      ///< Field size
-    int     m_fldScale;     ///< Field scale, optional, for floating point fields
+
+class COracleConnection;
+
+class COracleStatement
+: public CDatabaseStatement<COracleConnection,oracle::occi::Statement>
+{
+public:
+    typedef oracle::occi::Connection    Connection; ///< Oracle connection type
+    typedef oracle::occi::Statement     Statement;  ///< Oracle statement type
+    typedef oracle::occi::ResultSet     ResultSet;  ///< Oracle result set type
+    typedef oracle::occi::MetaData      MetaData;   ///< Oracle result set metdata type
+private:
+    Statement*          m_createClobStatement;      ///< Statement for creating CLOBs
+    Statement*          m_createBlobStatement;      ///< Statement for creating BLOBs
+    ResultSet*          m_resultSet;                ///< Result set (if returned by statement)
+
+    /// @brief Sets character data to a CLOB parameter
+    /// @param parameterIndex uint32_t, Parameter index
+    /// @param data unsigned char*, Character data buffer
+    /// @param dataSize uint32_t, Character data size
+    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+
+    /// @brief Sets binary data to a BLOB parameter
+    /// @param parameterIndex uint32_t, Parameter index
+    /// @param data unsigned char*, Binary data buffer
+    /// @param dataSize uint32_t, Binary data size
+    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
 public:
+    /// @brief Constructor
+    /// @param connection Connection*, Oracle connection
+    /// @param sql std::string, SQL statement
+    COracleStatement(COracleConnection* connection, std::string sql);
 
-    /// Constructor
-    /// @param fieldName std::string, field name
-    /// @param fieldColumn int, field column number
-    /// @param fieldType int, database field type
-    /// @param dataType CVariantType, variant data type
-    /// @param fieldLength int, database field length
-    /// @param fieldScale int, database field scale
-    CDatabaseField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale = 4);
+    /// @brief Destructor
+    virtual ~COracleStatement();
 
-    std::string     displayName;    ///< Column display name
-    std::string     displayFormat;  ///< Column display format
-    int             alignment;      ///< Column alignment
-    bool            visible;        ///< Is column visible?
+    /// @brief Sets actual parameter values for the statement execution
+    void setParameterValues();
 
-    /// @brief Checks the internal buffer size
-    ///
-    /// The internal buffer is automatically extended to fit the required size of data
-    /// @param sz uint32_t, data size (in bytes)
-    /// @returns true if success
-    bool checkSize(uint32_t sz);
+    /// @brief Executes statement
+    /// @param inTransaction bool, True if statement is executed from transaction
+    void execute(bool inTransaction);
 
-    /// @brief Sets the internal data size
-    ///
-    /// The internal buffer is not modified, only the data size is set.
-    /// @param sz uint32_t, data size (in bytes)
+    /// @brief Executes statement in bulk mode
+    /// @param inTransaction bool, True if statement is executed from transaction
+    /// @param lastIteration bool, True if bulk operation is completed (all iterations added)
+    void execBulk(bool inTransaction, bool lastIteration);
 
-    void setDataSize(uint32_t sz)
+    /// @brief Closes statement and releases allocated resources
+    void close();
+
+    /// @brief Fetches next record
+    void fetch()
     {
-        dataSize(sz);
+        if (m_resultSet) {
+            m_state.eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
+        }
     }
 
-    /// Reports field column number
-
-    int fieldColumn() const
+    /// @brief Returns result set (if returned by a statement)
+    ResultSet* resultSet()
     {
-        return m_fldColumn;
-    }
-
-    /// Reports database field type
-
-    int fieldType() const
-    {
-        return m_fldType;
-    }
-
-    /// Reports field size
-
-    uint32_t fieldSize() const
-    {
-        return (uint32_t) m_fldSize;
+        return m_resultSet;
     }
 };
-/// @}
+
 }
+
 #endif

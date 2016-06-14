@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        COracleConnection.h - description                     ║
+║                        OracleConnection.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,15 +26,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CORACLECONNECTION_H__
-#define __CORACLECONNECTION_H__
+#ifndef __SPTK_ORACLECONNECTION_H__
+#define __SPTK_ORACLECONNECTION_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/db/DatabaseConnection.h>
 
 #if HAVE_ORACLE == 1
 
-#include <sptk5/db/COracleStatement.h>
-#include <sptk5/db/COracleEnvironment.h>
+#include <sptk5/db/OracleStatement.h>
+#include <sptk5/db/OracleEnvironment.h>
 
 namespace sptk
 {
@@ -42,7 +42,7 @@ namespace sptk
 /// @addtogroup Database Database Support
 /// @{
 
-class CQuery;
+class Query;
 class COracleStatement;
 
 /// @brief Oracle database
@@ -50,7 +50,7 @@ class COracleStatement;
 /// COracleConnection is thread-safe connection to Oracle database.
 class SP_EXPORT COracleConnection: public CDatabaseConnection
 {
-    friend class CQuery;
+    friend class Query;
     friend class COracleStatement;
 
 public:
@@ -89,17 +89,17 @@ protected:
     virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by CQuery
-    virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an Oracle statement
-    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an Oracle statement
-    virtual void queryCloseStmt(CQuery *query);      ///< Closes an Oracle statement
-    virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(CQuery *query);        ///< Executes a statement
-    virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
-    virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
+    virtual void queryAllocStmt(Query *query);      ///< Allocates an Oracle statement
+    virtual void queryFreeStmt(Query *query);       ///< Deallocates an Oracle statement
+    virtual void queryCloseStmt(Query *query);      ///< Closes an Oracle statement
+    virtual void queryPrepare(Query *query);        ///< Prepares a query if supported by database
+    virtual void queryUnprepare(Query *query);      ///< Unprepares a query if supported by database
+    virtual void queryExecute(Query *query);        ///< Executes a statement
+    virtual int  queryColCount(Query *query);       ///< Counts columns of the dataset (if any) returned by query
+    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
+    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
+    virtual void queryFetch(Query *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
     /// @brief Returns parameter mark
     ///

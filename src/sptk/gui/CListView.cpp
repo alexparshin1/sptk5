@@ -38,7 +38,7 @@
 #include <math.h>
 #include <ctype.h>
 
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/CException.h>
 #include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
@@ -1083,9 +1083,9 @@ void CListView::key_changed(unsigned index)
 
 // loading the key value in data entry dialog
 
-void CListView::load(CQuery *loadQuery)
+void CListView::load(Query *loadQuery)
 {
-    CQuery& query = *loadQuery;
+    Query& query = *loadQuery;
     if (!m_fieldName.length())
         return;
     Field& fld = query[m_fieldName.c_str()];
@@ -1094,7 +1094,7 @@ void CListView::load(CQuery *loadQuery)
 
 // storing the key value in data entry dialog
 
-void CListView::save(CQuery *updateQuery)
+void CListView::save(Query *updateQuery)
 {
     if (!m_fieldName.length())
         return;

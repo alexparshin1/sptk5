@@ -44,8 +44,8 @@ using namespace sptk;
 int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(&db, "DELETE FROM " + tableName);
-        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName);
+        Query step5Query(&db, "DELETE FROM " + tableName);
+        Query step6Query(&db, "SELECT count(*) FROM " + tableName);
 
         cout << "\n        Begining the transaction ..";
         db.beginTransaction();
@@ -119,10 +119,10 @@ int main(int argc, const char* argv[])
 
         // Defining the queries
         string tableName = "test_table";
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
-        CQuery step4Query(db, "DROP TABLE " + tableName);
+        Query step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
+        Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
+        Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
+        Query step4Query(db, "DROP TABLE " + tableName);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {

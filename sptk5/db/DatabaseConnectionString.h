@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CDatabaseConnectionString.h - description             ║
+║                        DatabaseConnectionString.h - description              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATABASECONNECTIONSTRING_H__
-#define __CDATABASECONNECTIONSTRING_H__
+#ifndef __SPTK_DATABASECONNECTIONSTRING_H__
+#define __SPTK_DATABASECONNECTIONSTRING_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>

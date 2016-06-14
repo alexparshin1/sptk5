@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/COracleConnection.h>
-#include <sptk5/db/CDatabaseField.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/OracleConnection.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/Query.h>
 #include "COracleBulkInsertQuery.h"
 
 #include <sptk5/RegularExpression.h>
@@ -52,7 +52,7 @@ COracleConnection::~COracleConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery *query = (CQuery *) m_queryList[0];
+                Query *query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -94,7 +94,7 @@ void COracleConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
-            CQuery *query = (CQuery *) m_queryList[i];
+            Query *query = (Query *) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
@@ -164,20 +164,20 @@ void COracleConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-string COracleConnection::queryError(const CQuery *query) const
+string COracleConnection::queryError(const Query *query) const
 {
     return m_lastError;
 }
 
 // Doesn't actually allocate stmt, but makes sure
 // the previously allocated stmt is released
-void COracleConnection::queryAllocStmt(CQuery *query)
+void COracleConnection::queryAllocStmt(Query *query)
 {
     queryFreeStmt(query);
     querySetStmt(query, new COracleStatement(this, query->sql()));
 }
 
-void COracleConnection::queryFreeStmt(CQuery *query)
+void COracleConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     COracleStatement* statement = (COracleStatement*) query->statement();
@@ -188,7 +188,7 @@ void COracleConnection::queryFreeStmt(CQuery *query)
     }
 }
 
-void COracleConnection::queryCloseStmt(CQuery *query)
+void COracleConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     COracleStatement* statement = (COracleStatement*) query->statement();
@@ -196,7 +196,7 @@ void COracleConnection::queryCloseStmt(CQuery *query)
         statement->close();
 }
 
-void COracleConnection::queryPrepare(CQuery *query)
+void COracleConnection::queryPrepare(Query *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -226,12 +226,12 @@ void COracleConnection::queryPrepare(CQuery *query)
     querySetPrepared(query, true);
 }
 
-void COracleConnection::queryUnprepare(CQuery *query)
+void COracleConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-int COracleConnection::queryColCount(CQuery *query)
+int COracleConnection::queryColCount(Query *query)
 {
     COracleStatement* statement = (COracleStatement*) query->statement();
     if (!statement)
@@ -239,7 +239,7 @@ int COracleConnection::queryColCount(CQuery *query)
     return (int) statement->colCount();
 }
 
-void COracleConnection::queryBindParameters(CQuery *query)
+void COracleConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -313,7 +313,7 @@ Type COracleConnection::VariantTypeToOracleType(VariantType dataType)
     }
 }
 
-void COracleConnection::queryExecute(CQuery *query)
+void COracleConnection::queryExecute(Query *query)
 {
     try {
         COracleStatement* statement = (COracleStatement*) query->statement();
@@ -331,7 +331,7 @@ void COracleConnection::queryExecute(CQuery *query)
     }
 }
 
-void COracleConnection::queryOpen(CQuery *query)
+void COracleConnection::queryOpen(Query *query)
 {
     if (!active())
         open();
@@ -390,7 +390,7 @@ void COracleConnection::queryOpen(CQuery *query)
     queryFetch(query);
 }
 
-void COracleConnection::queryFetch(CQuery *query)
+void COracleConnection::queryFetch(Query *query)
 {
     if (!query->active())
         query->logAndThrow("COracleConnection::queryFetch", "Dataset isn't open");
@@ -526,7 +526,7 @@ void COracleConnection::objectList(CDbObjectType objectType, Strings& objects) T
         objectsSQL = "SELECT view_name FROM user_views";
         break;
     }
-    CQuery query(this, objectsSQL);
+    Query query(this, objectsSQL);
     query.open();
     while (!query.eof()) {
         objects.push_back(query[uint32_t(0)].asString());
@@ -537,7 +537,7 @@ void COracleConnection::objectList(CDbObjectType objectType, Strings& objects) T
 
 void COracleConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
-    CQuery tableColumnsQuery(this,
+    Query tableColumnsQuery(this,
                         "SELECT column_name, data_type, data_length "
                         "FROM user_tab_columns "
                         "WHERE table_name = :table_name");
@@ -651,7 +651,7 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
         statements.push_back(statement);
 
     for (string stmt: statements) {
-        CQuery query(this, stmt, false);
+        Query query(this, stmt, false);
         //cout << "[ " << statement << " ]" << endl;
         query.exec();
     }

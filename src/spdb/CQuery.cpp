@@ -26,17 +26,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
 
-int CQuery::nextObjectIndex = 0;
+int Query::nextObjectIndex = 0;
 
 static const char cantAllocateStmt[] = "Can't allocate statement";
 
-void CQuery::allocStmt()
+void Query::allocStmt()
 {
     if (!m_db) {
         logText("Error in CQuery::allocStmt(): " + string(cantAllocateStmt));
@@ -45,7 +45,7 @@ void CQuery::allocStmt()
     m_db->queryAllocStmt(this);
 }
 
-void CQuery::freeStmt()
+void Query::freeStmt()
 {
     if (m_db && m_statement) {
         m_db->queryFreeStmt(this);
@@ -54,7 +54,7 @@ void CQuery::freeStmt()
     }
 }
 
-void CQuery::closeStmt()
+void Query::closeStmt()
 {
     if (m_db && m_statement) {
         m_db->queryCloseStmt(this);
@@ -62,7 +62,7 @@ void CQuery::closeStmt()
     }
 }
 
-void CQuery::prepare()
+void Query::prepare()
 {
     if (!m_autoPrepare)
         throw DatabaseException("Can't prepare this statement");
@@ -74,7 +74,7 @@ void CQuery::prepare()
     }
 }
 
-void CQuery::unprepare()
+void Query::unprepare()
 {
     if (!m_prepared)
         return;
@@ -85,7 +85,7 @@ void CQuery::unprepare()
     }
 }
 
-void CQuery::execute()
+void Query::execute()
 {
     if (m_db && m_statement) {
         m_messages.clear();
@@ -93,26 +93,26 @@ void CQuery::execute()
     }
 }
 
-int CQuery::countCols()
+int Query::countCols()
 {
     if (m_db && m_statement)
         return m_db->queryColCount(this);
     return 0;
 }
 
-void CQuery::colAttributes(int16_t column, int16_t descType, int32_t& value)
+void Query::colAttributes(int16_t column, int16_t descType, int32_t& value)
 {
     if (m_db && m_statement)
         m_db->queryColAttributes(this, column, descType, value);
 }
 
-void CQuery::colAttributes(int16_t column, int16_t descType, char* buff, int32_t len)
+void Query::colAttributes(int16_t column, int16_t descType, char* buff, int32_t len)
 {
     if (m_db && m_statement)
         m_db->queryColAttributes(this, column, descType, buff, len);
 }
 
-string CQuery::getError() const
+string Query::getError() const
 {
     if (m_db && m_statement)
         return m_db->queryError(this);
@@ -120,7 +120,7 @@ string CQuery::getError() const
 }
 
 //==============================================================================
-CQuery::CQuery(CDatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(CDatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
         :
         DataSource(), m_fields(true), m_bulkMode(false)
 {
@@ -145,7 +145,7 @@ CQuery::CQuery(CDatabaseConnection* _db, string _sql, bool autoPrepare, const ch
     sql(_sql);
 }
 
-CQuery::CQuery(const CQuery& srcQuery)
+Query::Query(const Query& srcQuery)
         :
         DataSource(), m_fields(true)
 {
@@ -172,7 +172,7 @@ CQuery::CQuery(const CQuery& srcQuery)
     sql(srcQuery.m_sql);
 }
 
-CQuery::~CQuery()
+Query::~Query()
 {
     try {
         closeQuery(true);
@@ -182,7 +182,7 @@ CQuery::~CQuery()
         m_db->unlinkQuery(this);
 }
 
-void CQuery::sql(string _sql)
+void Query::sql(string _sql)
 {
     // Looking up for SQL parameters
     char delimitters[] = "':";
@@ -268,7 +268,7 @@ void CQuery::sql(string _sql)
     }
 }
 
-bool CQuery::open() THROWS_EXCEPTIONS
+bool Query::open() THROWS_EXCEPTIONS
 {
     if (!m_db)
         throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
@@ -298,7 +298,7 @@ bool CQuery::open() THROWS_EXCEPTIONS
     return true;
 }
 
-void CQuery::fetch() THROWS_EXCEPTIONS
+void Query::fetch() THROWS_EXCEPTIONS
 {
     m_fields.rewind();
     if (!m_db || !m_active) {
@@ -309,7 +309,7 @@ void CQuery::fetch() THROWS_EXCEPTIONS
     m_db->queryFetch(this);
 }
 
-void CQuery::closeQuery(bool releaseStatement)
+void Query::closeQuery(bool releaseStatement)
 {
     m_active = false;
     m_eof = true;
@@ -325,7 +325,7 @@ void CQuery::closeQuery(bool releaseStatement)
     //m_fields.clear();
 }
 
-void CQuery::connect(CDatabaseConnection* _db)
+void Query::connect(CDatabaseConnection* _db)
 {
     if (m_db == _db)
         return;
@@ -334,7 +334,7 @@ void CQuery::connect(CDatabaseConnection* _db)
     m_db->linkQuery(this);
 }
 
-void CQuery::disconnect()
+void Query::disconnect()
 {
     closeQuery(true);
     if (m_db)
@@ -342,24 +342,24 @@ void CQuery::disconnect()
     m_db = NULL;
 }
 
-bool CQuery::readField(const char*, Variant&)
+bool Query::readField(const char*, Variant&)
 {
     //fvalue = m_fields[fname];
     return true;
 }
 
-bool CQuery::writeField(const char*, const Variant&)
+bool Query::writeField(const char*, const Variant&)
 {
     //m_fields[fname] = fvalue;
     return true;
 }
 
-void CQuery::notImplemented(string functionName) const
+void Query::notImplemented(string functionName) const
 {
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
-void CQuery::logText(std::string text, const LogPriority& priority)
+void Query::logText(std::string text, const LogPriority& priority)
 {
     if (!m_db)
         return;
@@ -372,7 +372,7 @@ void CQuery::logText(std::string text, const LogPriority& priority)
     }
 }
 
-void CQuery::logAndThrow(string method, string error) THROWS_EXCEPTIONS
+void Query::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, LP_ERROR);

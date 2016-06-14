@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CTransaction.h>
+#include <sptk5/db/Transaction.h>
 
 using namespace std;
 using namespace sptk;

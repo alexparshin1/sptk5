@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CODBCConnection.h - description                       ║
+║                        FirebirdConnection.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,41 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CODBCCONNECTION_H__
-#define __CODBCCONNECTION_H__
+#ifndef __SPTK_FIREBIRDCONNECTION_H__
+#define __SPTK_FIREBIRDCONNECTION_H__
 
-#include <sptk5/sptk.h>
+#include <sptk5/db/DatabaseConnection.h>
 
-#if HAVE_ODBC == 1
+#if HAVE_FIREBIRD == 1
 
-#include <sptk5/db/CODBC.h>
-#include <sptk5/db/CDatabaseConnection.h>
+#include <ibase.h>
 
-namespace sptk {
+namespace sptk
+{
 
 /// @addtogroup Database Database Support
 /// @{
 
-class CODBCConnection;
 class CQuery;
+class CFirebirdStatement;
 
-/// @brief ODBC database
-///
-/// CODBCConnection is thread-safe connection to ODBC database.
-class SP_DRIVER_EXPORT CODBCConnection: public CDatabaseConnection
+/// @brief Firebird database connection
+class SP_EXPORT CFirebirdConnection: public CDatabaseConnection
 {
     friend class CQuery;
-
-private:
-
-    ODBCConnection *m_connect;   ///< The ODBC connection object
-
-    /// @brief Retrieves an error (if any) after statement was executed
-    /// @param stmt SQLHSTMT, the statement that had an error
-    std::string queryError(SQLHSTMT stmt) const;
+    friend class CFirebirdStatement;
 
 protected:
-
+    
+    isc_db_handle   m_connection;               ///< Database connection handle
+    isc_tr_handle   m_transaction;              ///< Database transaction handle
+    std::string     m_lastStatus;               ///< Connection status on last checkStatus
+    
+    void checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS;
+    
     /// @brief Begins the transaction
     virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
@@ -70,41 +67,50 @@ protected:
 
     // These methods implement the actions requested by CQuery
     virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(CQuery *query);     ///< Allocates an ODBC statement
-    virtual void queryFreeStmt(CQuery *query);      ///< Deallocates an ODBC statement
-    virtual void queryCloseStmt(CQuery *query);     ///< Closes an ODBC statement
-    virtual void queryPrepare(CQuery *query);       ///< Prepares a query if supported by database
-    virtual void queryUnprepare(CQuery *query);     ///< Unprepares a query if supported by database
-    virtual void queryExecute(CQuery *query);       ///< Executes a statement
-    virtual int queryColCount(CQuery *query);      ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryColAttributes(CQuery *query, int16_t column, int16_t descType, int32_t& value); ///< In a dataset returned by a query, retrieves the column attributes
-    virtual void queryColAttributes(CQuery *query, int16_t column, int16_t descType, char *buff, int len); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an Firebird statement
+    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an Firebird statement
+    virtual void queryCloseStmt(CQuery *query);      ///< Closes an Firebird statement
+    virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
+    virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
+    virtual void queryExecute(CQuery *query);        ///< Executes a statement
+    virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
     virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
     virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(CQuery *query); ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
-    static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType); ///< Converts the native ODBC type into SPTK data type
+    /// @brief Returns parameter mark
+    ///
+    /// Parameter mark is generated from the parameterIndex.
+    /// @param paramIndex unsigned, parameter index in SQL starting from 0
+    virtual std::string paramMark(unsigned paramIndex);
 
-    /// Returns the ODBC connection object
-    ODBCConnection *connection()
+public:
+    /// @brief Returns the Firebird connection object
+    isc_db_handle connection()
     {
-        return m_connect;
+        return m_connection;
     }
+
+    isc_stmt_handle* createStatement(std::string sql);
+
+    isc_stmt_handle* createStatement();
 
 public:
 
     /// @brief Constructor
-    /// @param connectionString std::string, the ODBC connection string
-    CODBCConnection(std::string connectionString = "");
+    ///
+    /// Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
+    /// For more information please refer to:
+    /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
+    /// If the connection string is empty then default database with the name equal to user name is used.
+    /// @param connectionString std::string, the Firebird connection string
+    CFirebirdConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CODBCConnection();
-
-    /// @brief Returns driver-specific connection string
-    virtual std::string nativeConnectionString() const;
+    virtual ~CFirebirdConnection();
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the ODBC connection string
+    /// @param connectionString std::string, the Firebird connection string
     virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
@@ -116,10 +122,10 @@ public:
     /// @brief Returns the database connection handle
     virtual void* handle() const;
 
-    /// @brief Returns the ODBC connection string for the active connection
-    virtual std::string connectString() const;
+    /// @brief Returns driver-specific connection string
+    virtual std::string nativeConnectionString() const;
 
-    /// @brief Returns the ODBC driver description for the active connection
+    /// @brief Returns the Firebird driver description for the active connection
     virtual std::string driverDescription() const;
 
     /// @brief Lists database objects
@@ -128,14 +134,14 @@ public:
     virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 };
 
-
 /// @}
 }
+
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  odbc_destroy_connection(void* connection);
+    SP_DRIVER_EXPORT void* firebird_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  firebird_destroy_connection(void* connection);
 }
 
 #endif

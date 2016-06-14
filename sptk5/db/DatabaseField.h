@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CTransaction.h - description                          ║
+║                        DatabaseField.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,47 +26,89 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTRANSACTION_H__
-#define __CTRANSACTION_H__
+#ifndef __SPTK_DATABASEFIELD_H__
+#define __SPTK_DATABASEFIELD_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/Exception.h>
+#include <sptk5/sptk.h>
+
+#include <sptk5/Variant.h>
+#include <sptk5/Strings.h>
+#include <sptk5/Field.h>
 
 namespace sptk {
 
 /// @addtogroup Database Database Support
 /// @{
 
-/// @brief Database Transaction.
+class Query;
+class CDatabase;
+
+/// @brief database field
 ///
-/// Allows to begin, commit, and rollback the transaction automatically.
-/// If the transaction object is deleted w/o commiting or rolling back
-/// the transaction, it rolls back the transaction (if active)
-class SP_EXPORT CTransaction
+/// A special variation of CField to support database field essentials
+
+class SP_EXPORT CDatabaseField : public Field
 {
-    bool                m_active;   ///< Transaction activity
-    CDatabaseConnection*    m_db;       ///< Database to work with
+    friend class Query;
+    friend class CDatabase;
+protected:
+    int     m_fldType;      ///< Native database data type
+    int     m_fldColumn;    ///< Field column number in recordset
+    int     m_fldSize;      ///< Field size
+    int     m_fldScale;     ///< Field scale, optional, for floating point fields
+
 public:
+
     /// Constructor
-    /// @param db CDatabaseConnection&, the database to work with
-    CTransaction(CDatabaseConnection& db);
+    /// @param fieldName std::string, field name
+    /// @param fieldColumn int, field column number
+    /// @param fieldType int, database field type
+    /// @param dataType CVariantType, variant data type
+    /// @param fieldLength int, database field length
+    /// @param fieldScale int, database field scale
+    CDatabaseField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale = 4);
 
-    /// Destructor
-    ~CTransaction();
+    std::string     displayName;    ///< Column display name
+    std::string     displayFormat;  ///< Column display format
+    int             alignment;      ///< Column alignment
+    bool            visible;        ///< Is column visible?
 
-    /// Begins the transaction
-    void begin();
+    /// @brief Checks the internal buffer size
+    ///
+    /// The internal buffer is automatically extended to fit the required size of data
+    /// @param sz uint32_t, data size (in bytes)
+    /// @returns true if success
+    bool checkSize(uint32_t sz);
 
-    /// Commits the transaction
-    void commit();
+    /// @brief Sets the internal data size
+    ///
+    /// The internal buffer is not modified, only the data size is set.
+    /// @param sz uint32_t, data size (in bytes)
 
-    /// Rolls back the transaction
-    void rollback();
-
-    /// Is transaction active?
-    bool active() const
+    void setDataSize(uint32_t sz)
     {
-        return m_active;
+        dataSize(sz);
+    }
+
+    /// Reports field column number
+
+    int fieldColumn() const
+    {
+        return m_fldColumn;
+    }
+
+    /// Reports database field type
+
+    int fieldType() const
+    {
+        return m_fldType;
+    }
+
+    /// Reports field size
+
+    uint32_t fieldSize() const
+    {
+        return (uint32_t) m_fldSize;
     }
 };
 /// @}

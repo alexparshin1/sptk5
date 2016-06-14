@@ -30,7 +30,7 @@
 #define __DBLISTVIEW_H__
 
 #include <sptk5/gui/CListView.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/DateTime.h>
 
 namespace sptk {
@@ -42,9 +42,9 @@ namespace sptk {
 class SP_EXPORT CDBListView : public CListView
 {
 protected:
-    CQuery      m_fullRefreshQuery;  ///< Full refersh Query
-    CQuery      m_fastRefreshQuery;  ///< Fast refersh Query
-    CQuery      m_recordCountQuery;  ///< Record count Query
+    Query      m_fullRefreshQuery;  ///< Full refersh Query
+    Query      m_fastRefreshQuery;  ///< Fast refersh Query
+    Query      m_recordCountQuery;  ///< Record count Query
     std::string m_keyField;          ///< Key field name
     bool        m_fastRefreshEnabed; ///< True if fast refresh is defined properly
     DateTime   m_lastRefresh;       ///< Last refresh date and time

@@ -512,10 +512,10 @@ public:
 protected:
 
     /// @brief Loads the key value from the query
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves the key value from the query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///

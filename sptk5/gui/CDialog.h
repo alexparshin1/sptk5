@@ -44,7 +44,7 @@ class Fl_Group;
 
 namespace sptk {
 
-class CQuery;
+class Query;
 class CDatabaseConnection;
 class CButton;
 class CControl;
@@ -109,9 +109,9 @@ protected:
     CControlList    m_allFields;          ///< The list of all controls (CControl-descendants)
     CGroup*         m_buttonGroup;        ///< The group buttons are placed on.
     CDialogTabs*    m_pages;              ///< The tabs
-    CQuery*         m_selectQuery;        ///< Database interface: The query to select a database record
-    CQuery*         m_updateQuery;        ///< Database interface: The query to update a database record
-    CQuery*         m_insertQuery;        ///< Database interface: The query to insert a new database record
+    Query*         m_selectQuery;        ///< Database interface: The query to select a database record
+    Query*         m_updateQuery;        ///< Database interface: The query to update a database record
+    Query*         m_insertQuery;        ///< Database interface: The query to insert a new database record
     bool            m_queriesBuilt;       ///< Database interface: The flag indicating if queries are created from available controls.
     bool            m_controlsScanned;     ///< Database interface: The flag indicating if available controls were scanned for field names.
     CControlList    m_specialProcessingControls; ///< Database interface: The list of the controls to exclude from standard database queries.

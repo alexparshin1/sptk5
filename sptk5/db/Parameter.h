@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CParam.h - description                                ║
+║                        Parameter.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPARAM_H__
-#define __CPARAM_H__
+#ifndef __SPTK_PARAMETER_H__
+#define __SPTK_PARAMETER_H__
 
-#include <sptk5/db/CParamBinding.h>
+#include <sptk5/db/ParameterBinding.h>
 #include <sptk5/IntList.h>
 
 namespace sptk
@@ -43,7 +43,7 @@ class CParamList;
 /// Automatically handles most of the data conversions on assignments.
 class SP_EXPORT CParam : public Variant
 {
-    friend class CQuery;
+    friend class Query;
     friend class CParamList;
 
 protected:

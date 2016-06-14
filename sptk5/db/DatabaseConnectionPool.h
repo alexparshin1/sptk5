@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CDatabaseConnectionPool.h - description               ║
+║                        DatabaseConnectionPool.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,11 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATABASECONNECTIONLOADER_H__
-#define __CDATABASECONNECTIONLOADER_H__
+#ifndef __SPTK_DATABASECONNECTIONLOADER_H__
+#define __SPTK_DATABASECONNECTIONLOADER_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CDatabaseConnectionString.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/threads/CSynchronizedList.h>
 #include <sptk5/threads/CSynchronizedQueue.h>

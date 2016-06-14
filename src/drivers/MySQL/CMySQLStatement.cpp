@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CMySQLConnection.h>
+#include <sptk5/db/MySQLConnection.h>
 #include <sptk5/FieldList.h>
 
 using namespace std;

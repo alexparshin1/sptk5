@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CParamList.h>
+#include <sptk5/db/ParameterList.h>
 
 using namespace std;
 using namespace sptk;

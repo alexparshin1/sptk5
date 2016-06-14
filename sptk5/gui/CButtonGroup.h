@@ -116,12 +116,12 @@ public:
     /// @brief Loads the the currently selected button(s)
     ///
     /// Buttons should be presented as pipe ('|') separated string.
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves the the currently selected button(s)
     ///
     /// Buttons are presented as pipe ('|') separated string
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///

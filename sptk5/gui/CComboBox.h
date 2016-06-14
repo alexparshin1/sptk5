@@ -32,8 +32,8 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CDBListView.h>
 
@@ -77,10 +77,10 @@ protected:
     virtual void dropDownList();
 
     /// @brief Loads data from the Query
-    void load(CQuery *);
+    void load(Query *);
 
     /// @brief Saves data to the Query
-    void save(CQuery *);
+    void save(Query *);
 
     /// @brief Loads control data from XML
     ///

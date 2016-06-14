@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CDatabaseConnectionString.h>
+#include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/Strings.h>
 
 using namespace std;

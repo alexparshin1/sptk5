@@ -35,8 +35,8 @@
 #include <stdio.h>
 #include <sptk5/CException.h>
 #include <sptk5/Registry.h>
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CMessageDialog.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CTabs.h>
@@ -75,9 +75,9 @@ CDialog::CDialog(int w, int h, const char *label) :
     fl_cursor(FL_CURSOR_WAIT);
     Fl::check();
 
-    m_selectQuery = new CQuery;
-    m_updateQuery = new CQuery;
-    m_insertQuery = new CQuery;
+    m_selectQuery = new Query;
+    m_updateQuery = new Query;
+    m_insertQuery = new Query;
 
     m_buttonGroup = new CGroup("", 20, SP_ALIGN_BOTTOM);
     m_okButton = new CButton(SP_OK_BUTTON);
@@ -330,7 +330,7 @@ bool CDialog::save()
     if (!database())
         return true;
     buildQueries();
-    CQuery *query = m_insertQuery;
+    Query *query = m_insertQuery;
 
     if (m_keyValue > 0) {
         query = m_updateQuery;

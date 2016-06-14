@@ -37,8 +37,8 @@
 #include <FL/Fl_Button.H>
 #include <sptk5/IntList.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
 
@@ -114,7 +114,7 @@ public:
     virtual void textSize(uchar s);
 
     /// @brief Saves data to query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Computes the optimal widget size
     /// @param w int&, input - width offered by the program, output - width required by widget

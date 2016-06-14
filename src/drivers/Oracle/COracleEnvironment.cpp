@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/COracleEnvironment.h>
+#include <sptk5/db/OracleEnvironment.h>
 
 using namespace std;
 using namespace sptk;

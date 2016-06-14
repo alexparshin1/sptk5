@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CFirebirdStatement.h - description                    ║
+║                        FirebirdStatement.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFIREBIRDSTATEMENT_H__
-#define __CFIREBIRDSTATEMENT_H__
+#ifndef __SPTK_FIREBIRDSTATEMENT_H__
+#define __SPTK_FIREBIRDSTATEMENT_H__
 
 #include <ibase.h>
 
@@ -36,8 +36,8 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include <sptk5/db/CDatabaseField.h>
-#include <sptk5/db/CDatabaseStatement.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/DatabaseStatement.h>
 
 namespace sptk
 {

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CConnectionParameters.h - description                 ║
+║                        MySQLEnvironment.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,33 +26,55 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATABASECONNECTIONPARAMETERS_H__
-#define __CDATABASECONNECTIONPARAMETERS_H__
+#ifndef __SPTK_MYSQLENVIRONMENT_H__
+#define __SPTK_MYSQLENVIRONMENT_H__
 
-#include <sptk5/sptk.h>
+#include <sptk5/db/CDatabaseConnection.h>
 
-#include <map>
+#if HAVE_ORACLE == 1
 
-namespace sptk {
+#include <occi.h>
+
+namespace sptk
+{
 
 /// @addtogroup Database Database Support
 /// @{
 
-/// @brief Database connection parameters
+/// @brief MySQL Environment
 ///
-/// Converts database connection string to string-string map.
-class SP_EXPORT CDatabaseConnectionParameters: public std::map<std::string,std::string>
+/// Allows creating and terminating connections
+class CMySQLEnvironment
 {
-
+    MYSQL* m_handle;
 public:
-
     /// @brief Constructor
-    /// @param connectionString std::string, the connection string
-    CDatabaseConnectionParameters(std::string connectionString);
+    CMySQLEnvironment();
 
-    /// @brief Returns connection string in format of name=value pairs
-    std::string toString(const char* delimiter=" ") const;
+    /// @brief Destructor
+    ~CMySQLEnvironment();
+
+    /// @brief Returns environment handle
+    MYSQL* handle() const
+    {
+        return m_handle;
+    }
+
+    /// @brief Returns client version
+    std::string clientVersion() const;
+
+    /// @brief Creates new database connection
+    /// @param connectionString CDatabaseConnectionString&, Connection parameters
+    MYSQL* createConnection(CDatabaseConnectionString& connectionString);
+
+    /// @brief Terminates database connection
+    /// @param connection oracle::occi::Connection*, MySQL connection
+    void terminateConnection(oracle::occi::Connection*);
 };
+
 /// @}
 }
+
+#endif
+
 #endif

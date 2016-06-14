@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CParamBinding.h>
+#include <sptk5/db/ParameterBinding.h>
 //#include <sptk5/string_ext.h>
 
 using namespace std;

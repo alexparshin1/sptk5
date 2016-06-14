@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CMySQLConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/MySQLConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/RegularExpression.h>
 
 using namespace std;
@@ -48,7 +48,7 @@ CMySQLConnection::~CMySQLConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery *query = (CQuery *) m_queryList[0];
+                Query *query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -103,7 +103,7 @@ void CMySQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
-            CQuery *query = (CQuery *) m_queryList[i];
+            Query *query = (Query *) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
@@ -173,18 +173,18 @@ void CMySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-string CMySQLConnection::queryError(const CQuery *) const
+string CMySQLConnection::queryError(const Query *) const
 {
     return mysql_error(m_connection);
 }
 
-void CMySQLConnection::queryAllocStmt(CQuery *query)
+void CMySQLConnection::queryAllocStmt(Query *query)
 {
     queryFreeStmt(query);
     querySetStmt(query, new CMySQLStatement(this, query->sql(), query->autoPrepare()));
 }
 
-void CMySQLConnection::queryFreeStmt(CQuery *query)
+void CMySQLConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
@@ -195,7 +195,7 @@ void CMySQLConnection::queryFreeStmt(CQuery *query)
     }
 }
 
-void CMySQLConnection::queryCloseStmt(CQuery *query)
+void CMySQLConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     try {
@@ -208,7 +208,7 @@ void CMySQLConnection::queryCloseStmt(CQuery *query)
     }
 }
 
-void CMySQLConnection::queryPrepare(CQuery *query)
+void CMySQLConnection::queryPrepare(Query *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -225,12 +225,12 @@ void CMySQLConnection::queryPrepare(CQuery *query)
     }
 }
 
-void CMySQLConnection::queryUnprepare(CQuery *query)
+void CMySQLConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-int CMySQLConnection::queryColCount(CQuery *query)
+int CMySQLConnection::queryColCount(Query *query)
 {
     int colCount = 0;
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
@@ -245,7 +245,7 @@ int CMySQLConnection::queryColCount(CQuery *query)
     return colCount;
 }
 
-void CMySQLConnection::queryBindParameters(CQuery *query)
+void CMySQLConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -260,7 +260,7 @@ void CMySQLConnection::queryBindParameters(CQuery *query)
     }
 }
 
-void CMySQLConnection::queryExecute(CQuery *query)
+void CMySQLConnection::queryExecute(Query *query)
 {
     CMySQLStatement* statement = (CMySQLStatement*) query->statement();
     try {
@@ -273,7 +273,7 @@ void CMySQLConnection::queryExecute(CQuery *query)
     }
 }
 
-void CMySQLConnection::queryOpen(CQuery *query)
+void CMySQLConnection::queryOpen(Query *query)
 {
     if (!active())
         open();
@@ -309,7 +309,7 @@ void CMySQLConnection::queryOpen(CQuery *query)
     queryFetch(query);
 }
 
-void CMySQLConnection::queryFetch(CQuery *query)
+void CMySQLConnection::queryFetch(Query *query)
 {
     if (!query->active())
         query->logAndThrow("CMySQLConnection::queryFetch", "Dataset isn't open");
@@ -355,7 +355,7 @@ void CMySQLConnection::objectList(CDbObjectType objectType, Strings& objects) TH
             "FROM information_schema.views";
         break;
     }
-    CQuery query(this, objectsSQL);
+    Query query(this, objectsSQL);
     try {
         query.open();
         while (!query.eof()) {
@@ -418,7 +418,7 @@ void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
         statements.push_back(statement);
 
     for (string stmt: statements) {
-        CQuery query(this, stmt, false);
+        Query query(this, stmt, false);
         query.exec();
     }
 }

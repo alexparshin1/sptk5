@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CFirebirdConnection.h>
+#include <sptk5/db/FirebirdConnection.h>
 #include <sptk5/db/CFirebirdStatement.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/Buffer.h>

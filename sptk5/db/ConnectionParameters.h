@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        COracleEnvironment.h - description                    ║
+║                        ConnectionParameters.h - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,55 +26,33 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CORACLEENVIRONMENT_H__
-#define __CORACLEENVIRONMENT_H__
+#ifndef __SPTK_DATABASECONNECTIONPARAMETERS_H__
+#define __SPTK_DATABASECONNECTIONPARAMETERS_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/sptk.h>
 
-#if HAVE_ORACLE == 1
+#include <map>
 
-#include <occi.h>
-
-namespace sptk
-{
+namespace sptk {
 
 /// @addtogroup Database Database Support
 /// @{
 
-/// @brief Oracle Environment
+/// @brief Database connection parameters
 ///
-/// Allows creating and terminating connections
-class COracleEnvironment
+/// Converts database connection string to string-string map.
+class SP_EXPORT CDatabaseConnectionParameters: public std::map<std::string,std::string>
 {
-    oracle::occi::Environment* m_handle;
+
 public:
+
     /// @brief Constructor
-    COracleEnvironment();
+    /// @param connectionString std::string, the connection string
+    CDatabaseConnectionParameters(std::string connectionString);
 
-    /// @brief Destructor
-    ~COracleEnvironment();
-
-    /// @brief Returns environment handle
-    oracle::occi::Environment* handle() const
-    {
-        return m_handle;
-    }
-
-    /// @brief Returns client version
-    std::string clientVersion() const;
-
-    /// @brief Creates new database connection
-    /// @param connectionString CDatabaseConnectionString&, Connection parameters
-    oracle::occi::Connection* createConnection(CDatabaseConnectionString& connectionString);
-
-    /// @brief Terminates database connection
-    /// @param connection oracle::occi::Connection*, Oracle connection
-    void terminateConnection(oracle::occi::Connection* connection);
+    /// @brief Returns connection string in format of name=value pairs
+    std::string toString(const char* delimiter=" ") const;
 };
-
 /// @}
 }
-
-#endif
-
 #endif

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CODBC.h - description                                 ║
+║                        ODBCEnvironment.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CODBC_H__
-#define __CODBC_H__
+#ifndef __SPTK_ODBCENV_H__
+#define __SPTK_ODBCENV_H__
 
 #include <sptk5/sptk.h>
 
@@ -47,7 +47,7 @@
 #include <sqlext.h>
 #include <assert.h>
 
-#include <sptk5/db/CParamList.h>
+#include <sptk5/db/ParameterList.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 
 namespace sptk

@@ -57,7 +57,7 @@ CLayoutClient* CFloatInput::creator(XMLNode *node) {
     return widget;
 }
 
-void CFloatInput::save(CQuery *updateQuery) {
+void CFloatInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
     CParam& param = updateQuery->param(m_fieldName.c_str());

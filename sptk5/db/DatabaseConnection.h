@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CDatabaseConnection.h - description                   ║
+║                        DatabaseConnection.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CDATABASECONNECTION_H__
-#define __CDATABASECONNECTION_H__
+#ifndef __SPTK_DATABASECONNECTION_H__
+#define __SPTK_DATABASECONNECTION_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
-#include <sptk5/db/CDatabaseConnectionString.h>
+#include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 #include <sptk5/Variant.h>
 #include <sptk5/Logger.h>
@@ -43,7 +43,7 @@ namespace sptk {
 /// @addtogroup Database Database Support
 /// @{
 
-class CQuery;
+class Query;
 
 /// @brief Types of the objects for CDatabaseConnection::listObjects method
 enum CDbObjectType
@@ -72,8 +72,8 @@ typedef std::map<std::string,CColumnTypeSize> CColumnTypeSizeMap;
 /// as a base class for actual database driver classes.
 class SP_EXPORT CDatabaseConnection: public CSynchronized
 {
-    typedef std::vector<CQuery*> CQueryVector;
-    friend class CQuery;
+    typedef std::vector<Query*> CQueryVector;
+    friend class Query;
 
 public:
     /// @brief Database connection type
@@ -97,35 +97,35 @@ protected:
     std::string                 m_objectName;     ///< Object name for logs and error messages
 
     /// @brief Attaches (links) query to the database
-    bool linkQuery(CQuery *q);
+    bool linkQuery(Query *q);
 
     /// @brief Unlinks query from the database
-    bool unlinkQuery(CQuery *q);
+    bool unlinkQuery(Query *q);
 
 protected:
     // These methods get access to CQuery's protected members
-    void querySetAutoPrep(CQuery *q, bool pf);       ///< Sets internal CQuery m_autoPrepare flag
-    void querySetStmt(CQuery *q, void *stmt);        ///< Sets internal CQuery statement handle
-    void querySetConn(CQuery *q, void *conn);        ///< Sets internal CQuery connection handle
-    void querySetPrepared(CQuery *q, bool pf);       ///< Sets internal CQuery m_prepared flag
-    void querySetActive(CQuery *q, bool af);         ///< Sets internal CQuery m_active flag
-    void querySetEof(CQuery *q, bool eof);           ///< Sets internal CQuery m_eof flag
+    void querySetAutoPrep(Query *q, bool pf);       ///< Sets internal CQuery m_autoPrepare flag
+    void querySetStmt(Query *q, void *stmt);        ///< Sets internal CQuery statement handle
+    void querySetConn(Query *q, void *conn);        ///< Sets internal CQuery connection handle
+    void querySetPrepared(Query *q, bool pf);       ///< Sets internal CQuery m_prepared flag
+    void querySetActive(Query *q, bool af);         ///< Sets internal CQuery m_active flag
+    void querySetEof(Query *q, bool eof);           ///< Sets internal CQuery m_eof flag
 
     // These methods implement the actions requested by CQuery
-    virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an ODBC statement
-    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an ODBC statement
-    virtual void queryCloseStmt(CQuery *query);      ///< Closes an ODBC statement
-    virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(CQuery *query);        ///< Executes a statement
-    virtual void queryExecDirect(CQuery *query) {}   ///< Executes unprepared statement
-    virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryColAttributes(CQuery *query, int16_t column, int16_t descType, int32_t& value); ///< In a dataset returned by a query, retrieves the column attributes
-    virtual void queryColAttributes(CQuery *query, int16_t column, int16_t descType, char *buff, int len); ///< In a dataset returned by a query, retrieves the column attributes
-    virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
-    virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
+    virtual void queryAllocStmt(Query *query);      ///< Allocates an ODBC statement
+    virtual void queryFreeStmt(Query *query);       ///< Deallocates an ODBC statement
+    virtual void queryCloseStmt(Query *query);      ///< Closes an ODBC statement
+    virtual void queryPrepare(Query *query);        ///< Prepares a query if supported by database
+    virtual void queryUnprepare(Query *query);      ///< Unprepares a query if supported by database
+    virtual void queryExecute(Query *query);        ///< Executes a statement
+    virtual void queryExecDirect(Query *query) {}   ///< Executes unprepared statement
+    virtual int  queryColCount(Query *query);       ///< Counts columns of the dataset (if any) returned by query
+    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, int32_t& value); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, char *buff, int len); ///< In a dataset returned by a query, retrieves the column attributes
+    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
+    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
+    virtual void queryFetch(Query *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
     /// @brief Returns parameter mark
     ///
@@ -149,8 +149,8 @@ protected:
     /// called method isn't implemented in the derived class
     void notImplemented(const char *methodName) const;
 
-    void *queryHandle(CQuery *query) const;          ///< Retrieves internal query handle
-    void queryHandle(CQuery *query, void *handle);    ///< Sets internal query handle
+    void *queryHandle(Query *query) const;          ///< Retrieves internal query handle
+    void queryHandle(Query *query, void *handle);    ///< Sets internal query handle
 
     /// @brief Opens the database connection.
     ///

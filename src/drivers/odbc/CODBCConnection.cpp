@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CODBCConnection.h>
-#include <sptk5/db/CQuery.h>
-#include <sptk5/db/CDatabaseField.h>
+#include <sptk5/db/ODBCConnection.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/db/DatabaseField.h>
 
 using namespace std;
 using namespace sptk;
@@ -71,7 +71,7 @@ CODBCConnection::~CODBCConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery* query = (CQuery*) m_queryList[0];
+                Query* query = (Query*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -190,12 +190,12 @@ string CODBCConnection::queryError(SQLHSTMT stmt) const
     return string(removeDriverIdentification((char*) errorDescription));
 }
 
-string CODBCConnection::queryError(const CQuery* query) const
+string CODBCConnection::queryError(const Query* query) const
 {
     return queryError(query->statement());
 }
 
-void CODBCConnection::queryAllocStmt(CQuery* query)
+void CODBCConnection::queryAllocStmt(Query* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -215,7 +215,7 @@ void CODBCConnection::queryAllocStmt(CQuery* query)
     querySetStmt(query, stmt);
 }
 
-void CODBCConnection::queryFreeStmt(CQuery* query)
+void CODBCConnection::queryFreeStmt(Query* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -224,14 +224,14 @@ void CODBCConnection::queryFreeStmt(CQuery* query)
     querySetPrepared(query, false);
 }
 
-void CODBCConnection::queryCloseStmt(CQuery* query)
+void CODBCConnection::queryCloseStmt(Query* query)
 {
     CSynchronizedCode lock(m_connect);
 
     SQLFreeStmt(query->statement(), SQL_CLOSE);
 }
 
-void CODBCConnection::queryPrepare(CQuery* query)
+void CODBCConnection::queryPrepare(Query* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -241,13 +241,13 @@ void CODBCConnection::queryPrepare(CQuery* query)
         query->logAndThrow("CODBCConnection::queryPrepare", queryError(query));
 }
 
-void CODBCConnection::queryUnprepare(CQuery* query)
+void CODBCConnection::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
     query->fields().clear();
 }
 
-void CODBCConnection::queryExecute(CQuery* query)
+void CODBCConnection::queryExecute(Query* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -283,7 +283,7 @@ void CODBCConnection::queryExecute(CQuery* query)
         query->logAndThrow("CODBCConnection::queryExecute", queryError(query));
 }
 
-int CODBCConnection::queryColCount(CQuery* query)
+int CODBCConnection::queryColCount(Query* query)
 {
     CSynchronizedCode lock(m_connect);
 
@@ -294,7 +294,7 @@ int CODBCConnection::queryColCount(CQuery* query)
     return count;
 }
 
-void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t descType, int32_t& value)
+void CODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
     CSynchronizedCode lock(m_connect);
     SQLLEN result;
@@ -304,7 +304,7 @@ void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t 
     value = (int32_t) result;
 }
 
-void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t descType, LPSTR buff, int len)
+void CODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, LPSTR buff, int len)
 {
     int16_t available;
     if (!buff || len <= 0)
@@ -316,7 +316,7 @@ void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t 
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
 }
 
-void CODBCConnection::queryBindParameters(CQuery* query)
+void CODBCConnection::queryBindParameters(Query* query)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
@@ -497,7 +497,7 @@ void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantT
     }
 }
 
-void CODBCConnection::queryOpen(CQuery* query)
+void CODBCConnection::queryOpen(Query* query)
 {
     if (!active())
         open();
@@ -579,7 +579,7 @@ static uint32_t trimField(char* s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-void CODBCConnection::queryFetch(CQuery* query)
+void CODBCConnection::queryFetch(Query* query)
 {
     if (!query->active())
         query->logAndThrow("CODBCConnection::queryFetch", "Dataset isn't open");

@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CFirebirdConnection.h>
+#include <sptk5/db/FirebirdConnection.h>
 #include <sptk5/db/CFirebirdStatement.h>
-#include <sptk5/db/CDatabaseField.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/Query.h>
 
 #include <string>
 #include <stdio.h>
@@ -52,7 +52,7 @@ CFirebirdConnection::~CFirebirdConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery *query = (CQuery *) m_queryList[0];
+                Query *query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -122,7 +122,7 @@ void CFirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
 
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
-            CQuery *query = (CQuery *) m_queryList[i];
+            Query *query = (Query *) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
@@ -198,18 +198,18 @@ void CFirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-string CFirebirdConnection::queryError(const CQuery *) const
+string CFirebirdConnection::queryError(const Query *) const
 {
     return m_lastStatus;
 }
 
-void CFirebirdConnection::queryAllocStmt(CQuery *query)
+void CFirebirdConnection::queryAllocStmt(Query *query)
 {
     queryFreeStmt(query);
     querySetStmt(query, new CFirebirdStatement(this, query->sql()));
 }
 
-void CFirebirdConnection::queryFreeStmt(CQuery *query)
+void CFirebirdConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
@@ -220,7 +220,7 @@ void CFirebirdConnection::queryFreeStmt(CQuery *query)
     }
 }
 
-void CFirebirdConnection::queryCloseStmt(CQuery *query)
+void CFirebirdConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     try {
@@ -233,7 +233,7 @@ void CFirebirdConnection::queryCloseStmt(CQuery *query)
     }
 }
 
-void CFirebirdConnection::queryPrepare(CQuery *query)
+void CFirebirdConnection::queryPrepare(Query *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -250,12 +250,12 @@ void CFirebirdConnection::queryPrepare(CQuery *query)
     }
 }
 
-void CFirebirdConnection::queryUnprepare(CQuery *query)
+void CFirebirdConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-int CFirebirdConnection::queryColCount(CQuery *query)
+int CFirebirdConnection::queryColCount(Query *query)
 {
     int colCount = 0;
     CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
@@ -268,7 +268,7 @@ int CFirebirdConnection::queryColCount(CQuery *query)
     return colCount;
 }
 
-void CFirebirdConnection::queryBindParameters(CQuery *query)
+void CFirebirdConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
@@ -283,7 +283,7 @@ void CFirebirdConnection::queryBindParameters(CQuery *query)
     }
 }
 
-void CFirebirdConnection::queryExecute(CQuery *query)
+void CFirebirdConnection::queryExecute(Query *query)
 {
     CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
     try {
@@ -296,7 +296,7 @@ void CFirebirdConnection::queryExecute(CQuery *query)
     }
 }
 
-void CFirebirdConnection::queryOpen(CQuery *query)
+void CFirebirdConnection::queryOpen(Query *query)
 {
     if (!active())
         open();
@@ -332,7 +332,7 @@ void CFirebirdConnection::queryOpen(CQuery *query)
     queryFetch(query);
 }
 
-void CFirebirdConnection::queryFetch(CQuery *query)
+void CFirebirdConnection::queryFetch(Query *query)
 {
     if (!query->active())
         query->logAndThrow("CFirebirdConnection::queryFetch", "Dataset isn't open");
@@ -383,7 +383,7 @@ void CFirebirdConnection::objectList(CDbObjectType objectType, Strings& objects)
             "ORDER BY 1";
         break;
     }
-    CQuery query(this, objectsSQL);
+    Query query(this, objectsSQL);
     try {
         query.open();
         while (!query.eof()) {

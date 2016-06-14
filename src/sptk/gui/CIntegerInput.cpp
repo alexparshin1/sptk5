@@ -56,7 +56,7 @@ CLayoutClient* CIntegerInput::creator(XMLNode *node) {
     return widget;
 }
 
-void CIntegerInput::save(CQuery *updateQuery) {
+void CIntegerInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
     CParam& param = updateQuery->param(m_fieldName.c_str());

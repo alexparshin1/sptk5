@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        COracleStatement.h - description                      ║
+║                        MySQLStatement.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,84 +26,101 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CORACLESTATEMENT_H__
-#define __CORACLESTATEMENT_H__
+#ifndef __SPTK_MYSQLSTATEMENT_H__
+#define __SPTK_MYSQLSTATEMENT_H__
 
-#include <occi.h>
+#include <mysql.h>
 
 #include <list>
 #include <string>
 #include <stdio.h>
 
-#include <sptk5/db/CDatabaseStatement.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/DatabaseStatement.h>
 
 namespace sptk
 {
 
-class COracleConnection;
+class CMySQLConnection;
 
-class COracleStatement
-: public CDatabaseStatement<COracleConnection,oracle::occi::Statement>
+class CMySQLStatement : public CDatabaseStatement<CMySQLConnection,MYSQL_STMT>
 {
+    std::string                     m_sql;
+    std::vector<MYSQL_BIND>         m_paramBuffers;
+    std::vector<unsigned long>      m_paramLengths;
+    std::vector<MYSQL_BIND>         m_fieldBuffers;
+
+    MYSQL_RES*                      m_result;
+    MYSQL_ROW                       m_row;
+
+    /// @brief Reads not prepared statement result row to query fields
+    /// @param fields CFieldList&, query fields (if any)
+    void readUnpreparedResultRow(FieldList& fields);
+
+    /// @brief Reads prepared statement result row to query fields
+    /// @param fields CFieldList&, query fields (if any)
+    void readPreparedResultRow(FieldList& fields);
+    
 public:
-    typedef oracle::occi::Connection    Connection; ///< Oracle connection type
-    typedef oracle::occi::Statement     Statement;  ///< Oracle statement type
-    typedef oracle::occi::ResultSet     ResultSet;  ///< Oracle result set type
-    typedef oracle::occi::MetaData      MetaData;   ///< Oracle result set metdata type
-private:
-    Statement*          m_createClobStatement;      ///< Statement for creating CLOBs
-    Statement*          m_createBlobStatement;      ///< Statement for creating BLOBs
-    ResultSet*          m_resultSet;                ///< Result set (if returned by statement)
 
-    /// @brief Sets character data to a CLOB parameter
-    /// @param parameterIndex uint32_t, Parameter index
-    /// @param data unsigned char*, Character data buffer
-    /// @param dataSize uint32_t, Character data size
-    void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+    /// @brief Translates MySQL native type to CVariant type
+    /// @param mysqlType enum_field_types, MySQL native type
+    /// @returns CVariant type
+    static VariantType mySQLTypeToVariantType(enum_field_types mysqlType);
 
-    /// @brief Sets binary data to a BLOB parameter
-    /// @param parameterIndex uint32_t, Parameter index
-    /// @param data unsigned char*, Binary data buffer
-    /// @param dataSize uint32_t, Binary data size
-    void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
+    /// @brief Translates CVariant type to MySQL native type
+    /// @param dataType CVariantType&, CVariant type
+    /// @returns MySQL native type
+    static enum_field_types variantTypeToMySQLType(VariantType dataType);
+
+    /// @brief Translates CDateTime to MySQL time
+    /// @param mysqlDate MYSQL_TIME&, MySQL time
+    /// @param timestamp CDateTime, Timestamp
+    /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
+    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
+
+    /// @brief Translates MySQL time to CDateTime
+    /// @param timestamp CDateTime&, Timestamp
+    /// @param mysqlDate const MYSQL_TIME&, MySQL time
+    static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
 
 public:
     /// @brief Constructor
-    /// @param connection Connection*, Oracle connection
+    /// @param connection Connection*, MySQL connection
     /// @param sql std::string, SQL statement
-    COracleStatement(COracleConnection* connection, std::string sql);
+    /// @param autoPrepare bool, If true then statement is executed as prepared.
+    CMySQLStatement(CMySQLConnection* connection, std::string sql, bool autoPrepare);
 
     /// @brief Destructor
-    virtual ~COracleStatement();
+    virtual ~CMySQLStatement();
+
+    /// @brief Generates normalized list of parameters
+    /// @param queryParams CParamList&, Standard query parameters
+    void enumerateParams(CParamList& queryParams);
 
     /// @brief Sets actual parameter values for the statement execution
     void setParameterValues();
 
-    /// @brief Executes statement
-    /// @param inTransaction bool, True if statement is executed from transaction
-    void execute(bool inTransaction);
+    /// @brief Prepares MySQL statement
+    /// @param sql const std::string, statement SQL
+    void prepare(const std::string& sql);
 
-    /// @brief Executes statement in bulk mode
-    /// @param inTransaction bool, True if statement is executed from transaction
-    /// @param lastIteration bool, True if bulk operation is completed (all iterations added)
-    void execBulk(bool inTransaction, bool lastIteration);
+    /// @brief Executes statement
+    void execute(bool);
+
+    /// @brief Binds statement result metadata to query fields
+    /// @param fields CFieldList&, query fields (if any)
+    void bindResult(FieldList& fields);
+
+    /// @brief Fetches statement result metadata to query fields
+    /// @param fields CFieldList&, query fields (if any)
+    void readResultRow(FieldList& fields);
 
     /// @brief Closes statement and releases allocated resources
     void close();
 
     /// @brief Fetches next record
-    void fetch()
-    {
-        if (m_resultSet) {
-            m_state.eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
-        }
-    }
-
-    /// @brief Returns result set (if returned by a statement)
-    ResultSet* resultSet()
-    {
-        return m_resultSet;
-    }
+    void fetch();
 };
 
 }

@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/COracleConnection.h>
+#include <sptk5/db/OracleConnection.h>
 
 using namespace std;
 using namespace sptk;

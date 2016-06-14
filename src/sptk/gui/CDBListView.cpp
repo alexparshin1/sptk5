@@ -121,7 +121,7 @@ void CDBListView::refreshData(CRefreshKind refreshKind) {
       m_recordCountQuery.close();
    }
 
-   CQuery *query = &m_fullRefreshQuery;
+   Query *query = &m_fullRefreshQuery;
    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
       query = &m_fastRefreshQuery;
    else  refreshKind = LV_REFRESH_FULL;

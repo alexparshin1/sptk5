@@ -27,7 +27,7 @@
 */
 
 #include <stdlib.h>
-#include <sptk5/db/CDatabaseField.h>
+#include <sptk5/db/DatabaseField.h>
 
 using namespace std;
 using namespace sptk;

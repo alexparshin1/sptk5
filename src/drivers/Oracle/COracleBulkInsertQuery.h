@@ -29,8 +29,8 @@
 #ifndef __CORACLEBULKINSERTQUERY_H__
 #define __CORACLEBULKINSERTQUERY_H__
 
-#include <sptk5/db/CQuery.h>
-#include <sptk5/db/COracleConnection.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/db/OracleConnection.h>
 #include <sptk5/Exception.h>
 
 namespace sptk {
@@ -41,7 +41,7 @@ namespace sptk {
 /// @brief Oracle bulk insert query
 ///
 /// This class is dedicated for internal use only
-class SP_EXPORT COracleBulkInsertQuery : public CQuery
+class SP_EXPORT COracleBulkInsertQuery : public Query
 {
     friend class COracleConnection;
 

@@ -28,9 +28,9 @@
 #ifndef __CDATABASE__
 #define __CDATABASE__
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CDatabaseConnectionPool.h>
-#include <sptk5/db/CQuery.h>
-#include <sptk5/db/CTransaction.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/db/Transaction.h>
 
 #endif

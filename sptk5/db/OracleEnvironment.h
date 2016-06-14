@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CQueryGuard.h - description                           ║
+║                        OracleEnvironment.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,95 +26,55 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CQUERYGARD_H__
-#define __CQUERYGARD_H__
+#ifndef __SPTK_ORACLEENVIRONMENT_H__
+#define __SPTK_ORACLEENVIRONMENT_H__
 
-#include <sptk5/cdatabase>
+#include <sptk5/db/DatabaseConnection.h>
 
-namespace sptk {
+#if HAVE_ORACLE == 1
 
-    /// @addtogroup Database Database Support
-    /// @{
+#include <occi.h>
 
-    /// @brief Service class to use with CQuery
-    ///
-    /// Manages the external CQuery object to make sure that it's automatically closed when it leaves the scope.
+namespace sptk
+{
 
-    class CQueryGuard {
-        sptk::CQuery& m_query; ///< Wrapped query object
-    public:
-        /// @brief Constructor
-        /// @param query sptk::CQuery, query to manage
+/// @addtogroup Database Database Support
+/// @{
 
-        CQueryGuard(sptk::CQuery& query) : m_query(query) {
-        }
+/// @brief Oracle Environment
+///
+/// Allows creating and terminating connections
+class COracleEnvironment
+{
+    oracle::occi::Environment* m_handle;
+public:
+    /// @brief Constructor
+    COracleEnvironment();
 
-        /// @brief Destructor
+    /// @brief Destructor
+    ~COracleEnvironment();
 
-        ~CQueryGuard() {
-            m_query.close();
-        }
+    /// @brief Returns environment handle
+    oracle::occi::Environment* handle() const
+    {
+        return m_handle;
+    }
 
-        /// @brief Opens managed query object
+    /// @brief Returns client version
+    std::string clientVersion() const;
 
-        void open() {
-            m_query.open();
-        }
+    /// @brief Creates new database connection
+    /// @param connectionString CDatabaseConnectionString&, Connection parameters
+    oracle::occi::Connection* createConnection(CDatabaseConnectionString& connectionString);
 
-        /// @brief Executes managed query object
+    /// @brief Terminates database connection
+    /// @param connection oracle::occi::Connection*, Oracle connection
+    void terminateConnection(oracle::occi::Connection* connection);
+};
 
-        void exec() {
-            m_query.exec();
-        }
-
-        /// @brief Fetches next data row from the managed query object
-
-        void fetch() {
-            m_query.fetch();
-        }
-
-        /// @brief Returns true if there is no more data rows to read
-
-        bool eof() const {
-            return m_query.eof();
-        }
-
-        /// @brief Allows to set query parameter by name
-        /// @param paramName const char*, parameter name
-
-        sptk::CParam& param(const char* paramName) {
-            return m_query.param(paramName);
-        }
-
-        /// @brief Allows to set query parameter by parameter index
-        /// @param paramIndex uint32_t, parameter index
-
-        sptk::CParam& param(uint32_t paramIndex) {
-            return m_query.param(paramIndex);
-        }
-
-        /// @brief Returns query field by the field name
-        /// @param fieldName const char*, field name
-
-        sptk::CField & operator [] (const char* fieldName) {
-            return m_query[fieldName];
-        }
-
-        /// @brief Returns query field by field index
-        /// @param fieldIndex uint32_t, field index
-
-        sptk::CField & operator [] (uint32_t fieldIndex) {
-            return m_query[fieldIndex];
-        }
-
-        /// @brief Returns managed query object
-
-        operator sptk::CQuery& () {
-            return m_query;
-        }
-    };
-
-    /// @}
+/// @}
 }
+
+#endif
 
 #endif

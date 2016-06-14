@@ -152,10 +152,10 @@ public:
     virtual void     data(const Variant v);
 
     /// @brief Data connection isn't implemented yet
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Data connection isn't implemented yet
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads the the widget from XML node
     ///

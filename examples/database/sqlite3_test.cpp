@@ -32,7 +32,7 @@
 #endif
 
 #include <sptk5/cdatabase>
-#include <sptk5/db/CSQLite3Connection.h>
+#include <sptk5/db/SQLite3Connection.h>
 
 #include <iostream>
 #include <iomanip>
@@ -43,8 +43,8 @@ using namespace sptk;
 int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(db, "DELETE FROM " + tableName);
-        CQuery step6Query(db, "SELECT count(*) FROM " + tableName);
+        Query step5Query(db, "DELETE FROM " + tableName);
+        Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
         cout << endl << "        Begining the transaction ..";
         db->beginTransaction();
@@ -91,10 +91,10 @@ int main()
             cout << "  Table: " << tableList[i] << endl;
 
         // Defining the queries
-        CQuery step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(db, "SELECT * FROM test WHERE id > :some_id");
-        CQuery step4Query(db, "DROP TABLE test");
+        Query step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
+        Query step2Query(db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
+        Query step3Query(db, "SELECT * FROM test WHERE id > :some_id");
+        Query step4Query(db, "DROP TABLE test");
 
         cout << "Ok.\nStep 1: Creating the table.. ";
         step1Query.exec();

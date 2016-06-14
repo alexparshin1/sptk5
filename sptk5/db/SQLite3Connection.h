@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CFirebirdConnection.h - description                   ║
+║                        SQLite3Connection.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,38 +26,39 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CFIREBIRDCONNECTION_H__
-#define __CFIREBIRDCONNECTION_H__
+#ifndef __SPTK_SQLITE3CONNECTION_H__
+#define __SPTK_SQLITE3CONNECTION_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/sptk.h>
+#include <sptk5/sptk.h>
 
-#if HAVE_FIREBIRD == 1
+#if HAVE_SQLITE3 == 1
 
-#include <ibase.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sqlite3.h>
 
-namespace sptk
-{
-
+namespace sptk {
 /// @addtogroup Database Database Support
 /// @{
 
-class CQuery;
-class CFirebirdStatement;
+class Query;
 
-/// @brief Firebird database connection
-class SP_EXPORT CFirebirdConnection: public CDatabaseConnection
+/// @brief SQLite3 database
+///
+/// CSQLite3Connection is thread-safe connection to SQLite3 database.
+class SP_EXPORT CSQLite3Connection: public CDatabaseConnection
 {
-    friend class CQuery;
-    friend class CFirebirdStatement;
+    friend class Query;
+
+    typedef sqlite3_stmt * SQLHSTMT;
+    typedef sqlite3 * SQLHDBC;
+
+private:
+
+    sqlite3 *m_connect;   ///< The SQLite3 database connection object
 
 protected:
-    
-    isc_db_handle   m_connection;               ///< Database connection handle
-    isc_tr_handle   m_transaction;              ///< Database transaction handle
-    std::string     m_lastStatus;               ///< Connection status on last checkStatus
-    
-    void checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS;
-    
+
     /// @brief Begins the transaction
     virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
@@ -66,51 +67,41 @@ protected:
     virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by CQuery
-    virtual std::string queryError(const CQuery *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(CQuery *query);      ///< Allocates an Firebird statement
-    virtual void queryFreeStmt(CQuery *query);       ///< Deallocates an Firebird statement
-    virtual void queryCloseStmt(CQuery *query);      ///< Closes an Firebird statement
-    virtual void queryPrepare(CQuery *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(CQuery *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(CQuery *query);        ///< Executes a statement
-    virtual int  queryColCount(CQuery *query);       ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryBindParameters(CQuery *query); ///< Binds the parameters to the query
-    virtual void queryOpen(CQuery *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(CQuery *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
+    virtual void queryAllocStmt(Query *query);      ///< Allocates an SQLite3 statement
+    virtual void queryFreeStmt(Query *query);       ///< Deallocates an SQLite3 statement
+    virtual void queryCloseStmt(Query *query);      ///< Closes an SQLite3 statement
+    virtual void queryPrepare(Query *query);        ///< Prepares a query if supported by database
+    virtual void queryUnprepare(Query *query);      ///< Unprepares a query if supported by database
+    virtual void queryExecute(Query *query);        ///< Executes a statement
+    virtual int queryColCount(Query *query);        ///< Counts columns of the dataset (if any) returned by query
+    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
+    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
+    virtual void queryFetch(Query *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
 
-    /// @brief Returns parameter mark
-    ///
-    /// Parameter mark is generated from the parameterIndex.
-    /// @param paramIndex unsigned, parameter index in SQL starting from 0
-    virtual std::string paramMark(unsigned paramIndex);
-
-public:
-    /// @brief Returns the Firebird connection object
-    isc_db_handle connection()
+    /// @brief Returns the SQLite3 connection object
+    sqlite3 *connection()
     {
-        return m_connection;
+        return m_connect;
     }
 
-    isc_stmt_handle* createStatement(std::string sql);
-
-    isc_stmt_handle* createStatement();
+    /// @brief Converts datatype from SQLite type to SPTK CVariantType
+    void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
 
 public:
 
     /// @brief Constructor
-    ///
-    /// Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-    /// For more information please refer to:
-    /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-    /// If the connection string is empty then default database with the name equal to user name is used.
-    /// @param connectionString std::string, the Firebird connection string
-    CFirebirdConnection(std::string connectionString = "");
+    /// @param connectionString std::string, the SQLite3 connection string
+    CSQLite3Connection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CFirebirdConnection();
+    virtual ~CSQLite3Connection();
+
+    /// @brief Returns driver-specific connection string
+    std::string nativeConnectionString() const;
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the Firebird connection string
+    /// @param connectionString std::string, the SQLite3 connection string
     virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
     /// @brief Closes the database connection. If unsuccessful throws an exception.
@@ -122,10 +113,7 @@ public:
     /// @brief Returns the database connection handle
     virtual void* handle() const;
 
-    /// @brief Returns driver-specific connection string
-    virtual std::string nativeConnectionString() const;
-
-    /// @brief Returns the Firebird driver description for the active connection
+    /// @brief Returns the SQLite3 driver description for the active connection
     virtual std::string driverDescription() const;
 
     /// @brief Lists database objects
@@ -140,8 +128,8 @@ public:
 #endif
 
 extern "C" {
-    SP_DRIVER_EXPORT void* firebird_create_connection(const char* connectionString);
-    SP_DRIVER_EXPORT void  firebird_destroy_connection(void* connection);
+    SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
+    SP_DRIVER_EXPORT void  sqlite3_destroy_connection(void* connection);
 }
 
 #endif

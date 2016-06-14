@@ -90,7 +90,7 @@ void CMemoInput::textSize(uchar s) {
     ((CEditor *)m_control)->textsize(s);
 }
 
-void CMemoInput::save(CQuery *updateQuery) {
+void CMemoInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
     CParam& param = updateQuery->param(m_fieldName.c_str());

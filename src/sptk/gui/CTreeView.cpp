@@ -94,13 +94,13 @@ void CTreeView::resize(int x,int y,int w,int h) {
     m_treeControl->resize(x,y,w,h);
 }
 
-void CTreeView::load(CQuery *loadQuery) {
+void CTreeView::load(Query *loadQuery) {
     if (!m_fieldName.length()) return;
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data(fld);
 }
 
-void CTreeView::save(CQuery *updateQuery) {
+void CTreeView::save(Query *updateQuery) {
     if (!m_fieldName.length()) return;
     CParam& param = updateQuery->param(m_fieldName.c_str());
     param = data();

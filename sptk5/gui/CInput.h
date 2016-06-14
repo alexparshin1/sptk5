@@ -145,10 +145,10 @@ class SP_EXPORT CInput : public CControl {
 protected:
 
     /// @brief Loads data from query
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves data to query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CMySQLStatement.h - description                       ║
+║                        DatabaseStatement.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,103 +26,103 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CMYSQLSTATEMENT_H__
-#define __CMYSQLSTATEMENT_H__
+#ifndef __SPTK_DATABASESTATEMENT_H__
+#define __SPTK_DATABASESTATEMENT_H__
 
-#include <mysql.h>
-
-#include <list>
-#include <string>
-#include <stdio.h>
-
-#include <sptk5/db/CDatabaseField.h>
-#include <sptk5/db/CDatabaseStatement.h>
+#include <sptk5/db/ParameterList.h>
 
 namespace sptk
 {
 
-class CMySQLConnection;
-
-class CMySQLStatement : public CDatabaseStatement<CMySQLConnection,MYSQL_STMT>
+/// @brief Template class for database statements for different database drivers
+template <class Connection, class Statement> class CDatabaseStatement
 {
-    std::string                     m_sql;
-    std::vector<MYSQL_BIND>         m_paramBuffers;
-    std::vector<unsigned long>      m_paramLengths;
-    std::vector<MYSQL_BIND>         m_fieldBuffers;
-
-    MYSQL_RES*                      m_result;
-    MYSQL_ROW                       m_row;
-
-    /// @brief Reads not prepared statement result row to query fields
-    /// @param fields CFieldList&, query fields (if any)
-    void readUnpreparedResultRow(FieldList& fields);
-
-    /// @brief Reads prepared statement result row to query fields
-    /// @param fields CFieldList&, query fields (if any)
-    void readPreparedResultRow(FieldList& fields);
-    
-public:
-
-    /// @brief Translates MySQL native type to CVariant type
-    /// @param mysqlType enum_field_types, MySQL native type
-    /// @returns CVariant type
-    static VariantType mySQLTypeToVariantType(enum_field_types mysqlType);
-
-    /// @brief Translates CVariant type to MySQL native type
-    /// @param dataType CVariantType&, CVariant type
-    /// @returns MySQL native type
-    static enum_field_types variantTypeToMySQLType(VariantType dataType);
-
-    /// @brief Translates CDateTime to MySQL time
-    /// @param mysqlDate MYSQL_TIME&, MySQL time
-    /// @param timestamp CDateTime, Timestamp
-    /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
-    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
-
-    /// @brief Translates MySQL time to CDateTime
-    /// @param timestamp CDateTime&, Timestamp
-    /// @param mysqlDate const MYSQL_TIME&, MySQL time
-    static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
+protected:
+    Connection*     m_connection;           ///< DB connection
+    Statement*      m_statement;            ///< Statement
+    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
+    struct
+    {
+        unsigned    columnCount:12;         ///< Number of columns is result set
+        bool        eof:1;                  ///< EOF (end of file) flag
+        bool        transaction:1;          ///< Transaction in progress flag
+        unsigned    outputParameterCount:1; ///< Output parameter count
+    } m_state;                              ///< State flags
 
 public:
     /// @brief Constructor
-    /// @param connection Connection*, MySQL connection
-    /// @param sql std::string, SQL statement
-    /// @param autoPrepare bool, If true then statement is executed as prepared.
-    CMySQLStatement(CMySQLConnection* connection, std::string sql, bool autoPrepare);
+    /// @param connection Connection*, DB connection
+    CDatabaseStatement(Connection* connection)
+    : m_connection(connection)
+    {}
 
     /// @brief Destructor
-    virtual ~CMySQLStatement();
+    virtual ~CDatabaseStatement()
+    {}
+
+    /// @brief Returns current DB statement handle
+    Statement* stmt() const
+    {
+        return m_statement;
+    }
 
     /// @brief Generates normalized list of parameters
     /// @param queryParams CParamList&, Standard query parameters
-    void enumerateParams(CParamList& queryParams);
+    virtual void enumerateParams(CParamList& queryParams)
+    {
+        queryParams.enumerate(m_enumeratedParams);
+        m_state.outputParameterCount = 0;
+
+        CParamVector::iterator
+            itor = m_enumeratedParams.begin(),
+            iend = m_enumeratedParams.end();
+        for (; itor != iend; itor++)
+        {
+            CParam* parameter = *itor;
+            if (parameter->isOutput())
+                m_state.outputParameterCount++;
+        }
+    }
+
+    /// @brief Returns normalized list of parameters
+    CParamVector& enumeratedParams()
+    {
+        return m_enumeratedParams;
+    }
+
+    /// @brief Returns true if statement uses output parameters
+    bool outputParameterCount() const
+    {
+        return m_state.outputParameterCount;
+    }
 
     /// @brief Sets actual parameter values for the statement execution
-    void setParameterValues();
-
-    /// @brief Prepares MySQL statement
-    /// @param sql const std::string, statement SQL
-    void prepare(const std::string& sql);
+    virtual void setParameterValues() = 0;
 
     /// @brief Executes statement
-    void execute(bool);
-
-    /// @brief Binds statement result metadata to query fields
-    /// @param fields CFieldList&, query fields (if any)
-    void bindResult(FieldList& fields);
-
-    /// @brief Fetches statement result metadata to query fields
-    /// @param fields CFieldList&, query fields (if any)
-    void readResultRow(FieldList& fields);
+    /// @param inTransaction bool, True if statement is executed from transaction
+    virtual void execute(bool inTransaction) = 0;
 
     /// @brief Closes statement and releases allocated resources
-    void close();
+    virtual void close() = 0;
 
     /// @brief Fetches next record
-    void fetch();
+    virtual void fetch() = 0;
+
+    /// @brief Returns true if recordset is in EOF state
+    bool eof() const
+    {
+        return m_state.eof;
+    }
+
+    /// @brief Returns recordset number of columns
+    unsigned colCount() const
+    {
+        return m_state.columnCount;
+    }
 };
 
 }
 
 #endif
+

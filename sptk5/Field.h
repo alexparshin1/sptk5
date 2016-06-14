@@ -41,7 +41,7 @@ namespace sptk {
 /// @addtogroup utility Utility Classes
 /// @{
 
-class CQuery;
+class Query;
 
 #include <sptk5/Variant.h>
 

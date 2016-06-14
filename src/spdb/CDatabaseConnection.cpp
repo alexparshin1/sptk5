@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
@@ -45,7 +45,7 @@ CDatabaseConnection::~CDatabaseConnection()
     // is terminated already
     try {
         while (m_queryList.size()) {
-            CQuery *query = (CQuery *) m_queryList[0];
+            Query *query = (Query *) m_queryList[0];
             query->disconnect();
         }
     }
@@ -53,13 +53,13 @@ CDatabaseConnection::~CDatabaseConnection()
     }
 }
 
-bool CDatabaseConnection::linkQuery(CQuery *q)
+bool CDatabaseConnection::linkQuery(Query *q)
 {
     m_queryList.push_back(q);
     return true;
 }
 
-bool CDatabaseConnection::unlinkQuery(CQuery *q)
+bool CDatabaseConnection::unlinkQuery(Query *q)
 {
     CQueryVector::iterator itor = find(m_queryList.begin(), m_queryList.end(), q);
     m_queryList.erase(itor);
@@ -91,7 +91,7 @@ void CDatabaseConnection::close() THROWS_EXCEPTIONS
             m_inTransaction = false;
         }
         for (uint32_t i = 0; i < m_queryList.size(); i++) {
-            CQuery& query = *m_queryList[i];
+            Query& query = *m_queryList[i];
             query.closeQuery(true);
         }
         closeDatabase();
@@ -135,99 +135,99 @@ void CDatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
 
 //-----------------------------------------------------------------------------------------------
 
-string CDatabaseConnection::queryError(const CQuery *) const
+string CDatabaseConnection::queryError(const Query *) const
 {
     notImplemented("queryError");
     return "";
 }
 
-void CDatabaseConnection::querySetAutoPrep(CQuery *q, bool pf)
+void CDatabaseConnection::querySetAutoPrep(Query *q, bool pf)
 {
     q->m_autoPrepare = pf;
 }
 
-void CDatabaseConnection::querySetStmt(CQuery *q, void *stmt)
+void CDatabaseConnection::querySetStmt(Query *q, void *stmt)
 {
     q->m_statement = stmt;
 }
 
-void CDatabaseConnection::querySetConn(CQuery *q, void *conn)
+void CDatabaseConnection::querySetConn(Query *q, void *conn)
 {
     q->m_connection = conn;
 }
 
-void CDatabaseConnection::querySetPrepared(CQuery *q, bool pf)
+void CDatabaseConnection::querySetPrepared(Query *q, bool pf)
 {
     q->m_prepared = pf;
 }
 
-void CDatabaseConnection::querySetActive(CQuery *q, bool af)
+void CDatabaseConnection::querySetActive(Query *q, bool af)
 {
     q->m_active = af;
 }
 
-void CDatabaseConnection::querySetEof(CQuery *q, bool eof)
+void CDatabaseConnection::querySetEof(Query *q, bool eof)
 {
     q->m_eof = eof;
 }
 
-void CDatabaseConnection::queryAllocStmt(CQuery *)
+void CDatabaseConnection::queryAllocStmt(Query *)
 {
     notImplemented("queryAllocStmt");
 }
 
-void CDatabaseConnection::queryFreeStmt(CQuery *)
+void CDatabaseConnection::queryFreeStmt(Query *)
 {
     notImplemented("queryFreeStmt");
 }
 
-void CDatabaseConnection::queryCloseStmt(CQuery *)
+void CDatabaseConnection::queryCloseStmt(Query *)
 {
     notImplemented("queryCloseStmt");
 }
 
-void CDatabaseConnection::queryPrepare(CQuery *)
+void CDatabaseConnection::queryPrepare(Query *)
 {
     notImplemented("queryPrepare");
 }
 
-void CDatabaseConnection::queryUnprepare(CQuery *query)
+void CDatabaseConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-void CDatabaseConnection::queryExecute(CQuery *)
+void CDatabaseConnection::queryExecute(Query *)
 {
     notImplemented("queryExecute");
 }
 
-int CDatabaseConnection::queryColCount(CQuery *)
+int CDatabaseConnection::queryColCount(Query *)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void CDatabaseConnection::queryColAttributes(CQuery *, int16_t, int16_t, int32_t&)
+void CDatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void CDatabaseConnection::queryColAttributes(CQuery *, int16_t, int16_t, char *, int32_t)
+void CDatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void CDatabaseConnection::queryBindParameters(CQuery *)
+void CDatabaseConnection::queryBindParameters(Query *)
 {
     notImplemented("queryBindParameters");
 }
 
-void CDatabaseConnection::queryOpen(CQuery *)
+void CDatabaseConnection::queryOpen(Query *)
 {
     notImplemented("queryOpen");
 }
 
-void CDatabaseConnection::queryFetch(CQuery *)
+void CDatabaseConnection::queryFetch(Query *)
 {
     notImplemented("queryFetch");
 }
@@ -237,12 +237,12 @@ void CDatabaseConnection::notImplemented(const char *methodName) const
     throw DatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
 }
 
-void *CDatabaseConnection::queryHandle(CQuery *query) const
+void *CDatabaseConnection::queryHandle(Query *query) const
 {
     return query->m_statement;
 }
 
-void CDatabaseConnection::queryHandle(CQuery *query, void *handle)
+void CDatabaseConnection::queryHandle(Query *query, void *handle)
 {
     query->m_statement = handle;
 }
@@ -284,7 +284,7 @@ void CDatabaseConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 
 void CDatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
-    CQuery insertQuery(this,
+    Query insertQuery(this,
                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
                        ") VALUES (:" + columnNames.asString(",:") + ")");
     for (Strings::const_iterator row = data.begin(); row != data.end(); row++) {

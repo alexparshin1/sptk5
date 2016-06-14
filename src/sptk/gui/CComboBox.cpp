@@ -297,16 +297,16 @@ bool CBaseListBox::preferredSize(int& w, int& h)
     return false;
 }
 
-void CBaseListBox::load(CQuery *loadQuery)
+void CBaseListBox::load(Query *loadQuery)
 {
-    CQuery& query = *loadQuery;
+    Query& query = *loadQuery;
     if (!fieldName().length())
         return;
     Field& fld = query[fieldName().c_str()];
     data(fld);
 }
 
-void CBaseListBox::save(CQuery *updateQuery)
+void CBaseListBox::save(Query *updateQuery)
 {
     if (!fieldName().length())
         return;

@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sptk5/db/CODBC.h>
+#include <sptk5/db/ODBCEnvironment.h.h>
 
 using namespace std;
 using namespace sptk;

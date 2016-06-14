@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CParamList.h - description                            ║
+║                        ParameterList.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPARAMLIST_H__
-#define __CPARAMLIST_H__
+#ifndef __SPTK_PARAMETERLIST_H__
+#define __SPTK_PARAMETERLIST_H__
 
-#include <sptk5/db/CParam.h>
+#include <sptk5/db/Parameter.h>
 
 #include <vector>
 #include <map>
@@ -53,7 +53,7 @@ typedef std::vector<CParam*> CParamVector;
 /// @see CParam
 class SP_EXPORT CParamList
 {
-    friend class CQuery;
+    friend class Query;
 
     CParamVector                    m_items;                ///< The list of parameters
     std::map<std::string, CParam*>   m_index;               ///< The parameters index

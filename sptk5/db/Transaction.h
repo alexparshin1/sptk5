@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CMySQLEnvironment.h - description                     ║
+║                        Transaction.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,55 +26,49 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CORACLEENVIRONMENT_H__
-#define __CORACLEENVIRONMENT_H__
+#ifndef __SPTK_TRANSACTION_H__
+#define __SPTK_TRANSACTION_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/Exception.h>
 
-#if HAVE_ORACLE == 1
-
-#include <occi.h>
-
-namespace sptk
-{
+namespace sptk {
 
 /// @addtogroup Database Database Support
 /// @{
 
-/// @brief MySQL Environment
+/// @brief Database Transaction.
 ///
-/// Allows creating and terminating connections
-class CMySQLEnvironment
+/// Allows to begin, commit, and rollback the transaction automatically.
+/// If the transaction object is deleted w/o commiting or rolling back
+/// the transaction, it rolls back the transaction (if active)
+class SP_EXPORT CTransaction
 {
-    MYSQL* m_handle;
+    bool                m_active;   ///< Transaction activity
+    CDatabaseConnection*    m_db;       ///< Database to work with
 public:
-    /// @brief Constructor
-    CMySQLEnvironment();
+    /// Constructor
+    /// @param db CDatabaseConnection&, the database to work with
+    CTransaction(CDatabaseConnection& db);
 
-    /// @brief Destructor
-    ~CMySQLEnvironment();
+    /// Destructor
+    ~CTransaction();
 
-    /// @brief Returns environment handle
-    MYSQL* handle() const
+    /// Begins the transaction
+    void begin();
+
+    /// Commits the transaction
+    void commit();
+
+    /// Rolls back the transaction
+    void rollback();
+
+    /// Is transaction active?
+    bool active() const
     {
-        return m_handle;
+        return m_active;
     }
-
-    /// @brief Returns client version
-    std::string clientVersion() const;
-
-    /// @brief Creates new database connection
-    /// @param connectionString CDatabaseConnectionString&, Connection parameters
-    MYSQL* createConnection(CDatabaseConnectionString& connectionString);
-
-    /// @brief Terminates database connection
-    /// @param connection oracle::occi::Connection*, MySQL connection
-    void terminateConnection(oracle::occi::Connection*);
 };
-
 /// @}
 }
-
-#endif
-
 #endif

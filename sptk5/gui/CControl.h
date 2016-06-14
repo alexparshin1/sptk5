@@ -32,7 +32,7 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Menu_Button.H>
 
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CEvent.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/cxml>
@@ -341,12 +341,12 @@ public:
     }
 
     /// @brief Loads control data from query fields
-    virtual void load(CQuery *)
+    virtual void load(Query *)
     {
     }
 
     /// @brief Saves control data to query params
-    virtual void save(CQuery *)
+    virtual void save(Query *)
     {
     }
 

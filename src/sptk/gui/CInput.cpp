@@ -395,7 +395,7 @@ void CInput::textSize(uchar s)
     ((CInput_ *)m_control)->textsize(s);
 }
 
-void CInput::load(CQuery *loadQuery)
+void CInput::load(Query *loadQuery)
 {
     if (!m_fieldName.length())
         return;
@@ -403,7 +403,7 @@ void CInput::load(CQuery *loadQuery)
     data( fld );
 }
 
-void CInput::save(CQuery *updateQuery)
+void CInput::save(Query *updateQuery)
 {
     if (!m_fieldName.length())
         return;
