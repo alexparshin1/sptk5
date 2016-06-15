@@ -45,7 +45,7 @@ class Fl_Group;
 namespace sptk {
 
 class Query;
-class CDatabaseConnection;
+class DatabaseConnection;
 class CButton;
 class CControl;
 class CDlgControls;
@@ -184,11 +184,11 @@ public:
     void defaultButton(CButton *btn);
 
     /// @brief Sets the database connection
-    /// @param db CDatabaseConnection *, the database connection
-    virtual void database(CDatabaseConnection *db);
+    /// @param db DatabaseConnection *, the database connection
+    virtual void database(DatabaseConnection *db);
 
     /// @brief Returns current database connection
-    CDatabaseConnection *database() const;
+    DatabaseConnection *database() const;
 
     /// @brief Defines database table to use
     /// @param tableName std::string, the name of the database table
@@ -201,10 +201,10 @@ public:
     }
 
     /// @brief Fast setup of the database connection
-    /// @param db CDatabaseConnection*, the database connection
+    /// @param db DatabaseConnection*, the database connection
     /// @param tableName std::string, the name of the database table
     /// @param keyFieldName std::string, the name of the key field in the database table
-    void table(CDatabaseConnection*db, std::string tableName, const std::string keyFieldName);
+    void table(DatabaseConnection*db, std::string tableName, const std::string keyFieldName);
 
     /// @brief Sets the key field name for the database table.
     ///

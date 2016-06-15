@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDatabaseConnectionString.cpp - description            ║
+║                       CParamList.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,59 +26,118 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/Strings.h>
+#include <sptk5/db/QueryParameterList.h>
 
 using namespace std;
 using namespace sptk;
 
-static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc", "|");
 
-void CDatabaseConnectionString::parse() THROWS_EXCEPTIONS
+QueryParameterList::QueryParameterList() :
+    m_bindingTypeChanged(true)
 {
-    size_t pos;
-    string connStr(m_connectionString);
+}
 
-    // Find extra parameters
-    pos = connStr.find_first_of("?");
-    if (pos != string::npos) {
-        Strings parameters(connStr.substr(pos + 1),"&");
-        for (Strings::iterator item = parameters.begin(); item != parameters.end(); item++) {
-            Strings pair(*item, "='", Strings::SM_ANYCHAR);
-            if (pair.size() == 2)
-                m_parameters[ pair[0] ] = pair[1];
+QueryParameterList::~QueryParameterList()
+{
+    try {
+        clear();
+    } catch (...) {
+    }
+}
+
+void QueryParameterList::clear()
+{
+    unsigned sz = size();
+
+    for (unsigned i = 0; i < sz; i++) {
+        QueryParameter* item = (QueryParameter*) m_items[i];
+        delete item;
+    }
+
+    m_items.clear();
+    m_index.clear();
+}
+
+void QueryParameterList::add(QueryParameter* item)
+{
+    m_items.push_back(item);
+    m_index[item->name()] = item;
+    item->m_paramList = this;
+}
+
+QueryParameter* QueryParameterList::find(const char* paramName)
+{
+    string pname(paramName);
+    map<string, QueryParameter*>::iterator itor = m_index.find(pname);
+
+    if (itor == m_index.end())
+        return 0;
+
+    return itor->second;
+}
+
+QueryParameter& QueryParameterList::operator[](const char* paramName) const
+{
+    string pname(paramName);
+    map<string, QueryParameter*>::const_iterator itor = m_index.find(pname);
+
+    if (itor == m_index.end())
+        throwException("Invalid parameter name: " + pname);
+
+    return *itor->second;
+}
+
+QueryParameter& QueryParameterList::operator[](const std::string& paramName) const
+{
+    return operator[](paramName.c_str());
+}
+
+QueryParameter& QueryParameterList::operator[](int32_t index) const
+{
+    return *m_items[size_t(index)];
+}
+
+uint32_t QueryParameterList::size() const
+{
+    return (uint32_t) m_items.size();
+}
+
+void QueryParameterList::remove(uint32_t i)
+{
+    CParamVector::iterator itor = m_items.begin() + i;
+    QueryParameter* item = *itor;
+    m_index.erase(item->name());
+    m_items.erase(itor);
+    delete item;
+}
+
+void QueryParameterList::enumerate(CParamVector& params)
+{
+    CParamVector::iterator ptor;
+    IntList::iterator btor;
+    params.resize(m_items.size() * 2);
+
+    if (m_items.empty())
+        return;
+
+    uint32_t maxIndex = 0;
+
+    for (ptor = m_items.begin(); ptor != m_items.end(); ptor++) {
+        QueryParameter* param = *ptor;
+        IntList& bindIndex = param->m_bindParamIndexes;
+
+        for (btor = bindIndex.begin(); btor != bindIndex.end(); btor++) {
+            uint32_t index = *btor;
+
+            if (index >= params.size())
+                params.resize(index + 1);
+
+            params[index] = param;
+
+            if (index > maxIndex)
+                maxIndex = index;
         }
-        connStr.erase(pos);
     }
 
-    pos = connStr.find("://");
-    if (pos != string::npos) {
-        m_driverName = connStr.substr(0, pos);
-        connStr.erase(0, pos + 3);
-        if (driverNames.indexOf(m_driverName) < 0)
-            throwDatabaseException("Driver name is unknown: " + m_connectionString);
-    } else
-        throwDatabaseException("Driver name is missing: " + m_connectionString);
-
-    pos = connStr.find("@");
-    if (pos != string::npos) {
-        Strings usernameAndPassword(connStr.substr(0, pos),":");
-        m_userName = usernameAndPassword[0];
-        if (usernameAndPassword.size() > 1)
-            m_password = usernameAndPassword[1];
-        connStr.erase(0, pos + 1);
-    }
-
-    pos = connStr.find("/");
-    if (pos != string::npos) {
-        m_databaseName = connStr.substr(pos + 1);
-        connStr.erase(pos);
-        if (m_databaseName.find("/") != string::npos)
-            m_databaseName = "/" + m_databaseName;
-    }
-
-    Strings hostAndPort(connStr, ":");
-    m_hostName = hostAndPort[0];
-    if (hostAndPort.size() > 1)
-        m_portNumber = (uint16_t) atoi(hostAndPort[1].c_str());
+    params.resize(maxIndex + 1);
 }

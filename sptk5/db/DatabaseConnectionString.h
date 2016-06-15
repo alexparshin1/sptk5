@@ -52,7 +52,7 @@ namespace sptk
 ///   drivername://username:password\@servername/databasename?timeout=10&reconnect=30
 ///
 /// This class is thread-safe.
-class SP_EXPORT CDatabaseConnectionString
+class SP_EXPORT DatabaseConnectionString
 {
 public:
     /// @brief Connection string parameters
@@ -74,7 +74,7 @@ protected:
 public:
     /// @brief Constructor
     /// @param connectionString std::string, Database connection string
-    CDatabaseConnectionString(std::string connectionString) :
+    DatabaseConnectionString(std::string connectionString) :
         m_connectionString(connectionString),
         m_portNumber(0)
     {
@@ -82,8 +82,8 @@ public:
     }
 
     /// @brief Copy constructor
-    /// @param cs const CDatabaseConnectionString&, Database connection string object to copy from
-    CDatabaseConnectionString(const CDatabaseConnectionString& cs) :
+    /// @param cs const DatabaseConnectionString&, Database connection string object to copy from
+    DatabaseConnectionString(const DatabaseConnectionString& cs) :
         m_connectionString(cs.m_connectionString),
         m_portNumber(0)
     {
@@ -91,8 +91,8 @@ public:
     }
 
     /// @brief Assignment
-    /// @param cs const CDatabaseConnectionString&, Database connection string object to copy from
-    CDatabaseConnectionString& operator = (const CDatabaseConnectionString& cs)
+    /// @param cs const DatabaseConnectionString&, Database connection string object to copy from
+    DatabaseConnectionString& operator = (const DatabaseConnectionString& cs)
     {
         m_connectionString = cs.m_connectionString;
         m_driverName = "";

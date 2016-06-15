@@ -33,7 +33,7 @@
 
 #if HAVE_ODBC == 1
 
-#include <sptk5/db/ODBCEnvironment.h.h>
+#include <sptk5/db/ODBCEnvironment.h>
 #include <sptk5/db/DatabaseConnection.h>
 
 namespace sptk {
@@ -41,19 +41,19 @@ namespace sptk {
 /// @addtogroup Database Database Support
 /// @{
 
-class CODBCConnection;
+class ODBCConnection;
 class Query;
 
 /// @brief ODBC database
 ///
 /// CODBCConnection is thread-safe connection to ODBC database.
-class SP_DRIVER_EXPORT CODBCConnection: public CDatabaseConnection
+class SP_DRIVER_EXPORT ODBCConnection: public DatabaseConnection
 {
     friend class Query;
 
 private:
 
-    ODBCConnection *m_connect;   ///< The ODBC connection object
+    ODBCConnectionBase *m_connect;   ///< The ODBC connection object
 
     /// @brief Retrieves an error (if any) after statement was executed
     /// @param stmt SQLHSTMT, the statement that had an error
@@ -86,7 +86,7 @@ protected:
     static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType); ///< Converts the native ODBC type into SPTK data type
 
     /// Returns the ODBC connection object
-    ODBCConnection *connection()
+    ODBCConnectionBase *connection()
     {
         return m_connect;
     }
@@ -95,10 +95,10 @@ public:
 
     /// @brief Constructor
     /// @param connectionString std::string, the ODBC connection string
-    CODBCConnection(std::string connectionString = "");
+    ODBCConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CODBCConnection();
+    virtual ~ODBCConnection();
 
     /// @brief Returns driver-specific connection string
     virtual std::string nativeConnectionString() const;
@@ -125,7 +125,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 };
 
 

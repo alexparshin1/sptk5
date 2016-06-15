@@ -40,10 +40,10 @@
 namespace sptk
 {
 
-class COracleConnection;
+class OracleConnection;
 
-class COracleStatement
-: public CDatabaseStatement<COracleConnection,oracle::occi::Statement>
+class OracleStatement
+: public DatabaseStatement<OracleConnection,oracle::occi::Statement>
 {
 public:
     typedef oracle::occi::Connection    Connection; ///< Oracle connection type
@@ -71,10 +71,10 @@ public:
     /// @brief Constructor
     /// @param connection Connection*, Oracle connection
     /// @param sql std::string, SQL statement
-    COracleStatement(COracleConnection* connection, std::string sql);
+    OracleStatement(OracleConnection* connection, std::string sql);
 
     /// @brief Destructor
-    virtual ~COracleStatement();
+    virtual ~OracleStatement();
 
     /// @brief Sets actual parameter values for the statement execution
     void setParameterValues();

@@ -86,7 +86,7 @@ void CDateTimeBaseInput::load(Query *loadQuery) {
 void CDateTimeBaseInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return; // no field name - no data saved
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     DateTime dt = dateTimeValue();
     param.setDateTime( dt );
 }

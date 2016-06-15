@@ -46,7 +46,7 @@ class Query;
 /// @brief SQLite3 database
 ///
 /// CSQLite3Connection is thread-safe connection to SQLite3 database.
-class SP_EXPORT CSQLite3Connection: public CDatabaseConnection
+class SP_EXPORT SQLite3Connection: public DatabaseConnection
 {
     friend class Query;
 
@@ -85,17 +85,17 @@ protected:
         return m_connect;
     }
 
-    /// @brief Converts datatype from SQLite type to SPTK CVariantType
+    /// @brief Converts datatype from SQLite type to SPTK VariantType
     void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
 
 public:
 
     /// @brief Constructor
     /// @param connectionString std::string, the SQLite3 connection string
-    CSQLite3Connection(std::string connectionString = "");
+    SQLite3Connection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CSQLite3Connection();
+    virtual ~SQLite3Connection();
 
     /// @brief Returns driver-specific connection string
     std::string nativeConnectionString() const;
@@ -119,7 +119,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 };
 
 /// @}

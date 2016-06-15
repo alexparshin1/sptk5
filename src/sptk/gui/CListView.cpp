@@ -477,7 +477,7 @@ void CListView::sortColumn(int column, bool sortNow)
     if ((unsigned) column >= m_columnList.size())
         return;
     CColumn& columnInfo = m_columnList[column];
-    CVariantType ctype = columnInfo.type();
+    VariantType ctype = columnInfo.type();
     CPackedStrings *row = 0L;
     if (m_activeRow < size())
         row = m_rows[m_activeRow];
@@ -1098,7 +1098,7 @@ void CListView::save(Query *updateQuery)
 {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName);
+    QueryParameter& param = updateQuery->param(m_fieldName);
     param = data();
 }
 
@@ -1115,7 +1115,7 @@ int CListView::find_id(int id) const
     return -1;
 }
 
-void CListView::getSelections(CIntList& sel) const
+void CListView::getSelections(IntList& sel) const
 {
     sel.clear();
     if (!m_multipleSelection) {
@@ -1130,7 +1130,7 @@ void CListView::getSelections(CIntList& sel) const
     }
 }
 
-void CListView::setSelections(const CIntList& sel)
+void CListView::setSelections(const IntList& sel)
 {
     size_t scnt = sel.size();
     if (scnt)
@@ -1257,7 +1257,7 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
                 short cwidth = short(field.width + 1);
-                CVariantType ctype = field.dataType();
+                VariantType ctype = field.dataType();
                 switch (ctype) {
                     case VAR_BOOL:
                         cwidth = 6;

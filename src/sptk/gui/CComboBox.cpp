@@ -310,7 +310,7 @@ void CBaseListBox::save(Query *updateQuery)
 {
     if (!fieldName().length())
         return;
-    CParam& param = updateQuery->param(fieldName().c_str());
+    QueryParameter& param = updateQuery->param(fieldName().c_str());
     param = data();
 }
 
@@ -428,12 +428,12 @@ CPackedStrings& CBaseListBox::selectedRow() const
     return m_list->selectedRow();
 }
 
-CDatabaseConnection * CBaseListBox::database() const
+DatabaseConnection * CBaseListBox::database() const
 {
     return m_list->database();
 }
 
-void CBaseListBox::database(CDatabaseConnection *db)
+void CBaseListBox::database(DatabaseConnection *db)
 {
     m_list->database(db);
 }
@@ -448,7 +448,7 @@ void CBaseListBox::sql(string s)
     m_list->sql(s);
 }
 
-CParam& CBaseListBox::param(const char *p)
+QueryParameter& CBaseListBox::param(const char *p)
 {
     return m_list->param(p);
 }
@@ -486,7 +486,7 @@ void CBaseListBox::keyField(string kf)
     m_list->keyField(kf);
 }
 
-void CBaseListBox::setup(CDatabaseConnection *db, string sql, string keyField)
+void CBaseListBox::setup(DatabaseConnection *db, string sql, string keyField)
 {
     m_list->setup(db, sql, keyField);
 }
@@ -501,7 +501,7 @@ CColumnList& CBaseListBox::columns()
     return m_list->columns();
 }
 
-void CBaseListBox::addColumn(string cname, CVariantType type, short cwidth, bool cvisible)
+void CBaseListBox::addColumn(string cname, VariantType type, short cwidth, bool cvisible)
 {
     m_list->columns().push_back(CColumn(cname, type, cwidth, cvisible));
 }

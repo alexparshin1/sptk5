@@ -195,14 +195,14 @@ bool CDialog::showModal()
     return rc;
 }
 
-void CDialog::database(CDatabaseConnection* db)
+void CDialog::database(DatabaseConnection* db)
 {
     m_selectQuery->database(db);
     m_updateQuery->database(db);
     m_insertQuery->database(db);
 }
 
-CDatabaseConnection * CDialog::database() const
+DatabaseConnection * CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -215,7 +215,7 @@ void CDialog::table(const string tableName)
     }
 }
 
-void CDialog::table(CDatabaseConnection* db, const string tb, const string key)
+void CDialog::table(DatabaseConnection* db, const string tb, const string key)
 {
     database(db);
     table(tb);

@@ -170,7 +170,7 @@ void CCheckButtons::data(const CVariant s) {
     }
 }
 
-void CCheckButtons::getSelections(CIntList& selection) const {
+void CCheckButtons::getSelections(IntList& selection) const {
     selection.clear();
     CScroll *group = (CScroll *) m_control;
     unsigned cnt = group->children();
@@ -185,7 +185,7 @@ void CCheckButtons::getSelections(CIntList& selection) const {
     }
 }
 
-void CCheckButtons::setSelections(const CIntList& selection) {
+void CCheckButtons::setSelections(const IntList& selection) {
     deselectAllButtons();
     CScroll *group = (CScroll *) m_control;
     unsigned cnt = group->children();
@@ -194,7 +194,7 @@ void CCheckButtons::setSelections(const CIntList& selection) {
         if (!b)
             continue;
         uint32_t id = (uint32_t) (long) b->user_data();
-        CIntList::const_iterator itor = std::find(selection.begin(), selection.end(), id);
+        IntList::const_iterator itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
             b->value(1);
     }

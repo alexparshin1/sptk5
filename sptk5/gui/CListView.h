@@ -619,7 +619,7 @@ public:
 
     /// @brief Adds a new column as a copy of column
     /// @param colname const char *, column name
-    /// @param type CVariantType, column data type
+    /// @param type VariantType, column data type
     /// @param cwidth uint32_t, column width
     /// @param cvisible bool, is the column visible?
 
@@ -738,10 +738,10 @@ public:
     }
 
     /// @brief Returns a selected rows ID list
-    void getSelections(CIntList& selection) const;
+    void getSelections(IntList& selection) const;
 
     /// @brief Sets a selected rows ID list
-    void setSelections(const CIntList& selection);
+    void setSelections(const IntList& selection);
 
     /// @brief Finds an item with the caption (a string in the first column).
     /// @param caption std::string, the caption to find and select.

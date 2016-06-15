@@ -31,14 +31,14 @@
 
 using namespace sptk;
 
-void CPostgreSQLParamValues::setParameters(CParamList& params) {
+void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
     params.enumerate(m_params);
     m_count = (unsigned) m_params.size();
     resize(m_count);
     for (unsigned i = 0; i < m_count; i++) {
-        CParam* param = m_params[i];
+        QueryParameter* param = m_params[i];
         VariantType ptype = param->dataType();
-        CPostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i]);
+        PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i]);
 
         if (ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) {
             m_formats[i] = 1; // Binary format
@@ -74,7 +74,7 @@ void CPostgreSQLParamValues::setParameters(CParamList& params) {
     }
 }
 
-void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, CParam* param) THROWS_EXCEPTIONS
+void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS
 {
     static const char* booleanTrue = "t";
     static const char* booleanFalse = "f";

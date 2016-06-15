@@ -43,15 +43,15 @@ namespace sptk
 /// @{
 
 class Query;
-class COracleStatement;
+class OracleStatement;
 
 /// @brief Oracle database
 ///
 /// COracleConnection is thread-safe connection to Oracle database.
-class SP_EXPORT COracleConnection: public CDatabaseConnection
+class SP_EXPORT OracleConnection: public DatabaseConnection
 {
     friend class Query;
-    friend class COracleStatement;
+    friend class OracleStatement;
 
 public:
     typedef oracle::occi::Environment   Environment;
@@ -63,7 +63,7 @@ public:
 
 private:
 
-    COracleEnvironment  m_environment;      ///< Oracle connection environment
+    OracleEnvironment  m_environment;      ///< Oracle connection environment
     Connection*         m_connection;       ///< Oracle database connection
     std::string         m_lastError;        ///< Last error in this connection or query
 
@@ -71,11 +71,11 @@ protected:
 
     /// @brief Translates Oracle native type to CVariant type
     /// @param oracleType oracle::occi::Type, Oracle native type
-    /// @returns CVariant type
+    /// @returns Variant type
     static VariantType OracleTypeToVariantType(Type oracleType);
 
     /// @brief Translates CVariant type to Oracle native type
-    /// @param dataType CVariantType&, CVariant type
+    /// @param dataType VariantType&, CVariant type
     /// @returns Oracle native type
     static Type VariantTypeToOracleType(VariantType dataType);
 
@@ -133,16 +133,11 @@ public:
 public:
 
     /// @brief Constructor
-    ///
-    /// Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-    /// For more information please refer to:
-    /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-    /// If the connection string is empty then default database with the name equal to user name is used.
     /// @param connectionString std::string, the Oracle connection string
-    COracleConnection(std::string connectionString = "");
+    OracleConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~COracleConnection();
+    virtual ~OracleConnection();
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the Oracle connection string
@@ -166,7 +161,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 
     /// @brief Executes bulk inserts of data from memory buffer
     ///

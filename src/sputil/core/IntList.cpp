@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 //---------------------------------------------------------------------------
-string CIntList::toString (const char * separator) const
+string IntList::toString (const char * separator) const
 {
     string s;
     uint32_t cnt = (uint32_t) size();
@@ -48,7 +48,7 @@ string CIntList::toString (const char * separator) const
     return s;
 }
 
-void CIntList::fromString (const char *s,const char * separator)
+void IntList::fromString (const char *s,const char * separator)
 {
     Strings sl (s,separator);
 

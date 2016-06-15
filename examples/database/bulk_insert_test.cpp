@@ -41,10 +41,10 @@ using namespace sptk;
 
 int main()
 {
-    //CDatabaseConnectionPool connectionPool("postgresql://localhost/test");
-    //CDatabaseConnectionPool connectionPool("mysql://localhost/test");
-    CDatabaseConnectionPool connectionPool("oracle://protis:wsxedc@theater/XE");
-    CDatabaseConnection* db = connectionPool.createConnection();
+    //DatabaseConnectionPool connectionPool("postgresql://localhost/test");
+    //DatabaseConnectionPool connectionPool("mysql://localhost/test");
+    DatabaseConnectionPool connectionPool("oracle://protis:wsxedc@theater/XE");
+    DatabaseConnection* db = connectionPool.createConnection();
 
     try {
         cout << "Openning the database.. ";

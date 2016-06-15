@@ -41,16 +41,14 @@ namespace sptk {
 /// @{
 
 class Query;
-class CDatabase;
 
 /// @brief database field
 ///
 /// A special variation of CField to support database field essentials
 
-class SP_EXPORT CDatabaseField : public Field
+class SP_EXPORT DatabaseField : public Field
 {
     friend class Query;
-    friend class CDatabase;
 protected:
     int     m_fldType;      ///< Native database data type
     int     m_fldColumn;    ///< Field column number in recordset
@@ -63,10 +61,10 @@ public:
     /// @param fieldName std::string, field name
     /// @param fieldColumn int, field column number
     /// @param fieldType int, database field type
-    /// @param dataType CVariantType, variant data type
+    /// @param dataType VariantType, variant data type
     /// @param fieldLength int, database field length
     /// @param fieldScale int, database field scale
-    CDatabaseField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale = 4);
+    DatabaseField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale = 4);
 
     std::string     displayName;    ///< Column display name
     std::string     displayFormat;  ///< Column display format

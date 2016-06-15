@@ -40,7 +40,7 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection* db, string tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName);
@@ -76,8 +76,8 @@ int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 
 int main()
 {
-    CDatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
-    CDatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
+    DatabaseConnection* db = connectionPool.createConnection();
 
     try {
         cout << "Openning the database.. ";
@@ -121,9 +121,9 @@ int main()
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        CParam& id_param = step2Query.param("person_id");
-        CParam& name_param = step2Query.param("person_name");
-        CParam& position_param = step2Query.param("position_name");
+        QueryParameter& id_param = step2Query.param("person_id");
+        QueryParameter& name_param = step2Query.param("person_name");
+        QueryParameter& position_param = step2Query.param("position_name");
         // Now, we can use these variables
         id_param = 4;
         name_param = "Buffy";

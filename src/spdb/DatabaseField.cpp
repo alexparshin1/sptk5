@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        CParamBinding.h - description                         ║
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       CDatabaseField.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
+║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,56 +26,89 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPARAMBINDING_H__
-#define __CPARAMBINDING_H__
+#include <stdlib.h>
+#include <sptk5/db/DatabaseField.h>
 
-#include <sptk5/sptk.h>
-#include <sptk5/Variant.h>
+using namespace std;
+using namespace sptk;
 
-#include <vector>
-#include <map>
-
-namespace sptk
+DatabaseField::DatabaseField(const std::string fName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale) :
+        Field(fName.c_str())
 {
+    m_fldType = fieldType;
+    m_fldColumn = fieldColumn;
+    m_fldSize = fieldLength;
+    m_fldScale = fieldScale;
+    visible = true;
+    displayName = fName;
 
-/// @addtogroup Database Database Support
-/// @{
+    m_data.buffer.size = 0;
 
-/// @brief Parameter Binding descriptor
-///
-/// Stores the last information on parameter binding
-class SP_EXPORT CParamBinding
-{
-public:
-    void*        m_stmt;        ///< Statement handle or id
-    VariantType m_dataType;    ///< Data type
-    void*        m_buffer;      ///< Buffer
-    uint32_t     m_size;        ///< Buffer size
-    bool         m_output;      ///< Output parameter flag
-public:
-    /// @brief Constructor
-    /// @param isOutput bool, Output parameter flag
-    CParamBinding(bool isOutput)
+    switch (dataType)
     {
-        reset(isOutput);
+    case VAR_BOOL:
+        setBool(false);
+        view.width = 6;
+        break;
+
+    case VAR_INT:
+        setInteger(0);
+        view.width = 10;
+        break;
+
+    case VAR_FLOAT:
+        setFloat(0);
+        view.width = 16;
+        view.precision = fieldScale;
+        break;
+
+    case VAR_STRING:
+        setString("");
+        checkSize((uint32_t)fieldLength + 1);
+        view.width = fieldLength;
+        break;
+
+    case VAR_TEXT:
+        setText("");
+        checkSize((uint32_t)fieldLength + 1);
+        view.width = fieldLength;
+        break;
+
+    case VAR_BUFFER:
+        setBuffer("", 1);
+        checkSize((uint32_t)fieldLength);
+        view.width = 1;
+        break;
+
+    case VAR_DATE:
+    case VAR_DATE_TIME:
+        setDateTime(0.0);
+        Field::dataType(dataType);
+        view.width = 10;
+        break;
+
+    case VAR_INT64:
+        setInt64(0);
+        view.width = 16;
+        break;
+
+    default:
+        setString("");
+        checkSize((uint32_t)fieldLength + 1);
+        view.width = fieldLength;
+        break;
     }
-
-    /// @brief Resets the binding information
-    /// @param isOutput bool, Output parameter flag
-    void reset(bool isOutput);
-
-    /// @brief Checks if the parameter binding is matching the cached
-    ///
-    /// Returns true, if the passed parameters are matching last binding parameters.
-    /// Returns false and stores new parameters into last binding parameters otherwise.
-    /// @param stmt void*, statement handle
-    /// @param type CVariantType, data type
-    /// @param size uint32_t, binding buffer size
-    /// @param buffer void*, binding buffer
-    bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
-};
-
-/// @}
 }
 
-#endif
+bool DatabaseField::checkSize(unsigned sz)
+{
+    if (sz > m_data.buffer.size) {
+        unsigned newSize = (sz / 16 + 1) * 16;
+        char *p = (char *) realloc(m_data.buffer.data, newSize + 1);
+        if (!p)
+            throw DatabaseException("Can't reallocate a buffer");
+        m_data.buffer.data = p;
+        m_data.buffer.size = newSize;
+    }
+    return true;
+}

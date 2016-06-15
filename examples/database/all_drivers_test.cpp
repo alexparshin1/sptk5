@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection* db, string tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
@@ -84,7 +84,7 @@ string fieldToString(const Field& field)
     return field;
 }
 
-void testBLOBs(CDatabaseConnection* db)
+void testBLOBs(DatabaseConnection* db)
 {
     Query createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true, __FILE__, __LINE__);
     try {
@@ -118,8 +118,8 @@ void testBLOBs(CDatabaseConnection* db)
 
 int testDatabase(string connectionString)
 {
-    CDatabaseConnectionPool connectionPool(connectionString);
-    CDatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnectionPool connectionPool(connectionString);
+    DatabaseConnection* db = connectionPool.createConnection();
 
     try {
         cout << "==========================================\n";
@@ -130,7 +130,7 @@ int testDatabase(string connectionString)
 
         //testBLOBs(db);
 
-        CDbObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+        DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++) {
@@ -167,7 +167,7 @@ int testDatabase(string connectionString)
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             step1Query.exec();
-            if (db->connectionType() == CDatabaseConnection::DCT_FIREBIRD)
+            if (db->connectionType() == DatabaseConnection::DCT_FIREBIRD)
                 db->commitTransaction(); // Some databases don't recognize table existense until it is committed
         } catch (exception& e) {
             if (strstr(e.what(), " already ") == NULL)
@@ -207,11 +207,11 @@ int testDatabase(string connectionString)
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        CParam& id_param = step2Query.param("person_id");
-        CParam& name_param = step2Query.param("person_name");
-        CParam& position_param = step2Query.param("position_name");
-        CParam& hire_date_param = step2Query.param("hire_date");
-        CParam& rate_param = step2Query.param("rate");
+        QueryParameter& id_param = step2Query.param("person_id");
+        QueryParameter& name_param = step2Query.param("person_name");
+        QueryParameter& position_param = step2Query.param("position_name");
+        QueryParameter& hire_date_param = step2Query.param("hire_date");
+        QueryParameter& rate_param = step2Query.param("rate");
 
         // Now, we can use these variables, re-defining their values before each .exec() if needed:
         id_param = 4;

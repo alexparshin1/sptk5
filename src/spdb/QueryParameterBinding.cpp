@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CParam.cpp - description                               ║
+║                       CParamBinding.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,97 +26,44 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/Parameter.h>
+#include <sptk5/db/QueryParameterBinding.h>
+//#include <sptk5/string_ext.h>
 
 using namespace std;
 using namespace sptk;
 
-void CParam::bindClear()
+void QueryParameterBinding::reset(bool isOutput)
 {
-    m_bindParamIndexes.clear();
+    m_stmt = 0;
+    m_dataType = VAR_NONE;
+    m_size = 0;
+    m_buffer = 0;
+    m_output = isOutput;
 }
 
-void CParam::bindAdd(uint32_t bindIndex)
+bool QueryParameterBinding::check(void* stmt, VariantType type, uint32_t size, void* buffer)
 {
-    m_bindParamIndexes.push_back(bindIndex);
-}
+    bool changed = true;
 
-uint32_t CParam::bindCount()
-{
-    return (uint32_t) m_bindParamIndexes.size();
-}
-
-uint32_t CParam::bindIndex(uint32_t ind)
-{
-    return m_bindParamIndexes[ind];
-}
-
-CParam::CParam(const char *name, bool isOutput) :
-    Variant(),
-    m_name(lowerCase(name)),
-    m_timeData(new char[80]),
-    m_callbackLength(0),
-    m_paramList(NULL),
-    m_binding(isOutput)
-{
-}
-
-CParam::~CParam()
-{
-    delete [] m_timeData;
-}
-
-string CParam::name() const
-{
-    return m_name;
-}
-
-CParam& CParam::operator = (const Variant& param)
-{
-    if (this == &param)
-        return *this;
-    setData(param);
-    return *this;
-}
-
-void CParam::setString(const char * value, size_t maxlen)
-{
-    uint32_t valueLength;
-    uint32_t dtype = VAR_STRING;
-    if (maxlen)
-        valueLength = (uint32_t) maxlen;
-    else
-        valueLength = (uint32_t) strlen(value);
-    if (m_dataType == VAR_STRING && m_data.buffer.size >= valueLength + 1) {
-        if (value) {
-            memcpy(m_data.buffer.data, value, valueLength);
-            m_data.buffer.data[valueLength] = 0;
-            m_dataSize = valueLength;
-        } else {
-            m_data.buffer.data[0] = 0;
-            dtype |= VAR_NULL;
-            m_dataSize = 0;
-        }
-    } else {
-        if (value) {
-            m_dataSize = valueLength;
-            m_data.buffer.size = valueLength + 1;
-            if (maxlen) {
-                m_data.buffer.data = (char *) realloc(m_data.buffer.data, m_data.buffer.size);
-                if (m_data.buffer.data) {
-                    strncpy(m_data.buffer.data, value, maxlen);
-                    m_data.buffer.data[maxlen] = 0;
-                }
-            } else {
-                if (m_dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER) && m_data.buffer.data)
-                    free(m_data.buffer.data);
-                m_data.buffer.size = m_dataSize + 1;
-                m_data.buffer.data = strdup(value);
-            }
-        } else {
-            m_dataSize = 0;
-            dtype |= VAR_NULL;
-        }
+    if (m_stmt != stmt) {
+        m_stmt = stmt;
+        changed = false;
     }
-    dataType((VariantType) dtype);
+
+    if (m_dataType != type) {
+        m_dataType = type;
+        changed = false;
+    }
+
+    if (m_size != size) {
+        m_size = size;
+        changed = false;
+    }
+
+    if (m_buffer != buffer) {
+        m_buffer = buffer;
+        changed = false;
+    }
+
+    return changed;
 }

@@ -42,17 +42,17 @@ namespace sptk {
 /// Allows to begin, commit, and rollback the transaction automatically.
 /// If the transaction object is deleted w/o commiting or rolling back
 /// the transaction, it rolls back the transaction (if active)
-class SP_EXPORT CTransaction
+class SP_EXPORT Transaction
 {
-    bool                m_active;   ///< Transaction activity
-    CDatabaseConnection*    m_db;       ///< Database to work with
+    bool                    m_active;   ///< Transaction activity
+    DatabaseConnection*     m_db;       ///< Database to work with
 public:
     /// Constructor
-    /// @param db CDatabaseConnection&, the database to work with
-    CTransaction(CDatabaseConnection& db);
+    /// @param db DatabaseConnection&, the database to work with
+    Transaction(DatabaseConnection& db);
 
     /// Destructor
-    ~CTransaction();
+    ~Transaction();
 
     /// Begins the transaction
     void begin();

@@ -29,13 +29,13 @@
 #ifndef __SPTK_DATABASESTATEMENT_H__
 #define __SPTK_DATABASESTATEMENT_H__
 
-#include <sptk5/db/ParameterList.h>
+#include <sptk5/db/QueryParameterList.h>
 
 namespace sptk
 {
 
 /// @brief Template class for database statements for different database drivers
-template <class Connection, class Statement> class CDatabaseStatement
+template <class Connection, class Statement> class DatabaseStatement
 {
 protected:
     Connection*     m_connection;           ///< DB connection
@@ -52,12 +52,12 @@ protected:
 public:
     /// @brief Constructor
     /// @param connection Connection*, DB connection
-    CDatabaseStatement(Connection* connection)
+    DatabaseStatement(Connection* connection)
     : m_connection(connection)
     {}
 
     /// @brief Destructor
-    virtual ~CDatabaseStatement()
+    virtual ~DatabaseStatement()
     {}
 
     /// @brief Returns current DB statement handle
@@ -68,7 +68,7 @@ public:
 
     /// @brief Generates normalized list of parameters
     /// @param queryParams CParamList&, Standard query parameters
-    virtual void enumerateParams(CParamList& queryParams)
+    virtual void enumerateParams(QueryParameterList& queryParams)
     {
         queryParams.enumerate(m_enumeratedParams);
         m_state.outputParameterCount = 0;
@@ -78,7 +78,7 @@ public:
             iend = m_enumeratedParams.end();
         for (; itor != iend; itor++)
         {
-            CParam* parameter = *itor;
+            QueryParameter* parameter = *itor;
             if (parameter->isOutput())
                 m_state.outputParameterCount++;
         }

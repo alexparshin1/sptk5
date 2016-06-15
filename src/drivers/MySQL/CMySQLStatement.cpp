@@ -37,7 +37,7 @@ using namespace sptk;
 // When TEXT field is large, fetch in chunks:
 #define FETCH_BUFFER 256
 
-class CMySQLStatementField: public CDatabaseField
+class CMySQLStatementField: public DatabaseField
 {
 public:
     // Callback variables
@@ -50,7 +50,7 @@ public:
 
 public:
     CMySQLStatementField(std::string fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize) :
-        CDatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize),
+        DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize),
         m_cbLength(0), m_cbNull(0), m_cbError(0)
     {
         memset(&m_timeBuffer, 0, sizeof(MYSQL_TIME));
@@ -85,8 +85,8 @@ public:
 };
 
 
-CMySQLStatement::CMySQLStatement(CMySQLConnection* connection, string sql, bool autoPrepare)
-: CDatabaseStatement<CMySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(NULL)
+MySQLStatement::MySQLStatement(MySQLConnection* connection, string sql, bool autoPrepare)
+: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(NULL)
 {
     if (autoPrepare)
         m_statement = mysql_stmt_init((MYSQL*)connection->handle());
@@ -94,7 +94,7 @@ CMySQLStatement::CMySQLStatement(CMySQLConnection* connection, string sql, bool 
         m_statement = NULL; // direct execution
 }
 
-CMySQLStatement::~CMySQLStatement()
+MySQLStatement::~MySQLStatement()
 {
     if (m_statement)
        mysql_stmt_close(m_statement);
@@ -102,7 +102,7 @@ CMySQLStatement::~CMySQLStatement()
         mysql_free_result(m_result);
 }
 
-void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
+void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
 {
     short year, month, day, hour, minute, second, msecond;
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
@@ -122,7 +122,7 @@ void CMySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timest
     }
 }
 
-void CMySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate)
+void MySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate)
 {
     if (mysqlDate.time_type == MYSQL_TIMESTAMP_DATE)
         timestamp = DateTime(
@@ -134,9 +134,9 @@ void CMySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME&
                         (short) mysqlDate.hour, (short) mysqlDate.minute, (short) mysqlDate.second);
 }
 
-void CMySQLStatement::enumerateParams(CParamList& queryParams)
+void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
 {
-    CDatabaseStatement<CMySQLConnection,MYSQL_STMT>::enumerateParams(queryParams);
+    DatabaseStatement<MySQLConnection,MYSQL_STMT>::enumerateParams(queryParams);
     uint32_t paramCount = (uint32_t) m_enumeratedParams.size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);
@@ -148,7 +148,7 @@ void CMySQLStatement::enumerateParams(CParamList& queryParams)
     }
 }
 
-VariantType CMySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
+VariantType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
 {
     switch (mysqlType) {
 
@@ -190,7 +190,7 @@ VariantType CMySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlType)
     }
 }
 
-enum_field_types CMySQLStatement::variantTypeToMySQLType(VariantType dataType)
+enum_field_types MySQLStatement::variantTypeToMySQLType(VariantType dataType)
 {
     switch (dataType) {
 
@@ -226,13 +226,13 @@ enum_field_types CMySQLStatement::variantTypeToMySQLType(VariantType dataType)
     }
 }
 
-void CMySQLStatement::setParameterValues()
+void MySQLStatement::setParameterValues()
 {
     static my_bool nullValue = 1;
 
     unsigned paramCount = (unsigned) m_enumeratedParams.size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-        CParam*     param = m_enumeratedParams[paramIndex];
+        QueryParameter*     param = m_enumeratedParams[paramIndex];
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
 
         bind.buffer = (void*) param->getBuffer();
@@ -284,13 +284,13 @@ void CMySQLStatement::setParameterValues()
         throwMySQLError;
 }
 
-void CMySQLStatement::CMySQLStatement::prepare(const string& sql)
+void MySQLStatement::MySQLStatement::prepare(const string& sql)
 {
     if (mysql_stmt_prepare(m_statement, sql.c_str(), sql.length()) != 0)
         throwMySQLError;
 }
 
-void CMySQLStatement::execute(bool)
+void MySQLStatement::execute(bool)
 {
     m_state.eof = false;
     if (m_result) {
@@ -315,7 +315,7 @@ void CMySQLStatement::execute(bool)
     }
 }
 
-void CMySQLStatement::bindResult(FieldList& fields)
+void MySQLStatement::bindResult(FieldList& fields)
 {
     fields.clear();
     if (!m_result)
@@ -404,7 +404,7 @@ void CMySQLStatement::bindResult(FieldList& fields)
     }
 }
 
-void CMySQLStatement::readResultRow(FieldList& fields)
+void MySQLStatement::readResultRow(FieldList& fields)
 {
     if (m_statement)
         readPreparedResultRow(fields);
@@ -412,7 +412,7 @@ void CMySQLStatement::readResultRow(FieldList& fields)
         readUnpreparedResultRow(fields);
 }
 
-void CMySQLStatement::readUnpreparedResultRow(FieldList& fields)
+void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 {
     uint32_t        fieldCount = fields.size();
     unsigned long*  lengths = mysql_fetch_lengths(m_result);
@@ -470,7 +470,7 @@ void CMySQLStatement::readUnpreparedResultRow(FieldList& fields)
     }
 }
 
-void CMySQLStatement::readPreparedResultRow(FieldList& fields)
+void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
     uint32_t    fieldCount = fields.size();
     bool        fieldSizeChanged = false;
@@ -565,7 +565,7 @@ void CMySQLStatement::readPreparedResultRow(FieldList& fields)
         throwMySQLError;
 }
 
-void CMySQLStatement::close()
+void MySQLStatement::close()
 {
     if (m_result) {
         mysql_free_result(m_result);
@@ -573,7 +573,7 @@ void CMySQLStatement::close()
     }
 }
 
-void CMySQLStatement::fetch()
+void MySQLStatement::fetch()
 {
     if (m_statement) {
         int rc = mysql_stmt_fetch(m_statement);

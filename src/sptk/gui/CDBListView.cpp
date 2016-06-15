@@ -69,7 +69,7 @@ CLayoutClient* CDBListView::creator(XMLNode *node) {
     return widget;
 }
 
-void CDBListView::database(CDatabaseConnection *db) {
+void CDBListView::database(DatabaseConnection *db) {
    if (m_dataMode == LV_DATA_UNDEFINED)
       m_dataMode = LV_DATA_KEY;
    m_fastRefreshQuery.connect(db);
@@ -77,7 +77,7 @@ void CDBListView::database(CDatabaseConnection *db) {
    m_recordCountQuery.connect(db);
 }
 
-CDatabaseConnection *CDBListView::database() const {
+DatabaseConnection *CDBListView::database() const {
    return m_fullRefreshQuery.database();
 }
 
@@ -92,13 +92,13 @@ string CDBListView::sql() {
    return m_fullRefreshQuery.sql();
 }
 
-CParam& CDBListView::param(const char *paramName,CRefreshKind refreshKind) {
+QueryParameter& CDBListView::param(const char *paramName,CRefreshKind refreshKind) {
    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST )
       return m_fastRefreshQuery.param(paramName);
    else  return m_fullRefreshQuery.param(paramName);
 }
 
-void CDBListView::setup(CDatabaseConnection *db,string _sql,string _keyField) {
+void CDBListView::setup(DatabaseConnection *db,string _sql,string _keyField) {
    database(db);
    sql(_sql);
    keyField(_keyField);

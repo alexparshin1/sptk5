@@ -120,7 +120,7 @@ string Query::getError() const
 }
 
 //==============================================================================
-Query::Query(CDatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(DatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
         :
         DataSource(), m_fields(true), m_bulkMode(false)
 {
@@ -236,9 +236,9 @@ void Query::sql(string _sql)
             }
 
             string paramName(paramStart + 1, paramEnd - paramStart - 1);
-            CParam* param = m_params.find(paramName.c_str());
+            QueryParameter* param = m_params.find(paramName.c_str());
             if (!param) {
-                param = new CParam(paramName.c_str());
+                param = new QueryParameter(paramName.c_str());
                 m_params.add(param);
             }
             param->bindAdd(uint32_t(paramNumber));
@@ -325,7 +325,7 @@ void Query::closeQuery(bool releaseStatement)
     //m_fields.clear();
 }
 
-void Query::connect(CDatabaseConnection* _db)
+void Query::connect(DatabaseConnection* _db)
 {
     if (m_db == _db)
         return;

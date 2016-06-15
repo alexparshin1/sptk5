@@ -52,7 +52,7 @@ public:
 
     /// @brief Constructor
     /// @param cname std::string, column name
-    /// @param type CVariantType, column data type
+    /// @param type VariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, column visibility
     CColumn(std::string cname = "", VariantType type = VAR_STRING, int16_t cwidth = 100, bool cvisible = true);

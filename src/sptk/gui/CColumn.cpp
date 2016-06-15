@@ -37,7 +37,7 @@
 using namespace std;
 using namespace sptk;
 
-CColumn::CColumn(const std::string cname, CVariantType type, short cwidth, bool cvisible)
+CColumn::CColumn(const std::string cname, VariantType type, short cwidth, bool cvisible)
 {
     m_name = cname;
     m_type = type;
@@ -63,7 +63,7 @@ CColumn::CColumn(const CColumn& col)
 void CColumn::load(const XMLNode& node)
 {
     m_name = (string) node.getAttribute("caption");
-    m_type = (CVariantType) (unsigned) node.getAttribute("type");
+    m_type = (VariantType) (unsigned) node.getAttribute("type");
     m_width = node.getAttribute("width");
     m_visible = node.getAttribute("visible");
     m_autoWidth = node.getAttribute("auto_width");

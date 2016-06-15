@@ -59,7 +59,7 @@ CLayoutClient* CIntegerInput::creator(XMLNode *node) {
 void CIntegerInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param.setInteger( data() );
 }
 

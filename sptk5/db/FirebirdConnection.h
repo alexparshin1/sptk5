@@ -45,7 +45,7 @@ class CQuery;
 class CFirebirdStatement;
 
 /// @brief Firebird database connection
-class SP_EXPORT CFirebirdConnection: public CDatabaseConnection
+class SP_EXPORT CFirebirdConnection: public DatabaseConnection
 {
     friend class CQuery;
     friend class CFirebirdStatement;

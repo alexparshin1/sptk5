@@ -44,15 +44,15 @@ namespace sptk
 /// @brief Oracle Environment
 ///
 /// Allows creating and terminating connections
-class COracleEnvironment
+class OracleEnvironment
 {
     oracle::occi::Environment* m_handle;
 public:
     /// @brief Constructor
-    COracleEnvironment();
+    OracleEnvironment();
 
     /// @brief Destructor
-    ~COracleEnvironment();
+    ~OracleEnvironment();
 
     /// @brief Returns environment handle
     oracle::occi::Environment* handle() const
@@ -64,8 +64,8 @@ public:
     std::string clientVersion() const;
 
     /// @brief Creates new database connection
-    /// @param connectionString CDatabaseConnectionString&, Connection parameters
-    oracle::occi::Connection* createConnection(CDatabaseConnectionString& connectionString);
+    /// @param connectionString DatabaseConnectionString&, Connection parameters
+    oracle::occi::Connection* createConnection(DatabaseConnectionString& connectionString);
 
     /// @brief Terminates database connection
     /// @param connection oracle::occi::Connection*, Oracle connection

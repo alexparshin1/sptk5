@@ -50,7 +50,7 @@ class CPostgreSQLStatement;
 /// @brief PostgreSQL database
 ///
 /// CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
-class SP_EXPORT CPostgreSQLConnection: public CDatabaseConnection
+class SP_EXPORT PostgreSQLConnection: public DatabaseConnection
 {
     friend class Query;
 
@@ -95,10 +95,10 @@ public:
     }
 
 public:
-    /// @brief Converts datatype from PostgreSQL type to SPTK CVariantType
+    /// @brief Converts datatype from PostgreSQL type to SPTK VariantType
     static void PostgreTypeToCType(int postgreType, VariantType& dataType);
 
-    /// @brief Converts datatype from SPTK CVariantType to PostgreSQL type
+    /// @brief Converts datatype from SPTK VariantType to PostgreSQL type
     static void CTypeToPostgreType(VariantType dataType, Oid& postgreType);
 
 public:
@@ -110,10 +110,10 @@ public:
     /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
     /// If the connection string is empty then default database with the name equal to user name is used.
     /// @param connectionString std::string, the PostgreSQL connection string
-    CPostgreSQLConnection(std::string connectionString = "");
+    PostgreSQLConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CPostgreSQLConnection();
+    virtual ~PostgreSQLConnection();
 
     /// @brief Returns driver-specific connection string
     virtual std::string nativeConnectionString() const;
@@ -137,7 +137,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 
     /// @brief Executes bulk inserts of data from memory buffer
     ///

@@ -146,7 +146,7 @@ public:
 
     /// Sets the sort column
     /// @param column int, sort column number (-1 means 'unsorted')
-    /// @param ctype CVariantType, the sort column data type
+    /// @param ctype VariantType, the sort column data type
     /// @param sortNow bool, true if you want to sort immediatedly
     void sortColumn(int column, VariantType ctype, bool sortNow);
 

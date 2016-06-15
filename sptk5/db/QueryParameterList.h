@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        MySQLEnvironment.h - description                      ║
+║                        ParameterList.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,14 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_MYSQLENVIRONMENT_H__
-#define __SPTK_MYSQLENVIRONMENT_H__
+#ifndef __SPTK_PARAMETERLIST_H__
+#define __SPTK_PARAMETERLIST_H__
 
-#include <sptk5/db/CDatabaseConnection.h>
+#include <sptk5/db/QueryParameter.h>
 
-#if HAVE_ORACLE == 1
-
-#include <occi.h>
+#include <vector>
+#include <map>
 
 namespace sptk
 {
@@ -41,40 +40,74 @@ namespace sptk
 /// @addtogroup Database Database Support
 /// @{
 
-/// @brief MySQL Environment
+/// @brief A vector of CParam*
 ///
-/// Allows creating and terminating connections
-class CMySQLEnvironment
+/// Doesn't mantain CParam memory.
+/// Used to return a list of pointers on existing parameters.
+typedef std::vector<QueryParameter*> CParamVector;
+
+/// @brief Query parameters list.
+///
+/// Has internal index to speed up the parameter search by name.
+/// @see CQuery
+/// @see CParam
+class SP_EXPORT QueryParameterList
 {
-    MYSQL* m_handle;
+    friend class Query;
+
+    CParamVector                    m_items;                ///< The list of parameters
+    std::map<std::string, QueryParameter*>   m_index;               ///< The parameters index
+    bool                            m_bindingTypeChanged;   ///< Indicates that one of the parameters binding type has changed since prepare()
+protected:
+    /// @brief Adds a parameter to the list
+    void add(QueryParameter* item);
+
 public:
-    /// @brief Constructor
-    CMySQLEnvironment();
+    /// @brief Default constructor
+    QueryParameterList();
 
     /// @brief Destructor
-    ~CMySQLEnvironment();
+    ~QueryParameterList();
 
-    /// @brief Returns environment handle
-    MYSQL* handle() const
-    {
-        return m_handle;
-    }
+    /// @brief Removes all the parameters from the list
+    ///
+    /// Releases any allocated resources
+    void clear();
 
-    /// @brief Returns client version
-    std::string clientVersion() const;
+    /// @brief Returns parameter by name
+    ///
+    /// If the parameter isn't found, returns 0
+    /// @param paramName const char *, parameter name
+    /// @returns parameter pointer, or 0 if not found
+    QueryParameter* find(const char* paramName);
 
-    /// @brief Creates new database connection
-    /// @param connectionString CDatabaseConnectionString&, Connection parameters
-    MYSQL* createConnection(CDatabaseConnectionString& connectionString);
+    /// @brief Removes a parameter from the list and from the memory.
+    /// @param ndx uint32_t, parameter index in the list
+    void remove(uint32_t ndx);
 
-    /// @brief Terminates database connection
-    /// @param connection oracle::occi::Connection*, MySQL connection
-    void terminateConnection(oracle::occi::Connection*);
+    /// @brief Parameter access by index
+    /// @param index int32_t, parameter index
+    QueryParameter& operator[](int32_t index) const;
+
+    /// @brief Parameter access by name
+    /// @param paramName const char *, parameter name
+    QueryParameter& operator[](const char* paramName) const;
+
+    /// @brief Parameter access by name
+    /// @param paramName const std::string&, parameter name
+    QueryParameter& operator[](const std::string& paramName) const;
+
+    /// @brief Returns parameter count
+    uint32_t size() const;
+
+    /// @brief Returns the parameter pointers
+    ///
+    /// A parameter is included for every parameter position in the query.
+    /// @param params CParamVector&, parameters vector
+    void enumerate(CParamVector& params);
 };
 
 /// @}
 }
-
-#endif
 
 #endif

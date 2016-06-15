@@ -62,7 +62,7 @@ static void cb_OK(Fl_Return_Button*, void*)
 class CDataDialog: public CDialog
 {
 public:
-    CDataDialog(CDatabaseConnection *db) :
+    CDataDialog(DatabaseConnection *db) :
             CDialog(300, 180, "Example Data Dialog")
     {
         database(db);

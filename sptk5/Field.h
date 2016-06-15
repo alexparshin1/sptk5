@@ -81,7 +81,7 @@ public:
     ///
     /// Useful for the database operations.
     /// Retains the data type. Sets the data to zero(s).
-    /// @param vtype CVariantType, optional variant type to enforce
+    /// @param vtype VariantType, optional variant type to enforce
     virtual void setNull(VariantType vtype = VAR_NONE);
 
     /// @brief Assignment operation

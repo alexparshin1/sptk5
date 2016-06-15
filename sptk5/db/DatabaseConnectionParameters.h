@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDatabaseField.cpp - description                       ║
+║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
+║                        DatabaseConnectionParameters.h - description          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,89 +26,33 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdlib.h>
-#include <sptk5/db/DatabaseField.h>
+#ifndef __SPTK_DATABASECONNECTIONPARAMETERS_H__
+#define __SPTK_DATABASECONNECTIONPARAMETERS_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/sptk.h>
 
-CDatabaseField::CDatabaseField(const std::string fName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale) :
-        Field(fName.c_str())
+#include <map>
+
+namespace sptk {
+
+/// @addtogroup Database Database Support
+/// @{
+
+/// @brief Database connection parameters
+///
+/// Converts database connection string to string-string map.
+class SP_EXPORT DatabaseConnectionParameters: public std::map<std::string,std::string>
 {
-    m_fldType = fieldType;
-    m_fldColumn = fieldColumn;
-    m_fldSize = fieldLength;
-    m_fldScale = fieldScale;
-    visible = true;
-    displayName = fName;
 
-    m_data.buffer.size = 0;
+public:
 
-    switch (dataType)
-    {
-    case VAR_BOOL:
-        setBool(false);
-        view.width = 6;
-        break;
+    /// @brief Constructor
+    /// @param connectionString std::string, the connection string
+    DatabaseConnectionParameters(std::string connectionString);
 
-    case VAR_INT:
-        setInteger(0);
-        view.width = 10;
-        break;
-
-    case VAR_FLOAT:
-        setFloat(0);
-        view.width = 16;
-        view.precision = fieldScale;
-        break;
-
-    case VAR_STRING:
-        setString("");
-        checkSize((uint32_t)fieldLength + 1);
-        view.width = fieldLength;
-        break;
-
-    case VAR_TEXT:
-        setText("");
-        checkSize((uint32_t)fieldLength + 1);
-        view.width = fieldLength;
-        break;
-
-    case VAR_BUFFER:
-        setBuffer("", 1);
-        checkSize((uint32_t)fieldLength);
-        view.width = 1;
-        break;
-
-    case VAR_DATE:
-    case VAR_DATE_TIME:
-        setDateTime(0.0);
-        Field::dataType(dataType);
-        view.width = 10;
-        break;
-
-    case VAR_INT64:
-        setInt64(0);
-        view.width = 16;
-        break;
-
-    default:
-        setString("");
-        checkSize((uint32_t)fieldLength + 1);
-        view.width = fieldLength;
-        break;
-    }
+    /// @brief Returns connection string in format of name=value pairs
+    std::string toString(const char* delimiter=" ") const;
+};
+/// @}
 }
-
-bool CDatabaseField::checkSize(unsigned sz)
-{
-    if (sz > m_data.buffer.size) {
-        unsigned newSize = (sz / 16 + 1) * 16;
-        char *p = (char *) realloc(m_data.buffer.data, newSize + 1);
-        if (!p)
-            throw DatabaseException("Can't reallocate a buffer");
-        m_data.buffer.data = p;
-        m_data.buffer.size = newSize;
-    }
-    return true;
-}
+#endif

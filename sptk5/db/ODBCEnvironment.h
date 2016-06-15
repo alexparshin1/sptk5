@@ -47,7 +47,7 @@
 #include <sqlext.h>
 #include <assert.h>
 
-#include <sptk5/db/ParameterList.h>
+#include <sptk5/db/QueryParameterList.h>
 #include <sptk5/threads/CSynchronizedCode.h>
 
 namespace sptk
@@ -56,13 +56,9 @@ namespace sptk
 /// @addtogroup Database Database Support
 /// @{
 
-class CODBCConnection;
-
 class ODBCEnvironment;
-
-class ODBCConnection;
-
-class CParam;
+class ODBCConnectionBase;
+class QueryParameter;
 
 /// @brief ODBC base
 ///
@@ -108,7 +104,7 @@ private:
 /// Environment is only used by ODBCConnection class
 class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
 {
-    friend class ODBCConnection;
+    friend class ODBCConnectionBase;
 
 private:
 
@@ -148,11 +144,10 @@ public:
     ~ODBCEnvironment();
 };
 
-/// @brief ODBC socket
+/// @brief ODBC connection
 ///
-/// Class ODBCConnection represents the connection to a database.
-/// You need one object of this class for each database you want to access.
-class SP_DRIVER_EXPORT ODBCConnection : public ODBCBase
+/// Class ODBCConnection represents the ODBC connection to a database.
+class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
     ODBCEnvironment&    m_cEnvironment;      ///< ODBC environment
     SQLHDBC             m_hConnection;       ///< ODBC connection handle
@@ -169,10 +164,10 @@ protected:
 public:
 
     /// Default constructor
-    ODBCConnection();
+    ODBCConnectionBase();
 
     /// Default destructor
-    ~ODBCConnection();
+    ~ODBCConnectionBase();
 
     /// Allocates connection
     void allocConnect();

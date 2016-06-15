@@ -41,7 +41,7 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection& db, string tableName, bool rollback)
 {
     try {
         Query step5Query(&db, "DELETE FROM " + tableName);
@@ -93,14 +93,14 @@ int main(int argc, const char* argv[])
     }
 
     try {
-        CDatabaseConnectionPool connectionPool(connectString);
-        CDatabaseConnection* db = connectionPool.createConnection();
+        DatabaseConnectionPool connectionPool(connectString);
+        DatabaseConnection* db = connectionPool.createConnection();
 
         cout << "Openning the database, using connection string " << connectString << ":" << endl;
         db->open();
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
-        CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
+        DatabaseObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
 
         for (unsigned i = 0; i < 3; i++) {
@@ -158,9 +158,9 @@ int main(int argc, const char* argv[])
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        CParam& id_param = step2Query.param("person_id");
-        CParam& name_param = step2Query.param("person_name");
-        CParam& position_param = step2Query.param("position_name");
+        QueryParameter& id_param = step2Query.param("person_id");
+        QueryParameter& name_param = step2Query.param("person_name");
+        QueryParameter& position_param = step2Query.param("position_name");
         // Now, we can use these variables
         id_param = 4;
         name_param = "Buffy";

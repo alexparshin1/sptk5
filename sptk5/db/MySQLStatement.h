@@ -41,9 +41,9 @@
 namespace sptk
 {
 
-class CMySQLConnection;
+class MySQLConnection;
 
-class CMySQLStatement : public CDatabaseStatement<CMySQLConnection,MYSQL_STMT>
+class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
 {
     std::string                     m_sql;
     std::vector<MYSQL_BIND>         m_paramBuffers;
@@ -69,14 +69,14 @@ public:
     static VariantType mySQLTypeToVariantType(enum_field_types mysqlType);
 
     /// @brief Translates CVariant type to MySQL native type
-    /// @param dataType CVariantType&, CVariant type
+    /// @param dataType VariantType&, CVariant type
     /// @returns MySQL native type
     static enum_field_types variantTypeToMySQLType(VariantType dataType);
 
     /// @brief Translates CDateTime to MySQL time
     /// @param mysqlDate MYSQL_TIME&, MySQL time
     /// @param timestamp CDateTime, Timestamp
-    /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
+    /// @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
     static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
 
     /// @brief Translates MySQL time to CDateTime
@@ -89,14 +89,14 @@ public:
     /// @param connection Connection*, MySQL connection
     /// @param sql std::string, SQL statement
     /// @param autoPrepare bool, If true then statement is executed as prepared.
-    CMySQLStatement(CMySQLConnection* connection, std::string sql, bool autoPrepare);
+    MySQLStatement(MySQLConnection* connection, std::string sql, bool autoPrepare);
 
     /// @brief Destructor
-    virtual ~CMySQLStatement();
+    virtual ~MySQLStatement();
 
     /// @brief Generates normalized list of parameters
     /// @param queryParams CParamList&, Standard query parameters
-    void enumerateParams(CParamList& queryParams);
+    void enumerateParams(QueryParameterList& queryParams);
 
     /// @brief Sets actual parameter values for the statement execution
     void setParameterValues();

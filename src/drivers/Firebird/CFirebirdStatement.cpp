@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-class CFirebirdStatementField: public CDatabaseField {
+class CFirebirdStatementField: public DatabaseField {
     XSQLVAR&        m_sqlvar;
 public:
     // Callback variables
@@ -44,8 +44,8 @@ public:
     double          m_numericScale;
 
 public:
-    CFirebirdStatementField(std::string fieldName, int fieldColumn, int fieldType, CVariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
-        CDatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
+    CFirebirdStatementField(std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
+        DatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
         m_sqlvar(sqlvar), m_cbNull(0), m_numericScale(1)
     {
         setInt64(0);
@@ -80,7 +80,7 @@ public:
 
 
 CFirebirdStatement::CFirebirdStatement(CFirebirdConnection* connection, string sql)
-: CDatabaseStatement<CFirebirdConnection,isc_stmt_handle>(connection)
+: DatabaseStatement<CFirebirdConnection,isc_stmt_handle>(connection)
 {
     m_statement = new isc_stmt_handle;
     *m_statement = 0;
@@ -93,7 +93,7 @@ CFirebirdStatement::~CFirebirdStatement()
     delete m_statement;
 }
 
-void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, CVariantType timeType)
+void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
 {
     short year, month, day, hour, minute, second, msecond;
     memset(&firebirdDate, 0, sizeof(firebirdDate));
@@ -118,9 +118,9 @@ void CFirebirdStatement::firebirdDateToDateTime(DateTime& timestamp, const struc
                 short(firebirdData.tm_hour), short(firebirdData.tm_min), short(firebirdData.tm_sec));
 }
 
-void CFirebirdStatement::enumerateParams(CParamList& queryParams)
+void CFirebirdStatement::enumerateParams(QueryParameterList& queryParams)
 {
-    CDatabaseStatement<CFirebirdConnection,isc_stmt_handle>::enumerateParams(queryParams);
+    DatabaseStatement<CFirebirdConnection,isc_stmt_handle>::enumerateParams(queryParams);
     XSQLDA* psqlda = &m_paramBuffers.sqlda();
     isc_dsql_describe_bind(m_status_vector, m_statement, 1, psqlda);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
@@ -131,7 +131,7 @@ void CFirebirdStatement::enumerateParams(CParamList& queryParams)
     }
 }
 
-CVariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int firebirdSubtype)
+VariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int firebirdSubtype)
 {
     switch (firebirdType) {
 
@@ -183,7 +183,7 @@ void CFirebirdStatement::setParameterValues()
     struct tm       firebirdDateTime;
     ISC_TIMESTAMP*  pts;
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-        CParam*     param = m_enumeratedParams[paramIndex];
+        QueryParameter*     param = m_enumeratedParams[paramIndex];
         XSQLVAR&    sqlvar = m_paramBuffers[paramIndex];
 
         if (param->isNull())
@@ -339,13 +339,13 @@ void CFirebirdStatement::bindResult(FieldList& fields)
         if (columnName[0] == 0)
             sprintf(columnName, "column_%02i", columnIndex + 1);
 
-        CVariantType fieldType = firebirdTypeToVariantType(sqlvar.sqltype, sqlvar.sqlsubtype);
+        VariantType fieldType = firebirdTypeToVariantType(sqlvar.sqltype, sqlvar.sqlsubtype);
         unsigned fieldLength = (unsigned) sqlvar.sqllen;
         fields.push_back(new CFirebirdStatementField(columnName, columnIndex, sqlvar.sqltype, fieldType, (int) fieldLength, sqlvar));
     }
 }
 
-isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, CParam* param) THROWS_EXCEPTIONS
+isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter* param) THROWS_EXCEPTIONS
 {
     isc_db_handle   db = m_connection->connection();
     isc_blob_handle blob_handle = 0;
@@ -382,7 +382,7 @@ isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, CParam* param)
     return blob_handle;
 }
 
-size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) THROWS_EXCEPTIONS
+size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) THROWS_EXCEPTIONS
 {
     isc_db_handle   db = m_connection->connection();
     

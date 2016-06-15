@@ -37,7 +37,7 @@
 #include <sptk5/DataSource.h>
 
 #include <sptk5/db/DatabaseConnection.h>
-#include <sptk5/db/ParameterList.h>
+#include <sptk5/db/QueryParameterList.h>
 #include <sptk5/FieldList.h>
 
 namespace sptk {
@@ -49,10 +49,10 @@ namespace sptk {
 ///
 /// A CDataset connected to the database to
 /// execute a database queries. The type of the database
-/// depends on the CDatabaseConnection object query is connected to.
+/// depends on the DatabaseConnection object query is connected to.
 class SP_EXPORT Query: public DataSource, public CSynchronized
 {
-    friend class CDatabaseConnection;
+    friend class DatabaseConnection;
 
 protected:
     bool            m_autoPrepare;     ///< Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
@@ -62,14 +62,14 @@ protected:
     bool            m_prepared;        ///< True if the statement is prepared
     bool            m_active;          ///< True if query is active (opened)
     bool            m_eof;             ///< True if there is no more records to fetch
-    CParamList      m_params;          ///< List of query parameters
+    QueryParameterList      m_params;          ///< List of query parameters
     FieldList       m_fields;          ///< List of query fields - makes sense after fetch
 
     double          m_duration;        ///< The duration of last execution, in seconds
     double          m_totalDuration;   ///< The total duration of executions, in seconds
     unsigned        m_totalCalls;      ///< The total number of query executions
 
-    CDatabaseConnection*m_db;          ///< Database connection
+    DatabaseConnection*m_db;          ///< Database connection
     std::string     m_sql;             ///< SQL statement string
     const char*     m_createdFile;     ///< The source file the query was created in
     unsigned        m_createdLine;     ///< The source file line the query was created at
@@ -123,12 +123,12 @@ public:
     /// this query is created. This is used to collect statistical information
     /// for the query calls. If file and line information is provided, then
     /// calls statistics is stored to the database object during the query dtor.
-    /// @param db CDatabaseConnection, the database to connect to, optional
+    /// @param db DatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param autoPrepare bool, if true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
     /// @param createdFile const char*, the name of the file this query was created in (optional)
     /// @param createdLine unsigned, the line of the file this query was created at (optional)
-    Query(CDatabaseConnection *db = 0L, std::string sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
+    Query(DatabaseConnection *db = 0L, std::string sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
 
     /// @brief Copy constructor
     Query(const Query&);
@@ -216,7 +216,7 @@ public:
     }
 
     /// @brief Returns the query parameters list
-    CParamList& params()
+    QueryParameterList& params()
     {
         return m_params;
     }
@@ -282,7 +282,7 @@ public:
     ///
     /// If the query was connected
     /// to another database, releases all the allocated resources in it.
-    void connect(CDatabaseConnection *db);
+    void connect(DatabaseConnection *db);
 
     /// @brief Disconnects query from the database and releases all the allocated resourses.
     void disconnect();
@@ -301,7 +301,7 @@ public:
     /// @param paramName const char *, parameter name
     /// @returns parameter
     /// @see CParamList
-    CParam& param(const char *paramName) const
+    QueryParameter& param(const char *paramName) const
     {
         return m_params[paramName];
     }
@@ -312,7 +312,7 @@ public:
     /// @param paramName std::string, parameter name
     /// @returns parameter
     /// @see CParamList
-    CParam& param(const std::string& paramName) const
+    QueryParameter& param(const std::string& paramName) const
     {
         return m_params[paramName.c_str()];
     }
@@ -320,7 +320,7 @@ public:
     /// @brief Returns the parameter by the index.
     /// @returns parameter
     /// @see CParamList
-    CParam& param(uint32_t paramIndex) const
+    QueryParameter& param(uint32_t paramIndex) const
     {
         return m_params[int32_t(paramIndex)];
     }
@@ -343,13 +343,13 @@ public:
     virtual void sql(std::string _sql);
 
     /// @brief Returns the database the query is connected to
-    CDatabaseConnection *database() const
+    DatabaseConnection *database() const
     {
         return m_db;
     }
 
     /// @brief Connects the query to the database different database.
-    void database(CDatabaseConnection *db)
+    void database(DatabaseConnection *db)
     {
         connect(db);
     }

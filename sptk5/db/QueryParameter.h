@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        Parameter.h - description                             ║
+║                        QueryParameter.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,34 +26,34 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_PARAMETER_H__
-#define __SPTK_PARAMETER_H__
+#ifndef __SPTK_QUERYPARAMETER_H__
+#define __SPTK_QUERYPARAMETER_H__
 
-#include <sptk5/db/ParameterBinding.h>
+#include <sptk5/db/QueryParameterBinding.h>
 #include <sptk5/IntList.h>
 
 namespace sptk
 {
 
-class CParamList;
+class QueryParameterList;
 
 /// @brief SQL query parameter.
 ///
 /// Simplifies the ODBC parameter binding.
 /// Automatically handles most of the data conversions on assignments.
-class SP_EXPORT CParam : public Variant
+class SP_EXPORT QueryParameter : public Variant
 {
     friend class Query;
-    friend class CParamList;
+    friend class QueryParameterList;
 
 protected:
     std::string         m_name;               ///< Parameter name
-    CIntList            m_bindParamIndexes;   ///< The list of SQL query parameter numbers with this name
+    IntList             m_bindParamIndexes;   ///< The list of SQL query parameter numbers with this name
     char*               m_timeData;           ///< Special memory allocated for time structures
     int32_t             m_callbackLength;     ///< An integer reserved to callback parameter data length
-    CParamList*         m_paramList;          ///< Parent param list used for notifications
+    QueryParameterList*         m_paramList;          ///< Parent param list used for notifications
 public:
-    CParamBinding       m_binding;            ///< The last successfull binding information
+    QueryParameterBinding       m_binding;            ///< The last successfull binding information
 
     /// @brief Clears internal parameter binding index
     void bindClear();
@@ -84,94 +84,94 @@ public:
     /// @brief Constructor
     /// @param name char *, parameter name
     /// @param isOutput bool, parameter binding type: input or output
-    CParam(const char* name, bool isOutput=false);
+    QueryParameter(const char* name, bool isOutput=false);
 
     /// @brief Destructor
-    ~CParam();
+    ~QueryParameter();
 
     /// @brief Returns parameter name
     std::string name() const;
 
     /// @brief Assign operator
-    CParam& operator = (const CParam& param);
+    QueryParameter& operator = (const QueryParameter& param);
 
     /// @brief Assign operator
-    CParam& operator = (const Variant& param);
+    QueryParameter& operator = (const Variant& param);
 
     /// @brief Assign operator
-    CParam& operator = (int16_t v) {
+    QueryParameter& operator = (int16_t v) {
         setInteger(v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (uint16_t v) {
+    QueryParameter& operator = (uint16_t v) {
         setInteger(v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (int32_t v) {
+    QueryParameter& operator = (int32_t v) {
         setInteger(v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (uint32_t v) {
+    QueryParameter& operator = (uint32_t v) {
         setInteger((int32_t)v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (int64_t v) {
+    QueryParameter& operator = (int64_t v) {
         setInt64(v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (uint64_t v) {
+    QueryParameter& operator = (uint64_t v) {
         setInt64((int64_t)v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (float v) {
+    QueryParameter& operator = (float v) {
         setFloat(v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (double v) {
+    QueryParameter& operator = (double v) {
         setFloat(v);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (const char* s) {
+    QueryParameter& operator = (const char* s) {
         setString(s);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (const std::string& s) {
+    QueryParameter& operator = (const std::string& s) {
         setString(s.c_str());
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (DateTime dt) {
+    QueryParameter& operator = (DateTime dt) {
         setDateTime(dt);
         return *this;
     }
 
     /// @brief Assignment operator
-    virtual CParam& operator = (const void* value) {
+    virtual QueryParameter& operator = (const void* value) {
         setImagePtr(value);
         return *this;
     }
 
     /// @brief Assign operator
-    CParam& operator = (const Buffer& buffer) {
+    QueryParameter& operator = (const Buffer& buffer) {
         setBuffer(buffer);
         return *this;
     }

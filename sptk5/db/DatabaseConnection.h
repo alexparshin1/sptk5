@@ -45,8 +45,8 @@ namespace sptk {
 
 class Query;
 
-/// @brief Types of the objects for CDatabaseConnection::listObjects method
-enum CDbObjectType
+/// @brief Types of the objects for DatabaseConnection::listObjects method
+enum DatabaseObjectType
 {
     DOT_TABLES,         ///< Tables
     DOT_VIEWS,          ///< Views
@@ -54,23 +54,23 @@ enum CDbObjectType
 };
 
 /// @brief Column type and size structure
-struct CColumnTypeSize
+struct QueryColumnTypeSize
 {
-    VariantType    type;   ///< Column type
+    VariantType     type;   ///< Column type
     size_t          length; ///< Column data size
 };
 
 /// @brief Vector of column type and size structures
-typedef std::vector<CColumnTypeSize> CColumnTypeSizeVector;
+typedef std::vector<QueryColumnTypeSize> QueryColumnTypeSizeVector;
 
 /// @brief Map of column names to column type and size structures
-typedef std::map<std::string,CColumnTypeSize> CColumnTypeSizeMap;
+typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 
 /// @brief Database connector
 ///
 /// Implements a thread-safe connection to general database. It is used
 /// as a base class for actual database driver classes.
-class SP_EXPORT CDatabaseConnection: public CSynchronized
+class SP_EXPORT DatabaseConnection: public CSynchronized
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;
@@ -90,7 +90,7 @@ public:
 protected:
 
     CQueryVector                m_queryList;      ///< The list of queries that use this database
-    CDatabaseConnectionString   m_connString;     ///< The connection string
+    DatabaseConnectionString   m_connString;     ///< The connection string
     Type                        m_connType;       ///< The connection type
     bool                        m_inTransaction;  ///< The in-transaction flag
     Logger*                     m_log;            ///< Log for the database events (optional)
@@ -140,10 +140,10 @@ protected:
     /// @brief Constructor
     ///
     /// Protected constructor prevents creating an instance of the
-    /// CDatabaseConnection. Instead, it is possible to create an instance of derived
+    /// DatabaseConnection. Instead, it is possible to create an instance of derived
     /// classes.
     /// @param connectionString std::string, the connection string
-    CDatabaseConnection(std::string connectionString);
+    DatabaseConnection(std::string connectionString);
 
     /// Stub function to throw an exception in case if the
     /// called method isn't implemented in the derived class
@@ -186,7 +186,7 @@ public:
     ///
     /// Closes the database connection and all the connected queries.
     /// Releases all the database resources allocated during the connection.
-    virtual ~CDatabaseConnection();
+    virtual ~DatabaseConnection();
 
     /// @brief Opens the database connection
     ///
@@ -204,7 +204,7 @@ public:
     virtual void* handle() const;
 
     /// @brief Returns the connection string
-    virtual const CDatabaseConnectionString& connectionString() const
+    virtual const DatabaseConnectionString& connectionString() const
     {
         return m_connString;
     }
@@ -241,15 +241,15 @@ public:
 
     /// @brief Lists database objects
     ///
-    /// Not implemented in CDatabaseConnection. The derived database class
+    /// Not implemented in DatabaseConnection. The derived database class
     /// must provide its own implementation
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS = 0;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS = 0;
 
     /// @brief Sets a log file for the database operations.
     ///
-    /// If the database log is set, the database would log the events in CDatabaseConnection and CQuery objects
+    /// If the database log is set, the database would log the events in DatabaseConnection and CQuery objects
     /// into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
     /// @param logFile Logger *, the log file object to use.
     void logFile(Logger *logFile);

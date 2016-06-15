@@ -121,7 +121,7 @@ public:
     /// @brief Translates CDateTime to Firebird time
     /// @param firebirdDate tm&, Firebird time
     /// @param timestamp CDateTime, Timestamp
-    /// @param timeType CVariantType, Time type, VAR_DATE or VAR_DATETIME
+    /// @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
     static void dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType);
 
     /// @brief Translates Firebird time to CDateTime

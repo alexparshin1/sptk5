@@ -97,10 +97,10 @@ public:
 #endif
 
     /// Gets the currently selected buttons argument()s
-    void getSelections(CIntList& selection) const;
+    void getSelections(IntList& selection) const;
 
     /// Sets the currently selected buttons matching with argument()s
-    void setSelections(const CIntList& selection);
+    void setSelections(const IntList& selection);
 
     /// Universal data connection reader.
     /// @returns the list of selected button labels as pipe ('|') separated strings

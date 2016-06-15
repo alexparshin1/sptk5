@@ -175,7 +175,7 @@ void CListViewRows::sort() {
    Fl::check();
 }
 
-void CListViewRows::sortColumn(int column,CVariantType columnType,bool sortNow) {
+void CListViewRows::sortColumn(int column,VariantType columnType,bool sortNow) {
    m_sortColumn = column;
    m_sortColumnType = columnType;
    if (sortNow) sort();

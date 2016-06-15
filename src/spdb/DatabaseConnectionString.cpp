@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        ParameterList.h - description                         ║
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       DatabaseConnectionString.cpp - description            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
+║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,88 +26,59 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_PARAMETERLIST_H__
-#define __SPTK_PARAMETERLIST_H__
+#include <sptk5/db/DatabaseConnectionString.h>
+#include <sptk5/Strings.h>
 
-#include <sptk5/db/Parameter.h>
+using namespace std;
+using namespace sptk;
 
-#include <vector>
-#include <map>
+static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc", "|");
 
-namespace sptk
+void DatabaseConnectionString::parse() THROWS_EXCEPTIONS
 {
+    size_t pos;
+    string connStr(m_connectionString);
 
-/// @addtogroup Database Database Support
-/// @{
+    // Find extra parameters
+    pos = connStr.find_first_of("?");
+    if (pos != string::npos) {
+        Strings parameters(connStr.substr(pos + 1),"&");
+        for (Strings::iterator item = parameters.begin(); item != parameters.end(); item++) {
+            Strings pair(*item, "='", Strings::SM_ANYCHAR);
+            if (pair.size() == 2)
+                m_parameters[ pair[0] ] = pair[1];
+        }
+        connStr.erase(pos);
+    }
 
-/// @brief A vector of CParam*
-///
-/// Doesn't mantain CParam memory.
-/// Used to return a list of pointers on existing parameters.
-typedef std::vector<CParam*> CParamVector;
+    pos = connStr.find("://");
+    if (pos != string::npos) {
+        m_driverName = connStr.substr(0, pos);
+        connStr.erase(0, pos + 3);
+        if (driverNames.indexOf(m_driverName) < 0)
+            throwDatabaseException("Driver name is unknown: " + m_connectionString);
+    } else
+        throwDatabaseException("Driver name is missing: " + m_connectionString);
 
-/// @brief Query parameters list.
-///
-/// Has internal index to speed up the parameter search by name.
-/// @see CQuery
-/// @see CParam
-class SP_EXPORT CParamList
-{
-    friend class Query;
+    pos = connStr.find("@");
+    if (pos != string::npos) {
+        Strings usernameAndPassword(connStr.substr(0, pos),":");
+        m_userName = usernameAndPassword[0];
+        if (usernameAndPassword.size() > 1)
+            m_password = usernameAndPassword[1];
+        connStr.erase(0, pos + 1);
+    }
 
-    CParamVector                    m_items;                ///< The list of parameters
-    std::map<std::string, CParam*>   m_index;               ///< The parameters index
-    bool                            m_bindingTypeChanged;   ///< Indicates that one of the parameters binding type has changed since prepare()
-protected:
-    /// @brief Adds a parameter to the list
-    void add(CParam* item);
+    pos = connStr.find("/");
+    if (pos != string::npos) {
+        m_databaseName = connStr.substr(pos + 1);
+        connStr.erase(pos);
+        if (m_databaseName.find("/") != string::npos)
+            m_databaseName = "/" + m_databaseName;
+    }
 
-public:
-    /// @brief Default constructor
-    CParamList();
-
-    /// @brief Destructor
-    ~CParamList();
-
-    /// @brief Removes all the parameters from the list
-    ///
-    /// Releases any allocated resources
-    void clear();
-
-    /// @brief Returns parameter by name
-    ///
-    /// If the parameter isn't found, returns 0
-    /// @param paramName const char *, parameter name
-    /// @returns parameter pointer, or 0 if not found
-    CParam* find(const char* paramName);
-
-    /// @brief Removes a parameter from the list and from the memory.
-    /// @param ndx uint32_t, parameter index in the list
-    void remove(uint32_t ndx);
-
-    /// @brief Parameter access by index
-    /// @param index int32_t, parameter index
-    CParam& operator[](int32_t index) const;
-
-    /// @brief Parameter access by name
-    /// @param paramName const char *, parameter name
-    CParam& operator[](const char* paramName) const;
-
-    /// @brief Parameter access by name
-    /// @param paramName const std::string&, parameter name
-    CParam& operator[](const std::string& paramName) const;
-
-    /// @brief Returns parameter count
-    uint32_t size() const;
-
-    /// @brief Returns the parameter pointers
-    ///
-    /// A parameter is included for every parameter position in the query.
-    /// @param params CParamVector&, parameters vector
-    void enumerate(CParamVector& params);
-};
-
-/// @}
+    Strings hostAndPort(connStr, ":");
+    m_hostName = hostAndPort[0];
+    if (hostAndPort.size() > 1)
+        m_portNumber = (uint16_t) atoi(hostAndPort[1].c_str());
 }
-
-#endif

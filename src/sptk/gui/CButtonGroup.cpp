@@ -181,7 +181,7 @@ void CButtonGroup::load(Query *loadQuery) {
 
 void CButtonGroup::save(Query *updateQuery) {
    if (!m_fieldName.length()) return;
-   CParam& param = updateQuery->param(m_fieldName.c_str());
+   QueryParameter& param = updateQuery->param(m_fieldName.c_str());
    param = data();
 }
 

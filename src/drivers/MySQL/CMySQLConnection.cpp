@@ -33,14 +33,14 @@
 using namespace std;
 using namespace sptk;
 
-CMySQLConnection::CMySQLConnection(string connectionString) :
-    CDatabaseConnection(connectionString),
+MySQLConnection::MySQLConnection(string connectionString) :
+    DatabaseConnection(connectionString),
     m_connection(NULL)
 {
     m_connType = DCT_MYSQL;
 }
 
-CMySQLConnection::~CMySQLConnection()
+MySQLConnection::~MySQLConnection()
 {
     try {
         if (m_inTransaction && active())
@@ -59,7 +59,7 @@ CMySQLConnection::~CMySQLConnection()
 }
 
 
-void CMySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void MySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     static CSynchronized libraryInitMutex;
     
@@ -99,7 +99,7 @@ void CMySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTION
     }
 }
 
-void CMySQLConnection::closeDatabase() THROWS_EXCEPTIONS
+void MySQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -115,17 +115,17 @@ void CMySQLConnection::closeDatabase() THROWS_EXCEPTIONS
     }
 }
 
-void* CMySQLConnection::handle() const
+void* MySQLConnection::handle() const
 {
     return m_connection;
 }
 
-bool CMySQLConnection::active() const
+bool MySQLConnection::active() const
 {
     return m_connection != 0L;
 }
 
-string CMySQLConnection::nativeConnectionString() const
+string MySQLConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
     string connectionString = m_connString.hostName();
@@ -136,7 +136,7 @@ string CMySQLConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void CMySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void MySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connection)
         open();
@@ -156,7 +156,7 @@ void CMySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void CMySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void MySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throwDatabaseException("Transaction isn't started.");
@@ -173,21 +173,21 @@ void CMySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-string CMySQLConnection::queryError(const Query *) const
+string MySQLConnection::queryError(const Query *) const
 {
     return mysql_error(m_connection);
 }
 
-void CMySQLConnection::queryAllocStmt(Query *query)
+void MySQLConnection::queryAllocStmt(Query *query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new CMySQLStatement(this, query->sql(), query->autoPrepare()));
+    querySetStmt(query, new MySQLStatement(this, query->sql(), query->autoPrepare()));
 }
 
-void CMySQLConnection::queryFreeStmt(Query *query)
+void MySQLConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
-    CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+    MySQLStatement* statement = (MySQLStatement*) query->statement();
     if (statement) {
         delete statement;
         querySetStmt(query, 0L);
@@ -195,11 +195,11 @@ void CMySQLConnection::queryFreeStmt(Query *query)
     }
 }
 
-void CMySQLConnection::queryCloseStmt(Query *query)
+void MySQLConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     try {
-        CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+        MySQLStatement* statement = (MySQLStatement*) query->statement();
         if (statement)
             statement->close();
     }
@@ -208,12 +208,12 @@ void CMySQLConnection::queryCloseStmt(Query *query)
     }
 }
 
-void CMySQLConnection::queryPrepare(Query *query)
+void MySQLConnection::queryPrepare(Query *query)
 {
     SYNCHRONIZED_CODE;
 
     if (!query->prepared()) {
-        CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+        MySQLStatement* statement = (MySQLStatement*) query->statement();
         try {
             statement->prepare(query->sql());
             statement->enumerateParams(query->params());
@@ -225,15 +225,15 @@ void CMySQLConnection::queryPrepare(Query *query)
     }
 }
 
-void CMySQLConnection::queryUnprepare(Query *query)
+void MySQLConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-int CMySQLConnection::queryColCount(Query *query)
+int MySQLConnection::queryColCount(Query *query)
 {
     int colCount = 0;
-    CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+    MySQLStatement* statement = (MySQLStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not opened");
@@ -245,11 +245,11 @@ int CMySQLConnection::queryColCount(Query *query)
     return colCount;
 }
 
-void CMySQLConnection::queryBindParameters(Query *query)
+void MySQLConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
-    CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+    MySQLStatement* statement = (MySQLStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not prepared");
@@ -260,9 +260,9 @@ void CMySQLConnection::queryBindParameters(Query *query)
     }
 }
 
-void CMySQLConnection::queryExecute(Query *query)
+void MySQLConnection::queryExecute(Query *query)
 {
-    CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+    MySQLStatement* statement = (MySQLStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query is not prepared");
@@ -273,7 +273,7 @@ void CMySQLConnection::queryExecute(Query *query)
     }
 }
 
-void CMySQLConnection::queryOpen(Query *query)
+void MySQLConnection::queryOpen(Query *query)
 {
     if (!active())
         open();
@@ -290,7 +290,7 @@ void CMySQLConnection::queryOpen(Query *query)
 		queryBindParameters(query);
     }
 
-    CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+    MySQLStatement* statement = (MySQLStatement*) query->statement();
 
     queryExecute(query);
     short fieldCount = (short) queryColCount(query);
@@ -309,7 +309,7 @@ void CMySQLConnection::queryOpen(Query *query)
     queryFetch(query);
 }
 
-void CMySQLConnection::queryFetch(Query *query)
+void MySQLConnection::queryFetch(Query *query)
 {
     if (!query->active())
         query->logAndThrow("CMySQLConnection::queryFetch", "Dataset isn't open");
@@ -317,7 +317,7 @@ void CMySQLConnection::queryFetch(Query *query)
     SYNCHRONIZED_CODE;
 
     try {
-        CMySQLStatement* statement = (CMySQLStatement*) query->statement();
+        MySQLStatement* statement = (MySQLStatement*) query->statement();
 
         statement->fetch();
         if (statement->eof()) {
@@ -332,7 +332,7 @@ void CMySQLConnection::queryFetch(Query *query)
     }
 }
 
-void CMySQLConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -369,7 +369,7 @@ void CMySQLConnection::objectList(CDbObjectType objectType, Strings& objects) TH
     }
 }
 
-void CMySQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
+void MySQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     char    fileName[256];
     sprintf(fileName, ".bulk.insert.%i.%i", getpid(), rand());
@@ -384,7 +384,7 @@ void CMySQLConnection::bulkInsert(std::string tableName, const Strings& columnNa
     }
 }
 
-void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void MySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
     Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
@@ -423,25 +423,25 @@ void CMySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
     }
 }
 
-std::string CMySQLConnection::driverDescription() const
+std::string MySQLConnection::driverDescription() const
 {
     if (m_connection)
         return string("MySQL ") + mysql_get_server_info(m_connection);
     return "MySQL";
 }
 
-std::string CMySQLConnection::paramMark(unsigned paramIndex)
+std::string MySQLConnection::paramMark(unsigned paramIndex)
 {
     return "?";
 }
 
 void* mysql_create_connection(const char* connectionString)
 {
-    CMySQLConnection* connection = new CMySQLConnection(connectionString);
+    MySQLConnection* connection = new MySQLConnection(connectionString);
     return connection;
 }
 
 void  mysql_destroy_connection(void* connection)
 {
-    delete (CMySQLConnection*) connection;
+    delete (MySQLConnection*) connection;
 }

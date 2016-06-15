@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDatabaseConnectionPool.cpp - description              ║
+║                       DatabaseConnectionPool.cpp - description              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -36,7 +36,7 @@
 using namespace std;
 using namespace sptk;
 
-class DriverLoaders : public map<string, CDatabaseDriver*, CaseInsensitiveCompare>
+class DriverLoaders : public map<string, DatabaseDriver*, CaseInsensitiveCompare>
 {
 public:
     DriverLoaders() {}
@@ -49,33 +49,33 @@ public:
 
 static DriverLoaders m_loadedDrivers;
 
-CDatabaseConnectionPool::CDatabaseConnectionPool(std::string connectionString, unsigned maxConnections) :
-    CDatabaseConnectionString(connectionString),
+DatabaseConnectionPool::DatabaseConnectionPool(std::string connectionString, unsigned maxConnections) :
+    DatabaseConnectionString(connectionString),
     m_driver(0),
     m_maxConnections(maxConnections)
 {
 }
 
-bool closeConnectionCB(CDatabaseConnection*& item, void* data)
+bool closeConnectionCB(DatabaseConnection*& item, void* data)
 {
-    CDatabaseConnection* connection = item;
-    CDatabaseConnectionPool* connectionPool = (CDatabaseConnectionPool*)data;
+    DatabaseConnection* connection = item;
+    DatabaseConnectionPool* connectionPool = (DatabaseConnectionPool*)data;
     connectionPool->destroyConnection(connection,false);
     return true;
 }
 
-CDatabaseConnectionPool::~CDatabaseConnectionPool()
+DatabaseConnectionPool::~DatabaseConnectionPool()
 {
     m_connections.each(closeConnectionCB,this);
 }
 
-void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
+void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
 
     string driverName = lowerCase(m_driverName);
 
-    CDatabaseDriver* loadedDriver = m_loadedDrivers[driverName];
+    DatabaseDriver* loadedDriver = m_loadedDrivers[driverName];
     if (loadedDriver) {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
@@ -86,13 +86,13 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     // Load the library
 #ifdef WIN32
     string driverFileName = "spdb5_"+driverName+".dll";
-    CDriverHandle handle = LoadLibrary(driverFileName.c_str());
+    DriverHandle handle = LoadLibrary(driverFileName.c_str());
     if (!handle)
         throw DatabaseException("Cannot load library: " + driverFileName);
 #else
     string driverFileName = "libspdb5_"+driverName+".so";
 
-    CDriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
+    DriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
     if (!handle)
         throw DatabaseException("Cannot load library: " + string(dlerror()));
 #endif
@@ -101,11 +101,11 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     string create_connectionFunctionName(driverName + "_create_connection");
     string destroy_connectionFunctionName(driverName + "_destroy_connection");
 #ifdef WIN32
-    CCreateDriverInstance* createConnection = (CCreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
+    CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
     if (!createConnection)
         throw DatabaseException("Cannot load driver " + driverName + ": no function " + create_connectionFunctionName);
 
-    CDestroyDriverInstance* destroyConnection = (CDestroyDriverInstance*) GetProcAddress(handle, destroy_connectionFunctionName.c_str());
+    DestroyDriverInstance* destroyConnection = (DestroyDriverInstance*) GetProcAddress(handle, destroy_connectionFunctionName.c_str());
     if (!destroyConnection)
         throw DatabaseException("Cannot load driver " + driverName + ": no function " + destroy_connectionFunctionName);
 #else
@@ -114,16 +114,16 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
 
     // workaround for deficiency of C++ standard
     union {
-        CCreateDriverInstance*  create_func_ptr;
-        CDestroyDriverInstance* destroy_func_ptr;
+        CreateDriverInstance*  create_func_ptr;
+        DestroyDriverInstance* destroy_func_ptr;
         void*                   void_ptr;
     } conv;
 
     // load the symbols
     conv.void_ptr = dlsym(handle, create_connectionFunctionName.c_str());
-    CCreateDriverInstance* createConnection = conv.create_func_ptr;
+    CreateDriverInstance* createConnection = conv.create_func_ptr;
 
-    CDestroyDriverInstance* destroyConnection = NULL;
+    DestroyDriverInstance* destroyConnection = NULL;
     const char* dlsym_error = dlerror();
     if (!dlsym_error) {
         conv.void_ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
@@ -138,7 +138,7 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     }
 
 #endif
-    CDatabaseDriver* driver = new CDatabaseDriver;
+    DatabaseDriver* driver = new DatabaseDriver;
     driver->m_handle = handle;
     driver->m_createConnection = createConnection;
     driver->m_destroyConnection = destroyConnection;
@@ -150,11 +150,11 @@ void CDatabaseConnectionPool::load() THROWS_EXCEPTIONS
     m_loadedDrivers[driverName] = driver;
 }
 
-CDatabaseConnection* CDatabaseConnectionPool::createConnection() THROWS_EXCEPTIONS
+DatabaseConnection* DatabaseConnectionPool::createConnection() THROWS_EXCEPTIONS
 {
     if (!m_driver)
         load();
-    CDatabaseConnection* connection = NULL;
+    DatabaseConnection* connection = NULL;
     if (m_connections.size() < m_maxConnections && m_pool.empty()) {
         connection = m_createConnection(str().c_str());
         m_connections.push_back(connection);
@@ -164,12 +164,12 @@ CDatabaseConnection* CDatabaseConnectionPool::createConnection() THROWS_EXCEPTIO
     return connection;
 }
 
-void CDatabaseConnectionPool::releaseConnection(CDatabaseConnection* connection)
+void DatabaseConnectionPool::releaseConnection(DatabaseConnection* connection)
 {
     m_pool.push(connection);
 }
 
-void CDatabaseConnectionPool::destroyConnection(CDatabaseConnection* connection, bool unlink)
+void DatabaseConnectionPool::destroyConnection(DatabaseConnection* connection, bool unlink)
 {
     if (unlink)
         m_connections.remove(connection);

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CTransaction.cpp - description                         ║
+║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
+║                        QueryParameterBinding.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,43 +26,56 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/Transaction.h>
+#ifndef __SPTK_QUERYPARAMBINDING_H__
+#define __SPTK_QUERYPARAMBINDING_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/sptk.h>
+#include <sptk5/Variant.h>
 
-CTransaction::CTransaction(CDatabaseConnection& db)
+#include <vector>
+#include <map>
+
+namespace sptk
 {
-    m_active = false;
-    m_db = &db;
+
+/// @addtogroup Database Database Support
+/// @{
+
+/// @brief Parameter Binding descriptor
+///
+/// Stores the last information on parameter binding
+class SP_EXPORT QueryParameterBinding
+{
+public:
+    void*        m_stmt;        ///< Statement handle or id
+    VariantType  m_dataType;    ///< Data type
+    void*        m_buffer;      ///< Buffer
+    uint32_t     m_size;        ///< Buffer size
+    bool         m_output;      ///< Output parameter flag
+public:
+    /// @brief Constructor
+    /// @param isOutput bool, Output parameter flag
+    QueryParameterBinding(bool isOutput)
+    {
+        reset(isOutput);
+    }
+
+    /// @brief Resets the binding information
+    /// @param isOutput bool, Output parameter flag
+    void reset(bool isOutput);
+
+    /// @brief Checks if the parameter binding is matching the cached
+    ///
+    /// Returns true, if the passed parameters are matching last binding parameters.
+    /// Returns false and stores new parameters into last binding parameters otherwise.
+    /// @param stmt void*, statement handle
+    /// @param type VariantType, data type
+    /// @param size uint32_t, binding buffer size
+    /// @param buffer void*, binding buffer
+    bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
+};
+
+/// @}
 }
 
-CTransaction::~CTransaction()
-{
-    if (m_active)
-        m_db->rollbackTransaction();
-}
-
-void CTransaction::begin()
-{
-    if (m_active)
-        throw DatabaseException("This transaction is already active");
-    m_active = true;
-    m_db->beginTransaction();
-}
-
-void CTransaction::commit()
-{
-    if (!m_active)
-        throw DatabaseException("This transaction is not active");
-    m_db->commitTransaction();
-    m_active = false;
-}
-
-void CTransaction::rollback()
-{
-    if (!m_active)
-        throw DatabaseException("This transaction is not active");
-    m_db->rollbackTransaction();
-    m_active = false;
-}
+#endif

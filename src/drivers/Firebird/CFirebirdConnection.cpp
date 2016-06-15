@@ -38,7 +38,7 @@ using namespace std;
 using namespace sptk;
 
 CFirebirdConnection::CFirebirdConnection(string connectionString) :
-    CDatabaseConnection(connectionString),
+    DatabaseConnection(connectionString),
     m_connection(0)
 {
     m_connType = DCT_FIREBIRD;
@@ -356,7 +356,7 @@ void CFirebirdConnection::queryFetch(Query *query)
     }
 }
 
-void CFirebirdConnection::objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void CFirebirdConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();

@@ -30,7 +30,7 @@
 #define __CPOSTGRESQLPARAMVALUES_H__
 
 #include <sptk5/db/PostgreSQLConnection.h>
-#include <sptk5/db/ParameterList.h>
+#include <sptk5/db/QueryParameterList.h>
 #include "pgtypes.h"
 
 namespace sptk {
@@ -81,7 +81,7 @@ namespace sptk {
             }
         }
 
-        void setParameters(CParamList& params);
+        void setParameters(QueryParameterList& params);
 
         void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PG_DATA_TYPE dataType) {
             m_values[paramIndex] = (const char*) value;
@@ -90,7 +90,7 @@ namespace sptk {
             m_types[paramIndex] = dataType;
         }
 
-        void setParameterValue(unsigned paramIndex, CParam* param) THROWS_EXCEPTIONS;
+        void setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS;
 
         unsigned size() const               { return m_count;   }
         const char* const* values() const   { return m_values;  }

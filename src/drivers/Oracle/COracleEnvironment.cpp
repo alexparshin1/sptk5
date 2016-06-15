@@ -32,19 +32,19 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-COracleEnvironment::COracleEnvironment()
+OracleEnvironment::OracleEnvironment()
 : m_handle(Environment::createEnvironment("UTF8", "UTF8", Environment::THREADED_MUTEXED))
 {
 }
 
 /// @brief Destructor
-COracleEnvironment::~COracleEnvironment()
+OracleEnvironment::~OracleEnvironment()
 {
     Environment::terminateEnvironment(m_handle);
 }
 
 /// @brief Returns client version
-std::string COracleEnvironment::clientVersion() const
+std::string OracleEnvironment::clientVersion() const
 {
     int major, minor, update, patch, portUpdate;
     m_handle->getClientVersion(major, minor, update, patch, portUpdate);
@@ -54,7 +54,7 @@ std::string COracleEnvironment::clientVersion() const
     return version;
 }
 
-oracle::occi::Connection* COracleEnvironment::createConnection(CDatabaseConnectionString& connectionString)
+oracle::occi::Connection* OracleEnvironment::createConnection(DatabaseConnectionString& connectionString)
 {
     string host = connectionString.hostName();
     if (connectionString.portNumber())
@@ -64,7 +64,7 @@ oracle::occi::Connection* COracleEnvironment::createConnection(CDatabaseConnecti
     return m_handle->createConnection(connectionString.userName(), connectionString.password(), host);
 }
 
-void COracleEnvironment::terminateConnection(oracle::occi::Connection* connection)
+void OracleEnvironment::terminateConnection(oracle::occi::Connection* connection)
 {
     m_handle->terminateConnection(connection);
 }

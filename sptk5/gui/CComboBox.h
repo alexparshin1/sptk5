@@ -167,7 +167,7 @@ public:
 
     /// Adds a new column to the internal list view.
     /// @param cname std::string, column name
-    /// @param type CVariantType, column data type
+    /// @param type VariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, is the column visible?
     void addColumn(std::string cname, VariantType type = VAR_STRING, int16_t cwidth = 70, bool cvisible = true);
@@ -246,10 +246,10 @@ public:
     }
 
     /// Returns database connection pointer
-    CDatabaseConnection* database() const;
+    DatabaseConnection* database() const;
 
     /// Defines database connection
-    void database(CDatabaseConnection* db);
+    void database(DatabaseConnection* db);
 
     /// Returns SQL query text
     std::string sql() const;
@@ -279,17 +279,17 @@ public:
     void sortColumn(int sortColumn);
 
     /// The fast way to define a database connection.
-    /// @param db CDatabaseConnection *, a pointer to the database
+    /// @param db DatabaseConnection *, a pointer to the database
     /// @param sql std::string, a SQL query text
     /// @param keyField std::string, a name of the query field with unique row IDs
-    void setup(CDatabaseConnection* db, std::string sql, std::string keyField);
+    void setup(DatabaseConnection* db, std::string sql, std::string keyField);
 
     /// Returns the SQL query parameter reference for the parameter name. It is
     /// typical to call:
     ///   myCombo.param("customer_id") = 1234;
     /// @param paramName const char *, parameter name.
     /// @returns the parameter reference, if found, or throws an excception.
-    CParam& param(const char *paramName);
+    QueryParameter& param(const char *paramName);
 
     /// Reloads data from the database if database connection is defined.
     /// Throws an exception if any error.

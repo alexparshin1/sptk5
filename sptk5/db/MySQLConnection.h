@@ -45,10 +45,10 @@ class Query;
 class CMySQLStatement;
 
 /// @brief MySQL database connection
-class SP_EXPORT CMySQLConnection: public CDatabaseConnection
+class SP_EXPORT MySQLConnection: public DatabaseConnection
 {
     friend class Query;
-    friend class CMySQLStatement;
+    friend class MySQLStatement;
 
 private:
 
@@ -102,10 +102,10 @@ public:
     /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
     /// If the connection string is empty then default database with the name equal to user name is used.
     /// @param connectionString std::string, the MySQL connection string
-    CMySQLConnection(std::string connectionString = "");
+    MySQLConnection(std::string connectionString = "");
 
     /// @brief Destructor
-    virtual ~CMySQLConnection();
+    virtual ~MySQLConnection();
 
     /// @brief Opens the database connection. If unsuccessful throws an exception.
     /// @param connectionString std::string, the MySQL connection string
@@ -129,7 +129,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(CDbObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
 
     /// @brief Executes bulk inserts of data from memory buffer
     ///

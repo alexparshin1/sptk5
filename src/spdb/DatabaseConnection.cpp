@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CDatabaseConnection.cpp - description                  ║
+║                       DatabaseConnection.cpp - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -32,14 +32,14 @@
 using namespace std;
 using namespace sptk;
 
-CDatabaseConnection::CDatabaseConnection(string connectionString) :
+DatabaseConnection::DatabaseConnection(string connectionString) :
         m_connString(connectionString)
 {
     m_inTransaction = false;
     m_log = 0;
 }
 
-CDatabaseConnection::~CDatabaseConnection()
+DatabaseConnection::~DatabaseConnection()
 {
     // To prevent the exceptions, if the database connection
     // is terminated already
@@ -53,37 +53,37 @@ CDatabaseConnection::~CDatabaseConnection()
     }
 }
 
-bool CDatabaseConnection::linkQuery(Query *q)
+bool DatabaseConnection::linkQuery(Query *q)
 {
     m_queryList.push_back(q);
     return true;
 }
 
-bool CDatabaseConnection::unlinkQuery(Query *q)
+bool DatabaseConnection::unlinkQuery(Query *q)
 {
     CQueryVector::iterator itor = find(m_queryList.begin(), m_queryList.end(), q);
     m_queryList.erase(itor);
     return true;
 }
 
-void CDatabaseConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void DatabaseConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     notImplemented("openDatabase");
 }
 
-void CDatabaseConnection::open(string newConnectionString) THROWS_EXCEPTIONS
+void DatabaseConnection::open(string newConnectionString) THROWS_EXCEPTIONS
 {
     openDatabase(newConnectionString);
     if (m_log)
         *m_log << "Opened database: " << m_connString.str() << endl;
 }
 
-void CDatabaseConnection::closeDatabase() THROWS_EXCEPTIONS
+void DatabaseConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     //closeDatabase();
 }
 
-void CDatabaseConnection::close() THROWS_EXCEPTIONS
+void DatabaseConnection::close() THROWS_EXCEPTIONS
 {
     if (active()) {
         if (m_inTransaction) {
@@ -100,33 +100,33 @@ void CDatabaseConnection::close() THROWS_EXCEPTIONS
     }
 }
 
-void* CDatabaseConnection::handle() const
+void* DatabaseConnection::handle() const
 {
     notImplemented("handle");
     return 0;
 }
 
-bool CDatabaseConnection::active() const
+bool DatabaseConnection::active() const
 {
     notImplemented("active");
     return true;
 }
 
-void CDatabaseConnection::beginTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::beginTransaction() THROWS_EXCEPTIONS
 {
     if (m_log)
         *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
-void CDatabaseConnection::commitTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::commitTransaction() THROWS_EXCEPTIONS
 {
     if (m_log)
         *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
-void CDatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
 {
     if (m_log)
         *m_log << "Rollback transaction" << endl;
@@ -135,124 +135,124 @@ void CDatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
 
 //-----------------------------------------------------------------------------------------------
 
-string CDatabaseConnection::queryError(const Query *) const
+string DatabaseConnection::queryError(const Query *) const
 {
     notImplemented("queryError");
     return "";
 }
 
-void CDatabaseConnection::querySetAutoPrep(Query *q, bool pf)
+void DatabaseConnection::querySetAutoPrep(Query *q, bool pf)
 {
     q->m_autoPrepare = pf;
 }
 
-void CDatabaseConnection::querySetStmt(Query *q, void *stmt)
+void DatabaseConnection::querySetStmt(Query *q, void *stmt)
 {
     q->m_statement = stmt;
 }
 
-void CDatabaseConnection::querySetConn(Query *q, void *conn)
+void DatabaseConnection::querySetConn(Query *q, void *conn)
 {
     q->m_connection = conn;
 }
 
-void CDatabaseConnection::querySetPrepared(Query *q, bool pf)
+void DatabaseConnection::querySetPrepared(Query *q, bool pf)
 {
     q->m_prepared = pf;
 }
 
-void CDatabaseConnection::querySetActive(Query *q, bool af)
+void DatabaseConnection::querySetActive(Query *q, bool af)
 {
     q->m_active = af;
 }
 
-void CDatabaseConnection::querySetEof(Query *q, bool eof)
+void DatabaseConnection::querySetEof(Query *q, bool eof)
 {
     q->m_eof = eof;
 }
 
-void CDatabaseConnection::queryAllocStmt(Query *)
+void DatabaseConnection::queryAllocStmt(Query *)
 {
     notImplemented("queryAllocStmt");
 }
 
-void CDatabaseConnection::queryFreeStmt(Query *)
+void DatabaseConnection::queryFreeStmt(Query *)
 {
     notImplemented("queryFreeStmt");
 }
 
-void CDatabaseConnection::queryCloseStmt(Query *)
+void DatabaseConnection::queryCloseStmt(Query *)
 {
     notImplemented("queryCloseStmt");
 }
 
-void CDatabaseConnection::queryPrepare(Query *)
+void DatabaseConnection::queryPrepare(Query *)
 {
     notImplemented("queryPrepare");
 }
 
-void CDatabaseConnection::queryUnprepare(Query *query)
+void DatabaseConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-void CDatabaseConnection::queryExecute(Query *)
+void DatabaseConnection::queryExecute(Query *)
 {
     notImplemented("queryExecute");
 }
 
-int CDatabaseConnection::queryColCount(Query *)
+int DatabaseConnection::queryColCount(Query *)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void CDatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, int32_t&)
+void DatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void CDatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, char *, int32_t)
+void DatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void CDatabaseConnection::queryBindParameters(Query *)
+void DatabaseConnection::queryBindParameters(Query *)
 {
     notImplemented("queryBindParameters");
 }
 
-void CDatabaseConnection::queryOpen(Query *)
+void DatabaseConnection::queryOpen(Query *)
 {
     notImplemented("queryOpen");
 }
 
-void CDatabaseConnection::queryFetch(Query *)
+void DatabaseConnection::queryFetch(Query *)
 {
     notImplemented("queryFetch");
 }
 
-void CDatabaseConnection::notImplemented(const char *methodName) const
+void DatabaseConnection::notImplemented(const char *methodName) const
 {
     throw DatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
 }
 
-void *CDatabaseConnection::queryHandle(Query *query) const
+void *DatabaseConnection::queryHandle(Query *query) const
 {
     return query->m_statement;
 }
 
-void CDatabaseConnection::queryHandle(Query *query, void *handle)
+void DatabaseConnection::queryHandle(Query *query, void *handle)
 {
     query->m_statement = handle;
 }
 
-string CDatabaseConnection::paramMark(unsigned paramIndex)
+string DatabaseConnection::paramMark(unsigned paramIndex)
 {
     return "?";
 }
 
-void CDatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPTIONS
+void DatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
     if (m_log)
@@ -260,29 +260,29 @@ void CDatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPT
     throw DatabaseException(errorText);
 }
 
-void CDatabaseConnection::logFile(Logger *logFile)
+void DatabaseConnection::logFile(Logger *logFile)
 {
     m_log = logFile;
 }
 
 /// @brief Returns a log file for the database operations.
 /// @returns current log file ptr, ot NULL if log file isn't set
-Logger* CDatabaseConnection::logFile()
+Logger* DatabaseConnection::logFile()
 {
     return m_log;
 }
 
-void CDatabaseConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     notImplemented("driverBeginTransaction");
 }
 
-void CDatabaseConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void DatabaseConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     notImplemented("driverEndTransaction");
 }
 
-void CDatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
+void DatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     Query insertQuery(this,
                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
@@ -295,7 +295,7 @@ void CDatabaseConnection::bulkInsert(std::string tableName, const Strings& colum
     }
 }
 
-void CDatabaseConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void DatabaseConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

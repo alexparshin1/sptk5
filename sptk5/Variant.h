@@ -406,7 +406,7 @@ public:
     /// Useful for the database operations.
     /// Releases the memory allocated for string/text/blob types.
     /// Retains the data type. Sets the data to zero(s).
-    /// @param vtype CVariantType, optional variant type to enforce
+    /// @param vtype VariantType, optional variant type to enforce
     virtual void setNull(VariantType vtype=VAR_NONE);
 
     /// @brief Null flag
@@ -415,7 +415,7 @@ public:
     bool isNull() const;
 
     /// @brief Returns a name for a particular variant type
-    /// @param type CVariantType, a variant type
+    /// @param type VariantType, a variant type
     static std::string typeName(VariantType type);
 
     /// @brief Returns a type for a particular variant type name

@@ -42,38 +42,38 @@ namespace sptk
 /// @{
 
 /// @brief Create driver instance function type
-typedef CDatabaseConnection* CCreateDriverInstance(const char*);
+typedef DatabaseConnection* CreateDriverInstance(const char*);
 
 /// @brief Destroy driver instance function type
-typedef void CDestroyDriverInstance(CDatabaseConnection*);
+typedef void DestroyDriverInstance(DatabaseConnection*);
 
 #ifdef WIN32
-    typedef HMODULE CDriverHandle;                   ///< Windows: Driver DLL handle type
+    typedef HMODULE DriverHandle;                   ///< Windows: Driver DLL handle type
 #else
-    typedef void*   CDriverHandle;                   ///< Unix: Driver shared library handle type
+    typedef void*   DriverHandle;                   ///< Unix: Driver shared library handle type
 #endif
 
 /// @brief Information about loaded database driver
-struct SP_EXPORT CDatabaseDriver
+struct SP_EXPORT DatabaseDriver
 {
-    CDriverHandle                               m_handle;               ///< Driver SO/DLL handle after load
-    CCreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
-    CDestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
+    DriverHandle                               m_handle;               ///< Driver SO/DLL handle after load
+    CreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
+    DestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
 };
 
 /// @brief Database driver loader
 ///
 /// Loads and initializes SPTK database driver by request.
 /// Already loaded drivers are cached.
-class SP_EXPORT CDatabaseConnectionPool : public CSynchronized, public CDatabaseConnectionString
+class SP_EXPORT DatabaseConnectionPool : public CSynchronized, public DatabaseConnectionString
 {
-    CDatabaseDriver*                            m_driver;               ///< Database driver
+    DatabaseDriver*                            m_driver;               ///< Database driver
 protected:
-    CCreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
-    CDestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
-    unsigned                                    m_maxConnections;       ///< Maximum number of connections in the pool
-    CSynchronizedList<CDatabaseConnection*>     m_connections;          ///< List all connections
-    CSynchronizedQueue<CDatabaseConnection*>    m_pool;                 ///< Connection pool
+    CreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
+    DestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
+    unsigned                                   m_maxConnections;       ///< Maximum number of connections in the pool
+    CSynchronizedList<DatabaseConnection*>     m_connections;          ///< List all connections
+    CSynchronizedQueue<DatabaseConnection*>    m_pool;                 ///< Connection pool
 
     /// @brief Loads database driver
     ///
@@ -87,37 +87,37 @@ public:
     /// created with this object.
     /// @param connectionString std::string, Database connection string
     /// @param maxConnections unsigned, Maximum number of connections in the pool
-    CDatabaseConnectionPool(std::string connectionString, unsigned maxConnections=100);
+    DatabaseConnectionPool(std::string connectionString, unsigned maxConnections=100);
 
     /// @brief Destructor
     ///
     /// Closes and destroys all created connections
-    ~CDatabaseConnectionPool();
+    ~DatabaseConnectionPool();
 
     /// @brief Creates database connection
-    CDatabaseConnection* createConnection() THROWS_EXCEPTIONS;
+    DatabaseConnection* createConnection() THROWS_EXCEPTIONS;
 
     /// @brief Returns used database connection back to the pool
-    /// @param connection CDatabaseConnection*, Database that is no longer in use and may be returned to the pool
-    void releaseConnection(CDatabaseConnection* connection);
+    /// @param connection DatabaseConnection*, Database that is no longer in use and may be returned to the pool
+    void releaseConnection(DatabaseConnection* connection);
 
     /// @brief Destroys connection
-    /// @param connection CDatabaseConnection*, destroys the driver instance
+    /// @param connection DatabaseConnection*, destroys the driver instance
     /// @param unlink bool, should always be true for any external use
-    void destroyConnection(CDatabaseConnection* connection, bool unlink=true);
+    void destroyConnection(DatabaseConnection* connection, bool unlink=true);
 };
 
 /// @brief Wrapper for CDatabase connection that automatically handles connection create and release
-class CAutoDatabaseConnection
+class AutoDatabaseConnection
 {
-    CDatabaseConnectionPool&    m_connectionPool;   ///< Database connection pool
-    CDatabaseConnection*        m_connection;       ///< Database connection
+    DatabaseConnectionPool&    m_connectionPool;   ///< Database connection pool
+    DatabaseConnection*        m_connection;       ///< Database connection
 public:
 
     /// @brief Constructor
     /// Automatically gets connection from connection pool
-    /// @param connectionPool CDatabaseConnectionPool&, Database connection pool
-    CAutoDatabaseConnection(CDatabaseConnectionPool& connectionPool)
+    /// @param connectionPool DatabaseConnectionPool&, Database connection pool
+    AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
     : m_connectionPool(connectionPool)
     {
         m_connection = m_connectionPool.createConnection();
@@ -125,14 +125,14 @@ public:
 
     /// @brief Destructor
     /// Releases connection to connection pool
-    ~CAutoDatabaseConnection()
+    ~AutoDatabaseConnection()
     {
         if (m_connection)
             m_connectionPool.releaseConnection(m_connection);
     }
 
     /// @brief Returns database connection acquired from the connection pool
-    CDatabaseConnection* connection()
+    DatabaseConnection* connection()
     {
         return m_connection;
     }
