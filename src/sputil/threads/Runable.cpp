@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRunable.cpp - description                             ║
+║                       Runable.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,38 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/CRunable.h>
+#include <sptk5/threads/Runable.h>
 
 using namespace std;
 using namespace sptk;
 
-CRunable::CRunable() :
+Runable::Runable() :
     m_terminated(false)
 {
 }
 
-CRunable::~CRunable()
+Runable::~Runable()
 {
 }
 
-void CRunable::execute() THROWS_EXCEPTIONS
+void Runable::execute() THROWS_EXCEPTIONS
 {
-    CSynchronizedCode   sc(m_running);
+    SynchronizedCode   sc(m_running);
     m_terminated = false;
     run();
 }
 
-void CRunable::terminate()
+void Runable::terminate()
 {
     m_terminated = true;
 }
 
-bool CRunable::terminated()
+bool Runable::terminated()
 {
     return m_terminated;
 }
 
-bool CRunable::completed(uint32_t timeoutMS) THROWS_EXCEPTIONS
+bool Runable::completed(uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     try {
         m_running.lock(timeoutMS);

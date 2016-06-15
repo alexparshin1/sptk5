@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWorkerThread.h - description                          ║
+║                       Semaphore.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,64 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CWORKERTHREAD_H__
-#define __CWORKERTHREAD_H__
+#include <sptk5/threads/Semaphore.h>
 
-#include <sptk5/threads/CThread.h>
-#include <sptk5/threads/CThreadEvent.h>
-#include <sptk5/threads/CRunable.h>
-#include <sptk5/threads/CSynchronizedQueue.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/// @addtogroup threads Thread Classes
-/// @{
-
-/// @brief Worker thread for thread manager
-///
-/// Worker threads are created by thread manager.
-/// They are designed to read tasks from internal or external
-/// queue. Executed tasks are objects derived from CRunable.
-/// If a thread event object is defined, worker thread may report events
-/// such as thread start, task start, etc.
-/// Worker thread automatically terminates if it's idle for the period longer
-/// than defined maxIdleSec (seconds).
-class SP_EXPORT CWorkerThread : public CThread
+Semaphore::Semaphore(uint32_t startingValue)
 {
-    bool                            m_queueOwner;       ///< If true then worker thread owns task queue
-    CSynchronizedQueue<CRunable*>*  m_queue;            ///< Task queue
-    CThreadEvent*                   m_threadEvent;      ///< Optional thread event interface
-    uint32_t                        m_maxIdleSeconds;   ///< Number of thread idle seconds before thread terminates automatically
-
-protected:
-
-    /// @brief Thread function
-    void threadFunction();
-
-public:
-
-    /// @brief Constructor
-    ///
-    /// If queue is NULL then worker thread uses internal task queue.
-    /// Otherwise, external (shared) task queue is used.
-    /// If maxIdleSec is defined and thread is idle (not executing any tasks)
-    /// for a period longer than maxIdleSec then it terminates automatically.
-    /// @param queue CSynchronizedQueue<CRunable*>*, Task queue
-    /// @param threadEvent CThreadEvent*, Optional thread event interface
-    /// @param maxIdleSeconds int32_t, Maximum time the thread is idle, seconds
-    CWorkerThread(CSynchronizedQueue<CRunable*>* queue=NULL,
-                  CThreadEvent* threadEvent=NULL,
-                  uint32_t maxIdleSeconds=SP_INFINITY);
-
-    /// @brief Destructor
-    ~CWorkerThread();
-
-    /// @brief Execute runable task
-    /// @param task CRunable*, Task to execute in the worker thread
-    void execute(CRunable* task);
-};
-
-/// @}
+    m_value = (int) startingValue;
 }
 
-#endif
+Semaphore::~Semaphore()
+{
+}
+
+void Semaphore::post() THROWS_EXCEPTIONS
+{
+    m_value++;
+}
+
+bool Semaphore::wait(uint32_t timeoutMS) THROWS_EXCEPTIONS
+{
+    unique_lock<mutex>  lock(m_mutex);
+    
+    // Wait until semaphore value is greater than 0
+    if (!m_condition.wait_for(lock, 
+                              chrono::milliseconds(timeoutMS), 
+                              [this](){return m_value > 0;}))
+    {
+        return false;
+    }
+
+    m_value--;
+
+    return true;
+}

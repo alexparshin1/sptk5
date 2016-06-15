@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSemaphore.cpp - description                           ║
+║                       Runable.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,38 +26,59 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/CSemaphore.h>
+#ifndef __SPTK_RUNABLE_H__
+#define __SPTK_RUNABLE_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/threads/SynchronizedCode.h>
+#include <sptk5/Strings.h>
 
-CSemaphore::CSemaphore(uint32_t startingValue)
+namespace sptk
 {
-    m_value = (int) startingValue;
+
+/// @addtogroup threads Thread Classes
+/// @{
+
+/// @brief Abstract runable object.
+///
+/// Should be used for deriving a user class for executing by a worker
+/// thread in a thread pool. Derived class must override run() method.
+class SP_EXPORT Runable
+{
+    bool            m_terminated;   ///< Flag: is the task sent terminate request?
+    Synchronized    m_running;      ///< Synchronized object locked while the task running
+
+protected:
+
+    /// @brief Method that is executed by worker thread
+    ///
+    /// Should be overwritten by derived class.
+    virtual void run() THROWS_EXCEPTIONS = 0;
+
+public:
+
+    /// @brief Default Constructor
+    Runable();
+
+    /// @brief Destructor
+    virtual ~Runable();
+
+    /// @brief Executes task' run method
+    ///
+    /// Task may be executed multiple times, but only one caller
+    /// may execute same task at a time.
+    void execute() THROWS_EXCEPTIONS;
+
+    /// @brief Requests execution termination
+    void terminate();
+
+    /// @brief Returns true if terminate request is sent to runable
+    bool terminated();
+
+    /// @brief Returns true, if the task is completed
+    /// @param timeoutMS uint32_t, Wait timeout, milliseconds
+    bool completed(uint32_t timeoutMS=SP_INFINITY) THROWS_EXCEPTIONS;
+};
+/// @}
 }
 
-CSemaphore::~CSemaphore()
-{
-}
-
-void CSemaphore::post() THROWS_EXCEPTIONS
-{
-    m_value++;
-}
-
-bool CSemaphore::wait(uint32_t timeoutMS) THROWS_EXCEPTIONS
-{
-    unique_lock<mutex>  lock(m_mutex);
-    
-    // Wait until semaphore value is greater than 0
-    if (!m_condition.wait_for(lock, 
-                              chrono::milliseconds(timeoutMS), 
-                              [this](){return m_value > 0;}))
-    {
-        return false;
-    }
-
-    m_value--;
-
-    return true;
-}
+#endif

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRWLock.h - description                                ║
+║                       ThreadEvent.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,48 +26,42 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CRWLOCK_H__
-#define __CRWLOCK_H__
+#ifndef __SPTK_THREADEVENT_H__
+#define __SPTK_THREADEVENT_H__
 
-#include <sptk5/sptk.h>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
+#include <sptk5/threads/Thread.h>
 
 namespace sptk {
 
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// Read-write synchronization object
-class SP_EXPORT CRWLock
+/// @brief Thread event interface
+class SP_EXPORT ThreadEvent
 {
-protected:
-
-    std::mutex              m_writeLock;    ///< Lock mutex
-    std::condition_variable m_condition;    ///< Lock condition variable
-    std::atomic<int>        m_readerCount;  ///< Reader lock count
-    std::atomic<bool>       m_writerMode;   ///< Writer mode flag
-
 public:
+    /// @brief Thread event type
+    enum Type {
+        THREAD_STARTED,     ///< Thread started event
+        THREAD_FINISHED,    ///< Thread finished event
+        RUNABLE_STARTED,    ///< Runable started
+        RUNABLE_FINISHED,   ///< Runable finished
+        IDLE_TIMEOUT        ///< Thread was idle longer than defined idle timeout
+    };
+public:
+    /// @brief Thread event callback function
+    ///
+    /// In order to receive thread events, event receiver
+    /// should be derived from this class.
+    /// @param thread Thread*, Thread where event occured
+    /// @param eventType Type, Thread event type
+    virtual void threadEvent(Thread* thread, Type eventType) = 0;
 
-    /// Constructor
-    CRWLock();
-
-    /// Destructor
-    ~CRWLock();
-
-    /// Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
-    /// @param timeout int, timeout in milliseconds
-    int lockR(int timeout);
-
-    /// Try to lock the object for writing. Blocks if object is locked for reading or writing.
-    /// @param timeout int, timeout in milliseconds
-    int lockRW(int timeout);
-
-    /// Releases lock on the object.
-    void unlock();
+    /// @brief Destructor
+    virtual ~ThreadEvent()
+    {}
 };
+
 /// @}
 }
 

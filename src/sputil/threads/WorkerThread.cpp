@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSynchronized.cpp - description                        ║
+║                       WorkerThread.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,57 +26,65 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/CSynchronized.h>
+#include <sptk5/threads/WorkerThread.h>
+#include <iostream>
 
 using namespace std;
 using namespace sptk;
 
-CSynchronized::CSynchronized() :
-    m_location(NULL,0)
+void WorkerThread::threadFunction()
 {
-}
+    if (m_threadEvent)
+        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED);
 
-CSynchronized::~CSynchronized()
-{
-}
+    uint32_t idleSeconds = 0;
+    while (!terminated()) {
 
-void CSynchronized::throwError(const char* fileName, int lineNumber) THROWS_EXCEPTIONS
-{
-    string error("Lock failed");
+        if (m_maxIdleSeconds != SP_INFINITY && idleSeconds >= m_maxIdleSeconds)
+            break;
 
-    if (fileName) {
-        error += " at " + CLocation(fileName, lineNumber).toString();
-        if (m_location.file())
-            error += ", conflicting lock at " + m_location.toString();
+        Runable* runable = NULL;
+        if (m_queue->pop(runable, 1000)) {
+            idleSeconds = 0;
+            if (m_threadEvent)
+                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED);
+            try {
+                runable->execute();
+            }
+            catch (exception& e) {
+                cerr << "Runable::run() : " << e.what() << endl;
+            }
+            catch (...) {
+                cerr << "Runable::run() : unknown exception" << endl;
+            }
+            if (m_threadEvent)
+                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED);
+        } else
+            idleSeconds++;
     }
-
-    throw Exception(error + ": Lock timeout");
+    if (m_threadEvent)
+        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED);
 }
 
-
-void CSynchronized::lock(const char* fileName, int lineNumber)
+WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* threadEvent, uint32_t maxIdleSeconds) :
+    Thread("worker"),
+    m_threadEvent(threadEvent),
+    m_maxIdleSeconds(maxIdleSeconds)
 {
-    lock(uint32_t(-1), fileName, lineNumber);
+    if (queue)
+        m_queue = queue;
+    else
+        m_queue = new SynchronizedQueue<Runable*>;
+    m_queueOwner = (queue == NULL);
 }
 
-void CSynchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber) THROWS_EXCEPTIONS
+WorkerThread::~WorkerThread()
 {
-    if (timeoutMS == uint32_t(-1))
-        m_synchronized.lock();
-    else {
-        if (!m_synchronized.try_lock_for(chrono::milliseconds(timeoutMS)))
-            throwError(fileName, lineNumber);
-    }
-    // Storing successful lock invocation location
-    m_location.set(fileName, lineNumber);
+    if (m_queueOwner)
+        delete m_queue;
 }
 
-bool CSynchronized::tryLock()
+void WorkerThread::execute(Runable* task)
 {
-    return m_synchronized.try_lock();
-}
-
-void CSynchronized::unlock()
-{
-    m_synchronized.unlock();
+    m_queue->push(task);
 }

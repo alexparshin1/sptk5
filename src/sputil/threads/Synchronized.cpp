@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThread.h - description                                ║
+║                       Synchronized.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,78 +26,57 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHREAD_H__
-#define __CTHREAD_H__
+#include <sptk5/threads/Synchronized.h>
 
-#include <sptk5/threads/CSynchronizedCode.h>
+using namespace std;
+using namespace sptk;
 
-#include <thread>
-#include <atomic>
-#include <mutex>
-
-namespace sptk
+Synchronized::Synchronized() :
+    m_location(NULL,0)
 {
-
-/// @addtogroup threads Thread Classes
-/// @{
-
-/// @brief Base thread object.
-///
-/// Should be used for deriving a user thread
-/// by overwriting threadFunction().
-class SP_EXPORT CThread
-{
-    static void threadStart(void* athread);
-
-protected:
-    std::string         m_name;         ///< Thread name
-    std::thread         m_thread;       ///< Thread object
-    std::mutex          m_mutex;        ///< Thread synchronization object
-    bool                m_terminated;   ///< Flag: is the thread terminated?
-
-public:
-
-    typedef std::thread::id Id;         ///< Thread ID type
-
-    /// @brief Constructor
-    /// @param name CString, name of the thread for future references.
-    CThread(std::string name);
-
-    /// @brief Destructor
-    virtual ~CThread();
-
-    /// @brief Starts the already created thread
-    void run();
-
-    /// @brief The thread function. Should be overwritten by the derived class.
-    virtual void threadFunction() = 0;
-
-    /// @brief Requests to terminate the thread
-    virtual void terminate();
-
-    /// @brief This method is executed immediately after thread function exit
-    virtual void onThreadExit() {}
-
-    /// @brief Returns true if the thread is terminated
-    bool terminated();
-
-    /// @brief Waits until thread joins
-    void join();
-
-    /// @brief Returns this thread OS id
-    Id id();
-
-    /// @brief Returns the name of the thread
-    const std::string& name() const
-    {
-        return m_name;
-    }
-
-    /// @brief Pauses the thread
-    /// @param msec int, pause time in milliseconds
-    static void msleep(int msec);
-};
-/// @}
 }
 
-#endif
+Synchronized::~Synchronized()
+{
+}
+
+void Synchronized::throwError(const char* fileName, int lineNumber) THROWS_EXCEPTIONS
+{
+    string error("Lock failed");
+
+    if (fileName) {
+        error += " at " + CLocation(fileName, lineNumber).toString();
+        if (m_location.file())
+            error += ", conflicting lock at " + m_location.toString();
+    }
+
+    throw Exception(error + ": Lock timeout");
+}
+
+
+void Synchronized::lock(const char* fileName, int lineNumber)
+{
+    lock(uint32_t(-1), fileName, lineNumber);
+}
+
+void Synchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber) THROWS_EXCEPTIONS
+{
+    if (timeoutMS == uint32_t(-1))
+        m_synchronized.lock();
+    else {
+        if (!m_synchronized.try_lock_for(chrono::milliseconds(timeoutMS)))
+            throwError(fileName, lineNumber);
+    }
+    // Storing successful lock invocation location
+    m_location.set(fileName, lineNumber);
+}
+
+bool Synchronized::tryLock()
+{
+    return m_synchronized.try_lock();
+}
+
+void Synchronized::unlock()
+{
+    m_synchronized.unlock();
+}

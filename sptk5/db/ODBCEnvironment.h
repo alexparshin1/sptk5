@@ -48,7 +48,7 @@
 #include <assert.h>
 
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/threads/CSynchronizedCode.h>
+#include <sptk5/threads/SynchronizedCode.h>
 
 namespace sptk
 {
@@ -63,7 +63,7 @@ class QueryParameter;
 /// @brief ODBC base
 ///
 /// Base class for all ODBC classes
-class SP_DRIVER_EXPORT ODBCBase : public CSynchronized
+class SP_DRIVER_EXPORT ODBCBase : public Synchronized
 {
 protected:
     /// Last RETCODE returned from ODBC function

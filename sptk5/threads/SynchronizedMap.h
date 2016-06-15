@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSynchronizedMap.h - description                       ║
+║                       SynchronizedMap.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -30,7 +30,7 @@
 #define __CSYNCHRONIZEDMAP_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/CSynchronizedCode.h>
+#include <sptk5/threads/SynchronizedCode.h>
 #include <map>
 
 namespace sptk {
@@ -42,14 +42,14 @@ namespace sptk {
 ///
 /// Simple thread-safe map
 template <class K, class T>
-class CSynchronizedMap
+class SynchronizedMap
 {
     typedef std::map<K,T>   Map;
     Map                     m_map;              ///< Map
 
 protected:
 
-    mutable CSynchronized   m_sync;             ///< Lock to synchronize map operations
+    mutable Synchronized    m_sync;             ///< Lock to synchronize map operations
 
 public:
 
@@ -64,11 +64,11 @@ public:
 public:
 
     /// @brief Default constructor
-    CSynchronizedMap()
+    SynchronizedMap()
     {}
 
     /// @brief Destructor
-    virtual ~CSynchronizedMap()
+    virtual ~SynchronizedMap()
     {}
 
     /// @brief Inserts data item to the map
@@ -76,7 +76,7 @@ public:
     /// @param data const T&, A data item
     virtual void insert(const K& key, const T& data)
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         m_map[key] = data;
     }
 
@@ -87,7 +87,7 @@ public:
     /// @param item T&, A list item (output)
     virtual bool get(const K& key, T& item)
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
@@ -101,7 +101,7 @@ public:
     /// @param key const K&, A data key
     virtual bool remove(const K& key)
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
@@ -112,21 +112,21 @@ public:
     /// @brief Returns true if the list is empty
     bool empty() const
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         return m_map.empty();
     }
 
     /// @brief Returns number of items in the list
     uint32_t size() const
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         return m_map.size();
     }
 
     /// @brief Removes all items from the list
     void clear()
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         m_map.clear();
     }
 
@@ -136,7 +136,7 @@ public:
     /// @returns true if every list item was processed
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        CSynchronizedCode sc(m_sync);
+        SynchronizedCode sc(m_sync);
         typename Map::iterator itor;
         for (itor = m_map.begin(); itor != m_map.end(); itor++) {
             if (!callbackFunction(itor->first, itor->second, data))

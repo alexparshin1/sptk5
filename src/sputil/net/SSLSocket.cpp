@@ -30,8 +30,8 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <sptk5/net/SSLSocket.h>
-#include <sptk5/threads/CSynchronized.h>
-#include <sptk5/threads/CThread.h>
+#include <sptk5/threads/Synchronized.h>
+#include <sptk5/threads/Thread.h>
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +39,7 @@ using namespace sptk;
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
-    static CSynchronized*  m_locks;
+    static Synchronized*  m_locks;
 
     void load_library()
     {
@@ -70,7 +70,7 @@ class CSSLLibraryLoader
 
     static void init_locks(void)
     {
-        m_locks = new CSynchronized[CRYPTO_num_locks()];
+        m_locks = new Synchronized[CRYPTO_num_locks()];
         CRYPTO_set_id_callback(thread_id);
         CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
@@ -94,7 +94,7 @@ public:
     }
 };
 
-CSynchronized* CSSLLibraryLoader::m_locks;
+Synchronized* CSSLLibraryLoader::m_locks;
 
 static CSSLLibraryLoader loader;
 
@@ -230,6 +230,6 @@ size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         if (errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
             throw Exception(getSSLError("writing to SSL connection", errorCode));
-        CThread::msleep(10);
+        Thread::msleep(10);
     }
 }

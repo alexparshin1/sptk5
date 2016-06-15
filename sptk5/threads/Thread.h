@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRunable.h - description                               ║
+║                       Thread.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,11 +26,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CRUNABLE_H__
-#define __CRUNABLE_H__
+#ifndef __SPTK_THREAD_H__
+#define __SPTK_THREAD_H__
 
-#include <sptk5/threads/CSynchronizedCode.h>
-#include <sptk5/Strings.h>
+#include <sptk5/threads/SynchronizedCode.h>
+
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 namespace sptk
 {
@@ -38,45 +41,61 @@ namespace sptk
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Abstract runable object.
+/// @brief Base thread object.
 ///
-/// Should be used for deriving a user class for executing by a worker
-/// thread in a thread pool. Derived class must override run() method.
-class SP_EXPORT CRunable
+/// Should be used for deriving a user thread
+/// by overwriting threadFunction().
+class SP_EXPORT Thread
 {
-    bool            m_terminated;   ///< Flag: is the task sent terminate request?
-    CSynchronized   m_running;      ///< Synchronized object locked while the task running
+    static void threadStart(void* athread);
 
 protected:
-
-    /// @brief Method that is executed by worker thread
-    ///
-    /// Should be overwritten by derived class.
-    virtual void run() THROWS_EXCEPTIONS = 0;
+    std::string         m_name;         ///< Thread name
+    std::thread         m_thread;       ///< Thread object
+    std::mutex          m_mutex;        ///< Thread synchronization object
+    bool                m_terminated;   ///< Flag: is the thread terminated?
 
 public:
 
-    /// @brief Default Constructor
-    CRunable();
+    typedef std::thread::id Id;         ///< Thread ID type
+
+    /// @brief Constructor
+    /// @param name CString, name of the thread for future references.
+    Thread(std::string name);
 
     /// @brief Destructor
-    virtual ~CRunable();
+    virtual ~Thread();
 
-    /// @brief Executes task' run method
-    ///
-    /// Task may be executed multiple times, but only one caller
-    /// may execute same task at a time.
-    void execute() THROWS_EXCEPTIONS;
+    /// @brief Starts the already created thread
+    void run();
 
-    /// @brief Requests execution termination
-    void terminate();
+    /// @brief The thread function. Should be overwritten by the derived class.
+    virtual void threadFunction() = 0;
 
-    /// @brief Returns true if terminate request is sent to runable
+    /// @brief Requests to terminate the thread
+    virtual void terminate();
+
+    /// @brief This method is executed immediately after thread function exit
+    virtual void onThreadExit() {}
+
+    /// @brief Returns true if the thread is terminated
     bool terminated();
 
-    /// @brief Returns true, if the task is completed
-    /// @param timeoutMS uint32_t, Wait timeout, milliseconds
-    bool completed(uint32_t timeoutMS=SP_INFINITY) THROWS_EXCEPTIONS;
+    /// @brief Waits until thread joins
+    void join();
+
+    /// @brief Returns this thread OS id
+    Id id();
+
+    /// @brief Returns the name of the thread
+    const std::string& name() const
+    {
+        return m_name;
+    }
+
+    /// @brief Pauses the thread
+    /// @param msec int, pause time in milliseconds
+    static void msleep(int msec);
 };
 /// @}
 }

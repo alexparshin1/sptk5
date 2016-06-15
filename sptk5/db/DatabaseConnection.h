@@ -32,7 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/threads/CSynchronizedCode.h>
+#include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/Variant.h>
 #include <sptk5/Logger.h>
 
@@ -70,7 +70,7 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
 ///
 /// Implements a thread-safe connection to general database. It is used
 /// as a base class for actual database driver classes.
-class SP_EXPORT DatabaseConnection: public CSynchronized
+class SP_EXPORT DatabaseConnection: public Synchronized
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;

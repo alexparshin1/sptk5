@@ -43,7 +43,7 @@ class TCPServer;
 /// @{
 
 /// @brief Internal TCP server listener thread
-class TCPServerListener: public CThread
+class TCPServerListener: public Thread
 {
     TCPServer*     m_server;           ///< TCP server created connection
     TCPSocket      m_listenerSocket;   ///< Listener socket
@@ -82,14 +82,14 @@ public:
 /// @brief TCP server
 ///
 /// For every incoming connection, creates connection thread.
-class TCPServer: public CSynchronized
+class TCPServer: public Synchronized
 {
     friend class TCPServerListener;
     friend class ServerConnection;
     TCPServerListener*             m_listenerThread;           ///< Server listener object
-    Logger*                      m_logger;                   ///< Optional logger
+    Logger*                        m_logger;                   ///< Optional logger
     std::set<ServerConnection*>    m_connectionThreads;        ///< Per-connection thread set
-    CSynchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
+    Synchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
 protected:
     /// @brief Screens incoming connection request
     ///

@@ -65,9 +65,9 @@ class CDBDropDownList;
 enum CListViewDataMode
 {
     LV_DATA_UNDEFINED, ///< data() sets/returns item caption. If the data connection is defined (in CDBListView) - it flips to LV_DATA_KEY mode.
-    LV_DATA_KEY, ///< data() sets/returns item key value
-    LV_DATA_INDEX, ///< data() sets/returns item index
-    LV_DATA_CAPTION ///< data() sets/returns item caption
+    LV_DATA_KEY,       ///< data() sets/returns item key value
+    LV_DATA_INDEX,     ///< data() sets/returns item index
+    LV_DATA_CAPTION    ///< data() sets/returns item caption
 };
 
 /// @brief List view widget
@@ -75,7 +75,7 @@ enum CListViewDataMode
 /// Class CListView is the list of multicolumn rows. It allows to sort rows
 /// by column, supports type-in incremental search etc.
 
-class SP_EXPORT CListView : public CControl, public CSynchronized
+class SP_EXPORT CListView : public CControl, public Synchronized
 {
     friend class CInternalComboBoxPanel;
     friend class CDBDropDownList;

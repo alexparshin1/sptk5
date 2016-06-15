@@ -50,7 +50,7 @@ int main(int, const char**)
             cout << "Receiving: ";
             cout << buffer.data() << "\n";
             client.close();
-            CThread::msleep(3000);
+            Thread::msleep(3000);
         }
 
     } catch (exception& e) {

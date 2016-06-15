@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThreadPool.cpp - description                          ║
+║                       Synchronized.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,94 +26,70 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/CThreadPool.h>
+#ifndef __SPTK_SYNCHRONIZED_H__
+#define __SPTK_SYNCHRONIZED_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
+#include <sptk5/threads/Location.h>
 
-CThreadPool::CThreadPool(uint32_t threadLimit, uint32_t threadIdleSeconds) :
-    CThread("thread manager"),
-    m_threadLimit(threadLimit),
-    m_threadIdleSeconds(threadIdleSeconds),
-    m_shutdown(false)
+#include <condition_variable>
+#include <chrono>
+
+namespace sptk {
+
+/// @addtogroup threads Thread Classes
+/// @{
+
+/// @brief Synchronization object
+class SP_EXPORT Synchronized
 {
-    run();
+    /// @brief Throws error description for the error code
+    /// @param fileName const char*, File name where lock is invoked
+    /// @param lineNumber int, Line number where lock is invoked
+    void throwError(const char* fileName=NULL, int lineNumber=0) THROWS_EXCEPTIONS;
+
+    /// @brief Sleeps until timeout occurs (unlocked)
+    /// @param timeoutMS int, timeout in milliseconds
+    /// @return 0 on success or -1 on timeout or error
+    int msleepUnlocked(int timeoutMS);
+
+protected:
+
+    std::timed_mutex        m_synchronized;     ///< Mutex object
+    CLocation               m_location;         ///< Location of latest successfull lock()
+
+public:
+
+    /// @brief Constructor
+    Synchronized();
+
+    /// @brief Destructor
+    virtual ~Synchronized();
+
+    /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
+    /// @param fileName const char*, lock location fileName
+    /// @param lineNumber int, lock location line number
+    virtual void lock(const char* fileName=NULL, int lineNumber = 0);
+
+    /// @brief Tries to lock synchronization object. Blocks until the lock is obtained, or until timeout occurs.
+    ///
+    /// Throws CTimeoutException exception if timeout.
+    /// Throws CException exception if lock was interrupted.
+    /// @param timeoutMS uint32_t, lock timeout, milliseconds
+    /// @param fileName const char*, lock location fileName, default is NULL
+    /// @param lineNumber int, lock location line number, default is 0
+    virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0) THROWS_EXCEPTIONS;
+
+    /// @brief Tries to lock synchronization object.
+    /// @return true is lock may be acquired, or false if not.
+    virtual bool tryLock();
+
+    /// @brief Unlocks the synchronization object.
+    virtual void unlock();
+};
+
+/// @}
 }
 
-CThreadPool::~CThreadPool()
-{
-    stop();
-}
-
-void CThreadPool::threadFunction()
-{
-    while (!terminated()) {
-        CWorkerThread* workerThread = NULL;
-        if (m_terminatedThreads.pop_front(workerThread, 1000)) {
-            m_threads.remove(workerThread);
-            delete workerThread;
-        }
-    }
-}
-
-CWorkerThread* CThreadPool::createThread()
-{
-    CWorkerThread*  workerThread = new CWorkerThread(&m_taskQueue, this, m_threadIdleSeconds);
-    m_threads.push_back(workerThread);
-    workerThread->run();
-    return workerThread;
-}
-
-void CThreadPool::execute(CRunable* task)
-{
-    SYNCHRONIZED_CODE;
-    if (m_shutdown)
-        throw Exception("Thread manager is stopped");
-
-    if (!m_availableThreads.wait(10)) {
-        if (m_threads.size() < m_threadLimit)
-            createThread();
-    }
-
-    m_taskQueue.push(task);
-}
-
-void CThreadPool::threadEvent(CThread* thread, CThreadEvent::Type eventType)
-{
-    switch (eventType) {
-    case CThreadEvent::RUNABLE_STARTED:
-        break;
-    case CThreadEvent::RUNABLE_FINISHED:
-        m_availableThreads.post();
-        break;
-    case CThreadEvent::THREAD_FINISHED:
-        m_terminatedThreads.push_back((CWorkerThread*)thread);
-        break;
-    case CThreadEvent::THREAD_STARTED:
-    case CThreadEvent::IDLE_TIMEOUT:
-        break;
-    }
-}
-
-static bool terminateThread(CWorkerThread*& thread, void*)
-{
-    thread->terminate();
-    return true;
-}
-
-void CThreadPool::stop()
-{
-    {
-        SYNCHRONIZED_CODE;
-        m_shutdown = true;
-    }
-    m_threads.each(terminateThread);
-    while (m_threads.size())
-        CThread::msleep(100);
-}
-
-size_t CThreadPool::size() const
-{
-    return m_threads.size();
-}
-
+#endif

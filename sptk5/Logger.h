@@ -44,7 +44,7 @@ class Logger;
 /// @{
 
 /// @brief Internal buffer for the CLogStream class
-class SP_EXPORT CLogStreamBuf: public std::streambuf //, public CSynchronized
+class SP_EXPORT CLogStreamBuf: public std::streambuf //, public Synchronized
 {
     friend class Logger;
 private:

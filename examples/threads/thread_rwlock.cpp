@@ -32,14 +32,14 @@
 using namespace std;
 using namespace sptk;
 
-class T1: public CThread
+class T1: public Thread
 {
-    CRWLock *lock;
+    RWLock *lock;
     const char* name;
     int a;
 public:
-    T1(const char* name, CRWLock *lock) :
-        CThread(name), lock(lock), name(name), a(1)
+    T1(const char* name, RWLock *lock) :
+        Thread(name), lock(lock), name(name), a(1)
     {
     }
     void act(int _a)
@@ -85,14 +85,14 @@ public:
         }
     }
 };
-class T2: public CThread
+class T2: public Thread
 {
-    CRWLock *lock;
+    RWLock *lock;
     const char* name;
     int a;
 public:
-    T2(const char* name, CRWLock *lock) :
-        CThread(name), lock(lock), name(name), a(1)
+    T2(const char* name, RWLock *lock) :
+        Thread(name), lock(lock), name(name), a(1)
     {
     }
     void act(int _a)
@@ -141,25 +141,25 @@ public:
 
 int main()
 {
-    CRWLock lock;
+    RWLock lock;
     T1 t11("t11", &lock), t12("t12", &lock);
     T2 t21("t21", &lock), t22("t22", &lock);
     t11.run();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t12.run();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t21.run();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t22.run();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t12.act(2);
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t21.act(2);
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t22.act(2);
-    CThread::msleep(1000);
+    Thread::msleep(1000);
     t11.act(2);
-    CThread::msleep(5000);
+    Thread::msleep(5000);
     t11.act(3);
     t12.act(3);
     t21.act(3);
@@ -168,5 +168,5 @@ int main()
 //    t12.terminate();
 //    t21.terminate();
 //    t22.terminate();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
 }

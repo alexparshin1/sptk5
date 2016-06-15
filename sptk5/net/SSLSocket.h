@@ -39,7 +39,7 @@ namespace sptk {
 /// @{
 
 /// @brief Encrypted TCP Socket
-class SSLSocket: public sptk::TCPSocket, public sptk::CSynchronized
+class SSLSocket: public TCPSocket, public Synchronized
 {
     SSL*        m_ssl;          ///< SSL socket
 

@@ -30,7 +30,7 @@
 #define __LOGENGINE_H__
 
 #include <sptk5/DateTime.h>
-#include <sptk5/threads/CSynchronizedCode.h>
+#include <sptk5/threads/SynchronizedCode.h>
 
 #include <iostream>
 
@@ -82,7 +82,7 @@ enum LogPriority
 ///
 /// This class is abstract. Derived classes have to implement
 /// at least saveMessage() method.
-class SP_EXPORT LogEngine: public CSynchronized
+class SP_EXPORT LogEngine: public Synchronized
 {
 protected:
     LogPriority     m_defaultPriority;   ///< The default priority for the new message

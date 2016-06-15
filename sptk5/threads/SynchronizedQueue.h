@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSynchronizedList.h - description                      ║
+║                       SynchronizedQueue.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,37 +26,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSYNCHRONIZEDLIST_H__
-#define __CSYNCHRONIZEDLIST_H__
+#ifndef __CSYNCHRONIZEDQUEUE_H__
+#define __CSYNCHRONIZEDQUEUE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/CSynchronizedCode.h>
-#include <sptk5/threads/CSemaphore.h>
-#include <list>
+#include <sptk5/threads/SynchronizedCode.h>
+#include <sptk5/threads/Semaphore.h>
+#include <queue>
 
 namespace sptk {
 
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Synchronized template list
+/// @brief Synchronized template queue
 ///
-/// Simple thread-safe list
+/// Simple thread-safe queue
 template <class T>
-class CSynchronizedList
+class SynchronizedQueue
 {
-    CSemaphore              m_semaphore;        ///< Semaphore to waiting for an item if list is empty
-    std::list<T>*           m_list;             ///< List
+    Semaphore               m_semaphore;        ///< Semaphore to waiting for an item if queue is empty
+    std::queue<T>*          m_queue;            ///< Queue
 
 protected:
 
-    mutable CSynchronized   m_sync;             ///< Lock to synchronize list operations
+    mutable Synchronized   m_sync;             ///< Lock to synchronize queue operations
 
 public:
 
-    /// @brief List callback function used in each() method.
+    /// @brief Queue callback function used in each() method.
     ///
-    /// Iterates through list until false is returned.
+    /// Iterates through queue until false is returned.
     /// @param item T&, List item
     /// @param data void*, Optional function-specific data
     typedef bool (CallbackFunction)(T& item, void* data);
@@ -64,86 +64,48 @@ public:
 public:
 
     /// @brief Default constructor
-    CSynchronizedList() :
-        m_list(new std::list<T>)
+    SynchronizedQueue() :
+        m_queue(new std::queue<T>)
     {}
 
     /// @brief Destructor
-    virtual ~CSynchronizedList()
+    virtual ~SynchronizedQueue()
     {
-        delete m_list;
+        delete m_queue;
     }
 
-    /// @brief Pushes a data item to the list front
+    /// @brief Pushes a data item to the queue
     ///
     /// Automatically posts internal semaphore to indicate
-    /// list item availability.
+    /// queue item availability.
     /// @param data const T&, A data item
-    virtual void push_front(const T& data)
+    void push(const T& data)
     {
-        CSynchronizedCode sc(m_sync);
-        m_list->push_front(data);
+        SynchronizedCode sc(m_sync);
+        m_queue->push(data);
         m_semaphore.post();
     }
 
-    /// @brief Pops a data item from the list front
+    /// @brief Pops a data item from the queue
     ///
-    /// If list is empty then waits until timeoutMS milliseconds timeout occurs.
+    /// If queue is empty then waits until timeoutMS milliseconds timeout occurs.
     /// Returns false if timeout occurs.
-    /// @param item T&, A list item (output)
-    /// @param timeoutMS uint32_t, Operation timeout in milliseconds, default if INFINITE_TIMEOUT
-    virtual bool pop_front(T& item, uint32_t timeoutMS=SP_INFINITY)
+    /// @param item T&, A queue item (output)
+    /// @param timeoutMS int32_t, Operation timeout in milliseconds
+    bool pop(T& item, int32_t timeoutMS)
     {
-        if (m_semaphore.wait(timeoutMS)) {
-            CSynchronizedCode sc(m_sync);
-            if (!m_list->empty()) {
-                item = m_list->front();
-                m_list->pop_front();
+        if (m_semaphore.wait(uint32_t(timeoutMS))) {
+            SynchronizedCode sc(m_sync);
+            if (!m_queue->empty()) {
+                item = m_queue->front();
+                m_queue->pop();
                 return true;
             }
         }
         return false;
     }
 
-    /// @brief Pushes a data item to the list back
-    ///
-    /// Automatically posts internal semaphore to indicate
-    /// list item availability.
-    /// @param data const T&, A data item
-    virtual void push_back(const T& data)
-    {
-        CSynchronizedCode sc(m_sync);
-        m_list->push_back(data);
-        m_semaphore.post();
-    }
-
-    /// @brief Pops a data item from the list back
-    ///
-    /// If list is empty then waits until timeoutMS milliseconds timeout occurs.
-    /// Returns false if timeout occurs.
-    /// @param item T&, A list item (output)
-    /// @param timeoutMS uint32_t, Operation timeout in milliseconds, default is INFINITE_TIMEOUT
-    virtual bool pop_back(T& item, uint32_t timeoutMS=SP_INFINITY)
-    {
-        if (m_semaphore.wait(timeoutMS)) {
-            CSynchronizedCode sc(m_sync);
-            if (!m_list->empty()) {
-                item = m_list->back();
-                m_list->pop_back();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /// @brief Removes all elements with the specific value from the list
-    virtual void remove(T& item)
-    {
-        CSynchronizedCode sc(m_sync);
-        m_list->remove(item);
-    }
-
-    /// @brief Wakes up list semaphore to interrupt waiting
+    /// @brief Wakes up queue semaphore to interrupt waiting
     ///
     /// Any waiting pop() operation immediately returns false.
     virtual void wakeup()
@@ -151,45 +113,65 @@ public:
         m_semaphore.post();
     }
 
-    /// @brief Returns true if the list is empty
+    /// @brief Returns true if the queue is empty
     bool empty() const
     {
-        CSynchronizedCode sc(m_sync);
-        return m_list->empty();
+        SynchronizedCode sc(m_sync);
+        return m_queue->empty();
     }
 
-    /// @brief Returns number of items in the list
-    size_t size() const
+    /// @brief Returns number of items in the queue
+    uint32_t size() const
     {
-        CSynchronizedCode sc(m_sync);
-        return m_list->size();
+        SynchronizedCode sc(m_sync);
+        return m_queue->size();
     }
 
-    /// @brief Removes all items from the list
+    /// @brief Removes all items from the queue
     void clear()
     {
-        CSynchronizedCode sc(m_sync);
-        m_list->clear();
+        SynchronizedCode sc(m_sync);
+        delete m_queue;
+        m_queue = new std::queue<T>;
     }
 
     /// @brief Calls callbackFunction() for every list until false is returned
+    ///
+    /// Current implementation does the job but isn't too efficient due to
+    /// std::queue class limitations.
     /// @param callbackFunction CallbackFunction*, Callback function that is executed for list items
     /// @param data void*, Function-specific data
     /// @returns true if every list item was processed
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        CSynchronizedCode sc(m_sync);
-        typename std::list<T>::iterator itor;
-        for (itor = m_list->begin(); itor != m_list->end(); itor++) {
-            if (!callbackFunction(*itor, data))
-                return false;
+        SynchronizedCode sc(m_sync);
+
+        std::queue<T> newQueue = new std::queue<T>;
+
+        // Iterating through queue until callback returns false
+        bool rc = true;
+        while (m_queue->size()) {
+            T& item = m_queue->front();
+            m_queue->pop();
+            newQueue->push(item);
+            // When rc switches to false, don't execute callback
+            // for the remaining queue items
+            if (rc) {
+                try {
+                    rc = callbackFunction(item, data);
+                }
+                catch (std::exception&) {
+                    rc = false;
+                }
+            }
         }
-        return true;
+
+        delete m_queue;
+        m_queue = newQueue;
+
+        return rc;
     }
 };
-
 /// @}
-
 }
 #endif
-

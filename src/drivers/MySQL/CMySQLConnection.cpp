@@ -61,15 +61,15 @@ MySQLConnection::~MySQLConnection()
 
 void MySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
-    static CSynchronized libraryInitMutex;
-    
+    static Synchronized libraryInitMutex;
+
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
             m_connString = newConnectionString;
 
         {
-            CSynchronizedCode libraryInitCode(libraryInitMutex);
+            SynchronizedCode libraryInitCode(libraryInitMutex);
             m_connection = mysql_init(m_connection);
         }
 

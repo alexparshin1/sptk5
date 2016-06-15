@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThreadPool.h - description                            ║
+║                       Semaphore.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,83 +26,51 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHREADPOOL_H__
-#define __CTHREADPOOL_H__
+#ifndef __SPTK_SEMAPHORE_H__
+#define __SPTK_SEMAPHORE_H__
 
-#include <sptk5/threads/CThread.h>
-#include <sptk5/threads/CThreadEvent.h>
-#include <sptk5/threads/CRunable.h>
-#include <sptk5/threads/CSynchronizedQueue.h>
-#include <sptk5/threads/CSynchronizedList.h>
-#include <sptk5/threads/CWorkerThread.h>
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
+#include <condition_variable>
+#include <atomic>
+#include <chrono>
 
 namespace sptk {
 
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Controls creation and execution of the threads.
-///
-/// When a thread is requested from the thread pool, it ether
-/// creates a new thread or returns one from the thread pool.
-/// If a thread is idle for the period longer than defined in constructor,
-/// it's automatically terminated.
-class SP_EXPORT CThreadPool : public CSynchronized, public CThreadEvent, public CThread
+/// @brief Generic unnamed semaphore class
+class SP_EXPORT Semaphore
 {
-    CSynchronizedList<CWorkerThread*>   m_terminatedThreads;    ///< Terminated threads scheduled for delete
-    CSynchronizedList<CWorkerThread*>   m_threads;              ///< All threads created by this pool
-    size_t                              m_threadLimit;          ///< Maximum number of threads in this pool
-    CSynchronizedQueue<CRunable*>       m_taskQueue;            ///< Share task queue
-    CSemaphore                          m_availableThreads;     ///< Semaphore indicating available threads
-    uint32_t                            m_threadIdleSeconds;    ///< Maximum thread idle time before thread in this pool is terminated
-    bool                                m_shutdown;             ///< Flag: true during pool shutdown
-
-    /// @brief Creates a new thread and adds it to thread pool
-    ///
-    /// Create new worker thread
-    CWorkerThread* createThread();
-
-protected:
-
-    /// @brief Thread pool control thread function
-    ///
-    /// Manages terminated threads
-    virtual void threadFunction();
+    std::mutex              m_mutex;        ///< Mutex object
+    std::condition_variable m_condition;    ///< Mutex condition object
+    std::atomic<int>        m_value;        ///< Semaphore value
 
 public:
-
     /// @brief Constructor
-    /// @param threadLimit uint32_t, Maximum number of threads in this pool
-    /// @param threadIdleSeconds int32_t, Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
-    CThreadPool(uint32_t threadLimit=100, uint32_t threadIdleSeconds=60);
+    ///
+    /// Creates semaphore with starting value (default 0)
+    /// @param startingValue uint32_t, starting semaphore value
+    Semaphore(uint32_t startingValue=0);
 
     /// @brief Destructor
+    virtual ~Semaphore();
+
+    /// @brief Posts the semaphore
     ///
-    /// All worker threads are sent terminate() message,
-    /// then thread pool waits while threads are destroyed
-    virtual ~CThreadPool();
+    /// The semaphore value is increased by one.
+    void post() THROWS_EXCEPTIONS;
 
-    /// @brief Executes task
-    void execute(CRunable* task);
-
-    /// @brief Thread event callback function
+    /// @brief Waits until semaphore value is greater than zero, or until timeout occurs
     ///
-    /// Receives events that occur in the threads
-    /// @param thread CThread*, Thread where event occured
-    /// @param eventType CThreadEvent::Type, Thread event type
-    virtual void threadEvent(CThread* thread, CThreadEvent::Type eventType);
-
-    /// @brief Sends terminate() message to all worker threads, and sets shutdown state
-    ///
-    /// After thread pool is stopped, it no longer accepts tasks for execution.
-    void stop();
-
-    /// @brief Number of active threads in the pool
-    size_t size() const;
+    /// If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+    /// Timeout interval is in milliseconds.
+    /// @param timeoutMS int32_t, wait timeout in milliseconds
+    /// @return true if semaphore was posted (signaled), or false if timeout occurs
+    bool wait(uint32_t timeoutMS) THROWS_EXCEPTIONS;
 };
-
 /// @}
 }
 
 #endif
-

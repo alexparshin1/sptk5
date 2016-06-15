@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWorkerThread.cpp - description                        ║
+║                       ThreadPool.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,65 +26,94 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/CWorkerThread.h>
-#include <iostream>
+#include <sptk5/threads/ThreadPool.h>
 
 using namespace std;
 using namespace sptk;
 
-void CWorkerThread::threadFunction()
+ThreadPool::ThreadPool(uint32_t threadLimit, uint32_t threadIdleSeconds) :
+    Thread("thread manager"),
+    m_threadLimit(threadLimit),
+    m_threadIdleSeconds(threadIdleSeconds),
+    m_shutdown(false)
 {
-    if (m_threadEvent)
-        m_threadEvent->threadEvent(this, CThreadEvent::THREAD_STARTED);
+    run();
+}
 
-    uint32_t idleSeconds = 0;
+ThreadPool::~ThreadPool()
+{
+    stop();
+}
+
+void ThreadPool::threadFunction()
+{
     while (!terminated()) {
-
-        if (m_maxIdleSeconds != SP_INFINITY && idleSeconds >= m_maxIdleSeconds)
-            break;
-
-        CRunable* runable = NULL;
-        if (m_queue->pop(runable, 1000)) {
-            idleSeconds = 0;
-            if (m_threadEvent)
-                m_threadEvent->threadEvent(this, CThreadEvent::RUNABLE_STARTED);
-            try {
-                runable->execute();
-            }
-            catch (exception& e) {
-                cerr << "CRunable::run() : " << e.what() << endl;
-            }
-            catch (...) {
-                cerr << "CRunable::run() : unknown exception" << endl;
-            }
-            if (m_threadEvent)
-                m_threadEvent->threadEvent(this, CThreadEvent::RUNABLE_FINISHED);
-        } else
-            idleSeconds++;
+        WorkerThread* workerThread = NULL;
+        if (m_terminatedThreads.pop_front(workerThread, 1000)) {
+            m_threads.remove(workerThread);
+            delete workerThread;
+        }
     }
-    if (m_threadEvent)
-        m_threadEvent->threadEvent(this, CThreadEvent::THREAD_FINISHED);
 }
 
-CWorkerThread::CWorkerThread(CSynchronizedQueue<CRunable*>* queue, CThreadEvent* threadEvent, uint32_t maxIdleSeconds) :
-    CThread("worker"),
-    m_threadEvent(threadEvent),
-    m_maxIdleSeconds(maxIdleSeconds)
+WorkerThread* ThreadPool::createThread()
 {
-    if (queue)
-        m_queue = queue;
-    else
-        m_queue = new CSynchronizedQueue<CRunable*>;
-    m_queueOwner = (queue == NULL);
+    WorkerThread*  workerThread = new WorkerThread(&m_taskQueue, this, m_threadIdleSeconds);
+    m_threads.push_back(workerThread);
+    workerThread->run();
+    return workerThread;
 }
 
-CWorkerThread::~CWorkerThread()
+void ThreadPool::execute(Runable* task)
 {
-    if (m_queueOwner)
-        delete m_queue;
+    SYNCHRONIZED_CODE;
+    if (m_shutdown)
+        throw Exception("Thread manager is stopped");
+
+    if (!m_availableThreads.wait(10)) {
+        if (m_threads.size() < m_threadLimit)
+            createThread();
+    }
+
+    m_taskQueue.push(task);
 }
 
-void CWorkerThread::execute(CRunable* task)
+void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType)
 {
-    m_queue->push(task);
+    switch (eventType) {
+    case ThreadEvent::RUNABLE_STARTED:
+        break;
+    case ThreadEvent::RUNABLE_FINISHED:
+        m_availableThreads.post();
+        break;
+    case ThreadEvent::THREAD_FINISHED:
+        m_terminatedThreads.push_back((WorkerThread*)thread);
+        break;
+    case ThreadEvent::THREAD_STARTED:
+    case ThreadEvent::IDLE_TIMEOUT:
+        break;
+    }
 }
+
+static bool terminateThread(WorkerThread*& thread, void*)
+{
+    thread->terminate();
+    return true;
+}
+
+void ThreadPool::stop()
+{
+    {
+        SYNCHRONIZED_CODE;
+        m_shutdown = true;
+    }
+    m_threads.each(terminateThread);
+    while (m_threads.size())
+        Thread::msleep(100);
+}
+
+size_t ThreadPool::size() const
+{
+    return m_threads.size();
+}
+

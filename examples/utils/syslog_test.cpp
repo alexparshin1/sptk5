@@ -43,10 +43,10 @@ int main(int,char*[])
       cout << "Defining a log attributes: " << endl;
       SysLogEngine   logger1("syslog_test", LOG_USER);
       Logger sysLog(logger1);
-      
+
       SysLogEngine   logger2("syslog_test", LOG_AUTH);
       Logger authLog(logger2);
-      
+
       cout << "Sending 'Hello, World!' to the log.." << endl;
       sysLog  << "Hello, World!" << endl;
       sysLog  << "Welcome to SPTK." << endl;
@@ -55,7 +55,7 @@ int main(int,char*[])
    }
    catch (exception& e) {
       puts(e.what());
-	  CThread::msleep(5000);
+      Thread::msleep(5000);
    }
 
    return 0;

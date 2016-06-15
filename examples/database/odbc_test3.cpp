@@ -34,9 +34,9 @@
 #include <sptk5/sptk.h>
 #include <iostream>
 
-#include <sptk5/db/CODBCConnection.h>
-#include <sptk5/db/CQuery.h>
-#include <sptk5/threads/CThread.h>
+#include <sptk5/db/ODBCConnection.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/threads/Thread.h>
 
 using namespace std;
 using namespace sptk;
@@ -45,7 +45,7 @@ using namespace sptk;
 /// 100 of records to the database. After that
 /// verifies that all the records are inserted
 /// properly.
-class CInsertThread: public CThread
+class CInsertThread: public Thread
 {
     static int threadIndex;
 
@@ -62,7 +62,7 @@ public:
 int CInsertThread::threadIndex = 0;
 
 CInsertThread::CInsertThread(std::string connectString, int rowsToInsert) :
-    CThread("Thread " + int2string(threadIndex)),
+    Thread("Thread " + int2string(threadIndex)),
     m_db(connectString),
     m_query(&m_db, ""),
     m_threadIndex(threadIndex)
@@ -256,14 +256,14 @@ int main()
             thread->run();
         }
 
-        //CThread::msleep(1000);
+        //Thread::msleep(1000);
 
         for (threadNumber = 0; threadNumber < maxThreads; threadNumber++) {
             cout << "Waiting for thread " << threadNumber << endl;
             try {
                 CInsertThread *thread = threads[threadNumber];
                 while (thread->running())
-                    CThread::msleep(100);
+                    Thread::msleep(100);
                 delete thread;
             } catch (exception& e) {
                 printf("exception deleting thread %i: %s\n", threadNumber,
@@ -286,7 +286,7 @@ int main()
         cout << "Average for " << maxThreads << " threads is "
                 << recordsTotal / durationSec << " recs/sec." << endl;
 
-        CThread::msleep(3000);
+        Thread::msleep(3000);
     } catch (exception& e) {
         cerr << e.what() << endl;
     } catch (...) {

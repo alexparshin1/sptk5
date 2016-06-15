@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSemaphore.h - description                             ║
+║                       Thread.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,51 +26,74 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSEMAPHORE_H__
-#define __CSEMAPHORE_H__
+#include <sptk5/threads/Thread.h>
+#include <iostream>
 
-#include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
-#include <condition_variable>
-#include <atomic>
-#include <chrono>
+using namespace std;
+using namespace sptk;
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
-
-/// @brief Generic unnamed semaphore class
-class SP_EXPORT CSemaphore
-{
-    std::mutex              m_mutex;        ///< Mutex object
-    std::condition_variable m_condition;    ///< Mutex condition object
-    std::atomic<int>        m_value;        ///< Semaphore value
-
-public:
-    /// @brief Constructor
-    ///
-    /// Creates semaphore with starting value (default 0)
-    /// @param startingValue uint32_t, starting semaphore value
-    CSemaphore(uint32_t startingValue=0);
-
-    /// @brief Destructor
-    virtual ~CSemaphore();
-
-    /// @brief Posts the semaphore
-    ///
-    /// The semaphore value is increased by one.
-    void post() THROWS_EXCEPTIONS;
-
-    /// @brief Waits until semaphore value is greater than zero, or until timeout occurs
-    ///
-    /// If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-    /// Timeout interval is in milliseconds.
-    /// @param timeoutMS int32_t, wait timeout in milliseconds
-    /// @return true if semaphore was posted (signaled), or false if timeout occurs
-    bool wait(uint32_t timeoutMS) THROWS_EXCEPTIONS;
-};
-/// @}
+    void Thread::threadStart(void* athread)
+    {
+        Thread* th = (Thread*) athread;
+        try {
+            th->threadFunction();
+            th->onThreadExit();
+        }
+        catch (exception& e) {
+            cerr << "Exception in thread '" << th->name() << "': " << e.what() << endl;
+        }
+        catch (...) {
+            cerr << "Unknown Exception in thread '" << th->name() << "'" << endl;
+        }
+    }
 }
 
-#endif
+Thread::Thread(string name) :
+    m_name(name),
+    m_terminated(false)
+{
+}
+
+Thread::~Thread()
+{
+    m_terminated = true;
+    if (m_thread.joinable())
+        m_thread.detach();
+}
+
+void Thread::terminate()
+{
+    std::lock_guard<std::mutex> lk(m_mutex);
+    m_terminated = true;
+}
+
+bool Thread::terminated()
+{
+    std::lock_guard<std::mutex> lk(m_mutex);
+    return m_terminated;
+}
+
+Thread::Id Thread::id()
+{
+    return m_thread.get_id();
+}
+
+void Thread::join()
+{
+    if (m_thread.joinable())
+        m_thread.join();
+}
+
+void Thread::run()
+{
+    std::lock_guard<std::mutex> lk(m_mutex);
+    m_terminated = false;
+    m_thread = thread(threadStart, (void *) this);
+}
+
+void Thread::msleep(int msec)
+{
+    this_thread::sleep_for(chrono::milliseconds(msec));
+}

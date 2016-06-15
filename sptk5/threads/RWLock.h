@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThread.cpp - description                              ║
+║                       RWLock.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,74 +26,49 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/CThread.h>
-#include <iostream>
+#ifndef __CRWLOCK_H__
+#define __CRWLOCK_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/sptk.h>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
 namespace sptk {
 
-    void CThread::threadStart(void* athread)
-    {
-        CThread* th = (CThread*) athread;
-        try {
-            th->threadFunction();
-            th->onThreadExit();
-        }
-        catch (exception& e) {
-            cerr << "Exception in thread '" << th->name() << "': " << e.what() << endl;
-        }
-        catch (...) {
-            cerr << "Unknown Exception in thread '" << th->name() << "'" << endl;
-        }
-    }
+/// @addtogroup threads Thread Classes
+/// @{
+
+/// Read-write synchronization object
+class SP_EXPORT RWLock
+{
+protected:
+
+    std::mutex              m_writeLock;    ///< Lock mutex
+    std::condition_variable m_condition;    ///< Lock condition variable
+    std::atomic<int>        m_readerCount;  ///< Reader lock count
+    std::atomic<bool>       m_writerMode;   ///< Writer mode flag
+
+public:
+
+    /// Constructor
+    RWLock();
+
+    /// Destructor
+    ~RWLock();
+
+    /// Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
+    /// @param timeout int, timeout in milliseconds
+    int lockR(int timeout);
+
+    /// Try to lock the object for writing. Blocks if object is locked for reading or writing.
+    /// @param timeout int, timeout in milliseconds
+    int lockRW(int timeout);
+
+    /// Releases lock on the object.
+    void unlock();
+};
+/// @}
 }
 
-CThread::CThread(string name) :
-    m_name(name),
-    m_terminated(false)
-{
-}
-
-CThread::~CThread()
-{
-    m_terminated = true;
-    if (m_thread.joinable())
-        m_thread.detach();
-}
-
-void CThread::terminate()
-{
-    std::lock_guard<std::mutex> lk(m_mutex);
-    m_terminated = true;
-}
-
-bool CThread::terminated()
-{
-    std::lock_guard<std::mutex> lk(m_mutex);
-    return m_terminated;
-}
-
-CThread::Id CThread::id()
-{
-    return m_thread.get_id();
-}
-
-void CThread::join()
-{
-    if (m_thread.joinable())
-        m_thread.join();
-}
-
-void CThread::run()
-{
-    std::lock_guard<std::mutex> lk(m_mutex);
-    m_terminated = false;
-    m_thread = thread(threadStart, (void *) this);
-}
-
-void CThread::msleep(int msec)
-{
-    this_thread::sleep_for(chrono::milliseconds(msec));
-}
+#endif

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CRWLock.cpp - description                              ║
+║                       WorkerThread.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,68 +26,64 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-#include <sptk5/threads/CRWLock.h>
+#ifndef __SPTK_WORKERTHREAD_H__
+#define __SPTK_WORKERTHREAD_H__
 
-using namespace sptk;
-using namespace std;
+#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/ThreadEvent.h>
+#include <sptk5/threads/Runable.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
-CRWLock::CRWLock()
+namespace sptk {
+
+/// @addtogroup threads Thread Classes
+/// @{
+
+/// @brief Worker thread for thread manager
+///
+/// Worker threads are created by thread manager.
+/// They are designed to read tasks from internal or external
+/// queue. Executed tasks are objects derived from Runable.
+/// If a thread event object is defined, worker thread may report events
+/// such as thread start, task start, etc.
+/// Worker thread automatically terminates if it's idle for the period longer
+/// than defined maxIdleSec (seconds).
+class SP_EXPORT WorkerThread : public Thread
 {
-    m_readerCount = 0;
-    m_writerMode = false;
+    bool                            m_queueOwner;       ///< If true then worker thread owns task queue
+    SynchronizedQueue<Runable*>*    m_queue;            ///< Task queue
+    ThreadEvent*                    m_threadEvent;      ///< Optional thread event interface
+    uint32_t                        m_maxIdleSeconds;   ///< Number of thread idle seconds before thread terminates automatically
+
+protected:
+
+    /// @brief Thread function
+    void threadFunction();
+
+public:
+
+    /// @brief Constructor
+    ///
+    /// If queue is NULL then worker thread uses internal task queue.
+    /// Otherwise, external (shared) task queue is used.
+    /// If maxIdleSec is defined and thread is idle (not executing any tasks)
+    /// for a period longer than maxIdleSec then it terminates automatically.
+    /// @param queue SynchronizedQueue<Runable*>*, Task queue
+    /// @param threadEvent ThreadEvent*, Optional thread event interface
+    /// @param maxIdleSeconds int32_t, Maximum time the thread is idle, seconds
+    WorkerThread(SynchronizedQueue<Runable*>* queue=NULL,
+                  ThreadEvent* threadEvent=NULL,
+                  uint32_t maxIdleSeconds=SP_INFINITY);
+
+    /// @brief Destructor
+    ~WorkerThread();
+
+    /// @brief Execute runable task
+    /// @param task Runable*, Task to execute in the worker thread
+    void execute(Runable* task);
+};
+
+/// @}
 }
 
-CRWLock::~CRWLock()
-{
-}
-
-int CRWLock::lockR(int timeoutMS)
-{
-    if (timeoutMS < 0)
-        timeoutMS = 999999999;
-
-    unique_lock<mutex>  lock(m_writeLock);
-
-    // Wait for no writers
-    if (!m_condition.wait_for(lock, 
-                              chrono::milliseconds(timeoutMS), 
-                              [this](){return m_writerMode == false;}))
-    {
-        return false;
-    }
-
-    m_readerCount++;
-
-    return true;
-}
-
-int CRWLock::lockRW(int timeoutMS)
-{
-    if (timeoutMS < 0)
-        timeoutMS = 999999999;
-
-    unique_lock<mutex>  lock(m_writeLock);
-    
-    // Wait for no readers or writers
-    if (!m_condition.wait_for(lock, 
-                              chrono::milliseconds(timeoutMS), 
-                              [this](){return m_writerMode == false && m_readerCount == 0;}))
-    {
-        return false;
-    }
-
-    m_writerMode = true;
-
-    return true;
-}
-
-void CRWLock::unlock()
-{
-    lock_guard<mutex>   guard(m_writeLock);
-    if (m_writerMode)
-        m_writerMode = false;
-    else
-        if (m_readerCount > 0)
-            m_readerCount--;
-}
+#endif

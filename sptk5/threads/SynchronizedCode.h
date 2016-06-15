@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSynchronized.h - description                          ║
+║                       SynchronizedCode.h - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,68 +26,75 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SYNCHRONIZED_H__
-#define __SYNCHRONIZED_H__
+#ifndef __SPTK_SYNCHRONIZED_CODE_H__
+#define __SPTK_SYNCHRONIZED_CODE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
-#include <sptk5/threads/CLocation.h>
-
-#include <condition_variable>
-#include <chrono>
+#include <sptk5/threads/Synchronized.h>
 
 namespace sptk {
 
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Synchronization object
-class SP_EXPORT CSynchronized
+/// @brief Synchronized code object
+///
+/// Automatically locks the synchronization object until goes out of scope.
+/// This allows thread-safe execution of the code after this object declaration.
+class SP_EXPORT SynchronizedCode
 {
-    /// @brief Throws error description for the error code
-    /// @param fileName const char*, File name where lock is invoked
-    /// @param lineNumber int, Line number where lock is invoked
-    void throwError(const char* fileName=NULL, int lineNumber=0) THROWS_EXCEPTIONS;
-
-    /// @brief Sleeps until timeout occurs (unlocked)
-    /// @param timeoutMS int, timeout in milliseconds
-    /// @return 0 on success or -1 on timeout or error
-    int msleepUnlocked(int timeoutMS);
-
-protected:
-
-    std::timed_mutex        m_synchronized;     ///< Mutex object
-    CLocation               m_location;         ///< Location of latest successfull lock()
+    Synchronized*    m_object;   ///< Controlled lock
 
 public:
+    /// @brief Constructor
+    ///
+    /// Automatically locks the lock object. That is needed for thread safety.
+    /// @param object Synchronized&, Synchronization object to lock.
+    SynchronizedCode(Synchronized& object) :
+        m_object(&object)
+    {
+        m_object->lock();
+    }
 
     /// @brief Constructor
-    CSynchronized();
-
-    /// @brief Destructor
-    virtual ~CSynchronized();
-
-    /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
-    /// @param fileName const char*, lock location fileName
-    /// @param lineNumber int, lock location line number
-    virtual void lock(const char* fileName=NULL, int lineNumber = 0);
-
-    /// @brief Tries to lock synchronization object. Blocks until the lock is obtained, or until timeout occurs.
     ///
-    /// Throws CTimeoutException exception if timeout.
-    /// Throws CException exception if lock was interrupted.
+    /// Automatically locks the lock object. That is needed for thread safety.
+    /// @param object Synchronized&, Synchronization object to lock.
+    SynchronizedCode(Synchronized* object) :
+        m_object(object)
+    {
+        m_object->lock();
+    }
+
+    /// @brief Constructor
+    ///
+    /// Automatically locks the lock object. That is needed for thread safety.
+    /// If the lock isn't acquired within timeout period, CTimeoutException is thrown.
+    /// @param object Synchronized&, Synchronization object to lock.
     /// @param timeoutMS uint32_t, lock timeout, milliseconds
     /// @param fileName const char*, lock location fileName, default is NULL
     /// @param lineNumber int, lock location line number, default is 0
-    virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0) THROWS_EXCEPTIONS;
+    SynchronizedCode(Synchronized& object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0) :
+        m_object(&object)
+    {
+        m_object->lock(timeoutMS, fileName, lineNumber);
+    }
 
-    /// @brief Tries to lock synchronization object.
-    /// @return true is lock may be acquired, or false if not.
-    virtual bool tryLock();
-
-    /// @brief Unlocks the synchronization object.
-    virtual void unlock();
+    /// @brief Destructor
+    ///
+    /// Unlocks the lock object defined in constructor.
+    ~SynchronizedCode()
+    {
+        m_object->unlock();
+    }
 };
+
+/// @brief SYNCHRONIZED_CODE macro definition
+///
+/// Used similarly to Windows CRITICAL_SECTION. Protects code starting from the SYNCHRONIZED_CODE definition
+/// until SYNCHRONIZED_CODE goes out of scope. @see CGuard class for more information.
+/// Uses 'this' object as a synchronization object, so it should be derived from Synchronized.
+#define SYNCHRONIZED_CODE sptk::SynchronizedCode lock(this)
 
 /// @}
 }

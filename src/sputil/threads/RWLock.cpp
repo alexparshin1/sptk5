@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CSynchronizedCode.h - description                      ║
+║                       RWLock.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,77 +26,68 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SYNCHRONIZED_CODE_H__
-#define __SYNCHRONIZED_CODE_H__
-
 #include <sptk5/sptk.h>
-#include <sptk5/threads/CSynchronized.h>
+#include <sptk5/threads/RWLock.h>
 
-namespace sptk {
+using namespace sptk;
+using namespace std;
 
-/// @addtogroup threads Thread Classes
-/// @{
-
-/// @brief Synchronized code object
-///
-/// Automatically locks the synchronization object until goes out of scope.
-/// This allows thread-safe execution of the code after this object declaration.
-class SP_EXPORT CSynchronizedCode
+RWLock::RWLock()
 {
-    CSynchronized*    m_object;   ///< Controlled lock
-
-public:
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// @param object CSynchronized&, Synchronization object to lock.
-    CSynchronizedCode(CSynchronized& object) :
-        m_object(&object)
-    {
-        m_object->lock();
-    }
-
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// @param object CSynchronized&, Synchronization object to lock.
-    CSynchronizedCode(CSynchronized* object) :
-        m_object(object)
-    {
-        m_object->lock();
-    }
-
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// If the lock isn't acquired within timeout period, CTimeoutException is thrown.
-    /// @param object CSynchronized&, Synchronization object to lock.
-    /// @param timeoutMS uint32_t, lock timeout, milliseconds
-    /// @param fileName const char*, lock location fileName, default is NULL
-    /// @param lineNumber int, lock location line number, default is 0
-    CSynchronizedCode(CSynchronized& object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0) :
-        m_object(&object)
-    {
-        m_object->lock(timeoutMS, fileName, lineNumber);
-    }
-
-    /// @brief Destructor
-    ///
-    /// Unlocks the lock object defined in constructor.
-    ~CSynchronizedCode()
-    {
-        m_object->unlock();
-    }
-};
-
-/// @brief SYNCHRONIZED_CODE macro definition
-///
-/// Used similarly to Windows CRITICAL_SECTION. Protects code starting from the SYNCHRONIZED_CODE definition
-/// until SYNCHRONIZED_CODE goes out of scope. @see CGuard class for more information.
-/// Uses 'this' object as a synchronization object, so it should be derived from CSynchronized.
-#define SYNCHRONIZED_CODE sptk::CSynchronizedCode lock(this)
-
-/// @}
+    m_readerCount = 0;
+    m_writerMode = false;
 }
 
-#endif
+RWLock::~RWLock()
+{
+}
+
+int RWLock::lockR(int timeoutMS)
+{
+    if (timeoutMS < 0)
+        timeoutMS = 999999999;
+
+    unique_lock<mutex>  lock(m_writeLock);
+
+    // Wait for no writers
+    if (!m_condition.wait_for(lock, 
+                              chrono::milliseconds(timeoutMS), 
+                              [this](){return m_writerMode == false;}))
+    {
+        return false;
+    }
+
+    m_readerCount++;
+
+    return true;
+}
+
+int RWLock::lockRW(int timeoutMS)
+{
+    if (timeoutMS < 0)
+        timeoutMS = 999999999;
+
+    unique_lock<mutex>  lock(m_writeLock);
+
+    // Wait for no readers or writers
+    if (!m_condition.wait_for(lock, 
+                              chrono::milliseconds(timeoutMS), 
+                              [this](){return m_writerMode == false && m_readerCount == 0;}))
+    {
+        return false;
+    }
+
+    m_writerMode = true;
+
+    return true;
+}
+
+void RWLock::unlock()
+{
+    lock_guard<mutex>   guard(m_writeLock);
+    if (m_writerMode)
+        m_writerMode = false;
+    else
+        if (m_readerCount > 0)
+            m_readerCount--;
+}

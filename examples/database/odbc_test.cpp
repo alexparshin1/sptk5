@@ -245,7 +245,7 @@ int main(int argc, const char* argv[])
         cout << "Please, read the README.txt for more information." << endl;
     }
 
-    CThread::msleep(3000);
+    Thread::msleep(3000);
 
     return 0;
 }

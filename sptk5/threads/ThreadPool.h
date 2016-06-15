@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CThreadEvent.h - description                           ║
+║                       ThreadPool.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,45 +26,83 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHREADEVENT_H__
-#define __CTHREADEVENT_H__
+#ifndef __SPTK_THREADPOOL_H__
+#define __SPTK_THREADPOOL_H__
 
-#include <sptk5/threads/CThread.h>
-#include <sptk5/threads/CRunable.h>
-#include <sptk5/threads/CSynchronizedQueue.h>
+#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/ThreadEvent.h>
+#include <sptk5/threads/Runable.h>
+#include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/threads/SynchronizedList.h>
+#include <sptk5/threads/WorkerThread.h>
 
 namespace sptk {
 
 /// @addtogroup threads Thread Classes
 /// @{
 
-/// @brief Thread event interface
-class SP_EXPORT CThreadEvent
+/// @brief Controls creation and execution of the threads.
+///
+/// When a thread is requested from the thread pool, it ether
+/// creates a new thread or returns one from the thread pool.
+/// If a thread is idle for the period longer than defined in constructor,
+/// it's automatically terminated.
+class SP_EXPORT ThreadPool : public Synchronized, public ThreadEvent, public Thread
 {
-public:
-    /// @brief Thread event type
-    enum Type {
-        THREAD_STARTED,     ///< Thread started event
-        THREAD_FINISHED,    ///< Thread finished event
-        RUNABLE_STARTED,    ///< Runable started
-        RUNABLE_FINISHED,   ///< Runable finished
-        IDLE_TIMEOUT        ///< Thread was idle longer than defined idle timeout
-    };
-public:
-    /// @brief Thread event callback function
+    SynchronizedList<WorkerThread*>     m_terminatedThreads;    ///< Terminated threads scheduled for delete
+    SynchronizedList<WorkerThread*>     m_threads;              ///< All threads created by this pool
+    size_t                              m_threadLimit;          ///< Maximum number of threads in this pool
+    SynchronizedQueue<Runable*>         m_taskQueue;            ///< Share task queue
+    Semaphore                           m_availableThreads;     ///< Semaphore indicating available threads
+    uint32_t                            m_threadIdleSeconds;    ///< Maximum thread idle time before thread in this pool is terminated
+    bool                                m_shutdown;             ///< Flag: true during pool shutdown
+
+    /// @brief Creates a new thread and adds it to thread pool
     ///
-    /// In order to receive thread events, event receiver
-    /// should be derived from this class.
-    /// @param thread CThread*, Thread where event occured
-    /// @param eventType Type, Thread event type
-    virtual void threadEvent(CThread* thread, Type eventType) = 0;
+    /// Create new worker thread
+    WorkerThread* createThread();
+
+protected:
+
+    /// @brief Thread pool control thread function
+    ///
+    /// Manages terminated threads
+    virtual void threadFunction();
+
+public:
+
+    /// @brief Constructor
+    /// @param threadLimit uint32_t, Maximum number of threads in this pool
+    /// @param threadIdleSeconds int32_t, Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+    ThreadPool(uint32_t threadLimit=100, uint32_t threadIdleSeconds=60);
 
     /// @brief Destructor
-    virtual ~CThreadEvent()
-    {}
+    ///
+    /// All worker threads are sent terminate() message,
+    /// then thread pool waits while threads are destroyed
+    virtual ~ThreadPool();
+
+    /// @brief Executes task
+    void execute(Runable* task);
+
+    /// @brief Thread event callback function
+    ///
+    /// Receives events that occur in the threads
+    /// @param thread Thread*, Thread where event occured
+    /// @param eventType ThreadEvent::Type, Thread event type
+    virtual void threadEvent(Thread* thread, ThreadEvent::Type eventType);
+
+    /// @brief Sends terminate() message to all worker threads, and sets shutdown state
+    ///
+    /// After thread pool is stopped, it no longer accepts tasks for execution.
+    void stop();
+
+    /// @brief Number of active threads in the pool
+    size_t size() const;
 };
 
 /// @}
 }
 
 #endif
+

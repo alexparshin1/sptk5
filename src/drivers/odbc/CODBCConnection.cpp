@@ -197,7 +197,7 @@ string ODBCConnection::queryError(const Query* query) const
 
 void ODBCConnection::queryAllocStmt(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLHSTMT stmt = (SQLHSTMT) query->statement();
     if (stmt != SQL_NULL_HSTMT)
@@ -217,7 +217,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
 
 void ODBCConnection::queryFreeStmt(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLFreeStmt(query->statement(), SQL_DROP);
     querySetStmt(query, SQL_NULL_HSTMT);
@@ -226,14 +226,14 @@ void ODBCConnection::queryFreeStmt(Query* query)
 
 void ODBCConnection::queryCloseStmt(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLFreeStmt(query->statement(), SQL_CLOSE);
 }
 
 void ODBCConnection::queryPrepare(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     query->fields().clear();
 
@@ -249,7 +249,7 @@ void ODBCConnection::queryUnprepare(Query* query)
 
 void ODBCConnection::queryExecute(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     int rc = 0;
     if (query->prepared())
@@ -285,7 +285,7 @@ void ODBCConnection::queryExecute(Query* query)
 
 int ODBCConnection::queryColCount(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
@@ -296,7 +296,7 @@ int ODBCConnection::queryColCount(Query* query)
 
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
     SQLLEN result;
 
     if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, &result)))
@@ -310,7 +310,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     if (!buff || len <= 0)
         query->logAndThrow("CODBCConnection::queryColAttributes", "Invalid buffer or buffer len");
 
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     if (!successful(SQLColAttributes(query->statement(), (int16_t) column, descType, buff, (int16_t) len, &available, 0)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
@@ -320,7 +320,7 @@ void ODBCConnection::queryBindParameters(Query* query)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
     int rc;
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
@@ -586,7 +586,7 @@ void ODBCConnection::queryFetch(Query* query)
 
     SQLHSTMT statement = (SQLHSTMT) query->statement();
 
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     int rc = SQLFetch(statement);
 
@@ -682,7 +682,7 @@ string ODBCConnection::driverDescription() const
 
 void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLHSTMT stmt = 0;
     try {

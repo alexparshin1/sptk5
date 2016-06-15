@@ -30,7 +30,7 @@
 #define __SERVERCONNECTION_H__
 
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/threads/CThread.h>
+#include <sptk5/threads/Thread.h>
 
 namespace sptk
 {
@@ -43,7 +43,7 @@ class TCPServer;
 /// @brief Abstract TCP or SSL server connection thread
 ///
 /// Used a base class for CTCPServerConnection and COpenSSLServerConnection
-class ServerConnection: public CThread
+class ServerConnection: public Thread
 {
     friend class TCPServer;
 protected:
@@ -54,7 +54,7 @@ public:
     /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
     /// @param threadName std::string, Already accepted by accept() function incoming connection socket
     ServerConnection(SOCKET connectionSocket, std::string threadName)
-    : CThread(threadName), m_socket(NULL)
+    : Thread(threadName), m_socket(NULL)
     {
     }
 

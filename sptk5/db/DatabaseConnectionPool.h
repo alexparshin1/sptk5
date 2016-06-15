@@ -32,8 +32,8 @@
 #include <sptk5/db/DatabaseConnection.h>
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/CaseInsensitiveCompare.h>
-#include <sptk5/threads/CSynchronizedList.h>
-#include <sptk5/threads/CSynchronizedQueue.h>
+#include <sptk5/threads/SynchronizedList.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk
 {
@@ -65,15 +65,15 @@ struct SP_EXPORT DatabaseDriver
 ///
 /// Loads and initializes SPTK database driver by request.
 /// Already loaded drivers are cached.
-class SP_EXPORT DatabaseConnectionPool : public CSynchronized, public DatabaseConnectionString
+class SP_EXPORT DatabaseConnectionPool : public Synchronized, public DatabaseConnectionString
 {
     DatabaseDriver*                            m_driver;               ///< Database driver
 protected:
     CreateDriverInstance*                      m_createConnection;     ///< Function that creates driver instances
     DestroyDriverInstance*                     m_destroyConnection;    ///< Function that destroys driver instances
     unsigned                                   m_maxConnections;       ///< Maximum number of connections in the pool
-    CSynchronizedList<DatabaseConnection*>     m_connections;          ///< List all connections
-    CSynchronizedQueue<DatabaseConnection*>    m_pool;                 ///< Connection pool
+    SynchronizedList<DatabaseConnection*>      m_connections;          ///< List all connections
+    SynchronizedQueue<DatabaseConnection*>     m_pool;                 ///< Connection pool
 
     /// @brief Loads database driver
     ///

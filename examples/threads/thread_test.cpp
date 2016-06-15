@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-class CMyThread: public CThread
+class CMyThread: public Thread
 {
     Logger m_log; /// Thread proxy log
 public:
@@ -45,7 +45,7 @@ public:
 };
 
 CMyThread::CMyThread(string threadName, FileLogEngine& sharedLog) :
-        CThread(threadName), m_log(sharedLog)
+        Thread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
     m_log << name() << " is created" << endl;
@@ -95,7 +95,7 @@ int main()
         threads[i]->run();
 
     puts("Waiting 1 second while threads are running..");
-    CThread::msleep(1000);
+    Thread::msleep(1000);
 
     log << "Sending 'terminate' signal to all the threads." << endl;
     // That signal suggests thread to terminate and exits ASAP.
