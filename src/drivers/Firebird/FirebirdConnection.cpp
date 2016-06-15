@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFirebirdConnection.cpp - description                  ║
+║                       FirebirdConnection.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/db/FirebirdConnection.h>
-#include <sptk5/db/CFirebirdStatement.h>
+#include <sptk5/db/FirebirdStatement.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
 
@@ -37,14 +37,14 @@
 using namespace std;
 using namespace sptk;
 
-CFirebirdConnection::CFirebirdConnection(string connectionString) :
+FirebirdConnection::FirebirdConnection(string connectionString) :
     DatabaseConnection(connectionString),
     m_connection(0)
 {
     m_connType = DCT_FIREBIRD;
 }
 
-CFirebirdConnection::~CFirebirdConnection()
+FirebirdConnection::~FirebirdConnection()
 {
     try {
         if (m_inTransaction && active())
@@ -62,7 +62,7 @@ CFirebirdConnection::~CFirebirdConnection()
     }
 }
 
-void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS
+void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS
 {
     if (status_vector[0] == 1 && status_vector[1])
     {
@@ -77,7 +77,7 @@ void CFirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const cha
         m_lastStatus.clear();
 }
 
-void CFirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void FirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
 
@@ -113,7 +113,7 @@ void CFirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPT
     }
 }
 
-void CFirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
+void FirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
 
@@ -134,7 +134,7 @@ void CFirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
     }
 }
 
-void* CFirebirdConnection::handle() const
+void* FirebirdConnection::handle() const
 {
     union {
         isc_db_handle   connection;
@@ -144,12 +144,12 @@ void* CFirebirdConnection::handle() const
     return convert.handle;
 }
 
-bool CFirebirdConnection::active() const
+bool FirebirdConnection::active() const
 {
     return m_connection != 0L;
 }
 
-string CFirebirdConnection::nativeConnectionString() const
+string FirebirdConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
     string connectionString = m_connString.hostName();
@@ -160,7 +160,7 @@ string CFirebirdConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void CFirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void FirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
 
@@ -180,7 +180,7 @@ void CFirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void CFirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void FirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     ISC_STATUS status_vector[20];
 
@@ -198,21 +198,21 @@ void CFirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-string CFirebirdConnection::queryError(const Query *) const
+string FirebirdConnection::queryError(const Query *) const
 {
     return m_lastStatus;
 }
 
-void CFirebirdConnection::queryAllocStmt(Query *query)
+void FirebirdConnection::queryAllocStmt(Query *query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new CFirebirdStatement(this, query->sql()));
+    querySetStmt(query, new FirebirdStatement(this, query->sql()));
 }
 
-void CFirebirdConnection::queryFreeStmt(Query *query)
+void FirebirdConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
-    CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
     if (statement) {
         delete statement;
         querySetStmt(query, 0L);
@@ -220,83 +220,83 @@ void CFirebirdConnection::queryFreeStmt(Query *query)
     }
 }
 
-void CFirebirdConnection::queryCloseStmt(Query *query)
+void FirebirdConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     try {
-        CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+        FirebirdStatement* statement = (FirebirdStatement*) query->statement();
         if (statement)
             statement->close();
     }
     catch (exception& e) {
-        query->logAndThrow("CFirebirdConnection::queryBindParameters", e.what());
+        query->logAndThrow("FirebirdConnection::queryBindParameters", e.what());
     }
 }
 
-void CFirebirdConnection::queryPrepare(Query *query)
+void FirebirdConnection::queryPrepare(Query *query)
 {
     SYNCHRONIZED_CODE;
 
     if (!query->prepared()) {
-        CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+        FirebirdStatement* statement = (FirebirdStatement*) query->statement();
         try {
             statement->prepare(query->sql());
             statement->enumerateParams(query->params());
         }
         catch (exception& e) {
-            query->logAndThrow("CFirebirdConnection::queryBindParameters", e.what());
+            query->logAndThrow("FirebirdConnection::queryBindParameters", e.what());
         }
         querySetPrepared(query, true);
     }
 }
 
-void CFirebirdConnection::queryUnprepare(Query *query)
+void FirebirdConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-int CFirebirdConnection::queryColCount(Query *query)
+int FirebirdConnection::queryColCount(Query *query)
 {
     int colCount = 0;
-    CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
     try {
         colCount = (int) statement->colCount();
     }
     catch (exception& e) {
-        query->logAndThrow("CFirebirdConnection::queryColCount", e.what());
+        query->logAndThrow("FirebirdConnection::queryColCount", e.what());
     }
     return colCount;
 }
 
-void CFirebirdConnection::queryBindParameters(Query *query)
+void FirebirdConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
-    CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not prepared");
         statement->setParameterValues();
     }
     catch (exception& e) {
-        query->logAndThrow("CFirebirdConnection::queryBindParameters", e.what());
+        query->logAndThrow("FirebirdConnection::queryBindParameters", e.what());
     }
 }
 
-void CFirebirdConnection::queryExecute(Query *query)
+void FirebirdConnection::queryExecute(Query *query)
 {
-    CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query is not prepared");
         statement->execute(m_inTransaction);
     }
     catch (exception& e) {
-        query->logAndThrow("CFirebirdConnection::queryExecute", e.what());
+        query->logAndThrow("FirebirdConnection::queryExecute", e.what());
     }
 }
 
-void CFirebirdConnection::queryOpen(Query *query)
+void FirebirdConnection::queryOpen(Query *query)
 {
     if (!active())
         open();
@@ -313,7 +313,7 @@ void CFirebirdConnection::queryOpen(Query *query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
 
     queryExecute(query);
     short fieldCount = (short) queryColCount(query);
@@ -332,15 +332,15 @@ void CFirebirdConnection::queryOpen(Query *query)
     queryFetch(query);
 }
 
-void CFirebirdConnection::queryFetch(Query *query)
+void FirebirdConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        query->logAndThrow("CFirebirdConnection::queryFetch", "Dataset isn't open");
+        query->logAndThrow("FirebirdConnection::queryFetch", "Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
     try {
-        CFirebirdStatement* statement = (CFirebirdStatement*) query->statement();
+        FirebirdStatement* statement = (FirebirdStatement*) query->statement();
 
         statement->fetch();
 
@@ -352,11 +352,11 @@ void CFirebirdConnection::queryFetch(Query *query)
         statement->fetchResult(query->fields());
     }
     catch (exception& e) {
-        query->logAndThrow("CFirebirdConnection::queryFetch", e.what());
+        query->logAndThrow("FirebirdConnection::queryFetch", e.what());
     }
 }
 
-void CFirebirdConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -397,23 +397,23 @@ void CFirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obj
     }
 }
 
-std::string CFirebirdConnection::driverDescription() const
+std::string FirebirdConnection::driverDescription() const
 {
     return "Firebird";
 }
 
-std::string CFirebirdConnection::paramMark(unsigned paramIndex)
+std::string FirebirdConnection::paramMark(unsigned paramIndex)
 {
     return "?";
 }
 
 void* firebird_create_connection(const char* connectionString)
 {
-    CFirebirdConnection* connection = new CFirebirdConnection(connectionString);
+    FirebirdConnection* connection = new FirebirdConnection(connectionString);
     return connection;
 }
 
 void  firebird_destroy_connection(void* connection)
 {
-    delete (CFirebirdConnection*) connection;
+    delete (FirebirdConnection*) connection;
 }

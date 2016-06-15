@@ -42,35 +42,35 @@
 namespace sptk
 {
 
-class CFirebirdConnection;
+class FirebirdConnection;
 
 /// @brief Firebird-specific bind buffers
-class CFirebirdBindBuffers
+class FirebirdBindBuffers
 {
     size_t  m_size;     ///< Buffer count
     XSQLDA* m_sqlda;    ///< Buffers structure
     short*  m_cbNulls;  ///< Null flags (callback)
 public:
     /// @brief Constructor
-    CFirebirdBindBuffers()
+    FirebirdBindBuffers()
     : m_size(0), m_sqlda(NULL), m_cbNulls(NULL)
     {
         resize(16);
     }
 
     /// @brief Destructor
-    ~CFirebirdBindBuffers()
+    ~FirebirdBindBuffers()
     {
         free(m_sqlda);
         free(m_cbNulls);
     }
-    
+
     /// @brief Returns buffer structure
     XSQLDA& sqlda()
     {
         return *m_sqlda;
     }
-    
+
     /// @brief Resize bind buffers
     /// @param size size_t, New size of buffer array
     void resize(size_t size)
@@ -88,13 +88,13 @@ public:
         for (unsigned i = 0; i < m_size; i++, cbNull++)
             m_sqlda->sqlvar[i].sqlind = cbNull;
     }
-    
+
     /// @brief Returns individual buffer
     XSQLVAR& operator [] (size_t index)
     {
         return m_sqlda->sqlvar[index];
     }
-    
+
     /// @brief Returns number of buffers
     size_t size() const
     {
@@ -103,13 +103,13 @@ public:
 };
 
 /// @brief Firebird SQL statement
-class CFirebirdStatement : public CDatabaseStatement<CFirebirdConnection,isc_stmt_handle>
+class FirebirdStatement : public DatabaseStatement<FirebirdConnection,isc_stmt_handle>
 {
-    CFirebirdBindBuffers    m_outputBuffers;        ///< Output result buffers
-    CFirebirdBindBuffers    m_paramBuffers;         ///< Parameter buffers
+    FirebirdBindBuffers    m_outputBuffers;        ///< Output result buffers
+    FirebirdBindBuffers    m_paramBuffers;         ///< Parameter buffers
     ISC_STATUS              m_status_vector[20];    ///< Execution result
-    Buffer                 m_blobData;             ///< BLOB fetch buffer
-    
+    Buffer                  m_blobData;             ///< BLOB fetch buffer
+
 public:
 
     /// @brief Translates Firebird native type to CVariant type
@@ -131,26 +131,26 @@ public:
 
     /// @brief Creates new BLOB from parameter data
     /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id
-    /// @param param CParam*, BLOB field
-    isc_blob_handle createBLOB(ISC_QUAD* blob_id, CParam* param) THROWS_EXCEPTIONS;
-    
+    /// @param param QueryParameter*, BLOB field
+    isc_blob_handle createBLOB(ISC_QUAD* blob_id, QueryParameter* param) THROWS_EXCEPTIONS;
+
     /// @brief Fetches BLOB data during fetch of query results
     /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id
-    /// @param field CDatabaseField*, BLOB field
-    size_t fetchBLOB(ISC_QUAD* blob_id, CDatabaseField* field) THROWS_EXCEPTIONS;
-    
+    /// @param field DatabaseField*, BLOB field
+    size_t fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) THROWS_EXCEPTIONS;
+
 public:
     /// @brief Constructor
     /// @param connection Connection*, Firebird connection
     /// @param sql std::string, SQL statement
-    CFirebirdStatement(CFirebirdConnection* connection, std::string sql);
+    FirebirdStatement(FirebirdConnection* connection, std::string sql);
 
     /// @brief Destructor
-    virtual ~CFirebirdStatement();
+    virtual ~FirebirdStatement();
 
     /// @brief Generates normalized list of parameters
-    /// @param queryParams CParamList&, Standard query parameters
-    void enumerateParams(CParamList& queryParams);
+    /// @param queryParams QueryParameterList&, Standard query parameters
+    void enumerateParams(QueryParameterList& queryParams);
 
     /// @brief Sets actual parameter values for the statement execution
     void setParameterValues();

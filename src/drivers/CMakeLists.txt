@@ -54,8 +54,8 @@ ENDIF (MYSQL_FLAG)
 
 IF (FIREBIRD_FLAG)
     ADD_LIBRARY (spdb5_firebird ${LIBRARY_TYPE}
-        Firebird/CFirebirdConnection.cpp
-        Firebird/CFirebirdStatement.cpp
+        Firebird/FirebirdConnection.cpp
+        Firebird/FirebirdStatement.cpp
     )
     INCLUDE_DIRECTORIES (${Firebird_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES (spdb5_firebird spdb5 sputil5 ${Firebird_LIBRARY})

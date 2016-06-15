@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CFirebirdStatement.cpp - description                   ║
+║                       FirebirdStatement.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/db/FirebirdConnection.h>
-#include <sptk5/db/CFirebirdStatement.h>
+#include <sptk5/db/FirebirdStatement.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/Buffer.h>
 #include <math.h>
@@ -35,7 +35,8 @@
 using namespace std;
 using namespace sptk;
 
-class CFirebirdStatementField: public DatabaseField {
+class FirebirdStatementField: public DatabaseField
+{
     XSQLVAR&        m_sqlvar;
 public:
     // Callback variables
@@ -44,7 +45,7 @@ public:
     double          m_numericScale;
 
 public:
-    CFirebirdStatementField(std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
+    FirebirdStatementField(std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
         DatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
         m_sqlvar(sqlvar), m_cbNull(0), m_numericScale(1)
     {
@@ -79,21 +80,21 @@ public:
 };
 
 
-CFirebirdStatement::CFirebirdStatement(CFirebirdConnection* connection, string sql)
-: DatabaseStatement<CFirebirdConnection,isc_stmt_handle>(connection)
+FirebirdStatement::FirebirdStatement(FirebirdConnection* connection, string sql)
+: DatabaseStatement<FirebirdConnection,isc_stmt_handle>(connection)
 {
     m_statement = new isc_stmt_handle;
     *m_statement = 0;
 }
 
-CFirebirdStatement::~CFirebirdStatement()
+FirebirdStatement::~FirebirdStatement()
 {
     if (*m_statement)
         isc_dsql_free_statement(m_status_vector, m_statement, DSQL_drop);
     delete m_statement;
 }
 
-void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
+void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
 {
     short year, month, day, hour, minute, second, msecond;
     memset(&firebirdDate, 0, sizeof(firebirdDate));
@@ -112,15 +113,15 @@ void CFirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTim
     }
 }
 
-void CFirebirdStatement::firebirdDateToDateTime(DateTime& timestamp, const struct tm& firebirdData)
+void FirebirdStatement::firebirdDateToDateTime(DateTime& timestamp, const struct tm& firebirdData)
 {
     timestamp = DateTime(short(firebirdData.tm_year + 1900), short(firebirdData.tm_mon + 1), short(firebirdData.tm_mday),
                 short(firebirdData.tm_hour), short(firebirdData.tm_min), short(firebirdData.tm_sec));
 }
 
-void CFirebirdStatement::enumerateParams(QueryParameterList& queryParams)
+void FirebirdStatement::enumerateParams(QueryParameterList& queryParams)
 {
-    DatabaseStatement<CFirebirdConnection,isc_stmt_handle>::enumerateParams(queryParams);
+    DatabaseStatement<FirebirdConnection,isc_stmt_handle>::enumerateParams(queryParams);
     XSQLDA* psqlda = &m_paramBuffers.sqlda();
     isc_dsql_describe_bind(m_status_vector, m_statement, 1, psqlda);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
@@ -131,7 +132,7 @@ void CFirebirdStatement::enumerateParams(QueryParameterList& queryParams)
     }
 }
 
-VariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int firebirdSubtype)
+VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int firebirdSubtype)
 {
     switch (firebirdType) {
 
@@ -177,7 +178,7 @@ VariantType CFirebirdStatement::firebirdTypeToVariantType(int firebirdType, int 
     }
 }
 
-void CFirebirdStatement::setParameterValues()
+void FirebirdStatement::setParameterValues()
 {
     unsigned        paramCount = (unsigned) m_enumeratedParams.size();
     struct tm       firebirdDateTime;
@@ -190,9 +191,9 @@ void CFirebirdStatement::setParameterValues()
             *sqlvar.sqlind = 1;
         else
             *sqlvar.sqlind = 0;
-        
+
         switch (param->dataType()) {
-            
+
             case VAR_NONE:
                 sqlvar.sqltype = SQL_TEXT + 1;
                 sqlvar.sqlsubtype = 0;
@@ -207,28 +208,28 @@ void CFirebirdStatement::setParameterValues()
                 sqlvar.sqllen = sizeof(short);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getInteger();
                 break;
-                
+
             case VAR_INT:
                 sqlvar.sqltype = SQL_LONG + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int32_t);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getInteger();
                 break;
-                
+
             case VAR_FLOAT:
                 sqlvar.sqltype = SQL_DOUBLE + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(double);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getFloat();
                 break;
-                
+
             case VAR_INT64:
                 sqlvar.sqltype = SQL_INT64 + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(int64_t);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getInt64();
                 break;
-                
+
             case VAR_MONEY:
                 sqlvar.sqltype = SQL_INT64 + 1;
                 sqlvar.sqlsubtype = 1;
@@ -236,7 +237,7 @@ void CFirebirdStatement::setParameterValues()
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getMoney().quantity;
                 sqlvar.sqlscale = -param->getMoney().scale;
                 break;
-                
+
             case VAR_STRING:
                 sqlvar.sqltype = SQL_TEXT + 1;
                 sqlvar.sqlsubtype = 0;
@@ -251,7 +252,7 @@ void CFirebirdStatement::setParameterValues()
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
                 createBLOB((ISC_QUAD*)sqlvar.sqldata, param);
                 break;
-                
+
             case VAR_DATE:
                 sqlvar.sqltype = SQL_TYPE_DATE + 1;
                 sqlvar.sqlsubtype = 0;
@@ -260,21 +261,21 @@ void CFirebirdStatement::setParameterValues()
                 dateTimeToFirebirdDate(firebirdDateTime, param->getDate(), VAR_DATE);
                 isc_encode_sql_date(&firebirdDateTime, (ISC_DATE*)sqlvar.sqldata);
                 break;
-                
+
             case VAR_DATE_TIME:
                 sqlvar.sqltype = SQL_TIMESTAMP + 1;
                 sqlvar.sqlsubtype = 0;
                 sqlvar.sqllen = sizeof(ISC_TIMESTAMP);
                 sqlvar.sqldata = (ISC_SCHAR*) param->conversionBuffer();
                 pts = (ISC_TIMESTAMP*) sqlvar.sqldata;
-                
+
                 dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VAR_DATE);
                 isc_encode_sql_date(&firebirdDateTime, &pts->timestamp_date);
-                
+
                 dateTimeToFirebirdDate(firebirdDateTime, param->getDateTime(), VAR_DATE_TIME);
                 isc_encode_sql_time(&firebirdDateTime, &pts->timestamp_time);
                 break;
-                
+
             default:
             {
                 char buffer[256];
@@ -285,26 +286,26 @@ void CFirebirdStatement::setParameterValues()
     }
 }
 
-void CFirebirdStatement::CFirebirdStatement::prepare(const string& sql)
+void FirebirdStatement::FirebirdStatement::prepare(const string& sql)
 {
     if (!m_statement || !*m_statement) {
         isc_db_handle db = m_connection->connection();
         isc_dsql_allocate_statement(m_status_vector, &db, m_statement);
         m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
     }
-    
+
     if (!m_connection->m_transaction) 
         m_connection->driverBeginTransaction();
-    
+
     isc_dsql_prepare(m_status_vector, &m_connection->m_transaction, m_statement, 0, sql.c_str(), SQL_DIALECT_CURRENT, NULL);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
 }
 
-void CFirebirdStatement::execute(bool)
+void FirebirdStatement::execute(bool)
 {
     if (!m_connection->m_transaction) 
         m_connection->driverBeginTransaction();
-    
+
     m_state.eof = false;
     isc_dsql_execute(m_status_vector, &m_connection->m_transaction, m_statement, 1, &m_paramBuffers.sqlda());
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
@@ -316,13 +317,13 @@ void CFirebirdStatement::execute(bool)
         m_outputBuffers.resize(size_t(osqlda->sqld));
         isc_dsql_describe(m_status_vector, m_statement, 1, osqlda);
     }
-            
+
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
-    
+
     m_state.columnCount = (unsigned) osqlda->sqld;
 }
 
-void CFirebirdStatement::bindResult(FieldList& fields)
+void FirebirdStatement::bindResult(FieldList& fields)
 {
     fields.clear();
 
@@ -330,7 +331,7 @@ void CFirebirdStatement::bindResult(FieldList& fields)
     for (int columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
         XSQLVAR& sqlvar = m_outputBuffers[size_t(columnIndex)];
         ISC_SHORT type = sqlvar.sqltype;
-        
+
         if (type == SQL_TEXT && sqlvar.sqlsubtype)
             type = SQL_BLOB;
 
@@ -341,11 +342,11 @@ void CFirebirdStatement::bindResult(FieldList& fields)
 
         VariantType fieldType = firebirdTypeToVariantType(sqlvar.sqltype, sqlvar.sqlsubtype);
         unsigned fieldLength = (unsigned) sqlvar.sqllen;
-        fields.push_back(new CFirebirdStatementField(columnName, columnIndex, sqlvar.sqltype, fieldType, (int) fieldLength, sqlvar));
+        fields.push_back(new FirebirdStatementField(columnName, columnIndex, sqlvar.sqltype, fieldType, (int) fieldLength, sqlvar));
     }
 }
 
-isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter* param) THROWS_EXCEPTIONS
+isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter* param) THROWS_EXCEPTIONS
 {
     isc_db_handle   db = m_connection->connection();
     isc_blob_handle blob_handle = 0;
@@ -378,26 +379,26 @@ isc_blob_handle CFirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter
     }
     isc_close_blob(m_status_vector, &blob_handle);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
-    
+
     return blob_handle;
 }
 
-size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) THROWS_EXCEPTIONS
+size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) THROWS_EXCEPTIONS
 {
     isc_db_handle   db = m_connection->connection();
-    
+
     if (blob_id->gds_quad_low == 0 && blob_id->gds_quad_high == 0)
         return 0;
-    
+
     isc_blob_handle blob_handle = 0;
     isc_open_blob2(m_status_vector, &db, &m_connection->m_transaction, &blob_handle, blob_id, 0, NULL);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
-    
+
     size_t  dataLength = 0;
     size_t  fragmentSize = 8192;
-    
+
     field->checkSize(uint32_t(fragmentSize));
-    
+
     while (true) {
         char* currentFragment = (char*) field->getBuffer() + dataLength;
         unsigned short  fragmentLength = 0;
@@ -409,19 +410,19 @@ size_t CFirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) TH
     }
 
     isc_close_blob(m_status_vector, &blob_handle);
-    
+
     field->setDataSize(uint32_t(dataLength));
-    
+
     return field->dataSize();
 }
 
-void CFirebirdStatement::fetchResult(FieldList& fields)
+void FirebirdStatement::fetchResult(FieldList& fields)
 {
     struct tm       times;
     uint32_t        fieldCount = fields.size();
-    
+
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        CFirebirdStatementField*    field = (CFirebirdStatementField*) &fields[fieldIndex];
+        FirebirdStatementField*    field = (FirebirdStatementField*) &fields[fieldIndex];
         XSQLVAR&                    sqlvar = m_outputBuffers[fieldIndex];
         if (*sqlvar.sqlind) {
             field->setNull();
@@ -432,57 +433,57 @@ void CFirebirdStatement::fetchResult(FieldList& fields)
             case SQL_BLOB:
                 fetchBLOB((ISC_QUAD*)sqlvar.sqldata, field);
                 break;
-                    
+
             // Date and time types
             case SQL_TYPE_DATE:
                 isc_decode_sql_date((ISC_DATE*)sqlvar.sqldata, &times);
                 field->setDate(DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday)));
                 break;
-                        
+
             case SQL_TYPE_TIME:
                 isc_decode_sql_time((ISC_TIME*)sqlvar.sqldata, &times);
                 field->setDateTime(
                     DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
                               short(times.tm_hour), short(times.tm_min), short(times.tm_sec)));
                 break;
-                        
+
             case SQL_TIMESTAMP:
                 isc_decode_timestamp((ISC_TIMESTAMP*)sqlvar.sqldata, &times);
                 field->setDateTime(
                     DateTime(short(times.tm_year + 1900), short(times.tm_mon + 1), short(times.tm_mday), 
                               short(times.tm_hour), short(times.tm_min), short(times.tm_sec)));
                 break;
-                        
+
             case SQL_SHORT:
                 if (sqlvar.sqlsubtype == 1)
                     field->setMoney(*(short*) sqlvar.sqldata, (unsigned) -sqlvar.sqlscale);
                 else
                     field->setInteger(*(short*) sqlvar.sqldata);
                 break;
-                        
+
             case SQL_LONG:
                 if (sqlvar.sqlsubtype == 1)
                     field->setMoney(*(int32_t*) sqlvar.sqldata, (unsigned) -sqlvar.sqlscale);
                 else
                     field->setInteger(*(int32_t*) sqlvar.sqldata);
                 break;
-                        
+
             case SQL_INT64:
                 if (sqlvar.sqlsubtype == 1)
                     field->setMoney(*(int64_t*) sqlvar.sqldata, (unsigned) -sqlvar.sqlscale);
                 else
                     field->setInt64(*(int64_t*) sqlvar.sqldata);
                 break;
-                        
+
             case SQL_FLOAT:
                 field->setFloat(*(float*) sqlvar.sqldata * field->m_numericScale);
                 break;
-                        
+
             case SQL_DOUBLE:
             case SQL_D_FLOAT:
                 field->setFloat(*(double*) sqlvar.sqldata * field->m_numericScale);
                 break;
-                        
+
             case SQL_TEXT:
                 {
                     int pos = sqlvar.sqllen - 1;
@@ -492,14 +493,14 @@ void CFirebirdStatement::fetchResult(FieldList& fields)
                     sqlvar.sqldata[pos] = 0;
                     break;
                 }
-                
+
             case SQL_VARYING:
                 {
                     size_t len = *(uint16_t*) sqlvar.sqldata;
                     field->setString(sqlvar.sqldata + 2, len);
                 }
                 break;
-                        
+
             default:
                 {
                     char buffer[256];
@@ -510,13 +511,13 @@ void CFirebirdStatement::fetchResult(FieldList& fields)
     }
 }
 
-void CFirebirdStatement::close()
+void FirebirdStatement::close()
 {
     isc_dsql_free_statement(m_status_vector, m_statement, DSQL_close);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
 }
 
-void CFirebirdStatement::fetch()
+void FirebirdStatement::fetch()
 {
     ISC_STATUS retcode = isc_dsql_fetch(m_status_vector, m_statement, 1, &m_outputBuffers.sqlda());
     if (retcode == 100)
