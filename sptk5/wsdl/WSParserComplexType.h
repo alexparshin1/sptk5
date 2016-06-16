@@ -92,10 +92,10 @@ class WSParserComplexType
 protected:
     std::string             m_name;             ///< Element name
     std::string             m_typeName;         ///< WSDL type name
-    const XMLElement*      m_element;          ///< XML element for that WSDL element
+    const XMLElement*       m_element;          ///< XML element for that WSDL element
     AttributeMap            m_attributes;       ///< Element attributes
     ElementList             m_sequence;         ///< Child element sequence
-    WSMultiplicity         m_multiplicity;     ///< Multiplicity flag
+    WSMultiplicity          m_multiplicity;     ///< Multiplicity flag
     int                     m_refcount;         ///< Object reference count
     WSRestriction*          m_restriction;      ///< Element restriction (if any) or NULL
 

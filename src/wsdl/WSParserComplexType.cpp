@@ -28,6 +28,7 @@
 
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
+#include <sptk5/RegularExpression.h>
 #include <sstream>
 
 using namespace std;
@@ -163,6 +164,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
 
     classDeclaration << endl;
     classDeclaration << "#include <sptk5/sptk.h>" << endl;
+    classDeclaration << "#include <sptk5/FieldList.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSBasicTypes.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSComplexType.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSRestriction.h>" << endl;
@@ -219,8 +221,15 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "   /// @brief Clear content and releases allocated memory" << endl;
     classDeclaration << "   virtual void clear();" << endl << endl;
     classDeclaration << "   /// @brief Load " << className << " from XML node" << endl;
+    classDeclaration << "   ///" << endl;
+    classDeclaration << "   /// Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "   /// @param input const sptk::XMLElement*, XML node containing " << className << " data" << endl;
     classDeclaration << "   virtual void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS;" << endl << endl;
+    classDeclaration << "   /// @brief Load " << className << " from FieldList" << endl;
+    classDeclaration << "   ///" << endl;
+    classDeclaration << "   /// Only simple WSDL type members are loaded." << endl;
+    classDeclaration << "   /// @param input const sptk::FieldList&, query field list containing " << className << " data" << endl;
+    classDeclaration << "   virtual void load(const sptk::FieldList& input) THROWS_EXCEPTIONS;" << endl << endl;
     classDeclaration << "   /// @brief Unload " << className << " to existing XML node" << endl;
     classDeclaration << "   /// @param output sptk::XMLElement*, existing XML node" << endl;
     classDeclaration << "   virtual void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS;" << endl;
@@ -264,23 +273,25 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     }
     classImplementation << "}" << endl << endl;
 
-    // Loader
+    // Loader from XML element
     classImplementation << "void " << className << "::load(const XMLElement* input) THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
     classImplementation << "   clear();" << endl;
-    classImplementation << "   m_loaded = true;" << endl << endl;
+    classImplementation << "   m_loaded = true;" << endl;
+
     if (m_attributes.size()) {
-        classImplementation << "   // Load attributes" << endl;
+        classImplementation << endl << "   // Load attributes" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
             WSParserAttribute& attr = *(itor->second);
             classImplementation << "   m_" << attr.name() << ".load(input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
-        classImplementation << endl;
     }
+
     if (m_sequence.size()) {
-        classImplementation << "   // Load elements" << endl;
-        classImplementation << "   for (XMLElement::const_iterator itor = input->begin(); itor != input->end(); itor++) {" << endl;
-        classImplementation << "      XMLElement* element = (XMLElement*) *itor;" << endl;
+        classImplementation << endl << "   // Load elements" << endl;
+        classImplementation << "   for (XMLNode* node: *input) {" << endl;
+        classImplementation << "      XMLElement* element = dynamic_cast<XMLElement*>(node);" << endl;
+        classImplementation << "      if (!element) continue;" << endl;
         Strings requiredElements;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
             WSParserComplexType* complexType = *itor;
@@ -307,12 +318,81 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         }
         classImplementation << "   }" << endl;
 
+        if (!requiredElements.empty()) {
+            classImplementation << endl << "   // Check restrictions" << endl;
+            for (string& requiredElement : requiredElements) {
+                classImplementation << "   if (m_" << requiredElement << ".isNull())" << endl;
+                classImplementation << "      throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
+            }
+        }
+    }
+    classImplementation << "}" << endl << endl;
+
+    RegularExpression matchStandardType("^xsd:");
+    
+    // Loader from FieldList
+    classImplementation << "void " << className << "::load(const FieldList& input) THROWS_EXCEPTIONS" << endl;
+    classImplementation << "{" << endl;
+    classImplementation << "   clear();" << endl;
+    classImplementation << "   m_loaded = true;" << endl;
+    
+    stringstream fieldLoads;
+    int fieldLoadCount = 0;
+    
+    if (m_attributes.size()) {
+        fieldLoads << endl << "   // Load attributes" << endl;
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+            WSParserAttribute& attr = *(itor->second);
+            fieldLoads << "   if ((field = input.fieldByName(\"" << attr.name() << "\"))) {" << endl;
+            fieldLoads << "      m_" << attr.name() << ".load(*field);" << endl;
+            fieldLoads << "   }" << endl;
+            fieldLoadCount++;
+        }
+    }
+
+    Strings requiredElements;
+    
+    if (m_sequence.size()) {
+        fieldLoads << endl << "   // Load elements" << endl;
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+            WSParserComplexType* complexType = *itor;
+            if (complexType->multiplicity() & WSM_REQUIRED)
+                requiredElements.push_back(complexType->name());
+            if (complexType->m_typeName != matchStandardType)
+                continue;
+            fieldLoadCount++;
+            fieldLoads << "   if ((field = input.fieldByName(\"" << complexType->name() << "\"))) {" << endl;
+            if (complexType->m_restriction)
+                fieldLoads << "      static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
+            if (complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) {
+                fieldLoads << "      " << complexType->className() << "* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
+                fieldLoads << "      item->load(*field);" << endl;
+                if (complexType->m_restriction)
+                    fieldLoads << "      restriction.check(m_" << complexType->name() << ".asString());" << endl;
+                fieldLoads << "      m_" << complexType->name() << ".push_back(item);" << endl;
+            }
+            else {
+                fieldLoads << "      m_" << complexType->name() << ".load(*field);" << endl;
+                if (complexType->m_restriction)
+                    fieldLoads << "      restriction.check(m_" << complexType->name() << ".asString());" << endl;
+            }
+            fieldLoads << "   }" << endl;
+        }
+    }
+
+    if (fieldLoadCount) {
+        classImplementation << "   Field* field;" << endl;
+        classImplementation << fieldLoads.str();
+    }
+
+    if (!requiredElements.empty()) {
+        classImplementation << endl << "   // Check restrictions" << endl;
         for (string& requiredElement : requiredElements) {
             classImplementation << "   if (m_" << requiredElement << ".isNull())" << endl;
             classImplementation << "      throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
         }
     }
-
+    
     classImplementation << "}" << endl << endl;
 
     // Unloader
