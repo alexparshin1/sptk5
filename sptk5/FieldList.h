@@ -47,13 +47,17 @@ namespace sptk {
 /// Provides the streaming output, and export to XML.
 class SP_EXPORT FieldList
 {
-    typedef std::map<std::string, Field *, CaseInsensitiveCompare>     CFieldMap;
-    typedef std::vector<Field *>                                       CFieldVector;
+public:
+    typedef std::vector<Field*>::iterator                              iterator;
+    typedef std::vector<Field*>::const_iterator                        const_iterator;
+
+private:
+    typedef std::vector<Field*>                                        Vector;
+    typedef std::map<std::string, Field *, CaseInsensitiveCompare>     Map;
 
     void*                   m_userData;        ///< User data - any data you want to associate with that field list
-    CFieldVector            m_list;            ///< The list of fields
-    CFieldVector::iterator  m_fieldStreamItor; ///< The field iterator for the streamed fields reading
-    CFieldMap*              m_index;           ///< The optional field index by name. 0L if field list isn't indexed.
+    Vector                  m_list;            ///< The list of fields
+    Map*                    m_index;           ///< The optional field index by name. 0L if field list isn't indexed.
     bool                    m_compactXmlMode;  ///< The compact XML mode flag
 
 public:
@@ -74,6 +78,30 @@ public:
     uint32_t size() const
     {
         return (uint32_t) m_list.size();
+    }
+
+    /// @brief Begin iterator
+    iterator begin()
+    {
+        return m_list.begin();
+    }
+
+    /// @brief Begin const iterator
+    const_iterator begin() const
+    {
+        return m_list.begin();
+    }
+
+    /// @brief End iterator
+    iterator end()
+    {
+        return m_list.end();
+    }
+
+    /// @brief End const iterator
+    const_iterator end() const
+    {
+        return m_list.end();
     }
 
     /// @brief Defines XML export mode
@@ -192,20 +220,6 @@ public:
         return m_userData;
     }
 
-    /// @brief Sets the field stream iterator to the first field
-    ///
-    /// This method is useful if you're using stream access to fields
-    void rewind()
-    {
-        m_fieldStreamItor = m_list.begin();
-    }
-
-    /// @brief Sets the field stream iterator to the next field.
-    ///
-    /// After the last field is reached, the iterator is switched to the first field
-    /// @returns current field
-    Field& next();
-
     /// @brief Exports data into XML node
     ///
     /// @see setXmlMode() for details.
@@ -213,73 +227,6 @@ public:
     void toXML(XMLNode& xml) const;
 };
 }
-
-/// @brief Streamed field output
-///
-/// The data is read from the current field,
-/// and then next field becomes current. The rewind() method is called
-/// automatically to reset the field iterator to the first field upon
-/// query open() or fetch() method calls.
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param data const bool&, a variable to read current field to
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, bool& data);
-
-/// @brief Streamed field output
-///
-/// The data is read from the current field,
-/// and then next field becomes current. The rewind() method is called
-/// automatically to reset the field iterator to the first field upon
-/// query open() or fetch() method calls.
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param data const std::string&, a variable to read current field to
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, std::string& data);
-
-/// @brief Streamed field output
-///
-/// The data is read from the current field,
-/// and then next field becomes current. The rewind() method is called
-/// automatically to reset the field iterator to the first field upon
-/// query open() or fetch() method calls.
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param data int&, a variable to read current field to
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, int& data);
-
-/// @brief Streamed field output
-///
-/// The data is read from the current field,
-/// and then next field becomes current. The rewind() method is called
-/// automatically to reset the field iterator to the first field upon
-/// query open() or fetch() method calls.
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param data double&, a variable to read current field to
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, double& data);
-
-/// @brief Streamed field output
-///
-/// The data is read from the current field,
-/// and then next field becomes current. The rewind() method is called
-/// automatically to reset the field iterator to the first field upon
-/// query open() or fetch() method calls.
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param data CDateTime, a data to assign to current parameter
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::DateTime& data);
-
-/// @brief Streamed field output
-///
-/// The data is read from the current field,
-/// and then next field becomes current. The rewind() method is called
-/// automatically to reset the field iterator to the first field upon
-/// query open() or fetch() method calls.
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param data const CBuffer&, a variable to read current field to
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::Buffer& data);
-
-/// @brief Streamed fields output
-///
-/// Exports the data from fields into XML node
-/// @param fieldList CFieldList&, a list of fields to assign
-/// @param fields const XMLNode&, an XML node variable to read fields into
-SP_EXPORT sptk::FieldList& operator >> (sptk::FieldList& fieldList, sptk::XMLNode& fields);
 
 /// @}
 

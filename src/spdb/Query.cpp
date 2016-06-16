@@ -121,8 +121,7 @@ string Query::getError() const
 
 //==============================================================================
 Query::Query(DatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
-        :
-        DataSource(), m_fields(true), m_bulkMode(false)
+    : DataSource(), m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
@@ -293,14 +292,11 @@ bool Query::open() THROWS_EXCEPTIONS
     m_totalDuration += m_duration;
     m_totalCalls++;
 
-    m_fields.rewind();
-
     return true;
 }
 
 void Query::fetch() THROWS_EXCEPTIONS
 {
-    m_fields.rewind();
     if (!m_db || !m_active) {
         logText("Error in CQuery::fetch(): Dataset isn't open");
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, m_sql);

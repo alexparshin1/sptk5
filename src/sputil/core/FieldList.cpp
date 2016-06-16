@@ -39,7 +39,7 @@ FieldList::FieldList(bool indexed, bool compactXmlMode)
     m_userData = 0;
     m_compactXmlMode = compactXmlMode;
     if (indexed)
-        m_index = new CFieldMap;
+        m_index = new Map;
     else
         m_index = 0L;
 }
@@ -69,7 +69,7 @@ Field& FieldList::push_back(const char *fname, bool checkDuplicates)
     bool duplicate = false;
     if (checkDuplicates) {
         if (m_index) {
-            CFieldMap::iterator itor = m_index->find(fname);
+            Map::iterator itor = m_index->find(fname);
             if (itor != m_index->end())
                 duplicate = true;
         }
@@ -109,7 +109,7 @@ Field& FieldList::push_back(Field *field)
 Field *FieldList::fieldByName(const char *fname) const
 {
     if (m_index) {
-        CFieldMap::const_iterator itor = m_index->find(fname);
+        Map::const_iterator itor = m_index->find(fname);
         if (itor != m_index->end())
             return itor->second;
     }
@@ -126,60 +126,11 @@ Field *FieldList::fieldByName(const char *fname) const
 
 void FieldList::toXML(XMLNode& node) const
 {
-    CFieldVector::const_iterator itor = m_list.begin();
-    CFieldVector::const_iterator iend = m_list.end();
+    const_iterator itor = m_list.begin();
+    const_iterator iend = m_list.end();
     for (; itor != iend; itor++) {
         Field *field = *itor;
         field->toXML(node, m_compactXmlMode);
     }
 }
 
-Field& FieldList::next()
-{
-    Field *currentField = *m_fieldStreamItor;
-    m_fieldStreamItor++;
-    if (m_fieldStreamItor == m_list.end()) m_fieldStreamItor = m_list.begin();
-    return *currentField;
-}
-
-FieldList& operator>>(FieldList& fieldList, string& data)
-{
-    data = fieldList.next().asString();
-    return fieldList;
-}
-
-FieldList& operator>>(FieldList& fieldList, int& data)
-{
-    data = fieldList.next();
-    return fieldList;
-}
-
-FieldList& operator>>(FieldList& fieldList, double& data)
-{
-    data = fieldList.next();
-    return fieldList;
-}
-
-FieldList& operator>>(FieldList& fieldList, DateTime& data)
-{
-    data = fieldList.next();
-    return fieldList;
-}
-
-FieldList& operator>>(FieldList& fieldList, Buffer& data)
-{
-    data = fieldList.next();
-    return fieldList;
-}
-
-FieldList& operator>>(FieldList& fieldList, bool& data)
-{
-    data = fieldList.next().asBool();
-    return fieldList;
-}
-
-FieldList& operator>>(FieldList& fieldList, XMLNode& fields)
-{
-    fieldList.toXML(fields);
-    return fieldList;
-}

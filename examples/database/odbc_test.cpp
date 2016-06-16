@@ -191,24 +191,7 @@ int main(int argc, const char* argv[])
         }
         step3Query.close();
 
-        cout << "Ok.\nStep 4: Selecting the information through the stream .." << endl;
-        step3Query.param("some_id") = 1;
-        step3Query.open();
-
-        while (!step3Query.eof()) {
-
-            int id;
-            string name, position;
-
-            step3Query.fields() >> id >> name >> position;
-
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
-
-            step3Query.fetch();
-        }
-        step3Query.close();
-
-        cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
+        cout << "Ok.\nStep 4: Selecting the information the fast way .." << endl;
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -236,7 +219,7 @@ int main(int argc, const char* argv[])
 
         step4Query.exec();
 
-        cout << "Ok.\nStep 6: Closing the database.. ";
+        cout << "Ok.\nStep 5: Closing the database.. ";
         db->close();
         cout << "Ok." << endl;
     } catch (exception& e) {

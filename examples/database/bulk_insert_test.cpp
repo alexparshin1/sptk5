@@ -76,7 +76,7 @@ int main()
 
         db->bulkInsert(tableName, columnNames, data);
 
-        cout << "Ok.\nStep 3: Selecting the information through the stream .." << endl;
+        cout << "Ok.\nStep 3: Selecting the information through the field iterator .." << endl;
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -85,7 +85,16 @@ int main()
             int id;
             string name, position_name, hire_date;
 
-            step3Query.fields() >> id >> name >> position_name >> hire_date;
+            int fieldIndex = 0;
+            for (Field* field: step3Query.fields()) {
+                switch (fieldIndex) {
+                    case 0: id = field->asInteger(); break;
+                    case 1: name = field->asString(); break;
+                    case 2: position_name = field->asString(); break;
+                    case 3: hire_date = field->asString(); break;
+                }
+                fieldIndex++;
+            }
 
             cout << setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl;
 
