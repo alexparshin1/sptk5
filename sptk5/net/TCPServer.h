@@ -94,7 +94,7 @@ protected:
     /// @brief Screens incoming connection request
     ///
     /// Method is called right after connection request is accepted,
-    /// and allows ignore unwanted connections. By default simply returns true.
+    /// and allows ignoring unwanted connections. By default simply returns true (allow).
     /// @param connectionRequest sockaddr_in*, Incoming connection information
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
