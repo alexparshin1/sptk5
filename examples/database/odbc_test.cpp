@@ -41,11 +41,11 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection& db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(&db, "DELETE FROM " + tableName);
-        CQuery step6Query(&db, "SELECT count(*) FROM " + tableName);
+        Query step5Query(&db, "DELETE FROM " + tableName);
+        Query step6Query(&db, "SELECT count(*) FROM " + tableName);
 
         cout << "\n        Begining the transaction ..";
         db.beginTransaction();
@@ -77,36 +77,36 @@ int testTransactions(CDatabaseConnection& db, string tableName, bool rollback)
 
 int main(int argc, const char* argv[])
 {
-	String connectString;
-	if (argc == 1)
-		connectString = "odbc://user:password@demo_odbc";
-	else
-		connectString = argv[1];
+    String connectString;
+    if (argc == 1)
+        connectString = "odbc://user:password@demo_odbc";
+    else
+        connectString = argv[1];
 
-	if (connectString != RegularExpression("^odbc://")) {
-		cout << "Syntax:" << endl << endl; 
-		cout << "odbc_test [connection string]" << endl << endl;
-		cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;
-		cout << "for instance:" << endl << endl;
-		cout << "  odbc://alex:secret@mydsn" << endl;
-		return 1;
-	}
+    if (connectString != RegularExpression("^odbc://")) {
+        cout << "Syntax:" << endl << endl; 
+        cout << "odbc_test [connection string]" << endl << endl;
+        cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;
+        cout << "for instance:" << endl << endl;
+        cout << "  odbc://alex:secret@mydsn" << endl;
+        return 1;
+    }
 
-	try {
-		CDatabaseConnectionPool connectionPool(connectString);
-		CDatabaseConnection* db = connectionPool.createConnection();
+    try {
+        DatabaseConnectionPool connectionPool(connectString);
+        DatabaseConnection* db = connectionPool.createConnection();
 
         cout << "Openning the database, using connection string " << connectString << ":" << endl;
         db->open();
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
-        CDbObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
+        DatabaseObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
 
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
-            CStrings objectList;
+            Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
@@ -119,10 +119,10 @@ int main(int argc, const char* argv[])
 
         // Defining the queries
         string tableName = "test_table";
-        CQuery step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
-        CQuery step4Query(db, "DROP TABLE " + tableName);
+        Query step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
+        Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
+        Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
+        Query step4Query(db, "DROP TABLE " + tableName);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
@@ -158,9 +158,9 @@ int main(int argc, const char* argv[])
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        CParam& id_param = step2Query.param("person_id");
-        CParam& name_param = step2Query.param("person_name");
-        CParam& position_param = step2Query.param("position_name");
+        QueryParameter& id_param = step2Query.param("person_id");
+        QueryParameter& name_param = step2Query.param("person_name");
+        QueryParameter& position_param = step2Query.param("position_name");
         // Now, we can use these variables
         id_param = 4;
         name_param = "Buffy";
@@ -191,31 +191,14 @@ int main(int argc, const char* argv[])
         }
         step3Query.close();
 
-        cout << "Ok.\nStep 4: Selecting the information through the stream .." << endl;
-        step3Query.param("some_id") = 1;
-        step3Query.open();
-
-        while (!step3Query.eof()) {
-
-            int id;
-            string name, position;
-
-            step3Query.fields() >> id >> name >> position;
-
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
-
-            step3Query.fetch();
-        }
-        step3Query.close();
-
-        cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
+        cout << "Ok.\nStep 4: Selecting the information the fast way .." << endl;
         step3Query.param("some_id") = 1;
         step3Query.open();
 
         // First, find the field references by name or by number
-        CField& idField = step3Query[uint32_t(0)];
-        CField& nameField = step3Query["name"];
-        CField& positionField = step3Query["position"];
+        Field& idField = step3Query[uint32_t(0)];
+        Field& nameField = step3Query["name"];
+        Field& positionField = step3Query["position"];
 
         while (!step3Query.eof()) {
 
@@ -236,7 +219,7 @@ int main(int argc, const char* argv[])
 
         step4Query.exec();
 
-        cout << "Ok.\nStep 6: Closing the database.. ";
+        cout << "Ok.\nStep 5: Closing the database.. ";
         db->close();
         cout << "Ok." << endl;
     } catch (exception& e) {
@@ -245,7 +228,7 @@ int main(int argc, const char* argv[])
         cout << "Please, read the README.txt for more information." << endl;
     }
 
-    CThread::msleep(3000);
+    Thread::msleep(3000);
 
     return 0;
 }

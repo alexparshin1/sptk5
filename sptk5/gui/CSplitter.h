@@ -61,8 +61,8 @@ public:
     int handle(int event);
 
     /// @brief Creates a widget based on the XML node information
-    /// @param node CXmlNode*, an XML node with widget information
-    static CLayoutClient* creator(CXmlNode* node);
+    /// @param node XMLNode*, an XML node with widget information
+    static CLayoutClient* creator(XMLNode* node);
 
     /// @brief Returns widget class name (internal SPTK RTTI).
     virtual std::string className() const {

@@ -30,11 +30,11 @@
 #define __CFILEDIALOG_H__
 
 #include <sptk5/gui/CDialog.h>
-#include <sptk5/CDirectoryDS.h>
+#include <sptk5/DirectoryDS.h>
 #include <sptk5/gui/CListView.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CComboBox.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -47,7 +47,7 @@ namespace sptk {
 /// Can't be used by itself, only as a base class.
 class CFileDialog : public CDialog {
 protected:
-    CDirectoryDS   m_directory;     ///< Directory Dataset
+    DirectoryDS   m_directory;     ///< Directory Dataset
     CListView     *m_directoryView; ///< File list in the directory
     CComboBox     *m_lookInCombo;    ///< The combo with the list of the lookup directories
     CInput        *m_fileNameInput; ///< The file name input box

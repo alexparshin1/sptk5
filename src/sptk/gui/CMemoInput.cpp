@@ -31,7 +31,6 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 
-#include <sptk5/CStrings.h>
 #include <sptk5/gui/CMemoInput.h>
 #include <sptk5/gui/CEditor.h>
 
@@ -60,7 +59,7 @@ CMemoInput::CMemoInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CMemoInput::creator(CXmlNode *node) {
+CLayoutClient* CMemoInput::creator(XMLNode *node) {
     CMemoInput* widget = new CMemoInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
@@ -91,10 +90,10 @@ void CMemoInput::textSize(uchar s) {
     ((CEditor *)m_control)->textsize(s);
 }
 
-void CMemoInput::save(CQuery *updateQuery) {
+void CMemoInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param.setText(data().getString());
 }
 

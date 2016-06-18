@@ -80,7 +80,7 @@ public:
     /// The program name is optional. It is set for all the CSysLog objects at once.
     /// If set, it appears in the log as a message prefix. Every time the program
     /// name is changed, the log is closed to be re-opened on next message.
-    /// @param progName std::string, a program name
+    /// @param programName std::string, a program name
     /// @param facilities int, log facility or a set of facilities.
     SysLogEngine(std::string programName = "", uint32_t facilities = LOG_USER);
 

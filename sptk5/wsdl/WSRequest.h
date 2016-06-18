@@ -1,0 +1,84 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       WSRequest.h - description                              ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  begin                Thursday May 25 2000                                   ║
+║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#ifndef __SPTK_WSREQUEST_H__
+#define __SPTK_WSREQUEST_H__
+
+#include <sptk5/cxml>
+
+namespace sptk
+{
+
+/// @addtogroup wsdl WSDL-related Classes
+/// @{
+
+/// @brief Parser of WSDL requests
+class WSRequest
+{
+protected:
+    std::string m_namespace;    ///< Detected request namespace
+
+    /// @brief Internal SOAP body processor
+    ///
+    /// Receives incoming SOAP body of Web Service requests, and returns
+    /// application response.
+    /// This method is abstract and overwritten in derived generated classes.
+    /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
+    virtual void requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS = 0;
+public:
+    /// @brief Constructor
+    WSRequest() {}
+
+    /// @brief Destructor
+    virtual ~WSRequest() {}
+
+    /// @brief Processes incoming requests
+    ///
+    /// The processing results are stored in the same request XML
+    /// @param request XMLDoc*, Incoming request and outgoing response
+    void processRequest(XMLDocument* request) THROWS_EXCEPTIONS;
+
+    /// @brief Returns service title (for service handshake)
+    ///
+    /// Application should overwrite this method to return mor appropriate text
+    virtual std::string title() const
+    {
+        return "Generic SPTK WS Request Broker";
+    }
+
+    /// @brief Returns service default HTML page
+    ///
+    /// Application should overwrite this method to return mor appropriate text
+    virtual std::string defaultPage() const
+    {
+        return "index.html";
+    }
+};
+
+}
+#endif

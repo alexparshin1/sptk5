@@ -50,8 +50,8 @@ namespace sptk
 class SP_EXPORT SmtpConnect: public BaseMailConnect,
                               public TCPSocket
 {
-    Logger*  m_log;
-    CStrings    m_response;
+    Logger*    m_log;
+    Strings    m_response;
 
     /// @brief Processes tag for strippedHtml.
     ///
@@ -69,7 +69,7 @@ protected:
     /// @param encode bool, encode the arguments to Base64 or not
     void sendCommand(std::string cmd, bool encode = false);
 
-    /// @brief Retrieves the server response after the command into internal CStrings buffer
+    /// @brief Retrieves the server response after the command into internal Strings buffer
     ///
     /// The response can be read then with response() method.
     /// @param decode bool, decode the response from Base64 or not
@@ -78,7 +78,7 @@ protected:
     /// @brief Mime-encodes the buffer
     /// @param buffer const CBuffer&, Source data
     /// @return MIME-encoded data
-    static std::string mime(const CBuffer& buffer);
+    static std::string mime(const Buffer& buffer);
 
     /// @brief Mime-encodes the string
     /// @param s std::string, Source data
@@ -108,7 +108,7 @@ public:
     int command(std::string cmd, bool encodeCommand = false, bool decodeResponse = false);
 
     /// @brief The response from the server - makes sence after calling any command
-    CStrings& response()
+    Strings& response()
     {
         return m_response;
     }

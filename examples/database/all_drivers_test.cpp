@@ -35,11 +35,11 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection* db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
-        CQuery step6Query(db, "SELECT count(*) FROM " + tableName, true, __FILE__, __LINE__);
+        Query step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
+        Query step6Query(db, "SELECT count(*) FROM " + tableName, true, __FILE__, __LINE__);
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
@@ -76,7 +76,7 @@ int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 
 // This function returns field content as a string, or "<NULL>" is field
 // contains a NULL value
-string fieldToString(const CField& field)
+string fieldToString(const Field& field)
 {
     if (field.isNull())
         return "<NULL>";
@@ -84,9 +84,9 @@ string fieldToString(const CField& field)
     return field;
 }
 
-void testBLOBs(CDatabaseConnection* db)
+void testBLOBs(DatabaseConnection* db)
 {
-    CQuery createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true, __FILE__, __LINE__);
+    Query createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true, __FILE__, __LINE__);
     try {
         createTableQuery.exec();
     }
@@ -94,7 +94,7 @@ void testBLOBs(CDatabaseConnection* db)
         cout << e.what() << endl;
     }
 
-    CQuery createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true, __FILE__, __LINE__);
+    Query createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true, __FILE__, __LINE__);
 
     for (unsigned i = 0; i < 1000; i++) {
         createBlobQuery.param("id").setInteger(i);
@@ -102,7 +102,7 @@ void testBLOBs(CDatabaseConnection* db)
         createBlobQuery.exec();
     }
 
-    CQuery selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", true, __FILE__, __LINE__);
+    Query selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", true, __FILE__, __LINE__);
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
         cout << selectBlobsQuery["id"].asInteger()
@@ -112,14 +112,14 @@ void testBLOBs(CDatabaseConnection* db)
     }
     selectBlobsQuery.close();
 
-    CQuery dropTableQuery(db, "DROP TABLE sptk_blob_test", true, __FILE__, __LINE__);
+    Query dropTableQuery(db, "DROP TABLE sptk_blob_test", true, __FILE__, __LINE__);
     dropTableQuery.exec();
 }
 
 int testDatabase(string connectionString)
 {
-    CDatabaseConnectionPool connectionPool(connectionString);
-    CDatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnectionPool connectionPool(connectionString);
+    DatabaseConnection* db = connectionPool.createConnection();
 
     try {
         cout << "==========================================\n";
@@ -130,13 +130,13 @@ int testDatabase(string connectionString)
 
         //testBLOBs(db);
 
-        CDbObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+        DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++) {
             cout << "-------------------------------------------------" << endl;
             cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
-            CStrings objectList;
+            Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
@@ -156,18 +156,18 @@ int testDatabase(string connectionString)
         if (db->driverDescription().find("Microsoft") != string::npos)
             timestampTypeName = "DATETIME";
 
-        CQuery step1Query(db,
+        Query step1Query(db,
                           "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " +
                           timestampTypeName + ", rate NUMERIC(16,10))", false, __FILE__, __LINE__);
-        CQuery step2Query(db, "INSERT INTO " + tableName +
+        Query step2Query(db, "INSERT INTO " + tableName +
                               " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__, __LINE__);
-        CQuery step3Query(db, "SELECT * FROM " + tableName + " WHERE id > 1 OR id IS NULL", false, __FILE__, __LINE__);
-        CQuery step4Query(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
+        Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > 1 OR id IS NULL", false, __FILE__, __LINE__);
+        Query step4Query(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             step1Query.exec();
-            if (db->connectionType() == CDatabaseConnection::DCT_FIREBIRD)
+            if (db->connectionType() == DatabaseConnection::DCT_FIREBIRD)
                 db->commitTransaction(); // Some databases don't recognize table existense until it is committed
         } catch (exception& e) {
             if (strstr(e.what(), " already ") == NULL)
@@ -207,11 +207,11 @@ int testDatabase(string connectionString)
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        CParam& id_param = step2Query.param("person_id");
-        CParam& name_param = step2Query.param("person_name");
-        CParam& position_param = step2Query.param("position_name");
-        CParam& hire_date_param = step2Query.param("hire_date");
-        CParam& rate_param = step2Query.param("rate");
+        QueryParameter& id_param = step2Query.param("person_id");
+        QueryParameter& name_param = step2Query.param("person_name");
+        QueryParameter& position_param = step2Query.param("position_name");
+        QueryParameter& hire_date_param = step2Query.param("hire_date");
+        QueryParameter& rate_param = step2Query.param("rate");
 
         // Now, we can use these variables, re-defining their values before each .exec() if needed:
         id_param = 4;
@@ -265,18 +265,27 @@ int testDatabase(string connectionString)
         }
         step3Query.close();
 
-        cout << "Ok.\nStep 4: Selecting the information through the stream .." << endl;
+        cout << "Ok.\nStep 4: Selecting the information through the field iterator .." << endl;
+        step3Query.param("some_id") = 1;
         step3Query.open();
 
         while (!step3Query.eof()) {
 
             int id;
-            string name, position_name, hire_date, rate;
+            string name, position_name, hire_date;
 
-            step3Query.fields() >> id >> name >> position_name >> hire_date >> rate;
+            int fieldIndex = 0;
+            for (Field* field: step3Query.fields()) {
+                switch (fieldIndex) {
+                    case 0: id = field->asInteger(); break;
+                    case 1: name = field->asString(); break;
+                    case 2: position_name = field->asString(); break;
+                    case 3: hire_date = field->asString(); break;
+                }
+                fieldIndex++;
+            }
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
-            hire_date << " | " << rate << endl;
+            cout << setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl;
 
             step3Query.fetch();
         }
@@ -286,11 +295,11 @@ int testDatabase(string connectionString)
         step3Query.open();
 
         // First, find the field references by name or by number
-        CField& idField = step3Query[uint32_t(0)];
-        CField& nameField = step3Query["name"];
-        CField& positionNameField = step3Query["position_name"];
-        CField& dateField = step3Query["hire_date"];
-        CField& rateField = step3Query["rate"];
+        Field& idField = step3Query[uint32_t(0)];
+        Field& nameField = step3Query["name"];
+        Field& positionNameField = step3Query["position_name"];
+        Field& dateField = step3Query["hire_date"];
+        Field& rateField = step3Query["rate"];
 
         while (!step3Query.eof()) {
 
@@ -363,7 +372,7 @@ int main(int argc, const char* argv[])
             NULL};
 
     if (connectionString.empty()) {
-        CStrings databaseTypes;
+        Strings databaseTypes;
         for (size_t i = 0; availableDatabaseTypes[i] != NULL; i++)
             databaseTypes.push_back(string(availableDatabaseTypes[i]));
 

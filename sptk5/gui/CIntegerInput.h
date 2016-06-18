@@ -54,7 +54,7 @@ class SP_EXPORT CIntegerInput : public CInput {
 protected:
 
     /// @brief Saves data to query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Returns true if the input data is valid
     virtual bool valid() const;
@@ -95,7 +95,7 @@ public:
     }
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 /// @}
 }

@@ -28,7 +28,7 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/CFieldList.h>
+#include <sptk5/FieldList.h>
 #include <sptk5/CException.h>
 #include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CMessageDialog.h>
@@ -63,13 +63,13 @@ CDBListView::~CDBListView() {
    m_fullRefreshQuery.close();
 }
 
-CLayoutClient* CDBListView::creator(CXmlNode *node) {
+CLayoutClient* CDBListView::creator(XMLNode *node) {
     CDBListView* widget = new CDBListView("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
 }
 
-void CDBListView::database(CDatabaseConnection *db) {
+void CDBListView::database(DatabaseConnection *db) {
    if (m_dataMode == LV_DATA_UNDEFINED)
       m_dataMode = LV_DATA_KEY;
    m_fastRefreshQuery.connect(db);
@@ -77,7 +77,7 @@ void CDBListView::database(CDatabaseConnection *db) {
    m_recordCountQuery.connect(db);
 }
 
-CDatabaseConnection *CDBListView::database() const {
+DatabaseConnection *CDBListView::database() const {
    return m_fullRefreshQuery.database();
 }
 
@@ -92,13 +92,13 @@ string CDBListView::sql() {
    return m_fullRefreshQuery.sql();
 }
 
-CParam& CDBListView::param(const char *paramName,CRefreshKind refreshKind) {
+QueryParameter& CDBListView::param(const char *paramName,CRefreshKind refreshKind) {
    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST )
       return m_fastRefreshQuery.param(paramName);
    else  return m_fullRefreshQuery.param(paramName);
 }
 
-void CDBListView::setup(CDatabaseConnection *db,string _sql,string _keyField) {
+void CDBListView::setup(DatabaseConnection *db,string _sql,string _keyField) {
    database(db);
    sql(_sql);
    keyField(_keyField);
@@ -121,7 +121,7 @@ void CDBListView::refreshData(CRefreshKind refreshKind) {
       m_recordCountQuery.close();
    }
 
-   CQuery *query = &m_fullRefreshQuery;
+   Query *query = &m_fullRefreshQuery;
    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
       query = &m_fastRefreshQuery;
    else  refreshKind = LV_REFRESH_FULL;

@@ -32,8 +32,8 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CDBListView.h>
 
@@ -77,26 +77,26 @@ protected:
     virtual void dropDownList();
 
     /// @brief Loads data from the Query
-    void load(CQuery *);
+    void load(Query *);
 
     /// @brief Saves data to the Query
-    void save(CQuery *);
+    void save(Query *);
 
     /// @brief Loads control data from XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void load(const CXmlNode* node, CLayoutXMLmode xmlMode);
+    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
 
     /// Returns true, if the data is valid.
     bool valid() const
@@ -167,7 +167,7 @@ public:
 
     /// Adds a new column to the internal list view.
     /// @param cname std::string, column name
-    /// @param type CVariantType, column data type
+    /// @param type VariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, is the column visible?
     void addColumn(std::string cname, VariantType type = VAR_STRING, int16_t cwidth = 70, bool cvisible = true);
@@ -179,10 +179,10 @@ public:
     void addRow(CPackedStrings *row);
 
     /// Adds a new row to the internal list view. Makes a copy of data in rowStrings.
-    /// The row ID may be defined inside CStrings object, or with rowID parameter.
-    /// @param rowStrings const CStrings&, new row
+    /// The row ID may be defined inside Strings object, or with rowID parameter.
+    /// @param rowStrings const Strings&, new row
     /// @param rowId int, optional row ID
-    void addRow(const CStrings& rowStrings, int rowId = 0);
+    void addRow(const Strings& rowStrings, int rowId = 0);
 
     /// Adds new row to the internal list view.
     /// @param rowId int, row argument (key value)
@@ -196,10 +196,10 @@ public:
 
     /// Creates the column as columnName and adds rows to the internal list view. If the column with such name
     /// already exists, it will be used. The method is good the a very simple cases of one-column
-    /// combo boxes. The row IDs may be defined inside CStrings object strings.
+    /// combo boxes. The row IDs may be defined inside Strings object strings.
     /// @param columnName std::string, new columnName
-    /// @param rows CStrings, new rows
-    void addRows(std::string columnName, CStrings rows);
+    /// @param rows Strings, new rows
+    void addRows(std::string columnName, Strings rows);
 
     /// Resizes the control and inside widgets.
     /// @param x int, x-position
@@ -246,10 +246,10 @@ public:
     }
 
     /// Returns database connection pointer
-    CDatabaseConnection* database() const;
+    DatabaseConnection* database() const;
 
     /// Defines database connection
-    void database(CDatabaseConnection* db);
+    void database(DatabaseConnection* db);
 
     /// Returns SQL query text
     std::string sql() const;
@@ -279,17 +279,17 @@ public:
     void sortColumn(int sortColumn);
 
     /// The fast way to define a database connection.
-    /// @param db CDatabaseConnection *, a pointer to the database
+    /// @param db DatabaseConnection *, a pointer to the database
     /// @param sql std::string, a SQL query text
     /// @param keyField std::string, a name of the query field with unique row IDs
-    void setup(CDatabaseConnection* db, std::string sql, std::string keyField);
+    void setup(DatabaseConnection* db, std::string sql, std::string keyField);
 
     /// Returns the SQL query parameter reference for the parameter name. It is
     /// typical to call:
     ///   myCombo.param("customer_id") = 1234;
     /// @param paramName const char *, parameter name.
     /// @returns the parameter reference, if found, or throws an excception.
-    CParam& param(const char *paramName);
+    QueryParameter& param(const char *paramName);
 
     /// Reloads data from the database if database connection is defined.
     /// Throws an exception if any error.
@@ -365,7 +365,7 @@ public:
     }
 
     /// @brief Creates a combo box based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 
 /// @brief List Box widget

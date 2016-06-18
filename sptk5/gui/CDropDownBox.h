@@ -39,7 +39,7 @@ namespace sptk {
 /// @{
 
 class CDatabase;
-class CParam;
+class QueryParameter;
 
 /// @brief Drop-down list view.
 ///

@@ -38,9 +38,9 @@
 #include <math.h>
 #include <ctype.h>
 
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/CException.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/string_ext.h>
 #include <sptk5/gui/CThemes.h>
@@ -477,7 +477,7 @@ void CListView::sortColumn(int column, bool sortNow)
     if ((unsigned) column >= m_columnList.size())
         return;
     CColumn& columnInfo = m_columnList[column];
-    CVariantType ctype = columnInfo.type();
+    VariantType ctype = columnInfo.type();
     CPackedStrings *row = 0L;
     if (m_activeRow < size())
         row = m_rows[m_activeRow];
@@ -776,7 +776,7 @@ void CListView::addRow(CPackedStrings *ptr)
     m_rows.add(ptr);
 }
 
-void CListView::addRow(const CStrings& ss, int ident)
+void CListView::addRow(const Strings& ss, int ident)
 {
     CPackedStrings *packedStrings = new CPackedStrings(ss);
     if (ident)
@@ -790,7 +790,7 @@ void CListView::insertRow(unsigned position, CPackedStrings *ptr)
     m_rows.insert(position, ptr);
 }
 
-void CListView::insertRow(unsigned position, const CStrings& ss, int ident)
+void CListView::insertRow(unsigned position, const Strings& ss, int ident)
 {
     CPackedStrings *packedStrings = new CPackedStrings(ss);
     if (ident)
@@ -807,7 +807,7 @@ void CListView::updateRow(unsigned position, CPackedStrings *ptr)
     m_rows.m_fullHeight += dh;
 }
 
-void CListView::updateRow(unsigned position, const CStrings& ss, int ident)
+void CListView::updateRow(unsigned position, const Strings& ss, int ident)
 {
     int oldh = item_height(position);
     CPackedStrings *row = m_rows[position];
@@ -1083,22 +1083,22 @@ void CListView::key_changed(unsigned index)
 
 // loading the key value in data entry dialog
 
-void CListView::load(CQuery *loadQuery)
+void CListView::load(Query *loadQuery)
 {
-    CQuery& query = *loadQuery;
+    Query& query = *loadQuery;
     if (!m_fieldName.length())
         return;
-    CField& fld = query[m_fieldName.c_str()];
+    Field& fld = query[m_fieldName.c_str()];
     data(fld);
 }
 
 // storing the key value in data entry dialog
 
-void CListView::save(CQuery *updateQuery)
+void CListView::save(Query *updateQuery)
 {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName);
+    QueryParameter& param = updateQuery->param(m_fieldName);
     param = data();
 }
 
@@ -1115,7 +1115,7 @@ int CListView::find_id(int id) const
     return -1;
 }
 
-void CListView::getSelections(CIntList& sel) const
+void CListView::getSelections(IntList& sel) const
 {
     sel.clear();
     if (!m_multipleSelection) {
@@ -1130,7 +1130,7 @@ void CListView::getSelections(CIntList& sel) const
     }
 }
 
-void CListView::setSelections(const CIntList& sel)
+void CListView::setSelections(const IntList& sel)
 {
     size_t scnt = sel.size();
     if (scnt)
@@ -1205,7 +1205,7 @@ bool CListView::preferredSize(int& w, int& h)
     return false;
 }
 
-void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned recordsLimit, unsigned recordsEstimated, CRefreshKind refreshKind)
+void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsLimit, unsigned recordsEstimated, CRefreshKind refreshKind)
 {
 
     m_fillTerminated = false;
@@ -1250,14 +1250,14 @@ void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned records
             for (unsigned f = 0; f < ds.fieldCount(); f++) {
                 if (f == keyField)
                     continue;
-                CField& field = ds[f];
+                Field& field = ds[f];
                 std::string columnName = field.fieldName();
                 bool cvisible = columnName[0] != '_';
                 columnName = replaceAll(columnName, "_", " ");
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
                 short cwidth = short(field.width + 1);
-                CVariantType ctype = field.dataType();
+                VariantType ctype = field.dataType();
                 switch (ctype) {
                     case VAR_BOOL:
                         cwidth = 6;
@@ -1324,7 +1324,7 @@ void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned records
             if (fieldCount > 0) {
                 fireEvent(CE_PROGRESS, 0);
 
-                CStrings rowStrings;
+                Strings rowStrings;
                 rowStrings.resize(fieldCount);
 
                 while (!ds.eof()) {
@@ -1334,7 +1334,7 @@ void CListView::fill(CDataSource &ds, std::string keyFieldName, unsigned records
                     int keyValue = 0;
                     int j = 0;
                     for (unsigned i = 0; i < fieldCount; i++) {
-                        CField& field = ds[i];
+                        Field& field = ds[i];
                         if (i == keyField) {
                             keyValue = field.asInteger();
                             rowStrings.argument(keyValue);
@@ -1964,13 +1964,13 @@ CPackedStrings *CListView::findKey(int keyValue)
     return 0L;
 }
 
-void CListView::loadList(const CXmlNode* node)
+void CListView::loadList(const XMLNode* node)
 {
     clear();
-    CXmlNode::const_iterator itor = node->begin();
+    XMLNode::const_iterator itor = node->begin();
 
     for (; itor != node->end(); itor++) {
-        CXmlNode* anode = *itor;
+        XMLNode* anode = *itor;
 
         if (anode->name() == "columns") {
             m_columnList.load(*anode);
@@ -1978,26 +1978,26 @@ void CListView::loadList(const CXmlNode* node)
         }
 
         if (anode->name() == "rows") {
-            CXmlNode::const_iterator itor = anode->begin();
+            XMLNode::const_iterator itor = anode->begin();
             size_t colCount = m_columnList.size();
             if (colCount > 0) {
                 cpchar *strings = new cpchar[colCount];
                 for (; itor != anode->end(); itor++) {
-                    CXmlNode* rowNode = *itor;
+                    XMLNode* rowNode = *itor;
                     int rowID = rowNode->getAttribute("id");
-                    CXmlNode::iterator rtor = rowNode->begin();
+                    XMLNode::iterator rtor = rowNode->begin();
                     unsigned c = 0;
                     memset(strings, 0, sizeof (pchar) * colCount);
                     for (; rtor != rowNode->end(); rtor++, c++) {
-                        CXmlNode* cellNode = *rtor;
+                        XMLNode* cellNode = *rtor;
                         unsigned index = cellNode->getAttribute("index");
                         if (index)
                             c = index;
                         if (c >= colCount)
                             break;
-                        CXmlNode::iterator ctor = cellNode->begin();
+                        XMLNode::iterator ctor = cellNode->begin();
                         if (ctor != cellNode->end()) {
-                            CXmlNode* cdata = *ctor;
+                            XMLNode* cdata = *ctor;
                             strings[c] = (char *) cdata->value().c_str();
                         }
                     }
@@ -2012,23 +2012,23 @@ void CListView::loadList(const CXmlNode* node)
     }
 }
 
-void CListView::saveList(CXmlNode* node) const
+void CListView::saveList(XMLNode* node) const
 {
-    m_columnList.save(*(new CXmlElement(node, "columns")));
-    CXmlNode* rowsNode = new CXmlElement(node, "rows");
+    m_columnList.save(*(new XMLElement(node, "columns")));
+    XMLNode* rowsNode = new XMLElement(node, "rows");
     unsigned rowCount = m_rows.size();
     size_t colCount = m_columnList.size();
     for (unsigned i = 0; i < rowCount; i++) {
         CPackedStrings *row = m_rows[i];
-        CXmlNode* rowNode = new CXmlElement(*rowsNode, "row");
+        XMLNode* rowNode = new XMLElement(*rowsNode, "row");
         if (row->argument())
             rowNode->setAttribute("id", row->argument());
         size_t index = 0;
         for (size_t c = 0; c < colCount; c++) {
             const char *cell = (*row)[(uint16_t)c];
             if (*cell) {
-                CXmlNode* cellNode = new CXmlElement(*rowNode, "cell");
-                new CXmlText(*cellNode, cell);
+                XMLNode* cellNode = new XMLElement(*rowNode, "cell");
+                new XMLText(*cellNode, cell);
                 if (index != c) {
                     cellNode->setAttribute("index", c);
                     index = c;
@@ -2039,19 +2039,19 @@ void CListView::saveList(CXmlNode* node) const
     }
 }
 
-void CListView::load(const CXmlNode *node, CLayoutXMLmode xmlMode)
+void CListView::load(const XMLNode *node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
     loadList(node);
 }
 
-void CListView::save(CXmlNode *node, CLayoutXMLmode xmlMode) const
+void CListView::save(XMLNode *node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
     saveList(node);
 }
 
-void CListView::imageCollection(CStrings& iconNames)
+void CListView::imageCollection(Strings& iconNames)
 {
     m_iconNames.resize(iconNames.size());
     for (uint32_t i = 0; i < iconNames.size(); i++)

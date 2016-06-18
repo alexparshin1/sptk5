@@ -91,7 +91,7 @@ public:
     virtual void     preferredWidth(int& w) const;
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 
 /// @}

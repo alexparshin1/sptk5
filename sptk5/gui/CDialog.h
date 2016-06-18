@@ -31,7 +31,7 @@
 
 #include <sptk5/cxml>
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CTabs.h>
@@ -44,8 +44,8 @@ class Fl_Group;
 
 namespace sptk {
 
-class CQuery;
-class CDatabaseConnection;
+class Query;
+class DatabaseConnection;
 class CButton;
 class CControl;
 class CDlgControls;
@@ -109,9 +109,9 @@ protected:
     CControlList    m_allFields;          ///< The list of all controls (CControl-descendants)
     CGroup*         m_buttonGroup;        ///< The group buttons are placed on.
     CDialogTabs*    m_pages;              ///< The tabs
-    CQuery*         m_selectQuery;        ///< Database interface: The query to select a database record
-    CQuery*         m_updateQuery;        ///< Database interface: The query to update a database record
-    CQuery*         m_insertQuery;        ///< Database interface: The query to insert a new database record
+    Query*         m_selectQuery;        ///< Database interface: The query to select a database record
+    Query*         m_updateQuery;        ///< Database interface: The query to update a database record
+    Query*         m_insertQuery;        ///< Database interface: The query to insert a new database record
     bool            m_queriesBuilt;       ///< Database interface: The flag indicating if queries are created from available controls.
     bool            m_controlsScanned;     ///< Database interface: The flag indicating if available controls were scanned for field names.
     CControlList    m_specialProcessingControls; ///< Database interface: The list of the controls to exclude from standard database queries.
@@ -184,11 +184,11 @@ public:
     void defaultButton(CButton *btn);
 
     /// @brief Sets the database connection
-    /// @param db CDatabaseConnection *, the database connection
-    virtual void database(CDatabaseConnection *db);
+    /// @param db DatabaseConnection *, the database connection
+    virtual void database(DatabaseConnection *db);
 
     /// @brief Returns current database connection
-    CDatabaseConnection *database() const;
+    DatabaseConnection *database() const;
 
     /// @brief Defines database table to use
     /// @param tableName std::string, the name of the database table
@@ -201,10 +201,10 @@ public:
     }
 
     /// @brief Fast setup of the database connection
-    /// @param db CDatabaseConnection*, the database connection
+    /// @param db DatabaseConnection*, the database connection
     /// @param tableName std::string, the name of the database table
     /// @param keyFieldName std::string, the name of the key field in the database table
-    void table(CDatabaseConnection*db, std::string tableName, const std::string keyFieldName);
+    void table(DatabaseConnection*db, std::string tableName, const std::string keyFieldName);
 
     /// @brief Sets the key field name for the database table.
     ///
@@ -265,15 +265,15 @@ public:
 
     /// @brief Loads the dialog controls data from XML
     ///
-    /// @param node const CXmlNode*, the XML node to load data from
-    /// @see CXmlNode
-    virtual void load(const CXmlNode* node) THROWS_EXCEPTIONS;
+    /// @param node const XMLNode*, the XML node to load data from
+    /// @see XMLNode
+    virtual void load(const XMLNode* node) THROWS_EXCEPTIONS;
 
     /// @brief Saves the dialog controls into XML
     ///
-    /// @param node CXmlNode&, the XML node to save data into
-    /// @see CXmlNode* node
-    virtual void save(CXmlNode* node) const;
+    /// @param node XMLNode&, the XML node to save data into
+    /// @see XMLNode* node
+    virtual void save(XMLNode* node) const;
 
     /// @brief Returns the modal result of the dialog.
     ///

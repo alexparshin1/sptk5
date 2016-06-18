@@ -34,7 +34,7 @@
 #include <stdio.h>
 
 #include <sptk5/cgui>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 
 using namespace std;
 using namespace sptk;
@@ -53,20 +53,20 @@ void exit_cb(Fl_Widget *w, void *)
 
 class CExampleDialog : public CDialog
 {
-   CRegistry   m_registry;  ///< An XML file where we store dialog controls data
+   Registry   m_registry;  ///< An XML file where we store dialog controls data
 public:
    CExampleDialog() : CDialog(300, 260, "Example Dialog"), m_registry("dialog_test.xml", "sptk_test", USER_REGISTRY)
    {
       CInput *inp;
-      
+
       newPage("Company", true);
-      
+
       inp = new CInput("Company Name:");
       inp->fieldName("company_name");
-      
+
       inp = new CIntegerInput("Company Size:");
       inp->fieldName("company_size");
-      
+
       CComboBox *cb = new CComboBox("Business Type:");
       cb->fieldName("business_type");
       cb->addColumn("business type", VAR_STRING, 120);
@@ -74,49 +74,49 @@ public:
       cb->addRow(2, "Education");
       cb->addRow(3, "Hardware");
       cb->addRow(4, "Software");
-      
+
       CDateInput* dateInput = new CDateInput("Established");
       dateInput->fieldName("established");
-      
+
       newScroll("Contact Info", true);
-      
+
       inp = new CInput("First Name:");
       inp->fieldName("first_name");
-      
+
       inp = new CInput("Last Name:");
       inp->fieldName("last_name");
-      
+
       inp = new CFloatInput("Age:");
       inp->fieldName("age");
-      
+
       inp = new CMemoInput("Notes:", 100);
       inp->fieldName("notes");
-      
+
       addExtraButton(SP_SEND_BUTTON, "E-mail", example_dialog_cb);
-      
+
       end();
-      
+
       relayout();
    }
-   
+
    void loadState()
    {
       try {
          /// Try to load the prior values of the dialog controls.
          /// If the XML file doesn't exist yet - this will throw an exception that we trap.
          m_registry.load();
-         
+
          /// If the XML file exists, try to load data into the dialog
          load(&m_registry);
       } catch (...) {}
    }
-   
+
    void saveState()
    {
       try {
          /// Save data from dialog controls into XML file
          save(&m_registry);
-         
+
          /// Save the XML file.
          m_registry.save();
       }
@@ -133,7 +133,7 @@ public:
 void dialog_cb(Fl_Widget *, void *)
 {
    CExampleDialog dialog;
-   
+
    /// Setting the default values for the dialog controls.
    /// The controls are addressed by their field names.
    /// The data is converted automatically based on the data type.
@@ -151,7 +151,7 @@ void dialog_cb(Fl_Widget *, void *)
       /// or data conversion isn't possible
       spError(e.what());
    }
-   
+
    /// This loads the last known state of the dialog,
    /// stored in the XML file
    dialog.loadState();

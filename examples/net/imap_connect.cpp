@@ -40,11 +40,11 @@
 using namespace std;
 using namespace sptk;
 
-void printResponse(const CStrings& response) {
-	for (unsigned i = 0; i < response.size(); i++) {
-		puts(response[i].c_str());
-	}
-	puts("---------------------------------");
+void printResponse(const Strings& response) {
+    for (unsigned i = 0; i < response.size(); i++) {
+        puts(response[i].c_str());
+    }
+    puts("---------------------------------");
 }
 
 int main( int argc, char *argv[] )
@@ -53,23 +53,23 @@ int main( int argc, char *argv[] )
     CThemes themes;
 
     char           buffer[128];
-	ImapConnect   IMAP;
-	std::string    user, password, server;
-	CRegistry      registry("imap_connect.ini","");
+    ImapConnect    IMAP;
+    std::string    user, password, server;
+    Registry       registry("imap_connect.ini","");
 
-	puts("Testing IMAP connectivity.\n");
+    puts("Testing IMAP connectivity.\n");
 
-	try {
-		registry.load();
-		CXmlNode* hostNode = registry.findFirst("host");
-		if (hostNode) {
-			server = (string) hostNode->getAttribute("hostname");
-			user = (string) hostNode->getAttribute("user");
-			password = (string) hostNode->getAttribute("password");
-		}
-		IMAP.host(server);
-	}
-	catch (...) {}
+    try {
+        registry.load();
+        XMLNode* hostNode = registry.findFirst("host");
+        if (hostNode) {
+            server = (string) hostNode->getAttribute("hostname");
+            user = (string) hostNode->getAttribute("user");
+            password = (string) hostNode->getAttribute("password");
+        }
+        IMAP.host(server);
+    }
+    catch (...) {}
 
 	if (!user.length()) {
 		printf("IMAP server name: ");
@@ -94,9 +94,9 @@ int main( int argc, char *argv[] )
 
       // Connected? Save the logon parameters..
 		try {
-			CXmlNode* hostNode = registry.findFirst("host");
+			XMLNode* hostNode = registry.findFirst("host");
 			if (!hostNode)
-				hostNode = new CXmlElement(registry,"host");
+				hostNode = new XMLElement(registry,"host");
 			hostNode->setAttribute("hostname",server);
 			hostNode->setAttribute("user",user);
 			hostNode->setAttribute("password",password);
@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 		}
 
       // RFC 2060 test message :)
-		CBuffer msgBuffer(
+		Buffer msgBuffer(
 				"Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)\n\r"
 				"From: Fred Foobar <foobar@Blurdybloop.COM\n\r"
 				"Subject: afternoon meeting\n\r"

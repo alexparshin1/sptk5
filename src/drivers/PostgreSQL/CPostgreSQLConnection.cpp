@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CPostgreSQLConnection.h>
-#include <sptk5/db/CDatabaseField.h>
-#include <sptk5/db/CQuery.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/db/PostgreSQLConnection.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/RegularExpression.h>
 
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
@@ -144,15 +144,15 @@ enum CPostgreSQLTimestampFormat
 };
 static CPostgreSQLTimestampFormat timestampsFormat;
 
-CPostgreSQLConnection::CPostgreSQLConnection(string connectionString)
+PostgreSQLConnection::PostgreSQLConnection(string connectionString)
         :
-        CDatabaseConnection(connectionString)
+        DatabaseConnection(connectionString)
 {
     m_connect = 0;
     m_connType = DCT_POSTGRES;
 }
 
-CPostgreSQLConnection::~CPostgreSQLConnection()
+PostgreSQLConnection::~PostgreSQLConnection()
 {
     try {
         if (m_inTransaction && active())
@@ -162,7 +162,7 @@ CPostgreSQLConnection::~CPostgreSQLConnection()
 
         while (m_queryList.size()) {
             try {
-                CQuery* query = (CQuery*) m_queryList[0];
+                Query* query = (Query*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -181,7 +181,7 @@ static string csParam(string name, string value)
     return "";
 }
 
-string CPostgreSQLConnection::nativeConnectionString() const
+string PostgreSQLConnection::nativeConnectionString() const
 {
     string port;
 
@@ -198,7 +198,7 @@ string CPostgreSQLConnection::nativeConnectionString() const
     return result;
 }
 
-void CPostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void PostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -225,11 +225,11 @@ void CPostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCE
     }
 }
 
-void CPostgreSQLConnection::closeDatabase() THROWS_EXCEPTIONS
+void PostgreSQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
-            CQuery* query = (CQuery*) m_queryList[i];
+            Query* query = (Query*) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
@@ -239,17 +239,17 @@ void CPostgreSQLConnection::closeDatabase() THROWS_EXCEPTIONS
     m_connect = NULL;
 }
 
-void* CPostgreSQLConnection::handle() const
+void* PostgreSQLConnection::handle() const
 {
     return m_connect;
 }
 
-bool CPostgreSQLConnection::active() const
+bool PostgreSQLConnection::active() const
 {
     return m_connect != 0L;
 }
 
-void CPostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void PostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connect)
         open();
@@ -271,7 +271,7 @@ void CPostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void CPostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void PostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throw DatabaseException("Transaction isn't started.");
@@ -299,20 +299,20 @@ void CPostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 
 //-----------------------------------------------------------------------------------------------
 
-string CPostgreSQLConnection::queryError(const CQuery*) const
+string PostgreSQLConnection::queryError(const Query*) const
 {
     return PQerrorMessage(m_connect);
 }
 
 // Doesn't actually allocate stmt, but makes sure
 // the previously allocated stmt is released
-void CPostgreSQLConnection::queryAllocStmt(CQuery* query)
+void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
     querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 }
 
-void CPostgreSQLConnection::queryFreeStmt(CQuery* query)
+void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     SYNCHRONIZED_CODE;
 
@@ -342,7 +342,7 @@ void CPostgreSQLConnection::queryFreeStmt(CQuery* query)
     querySetPrepared(query, false);
 }
 
-void CPostgreSQLConnection::queryCloseStmt(CQuery* query)
+void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
     SYNCHRONIZED_CODE;
 
@@ -350,7 +350,7 @@ void CPostgreSQLConnection::queryCloseStmt(CQuery* query)
     statement->clearRows();
 }
 
-void CPostgreSQLConnection::queryPrepare(CQuery* query)
+void PostgreSQLConnection::queryPrepare(Query* query)
 {
     queryFreeStmt(query);
 
@@ -388,12 +388,12 @@ void CPostgreSQLConnection::queryPrepare(CQuery* query)
     querySetPrepared(query, true);
 }
 
-void CPostgreSQLConnection::queryUnprepare(CQuery* query)
+void PostgreSQLConnection::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
 }
 
-int CPostgreSQLConnection::queryColCount(CQuery* query)
+int PostgreSQLConnection::queryColCount(Query* query)
 {
 
     CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
@@ -401,7 +401,7 @@ int CPostgreSQLConnection::queryColCount(CQuery* query)
     return (int) statement->colCount();
 }
 
-void CPostgreSQLConnection::queryBindParameters(CQuery* query)
+void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     SYNCHRONIZED_CODE;
 
@@ -411,7 +411,7 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
     uint32_t paramNumber = 0;
 
     for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
-        CParam* param = *ptor;
+        QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
 
@@ -452,7 +452,7 @@ void CPostgreSQLConnection::queryBindParameters(CQuery* query)
     }
 }
 
-void CPostgreSQLConnection::queryExecDirect(CQuery* query)
+void PostgreSQLConnection::queryExecDirect(Query* query)
 {
     SYNCHRONIZED_CODE;
 
@@ -462,7 +462,7 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
     uint32_t paramNumber = 0;
 
     for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
-        CParam* param = *ptor;
+        QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
 
@@ -499,7 +499,7 @@ void CPostgreSQLConnection::queryExecDirect(CQuery* query)
     }
 }
 
-void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, VariantType& dataType)
+void PostgreSQLConnection::PostgreTypeToCType(int postgreType, VariantType& dataType)
 {
     switch (postgreType) {
         case PG_BOOL:
@@ -541,7 +541,7 @@ void CPostgreSQLConnection::PostgreTypeToCType(int postgreType, VariantType& dat
     }
 }
 
-void CPostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgreType)
+void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgreType)
 {
     switch (dataType) {
         case VAR_INT:
@@ -583,7 +583,7 @@ void CPostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgr
     }
 }
 
-void CPostgreSQLConnection::queryOpen(CQuery* query)
+void PostgreSQLConnection::queryOpen(Query* query)
 {
     if (!active())
         open();
@@ -616,7 +616,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
             // Reading the column attributes
             char columnName[256];
             //long  columnType;
-            //CVariantType dataType;
+            //VariantType dataType;
             const PGresult* stmt = statement->stmt();
 
             for (short column = 0; column < count; column++) {
@@ -630,7 +630,7 @@ void CPostgreSQLConnection::queryOpen(CQuery* query)
                 VariantType fieldType;
                 PostgreTypeToCType((int) dataType, fieldType);
                 int fieldLength = PQfsize(stmt, column);
-                CDatabaseField* field = new CDatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
+                DatabaseField* field = new DatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
                 query->fields().push_back(field);
             }
         }
@@ -799,7 +799,7 @@ static inline MoneyData readNumericToScaledInteger(char* v)
 }
 
 
-static void decodeArray(char* data, CDatabaseField* field)
+static void decodeArray(char* data, DatabaseField* field)
 {
     struct PGArrayHeader
     {
@@ -886,7 +886,7 @@ static void decodeArray(char* data, CDatabaseField* field)
     field->setString(output.str());
 }
 
-void CPostgreSQLConnection::queryFetch(CQuery* query)
+void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
         query->logAndThrow("CPostgreSQLConnection::queryFetch", "Dataset isn't open");
@@ -908,13 +908,13 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
     if (!fieldCount)
         return;
 
-    CDatabaseField* field = 0;
+    DatabaseField* field = 0;
     const PGresult* stmt = statement->stmt();
     int currentRow = statement->currentRow();
 
     for (int column = 0; column < fieldCount; column++) {
         try {
-            field = (CDatabaseField*) &(*query)[column];
+            field = (DatabaseField*) &(*query)[column];
             short fieldType = (short) field->fieldType();
 
             bool isNull = false;
@@ -1005,7 +1005,7 @@ void CPostgreSQLConnection::queryFetch(CQuery* query)
     }
 }
 
-void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string tablesSQL("SELECT table_schema || '.' || table_name "
                              "FROM information_schema.tables "
@@ -1029,7 +1029,7 @@ void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objec
             break;
     }
 
-    CQuery query(this, objectsSQL);
+    Query query(this, objectsSQL);
     query.open();
 
     while (!query.eof()) {
@@ -1040,19 +1040,19 @@ void CPostgreSQLConnection::objectList(CDbObjectType objectType, CStrings& objec
     query.close();
 }
 
-std::string CPostgreSQLConnection::driverDescription() const
+std::string PostgreSQLConnection::driverDescription() const
 {
     return "PostgreSQL";
 }
 
-std::string CPostgreSQLConnection::paramMark(unsigned paramIndex)
+std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, "$%i", paramIndex + 1);
     return string(mark);
 }
 
-void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
+void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     string sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
     PGresult* res = PQexec(m_connect, sql.c_str());
@@ -1066,8 +1066,8 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
     }
     PQclear(res);
 
-    CBuffer buffer;
-    for (CStrings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
+    Buffer buffer;
+    for (Strings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
         buffer.append(*itor);
         buffer.append('\n');
     }
@@ -1085,16 +1085,16 @@ void CPostgreSQLConnection::bulkInsert(std::string tableName, const CStrings& co
     }
 }
 
-void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void PostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-    CStrings sqlBatch;
+    Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
-    CRegExp matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
-    CRegExp matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
-    CRegExp matchStatementEnd(";(\\s*|\\s*--.*)$");
+    RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
+    RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
+    RegularExpression matchStatementEnd(";(\\s*|\\s*--.*)$");
 
-    CStrings statements, matches;
+    Strings statements, matches;
     string statement, delimiter;
     bool functionHeader = false;
     bool functionBody = false;
@@ -1141,18 +1141,18 @@ void CPostgreSQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEP
         statements.push_back(statement);
 
     for (string stmt : statements) {
-        CQuery query(this, stmt);
+        Query query(this, stmt);
         query.exec();
     }
 }
 
 void* postgresql_create_connection(const char* connectionString)
 {
-    CPostgreSQLConnection* connection = new CPostgreSQLConnection(connectionString);
+    PostgreSQLConnection* connection = new PostgreSQLConnection(connectionString);
     return connection;
 }
 
 void postgresql_destroy_connection(void* connection)
 {
-    delete (CPostgreSQLConnection*) connection;
+    delete (PostgreSQLConnection*) connection;
 }

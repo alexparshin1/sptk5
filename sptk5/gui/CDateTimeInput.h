@@ -70,26 +70,26 @@ protected:
     CInput_             *m_timeInput;
 
     /// @brief Loads data from query
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves data to query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void     load(const CXmlNode* node,CLayoutXMLmode xmlMode);
+    virtual void     load(const XMLNode* node,CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
 
     /// @brief Returns true if the input data is valid
     virtual bool valid() const;
@@ -190,7 +190,7 @@ public:
     virtual void preferredHeight(int& h) const;
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 
 /// @brief Time input widget
@@ -231,7 +231,7 @@ public:
     virtual void preferredWidth(int& w) const;
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 
 /// @brief Date and time input widget.
@@ -292,7 +292,7 @@ public:
     virtual void     data(const Variant v);
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 /// @}
 }

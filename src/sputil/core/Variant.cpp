@@ -27,7 +27,8 @@
 */
 
 #include <sptk5/Variant.h>
-#include <sptk5/CField.h>
+#include <sptk5/Field.h>
+#include <math.h>
 
 using namespace std;
 using namespace sptk;
@@ -169,7 +170,7 @@ Variant::Variant(const void * value, size_t sz)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const CBuffer& value)
+Variant::Variant(const Buffer& value)
 {
     m_dataType = VAR_NONE;
     setBuffer(value.data(), value.bytes());
@@ -410,7 +411,7 @@ void Variant::setBuffer(const void* value, size_t sz)
         setNull();
 }
 
-void Variant::setBuffer(const CBuffer& value)
+void Variant::setBuffer(const Buffer& value)
 {
     setBuffer(value.data(), value.bytes());
 }
@@ -672,7 +673,7 @@ Variant& Variant::operator =(const void *value)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const CBuffer& value)
+Variant& Variant::operator =(const Buffer& value)
 {
     setBuffer(value.data(), value.bytes());
     return *this;
@@ -1258,7 +1259,7 @@ VariantType Variant::nameType(const char* name)
     return itor->second;
 }
 
-void Variant::load(const CXmlNode& node)
+void Variant::load(const XMLNode& node)
 {
     const string& ntype = node.getAttribute("type").str();
     unsigned type = nameType(ntype.c_str());
@@ -1287,12 +1288,12 @@ void Variant::load(const CXmlNode& node)
     }
 }
 
-void Variant::load(const CXmlNode* node)
+void Variant::load(const XMLNode* node)
 {
     load(*node);
 }
 
-void Variant::save(CXmlNode& node) const
+void Variant::save(XMLNode& node) const
 {
     string stringValue(asString());
     node.setAttribute("type", typeName(dataType()));
@@ -1308,12 +1309,12 @@ void Variant::save(CXmlNode& node) const
             case VAR_DATE:
             case VAR_DATE_TIME:
             case VAR_IMAGE_NDX:
-                new CXmlText(node, stringValue);
+                new XMLText(node, stringValue);
                 break;
 
             case VAR_TEXT:
             case VAR_BUFFER:
-                new CXmlCDataSection(node, asString());
+                new XMLCDataSection(node, asString());
                 break;
 
             default:
@@ -1323,7 +1324,7 @@ void Variant::save(CXmlNode& node) const
     }
 }
 
-void Variant::save(CXmlNode* node) const
+void Variant::save(XMLNode* node) const
 {
     save(*node);
 }

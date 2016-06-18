@@ -45,7 +45,7 @@ CSplitter::CSplitter( const char * label, int layoutSize, CLayoutAlign layoutAli
    box(FL_THIN_UP_BOX);
 }
 
-CLayoutClient* CSplitter::creator(CXmlNode *node) {
+CLayoutClient* CSplitter::creator(XMLNode *node) {
   CSplitter* widget = new CSplitter("",10,SP_ALIGN_TOP);
   widget->load(node,LXM_LAYOUTDATA);
   return widget;

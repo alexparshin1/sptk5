@@ -49,30 +49,30 @@ class CThemeImageCollection {
 public:
     /// @brief Default constructor
     CThemeImageCollection();
-    
+
     /// @brief Destructor
     ~CThemeImageCollection() { clear(); }
-    
+
     /// @brief Clears the collection
     void clear();
-    
+
     /// @brief Loads the collection from SPTK theme
-    void loadFromSptkTheme(const CStrings& objectNames);
-    
+    void loadFromSptkTheme(const Strings& objectNames);
+
     /// @brief Loads the collection from GTK theme
-    void loadFromGtkTheme(CXmlDoc& gtkTheme,std::string imagesXPath,std::string attribute="",std::string attributeValue="");
-    
+    void loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute="",std::string attributeValue="");
+
     /// @brief Returns border for a paticular index (0..3)
     int border(int ndx) const { return m_border[ndx]; }
-    
+
     int* border() { return m_border; }
-    
+
     /// @brief Returns draw stretch flag
     bool stretch() const { return m_stretch; }
 
     /// @brief Returns an image for a particular state
     CPngImage* image(CThemeImageState state) const; 
-    
+
     /// @brief Returns an overlay image for a particular state
     CPngImage* overlayImage(CThemeImageState state) const;
 

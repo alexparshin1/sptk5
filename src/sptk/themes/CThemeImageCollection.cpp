@@ -84,7 +84,7 @@ CPngImage* CThemeImageCollection::overlayImage(CThemeImageState state) const {
     return m_overlayImages[0];
 }
 
-void CThemeImageCollection::loadFromSptkTheme(const CStrings& objectNames) {
+void CThemeImageCollection::loadFromSptkTheme(const Strings& objectNames) {
     clear();
     for (unsigned i = 0; i < objectNames.size() && i < MAX_IMAGE_STATES; i++) {
         if (!objectNames[i].empty())
@@ -99,21 +99,21 @@ string CThemeImageCollection::gtkFullFileName(string fileName) {
     return CThemes::themeFolder() + fileName;
 }
 
-void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string imagesXPath,std::string attribute,std::string attributeValue) {
-    static const CStrings buttonStates("NORMAL|ACTIVE|PRELIGHT","|");
+void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute,std::string attributeValue) {
+    static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT","|");
 
-    CXmlNodeVector images;
+    XMLNodeVector images;
     
     gtkTheme.select(images,imagesXPath);
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
-    for (CXmlNode::iterator itor = images.begin(); itor != images.end(); itor++) {
-        CXmlNode* imageNode = *itor;
+    for (XMLNode::iterator itor = images.begin(); itor != images.end(); itor++) {
+        XMLNode* imageNode = *itor;
 
         if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)
             continue;
-        
+
         bool defaultFrame = imageNode->getAttribute("detail","").str() == "buttondefault";
 
         string fileName = gtkFullFileName(imageNode->getAttribute("file"));
@@ -127,7 +127,7 @@ void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string image
 
         if (normalOverlayFileName.empty() && (state == "NORMAL" || state == "ACTIVE"))
             normalOverlayFileName = overlayFileName;
-        
+
         if (!borderInitted) {
             m_stretch = imageNode->getAttribute("stretch").str() == "TRUE";
             string border = imageNode->getAttribute("border","{ 0, 0, 0, 0 }");
@@ -136,7 +136,7 @@ void CThemeImageCollection::loadFromGtkTheme(CXmlDoc& gtkTheme,std::string image
             if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
                 pos1++;
                 border = border.substr(pos1,pos2-pos1);
-                CStrings borderStrs(border,",");
+                Strings borderStrs(border,",");
                 for (unsigned i = 0; i < 4 && i < borderStrs.size(); i++)
                     m_border[i] = string2int(borderStrs[i]);
             }

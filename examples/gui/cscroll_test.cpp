@@ -49,23 +49,22 @@ int main()
     // CWindow supports auto-layout
     CWindow w(250, 150, "CScroll test");
     w.resizable(w);
-   
+
     CScroll sc("", 20, SP_ALIGN_CLIENT);
     sc.color(w.color());
     sc.box(FL_DOWN_BOX);
     sc.layoutSpacing(0);
-   
+
     CGroup gr("", 20, SP_ALIGN_CLIENT);
-   
+
     // CCheckButtons figures out the size from the list
     // of choices. The default alignment is SP_ALIGN_TOP,
     // and you can change it in ctor
     CCheckButtons cbl("Check Buttons: ");
-    cbl.buttons(CStrings("first,second,third,*", ","));
-   
+    cbl.buttons(Strings("first,second,third,*", ","));
     CRadioButtons rbl("Radio Buttons: ");
-    rbl.buttons(CStrings("first,second,third,*", ","));
-   
+    rbl.buttons(Strings("first,second,third,*", ","));
+
     // CListView is more flexible, than CCheckButtons or
     // CRadioButtons, it's vertical size is defined with
     // the layoutSize parameter in ctor as 150.
@@ -77,7 +76,7 @@ int main()
     listView.columns().push_back(CColumn("column 2", VAR_INT, 70));
     listView.columns().push_back(CColumn("column 3", VAR_STRING, 200));
     listView.columns().push_back(CColumn("column 4", VAR_STRING));
-   
+
     // Add 10 items
     char buffer1[10];
     char buffer2[10];
@@ -88,9 +87,9 @@ int main()
         CPackedStrings *ps = new CPackedStrings(4, rowData);
         listView.addRow(ps);
     }
-   
+
     sc.end();
-   
+
     // That group keeps togeteher the buttons. These
     // buttons use the default alignment for buttons -
     // SP_ALIGN_RIGHT, and the text/icon defined by the
@@ -100,15 +99,15 @@ int main()
     CButton exitButton(SP_EXIT_BUTTON);
     exitButton.callback(exit_cb);
     buttonGroup.end();
-   
+
     w.end();
-   
+
     CThemes::set
     ("Blue");
-   
+
     w.show();
-   
+
     Fl::run();
-   
+
     return 0;
 }

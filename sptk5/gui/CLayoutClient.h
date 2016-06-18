@@ -187,17 +187,17 @@ public:
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    void load(const CXmlNode* node,CLayoutXMLmode xmlMode);
+    void load(const XMLNode* node,CLayoutXMLmode xmlMode);
 
     /// @brief Saves layout client information from XML node
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    void save(CXmlNode* node,CLayoutXMLmode xmlMode) const;
+    void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
 };
 /// @}
 }

@@ -37,7 +37,7 @@
 #include <sptk5/gui/CControl.h>
 #include <sptk5/CException.h>
 #include <sptk5/string_ext.h>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 
 using namespace std;
 using namespace sptk;
@@ -53,7 +53,7 @@ const Fl_Menu_Item CControl::defaultControlMenu[] = {
 class CControlKindIndex
 {
     typedef map<CControlKind, const string*>                    CTypeNameMap;
-    typedef map<string, CControlKind, CCaseInsensitiveCompare>  CNameTypeMap;
+    typedef map<string, CControlKind, CaseInsensitiveCompare>  CNameTypeMap;
     static CTypeNameMap m_typeNameMap;
     static CNameTypeMap m_nameTypeMap;
     void registerType(CControlKind type,const char *name);
@@ -570,12 +570,12 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     }
 }
 
-void sptk::createControls(const CXmlNodeList& xmlControls) THROWS_EXCEPTIONS
+void sptk::createControls(const XMLNodeList& xmlControls) THROWS_EXCEPTIONS
 {
-    CXmlNodeList::const_iterator itor = xmlControls.begin();
-    CXmlNodeList::const_iterator iend = xmlControls.end();
+    XMLNodeList::const_iterator itor = xmlControls.begin();
+    XMLNodeList::const_iterator iend = xmlControls.end();
     for (; itor != iend; itor++) {
-        CXmlNode* node = *itor;
+        XMLNode* node = *itor;
         CControlKind controlKind = CControlKindIndex::type(node->name());
         CControl* control = createControl(controlKind, node->getAttribute("label", ""), node->getAttribute("fieldName", ""),
                 node->getAttribute("size", "12"));
@@ -586,7 +586,7 @@ void sptk::createControls(const CXmlNodeList& xmlControls) THROWS_EXCEPTIONS
     }
 }
 
-void CControl::load(const CXmlNode* node, CLayoutXMLmode xmlMode)
+void CControl::load(const XMLNode* node, CLayoutXMLmode xmlMode)
 {
     if (xmlMode & LXM_LAYOUT)
         CLayoutClient::load(node, LXM_LAYOUT);
@@ -597,7 +597,7 @@ void CControl::load(const CXmlNode* node, CLayoutXMLmode xmlMode)
     }
 }
 
-void CControl::save(CXmlNode* node, CLayoutXMLmode xmlMode) const
+void CControl::save(XMLNode* node, CLayoutXMLmode xmlMode) const
 {
     node->name("control");
     if (xmlMode & LXM_LAYOUT)

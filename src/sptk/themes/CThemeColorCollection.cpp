@@ -67,7 +67,7 @@ static Fl_Color colorFromHexString(string colorStr)
     return (Fl_Color) (rgbColor << 8);
 }
 
-static void splitArguments(const string& expression, CStrings& arguments)
+static void splitArguments(const string& expression, Strings& arguments)
 {
     int subExpressionLevel = 0;
 
@@ -129,7 +129,7 @@ Fl_Color CThemeColorCollection::darker(std::string expression)
 
 Fl_Color CThemeColorCollection::mix(std::string expression)
 {
-    CStrings args;
+    Strings args;
     splitArguments(expression,args);
     double weight = atof(args[0].c_str());
     Fl_Color color1 = gtkColorFunction(args[1]);
@@ -147,7 +147,7 @@ static unsigned char shadeColorComponent(unsigned colorComponent, double multipl
 
 Fl_Color CThemeColorCollection::shade(std::string expression)
 {
-    CStrings args;
+    Strings args;
     splitArguments(expression,args);
     if (args.size() < 2)
         return fl_darker(gtkColorFunction(expression));
@@ -189,12 +189,12 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
     }
 }
 
-void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex)
+void CThemeColorCollection::loadColor(XMLNode* colorNode,CThemeColorIndex colorIndex)
 {
-    static const CStrings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
-    CXmlAttributes::iterator itor = colorNode->attributes().begin();
+    static const Strings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
+    XMLAttributes::iterator itor = colorNode->attributes().begin();
     for (; itor != colorNode->attributes().end(); itor++) {
-        CXmlNode* colorStateNode = *itor;
+        XMLNode* colorStateNode = *itor;
         CThemeColorState colorState = (CThemeColorState) colorStateNames.indexOf(colorStateNode->name());
         if (colorState == THM_COLOR_UNDEFINED)
             continue;
@@ -206,30 +206,30 @@ void CThemeColorCollection::loadColor(CXmlNode* colorNode,CThemeColorIndex color
 
 static const char* colorNames[THM_MAX_COLOR_INDEX] = { "fg", "bg", "base", "text" };
 
-void CThemeColorCollection::loadFromSptkTheme(CXmlDoc& sptkTheme)
+void CThemeColorCollection::loadFromSptkTheme(XMLDocument& sptkTheme)
 {
     loadColorMap(sptkTheme,"/color_scheme");
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath = string("/color_scheme/") + colorNames[colorIndex];
-        CXmlNodeVector colorNodes;
+        XMLNodeVector colorNodes;
         sptkTheme.select(colorNodes,colorXPath);
         if (colorNodes.size() == 1) {
-            CXmlNode* colorNode = *(colorNodes.begin());
+            XMLNode* colorNode = *(colorNodes.begin());
             loadColor(colorNode,CThemeColorIndex(colorIndex));
         }
     }
 }
 
-void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme)
+void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
 {
     loadColorMap(gtkTheme,"/gtk_color_scheme");
 
     string stylesXPath = "/styles/style";
-    CXmlNodeVector styleNodes;
+    XMLNodeVector styleNodes;
     gtkTheme.select(styleNodes,stylesXPath);
-    CXmlNode* defaultStyleNode = *styleNodes.begin();
-    for (CXmlNode::iterator itor = styleNodes.begin(); itor != styleNodes.end(); itor++) {
-        CXmlNode* styleNode = *itor;
+    XMLNode* defaultStyleNode = *styleNodes.begin();
+    for (XMLNode::iterator itor = styleNodes.begin(); itor != styleNodes.end(); itor++) {
+        XMLNode* styleNode = *itor;
         string styleName(styleNode->getAttribute("name"));
         if (styleName == "default" || styleName.find("-default") != STRING_NPOS) {
             defaultStyleNode = styleNode;
@@ -239,11 +239,11 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme)
 
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath(colorNames[colorIndex]);
-        CXmlNodeVector colorNodes;
+        XMLNodeVector colorNodes;
         defaultStyleNode->select(colorNodes,colorXPath);
         size_t elements = colorNodes.size();
         if (elements == 1) {
-            CXmlNode* colorNode = *(colorNodes.begin());
+            XMLNode* colorNode = *(colorNodes.begin());
             loadColor(colorNode,CThemeColorIndex(colorIndex));
         }
     }
@@ -255,21 +255,21 @@ void CThemeColorCollection::loadFromGtkTheme(CXmlDoc& gtkTheme)
     Fl::set_color(FL_SELECTION_COLOR,bgColor(THM_COLOR_SELECTED));
 }
 
-void CThemeColorCollection::loadColorMap(CXmlDoc& gtkTheme,string colorMapXPath)
+void CThemeColorCollection::loadColorMap(XMLDocument& gtkTheme,string colorMapXPath)
 {
     m_colorMap.clear();
 
-    CXmlNodeVector colorMapNodes;
+    XMLNodeVector colorMapNodes;
     gtkTheme.select(colorMapNodes,colorMapXPath);
     if (!colorMapNodes.size())
         return;
 
-    CXmlNode* colorMapNode = *(colorMapNodes.begin());
+    XMLNode* colorMapNode = *(colorMapNodes.begin());
 
-    CStrings colorMapStrings(colorMapNode->getAttribute("colors"),"\\n");
+    Strings colorMapStrings(colorMapNode->getAttribute("colors"),"\\n");
 
     for (unsigned i = 0; i < colorMapStrings.size(); i++) {
-        CStrings colorInfo(colorMapStrings[i],":#");
+        Strings colorInfo(colorMapStrings[i],":#");
         if (colorInfo.size() != 2)
             continue;
         m_colorMap[colorInfo[0]] = colorFromHexString(colorInfo[1]);

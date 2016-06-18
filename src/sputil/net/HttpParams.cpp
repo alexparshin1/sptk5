@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/net/HttpParams.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
@@ -106,11 +106,11 @@ string HttpParams::decodeString(const string& str)
     return result;
 }
 
-void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/)
+void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 {
     clear();
 
-    CStrings sl(cb.data(),"&");
+    Strings sl(cb.data(),"&");
     for (unsigned i=0; i < sl.size(); i++) {
         string& s = sl[i];
         size_t pos = s.find("=");
@@ -122,7 +122,7 @@ void HttpParams::decode(const CBuffer& cb, bool /*lowerCaseNames*/)
     }
 }
 
-void HttpParams::encode(CBuffer& result) const
+void HttpParams::encode(Buffer& result) const
 {
     HttpParams::const_iterator itor = begin();
     unsigned cnt = 0;

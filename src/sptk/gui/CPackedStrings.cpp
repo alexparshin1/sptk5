@@ -27,7 +27,7 @@
 */
 
 #include <stdlib.h>
-#include <sptk5/CPackedStrings.h>
+#include <sptk5/PackedStrings.h>
 #include <sptk5/db/CQuery.h>
 #include <string.h>
 
@@ -76,12 +76,12 @@ CPackedStrings::CPackedStrings(int cnt,const char *strings[]) {
       memcpy(pchar(m_buffer)+offset[j],strings[j],len[j]);
 }
 
-CPackedStrings::CPackedStrings(const CStrings& strings) {
+CPackedStrings::CPackedStrings(const Strings& strings) {
    m_buffer = 0;
    operator = (strings);
 }
 
-CPackedStrings::CPackedStrings(CFieldList& fields,int keyField) {
+CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
    int cnt = fields.size();
    int rcnt = cnt;
    if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
@@ -103,7 +103,7 @@ CPackedStrings::CPackedStrings(CFieldList& fields,int keyField) {
    long keyValue = 0;
    {
       for (int i = 0; i < cnt; i++) {
-         CField& field = fields[i];
+         Field& field = fields[i];
          if (i == keyField) {
             keyValue = field.asInteger();
             continue;
@@ -158,7 +158,7 @@ CPackedStrings& CPackedStrings::operator=(const CPackedStrings& newData) {
    return *this;
 }
 
-CPackedStrings& CPackedStrings::operator=(const CStrings& strings) {
+CPackedStrings& CPackedStrings::operator=(const Strings& strings) {
    size_t    cnt = strings.size();
    int       offsetsSpace = int(cnt * sizeof(uint16_t));
    uint16_t* offset = (uint16_t *)alloca(offsetsSpace*2);

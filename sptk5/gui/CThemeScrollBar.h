@@ -96,22 +96,22 @@ public:
     static int m_scrollBarStepperSize; ///< Button width
 
     /// @brief Loads GTK theme scrollbar button images from <style> node
-    /// @param xml CXmlDoc&, GTK theme converted to XML
+    /// @param xml XMLDoc&, GTK theme converted to XML
     /// @param orientation std::string, scrollbar button orientation ("UP","DOWN","LEFT","RIGHT")
     /// @param buttonImages CThemeImageCollection&, output button images
-    static void loadGtkScrollbarButtons(CXmlDoc& xml, std::string orientation, CThemeImageCollection& buttonImages);
+    static void loadGtkScrollbarButtons(XMLDocument& xml, std::string orientation, CThemeImageCollection& buttonImages);
 
     /// @brief Loads GTK theme scrollbar troughs
-    /// @param xml CXmlDoc&, GTK theme converted to XML
-    static void loadGtkScrollbarTroughs(CXmlDoc& xml);
+    /// @param xml XMLDoc&, GTK theme converted to XML
+    static void loadGtkScrollbarTroughs(XMLDocument& xml);
 
     /// @brief Loads GTK theme scrollbar sliders
-    /// @param xml CXmlDoc&, GTK theme converted to XML
-    static void loadGtkScrollbarSliders(CXmlDoc& xml);
+    /// @param xml XMLDoc&, GTK theme converted to XML
+    static void loadGtkScrollbarSliders(XMLDocument& xml);
 
     /// @brief Loads GTK theme scrollbar button images from GTK theme
-    /// @param xml CXmlDoc&, GTK theme converted to XML
-    static void loadGtkScrollbars(CXmlDoc& xml);
+    /// @param xml XMLDoc&, GTK theme converted to XML
+    static void loadGtkScrollbars(XMLDocument& xml);
 
     /// @brief Computes and returns the minimum size of the scroll bar
     /// @param w int&, scroll bar width, may be altered by scroll bar to meet the scroll bar size requirements

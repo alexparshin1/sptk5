@@ -70,7 +70,7 @@ hscrollbar(x,y+h-SLIDER_WIDTH,w-SLIDER_WIDTH,SLIDER_WIDTH) {
 }
 #endif
 
-CLayoutClient* CScroll::creator(CXmlNode *node) {
+CLayoutClient* CScroll::creator(XMLNode *node) {
     CScroll* widget = new CScroll("",10,SP_ALIGN_TOP);
     widget->loadLayout(node,LXM_LAYOUTDATA);
     return widget;

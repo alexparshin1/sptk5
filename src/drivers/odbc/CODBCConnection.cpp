@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/CODBCConnection.h>
-#include <sptk5/db/CQuery.h>
-#include <sptk5/db/CDatabaseField.h>
+#include <sptk5/db/ODBCConnection.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/db/DatabaseField.h>
 
 using namespace std;
 using namespace sptk;
@@ -36,9 +36,9 @@ using namespace sptk;
 namespace sptk
 {
 
-class CODBCField : public CDatabaseField
+class CODBCField : public DatabaseField
 {
-    friend class CODBCConnection;
+    friend class ODBCConnection;
 
 protected:
     char* getData()
@@ -49,21 +49,21 @@ protected:
 public:
     CODBCField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
             :
-            CDatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
+            DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
 };
 }
 
-CODBCConnection::CODBCConnection(string connectionString)
+ODBCConnection::ODBCConnection(string connectionString)
         :
-        CDatabaseConnection(connectionString)
+        DatabaseConnection(connectionString)
 {
-    m_connect = new ODBCConnection;
+    m_connect = new ODBCConnectionBase;
     m_connType = DCT_ODBC;
 }
 
-CODBCConnection::~CODBCConnection()
+ODBCConnection::~ODBCConnection()
 {
     try {
         if (m_inTransaction && active())
@@ -71,7 +71,7 @@ CODBCConnection::~CODBCConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery* query = (CQuery*) m_queryList[0];
+                Query* query = (Query*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -82,7 +82,7 @@ CODBCConnection::~CODBCConnection()
     }
 }
 
-string CODBCConnection::nativeConnectionString() const
+string ODBCConnection::nativeConnectionString() const
 {
     string connectionString = "DSN=" + m_connString.hostName();
     if (!m_connString.userName().empty())
@@ -94,7 +94,7 @@ string CODBCConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void CODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCEPTIONS
+void ODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -106,7 +106,7 @@ void CODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCE
     }
 }
 
-void CODBCConnection::closeDatabase() THROWS_EXCEPTIONS
+void ODBCConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -117,17 +117,17 @@ void CODBCConnection::closeDatabase() THROWS_EXCEPTIONS
     m_connect->freeConnect();
 }
 
-void* CODBCConnection::handle() const
+void* ODBCConnection::handle() const
 {
     return m_connect->handle();
 }
 
-bool CODBCConnection::active() const
+bool ODBCConnection::active() const
 {
     return m_connect->isConnected();
 }
 
-void CODBCConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void ODBCConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connect->isConnected())
         open();
@@ -139,7 +139,7 @@ void CODBCConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void CODBCConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void ODBCConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction) {
         if (commit)
@@ -163,12 +163,12 @@ static inline BOOL successful(int ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-string CODBCConnection::connectString() const
+string ODBCConnection::connectString() const
 {
     return m_connect->connectString();
 }
 
-string CODBCConnection::queryError(SQLHSTMT stmt) const
+string ODBCConnection::queryError(SQLHSTMT stmt) const
 {
     SQLCHAR errorDescription[SQL_MAX_MESSAGE_LENGTH];
     SQLCHAR errorState[SQL_MAX_MESSAGE_LENGTH];
@@ -190,14 +190,14 @@ string CODBCConnection::queryError(SQLHSTMT stmt) const
     return string(removeDriverIdentification((char*) errorDescription));
 }
 
-string CODBCConnection::queryError(const CQuery* query) const
+string ODBCConnection::queryError(const Query* query) const
 {
     return queryError(query->statement());
 }
 
-void CODBCConnection::queryAllocStmt(CQuery* query)
+void ODBCConnection::queryAllocStmt(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLHSTMT stmt = (SQLHSTMT) query->statement();
     if (stmt != SQL_NULL_HSTMT)
@@ -215,25 +215,25 @@ void CODBCConnection::queryAllocStmt(CQuery* query)
     querySetStmt(query, stmt);
 }
 
-void CODBCConnection::queryFreeStmt(CQuery* query)
+void ODBCConnection::queryFreeStmt(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLFreeStmt(query->statement(), SQL_DROP);
     querySetStmt(query, SQL_NULL_HSTMT);
     querySetPrepared(query, false);
 }
 
-void CODBCConnection::queryCloseStmt(CQuery* query)
+void ODBCConnection::queryCloseStmt(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLFreeStmt(query->statement(), SQL_CLOSE);
 }
 
-void CODBCConnection::queryPrepare(CQuery* query)
+void ODBCConnection::queryPrepare(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     query->fields().clear();
 
@@ -241,15 +241,15 @@ void CODBCConnection::queryPrepare(CQuery* query)
         query->logAndThrow("CODBCConnection::queryPrepare", queryError(query));
 }
 
-void CODBCConnection::queryUnprepare(CQuery* query)
+void ODBCConnection::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
     query->fields().clear();
 }
 
-void CODBCConnection::queryExecute(CQuery* query)
+void ODBCConnection::queryExecute(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     int rc = 0;
     if (query->prepared())
@@ -267,7 +267,7 @@ void CODBCConnection::queryExecute(CQuery* query)
         rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                              &textLength);
         if (successful(rc)) {
-            CStrings errors;
+            Strings errors;
             for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; recordNumber++) {
                 rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state, &nativeError, text, sizeof(text),
                                    &textLength);
@@ -283,9 +283,9 @@ void CODBCConnection::queryExecute(CQuery* query)
         query->logAndThrow("CODBCConnection::queryExecute", queryError(query));
 }
 
-int CODBCConnection::queryColCount(CQuery* query)
+int ODBCConnection::queryColCount(Query* query)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
@@ -294,9 +294,9 @@ int CODBCConnection::queryColCount(CQuery* query)
     return count;
 }
 
-void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t descType, int32_t& value)
+void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
     SQLLEN result;
 
     if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, &result)))
@@ -304,27 +304,27 @@ void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t 
     value = (int32_t) result;
 }
 
-void CODBCConnection::queryColAttributes(CQuery* query, int16_t column, int16_t descType, LPSTR buff, int len)
+void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, LPSTR buff, int len)
 {
     int16_t available;
     if (!buff || len <= 0)
         query->logAndThrow("CODBCConnection::queryColAttributes", "Invalid buffer or buffer len");
 
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     if (!successful(SQLColAttributes(query->statement(), (int16_t) column, descType, buff, (int16_t) len, &available, 0)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
 }
 
-void CODBCConnection::queryBindParameters(CQuery* query)
+void ODBCConnection::queryBindParameters(Query* query)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
     int rc;
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
-        CParam* param = &query->param(i);
+        QueryParameter* param = &query->param(i);
         VariantType ptype = param->dataType();
         SQLLEN& cblen = (SQLLEN&) param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
@@ -433,7 +433,7 @@ void CODBCConnection::queryBindParameters(CQuery* query)
     }
 }
 
-void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantType& dataType)
+void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantType& dataType)
 {
     switch (odbcType) {
         case SQL_BIGINT:
@@ -497,7 +497,7 @@ void CODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantT
     }
 }
 
-void CODBCConnection::queryOpen(CQuery* query)
+void ODBCConnection::queryOpen(Query* query)
 {
     if (!active())
         open();
@@ -554,7 +554,7 @@ void CODBCConnection::queryOpen(CQuery* query)
                 if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
                     columnScale = 0;
 
-                CField* field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
+                Field* field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
                 query->fields().push_back(field);
             }
         }
@@ -579,14 +579,14 @@ static uint32_t trimField(char* s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-void CODBCConnection::queryFetch(CQuery* query)
+void ODBCConnection::queryFetch(Query* query)
 {
     if (!query->active())
         query->logAndThrow("CODBCConnection::queryFetch", "Dataset isn't open");
 
     SQLHSTMT statement = (SQLHSTMT) query->statement();
 
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     int rc = SQLFetch(statement);
 
@@ -672,7 +672,7 @@ void CODBCConnection::queryFetch(CQuery* query)
         }
 }
 
-string CODBCConnection::driverDescription() const
+string ODBCConnection::driverDescription() const
 {
     if (m_connect)
         return m_connect->driverDescription();
@@ -680,9 +680,9 @@ string CODBCConnection::driverDescription() const
         return "";
 }
 
-void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
-    CSynchronizedCode lock(m_connect);
+    SynchronizedCode lock(m_connect);
 
     SQLHSTMT stmt = 0;
     try {
@@ -744,11 +744,11 @@ void CODBCConnection::objectList(CDbObjectType objectType, CStrings& objects) TH
 
 void* odbc_create_connection(const char* connectionString)
 {
-    CODBCConnection* connection = new CODBCConnection(connectionString);
+    ODBCConnection* connection = new ODBCConnection(connectionString);
     return connection;
 }
 
 void odbc_destroy_connection(void* connection)
 {
-    delete (CODBCConnection*) connection;
+    delete (ODBCConnection*) connection;
 }

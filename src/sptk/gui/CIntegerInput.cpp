@@ -50,16 +50,16 @@ CIntegerInput::CIntegerInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CIntegerInput::creator(CXmlNode *node) {
+CLayoutClient* CIntegerInput::creator(XMLNode *node) {
     CIntegerInput* widget = new CIntegerInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
 }
 
-void CIntegerInput::save(CQuery *updateQuery) {
+void CIntegerInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param.setInteger( data() );
 }
 

@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/sptk.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/net/CGI.h>
 
@@ -133,7 +133,7 @@ CGIApplication::~CGIApplication() {
 }
 
 void CGIApplication::parseInput(const char * str) {
-    CBuffer buffer(str, (uint32_t) strlen(str));
+    Buffer buffer(str, (uint32_t) strlen(str));
     contentData.decode(buffer, true);
     sendHeader();
 }

@@ -30,7 +30,7 @@
 #define __BASEMAILCONNECT_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/net/MailMessageBody.h>
 
 #include <string>
@@ -55,7 +55,7 @@ protected:
     MailMessageBody    m_body;     ///< Mail text (plain-text and html parts of the message)
     std::string         m_attachments; ///< The list of attachment files separated with ';'
 
-    CBuffer             m_messageBuffer; ///< Internal message buffer
+    Buffer             m_messageBuffer; ///< Internal message buffer
 
     /// Encoding the message into internal message buffer
     void mimeFile(std::string fileName, std::string fileAlias, std::stringstream& message);
@@ -182,14 +182,14 @@ public:
     /// Method messageBuffer() returns the reference to the internal current message text completely
     /// prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
     /// @returns reference to current message text
-    const CBuffer& messageBuffer() const
+    const Buffer& messageBuffer() const
     {
         return m_messageBuffer;
     }
 
     /// Method mimeMessage() encodes the message components into RFC-822 message format.
     /// @param buffer A buffer to put the encoded RFC-822 format message
-    void mimeMessage(CBuffer& buffer);
+    void mimeMessage(Buffer& buffer);
 
     /// Method sendMessage() builds an RFC-822 format message out of message parameters,
     /// and sends it. Should be implemented in derived classes.

@@ -297,29 +297,29 @@ bool CBaseListBox::preferredSize(int& w, int& h)
     return false;
 }
 
-void CBaseListBox::load(CQuery *loadQuery)
+void CBaseListBox::load(Query *loadQuery)
 {
-    CQuery& query = *loadQuery;
+    Query& query = *loadQuery;
     if (!fieldName().length())
         return;
-    CField& fld = query[fieldName().c_str()];
+    Field& fld = query[fieldName().c_str()];
     data(fld);
 }
 
-void CBaseListBox::save(CQuery *updateQuery)
+void CBaseListBox::save(Query *updateQuery)
 {
     if (!fieldName().length())
         return;
-    CParam& param = updateQuery->param(fieldName().c_str());
+    QueryParameter& param = updateQuery->param(fieldName().c_str());
     param = data();
 }
 
-void CBaseListBox::load(const CXmlNode *node, CLayoutXMLmode xmlMode)
+void CBaseListBox::load(const XMLNode *node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
 }
 
-void CBaseListBox::save(CXmlNode *node, CLayoutXMLmode xmlMode) const
+void CBaseListBox::save(XMLNode *node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
 }
@@ -428,12 +428,12 @@ CPackedStrings& CBaseListBox::selectedRow() const
     return m_list->selectedRow();
 }
 
-CDatabaseConnection * CBaseListBox::database() const
+DatabaseConnection * CBaseListBox::database() const
 {
     return m_list->database();
 }
 
-void CBaseListBox::database(CDatabaseConnection *db)
+void CBaseListBox::database(DatabaseConnection *db)
 {
     m_list->database(db);
 }
@@ -448,7 +448,7 @@ void CBaseListBox::sql(string s)
     m_list->sql(s);
 }
 
-CParam& CBaseListBox::param(const char *p)
+QueryParameter& CBaseListBox::param(const char *p)
 {
     return m_list->param(p);
 }
@@ -486,7 +486,7 @@ void CBaseListBox::keyField(string kf)
     m_list->keyField(kf);
 }
 
-void CBaseListBox::setup(CDatabaseConnection *db, string sql, string keyField)
+void CBaseListBox::setup(DatabaseConnection *db, string sql, string keyField)
 {
     m_list->setup(db, sql, keyField);
 }
@@ -501,7 +501,7 @@ CColumnList& CBaseListBox::columns()
     return m_list->columns();
 }
 
-void CBaseListBox::addColumn(string cname, CVariantType type, short cwidth, bool cvisible)
+void CBaseListBox::addColumn(string cname, VariantType type, short cwidth, bool cvisible)
 {
     m_list->columns().push_back(CColumn(cname, type, cwidth, cvisible));
 }
@@ -511,7 +511,7 @@ void CBaseListBox::addRow(CPackedStrings *psl)
     m_list->addRow(psl);
 }
 
-void CBaseListBox::addRow(const CStrings& ss, int rowId)
+void CBaseListBox::addRow(const Strings& ss, int rowId)
 {
     m_list->addRow(ss, rowId);
 }
@@ -521,7 +521,7 @@ void CBaseListBox::addRow(int rowId, const char *s1, const char *s2, const char 
     m_list->addRow(rowId, s1, s2, s3, s4, s5);
 }
 
-void CBaseListBox::addRows(string columnName, CStrings strings)
+void CBaseListBox::addRows(string columnName, Strings strings)
 {
     CColumn newColumn(columnName, VAR_STRING, w() - labelWidth(), true);
     CColumnList newColumns;
@@ -600,7 +600,7 @@ CControlKind CComboBox::kind() const
     return DCV_INTVALUECOMBO;
 }
 
-CLayoutClient* CComboBox::creator(CXmlNode *node)
+CLayoutClient* CComboBox::creator(XMLNode *node)
 {
     CComboBox* widget = new CComboBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

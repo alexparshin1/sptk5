@@ -338,7 +338,7 @@ CInput::CInput(int x,int y,int w,int h,const char *label,bool autoCreate)
 
 CInput::~CInput() {}
 
-CLayoutClient* CInput::creator(CXmlNode *node)
+CLayoutClient* CInput::creator(XMLNode *node)
 {
     CInput* widget = new CInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
@@ -395,19 +395,19 @@ void CInput::textSize(uchar s)
     ((CInput_ *)m_control)->textsize(s);
 }
 
-void CInput::load(CQuery *loadQuery)
+void CInput::load(Query *loadQuery)
 {
     if (!m_fieldName.length())
         return;
-    CField& fld = (*loadQuery)[m_fieldName.c_str()];
+    Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data( fld );
 }
 
-void CInput::save(CQuery *updateQuery)
+void CInput::save(Query *updateQuery)
 {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }
 

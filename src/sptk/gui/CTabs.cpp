@@ -412,7 +412,7 @@ CTabs::~CTabs() {
     delete m_tabs;
 }
 
-CLayoutClient* CTabs::creator(CXmlNode *node) {
+CLayoutClient* CTabs::creator(XMLNode *node) {
     CTabs* widget = new CTabs("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;

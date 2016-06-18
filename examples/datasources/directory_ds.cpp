@@ -29,12 +29,12 @@
 #include <stdio.h>
 
 #include <sptk5/cgui>
-#include <sptk5/CDirectoryDS.h>
+#include <sptk5/DirectoryDS.h>
 
 using namespace sptk;
 
 CListView      *filesListView;
-CDirectoryDS   *directoryDS;
+DirectoryDS   *directoryDS;
 CInput         *directoryInput;
 
 void exit_cb(Fl_Widget *w,void *)
@@ -88,7 +88,7 @@ int main(int argc,char *argv[])
 
     filesListView = new CListView("",10,SP_ALIGN_CLIENT);
     filesListView->callback(list_view_cb);
-    directoryDS = new CDirectoryDS();
+    directoryDS = new DirectoryDS();
 
     mainWindow.end();
     mainWindow.resizable(mainWindow);

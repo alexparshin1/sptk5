@@ -33,12 +33,12 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CThemeColorCollection.h>
-#include <sptk5/CDirectoryDS.h>
+#include <sptk5/DirectoryDS.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CTreeControl.h>
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/CRegistry.h>
+#include <sptk5/Registry.h>
 #include <sptk5/string_ext.h>
 
 #include <sptk5/gui/default_icons.h>
@@ -89,8 +89,8 @@ CThemeColorCollection CThemes::m_colors;
 bool CThemes::m_flatButtons;
 bool CThemes::m_gtkTheme;
 
-CXmlDoc *CThemes::m_registry;
-CTar CThemes::m_tar;
+XMLDocument *CThemes::m_registry;
+Tar CThemes::m_tar;
 CIconMap CThemes::m_icons[4]; /// Four different sets of icons
 bool CThemes::m_desaturateInactiveButtons;
 int CThemes::m_buttonFocusRadius;
@@ -109,7 +109,7 @@ CThemes::CThemes()
     m_thinDownFrame = Fl::get_boxtype(FL_THIN_DOWN_FRAME);
     m_downFrame = Fl::get_boxtype(FL_DOWN_FRAME);
 
-    m_registry = new CXmlDoc;
+    m_registry = new XMLDocument;
     m_desaturateInactiveButtons = false;
     m_buttonFocusRadius = 0;
 
@@ -158,9 +158,9 @@ void CThemes::registerIcon(CIcon* icon, CIconSize iconSize)
     m_icons[iconSize].insert(icon);
 }
 
-const CStrings& CThemes::searchDirectories()
+const Strings& CThemes::searchDirectories()
 {
-    static CStrings sd;
+    static Strings sd;
     if (sd.size())
         return sd;
 #ifdef _WIN32
@@ -192,7 +192,7 @@ void CThemes::reset()
     Fl::set_boxtype(FL_THIN_DOWN_FRAME, m_thinDownFrame, 1, 1, 2, 2);
     Fl::set_boxtype(FL_DOWN_FRAME, m_downFrame, 2, 2, 4, 4);
 
-    CBuffer defaultThemeBuffer(default_icons, default_icons_len);
+    Buffer defaultThemeBuffer(default_icons, default_icons_len);
     m_tar.read(defaultThemeBuffer);
     m_registry->load(m_tar.file("theme.ini"));
 
@@ -252,7 +252,7 @@ void CThemes::set(string theThemeName)
 
     reset();
 
-    const CStrings& dirs = searchDirectories();
+    const Strings& dirs = searchDirectories();
     bool defaultTheme = false;
     for (unsigned dn = 0; dn < dirs.size() && !defaultTheme; dn++) {
         string fileName = dirs[dn] + "/" + themeName + ".tar";
@@ -271,16 +271,16 @@ void CThemes::set(string theThemeName)
                 continue;
             }
         } else {
-            CBuffer defaultThemeBuffer(default_icons, default_icons_len);
+            Buffer defaultThemeBuffer(default_icons, default_icons_len);
             m_tar.read(defaultThemeBuffer);
             m_registry->load(m_tar.file("theme.ini"));
             m_name = themeName;
         }
 
         try {
-            CXmlNode::iterator itor = m_registry->begin();
+            XMLNode::iterator itor = m_registry->begin();
             for (; itor != m_registry->end(); itor++) {
-                CXmlNode* iconsNode = *itor;
+                XMLNode* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                     continue;
                 string iconsSizeStr = iconsNode->getAttribute("size", "large");
@@ -302,18 +302,18 @@ void CThemes::set(string theThemeName)
                 m_icons[iconsSize].load(m_tar, iconsNode);
             }
 
-            CXmlNode* buttonsNode = m_registry->findOrCreate("buttons", false);
+            XMLNode* buttonsNode = m_registry->findOrCreate("buttons", false);
             m_desaturateInactiveButtons = buttonsNode->getAttribute("DesaturateInactive", "N");
             m_buttonFocusRadius = buttonsNode->getAttribute("FocusRadius", "0");
             m_flatButtons = buttonsNode->getAttribute("FlatInactive", "N");
 
-            CXmlNode* tabsNode = m_registry->findOrCreate("tabs", false);
+            XMLNode* tabsNode = m_registry->findOrCreate("tabs", false);
             m_tabImages.load(m_tar, tabsNode);
 
-            CXmlNode* fontsTopic = m_registry->findOrCreate("fonts", false);
+            XMLNode* fontsTopic = m_registry->findOrCreate("fonts", false);
             m_fonts.clear();
             for (itor = fontsTopic->begin(); itor != fontsTopic->end(); itor++) {
-                CXmlNode* fontInfo = *itor;
+                XMLNode* fontInfo = *itor;
                 string fontName = fontInfo->getAttribute("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
@@ -333,7 +333,7 @@ void CThemes::set(string theThemeName)
                 m_fonts["default"] = new CFont(font->name(), 10, 0, font->index(), font->attributes());
             }
 
-            CXmlNode* framesNode = m_registry->findOrCreate("frames", false);
+            XMLNode* framesNode = m_registry->findOrCreate("frames", false);
             m_frames.load(m_tar, framesNode);
 
         } catch (...) {
@@ -345,13 +345,13 @@ void CThemes::set(string theThemeName)
         for (i = 0; i < 7; i++)
             replaceImage(m_background, i, "background" + int2string(i) + ".png");
 
-        m_progressBar[0].loadFromSptkTheme(CStrings("progress0",","));
-        m_progressBar[1].loadFromSptkTheme(CStrings("progress1",","));
+        m_progressBar[0].loadFromSptkTheme(Strings("progress0",","));
+        m_progressBar[1].loadFromSptkTheme(Strings("progress1",","));
 
-        m_normalButtons.loadFromSptkTheme(CStrings("button0,button1,button2,button3,button4",","));
-        m_comboButtons.loadFromSptkTheme(CStrings("combo_button0,combo_button1,combo_button2,combo_button3",","));
-        m_checkButtons.loadFromSptkTheme(CStrings("check_button0,check_button1,check_button2,check_button3",","));
-        m_radioButtons.loadFromSptkTheme(CStrings("radio_button0,radio_button1,radio_button2,radio_button3",","));
+        m_normalButtons.loadFromSptkTheme(Strings("button0,button1,button2,button3,button4",","));
+        m_comboButtons.loadFromSptkTheme(Strings("combo_button0,combo_button1,combo_button2,combo_button3",","));
+        m_checkButtons.loadFromSptkTheme(Strings("check_button0,check_button1,check_button2,check_button3",","));
+        m_radioButtons.loadFromSptkTheme(Strings("radio_button0,radio_button1,radio_button2,radio_button3",","));
 
         CTreeItem::treeOpened = getIconImage("tree_opened", IS_SMALL_ICON); ///< Default image of the opened tree
         CTreeItem::treeClosed = getIconImage("tree_closed", IS_SMALL_ICON); ///< Default image of the closed tree
@@ -365,7 +365,7 @@ void CThemes::set(string theThemeName)
 
         /*
         try {
-            CXmlNode& topic = *m_registry->findFirst("scrollbars", false);
+            XMLNode& topic = *m_registry->findFirst("scrollbars", false);
             if (&topic)
                 scrollBarButtonSize = topic.getAttribute("ButtonSize", "16");
         } catch (...) {}
@@ -658,15 +658,15 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
     }
 }
 
-CStrings CThemes::availableThemes()
+Strings CThemes::availableThemes()
 {
-    CStrings themes;
+    Strings themes;
     themes.push_back("Default");
     //themes.push_back("GTK");
-    const CStrings& dirs = searchDirectories();
+    const Strings& dirs = searchDirectories();
     for (unsigned i = 0; i < dirs.size(); i++) {
         try {
-            CDirectoryDS dir;
+            DirectoryDS dir;
             dir.directory(dirs[i]);
 
             dir.showPolicy(DDS_HIDE_DIRECTORIES | DDS_HIDE_DOT_FILES);
@@ -689,12 +689,12 @@ CStrings CThemes::availableThemes()
     }
 
     /// GTK2 themes
-    CStrings gtkDirs;
+    Strings gtkDirs;
     gtkDirs.push_back("/usr/share/themes");
-    gtkDirs.push_back(CRegistry::homeDirectory() + ".themes");
+    gtkDirs.push_back(Registry::homeDirectory() + ".themes");
     for (unsigned i = 0; i < gtkDirs.size(); i++) {
         try {
-            CDirectoryDS dir;
+            DirectoryDS dir;
             dir.directory(gtkDirs[i]);
 
             dir.showPolicy(DDS_HIDE_FILES | DDS_HIDE_DOT_FILES);

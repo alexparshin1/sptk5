@@ -95,7 +95,7 @@ public:
     }
 
     /// @brief Adds a child item to the item using the path. The required path items are created automatically.
-    /// @param path const CStrings&, the path to the new child item relatively to the item
+    /// @param path const Strings&, the path to the new child item relatively to the item
     /// @param openedImage const Fl_Image *, the image for the opened folder
     /// @param closedImage const Fl_Image *, the image for the closed folder
     /// @param itemImage const Fl_Image *, the image for the child item
@@ -106,7 +106,7 @@ public:
     }
 
     /// @brief Adds a child item to the item using the default folder images.
-    /// @param path const CStrings&, the item full path in the tree starting with '/'
+    /// @param path const Strings&, the item full path in the tree starting with '/'
     /// @param itemImage const Fl_Image *, the image for the child item
     /// @param data void *, the user data or ID attached to the item
     /// @returns the new child item
@@ -152,24 +152,24 @@ public:
     virtual void     data(const Variant v);
 
     /// @brief Data connection isn't implemented yet
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Data connection isn't implemented yet
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads the the widget from XML node
     ///
     /// The widget information may include widget attributes
     /// and widget data
-    /// @param node CXmlNode*, XML node
-    virtual void load(const CXmlNode *node);
+    /// @param node XMLNode*, XML node
+    virtual void load(const XMLNode *node);
 
     /// @brief Saves the the widget to XML node
     ///
     /// The widget information may include widget attributes
     /// and widget data
-    /// @param node CXmlNode*, XML node
-    virtual void save(CXmlNode *node) const;
+    /// @param node XMLNode*, XML node
+    virtual void save(XMLNode *node) const;
 
     /// @brief Returns tru if data is valid
     virtual bool valid() const {
@@ -177,8 +177,8 @@ public:
     }
 
     /// @brief Creates a widget based on the XML node information
-    /// @param node CXmlNode*, an XML node with widget information
-    static CLayoutClient* creator(CXmlNode* node);
+    /// @param node XMLNode*, an XML node with widget information
+    static CLayoutClient* creator(XMLNode* node);
 };
 /// @}
 }

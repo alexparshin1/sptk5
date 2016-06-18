@@ -34,7 +34,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/net/COpenSSLSocket.h>
 
 using namespace std;
@@ -53,11 +53,11 @@ void go_callback(Fl_Widget *,void *)
 
     std::string  input = urlInput->data();
 
-    CRegExp     getpage("^(http://|https://){0,1}([^/]+)(/.*)*", "i");
-    CStrings    matches;
-    
+    RegularExpression     getpage("^(http://|https://){0,1}([^/]+)(/.*)*", "i");
+    Strings    matches;
+
     getpage.m(input, matches);
-    
+
     int         port = 80;
     string      protocol = matches[0];
     bool        https = false;
@@ -65,10 +65,10 @@ void go_callback(Fl_Widget *,void *)
         https = true;
         port = 443;
     }
-    
+
     string      hostName = matches[1];
     std::string pageName = matches[2];
-    
+
     size_t portPos = hostName.find(":");
     if (portPos != string::npos) {
         portPos++;
@@ -79,23 +79,23 @@ void go_callback(Fl_Widget *,void *)
     COpenSSLContext sslContext;
     try {
         DateTime        started = DateTime::Now();
-        
+
         if (!https)
             socket = new TCPSocket;
         else
             socket = new COpenSSLSocket(sslContext);
-        
+
         HttpConnect sock(*socket);
 
         socket->open(hostName, port);
 
-        CStrings text(paramsInput->data(),"\n");
+        Strings text(paramsInput->data(),"\n");
         HttpParams httpFields;
 
         if (paramsCombo->data() == "HTTP Get") {
 
             for (unsigned i = 0; i < text.size(); i++) {
-                CStrings data(text[i],"=");
+                Strings data(text[i],"=");
                 if (data.size() == 2) {
                     httpFields["first_name"] = text[0];
                     httpFields["last_name"] = text[1];
@@ -105,7 +105,7 @@ void go_callback(Fl_Widget *,void *)
             sock.cmd_get(pageName,httpFields);
         } else {
             for (unsigned i = 0; i < text.size(); i++) {
-                CStrings data(text[i],"=");
+                Strings data(text[i],"=");
 
                 if (data.size() == 2) {
                     httpFields["first_name"] = text[0];
@@ -143,7 +143,7 @@ int main(int argc,char *argv[])
     paramsToolBar.layoutSize(150);
     paramsCombo = new CComboBox("Mode",10,SP_ALIGN_TOP);
     //paramsCombo->labelWidth(80);
-    paramsCombo->addRows("http mode",CStrings("HTTP Get|HTTP Post","|"));
+    paramsCombo->addRows("http mode",Strings("HTTP Get|HTTP Post","|"));
     paramsCombo->columns()[0].width(100);
     paramsCombo->data("HTTP Post");
     statsInput = new CInput("Stats");

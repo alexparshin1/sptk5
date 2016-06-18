@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-class CMyTask : public CRunable
+class CMyTask : public Runable
 {
     string          m_name; /// Task name, for distinguishing different tasks output
     Logger       m_log;  /// Task proxy log
@@ -70,7 +70,7 @@ void CMyTask::run() THROWS_EXCEPTIONS
     while (!terminated()) {
         m_log << "Output " << counter << " from " << name() << endl;
         counter++;
-        CThread::msleep(100);
+        Thread::msleep(100);
     }
 
     m_log << name() << " is terminated" << endl;
@@ -82,7 +82,7 @@ int main(int, char* [])
     vector<CMyTask*> tasks;
 
     /// Thread manager controls tasks execution.
-    CThreadPool threadPool;
+    ThreadPool threadPool;
 
     /// The log file would get messages from all the tasks.
     /// Threads send messages through their own Logger objects.
@@ -100,7 +100,7 @@ int main(int, char* [])
         tasks.push_back(new CMyTask(sharedLog));
 
     cout << tasks.size() << " tasks are created." << endl;
-    CThread::msleep(100);
+    Thread::msleep(100);
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl;
 
@@ -109,16 +109,16 @@ int main(int, char* [])
         threadPool.execute(tasks[i]);
 
     cout << tasks.size() << " tasks are created." << endl;
-    CThread::msleep(100);
+    Thread::msleep(100);
 
     cout << "Waiting 1 seconds while tasks are running.." << endl;
-    CThread::msleep(1000);
+    Thread::msleep(1000);
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl;
     cout << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
 
@@ -128,12 +128,12 @@ int main(int, char* [])
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
 
-    CThread::msleep(1000);
+    Thread::msleep(1000);
 
     cout << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
-    CThread::msleep(1000);
+    Thread::msleep(1000);
 
     cout << "Stopping thread pool..." << endl;
     threadPool.stop();

@@ -26,25 +26,25 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/COracleConnection.h>
-#include <sptk5/db/CDatabaseField.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/OracleConnection.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/Query.h>
 #include "COracleBulkInsertQuery.h"
 
-#include <sptk5/CRegExp.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-COracleConnection::COracleConnection(string connectionString) :
-    CDatabaseConnection(connectionString),
+OracleConnection::OracleConnection(string connectionString) :
+    DatabaseConnection(connectionString),
     m_connection(NULL)
 {
     m_connType = DCT_ORACLE;
 }
 
-COracleConnection::~COracleConnection()
+OracleConnection::~OracleConnection()
 {
     try {
         if (m_inTransaction && active())
@@ -52,7 +52,7 @@ COracleConnection::~COracleConnection()
         close();
         while (m_queryList.size()) {
             try {
-                CQuery *query = (CQuery *) m_queryList[0];
+                Query *query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -62,7 +62,7 @@ COracleConnection::~COracleConnection()
     }
 }
 
-void COracleConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void OracleConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -90,11 +90,11 @@ void COracleConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIO
     }
 }
 
-void COracleConnection::closeDatabase() THROWS_EXCEPTIONS
+void OracleConnection::closeDatabase() THROWS_EXCEPTIONS
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
-            CQuery *query = (CQuery *) m_queryList[i];
+            Query *query = (Query *) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
@@ -109,17 +109,17 @@ void COracleConnection::closeDatabase() THROWS_EXCEPTIONS
     }
 }
 
-void* COracleConnection::handle() const
+void* OracleConnection::handle() const
 {
     return m_connection;
 }
 
-bool COracleConnection::active() const
+bool OracleConnection::active() const
 {
     return m_connection != 0L;
 }
 
-string COracleConnection::nativeConnectionString() const
+string OracleConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
     string connectionString = m_connString.hostName();
@@ -130,7 +130,7 @@ string COracleConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void COracleConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void OracleConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
     if (!m_connection)
         open();
@@ -141,7 +141,7 @@ void COracleConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void COracleConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void OracleConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 {
     if (!m_inTransaction)
         throwOracleException("Transaction isn't started.");
@@ -164,23 +164,23 @@ void COracleConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-string COracleConnection::queryError(const CQuery *query) const
+string OracleConnection::queryError(const Query *query) const
 {
     return m_lastError;
 }
 
 // Doesn't actually allocate stmt, but makes sure
 // the previously allocated stmt is released
-void COracleConnection::queryAllocStmt(CQuery *query)
+void OracleConnection::queryAllocStmt(Query *query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new COracleStatement(this, query->sql()));
+    querySetStmt(query, new OracleStatement(this, query->sql()));
 }
 
-void COracleConnection::queryFreeStmt(CQuery *query)
+void OracleConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
     if (statement) {
         delete statement;
         querySetStmt(query, 0L);
@@ -188,31 +188,31 @@ void COracleConnection::queryFreeStmt(CQuery *query)
     }
 }
 
-void COracleConnection::queryCloseStmt(CQuery *query)
+void OracleConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
     if (statement)
         statement->close();
 }
 
-void COracleConnection::queryPrepare(CQuery *query)
+void OracleConnection::queryPrepare(Query *query)
 {
     SYNCHRONIZED_CODE;
 
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
     if (!statement)
-        statement = new COracleStatement(this, query->sql());
+        statement = new OracleStatement(this, query->sql());
     statement->enumerateParams(query->params());
     if (query->bulkMode()) {
         CParamVector& enumeratedParams = statement->enumeratedParams();
         unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
         COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
-        const CColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
+        const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
         for (CParamVector::iterator itor = enumeratedParams.begin(); itor != enumeratedParams.end(); itor++, paramIndex++) {
-            CParam* param = *itor;
-            CColumnTypeSizeMap::const_iterator xtor = columnTypeSizes.find(upperCase(param->name()));
+            QueryParameter* param = *itor;
+            QueryColumnTypeSizeMap::const_iterator xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
                 if (xtor->second.length)
                     stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
@@ -226,24 +226,24 @@ void COracleConnection::queryPrepare(CQuery *query)
     querySetPrepared(query, true);
 }
 
-void COracleConnection::queryUnprepare(CQuery *query)
+void OracleConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-int COracleConnection::queryColCount(CQuery *query)
+int OracleConnection::queryColCount(Query *query)
 {
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
     if (!statement)
         throwOracleException("Query not opened");
     return (int) statement->colCount();
 }
 
-void COracleConnection::queryBindParameters(CQuery *query)
+void OracleConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
     if (!statement)
         throwDatabaseException("Query not prepared");
     try {
@@ -254,7 +254,7 @@ void COracleConnection::queryBindParameters(CQuery *query)
     }
 }
 
-VariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
+VariantType OracleConnection::OracleTypeToVariantType(Type oracleType)
 {
     switch (oracleType)
     {
@@ -284,7 +284,7 @@ VariantType COracleConnection::OracleTypeToVariantType(Type oracleType)
     }
 }
 
-Type COracleConnection::VariantTypeToOracleType(VariantType dataType)
+Type OracleConnection::VariantTypeToOracleType(VariantType dataType)
 {
     switch (dataType)
     {
@@ -313,10 +313,10 @@ Type COracleConnection::VariantTypeToOracleType(VariantType dataType)
     }
 }
 
-void COracleConnection::queryExecute(CQuery *query)
+void OracleConnection::queryExecute(Query *query)
 {
     try {
-        COracleStatement* statement = (COracleStatement*) query->statement();
+        OracleStatement* statement = (OracleStatement*) query->statement();
         if (!statement)
             throwOracleException("Query is not prepared");
         if (query->bulkMode()) {
@@ -331,7 +331,7 @@ void COracleConnection::queryExecute(CQuery *query)
     }
 }
 
-void COracleConnection::queryOpen(CQuery *query)
+void OracleConnection::queryOpen(Query *query)
 {
     if (!active())
         open();
@@ -348,7 +348,7 @@ void COracleConnection::queryOpen(CQuery *query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
 
     queryExecute(query);
     int count = queryColCount(query);
@@ -379,7 +379,7 @@ void COracleConnection::queryOpen(CQuery *query)
                 if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
                     resultSet->setMaxColumnSize(columnIndex + 1, 16384);
                 VariantType dataType = OracleTypeToVariantType(columnType);
-                CDatabaseField* field = new CDatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize);
+                DatabaseField* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize);
                 query->fields().push_back(field);
             }
         }
@@ -390,14 +390,14 @@ void COracleConnection::queryOpen(CQuery *query)
     queryFetch(query);
 }
 
-void COracleConnection::queryFetch(CQuery *query)
+void OracleConnection::queryFetch(Query *query)
 {
     if (!query->active())
         query->logAndThrow("COracleConnection::queryFetch", "Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
-    COracleStatement* statement = (COracleStatement*) query->statement();
+    OracleStatement* statement = (OracleStatement*) query->statement();
 
     statement->fetch();
     if (statement->eof()) {
@@ -410,10 +410,10 @@ void COracleConnection::queryFetch(CQuery *query)
         return;
 
     ResultSet* resultSet = statement->resultSet();
-    CDatabaseField* field = 0;
+    DatabaseField* field = 0;
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         try {
-            field = (CDatabaseField*) &(*query)[fieldIndex];
+            field = (DatabaseField*) &(*query)[fieldIndex];
 
             // Result set column index starts from 1
             unsigned columnIndex = fieldIndex + 1;
@@ -510,7 +510,7 @@ void COracleConnection::queryFetch(CQuery *query)
     }
 }
 
-void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) THROWS_EXCEPTIONS
+void OracleConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     string objectsSQL;
     objects.clear();
@@ -526,7 +526,7 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
         objectsSQL = "SELECT view_name FROM user_views";
         break;
     }
-    CQuery query(this, objectsSQL);
+    Query query(this, objectsSQL);
     query.open();
     while (!query.eof()) {
         objects.push_back(query[uint32_t(0)].asString());
@@ -535,24 +535,24 @@ void COracleConnection::objectList(CDbObjectType objectType, CStrings& objects) 
     query.close();
 }
 
-void COracleConnection::bulkInsert(std::string tableName, const CStrings& columnNames, const CStrings& data, std::string format) THROWS_EXCEPTIONS
+void OracleConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
-    CQuery tableColumnsQuery(this,
+    Query tableColumnsQuery(this,
                         "SELECT column_name, data_type, data_length "
                         "FROM user_tab_columns "
                         "WHERE table_name = :table_name");
     tableColumnsQuery.param("table_name") = upperCase(tableName);
     tableColumnsQuery.open();
-    CField& column_name = tableColumnsQuery["column_name"];
-    CField& data_type = tableColumnsQuery["data_type"];
-    CField& data_length = tableColumnsQuery["data_length"];
+    Field& column_name = tableColumnsQuery["column_name"];
+    Field& data_type = tableColumnsQuery["data_type"];
+    Field& data_length = tableColumnsQuery["data_length"];
     //string numericTypes("DECIMAL|FLOAT|DOUBLE|NUMBER");
-    CColumnTypeSizeMap columnTypeSizeMap;
+    QueryColumnTypeSizeMap columnTypeSizeMap;
     while (!tableColumnsQuery.eof()) {
         string columnName = column_name.asString();
         string columnType = data_type.asString();
         size_t maxDataLength = (size_t) data_length.asInteger();
-        CColumnTypeSize columnTypeSize;
+        QueryColumnTypeSize columnTypeSize;
         columnTypeSize.type = VAR_STRING;
         columnTypeSize.length = 0;
         if (columnType.find("LOB") != string::npos) {
@@ -566,9 +566,9 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
     }
     tableColumnsQuery.close();
 
-    CColumnTypeSizeVector columnTypeSizeVector;
-    for (CStrings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); itor++) {
-        map<string,CColumnTypeSize>::iterator column = columnTypeSizeMap.find(upperCase(*itor));
+    QueryColumnTypeSizeVector columnTypeSizeVector;
+    for (Strings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); itor++) {
+        map<string,QueryColumnTypeSize>::iterator column = columnTypeSizeMap.find(upperCase(*itor));
         if (column == columnTypeSizeMap.end())
             throwDatabaseException("Column '" + *itor + "' doesn't belong to table " + tableName);
         columnTypeSizeVector.push_back(column->second);
@@ -579,8 +579,8 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
                                        ") VALUES (:" + columnNames.asString(",:") + ")",
                                        data.size(),
                                        columnTypeSizeMap);
-    for (CStrings::const_iterator row = data.begin(); row != data.end(); row++) {
-        CStrings rowData(*row,"\t");
+    for (Strings::const_iterator row = data.begin(); row != data.end(); row++) {
+        Strings rowData(*row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++) {
             if (columnTypeSizeVector[i].type == VAR_TEXT)
                 insertQuery.param(i).setText(rowData[i]);
@@ -591,30 +591,29 @@ void COracleConnection::bulkInsert(std::string tableName, const CStrings& column
     }
 }
 
-std::string COracleConnection::driverDescription() const
+std::string OracleConnection::driverDescription() const
 {
     return m_environment.clientVersion();
 }
 
-std::string COracleConnection::paramMark(unsigned paramIndex)
+std::string OracleConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, ":%i", paramIndex + 1);
     return string(mark);
 }
 
-void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void OracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
 {
-    CStrings sqlBatch;
+    Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
-    CRegExp* matchStatementEnd = new CRegExp("(;\\s*)$");
-    CRegExp  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
-    CRegExp  matchGo("^/\\s*$");
-    //CRegExp  matchEscapeChars("([$.])", "g");
-    CRegExp  matchShowErrors("^SHOW\\s+ERRORS", "i");
+    RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
+    RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
+    RegularExpression  matchGo("^/\\s*$");
+    RegularExpression  matchShowErrors("^SHOW\\s+ERRORS", "i");
 
-    CStrings statements, matches;
+    Strings statements, matches;
     string statement;
     bool routineStarted = false;
     for (string row: sqlBatch) {
@@ -652,7 +651,7 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
         statements.push_back(statement);
 
     for (string stmt: statements) {
-        CQuery query(this, stmt, false);
+        Query query(this, stmt, false);
         //cout << "[ " << statement << " ]" << endl;
         query.exec();
     }
@@ -661,11 +660,11 @@ void COracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTION
 
 void* oracle_create_connection(const char* connectionString)
 {
-    COracleConnection* connection = new COracleConnection(connectionString);
+    OracleConnection* connection = new OracleConnection(connectionString);
     return connection;
 }
 
 void  oracle_destroy_connection(void* connection)
 {
-    delete (COracleConnection*) connection;
+    delete (OracleConnection*) connection;
 }

@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/cxml>
 
@@ -66,7 +66,7 @@ enum VariantType {
 /// MASK: All the known field types w/o flags
 #define VAR_TYPES           16383
 
-class CField;
+class Field;
 
 /// @brief Variant data buffer (internal).
 ///
@@ -167,7 +167,7 @@ public:
     Variant(const void * value, size_t sz);
 
     /// @brief Constructor
-    Variant(const CBuffer& value);
+    Variant(const Buffer& value);
 
     /// @brief Constructor
     Variant(const Variant& value);
@@ -215,7 +215,7 @@ public:
     virtual void setBuffer(const void * value, size_t sz);
 
     /// @brief Assignment method
-    virtual void setBuffer(const CBuffer& value);
+    virtual void setBuffer(const Buffer& value);
 
     /// @brief Assignment method
     virtual void setExternalBuffer(const void * value, size_t sz);
@@ -281,7 +281,7 @@ public:
     virtual Variant& operator =(const void *value);
 
     /// @brief Assignment operator
-    virtual Variant& operator =(const CBuffer& value);
+    virtual Variant& operator =(const Buffer& value);
 
     /// @brief Directly reads the internal data
     virtual bool getBool() const;
@@ -406,7 +406,7 @@ public:
     /// Useful for the database operations.
     /// Releases the memory allocated for string/text/blob types.
     /// Retains the data type. Sets the data to zero(s).
-    /// @param vtype CVariantType, optional variant type to enforce
+    /// @param vtype VariantType, optional variant type to enforce
     virtual void setNull(VariantType vtype=VAR_NONE);
 
     /// @brief Null flag
@@ -415,7 +415,7 @@ public:
     bool isNull() const;
 
     /// @brief Returns a name for a particular variant type
-    /// @param type CVariantType, a variant type
+    /// @param type VariantType, a variant type
     static std::string typeName(VariantType type);
 
     /// @brief Returns a type for a particular variant type name
@@ -423,20 +423,20 @@ public:
     static VariantType nameType(const char* name);
 
     /// @brief Loads the data from XML node
-    /// @param node const CXmlNode&, XML node to load data from
-    void load(const CXmlNode& node);
+    /// @param node const XMLNode&, XML node to load data from
+    void load(const XMLNode& node);
 
     /// @brief Loads the data from XML node
-    /// @param node const CXmlNode*, XML node to load data from
-    void load(const CXmlNode* node);
+    /// @param node const XMLNode*, XML node to load data from
+    void load(const XMLNode* node);
 
     /// @brief Saves the data into XML node
-    /// @param node CXmlNode&, XML node to save data into
-    void save(CXmlNode& node) const;
+    /// @param node XMLNode&, XML node to save data into
+    void save(XMLNode& node) const;
 
     /// @brief Saves the data into XML node
-    /// @param node CXmlNode*, XML node to save data into
-    void save(CXmlNode* node) const;
+    /// @param node XMLNode*, XML node to save data into
+    void save(XMLNode* node) const;
 };
 /// @}
 }

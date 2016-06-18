@@ -34,7 +34,7 @@ using namespace sptk;
 
 int main()
 {
-    CSemaphore  semaphore;
+    Semaphore  semaphore;
     try {
         semaphore.post();
         cout << "Semaphore posted       (Ok)" << endl;

@@ -56,7 +56,7 @@ CGroup::CGroup(int x,int y,int w,int h,const char *alabel)
 }
 #endif
 
-CLayoutClient* CGroup::creator(CXmlNode* node) {
+CLayoutClient* CGroup::creator(XMLNode* node) {
     CGroup* widget = new CGroup("",10,SP_ALIGN_TOP);
     widget->loadLayout(node,LXM_LAYOUTDATA);
     return widget;

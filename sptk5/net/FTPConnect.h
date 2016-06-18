@@ -29,7 +29,7 @@
 #ifndef __FTPCONNECT_H__
 #define __FTPCONNECT_H__
 
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/net/TCPSocket.h>
 
 namespace sptk
@@ -45,7 +45,7 @@ namespace sptk
 class SP_EXPORT FTPSocket: public TCPSocket
 {
     /// Server response string list
-    CStrings m_response;
+    Strings m_response;
 public:
     /// Default constructor
     FTPSocket();
@@ -57,19 +57,19 @@ public:
     virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) THROWS_EXCEPTIONS;
 
     /// Returns a reference to server response string list
-    const CStrings& response() const
+    const Strings& response() const
     {
         return m_response;
     }
 
     /// Logs in to the server
-    const CStrings& login(std::string user, std::string password);
+    const Strings& login(std::string user, std::string password);
 
     /// Sends a command to the server
-    const CStrings& command(std::string cmd);
+    const Strings& command(std::string cmd);
 
     /// Reads server response after calling a command
-    const CStrings& get_response();
+    const Strings& get_response();
 };
 
 /// Connection to the FTP server
@@ -93,7 +93,7 @@ protected:
     void command(std::string cmd);
 
     /// Gets the list from the FTP server
-    void getList(std::string cmd, CStrings& list);
+    void getList(std::string cmd, Strings& list);
 
 public:
 
@@ -149,7 +149,7 @@ public:
     void close();
 
     /// Returns the referense on the server response string list
-    const CStrings& response() const
+    const Strings& response() const
     {
         return m_commandSocket.response();
     }
@@ -173,10 +173,10 @@ public:
     void cmd_pwd();
 
     /// FTP list command
-    void cmd_list(CStrings& result);
+    void cmd_list(Strings& result);
 
     /// FTP nlist command
-    void cmd_nlst(CStrings& result);
+    void cmd_nlst(Strings& result);
 
     /// FTP retr command
     void cmd_retr(std::string fileName);

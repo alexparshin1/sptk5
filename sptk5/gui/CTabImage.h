@@ -30,7 +30,7 @@
 #define __CTABIMAGE_H__
 
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/CTar.h>
+#include <sptk5/Tar.h>
 #include <sptk5/cxml>
 
 namespace sptk {
@@ -57,8 +57,8 @@ class CTabImage {
 public:
     /// @brief Constructor
     /// @param tar const sptk::CTar&, the theme tar archive
-    /// @param tabImageNode const sptk::CXmlNode*, an XML node with the tab theme info
-    CTabImage(const sptk::CTar& tar,const sptk::CXmlNode* tabImageNode);
+    /// @param tabImageNode const sptk::XMLNode*, an XML node with the tab theme info
+    CTabImage(const sptk::Tar& tar,const sptk::XMLNode* tabImageNode);
 
     /// @brief Destructor
     ~CTabImage() {
@@ -80,8 +80,8 @@ public:
 
     /// @brief Loads tab images from tar archive using XML node as an index
     /// @param tar const sptk::CTar&, the theme tar archive
-    /// @param tabImagesNode const sptk::CXmlNode*, an XML node with the tabs theme info
-    void load(const sptk::CTar& tar,const sptk::CXmlNode* tabImagesNode);
+    /// @param tabImagesNode const sptk::XMLNode*, an XML node with the tabs theme info
+    void load(const sptk::Tar& tar,const sptk::XMLNode* tabImagesNode);
 
     /// @brief Destructor
     ~CTabImages() { clear(); }

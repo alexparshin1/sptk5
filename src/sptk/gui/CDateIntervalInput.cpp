@@ -32,7 +32,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sptk5/CStrings.h>
 #include <sptk5/gui/CDateIntervalInput.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CCalendar.h>
@@ -80,7 +79,7 @@ CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * labe
 }
 #endif
 
-CLayoutClient* CDateIntervalInput::creator(CXmlNode *node) {
+CLayoutClient* CDateIntervalInput::creator(XMLNode *node) {
     CDateIntervalInput* widget = new CDateIntervalInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;

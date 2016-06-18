@@ -34,9 +34,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <sptk5/CException.h>
-#include <sptk5/CRegistry.h>
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/Registry.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CMessageDialog.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CTabs.h>
@@ -75,9 +75,9 @@ CDialog::CDialog(int w, int h, const char *label) :
     fl_cursor(FL_CURSOR_WAIT);
     Fl::check();
 
-    m_selectQuery = new CQuery;
-    m_updateQuery = new CQuery;
-    m_insertQuery = new CQuery;
+    m_selectQuery = new Query;
+    m_updateQuery = new Query;
+    m_insertQuery = new Query;
 
     m_buttonGroup = new CGroup("", 20, SP_ALIGN_BOTTOM);
     m_okButton = new CButton(SP_OK_BUTTON);
@@ -195,14 +195,14 @@ bool CDialog::showModal()
     return rc;
 }
 
-void CDialog::database(CDatabaseConnection* db)
+void CDialog::database(DatabaseConnection* db)
 {
     m_selectQuery->database(db);
     m_updateQuery->database(db);
     m_insertQuery->database(db);
 }
 
-CDatabaseConnection * CDialog::database() const
+DatabaseConnection * CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -215,7 +215,7 @@ void CDialog::table(const string tableName)
     }
 }
 
-void CDialog::table(CDatabaseConnection* db, const string tb, const string key)
+void CDialog::table(DatabaseConnection* db, const string tb, const string key)
 {
     database(db);
     table(tb);
@@ -330,7 +330,7 @@ bool CDialog::save()
     if (!database())
         return true;
     buildQueries();
-    CQuery *query = m_insertQuery;
+    Query *query = m_insertQuery;
 
     if (m_keyValue > 0) {
         query = m_updateQuery;
@@ -347,13 +347,13 @@ bool CDialog::save()
     return true;
 }
 
-void CDialog::load(const CXmlNode* node) THROWS_EXCEPTIONS
+void CDialog::load(const XMLNode* node) THROWS_EXCEPTIONS
 {
     CLayoutManager::loadLayout(node, LXM_DATA);
     loadPosition(node);
 }
 
-void CDialog::save(CXmlNode* node) const
+void CDialog::save(XMLNode* node) const
 {
     CLayoutManager::saveLayout(node, LXM_DATA);
     savePosition(node);

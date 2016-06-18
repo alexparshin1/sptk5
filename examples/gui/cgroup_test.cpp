@@ -88,10 +88,10 @@ int main(int argc, char *argv[])
         // of choices. The default alignment is SP_ALIGN_TOP,
         // and you can change it in ctor
         CCheckButtons cbl("Check Buttons: ");
-        cbl.buttons(CStrings("first,second,third,*", ","));
+        cbl.buttons(Strings("first,second,third,*", ","));
 
         CRadioButtons rbl("Radio Buttons: ");
-        rbl.buttons(CStrings("first,second,third,*", ","));
+        rbl.buttons(Strings("first,second,third,*", ","));
 
         buttonsGroup.end();
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         exitButton.callback(exit_cb);
 
         CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
-        CStrings themes = CThemes::availableThemes();
+        Strings themes = CThemes::availableThemes();
         themes.push_back("GTK");
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);

@@ -112,9 +112,9 @@ int SmtpConnect::command(string cmd, bool encodeCommand, bool decodeResponse)
     return getResponse(decodeResponse);
 }
 
-string SmtpConnect::mime(const CBuffer& buffer)
+string SmtpConnect::mime(const Buffer& buffer)
 {
-    CBuffer result;
+    Buffer result;
     Base64::encode(result, buffer);
     return result;
 }
@@ -122,7 +122,7 @@ string SmtpConnect::mime(const CBuffer& buffer)
 string SmtpConnect::mime(string s)
 {
     string result;
-    CBuffer src;
+    Buffer src;
     src.set(s.c_str(), (uint32_t) s.length());
     Base64::encode(result, src);
     return result;
@@ -130,7 +130,7 @@ string SmtpConnect::mime(string s)
 
 string SmtpConnect::unmime(string s)
 {
-    CBuffer dest;
+    Buffer dest;
     Base64::decode(dest, s);
     string result(dest.data(), dest.bytes());
     return result;
@@ -169,7 +169,7 @@ void SmtpConnect::cmd_auth(string user, string password, string method)
         }
 
         if (method == "plain") {
-            CBuffer userAndPassword;
+            Buffer userAndPassword;
             char nullChar = 0;
             userAndPassword.append(&nullChar, 1);
             userAndPassword.append(user.c_str(), user.size());
@@ -216,7 +216,7 @@ void SmtpConnect::sendMessage()
     string rcpts = m_to + ";" + m_cc + ";" + m_bcc;
     rcpts = replaceAll(rcpts, ",", ";");
     rcpts = replaceAll(rcpts, " ", ";");
-    CStrings recepients(rcpts, ";");
+    Strings recepients(rcpts, ";");
     uint32_t cnt = (uint32_t) recepients.size();
     for (uint32_t i = 0; i < cnt; i++) {
         string address = trim(recepients[i]);

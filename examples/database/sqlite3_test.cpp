@@ -32,7 +32,7 @@
 #endif
 
 #include <sptk5/cdatabase>
-#include <sptk5/db/CSQLite3Connection.h>
+#include <sptk5/db/SQLite3Connection.h>
 
 #include <iostream>
 #include <iomanip>
@@ -40,11 +40,11 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection* db, string tableName, bool rollback)
 {
     try {
-        CQuery step5Query(db, "DELETE FROM " + tableName);
-        CQuery step6Query(db, "SELECT count(*) FROM " + tableName);
+        Query step5Query(db, "DELETE FROM " + tableName);
+        Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
         cout << endl << "        Begining the transaction ..";
         db->beginTransaction();
@@ -76,25 +76,25 @@ int testTransactions(CDatabaseConnection* db, string tableName, bool rollback)
 
 int main()
 {
-    CDatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
-    CDatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
+    DatabaseConnection* db = connectionPool.createConnection();
 
     try {
         cout << "Openning the database.. ";
         db->open();
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
-        CStrings tableList;
+        Strings tableList;
         db->objectList(DOT_TABLES, tableList);
         cout << "First 10 tables in the database:" << endl;
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)
             cout << "  Table: " << tableList[i] << endl;
 
         // Defining the queries
-        CQuery step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
-        CQuery step2Query(db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
-        CQuery step3Query(db, "SELECT * FROM test WHERE id > :some_id");
-        CQuery step4Query(db, "DROP TABLE test");
+        Query step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
+        Query step2Query(db, "INSERT INTO test VALUES(:person_id,:person_name,:position_name)");
+        Query step3Query(db, "SELECT * FROM test WHERE id > :some_id");
+        Query step4Query(db, "DROP TABLE test");
 
         cout << "Ok.\nStep 1: Creating the table.. ";
         step1Query.exec();
@@ -121,9 +121,9 @@ int main()
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        CParam& id_param = step2Query.param("person_id");
-        CParam& name_param = step2Query.param("person_name");
-        CParam& position_param = step2Query.param("position_name");
+        QueryParameter& id_param = step2Query.param("person_id");
+        QueryParameter& name_param = step2Query.param("person_name");
+        QueryParameter& position_param = step2Query.param("position_name");
         // Now, we can use these variables
         id_param = 4;
         name_param = "Buffy";
@@ -154,31 +154,15 @@ int main()
         }
         step3Query.close();
 
-        cout << "Ok.\nStep 4: Selecting the information through the stream .." << endl;
-        step3Query.param("some_id") = 1;
-        step3Query.open();
 
-        while (!step3Query.eof()) {
-
-            int id;
-            string name, position;
-
-            step3Query.fields() >> id >> name >> position;
-
-            cout << setw(10) << id << setw(20) << name << setw(20) << position << endl;
-
-            step3Query.fetch();
-        }
-        step3Query.close();
-
-        cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
+        cout << "Ok.\nStep 4: Selecting the information the fast way .." << endl;
         step3Query.param("some_id") = 1;
         step3Query.open();
 
         // First, find the field references by name or by number
-        CField& idField = step3Query[uint32_t(0)];
-        CField& nameField = step3Query["name"];
-        CField& positionField = step3Query["position"];
+        Field& idField = step3Query[uint32_t(0)];
+        Field& nameField = step3Query["name"];
+        Field& positionField = step3Query["position"];
 
         while (!step3Query.eof()) {
 

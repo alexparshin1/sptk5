@@ -3,15 +3,15 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
-    CWSBasicTypes.cpp
-    CWSComplexType.cpp
-    CWSListener.cpp
-    CWSParser.cpp
-    CWSParserComplexType.cpp
-    CWSRequest.cpp
-    CWSRestriction.cpp
-    CWSTypeTranslator.cpp
-    )
+    WSBasicTypes.cpp
+    WSComplexType.cpp
+    WSListener.cpp
+    WSParser.cpp
+    WSParserComplexType.cpp
+    WSRequest.cpp
+    WSRestriction.cpp
+    WSTypeTranslator.cpp
+)
 
 TARGET_LINK_LIBRARIES(spwsdl5 sputil5)
 

@@ -46,7 +46,7 @@ int main(int argc,char *argv[]) {
         cout << "The XML UTF8 test started." << endl << endl;
 
         CBuffer buf;
-        CXmlDoc doc;
+        XMLDoc doc;
         buf.loadFromFile("test_utf8.xml");
         doc.load(buf);
 

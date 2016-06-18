@@ -51,16 +51,16 @@ CFloatInput::CFloatInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CFloatInput::creator(CXmlNode *node) {
+CLayoutClient* CFloatInput::creator(XMLNode *node) {
     CFloatInput* widget = new CFloatInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
 }
 
-void CFloatInput::save(CQuery *updateQuery) {
+void CFloatInput::save(Query *updateQuery) {
     if (!m_fieldName.length())
         return;
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param.setFloat( data() );
 }
 

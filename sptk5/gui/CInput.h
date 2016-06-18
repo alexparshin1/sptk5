@@ -145,18 +145,18 @@ class SP_EXPORT CInput : public CControl {
 protected:
 
     /// @brief Loads data from query
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves data to query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void     load(const CXmlNode* node,CLayoutXMLmode xmlMode) {
+    virtual void     load(const XMLNode* node,CLayoutXMLmode xmlMode) {
         CControl::load(node,xmlMode);
     }
 
@@ -164,9 +164,9 @@ protected:
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node,CLayoutXMLmode xmlMode) const {
+    virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const {
         CControl::save(node,xmlMode);
     }
 
@@ -255,7 +255,7 @@ public:
     virtual bool preferredSize(int& w,int& h);
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 /// @}
 }

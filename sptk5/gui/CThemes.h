@@ -116,7 +116,7 @@ class CThemes :
     static bool           m_gtkTheme;
 
     /// Theme registry. Contains several importang theme settings.
-    static CXmlDoc       *m_registry;
+    static XMLDocument       *m_registry;
 
     /// Restores the original FLTK theme
     static void reset();
@@ -195,22 +195,22 @@ protected:
     static CIconMap m_icons[4];   ///< Icons for use with buttons (four different sizes available, @see CIconSize)
 
     /// @brief Loads GTK theme button file name from <image> node, and stores it into the map
-    /// @param imageNode CXmlNode*, an image node from GTK theme description
-    static void loadGtkButton(CXmlNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames);
+    /// @param imageNode XMLNode*, an image node from GTK theme description
+    static void loadGtkButton(XMLNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames);
 
     /// @brief Loads GTK theme button file names from XPath
-    /// @brief xml CXmlDoc&, GTK theme converted to XML
+    /// @brief xml XMLDoc&, GTK theme converted to XML
     /// @param XPath std::string, XPath to button images
     /// @param fileNames std::map<CThemeImageState,std::string>&, file names for buttons
     /// @param orientation std::string, optional orientation (used for scrollbar elements)
-    static void loadGtkButtonFileNames(CXmlDoc& xml,std::string XPath,std::map<CThemeImageState,std::string>& fileNames,std::string orientation="");
+    static void loadGtkButtonFileNames(XMLDocument& xml,std::string XPath,std::map<CThemeImageState,std::string>& fileNames,std::string orientation="");
     
     /// @brief Loads GTK theme button images from <style> node
-    /// @brief xml CXmlDoc&, GTK theme converted to XML
+    /// @brief xml XMLDoc&, GTK theme converted to XML
     /// @param styleName std::string, image style name ("button", "checkbutton", etc)
     /// @param buttons CThemeImageCollection&, set of images for the button type
     //  @param function std::string, function ("BOX", CHECK", "OPTION", etc)
-    static void loadGtkButtons(CXmlDoc& xml,std::string styleName,CThemeImageCollection& buttons,std::string function);
+    static void loadGtkButtons(XMLDocument& xml,std::string styleName,CThemeImageCollection& buttons,std::string function);
     
     /// @brief Loads current Gnome GTK theme
     ///
@@ -349,26 +349,26 @@ public:
     static bool drawTabFrame(int x,int y,int w,int h);
 
     /// Returns the list of the available themes
-    static CStrings availableThemes();
+    static Strings availableThemes();
 
     /// @brief Themes root directories
     ///
     /// On different system it may be a different set of directories.
     /// The first available correct combination of theme directory and theme name
     /// defines the theme directory
-    static const CStrings& searchDirectories();
+    static const Strings& searchDirectories();
 
     /// @brief All the available screen fonts
     static CFontsVector   screenFonts;
 
     /// @brief Returns theme name
     static std::string name() { return m_name; }
-    
+
     /// @brief Returns path to the theme folder
     static std::string themeFolder() { return m_themeFolder; }
 
     /// @brief Theme tar archive. Contains all the theme data
-    static CTar           m_tar;
+    static Tar           m_tar;
 };
 
 /// @}

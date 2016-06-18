@@ -31,7 +31,7 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Image.H>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 
 namespace sptk {
 
@@ -51,7 +51,7 @@ protected:
 
     /// @brief Internal loader from PNG image buffer
     /// @param buffer const CBuffer&, image data
-    void load(const CBuffer& buffer);
+    void load(const Buffer& buffer);
 
     /// @brief Draws a part of the image by cutting a corresponding source and tiling it in required area
     /// @param image CPngImage*, source image
@@ -119,7 +119,7 @@ public:
     ///
     /// An object of the class contains it's own copy of the image data
     /// @param imagedata const CBuffer&, PNG image data in memory buffer
-    CPngImage(const CBuffer& imagedata);
+    CPngImage(const Buffer& imagedata);
 
     /// @brief Constructor
     ///

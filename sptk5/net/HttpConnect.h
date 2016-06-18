@@ -30,7 +30,7 @@
 #define __HTTPCONNECT_H__
 
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 
 namespace sptk
@@ -48,7 +48,7 @@ typedef std::map<std::string, std::string> HttpHeaders;
 /// Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
 class SP_EXPORT HttpConnect
 {
-    CBuffer         m_readBuffer;           ///< Internal read buffer
+    Buffer         m_readBuffer;           ///< Internal read buffer
     TCPSocket&     m_socket;               ///< External socket
 
 protected:
@@ -86,7 +86,7 @@ public:
     /// getResponse() method internally). The buffer doesn't contain HTTP headers that are parsed
     /// int m_headers map.
     /// @returns internal read buffer reference
-    const CBuffer& htmlData() const
+    const Buffer& htmlData() const
     {
         return m_readBuffer;
     }

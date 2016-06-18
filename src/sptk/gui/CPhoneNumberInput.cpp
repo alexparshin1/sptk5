@@ -32,7 +32,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sptk5/CStrings.h>
 #include <sptk5/gui/CPhoneNumberInput.h>
 #include <sptk5/gui/CInput.h>
 
@@ -55,7 +54,7 @@ CPhoneNumberInput::CPhoneNumberInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CPhoneNumberInput::creator(CXmlNode *node) {
+CLayoutClient* CPhoneNumberInput::creator(XMLNode *node) {
     CPhoneNumberInput* widget = new CPhoneNumberInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;

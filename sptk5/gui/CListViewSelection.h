@@ -29,7 +29,7 @@
 #ifndef __CLISTVIEWSELECTION_H__
 #define __CLISTVIEWSELECTION_H__
 
-#include <sptk5/CPackedStrings.h>
+#include <sptk5/PackedStrings.h>
 
 namespace sptk {
 

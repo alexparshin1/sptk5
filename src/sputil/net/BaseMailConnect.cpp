@@ -97,7 +97,7 @@ BaseMailConnect::~BaseMailConnect()
 
 void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& message)
 {
-    CBuffer bufSource;
+    Buffer bufSource;
     string strDest;
     //char    *header = new char[1024];
 
@@ -109,7 +109,7 @@ void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& 
     message << "Content-Transfer-Encoding: base64" << endl;
     message << "Content-Disposition: attachment; filename=\"" << fileAlias << "\"" << endl << endl;
 
-    CBuffer buffer;
+    Buffer buffer;
 
     Base64::encode(strDest, bufSource);
     uint32_t cnt = (uint32_t) strDest.length();
@@ -128,7 +128,7 @@ void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& 
     message << buffer.data();
 }
 
-void BaseMailConnect::mimeMessage(CBuffer& buffer)
+void BaseMailConnect::mimeMessage(Buffer& buffer)
 {
     static const char boundary[] = "--MESSAGE-MIME-BOUNDARY--";
     static const char boundary2[] = "--TEXT-MIME-BOUNDARY--";
@@ -207,14 +207,14 @@ void BaseMailConnect::mimeMessage(CBuffer& buffer)
 
     //message << endl << "--" << boundary << "--" << endl;
 
-    CStrings sl(m_attachments, ";");
+    Strings sl(m_attachments, ";");
     for (unsigned i = 0; i < sl.size(); i++) {
         string attachment = sl[i];
         string attachmentAlias = attachment;
         const char* separator = "\\";
         if (attachment.find("/") != STRING_NPOS)
             separator = "/";
-        CStrings attachmentParts(attachment, separator);
+        Strings attachmentParts(attachment, separator);
         uint32_t attachmentPartsCount = (uint32_t) attachmentParts.size();
         if (attachmentPartsCount > 1)
             attachmentAlias = attachmentParts[attachmentPartsCount - 1].c_str();

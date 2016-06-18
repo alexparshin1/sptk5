@@ -31,8 +31,8 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/CIntList.h>
-#include <sptk5/CDataSource.h>
+#include <sptk5/IntList.h>
+#include <sptk5/DataSource.h>
 #include <sptk5/CSmallPixmapIDs.h>
 
 #include <sptk5/sptk.h>
@@ -41,7 +41,7 @@
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CListViewSelection.h>
 #include <sptk5/gui/CListViewRows.h>
-#include <sptk5/CPackedStrings.h>
+#include <sptk5/PackedStrings.h>
 #include <sptk5/gui/CColumn.h>
 
 namespace sptk {
@@ -65,9 +65,9 @@ class CDBDropDownList;
 enum CListViewDataMode
 {
     LV_DATA_UNDEFINED, ///< data() sets/returns item caption. If the data connection is defined (in CDBListView) - it flips to LV_DATA_KEY mode.
-    LV_DATA_KEY, ///< data() sets/returns item key value
-    LV_DATA_INDEX, ///< data() sets/returns item index
-    LV_DATA_CAPTION ///< data() sets/returns item caption
+    LV_DATA_KEY,       ///< data() sets/returns item key value
+    LV_DATA_INDEX,     ///< data() sets/returns item index
+    LV_DATA_CAPTION    ///< data() sets/returns item caption
 };
 
 /// @brief List view widget
@@ -75,7 +75,7 @@ enum CListViewDataMode
 /// Class CListView is the list of multicolumn rows. It allows to sort rows
 /// by column, supports type-in incremental search etc.
 
-class SP_EXPORT CListView : public CControl, public CSynchronized
+class SP_EXPORT CListView : public CControl, public Synchronized
 {
     friend class CInternalComboBoxPanel;
     friend class CDBDropDownList;
@@ -99,7 +99,7 @@ protected:
     static int m_scrollbarWidth; ///< Scrollbar width for this class of object
     int m_currentTextFont; ///< Text font, currently used to draw the list view
     int m_currentTextSize; ///< Text size, currently used to draw the list view
-    CStrings m_iconNames; ///< Icon names that may be referred from items (icon size is 16)
+    Strings m_iconNames; ///< Icon names that may be referred from items (icon size is 16)
 
     /// @brief Data mode
     /// Defines the kind of data to work through data() method
@@ -347,9 +347,9 @@ public:
     ///
     /// Optional row ID may be defined inside row parameter,
     /// or through ident parameter.
-    /// @param row const CStrings&, row data
+    /// @param row const Strings&, row data
     /// @param ident int, row argument (key value)
-    virtual void addRow(const CStrings& row, int ident = 0);
+    virtual void addRow(const Strings& row, int ident = 0);
 
     /// @brief Inserts new row
     ///
@@ -363,9 +363,9 @@ public:
     /// Optional row argument may be defined inside row parameter,
     /// or through ident parameter.
     /// @param position uint32_t, insert position
-    /// @param row const CStrings&, row data
+    /// @param row const Strings&, row data
     /// @param ident int, row argument (key value)
-    virtual void insertRow(uint32_t position, const CStrings& row, int ident = 0);
+    virtual void insertRow(uint32_t position, const Strings& row, int ident = 0);
 
     /// @brief Updates a row
     ///
@@ -376,9 +376,9 @@ public:
 
     /// @brief Updates a row. Optional row argument may be defined inside row parameter.
     /// @param position uint32_t, insert position
-    /// @param row const CStrings&, row data
+    /// @param row const Strings&, row data
     /// @param ident int, row argument (key value)
-    virtual void updateRow(uint32_t position, const CStrings& row, int ident = 0);
+    virtual void updateRow(uint32_t position, const Strings& row, int ident = 0);
 
     /// @brief Removes all the rows
     virtual void clear();
@@ -512,26 +512,26 @@ public:
 protected:
 
     /// @brief Loads the key value from the query
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves the key value from the query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void load(const CXmlNode* node, CLayoutXMLmode xmlMode);
+    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
 
     /// @brief True if the data is valid
 
@@ -619,7 +619,7 @@ public:
 
     /// @brief Adds a new column as a copy of column
     /// @param colname const char *, column name
-    /// @param type CVariantType, column data type
+    /// @param type VariantType, column data type
     /// @param cwidth uint32_t, column width
     /// @param cvisible bool, is the column visible?
 
@@ -738,10 +738,10 @@ public:
     }
 
     /// @brief Returns a selected rows ID list
-    void getSelections(CIntList& selection) const;
+    void getSelections(IntList& selection) const;
 
     /// @brief Sets a selected rows ID list
-    void setSelections(const CIntList& selection);
+    void setSelections(const IntList& selection);
 
     /// @brief Finds an item with the caption (a string in the first column).
     /// @param caption std::string, the caption to find and select.
@@ -808,19 +808,19 @@ public:
     /// @param refreshKind CRefreshKind, type of refresh - full or just changed records
     /// @see CRefreshKind
     /// @see CDataSource
-    void fill(CDataSource& ds, std::string keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0, CRefreshKind refreshKind = LV_REFRESH_FULL);
+    void fill(DataSource& ds, std::string keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0, CRefreshKind refreshKind = LV_REFRESH_FULL);
 
     /// @brief Fills the list with the data from XML node
     ///
     /// The XML node should contain the columns information, and optional list items
-    /// @param node const CXmlNode&, the node to load list from
-    void loadList(const CXmlNode* node);
+    /// @param node const XMLNode&, the node to load list from
+    void loadList(const XMLNode* node);
 
     /// @brief Saves the list data into XML node
     ///
     /// The XML node should contain the columns information, and optional list items
-    /// @param node const CXmlNode&, the node to save list into
-    void saveList(CXmlNode* node) const;
+    /// @param node const XMLNode&, the node to save list into
+    void saveList(XMLNode* node) const;
 
     /// @brief Computes the optimal widgets size
     /// @param w int&, input - width offered by the program, output - width required by widget
@@ -879,8 +879,8 @@ public:
     }
 
     /// @brief Sets the images that may be referred from items
-    /// @param iconNames CStrings&, a list of icon names
-    void imageCollection(CStrings& iconNames);
+    /// @param iconNames Strings&, a list of icon names
+    void imageCollection(Strings& iconNames);
 };
 /// @}
 }

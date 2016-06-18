@@ -116,11 +116,11 @@ int main(int argc, char *argv[])
     columns.push_back(CColumn("city", VAR_STRING, 120));
     cb.columns(columns);
 
-    CStrings sl1("Alex|(415)-123-45678|SF", "|");
-    CStrings sl2("Eric|(510)-123-45678|Oakland", "|");
-    CStrings sl3("Gordon|(650)-123-45678|Los Angeles", "|");
-    CStrings sl4("Mark|(408)-123-45678|San Mateo", "|");
-    CStrings sl5("Алекс|(408)-123-45678|Сан Франциско", "|");
+    Strings sl1("Alex|(415)-123-45678|SF", "|");
+    Strings sl2("Eric|(510)-123-45678|Oakland", "|");
+    Strings sl3("Gordon|(650)-123-45678|Los Angeles", "|");
+    Strings sl4("Mark|(408)-123-45678|San Mateo", "|");
+    Strings sl5("Алекс|(408)-123-45678|Сан Франциско", "|");
 
     cb.addRow(sl1);
     cb.addRow(sl2);
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     exitButton.callback(exit_cb);
 
     CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
-    CStrings themes = CThemes::availableThemes();
+    Strings themes = CThemes::availableThemes();
     themesCombo.addRows("Theme", themes);
     themesCombo.callback(theme_cb);
     themesCombo.data("Default");

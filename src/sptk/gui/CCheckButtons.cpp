@@ -38,7 +38,7 @@
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CScroll.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 #include <stdio.h>
 
@@ -153,7 +153,7 @@ void CCheckButtons::data(const CVariant s) {
     if (m_otherButton)
         m_otherInput->value("");
     string st = s;
-    CStrings sl(st, "|");
+    Strings sl(st, "|");
     size_t cnt = sl.size();
     CScroll *g = (CScroll *) m_control;
     for (unsigned i = 0; i < cnt; i++) {
@@ -170,7 +170,7 @@ void CCheckButtons::data(const CVariant s) {
     }
 }
 
-void CCheckButtons::getSelections(CIntList& selection) const {
+void CCheckButtons::getSelections(IntList& selection) const {
     selection.clear();
     CScroll *group = (CScroll *) m_control;
     unsigned cnt = group->children();
@@ -185,7 +185,7 @@ void CCheckButtons::getSelections(CIntList& selection) const {
     }
 }
 
-void CCheckButtons::setSelections(const CIntList& selection) {
+void CCheckButtons::setSelections(const IntList& selection) {
     deselectAllButtons();
     CScroll *group = (CScroll *) m_control;
     unsigned cnt = group->children();
@@ -194,13 +194,13 @@ void CCheckButtons::setSelections(const CIntList& selection) {
         if (!b)
             continue;
         uint32_t id = (uint32_t) (long) b->user_data();
-        CIntList::const_iterator itor = std::find(selection.begin(), selection.end(), id);
+        IntList::const_iterator itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
             b->value(1);
     }
 }
 
-CLayoutClient* CCheckButtons::creator(CXmlNode *node) {
+CLayoutClient* CCheckButtons::creator(XMLNode *node) {
     CCheckButtons* widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;

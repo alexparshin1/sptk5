@@ -46,10 +46,10 @@ static char* next_dir_item(char* p, char** result)
     return start + 1;
 }
 
-static const CStrings
+static const Strings
         month_names("Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Nov|Dec", "|");
 
-CFieldList* parse_file_info_string(string& file_info)
+FieldList* parse_file_info_string(string& file_info)
 {
     char* ptr = (char*) file_info.c_str();
 
@@ -131,7 +131,7 @@ CFieldList* parse_file_info_string(string& file_info)
     for (; *ptr == ' '; ptr++);
     file_name = ptr;
 
-    CFieldList* df = new CFieldList(false);
+    FieldList* df = new FieldList(false);
 
     df->push_back("", false).setImageNdx(pixmapType);
     df->push_back("Name", false) = file_name;
@@ -162,7 +162,7 @@ bool sptk::FtpDS::open() THROWS_EXCEPTIONS
     if (m_folder.length())
         m_ftp.cmd_cd(m_folder);
 
-    CStrings dirlist;
+    Strings dirlist;
     m_ftp.cmd_list(dirlist);
     //dirlist.print();
 
@@ -171,7 +171,7 @@ bool sptk::FtpDS::open() THROWS_EXCEPTIONS
         if (m_callback)
             m_callback(cnt, 0);
         for (int i = 0; i < cnt; i++) {
-            CFieldList* df = parse_file_info_string(dirlist[size_t(i)]);
+            FieldList* df = parse_file_info_string(dirlist[size_t(i)]);
             if (df)
                 m_list.push_back(df);
 

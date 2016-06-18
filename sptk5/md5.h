@@ -55,19 +55,19 @@ public:
 
     /// @brief Default constructor
     MD5();
-    
+
     /// @brief Shortcut constructor
     ///
     /// Immediately processes text. 
     /// The result can be read with hexdigest().
     /// @param text const std::string, Text to MD5
     MD5(const std::string& text);
-    
+
     /// @brief Adds data portion to MD5
     /// @param buffer const unsigned char*, Input data
     /// @param length size_t, Size of input data
     void update(const unsigned char *buffer, size_type length);
-    
+
     /// @brief Adds data portion to MD5
     /// @param buffer const char*, Input data
     /// @param length size_t, Size of input data
@@ -75,10 +75,10 @@ public:
 
     /// @brief Finalizes MD5 sum
     MD5& finalize();
-    
+
     /// @brief Returns hexadecimal presentation of MD5 sum
     std::string hexdigest() const;
-    
+
     /// @brief Prints MD5 sum to stream
     friend std::ostream& operator<<(std::ostream&, MD5 md5);
 
@@ -86,7 +86,7 @@ private:
 
     /// @brief Initializes decoding state
     void init();
-    
+
     typedef uint8_t  uint1;     ///<  8bit unsigned integer
     typedef uint32_t uint4;     ///< 32bit unsigned integer
     enum {blocksize = 64};      ///< Blocksize const
@@ -122,4 +122,3 @@ private:
 std::string md5(const std::string str);
 
 #endif
-

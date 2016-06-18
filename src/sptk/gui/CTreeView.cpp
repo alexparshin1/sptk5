@@ -65,7 +65,7 @@ CTreeView::CTreeView(int x,int y,int w,int h,const char *label)
 
 CTreeView::~CTreeView() {}
 
-CLayoutClient* CTreeView::creator(CXmlNode *node) {
+CLayoutClient* CTreeView::creator(XMLNode *node) {
     CTreeView* widget = new CTreeView("",10,SP_ALIGN_TOP);
     widget->load(node);
     return widget;
@@ -94,23 +94,23 @@ void CTreeView::resize(int x,int y,int w,int h) {
     m_treeControl->resize(x,y,w,h);
 }
 
-void CTreeView::load(CQuery *loadQuery) {
+void CTreeView::load(Query *loadQuery) {
     if (!m_fieldName.length()) return;
-    CField& fld = (*loadQuery)[m_fieldName.c_str()];
+    Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data(fld);
 }
 
-void CTreeView::save(CQuery *updateQuery) {
+void CTreeView::save(Query *updateQuery) {
     if (!m_fieldName.length()) return;
-    CParam& param = updateQuery->param(m_fieldName.c_str());
+    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }
 
-void CTreeView::load(const CXmlNode *node) {
+void CTreeView::load(const XMLNode *node) {
     m_treeControl->load(node);
 }
 
-void CTreeView::save(CXmlNode *node) const {
+void CTreeView::save(XMLNode *node) const {
     m_treeControl->save(node);
 }
 

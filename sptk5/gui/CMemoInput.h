@@ -35,10 +35,10 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
-#include <sptk5/CIntList.h>
+#include <sptk5/IntList.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/db/CDatabaseConnection.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
 
@@ -114,7 +114,7 @@ public:
     virtual void textSize(uchar s);
 
     /// @brief Saves data to query
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Computes the optimal widget size
     /// @param w int&, input - width offered by the program, output - width required by widget
@@ -123,7 +123,7 @@ public:
     virtual bool preferredSize(int& w, int& h);
 
     /// @brief Creates a widget based on the XML node information
-    static CLayoutClient* creator(CXmlNode *node);
+    static CLayoutClient* creator(XMLNode *node);
 };
 /// @}
 }

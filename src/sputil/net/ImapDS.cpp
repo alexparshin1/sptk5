@@ -49,7 +49,7 @@ bool ImapDS::open() THROWS_EXCEPTIONS {
       if (m_callback)
          m_callback(total_messages,0);
       for (long msg_id = first_message; msg_id <= total_messages; msg_id++) {
-         CFieldList   *df = new CFieldList(false);
+         FieldList   *df = new FieldList(false);
 
          df->user_data((void *)(size_t)msg_id);
 
@@ -57,7 +57,7 @@ bool ImapDS::open() THROWS_EXCEPTIONS {
             m_imap.cmd_fetch_message((int32_t)msg_id,*df);
          else m_imap.cmd_fetch_headers((int32_t)msg_id,*df);
 
-         CField *fld = new CField("msg_id");
+         Field *fld = new Field("msg_id");
          fld->view.width = 0;
          fld->setInteger((int32_t)msg_id);
          df->push_back(fld);

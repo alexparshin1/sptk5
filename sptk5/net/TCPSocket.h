@@ -55,7 +55,7 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/net/BaseSocket.h>
 
 namespace sptk
@@ -65,7 +65,7 @@ namespace sptk
 /// @{
 
 /// Buffered Socket reader.
-class SP_EXPORT TCPSocketReader: protected CBuffer
+class SP_EXPORT TCPSocketReader: protected Buffer
 {
     BaseSocket&    m_socket;       ///< Socket to read from
     uint32_t        m_readOffset;   ///< Current offset in the read buffer
@@ -104,7 +104,7 @@ public:
     /// @param dest CBuffer&, destination buffer
     /// @param delimiter char, line delimiter
     /// @returns bytes read from the internal buffer
-    size_t readLine(CBuffer& dest, char delimiter);
+    size_t readLine(Buffer& dest, char delimiter);
 };
 
 /// @brief Generic TCP socket.
@@ -115,7 +115,7 @@ class SP_EXPORT TCPSocket: public BaseSocket
 {
 protected:
     TCPSocketReader     m_reader;       ///< Socket buffered reader
-    CBuffer             m_stringBuffer; ///< Buffer to read a line
+    Buffer             m_stringBuffer; ///< Buffer to read a line
 protected:
 
     /// @brief Reads a single char from the socket
@@ -164,7 +164,7 @@ public:
     /// @param buffer CBuffer&, the destination buffer
     /// @param delimiter char, line delimiter
     /// @returns the number of bytes read from the socket
-    size_t readLine(CBuffer& buffer, char delimiter='\n');
+    size_t readLine(Buffer& buffer, char delimiter='\n');
 
     /// @brief Reads one line (terminated with CRLF) from the socket into string
     /// @param s std::string&, the destination string
@@ -186,7 +186,7 @@ public:
     /// @param size size_t, number of bytes to read from socket
     /// @param from sockaddr_in*, an optional structure for source address
     /// @returns the number of bytes read from the socket
-    size_t read(CBuffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reads data from the socket into memory buffer
     ///

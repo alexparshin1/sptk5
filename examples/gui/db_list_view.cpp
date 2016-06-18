@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 
       // Theme combo box
       CComboBox themesCombo("Theme", 10, SP_ALIGN_BOTTOM);
-      CStrings themes = CThemes::availableThemes();
+      Strings themes = CThemes::availableThemes();
       themesCombo.addRows("Theme", themes);
       themesCombo.callback(theme_cb);
       themesCombo.data("Default");

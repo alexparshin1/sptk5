@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sptk5/db/CODBC.h>
+#include <sptk5/db/ODBCEnvironment.h>
 
 using namespace std;
 using namespace sptk;
@@ -104,7 +104,7 @@ void ODBCEnvironment::freeEnv()
 // ODBC Connection class
 //--------------------------------------------------------------------------------------------
 
-ODBCConnection::ODBCConnection()
+ODBCConnectionBase::ODBCConnectionBase()
         :
         m_cEnvironment(GetStaticEnv()),
         m_hConnection(SQL_NULL_HDBC),
@@ -112,7 +112,7 @@ ODBCConnection::ODBCConnection()
 {
 }
 
-ODBCConnection::~ODBCConnection()
+ODBCConnectionBase::~ODBCConnectionBase()
 {
     if (isConnected())
         disconnect();
@@ -120,13 +120,13 @@ ODBCConnection::~ODBCConnection()
 }
 
 // Static environment object inside this function
-ODBCEnvironment& ODBCConnection::GetStaticEnv()
+ODBCEnvironment& ODBCConnectionBase::GetStaticEnv()
 {
     static ODBCEnvironment Env;
     return Env;
 }
 
-void ODBCConnection::allocConnect()
+void ODBCConnectionBase::allocConnect()
 {
     // If already connected, return false
     if (valid())
@@ -144,7 +144,7 @@ void ODBCConnection::allocConnect()
     }
 }
 
-void ODBCConnection::freeConnect()
+void ODBCConnectionBase::freeConnect()
 {
     if (!valid())
         return; // Not connected
@@ -159,7 +159,7 @@ void ODBCConnection::freeConnect()
     m_connectString = "";
 }
 
-void ODBCConnection::connect(const string& ConnectionString, string& pFinalString, bool /*EnableDriverPrompt*/)
+void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalString, bool /*EnableDriverPrompt*/)
 {
     // Check parameters
     if (!ConnectionString.length())
@@ -211,7 +211,7 @@ void ODBCConnection::connect(const string& ConnectionString, string& pFinalStrin
     delete[] driverDescription;
 }
 
-void ODBCConnection::disconnect()
+void ODBCConnectionBase::disconnect()
 {
     if (!isConnected())
         return; // Not connected
@@ -223,7 +223,7 @@ void ODBCConnection::disconnect()
     m_connectString = "";
 }
 
-void ODBCConnection::setConnectOption(UWORD fOption, UDWORD vParam)
+void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
 {
     if (!isConnected())
         exception(errorInformation(cantSetConnectOption), __LINE__);
@@ -234,7 +234,7 @@ void ODBCConnection::setConnectOption(UWORD fOption, UDWORD vParam)
         exception(errorInformation(cantSetConnectOption), __LINE__);
 }
 
-void ODBCConnection::transact(UWORD fType)
+void ODBCConnectionBase::transact(UWORD fType)
 {
     if (!isConnected())
         exception(string(cantEndTranscation) + "Not connected to the database", __LINE__);
@@ -246,7 +246,7 @@ void ODBCConnection::transact(UWORD fType)
         exception(errorInformation(cantEndTranscation), __LINE__);
 }
 
-void ODBCConnection::getInfo(UWORD fInfoType, LPSTR str, int size)
+void ODBCConnectionBase::getInfo(UWORD fInfoType, LPSTR str, int size)
 {
     if (!str || size < 1 || !isConnected())
         exception(errorInformation(cantGetInformation), __LINE__);
@@ -325,7 +325,7 @@ string extract_error(
     return error;
 }
 
-string ODBCConnection::errorInformation(const char* function)
+string ODBCConnectionBase::errorInformation(const char* function)
 {
     assert(m_Retcode != SQL_SUCCESS);
 

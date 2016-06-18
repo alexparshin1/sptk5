@@ -354,7 +354,7 @@ void CLayoutManager::paintBackground() {
         m_frame->drawResized(m_group->x(),m_group->y(),m_group->w(),m_group->h(),m_frameDrawBackground);
 }
 
-void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS {
+void CLayoutManager::loadLayout(const XMLNode* groupNode,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS {
     if (m_noXml)
         return;
 
@@ -368,9 +368,9 @@ void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode
     if (xmlMode & (int) LXM_LAYOUT) {
         clear();
         m_group->begin();
-        CXmlNode::const_iterator itor = groupNode->begin();
+        XMLNode::const_iterator itor = groupNode->begin();
         for (; itor != groupNode->end(); itor++) {
-            CXmlNode* widgetNode = *itor;
+            XMLNode* widgetNode = *itor;
             if (!widgetNode->isElement())
                 continue;
             string widgetType = widgetNode->name();
@@ -404,11 +404,11 @@ void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode
         }
         m_group->end();
     } else {
-        map<string,CXmlNode *> xmlControls;
-        map<string,CXmlNode *> xmlGroups;
-        CXmlNode::const_iterator itor = groupNode->begin();
+        map<string,XMLNode *> xmlControls;
+        map<string,XMLNode *> xmlGroups;
+        XMLNode::const_iterator itor = groupNode->begin();
         for (; itor != groupNode->end(); itor++) {
-            CXmlNode* node = *itor;
+            XMLNode* node = *itor;
             string label = node->getAttribute("label");
             if (label.empty())
                 label = "noName:" + node->getAttribute("nn_index");
@@ -426,9 +426,9 @@ void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode
                     string glabel = widget->label();
                     if (glabel.empty())
                         glabel = "noName:" + int2string(i);
-                    map<string,CXmlNode *>::iterator itor = xmlGroups.find(glabel);
+                    map<string,XMLNode *>::iterator itor = xmlGroups.find(glabel);
                     if (itor != xmlGroups.end()) {
-                        CXmlNode* node = itor->second;
+                        XMLNode* node = itor->second;
                         group->loadLayout(node,xmlMode);
                     }
                     continue;
@@ -440,9 +440,9 @@ void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode
                     string clabel = control->label();
                     if (clabel.empty())
                         clabel = "noName:" + int2string(i);
-                    map<string,CXmlNode *>::iterator itor = xmlControls.find(clabel);
+                    map<string,XMLNode *>::iterator itor = xmlControls.find(clabel);
                     if (itor != xmlControls.end()) {
-                        CXmlNode* node = itor->second;
+                        XMLNode* node = itor->second;
                         control->load(node,xmlMode);
                     }
                     continue;
@@ -453,7 +453,7 @@ void CLayoutManager::loadLayout(const CXmlNode* groupNode,CLayoutXMLmode xmlMode
     //cout << className << " has " << m_group->children() << " children, parent " << hex << m_group->parent() << endl << endl;
 }
 
-void CLayoutManager::saveLayout(CXmlNode* groupNode,CLayoutXMLmode xmlMode) const {
+void CLayoutManager::saveLayout(XMLNode* groupNode,CLayoutXMLmode xmlMode) const {
     groupNode->clear();
     if (m_noXml)
         return;
@@ -471,7 +471,7 @@ void CLayoutManager::saveLayout(CXmlNode* groupNode,CLayoutXMLmode xmlMode) cons
             CLayoutManager* layoutManager = dynamic_cast<CLayoutManager*>(widget);
             CLayoutClient* layoutClient = dynamic_cast<CLayoutClient*>(widget);
             if (layoutClient) {
-                CXmlNode* node = new CXmlElement(groupNode,layoutClient->className().c_str());
+                XMLNode* node = new XMLElement(groupNode,layoutClient->className().c_str());
                 if (layoutManager) {
                     layoutManager->saveLayout(node,xmlMode);
                 } else {

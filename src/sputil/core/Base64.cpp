@@ -55,7 +55,7 @@ static char B64Chars[64] = {
 //#define base64val(c) Index_64[(uint32_t)(c)]
 #define base64chars(c) B64Chars[(uint32_t)((c) & 0x3F)]
 
-void Base64::encode(CBuffer& bufDest, const CBuffer& bufSource)
+void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
 {
     char*  current = bufSource.data();
     uint32_t len = (uint32_t) bufSource.bytes();
@@ -107,15 +107,15 @@ void Base64::encode(CBuffer& bufDest, const CBuffer& bufSource)
     bufDest.bytes(outputLen);
 }
 
-void Base64::encode(string& strDest, const CBuffer& bufSource)
+void Base64::encode(string& strDest, const Buffer& bufSource)
 {
-    CBuffer bufOut;
+    Buffer bufOut;
     encode(bufOut, bufSource);
 
     strDest = string(bufOut.c_str(), bufOut.bytes());
 }
 
-static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t src_len)
+static int internal_decode(Buffer &bufDest, const unsigned char *src, uint32_t src_len)
 {
     const unsigned char *current = src;
     unsigned char c;
@@ -171,12 +171,12 @@ static int internal_decode(CBuffer &bufDest, const unsigned char *src, uint32_t 
     return j;
 }
 
-int Base64::decode(CBuffer &bufDest, const CBuffer& bufSource) THROWS_EXCEPTIONS
+int Base64::decode(Buffer &bufDest, const Buffer& bufSource) THROWS_EXCEPTIONS
 {
     return internal_decode(bufDest, (const unsigned char *)bufSource.data(), (uint32_t)bufSource.bytes());
 }
 
-int Base64::decode(CBuffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
+int Base64::decode(Buffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
 {
     return internal_decode(bufDest,(const unsigned char *)strSource.c_str(),(uint32_t)strSource.length());
 }

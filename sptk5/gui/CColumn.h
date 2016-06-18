@@ -30,7 +30,7 @@
 #define __CCOLUMNS_H__
 
 #include <string>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 #include <sptk5/cxml>
 
@@ -52,7 +52,7 @@ public:
 
     /// @brief Constructor
     /// @param cname std::string, column name
-    /// @param type CVariantType, column data type
+    /// @param type VariantType, column data type
     /// @param cwidth int16_t, column width
     /// @param cvisible bool, column visibility
     CColumn(std::string cname = "", VariantType type = VAR_STRING, int16_t cwidth = 100, bool cvisible = true);
@@ -113,15 +113,15 @@ public:
     ///
     /// Loads information about column
     /// from the registry.
-    /// @param node const CXmlNode&, an XML node to load column information from
-    void load(const CXmlNode& node);
+    /// @param node const XMLNode&, an XML node to load column information from
+    void load(const XMLNode& node);
 
     /// @brief Loads column information
     ///
     /// Loads information about column
     /// from the registry.
-    /// @param node const CXmlNode*, an XML node to load column information from
-    void load(const CXmlNode* node)
+    /// @param node const XMLNode*, an XML node to load column information from
+    void load(const XMLNode* node)
     {
         load(*node);
     }
@@ -130,15 +130,15 @@ public:
     ///
     /// Saves information about column
     /// from the registry.
-    /// @param node CXmlNode&, an XML node to unload column information to
-    void save(CXmlNode& node) const;
+    /// @param node XMLNode&, an XML node to unload column information to
+    void save(XMLNode& node) const;
 
     /// @brief Saves column information
     ///
     /// Saves information about column
     /// from the registry.
-    /// @param node CXmlNode*, an XML node to unload column information to
-    void save(CXmlNode* node) const
+    /// @param node XMLNode*, an XML node to unload column information to
+    void save(XMLNode* node) const
     {
         save(*node);
     }
@@ -162,15 +162,15 @@ public:
     ///
     /// Loads information about columns
     /// from the registry.
-    /// @param node const CXmlNode&, an XML node to load columns information from
-    void load(const CXmlNode& node);
+    /// @param node const XMLNode&, an XML node to load columns information from
+    void load(const XMLNode& node);
 
     /// @brief Loads columns information
     ///
     /// Loads information about columns
     /// from the registry.
-    /// @param node const CXmlNode*, an XML node to load columns information from
-    void load(const CXmlNode* node)
+    /// @param node const XMLNode*, an XML node to load columns information from
+    void load(const XMLNode* node)
     {
         load(*node);
     }
@@ -179,15 +179,15 @@ public:
     ///
     /// Saves information about columns
     /// from the registry.
-    /// @param node CXmlNode&, an XML node to unload columns information to
-    void save(CXmlNode& node) const;
+    /// @param node XMLNode&, an XML node to unload columns information to
+    void save(XMLNode& node) const;
 
     /// @brief Saves columns information
     ///
     /// Saves information about columns
     /// from the registry.
-    /// @param node CXmlNode*, an XML node to unload columns information to
-    void save(CXmlNode* node) const
+    /// @param node XMLNode*, an XML node to unload columns information to
+    void save(XMLNode* node) const
     {
         save(*node);
     }

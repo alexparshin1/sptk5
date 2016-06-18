@@ -70,8 +70,8 @@ class CThemeColorCollection
     static std::map<std::string,Fl_Color> m_colorMap;
     Fl_Color    m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
     static Fl_Color gtkColorFunction(std::string expression);
-    void loadColor(CXmlNode* colorNode,CThemeColorIndex colorIndex);
-    void loadColorMap(CXmlDoc& gtkTheme,std::string colorMapXPath);
+    void loadColor(XMLNode* colorNode,CThemeColorIndex colorIndex);
+    void loadColorMap(XMLDocument& gtkTheme,std::string colorMapXPath);
 
     static Fl_Color passby(std::string expression);
     static Fl_Color lighter(std::string expression);
@@ -84,10 +84,10 @@ public:
     CThemeColorCollection();
 
     /// @brief Loads them from SPTK theme definition
-    void loadFromSptkTheme(CXmlDoc& gtkTheme);
+    void loadFromSptkTheme(XMLDocument& gtkTheme);
 
     /// @brief Loads them from GTK theme definition
-    void loadFromGtkTheme(CXmlDoc& gtkTheme);
+    void loadFromGtkTheme(XMLDocument& gtkTheme);
 
     /// @brief Returns normal color
     Fl_Color color(CThemeColorIndex colorIndex,CThemeColorState state) const { return m_colors[colorIndex][state]; }

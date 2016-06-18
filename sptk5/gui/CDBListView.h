@@ -30,7 +30,7 @@
 #define __DBLISTVIEW_H__
 
 #include <sptk5/gui/CListView.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/DateTime.h>
 
 namespace sptk {
@@ -42,9 +42,9 @@ namespace sptk {
 class SP_EXPORT CDBListView : public CListView
 {
 protected:
-    CQuery      m_fullRefreshQuery;  ///< Full refersh Query
-    CQuery      m_fastRefreshQuery;  ///< Fast refersh Query
-    CQuery      m_recordCountQuery;  ///< Record count Query
+    Query      m_fullRefreshQuery;  ///< Full refersh Query
+    Query      m_fastRefreshQuery;  ///< Fast refersh Query
+    Query      m_recordCountQuery;  ///< Record count Query
     std::string m_keyField;          ///< Key field name
     bool        m_fastRefreshEnabed; ///< True if fast refresh is defined properly
     DateTime   m_lastRefresh;       ///< Last refresh date and time
@@ -72,10 +72,10 @@ public:
     ~CDBListView();
 
     /// Sets the database connection
-    void database(CDatabaseConnection *db);
+    void database(DatabaseConnection *db);
 
     /// Returns the database connection
-    CDatabaseConnection *database() const;
+    DatabaseConnection *database() const;
 
     /// Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
     /// The record count query should return only number of record.
@@ -90,7 +90,7 @@ public:
     /// Sets the query parameter
     /// @param paramName const char *, the parameter Name
     /// @param refreshKind CRefreshKind, the query it belongs to (full or fast refresh)
-    CParam& param(const char *paramName,CRefreshKind refreshKind = LV_REFRESH_FULL);
+    QueryParameter& param(const char *paramName,CRefreshKind refreshKind = LV_REFRESH_FULL);
 
     /// Defines the key field name. This field name should be a part of the SQL query
     /// and contain the unique integer values so the row could be identified by that value.
@@ -107,7 +107,7 @@ public:
     /// @param db CDatabase *, the database connection
     /// @param sql std::string,  the full refresh SQL query text
     /// @param keyField std::string, the name of the key field
-    void setup(CDatabaseConnection* db,std::string sql,std::string keyField);
+    void setup(DatabaseConnection* db,std::string sql,std::string keyField);
 
     /// Refreshes the data with full or fast method
     /// @param refreshKind CRefreshKind, the type of refresh
@@ -138,8 +138,8 @@ public:
     }
 
     /// @brief Creates a widget based on the XML node information
-    /// @param node CXmlNode*, an XML node with widget information
-    static CLayoutClient* creator(CXmlNode* node);
+    /// @param node XMLNode*, an XML node with widget information
+    static CLayoutClient* creator(XMLNode* node);
 };
 /// @}
 }

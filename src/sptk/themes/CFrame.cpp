@@ -42,17 +42,17 @@ void CFrames::clear() {
     m_fltkFrames.clear();
 }
 
-const CStrings    CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame","|");
+const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame","|");
 const Fl_Boxtype  CFrames::frameTypes[] = {
             FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
         };
 
-void CFrames::load(CTar& tar,CXmlNode* framesNode) {
+void CFrames::load(Tar& tar,XMLNode* framesNode) {
     clear();
-    CXmlNode::iterator itor = framesNode->begin();
-    CXmlNode::iterator iend = framesNode->end();
+    XMLNode::iterator itor = framesNode->begin();
+    XMLNode::iterator iend = framesNode->end();
     for (; itor != iend; itor++) {
-        CXmlNode* frameNode = *itor;
+        XMLNode* frameNode = *itor;
         if (frameNode->name() != "frame")
             continue;
         string fileName = frameNode->getAttribute("image");
@@ -74,7 +74,7 @@ void CFrames::load(CTar& tar,CXmlNode* framesNode) {
         CPngImage::CPatternDrawMode drawMode = CPngImage::PDM_STRETCH;
         if (frameNode->getAttribute("mode").str() == "tile")
             drawMode = CPngImage::PDM_TILE;
-        const CBuffer& imageData = tar.file(fileName);
+        const Buffer& imageData = tar.file(fileName);
         registerFrame(frameName,new CFrame(imageData,frameWidth,cornerZone,drawMode,kind),frameType);
     }
 }

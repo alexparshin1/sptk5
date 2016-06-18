@@ -298,13 +298,13 @@ bool CBaseButton::preferredSize(int& w,int& h) {
    return false;
 }
 
-CLayoutClient* CButton::creator(CXmlNode *node) {
+CLayoutClient* CButton::creator(XMLNode *node) {
     CButton* button = new CButton("",SP_ALIGN_TOP,THM_BUTTON_NORMAL);
     button->load(node);
     return button;
 }
 
-void CButton::load(const CXmlNode *node) {
+void CButton::load(const XMLNode *node) {
     CLayoutClient::load(node,LXM_LAYOUT);
     string iconName = node->getAttribute("icon");
     string iconType = node->getAttribute("size","large");
@@ -321,6 +321,6 @@ void CButton::load(const CXmlNode *node) {
     }
 }
 
-void CButton::save(CXmlNode *node) const {
+void CButton::save(XMLNode *node) const {
     CLayoutClient::save(node,LXM_LAYOUT);
 }

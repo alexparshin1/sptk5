@@ -31,7 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
-#include <sptk5/threads/CSynchronizedCode.h>
+#include <sptk5/threads/SynchronizedCode.h>
 
 namespace sptk {
 
@@ -39,7 +39,7 @@ namespace sptk {
 /// @{
 
 /// @brief SSL connection context
-class SSLContext : public sptk::CSynchronized
+class SSLContext : public Synchronized
 {
     SSL_CTX*        m_ctx;      ///< SSL connection context
     std::string     m_password; ///< Password for auto-answer in callback function

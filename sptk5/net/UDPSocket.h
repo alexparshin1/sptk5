@@ -30,7 +30,7 @@
 #define __CUDPSOCKET_H__
 
 #include <sptk5/net/BaseSocket.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 
 namespace sptk {
 

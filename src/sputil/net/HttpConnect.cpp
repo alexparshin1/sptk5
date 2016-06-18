@@ -48,11 +48,11 @@ HttpConnect::~HttpConnect()
 
 void HttpConnect::getResponse()
 {
-    CBuffer read_buffer(RSP_BLOCK_SIZE);
+    Buffer read_buffer(RSP_BLOCK_SIZE);
 
     m_readBuffer.reset();
 
-    CStrings headers;
+    Strings headers;
 
     int    bytes, contentLength = 0;
     string header;
@@ -181,7 +181,7 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
 {
     m_readBuffer.checkSize(1024);
 
-    CBuffer buffer;
+    Buffer buffer;
     postData.encode(buffer);
 
     string parameters(buffer.data());
@@ -197,7 +197,7 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
     command += "Host: " + m_socket.host() + ":"+ int2string(m_socket.port()) + "\n";
     command += "Connection: Keep-Alive\n";
 
-    CBuffer buff;
+    Buffer buff;
     buff.append(command);
 
     sendCommand(command);
@@ -207,7 +207,7 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
 
 void HttpConnect::cmd_post(string pageName, const HttpParams& postData)
 {
-    CStrings headers;
+    Strings headers;
 
     headers.push_back("POST " + pageName + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host());
@@ -218,7 +218,7 @@ void HttpConnect::cmd_post(string pageName, const HttpParams& postData)
     for (; itor != iend; itor++)
         headers.push_back(itor->first + ": " + itor->second);
 
-    CBuffer buffer;
+    Buffer buffer;
     postData.encode(buffer);
 
     headers.push_back("Content-Length: " + int2string((uint32_t) buffer.bytes()));

@@ -29,8 +29,8 @@
 #ifndef __CORACLEBULKINSERTQUERY_H__
 #define __CORACLEBULKINSERTQUERY_H__
 
-#include <sptk5/db/CQuery.h>
-#include <sptk5/db/COracleConnection.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/db/OracleConnection.h>
 #include <sptk5/Exception.h>
 
 namespace sptk {
@@ -41,22 +41,22 @@ namespace sptk {
 /// @brief Oracle bulk insert query
 ///
 /// This class is dedicated for internal use only
-class SP_EXPORT COracleBulkInsertQuery : public CQuery
+class SP_EXPORT COracleBulkInsertQuery : public Query
 {
-    friend class COracleConnection;
+    friend class OracleConnection;
 
     size_t              m_recordCount;      ///< Inserted record count
     size_t              m_recordNumber;     ///< Current record number
     size_t              m_batchSize;        ///< Batch size
     bool                m_lastIteration;    ///< Last iteration
-    CColumnTypeSizeMap  m_columnTypeSizes;  ///< Column type sizes
+    QueryColumnTypeSizeMap  m_columnTypeSizes;  ///< Column type sizes
 
 protected:
     /// @brief Constructor
-    /// @param db CDatabaseConnection, the database to connect to, optional
+    /// @param db DatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param recordCount size_t, number of records to insert
-    COracleBulkInsertQuery(CDatabaseConnection *db, std::string sql, size_t recordCount, const CColumnTypeSizeMap& columnTypeSizes);
+    COracleBulkInsertQuery(DatabaseConnection *db, std::string sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
 
     /// @brief Destructor
     ~COracleBulkInsertQuery();
@@ -67,7 +67,7 @@ public:
 
     size_t batchSize() const { return m_batchSize; }
     bool lastIteration() const { return m_lastIteration; }
-    const CColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
+    const QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
 };
 /// @}
 }

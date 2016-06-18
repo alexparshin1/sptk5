@@ -39,7 +39,7 @@
 using namespace std;
 using namespace sptk;
 
-class CMyThread: public CThread
+class CMyThread: public Thread
 {
 public:
 
@@ -53,7 +53,7 @@ public:
 };
 
 CMyThread::CMyThread(string threadName) :
-        CThread(threadName)
+        Thread(threadName)
 {
     // Put anything you need here to define your actual thread
     cout << name() << " thread: created" << endl;
@@ -71,7 +71,7 @@ void CMyThread::threadFunction()
     int i = 0;
     while (!terminated()) {
         cout << "Output " << i << " from " << name() << endl;
-		i++;
+        i++;
         msleep(1010);
     }
     cout << name() + " thread: terminated" << endl;
@@ -93,7 +93,7 @@ int main(int, char*[])
 
     cout << "Waiting 5 seconds while threads are running.." << endl;
 
-    CThread::msleep(5000);
+    Thread::msleep(5000);
 
     thread1->terminate();
     thread2->terminate();

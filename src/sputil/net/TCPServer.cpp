@@ -37,7 +37,7 @@ bool TCPServer::allowConnection(sockaddr_in* connectionRequest)
 }
 
 TCPServerListener::TCPServerListener(TCPServer* server, int port)
-: CThread("CTCPServer::Listener"), m_server(server)
+: Thread("CTCPServer::Listener"), m_server(server)
 {
     m_listenerSocket.host("localhost");
     m_listenerSocket.port(port);
@@ -87,7 +87,7 @@ void TCPServerListener::threadFunction()
 
 void TCPServerListener::terminate()
 {
-    CThread::terminate();
+    Thread::terminate();
     m_listenerSocket.close();
 }
 
@@ -108,7 +108,7 @@ void TCPServer::stop()
 {
     SYNCHRONIZED_CODE;
     {
-        CSynchronizedCode   m_sync(m_connectionThreadsLock);
+        SynchronizedCode   m_sync(m_connectionThreadsLock);
 
         set<ServerConnection*>::iterator itor;
 
@@ -117,8 +117,8 @@ void TCPServer::stop()
     }
 
     while (true) {
-        CThread::msleep(100);
-        CSynchronizedCode   m_sync(m_connectionThreadsLock);
+        Thread::msleep(100);
+        SynchronizedCode   m_sync(m_connectionThreadsLock);
         if (m_connectionThreads.empty())
             break;
     }
@@ -133,7 +133,7 @@ void TCPServer::stop()
 
 void TCPServer::registerConnection(ServerConnection* connection)
 {
-    CSynchronizedCode   m_sync(m_connectionThreadsLock);
+    SynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
     connection->m_server = this;
     //cout << "Connection created" << endl;
@@ -141,7 +141,7 @@ void TCPServer::registerConnection(ServerConnection* connection)
 
 void TCPServer::unregisterConnection(ServerConnection* connection)
 {
-    CSynchronizedCode   m_sync(m_connectionThreadsLock);
+    SynchronizedCode   m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);
     //cout << "Connection closed" << endl;
 }

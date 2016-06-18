@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 {
     FileLogEngine logEngine("smtp.log");
     logEngine.option(LogEngine::LO_STDOUT, true);
-    
+
     Logger logger(logEngine);
 
     SmtpConnect    SMTP(&logger);
@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
     cout << "Testing SMTP connectivity." << endl;
 
     if (argc == 3) {
-        CRegExp parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
-        CStrings matches;
+        RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
+        Strings matches;
         if (parser.m(argv[1], matches)) {
             user = matches[1];
             password = matches[2];

@@ -30,9 +30,9 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CBox.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 
 using namespace sptk;
 
@@ -63,7 +63,7 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CBox::creator(CXmlNode *node) {
+CLayoutClient* CBox::creator(XMLNode *node) {
     CBox* widget = new CBox("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     widget->dragable( node->getAttribute("drag","N") );

@@ -40,7 +40,7 @@ int main(int, const char**)
         sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
 
         SSLSocket client(sslContext);
-        CBuffer buffer;
+        Buffer buffer;
 
         for (unsigned i = 0; i < 10; i++) {
             client.open("localhost", 443);
@@ -50,7 +50,7 @@ int main(int, const char**)
             cout << "Receiving: ";
             cout << buffer.data() << "\n";
             client.close();
-            CThread::msleep(3000);
+            Thread::msleep(3000);
         }
 
     } catch (exception& e) {

@@ -30,8 +30,8 @@
 #define __HTTPPARAMS_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/CBuffer.h>
-#include <sptk5/CCaseInsensitiveCompare.h>
+#include <sptk5/Buffer.h>
+#include <sptk5/CaseInsensitiveCompare.h>
 
 #include <string>
 #include <map>
@@ -42,7 +42,7 @@ namespace sptk {
 /// @{
 
 /// HTTP fields are implemented as case-insensitive map
-typedef std::map<std::string, std::string, CCaseInsensitiveCompare> StringHttpFieldMap;
+typedef std::map<std::string, std::string, CaseInsensitiveCompare> StringHttpFieldMap;
 
 /// @brief HTTP params map
 ///
@@ -65,12 +65,12 @@ public:
 
     /// @brief Encodes HTTP parameters for sending to the server.
     /// @param result CBuffer&, output - encoded parameters string (if any) as the buffer.
-    void encode(CBuffer& result) const;
+    void encode(Buffer& result) const;
 
     /// @brief Decodes HTTP parameters that came from the server as a string into parameters map.
     /// @param paramString CBuffer, parameters string from HTTP server
     /// @param lowerCaseNames bool, true if you want to lower-case the parameter names
-    void decode(const CBuffer& paramString, bool lowerCaseNames = false);
+    void decode(const Buffer& paramString, bool lowerCaseNames = false);
 };
 /// @}
 }

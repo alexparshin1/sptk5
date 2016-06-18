@@ -31,7 +31,7 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
-#include <sptk5/CBuffer.h>
+#include <sptk5/Buffer.h>
 #include <string>
 
 namespace sptk {
@@ -50,13 +50,13 @@ public:
     /// Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
     /// @param bufDest CBuffer Destination buffer
     /// @param bufSource CBuffer Source buffer
-    static void encode(CBuffer& bufDest, const CBuffer& bufSource);
+    static void encode(Buffer& bufDest, const Buffer& bufSource);
 
     /// @brief Data encoding.
     /// Encodes data (base64) in given buffer bufSource and returns result in std::string.
     /// @param strDest std::string Destination string
     /// @param bufSource CBuffer& Source buffer
-    static void encode(std::string& strDest, const CBuffer& bufSource);
+    static void encode(std::string& strDest, const Buffer& bufSource);
 
     /// @brief Data decoding.
     /// Decodes base64 encoded buffer bufSource into buffer bufDest.
@@ -64,7 +64,7 @@ public:
     /// @param bufDest CBuffer destination buffer
     /// @param bufSource CBuffer source buffer that holds base64 decoded data
     /// @returns length of returned buffer
-    static int decode(CBuffer &bufDest, const CBuffer &bufSource) THROWS_EXCEPTIONS;
+    static int decode(Buffer &bufDest, const Buffer &bufSource) THROWS_EXCEPTIONS;
 
     /// @brief Data decoding.
     /// Decodes base64 encoded string strSource into buffer bufDest.
@@ -72,7 +72,7 @@ public:
     /// @param bufDest CBuffer, destination buffer
     /// @param strSource const std::string &, source string that holds base64 decoded data
     /// @returns length of the returned string
-    static int decode(CBuffer &bufDest, const std::string &strSource) THROWS_EXCEPTIONS;
+    static int decode(Buffer &bufDest, const std::string &strSource) THROWS_EXCEPTIONS;
 };
 /// @}
 }

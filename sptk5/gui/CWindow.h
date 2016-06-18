@@ -31,7 +31,7 @@
 
 #include <FL/Fl_Double_Window.H>
 #include <sptk5/gui/CLayoutManager.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CWindowShape.h>
 
 namespace sptk {
@@ -110,25 +110,25 @@ public:
 
     /// @brief Loads window coordinates and widgets from XML node
     ///
-    /// @param node const CXmlNode*, node to load data from
+    /// @param node const XMLNode*, node to load data from
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
-    virtual void load(const CXmlNode* node,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS;
+    virtual void load(const XMLNode* node,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS;
 
     /// @brief Saves window coordinates and widgets into XML node
     ///
-    /// @param node CXmlNode*, node to save data into
+    /// @param node XMLNode*, node to save data into
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
-    virtual void save(CXmlNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
 
     /// @brief Loads the window position from XML node
     ///
-    /// @param node const CXmlNode&, node to load position from
-    void loadPosition(const CXmlNode* node);
+    /// @param node const XMLNode&, node to load position from
+    void loadPosition(const XMLNode* node);
 
     /// @brief Saves the window position into XML node
     ///
-    /// @param node CXmlNode&, node to save position into
-    void savePosition(CXmlNode* node) const;
+    /// @param node XMLNode&, node to save position into
+    void savePosition(XMLNode* node) const;
 
     /// @brief Returns the current label
     std::string label() const {

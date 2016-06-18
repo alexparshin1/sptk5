@@ -30,8 +30,8 @@
 #define __CLISTVIEWROWS_H__
 
 #include <sptk5/Variant.h>
-#include <sptk5/CPackedStrings.h>
-#include <sptk5/CIntList.h>
+#include <sptk5/PackedStrings.h>
+#include <sptk5/IntList.h>
 #include <sptk5/Variant.h>
 
 #include <vector>
@@ -146,7 +146,7 @@ public:
 
     /// Sets the sort column
     /// @param column int, sort column number (-1 means 'unsorted')
-    /// @param ctype CVariantType, the sort column data type
+    /// @param ctype VariantType, the sort column data type
     /// @param sortNow bool, true if you want to sort immediatedly
     void sortColumn(int column, VariantType ctype, bool sortNow);
 

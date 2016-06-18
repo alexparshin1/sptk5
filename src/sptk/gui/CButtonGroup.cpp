@@ -77,7 +77,7 @@ void CButtonGroup::clearButtons() {
    m_otherButton = 0L;
 }
 
-void CButtonGroup::buttons(const CStrings& sl) {
+void CButtonGroup::buttons(const Strings& sl) {
    clearButtons();
    m_buttonLabels = sl;
    size_t buttonsCount = m_buttonLabels.size();
@@ -173,26 +173,26 @@ bool CButtonGroup::preferredSize(int& w,int& h) {
    return rc;
 }
 
-void CButtonGroup::load(CQuery *loadQuery) {
+void CButtonGroup::load(Query *loadQuery) {
    if (!m_fieldName.length()) return;
-   CField& fld = (*loadQuery)[m_fieldName.c_str()];
+   Field& fld = (*loadQuery)[m_fieldName.c_str()];
    data( fld.asString() );
 }
 
-void CButtonGroup::save(CQuery *updateQuery) {
+void CButtonGroup::save(Query *updateQuery) {
    if (!m_fieldName.length()) return;
-   CParam& param = updateQuery->param(m_fieldName.c_str());
+   QueryParameter& param = updateQuery->param(m_fieldName.c_str());
    param = data();
 }
 
-void CButtonGroup::load(const CXmlNode *node,CLayoutXMLmode xmlMode) {
+void CButtonGroup::load(const XMLNode *node,CLayoutXMLmode xmlMode) {
     CControl::load(node,xmlMode);
-    CStrings btns(node->getAttribute("buttons"),"|");
+    Strings btns(node->getAttribute("buttons"),"|");
     if (btns.size())
-	buttons(btns);
+        buttons(btns);
 }
 
-void CButtonGroup::save(CXmlNode *node,CLayoutXMLmode xmlMode) const {
+void CButtonGroup::save(XMLNode *node,CLayoutXMLmode xmlMode) const {
     CControl::save(node,xmlMode);
     node->setAttribute("buttons",buttons().asString("|"));
 }

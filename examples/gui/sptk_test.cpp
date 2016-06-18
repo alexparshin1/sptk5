@@ -62,7 +62,7 @@ static void cb_OK(Fl_Return_Button*, void*)
 class CDataDialog: public CDialog
 {
 public:
-    CDataDialog(CDatabaseConnection *db) :
+    CDataDialog(DatabaseConnection *db) :
             CDialog(300, 180, "Example Data Dialog")
     {
         database(db);
@@ -116,7 +116,7 @@ CListView *eventsListView;
 void printMessage(string label, string className, string event)
 {
     if (eventsListView) {
-        CStrings sl;
+        Strings sl;
         sl.push_back(label);
         sl.push_back(className);
         sl.push_back(event);
@@ -235,12 +235,12 @@ int main(int argc, char **argv)
     CWindow w(550, 450, "SPTK general test");
 
     // This data will be used in Combo Box and List View demos.
-    CStrings sl1("Alex|(415)-123-45678|SF", "|");
-    CStrings sl2("Eric|(510)-123-45678|Oakland", "|");
-    CStrings sl3("Kon|(415)-123-45678|SF", "|");
-    CStrings sl4("Karina|(415)-123-45678|SF", "|");
-    CStrings sl5("Marko|(510)-123-45678|Oakland", "|");
-    CStrings sl6("Jayson|(415)-123-45678|SF", "|");
+    Strings sl1("Alex|(415)-123-45678|SF", "|");
+    Strings sl2("Eric|(510)-123-45678|Oakland", "|");
+    Strings sl3("Kon|(415)-123-45678|SF", "|");
+    Strings sl4("Karina|(415)-123-45678|SF", "|");
+    Strings sl5("Marko|(510)-123-45678|Oakland", "|");
+    Strings sl6("Jayson|(415)-123-45678|SF", "|");
 
     {
         tabs = new CTabs("", 10, SP_ALIGN_CLIENT);
@@ -293,11 +293,11 @@ int main(int argc, char **argv)
             memoInput->callback(general_cb);
 
             CRadioButtons *radioButtons = new CRadioButtons("Radio Buttons:");
-            radioButtons->buttons(CStrings("Red|Blue|Green|Unknown", "|"));
+            radioButtons->buttons(Strings("Red|Blue|Green|Unknown", "|"));
             radioButtons->callback(general_cb);
 
             CCheckButtons *checkBoxList = new CCheckButtons("Check Buttons:");
-            checkBoxList->buttons(CStrings("first,second,third,*", ","));
+            checkBoxList->buttons(Strings("first,second,third,*", ","));
             checkBoxList->callback(general_cb);
 
             CInput *textInput = new CInput("Text Input:");
@@ -479,7 +479,7 @@ int main(int argc, char **argv)
     CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
 
     CComboBox themesCombo("", 10, SP_ALIGN_TOP);
-    CStrings themes = CThemes::availableThemes();
+    Strings themes = CThemes::availableThemes();
     themesCombo.addRows("Theme", themes);
     themesCombo.callback(theme_cb);
     themesCombo.labelWidth(0);

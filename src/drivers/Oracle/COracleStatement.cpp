@@ -26,14 +26,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/COracleConnection.h>
+#include <sptk5/db/OracleConnection.h>
 
 using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-COracleStatement::COracleStatement(COracleConnection* connection, string sql) :
-    CDatabaseStatement<COracleConnection,oracle::occi::Statement>(connection),
+OracleStatement::OracleStatement(OracleConnection* connection, string sql) :
+    DatabaseStatement<OracleConnection,oracle::occi::Statement>(connection),
     m_createClobStatement(NULL),
     m_createBlobStatement(NULL),
     m_resultSet(NULL)
@@ -46,7 +46,7 @@ COracleStatement::COracleStatement(COracleConnection* connection, string sql) :
     m_statement->setAutoCommit(!m_state.transaction);
 }
 
-COracleStatement::~COracleStatement()
+OracleStatement::~OracleStatement()
 {
     Connection* connection = m_statement->getConnection();
     if (m_createClobStatement)
@@ -57,11 +57,11 @@ COracleStatement::~COracleStatement()
         connection->terminateStatement(m_statement);
 }
 
-void COracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
+void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
 {
     if (m_connection) {
         if (!m_createClobStatement) {
-            COracleConnection* oracleConnection = (COracleConnection*)m_connection;
+            OracleConnection* oracleConnection = (OracleConnection*)m_connection;
             m_createClobStatement =
                 oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
             m_createClobStatement->registerOutParam(1, OCCICLOB);
@@ -77,11 +77,11 @@ void COracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* 
     }
 }
 
-void COracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
+void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)
 {
     if (m_connection) {
         if (!m_createBlobStatement) {
-            COracleConnection* oracleConnection = (COracleConnection*)m_connection;
+            OracleConnection* oracleConnection = (OracleConnection*)m_connection;
             m_createBlobStatement =
                 oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
             m_createBlobStatement->registerOutParam(1, OCCIBLOB);
@@ -97,7 +97,7 @@ void COracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* 
     }
 }
 
-void COracleStatement::setParameterValues()
+void OracleStatement::setParameterValues()
 {
     CParamVector::iterator
         itor = m_enumeratedParams.begin(),
@@ -105,14 +105,14 @@ void COracleStatement::setParameterValues()
         
     for (int parameterIndex = 1; itor != iend; itor++, parameterIndex++)
     {
-        CParam& parameter = *(*itor);
+        QueryParameter& parameter = *(*itor);
         VariantType& priorDataType = parameter.m_binding.m_dataType;
         if (priorDataType == VAR_NONE)
             priorDataType = parameter.dataType();
         if (parameter.isNull()) {
             if (priorDataType == VAR_NONE)
                 priorDataType = VAR_STRING;
-            Type nativeType = COracleConnection::VariantTypeToOracleType(parameter.m_binding.m_dataType);
+            Type nativeType = OracleConnection::VariantTypeToOracleType(parameter.m_binding.m_dataType);
             //Type nativeType = OCCICHAR;
             m_statement->setNull(parameterIndex, nativeType);
         } else
@@ -176,7 +176,7 @@ void COracleStatement::setParameterValues()
     }
 }
 
-void COracleStatement::execBulk(bool inTransaction, bool lastIteration)
+void OracleStatement::execBulk(bool inTransaction, bool lastIteration)
 {
     // If statement is inside the transaction, it shouldn't be in auto-commit mode
     if (inTransaction != m_state.transaction) {
@@ -197,7 +197,7 @@ void COracleStatement::execBulk(bool inTransaction, bool lastIteration)
 }
 
 
-void COracleStatement::execute(bool inTransaction)
+void OracleStatement::execute(bool inTransaction)
 {
     // If statement is inside the transaction, it shouldn't be in auto-commit mode
     if (inTransaction != m_state.transaction) {
@@ -240,7 +240,7 @@ void COracleStatement::execute(bool inTransaction)
     }
 }
 
-void COracleStatement::close()
+void OracleStatement::close()
 {
     if (m_resultSet)
         m_resultSet->cancel();

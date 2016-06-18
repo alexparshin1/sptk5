@@ -38,9 +38,9 @@ using namespace sptk;
 
 int main()
 {
-    CDatabaseConnectionPool connectionPool("postgresql://theater/protis");
+    DatabaseConnectionPool connectionPool("postgresql://theater/protis");
     try {
-        CDatabaseConnection* connection = connectionPool.createConnection();
+        DatabaseConnection* connection = connectionPool.createConnection();
         cout << connection->nativeConnectionString() << endl;
     }
     catch (exception& e) {

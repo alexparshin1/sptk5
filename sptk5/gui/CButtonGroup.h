@@ -33,10 +33,10 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
-#include <sptk5/CIntList.h>
+#include <sptk5/IntList.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
-#include <sptk5/CStrings.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -50,7 +50,7 @@ class SP_EXPORT CButtonGroup : public CControl {
     int         m_maxHeight;        ///< Required group height
 protected:
     std::string m_lastValue;        ///< Last value of the group (last list of choices)
-    CStrings    m_buttonLabels;     ///< Button labels for the buttons inside
+    Strings     m_buttonLabels;     ///< Button labels for the buttons inside
     Fl_Button  *m_otherButton;      ///< The 'Other' Button if requested (add '*' in the button list)
     CInput_    *m_otherInput;       ///< The 'Other' Input if requested (add '*' in the button list)
 
@@ -94,11 +94,11 @@ protected:
 
 public:
     /// @brief Sets the list of the buttons.
-    /// @param buttonList CStrings, list of the buttons
-    void buttons(const CStrings& buttonList);
+    /// @param buttonList Strings, list of the buttons
+    void buttons(const Strings& buttonList);
 
     /// @brief Returns the list of the buttons.
-    const CStrings& buttons() const { return m_buttonLabels; }
+    const Strings& buttons() const { return m_buttonLabels; }
 
     /// @brief Clears the list of buttons.
     virtual void clearButtons();
@@ -116,28 +116,28 @@ public:
     /// @brief Loads the the currently selected button(s)
     ///
     /// Buttons should be presented as pipe ('|') separated string.
-    virtual void load(CQuery *);
+    virtual void load(Query *);
 
     /// @brief Saves the the currently selected button(s)
     ///
     /// Buttons are presented as pipe ('|') separated string
-    virtual void save(CQuery *);
+    virtual void save(Query *);
 
     /// @brief Loads control data from XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void     load(const CXmlNode* node,CLayoutXMLmode xmlMode);
+    virtual void     load(const XMLNode* node,CLayoutXMLmode xmlMode);
 
     /// @brief Saves control data to XML
     ///
     /// Layout information may also include widget size and position,
     /// as well as visible() and active() states
-    /// @param node CXmlNode*, the XML node
+    /// @param node XMLNode*, the XML node
     /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
-    virtual void save(CXmlNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
 
     /// @brief Tells if the the current data content is valid
     ///

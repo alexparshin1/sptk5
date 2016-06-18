@@ -31,7 +31,7 @@
 
 #include <sptk5/cxml>
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/CTar.h>
+#include <sptk5/Tar.h>
 
 namespace sptk {
 
@@ -65,7 +65,7 @@ public:
     /// @param drawMode CPatternDrawMode, pattern draw mode
     /// @param kind CFrameKind, frame kind (standard or user-extended)
 
-    CFrame(const CBuffer& imageData, uint32_t frameWidth, uint32_t cornerZone, CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
+    CFrame(const Buffer& imageData, uint32_t frameWidth, uint32_t cornerZone, CPatternDrawMode drawMode = CPngImage::PDM_STRETCH, CFrameKind kind = USER_EXTENDED)
     : CPngImage(imageData)
     {
         m_frameWidth = frameWidth;
@@ -119,7 +119,7 @@ class CFrames
     CFrameMap m_frames; ///< All the registered frames
     CFltkFrameMap m_fltkFrames; ///< All the frames that are FLTK standard frames replacement
 
-    static const CStrings frameTypeNames;
+    static const Strings frameTypeNames;
     static const Fl_Boxtype frameTypes[4];
 
 public:
@@ -143,8 +143,8 @@ public:
 
     /// @brief Loads the frames from the tar archive by the XML description
     /// @param tar CTar&, tar archive with the images
-    /// @param frameNode CXmlNode*, XML description of the frames
-    void load(CTar& tar, CXmlNode* frameNode);
+    /// @param frameNode XMLNode*, XML description of the frames
+    void load(Tar& tar, XMLNode* frameNode);
 
     /// @brief Registers a single frame image in the collection
     /// @param frameName std::string, symbolic name for the frame
