@@ -115,7 +115,7 @@ class SP_EXPORT TCPSocket: public BaseSocket
 {
 protected:
     TCPSocketReader     m_reader;       ///< Socket buffered reader
-    Buffer             m_stringBuffer; ///< Buffer to read a line
+    Buffer              m_stringBuffer; ///< Buffer to read a line
 protected:
 
     /// @brief Reads a single char from the socket

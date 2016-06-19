@@ -76,26 +76,26 @@ namespace sptk
 class SP_EXPORT BaseSocket
 {
 protected:
-    SOCKET m_sockfd;        ///< Socket internal (OS) handle
-    int32_t m_domain;       ///< Socket domain type
-    int32_t m_type;         ///< Socket type
-    int32_t m_protocol;     ///< Socket protocol
-    std::string m_host;     ///< Host name
-    uint32_t m_port;        ///< Port number
+    SOCKET      m_sockfd;       ///< Socket internal (OS) handle
+    int32_t     m_domain;       ///< Socket domain type
+    int32_t     m_type;         ///< Socket type
+    int32_t     m_protocol;     ///< Socket protocol
+    std::string m_host;         ///< Host name
+    uint32_t    m_port;         ///< Port number
 protected:
 
 #ifdef _WIN32
-    static void init();     ///< WinSock initialization
-    static void cleanup();  ///< WinSock cleanup
+    static void init();         ///< WinSock initialization
+    static void cleanup();      ///< WinSock cleanup
 #endif
 
 public:
     /// @brief A mode to open a socket, one of
     enum CSocketOpenMode
     {
-        SOM_CREATE,     ///< Only create (Typical UDP connectionless socket)
-        SOM_CONNECT,    ///< Connect
-        SOM_BIND        ///< Bind (listen)
+        SOM_CREATE,             ///< Only create (Typical UDP connectionless socket)
+        SOM_CONNECT,            ///< Connect
+        SOM_BIND                ///< Bind (listen)
     };
 
     /// @brief Throws socket exception with error description retrieved from socket state

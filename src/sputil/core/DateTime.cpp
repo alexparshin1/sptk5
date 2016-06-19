@@ -981,10 +981,10 @@ DateTime DateTime::convertCTime(const time_t tt)
     return dat + tim;
 }
 
+#define EPOCH_DATETIME 25569
 time_t DateTime::toEpoch() const
 {
-    static const DateTime epoch("1970-01-01 00:00:00");
-    return (time_t) ((m_dateTime - double(epoch)) * 86400.0 + 0.01);
+    return (time_t) ((m_dateTime - EPOCH_DATETIME) * 86400.0 + 0.01);
 }
 
 void DateTime::fromEpoch(time_t dt)

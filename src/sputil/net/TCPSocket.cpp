@@ -185,42 +185,29 @@ TCPSocket::~TCPSocket()
 
 void TCPSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
 {
-    struct hostent* host_info;
+    memset(&addr, 0, sizeof(addr));
 
 #ifdef _WIN32
-	host_info = gethostbyname(hostname.c_str());
-#else
-	struct hostent hostbuf;
-    int tmplen = 1024;
-    char* tmp = (char*) malloc(tmplen);
-
-    try {
-        int herr, hres;
-        while ( (hres = gethostbyname_r(hostname.c_str(), &hostbuf, tmp, tmplen, &host_info, &herr) ) == ERANGE) {
-            // realloc
-            tmplen *=2;
-            tmp = (char*) realloc(tmp, tmplen);
-        }
-            
-        if (!host_info) {
-            // error translation.
-            switch (herr) {
-                case HOST_NOT_FOUND:    throw Exception("Host not found: " + hostname);
-                case NO_ADDRESS:        throw Exception("Hostname " + hostname + " doesn't have an IP address");
-                case NO_RECOVERY:       throw Exception("A non-recoverable name server error occurred while resolving " + hostname);
-                case TRY_AGAIN:         throw Exception("A temporary name server error while resolving " + hostname);
-                default:                throw Exception("Unknown error from gethostbyname_r for " + hostname);
-            }
-        }
-    }
-    catch (...) {
-        free(tmp);
-        throw;
-    }
-#endif
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    struct hostent* host_info = gethostbyname(hostname.c_str());
     memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+#else
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = m_domain;     // IPv4 or IPv6
+    hints.ai_socktype = m_type;     // Socket type
+    //hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+    hints.ai_protocol = m_protocol; 
+
+    struct addrinfo *result;
+    int rc = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
+    if (rc)
+        throw Exception(gai_strerror(rc));
+    
+    memcpy(&addr, (struct sockaddr_in *) result->ai_addr, result->ai_addrlen);
+
+    freeaddrinfo(result);
+#endif
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
     addr.sin_port = htons(uint16_t(m_port));
 }
 
