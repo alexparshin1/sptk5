@@ -100,6 +100,34 @@ BaseSocket::~BaseSocket()
 #endif
 }
 
+void BaseSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
+{
+    memset(&addr, 0, sizeof(addr));
+
+#ifdef _WIN32
+    struct hostent* host_info = gethostbyname(hostname.c_str());
+    memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+#else
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = m_domain;     // IPv4 or IPv6
+    hints.ai_socktype = m_type;     // Socket type
+    //hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+    hints.ai_protocol = m_protocol; 
+
+    struct addrinfo *result;
+    int rc = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
+    if (rc)
+        throw Exception(gai_strerror(rc));
+    
+    memcpy(&addr, (struct sockaddr_in *) result->ai_addr, result->ai_addrlen);
+
+    freeaddrinfo(result);
+#endif
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    addr.sin_port = htons(uint16_t(m_port));
+}
+
 void BaseSocket::blockingMode(bool blocking) THROWS_EXCEPTIONS
 {
 #ifdef _WIN32

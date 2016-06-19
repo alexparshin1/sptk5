@@ -121,11 +121,6 @@ protected:
     /// @brief Reads a single char from the socket
     char getChar();
     
-    /// @brief Get address data from hostname
-    /// @param hostname std::string&, Host name or address
-    /// @param address sockaddr_in&, Output address data
-    void getHostAddress(std::string& hostname, sockaddr_in& address);
-
 public:
     /// @brief Constructor
     /// @param domain int32_t, socket domain type
