@@ -45,7 +45,7 @@ int main()
     //out.open("xml_test3.log",ofstream::out);
 
     try {
-        XMLDocument doc;
+        sptk::XMLDocument doc;
 
         DateTime start = DateTime::Now();
         DateTime end;

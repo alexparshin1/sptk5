@@ -183,7 +183,7 @@ void CWSConnection::threadFunction()
                 endOfMessage += strlen(endOfMessageMark);
             }
 
-            XMLDocument message;
+            sptk::XMLDocument message;
             if (endOfMessage)
                 *(char *) endOfMessage = 0;
             message.load(startOfMessage);

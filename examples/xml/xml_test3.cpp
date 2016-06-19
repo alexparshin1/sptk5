@@ -45,7 +45,7 @@ using namespace sptk;
 
 void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
 {
-    XMLDocument doc;
+    sptk::XMLDocument doc;
     Buffer buf;
 
     cout << "Test file: " << fileName << endl;

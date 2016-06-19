@@ -60,8 +60,8 @@ public:
     /// @brief Processes incoming requests
     ///
     /// The processing results are stored in the same request XML
-    /// @param request XMLDoc*, Incoming request and outgoing response
-    void processRequest(XMLDocument* request) THROWS_EXCEPTIONS;
+    /// @param request sptk::XMLDocument*, Incoming request and outgoing response
+    void processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS;
 
     /// @brief Returns service title (for service handshake)
     ///

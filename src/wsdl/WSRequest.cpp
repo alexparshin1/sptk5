@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-void WSRequest::processRequest(XMLDocument* request) THROWS_EXCEPTIONS
+void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
 {
     XMLElement* soapEnvelope = NULL;
     for (XMLElement::iterator itor = request->begin(); itor != request->end(); itor++) {
