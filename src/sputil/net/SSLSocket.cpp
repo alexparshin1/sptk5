@@ -115,9 +115,9 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode) THROWS_EXCEPTIONS
+void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode) THROWS_EXCEPTIONS
 {
-    TCPSocket::open(hostName, port, openMode);
+    TCPSocket::open(hostName, port, openMode, blockingMode);
 
     SYNCHRONIZED_CODE;
 

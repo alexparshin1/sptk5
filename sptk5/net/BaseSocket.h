@@ -162,6 +162,14 @@ public:
         return (int32_t) m_port;
     }
 
+	/// @brief Opens the client socket connection by host and port
+	/// @param hostName std::string, the host name
+	/// @param port uint32_t, the port number
+	/// @param openMode CSocketOpenMode, socket open mode
+	/// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
+	virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true) THROWS_EXCEPTIONS
+	{}
+
     /// @brief Opens the server socket connection on port (binds/listens)
     /// @param portNumber uint32_t, the port number
     void listen(uint32_t portNumber = 0);

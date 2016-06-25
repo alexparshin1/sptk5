@@ -87,7 +87,8 @@ public:
     /// @param hostName std::string, the host name
     /// @param port uint32_t, the port number
     /// @param openMode CSocketOpenMode, socket open mode
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT) THROWS_EXCEPTIONS;
+	/// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
+	virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true) THROWS_EXCEPTIONS;
 
     /// @brief Attaches socket handle
     ///

@@ -183,7 +183,7 @@ TCPSocket::~TCPSocket()
 {
 }
 
-void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode) THROWS_EXCEPTIONS
+void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode) THROWS_EXCEPTIONS
 {
     if (hostName.length())
         m_host = hostName;
@@ -200,6 +200,9 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
 
     open_addr(openMode, &addr);
     m_reader.open();
+
+	if (!_blockingMode)
+		blockingMode(false);
 }
 
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
