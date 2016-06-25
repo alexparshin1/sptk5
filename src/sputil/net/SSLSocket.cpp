@@ -224,11 +224,22 @@ uint32_t SSLSocket::socketBytes()
 
 size_t SSLSocket::recv(void* buffer, size_t size) throw (exception)
 {
-    int rc = SSL_read(m_ssl, buffer, (int) size);
-    //if (rc == 0)
-    //    throw CException("Connection terminated");
-    if (rc < 0)
-        throwSSLError(rc);
+    int rc;
+    for (;;) {
+        rc = SSL_read(m_ssl, buffer, (int) size);
+        if (rc >= 0)
+            break;
+        int error = SSL_get_error(m_ssl, rc);
+        switch(error) {
+        case SSL_ERROR_WANT_READ:
+        case SSL_ERROR_WANT_WRITE:
+            break;
+        default:
+            close();
+            throwSSLError(rc);
+            break;
+        }
+    }
     return rc;
 }
 

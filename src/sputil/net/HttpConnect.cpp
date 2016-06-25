@@ -67,6 +67,8 @@ void HttpConnect::getResponse()
     /// Reading HTTP headers
     for (;;) {
         m_socket.readLine(header);
+        if (header.empty())
+            throw Exception("Invalid HTTP response");
         char* tail = (char*) strpbrk(header.c_str(),"\r\n");
 
         if (tail)
