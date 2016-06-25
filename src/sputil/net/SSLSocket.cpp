@@ -123,10 +123,33 @@ void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, b
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
 
-    int rc = SSL_connect(m_ssl);
-    if (rc <= 0) {
-        close();
-        throwSSLError(rc);
+    if (blockingMode) {
+        int rc = SSL_connect(m_ssl);
+        if (rc <= 0) {
+            close();
+            throwSSLError(rc);
+        }
+        return;
+    } else {
+        time_t started = time(NULL);
+        for (;;) {
+            int rc = SSL_connect(m_ssl);
+            if (rc >= 0)
+                break;
+            int error = SSL_get_error(m_ssl, rc);
+            switch(error) {
+            case SSL_ERROR_WANT_READ:
+            case SSL_ERROR_WANT_WRITE:
+                break;
+            default:
+                close();
+                throwSSLError(rc);
+                break;
+            }
+            time_t now = time(NULL);
+            if (now - started > 30)
+                throw Exception("SSL handshake timeout");
+        }
     }
 }
 

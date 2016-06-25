@@ -201,8 +201,8 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
     open_addr(openMode, &addr);
     m_reader.open();
 
-	if (!_blockingMode)
-		blockingMode(false);
+    if (!_blockingMode)
+        blockingMode(false);
 }
 
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
