@@ -149,6 +149,7 @@ void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, b
             time_t now = time(NULL);
             if (now - started > 30)
                 throw Exception("SSL handshake timeout");
+			Thread::msleep(1);
         }
     }
 }
