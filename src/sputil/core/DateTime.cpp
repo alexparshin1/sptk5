@@ -984,12 +984,12 @@ DateTime DateTime::convertCTime(const time_t tt)
 #define EPOCH_DATETIME 25569
 time_t DateTime::toEpoch() const
 {
-    return (time_t) ((m_dateTime - EPOCH_DATETIME) * 86400.0 + 0.01);
+    return (time_t) ((m_dateTime - EPOCH_DATETIME) * 86400.0 + 0.01) - timeZoneOffset * 60;
 }
 
 void DateTime::fromEpoch(time_t dt)
 {
-    m_dateTime = double(dt) / 86400.0 + double(epoch);
+    m_dateTime = double(dt) / 86400.0 + double(epoch)  + timeZoneOffset * 60 / 86400.0;
 }
 
 bool DateTime::time24Mode()
