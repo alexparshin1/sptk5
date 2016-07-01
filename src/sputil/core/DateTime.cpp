@@ -255,11 +255,11 @@ void CDateTimeFormat::init()
 
     time_t ts = 0;
     char buf[16];
-	struct tm *ltime = localtime(&ts);
+    struct tm *ltime = localtime(&ts);
     strftime(buf, sizeof(buf), "%z", ltime);
-    int minutes = atoi(buf + 3);
-    buf[3] = 0;
-    int hours = atoi(buf);
+    int offset = atoi(buf);
+    int minutes = offset % 100;
+    int hours = offset / 100;
     DateTime::timeZoneOffset = hours * 60 + minutes;
 }
 
