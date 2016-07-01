@@ -34,8 +34,10 @@ using namespace sptk;
 
 int main()
 {
-    DateTime now("2014-01-01 10:00:00");
-    cout << now.dateString(true) + " " + now.timeString(true,true) << endl;
+    DateTime now = DateTime::Now();
+    cout << "Current time is " << now.dateString(true) + " " + now.timeString(true,true) << endl;
+	cout << "UTC epoch is " << now.toEpoch() << endl;
+	cout << endl;
 
     cout << "Decode date and time in PST timezone and print it in local timezone:" << endl;
     const char*  pstDateTimeStr = "2013-10-01 10:00:00-7:00";

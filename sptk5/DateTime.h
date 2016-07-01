@@ -152,12 +152,14 @@ public:
     void formatDate(char *str, bool universalDateFormat=false) const;
 
     /// @brief Print the date into str
-    void formatTime(char *str,bool ampm=true,bool showSeconds=false,bool showTimezone=false) const;
+    void formatTime(char *str, bool ampm=true, bool showSeconds=false, bool showTimezone=false) const;
 
     /// @brief Returns value as Unix epoch time.
+	/// @return Unix epoch time
     time_t toEpoch() const;
 
     /// @brief Sets value as Unix epoch time.
+	/// @param dt time_t, Unix epoch time
     void fromEpoch(time_t dt);
 
     /// @brief Set the current date and time for this program only.
