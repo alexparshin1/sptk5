@@ -253,7 +253,7 @@ void CDateTimeFormat::init()
 
     DateTime::timeZoneName = string(ptr, (unsigned) len);
 
-    time_t ts = 0;
+    time_t ts = time(NULL);
     char buf[16];
     struct tm *ltime = localtime(&ts);
     strftime(buf, sizeof(buf), "%z", ltime);
