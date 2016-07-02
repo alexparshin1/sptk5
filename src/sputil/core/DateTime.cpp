@@ -65,16 +65,16 @@ public:
 }
 
 static const short _monthDays[2][13] =
-        {
-                {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-                {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-        };
+{
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+};
 
 static const short _monthDaySums[2][13] =
-        {
-                {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
-                {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
-        };
+{
+    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
+    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
+};
 
 static const DateTime epoch(1970, 1, 1);
 
@@ -524,7 +524,7 @@ void DateTime::encodeTime(double& dt, const char* tim)
 
 const int S1 = 24 * 3600; // seconds in 1 day
 
-void DateTime::decodeTime(const double dt, short& h, short& m, short& s, short& ms)
+void DateTime::decodeTime(double dt, short& h, short& m, short& s, short& ms)
 {
     double t = dt - (int) dt;
 
@@ -553,7 +553,7 @@ inline void DivMod(int op1, int op2, int& div, int& mod)
     mod = op1 % op2;
 }
 
-void DateTime::decodeDate(const double dat, short& year, short& month, short& day)
+void DateTime::decodeDate(double dat, short& year, short& month, short& day)
 {
     int M, D, I;
     int T = (int) dat + DateDelta - 1;

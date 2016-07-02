@@ -51,26 +51,36 @@ class SP_EXPORT DateTime
     friend class CDateTimeFormat;
 protected:
 
-    /// Internal decode date operation into y,m,d
-    static void   decodeDate(const double dt,int16_t& y,int16_t& m,int16_t& d);
+    /// @brief Internal decode date operation into year, month, and day
+    /// @param dt double, Date to decode
+    /// @param year int16_t&, Year (output)
+    /// @param month int16_t&, Month (output)
+    /// @param day int16_t&, Day (output)
+    static void   decodeDate(double dt, int16_t& year, int16_t& month, int16_t& day);
 
-    /// Internal decode time operation into h,m,s,ms
-    static void   decodeTime(const double dt,int16_t& h,int16_t& m,int16_t& s,int16_t& ms);
+    /// @brief Internal decode time operation into hour, minute, second, and millisecond
+    /// @param dt double, Date to decode
+    /// @param hour int16_t&, Hour (output)
+    /// @param minute int16_t&, Minute (output)
+    /// @param second int16_t&, Second (output)
+    /// @param millisecond int16_t&, Millisecond (output)
+    static void   decodeTime(double dt, int16_t& hour, int16_t& minute, int16_t& second, int16_t& millisecond);
 
-    /// Internal encode date operation from y,m,d
+    /// @brief Internal encode date operation from y,m,d
     static void   encodeDate(double &dt,int16_t y=0,int16_t m=0,int16_t d=0);
 
-    /// Internal encode date operation from string
+    /// @brief Internal encode date operation from string
     static void   encodeDate(double &dt,const char *dat);
 
-    /// Internal encode timee operation from h,m,s,ms
+    /// @brief Internal encode timee operation from h,m,s,ms
     static void   encodeTime(double &dt,int16_t h=0,int16_t m=0,int16_t s=0,int16_t ms=0);
 
-    /// Internal encode timee operation from string
+    /// @brief Internal encode timee operation from string
     static void   encodeTime(double &dt,const char *tim);
 
-    /// Returns true for the leap year
-    static int    isLeapYear(const int16_t year) {
+    /// @brief Returns true for the leap year
+    static int    isLeapYear(const int16_t year)
+    {
         return ((year&3) == 0 && year%100) || ((year%400) == 0);
     }
 
@@ -155,11 +165,11 @@ public:
     void formatTime(char *str, bool ampm=true, bool showSeconds=false, bool showTimezone=false) const;
 
     /// @brief Returns value as Unix epoch time.
-	/// @return Unix epoch time
+    /// @return Unix epoch time
     time_t toEpoch() const;
 
     /// @brief Sets value as Unix epoch time.
-	/// @param dt time_t, Unix epoch time
+    /// @param dt time_t, Unix epoch time
     void fromEpoch(time_t dt);
 
     /// @brief Set the current date and time for this program only.
