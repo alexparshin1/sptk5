@@ -29,7 +29,6 @@
 #ifndef __CNET_H__
 #define __CNET_H__
 
-#include <sptk5/net/CGI.h>
 #include <sptk5/net/FTPConnect.h>
 #include <sptk5/net/CFtpDS.h>
 #include <sptk5/net/HttpConnect.h>

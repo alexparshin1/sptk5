@@ -39,8 +39,8 @@
 using namespace std;
 using namespace sptk;
 
-void printRegistry(RegistryMode mode) {
-   Strings strings;
+void printRegistry(RegistryMode mode)
+{
    // Open user settings, file is located in user home directory
    Registry   mySettings("mySettings.ini", "sptk_test", mode);
    try {

@@ -30,7 +30,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <sptk5/net/SSLSocket.h>
-#include <sptk5/threads/Synchronized.h>
 #include <sptk5/threads/Thread.h>
 
 using namespace std;
@@ -189,6 +188,7 @@ void SSLSocket::attach(SOCKET socketHandle) throw (std::exception)
 string SSLSocket::getSSLError(std::string function, int32_t openSSLError) const
 {
     string error("ERROR " + function + ": ");
+    unsigned long unknownError;
 
     switch (openSSLError) {
     case SSL_ERROR_NONE:
@@ -205,12 +205,12 @@ string SSLSocket::getSSLError(std::string function, int32_t openSSLError) const
     case SSL_ERROR_WANT_ACCEPT:
         return error + "Accept failed";
     default:
-        openSSLError = ERR_get_error();
-        if (!openSSLError)
+        unknownError = ERR_get_error();
+        if (!unknownError)
             return error + "System call or protocol error";
     }
 
-    return error + ERR_func_error_string(openSSLError) + string(": ") + ERR_reason_error_string(openSSLError);
+    return error + ERR_func_error_string(unknownError) + string(": ") + ERR_reason_error_string(unknownError);
 }
 
 uint32_t SSLSocket::socketBytes()

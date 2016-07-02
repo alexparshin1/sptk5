@@ -90,7 +90,7 @@ public:
 protected:
 
     CQueryVector                m_queryList;      ///< The list of queries that use this database
-    DatabaseConnectionString   m_connString;     ///< The connection string
+    DatabaseConnectionString    m_connString;     ///< The connection string
     Type                        m_connType;       ///< The connection type
     bool                        m_inTransaction;  ///< The in-transaction flag
     Logger*                     m_log;            ///< Log for the database events (optional)

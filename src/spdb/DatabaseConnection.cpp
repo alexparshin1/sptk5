@@ -66,7 +66,7 @@ bool DatabaseConnection::unlinkQuery(Query *q)
     return true;
 }
 
-void DatabaseConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void DatabaseConnection::openDatabase(string /*newConnectionString*/) THROWS_EXCEPTIONS
 {
     notImplemented("openDatabase");
 }
@@ -247,7 +247,7 @@ void DatabaseConnection::queryHandle(Query *query, void *handle)
     query->m_statement = handle;
 }
 
-string DatabaseConnection::paramMark(unsigned paramIndex)
+string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
 {
     return "?";
 }
@@ -277,12 +277,12 @@ void DatabaseConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     notImplemented("driverBeginTransaction");
 }
 
-void DatabaseConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void DatabaseConnection::driverEndTransaction(bool /*commit*/) THROWS_EXCEPTIONS
 {
     notImplemented("driverEndTransaction");
 }
 
-void DatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
+void DatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string /*format*/) THROWS_EXCEPTIONS
 {
     Query insertQuery(this,
                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
@@ -295,7 +295,7 @@ void DatabaseConnection::bulkInsert(std::string tableName, const Strings& column
     }
 }
 
-void DatabaseConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void DatabaseConnection::executeBatchFile(std::string /*batchFile*/) THROWS_EXCEPTIONS
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

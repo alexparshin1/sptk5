@@ -364,17 +364,19 @@ void ODBCConnection::queryBindParameters(Query* query)
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_LONGVARCHAR;
                     break;
-                case VAR_BUFFER: {
+                case VAR_BUFFER:
                     buff = (void*) param->getString();
                     len = (long) param->dataSize();
-                    paramType = SQL_C_BINARY;
-                    sqlType = SQL_LONGVARBINARY;
                     cblen = len;
                     rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, SQL_C_BINARY,
                                           SQL_LONGVARBINARY, len, scale, buff, SQLINTEGER(len), &cblen);
+                    if (rc != 0) {
+                        param->m_binding.reset(false);
+                        query->logAndThrow("CODBCConnection::queryBindParameters",
+                                           "Can't bind parameter " + int2string(paramNumber));
+                    }
                     continue;
-                }
-                    break;
+
                 case VAR_DATE: {
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
@@ -383,7 +385,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     DateTime dt = param->getDateTime();
                     buff = t;
                     if (dt) {
-                        dt.decodeDate((int16_t*) &t->year, (int16_t*) &t->month, (int16_t*) &t->day);
+                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day);
                         t->hour = t->minute = t->second = 0;
                         t->fraction = 0;
                     } else {
@@ -402,7 +404,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     int16_t ms;
                     buff = t;
                     if (dt) {
-                        dt.decodeDate((int16_t*) &t->year, (int16_t*) &t->month, (int16_t*) &t->day);
+                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day);
                         dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
                         t->fraction = 0;
                     } else {
@@ -470,13 +472,8 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
         case SQL_TIMESTAMP:
         case SQL_TYPE_TIME:
         case SQL_TYPE_TIMESTAMP:
-            if (odbcType == SQL_TYPE_DATE) {
-                cType = SQL_C_TIMESTAMP;
-                dataType = VAR_DATE;
-            } else {
-                cType = SQL_C_TIMESTAMP;
-                dataType = VAR_DATE_TIME;
-            }
+            cType = SQL_C_TIMESTAMP;
+            dataType = VAR_DATE_TIME;
             break;
 
         case SQL_BINARY:
