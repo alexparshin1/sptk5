@@ -191,7 +191,7 @@ void BaseSocket::port (int32_t portNumber)
 }
 
 // Connect & disconnect
-void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr)
+void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr, uint32_t timeoutMS)
 {
     if (active())
         close();
@@ -206,7 +206,15 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr)
 
     switch (openMode) {
         case SOM_CONNECT:
-            rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+            if (timeoutMS) {
+                blockingMode(false);
+                rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+                if (!readyToWrite(timeoutMS))
+                    throw Exception("Connection timeout");
+                rc = 0;
+                blockingMode(true);
+            } else
+                rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
             currentOperation = "connect";
             break;
         case SOM_BIND:
@@ -327,11 +335,11 @@ size_t BaseSocket::write (const std::string& buffer, const sockaddr_in* peer) TH
     return write(buffer.c_str(), buffer.length(), peer);
 }
 
-bool BaseSocket::readyToRead (size_t wait_msec)
+bool BaseSocket::readyToRead(uint32_t timeoutMS)
 {
     struct timeval timeout;
-    timeout.tv_sec = int32_t (wait_msec) / 1000;
-    timeout.tv_usec = int32_t (wait_msec) % 1000 * 1000;
+    timeout.tv_sec = int32_t (timeoutMS) / 1000;
+    timeout.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
 
     fd_set  inputs, errors;
     FD_ZERO(&inputs);
@@ -344,12 +352,27 @@ bool BaseSocket::readyToRead (size_t wait_msec)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
         THROW_SOCKET_ERROR("Socket closed");
-    return FD_ISSET(m_sockfd, &inputs) != 0;
+    return rc != 0;
 }
 
-bool BaseSocket::readyToWrite()
+bool BaseSocket::readyToWrite(uint32_t timeoutMS)
 {
-    return true;
+    struct timeval timeout;
+    timeout.tv_sec = int32_t (timeoutMS) / 1000;
+    timeout.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
+
+    fd_set  inputs, errors;
+    FD_ZERO(&inputs);
+    FD_ZERO(&errors);
+    FD_SET(m_sockfd, &inputs);
+    FD_SET(m_sockfd, &errors);
+
+    int rc = select(FD_SETSIZE, NULL, &inputs, &errors, &timeout);
+    if (rc < 0)
+        THROW_SOCKET_ERROR("Can't read from socket");
+    if (FD_ISSET(m_sockfd, &errors))
+        THROW_SOCKET_ERROR("Socket closed");
+    return rc != 0;
 }
 
 #ifdef _WIN32

@@ -89,10 +89,10 @@ protected:
     static void cleanup();      ///< WinSock cleanup
 #endif
 
-	/// @brief Get address data from hostname
-	/// @param hostname std::string&, Host name or address
-	/// @param address sockaddr_in&, Output address data
-	void getHostAddress(std::string& hostname, sockaddr_in& address);
+    /// @brief Get address data from hostname
+    /// @param hostname std::string&, Host name or address
+    /// @param address sockaddr_in&, Output address data
+    void getHostAddress(std::string& hostname, sockaddr_in& address);
 
 public:
     /// @brief A mode to open a socket, one of
@@ -112,7 +112,8 @@ public:
     /// @brief Opens the socket connection by address.
     /// @param openMode CSocketOpenMode, SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
     /// @param addr sockaddr_in*, defines socket address/port information
-    void open_addr(CSocketOpenMode openMode = SOM_CREATE, sockaddr_in* addr = 0L);
+    /// @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+    void open_addr(CSocketOpenMode openMode = SOM_CREATE, sockaddr_in* addr = 0L, uint32_t timeoutMS=0);
 
 public:
     /// @brief Constructor
@@ -162,13 +163,14 @@ public:
         return (int32_t) m_port;
     }
 
-	/// @brief Opens the client socket connection by host and port
-	/// @param hostName std::string, the host name
-	/// @param port uint32_t, the port number
-	/// @param openMode CSocketOpenMode, socket open mode
-	/// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-	virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true) THROWS_EXCEPTIONS
-	{}
+    /// @brief Opens the client socket connection by host and port
+    /// @param hostName std::string, the host name
+    /// @param port uint32_t, the port number
+    /// @param openMode CSocketOpenMode, socket open mode
+    /// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
+    /// @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, int timeoutMS=0) THROWS_EXCEPTIONS
+    {}
 
     /// @brief Opens the server socket connection on port (binds/listens)
     /// @param portNumber uint32_t, the port number
@@ -262,11 +264,12 @@ public:
     virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
 
     /// @brief Reports true if socket is ready for reading from it
-    /// @param waitmsec size_t, read timeout in msec
-    bool readyToRead(size_t waitmsec);
+    /// @param timeoutMS uint32_t, read timeout in msec
+    bool readyToRead(uint32_t timeoutMS);
 
     /// @brief Reports true if socket is ready for writing to it
-    bool readyToWrite();
+    /// @param timeoutMS uint32_t, read timeout in msec
+    bool readyToWrite(uint32_t timeoutMS);
 };
 
 #define THROW_SOCKET_ERROR(msg) BaseSocket::throwSocketError(msg,__FILE__,__LINE__)

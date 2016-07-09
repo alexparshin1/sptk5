@@ -48,9 +48,9 @@ FTPSocket::~FTPSocket()
         write("QUIT\n", 6);
 }
 
-void FTPSocket::open(std::string hostName, uint32_t port, CSocketOpenMode openMode) THROWS_EXCEPTIONS
+void FTPSocket::open(std::string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
-    TCPSocket::open(hostName, port, openMode);
+    TCPSocket::open(hostName, port, openMode, true, timeoutMS);
     get_response();
     int on = 1;
     setsockopt(m_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof (on));

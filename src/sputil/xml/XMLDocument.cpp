@@ -328,8 +328,7 @@ namespace sptk {
                         throw Exception("Invalid tag (spaces before closing '>')");
                     nodeName++;
                     if (currentNode->name() != nodeName)
-                        throw Exception(
-                            "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
+                        throw Exception("Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
                     currentNode = currentNode->parent();
                     if (!currentNode)
                         throw Exception("Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");

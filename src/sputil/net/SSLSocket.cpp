@@ -47,7 +47,7 @@ class CSSLLibraryLoader
         ERR_load_BIO_strings();
         OpenSSL_add_all_algorithms();
     }
-    
+
     static void lock_callback(int mode, int type, char *file, int line)
     {
         if (mode & CRYPTO_LOCK)
@@ -79,7 +79,7 @@ class CSSLLibraryLoader
         CRYPTO_set_locking_callback(NULL);
         delete [] m_locks;
     }
-    
+
 public:
     CSSLLibraryLoader()
     {
@@ -114,9 +114,9 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode) THROWS_EXCEPTIONS
+void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
-    TCPSocket::open(hostName, port, openMode, blockingMode);
+    TCPSocket::open(hostName, port, openMode, blockingMode, timeoutMS);
 
     SYNCHRONIZED_CODE;
 
@@ -148,7 +148,7 @@ void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, b
             time_t now = time(NULL);
             if (now - started > 30)
                 throw Exception("SSL handshake timeout");
-			Thread::msleep(1);
+            Thread::msleep(1);
         }
     }
 }

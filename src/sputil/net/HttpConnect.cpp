@@ -46,7 +46,7 @@ HttpConnect::~HttpConnect()
 
 #define RSP_BLOCK_SIZE 1024*64
 
-void HttpConnect::getResponse()
+void HttpConnect::getResponse(uint32_t readTimeout)
 {
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
@@ -56,8 +56,6 @@ void HttpConnect::getResponse()
 
     int    bytes, contentLength = 0;
     string header;
-
-    int readTimeout = 600000;
 
     if (!m_socket.readyToRead(readTimeout)) {
         m_socket.close();
@@ -179,7 +177,7 @@ void HttpConnect::sendCommand(string cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
-void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
+void HttpConnect::cmd_get(string pageName, const HttpParams& postData, uint32_t timeoutMS)
 {
     m_readBuffer.checkSize(1024);
 
@@ -204,10 +202,10 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData)
 
     sendCommand(command);
 
-    getResponse();
+    getResponse(timeoutMS);
 }
 
-void HttpConnect::cmd_post(string pageName, const HttpParams& postData)
+void HttpConnect::cmd_post(string pageName, const HttpParams& postData, uint32_t timeoutMS)
 {
     Strings headers;
 
@@ -231,5 +229,5 @@ void HttpConnect::cmd_post(string pageName, const HttpParams& postData)
     command += "\r\n";
     sendCommand(command);
 
-    getResponse();
+    getResponse(timeoutMS);
 }

@@ -31,7 +31,7 @@
 
 #include <sptk5/Exception.h>
 #include <string>
-#include <map>
+#include <set>
 
 namespace sptk {
 
@@ -44,17 +44,11 @@ namespace sptk {
 /// such as XML node, ListView, etc
 class SP_EXPORT SharedStrings
 {
-    typedef std::map<std::string, int> CSIMap; ///< String to int map type
-    CSIMap m_stringIdMap; ///< Map of shared strings and reference counters
+    typedef std::set<std::string> Set;  ///< String set type
+    Set     m_strings;                  ///< Set of shared strings
 public:
     /// @brief Default constructor
     SharedStrings();
-
-    /// @brief Destructor
-    ~SharedStrings()
-    {
-        clear();
-    }
 
     /// @brief Obtain a shared string
     ///
@@ -76,35 +70,11 @@ public:
     {
         return shareString(str.c_str());
     }
-
-    /// @brief Releases a shared string
-    ///
-    /// If the shared string reference counter is greater than one,
-    /// it's decreased by one. If the reference counter is one,
-    /// the string is removed from SST. If the string doesn't exist,
-    /// the exception is thrown.
-    /// @param str const char *, a string to release
-    void releaseString(const char *str) THROWS_EXCEPTIONS;
-
-    /// @brief Releases a shared string
-    ///
-    /// If the shared string reference counter is greater than one,
-    /// it's decreased by one. If the reference counter is one,
-    /// the string is removed from SST. If the string doesn't exist,
-    /// the exception is thrown.
-    /// @param str const std::string&, a string to release
-    void releaseString(const std::string& str) THROWS_EXCEPTIONS
-    {
-        releaseString(str.c_str());
-    }
-
-    /// @brief Clears the shared string table
-    ///
-    /// Only the string containing the empty string ("") is left
-    /// after this operation
+    
+    /// @brief Clear shared starings
     void clear();
-}
-;
+};
+
 /// @}
 }
 

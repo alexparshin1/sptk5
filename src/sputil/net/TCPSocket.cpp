@@ -183,7 +183,7 @@ TCPSocket::~TCPSocket()
 {
 }
 
-void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode) THROWS_EXCEPTIONS
+void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     if (hostName.length())
         m_host = hostName;
@@ -198,7 +198,7 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
     if (active())
         close();
 
-    open_addr(openMode, &addr);
+    open_addr(openMode, &addr, timeoutMS);
     m_reader.open();
 
     if (!_blockingMode)

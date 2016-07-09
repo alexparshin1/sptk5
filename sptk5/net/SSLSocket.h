@@ -87,8 +87,9 @@ public:
     /// @param hostName std::string, the host name
     /// @param port uint32_t, the port number
     /// @param openMode CSocketOpenMode, socket open mode
-	/// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-	virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true) THROWS_EXCEPTIONS;
+    /// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
+    /// @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
 
     /// @brief Attaches socket handle
     ///

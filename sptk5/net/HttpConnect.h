@@ -78,7 +78,8 @@ public:
     ///
     /// Stops when HTTP server closes the connection. The server response can then be
     /// accessed through the htmlData() method.
-    void getResponse();
+    /// @param timeoutMS uint32_t, Response timeout
+    void getResponse(uint32_t timeoutMS);
 
     /// @brief Returns the internal read buffer
     ///
@@ -115,14 +116,16 @@ public:
     /// Retrieves the server response into internal read buffer.
     /// @param pageName std::string, the name of the page without the server name.
     /// @param getData const HttpParams&, the list of HTTP data to pass to the server
-    void cmd_get(std::string pageName, const HttpParams& getData);
+    /// @param timeoutMS uint32_t, response timeout, milliseconds
+    void cmd_get(std::string pageName, const HttpParams& getData, uint32_t timeoutMS);
 
     /// @brief Sends the POST command to the server
     ///
     /// Retrieves the server response into internal read buffer.
     /// @param pageName std::string, the name of the page without the server name.
     /// @param postData const HttpParams&, the list of HTTP data to pass to the server
-    void cmd_post(std::string pageName, const HttpParams& postData);
+    /// @param timeoutMS uint32_t, response timeout, milliseconds
+    void cmd_post(std::string pageName, const HttpParams& postData, uint32_t timeoutMS);
 };
 /// @}
 }

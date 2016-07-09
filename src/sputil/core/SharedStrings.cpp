@@ -24,7 +24,7 @@
 │                                                                              │
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
-*/
+ */
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
@@ -33,31 +33,20 @@
 using namespace std;
 using namespace sptk;
 
-SharedStrings::SharedStrings() {
+SharedStrings::SharedStrings()
+{
     shareString("");
 }
 
-const string& SharedStrings::shareString(const char* str) {
-    CSIMap::iterator itor = m_stringIdMap.find(str);
-    if (itor == m_stringIdMap.end()) {
-        pair<CSIMap::iterator,bool> insertResult = m_stringIdMap.insert(CSIMap::value_type(str,0));
-        itor = insertResult.first;
-    }
-    itor->second++;
-    return itor->first;
+const string& SharedStrings::shareString(const char* str)
+{
+    pair < Set::iterator, bool> insertResult = m_strings.emplace(string(str));
+    Set::iterator itor = insertResult.first;
+    return *itor;
 }
 
-void SharedStrings::releaseString(const char* str) THROWS_EXCEPTIONS {
-    CSIMap::iterator itor = m_stringIdMap.find(str);
-    if (itor == m_stringIdMap.end())
-        throw Exception("The string "+string(str)+" isn't registered in SST");
-    if (itor->second > 1)
-        itor->second--;
-    else
-        m_stringIdMap.erase(itor);
-}
-
-void SharedStrings::clear() {
-    m_stringIdMap.clear();
+void SharedStrings::clear()
+{
+    m_strings.clear();
     shareString("");
 }
