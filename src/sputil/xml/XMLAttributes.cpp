@@ -107,7 +107,7 @@ XMLValue XMLAttributes::getAttribute(std::string attr, const char *defaultValue)
 
 void XMLAttributes::setAttribute(std::string attr, XMLValue value, const char *defaultValue)
 {
-    iterator itor = findFirst(attr.c_str());
+    iterator itor = findFirst(attr);
     if (defaultValue && value.str() == defaultValue) {
         if (itor != end()) {
             delete *itor;

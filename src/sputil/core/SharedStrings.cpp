@@ -40,8 +40,12 @@ SharedStrings::SharedStrings()
 
 const string& SharedStrings::shareString(const char* str)
 {
-    pair < Set::iterator, bool> insertResult = m_strings.emplace(string(str));
-    Set::iterator itor = insertResult.first;
+    string s(str);
+    Set::iterator itor = m_strings.find(s);
+    if (itor == m_strings.end()) {
+        pair<Set::iterator, bool> insertResult = m_strings.insert(s);
+        itor = insertResult.first;
+    }
     return *itor;
 }
 
