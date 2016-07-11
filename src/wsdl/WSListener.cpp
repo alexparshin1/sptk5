@@ -193,7 +193,7 @@ void CWSConnection::threadFunction()
             Buffer output;
             m_service.processRequest(&message);
             message.save(output);
-            
+
             //cout << output.c_str() << endl;
 
             if (protocol == "http") {

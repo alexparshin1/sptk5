@@ -41,7 +41,7 @@ namespace sptk {
 class WSListener : public TCPServer
 {
 protected:
-    sptk::WSRequest&   m_service;              ///< Web Service request processor
+    sptk::WSRequest&    m_service;              ///< Web Service request processor
     sptk::Logger&       m_logger;               ///< Logger object
     const std::string   m_staticFilesDirectory; ///< Web Service static files directory
 
@@ -52,7 +52,7 @@ protected:
     /// @param connectionSocket SOCKET, Already accepted incoming connection socket
     /// @param peer sockaddr_in*, Incoming connection information
     virtual sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
-    
+
 public:
     /// @brief Constructor
     /// @param service sptk::CWSRequest&, Web Service request processor
