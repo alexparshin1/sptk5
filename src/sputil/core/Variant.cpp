@@ -869,7 +869,7 @@ int32_t Variant::asInteger() const THROWS_EXCEPTIONS
 int64_t Variant::asInt64() const THROWS_EXCEPTIONS
 {
     if (m_dataType & VAR_NULL)
-        return true;
+        return 0;
 
     switch (dataType()) {
         case VAR_BOOL:
