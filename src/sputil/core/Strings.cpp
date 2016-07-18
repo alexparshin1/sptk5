@@ -69,7 +69,10 @@ string String::replace(string pattern, string replacement) const
 
 bool String::endsWith(string subject) const
 {
-    return rfind(subject) == length() - subject.length();
+    size_t pos = rfind(subject);
+    if (pos == string::npos)
+        return false;
+    return pos == length() - subject.length();
 }
 
 void Strings::splitByDelimiter(const string &src, const char *delimitter)
