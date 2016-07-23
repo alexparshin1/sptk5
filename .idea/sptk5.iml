@@ -30,36 +30,35 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLAttributes.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLDocument.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLDocType.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Registry.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SharedStrings.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/MemoryDS.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Buffer.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DateTime.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/CommandLine.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/IntList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/UniqueInstance.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SysLogEngine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Exception.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Logger.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/IntList.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DataSource.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Strings.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Buffer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/string_ext.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/md5.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Strings.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FileLogEngine.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SystemException.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FieldList.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Registry.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Field.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Base64.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Variant.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DirectoryDS.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DataSource.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/RegularExpression.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FieldList.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/CommandLine.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SharedStrings.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DateTime.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SystemException.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Variant.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/LogEngine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/HttpParams.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/ImapConnect.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/MailMessageBody.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/SmtpConnect.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/FtpDS.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/CGI.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/BaseSocket.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/SSLSocket.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/ImapDS.cpp" isTestSource="false" />
@@ -95,17 +94,22 @@
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSListener.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSRestriction.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/SQLite3/CSQLite3Connection.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleStatement.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleBulkInsertQuery.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleConnection.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleBulkInsertQuery.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleEnvironment.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLStatement.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLConnection.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBCConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBC.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/SQLite3/CSQLite3Connection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLParamValues.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/htonq.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLParamValues.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/htonq.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLStatement.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/xml_test2.cpp" isTestSource="false" />
@@ -147,15 +151,17 @@
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include" />
+          <root url="file:///usr/lib64/oracle/12.1/client/include" />
           <root url="file:///usr/include" />
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/local/include" />
         </CLASSES>
         <SOURCES>
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include" />
+          <root url="file:///usr/lib64/oracle/12.1/client/include" />
           <root url="file:///usr/include" />
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/local/include" />
         </SOURCES>
       </library>
