@@ -349,8 +349,8 @@ int main(int argc, const char* argv[])
     if (argc == 2)
         connectionString = argv[1];
     else {
-        //connectionString = "oracle://protis:wsxedc@oracledb:1521/protis";
-        connectionString = "postgresql://localhost/protis_global";
+        connectionString = "mssql://protis:wsxedc@Protis/protis";
+        //connectionString = "postgresql://localhost/protis_global";
     }
 
     const char* availableDatabaseTypes[] = {
@@ -365,6 +365,7 @@ int main(int argc, const char* argv[])
 #endif
 #if HAVE_ODBC == 1
             "odbc",
+            "mssql",
 #endif
 #if HAVE_FIREBIRD == 1
             "firebird",
