@@ -30,6 +30,7 @@
 #define __SPTK_WSREQUEST_H__
 
 #include <sptk5/cxml>
+#include <sptk5/cthreads>
 
 namespace sptk
 {
@@ -38,11 +39,11 @@ namespace sptk
 /// @{
 
 /// @brief Parser of WSDL requests
-class WSRequest
+class WSRequest : public Synchronized
 {
-protected:
     std::string m_namespace;    ///< Detected request namespace
 
+protected:
     /// @brief Internal SOAP body processor
     ///
     /// Receives incoming SOAP body of Web Service requests, and returns
@@ -50,6 +51,7 @@ protected:
     /// This method is abstract and overwritten in derived generated classes.
     /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
     virtual void requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS = 0;
+
 public:
     /// @brief Constructor
     WSRequest() {}
@@ -77,6 +79,13 @@ public:
     virtual std::string defaultPage() const
     {
         return "index.html";
+    }
+
+    /// @brief Returns current SOAP envelope namespace
+    virtual std::string nameSpace()
+    {
+        SYNCHRONIZED_CODE;
+        return m_namespace;
     }
 };
 

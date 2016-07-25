@@ -48,16 +48,14 @@ protected:
 
 public:
     CODBCField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
-            :
-            DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
+    : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
 };
 }
 
 ODBCConnection::ODBCConnection(string connectionString)
-        :
-        DatabaseConnection(connectionString)
+: DatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnectionBase;
     m_connType = DCT_ODBC;

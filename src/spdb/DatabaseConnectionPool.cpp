@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DatabaseConnectionPool.cpp - description              ║
+║                       DatabaseConnectionPool.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -74,6 +74,8 @@ void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
     SYNCHRONIZED_CODE;
 
     string driverName = lowerCase(m_driverName);
+    if (driverName == "mssql")
+        driverName = "odbc";
 
     DatabaseDriver* loadedDriver = m_loadedDrivers[driverName];
     if (loadedDriver) {

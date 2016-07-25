@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc", "|");
+static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|firebird|odbc|mssql", "|");
 
 void DatabaseConnectionString::parse() THROWS_EXCEPTIONS
 {

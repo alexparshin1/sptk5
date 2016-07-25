@@ -41,7 +41,10 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
         Strings nameParts(node->name(),":");
         if (nameParts.size() > 1 && nameParts[1] == "Envelope") {
             soapEnvelope = node;
-            m_namespace = nameParts[0] + ":";
+            {
+                SYNCHRONIZED_CODE;
+                m_namespace = nameParts[0] + ":";
+            }
             break;
         }
         else if (node->name() == "Envelope") {
@@ -49,10 +52,11 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
             break;
         }
     }
+
     if (!soapEnvelope)
         throwException("Can't find SOAP Envelope node");
 
-    XMLElement* soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_namespace + "Body"));
+    XMLElement* soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(nameSpace() + "Body"));
     if (!soapBody)
         throwException("Can't find SOAP Body node in incoming request");
 
