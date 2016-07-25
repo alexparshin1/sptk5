@@ -43,15 +43,16 @@ namespace sptk
 
 class MySQLConnection;
 
+/// @brief MySQL statement wrapper
 class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
 {
-    std::string                     m_sql;
-    std::vector<MYSQL_BIND>         m_paramBuffers;
-    std::vector<unsigned long>      m_paramLengths;
-    std::vector<MYSQL_BIND>         m_fieldBuffers;
+    std::string                     m_sql;              ///< Statement SQL
+    std::vector<MYSQL_BIND>         m_paramBuffers;     ///< Parameter binding buffers
+    std::vector<unsigned long>      m_paramLengths;     ///< Parameter data lengths
+    std::vector<MYSQL_BIND>         m_fieldBuffers;     ///< Fetch data buffers
 
-    MYSQL_RES*                      m_result;
-    MYSQL_ROW                       m_row;
+    MYSQL_RES*                      m_result;           ///< Statement handle
+    MYSQL_ROW                       m_row;              ///< Fetch data row
 
     /// @brief Reads not prepared statement result row to query fields
     /// @param fields CFieldList&, query fields (if any)
@@ -60,7 +61,7 @@ class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
     /// @brief Reads prepared statement result row to query fields
     /// @param fields CFieldList&, query fields (if any)
     void readPreparedResultRow(FieldList& fields);
-    
+
 public:
 
     /// @brief Translates MySQL native type to CVariant type
