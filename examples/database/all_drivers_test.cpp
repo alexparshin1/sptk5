@@ -151,14 +151,23 @@ int testDatabase(string connectionString)
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
 
-        // TIMESTAMP type isn't the same for different servers
-        string timestampTypeName = "TIMESTAMP";
+        Query step1Query(db);
         if (db->driverDescription().find("Microsoft") != string::npos)
-            timestampTypeName = "DATETIME";
-
-        Query step1Query(db,
-                          "CREATE TABLE " + tableName + "(id INT, name CHAR(80), position_name CHAR(80), hire_date " +
-                          timestampTypeName + ", rate NUMERIC(16,10))", false, __FILE__, __LINE__);
+            step1Query.sql(
+                "CREATE TABLE " + tableName + "("
+                    "id             INT, "
+                    "name           NCHAR(80), "
+                    "position_name  NCHAR(80), "
+                    "hire_date      DATETIME, "
+                    "rate           NUMERIC(16,10))");
+        else
+            step1Query.sql(
+                "CREATE TABLE " + tableName + "("
+                    "id             INT, "
+                    "name           CHAR(80), "
+                    "position_name  CHAR(80), "
+                    "hire_date      TIMESTAMP, "
+                    "rate           NUMERIC(16,10))");
         Query step2Query(db, "INSERT INTO " + tableName +
                               " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__, __LINE__);
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > 1 OR id IS NULL", false, __FILE__, __LINE__);
@@ -266,7 +275,7 @@ int testDatabase(string connectionString)
         step3Query.close();
 
         cout << "Ok.\nStep 4: Selecting the information through the field iterator .." << endl;
-        step3Query.param("some_id") = 1;
+        //step3Query.param("some_id") = 1;
         step3Query.open();
 
         while (!step3Query.eof()) {
