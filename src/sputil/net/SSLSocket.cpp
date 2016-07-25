@@ -60,7 +60,7 @@ class CSSLLibraryLoader
     {
         unsigned long ret;
 #ifdef _WIN32
-		ret = GetCurrentThreadId();
+        ret = GetCurrentThreadId();
 #else
         ret=(unsigned long)pthread_self();
 #endif
@@ -90,6 +90,9 @@ public:
     ~CSSLLibraryLoader()
     {
         kill_locks();
+        ERR_free_strings();
+        EVP_cleanup();
+        CRYPTO_cleanup_all_ex_data();
     }
 };
 
