@@ -354,13 +354,13 @@ void ODBCConnection::queryBindParameters(Query* query)
                     buff = (void*) param->getString();
                     len = (long) param->dataSize();
                     paramType = SQL_C_CHAR;
-                    sqlType = SQL_CHAR;
+                    sqlType = SQL_WVARCHAR;
                     break;
                 case VAR_TEXT:
                     buff = (void*) param->getString();
                     len = (long) param->dataSize();
                     paramType = SQL_C_CHAR;
-                    sqlType = SQL_LONGVARCHAR;
+                    sqlType = SQL_WLONGVARCHAR;
                     break;
                 case VAR_BUFFER:
                     buff = (void*) param->getString();
@@ -487,8 +487,11 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantTy
             break;
 
         default:
-            cType = 0;
-            dataType = VAR_NONE;
+            //cType = 0;
+            //dataType = VAR_NONE;
+            cType = SQL_C_CHAR;
+            dataType = VAR_STRING;
+            break;
     }
 }
 
@@ -721,7 +724,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
             if (!successful(rc))
                 throw DatabaseException("SQLFetch");
-            objects.push_back(string((char*) objectSchema) + "." + string((char*) objectName));
+            String objectNameStr = String((char*) objectName).replace(";0$", "");
+            objects.push_back(string((char*) objectSchema) + "." + objectNameStr);
         }
 
         SQLFreeStmt(stmt, SQL_DROP);
