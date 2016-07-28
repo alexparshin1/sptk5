@@ -48,12 +48,12 @@ namespace sptk {
 class SP_EXPORT FieldList
 {
 public:
-    typedef std::vector<Field*>::iterator                              iterator;
-    typedef std::vector<Field*>::const_iterator                        const_iterator;
+    typedef std::vector<Field*>::iterator                              iterator;        ///< Field iterator
+    typedef std::vector<Field*>::const_iterator                        const_iterator;  ///< Field const iterator
 
 private:
-    typedef std::vector<Field*>                                        Vector;
-    typedef std::map<std::string, Field *, CaseInsensitiveCompare>     Map;
+    typedef std::vector<Field*>                                        Vector;          ///< Field vector
+    typedef std::map<std::string, Field *, CaseInsensitiveCompare>     Map;             ///< Field name to field case-insensitive map
 
     void*                   m_userData;        ///< User data - any data you want to associate with that field list
     Vector                  m_list;            ///< The list of fields

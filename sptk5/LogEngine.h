@@ -106,7 +106,7 @@ public:
         LO_PRIORITY = 8,  ///< Print message priority
         LO_ENABLE = 16    ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
     };
-    
+
 public:
     /// @brief Constructor
     ///
@@ -123,7 +123,7 @@ public:
     /// The current log content is cleared.
     /// Actual result depends on derived log engine.
     virtual void reset() THROWS_EXCEPTIONS {}
-    
+
     /// @brief Sets log options
     /// @param ops int, a bit combination of Option
     void options(int ops)
@@ -131,7 +131,7 @@ public:
         SYNCHRONIZED_CODE;
         m_options = ops;
     }
-    
+
     /// @brief Returns log options
     /// @returns a bit combination of Option
     int options()
@@ -139,10 +139,10 @@ public:
         SYNCHRONIZED_CODE;
         return m_options;
     }
-    
+
     /// @brief Sets an option to true or false
     void option(Option option, bool flag);
-    
+
     /// @brief Sets current message priority
     /// @param prt LogPriority, current message priority
     void priority(LogPriority prt)
@@ -161,7 +161,7 @@ public:
         SYNCHRONIZED_CODE;
         m_defaultPriority = priority;
     }
-    
+
     /// @brief Returns the default priority
     ///
     /// The default priority is used for the new message,
@@ -171,7 +171,7 @@ public:
         SYNCHRONIZED_CODE;
         return m_defaultPriority;
     }
-    
+
     /// @brief Sets min message priority
     ///
     /// Messages with priority less than requested are ignored
@@ -181,7 +181,7 @@ public:
         SYNCHRONIZED_CODE;
         m_minPriority = prt;
     }
-    
+
     /// @brief Returns the min priority
     ///
     /// Messages with priority less than requested are ignored
@@ -190,9 +190,12 @@ public:
         SYNCHRONIZED_CODE;
         return m_minPriority;
     }
-    
+
     /// @brief String representation of priority
     static std::string priorityName(LogPriority prt);
+
+    /// @brief Priotrity from string representation
+    static LogPriority priorityFromName(std::string prt);
 };
 
 /// @}

@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/LogEngine.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
@@ -65,4 +66,21 @@ string LogEngine::priorityName(LogPriority prt)
     case LP_PANIC:     return "PANIC";
     }
     return "";
+}
+
+LogPriority LogEngine::priorityFromName(string prt)
+{
+    static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
+
+    switch (priorityNames.indexOf(prt)) {
+        case 0: return LP_DEBUG;
+        case 1: return LP_INFO;
+        case 2: return LP_NOTICE;
+        case 3: return LP_WARNING;
+        case 4: return LP_ERROR;
+        case 5: return LP_CRITICAL;
+        case 6: return LP_ALERT;
+        case 7: return LP_PANIC;
+    }
+    return LP_DEBUG;
 }
