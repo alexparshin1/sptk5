@@ -8,6 +8,7 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     WSListener.cpp
     WSParser.cpp
     WSParserComplexType.cpp
+    WSProtocol.cpp
     WSRequest.cpp
     WSRestriction.cpp
     WSTypeTranslator.cpp

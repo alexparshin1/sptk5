@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSListener.cpp - description                          ║
+║                       WSListener.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -27,11 +27,12 @@
 */
 
 #include <sptk5/wsdl/WSListener.h>
+#include <sptk5/wsdl/WSProtocol.h>
 
 using namespace std;
 using namespace sptk;
 
-class CWSConnection : public TCPServerConnection
+class WSConnection : public TCPServerConnection
 {
 protected:
     WSRequest&     m_service;
@@ -39,33 +40,29 @@ protected:
     const string&   m_staticFilesDirectory;
 public:
 
-    CWSConnection(SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger, const string& staticFilesDirectory)
+    WSConnection(SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger, const string& staticFilesDirectory)
     : TCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
     {
     }
 
-    virtual ~CWSConnection()
+    virtual ~WSConnection()
     {
     }
 
     virtual void threadFunction();
 };
 
-void CWSConnection::threadFunction()
+void WSConnection::threadFunction()
 {
     static const RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
     static const RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
-
-    const char* startOfMessage = NULL;
-    const char* endOfMessage = NULL;
-    const char* endOfMessageMark = ":Envelope>";
 
     Buffer data;
 
     // Read request data
     string      row;
     Strings     matches;
-    string      protocol, url, requestType;
+    string      protocolName, url, requestType;
     int         contentLength = 0;
 
     try {
@@ -75,18 +72,20 @@ void CWSConnection::threadFunction()
             return;
         }
 
+        map<String,String>  headers;
+        
         try {
             while (!terminated()) {
                 if (!m_socket->readLine(data))
                     return;
                 row = trim(data.c_str());
-                if (protocol.empty()) {
+                if (protocolName.empty()) {
                     if (strstr(row.c_str(), "<?xml")) {
-                        protocol = "xml";
+                        protocolName = "xml";
                         break;
                     }
                     if (parseProtocol.m(row, matches)) {
-                        protocol = "http";
+                        protocolName = "http";
                         requestType = matches[0];
                         url = matches[1];
                         continue;
@@ -97,6 +96,7 @@ void CWSConnection::threadFunction()
                     string value = matches[1];
                     if (lowerCase(header) == "content-length")
                         contentLength = string2int(value);
+                    headers[header] = value;
                     continue;
                 }
                 if (row.empty()) {
@@ -114,97 +114,14 @@ void CWSConnection::threadFunction()
             return;
         }
 
-        if (protocol == "http" && !url.empty() && url != "/service.html") {
-            Buffer page;
-            try {
-                page.loadFromFile(m_staticFilesDirectory + url);
-                m_socket->write("HTTP/1.1 200 OK\n");
-                m_socket->write("Content-Type: text/html; charset=utf-8\n");
-                m_socket->write("Content-Length: " + int2string(page.bytes()) + "\n\n");
-                m_socket->write(page);
-            }
-            catch (...) {
-                string text("<html><head><title>Not Found</title></head><body>Sorry, the page you requested was not found.</body></html>\n");
-                m_socket->write("HTTP/1.1 404 Not Found\n");
-                m_socket->write("Content-Type: text/html; charset=utf-8\n");
-                m_socket->write("Content-length: " + int2string(text.length()) + "\n\n");
-                m_socket->write(text);
-            }
-            m_socket->close();
+        if (protocolName == "http" && !url.empty()) {
+            WSStaticHttpProtocol protocol(m_socket, url, headers, m_staticFilesDirectory);
+            protocol.process();
             return;
         }
-
-        if (protocol == "xml")
-            m_socket->write("<?xml version='1.0' encoding='UTF-8'?><server name='" + m_service.title() + "' version='1.0'/>\n");
-        uint32_t offset = 0;
-        while (!terminated()) {
-            if (contentLength) {
-                m_socket->read(data, contentLength);
-                startOfMessage = data.c_str();
-                endOfMessage = startOfMessage + data.bytes();
-            } else {
-                uint32_t socketBytes = m_socket->socketBytes();
-                if (!socketBytes) {
-                    if (!m_socket->readyToRead(30000)) {
-                        m_logger <<"Client disconnected" << endl;
-                        break;
-                    }
-                    socketBytes = m_socket->socketBytes();
-                }
-                // If socket is signaled but empty - then other side closed connection
-                if (socketBytes == 0) {
-                    m_logger <<"Client disconnected" << endl;
-                    break;
-                }
-                do {
-                    // Read all available data (appending to data buffer)
-                    data.checkSize(offset + socketBytes);
-                    socketBytes = (uint32_t) m_socket->read(data.data() + offset, (uint32_t) socketBytes);
-                    data.bytes(offset + socketBytes);
-                    //cout << data.c_str() << endl;
-                    if (!startOfMessage) {
-                        startOfMessage = strstr(data.c_str(), "<?xml");
-                        if (!startOfMessage) {
-                            startOfMessage = strstr(data.c_str(), "Envelope");
-                            if (startOfMessage)
-                                while (*startOfMessage != '<' && startOfMessage > data.c_str())
-                                    startOfMessage--;
-                        }
-                        if (!startOfMessage)
-                            throwException("Message start <?xml> not found");
-                    }
-                    endOfMessage = strstr(startOfMessage, endOfMessageMark);
-                } while (!endOfMessage && !terminated());
-
-                if (terminated())
-                    break;
-
-                // Message received, processing it
-                endOfMessage += strlen(endOfMessageMark);
-            }
-
-            sptk::XMLDocument message;
-            if (endOfMessage)
-                *(char *) endOfMessage = 0;
-            message.load(startOfMessage);
-
-            //cout << startOfMessage << endl << endl;
-
-            Buffer output;
-            m_service.processRequest(&message);
-            message.save(output);
-
-            //cout << output.c_str() << endl;
-
-            if (protocol == "http") {
-                m_socket->write("HTTP/1.1 200 OK\n");
-                m_socket->write("Content-Type: text/xml; charset=utf-8\n");
-                m_socket->write("Content-Length: " + int2string(output.bytes()) + "\n\n");
-            }
-            m_socket->write(output);
-            m_socket->close();
-            break;
-        }
+        
+        WSWebServiceProtocol protocol(m_socket, headers, m_service);
+        protocol.process();
     }
     catch (exception& e) {
         if (!terminated())
@@ -227,5 +144,5 @@ WSListener::~WSListener()
 
 ServerConnection* WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
 {
-    return new CWSConnection(connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory);
+    return new WSConnection(connectionSocket, peer, m_service, m_logger, m_staticFilesDirectory);
 }
