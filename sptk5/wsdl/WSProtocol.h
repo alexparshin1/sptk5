@@ -34,46 +34,94 @@
 
 namespace sptk {
 
+/// @brief Abstract base class for different protocols used in Web Service servers
 class WSProtocol
 {
 protected:
-    TCPSocket&                      m_socket;
-    const std::map<String,String>&  m_headers;
+
+    TCPSocket&                      m_socket;   ///< Connection socket
+    const std::map<String,String>&  m_headers;  ///< Connection HTTP headers
+
 public:
-    WSProtocol(TCPSocket *socket, const std::map<String,String>& headers)
+
+    /// @brief Constructor
+    /// @param socket TCPSocket*, Connection socket
+    /// @param headers const std::map<String,String>&, Connection HTTP headers
+    WSProtocol(TCPSocket* socket, const std::map<String,String>& headers)
     : m_socket(*socket), m_headers(headers)
     {
     }
 
+    /// @brief Destructor
+    ///
+    /// Closes connection
     virtual ~WSProtocol()
     {
         m_socket.close();
     }
-    
+
+    /// @brief Process virtual method - to be implemented in derived classes
     virtual void process() = 0;
 };
 
+/// @brief Handler for static files (.html, .js, .png, etc)
+///
+/// Session disconnects as soon as file is served.
 class WSStaticHttpProtocol : public WSProtocol
 {
-    String  m_url;
-    String  m_staticFilesDirectory;
+    String  m_url;                      ///< File URL
+    String  m_staticFilesDirectory;     ///< Directory where static files reside on the server
 public:
+
+    /// @brief Constructor
+    /// @param socket TCPSocket*, Connection socket
+    /// @param url String, File URL
+    /// @param headers const std::map<String,String>&, Connection HTTP headers
+    /// @param staticFilesDirectory String, Directory where static files reside on the server
     WSStaticHttpProtocol(TCPSocket *socket, String url, const std::map<String,String>& headers, String staticFilesDirectory);
+
+    /// @brief Process method
+    ///
+    /// Writes HTTP response and file content to the connection
     virtual void process();
 };
 
+/// @brief WebSockets connection handler
+///
+/// Treats connection as WebSockets, implementing WebSockets
+/// handshake and client session. Session stays connected until
+/// client disconnects.
 class WSWebSocketsProtocol : public WSProtocol
 {
 public:
+    /// @brief Constructor
+    /// @param socket TCPSocket*, Connection socket
+    /// @param headers const std::map<String,String>&, Connection HTTP headers
     WSWebSocketsProtocol(TCPSocket *socket, const std::map<String,String>& headers);
+
+    /// @brief Process method
+    ///
+    /// Implements WebSockets session
     virtual void process();
 };
 
+/// @brief WebService connection handler
+///
+/// Uses WSRequest service object to parse WS request and
+/// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
     WSRequest&     m_service;
 public:
+
+    /// @brief Constructor
+    /// @param socket TCPSocket*, Connection socket
+    /// @param headers const std::map<String,String>&, Connection HTTP headers
     WSWebServiceProtocol(TCPSocket *socket, const std::map<String,String>& headers, WSRequest& service);
+
+    /// @brief Process method
+    ///
+    /// Calls WebService request through service object
     virtual void process();
 };
 

@@ -34,7 +34,6 @@ using namespace sptk;
 WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket *socket, String url, const std::map<String,String>& headers, String staticFilesDirectory)
 : WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
 {
-    
 }
 
 void WSStaticHttpProtocol::process()
@@ -69,7 +68,6 @@ void WSWebSocketsProtocol::process()
 WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const std::map<String,String>& headers, WSRequest& service)
 : WSProtocol(socket, headers), m_service(service)
 {
-    
 }
 
 void WSWebServiceProtocol::process()
@@ -78,7 +76,7 @@ void WSWebServiceProtocol::process()
     map<String,String>::const_iterator itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
         contentLength = string2int(itor->second);
-    
+
     m_socket.write("<?xml version='1.0' encoding='UTF-8'?><server name='" + m_service.title() + "' version='1.0'/>\n");
     uint32_t offset = 0;
 
@@ -87,7 +85,7 @@ void WSWebServiceProtocol::process()
     const char* endOfMessageMark = ":Envelope>";
 
     Buffer data;
-    
+
     if (contentLength) {
         m_socket.read(data, contentLength);
         startOfMessage = data.c_str();
@@ -99,7 +97,7 @@ void WSWebServiceProtocol::process()
                 throwException("Client disconnected");
             socketBytes = m_socket.socketBytes();
         }
-        
+
         // If socket is signaled but empty - then other side closed connection
         if (socketBytes == 0)
             throwException("Client disconnected");
