@@ -83,8 +83,9 @@ public:
         DCT_ORACLE=2,       ///< Oracle
         DCT_POSTGRES=4,     ///< PostgreSQL
         DCT_SQLITE3=8,      ///< SQLite3
-        DCT_ODBC=16,        ///< Generic ODBC
-        DCT_FIREBIRD=32     ///< Firebird
+        DCT_FIREBIRD=16,    ///< Firebird
+        DCT_GENERIC_ODBC=32,///< Generic ODBC
+        DCT_MSSQL_ODBC=64   ///< Generic ODBC
     };
 
 protected:

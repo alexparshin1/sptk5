@@ -58,7 +58,7 @@ ODBCConnection::ODBCConnection(string connectionString)
 : DatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnectionBase;
-    m_connType = DCT_ODBC;
+    m_connType = DCT_GENERIC_ODBC;
 }
 
 ODBCConnection::~ODBCConnection()

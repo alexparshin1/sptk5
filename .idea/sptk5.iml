@@ -87,6 +87,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSParserComplexType.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSComplexType.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSProtocol.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSTypeTranslator.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSParser.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSBasicTypes.cpp" isTestSource="false" />
