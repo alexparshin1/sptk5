@@ -63,7 +63,6 @@ void WSConnection::threadFunction()
     string      row;
     Strings     matches;
     string      protocolName, url, requestType;
-    int         contentLength = 0;
 
     try {
         if (!m_socket->readyToRead(30000)) {
@@ -73,7 +72,7 @@ void WSConnection::threadFunction()
         }
 
         map<String,String>  headers;
-        
+
         try {
             while (!terminated()) {
                 if (!m_socket->readLine(data))
@@ -94,8 +93,6 @@ void WSConnection::threadFunction()
                 if (parseHeader.m(row, matches)) {
                     string header = matches[0];
                     string value = matches[1];
-                    if (lowerCase(header) == "content-length")
-                        contentLength = string2int(value);
                     headers[header] = value;
                     continue;
                 }
@@ -114,12 +111,27 @@ void WSConnection::threadFunction()
             return;
         }
 
-        if (protocolName == "http" && !url.empty()) {
+        if (protocolName == "http") {
+            if (headers["Upgrade"] == "websocket") {
+                WSWebSocketsProtocol protocol(m_socket, headers);
+                protocol.process();
+                return;
+            }
+
+            if (url == "/")
+                url = "index.html";
+
             WSStaticHttpProtocol protocol(m_socket, url, headers, m_staticFilesDirectory);
             protocol.process();
             return;
         }
-        
+
+        if (protocolName == "websocket") {
+            WSWebSocketsProtocol protocol(m_socket, headers);
+            protocol.process();
+            return;
+        }
+
         WSWebServiceProtocol protocol(m_socket, headers, m_service);
         protocol.process();
     }

@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES (/usr/local/include)
 
 LINK_DIRECTORIES (${SPTK_BINARY_DIR})
 
-SET (NET_TESTS tcp_client_test tcp_server_test smtp_connect udp_client_test udp_server_test ssl_server_test ssl_client_test)
+SET (NET_TESTS ws_server_test tcp_client_test tcp_server_test smtp_connect udp_client_test udp_server_test ssl_server_test ssl_client_test)
 
 IF (FLTK_FLAG)
     INCLUDE_DIRECTORIES (${FLTK_INCLUDE_DIR})
@@ -11,7 +11,7 @@ IF (FLTK_FLAG)
     SET (NET_TESTS ${NET_TESTS} imap_connect http_connect)
     LINK_LIBRARIES (sputil5 sptk5 spdb5 ${SOCKET_LIBRARY} ${FLTK_LIBRARIES} ${ASPELL_LIBRARIES})
 ELSE (FLTK_FLAG)
-    LINK_LIBRARIES (sputil5 ${SOCKET_LIBRARY})
+    LINK_LIBRARIES (sputil5 spwsdl5 ${SOCKET_LIBRARY})
 ENDIF (FLTK_FLAG)
 
 IF (UNIX)

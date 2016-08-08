@@ -8,10 +8,12 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     WSListener.cpp
     WSParser.cpp
     WSParserComplexType.cpp
-    WSProtocol.cpp
     WSRequest.cpp
     WSRestriction.cpp
     WSTypeTranslator.cpp
+    protocol/WSStaticHttpProtocol.cpp
+    protocol/WSWebServiceProtocol.cpp
+    protocol/WSWebSocketsProtocol.cpp
 )
 
 TARGET_LINK_LIBRARIES(spwsdl5 sputil5)

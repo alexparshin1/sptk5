@@ -87,7 +87,7 @@ void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
         *output = base64chars(current[0] >> 2);
         output++;
         if (len > 1) {
-            *output = base64chars(((current[0] & 0x03) << 4) | (current[1] >> 4));
+            *output = base64chars(((current[0] & 0x03) << 4) | ((current[1] & 0xF0) >> 4));
             output++;
             *output = base64chars((current[1] & 0x0f) << 2);
             output++;

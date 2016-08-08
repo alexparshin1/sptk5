@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSProtocol.cpp - description                           ║
+║                       WSWebSocketsProtocol.cpp - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Saturday Jul 30 2016                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,41 +26,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/WSProtocol.h>
+#include "WSWebSocketsProtocol.h"
+#include <sptk5/Base64.h>
 
 using namespace std;
 using namespace sptk;
 
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket *socket, String url, const std::map<String,String>& headers, String staticFilesDirectory)
-: WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
-{
-}
-
-void WSStaticHttpProtocol::process()
-{
-    Buffer page;
-    try {
-        page.loadFromFile(m_staticFilesDirectory + m_url);
-        m_socket.write("HTTP/1.1 200 OK\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-Length: " + int2string(page.bytes()) + "\n\n");
-        m_socket.write(page);
-    }
-    catch (...) {
-        string text("<html><head><title>Not Found</title></head><body>Sorry, the page you requested was not found.</body></html>\n");
-        m_socket.write("HTTP/1.1 404 Not Found\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
-        m_socket.write(text);
-    }
-}
-//=============================================================================
-WSWebSocketMessage::WSWebSocketMessage()
+WSWebSocketsMessage::WSWebSocketsMessage()
 : m_opcode(0), m_finalMessage(true)
 {
 }
 
-const Buffer& WSWebSocketMessage::payload()
+const Buffer& WSWebSocketsMessage::payload()
 {
     return m_payload;
 }
@@ -79,21 +56,7 @@ static uint64_t ntoh64(uint64_t data)
     return output.u64;
 }
 
-static uint64_t hton64(uint64_t data)
-{
-    union {
-        uint64_t    u64;
-        uint32_t    u32[2];
-    } transform, output;
-
-    transform.u64 = data;
-    output.u32[0] = htonl(transform.u32[1]);
-    output.u32[1] = htonl(transform.u32[0]);
-
-    return output.u64;
-}
-
-void WSWebSocketMessage::decode(const char* incomingData)
+void WSWebSocketsMessage::decode(const char* incomingData)
 {
     const uint8_t* ptr = (const uint8_t*)incomingData;
 
@@ -124,7 +87,7 @@ void WSWebSocketMessage::decode(const char* incomingData)
         m_payload.set((const char*)ptr, payloadLength);
 }
 
-void WSWebSocketMessage::encode(String payload, int opcode, bool final, Buffer& output)
+void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buffer& output)
 {
     output.reset(payload.length() + 10);
 
@@ -152,7 +115,7 @@ void WSWebSocketMessage::encode(String payload, int opcode, bool final, Buffer& 
     output.bytes(ptr - (uint8_t*) output.c_str());
     output.append(payload);
 }
-//=============================================================================
+
 WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket *socket, const std::map<String,String>& headers)
 : WSProtocol(socket, headers)
 {
@@ -161,81 +124,57 @@ WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket *socket, const std::map<Str
 
 void WSWebSocketsProtocol::process()
 {
-}
+    try {
+        String clientKey = m_headers["Sec-WebSocket-Key"];
+        String socketVersion = m_headers["Sec-WebSocket-Version"];
+        if (clientKey.empty() || socketVersion != "13")
+            throw Exception("WebSocket protocol is missing or has invalid Sec-WebSocket-Key or Sec-WebSocket-Version headers");
 
-WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const std::map<String,String>& headers, WSRequest& service)
-: WSProtocol(socket, headers), m_service(service)
-{
-}
+        String websocketProtocol = m_headers["Sec-WebSocket-Protocol"];
+        //clientKey = "dGhlIHNhbXBsZSBub25jZQ==";
 
-void WSWebServiceProtocol::process()
-{
-    int contentLength = 0;
-    map<String,String>::const_iterator itor = m_headers.find("Content-Length");
-    if (itor != m_headers.end())
-        contentLength = string2int(itor->second);
+        // Generate server response key from client key
+        String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        unsigned char obuf[20];
+        SHA1((const unsigned char*)responseKey.c_str(), responseKey.length(), obuf);
+        Buffer responseKeySHA(obuf, 20);
+        Buffer responseKeyEncoded;
+        Base64::encode(responseKeyEncoded, responseKeySHA);
+        responseKey = responseKeyEncoded.c_str();
 
-    m_socket.write("<?xml version='1.0' encoding='UTF-8'?><server name='" + m_service.title() + "' version='1.0'/>\n");
-    uint32_t offset = 0;
+        m_socket.write("HTTP/1.1 101 Switching Protocols\r\n");
+        m_socket.write("Upgrade: websocket\r\n");
+        m_socket.write("Connection: Upgrade\r\n");
+        m_socket.write("Sec-WebSocket-Accept: " + responseKey + "\r\n");
+        m_socket.write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
+        m_socket.write("\r\n");
 
-    const char* startOfMessage = NULL;
-    const char* endOfMessage = NULL;
-    const char* endOfMessageMark = ":Envelope>";
+        if (m_socket.readyToRead(30000)) {
+            Buffer message;
 
-    Buffer data;
+            while (!m_socket.socketBytes())
+                Thread::msleep(100);
 
-    if (contentLength) {
-        m_socket.read(data, contentLength);
-        startOfMessage = data.c_str();
-        endOfMessage = startOfMessage + data.bytes();
-    } else {
-        uint32_t socketBytes = m_socket.socketBytes();
-        if (!socketBytes) {
-            if (!m_socket.readyToRead(30000))
-                throwException("Client disconnected");
-            socketBytes = m_socket.socketBytes();
+            int available = m_socket.socketBytes();
+            m_socket.read(message, available);
+            WSWebSocketsMessage msg;
+            msg.decode(message.c_str());
+
+            cout << msg.payload().c_str() << endl;
+
+            WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OC_TEXT, true, message);
+            m_socket.write(message);
+
+            WSWebSocketsMessage::encode("World", WSWebSocketsMessage::OC_TEXT, true, message);
+            m_socket.write(message);
         }
-
-        // If socket is signaled but empty - then other side closed connection
-        if (socketBytes == 0)
-            throwException("Client disconnected");
-
-        do {
-            // Read all available data (appending to data buffer)
-            data.checkSize(offset + socketBytes);
-            socketBytes = (uint32_t) m_socket.read(data.data() + offset, (uint32_t) socketBytes);
-            data.bytes(offset + socketBytes);
-            //cout << data.c_str() << endl;
-            if (!startOfMessage) {
-                startOfMessage = strstr(data.c_str(), "<?xml");
-                if (!startOfMessage) {
-                    startOfMessage = strstr(data.c_str(), "Envelope");
-                    if (startOfMessage)
-                        while (*startOfMessage != '<' && startOfMessage > data.c_str())
-                            startOfMessage--;
-                }
-                if (!startOfMessage)
-                    throwException("Message start <?xml> not found");
-            }
-            endOfMessage = strstr(startOfMessage, endOfMessageMark);
-        } while (!endOfMessage);
-
-        // Message received, processing it
-        endOfMessage += strlen(endOfMessageMark);
     }
-
-    sptk::XMLDocument message;
-    if (endOfMessage)
-        *(char *) endOfMessage = 0;
-    message.load(startOfMessage);
-
-    //cout << startOfMessage << endl << endl;
-
-    Buffer output;
-    m_service.processRequest(&message);
-    message.save(output);
-
-    //cout << output.c_str() << endl;
-
-    m_socket.write(output);
+    catch (const Exception& e) {
+        string text("<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");
+        m_socket.write("HTTP/1.1 400 Bad Request\n");
+        m_socket.write("Content-Type: text/html; charset=utf-8\n");
+        m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
+        m_socket.write(text);
+        m_socket.close();
+    }
 }

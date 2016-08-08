@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSProtocol.cpp - description                           ║
+║                       WSWebServiceProtocol.cpp - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Saturday Jul 30 2016                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,142 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/WSProtocol.h>
+#include "WSWebServiceProtocol.h"
 
 using namespace std;
 using namespace sptk;
-
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket *socket, String url, const std::map<String,String>& headers, String staticFilesDirectory)
-: WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
-{
-}
-
-void WSStaticHttpProtocol::process()
-{
-    Buffer page;
-    try {
-        page.loadFromFile(m_staticFilesDirectory + m_url);
-        m_socket.write("HTTP/1.1 200 OK\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-Length: " + int2string(page.bytes()) + "\n\n");
-        m_socket.write(page);
-    }
-    catch (...) {
-        string text("<html><head><title>Not Found</title></head><body>Sorry, the page you requested was not found.</body></html>\n");
-        m_socket.write("HTTP/1.1 404 Not Found\n");
-        m_socket.write("Content-Type: text/html; charset=utf-8\n");
-        m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
-        m_socket.write(text);
-    }
-}
-//=============================================================================
-WSWebSocketMessage::WSWebSocketMessage()
-: m_opcode(0), m_finalMessage(true)
-{
-}
-
-const Buffer& WSWebSocketMessage::payload()
-{
-    return m_payload;
-}
-
-static uint64_t ntoh64(uint64_t data)
-{
-    union {
-        uint64_t    u64;
-        uint32_t    u32[2];
-    } transform, output;
-
-    transform.u64 = data;
-    output.u32[0] = ntohl(transform.u32[1]);
-    output.u32[1] = ntohl(transform.u32[0]);
-
-    return output.u64;
-}
-
-static uint64_t hton64(uint64_t data)
-{
-    union {
-        uint64_t    u64;
-        uint32_t    u32[2];
-    } transform, output;
-
-    transform.u64 = data;
-    output.u32[0] = htonl(transform.u32[1]);
-    output.u32[1] = htonl(transform.u32[0]);
-
-    return output.u64;
-}
-
-void WSWebSocketMessage::decode(const char* incomingData)
-{
-    const uint8_t* ptr = (const uint8_t*)incomingData;
-
-    m_finalMessage = *ptr & 0x80;
-    m_opcode = *ptr & 0xF;
-
-    ptr++;
-    bool masked = *ptr & 0x80;
-    uint64_t payloadLength = (*ptr) & 0x7F;
-    switch (payloadLength) {
-        default:    ptr++; break;
-        case 126:   ptr++; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
-        case 127:   ptr++; payloadLength = ntoh64(*(const uint64_t*)ptr); ptr += 8; break;
-    }
-
-    m_payload.checkSize(payloadLength);
-    m_payload.bytes(payloadLength);
-
-    if (masked) {
-        uint8_t mask[4];
-        *(uint32_t *)mask = *(const uint32_t*)ptr;
-        ptr += 4;
-        char* dest = m_payload.data();
-        for (uint64_t i = 0; i < payloadLength; i++) {
-            dest[i] = ptr[i] ^ mask[i % 4];
-        }
-    } else
-        m_payload.set((const char*)ptr, payloadLength);
-}
-
-void WSWebSocketMessage::encode(String payload, int opcode, bool final, Buffer& output)
-{
-    output.reset(payload.length() + 10);
-
-    uint8_t* ptr = (uint8_t*) output.data();
-
-    *ptr = opcode & 0xF;
-    if (final)
-        *ptr |= 0x80;
-
-    ptr++;
-
-    if (payload.length() < 126) {
-        *ptr = (uint8_t) payload.length();
-        ptr++;
-    }
-    else if (payload.length() <= 32767) {
-        *(uint16_t*)ptr = htons(payload.length());
-        ptr += 2;
-    }
-    else {
-        *(uint64_t*)ptr = payload.length();
-        ptr += 8;
-    }
-
-    output.bytes(ptr - (uint8_t*) output.c_str());
-    output.append(payload);
-}
-//=============================================================================
-WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket *socket, const std::map<String,String>& headers)
-: WSProtocol(socket, headers)
-{
-
-}
-
-void WSWebSocketsProtocol::process()
-{
-}
 
 WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const std::map<String,String>& headers, WSRequest& service)
 : WSProtocol(socket, headers), m_service(service)
