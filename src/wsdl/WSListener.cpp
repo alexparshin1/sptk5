@@ -27,7 +27,9 @@
 */
 
 #include <sptk5/wsdl/WSListener.h>
-#include <sptk5/wsdl/WSProtocol.h>
+#include "protocol/WSStaticHttpProtocol.h"
+#include "protocol/WSWebServiceProtocol.h"
+#include "protocol/WSWebSocketsProtocol.h"
 
 using namespace std;
 using namespace sptk;
@@ -35,8 +37,8 @@ using namespace sptk;
 class WSConnection : public TCPServerConnection
 {
 protected:
-    WSRequest&     m_service;
-    Logger&       m_logger;
+    WSRequest&      m_service;
+    Logger&         m_logger;
     const string&   m_staticFilesDirectory;
 public:
 
