@@ -91,7 +91,9 @@ public:
     {
         CRYPTO_set_locking_callback(NULL);
         CRYPTO_set_id_callback(NULL);
+#if OPENSSL_VERSION_NUMBER > 0x1000114fL
         SSL_COMP_free_compression_methods();
+#endif
         ERR_free_strings();
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
