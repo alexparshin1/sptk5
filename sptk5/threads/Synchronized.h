@@ -35,6 +35,7 @@
 
 #include <condition_variable>
 #include <chrono>
+#include <mutex>
 
 namespace sptk {
 
