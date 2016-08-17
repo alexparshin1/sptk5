@@ -126,6 +126,13 @@ public:
     /// @param objectType CDbObjectType, object type to list
     /// @param objects Strings&, object list (output)
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+
+    /// @brief Executes SQL batch file
+    ///
+    /// Queries are executed in not prepared mode.
+    /// Syntax of the SQL batch file is matching the native for the database.
+    /// @param batchFile std::string, SQL batch file
+    virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
 };
 
 

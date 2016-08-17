@@ -29,6 +29,7 @@
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/DatabaseField.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -738,6 +739,57 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         logAndThrow(e.what(), error);
     } catch (...) {
         logAndThrow("CODBCConnection::objectList", "Unknown error");
+    }
+}
+
+void ODBCConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+{
+    Strings sqlBatch;
+    sqlBatch.loadFromFile(batchFile);
+    
+    RegularExpression matchStatementEnd("(;\\s*)$");
+    RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
+    RegularExpression matchGo("^\\s*GO\\s*$", "i");
+    
+    Strings statements, matches;
+    string statement;
+    bool routineStarted = false;
+    for (string row: sqlBatch) {
+        
+        if (!routineStarted) {
+            row = trim(row);
+            if (row.empty())
+                continue;
+        }
+        
+        if (matchRoutineStart.m(row, matches))
+            routineStarted = true;
+        
+        if (!routineStarted && matchStatementEnd.m(row, matches)) {
+            row = matchStatementEnd.s(row, "");
+            statement += row;
+            statements.push_back(trim(statement));
+            statement = "";
+            continue;
+        }
+        
+        if (matchGo.m(row, matches)) {
+            routineStarted = false;
+            statements.push_back(trim(statement));
+            statement = "";
+            continue;
+        }
+        
+        statement += row + "\n";
+    }
+    
+    if (!trim(statement).empty())
+        statements.push_back(statement);
+    
+    for (string stmt: statements) {
+        Query query(this, stmt, false);
+        //cout << "[ " << statement << " ]" << endl;
+        query.exec();
     }
 }
 

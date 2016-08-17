@@ -608,7 +608,7 @@ void OracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
     Strings sqlBatch;
     sqlBatch.loadFromFile(batchFile);
 
-    RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
+    RegularExpression  matchStatementEnd("(;\\s*)$");
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
     RegularExpression  matchGo("^/\\s*$");
     RegularExpression  matchShowErrors("^SHOW\\s+ERRORS", "i");
@@ -629,8 +629,8 @@ void OracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
         if (matchRoutineStart.m(row, matches))
             routineStarted = true;
 
-        if (!routineStarted && matchStatementEnd->m(row, matches)) {
-            row = matchStatementEnd->s(row, "");
+        if (!routineStarted && matchStatementEnd.m(row, matches)) {
+            row = matchStatementEnd.s(row, "");
             statement += row;
             statements.push_back(trim(statement));
             statement = "";
