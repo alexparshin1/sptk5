@@ -274,8 +274,8 @@ public:
     ///
     /// Queries are executed in not prepared mode.
     /// Syntax of the SQL batch file is matching the native for the database.
-    /// @param batchFile std::string, SQL batch file
-    virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
+    /// @param batchFile const sptk::Strings&, SQL batch file
+    virtual void executeBatchFile(const sptk::Strings& batchFile) THROWS_EXCEPTIONS;
 };
 /// @}
 }

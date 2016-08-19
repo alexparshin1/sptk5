@@ -384,11 +384,8 @@ void MySQLConnection::bulkInsert(std::string tableName, const Strings& columnNam
     }
 }
 
-void MySQLConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void MySQLConnection::executeBatchFile(const Strings& sqlBatch) THROWS_EXCEPTIONS
 {
-    Strings sqlBatch;
-    sqlBatch.loadFromFile(batchFile);
-
     RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
     RegularExpression  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
     RegularExpression  matchEscapeChars("([$.])", "g");

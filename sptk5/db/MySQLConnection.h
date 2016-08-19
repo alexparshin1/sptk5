@@ -145,11 +145,8 @@ public:
     ///
     /// Queries are executed in not prepared mode.
     /// Syntax of the SQL batch file is matching the native for the database.
-    /// @param batchFile std::string, SQL batch file
-    /// @param columnNames const Strings&, list of table columns to populate
-    /// @param data const Strings&, data for bulk insert
-    /// @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
-    virtual void executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS;
+    /// @param batchFile const sptk::Strings&, SQL batch file
+    virtual void executeBatchFile(const sptk::Strings& batchFile) THROWS_EXCEPTIONS override;
 };
 
 #define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection)))
