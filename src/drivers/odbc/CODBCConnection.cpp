@@ -748,17 +748,17 @@ void ODBCConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
     sqlBatch.loadFromFile(batchFile);
     
     RegularExpression matchStatementEnd("(;\\s*)$");
-    RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
+    RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
     RegularExpression matchGo("^\\s*GO\\s*$", "i");
     
     Strings statements, matches;
     string statement;
     bool routineStarted = false;
-    for (string row: sqlBatch) {
+    for (String row: sqlBatch) {
         
         if (!routineStarted) {
             row = trim(row);
-            if (row.empty())
+            if (row.empty() || row.startsWith("--"))
                 continue;
         }
         

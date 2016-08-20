@@ -128,17 +128,6 @@ int testDatabase(string connectionString)
         db->open();
         cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
 
-        Query d(db, "DELETE FROM t2");
-        d.exec();
-
-        Query q(db, "INSERT INTO t2 VALUES(:v1)");
-        q.param("v1") = "Test 001 Тест";
-        q.exec();
-        cout << "DONE" << endl;
-        exit(0);
-
-        //testBLOBs(db);
-
         DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
