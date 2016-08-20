@@ -603,11 +603,8 @@ std::string OracleConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void OracleConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void OracleConnection::executeBatchFile(const Strings& sqlBatch) THROWS_EXCEPTIONS
 {
-    Strings sqlBatch;
-    sqlBatch.loadFromFile(batchFile);
-
     RegularExpression  matchStatementEnd("(;\\s*)$");
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
     RegularExpression  matchGo("^/\\s*$");

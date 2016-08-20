@@ -742,29 +742,25 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-void ODBCConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
+void ODBCConnection::executeBatchFile(const Strings& sqlBatch) THROWS_EXCEPTIONS
 {
-    Strings sqlBatch;
-    sqlBatch.loadFromFile(batchFile);
-    
     RegularExpression matchStatementEnd("(;\\s*)$");
     RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
     RegularExpression matchGo("^\\s*GO\\s*$", "i");
-    
+
     Strings statements, matches;
     string statement;
     bool routineStarted = false;
     for (String row: sqlBatch) {
-        
         if (!routineStarted) {
             row = trim(row);
             if (row.empty() || row.startsWith("--"))
                 continue;
         }
-        
+
         if (matchRoutineStart.m(row, matches))
             routineStarted = true;
-        
+
         if (!routineStarted && matchStatementEnd.m(row, matches)) {
             row = matchStatementEnd.s(row, "");
             statement += row;
@@ -772,20 +768,20 @@ void ODBCConnection::executeBatchFile(std::string batchFile) THROWS_EXCEPTIONS
             statement = "";
             continue;
         }
-        
+
         if (matchGo.m(row, matches)) {
             routineStarted = false;
             statements.push_back(trim(statement));
             statement = "";
             continue;
         }
-        
+
         statement += row + "\n";
     }
-    
+
     if (!trim(statement).empty())
         statements.push_back(statement);
-    
+
     for (string stmt: statements) {
         Query query(this, stmt, false);
         //cout << "[ " << statement << " ]" << endl;
