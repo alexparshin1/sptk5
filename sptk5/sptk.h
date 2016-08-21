@@ -101,14 +101,26 @@ namespace sptk {
 #ifdef __UNIX_COMPILER__
     #include <stdint.h>
     #include <inttypes.h>
-#else
-    #ifdef __BORLANDC__
+
+#elif __BORLANDC__
+    #include <stdint.h>
+    #include <ctype.h>
+
+#elif defined(_MSC_VER)
+    #if _MSC_VER >= 1800
+        // Visual Studio 2013 and up
         #include <stdint.h>
-        #include <ctype.h>
+        #include <inttypes.h>
     #else
-		#include <stdint.h>
-		#include <inttypes.h>
-	#endif
+        // Visual Studio 2012 and before
+        #include <stdint.h>
+        #include <inttypes.h>
+    #endif
+    
+#else
+    #include <stdint.h>
+    #include <inttypes.h>
+
 #endif
 
 #endif

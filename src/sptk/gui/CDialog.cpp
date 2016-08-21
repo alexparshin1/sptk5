@@ -33,7 +33,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/Registry.h>
 #include <sptk5/db/DatabaseConnection.h>
 #include <sptk5/db/Query.h>

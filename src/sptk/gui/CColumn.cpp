@@ -30,7 +30,7 @@
 
 #include <FL/Fl.H>
 #include <sptk5/gui/CColumn.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/string_ext.h>
 #include <stdlib.h>
 

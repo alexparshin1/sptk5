@@ -411,12 +411,12 @@ void CInput::save(Query *updateQuery)
     param = data();
 }
 
-CVariant CInput::data() const
+Variant CInput::data() const
 {
     return ((CInput_ *)m_control)->value();
 }
 
-void CInput::data(const CVariant s)
+void CInput::data(const Variant s)
 {
     std::string strValue = s.asString();
     ((CInput_ *)m_control)->value(strValue.c_str());

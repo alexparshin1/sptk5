@@ -52,10 +52,10 @@ using namespace sptk;
 namespace sptk
 {
 
-class SP_EXPORT CDateTimeFormat
+class SP_EXPORT DateTimeFormat
 {
 public:
-    CDateTimeFormat();
+    DateTimeFormat();
 
     void init();
 
@@ -103,7 +103,7 @@ static void upperCase(char* dest, const char* src)
     dest[i] = 0;
 }
 
-char CDateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
+char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
 {
     char separator[] = " ";
     char dt[32];
@@ -177,12 +177,12 @@ char CDateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     return separator[0];
 }
 
-CDateTimeFormat::CDateTimeFormat()
+DateTimeFormat::DateTimeFormat()
 {
     init();
 }
 
-void CDateTimeFormat::init()
+void DateTimeFormat::init()
 {
     char dateBuffer[32];
     char timeBuffer[32];
@@ -263,7 +263,7 @@ void CDateTimeFormat::init()
     DateTime::timeZoneOffset = hours * 60 + minutes;
 }
 
-static CDateTimeFormat dateTimeFormatInitializer;
+static DateTimeFormat dateTimeFormatInitializer;
 
 void DateTime::tzset()
 {
@@ -278,7 +278,7 @@ void DateTime::time24Mode(bool t24mode)
         timeBuffer = "22:48:59";
 
     _time24Mode = t24mode;
-    DateTime::timeSeparator = CDateTimeFormat::parseDateOrTime(DateTime::fullTimeFormat, timeBuffer);
+    DateTime::timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::fullTimeFormat, timeBuffer);
     strcpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat);
     char* p = strchr(DateTime::shortTimeFormat, DateTime::timeSeparator);
     if (p) {
@@ -666,7 +666,7 @@ void DateTime::operator=(const char* dat)
 //----------------------------------------------------------------
 // Conversion operations
 //----------------------------------------------------------------
-// CDateTime::operator int (void) { return (int) dateTime; }
+// DateTime::operator int (void) { return (int) dateTime; }
 
 DateTime::operator double(void) const
 {

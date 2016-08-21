@@ -106,7 +106,7 @@ void CButtonGroup::buttons(const Strings& sl) {
    resize(x(),y(),w(),h());
 }
 
-CVariant CButtonGroup::data() const {
+Variant CButtonGroup::data() const {
    CGroup *group = (CGroup *)m_control;
    unsigned    cnt = group->children();
    string     result;
@@ -122,7 +122,7 @@ CVariant CButtonGroup::data() const {
          }
       }
    }
-   return CVariant("");
+   return Variant("");
 }
 
 int CButtonGroup::buttonIndex(const char *buttonLabel) {
@@ -147,7 +147,7 @@ void CButtonGroup::deselectAllButtons() {
    }
 }
 
-void CButtonGroup::data(const CVariant d) {
+void CButtonGroup::data(const Variant d) {
    deselectAllButtons();
    int ndx = buttonIndex(d.getString());
    if (ndx > -1) {

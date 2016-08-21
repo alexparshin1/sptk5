@@ -65,11 +65,11 @@ CLayoutClient* CMemoInput::creator(XMLNode *node) {
     return widget;
 }
 
-CVariant CMemoInput::data() const {
+Variant CMemoInput::data() const {
     return ((CEditor *)m_control)->textBuffer()->text();
 }
 
-void CMemoInput::data(const CVariant s) {
+void CMemoInput::data(const Variant s) {
     std::string strValue = replaceAll(s.asString(),"\r","");
     ((CEditor *)m_control)->textBuffer()->text(strValue.c_str());
 }

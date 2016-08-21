@@ -35,7 +35,7 @@
 
 #include <sptk5/gui/CEvent.h>
 #include <sptk5/gui/CControl.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/string_ext.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 
@@ -591,7 +591,7 @@ void CControl::load(const XMLNode* node, CLayoutXMLmode xmlMode)
     if (xmlMode & LXM_LAYOUT)
         CLayoutClient::load(node, LXM_LAYOUT);
     if (xmlMode & LXM_DATA) {
-        CVariant v;
+        Variant v;
         v.load(node);
         data(v);
     }
@@ -603,7 +603,7 @@ void CControl::save(XMLNode* node, CLayoutXMLmode xmlMode) const
     if (xmlMode & LXM_LAYOUT)
         CLayoutClient::save(node, LXM_LAYOUT);
     if (xmlMode & LXM_DATA) {
-        CVariant v;
+        Variant v;
         v = data();
         v.save(node);
     }

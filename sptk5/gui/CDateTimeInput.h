@@ -46,7 +46,8 @@ class CDateControl;
 /// @brief Base date and time input widget
 ///
 /// Base class for most of the date and time inputs (except fot CDateIntervalInput)
-class SP_EXPORT CDateTimeBaseInput : public CInput {
+class SP_EXPORT CDateTimeBaseInput : public CInput
+{
     typedef class CInput inherited;
 
     /// @brief Mininmum date and time value to check in valid()
@@ -121,8 +122,8 @@ public:
 
     /// @brief Sets limits for the value inside
     /// @param limited bool, true if use the limits
-    /// @param min CDateTime, minimum value
-    /// @param max CDateTime, maximum value
+    /// @param min DateTime, minimum value
+    /// @param max DateTime, maximum value
     void setLimits(bool limited,DateTime min=double(0),DateTime max=double(0));
 
     /// @brief Returns widget date or time  value
@@ -137,7 +138,8 @@ class CTimeInput;
 /// @brief Date input widget
 ///
 /// Masked date input with the drop-down calendar
-class SP_EXPORT CDateInput : public CDateTimeBaseInput {
+class SP_EXPORT CDateInput : public CDateTimeBaseInput 
+{
     /// @brief Constructor initializer
     void ctor_init();
 public:
@@ -196,7 +198,8 @@ public:
 /// @brief Time input widget
 ///
 /// Masked time input
-class SP_EXPORT CTimeInput : public CDateTimeBaseInput {
+class SP_EXPORT CTimeInput : public CDateTimeBaseInput 
+{
 public:
 
     /// @brief Constructor in SPTK style

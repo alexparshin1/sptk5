@@ -29,7 +29,7 @@
 #ifndef __CGUI__
 #define __CGUI__
 
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/CSmallPixmapIDs.h>
 
 #include <sptk5/gui/CButton.h>

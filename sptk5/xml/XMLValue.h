@@ -138,7 +138,7 @@ public:
 
     /// @brief Constructor
     ///
-    /// Creates an XML attribute from CDateTime
+    /// Creates an XML attribute from DateTime
     /// @param v int32_t, value
     XMLValue(DateTime v) :
         m_value(v)
@@ -195,7 +195,7 @@ public:
 
     /// @brief Assignment of the value
     ///
-    /// @param s CDateTime, a new value
+    /// @param s DateTime, a new value
     XMLValue& operator =(DateTime s)
     {
         m_value = s.dateString() + " " + s.timeString(true);

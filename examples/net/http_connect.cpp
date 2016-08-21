@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/net/COpenSSLSocket.h>
+#include <sptk5/net/SSLSocket.h>
 
 using namespace std;
 using namespace sptk;
@@ -76,14 +76,14 @@ void go_callback(Fl_Widget *,void *)
     }
 
     TCPSocket*     socket;
-    COpenSSLContext sslContext;
+    SSLContext sslContext;
     try {
         DateTime        started = DateTime::Now();
 
         if (!https)
             socket = new TCPSocket;
         else
-            socket = new COpenSSLSocket(sslContext);
+            socket = new SSLSocket(sslContext);
 
         HttpConnect sock(*socket);
 
@@ -102,7 +102,7 @@ void go_callback(Fl_Widget *,void *)
                 }
             }
 
-            sock.cmd_get(pageName,httpFields);
+            sock.cmd_get(pageName, httpFields, 30000);
         } else {
             for (unsigned i = 0; i < text.size(); i++) {
                 Strings data(text[i],"=");

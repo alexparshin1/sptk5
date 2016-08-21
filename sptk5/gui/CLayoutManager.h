@@ -34,7 +34,7 @@
 #include <sptk5/cxml>
 #include <sptk5/gui/CFrame.h>
 #include <sptk5/gui/CLayoutClient.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 
 class Fl_Image;
 

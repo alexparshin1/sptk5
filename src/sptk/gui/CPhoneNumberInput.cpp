@@ -64,11 +64,11 @@ void CPhoneNumberInput::preferredWidth(int& w) const {
     w = (int) fl_width("(000)-000-00000") + labelWidth();
 }
 
-CVariant CPhoneNumberInput::data() const {
+Variant CPhoneNumberInput::data() const {
     return CInput::data();
 }
 
-void CPhoneNumberInput::data(const CVariant ss) {
+void CPhoneNumberInput::data(const Variant ss) {
     char *s1 = strdup(ss.asString().c_str());
     char *p1 = new char[15];
 

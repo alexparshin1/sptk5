@@ -121,7 +121,7 @@ class SP_EXPORT Logger: public _ostream
 protected:
 
     /// @brief Sends log message to actual destination
-    /// @param date CDateTime, message timestamp
+    /// @param date DateTime, message timestamp
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority LogPriority, message priority. @see LogPriority for more information.

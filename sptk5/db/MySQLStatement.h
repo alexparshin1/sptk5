@@ -74,14 +74,14 @@ public:
     /// @returns MySQL native type
     static enum_field_types variantTypeToMySQLType(VariantType dataType);
 
-    /// @brief Translates CDateTime to MySQL time
+    /// @brief Translates DateTime to MySQL time
     /// @param mysqlDate MYSQL_TIME&, MySQL time
-    /// @param timestamp CDateTime, Timestamp
+    /// @param timestamp DateTime, Timestamp
     /// @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
     static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
 
-    /// @brief Translates MySQL time to CDateTime
-    /// @param timestamp CDateTime&, Timestamp
+    /// @brief Translates MySQL time to DateTime
+    /// @param timestamp DateTime&, Timestamp
     /// @param mysqlDate const MYSQL_TIME&, MySQL time
     static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
 

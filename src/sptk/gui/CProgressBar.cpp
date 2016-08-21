@@ -135,12 +135,12 @@ bool CProgressBar::preferredSize(int& w,int& h) {
    return false;
 }
 
-CVariant CProgressBar::data() const {
+Variant CProgressBar::data() const {
    CProgressBox *pb = (CProgressBox *)m_control;
    return pb->m_value;
 }
 
-void CProgressBar::data(const CVariant v) {
+void CProgressBar::data(const Variant v) {
    CProgressBox *pb = (CProgressBox *)m_control;
    pb->m_value = v;
 }

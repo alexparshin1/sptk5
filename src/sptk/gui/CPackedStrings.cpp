@@ -28,7 +28,7 @@
 
 #include <stdlib.h>
 #include <sptk5/PackedStrings.h>
-#include <sptk5/db/CQuery.h>
+#include <sptk5/db/Query.h>
 #include <string.h>
 
 using namespace sptk;

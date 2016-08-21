@@ -66,7 +66,7 @@ public:
     /// @brief Stores or sends log message to actual destination
     ///
     /// This method should be overwritten by the actual log implementation
-    /// @param date CDateTime, message timestamp
+    /// @param date DateTime, message timestamp
     /// @param message const char *, message text
     /// @param sz uint32_t, message size
     /// @param priority CLogPriority, message priority. @see CLogPriority for more information.

@@ -39,7 +39,7 @@
 #include <ctype.h>
 
 #include <sptk5/db/Query.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
 #include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/string_ext.h>
@@ -898,7 +898,7 @@ void CListView::textValue(std::string tv)
     redraw();
 }
 
-CVariant CListView::data() const
+Variant CListView::data() const
 {
     CPackedStrings& t = selectedRow();
     if (!&t) {
@@ -920,7 +920,7 @@ CVariant CListView::data() const
     }
 }
 
-void CListView::data(const CVariant vv)
+void CListView::data(const Variant vv)
 {
     unsigned cnt = m_rows.size();
     void *dataValue = 0;
@@ -1256,7 +1256,7 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
                 columnName = replaceAll(columnName, "_", " ");
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
-                short cwidth = short(field.width + 1);
+                short cwidth = short(field.view.width + 1);
                 VariantType ctype = field.dataType();
                 switch (ctype) {
                     case VAR_BOOL:

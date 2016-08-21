@@ -83,11 +83,11 @@ void CBox::draw() {
     m_control->draw();
 }
 
-CVariant CBox::data() const {
+Variant CBox::data() const {
     return m_label.c_str();
 }
 
-void CBox::data(const CVariant v) {
+void CBox::data(const Variant v) {
     std::string text = v.asString();
     m_label.resize(text.length());
     if (m_label.length()) {

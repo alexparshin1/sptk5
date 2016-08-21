@@ -134,7 +134,7 @@ void CDateIntervalInput::resize(int x,int y,int w,int h) {
     m_secondDateInput->resize(x,y,editorWidth,h);
 }
 
-CVariant CDateIntervalInput::data() const {
+Variant CDateIntervalInput::data() const {
     DateTime   dt1 = beginOfInterval();
     DateTime   dt2 = endOfInterval();
 
@@ -147,7 +147,7 @@ CVariant CDateIntervalInput::data() const {
     return result;
 }
 
-void CDateIntervalInput::data(const CVariant s) {
+void CDateIntervalInput::data(const Variant s) {
     string     firstStringData(s.asString().c_str());
     string     secondStringData;
 

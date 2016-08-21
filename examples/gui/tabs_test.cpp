@@ -276,7 +276,7 @@ int main(int argc, char **argv)
             timeInput->data("10:25AM");
             timeInput->callback(general_cb);
 
-            DateTimeInput *dateTimeInput = new CDateTimeInput("Date and Time Input:");
+            CDateTimeInput *dateTimeInput = new CDateTimeInput("Date and Time Input:");
             dateTimeInput->data("10/02/2002 10:25AM");
             dateTimeInput->callback(general_cb);
         }

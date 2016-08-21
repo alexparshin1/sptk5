@@ -518,7 +518,7 @@ public:
     }
 
     /// @brief Control data conversion
-    operator CDateTime() const
+    operator DateTime() const
     {
         return data();
     }

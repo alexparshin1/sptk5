@@ -114,13 +114,13 @@ void CTreeView::save(XMLNode *node) const {
     m_treeControl->save(node);
 }
 
-CVariant CTreeView::data() const {
+Variant CTreeView::data() const {
     CTreeItem *node = m_treeControl->selected();
     if (node) return (int32_t)(long) node->user_data();
     return int32_t(0);
 }
 
-void CTreeView::data(const CVariant v) {
+void CTreeView::data(const Variant v) {
     CTreeItem *node = m_treeControl->findData((void *)(long)v.asInteger());
     if (node)
         m_treeControl->makeVisible(node);

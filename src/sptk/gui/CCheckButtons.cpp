@@ -124,7 +124,7 @@ Fl_Button *CCheckButtons::createButton(const char *label, int sz, CLayoutAlign l
     return btn;
 }
 
-CVariant CCheckButtons::data() const {
+Variant CCheckButtons::data() const {
     string result;
     CScroll *group = (CScroll *) m_control;
     unsigned cnt = group->children();
@@ -148,7 +148,7 @@ CVariant CCheckButtons::data() const {
     return result;
 }
 
-void CCheckButtons::data(const CVariant s) {
+void CCheckButtons::data(const Variant s) {
     deselectAllButtons();
     if (m_otherButton)
         m_otherInput->value("");

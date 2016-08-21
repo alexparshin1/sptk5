@@ -458,12 +458,12 @@ void CBaseListBox::refreshData()
     changeControlData(CT_REFRESH_DATA);
 }
 
-CVariant CBaseListBox::data() const
+Variant CBaseListBox::data() const
 {
     return m_list->data();
 }
 
-void CBaseListBox::data(const CVariant newData)
+void CBaseListBox::data(const Variant newData)
 {
     CPackedStrings *oldSelection = &m_list->selectedRow();
     CPackedStrings *newSelection = 0L;

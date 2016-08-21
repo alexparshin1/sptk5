@@ -144,13 +144,13 @@ public:
     }
 
     /// @brief Sets the calendar date
-    /// @param dt CDateTime, new calendar date
+    /// @param dt DateTime, new calendar date
     void date(DateTime dt) {
         m_calendar->date(dt);
     }
 
     /// @brief Reports the calendar date
-    /// @returns CDateTime value of the currently selected date
+    /// @returns DateTime value of the currently selected date
     DateTime date() const       {
         return m_calendar->date();
     }

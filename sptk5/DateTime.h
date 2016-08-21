@@ -38,7 +38,7 @@ namespace sptk {
 /// @addtogroup utility Utility Classes
 /// @{
 
-class CDateTimeFormat;
+class DateTimeFormat;
 
 /// @brief Date and Time value.
 ///
@@ -48,7 +48,7 @@ class CDateTimeFormat;
 /// system time.
 class SP_EXPORT DateTime
 {
-    friend class CDateTimeFormat;
+    friend class DateTimeFormat;
 protected:
 
     /// @brief Internal decode date operation into year, month, and day
@@ -134,16 +134,16 @@ public:
     /// @brief Assignment
     void operator = (const char * dat);
 
-    /// @brief Addition, another CDateTime
+    /// @brief Addition, another DateTime
     DateTime  operator + (DateTime& dt);
 
-    /// @brief Substruction, another CDateTime
+    /// @brief Substruction, another DateTime
     DateTime  operator - (DateTime& dt);
 
-    /// @brief Increment by another CDateTime
+    /// @brief Increment by another DateTime
     DateTime& operator += (DateTime& dt);
 
-    /// @brief Decrement by another CDateTime
+    /// @brief Decrement by another DateTime
     DateTime& operator -= (DateTime& dt);
 
     /// @brief Increment by day, prefix
@@ -196,7 +196,7 @@ public:
     /// It's useful for measuring short time intervals (shorter than one day, anyway).
     static uint32_t TimeOfDayMs();
 
-    /// @brief Converts C time into CDateTime
+    /// @brief Converts C time into DateTime
     static DateTime convertCTime(const time_t tt);
 
     /// @brief Reports the number of days in the month in this date (1..31)
@@ -269,10 +269,10 @@ public:
 /// @brief Compares CDatetime values
 bool operator <  (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
-/// @brief Compares CDateTime values
+/// @brief Compares DateTime values
 bool operator <= (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
-/// @brief Compares CDateTime values
+/// @brief Compares DateTime values
 bool operator >  (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
 
 /// @brief Compares CDatetime values

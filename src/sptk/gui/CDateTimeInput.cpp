@@ -175,14 +175,14 @@ void CDateInput::resize(int xx,int yy,int ww,int hh) {
     m_dateInput->resize(xx+m_labelWidth,yy,ww-m_labelWidth,hh);
 }
 
-CVariant CDateInput::data() const {
+Variant CDateInput::data() const {
     DateTime   dt(m_dateInput->input()->value());
-    CVariant    rc;
+    Variant    rc;
     rc.setDate(dt);
     return rc;
 }
 
-void CDateInput::data(const CVariant s) {
+void CDateInput::data(const Variant s) {
     DateTime dt = s;
     m_dateInput->input()->value(dt.dateString().c_str());
 }
@@ -282,10 +282,10 @@ DateTime CDateTimeInput::dateTimeValue() const {
     return dt + tm;
 }
 
-CVariant CDateTimeInput::data() const {
+Variant CDateTimeInput::data() const {
     return std::string(m_dateInput->input()->value()) + " " + std::string(m_timeInput->value());
 }
 
-void CDateTimeInput::data(const CVariant s) {
+void CDateTimeInput::data(const Variant s) {
     dateTimeValue(s.asDateTime());
 }

@@ -83,7 +83,7 @@ void CFileDialog::up_cb(Fl_Widget *w,void *)
    fileDialog->refreshDirectory();
 }
 
-void CFileDialog::dirview_cb(Fl_Widget *w,void *)
+void CFileDialog::dirview_cb(Fl_Widget *w, void *)
 {
    bool directoryClicked = false;
 
@@ -92,7 +92,7 @@ void CFileDialog::dirview_cb(Fl_Widget *w,void *)
 
    CPackedStrings& row = listView->selectedRow();
 
-   if (!&row) return;
+   if (&row == NULL) return;
 
    if (strncmp(row[3],"Directory",9) == 0)
       directoryClicked = true;
@@ -135,7 +135,7 @@ void CFileDialog::lookin_cb(Fl_Widget *w,void *) {
    if (comboBox->eventType() != CE_DATA_CHANGED) return;
 
    CPackedStrings& ps = comboBox->selectedRow();
-   if (&ps) {
+   if (&ps != NULL) {
       if (fileDialog->m_directory.directory() != ps[0]) {
          fileDialog->refreshDirectory(ps[0]);
       }

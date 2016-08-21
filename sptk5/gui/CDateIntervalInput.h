@@ -97,14 +97,14 @@ public:
     DateTime beginOfInterval() const;
 
     /// @brief Sets the date in the first date input - the beginning of interval
-    /// @param dt const CDateTime, date and time value for the first control
+    /// @param dt const DateTime, date and time value for the first control
     void      beginOfInterval(const DateTime dt);
 
     /// @brief Returns the date from the second date input - the end of interval
     DateTime endOfInterval() const;
 
     /// Sets the date from the second date input - the end of interval
-    /// @param dt const CDateTime, date and time value for the second control
+    /// @param dt const DateTime, date and time value for the second control
     void      endOfInterval(const DateTime dt);
 
     /// @brief Returns the control kind, SPTK-style RTTI
