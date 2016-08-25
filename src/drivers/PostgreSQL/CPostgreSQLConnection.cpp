@@ -1085,7 +1085,7 @@ void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& colu
     }
 }
 
-void PostgreSQLConnection::executeBatchFile(const Strings& sqlBatch) THROWS_EXCEPTIONS
+void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEPTIONS
 {
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");

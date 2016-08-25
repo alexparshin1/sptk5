@@ -295,7 +295,14 @@ void DatabaseConnection::bulkInsert(std::string tableName, const Strings& column
     }
 }
 
-void DatabaseConnection::executeBatchFile(const Strings& /*batchFile*/) THROWS_EXCEPTIONS
+void DatabaseConnection::executeBatchFile(String batchFileName) THROWS_EXCEPTIONS
+{
+    Strings batchFileContent;
+    batchFileContent.loadFromFile(batchFileName);
+    executeBatchSQL(batchFileContent);
+}
+
+void DatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/) THROWS_EXCEPTIONS
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
