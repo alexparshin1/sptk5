@@ -742,7 +742,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-void ODBCConnection::executeBatchFile(const Strings& sqlBatch) THROWS_EXCEPTIONS
+void ODBCConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEPTIONS
 {
     RegularExpression matchStatementEnd("(;\\s*)$");
     RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");

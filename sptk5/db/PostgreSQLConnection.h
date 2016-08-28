@@ -153,8 +153,8 @@ public:
     ///
     /// Queries are executed in not prepared mode.
     /// Syntax of the SQL batch file is matching the native for the database.
-    /// @param batchFile const sptk::Strings&, SQL batch file
-    virtual void executeBatchFile(const sptk::Strings& batchFile) THROWS_EXCEPTIONS override;
+    /// @param batchSQL const sptk::Strings&, SQL batch file
+    virtual void executeBatchSQL(const sptk::Strings& batchSQL) THROWS_EXCEPTIONS override;
 };
 
 /// @}
