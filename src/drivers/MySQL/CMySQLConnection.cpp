@@ -281,13 +281,14 @@ void MySQLConnection::queryOpen(Query *query)
     if (query->active())
         return;
 
-    if (!query->statement())
+    if (!query->statement()) {
         queryAllocStmt(query);
+    }
 
     if (query->autoPrepare()) {
-    	if (!query->prepared())
-    		queryPrepare(query);
-		queryBindParameters(query);
+        if (!query->prepared())
+            queryPrepare(query);
+        queryBindParameters(query);
     }
 
     MySQLStatement* statement = (MySQLStatement*) query->statement();
