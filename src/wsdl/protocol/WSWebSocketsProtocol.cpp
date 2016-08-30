@@ -60,11 +60,11 @@ void WSWebSocketsMessage::decode(const char* incomingData)
 {
     const uint8_t* ptr = (const uint8_t*)incomingData;
 
-    m_finalMessage = *ptr & 0x80;
+    m_finalMessage = (*ptr & 0x80) != 0;
     m_opcode = *ptr & 0xF;
 
     ptr++;
-    bool masked = *ptr & 0x80;
+    bool masked = (*ptr & 0x80) != 0;
     uint64_t payloadLength = (*ptr) & 0x7F;
     switch (payloadLength) {
         default:    ptr++; break;
@@ -104,7 +104,7 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buff
         ptr++;
     }
     else if (payload.length() <= 32767) {
-        *(uint16_t*)ptr = htons(payload.length());
+        *(uint16_t*)ptr = htons((uint16_t)payload.length());
         ptr += 2;
     }
     else {
