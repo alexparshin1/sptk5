@@ -38,6 +38,15 @@ SharedStrings::SharedStrings()
     shareString("");
 }
 
+const std::string* SharedStrings::findString(const char *str) const
+{
+    string s(str);
+    Set::iterator itor = m_strings.find(s);
+    if (itor == m_strings.end()) 
+        return nullptr;
+    return &(*itor);
+}
+
 const string& SharedStrings::shareString(const char* str)
 {
     string s(str);
