@@ -83,6 +83,8 @@ void WSParser::parseElement(const XMLElement* elementNode) THROWS_EXCEPTIONS
 void WSParser::parseComplexType(const XMLElement* complexTypeElement) THROWS_EXCEPTIONS
 {
     string complexTypeName = complexTypeElement->getAttribute("name");
+    if (complexTypeName.empty())
+        complexTypeName = complexTypeElement->parent()->getAttribute("name").str();
 
     if (complexTypeName.empty()) {
         const XMLNode* parent = complexTypeElement->parent();
@@ -363,8 +365,8 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile) THR
 
     Strings usedClasses;
     for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
-        WSParserComplexType* complexType = itor->second;
         //string name = itor->first;
+        WSParserComplexType* complexType = itor->second;
         SourceModule module("C" + complexType->name(), sourceDirectory);
         module.open();
         complexType->generate(module.header(), module.source(), externalHeader.c_str());

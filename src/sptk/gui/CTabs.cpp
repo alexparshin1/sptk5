@@ -80,6 +80,7 @@ public:
     CTabButtons() {
         m_maxHeight = 0;
     }
+    virtual ~CTabButtons() {}
     int height() const {
         return m_maxHeight;
     }
