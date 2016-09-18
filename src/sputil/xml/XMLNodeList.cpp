@@ -34,7 +34,9 @@ using namespace sptk;
 
 void XMLNodeList::clear()
 {
-    for (iterator itor = begin(); itor != end(); itor++)
+    iterator _begin = begin();
+    iterator _end = end();
+    for (iterator itor = _begin; itor != _end; itor++)
         delete *itor;
     XMLNodeVector::clear();
 }
@@ -42,7 +44,7 @@ void XMLNodeList::clear()
 XMLNodeList::iterator XMLNodeList::findFirst(const char* nodeName)
 {
     iterator _begin = begin();
-    iterator _end = begin();
+    iterator _end = end();
     if (_begin == _end)
         return _end;
     
@@ -65,14 +67,16 @@ XMLNodeList::iterator XMLNodeList::findFirst(const string& nodeName)
 
 XMLNodeList::const_iterator XMLNodeList::findFirst(const char* nodeName) const
 {
-    if (empty())
-        return end();
+    const_iterator _begin = begin();
+    const_iterator _end = end();
+    if (_begin == _end)
+        return _end;
     
-    XMLNode* anode = *begin();
+    const XMLNode* anode = *_begin;
     const string* sharedName = anode->document()->findString(nodeName);
     
     const_iterator itor;
-    for (itor = begin(); itor != end(); itor++) {
+    for (itor = _begin; itor != _end; itor++) {
         anode = *itor;
         if (anode->nameIs(sharedName))
             break;
