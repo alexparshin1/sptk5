@@ -131,7 +131,7 @@ public:
     /// @brief Lists database objects
     /// @param objectType DatabaseObjectType, object type to list
     /// @param objects Strings&, object list (output)
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
 };
 
 /// @}

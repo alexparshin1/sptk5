@@ -50,7 +50,8 @@ enum DatabaseObjectType
 {
     DOT_TABLES,         ///< Tables
     DOT_VIEWS,          ///< Views
-    DOT_PROCEDURES      ///< Stored procedures
+    DOT_PROCEDURES,     ///< Stored procedures
+    DOT_FUNCTIONS       ///< Stored functions
 };
 
 /// @brief Column type and size structure

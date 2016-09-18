@@ -519,6 +519,9 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     case DOT_PROCEDURES:
         objectsSQL = "SELECT object_name FROM user_procedures";
         break;
+    case DOT_FUNCTIONS:
+        objectsSQL = "SELECT object_name FROM user_functions";
+        break;
     case DOT_TABLES:
         objectsSQL = "SELECT table_name FROM user_tables";
         break;

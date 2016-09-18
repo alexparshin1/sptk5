@@ -342,7 +342,14 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     case DOT_PROCEDURES:
         objectsSQL =
             "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
-            "FROM information_schema.routines";
+              "FROM information_schema.routines "
+             "WHERE rountine_type = 'PROCEDURE'";
+        break;
+    case sptk::DOT_FUNCTIONS:
+        objectsSQL =
+            "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
+              "FROM information_schema.routines "
+             "WHERE rountine_type = 'FUNCTION'";
         break;
     case DOT_TABLES:
         objectsSQL =
