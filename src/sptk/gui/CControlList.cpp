@@ -29,9 +29,6 @@
 #include <sptk5/sptk.h>
 
 #include <FL/Fl_Group.H>
-#include <string.h>
-#include <stdlib.h>
-#include <sptk5/Exception.h>
 #include <sptk5/gui/CControlList.h>
 
 using namespace sptk;

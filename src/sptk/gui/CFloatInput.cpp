@@ -31,7 +31,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CFloatInput.h>
-#include <sptk5/gui/CInput.h>
 
 using namespace sptk;
 

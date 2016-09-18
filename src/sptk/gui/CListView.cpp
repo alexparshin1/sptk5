@@ -30,13 +30,7 @@
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include <FL/Fl_Widget.H>
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
 
 #include <sptk5/db/Query.h>
 #include <sptk5/Exception.h>
@@ -1119,7 +1113,7 @@ void CListView::getSelections(IntList& sel) const
 {
     sel.clear();
     if (!m_multipleSelection) {
-        sel.push_back(data());
+        sel.push_back(data().asInteger());
     } else {
         unsigned cnt = m_rows.size();
         for (unsigned i = 0; i < cnt; i++) {
@@ -1318,7 +1312,6 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
             }
             m_selection.clear();
 
-            std::string errorText;
             unsigned recordCount = 0;
             unsigned lastProgression = 0;
             if (fieldCount > 0) {

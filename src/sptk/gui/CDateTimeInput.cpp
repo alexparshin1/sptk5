@@ -31,7 +31,6 @@
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CDateTimeInput.h>
 #include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CDateControl.h>
 #include <sptk5/gui/CCalendar.h>
 

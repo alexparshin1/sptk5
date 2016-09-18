@@ -32,7 +32,6 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/cgui>
-#include "ThemeUtils.h"
 
 using namespace std;
 

@@ -54,7 +54,7 @@ void CThemes::loadGtkButton(XMLNode* imageNode,std::map<CThemeImageState,std::st
         fileName = imageNode->getAttribute("overlay_file").str();
 
     string state = upperCase(imageNode->getAttribute("state","NORMAL"));
-    string border = imageNode->getAttribute("border");
+    //string border = imageNode->getAttribute("border");
     string shadow = upperCase(imageNode->getAttribute("shadow","OUT"));
     if (shadow == "ETCHED_IN")
         return;

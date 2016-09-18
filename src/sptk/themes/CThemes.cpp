@@ -29,23 +29,17 @@
 #include <sptk5/sptk.h>
 
 #include <FL/fl_draw.H>
-#include <FL/Enumerations.H>
-#include <sptk5/sptk.h>
 
 #include <sptk5/gui/CThemeColorCollection.h>
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CTreeControl.h>
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/Registry.h>
-#include <sptk5/string_ext.h>
 
 #include <sptk5/gui/default_icons.h>
 
 #include <iostream>
 #include <sstream>
-#include <FL/Fl_Image.H>
 
 #include "ThemeUtils.h"
 

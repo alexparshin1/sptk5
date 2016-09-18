@@ -30,7 +30,6 @@
 
 #include <sptk5/cxml>
 #include <sptk5/gui/CWindow.h>
-#include <FL/Fl.H>
 
 using namespace std;
 using namespace sptk;

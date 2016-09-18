@@ -30,10 +30,7 @@
 
 #include <FL/fl_draw.H>
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <sptk5/gui/CPhoneNumberInput.h>
-#include <sptk5/gui/CInput.h>
 
 using namespace sptk;
 

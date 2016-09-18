@@ -41,10 +41,18 @@ void XMLNodeList::clear()
 
 XMLNodeList::iterator XMLNodeList::findFirst(const char* nodeName)
 {
+    iterator _begin = begin();
+    iterator _end = begin();
+    if (_begin == _end)
+        return _end;
+    
+    XMLNode* anode = *_begin;
+    const string* sharedName = &anode->document()->shareString(nodeName);
+    
     iterator itor;
-    for (itor = begin(); itor != end(); itor++) {
-        XMLNode *anode = *itor;
-        if (anode->name() == nodeName)
+    for (itor = _begin; itor != _end; itor++) {
+        anode = *itor;
+        if (anode->nameIs(sharedName))
             break;
     }
     return itor;
@@ -52,21 +60,21 @@ XMLNodeList::iterator XMLNodeList::findFirst(const char* nodeName)
 
 XMLNodeList::iterator XMLNodeList::findFirst(const string& nodeName)
 {
-    iterator itor;
-    for (itor = begin(); itor != end(); itor++) {
-        XMLNode *anode = *itor;
-        if (anode->name() == nodeName)
-            break;
-    }
-    return itor;
+    return findFirst(nodeName.c_str());
 }
 
 XMLNodeList::const_iterator XMLNodeList::findFirst(const char* nodeName) const
 {
+    if (empty())
+        return end();
+    
+    XMLNode* anode = *begin();
+    const string* sharedName = anode->document()->findString(nodeName);
+    
     const_iterator itor;
     for (itor = begin(); itor != end(); itor++) {
-        XMLNode *anode = *itor;
-        if (anode->name() == nodeName)
+        anode = *itor;
+        if (anode->nameIs(sharedName))
             break;
     }
     return itor;
@@ -74,11 +82,5 @@ XMLNodeList::const_iterator XMLNodeList::findFirst(const char* nodeName) const
 
 XMLNodeList::const_iterator XMLNodeList::findFirst(const string& nodeName) const
 {
-    const_iterator itor;
-    for (itor = begin(); itor != end(); itor++) {
-        XMLNode *anode = *itor;
-        if (anode->name() == nodeName)
-            break;
-    }
-    return itor;
+    return findFirst(nodeName.c_str());
 }

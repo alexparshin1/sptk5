@@ -32,12 +32,9 @@
 #include <FL/Fl_Input.H>
 #include <FL/fl_draw.H>
 #include <math.h>
-#include <string.h>
-#include <ctype.h>
 
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
-#include <sptk5/DateTime.h>
 
 using namespace std;
 using namespace sptk;
@@ -111,7 +108,7 @@ void CInput_::mask(const char *m)
 
 bool CInput_::checkCharacterAtPos(int pos,char key)
 {
-   bool rc = false;
+   bool rc;
    if (pos >= (int)m_inputMask.length()) return false;
    switch (m_inputMask[pos]) {
       case '@':   // optional character - digit,letter
@@ -165,7 +162,7 @@ bool CInput_::checkCharacter(int pos,char& key)
       if (m_inputMask[pos] == ' ') {
             // use background mask
          et[0] = m_backgroundMask[pos];
-         rc = replace(pos, pos+1, et, 1);
+         replace(pos, pos+1, et, 1);
          pos++;
          position(pos, Fl::event_state(FL_SHIFT) ? mark() : pos);
       } else {

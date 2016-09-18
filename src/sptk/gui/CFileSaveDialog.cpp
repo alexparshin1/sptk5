@@ -33,7 +33,6 @@
 #endif
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <stdio.h>
 
 #include <sptk5/gui/CFileSaveDialog.h>
 #include <sptk5/gui/CMessageDialog.h>

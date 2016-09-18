@@ -29,15 +29,10 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/FieldList.h>
-#include <sptk5/Exception.h>
 #include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CMessageDialog.h>
 
-#include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include <stdio.h>
-
-#include <sptk5/DebugMacros.h>
 
 using namespace std;
 using namespace sptk;

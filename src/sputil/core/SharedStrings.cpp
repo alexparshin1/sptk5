@@ -27,7 +27,6 @@
  */
 
 #include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
 #include <sptk5/SharedStrings.h>
 
 using namespace std;
@@ -36,6 +35,15 @@ using namespace sptk;
 SharedStrings::SharedStrings()
 {
     shareString("");
+}
+
+const std::string* SharedStrings::findString(const char *str) const
+{
+    string s(str);
+    Set::iterator itor = m_strings.find(s);
+    if (itor == m_strings.end()) 
+        return nullptr;
+    return &(*itor);
 }
 
 const string& SharedStrings::shareString(const char* str)

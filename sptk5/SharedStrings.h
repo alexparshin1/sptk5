@@ -50,6 +50,13 @@ public:
     /// @brief Default constructor
     SharedStrings();
 
+    /// @brief Find a shared string
+    ///
+    /// Looks for an existing shared string, and returns a const std::string&
+    /// to it. If a shared string not found, returns nullptr.
+    /// @param str const char *, a string to find
+    const std::string* findString(const char *str) const;
+    
     /// @brief Obtain a shared string
     ///
     /// Looks for an existing shared string, and returns a const std::string&

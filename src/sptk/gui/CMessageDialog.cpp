@@ -30,7 +30,6 @@
 
 #include <FL/Fl.H>
 #include <sptk5/gui/CMessageDialog.h>
-#include <sptk5/string_ext.h>
 
 using namespace std;
 using namespace sptk;

@@ -32,8 +32,6 @@
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CDropDownBox.h>
 
-#include <stdio.h>
-
 using namespace sptk;
 
 //===========================================================================

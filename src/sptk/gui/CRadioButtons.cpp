@@ -33,10 +33,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CScroll.h>
-
-#include <stdio.h>
-#include <string.h>
-
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CRadioButtons.h>
 #include <sptk5/gui/CThemes.h>

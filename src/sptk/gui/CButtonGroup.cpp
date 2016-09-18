@@ -32,8 +32,6 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
 
-#include <stdio.h>
-#include <string.h>
 #include <sptk5/cgui>
 #include <sptk5/cdatabase>
 
@@ -109,7 +107,6 @@ void CButtonGroup::buttons(const Strings& sl) {
 Variant CButtonGroup::data() const {
    CGroup *group = (CGroup *)m_control;
    unsigned    cnt = group->children();
-   string     result;
    for (unsigned i = 0; i < cnt; i++) {
       Fl_Widget *w = group->child(i);
       Fl_Button *b = dynamic_cast<Fl_Button *>(w);

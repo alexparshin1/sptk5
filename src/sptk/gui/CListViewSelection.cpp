@@ -27,10 +27,7 @@
 */
 
 #include <sptk5/sptk.h>
-
 #include <sptk5/gui/CListViewSelection.h>
-#include <string>
-#include <algorithm>
 
 using namespace sptk;
 
@@ -69,9 +66,8 @@ void CSelection::clear() {
 
 CPackedStrings *CSelection::findKey(int keyValue) const {
    size_t cnt = m_selectedRows.size();
-   CPackedStrings *row = 0L;
    for (size_t i=0; i < cnt; i++) {
-      row = (CPackedStrings *)m_selectedRows[i];
+      CPackedStrings *row = (CPackedStrings *)m_selectedRows[i];
       if (row->argument() == keyValue)
          return row;
    }
@@ -80,9 +76,8 @@ CPackedStrings *CSelection::findKey(int keyValue) const {
 
 CPackedStrings *CSelection::findCaption(std::string caption) const {
    size_t cnt = m_selectedRows.size();
-   CPackedStrings *row = 0L;
    for (size_t i=0; i < cnt; i++) {
-      row = (CPackedStrings *)m_selectedRows[i];
+      CPackedStrings *row = (CPackedStrings *)m_selectedRows[i];
       if ((*row)[0] == caption)
          return row;
    }

@@ -32,7 +32,6 @@
 #include <FL/Fl_Button.H>
 
 #include <sptk5/gui/CCalendar.h>
-#include <sptk5/string_ext.h>
 
 using namespace std;
 using namespace sptk;
