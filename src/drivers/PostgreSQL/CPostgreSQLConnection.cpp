@@ -1014,12 +1014,22 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
     objects.clear();
 
     switch (objectType) {
-        case DOT_PROCEDURES:
-            objectsSQL = "SELECT DISTINCT routine_schema || '.' || routine_name "
-                    "FROM information_schema.routines "
-                    "WHERE routine_schema NOT IN ('information_schema','pg_catalog')";
+        case DOT_FUNCTIONS:
+            objectsSQL = 
+                "SELECT DISTINCT routine_schema || '.' || routine_name "
+                  "FROM information_schema.routines "
+                 "WHERE routine_schema NOT IN ('information_schema','pg_catalog') "
+                   "AND routine_type = 'FUNCTION'";
             break;
 
+        case DOT_PROCEDURES:
+            objectsSQL = 
+                "SELECT DISTINCT routine_schema || '.' || routine_name "
+                  "FROM information_schema.routines "
+                 "WHERE routine_schema NOT IN ('information_schema','pg_catalog') "
+                   "AND routine_type = 'PROCEDURE'";
+            break;
+    
         case DOT_TABLES:
             objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
             break;

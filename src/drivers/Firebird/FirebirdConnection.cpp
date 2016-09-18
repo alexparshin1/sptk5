@@ -368,6 +368,12 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
             "FROM rdb$procedures "
             "ORDER BY 1";
         break;
+    case DOT_FUNCTIONS:
+        objectsSQL =
+            "SELECT rdb$function_name object_name "
+            "FROM rdb$functions "
+            "ORDER BY 1";
+            break;
     case DOT_TABLES:
         objectsSQL =
             "SELECT rdb$relation_name object_name "
