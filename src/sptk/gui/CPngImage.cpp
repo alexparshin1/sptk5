@@ -30,12 +30,7 @@
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CPngImage.h>
-#include <zlib.h>
 #include <png.h>
-#ifdef __UNIX_COMPILER__
-#include <unistd.h>
-#include <FL/Fl_Image.H>
-#endif
 
 using namespace sptk;
 using namespace std;
@@ -178,7 +173,7 @@ static Fl_RGB_Image* subRGBImage(Fl_RGB_Image* image,unsigned offsetX,unsigned o
     unsigned  totalBytes = height * newBytesPerRow;
     const uchar* imageArray = image->array;
     uchar* newArray = new uchar[totalBytes];
-    Fl_RGB_Image* newImage = new Fl_RGB_Image((uchar *)newArray,width,height,image->d());
+    Fl_RGB_Image* newImage = new Fl_RGB_Image(newArray,width,height,image->d());
     newImage->alloc_array = 1;
     //unsigned maxRow = offsetY + height;
     //unsigned maxCol = offsetX + width;

@@ -35,11 +35,6 @@
 #include <sptk5/gui/CScroll.h>
 #include <sptk5/gui/CTabs.h>
 #include <sptk5/gui/CThemes.h>
-#include <sptk5/gui/CScroll.h>
-
-#include <string>
-#include <vector>
-#include <algorithm>
 
 #define BORDER 10
 #define TABSLOPE 5
@@ -92,7 +87,7 @@ public:
         if (m_maxHeight < h)
             m_maxHeight = h;
     }
-    void clear() {
+    virtual void clear() {
         m_maxHeight = 0;
         vector<CTabButton*>::clear();
     }
@@ -101,10 +96,10 @@ public:
 class CTabRows : public std::vector<CTabButtons*> {
 public:
     CTabRows() {}
-    ~CTabRows() {
+    virtual ~CTabRows() {
         clear();
     }
-    void clear() {
+    virtual void clear() {
         for (iterator itor = begin(); itor != end(); itor++)
             delete *itor;
         vector<CTabButtons*>::clear();
@@ -327,7 +322,7 @@ bool CTabGroup::preferredSize(int xx,int yy,int& width,int& height,bool buildRow
             }
             height += rowHeight;
             rowHeight = 0;
-            offset = 0;
+            //offset = 0;
             newOffset = bw;
             rowCount++;
         }

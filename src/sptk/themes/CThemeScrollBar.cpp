@@ -29,7 +29,6 @@
 #include <sptk5/sptk.h>
 
 #include <FL/fl_draw.H>
-#include <FL/Enumerations.H>
 #include <sptk5/gui/CThemeScrollBar.h>
 #include <sstream>
 
@@ -112,7 +111,6 @@ bool CThemeScrollBar::sizeScrollBar(int& w, int& h) {
 }
 
 void CThemeScrollBar::loadGtkScrollbarButtons(XMLDocument& xml,string orientation,CThemeImageCollection& buttonImages) {
-    map<CThemeImageState,string> buttonFileNames;
     string XPath("/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='STEPPER']");
     buttonImages.loadFromGtkTheme(xml,XPath,"arrow_direction",orientation);
 }

@@ -30,14 +30,9 @@
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include <ctype.h>
-#include <stdio.h>
 
 #include <sptk5/gui/CEvent.h>
 #include <sptk5/gui/CControl.h>
-#include <sptk5/Exception.h>
-#include <sptk5/string_ext.h>
-#include <sptk5/CaseInsensitiveCompare.h>
 
 using namespace std;
 using namespace sptk;

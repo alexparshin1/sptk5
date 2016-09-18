@@ -130,7 +130,7 @@ bool CProgressBar::preferredSize(int& w,int& h) {
       if (pb->m_showText)
          h = m_textSize + 6;
       else
-         if (h < 6) h = h;
+         if (h < 6) h = 6;
    }
    return false;
 }

@@ -32,13 +32,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CListViewRows.h>
-#include <sptk5/Exception.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <string>
-#include <algorithm>
 
 using namespace std;
 using namespace sptk;

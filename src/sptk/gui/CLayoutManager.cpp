@@ -31,7 +31,6 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 #include <sptk5/cgui>
-#include <sptk5/cxml>
 
 using namespace std;
 using namespace sptk;
@@ -107,10 +106,11 @@ void CLayoutManager::relayout() {
         return;
     unsigned cnt = m_group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        CLayoutClient *ca = 0L;
         Fl_Widget *widget = m_group->child(i);
         if (!widget->visible())
             continue;
+
+        CLayoutClient *ca;
         try {
             ca = dynamic_cast<CLayoutClient *>(widget);
         } catch (...) {

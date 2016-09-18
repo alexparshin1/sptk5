@@ -83,7 +83,7 @@ bool fl_file_match(const char *s, const char *p)
                     if (*p == '-' && last) {
                         if (*s <= *++p && *s >= last)
                             matched = true;
-                        last = 0;
+                        //last = 0;
                     } else {
                         if (*s == *p)
                             matched = true;

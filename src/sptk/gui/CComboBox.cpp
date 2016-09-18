@@ -327,7 +327,6 @@ void CBaseListBox::save(XMLNode *node, CLayoutXMLmode xmlMode) const
 void CBaseListBox::changeControlData(int changeType, int intData, string stringData)
 {
     CPackedStrings *oldSelection = &m_list->selectedRow();
-    CPackedStrings *newSelection = 0L;
     switch (changeType)
     {
     case CT_REFRESH_DATA:
@@ -346,7 +345,7 @@ void CBaseListBox::changeControlData(int changeType, int intData, string stringD
         m_droppedDown = false;
         break;
     }
-    newSelection = &m_list->selectedRow();
+    CPackedStrings* newSelection = &m_list->selectedRow();
 
     if (oldSelection != newSelection)
         fireEvent(CE_DATA_CHANGED, m_list->data());
@@ -466,11 +465,10 @@ Variant CBaseListBox::data() const
 void CBaseListBox::data(const Variant newData)
 {
     CPackedStrings *oldSelection = &m_list->selectedRow();
-    CPackedStrings *newSelection = 0L;
 
     m_list->data(newData);
 
-    newSelection = &m_list->selectedRow();
+    CPackedStrings* newSelection = &m_list->selectedRow();
 
     if (oldSelection != newSelection)
         fireEvent(CE_DATA_CHANGED, m_list->data());

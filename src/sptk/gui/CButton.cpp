@@ -34,13 +34,10 @@
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CLayoutManager.h>
 
 using namespace sptk;
 using namespace std;
-
-#include <iostream>
 
 void CBaseButton::image(CButtonKind buttonKind,CIconSize iconSize,const char *label) {
    const char *name;

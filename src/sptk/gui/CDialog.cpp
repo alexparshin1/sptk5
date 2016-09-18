@@ -31,18 +31,11 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 
-#include <string.h>
-#include <stdio.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Registry.h>
 #include <sptk5/db/DatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CMessageDialog.h>
-#include <sptk5/gui/CInput.h>
-#include <sptk5/gui/CTabs.h>
-#include <sptk5/gui/CCheckButtons.h>
-#include <sptk5/gui/CRadioButtons.h>
-#include <sptk5/string_ext.h>
 
 using namespace std;
 using namespace sptk;

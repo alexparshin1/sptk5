@@ -32,7 +32,6 @@
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CControl.h>
-#include <stdio.h>
 
 using namespace std;
 using namespace sptk;

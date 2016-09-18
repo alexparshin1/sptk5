@@ -31,7 +31,6 @@
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/gui/CControl.h>
-#include <stdexcept>
 
 using namespace std;
 using namespace sptk;

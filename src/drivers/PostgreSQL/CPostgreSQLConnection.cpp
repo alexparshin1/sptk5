@@ -917,14 +917,12 @@ void PostgreSQLConnection::queryFetch(Query* query)
             field = (DatabaseField*) &(*query)[column];
             short fieldType = (short) field->fieldType();
 
-            bool isNull = false;
             dataLength = PQgetlength(stmt, currentRow, column);
 
             if (!dataLength) {
+                bool isNull = true;
                 if (fieldType & (VAR_STRING | VAR_TEXT | VAR_BUFFER))
                     isNull = PQgetisnull(stmt, currentRow, column) == 1;
-                else
-                    isNull = true;
 
                 if (isNull)
                     field->setNull();

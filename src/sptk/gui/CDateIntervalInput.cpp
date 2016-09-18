@@ -30,8 +30,6 @@
 
 #include <FL/fl_draw.H>
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <sptk5/gui/CDateIntervalInput.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CCalendar.h>

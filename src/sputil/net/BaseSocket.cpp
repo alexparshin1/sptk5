@@ -208,7 +208,7 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr, uint32_
         case SOM_CONNECT:
             if (timeoutMS) {
                 blockingMode(false);
-                rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+                connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
                 if (!readyToWrite(timeoutMS))
                     throw Exception("Connection timeout");
                 rc = 0;

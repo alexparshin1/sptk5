@@ -33,8 +33,6 @@
 #include <sptk5/gui/CDateControl.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CThemes.h>
 
 using namespace std;
 using namespace sptk;

@@ -158,7 +158,7 @@ string int2string (int64_t value)
 #else
     sprintf (buff,"%li", value);
 #endif
-    return buff;
+    return string(buff);
 }
 
 string int2string (uint64_t value)

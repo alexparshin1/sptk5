@@ -4,19 +4,12 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/utilities/wsdl2cxx.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/utilities/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/FindPostgreSQL.cmake" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/FindFirebird.cmake" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/FindFLTK13.cmake" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/FindPCRE.cmake" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/FindMySQL.cmake" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/FindOracle.cmake" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake/CXX11.cmake" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/sptk5/sptk-config.h.cmake" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/spdb/DatabaseField.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/spdb/Query.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/spdb/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/spdb/Query.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/spdb/Transaction.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/spdb/DatabaseField.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/spdb/DatabaseConnectionPool.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/spdb/DatabaseConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/spdb/DatabaseConnectionString.cpp" isTestSource="false" />
@@ -30,10 +23,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLAttributes.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLDocument.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLDocType.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SharedStrings.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Registry.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/MemoryDS.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/CommandLine.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/IntList.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SharedStrings.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/RegularExpression.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DateTime.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/UniqueInstance.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SysLogEngine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Exception.cpp" isTestSource="false" />
@@ -43,15 +37,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/string_ext.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/md5.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FileLogEngine.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FieldList.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Registry.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SystemException.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Field.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Base64.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DirectoryDS.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DataSource.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/RegularExpression.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DateTime.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SystemException.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/IntList.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FieldList.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/CommandLine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Variant.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/LogEngine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/HttpParams.cpp" isTestSource="false" />
@@ -71,12 +64,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/ServerConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/net/TCPSocket.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/ThreadPool.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/Runable.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/Synchronized.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/Semaphore.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/WorkerThread.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/Synchronized.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/RWLock.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/Runable.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/Thread.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/threads/RWLock.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/tar/Tar.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/tar/decode.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/tar/handle.cpp" isTestSource="false" />
@@ -84,85 +77,185 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/tar/libtar_list.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/tar/libtar_hash.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/tar/util.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSParserComplexType.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/protocol/WSStaticHttpProtocol.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/protocol/WSWebSocketsProtocol.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/protocol/WSStaticHttpProtocol.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/protocol/WSWebSocketsProtocol.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/protocol/WSWebServiceProtocol.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/protocol/WSWebServiceProtocol.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSComplexType.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSProtocol.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSParserComplexType.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSTypeTranslator.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSParser.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSBasicTypes.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSRequest.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSListener.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/wsdl/WSRestriction.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CLayoutClient.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CWindowShape.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CCalendar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CListViewRows.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CListViewSelection.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPhoneNumberInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CIntegerInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CToolBar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPasswordInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CSplitter.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDirOpenDialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPopupWindow.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CControl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPngImage.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CTabs.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFontComboBox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CMessageDialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CMemoInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CHtmlBox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CRadioButtons.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CWindow.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CScroll.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CSmallPixmaps.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CGroup.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CEditor.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CBox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFileDialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDBListView.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CLayoutManager.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFont.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDataControl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CCheckButtons.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPackedStrings.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CColumn.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFileOpenDialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CTreeView.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateControl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CControlList.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFloatInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateIntervalInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFileSaveDialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CComboBox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CButton.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateTimeInput.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CListView.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDialog.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CProgressBar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CButtonGroup.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CTreeControl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDropDownBox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CScrollBar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CIcon.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemesGtk.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CFrame.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CColorSchema.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CGtkThemeLoader.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemeScrollBar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CGtkThemeLoader.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemes.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemeColorCollection.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/ThemeUtils.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/ThemeUtils.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CTabImage.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemeImageCollection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/SQLite3/CSQLite3Connection.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleStatement.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleBulkInsertQuery.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleConnection.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleBulkInsertQuery.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/Oracle/COracleEnvironment.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLStatement.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLConnection.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBCConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBC.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBCConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLParamValues.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/htonq.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLParamValues.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/htonq.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLStatement.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/MySQL/CMySQLConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake_uninstall.cmake.in" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/Flat/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/Blue/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/Default/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/Dark/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/Keramic/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/OSX/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/OSX_Flat/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/E17/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/Opera/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/themes/tar2h.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/all_drivers_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/odbc_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/driver_load_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/bulk_insert_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/xml_test2.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/xml_test3.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/utils/string2md5.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/xml/xml_test1.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/utils/syslog_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/datetime.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/regexp.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/logfile_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/utils/syslog_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/command_line.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/utils/string2md5.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/registry.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/unique_instance.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/utils/exceptions.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/driver_load_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/odbc_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/sqlite3_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/all_drivers_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/bulk_insert_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/calendar_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/cscroll_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/shaped_window.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/themes_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/ceditor_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/file_dialogs.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/check_buttons.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/tree_view.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/dialog_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/combo_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/font_combo.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/splitter.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/cgroup_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/gui/tabs_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/http_connect.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/ws_server_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/udp_server_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_server_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/tcp_server_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_client_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/udp_client_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/smtp_connect.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_client_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/imap_connect.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_server_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/tcp_client_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/datasources/directory_ds.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/datasources/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/datasources/imap_ds.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/threads/semaphore.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/threads/thread_rwlock.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/threads/thread_pool_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/threads/thread_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/threads/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/cmake_uninstall.cmake.in" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindPostgreSQL.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindFirebird.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindPCRE.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindMySQL.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindOracle.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/FindFLTK13.cmake" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake/CXX11.cmake" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
-          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include-fixed" />
-          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include" />
-          <root url="file:///usr/lib64/oracle/12.1/client/include" />
           <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/6/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/6/include" />
           <root url="file:///usr/local/include" />
         </CLASSES>
         <SOURCES>
-          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include-fixed" />
-          <root url="file:///usr/lib/gcc/x86_64-pc-linux-gnu/5.4.0/include" />
-          <root url="file:///usr/lib64/oracle/12.1/client/include" />
           <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/6/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/6/include" />
           <root url="file:///usr/local/include" />
         </SOURCES>
       </library>

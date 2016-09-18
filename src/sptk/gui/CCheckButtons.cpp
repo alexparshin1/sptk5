@@ -32,17 +32,10 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
 
-#include <stdio.h>
-#include <string.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CScroll.h>
-#include <sptk5/Strings.h>
-
-#include <stdio.h>
-
-#include <algorithm>
 
 using namespace std;
 using namespace sptk;

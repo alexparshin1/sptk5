@@ -29,7 +29,6 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CColorSchema.h>
-#include <FL/Enumerations.H>
 
 using namespace std;
 using namespace sptk;

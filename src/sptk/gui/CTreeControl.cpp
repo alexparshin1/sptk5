@@ -28,18 +28,12 @@
 
 #include <sptk5/sptk.h>
 
-#include <string.h>
-
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include <FL/Fl_Image.H>
 
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CTreeControl.h>
-#include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/gui/CThemes.h>
-
-#include <iostream>
 
 using namespace std;
 using namespace sptk;

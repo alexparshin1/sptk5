@@ -30,22 +30,11 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_Round_Button.H>
-#include <FL/Fl_Check_Button.H>
 #include <FL/fl_draw.H>
-#include <FL/Fl_Help_View.H>
-#include <ctype.h>
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CCalendar.h>
-#include <sptk5/db/Query.h>
 
-#include <sptk5/gui/CEditor.h>
-#include <sptk5/gui/CInput.h>
-#include <sptk5/gui/CDateControl.h>
 #include <sptk5/gui/CRadioButtons.h>
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CComboBox.h>
