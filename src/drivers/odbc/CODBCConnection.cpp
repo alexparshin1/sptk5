@@ -706,6 +706,10 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 if (rc != SQL_SUCCESS)
                     throw DatabaseException("SQLProcedures");
                 break;
+
+            case DOT_FUNCTIONS:
+                // not yet supported
+                break;
         }
 
         SQLCHAR objectSchema[256];
