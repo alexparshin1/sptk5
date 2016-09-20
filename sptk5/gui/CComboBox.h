@@ -304,7 +304,7 @@ public:
     int findString(std::string str, bool select = true, uint32_t startRow = 0, unsigned endRow = 0);
 
     /// Returns the currently selected row, or reference to NULL if not selected
-    CPackedStrings& selectedRow() const;
+    CPackedStrings* selectedRow() const;
 
     /// Selects a row
     /// @param rowNumber unsigned, row number

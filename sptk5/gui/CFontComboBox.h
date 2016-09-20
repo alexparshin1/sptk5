@@ -70,8 +70,12 @@ public:
     }
 
     /// Returns font index as Fl_Font
-    Fl_Font font() const {
-        return (Fl_Font) selectedRow().argument();
+    Fl_Font font() const
+    {
+        CPackedStrings* theSelectedRow = selectedRow();
+        if (theSelectedRow)
+            return (Fl_Font) theSelectedRow->argument();
+        return FL_HELVETICA;
     }
 
     /// @brief Creates a widget based on the XML node information

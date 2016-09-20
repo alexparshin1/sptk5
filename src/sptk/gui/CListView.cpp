@@ -862,10 +862,10 @@ int CListView::visible(int line) const
 
 std::string CListView::textValue() const
 {
-    CPackedStrings& t = selectedRow();
-    if (!&t)
+    CPackedStrings* t = selectedRow();
+    if (!t)
         return "";
-    return t[0];
+    return (*t)[0];
 }
 
 void CListView::textValue(std::string tv)
@@ -894,8 +894,8 @@ void CListView::textValue(std::string tv)
 
 Variant CListView::data() const
 {
-    CPackedStrings& t = selectedRow();
-    if (!&t) {
+    CPackedStrings* t = selectedRow();
+    if (!t) {
         switch (m_dataMode) {
             case LV_DATA_KEY:
             case LV_DATA_INDEX:
@@ -906,11 +906,11 @@ Variant CListView::data() const
     }
     switch (m_dataMode) {
         case LV_DATA_KEY:
-            return t.argument();
+            return t->argument();
         case LV_DATA_INDEX:
             return selectedIndex();
         default: // LV_DATA_CAPTION, LV_DATA_UNDEFINED
-            return t[0];
+            return (*t)[0];
     }
 }
 
@@ -1429,7 +1429,7 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
 
 int CListView::selectedIndex() const
 {
-    CPackedStrings *row = &selectedRow();
+    CPackedStrings *row = selectedRow();
     return m_rows.indexOf(row);
 }
 
@@ -1910,13 +1910,13 @@ bool CListView::activate_row(unsigned newActiveRow)
     return false;
 }
 
-CPackedStrings& CListView::selectedRow() const
+CPackedStrings* CListView::selectedRow() const
 {
     if (m_selection.size()) {
         CPackedStrings& ps = m_selection[0];
-        return ps;
+        return &ps;
     }
-    return *(CPackedStrings *) 0L;
+    return NULL;
 }
 
 CColumn& CListView::column(const char *colname)

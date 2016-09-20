@@ -52,7 +52,7 @@ void list_view_cb(Fl_Widget *w,void *)
 {
    CListView *listView = (CListView *)w;
    if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK) {
-      CPackedStrings& row = listView->selectedRow(); 
+      CPackedStrings& row = *listView->selectedRow(); 
       if (strncmp(row[3],"Directory",9) == 0) {
          std::string fullPath = directoryDS->directory() + row[1];
          directoryDS->directory(fullPath);

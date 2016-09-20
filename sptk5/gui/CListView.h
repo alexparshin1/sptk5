@@ -477,8 +477,8 @@ public:
     }
 
     /// Returns currently selected row, or the last selected row in case of multiple selection.
-    /// Returns 0L reference if there is no selection.
-    CPackedStrings& selectedRow() const;
+    /// Returns 0L if there is no selection.
+    CPackedStrings* selectedRow() const;
 
     /// Returns the row number for the selected row
     int selectedIndex() const;

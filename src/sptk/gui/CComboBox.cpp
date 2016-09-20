@@ -81,7 +81,7 @@ void CInternalComboBoxPanel::draw()
 
     draw_box(FL_DOWN_FRAME, x(), y(), w(), h(), FL_LIGHT3);
     listView->color(FL_LIGHT3);
-    CPackedStrings *row = &listView->selectedRow();
+    CPackedStrings *row = listView->selectedRow();
 
     fl_clip(x() + 2, y() + 2, w() - 4 - combo->m_buttonSpace, h() - 4);
     draw_box(FL_FLAT_BOX, x(), y(), w(), h(), FL_LIGHT3);
@@ -326,7 +326,7 @@ void CBaseListBox::save(XMLNode *node, CLayoutXMLmode xmlMode) const
 
 void CBaseListBox::changeControlData(int changeType, int intData, string stringData)
 {
-    CPackedStrings *oldSelection = &m_list->selectedRow();
+    CPackedStrings *oldSelection = m_list->selectedRow();
     switch (changeType)
     {
     case CT_REFRESH_DATA:
@@ -345,7 +345,7 @@ void CBaseListBox::changeControlData(int changeType, int intData, string stringD
         m_droppedDown = false;
         break;
     }
-    CPackedStrings* newSelection = &m_list->selectedRow();
+    CPackedStrings* newSelection = m_list->selectedRow();
 
     if (oldSelection != newSelection)
         fireEvent(CE_DATA_CHANGED, m_list->data());
@@ -422,7 +422,7 @@ void CBaseListBox::dropDownList()
     changeControlData(CT_CHOOSE_ITEM);
 }
 
-CPackedStrings& CBaseListBox::selectedRow() const
+CPackedStrings* CBaseListBox::selectedRow() const
 {
     return m_list->selectedRow();
 }
@@ -464,11 +464,11 @@ Variant CBaseListBox::data() const
 
 void CBaseListBox::data(const Variant newData)
 {
-    CPackedStrings *oldSelection = &m_list->selectedRow();
+    CPackedStrings *oldSelection = m_list->selectedRow();
 
     m_list->data(newData);
 
-    CPackedStrings* newSelection = &m_list->selectedRow();
+    CPackedStrings* newSelection = m_list->selectedRow();
 
     if (oldSelection != newSelection)
         fireEvent(CE_DATA_CHANGED, m_list->data());

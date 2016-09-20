@@ -38,11 +38,11 @@
 #ifdef WIN32
 
 #include <direct.h>
-   const char sptk::CFileDialog::slashChar  = '\\';
-   const char sptk::CFileDialog::slashStr[] = "\\";
+const char sptk::CFileDialog::slashChar  = '\\';
+const char sptk::CFileDialog::slashStr[] = "\\";
 #else
-   const char sptk::CFileDialog::slashChar  = '/';
-   const char sptk::CFileDialog::slashStr[] = "/";
+const char sptk::CFileDialog::slashChar  = '/';
+const char sptk::CFileDialog::slashStr[] = "/";
 #endif
 
 using namespace std;
@@ -50,290 +50,336 @@ using namespace sptk;
 
 string CFileDialog::removeTrailingSlash(std::string dirname)
 {
-   size_t dlen = dirname.length();
-   if (dlen && (dirname[dlen-1] == '/' || dirname[dlen-1] == '\\'))
-         return dirname.substr(0,dlen-1);
-   return dirname;
+    size_t dlen = dirname.length();
+
+    if (dlen && (dirname[dlen - 1] == '/' || dirname[dlen - 1] == '\\'))
+        return dirname.substr(0, dlen - 1);
+
+    return dirname;
 }
 
-void CFileDialog::new_folder_cb(Fl_Widget *w,void *)
+void CFileDialog::new_folder_cb(Fl_Widget* w, void*)
 {
-   CFileDialog *fileDialog = (CFileDialog *)w->window();
-   fileDialog->createFolder();
+    CFileDialog* fileDialog = (CFileDialog*) w->window();
+    fileDialog->createFolder();
 }
 
-void CFileDialog::home_cb(Fl_Widget *w,void *)
+void CFileDialog::home_cb(Fl_Widget* w, void*)
 {
-   CFileDialog *fileDialog = (CFileDialog *)w->window();
-   string homeDirectory = Registry::homeDirectory();
-   fileDialog->directory(homeDirectory);
-   fileDialog->refreshDirectory();
+    CFileDialog* fileDialog = (CFileDialog*) w->window();
+    string homeDirectory = Registry::homeDirectory();
+    fileDialog->directory(homeDirectory);
+    fileDialog->refreshDirectory();
 }
 
-void CFileDialog::up_cb(Fl_Widget *w,void *)
+void CFileDialog::up_cb(Fl_Widget* w, void*)
 {
-   CFileDialog *fileDialog = (CFileDialog *)w->window();
-   fileDialog->directory(fileDialog->directory()+"..");
-   fileDialog->refreshDirectory();
+    CFileDialog* fileDialog = (CFileDialog*) w->window();
+    fileDialog->directory(fileDialog->directory() + "..");
+    fileDialog->refreshDirectory();
 }
 
-void CFileDialog::dirview_cb(Fl_Widget *w, void *)
+void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 {
-   bool directoryClicked = false;
+    bool directoryClicked = false;
 
-   CFileDialog *fileDialog = (CFileDialog *)w->window();
-   CListView *listView = (CListView *)w;
+    CFileDialog* fileDialog = (CFileDialog*) w->window();
+    CListView* listView = (CListView*) w;
 
-   CPackedStrings& row = listView->selectedRow();
+    if (listView->selectedRow() == NULL)
+        return;
 
-   if (&row == NULL) return;
+    CPackedStrings& row = *listView->selectedRow();
 
-   if (strncmp(row[3],"Directory",9) == 0)
-      directoryClicked = true;
+    if (strncmp(row[3], "Directory", 9) == 0)
+        directoryClicked = true;
 
-   switch (listView->eventType()) {
-      case CE_MOUSE_CLICK:
-         if (!directoryClicked) {
+    switch (listView->eventType()) {
+    case CE_MOUSE_CLICK:
+        if (!directoryClicked) {
             Strings fileNames;
             const CSelection& selection = fileDialog->m_directoryView->selection();
-            for (unsigned i=0; i < selection.size(); i++) {
-               CPackedStrings& row = selection[i];
-               if (strncmp(row[3],"Directory",9) != 0) {
-                  fileNames.push_back(row[1]);
-               }
+
+            for (unsigned i = 0; i < selection.size(); i++) {
+                CPackedStrings& row = selection[i];
+
+                if (strncmp(row[3], "Directory", 9) != 0) {
+                    fileNames.push_back(row[1]);
+                }
             }
+
             fileDialog->m_fileNameInput->data(fileNames.asString("; "));
-         }
-         break;
-      case CE_MOUSE_DOUBLE_CLICK: {
+        }
+
+        break;
+
+    case CE_MOUSE_DOUBLE_CLICK: {
             if (directoryClicked) {
-               string fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
-               char doubleSlashStr[] = { slashChar, slashChar, 0 };
-               fileDialog->directory(replaceAll(fullPath,doubleSlashStr,slashStr));
-               fileDialog->refreshDirectory();
+                string fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
+                char doubleSlashStr[] = { slashChar, slashChar, 0 };
+                fileDialog->directory(replaceAll(fullPath, doubleSlashStr, slashStr));
+                fileDialog->refreshDirectory();
             } else {
-               fileDialog->m_fileNameInput->data(row[1]);
-               fileDialog->m_okButton->do_callback();
+                fileDialog->m_fileNameInput->data(row[1]);
+                fileDialog->m_okButton->do_callback();
             }
-         }
-         break;
-      default:
-         break;
-   }
+        }
+        break;
+
+    default
+            :
+        break;
+    }
 }
 
-void CFileDialog::lookin_cb(Fl_Widget *w,void *) {
-   CFileDialog *fileDialog = (CFileDialog *)w->window();
-   CComboBox *comboBox = (CComboBox *)w;
+void CFileDialog::lookin_cb(Fl_Widget* w, void*)
+{
+    CFileDialog* fileDialog = (CFileDialog*) w->window();
+    CComboBox* comboBox = (CComboBox*) w;
 
-   if (comboBox->eventType() != CE_DATA_CHANGED) return;
+    if (comboBox->eventType() != CE_DATA_CHANGED)
+        return;
 
-   CPackedStrings& ps = comboBox->selectedRow();
-   if (&ps != NULL) {
-      if (fileDialog->m_directory.directory() != ps[0]) {
-         fileDialog->refreshDirectory(ps[0]);
-      }
-   }
+    if (comboBox->selectedRow() == NULL)
+        return;
+
+    CPackedStrings& ps = *comboBox->selectedRow();
+
+    if (fileDialog->m_directory.directory() != ps[0]) {
+        fileDialog->refreshDirectory(ps[0]);
+    }
 }
 
-void CFileDialog::pattern_cb(Fl_Widget *w,void *) {
-   CComboBox *comboBox = (CComboBox *)w;
-   if (comboBox->eventType() != CE_DATA_CHANGED) return;
+void CFileDialog::pattern_cb(Fl_Widget* w, void*)
+{
+    CComboBox* comboBox = (CComboBox*) w;
 
-   CFileDialog *fileDialog = (CFileDialog *)w->window();
-   if (fileDialog->pattern() != fileDialog->m_directory.pattern())
-      fileDialog->refreshDirectory();
+    if (comboBox->eventType() != CE_DATA_CHANGED)
+        return;
+
+    CFileDialog* fileDialog = (CFileDialog*) w->window();
+
+    if (fileDialog->pattern() != fileDialog->m_directory.pattern())
+        fileDialog->refreshDirectory();
 }
 
-CFileDialog::CFileDialog(string label,bool saveMode)
-: CDialog(450,400,label.c_str()) {
-   CButton *btn;
+CFileDialog::CFileDialog(string label, bool saveMode)
+    : CDialog(450, 400, label.c_str())
+{
+    CButton* btn;
 
-   CGroup   *grp = new CGroup;
-   m_lookInCombo = new CComboBox("Look in:",10,SP_ALIGN_CLIENT);
-   m_lookInCombo->labelWidth(60);
-   m_lookInCombo->addColumn("Path",VAR_STRING,250);
+    CGroup*   grp = new CGroup;
+    m_lookInCombo = new CComboBox("Look in:", 10, SP_ALIGN_CLIENT);
+    m_lookInCombo->labelWidth(60);
+    m_lookInCombo->addColumn("Path", VAR_STRING, 250);
 
-   if (saveMode) {
-      btn = new CButton("",SP_ALIGN_RIGHT);
-      btn->buttonImage(CThemes::getIconImage("fd_new_folder",IS_LARGE_ICON));
-      btn->callback(CFileDialog::new_folder_cb);
-   }
-/*
-   btn = new CButton("",SP_ALIGN_RIGHT);
-   btn->buttonImage(&pixmap_favorites);
-*/
-   btn = new CButton("",SP_ALIGN_RIGHT);
-   btn->buttonImage(CThemes::getIconImage("fd_level_up",IS_LARGE_ICON));
-   btn->callback(CFileDialog::up_cb);
+    if (saveMode) {
+        btn = new CButton("", SP_ALIGN_RIGHT);
+        btn->buttonImage(CThemes::getIconImage("fd_new_folder", IS_LARGE_ICON));
+        btn->callback(CFileDialog::new_folder_cb);
+    }
 
-   btn = new CButton("",SP_ALIGN_RIGHT);
-   btn->buttonImage(CThemes::getIconImage("fd_home_page",IS_LARGE_ICON));
-   btn->callback(CFileDialog::home_cb);
+    /*
+       btn = new CButton("",SP_ALIGN_RIGHT);
+       btn->buttonImage(&pixmap_favorites);
+    */
+    btn = new CButton("", SP_ALIGN_RIGHT);
+    btn->buttonImage(CThemes::getIconImage("fd_level_up", IS_LARGE_ICON));
+    btn->callback(CFileDialog::up_cb);
 
-   grp->end();
+    btn = new CButton("", SP_ALIGN_RIGHT);
+    btn->buttonImage(CThemes::getIconImage("fd_home_page", IS_LARGE_ICON));
+    btn->callback(CFileDialog::home_cb);
 
-   m_patternCombo = new CComboBox("Files of type:",10,SP_ALIGN_BOTTOM);
-   m_patternCombo->addColumn("file type",VAR_STRING,150);
-   m_patternCombo->addColumn("pattern",VAR_STRING,100);
-   m_patternCombo->addRow(Strings("All Files|*.*","|"),1);
-   m_patternCombo->data(1);
-   m_patternCombo->callback(pattern_cb);
+    grp->end();
 
-   m_fileNameInput = new CInput("File name:",10,SP_ALIGN_BOTTOM);
+    m_patternCombo = new CComboBox("Files of type:", 10, SP_ALIGN_BOTTOM);
+    m_patternCombo->addColumn("file type", VAR_STRING, 150);
+    m_patternCombo->addColumn("pattern", VAR_STRING, 100);
+    m_patternCombo->addRow(Strings("All Files|*.*", "|"), 1);
+    m_patternCombo->data(1);
+    m_patternCombo->callback(pattern_cb);
 
-   m_directoryView = new CListView("",200,SP_ALIGN_CLIENT);
-   m_directoryView->callback(CFileDialog::dirview_cb);
-   end();
-   directory(".");
+    m_fileNameInput = new CInput("File name:", 10, SP_ALIGN_BOTTOM);
+
+    m_directoryView = new CListView("", 200, SP_ALIGN_CLIENT);
+    m_directoryView->callback(CFileDialog::dirview_cb);
+    end();
+    directory(".");
 }
 
-bool CFileDialog::execute() {
-   m_directory.showPolicy(DDS_HIDE_DOT_FILES);
-   CPackedStrings& selectedPattern = m_patternCombo->selectedRow();
-   if (&selectedPattern)
-      m_directory.pattern(selectedPattern[1]);
-   m_directoryView->fill(m_directory,"N/A");
-   bool rc = showModal();
-   if (rc) {
-   }
-   return rc;
+bool CFileDialog::execute()
+{
+    m_directory.showPolicy(DDS_HIDE_DOT_FILES);
+
+    if (m_patternCombo->selectedRow()) {
+        CPackedStrings& selectedPattern = *m_patternCombo->selectedRow();
+        m_directory.pattern(selectedPattern[1]);
+    }
+
+    m_directoryView->fill(m_directory, "N/A");
+    bool rc = showModal();
+
+    return rc;
 }
 
-void CFileDialog::createFolder() {
-   CDialog dialog(350,85,"Create a New Folder");
-   CInput folderNameInput("Folder Name:");
-   folderNameInput.labelWidth(90);
-   if (dialog.showModal()) {
-      char doubleSlashStr[] = { slashChar, slashChar, 0 };
-      string folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
-      folderName = replaceAll(folderName,doubleSlashStr,slashStr);
+void CFileDialog::createFolder()
+{
+    CDialog dialog(350, 85, "Create a New Folder");
+    CInput folderNameInput("Folder Name:");
+    folderNameInput.labelWidth(90);
+
+    if (dialog.showModal()) {
+        char doubleSlashStr[] = { slashChar, slashChar, 0 };
+        string folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
+        folderName = replaceAll(folderName, doubleSlashStr, slashStr);
 #ifdef WIN32
-      int rc = mkdir(folderName.c_str());
+        int rc = mkdir(folderName.c_str());
 #else
-      int rc = mkdir(folderName.c_str(),S_IRWXU);
+        int rc = mkdir(folderName.c_str(), S_IRWXU);
 #endif
-      if (rc == 0) {
-         directory(folderName);
-         refreshDirectory();
-      } else {
-         fl_alert("%s",("Can't create directory "+folderName).c_str());
-      }
-   }
+
+        if (rc == 0) {
+            directory(folderName);
+            refreshDirectory();
+        } else {
+            fl_alert("%s", ("Can't create directory " + folderName).c_str());
+        }
+    }
 }
 
 #ifdef WIN32
 
-static void makeDriveList(Strings& driveList) {
-   char buffer[128];
+static void makeDriveList(Strings& driveList)
+{
+    char buffer[128];
 
-   driveList.clear();
-   int nLen = GetLogicalDriveStrings(128,buffer);
-   int nDrives = nLen/4;
+    driveList.clear();
+    int nLen = GetLogicalDriveStrings(128, buffer);
+    int nDrives = nLen / 4;
 
-   for (int d= 0; d<nDrives; d++)
-      driveList.push_back(upperCase(buffer +(d*4)));
+    for (int d = 0; d < nDrives; d++)
+        driveList.push_back(upperCase(buffer + (d * 4)));
 }
 
 #endif
 
-void CFileDialog::directory(string p) {
-   m_lookInCombo->callback((Fl_Callback *)0L);
-   m_lookInCombo->clear();
+void CFileDialog::directory(string p)
+{
+    m_lookInCombo->callback((Fl_Callback*) 0L);
+    m_lookInCombo->clear();
 
-   int pseudoID = 0;
+    int pseudoID = 0;
 
 #ifdef WIN32
-   Strings driveList;
-   makeDriveList(driveList);
+    Strings driveList;
+    makeDriveList(driveList);
 
-   for (unsigned d = 0; d < driveList.size(); d++) {
-      pseudoID++;
-      m_lookInCombo->addRow(Strings(driveList[d],"|"),pseudoID);
-   }
+    for (unsigned d = 0; d < driveList.size(); d++) {
+        pseudoID++;
+        m_lookInCombo->addRow(Strings(driveList[d], "|"), pseudoID);
+    }
+
 #endif
 
-   m_directory.directory(p);
+    m_directory.directory(p);
 
-   Strings pathItems(m_directory.directory().c_str(),slashStr);
-   string incrementalPath;
+    Strings pathItems(m_directory.directory().c_str(), slashStr);
+    string incrementalPath;
 
-   for (unsigned i = 0; i < pathItems.size(); i++) {
-      incrementalPath += pathItems[i];
-      if (i == 0)
-         incrementalPath += slashStr;
+    for (unsigned i = 0; i < pathItems.size(); i++) {
+        incrementalPath += pathItems[i];
+
+        if (i == 0)
+            incrementalPath += slashStr;
+
 #ifdef WIN32
-      if (i)
+
+        if (i)
 #endif
-      {
-         pseudoID++;
-         m_lookInCombo->addRow(Strings(incrementalPath,"|"),pseudoID);
-      }
-      if (i != 0)
-         incrementalPath += slashStr;
-   }
-   m_lookInCombo->callback(lookin_cb);
-   string dirName = m_directory.directory();
-   m_lookInCombo->data(dirName);
+        {
+            pseudoID++;
+            m_lookInCombo->addRow(Strings(incrementalPath, "|"), pseudoID);
+        }
 
-   int estimatedColumnWidth = (int) m_lookInCombo->textSize() * (int) incrementalPath.length() * 2 / 3;
-   int minColWidth = 280;
-   if (estimatedColumnWidth < minColWidth )
-      estimatedColumnWidth = minColWidth;
+        if (i != 0)
+            incrementalPath += slashStr;
+    }
 
-   m_lookInCombo->columns()[0].width(estimatedColumnWidth);
+    m_lookInCombo->callback(lookin_cb);
+    string dirName = m_directory.directory();
+    m_lookInCombo->data(dirName);
 
-   m_lookInCombo->sortColumn(0);
+    int estimatedColumnWidth = (int) m_lookInCombo->textSize() * (int) incrementalPath.length() * 2 / 3;
+    int minColWidth = 280;
 
-   m_lookInCombo->redraw();
+    if (estimatedColumnWidth < minColWidth)
+        estimatedColumnWidth = minColWidth;
+
+    m_lookInCombo->columns() [0].width(estimatedColumnWidth);
+
+    m_lookInCombo->sortColumn(0);
+
+    m_lookInCombo->redraw();
 }
 
-void CFileDialog::clearPatterns() {
-   m_patternCombo->callback((Fl_Callback *)0);
-   m_patternCombo->clear();
-   m_patternCombo->addRow(Strings("All Files|*.*","|"),1);
-   m_patternCombo->callback((Fl_Callback *)pattern_cb);
-   m_patternCombo->data(1);
-   refreshDirectory();
+void CFileDialog::clearPatterns()
+{
+    m_patternCombo->callback((Fl_Callback*) 0);
+    m_patternCombo->clear();
+    m_patternCombo->addRow(Strings("All Files|*.*", "|"), 1);
+    m_patternCombo->callback((Fl_Callback*) pattern_cb);
+    m_patternCombo->data(1);
+    refreshDirectory();
 }
 
-void CFileDialog::setPattern(string patternName) {
-   m_patternCombo->sortColumn(0);
-   m_patternCombo->findString(patternName);
+void CFileDialog::setPattern(string patternName)
+{
+    m_patternCombo->sortColumn(0);
+    m_patternCombo->findString(patternName);
 }
 
-void CFileDialog::addPattern(string patternName,string pattern) {
-   m_patternCombo->addRow(Strings(patternName+"|"+pattern,"|"),0);
+void CFileDialog::addPattern(string patternName, string pattern)
+{
+    m_patternCombo->addRow(Strings(patternName + "|" + pattern, "|"), 0);
 }
 
-string CFileDialog::pattern() const {
-   CPackedStrings& ps = m_patternCombo->selectedRow();
-   if (&ps)
-      return ps[1];
-   return "*.*";
+string CFileDialog::pattern() const
+{
+    if (m_patternCombo->selectedRow()) {
+        CPackedStrings& ps = *m_patternCombo->selectedRow();
+        return ps[1];
+    }
+
+    return "*.*";
 }
 
-void CFileDialog::refreshDirectory(string dir) {
-   if (dir.length())
-      m_directory.directory(dir);
-   m_directory.pattern(pattern());
-   m_directoryView->fill(m_directory,"N/A");
-   //m_fileNameInput->data("");
+void CFileDialog::refreshDirectory(string dir)
+{
+    if (dir.length())
+        m_directory.directory(dir);
+
+    m_directory.pattern(pattern());
+    m_directoryView->fill(m_directory, "N/A");
+    //m_fileNameInput->data("");
 }
 
-void CFileDialog::fileName(string fn) {
-   m_fileNameInput->data(fn);
+void CFileDialog::fileName(string fn)
+{
+    m_fileNameInput->data(fn);
 }
 
-string CFileDialog::fullFileName() const {
-   char doubleSlash[] = { slashChar, slashChar, 0 };
+string CFileDialog::fullFileName() const
+{
+    char doubleSlash[] = { slashChar, slashChar, 0 };
 
-   string fileNamesStr = m_fileNameInput->data();
-   Strings fileNames(fileNamesStr,";");
-   for (unsigned i = 0; i < fileNames.size(); i++) {
-      string fname = m_directory.directory() + slashStr + fileNames[i];
-      fileNames[i] = trim(replaceAll(fname,doubleSlash,slashStr));
-   }
+    string fileNamesStr = m_fileNameInput->data();
+    Strings fileNames(fileNamesStr, ";");
 
-   return fileNames.asString(";");
+    for (unsigned i = 0; i < fileNames.size(); i++) {
+        string fname = m_directory.directory() + slashStr + fileNames[i];
+        fileNames[i] = trim(replaceAll(fname, doubleSlash, slashStr));
+    }
+
+    return fileNames.asString(";");
 }
