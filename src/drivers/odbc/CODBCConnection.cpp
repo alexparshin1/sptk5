@@ -102,6 +102,8 @@ void ODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCEP
 
         string finalConnectionString;
         m_connect->connect(nativeConnectionString(), finalConnectionString, false);
+        if (m_connect->driverDescription().find("Microsoft SQL Server") != string::npos)
+            m_connType = DCT_MSSQL_ODBC;
     }
 }
 
