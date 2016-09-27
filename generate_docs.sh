@@ -5,7 +5,7 @@ SPTKVER=$1
 
 #CXX_INCLUDE_DIR=$(gcc -v 2>&1 | grep 'Configured with:' | sed -r 's/^.*--with-gxx-include-dir=(\S+) .*$/\1/')
 
-if [ "$SPTKVER" == "" ]; then
+if [ "$SPTKVER" = "" ]; then
     echo "Provide SPTK version as a parameter"
     exit 1
 fi

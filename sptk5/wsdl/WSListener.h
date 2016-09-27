@@ -38,6 +38,13 @@ namespace sptk {
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
+/// @brief Web Service Listener
+///
+/// Simple server to accept Web Service requests.
+/// Actual request processing is implemented in Web Service request processor,
+/// passed to constructor.
+/// As a bonus, WSListener also serves static files, located in staticFilesDirectory.
+/// That may be used to implement a web application.
 class WSListener : public TCPServer
 {
 protected:
@@ -63,9 +70,9 @@ public:
     /// @brief Destructor
     ~WSListener();
  };
- 
+
 /// @}
- 
+
 }
 
 #endif
