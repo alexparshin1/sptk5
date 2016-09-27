@@ -50,7 +50,7 @@ class SynchronizedQueue
 
 protected:
 
-    mutable Synchronized   m_sync;             ///< Lock to synchronize queue operations
+    mutable Synchronized	m_sync;             ///< Lock to synchronize queue operations
 
 public:
 
@@ -121,7 +121,7 @@ public:
     }
 
     /// @brief Returns number of items in the queue
-    uint32_t size() const
+    size_t size() const
     {
         SynchronizedCode sc(m_sync);
         return m_queue->size();
