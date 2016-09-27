@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="13.0" Modules="simple" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="13.1" Modules="simple" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPURLINFOABOUT" Value="www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Linotex Pty Ltd"/>
-    <ROW Property="ProductCode" Value="1033:{ABD89254-9150-407D-A13F-6448FC9BEEF8} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{62C5348F-4CA4-47E3-A66D-4E02A473EFAF} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.2.5" Type="32"/>
+    <ROW Property="ProductVersion" Value="5.2.6" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
