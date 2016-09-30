@@ -62,12 +62,14 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
             m_bytes = 0;
         }
     }
+
     if (!lineBreak) {
         if (m_bytes == 0)
             m_date = DateTime::Now();
         m_buffer[m_bytes] = (char) c;
         m_bytes++;
     }
+
     return traits_type::not_eof(c);
 }
 //==========================================================================================
@@ -91,6 +93,8 @@ void Logger::saveMessage(DateTime date, const char *message, uint32_t sz, LogPri
 
 SP_EXPORT Logger& sptk::operator <<(Logger& stream, LogPriority priority)
 {
-    stream.messagePriority(priority);
+	if (stream.fail() || stream.bad())
+		stream.clear();
+	stream.messagePriority(priority);
     return stream;
 }
