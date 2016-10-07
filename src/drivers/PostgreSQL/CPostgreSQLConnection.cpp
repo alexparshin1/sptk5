@@ -419,7 +419,8 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     if (!statement->colCount())
         resultFormat = 0;   // VOID result or NO results, using text format
 
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), paramValues.values(),
+    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), 
+                                    paramValues.values(),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
     ExecStatusType rc = PQresultStatus(stmt);
@@ -742,14 +743,11 @@ static inline MoneyData readNumericToScaledInteger(char* v)
 
     v += 8;
     int64_t value = 0;
-    int64_t divider = 1;
 
     int scale = 0;
     if (weight < 0) {
-        for (int i = 0; i < -(weight + 1); i++) {
-            divider *= 10000;
+        for (int i = 0; i < -(weight + 1); i++)
             scale += 4;
-        }
     }
 
     int16_t digitWeight = weight;
@@ -813,13 +811,13 @@ static void decodeArray(char* data, DatabaseField* field)
         uint32_t lowerBound;
     };
 
-    PGArrayHeader* arrayHeader = (PGArrayHeader*) data;
+    PGArrayHeader* arrayHeader = reinterpret_cast<PGArrayHeader*>(data);
     arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
     arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
     arrayHeader->elementType = ntohl(arrayHeader->elementType);
     data += sizeof(PGArrayHeader);
 
-    PGArrayDimension* dimensions = (PGArrayDimension*) data;
+    PGArrayDimension* dimensions = reinterpret_cast<PGArrayDimension*>(data);
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
     stringstream output;
