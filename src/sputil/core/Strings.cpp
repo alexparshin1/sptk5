@@ -135,7 +135,7 @@ void Strings::fromString(const string &src, const char *delimitter, SplitMode mo
 string Strings::asString(const char *delimiter) const
 {
     string result;
-    for (const_iterator str = begin(); str != end(); str++) {
+    for (const_iterator str = begin(); str != end(); ++str) {
         if (result.empty())
             result = *str;
         else
@@ -155,7 +155,7 @@ int Strings::indexOf(string s) const
 void Strings::saveToFile(string fileName) const THROWS_EXCEPTIONS
 {
     Buffer buffer;
-    for (const_iterator str = begin(); str != end(); str++) {
+    for (const_iterator str = begin(); str != end(); ++str) {
         buffer.append(*str);
         buffer.append("\n");
     }

@@ -43,7 +43,7 @@ void DatabaseConnectionString::parse() THROWS_EXCEPTIONS
     pos = connStr.find_first_of("?");
     if (pos != string::npos) {
         Strings parameters(connStr.substr(pos + 1),"&");
-        for (Strings::iterator item = parameters.begin(); item != parameters.end(); item++) {
+        for (Strings::iterator item = parameters.begin(); item != parameters.end(); ++item) {
             Strings pair(*item, "='", Strings::SM_ANYCHAR);
             if (pair.size() == 2)
                 m_parameters[ pair[0] ] = pair[1];

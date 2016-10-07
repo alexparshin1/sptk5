@@ -128,7 +128,7 @@ void FieldList::toXML(XMLNode& node) const
 {
     const_iterator itor = m_list.begin();
     const_iterator iend = m_list.end();
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         Field *field = *itor;
         field->toXML(node, m_compactXmlMode);
     }

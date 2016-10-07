@@ -89,7 +89,7 @@ public:
 const struct entity *CEntityCache::encode(const char* str) const
 {
     map<int, CEntityMap>::const_iterator maps = m_replacementMaps.begin();
-    for (; maps != m_replacementMaps.end(); maps++) {
+    for (; maps != m_replacementMaps.end(); ++maps) {
         int len = maps->first;
         string fragment(str, size_t(len));
         const CEntityMap& replacements = maps->second;
@@ -174,7 +174,7 @@ bool XMLDocType::encodeEntities(const char *str, Buffer& ret)
 
     if (!m_entities.empty()) {
         XMLEntities::iterator it = m_entities.begin();
-        for (; it != m_entities.end(); it++) {
+        for (; it != m_entities.end(); ++it) {
             std::string& val = it->second;
             uint32_t len = (uint32_t) val.length();
             const char* pos = strstr(ptr, val.c_str());

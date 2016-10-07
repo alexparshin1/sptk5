@@ -215,7 +215,7 @@ void HttpConnect::cmd_post(string pageName, const HttpParams& postData, uint32_t
     map<string,string>::iterator itor = m_requestHeaders.begin();
     map<string,string>::iterator iend = m_requestHeaders.end();
 
-    for (; itor != iend; itor++)
+    for (; itor != iend; ++itor)
         headers.push_back(itor->first + ": " + itor->second);
 
     Buffer buffer;

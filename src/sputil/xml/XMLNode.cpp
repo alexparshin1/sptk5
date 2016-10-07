@@ -158,7 +158,7 @@ namespace sptk {
             bool attributeMatch = false;
             if (pathElement.attributeValueDefined) {
                 if (pathElement.attributeName == starPointer) {
-                    for (XMLAttributes::const_iterator attr = attributes.begin(); attr != attributes.end(); attr++) {
+                    for (XMLAttributes::const_iterator attr = attributes.begin(); attr != attributes.end(); ++attr) {
                         XMLNode* a = *attr;
                         if (a->name() == pathElement.attributeValue) {
                             attributeMatch = true;
@@ -190,7 +190,7 @@ namespace sptk {
         const XPathElement& pathElement = pathElements[size_t(pathPosition)];
         XMLNode* lastNode = 0;
         int currentPosition = 1;
-        for (iterator itor = begin(); itor != end(); itor++) {
+        for (iterator itor = begin(); itor != end(); ++itor) {
             XMLNode* node = *itor;
             bool nameMatches = false;
             bool positionMatches = false;
@@ -231,7 +231,7 @@ namespace sptk {
 
         XMLNode* lastNode = 0;
         int currentPosition = 1;
-        for (iterator itor = begin(); itor != end(); itor++) {
+        for (iterator itor = begin(); itor != end(); ++itor) {
             XMLNode* node = *itor;
             bool nameMatches;
             bool positionMatches;
@@ -280,7 +280,7 @@ namespace sptk {
 
         const_iterator itor = node.begin();
         const_iterator iend = node.end();
-        for (; itor != iend; itor++) {
+        for (; itor != iend; ++itor) {
             const XMLNode*childNode = *itor;
             switch (childNode->type())
             {
@@ -316,7 +316,7 @@ namespace sptk {
         else {
             const_iterator itor = begin();
             const_iterator iend = end();
-            for (; itor != iend; itor++) {
+            for (; itor != iend; ++itor) {
                 XMLNode *np = *itor;
                 if (np->type() & (DOM_TEXT | DOM_CDATA_SECTION))
                     ret += np->value();
@@ -346,7 +346,7 @@ namespace sptk {
             if (attributes.size()) {
                 // Output attributes
                 Buffer real_id, real_val;
-                for (XMLAttributes::const_iterator it = attributes.begin(); it != attributes.end(); it++) {
+                for (XMLAttributes::const_iterator it = attributes.begin(); it != attributes.end(); ++it) {
                     XMLNode* attributeNode = *it;
                     real_id.bytes(0);
                     real_val.bytes(0);
@@ -404,7 +404,7 @@ namespace sptk {
                 }
 
                 // output all subnodes
-                for (; itor != iend; itor++) {
+                for (; itor != iend; ++itor) {
                     XMLNode *np = *itor;
                     if (only_cdata)
                         np->save(buffer, -1);
@@ -438,7 +438,7 @@ namespace sptk {
 
     XMLNode *XMLNode::findFirst(std::string aname, bool recursively) const
     {
-        for (const_iterator itor = begin(); itor != end(); itor++) {
+        for (const_iterator itor = begin(); itor != end(); ++itor) {
             XMLNode *node = *itor;
             if (node->name() == aname)
                 return node;

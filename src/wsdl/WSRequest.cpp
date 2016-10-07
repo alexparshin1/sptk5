@@ -34,7 +34,7 @@ using namespace sptk;
 void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
 {
     XMLElement* soapEnvelope = NULL;
-    for (XMLElement::iterator itor = request->begin(); itor != request->end(); itor++) {
+    for (XMLElement::iterator itor = request->begin(); itor != request->end(); ++itor) {
         XMLElement* node = dynamic_cast<XMLElement*>(*itor);
         if (!node)
             continue;
@@ -61,7 +61,7 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
         throwException("Can't find SOAP Body node in incoming request");
 
     XMLElement* requestNode = NULL;
-    for (XMLElement::iterator itor = soapBody->begin(); itor != soapBody->end(); itor++) {
+    for (XMLElement::iterator itor = soapBody->begin(); itor != soapBody->end(); ++itor) {
         XMLElement* node = dynamic_cast<XMLElement*>(*itor);
         if (node) {
             requestNode = node;

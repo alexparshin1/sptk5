@@ -112,7 +112,7 @@ void TCPServer::stop()
 
         set<ServerConnection*>::iterator itor;
 
-        for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); itor++)
+        for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); ++itor)
             (*itor)->terminate();
     }
 

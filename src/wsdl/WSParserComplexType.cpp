@@ -95,9 +95,9 @@ WSParserComplexType::WSParserComplexType(const XMLElement* complexTypeElement, s
 WSParserComplexType::~WSParserComplexType()
 {
     if (m_refcount == 0) {
-        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++)
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor)
             delete *itor;
-        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++)
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor)
             delete itor->second;
     }
 }
@@ -113,7 +113,7 @@ string WSParserComplexType::className() const
 
 void WSParserComplexType::parseSequence(XMLElement* sequence) THROWS_EXCEPTIONS
 {
-    for (XMLElement::const_iterator itor = sequence->begin(); itor != sequence->end(); itor++) {
+    for (XMLElement::const_iterator itor = sequence->begin(); itor != sequence->end(); ++itor) {
         XMLElement* element = (XMLElement*) * itor;
         string elementName = element->name();
         if (elementName == "xsd:element")
@@ -126,7 +126,7 @@ void WSParserComplexType::parse() THROWS_EXCEPTIONS
     m_attributes.clear();
     if (!m_element)
         return;
-    for (XMLElement::const_iterator itor = m_element->begin(); itor != m_element->end(); itor++) {
+    for (XMLElement::const_iterator itor = m_element->begin(); itor != m_element->end(); ++itor) {
         XMLElement* element = (XMLElement*) * itor;
         if (element->name() == "xsd:attribute") {
             string attrName = element->getAttribute("name");
@@ -155,7 +155,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "#define " << defname << endl;
 
     // determine the list of used classes
-    for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+    for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
         WSParserComplexType* complexType = *itor;
         string cxxType = complexType->className();
         if (cxxType[0] == 'C')
@@ -168,7 +168,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "#include <sptk5/wsdl/WSBasicTypes.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSComplexType.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSRestriction.h>" << endl;
-    for (set<string>::iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
+    for (set<string>::iterator itor = usedClasses.begin(); itor != usedClasses.end(); ++itor)
         classDeclaration << "#include \"" << *itor << ".h\"" << endl;
     classDeclaration << endl;
 
@@ -181,7 +181,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     copyInitializer.push_back(string("sptk::WSComplexType(other.name().c_str(), other.isOptional())"));
     if (m_sequence.size()) {
         classDeclaration << "   // Elements" << endl;
-        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
             char buffer[256];
             string cxxType = complexType->className();
@@ -198,7 +198,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     }
     if (m_attributes.size()) {
         classDeclaration << "   // Attributes" << endl;
-        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
             classDeclaration << "   " << attr.generate() << ";" << endl;
             ctorInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
@@ -256,17 +256,17 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "void " << className << "::clear()" << endl;
     classImplementation << "{" << endl;
     classImplementation << "   // Clear elements" << endl;
-    for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+    for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
         WSParserComplexType* complexType = *itor;
         if (complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) {
-            classImplementation << "   for (vector<" << complexType->className() << "*>::iterator itor = m_" << complexType->name() << ".begin(); itor != m_" << complexType->name() << ".end(); itor++)" << endl;
+            classImplementation << "   for (vector<" << complexType->className() << "*>::iterator itor = m_" << complexType->name() << ".begin(); itor != m_" << complexType->name() << ".end(); ++itor)" << endl;
             classImplementation << "      delete *itor;" << endl;
         }
         classImplementation << "   m_" << complexType->name() << ".clear();" << endl;
     }
     if (m_attributes.size()) {
         classImplementation << "   // Clear attributes" << endl;
-        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
             classImplementation << "   m_" << attr.name() << ".setNull();" << endl;
         }
@@ -281,7 +281,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     if (m_attributes.size()) {
         classImplementation << endl << "   // Load attributes" << endl;
-        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
             classImplementation << "   m_" << attr.name() << ".load(input->getAttribute(\"" << attr.name() << "\"));" << endl;
         }
@@ -293,7 +293,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         classImplementation << "      XMLElement* element = dynamic_cast<XMLElement*>(node);" << endl;
         classImplementation << "      if (!element) continue;" << endl;
         Strings requiredElements;
-        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
             classImplementation << "      if (element->name() == \"" << complexType->name() << "\") {" << endl;
             if (complexType->m_restriction)
@@ -341,7 +341,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     
     if (m_attributes.size()) {
         fieldLoads << endl << "   // Load attributes" << endl;
-        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
             fieldLoads << "   if ((field = input.fieldByName(\"" << attr.name() << "\"))) {" << endl;
             fieldLoads << "      m_" << attr.name() << ".load(*field);" << endl;
@@ -354,7 +354,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     
     if (m_sequence.size()) {
         fieldLoads << endl << "   // Load elements" << endl;
-        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
             if (complexType->multiplicity() & WSM_REQUIRED)
                 requiredElements.push_back(complexType->name());
@@ -400,18 +400,18 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "{" << endl;
     if (m_attributes.size()) {
         classImplementation << "   // Unload attributes" << endl;
-        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); itor++) {
+        for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
             classImplementation << "   output->setAttribute(\"" << attr.name() << "\", m_" << attr.name() << ".asString());" << endl;
         }
     }
     if (m_sequence.size()) {
         classImplementation << "   // Unload elements" << endl;
-        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); itor++) {
+        for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
             if (complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) {
                 classImplementation << "   for (vector<" << complexType->className() << "*>::const_iterator itor = m_" << complexType->name() << ".begin(); "
-                    << " itor != m_" << complexType->name() << ".end(); itor++) {" << endl;
+                    << " itor != m_" << complexType->name() << ".end(); ++itor) {" << endl;
                 classImplementation << "      " << complexType->className() << "* item = *itor;" << endl;
                 classImplementation << "      item->addElement(output);" << endl;
                 classImplementation << "   }" << endl;

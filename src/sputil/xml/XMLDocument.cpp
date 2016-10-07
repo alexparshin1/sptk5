@@ -60,7 +60,7 @@ namespace sptk {
     {
         iterator itor = begin();
         iterator iend = end();
-        for (; itor != iend; itor++) {
+        for (; itor != iend; ++itor) {
             XMLNode *nd = *itor;
             if (nd->type() == DOM_ELEMENT)
                 return nd;
@@ -402,7 +402,7 @@ namespace sptk {
         // Write XML PI
         const_iterator itor = begin();
         const_iterator iend = end();
-        for (; itor != iend; itor++) {
+        for (; itor != iend; ++itor) {
             XMLNode *node = *itor;
             if (node->type() == DOM_PI && node->name() == "XML") {
                 xml_pi = node;
@@ -422,7 +422,7 @@ namespace sptk {
                 buffer.append(" [\n", 3);
                 const XMLEntities& entities = docType().entities();
                 XMLEntities::const_iterator it = entities.begin();
-                for (; it != entities.end(); it++) {
+                for (; it != entities.end(); ++it) {
                     buffer.append("<!ENTITY " + it->first + " \"" + it->second + "\">\n");
                 }
                 buffer.append("]", 1);
@@ -431,7 +431,7 @@ namespace sptk {
         }
 
         // call save() method of the first (and hopefully only) node in xmldocument
-        for (itor = begin(); itor != iend; itor++) {
+        for (itor = begin(); itor != iend; ++itor) {
             XMLNode *node = *itor;
             if (node == xml_pi)
                 continue;

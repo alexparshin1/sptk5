@@ -169,7 +169,7 @@ void Registry::clean(XMLNode* node)
     XMLNode::iterator itor = node->begin();
     XMLNode::iterator iend = node->end();
     XMLNodeVector toDelete;
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         XMLNode* anode = *itor;
         if (anode->type() != DOM_ELEMENT) {
             toDelete.push_back(anode);
@@ -179,7 +179,7 @@ void Registry::clean(XMLNode* node)
             clean(anode);
     }
     XMLNodeVector::iterator it = toDelete.begin();
-    for (; it != toDelete.end(); it++)
+    for (; it != toDelete.end(); ++it)
         node->remove
                     (*it);
 }

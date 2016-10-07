@@ -57,11 +57,10 @@ public:
 public:
 
     CPostgreSQLStatement(bool int64timestamps, bool prepared)
-            : m_paramValues(int64timestamps)
+    : m_stmt(NULL), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
     {
-        m_stmt = NULL;
         if (prepared)
-            sprintf(m_stmtName, "S%04i", ++index);
+            sprintf(m_stmtName, "S%04u", ++index);
         else
             m_stmtName[0] = 0;
     }
@@ -410,7 +409,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
+    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) { 
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -461,7 +460,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
+    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -1027,7 +1026,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
                  "WHERE routine_schema NOT IN ('information_schema','pg_catalog') "
                    "AND routine_type = 'PROCEDURE'";
             break;
-    
+
         case DOT_TABLES:
             objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
             break;
@@ -1075,7 +1074,7 @@ void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& colu
     PQclear(res);
 
     Buffer buffer;
-    for (Strings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
+    for (Strings::const_iterator itor = data.begin(); itor != data.end(); ++itor) {
         buffer.append(*itor);
         buffer.append('\n');
     }

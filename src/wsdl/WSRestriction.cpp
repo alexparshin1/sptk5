@@ -37,7 +37,7 @@ WSRestriction::WSRestriction(string typeName, XMLNode* simpleTypeElement)
 {
     XMLNodeVector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
-    for (XMLNode::iterator itor = enumerationNodes.begin(); itor != enumerationNodes.end(); itor++) {
+    for (XMLNode::iterator itor = enumerationNodes.begin(); itor != enumerationNodes.end(); ++itor) {
         XMLElement* enumerationNode = dynamic_cast<XMLElement*>(*itor);
         if (enumerationNode)
             m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));

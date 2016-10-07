@@ -122,11 +122,11 @@ void QueryParameterList::enumerate(CParamVector& params)
 
     uint32_t maxIndex = 0;
 
-    for (ptor = m_items.begin(); ptor != m_items.end(); ptor++) {
+    for (ptor = m_items.begin(); ptor != m_items.end(); ++ptor) {
         QueryParameter* param = *ptor;
         IntList& bindIndex = param->m_bindParamIndexes;
 
-        for (btor = bindIndex.begin(); btor != bindIndex.end(); btor++) {
+        for (btor = bindIndex.begin(); btor != bindIndex.end(); ++btor) {
             uint32_t index = *btor;
 
             if (index >= params.size())

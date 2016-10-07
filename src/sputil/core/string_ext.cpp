@@ -99,7 +99,7 @@ void join (string& dest, const vector<string> src, string separator)
     dest = "";
     vector<string>::const_iterator itor = src.begin();
 
-    for (; itor != src.end(); itor++) {
+    for (; itor != src.end(); ++itor) {
         dest += *itor + separator;
     }
 }

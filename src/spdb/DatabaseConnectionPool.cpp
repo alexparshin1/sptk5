@@ -42,7 +42,7 @@ public:
     DriverLoaders() {}
     ~DriverLoaders()
     {
-        for (iterator itor = begin(); itor != end(); itor++)
+        for (iterator itor = begin(); itor != end(); ++itor)
             delete itor->second;
     }
 };
