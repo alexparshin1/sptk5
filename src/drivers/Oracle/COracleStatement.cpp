@@ -102,8 +102,8 @@ void OracleStatement::setParameterValues()
     CParamVector::iterator
         itor = m_enumeratedParams.begin(),
         iend = m_enumeratedParams.end();
-        
-    for (int parameterIndex = 1; itor != iend; itor++, parameterIndex++)
+
+    for (int parameterIndex = 1; itor != iend; ++itor, parameterIndex++)
     {
         QueryParameter& parameter = *(*itor);
         VariantType& priorDataType = parameter.m_binding.m_dataType;
@@ -225,7 +225,7 @@ void OracleStatement::execute(bool inTransaction)
         m_state.columnCount = resultSetMetaData.size();
 
         int columnIndex = 1;
-        for (; itor != iend; itor++, columnIndex++) {
+        for (; itor != iend; ++itor, columnIndex++) {
             const MetaData& metaData = *itor;
             // If resultSet contains cursor, use that cursor as resultSet
             if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET) {

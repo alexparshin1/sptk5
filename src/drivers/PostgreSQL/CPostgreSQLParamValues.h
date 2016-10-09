@@ -38,52 +38,41 @@ namespace sptk {
     class CPostgreSQLParamValues {
         friend class CPostgreSQLStatement;
     protected:
-        unsigned       m_size;
-        unsigned       m_count;
-        const char**   m_values;
-        int*           m_lengths;
-        int*           m_formats;
-        Oid*           m_types;
-        CParamVector   m_params;
-        bool           m_int64timestamps;
+        size_t                      m_count;
+        std::vector<const char*>    m_values;
+        std::vector<int>            m_lengths;
+        std::vector<int>            m_formats;
+        std::vector<Oid>            m_types;
+        CParamVector                m_params;
+        bool                        m_int64timestamps;
     public:
-        CPostgreSQLParamValues(bool int64timestamps) {
-            m_count = 0;
-            m_size = 0;
-            m_values  = NULL;
-            m_lengths = NULL;
-            m_formats = NULL;
-            m_types   = NULL;
+        CPostgreSQLParamValues(bool int64timestamps) 
+        {
             resize(16);
             m_int64timestamps = int64timestamps;
         }
 
-        ~CPostgreSQLParamValues() {
-            if (m_size) {
-                free(m_values);
-                free(m_lengths);
-                free(m_formats);
-                free(m_types);
-            }
+        ~CPostgreSQLParamValues() 
+        {
         }
 
-        void reset() {
+        void reset() 
+        {
             m_count = 0;
         }
 
-        void resize(unsigned sz) {
-            if (sz > m_size) {
-                m_size = sz;
-                m_values  = (const char**) realloc(m_values,  m_size * sizeof(const char*));
-                m_lengths = (int*)         realloc(m_lengths, m_size * sizeof(int));
-                m_formats = (int*)         realloc(m_formats, m_size * sizeof(int));
-                m_types   = (Oid*)         realloc(m_types,   m_size * sizeof(Oid));
-            }
+        void resize(unsigned sz) 
+        {
+            m_values.resize(sz);
+            m_lengths.resize(sz);
+            m_formats.resize(sz);
+            m_types.resize(sz);
         }
 
         void setParameters(QueryParameterList& params);
 
-        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PG_DATA_TYPE dataType) {
+        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PG_DATA_TYPE dataType)
+        {
             m_values[paramIndex] = (const char*) value;
             m_lengths[paramIndex] = (int) sz;
             m_formats[paramIndex] = format;
@@ -93,10 +82,10 @@ namespace sptk {
         void setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS;
 
         unsigned size() const               { return m_count;   }
-        const char* const* values() const   { return m_values;  }
-        const int* lengths() const          { return m_lengths; }
-        const int* formats() const          { return m_formats; }
-        const Oid* types() const            { return m_types;   }
+        const char* const* values() const   { return &m_values[0]; }
+        const int* lengths() const          { return &m_lengths[0]; }
+        const int* formats() const          { return &m_formats[0]; }
+        const Oid* types() const            { return &m_types[0]; }
         const CParamVector& params() const  { return m_params;  }
     };
 

@@ -287,7 +287,7 @@ void DatabaseConnection::bulkInsert(std::string tableName, const Strings& column
     Query insertQuery(this,
                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
                        ") VALUES (:" + columnNames.asString(",:") + ")");
-    for (Strings::const_iterator row = data.begin(); row != data.end(); row++) {
+    for (Strings::const_iterator row = data.begin(); row != data.end(); ++row) {
         Strings rowData(*row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++)
             insertQuery.param(i).setString(rowData[i]);

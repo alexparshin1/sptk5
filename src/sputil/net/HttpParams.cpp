@@ -126,7 +126,7 @@ void HttpParams::encode(Buffer& result) const
 {
     HttpParams::const_iterator itor = begin();
     unsigned cnt = 0;
-    for (; itor != end(); itor++) {
+    for (; itor != end(); ++itor) {
         string param;
         param = itor->first + "=" + encodeString( itor->second );
         if (cnt)

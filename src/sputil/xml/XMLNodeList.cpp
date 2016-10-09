@@ -36,7 +36,7 @@ void XMLNodeList::clear()
 {
     iterator _begin = begin();
     iterator _end = end();
-    for (iterator itor = _begin; itor != _end; itor++)
+    for (iterator itor = _begin; itor != _end; ++itor)
         delete *itor;
     XMLNodeVector::clear();
 }
@@ -47,12 +47,12 @@ XMLNodeList::iterator XMLNodeList::findFirst(const char* nodeName)
     iterator _end = end();
     if (_begin == _end)
         return _end;
-    
+
     XMLNode* anode = *_begin;
     const string* sharedName = &anode->document()->shareString(nodeName);
-    
+
     iterator itor;
-    for (itor = _begin; itor != _end; itor++) {
+    for (itor = _begin; itor != _end; ++itor) {
         anode = *itor;
         if (anode->nameIs(sharedName))
             break;
@@ -71,12 +71,12 @@ XMLNodeList::const_iterator XMLNodeList::findFirst(const char* nodeName) const
     const_iterator _end = end();
     if (_begin == _end)
         return _end;
-    
+
     const XMLNode* anode = *_begin;
     const string* sharedName = anode->document()->findString(nodeName);
-    
+
     const_iterator itor;
-    for (itor = _begin; itor != _end; itor++) {
+    for (itor = _begin; itor != _end; ++itor) {
         anode = *itor;
         if (anode->nameIs(sharedName))
             break;

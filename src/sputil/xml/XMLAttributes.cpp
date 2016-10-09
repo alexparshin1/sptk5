@@ -71,7 +71,7 @@ void XMLAttribute::value(const char *new_value)
 XMLAttributes& XMLAttributes::operator =(const XMLAttributes& s)
 {
     clear();
-    for (XMLAttributes::const_iterator it = s.begin(); it != s.end(); it++) {
+    for (XMLAttributes::const_iterator it = s.begin(); it != s.end(); ++it) {
         XMLNode* node = *it;
         new XMLAttribute(m_parent, node->name(), node->value());
     }

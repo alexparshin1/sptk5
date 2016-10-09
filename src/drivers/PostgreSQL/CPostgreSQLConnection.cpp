@@ -57,11 +57,10 @@ public:
 public:
 
     CPostgreSQLStatement(bool int64timestamps, bool prepared)
-            : m_paramValues(int64timestamps)
+    : m_stmt(NULL), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
     {
-        m_stmt = NULL;
         if (prepared)
-            sprintf(m_stmtName, "S%04i", ++index);
+            sprintf(m_stmtName, "S%04u", ++index);
         else
             m_stmtName[0] = 0;
     }
@@ -410,7 +409,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
+    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) { 
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -420,7 +419,8 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     if (!statement->colCount())
         resultFormat = 0;   // VOID result or NO results, using text format
 
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), paramValues.values(),
+    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), 
+                                    paramValues.values(),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
     ExecStatusType rc = PQresultStatus(stmt);
@@ -461,7 +461,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ptor++, paramNumber++) {
+    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -743,14 +743,11 @@ static inline MoneyData readNumericToScaledInteger(char* v)
 
     v += 8;
     int64_t value = 0;
-    int64_t divider = 1;
 
     int scale = 0;
     if (weight < 0) {
-        for (int i = 0; i < -(weight + 1); i++) {
-            divider *= 10000;
+        for (int i = 0; i < -(weight + 1); i++)
             scale += 4;
-        }
     }
 
     int16_t digitWeight = weight;
@@ -814,13 +811,13 @@ static void decodeArray(char* data, DatabaseField* field)
         uint32_t lowerBound;
     };
 
-    PGArrayHeader* arrayHeader = (PGArrayHeader*) data;
+    PGArrayHeader* arrayHeader = reinterpret_cast<PGArrayHeader*>(data);
     arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
     arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
     arrayHeader->elementType = ntohl(arrayHeader->elementType);
     data += sizeof(PGArrayHeader);
 
-    PGArrayDimension* dimensions = (PGArrayDimension*) data;
+    PGArrayDimension* dimensions = reinterpret_cast<PGArrayDimension*>(data);
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
     stringstream output;
@@ -1027,7 +1024,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
                  "WHERE routine_schema NOT IN ('information_schema','pg_catalog') "
                    "AND routine_type = 'PROCEDURE'";
             break;
-    
+
         case DOT_TABLES:
             objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
             break;
@@ -1075,7 +1072,7 @@ void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& colu
     PQclear(res);
 
     Buffer buffer;
-    for (Strings::const_iterator itor = data.begin(); itor != data.end(); itor++) {
+    for (Strings::const_iterator itor = data.begin(); itor != data.end(); ++itor) {
         buffer.append(*itor);
         buffer.append('\n');
     }

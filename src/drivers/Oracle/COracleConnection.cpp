@@ -210,7 +210,7 @@ void OracleConnection::queryPrepare(Query *query)
         Statement* stmt = statement->stmt();
         COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        for (CParamVector::iterator itor = enumeratedParams.begin(); itor != enumeratedParams.end(); itor++, paramIndex++) {
+        for (CParamVector::iterator itor = enumeratedParams.begin(); itor != enumeratedParams.end(); ++itor, paramIndex++) {
             QueryParameter* param = *itor;
             QueryColumnTypeSizeMap::const_iterator xtor = columnTypeSizes.find(upperCase(param->name()));
             if (xtor != columnTypeSizes.end()) {
@@ -366,7 +366,7 @@ void OracleConnection::queryOpen(Query *query)
                 itor = resultSetMetaData.begin(),
                 iend = resultSetMetaData.end();
             int columnIndex = 0;
-            for (; itor != iend; itor++, columnIndex++) {
+            for (; itor != iend; ++itor, columnIndex++) {
                 MetaData& metaData = *itor;
                 Type columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
                 string columnName = metaData.getString(MetaData::ATTR_NAME);
@@ -570,7 +570,7 @@ void OracleConnection::bulkInsert(std::string tableName, const Strings& columnNa
     tableColumnsQuery.close();
 
     QueryColumnTypeSizeVector columnTypeSizeVector;
-    for (Strings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); itor++) {
+    for (Strings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); ++itor) {
         map<string,QueryColumnTypeSize>::iterator column = columnTypeSizeMap.find(upperCase(*itor));
         if (column == columnTypeSizeMap.end())
             throwDatabaseException("Column '" + *itor + "' doesn't belong to table " + tableName);
@@ -582,7 +582,7 @@ void OracleConnection::bulkInsert(std::string tableName, const Strings& columnNa
                                        ") VALUES (:" + columnNames.asString(",:") + ")",
                                        data.size(),
                                        columnTypeSizeMap);
-    for (Strings::const_iterator row = data.begin(); row != data.end(); row++) {
+    for (Strings::const_iterator row = data.begin(); row != data.end(); ++row) {
         Strings rowData(*row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++) {
             if (columnTypeSizeVector[i].type == VAR_TEXT)

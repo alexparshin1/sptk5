@@ -224,10 +224,10 @@ void CFTPConnect::cmd_nlst(Strings& result)
 
 void CFTPConnect::cmd_retr(std::string fileName)
 {
-    char *buffer = new char[2048];
     FILE *outfile = fopen(fileName.c_str(), "w+b");
     if (!outfile)
         throw Exception("Can't open file <" + fileName + "> for writing");
+    char *buffer = new char[2048];
     openDataPort();
     command("RETR " + fileName);
     size_t len;
@@ -236,7 +236,7 @@ void CFTPConnect::cmd_retr(std::string fileName)
         if (len) {
             uint32_t bytes = (uint32_t) fwrite(buffer, 1, len, outfile);
             if (bytes != len) {
-                delete buffer;
+                delete [] buffer;
                 throw Exception("Can't open file <" + fileName + "> for writing");
             }
         }
