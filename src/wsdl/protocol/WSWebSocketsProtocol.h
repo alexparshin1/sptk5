@@ -105,8 +105,8 @@ class WSNotificationManager
     Strings  m_queues;
 public:
     WSNotificationManager() {}
-    bool receive(Buffer& message);
-    bool send(const std::map<String,String>& headers, String data);
+    //bool receive(Buffer& message);
+    //bool send(const std::map<String,String>& headers, String data);
 };
 
 }

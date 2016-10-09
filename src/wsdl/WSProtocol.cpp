@@ -176,11 +176,9 @@ void WSWebServiceProtocol::process()
         contentLength = string2int(itor->second);
 
     m_socket.write("<?xml version='1.0' encoding='UTF-8'?><server name='" + m_service.title() + "' version='1.0'/>\n");
-    uint32_t offset = 0;
 
     const char* startOfMessage = NULL;
     const char* endOfMessage = NULL;
-    const char* endOfMessageMark = ":Envelope>";
 
     Buffer data;
 
@@ -200,6 +198,8 @@ void WSWebServiceProtocol::process()
         if (socketBytes == 0)
             throwException("Client disconnected");
 
+        uint32_t offset = 0;
+        const char* endOfMessageMark = ":Envelope>";
         do {
             // Read all available data (appending to data buffer)
             data.checkSize(offset + socketBytes);

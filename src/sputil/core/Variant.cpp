@@ -824,6 +824,12 @@ Variant::operator std::string() const THROWS_EXCEPTIONS
 }
 
 //---------------------------------------------------------------------------
+Variant::operator String() const THROWS_EXCEPTIONS
+{
+    return asString();
+}
+
+//---------------------------------------------------------------------------
 Variant::operator DateTime() const THROWS_EXCEPTIONS
 {
     return asDateTime();

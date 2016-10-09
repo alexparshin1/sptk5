@@ -61,11 +61,11 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     const uint8_t* ptr = (const uint8_t*)incomingData;
 
     m_finalMessage = (*ptr & 0x80) != 0;
-    m_opcode = *ptr & 0xF;
+    m_opcode = uint32_t(*ptr & 0xF);
 
     ptr++;
     bool masked = (*ptr & 0x80) != 0;
-    uint64_t payloadLength = (*ptr) & 0x7F;
+    uint64_t payloadLength = uint64_t((*ptr) & 0x7F);
     switch (payloadLength) {
         default:    ptr++; break;
         case 126:   ptr++; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
@@ -155,7 +155,7 @@ void WSWebSocketsProtocol::process()
             while (!m_socket.socketBytes())
                 Thread::msleep(100);
 
-            int available = m_socket.socketBytes();
+            size_t available = m_socket.socketBytes();
             m_socket.read(message, available);
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());

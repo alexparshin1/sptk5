@@ -356,6 +356,9 @@ public:
     operator std::string() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion operator
+    operator String() const THROWS_EXCEPTIONS;
+
+    /// @brief Conversion operator
     operator DateTime() const THROWS_EXCEPTIONS;
 
     /// @brief Conversion method

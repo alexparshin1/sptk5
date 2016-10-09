@@ -45,14 +45,14 @@ WSParser::~WSParser()
 
 void WSParser::clear()
 {
-    for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor != m_complexTypes.end(); itor++) {
+    for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor != m_complexTypes.end(); ++itor) {
         WSParserComplexType* complexType = itor->second;
         if (complexType->refCount())
             complexType->decreaseRefCount();
         else
             delete complexType;
     }
-    for (ElementMap::iterator itor = m_elements.begin(); itor != m_elements.end(); itor++)
+    for (ElementMap::iterator itor = m_elements.begin(); itor != m_elements.end(); ++itor)
         delete itor->second;
     m_complexTypes.clear();
     m_elements.clear();
@@ -106,7 +106,7 @@ void WSParser::parseOperation(XMLElement* operationNode) THROWS_EXCEPTIONS
     operationNode->document()->select(messageNodes, "//wsdl:message");
 
     map<string, string> messageToElementMap;
-    for (XMLNode::const_iterator itor = messageNodes.begin(); itor != messageNodes.end(); itor++) {
+    for (XMLNode::const_iterator itor = messageNodes.begin(); itor != messageNodes.end(); ++itor) {
         XMLElement* message = dynamic_cast<XMLElement*>(*itor);
         XMLNode* part = message->findFirst("wsdl:part");
         string messageName = message->getAttribute("name").c_str();
@@ -119,7 +119,7 @@ void WSParser::parseOperation(XMLElement* operationNode) THROWS_EXCEPTIONS
 
     WSOperation operation;
     bool found = false;
-    for (XMLElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); itor++) {
+    for (XMLElement::const_iterator itor = operationNode->begin(); itor != operationNode->end(); ++itor) {
         const XMLElement* element = dynamic_cast<const XMLElement*>(*itor);
         string message = element->getAttribute("message");
         size_t pos = message.find(":");
@@ -149,16 +149,13 @@ void WSParser::parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS
     XMLNodeVector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
-    for (XMLNode::const_iterator itor = complexTypeNodes.begin(); itor != complexTypeNodes.end(); itor++) {
+    for (XMLNode::const_iterator itor = complexTypeNodes.begin(); itor != complexTypeNodes.end(); ++itor) {
         const XMLElement* element = dynamic_cast<const XMLElement*>(*itor);
         if (element && element->name() == "xsd:complexType")
             parseComplexType(element);
     }
 
-    //for (ComplexTypeMap::iterator itor =  m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++)
-    //    cout << setw(20) << itor->first + ": " + itor->second->className() << endl;
-
-    for (XMLElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); itor++) {
+    for (XMLElement::const_iterator itor = schemaElement->begin(); itor != schemaElement->end(); ++itor) {
         const XMLElement* element = dynamic_cast<const XMLElement*>(*itor);
         if (element && element->name() == "xsd:element")
             parseElement(element);
@@ -183,7 +180,7 @@ void WSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
     XMLElement* portElement = dynamic_cast<XMLElement*>(wsdlXML.findFirst("wsdl:portType"));
     if (!portElement)
         throwException("Can't find wsdl:portType element");
-    for (XMLElement::const_iterator itor = portElement->begin(); itor != portElement->end(); itor++) {
+    for (XMLElement::const_iterator itor = portElement->begin(); itor != portElement->end(); ++itor) {
         XMLElement* element = dynamic_cast<XMLElement*>(*itor);
         if (element && element->name() == "wsdl:operation")
             parseOperation(element);
@@ -218,15 +215,15 @@ string WSParser::get_namespace(const string& name)
 void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
-    string defname = "__" + upperCase(serviceClassName) + "__";
+    string defineName = "__" + upperCase(serviceClassName) + "__";
 
     serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl << endl;
-    serviceDefinition << "#ifndef " << defname << endl;
-    serviceDefinition << "#define " << defname << endl << endl;
+    serviceDefinition << "#ifndef " << defineName << endl;
+    serviceDefinition << "#define " << defineName << endl << endl;
 
     serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl << endl;
     serviceDefinition << "// This Web Service types" << endl;
-    for (Strings::const_iterator itor = usedClasses.begin(); itor != usedClasses.end(); itor++)
+    for (Strings::const_iterator itor = usedClasses.begin(); itor != usedClasses.end(); ++itor)
         serviceDefinition << "#include \"" << *itor << ".h\"" << endl;
     serviceDefinition << endl;
 
@@ -236,7 +233,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "/// by overriding abstract methods" << endl;
     serviceDefinition << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
     serviceDefinition << "{" << endl;
-    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
+    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); ++itor) {
         string requestName = strip_namespace(itor->second.m_input->name());
         serviceDefinition << "   /// @brief Internal Web Service " << requestName << " processing" << endl;
         serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Operation input/output XML data" << endl;
@@ -257,7 +254,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "   // Abstract methods below correspond to WSDL-defined operations. " << endl;
     serviceDefinition << "   // Application must overwrite these methods with processing of corresponding" << endl;
     serviceDefinition << "   // requests, reading data from input and writing data to output structures." << endl;
-    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
+    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); ++itor) {
         WSOperation& operation = itor->second;
         serviceDefinition << endl;
         serviceDefinition << "   /// @brief Web Service " << itor->first << " operation" << endl;
@@ -285,7 +282,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
+    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); ++itor) {
         string requestName = strip_namespace(itor->second.m_input->name());
         serviceOperations.push_back(requestName);
     }
@@ -304,7 +301,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
     serviceImplementation << "   int messageIndex = messageNames.indexOf(requestName);" << endl;
     serviceImplementation << "   try {" << endl;
     serviceImplementation << "      switch (messageIndex) {" << endl;
-    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
+    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); ++itor) {
         string requestName = strip_namespace(itor->second.m_input->name());
         int messageIndex = serviceOperations.indexOf(requestName);
         serviceImplementation << "      case " << messageIndex << ":" << endl;
@@ -329,14 +326,14 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
     serviceImplementation << "   }" << endl;
     serviceImplementation << "}" << endl << endl;
 
-    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); itor++) {
+    for (OperationMap::iterator itor = m_operations.begin(); itor != m_operations.end(); ++itor) {
         string operationName = itor->first;
         Strings nameParts(itor->second.m_input->name(), ":");
-        string requestNamespace, requestName;
+        string requestName;
         if (nameParts.size() == 1)
             requestName = nameParts[0];
         else {
-            requestNamespace = nameParts[0];
+            // string requestNamespace = nameParts[0];
             requestName = nameParts[1];
         }
         WSOperation& operation = itor->second;
@@ -364,7 +361,7 @@ void WSParser::generate(std::string sourceDirectory, std::string headerFile) THR
         externalHeader.loadFromFile(headerFile);
 
     Strings usedClasses;
-    for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); itor++) {
+    for (ComplexTypeMap::iterator itor = m_complexTypes.begin(); itor !=  m_complexTypes.end(); ++itor) {
         //string name = itor->first;
         WSParserComplexType* complexType = itor->second;
         SourceModule module("C" + complexType->name(), sourceDirectory);

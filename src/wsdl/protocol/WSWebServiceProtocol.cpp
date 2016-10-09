@@ -38,17 +38,15 @@ WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const std::map<Str
 
 void WSWebServiceProtocol::process()
 {
-    int contentLength = 0;
+    size_t contentLength = 0;
     map<String,String>::const_iterator itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
-        contentLength = string2int(itor->second);
+        contentLength = (size_t) string2int(itor->second);
 
     m_socket.write("<?xml version='1.0' encoding='UTF-8'?><server name='" + m_service.title() + "' version='1.0'/>\n");
-    uint32_t offset = 0;
 
     const char* startOfMessage = NULL;
     const char* endOfMessage = NULL;
-    const char* endOfMessageMark = ":Envelope>";
 
     Buffer data;
 
@@ -68,6 +66,8 @@ void WSWebServiceProtocol::process()
         if (socketBytes == 0)
             throwException("Client disconnected");
 
+        uint32_t offset = 0;
+        const char* endOfMessageMark = ":Envelope>";
         do {
             // Read all available data (appending to data buffer)
             data.checkSize(offset + socketBytes);
