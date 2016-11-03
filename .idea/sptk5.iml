@@ -24,10 +24,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLDocument.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/xml/XMLDocType.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Registry.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/MemoryDS.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Field.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SharedStrings.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/RegularExpression.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DateTime.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/IntList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/UniqueInstance.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SysLogEngine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Exception.cpp" isTestSource="false" />
@@ -37,13 +37,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/string_ext.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/md5.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FileLogEngine.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SystemException.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Field.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/MemoryDS.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DateTime.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Base64.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DirectoryDS.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/DataSource.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/IntList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/FieldList.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/SystemException.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/CommandLine.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/Variant.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sputil/core/LogEngine.cpp" isTestSource="false" />
@@ -97,7 +97,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CCalendar.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CListViewRows.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CListViewSelection.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPhoneNumberInput.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CIntegerInput.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CToolBar.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPasswordInput.cpp" isTestSource="false" />
@@ -129,27 +128,28 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFileOpenDialog.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CTreeView.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CInput.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateControl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CPhoneNumberInput.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CControlList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFloatInput.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateIntervalInput.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CFileSaveDialog.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CComboBox.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CTreeControl.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CButton.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateTimeInput.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CListView.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDialog.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CProgressBar.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CButtonGroup.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CTreeControl.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDateControl.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CDropDownBox.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/gui/CScrollBar.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CIcon.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemesGtk.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CGtkThemeLoader.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CFrame.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CColorSchema.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CGtkThemeLoader.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemeScrollBar.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemesGtk.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CGtkThemeLoader.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemes.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/themes/CThemeColorCollection.cpp" isTestSource="false" />
@@ -160,6 +160,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sptk/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBC.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/odbc/CODBCConnection.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/drivers/SQLite3/CSQLite3Connection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLConnection.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/CPostgreSQLParamValues.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/drivers/PostgreSQL/htonq.h" isTestSource="false" />
@@ -182,11 +183,12 @@
       <sourceFolder url="file://$MODULE_DIR$/themes/Opera/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/themes/tar2h.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/all_drivers_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/odbc_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/driver_load_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/database/bulk_insert_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/database/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/driver_load_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/odbc_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/sqlite3_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/all_drivers_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/database/bulk_insert_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/xml_test2.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/xml/xml_test3.cpp" isTestSource="false" />
@@ -216,17 +218,17 @@
       <sourceFolder url="file://$MODULE_DIR$/examples/gui/splitter.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/gui/cgroup_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/gui/tabs_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/http_connect.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/ws_server_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/http_connect.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/udp_server_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/tcp_server_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_client_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/udp_client_test.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/smtp_connect.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/imap_connect.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_server_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/net/tcp_client_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_client_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/imap_connect.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/smtp_connect.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/ws_server_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/ssl_server_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/tcp_server_test.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/net/udp_client_test.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/datasources/directory_ds.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/datasources/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/datasources/imap_ds.cpp" isTestSource="false" />

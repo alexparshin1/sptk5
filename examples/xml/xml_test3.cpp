@@ -57,7 +57,7 @@ void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
 
     XMLNodeVector selectedNodes;
     doc.select(selectedNodes, xpath);
-    for (XMLNode::iterator itor = selectedNodes.begin(); itor != selectedNodes.end(); itor++) {
+    for (XMLNode::iterator itor = selectedNodes.begin(); itor != selectedNodes.end(); ++itor) {
         XMLNode* node = *itor;
         cout << node->name();
         if (node->hasAttribute("N"))
