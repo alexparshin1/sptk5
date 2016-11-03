@@ -32,7 +32,16 @@
 using namespace std;
 using namespace sptk;
 
-void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
+static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces)
+{
+    for (XMLNode* attribute: node->attributes()) {
+        if (attribute->nameSpace() != "xmlns")
+            continue;
+        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->text());
+    }
+}
+
+void WSRequest::processRequest(XMLDocument* request) THROWS_EXCEPTIONS
 {
     XMLElement*             soapEnvelope = NULL;
     map<String,WSNameSpace> allNameSpaces;
@@ -45,8 +54,8 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
             {
                 SYNCHRONIZED_CODE;
                 String nameSpaceAlias = node->nameSpace();
-                XMLValue nameSpaceLocation = soapEnvelope->getAttribute("xmlns:" + nameSpaceAlias, "");
-                m_soapNamespace = WSNameSpace(nameSpaceAlias, nameSpaceLocation.str());
+                extractNameSpaces(soapEnvelope, allNameSpaces);
+                m_soapNamespace = allNameSpaces[nameSpaceAlias];
             }
             break;
         }
@@ -69,8 +78,8 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
         if (node) {
             requestNode = node;
             String nameSpaceAlias = requestNode->nameSpace();
-            XMLValue nameSpaceLocation = requestNode->getAttribute("xmlns:" + nameSpaceAlias, "");
-            m_requestNamespace = WSNameSpace(nameSpaceAlias, nameSpaceLocation.str());
+            extractNameSpaces(requestNode, allNameSpaces);
+            m_requestNamespace = allNameSpaces[nameSpaceAlias];
             break;
         }
     }
