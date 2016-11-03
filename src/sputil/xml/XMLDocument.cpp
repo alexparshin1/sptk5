@@ -393,11 +393,14 @@ namespace sptk {
         free(buffer);
     }
 
-    void XMLDocument::save(Buffer &buffer, int /*indent*/) const
+    void XMLDocument::save(Buffer &buffer, bool formalXML) const
     {
         XMLNode *xml_pi = 0;
 
         buffer.reset();
+
+        if (formalXML)
+            buffer.append("<?xml version=\"1.0\" ?>\n");
 
         // Write XML PI
         const_iterator itor = begin();

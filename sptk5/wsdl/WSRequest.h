@@ -38,10 +38,40 @@ namespace sptk
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
+/// @brief Namespace defined within WSDL document
+class WSNameSpace
+{
+    String  m_alias;        ///< Namespace alias
+    String  m_location;     ///< Namespace location
+public:
+    
+    /// @brief Constructor
+    /// @param alias String, Namespace alias
+    /// @param location String, Namespace location
+    WSNameSpace(String alias="", String location="")
+    : m_alias(alias), m_location(location)
+    {}
+    
+    /// @brief Constructor
+    /// @param other const WSNameSpace&, Other namespace
+    WSNameSpace(const WSNameSpace& other)
+    : m_alias(other.m_alias), m_location(other.m_location)
+    {}
+    
+    /// @brief Get namespace alias
+    /// @return Namespace alias
+    const String& getAlias() const { return m_alias; }
+    
+    /// @brief Get namespace location
+    /// @return Namespace location
+    const String& getLocation() const { return m_location; }
+};
+    
 /// @brief Parser of WSDL requests
 class WSRequest : public Synchronized
 {
-    std::string m_namespace;    ///< Detected request namespace
+    WSNameSpace   m_soapNamespace;        ///< Detected SOAP Envelope namespace
+    WSNameSpace   m_requestNamespace;     ///< Detected request namespace
 
 protected:
     /// @brief Internal SOAP body processor
@@ -81,11 +111,18 @@ public:
         return "index.html";
     }
 
-    /// @brief Returns current SOAP envelope namespace
-    virtual std::string nameSpace()
+    /// @brief Returns SOAP envelope namespace
+    virtual const WSNameSpace& soapNameSpace()
     {
         SYNCHRONIZED_CODE;
-        return m_namespace;
+        return m_soapNamespace;
+    }
+
+    /// @brief Returns request namespace
+    virtual const WSNameSpace& requestNameSpace()
+    {
+        SYNCHRONIZED_CODE;
+        return m_requestNamespace;
     }
 };
 

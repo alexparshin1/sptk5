@@ -339,14 +339,15 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
         WSOperation& operation = itor->second;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(XMLElement* requestNode) THROWS_EXCEPTIONS" << endl;
         serviceImplementation << "{" << endl;
-        serviceImplementation << "   string ns(nameSpace());" << endl;
-        serviceImplementation << "   C" << operation.m_input->name() << " inputData((ns + \"" << operation.m_input->name() << "\").c_str());" << endl;
-        serviceImplementation << "   C" << operation.m_output->name() << " outputData((ns + \"" << operation.m_output->name() << "\").c_str());" << endl;
+        serviceImplementation << "   string ns(requestNameSpace().getAlias());" << endl;
+        serviceImplementation << "   C" << operation.m_input->name() << " inputData((ns + \":" << operation.m_input->name() << "\").c_str());" << endl;
+        serviceImplementation << "   C" << operation.m_output->name() << " outputData((ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
         serviceImplementation << "   inputData.load(requestNode);" << endl;
         serviceImplementation << "   XMLElement* soapBody = (XMLElement*) requestNode->parent();" << endl;
         serviceImplementation << "   soapBody->clearChildren();" << endl;
         serviceImplementation << "   " << operationName << "(inputData,outputData);" << endl;
-        serviceImplementation << "   XMLElement* response = new XMLElement(soapBody, (ns + \"" << operation.m_output->name() << "\").c_str());" << endl;
+        serviceImplementation << "   XMLElement* response = new XMLElement(soapBody, (ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
+        serviceImplementation << "   response->setAttribute(\"xmlns:\" + ns, requestNameSpace().getLocation());" << endl;
         serviceImplementation << "   outputData.unload(response);" << endl;
         serviceImplementation << "}" << endl << endl;
     }

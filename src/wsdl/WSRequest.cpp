@@ -27,28 +27,27 @@
 */
 
 #include <sptk5/wsdl/WSRequest.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
 
 void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
 {
-    XMLElement* soapEnvelope = NULL;
+    XMLElement*             soapEnvelope = NULL;
+    map<String,WSNameSpace> allNameSpaces;
     for (XMLElement::iterator itor = request->begin(); itor != request->end(); ++itor) {
         XMLElement* node = dynamic_cast<XMLElement*>(*itor);
         if (!node)
             continue;
-        Strings nameParts(node->name(),":");
-        if (nameParts.size() > 1 && nameParts[1] == "Envelope") {
+        if (node->tagname() == "Envelope") {
             soapEnvelope = node;
             {
                 SYNCHRONIZED_CODE;
-                m_namespace = nameParts[0] + ":";
+                String nameSpaceAlias = node->nameSpace();
+                XMLValue nameSpaceLocation = soapEnvelope->getAttribute("xmlns:" + nameSpaceAlias, "");
+                m_soapNamespace = WSNameSpace(nameSpaceAlias, nameSpaceLocation.str());
             }
-            break;
-        }
-        else if (node->name() == "Envelope") {
-            soapEnvelope = node;
             break;
         }
     }
@@ -56,15 +55,22 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
     if (!soapEnvelope)
         throwException("Can't find SOAP Envelope node");
 
-    XMLElement* soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(nameSpace() + "Body"));
-    if (!soapBody)
-        throwException("Can't find SOAP Body node in incoming request");
+    XMLElement* soapBody;
+    {
+        SYNCHRONIZED_CODE;
+        soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_soapNamespace.getAlias() + ":Body"));
+        if (!soapBody)
+            throwException("Can't find SOAP Body node in incoming request");
+    }
 
     XMLElement* requestNode = NULL;
     for (XMLElement::iterator itor = soapBody->begin(); itor != soapBody->end(); ++itor) {
         XMLElement* node = dynamic_cast<XMLElement*>(*itor);
         if (node) {
             requestNode = node;
+            String nameSpaceAlias = requestNode->nameSpace();
+            XMLValue nameSpaceLocation = requestNode->getAttribute("xmlns:" + nameSpaceAlias, "");
+            m_requestNamespace = WSNameSpace(nameSpaceAlias, nameSpaceLocation.str());
             break;
         }
     }

@@ -265,9 +265,19 @@ public:
     }
 
     /// @brief Returns the node name.
-    ///
-    /// The meaning of the name depends on the node type:
     virtual const std::string& name() const=0;
+
+    /// @brief Returns the node namespace.
+    virtual std::string nameSpace() const
+    {
+        return "";
+    }
+
+    /// @brief Returns the node tagname (without namespace).
+    virtual std::string tagname() const
+    {
+        return "";
+    }
 
     /// @brief Sets the new name for the node
     /// @param name const std::string&, new node name
@@ -516,11 +526,27 @@ public:
     }
 
     /// @brief Returns the node name.
-    ///
-    /// The meaning of the value depends on the node type
     virtual const std::string& name() const
     {
         return *m_name;
+    }
+
+    /// @brief Returns the node name space.
+    virtual std::string nameSpace() const
+    {
+        size_t pos = m_name->find(":");
+        if (pos == std::string::npos)
+            return "";
+        return m_name->substr(0, pos);
+    }
+
+    /// @brief Returns the node tagname without namespace.
+    virtual std::string tagname() const
+    {
+        size_t pos = m_name->find(":");
+        if (pos == std::string::npos)
+            return *m_name;
+        return m_name->substr(pos + 1);
     }
 
     /// @brief Sets the new name for the node

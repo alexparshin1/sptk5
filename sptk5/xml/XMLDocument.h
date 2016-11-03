@@ -179,8 +179,8 @@ public:
 
     /// @brief Saves document to buffer.
     /// @param buffer CBuffer&, a buffer to save document
-    /// @param indent int, how many indent spaces at start
-    virtual void save(Buffer& buffer, int indent = 0) const;
+    /// @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
+    virtual void save(Buffer& buffer, bool formalXML=false) const;
 };
 /// @}
 }
