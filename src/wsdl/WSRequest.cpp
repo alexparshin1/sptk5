@@ -34,10 +34,11 @@ using namespace sptk;
 
 static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces)
 {
-    for (XMLNode* attribute: node->attributes()) {
-        if (attribute->nameSpace() != "xmlns")
+    for (XMLNode* attributeNode: node->attributes()) {
+        XMLAttribute* attribute = dynamic_cast<XMLAttribute*>(attributeNode);
+        if (!attribute || attribute->nameSpace() != "xmlns")
             continue;
-        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->text());
+        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
     }
 }
 
