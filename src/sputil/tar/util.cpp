@@ -32,7 +32,7 @@ int path_hashfunc(char *key, int numbuckets)
     char buf[MAXPATHLEN];
     char *p;
 
-    strcpy(buf, key);
+    strncpy(buf, key, sizeof(buf));
     p = basename(buf);
 
     return (((int) p[0]) % numbuckets);

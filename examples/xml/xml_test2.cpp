@@ -63,12 +63,12 @@ int main()
         for (unsigned i = 0; i < 100000; i++) {
             XMLNode* row = new XMLElement(doc, rowTag);
 
-            sprintf(buffer, "%u", i);
+            snprintf(buffer, sizeof(buffer), "%u", i);
             XMLNode* cell1 = new XMLElement(*row, cellTag);
             cell1->setAttribute("column", 1);
             new XMLText(*cell1, buffer);
 
-            sprintf(buffer, "A pretty long string number %u", i);
+            snprintf(buffer, sizeof(buffer), "A pretty long string number %u", i);
             XMLNode* cell2 = new XMLElement(*row, cellTag);
             cell2->setAttribute("column", 2);
             new XMLText(*cell2, buffer);

@@ -162,7 +162,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     else
         offset = -offset;
 
-    sprintf(dateBuffer,
+    snprintf(dateBuffer, sizeof(dateBuffer),
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,

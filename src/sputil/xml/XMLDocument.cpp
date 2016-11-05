@@ -400,7 +400,7 @@ namespace sptk {
         buffer.reset();
 
         if (formalXML)
-            buffer.append("<?xml version=\"1.0\" ?>\n");
+            buffer.append("<?xml version=\"1.0\"  encoding=\"UTF-8\" ?>\n");
 
         // Write XML PI
         const_iterator itor = begin();

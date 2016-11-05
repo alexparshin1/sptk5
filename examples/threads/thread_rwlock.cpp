@@ -63,7 +63,7 @@ public:
         if (a == 2)
             a = 0;
     }
-    virtual void threadFunction()
+    void threadFunction() override
     {
         cout << "Thread " << name << " starting" << endl;
         while (1) {
@@ -116,7 +116,7 @@ public:
         if (a == 2)
             a = 0;
     }
-    virtual void threadFunction()
+    void threadFunction() override
     {
         cout << "Thread " << name << " starting" << endl;
         while (1) {

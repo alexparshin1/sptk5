@@ -484,14 +484,14 @@ void load_file(const char *newfile, int ipos)
     loading = 1;
     int insert = (ipos != -1);
     changed = insert;
-    if (!insert) strcpy(filename, "");
+    if (!insert) strncpy(filename, "", sizeof(filename));
     int r;
     if (!insert) r = textbuf->loadfile(newfile);
     else r = textbuf->insertfile(newfile, ipos);
     if (r)
         fl_alert("Error reading from file \'%s\':\n%s.", newfile, strerror(errno));
     else
-        if (!insert) strcpy(filename, newfile);
+        if (!insert) strncpy(filename, newfile, sizeof(filename));
     loading = 0;
     textbuf->call_modify_callbacks();
 }
@@ -501,7 +501,7 @@ void save_file(const char *newfile)
     if (textbuf->savefile(newfile))
         fl_alert("Error writing to file \'%s\':\n%s.", newfile, strerror(errno));
     else
-        strcpy(filename, newfile);
+        strncpy(filename, newfile, sizeof(filename));
     changed = 0;
     textbuf->call_modify_callbacks();
 }
@@ -567,18 +567,18 @@ void cursor_cb(Fl_Widget* w, void* v)
 
 void set_title(Fl_Window* w)
 {
-    if (filename[0] == '\0') strcpy(title, "Untitled");
+    if (filename[0] == '\0') strncpy(title, "Untitled", sizeof(title));
     else {
         char *slash;
         slash = strrchr(filename, '/');
 #ifdef WIN32
         if (slash == NULL) slash = strrchr(filename, '\\');
 #endif
-        if (slash != NULL) strcpy(title, slash + 1);
-        else strcpy(title, filename);
+        if (slash != NULL) strncpy(title, slash + 1, sizeof(title));
+        else strncpy(title, filename, sizeof(title));
     }
 
-    if (changed) strcat(title, " (modified)");
+    if (changed) strncat(title, " (modified)", sizeof(title));
 
     w->label(title);
 }

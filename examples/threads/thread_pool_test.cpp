@@ -44,7 +44,7 @@ public:
     CMyTask(FileLogEngine& sharedLog);
 
     // The thread function.
-    virtual void run() THROWS_EXCEPTIONS;
+    void run() THROWS_EXCEPTIONS override;
 
     string name() const
     {

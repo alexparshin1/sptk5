@@ -245,7 +245,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "   /// Receive incoming SOAP body of Web Service requests, and returns" << endl;
     serviceDefinition << "   /// application response." << endl;
     serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element" << endl;
-    serviceDefinition << "   virtual void requestBroker(sptk::XMLElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
+    serviceDefinition << "   void requestBroker(sptk::XMLElement* requestNode) THROWS_EXCEPTIONS override;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "   /// @brief Constructor" << endl;
     serviceDefinition << "   " << serviceClassName << "() {}" << endl << endl;

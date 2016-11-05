@@ -41,7 +41,7 @@ public:
     CMyThread(string threadName, FileLogEngine& sharedLog);
 
     // The thread function.
-    virtual void threadFunction();
+    void threadFunction() override;
 };
 
 CMyThread::CMyThread(string threadName, FileLogEngine& sharedLog) :

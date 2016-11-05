@@ -51,7 +51,7 @@ m_multiplicity(attr.m_multiplicity) { }
 string WSParserAttribute::generate() const
 {
     char buffer[256];
-    sprintf(buffer, "%-20s m_%s", m_cxxTypeName.c_str(), m_name.c_str());
+    snprintf(buffer, sizeof(buffer), "%-20s m_%s", m_cxxTypeName.c_str(), m_name.c_str());
     return string(buffer);
 }
 
@@ -192,7 +192,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
                 ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
                 copyInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
             }
-            sprintf(buffer, "%-20s m_%s", cxxType.c_str(), complexType->name().c_str());
+            snprintf(buffer, sizeof(buffer), "%-20s m_%s", cxxType.c_str(), complexType->name().c_str());
             classDeclaration << "   " << buffer << ";" << endl;
         }
     }
@@ -224,7 +224,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "   ///" << endl;
     classDeclaration << "   /// Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "   /// @param input const sptk::XMLElement*, XML node containing " << className << " data" << endl;
-    classDeclaration << "   virtual void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS;" << endl << endl;
+    classDeclaration << "   void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS override;" << endl << endl;
     classDeclaration << "   /// @brief Load " << className << " from FieldList" << endl;
     classDeclaration << "   ///" << endl;
     classDeclaration << "   /// Only simple WSDL type members are loaded." << endl;
@@ -232,7 +232,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "   virtual void load(const sptk::FieldList& input) THROWS_EXCEPTIONS;" << endl << endl;
     classDeclaration << "   /// @brief Unload " << className << " to existing XML node" << endl;
     classDeclaration << "   /// @param output sptk::XMLElement*, existing XML node" << endl;
-    classDeclaration << "   virtual void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS;" << endl;
+    classDeclaration << "   void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS override;" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "#endif" << endl;

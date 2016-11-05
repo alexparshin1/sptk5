@@ -285,7 +285,7 @@ bool Query::open() THROWS_EXCEPTIONS
         m_duration += 86400.0;
     if (m_db->logFile()) {
         char buffer[64];
-        sprintf(buffer, "[Q%i] Duration %0.3f sec", m_objectIndex, m_duration);
+        snprintf(buffer, sizeof(buffer), "[Q%i] Duration %0.3f sec", m_objectIndex, m_duration);
         *m_db->logFile() << LP_DEBUG << buffer << endl;
     }
 

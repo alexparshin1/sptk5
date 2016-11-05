@@ -77,7 +77,7 @@ const Strings& FTPSocket::get_response()
     if (readBuffer[3] == '-') {
         readBuffer[3] = ' ';
         readBuffer[4] = 0;
-        strcpy(retCode, readBuffer);
+        strncpy(retCode, readBuffer, sizeof(retCode));
         for (;;) {
             bytes = readLine(readBuffer, 255);
             m_response.push_back(std::string(readBuffer, bytes));

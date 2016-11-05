@@ -57,7 +57,7 @@ void readAndReply(SSLSocket& socket)
     bytes = socket.read(buffer, bytes);
     buffer[bytes] = 0;
     printf("Client msg: \"%s\"\n", buffer);
-    sprintf(reply, HTMLecho, buffer);
+    snprintf(reply, sizeof(reply), HTMLecho, buffer);
     socket.write(reply, strlen(reply));
 }
 
@@ -89,7 +89,7 @@ int main(int argc, const char *argv[])
             struct sockaddr_in clientInfo;
 
             server.accept(clientSocketFD, clientInfo);
-            printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), ntohs(clientInfo.sin_port));
+            printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), (unsigned) ntohs(clientInfo.sin_port));
 
             SSLSocket connection(sslContext);
             try {

@@ -380,7 +380,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 void MySQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
 {
     char    fileName[256];
-    sprintf(fileName, ".bulk.insert.%i.%i", getpid(), rand());
+    snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%i", getpid(), rand());
     data.saveToFile(fileName);
     string sql = "LOAD DATA LOCAL INFILE '" + string(fileName) + "' INTO TABLE " + tableName + " (" + columnNames.asString(",") + ") " + format;
 

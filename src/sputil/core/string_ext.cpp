@@ -139,14 +139,14 @@ void split (vector<string> dest, const string& src, string delimitter)
 string int2string (int32_t value)
 {
     char buff[32];
-    sprintf (buff,"%i",value);
+    snprintf(buff, sizeof(buff), "%i", value);
     return string(buff);
 }
 
 string int2string (uint32_t value)
 {
     char buff[64];
-    sprintf (buff,"%u",value);
+    snprintf(buff, sizeof(buff), "%u", value);
     return string(buff);
 }
 
@@ -154,9 +154,9 @@ string int2string (int64_t value)
 {
     char buff[128];
 #ifdef _WIN32
-    sprintf (buff,"%lli",value);
+    snprintf(buff, sizeof(buff), "%lli", value);
 #else
-    sprintf (buff,"%li", value);
+    snprintf(buff, sizeof(buff), "%li", value);
 #endif
     return string(buff);
 }
@@ -165,9 +165,9 @@ string int2string (uint64_t value)
 {
     char buff[128];
 #ifdef _WIN32
-    sprintf (buff,"%llu",value);
+    snprintf(buff, sizeof(buff), "%llu", value);
 #else
-    sprintf (buff,"%lu",value);
+    snprintf(buff, sizeof(buff), "%lu", value);
 #endif
     return string(buff);
 }

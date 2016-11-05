@@ -174,7 +174,7 @@ int main(int argc, char **argv)
         DateTime end = DateTime::Now();
 
         char message[128];
-        sprintf(message, "XML Test - loaded file in %0.2f sec", ((double) end - double(start)) * 24 * 3600);
+        snprintf(message, sizeof(message), "XML Test - loaded file in %0.2f sec", ((double) end - double(start)) * 24 * 3600);
         window->label(message);
         puts(message);
 

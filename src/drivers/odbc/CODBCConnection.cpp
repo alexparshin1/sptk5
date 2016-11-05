@@ -185,7 +185,7 @@ string ODBCConnection::queryError(SQLHSTMT stmt) const
         rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), 0L, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
         if (rc != SQL_SUCCESS) if (!*errorDescription)
-            strcpy((char*) errorDescription, "Unknown error");
+            strncpy((char*) errorDescription, "Unknown error", sizeof(errorDescription));
     }
 
     return string(removeDriverIdentification((char*) errorDescription));
@@ -548,7 +548,7 @@ void ODBCConnection::queryOpen(Query* query)
                 if (dataType == VAR_STRING && columnLength > 65535)
                     dataType = VAR_TEXT;
                 if (columnName[0] == 0)
-                    sprintf(columnName, "column%02i", column);
+                    snprintf(columnName, sizeof(columnName), "column%02i", column);
                 if (columnLength > FETCH_BUFFER_SIZE)
                     columnLength = FETCH_BUFFER_SIZE;
 

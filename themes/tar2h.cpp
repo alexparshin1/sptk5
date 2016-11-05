@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < st.st_size; i++) {
-		printf("0x%02x, ", x[i]);
+		printf("0x%02x, ", (unsigned) x[i]);
 		if (!(i & 0xf)) printf("\n");
 	}
 	printf("};\n");

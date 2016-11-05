@@ -329,7 +329,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         strncpy(columnName, fieldMetadata->name, sizeof(columnName));
         columnName[sizeof(columnName)-1] = 0;
         if (columnName[0] == 0)
-            sprintf(columnName, "column_%02u", columnIndex + 1);
+            snprintf(columnName, sizeof(columnName), "column_%02u", columnIndex + 1);
         VariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
         unsigned fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)

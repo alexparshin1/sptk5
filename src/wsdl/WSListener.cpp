@@ -51,7 +51,7 @@ public:
     {
     }
 
-    virtual void threadFunction();
+    void threadFunction() override;
 };
 
 void WSConnection::threadFunction()

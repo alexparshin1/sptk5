@@ -1014,14 +1014,14 @@ string Variant::asString() const THROWS_EXCEPTIONS
             return "f";
 
         case VAR_INT:
-            sprintf(print_buffer, "%i", m_data.intData);
+            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
             return string(print_buffer);
 
         case VAR_INT64:
 #ifndef _WIN32
-            sprintf(print_buffer, "%li", m_data.int64Data);
+            snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
 #else
-            sprintf (print_buffer,"%lli",m_data.int64Data);
+            snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
 #endif
             return string(print_buffer);
 
@@ -1038,10 +1038,10 @@ string Variant::asString() const THROWS_EXCEPTIONS
             else
                 absValue = m_data.moneyData.quantity;
 
-            sprintf(formatPtr, "%%Ld.%%0%dLd", m_data.moneyData.scale);
+            snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
             int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
             int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-            sprintf(print_buffer, format, intValue, fraction);
+            snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
             return string(print_buffer);
         }
 
@@ -1054,7 +1054,7 @@ string Variant::asString() const THROWS_EXCEPTIONS
             if (fabs(m_data.floatData) > 1e16)
                 formatString = "%0.4e";
 
-            sprintf(print_buffer, formatString, m_data.floatData);
+            snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
             return string(print_buffer);
         }
 
@@ -1075,11 +1075,11 @@ string Variant::asString() const THROWS_EXCEPTIONS
         }
 
         case VAR_IMAGE_PTR:
-            sprintf(print_buffer, "%p", m_data.imagePtr);
+            snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
             return string(print_buffer);
 
         case VAR_IMAGE_NDX:
-            sprintf(print_buffer, "%i", m_data.imageNdx);
+            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
             return string(print_buffer);
     }
 }

@@ -94,7 +94,7 @@ static string quotes(string st)
 string ImapConnect::sendCommand(string cmd)
 {
     char id_str[10];
-    sprintf(id_str, "a%03i ", m_ident++);
+    snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
     string ident(id_str);
     cmd = ident + cmd + "\n";
     if (!active())
@@ -212,7 +212,7 @@ static void parse_header(const string &header, string &header_name, string &head
 static DateTime decodeDate(const std::string &dt)
 {
     char temp[40];
-    strcpy(temp, dt.c_str() + 5);
+    strncpy(temp, dt.c_str() + 5, sizeof(temp));
     // 1. get the day of the month
     char *p1 = temp;
     char *p2 = strchr(p1, ' ');

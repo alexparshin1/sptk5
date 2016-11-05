@@ -46,12 +46,12 @@ const DateTime epochDate(2000, 1, 1);
 
 class CPostgreSQLStatement
 {
-    PGresult* m_stmt;
-    char m_stmtName[20];
+    PGresult*       m_stmt;
+    char            m_stmtName[20];
     static unsigned index;
-    int m_rows;
-    int m_cols;
-    int m_currentRow;
+    int             m_rows;
+    int             m_cols;
+    int             m_currentRow;
 public:
     CPostgreSQLParamValues m_paramValues;
 public:
@@ -60,7 +60,7 @@ public:
     : m_stmt(NULL), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
     {
         if (prepared)
-            sprintf(m_stmtName, "S%04u", ++index);
+            snprintf(m_stmtName, sizeof(m_stmtName), "S%04u", ++index);
         else
             m_stmtName[0] = 0;
     }
@@ -624,7 +624,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
                 columnName[255] = 0;
 
                 if (columnName[0] == 0)
-                    sprintf(columnName, "column%02i", column + 1);
+                    snprintf(columnName, sizeof(columnName), "column%02i", column + 1);
 
                 Oid dataType = PQftype(stmt, column);
                 VariantType fieldType;
@@ -1053,7 +1053,7 @@ std::string PostgreSQLConnection::driverDescription() const
 std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
-    sprintf(mark, "$%i", paramIndex + 1);
+    snprintf(mark, sizeof(mark), "$%i", paramIndex + 1);
     return string(mark);
 }
 

@@ -401,7 +401,7 @@ void SQLite3Connection::queryOpen(Query* query)
             columnName[255] = 0;
 
             if (columnName[0] == 0)
-                sprintf(columnName, "column%02i", column);
+                snprintf(columnName, sizeof(columnName), "column%02i", column);
 
             CSQLite3Field* field = new CSQLite3Field(columnName, column);
             query->fields().push_back(field);

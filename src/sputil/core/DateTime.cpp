@@ -108,7 +108,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     char separator[] = " ";
     char dt[32];
 
-    strcpy(dt, dateOrTime);
+    strncpy(dt, dateOrTime, sizeof(dt));
 
     // Cut-off trailing non-digit characters
     int len = (int) strlen(dt);
@@ -147,16 +147,16 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 break;
             case 17:
                 pattern = "39";   // day
-                strcat(DateTime::datePartsOrder, "D");
+                strncat(DateTime::datePartsOrder, "D", sizeof(DateTime::datePartsOrder));
                 break;
             case 6:
                 pattern = "19";   // month
-                strcat(DateTime::datePartsOrder, "M");
+                strncat(DateTime::datePartsOrder, "M", sizeof(DateTime::datePartsOrder));
                 break;
             case 2000:
             case 0:
                 pattern = "2999"; // year
-                strcat(DateTime::datePartsOrder, "Y");
+                strncat(DateTime::datePartsOrder, "Y", sizeof(DateTime::datePartsOrder));
                 break;
             default:
                 pattern = NULL;
@@ -279,7 +279,7 @@ void DateTime::time24Mode(bool t24mode)
 
     _time24Mode = t24mode;
     DateTime::timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::fullTimeFormat, timeBuffer);
-    strcpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat);
+    strncpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat, sizeof(DateTime::shortTimeFormat));
     char* p = strchr(DateTime::shortTimeFormat, DateTime::timeSeparator);
     if (p) {
         p = strchr(p + 1, DateTime::timeSeparator);
@@ -287,8 +287,8 @@ void DateTime::time24Mode(bool t24mode)
             *p = 0;
     }
     if (!_time24Mode) {
-        strcat(DateTime::fullTimeFormat, "TM");
-        strcat(DateTime::shortTimeFormat, "TM");
+        strncat(DateTime::fullTimeFormat, "TM", sizeof(DateTime::fullTimeFormat));
+        strncat(DateTime::shortTimeFormat, "TM", sizeof(DateTime::shortTimeFormat));
     }
 }
 

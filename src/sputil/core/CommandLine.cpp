@@ -144,12 +144,12 @@ void CCommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWi
     char rowBuffer[1024];
     for (string helpRow : helpText) {
         if (firstRow) {
-            sprintf(rowBuffer, printFormat.c_str(), printableName().c_str(), helpRow.c_str());
+            snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), printableName().c_str(), helpRow.c_str());
             cout << rowBuffer << endl;
             firstRow = false;
         }
         else {
-            sprintf(rowBuffer, printFormat.c_str(), "", helpRow.c_str());
+            snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", helpRow.c_str());
             cout << rowBuffer << endl;
         }
     }
@@ -159,7 +159,7 @@ void CCommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWi
         if (!doesntNeedQuotes.m(optionDefaultValue, matches))
             optionDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + optionDefaultValue + ".";
-        sprintf(rowBuffer, printFormat.c_str(), "", defaultValueStr.c_str());
+        snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
         cout << rowBuffer << endl;
     }
 }
