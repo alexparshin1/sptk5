@@ -1,0 +1,12 @@
+INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
+INCLUDE_DIRECTORIES (/usr/local/include)
+
+LINK_DIRECTORIES (${SPTK_BINARY_DIR})
+
+LINK_LIBRARIES (sputil5)
+IF (UNIX)
+    LINK_LIBRARIES (pthread)
+ENDIF (UNIX)
+
+ADD_EXECUTABLE (json_test1 json_test1.cpp)
+ADD_EXECUTABLE (json_test2 json_test2.cpp)
