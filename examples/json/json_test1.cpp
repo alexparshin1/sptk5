@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       json_test1.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,30 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
-
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
-
-#include <sptk5/md5.h>
-
 #include <sptk5/json/JsonDocument.h>
 
-#endif
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+using namespace sptk;
+
+int main(int argc, char **argv)
+{
+    json::Document jsonDocument;
+
+    ifstream file("test.data/test.json");
+    jsonDocument.load(file);
+    file.close();
+
+    jsonDocument.root().exportTo(cout, true);
+    cout << endl;
+    
+    json::ElementVector selected;
+    jsonDocument.root().select(selected, "//address/streetAddress");
+    
+    cout << endl << "Selected " << selected.size() << " element(s)." << endl;
+
+    return 0;
+}

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       JsonDocument.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,77 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
-
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
-
-#include <sptk5/md5.h>
-
 #include <sptk5/json/JsonDocument.h>
+#include <sptk5/json/JsonParser.h>
+#include <sstream>
 
-#endif
+using namespace std;
+using namespace sptk::json;
+
+void Document::clear()
+{
+    json::Type elementType = m_root->type();
+    if (m_root) {
+        delete m_root;
+        if (elementType == JDT_ARRAY)
+            m_root = new Element((ArrayData*)NULL);
+        else
+            m_root = new Element((ObjectData*)NULL);
+    }
+}
+
+void Document::parse(const string& json) throw(Exception)
+{
+    if (m_root) {
+        delete m_root;
+        m_root = new Element;
+    }
+    
+    Parser parser;
+    parser.parse(*m_root, json);
+}
+
+Document::Document(bool isObject)
+{
+    if (isObject) {
+        ObjectData emptyObject;
+        m_root = new Element(emptyObject);
+    }
+    else {
+        ArrayData emptyArray;
+        m_root = new Element(emptyArray);
+    }
+}
+
+Document::~Document()
+{
+    if (m_root)
+        delete m_root;
+}
+
+void Document::load(const string& json) throw(Exception)
+{
+    parse(json);
+}
+
+void Document::load(const char* json) throw(Exception)
+{
+    string json_str(json);
+    parse(json_str);
+}
+
+void Document::load(istream& json) throw(Exception)
+{
+    stringstream    buffer;
+    string          row;
+    while (!json.eof()) {
+        getline(json, row);
+        buffer << row << "\n";
+    }
+    load(buffer.str());
+}
+
+Element& Document::root()
+{
+    return *m_root;
+}

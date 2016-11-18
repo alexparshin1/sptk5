@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
             workDirectory.assign(argv[0], size_t(endOfPath - argv[0]));
         else
             workDirectory = "/";
-        
+
         if (chdir(workDirectory.c_str()))
             throw Exception("Can't change directory to " + workDirectory);
 

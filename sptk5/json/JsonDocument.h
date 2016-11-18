@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       JsonDocument.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,77 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#ifndef __JSON_DOCUMENT_H__
+#define __JSON_DOCUMENT_H__
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
+#include "JsonElement.h"
+#include <istream>
 
-#include <sptk5/md5.h>
+namespace sptk { namespace json {
 
-#include <sptk5/json/JsonDocument.h>
+/**
+ * JSON document
+ */
+class Document
+{
+    /**
+     * Root element of the document
+     */
+    Element*    m_root;
+
+    /**
+     * Parse JSON text, replacing current document content
+     * @param json const std::string&, JSON text
+     * @throw Exception if there is a problem parsing JSON document
+     */
+    void parse(const std::string& json) throw(Exception);
+
+public:
+    /**
+     * Constructor
+     * Creates empty JSON document.
+     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
+     * @param isObject bool, If true then document root is JSON object. Otherwise, document root is JSON array.
+     */
+    Document(bool isObject=true);
+
+    /**
+     * Destructor
+     */
+    ~Document();
+
+    /**
+     * Load document from JSON text, replacing existing document
+     * @param json const std::string&, JSON text
+     * @throw Exception if there is a problem parsing JSON document
+     */
+    void load(const std::string& json) throw(Exception);
+
+    /**
+     * Load document from JSON text, replacing existing document
+     * @param json const char*, JSON text
+     * @throw Exception if there is a problem parsing JSON document
+     */
+    void load(const char* json) throw(Exception);
+
+    /**
+     * Load document from JSON text, replacing existing document
+     * @param json std::istream&, JSON text
+     * @throw Exception if there is a problem parsing JSON document
+     */
+    void load(std::istream& json) throw(Exception);
+
+    /**
+     * Get document root element
+     */
+    Element& root();
+
+    /**
+     * Clear document content
+     */
+    void clear();
+};
+
+}}
 
 #endif

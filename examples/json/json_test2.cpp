@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       json_test2.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
-
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
-
-#include <sptk5/md5.h>
-
 #include <sptk5/json/JsonDocument.h>
 
-#endif
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+using namespace sptk;
+
+int main(int argc, char **argv)
+{
+    json::Document jsonDocument;
+
+    jsonDocument.root().add("number", json::Element(123.0));
+    jsonDocument.root().add("string", json::Element("test"));
+    jsonDocument.root().add("boolean", json::Element(true));
+    jsonDocument.root().add("empty", json::Element());
+
+    json::ArrayData array;
+    array.push_back(json::Element(100.0));
+    array.push_back(json::Element("101.0"));
+    array.push_back(json::Element(102.0));
+    jsonDocument.root().add("numbers", json::Element(array));
+
+    json::ObjectData object;
+    object["colour"] = json::Element("black");
+    object["shape"] = json::Element("cube");
+    jsonDocument.root().add("boxes", json::Element(object));
+
+    jsonDocument.root().exportTo(cout, false);
+    cout << endl;
+
+    return 0;
+}

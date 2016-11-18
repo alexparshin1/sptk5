@@ -28,7 +28,6 @@ OPTION (USE_ORACLE     "Build Oracle support library" ON)
 OPTION (USE_PCRE       "Build PCRE (Perl Regexp) support" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
-OPTION (USE_CXX11      "Build using cxx11 compiler if available" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
@@ -277,18 +276,15 @@ IF (USE_OPENSSL)
   ENDIF (OPENSSL_FOUND)
 ENDIF (USE_OPENSSL)
 
-SET (CXX11_FLAG "0")
-IF (USE_CXX11)
-  INCLUDE(cmake/CXX11.cmake)
-  check_for_cxx11_compiler(CXX11_COMPILER)
-  # If a C++11 compiler is available, then set the appropriate flags
-  IF (CXX11_COMPILER)
-    enable_cxx11()
-    SET (CXX11_FLAG "1")
-  ELSE (CXX11_COMPILER)
-    MESSAGE(FATAL_ERROR "C++11 compiler is not available")
-  ENDIF (CXX11_COMPILER)
-ENDIF (USE_CXX11)
+INCLUDE(cmake/CXX11.cmake)
+check_for_cxx11_compiler(CXX11_COMPILER)
+# If a C++11 compiler is available, then set the appropriate flags
+IF (CXX11_COMPILER)
+  enable_cxx11()
+  SET (CXX11_FLAG "1")
+ELSE (CXX11_COMPILER)
+  MESSAGE(FATAL_ERROR "C++11 compiler is not available")
+ENDIF (CXX11_COMPILER)
 
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 
@@ -324,6 +320,9 @@ ADD_SUBDIRECTORY (utilities)
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)
+
+FILE (GLOB includeFilesJSON "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/json/*.h")
+INSTALL (FILES ${includeFilesJSON} DESTINATION include/sptk5/json)
 
 FILE (GLOB includeFilesXML "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/xml/*.h")
 INSTALL (FILES ${includeFilesXML} DESTINATION include/sptk5/xml)

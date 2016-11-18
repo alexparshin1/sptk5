@@ -6,6 +6,7 @@ IF (NO_EXAMPLES)
 ELSE (NO_EXAMPLES)
     MESSAGE("Usage examples:     compile")
 
+    ADD_SUBDIRECTORY (json)
     ADD_SUBDIRECTORY (xml)
     ADD_SUBDIRECTORY (database)
     ADD_SUBDIRECTORY (threads)

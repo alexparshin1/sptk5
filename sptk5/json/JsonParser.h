@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       JsonElement.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#ifndef __JSON__PARSER_H__
+#define __JSON__PARSER_H__
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
+#include <sptk5/json/JsonElement.h>
 
-#include <sptk5/md5.h>
+namespace sptk { namespace json {
 
-#include <sptk5/json/JsonDocument.h>
+/**
+ * JSON Parser
+ *
+ * Loads JSON text into JSON element
+ */
+class Parser
+{
+    friend class Element;
+
+public:
+    /**
+     * Constructor
+     */
+    Parser();
+
+    /**
+     * Parse JSON text
+     * Root element should have JDT_NULL type (empty element) before calling this method.
+     * @param jsonElement Element&, JSON element
+     * @param json const std::string&, JSON text
+     */
+    void parse(Element& jsonElement, const std::string& json) throw(Exception);
+};
+
+}}
 
 #endif

@@ -223,7 +223,7 @@ public:
     /// @brief Selects nodes as defined by XPath
     ///
     /// The implementation is just started, so only limited XPath standard part is supported.
-    /// Currently, examples 1 through 6 from http://www.zvon.org/xxl/XPathTutorial/Output/example6.html
+    /// Currently, examples 1 through 6 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
     /// are working fine with the exceptions:
     /// - no functions are supported yet.
     /// @param nodes XMLNodeVector&, the resulting list of subnodes
