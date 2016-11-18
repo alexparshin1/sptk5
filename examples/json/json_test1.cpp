@@ -45,10 +45,10 @@ int main(int argc, char **argv)
 
     jsonDocument.root().exportTo(cout, true);
     cout << endl;
-    
+
     json::ElementVector selected;
-    jsonDocument.root().select(selected, "//address/streetAddress");
-    
+    jsonDocument.root().select(selected, "//relative/*");
+
     cout << endl << "Selected " << selected.size() << " element(s)." << endl;
 
     return 0;
