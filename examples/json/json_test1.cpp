@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     jsonDocument.root().exportTo(cout, true);
     cout << endl;
 
-    json::ElementVector selected;
+    json::ElementSet selected;
     jsonDocument.root().select(selected, "//relative/*");
 
     cout << endl << "Selected " << selected.size() << " element(s)." << endl;

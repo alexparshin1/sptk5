@@ -213,6 +213,15 @@ Element* Element::find(const string& name)
     return &itor->second;
 }
 
+Element& Element::operator[](const std::string& name)
+{
+    if (m_type != JDT_OBJECT)
+        throw Exception("Parent element is nether JSON array nor JSON object");
+    if (!m_data.m_object)
+        m_data.m_object = new ObjectData;
+    return (*m_data.m_object)[name];
+}
+
 void Element::erase(const string& name)
 {
     if (m_type != JDT_OBJECT)
@@ -242,11 +251,13 @@ double Element::getNumber() const
     throw Exception("Not a number");
 }
 
-const string& Element::getString() const
+string Element::getString() const
 {
     if (m_type == JDT_STRING)
         return *m_data.m_string;
-    throw Exception("Not a string");
+    stringstream output;
+    exportValueTo(output, false, 0);
+    return output.str();
 }
 
 bool Element::getBoolean() const
@@ -270,7 +281,7 @@ sptk::json::ObjectData& Element::getObject() const
     throw Exception("Not an object");
 }
 
-void Element::exportValueTo(ostream& stream, bool formatted, int indent)
+void Element::exportValueTo(ostream& stream, bool formatted, int indent) const
 {
     string indentSpaces, newLineChar, firstElement(" "), betweenElements(", ");
     if (formatted && m_type & (JDT_ARRAY|JDT_OBJECT)) {
@@ -401,7 +412,7 @@ string Element::decode(const string& text)
     return result;
 }
 
-void Element::selectElements(ElementVector& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly)
+void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly)
 {
     if (m_type != JDT_OBJECT)
         return;
@@ -414,7 +425,7 @@ void Element::selectElements(ElementVector& elements, const Strings& xpath, size
         if (element) {
             if (lastPosition) {
                 // Full xpath match
-                elements.push_back(element);
+                elements.insert(element);
             } 
             else {
                 // Continue to match children
@@ -425,7 +436,7 @@ void Element::selectElements(ElementVector& elements, const Strings& xpath, size
         for (auto itor: *m_data.m_object) {
             if (lastPosition) {
                 // Full xpath match
-                elements.push_back(&itor.second);
+                elements.insert(&itor.second);
             } 
             else {
                 // Continue to match children
@@ -442,7 +453,7 @@ void Element::selectElements(ElementVector& elements, const Strings& xpath, size
     }
 }
 
-void Element::select(ElementVector& elements, std::string xpath)
+void Element::select(ElementSet& elements, std::string xpath)
 {
     bool rootOnly = false;
     if (xpath[0] == '/') {

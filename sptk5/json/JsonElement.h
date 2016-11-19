@@ -32,6 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Exception.h>
+#include <set>
 
 namespace sptk { namespace json {
 
@@ -48,10 +49,10 @@ typedef std::vector<Element>            ArrayData;
 typedef std::map<std::string, Element>  ObjectData;
 
 /**
- * Vector of JSON Element object pointers.
+ * JSON Element object pointers.
  * Used in select() method.
  */
-typedef std::vector<Element*>           ElementVector;
+typedef std::set<Element*>              ElementSet;
 
 /**
  * JSON Element type
@@ -120,7 +121,7 @@ protected:
      * @param stream std::ostream&, Output stream
      * @param formatted bool, If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
      */
-    void exportValueTo(std::ostream& stream, bool formatted, int indent);
+    void exportValueTo(std::ostream& stream, bool formatted, int indent) const;
 
 public:
     /**
@@ -144,8 +145,8 @@ public:
      * @param xpathPosition size_t, Position in xpath currently being checked
      * @param rootOnly bool, Flag indicating that only root level elements are checked
      */
-    void selectElements(ElementVector& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly);
-    
+    void selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly);
+
 public:
 
     /**
@@ -251,6 +252,14 @@ public:
     Element* find(const std::string& name);
 
     /**
+     * Get JSON element in JSON object element.
+     * If element doesn't exist in JSON object yet, it's created as JSON null element.
+     * @param name std::string, Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
+    Element& operator[](const std::string& name);
+
+    /**
      * Find and erase JSON element in JSON object element
      * @param name std::string, Name of the element in the object element
      */
@@ -276,7 +285,7 @@ public:
     /**
      * Get value of JSON element
      */
-    const std::string& getString() const;
+    std::string getString() const;
 
     /**
      * Get value of JSON element
@@ -300,16 +309,24 @@ public:
      */
     void exportTo(std::ostream& stream, bool formatted=true);
 
-    /// @brief Selects elements as defined by XPath
-    ///
-    /// The implementation is just started, so only limited XPath standard part is supported.
-    /// Currently, examples 1 through 1 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
-    /// are working fine with the exceptions:
-    /// - no functions are supported yet
-    /// - no attributes supported, because it isn't XML
-    /// @param elements ElementPaths&, the resulting list of elements
-    /// @param xpath std::string, the xpath for elements
-    void select(ElementVector& elements, std::string xpath);
+    /** @brief Selects elements as defined by XPath
+     *
+     * The implementation is just started, so only limited XPath standard part is supported.
+     * Currently, examples 1 through 1 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
+     * are working fine with the exceptions:
+     * - no functions are supported yet
+     * - no attributes supported, because it isn't XML
+     * @param elements ElementPaths&, the resulting list of elements
+     * @param xpath std::string, the xpath for elements
+     */
+    void select(ElementSet& elements, std::string xpath);
+
+    bool isNumber()  const { return m_type == JDT_NUMBER; }
+    bool isString()  const { return m_type == JDT_STRING; }
+    bool isBoolean() const { return m_type == JDT_BOOLEAN; }
+    bool isArray()   const { return m_type == JDT_ARRAY; }
+    bool isObject()  const { return m_type == JDT_OBJECT; }
+    bool isNull()    const { return m_type == JDT_NULL; }
 };
 
 }}
