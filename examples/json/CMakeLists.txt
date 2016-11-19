@@ -8,5 +8,6 @@ IF (UNIX)
     LINK_LIBRARIES (pthread)
 ENDIF (UNIX)
 
-ADD_EXECUTABLE (json_test1 json_test1.cpp)
-ADD_EXECUTABLE (json_test2 json_test2.cpp)
+FOREACH (JSON_TEST json_test1 json_test2 json_test3)
+    ADD_EXECUTABLE (${JSON_TEST} ${JSON_TEST}.cpp)
+ENDFOREACH (JSON_TEST)

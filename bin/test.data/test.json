@@ -1,11 +1,11 @@
 {
-  "firstName": "John",
-  "lastName": "Smith",
+  "firstName": "John 1",
+  "lastName": "Smith 1",
   "isAlive": true,
   "age": 25,
   "relative": {
-    "firstName": "John",
-    "lastName": "Smith"
+    "firstName": "John 2",
+    "lastName": "Smith 2"
   },
   "address": {
     "streetAddress": "21 \"2nd\"\t Street",

@@ -433,10 +433,11 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
             }
         } 
     } else {
-        for (auto itor: *m_data.m_object) {
+        for (auto& itor: *m_data.m_object) {
             if (lastPosition) {
                 // Full xpath match
-                elements.insert(&itor.second);
+                Element* element = &itor.second;
+                elements.insert(element);
             } 
             else {
                 // Continue to match children
