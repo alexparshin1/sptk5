@@ -334,7 +334,23 @@ public:
      * this element, get array element using [name] and then add() or remove() its item(s).
      * Alternatively, create a new ArrayData object and replace existing one.
      */
+    ArrayData& getArray();
+
+    /**
+     * Get value of JSON element.
+     * If you want to modify elements of the array inside
+     * this element, get array element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ArrayData object and replace existing one.
+     */
     const ArrayData& getArray() const;
+
+    /**
+     * Get value of JSON element
+     * If you want to modify elements of the object inside
+     * this element, get object element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ObjectData object and replace existing one.
+     */
+    ObjectData& getObject();
 
     /**
      * Get value of JSON element

@@ -271,11 +271,25 @@ bool Element::getBoolean() const
     throw Exception("Not a boolean");
 }
 
+json::ArrayData& Element::getArray()
+{
+    if (m_type == JDT_ARRAY && m_data.m_array)
+        return *m_data.m_array;
+    throw Exception("Not an array");
+}
+
 const json::ArrayData& Element::getArray() const
 {
     if (m_type == JDT_ARRAY && m_data.m_array)
         return *m_data.m_array;
     throw Exception("Not an array");
+}
+
+json::ObjectData& Element::getObject()
+{
+    if (m_type == JDT_OBJECT && m_data.m_object)
+        return *m_data.m_object;
+    throw Exception("Not an object");
 }
 
 const json::ObjectData& Element::getObject() const
