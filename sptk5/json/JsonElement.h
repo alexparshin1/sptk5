@@ -41,12 +41,42 @@ class Element;
 /**
  * Array of JSON Element objects
  */
-typedef std::vector<Element>            ArrayData;
+class ArrayData
+{
+    friend class Element;
+public:
+    typedef std::vector<Element*>::iterator         iterator;
+    typedef std::vector<Element*>::const_iterator   const_iterator;
+protected:
+    Element*                m_parent;
+    std::vector<Element*>   m_items;
+    
+    void setParent(Element* parent);
+public:
+    ArrayData(Element* parent=NULL);
+    ~ArrayData();
+    
+    void add(Element* element);
+    Element& operator[](size_t index);
+    const Element& operator[](size_t index) const;
+    void remove(size_t index);
+    
+    iterator begin()                { return m_items.begin(); }
+    iterator end()                  { return m_items.end(); }
+    const_iterator begin() const    { return m_items.begin(); }
+    const_iterator end() const      { return m_items.end(); }
+    
+    size_t size() const             { return m_items.size(); }
+};
 
 /**
  * Map of names to JSON Element objects
  */
-typedef std::map<std::string, Element>  ObjectData;
+class ObjectData : public std::map<std::string, Element*>
+{
+public:
+    ~ObjectData();
+};
 
 /**
  * JSON Element object pointers.
@@ -75,6 +105,8 @@ class Element
 {
     friend class Document;
     friend class Parser;
+    friend class ArrayData;
+    friend class ObjectData;
 protected:
     /**
      * Parent JSON Element
@@ -175,15 +207,19 @@ public:
 
     /**
      * Constructor
-     * @param value const ArrayData&, Array of JSON Elements
+     * Element takes ownership of value.
+     * Elements in value are set their parent pointer to this element.
+     * @param value const ArrayData*, Array of JSON Elements
      */
-    Element(const ArrayData& value);
+    Element(ArrayData* value);
 
     /**
      * Constructor
-     * @param value const ObjectData&, Map of names to JSON elements
+     * Element takes ownership of value.
+     * Elements in value are set their parent pointer to this element.
+     * @param value const ObjectData*, Map of names to JSON elements
      */
-    Element(const ObjectData& value);
+    Element(ObjectData* value);
 
     /**
      * Constructor
@@ -224,18 +260,18 @@ public:
      * Add JSON element to JSON array element.
      *
      * Element takes ownership of added element.
-     * @param element Element&&, Element to add
+     * @param element Element*, Element to add
      */
-    void add(Element&& element);
+    void add(Element* element);
 
     /**
      * Add JSON element to JSON object element.
      *
      * Element takes ownership of added element.
      * @param name std::string, Name of the element in the object element
-     * @param element Element&&, Element to add
+     * @param element Element*, Element to add
      */
-    void add(std::string name, Element&& element);
+    void add(std::string name, Element* element);
 
     /**
      * Find JSON element in JSON object element
@@ -252,12 +288,21 @@ public:
     Element* find(const std::string& name);
 
     /**
-     * Get JSON element in JSON object element.
+     * Get JSON element in JSON object element by name.
      * If element doesn't exist in JSON object yet, it's created as JSON null element.
+     * If this element is not JSON object, an exception is thrown.
      * @param name std::string, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    Element& operator[](const std::string& name);
+    Element& operator[](const std::string& name) throw (Exception);
+
+    /**
+     * Get JSON element in JSON array element by index.
+     * If this element is not JSON array, or an element doesn't exist in JSON array yet, an exception is thrown.
+     * @param index uint32_t, Index of the element in the array element
+     * @returns Element for the name, or NULL if not found
+     */
+    Element& operator[](size_t index) throw (Exception);
 
     /**
      * Find and erase JSON element in JSON object element
@@ -293,14 +338,20 @@ public:
     bool getBoolean() const;
 
     /**
-     * Get value of JSON element
+     * Get value of JSON element.
+     * If you want to modify elements of the array inside
+     * this element, get array element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ArrayData object and replace existing one.
      */
-    ArrayData& getArray() const;
+    const ArrayData& getArray() const;
 
     /**
      * Get value of JSON element
+     * If you want to modify elements of the object inside
+     * this element, get object element using [name] and then add() or remove() its item(s).
+     * Alternatively, create a new ObjectData object and replace existing one.
      */
-    ObjectData& getObject() const;
+    const ObjectData& getObject() const;
 
     /**
      * Export JSON element (and all children) to stream

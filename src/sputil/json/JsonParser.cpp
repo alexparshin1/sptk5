@@ -124,6 +124,8 @@ string readJsonString(const string& json, size_t& readPosition)
 
 string readJsonName(const string& json, size_t& readPosition)
 {
+    if (json[readPosition] != '"')
+        return "";
     string name = readJsonString(json, readPosition);
     if (json[readPosition] != ':')
         error("Unexpected character", readPosition);
@@ -195,19 +197,17 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition) th
 
             case '[':
             {
-                ArrayData emptyArray;
-                Element jsonArrayElement(emptyArray);
-                readArrayData(&jsonArrayElement, json, readPosition);
-                parent->add(move(jsonArrayElement));
+                Element* jsonArrayElement = new Element(new ArrayData);
+                readArrayData(jsonArrayElement, json, readPosition);
+                parent->add(jsonArrayElement);
             }
             break;
 
             case '{':
             {
-                ObjectData emptyObject;
-                Element jsonObjectElement(emptyObject);
-                readObjectData(&jsonObjectElement, json, readPosition);
-                parent->add(move(jsonObjectElement));
+                Element* jsonObjectElement = new Element(new ObjectData);
+                readObjectData(jsonObjectElement, json, readPosition);
+                parent->add(jsonObjectElement);
             }
             break;
 
@@ -216,7 +216,7 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition) th
             {
                 // Number
                 double number = readJsonNumber(json, readPosition);
-                parent->add(Element(number));
+                parent->add(new Element(number));
             }
             break;
 
@@ -225,7 +225,7 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition) th
             {
                 // Boolean
                 bool value = readJsonBoolean(json, readPosition);
-                parent->add(Element(value));
+                parent->add(new Element(value));
             }
             break;
 
@@ -233,7 +233,7 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition) th
             {
                 // Null
                 readJsonNull(json, readPosition);
-                parent->add(Element());
+                parent->add(new Element());
             }
             break;
 
@@ -241,7 +241,7 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition) th
             {
                 // String
                 string str = readJsonString(json, readPosition);
-                parent->add(Element(str));
+                parent->add(new Element(str));
             }
             break;
 
@@ -285,19 +285,17 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition) t
 
             case '[':
             {
-                ArrayData emptyArray;
-                Element jsonArrayElement(emptyArray);
-                readArrayData(&jsonArrayElement, json, readPosition);
-                parent->add(elementName, move(jsonArrayElement));
+                Element* jsonArrayElement = new Element(new ArrayData);
+                readArrayData(jsonArrayElement, json, readPosition);
+                parent->add(elementName, jsonArrayElement);
             }
             break;
 
             case '{':
             {
-                ObjectData emptyObject;
-                Element jsonObjectElement(emptyObject);
-                readObjectData(&jsonObjectElement, json, readPosition);
-                parent->add(elementName, move(jsonObjectElement));
+                Element* jsonObjectElement = new Element(new ObjectData);
+                readObjectData(jsonObjectElement, json, readPosition);
+                parent->add(elementName, jsonObjectElement);
             }
             break;
 
@@ -306,7 +304,7 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition) t
             {
                 // Number
                 double number = readJsonNumber(json, readPosition);
-                parent->add(elementName, Element(number));
+                parent->add(elementName, new Element(number));
             }
             break;
 
@@ -315,7 +313,7 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition) t
             {
                 // Boolean
                 bool value = readJsonBoolean(json, readPosition);
-                parent->add(elementName, Element(value));
+                parent->add(elementName, new Element(value));
             }
             break;
 
@@ -323,7 +321,7 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition) t
             {
                 // Null
                 readJsonNull(json, readPosition);
-                parent->add(elementName, Element());
+                parent->add(elementName, new Element());
             }
             break;
 
@@ -331,7 +329,7 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition) t
             {
                 // String
                 string str = readJsonString(json, readPosition);
-                parent->add(elementName, Element(str));
+                parent->add(elementName, new Element(str));
             }
             break;
 

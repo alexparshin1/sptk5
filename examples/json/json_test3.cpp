@@ -39,18 +39,22 @@ int main(int argc, char **argv)
 {
     json::Document jsonDocument;
 
-    ifstream file("test.data/test.json");
+    ifstream file("test.data/test2.json");
     jsonDocument.load(file);
     file.close();
 
     json::ElementSet selected;
-    jsonDocument.root().select(selected, "//relative/*");
+    jsonDocument.root().exportTo(cout);
+    jsonDocument.root().select(selected, "//firstName");
 
-    cout << endl << "Selected " << selected.size() << " element(s):" << endl << endl;
+    cout << endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl;
 
+    int elementIndex = 1;
     for (json::Element* element: selected) {
+        cout << "Element " << elementIndex << ":" << endl;
         element->exportTo(cout);
-        cout << endl;
+        cout << endl << endl;
+        elementIndex++;
     }
     
     return 0;

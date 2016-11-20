@@ -39,21 +39,31 @@ int main(int argc, char **argv)
 {
     json::Document jsonDocument;
 
-    jsonDocument.root().add("number", json::Element(123.0));
-    jsonDocument.root().add("string", json::Element("test"));
-    jsonDocument.root().add("boolean", json::Element(true));
-    jsonDocument.root().add("empty", json::Element());
+    // Get document root element
+    json::Element& root = jsonDocument.root();
 
-    json::ArrayData array;
-    array.push_back(json::Element(100.0));
-    array.push_back(json::Element("101.0"));
-    array.push_back(json::Element(102.0));
-    jsonDocument.root().add("numbers", json::Element(array));
+    // Fastest way to insert or replace element
+    root.add("boolean", new json::Element(true));
+    root.add("empty", new json::Element());
+    
+    // Convenient way to insert or replace element
+    root["number"] = 124.0;
+    root["string"] = "test";
 
-    json::ObjectData object;
-    object["colour"] = json::Element("black");
-    object["shape"] = json::Element("cube");
-    jsonDocument.root().add("boxes", json::Element(object));
+    // Create JSON array and insert it into JSON element (root)
+    // JSON element (root) takes ownership of array
+    json::ArrayData* array = new json::ArrayData;
+    array->add(new json::Element(100.0));
+    array->add(new json::Element("101.0"));
+    array->add(new json::Element(102.0));
+    root.add("numbers", new json::Element(array));
+
+    // Create JSON object and insert it into JSON element (root)
+    // JSON element (root) takes ownership of array
+    json::ObjectData* object = new json::ObjectData;
+    (*object)["colour"] = new json::Element("black");
+    (*object)["shape"] = new json::Element("cube");
+    jsonDocument.root().add("boxes", new json::Element(object));
 
     jsonDocument.root().exportTo(cout, false);
     cout << endl;

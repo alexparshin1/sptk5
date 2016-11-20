@@ -58,14 +58,10 @@ void Document::parse(const string& json) throw(Exception)
 
 Document::Document(bool isObject)
 {
-    if (isObject) {
-        ObjectData emptyObject;
-        m_root = new Element(emptyObject);
-    }
-    else {
-        ArrayData emptyArray;
-        m_root = new Element(emptyArray);
-    }
+    if (isObject)
+        m_root = new Element(new ObjectData);
+    else
+        m_root = new Element(new ArrayData);
 }
 
 Document::~Document()

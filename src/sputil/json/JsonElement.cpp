@@ -27,13 +27,60 @@
 */
 
 #include <sptk5/json/JsonElement.h>
-#include <sptk5/Strings.h>
 #include <sstream>
 #include <string.h>
 
 using namespace std;
 using namespace sptk;
 using namespace sptk::json;
+
+ArrayData::ArrayData(Element* parent)
+: m_parent(parent)
+{
+}
+
+ArrayData::~ArrayData()
+{
+    for (Element* element: m_items)
+        delete element;
+}
+
+void ArrayData::setParent(Element* parent)
+{
+    m_parent = parent;
+    for (Element* element: m_items)
+        element->m_parent = parent;
+}
+
+void ArrayData::add(Element* element)
+{
+    element->m_parent = m_parent;
+    m_items.push_back(element);
+}
+
+Element& ArrayData::operator[](size_t index)
+{
+    return *m_items[index];
+}
+
+const Element& ArrayData::operator[](size_t index) const
+{
+    return *m_items[index];
+}
+
+void ArrayData::remove(size_t index)
+{
+    if (index >= m_items.size())
+        return;
+    delete m_items[index];
+    m_items.erase(m_items.begin() + index);
+}
+
+ObjectData::~ObjectData()
+{
+    for (auto& itor: *this)
+        delete itor.second;
+}
 
 Element::Element(double value)
 : m_parent(NULL), m_type(JDT_NUMBER)
@@ -59,20 +106,20 @@ Element::Element(bool value)
     m_data.m_boolean = value;
 }
 
-Element::Element(const ArrayData& value)
+Element::Element(ArrayData* value)
 : m_parent(NULL), m_type(JDT_ARRAY)
 {
-    m_data.m_array = new ArrayData(value);
-    for (Element& jsonElement: *m_data.m_array)
-        jsonElement.m_parent = this;
+    m_data.m_array = value;
+    for (Element* jsonElement: *m_data.m_array)
+        jsonElement->m_parent = this;
 }
 
-Element::Element(const ObjectData& value)
+Element::Element(ObjectData* value)
 : m_parent(NULL), m_type(JDT_OBJECT)
 {
-    m_data.m_object = new ObjectData(value);
+    m_data.m_object = value;
     for (auto itor: *m_data.m_object)
-        itor.second.m_parent = this;
+        itor.second->m_parent = this;
 }
 
 Element::Element()
@@ -169,24 +216,31 @@ Element::~Element()
     clear();
 }
 
-void Element::add(Element&& element)
+void Element::add(Element* element)
 {
     if (m_type != JDT_ARRAY)
         throw Exception("Parent element is not JSON array");
     if (!m_data.m_array)
-        m_data.m_array = new ArrayData;
-    element.m_parent = this;
-    m_data.m_array->push_back(move(element));
+        m_data.m_array = new ArrayData(this);
+    m_data.m_array->add(element);
 }
 
-void Element::add(string name, Element&& element)
+void Element::add(string name, Element* element)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is not JSON object");
+
     if (!m_data.m_object)
         m_data.m_object = new ObjectData;
-    element.m_parent = this;
-    (*m_data.m_object)[name] = move(element);
+
+    element->m_parent = this;
+
+    pair<map<string,Element*>::iterator, bool> ret;
+    ret = m_data.m_object->insert ( pair<string,Element*>(name, element) );
+    if (ret.second == false) {
+        // Element already existed for name
+        delete ret.first->second;
+    }
 }
 
 const Element* Element::find(const string& name) const
@@ -198,7 +252,7 @@ const Element* Element::find(const string& name) const
     ObjectData::const_iterator itor = m_data.m_object->find(name);
     if (itor == m_data.m_object->end())
         return NULL;
-    return &itor->second;
+    return itor->second;
 }
 
 Element* Element::find(const string& name)
@@ -210,27 +264,46 @@ Element* Element::find(const string& name)
     ObjectData::iterator itor = m_data.m_object->find(name);
     if (itor == m_data.m_object->end())
         return NULL;
-    return &itor->second;
+    return itor->second;
 }
 
-Element& Element::operator[](const std::string& name)
+Element& Element::operator[](const std::string& name) throw (Exception)
 {
     if (m_type != JDT_OBJECT)
-        throw Exception("Parent element is nether JSON array nor JSON object");
+        throw Exception("Parent element is not JSON object");
     if (!m_data.m_object)
         m_data.m_object = new ObjectData;
-    return (*m_data.m_object)[name];
+
+    Element* element = (*m_data.m_object)[name];
+    if (element == NULL) {
+        element = new Element;
+        (*m_data.m_object)[name] = element;
+    }
+
+    return *element;
+}
+
+Element& Element::operator[](size_t index) throw (Exception)
+{
+    if (m_type != JDT_ARRAY)
+        throw Exception("Parent element is not JSON array");
+    
+    if (!m_data.m_array || index >= m_data.m_array->size())
+        throw Exception("JSON array index out of bound");
+
+    return (*m_data.m_array)[index];
 }
 
 void Element::erase(const string& name)
 {
     if (m_type != JDT_OBJECT)
-        throw Exception("Parent element is nether JSON array nor JSON object");
+        throw Exception("Parent element is not JSON object");
     if (!m_data.m_object)
         return;
     ObjectData::iterator itor = m_data.m_object->find(name);
     if (itor == m_data.m_object->end())
         return;
+    delete itor->second;
     m_data.m_object->erase(itor);
 }
 
@@ -267,14 +340,14 @@ bool Element::getBoolean() const
     throw Exception("Not a boolean");
 }
 
-sptk::json::ArrayData& Element::getArray() const
+const json::ArrayData& Element::getArray() const
 {
     if (m_type == JDT_ARRAY && m_data.m_array)
         return *m_data.m_array;
     throw Exception("Not an array");
 }
 
-sptk::json::ObjectData& Element::getObject() const
+const json::ObjectData& Element::getObject() const
 {
     if (m_type == JDT_OBJECT && m_data.m_object)
         return *m_data.m_object;
@@ -305,13 +378,13 @@ void Element::exportValueTo(ostream& stream, bool formatted, int indent) const
             stream << "[";
             if (m_data.m_array) {
                 bool first = true;
-                for (Element& element: *m_data.m_array) {
+                for (Element* element: *m_data.m_array) {
                     if (first) {
                         first = false;
                         stream << firstElement;
                     } else
                         stream << betweenElements;
-                    element.exportValueTo(stream, formatted, indent + 4);
+                    element->exportValueTo(stream, formatted, indent + 4);
                 }
                 stream << " ";
             }
@@ -328,7 +401,7 @@ void Element::exportValueTo(ostream& stream, bool formatted, int indent) const
                     } else
                         stream << betweenElements;
                     stream << "\"" << itor.first << "\": ";
-                    itor.second.exportValueTo(stream, formatted, indent + 4);
+                    itor.second->exportValueTo(stream, formatted, indent + 4);
                 }
                 stream << " ";
             }
@@ -414,42 +487,50 @@ string Element::decode(const string& text)
 
 void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly)
 {
-    if (m_type != JDT_OBJECT)
-        return;
     string xpathElement(xpath[xpathPosition]);
     bool matchAnyElement = xpathElement == "*";
     bool lastPosition = xpath.size() == xpathPosition + 1;
 
-    if (!matchAnyElement) {
-        Element* element = find(xpathElement);
-        if (element) {
-            if (lastPosition) {
-                // Full xpath match
-                elements.insert(element);
-            } 
-            else {
-                // Continue to match children
-                element->selectElements(elements, xpath, xpathPosition + 1, false);
-            }
-        } 
-    } else {
-        for (auto& itor: *m_data.m_object) {
-            if (lastPosition) {
-                // Full xpath match
-                Element* element = &itor.second;
-                elements.insert(element);
-            } 
-            else {
-                // Continue to match children
-                itor.second.selectElements(elements, xpath, xpathPosition + 1, false);
-            }
+    if (m_type == JDT_ARRAY) {
+        for (Element* element: *m_data.m_array) {
+            // Continue to match children
+            if (!matchAnyElement)
+                xpathPosition = 0; // Start over to match children
+            element->selectElements(elements, xpath, xpathPosition, false);
         }
     }
+    else if (m_type == JDT_OBJECT) {
+        if (!matchAnyElement) {
+            Element* element = find(xpathElement);
+            if (element) {
+                if (lastPosition) {
+                    // Full xpath match
+                    elements.insert(element);
+                } 
+                else {
+                    // Continue to match children
+                    element->selectElements(elements, xpath, xpathPosition + 1, false);
+                }
+            } 
+        } else {
+            for (auto& itor: *m_data.m_object) {
+                if (lastPosition) {
+                    // Full xpath match
+                    Element* element = itor.second;
+                    elements.insert(element);
+                } 
+                else {
+                    // Continue to match children
+                    itor.second->selectElements(elements, xpath, xpathPosition + 1, false);
+                }
+            }
+        }
 
-    if (!rootOnly) {
-        for (auto itor: *m_data.m_object) {
-            if (itor.second.m_type == JDT_OBJECT)
-                itor.second.selectElements(elements, xpath, 0, false);
+        if (!rootOnly) {
+            for (auto& itor: *m_data.m_object) {
+                if (itor.second->m_type == JDT_OBJECT)
+                    itor.second->selectElements(elements, xpath, 0, false);
+            }
         }
     }
 }
