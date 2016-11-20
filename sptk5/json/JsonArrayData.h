@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       json_test1.cpp - description                           ║
+║                       JsonArrayData.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,25 +26,65 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/json/JsonDocument.h>
+#ifndef __JSON_ARRAY_DATA_H__
+#define __JSON_ARRAY_DATA_H__
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
 
-using namespace std;
-using namespace sptk;
+namespace sptk { namespace json {
 
-int main(int argc, char **argv)
+/// @addtogroup JSON
+/// @{
+
+class Element;
+
+/**
+ * Array of JSON Element objects
+ */
+class ArrayData
 {
-    json::Document jsonDocument;
+    friend class Element;
 
-    ifstream file("test.data/test.json");
-    jsonDocument.load(file);
-    file.close();
+public:
+    typedef std::vector<Element*>   Vector;
+    typedef Vector::iterator        iterator;
+    typedef Vector::const_iterator  const_iterator;
+protected:
+    Element*                m_parent;
+    Vector                  m_items;
 
-    jsonDocument.root().exportTo(cout, true);
-    cout << endl;
+    void setParent(Element *parent);
 
-    return 0;
-}
+public:
+    ArrayData(Element *parent = NULL);
+
+    ~ArrayData();
+
+    void add(Element *element);
+
+    template <typename T> void add(T value)
+    {
+        add(new Element(value));
+    }
+
+    Element &operator[](size_t index) throw(Exception);
+
+    const Element &operator[](size_t index) const throw(Exception);
+
+    void remove(size_t index);
+
+    iterator begin() { return m_items.begin(); }
+
+    iterator end() { return m_items.end(); }
+
+    const_iterator begin() const { return m_items.begin(); }
+
+    const_iterator end() const { return m_items.end(); }
+
+    size_t size() const { return m_items.size(); }
+};
+
+}}
+
+#endif

@@ -34,6 +34,9 @@
 
 namespace sptk { namespace json {
 
+/// @addtogroup JSON
+/// @{
+
 /**
  * JSON document
  */

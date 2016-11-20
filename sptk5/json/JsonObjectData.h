@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       json_test1.cpp - description                           ║
+║                       JsonArrayData.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,25 +26,65 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/json/JsonDocument.h>
+#ifndef __JSON_OBJECT_DATA_H__
+#define __JSON_OBJECT_DATA_H__
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
+#include <set>
 
-using namespace std;
-using namespace sptk;
+namespace sptk { namespace json {
 
-int main(int argc, char **argv)
+/// @addtogroup JSON
+/// @{
+
+class Element;
+
+/**
+ * Map of names to JSON Element objects
+ */
+class ObjectData
 {
-    json::Document jsonDocument;
+    friend class Element;
 
-    ifstream file("test.data/test.json");
-    jsonDocument.load(file);
-    file.close();
+public:
+    typedef std::map<std::string, Element*>     Map;
+    typedef Map::iterator                       iterator;
+    typedef Map::const_iterator                 const_iterator;
+protected:
+    Element*                                    m_parent;
+    Map                                         m_items;
 
-    jsonDocument.root().exportTo(cout, true);
-    cout << endl;
+    void setParent(Element *parent);
 
-    return 0;
-}
+public:
+    ObjectData(Element *parent = NULL);
+
+    ~ObjectData();
+
+    void add(std::string name, Element *element);
+
+    Element &operator[](std::string name);
+
+    Element *find(std::string name);
+
+    const Element &operator[](std::string name) const throw(Exception);
+
+    const Element *find(std::string name) const;
+
+    void remove(std::string name);
+
+    iterator begin() { return m_items.begin(); }
+
+    iterator end() { return m_items.end(); }
+
+    const_iterator begin() const { return m_items.begin(); }
+
+    const_iterator end() const { return m_items.end(); }
+
+    size_t size() const { return m_items.size(); }
+};
+
+}}
+
+#endif

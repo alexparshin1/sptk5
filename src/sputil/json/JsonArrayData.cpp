@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       json_test1.cpp - description                           ║
+║                       JsonElement.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,25 +26,56 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/json/JsonDocument.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <sptk5/json/JsonElement.h>
 
 using namespace std;
 using namespace sptk;
+using namespace sptk::json;
 
-int main(int argc, char **argv)
+ArrayData::ArrayData(Element* parent)
+: m_parent(parent)
 {
-    json::Document jsonDocument;
+}
 
-    ifstream file("test.data/test.json");
-    jsonDocument.load(file);
-    file.close();
+ArrayData::~ArrayData()
+{
+    for (Element* element: m_items)
+        delete element;
+}
 
-    jsonDocument.root().exportTo(cout, true);
-    cout << endl;
+void ArrayData::setParent(Element* parent)
+{
+    if (m_parent != parent) {
+        m_parent = parent;
+        for (Element *element: m_items)
+            element->m_parent = parent;
+    }
+}
 
-    return 0;
+void ArrayData::add(Element* element)
+{
+    element->m_parent = m_parent;
+    m_items.push_back(element);
+}
+
+Element& ArrayData::operator[](size_t index) throw (Exception)
+{
+    if (index >= m_items.size())
+        throw Exception("Element index out of bound");
+    return *m_items[index];
+}
+
+const Element& ArrayData::operator[](size_t index) const throw (Exception)
+{
+    if (index >= m_items.size())
+        throw Exception("Element index out of bound");
+    return *m_items[index];
+}
+
+void ArrayData::remove(size_t index)
+{
+    if (index >= m_items.size())
+        return;
+    delete m_items[index];
+    m_items.erase(m_items.begin() + index);
 }

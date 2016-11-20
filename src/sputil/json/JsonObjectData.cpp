@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       json_test1.cpp - description                           ║
+║                       JsonElement.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -26,25 +26,77 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/json/JsonDocument.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <sptk5/json/JsonElement.h>
 
 using namespace std;
 using namespace sptk;
+using namespace sptk::json;
 
-int main(int argc, char **argv)
+ObjectData::ObjectData(Element* parent)
+: m_parent(parent)
 {
-    json::Document jsonDocument;
+}
 
-    ifstream file("test.data/test.json");
-    jsonDocument.load(file);
-    file.close();
+ObjectData::~ObjectData()
+{
+    for (auto& itor: m_items)
+        delete itor.second;
+}
 
-    jsonDocument.root().exportTo(cout, true);
-    cout << endl;
+void ObjectData::setParent(Element* parent)
+{
+    if (m_parent != parent) {
+        m_parent = parent;
+        for (auto& itor: m_items)
+            itor.second->m_parent = parent;
+    }
+}
 
-    return 0;
+void ObjectData::add(string name, Element* element)
+{
+    element->m_parent = m_parent;
+    pair<iterator, bool> result = m_items.insert(pair<string,Element*>(name, element));
+    if (result.second == false)
+        delete result.first->second;
+}
+
+Element* ObjectData::find(std::string name)
+{
+    const_iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        return NULL;
+    return itor->second;
+}
+
+Element& ObjectData::operator[](std::string name)
+{
+    Element* element = m_items[name];
+    if (element == NULL) {
+        element = new Element;
+        element->m_parent = m_parent;
+        m_items[name] = element;
+    }
+    return *element;
+}
+
+const Element* ObjectData::find(std::string name) const
+{
+    const_iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        throw Exception("Element name isn't found");
+    return itor->second;
+}
+
+const Element& ObjectData::operator[](std::string name) const throw (Exception)
+{
+    return *find(name);
+}
+
+void ObjectData::remove(std::string name)
+{
+    iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        return;
+    delete itor->second;
+    m_items.erase(itor);
 }

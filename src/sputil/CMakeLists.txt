@@ -9,7 +9,7 @@ SET (SPUTIL_SOURCES
     core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
     core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp
     core/md5.cpp
-    json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
+    json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/FTPConnect.cpp
     net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp

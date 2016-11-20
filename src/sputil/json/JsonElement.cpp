@@ -34,55 +34,13 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-ArrayData::ArrayData(Element* parent)
-: m_parent(parent)
-{
-}
-
-ArrayData::~ArrayData()
-{
-    for (Element* element: m_items)
-        delete element;
-}
-
-void ArrayData::setParent(Element* parent)
-{
-    m_parent = parent;
-    for (Element* element: m_items)
-        element->m_parent = parent;
-}
-
-void ArrayData::add(Element* element)
-{
-    element->m_parent = m_parent;
-    m_items.push_back(element);
-}
-
-Element& ArrayData::operator[](size_t index)
-{
-    return *m_items[index];
-}
-
-const Element& ArrayData::operator[](size_t index) const
-{
-    return *m_items[index];
-}
-
-void ArrayData::remove(size_t index)
-{
-    if (index >= m_items.size())
-        return;
-    delete m_items[index];
-    m_items.erase(m_items.begin() + index);
-}
-
-ObjectData::~ObjectData()
-{
-    for (auto& itor: *this)
-        delete itor.second;
-}
-
 Element::Element(double value)
+: m_parent(NULL), m_type(JDT_NUMBER)
+{
+    m_data.m_number = value;
+}
+
+Element::Element(int value)
 : m_parent(NULL), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
@@ -122,6 +80,10 @@ Element::Element(ObjectData* value)
         itor.second->m_parent = this;
 }
 
+Element::Element(ArrayData& value) {}
+
+Element::Element(ObjectData& value) {}
+
 Element::Element()
 : m_parent(NULL), m_type(JDT_NULL)
 {
@@ -157,17 +119,7 @@ void Element::assign(const Element& other)
             break;
 
         case JDT_ARRAY:
-            if (other.m_data.m_array)
-                m_data.m_array = new ArrayData(*other.m_data.m_array);
-            else
-                m_data.m_array = NULL;
-            break;
-
         case JDT_OBJECT:
-            if (other.m_data.m_object)
-                m_data.m_object = new ObjectData(*other.m_data.m_object);
-            else
-                m_data.m_object = NULL;
             break;
 
         default:
@@ -231,16 +183,9 @@ void Element::add(string name, Element* element)
         throw Exception("Parent element is not JSON object");
 
     if (!m_data.m_object)
-        m_data.m_object = new ObjectData;
+        m_data.m_object = new ObjectData(this);
 
-    element->m_parent = this;
-
-    pair<map<string,Element*>::iterator, bool> ret;
-    ret = m_data.m_object->insert ( pair<string,Element*>(name, element) );
-    if (ret.second == false) {
-        // Element already existed for name
-        delete ret.first->second;
-    }
+    m_data.m_object->add(name, element);
 }
 
 const Element* Element::find(const string& name) const
@@ -249,10 +194,7 @@ const Element* Element::find(const string& name) const
         throw Exception("Parent element is nether JSON array nor JSON object");
     if (!m_data.m_object)
         return NULL;
-    ObjectData::const_iterator itor = m_data.m_object->find(name);
-    if (itor == m_data.m_object->end())
-        return NULL;
-    return itor->second;
+    return m_data.m_object->find(name);
 }
 
 Element* Element::find(const string& name)
@@ -261,50 +203,39 @@ Element* Element::find(const string& name)
         throw Exception("Parent element is nether JSON array nor JSON object");
     if (!m_data.m_object)
         return NULL;
-    ObjectData::iterator itor = m_data.m_object->find(name);
-    if (itor == m_data.m_object->end())
-        return NULL;
-    return itor->second;
+    return m_data.m_object->find(name);
 }
 
 Element& Element::operator[](const std::string& name) throw (Exception)
 {
-    if (m_type != JDT_OBJECT)
+    if (m_type != JDT_OBJECT && m_type != JDT_NULL)
         throw Exception("Parent element is not JSON object");
-    if (!m_data.m_object)
-        m_data.m_object = new ObjectData;
-
-    Element* element = (*m_data.m_object)[name];
-    if (element == NULL) {
-        element = new Element;
-        (*m_data.m_object)[name] = element;
+    if (m_type == JDT_NULL || !m_data.m_object) {
+        m_data.m_object = new ObjectData(this);
+        m_type = JDT_OBJECT;
     }
 
-    return *element;
+    return (*m_data.m_object)[name];
 }
 
 Element& Element::operator[](size_t index) throw (Exception)
 {
     if (m_type != JDT_ARRAY)
         throw Exception("Parent element is not JSON array");
-    
+
     if (!m_data.m_array || index >= m_data.m_array->size())
         throw Exception("JSON array index out of bound");
 
     return (*m_data.m_array)[index];
 }
 
-void Element::erase(const string& name)
+void Element::remove(const string& name)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is not JSON object");
     if (!m_data.m_object)
         return;
-    ObjectData::iterator itor = m_data.m_object->find(name);
-    if (itor == m_data.m_object->end())
-        return;
-    delete itor->second;
-    m_data.m_object->erase(itor);
+    m_data.m_object->remove(name);
 }
 
 Element* Element::parent()

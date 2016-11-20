@@ -34,19 +34,17 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-namespace sptk { 
-    namespace json {
-        void error(std::string message, size_t position=0) throw(Exception);
-        void skipSpaces(const std::string& json, size_t& readPosition);
-        std::string readJsonString(const std::string& json, size_t& readPosition);
-        std::string readJsonName(const std::string& json, size_t& readPosition);
-        void readJsonNull(const std::string& json, size_t& readPosition);
-        bool readJsonBoolean(const std::string& json, size_t& readPosition);
-        double readJsonNumber(const std::string& json, size_t& readPosition);
-        void readArrayData(Element* parent, const std::string& json, size_t& readPosition) throw(Exception);
-        void readObjectData(Element* parent, const std::string& json, size_t& readPosition) throw(Exception);
-    }
-}
+namespace sptk { namespace json {
+    void error(std::string message, size_t position=0) throw(Exception);
+    void skipSpaces(const std::string& json, size_t& readPosition);
+    std::string readJsonString(const std::string& json, size_t& readPosition);
+    std::string readJsonName(const std::string& json, size_t& readPosition);
+    void readJsonNull(const std::string& json, size_t& readPosition);
+    bool readJsonBoolean(const std::string& json, size_t& readPosition);
+    double readJsonNumber(const std::string& json, size_t& readPosition);
+    void readArrayData(Element* parent, const std::string& json, size_t& readPosition) throw(Exception);
+    void readObjectData(Element* parent, const std::string& json, size_t& readPosition) throw(Exception);
+} }
 
 Parser::Parser()
 {}
@@ -81,7 +79,7 @@ void Parser::parse(Element& jsonElement, const string& json) throw(Exception)
 
 namespace sptk { namespace json {
 
-void error(string message, size_t position) throw(Exception)
+void error(string message, size_t position) throw (Exception)
 {
     stringstream error;
     error << message;
@@ -125,10 +123,10 @@ string readJsonString(const string& json, size_t& readPosition)
 string readJsonName(const string& json, size_t& readPosition)
 {
     if (json[readPosition] != '"')
-        return "";
+        error("Unexpected character, expecting '\"'", readPosition);
     string name = readJsonString(json, readPosition);
     if (json[readPosition] != ':')
-        error("Unexpected character", readPosition);
+        error("Unexpected character, expecting ':'", readPosition);
     readPosition++;
     skipSpaces(json, readPosition);
     return name;
@@ -271,6 +269,9 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition) t
             readPosition++;
             continue;
         }
+
+        if (json[readPosition] == '}')
+            continue;
 
         string elementName = readJsonName(json, readPosition);
 

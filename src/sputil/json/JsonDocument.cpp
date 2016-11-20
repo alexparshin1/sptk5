@@ -51,7 +51,7 @@ void Document::parse(const string& json) throw(Exception)
         delete m_root;
         m_root = new Element;
     }
-    
+
     Parser parser;
     parser.parse(*m_root, json);
 }
@@ -85,8 +85,12 @@ void Document::load(istream& json) throw(Exception)
 {
     stringstream    buffer;
     string          row;
-    while (!json.eof()) {
+    for (;;) {
         getline(json, row);
+        if (json.eof())
+            break;
+        if (!json.good())
+            throw Exception("Error reading JSON data from stream");
         buffer << row << "\n";
     }
     load(buffer.str());

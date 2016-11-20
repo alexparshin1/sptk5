@@ -32,51 +32,14 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Exception.h>
+#include <sptk5/json/JsonArrayData.h>
+#include <sptk5/json/JsonObjectData.h>
 #include <set>
 
 namespace sptk { namespace json {
 
-class Element;
-
-/**
- * Array of JSON Element objects
- */
-class ArrayData
-{
-    friend class Element;
-public:
-    typedef std::vector<Element*>::iterator         iterator;
-    typedef std::vector<Element*>::const_iterator   const_iterator;
-protected:
-    Element*                m_parent;
-    std::vector<Element*>   m_items;
-    
-    void setParent(Element* parent);
-public:
-    ArrayData(Element* parent=NULL);
-    ~ArrayData();
-    
-    void add(Element* element);
-    Element& operator[](size_t index);
-    const Element& operator[](size_t index) const;
-    void remove(size_t index);
-    
-    iterator begin()                { return m_items.begin(); }
-    iterator end()                  { return m_items.end(); }
-    const_iterator begin() const    { return m_items.begin(); }
-    const_iterator end() const      { return m_items.end(); }
-    
-    size_t size() const             { return m_items.size(); }
-};
-
-/**
- * Map of names to JSON Element objects
- */
-class ObjectData : public std::map<std::string, Element*>
-{
-public:
-    ~ObjectData();
-};
+/// @addtogroup JSON
+/// @{
 
 /**
  * JSON Element object pointers.
@@ -179,6 +142,20 @@ public:
      */
     void selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly);
 
+private:
+
+    /**
+     * Blocked constructor
+     * @param value const ArrayData&, Array of JSON Elements
+     */
+    Element(ArrayData& value);
+
+    /**
+     * Blocked constructor
+     * @param value const ObjectData&, Map of JSON Elements
+     */
+    Element(ObjectData& value);
+
 public:
 
     /**
@@ -186,6 +163,12 @@ public:
      * @param value double, Floating point value
      */
     Element(double value);
+
+    /**
+     * Constructor
+     * @param value int, Integer value
+     */
+    Element(int value);
 
     /**
      * Constructor
@@ -273,6 +256,14 @@ public:
      */
     void add(std::string name, Element* element);
 
+    void add(std::string name, int value) { add(name, new Element(value)); }
+    void add(std::string name, double value) { add(name, new Element(value)); }
+    void add(std::string name, std::string value) { add(name, new Element(value)); }
+    void add(std::string name, const char* value) { add(name, new Element(value)); }
+    void add(std::string name, bool value) { add(name, new Element(value)); }
+    void add(std::string name, ArrayData* value) { add(name, new Element(value)); }
+    void add(std::string name, ObjectData* value) { add(name, new Element(value)); }
+
     /**
      * Find JSON element in JSON object element
      * @param name std::string, Name of the element in the object element
@@ -305,10 +296,10 @@ public:
     Element& operator[](size_t index) throw (Exception);
 
     /**
-     * Find and erase JSON element in JSON object element
+     * Remove JSON element by name from this JSON object element
      * @param name std::string, Name of the element in the object element
      */
-    void erase(const std::string& name);
+    void remove(const std::string& name);
 
     /**
      * Get parent JSON element
