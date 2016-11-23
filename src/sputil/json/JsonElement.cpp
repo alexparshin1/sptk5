@@ -175,6 +175,7 @@ void Element::add(Element* element)
     if (!m_data.m_array)
         m_data.m_array = new ArrayData(this);
     m_data.m_array->add(element);
+    element->m_parent = this;
 }
 
 void Element::add(string name, Element* element)
@@ -186,6 +187,7 @@ void Element::add(string name, Element* element)
         m_data.m_object = new ObjectData(this);
 
     m_data.m_object->add(name, element);
+    element->m_parent = this;
 }
 
 const Element* Element::find(const string& name) const

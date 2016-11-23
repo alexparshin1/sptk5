@@ -68,7 +68,7 @@ void Parser::parse(Element& jsonElement, const string& json) throw(Exception)
             break;
         case '[':
             jsonElement.m_type = JDT_ARRAY;
-            jsonElement.m_data.m_object = NULL;
+            jsonElement.m_data.m_array = NULL;
             readArrayData(&jsonElement, json, pos);
             break;
         default:
