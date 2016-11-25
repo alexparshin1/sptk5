@@ -86,7 +86,7 @@ void Strings::splitByDelimiter(const string &src, const char *delimitter)
             pos = end + delimitterLength;
         }
         else {
-            if (pos + 1 < src.length())
+            if (pos + 1 <= src.length())
                 push_back(src.substr(pos));
             break;
         }

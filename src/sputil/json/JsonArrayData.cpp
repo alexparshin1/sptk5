@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       JsonArrayData.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,56 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#include <sptk5/json/JsonElement.h>
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
+using namespace std;
+using namespace sptk;
+using namespace sptk::json;
 
-#include <sptk5/md5.h>
+ArrayData::ArrayData(Element* parent)
+: m_parent(parent)
+{
+}
 
-#include <sptk5/json/JsonDocument.h>
+ArrayData::~ArrayData()
+{
+    for (Element* element: m_items)
+        delete element;
+}
 
-#endif
+void ArrayData::setParent(Element* parent)
+{
+    if (m_parent != parent) {
+        m_parent = parent;
+        for (Element *element: m_items)
+            element->m_parent = parent;
+    }
+}
+
+void ArrayData::add(Element* element)
+{
+    element->m_parent = m_parent;
+    m_items.push_back(element);
+}
+
+Element& ArrayData::operator[](size_t index) throw (Exception)
+{
+    if (index >= m_items.size())
+        throw Exception("Element index out of bound");
+    return *m_items[index];
+}
+
+const Element& ArrayData::operator[](size_t index) const throw (Exception)
+{
+    if (index >= m_items.size())
+        throw Exception("Element index out of bound");
+    return *m_items[index];
+}
+
+void ArrayData::remove(size_t index)
+{
+    if (index >= m_items.size())
+        return;
+    delete m_items[index];
+    m_items.erase(m_items.begin() + index);
+}

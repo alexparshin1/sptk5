@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       JsonObjectData.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,77 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#include <sptk5/json/JsonElement.h>
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
+using namespace std;
+using namespace sptk;
+using namespace sptk::json;
 
-#include <sptk5/md5.h>
+ObjectData::ObjectData(Element* parent)
+: m_parent(parent)
+{
+}
 
-#include <sptk5/json/JsonDocument.h>
+ObjectData::~ObjectData()
+{
+    for (auto& itor: m_items)
+        delete itor.second;
+}
 
-#endif
+void ObjectData::setParent(Element* parent)
+{
+    if (m_parent != parent) {
+        m_parent = parent;
+        for (auto& itor: m_items)
+            itor.second->m_parent = parent;
+    }
+}
+
+void ObjectData::add(string name, Element* element)
+{
+    element->m_parent = m_parent;
+    pair<iterator, bool> result = m_items.insert(pair<string,Element*>(name, element));
+    if (result.second == false)
+        delete result.first->second;
+}
+
+Element* ObjectData::find(std::string name)
+{
+    const_iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        return NULL;
+    return itor->second;
+}
+
+Element& ObjectData::operator[](std::string name)
+{
+    Element* element = m_items[name];
+    if (element == NULL) {
+        element = new Element;
+        element->m_parent = m_parent;
+        m_items[name] = element;
+    }
+    return *element;
+}
+
+const Element* ObjectData::find(std::string name) const
+{
+    const_iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        throw Exception("Element name isn't found");
+    return itor->second;
+}
+
+const Element& ObjectData::operator[](std::string name) const throw (Exception)
+{
+    return *find(name);
+}
+
+void ObjectData::remove(std::string name)
+{
+    iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        return;
+    delete itor->second;
+    m_items.erase(itor);
+}

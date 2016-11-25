@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       JsonObjectData.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,65 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#ifndef __JSON_OBJECT_DATA_H__
+#define __JSON_OBJECT_DATA_H__
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
+#include <set>
 
-#include <sptk5/md5.h>
+namespace sptk { namespace json {
 
-#include <sptk5/json/JsonDocument.h>
+/// @addtogroup JSON
+/// @{
+
+class Element;
+
+/**
+ * Map of names to JSON Element objects
+ */
+class ObjectData
+{
+    friend class Element;
+
+public:
+    typedef std::map<std::string, Element*>     Map;
+    typedef Map::iterator                       iterator;
+    typedef Map::const_iterator                 const_iterator;
+protected:
+    Element*                                    m_parent;
+    Map                                         m_items;
+
+    void setParent(Element *parent);
+
+public:
+    ObjectData(Element *parent = NULL);
+
+    ~ObjectData();
+
+    void add(std::string name, Element *element);
+
+    Element &operator[](std::string name);
+
+    Element *find(std::string name);
+
+    const Element &operator[](std::string name) const throw(Exception);
+
+    const Element *find(std::string name) const;
+
+    void remove(std::string name);
+
+    iterator begin() { return m_items.begin(); }
+
+    iterator end() { return m_items.end(); }
+
+    const_iterator begin() const { return m_items.begin(); }
+
+    const_iterator end() const { return m_items.end(); }
+
+    size_t size() const { return m_items.size(); }
+};
+
+}}
 
 #endif

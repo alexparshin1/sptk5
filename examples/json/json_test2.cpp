@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       cutils - description                                   ║
+║                       json_test2.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday May 16 2013                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,64 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
-
-#include <sptk5/Buffer.h>
-#include <sptk5/DataSource.h>
-#include <sptk5/FileLogEngine.h>
-#include <sptk5/Logger.h>
-#include <sptk5/Registry.h>
-#include <sptk5/RegularExpression.h>
-#include <sptk5/SysLogEngine.h>
-#include <sptk5/UniqueInstance.h>
-#include <sptk5/string_ext.h>
-
-#include <sptk5/md5.h>
-
 #include <sptk5/json/JsonDocument.h>
 
-#endif
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+using namespace sptk;
+
+int main(int argc, char **argv)
+{
+    json::Document jsonDocument;
+
+    // Get document root element
+    json::Element& root = jsonDocument.root();
+
+    // Fastest way to insert or replace element
+    root.add("boolean", new json::Element(true));
+    root.add("empty", new json::Element());
+    root.add("string", new json::Element("test1"));
+
+    // Convenient way to insert or replace element.
+    // Recognised types: bool, integers, floats, const char*, std::string, json::ArrayData*, json::ObjectData*
+    root["number"] = 124.0;
+    root["number2"] = 124.0;
+    root["string"] = "test";
+    root["boolean"] = true;
+
+    json::ArrayData* array1 = new json::ArrayData;
+    array1->add(new json::Element(100.0));
+    array1->add(new json::Element("101.0"));
+    array1->add(new json::Element(102.0));
+    root["array"] = array1;
+
+    // Create JSON array and insert it into JSON element (root)
+    // JSON element (root) takes ownership of arrayData
+    json::ArrayData* arrayData = new json::ArrayData;
+    arrayData->add(100.0);
+    arrayData->add("101.0");
+    arrayData->add(102.0);
+    root.add("numbers", arrayData);
+
+    // Create JSON object and insert it into JSON element (root)
+    // JSON element (root) takes ownership of objectData
+    json::ObjectData* objectData = new json::ObjectData;
+    (*objectData)["colour"] = "black";
+    (*objectData)["shape"] = "cube";
+    root.add("boxes", objectData);
+
+    // Get existing JSON object and add some data to it
+    json::Element& boxes = root["boxes"];
+    boxes["size"] = 10;
+    boxes["address"]["street"] = "17 Elm street";
+    boxes["address"]["first name"] = "Freddy";
+    boxes["address"]["last name"] = "Kruger";
+
+    root.exportTo(cout, true);
+    cout << endl;
+
+    return 0;
+}
