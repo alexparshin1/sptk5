@@ -50,7 +50,7 @@ class SynchronizedQueue
 
 protected:
 
-    mutable Synchronized	m_sync;             ///< Lock to synchronize queue operations
+    mutable Synchronized    m_sync;             ///< Lock to synchronize queue operations
 
 public:
 
