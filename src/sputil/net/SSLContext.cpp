@@ -30,6 +30,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <sptk5/net/SSLContext.h>
+#include <string.h>
 
 using namespace std;
 using namespace sptk;
