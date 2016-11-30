@@ -96,6 +96,18 @@ void Document::load(istream& json) throw(Exception)
     load(buffer.str());
 }
 
+void Document::exportTo(std::ostream& stream, bool formatted)
+{
+    m_root->exportTo(stream, formatted);
+}
+
+void Document::exportTo(Buffer& buffer, bool formatted)
+{
+    stringstream stream;
+    m_root->exportTo(stream, formatted);
+    buffer.set(stream.str());
+}
+
 Element& Document::root()
 {
     return *m_root;

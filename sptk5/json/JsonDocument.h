@@ -31,6 +31,7 @@
 
 #include "JsonElement.h"
 #include <istream>
+#include <sptk5/Buffer.h>
 
 namespace sptk { namespace json {
 
@@ -88,6 +89,20 @@ public:
      * @throw Exception if there is a problem parsing JSON document
      */
     void load(std::istream& json) throw(Exception);
+
+    /**
+     * Export JSON element (and all children) to stream
+     * @param stream std::ostream&, Stream to export JSON
+     * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
+     */
+    void exportTo(std::ostream& stream, bool formatted=true);
+
+    /**
+     * Export JSON element (and all children) to stream
+     * @param stream sptk::Buffer&, Buffer to export JSON
+     * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
+     */
+    void exportTo(Buffer& buffer, bool formatted=true);
 
     /**
      * Get document root element
