@@ -411,7 +411,8 @@ static int trimRight(char* s)
 {
     int len = (int) strlen(s);
 
-    while ((len--) >= 0) {
+    while (len > 0) {
+        len--;
         if ((unsigned char) s[len] > 32) {
             len++;
             s[len] = 0;

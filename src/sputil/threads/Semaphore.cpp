@@ -42,6 +42,7 @@ Semaphore::~Semaphore()
 
 void Semaphore::post() THROWS_EXCEPTIONS
 {
+    lock_guard<mutex>  lock(m_mutex);
     m_value++;
     m_condition.notify_one();
 }
