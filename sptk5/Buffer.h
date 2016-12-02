@@ -150,6 +150,15 @@ public:
         set(data.m_buffer, data.m_bytes);
     }
 
+    /// @brief Copies the external data of size sz into the current buffer.
+    ///
+    /// Allocates memory if needed.
+    /// @param data const std::string&, external data
+    void set(const std::string& data)
+    {
+        set(data.c_str(), data.length());
+    }
+
     /// @brief Appends a single char to the current buffer.
     ///
     /// Allocates memory if needed.

@@ -29,6 +29,7 @@
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <string.h>
 #include <sptk5/net/SSLContext.h>
 #include <string.h>
 
