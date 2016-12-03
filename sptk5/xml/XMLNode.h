@@ -143,16 +143,14 @@ private:
     /// @param nameMatches bool&, (output) true if the node name matches the XPath element
     /// @param positionMatches bool&, (output) true if the node position matches the XPath element
     /// @returns true if node matches the XPath element
-    bool matchPathElement(const XPathElement& pathElement, int nodePosition, const std::string* starPointer, bool& nameMatches,
-            bool& positionMatches);
+    bool matchPathElement(const XPathElement& pathElement, int nodePosition, const std::string* starPointer, bool& nameMatches, bool& positionMatches);
 
     /// @brief Checks if the node matches the path element (internal)
     /// @param nodes XMLNodeVector&, output list of matched nodes
     /// @param pathElements const std::vector<CXPathElement>&, the path elements
     /// @param pathPosition int, current path elements position
     /// @param starPointer const std::string*, the pointer to SST '*' string
-    void matchNode(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
-            const std::string* starPointer);
+    void matchNode(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition, const std::string* starPointer);
 
 protected:
     /// @brief Always returns false for XMLNode since it has no name

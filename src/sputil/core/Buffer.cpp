@@ -198,6 +198,21 @@ void Buffer::saveToFile(string fileName) const
     fclose(f);
 }
 
+Buffer& Buffer::operator = (Buffer&& b)
+{
+    if (m_buffer)
+        free(m_buffer);
+
+    m_bytes = b.m_bytes;
+    m_size = b.m_size;
+    m_buffer = b.m_buffer;
+
+    b.m_bytes = 0;
+    b.m_size = 0;
+    b.m_buffer = NULL;
+    return *this;
+}
+
 Buffer& Buffer::operator = (const Buffer& b)
 {
     checkSize(b.m_bytes + 1);

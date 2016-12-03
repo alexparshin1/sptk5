@@ -96,7 +96,7 @@ public:
     /// Creates a buffer from another buffer.
     /// The data is copied inside the buffer.
     /// The return of the bytes() method will be the input data size.
-    /// @param buffer CBuffer, data buffer
+    /// @param buffer Buffer, data buffer
     Buffer(const Buffer& buffer);
 
     /// @brief Destructor
@@ -144,7 +144,7 @@ public:
     /// @brief Copies the external data of size sz into the current buffer.
     ///
     /// Allocates memory if needed.
-    /// @param data const CBuffer&, external data buffer
+    /// @param data const Buffer&, external data buffer
     void set(const Buffer& data)
     {
         set(data.m_buffer, data.m_bytes);
@@ -197,7 +197,7 @@ public:
     /// @brief Appends the string to the current buffer.
     ///
     /// Allocates memory if needed.
-    /// @param buffer const CBuffer&, data to append
+    /// @param buffer const Buffer&, data to append
     void append(const Buffer& buffer)
     {
         return append(buffer.data(), buffer.bytes());
@@ -265,12 +265,17 @@ public:
     /// @param fileName std::string, the name of the output file
     void saveToFile(std::string fileName) const;
 
-    /// @brief Assigns from CBuffer
-    /// @param b const CBuffer&, the buffer to assign from
+    /// @brief Moves buffer from another buffer
+    /// @param b Buffer&&, the buffer to move from
+    /// @returns this object
+    Buffer& operator = (Buffer&& b);
+
+    /// @brief Assigns from Buffer
+    /// @param b const Buffer&, the buffer to assign from
     /// @returns this object
     Buffer& operator = (const Buffer& b);
 
-    /// @brief Assigns from CString
+    /// @brief Assigns from String
     /// @param str const std::string&, the string to assign from
     /// @returns this object
     Buffer& operator = (const std::string& str);
@@ -280,8 +285,8 @@ public:
     /// @returns this object
     Buffer& operator = (const char* str);
 
-    /// @brief Appends another CBuffer
-    /// @param b const CBuffer&, the buffer to append
+    /// @brief Appends another Buffer
+    /// @param b const Buffer&, the buffer to append
     /// @returns this object
     Buffer& operator += (const Buffer& b)
     {
@@ -289,7 +294,7 @@ public:
         return *this;
     }
 
-    /// @brief Appends CString
+    /// @brief Appends String
     /// @param str const std::string&, the string to append
     /// @returns this object
     Buffer& operator += (const std::string& str)

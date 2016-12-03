@@ -211,8 +211,7 @@ namespace sptk {
             lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
     }
 
-    void XMLNode::matchNode(XMLNodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
-        const std::string* starPointer)
+    void XMLNode::matchNode(XMLNodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition, const std::string* starPointer)
     {
         pathPosition++;
         if (pathPosition == (int)pathElements.size()) {
