@@ -43,10 +43,10 @@ class TCPServer;
 /// @{
 
 /// @brief Internal TCP server listener thread
-class TCPServerListener: public Thread
+class TCPServerListener: public Thread, public Synchronized
 {
-    TCPServer*     m_server;           ///< TCP server created connection
-    TCPSocket      m_listenerSocket;   ///< Listener socket
+    TCPServer*      m_server;           ///< TCP server created connection
+    TCPSocket       m_listenerSocket;   ///< Listener socket
     std::string     m_error;            ///< Last socket error
 public:
     /// @brief Constructor

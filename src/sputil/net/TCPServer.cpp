@@ -47,6 +47,7 @@ void TCPServerListener::threadFunction()
 {
     try {
         while (!terminated()) {
+            SYNCHRONIZED_CODE;
             if (m_listenerSocket.readyToRead(1000)) {
                 try {
                     SOCKET connectionFD;
@@ -88,6 +89,8 @@ void TCPServerListener::threadFunction()
 void TCPServerListener::terminate()
 {
     Thread::terminate();
+
+    SYNCHRONIZED_CODE;
     m_listenerSocket.close();
 }
 

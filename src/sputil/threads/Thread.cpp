@@ -58,7 +58,10 @@ Thread::Thread(string name) :
 
 Thread::~Thread()
 {
-    m_terminated = true;
+    {
+        std::lock_guard<std::mutex> lk(m_mutex);
+        m_terminated = true;
+    }
     if (m_thread.joinable())
         m_thread.detach();
 }
