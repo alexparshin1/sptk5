@@ -35,113 +35,185 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief List view widget with extended database support
+/**
+ * @brief List view widget with extended database support
+ */
 class SP_EXPORT CDBListView : public CListView
 {
 protected:
-    Query      m_fullRefreshQuery;  ///< Full refersh Query
-    Query      m_fastRefreshQuery;  ///< Fast refersh Query
-    Query      m_recordCountQuery;  ///< Record count Query
-    std::string m_keyField;          ///< Key field name
-    bool        m_fastRefreshEnabed; ///< True if fast refresh is defined properly
-    DateTime   m_lastRefresh;       ///< Last refresh date and time
-    uint32_t    m_maxRecords;        ///< Record fetch limit
-    bool        m_recordsLimited;    ///< Is the records limit enabled?
+    /**
+     * Full refersh Query
+     */
+    Query      m_fullRefreshQuery;
+
+    /**
+     * Fast refersh Query
+     */
+    Query      m_fastRefreshQuery;
+
+    /**
+     * Record count Query
+     */
+    Query      m_recordCountQuery;
+
+    /**
+     * Key field name
+     */
+    std::string m_keyField;
+
+    /**
+     * True if fast refresh is defined properly
+     */
+    bool        m_fastRefreshEnabed;
+
+    /**
+     * Last refresh date and time
+     */
+    DateTime   m_lastRefresh;
+
+    /**
+     * Record fetch limit
+     */
+    uint32_t    m_maxRecords;
+
+    /**
+     * Is the records limit enabled?
+     */
+    bool        m_recordsLimited;
+
 public:
 
-    /// Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CDBListView(const char *label=0,int layoutSize=20,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CDBListView(int x, int y, int w, int h, const char *label=0);
 #endif
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~CDBListView();
 
-    /// Sets the database connection
+    /**
+     * Sets the database connection
+     */
     void database(DatabaseConnection *db);
 
-    /// Returns the database connection
+    /**
+     * Returns the database connection
+     */
     DatabaseConnection *database() const;
 
-    /// Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
-    /// The record count query should return only number of record.
-    /// @param sql std::string, the SQL query for full data refresh
-    /// @param recordCountSql std::string, the SQL query for obtaining record count
-    /// @param fastRefreshSQL std::string, the SQL query for retrieving only records changed since last refresh
+    /**
+     * Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
+     * The record count query should return only number of record.
+     * @param sql std::string, the SQL query for full data refresh
+     * @param recordCountSql std::string, the SQL query for obtaining record count
+     * @param fastRefreshSQL std::string, the SQL query for retrieving only records changed since last refresh
+     */
     void sql(std::string sql,std::string recordCountSql="",std::string fastRefreshSQL="");
 
-    /// Return the SQL query text
+    /**
+     * Return the SQL query text
+     */
     std::string sql();
 
-    /// Sets the query parameter
-    /// @param paramName const char *, the parameter Name
-    /// @param refreshKind CRefreshKind, the query it belongs to (full or fast refresh)
+    /**
+     * Sets the query parameter
+     * @param paramName const char *, the parameter Name
+     * @param refreshKind CRefreshKind, the query it belongs to (full or fast refresh)
+     */
     QueryParameter& param(const char *paramName,CRefreshKind refreshKind = LV_REFRESH_FULL);
 
-    /// Defines the key field name. This field name should be a part of the SQL query
-    /// and contain the unique integer values so the row could be identified by that value.
-    /// @param fieldName std::string, the name of the field
+    /**
+     * Defines the key field name. This field name should be a part of the SQL query
+     * and contain the unique integer values so the row could be identified by that value.
+     * @param fieldName std::string, the name of the field
+     */
     void keyField(std::string fieldName);
 
-    /// Returns key field name
+    /**
+     * Returns key field name
+     */
     std::string keyField() const
     {
         return m_keyField;
     }
 
-    /// Fast setup of the database connection
-    /// @param db CDatabase *, the database connection
-    /// @param sql std::string,  the full refresh SQL query text
-    /// @param keyField std::string, the name of the key field
+    /**
+     * Fast setup of the database connection
+     * @param db CDatabase *, the database connection
+     * @param sql std::string,  the full refresh SQL query text
+     * @param keyField std::string, the name of the key field
+     */
     void setup(DatabaseConnection* db,std::string sql,std::string keyField);
 
-    /// Refreshes the data with full or fast method
-    /// @param refreshKind CRefreshKind, the type of refresh
+    /**
+     * Refreshes the data with full or fast method
+     * @param refreshKind CRefreshKind, the type of refresh
+     */
     void refreshData(CRefreshKind refreshKind = LV_REFRESH_FULL);
 
-    /// Returns the date and time of the last data refresh
+    /**
+     * Returns the date and time of the last data refresh
+     */
     DateTime lastRefresh() const {
         return m_lastRefresh;
     }
 
-    /// Sets the maximum record number to fetch from the database
+    /**
+     * Sets the maximum record number to fetch from the database
+     */
     void maxRecords(uint32_t mr)
     {
         m_maxRecords = mr;
     }
 
-    /// Returns the maximum record number to fetch from the database
+    /**
+     * Returns the maximum record number to fetch from the database
+     */
     uint32_t maxRecords() const
     {
         return m_maxRecords;
     }
 
-    /// Returns the records limited flag. The flag is set if the query
-    /// returned more records than records limit.
+    /**
+     * Returns the records limited flag. The flag is set if the query
+     * returned more records than records limit.
+     */
     bool recordsLimited() const
     {
         return m_recordsLimited;
     }
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

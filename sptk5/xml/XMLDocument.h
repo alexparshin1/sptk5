@@ -41,147 +41,213 @@
 namespace sptk
 {
 
-/// @addtogroup XML
-/// @{
+/**
+ * @addtogroup XML
+ * @{
+ */
 
-/// @brief XML document.
-///
-/// Represents the entire XML document.
-/// It provides access to document root node, which includes all nodes in XML document tree.
+/**
+ * @brief XML document.
+ *
+ * Represents the entire XML document.
+ * It provides access to document root node, which includes all nodes in XML document tree.
+ */
 class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
 {
     friend class XMLNode;
 
-    XMLDocType m_doctype;          ///< Document type
-    int        m_indentSpaces;     ///< Indent spaces
-    Buffer     m_encodeBuffer;     ///< Buffer to encode entities
+    /**
+     * Document type
+     */
+    XMLDocType m_doctype;
 
-    /// @brief Internal entities parser
+    /**
+     * Indent spaces
+     */
+    int        m_indentSpaces;
+
+    /**
+     * Buffer to encode entities
+     */
+    Buffer     m_encodeBuffer;
+
+
+    /**
+     * @brief Internal entities parser
+     */
     void parseEntities(char* entitiesSection);
 
-    /// @brief Internal doctype parser
+    /**
+     * @brief Internal doctype parser
+     */
     void parseDocType(char* docTypeSection);
 
-    /// @brief Internal attributes parser
+    /**
+     * @brief Internal attributes parser
+     */
     void processAttributes(XMLNode* node, char *ptr);
 
 protected:
 
-    Buffer m_decodeBuffer;     ///< Decode and encode buffer
+    /**
+     * Decode and encode buffer
+     */
+    Buffer m_decodeBuffer;
 
-    /// Creates new named node of type XMLNode::DOM_ELEMENT.
-    /// It can be added to document DOM tree.
-    /// @param tagname const char *, name of the element
-    /// @see XMLNode
+
+    /**
+     * Creates new named node of type XMLNode::DOM_ELEMENT.
+     * It can be added to document DOM tree.
+     * @param tagname const char *, name of the element
+     * @see XMLNode
+     */
     XMLNode *createElement(const char *tagname);
 
 public:
 
-    /// @brief Constructs an empty document, without doctype.
+    /**
+     * @brief Constructs an empty document, without doctype.
+     */
     XMLDocument();
 
-    /// @brief Constructs a document from XML string
-    /// @param xml std::string, XML string
+    /**
+     * @brief Constructs a document from XML string
+     * @param xml std::string, XML string
+     */
     XMLDocument(std::string xml);
     
-    /// @brief Constructs an empty document, with doctype.
-    /// @param name const char *, name of the document.
-    /// @param public_id const char *, public id of the document, placed on DOCTYPE declaration
-    /// @param system_id const char *, system id of the document, placed on DOCTYPE declaration
+    /**
+     * @brief Constructs an empty document, with doctype.
+     * @param name const char *, name of the document.
+     * @param public_id const char *, public id of the document, placed on DOCTYPE declaration
+     * @param system_id const char *, system id of the document, placed on DOCTYPE declaration
+     */
     XMLDocument(const char *name, const char *public_id, const char *system_id);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~XMLDocument()
     {
         clear();
     }
 
-    /// @brief Returns node type
+    /**
+     * @brief Returns node type
+     */
     virtual XMLNodeType type() const
     {
         return DOM_DOCUMENT;
     }
 
-    /// @brief Destroys all nodes in document
+    /**
+     * @brief Destroys all nodes in document
+     */
     virtual void clear();
 
-    /// @brief Returns the node name.
+    /**
+     * @brief Returns the node name.
+     */
     virtual const std::string& name() const;
 
-    /// @brief Sets the new name for the node
-    /// @param name const std::string&, new node name
+    /**
+     * @brief Sets the new name for the node
+     * @param name const std::string&, new node name
+     */
     virtual void name(const std::string& name)
     {
     }
 
-    /// @brief Sets new name for node
-    /// @param name const char *, new node name
+    /**
+     * @brief Sets new name for node
+     * @param name const char *, new node name
+     */
     virtual void name(const char *name)
     {
     }
 
-    /// @brief Returns doctype of document.
-    ///
-    /// You can use it to add e.g. custom entities.
-    /// <pre>
-    /// mydoc->doctype().set_entity("myentity", "myreplacement");
-    /// </pre>
+    /**
+     * @brief Returns doctype of document.
+     *
+     * You can use it to add e.g. custom entities.
+     * <pre>
+     * mydoc->doctype().set_entity("myentity", "myreplacement");
+     * </pre>
+     */
     XMLDocType &docType()
     {
         return m_doctype;
     }
 
-    /// @brief Returns doctype of document.
-    ///
-    /// You can use it to add e.g. custom entities.
-    /// <pre>
-    /// mydoc->doctype().set_entity("myentity", "myreplacement");
-    /// </pre>
+    /**
+     * @brief Returns doctype of document.
+     *
+     * You can use it to add e.g. custom entities.
+     * <pre>
+     * mydoc->doctype().set_entity("myentity", "myreplacement");
+     * </pre>
+     */
     const XMLDocType &docType() const
     {
         return m_doctype;
     }
 
-    /// @brief Returns pointer to root element of document
+    /**
+     * @brief Returns pointer to root element of document
+     */
     XMLNode *rootNode();
 
-    /// @brief Returns indentation in save
+    /**
+     * @brief Returns indentation in save
+     */
     int indentSpaces()
     {
         return m_indentSpaces;
     }
 
-    /// @brief Set indentation in save, defaults to 2
-    ///
-    /// @param i as new indent spaces
+    /**
+     * @brief Set indentation in save, defaults to 2
+     *
+     * @param i as new indent spaces
+     */
     void indentSpaces(int i)
     {
         m_indentSpaces = i;
     }
 
-    /// @brief Loads document from buffer.
-    /// @param buffer const char*, source buffer
+    /**
+     * @brief Loads document from buffer.
+     * @param buffer const char*, source buffer
+     */
     virtual void load(const char* buffer);
 
-    /// @brief Loads document from std::string.
-    /// @param str const std::string&, source string
+    /**
+     * @brief Loads document from std::string.
+     * @param str const std::string&, source string
+     */
     virtual void load(const std::string& str)
     {
         load(str.c_str());
     }
 
-    /// @brief Loads document from buffer.
-    /// @param buffer const CBuffer&, source buffer
+    /**
+     * @brief Loads document from buffer.
+     * @param buffer const CBuffer&, source buffer
+     */
     virtual void load(const Buffer& buffer)
     {
         load(buffer.c_str());
     }
 
-    /// @brief Saves document to buffer.
-    /// @param buffer CBuffer&, a buffer to save document
-    /// @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
+    /**
+     * @brief Saves document to buffer.
+     * @param buffer CBuffer&, a buffer to save document
+     * @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
+     */
     virtual void save(Buffer& buffer, bool formalXML=false) const;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -34,27 +34,47 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 #define MAX_BUTTON_IMAGES 5
 
-/// @brief Stores and restores the color schema
+/**
+ * @brief Stores and restores the color schema
+ */
 class CColorSchema {
-    static Fl_Color             m_colorMapIndex[];  ///< Color map index
-    std::map<Fl_Color,unsigned> m_colorMap;         ///< Color values
+    /**
+     * Color map index
+     */
+    static Fl_Color             m_colorMapIndex[];
+
+    /**
+     * Color values
+     */
+    std::map<Fl_Color,unsigned> m_colorMap;
+
 public:
-    /// @brief Store FLTK color schema to color map
+    /**
+     * @brief Store FLTK color schema to color map
+     */
     void store();
 
-    /// @brief Restore FLTK color schema from color map
+    /**
+     * @brief Restore FLTK color schema from color map
+     */
     void restore();
 
-    /// @brief Number of colors in color schema
+    /**
+     * @brief Number of colors in color schema
+     */
     size_t size() const { return m_colorMap.size(); }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

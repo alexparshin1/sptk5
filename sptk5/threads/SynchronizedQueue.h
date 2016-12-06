@@ -36,49 +36,73 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Synchronized template queue
-///
-/// Simple thread-safe queue
+/**
+ * @brief Synchronized template queue
+ *
+ * Simple thread-safe queue
+ */
 template <class T>
 class SynchronizedQueue
 {
-    Semaphore               m_semaphore;        ///< Semaphore to waiting for an item if queue is empty
-    std::queue<T>*          m_queue;            ///< Queue
+    /**
+     * Semaphore to waiting for an item if queue is empty
+     */
+    Semaphore               m_semaphore;
+
+    /**
+     * Queue
+     */
+    std::queue<T>*          m_queue;
+
 
 protected:
 
-    mutable Synchronized    m_sync;             ///< Lock to synchronize queue operations
+    /**
+     * Lock to synchronize queue operations
+     */
+    mutable Synchronized    m_sync;
+
 
 public:
 
-    /// @brief Queue callback function used in each() method.
-    ///
-    /// Iterates through queue until false is returned.
-    /// @param item T&, List item
-    /// @param data void*, Optional function-specific data
+    /**
+     * @brief Queue callback function used in each() method.
+     *
+     * Iterates through queue until false is returned.
+     * @param item T&, List item
+     * @param data void*, Optional function-specific data
+     */
     typedef bool (CallbackFunction)(T& item, void* data);
 
 public:
 
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     SynchronizedQueue() :
         m_queue(new std::queue<T>)
     {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~SynchronizedQueue()
     {
         delete m_queue;
     }
 
-    /// @brief Pushes a data item to the queue
-    ///
-    /// Automatically posts internal semaphore to indicate
-    /// queue item availability.
-    /// @param data const T&, A data item
+    /**
+     * @brief Pushes a data item to the queue
+     *
+     * Automatically posts internal semaphore to indicate
+     * queue item availability.
+     * @param data const T&, A data item
+     */
     void push(const T& data)
     {
         SynchronizedCode sc(m_sync);
@@ -86,12 +110,14 @@ public:
         m_semaphore.post();
     }
 
-    /// @brief Pops a data item from the queue
-    ///
-    /// If queue is empty then waits until timeoutMS milliseconds timeout occurs.
-    /// Returns false if timeout occurs.
-    /// @param item T&, A queue item (output)
-    /// @param timeoutMS int32_t, Operation timeout in milliseconds
+    /**
+     * @brief Pops a data item from the queue
+     *
+     * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
+     * Returns false if timeout occurs.
+     * @param item T&, A queue item (output)
+     * @param timeoutMS int32_t, Operation timeout in milliseconds
+     */
     bool pop(T& item, int32_t timeoutMS)
     {
         if (m_semaphore.wait(uint32_t(timeoutMS))) {
@@ -105,29 +131,37 @@ public:
         return false;
     }
 
-    /// @brief Wakes up queue semaphore to interrupt waiting
-    ///
-    /// Any waiting pop() operation immediately returns false.
+    /**
+     * @brief Wakes up queue semaphore to interrupt waiting
+     *
+     * Any waiting pop() operation immediately returns false.
+     */
     virtual void wakeup()
     {
         m_semaphore.post();
     }
 
-    /// @brief Returns true if the queue is empty
+    /**
+     * @brief Returns true if the queue is empty
+     */
     bool empty() const
     {
         SynchronizedCode sc(m_sync);
         return m_queue->empty();
     }
 
-    /// @brief Returns number of items in the queue
+    /**
+     * @brief Returns number of items in the queue
+     */
     size_t size() const
     {
         SynchronizedCode sc(m_sync);
         return m_queue->size();
     }
 
-    /// @brief Removes all items from the queue
+    /**
+     * @brief Removes all items from the queue
+     */
     void clear()
     {
         SynchronizedCode sc(m_sync);
@@ -135,13 +169,15 @@ public:
         m_queue = new std::queue<T>;
     }
 
-    /// @brief Calls callbackFunction() for every list until false is returned
-    ///
-    /// Current implementation does the job but isn't too efficient due to
-    /// std::queue class limitations.
-    /// @param callbackFunction CallbackFunction*, Callback function that is executed for list items
-    /// @param data void*, Function-specific data
-    /// @returns true if every list item was processed
+    /**
+     * @brief Calls callbackFunction() for every list until false is returned
+     *
+     * Current implementation does the job but isn't too efficient due to
+     * std::queue class limitations.
+     * @param callbackFunction CallbackFunction*, Callback function that is executed for list items
+     * @param data void*, Function-specific data
+     * @returns true if every list item was processed
+     */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
         SynchronizedCode sc(m_sync);
@@ -172,6 +208,8 @@ public:
         return rc;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

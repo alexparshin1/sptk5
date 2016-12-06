@@ -36,39 +36,71 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// Read-write synchronization object
+/**
+ * Read-write synchronization object
+ */
 class SP_EXPORT RWLock
 {
 protected:
 
-    std::mutex              m_writeLock;    ///< Lock mutex
-    std::condition_variable m_condition;    ///< Lock condition variable
-    std::atomic<int>        m_readerCount;  ///< Reader lock count
-    std::atomic<bool>       m_writerMode;   ///< Writer mode flag
+    /**
+     * Lock mutex
+     */
+    std::mutex              m_writeLock;
+
+    /**
+     * Lock condition variable
+     */
+    std::condition_variable m_condition;
+
+    /**
+     * Reader lock count
+     */
+    std::atomic<int>        m_readerCount;
+
+    /**
+     * Writer mode flag
+     */
+    std::atomic<bool>       m_writerMode;
+
 
 public:
 
-    /// Constructor
+    /**
+     * Constructor
+     */
     RWLock();
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~RWLock();
 
-    /// Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
-    /// @param timeout int, timeout in milliseconds
+    /**
+     * Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
+     * @param timeout int, timeout in milliseconds
+     */
     int lockR(int timeout);
 
-    /// Try to lock the object for writing. Blocks if object is locked for reading or writing.
-    /// @param timeout int, timeout in milliseconds
+    /**
+     * Try to lock the object for writing. Blocks if object is locked for reading or writing.
+     * @param timeout int, timeout in milliseconds
+     */
     int lockRW(int timeout);
 
-    /// Releases lock on the object.
+    /**
+     * Releases lock on the object.
+     */
     void unlock();
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

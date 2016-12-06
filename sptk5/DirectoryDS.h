@@ -36,92 +36,152 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// Directory Show Policies
+/**
+ * Directory Show Policies
+ */
 enum DirectoryDSpolicies {
-    DDS_SHOW_ALL = 0,         ///< Show everything
-    DDS_HIDE_FILES = 1,       ///< Hide files
-    DDS_HIDE_DOT_FILES = 2,   ///< Hide files with the name started with '.' (Unix hidden files,mostly)
-    DDS_HIDE_DIRECTORIES = 4, ///< Hide directories
-    DDS_NO_SORT = 8           ///< Do not sort
+    /**
+     * Show everything
+     */
+    DDS_SHOW_ALL = 0,
+
+    /**
+     * Hide files
+     */
+    DDS_HIDE_FILES = 1,
+
+    /**
+     * Hide files with the name started with '.' (Unix hidden files,mostly)
+     */
+    DDS_HIDE_DOT_FILES = 2,
+
+    /**
+     * Hide directories
+     */
+    DDS_HIDE_DIRECTORIES = 4,
+
+    /**
+     * Do not sort
+     */
+    DDS_NO_SORT = 8
+
 };
 
-/// @brief Directory datasource
-///
-/// A datasource with the list of files
-/// and directories along with their attributes. It works just
-/// as any other datasource. You set up the parameters, call open()
-/// and may use the list. Method close() should be called aftewards
-/// to release any allocated resourses.
+/**
+ * @brief Directory datasource
+ *
+ * A datasource with the list of files
+ * and directories along with their attributes. It works just
+ * as any other datasource. You set up the parameters, call open()
+ * and may use the list. Method close() should be called aftewards
+ * to release any allocated resourses.
+ */
 class DirectoryDS: public MemoryDS
 {
 protected:
-    /// Sets up an appropriate image and a name for the file type
-    /// @param st const struct stat &, the file type information
-    /// @param image CSmallPixmapType&, the image type
-    /// @param fname const char *, file name
-    /// @returns the file type name
+    /**
+     * Sets up an appropriate image and a name for the file type
+     * @param st const struct stat &, the file type information
+     * @param image CSmallPixmapType&, the image type
+     * @param fname const char *, file name
+     * @returns the file type name
+     */
     std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
 
 private:
-    std::string     m_directory;   ///< Current directory
-    Strings         m_pattern;     ///< Current file pattern
-    int             m_showPolicy;  ///< Show policy, see CDirectoryDSpolicies for more information
+    /**
+     * Current directory
+     */
+    std::string     m_directory;
+
+    /**
+     * Current file pattern
+     */
+    Strings         m_pattern;
+
+    /**
+     * Show policy, see CDirectoryDSpolicies for more information
+     */
+    int             m_showPolicy;
+
 
 public:
-    /// Default Constructor
+    /**
+     * Default Constructor
+     */
     DirectoryDS() :
             MemoryDS(),
             m_showPolicy(0)
     {
     }
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~DirectoryDS()
     {
         close();
     }
 
-    /// Returns current show policy, @see CDirectoryDSpolicies for more information
-    /// @returns current show policy
+    /**
+     * Returns current show policy, @see CDirectoryDSpolicies for more information
+     * @returns current show policy
+     */
     int showPolicy() const
     {
         return m_showPolicy;
     }
 
-    /// Sets current show policy, see CDirectoryDSpolicies for more information
+    /**
+     * Sets current show policy, see CDirectoryDSpolicies for more information
+     */
     void showPolicy(int type)
     {
         m_showPolicy = type;
     }
 
-    /// Returns current directory
+    /**
+     * Returns current directory
+     */
     void directory(std::string d);
 
-    /// Sets current directory
+    /**
+     * Sets current directory
+     */
     const std::string &directory() const
     {
         return m_directory;
     }
 
-    /// Sets pattern in format like: "*.txt;*.csv;*.xls"
+    /**
+     * Sets pattern in format like: "*.txt;*.csv;*.xls"
+     */
     void pattern(std::string pattern)
     {
         m_pattern.fromString(pattern, ";", Strings::SM_DELIMITER);
     }
 
-    /// Returns pattern in format like: "*.txt;*.csv;*.xls"
+    /**
+     * Returns pattern in format like: "*.txt;*.csv;*.xls"
+     */
     const std::string pattern() const
     {
         return m_pattern.asString(";");
     }
 
-    /// Opens the directory and fills in the dataset
+    /**
+     * Opens the directory and fills in the dataset
+     */
     virtual bool open()
     THROWS_EXCEPTIONS;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -38,41 +38,59 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
-/// @brief Oracle Environment
-///
-/// Allows creating and terminating connections
+/**
+ * @brief Oracle Environment
+ *
+ * Allows creating and terminating connections
+ */
 class OracleEnvironment
 {
     oracle::occi::Environment* m_handle;
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     OracleEnvironment();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~OracleEnvironment();
 
-    /// @brief Returns environment handle
+    /**
+     * @brief Returns environment handle
+     */
     oracle::occi::Environment* handle() const
     {
         return m_handle;
     }
 
-    /// @brief Returns client version
+    /**
+     * @brief Returns client version
+     */
     std::string clientVersion() const;
 
-    /// @brief Creates new database connection
-    /// @param connectionString DatabaseConnectionString&, Connection parameters
+    /**
+     * @brief Creates new database connection
+     * @param connectionString DatabaseConnectionString&, Connection parameters
+     */
     oracle::occi::Connection* createConnection(DatabaseConnectionString& connectionString);
 
-    /// @brief Terminates database connection
-    /// @param connection oracle::occi::Connection*, Oracle connection
+    /**
+     * @brief Terminates database connection
+     * @param connection oracle::occi::Connection*, Oracle connection
+     */
     void terminateConnection(oracle::occi::Connection* connection);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

@@ -37,77 +37,119 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
-/// @brief A vector of CParam*
-///
-/// Doesn't mantain CParam memory.
-/// Used to return a list of pointers on existing parameters.
+/**
+ * @brief A vector of CParam*
+ *
+ * Doesn't mantain CParam memory.
+ * Used to return a list of pointers on existing parameters.
+ */
 typedef std::vector<QueryParameter*> CParamVector;
 
-/// @brief Query parameters list.
-///
-/// Has internal index to speed up the parameter search by name.
-/// @see CQuery
-/// @see CParam
+/**
+ * @brief Query parameters list.
+ *
+ * Has internal index to speed up the parameter search by name.
+ * @see CQuery
+ * @see CParam
+ */
 class SP_EXPORT QueryParameterList
 {
     friend class Query;
 
-    CParamVector                    m_items;                ///< The list of parameters
-    std::map<std::string, QueryParameter*>   m_index;               ///< The parameters index
-    bool                            m_bindingTypeChanged;   ///< Indicates that one of the parameters binding type has changed since prepare()
+    /**
+     * The list of parameters
+     */
+    CParamVector                    m_items;
+
+    /**
+     * The parameters index
+     */
+    std::map<std::string, QueryParameter*>   m_index;
+
+    /**
+     * Indicates that one of the parameters binding type has changed since prepare()
+     */
+    bool                            m_bindingTypeChanged;
+
 protected:
-    /// @brief Adds a parameter to the list
+    /**
+     * @brief Adds a parameter to the list
+     */
     void add(QueryParameter* item);
 
 public:
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     QueryParameterList();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~QueryParameterList();
 
-    /// @brief Removes all the parameters from the list
-    ///
-    /// Releases any allocated resources
+    /**
+     * @brief Removes all the parameters from the list
+     *
+     * Releases any allocated resources
+     */
     void clear();
 
-    /// @brief Returns parameter by name
-    ///
-    /// If the parameter isn't found, returns 0
-    /// @param paramName const char *, parameter name
-    /// @returns parameter pointer, or 0 if not found
+    /**
+     * @brief Returns parameter by name
+     *
+     * If the parameter isn't found, returns 0
+     * @param paramName const char *, parameter name
+     * @returns parameter pointer, or 0 if not found
+     */
     QueryParameter* find(const char* paramName);
 
-    /// @brief Removes a parameter from the list and from the memory.
-    /// @param ndx uint32_t, parameter index in the list
+    /**
+     * @brief Removes a parameter from the list and from the memory.
+     * @param ndx uint32_t, parameter index in the list
+     */
     void remove(uint32_t ndx);
 
-    /// @brief Parameter access by index
-    /// @param index int32_t, parameter index
+    /**
+     * @brief Parameter access by index
+     * @param index int32_t, parameter index
+     */
     QueryParameter& operator[](int32_t index) const;
 
-    /// @brief Parameter access by name
-    /// @param paramName const char *, parameter name
+    /**
+     * @brief Parameter access by name
+     * @param paramName const char *, parameter name
+     */
     QueryParameter& operator[](const char* paramName) const;
 
-    /// @brief Parameter access by name
-    /// @param paramName const std::string&, parameter name
+    /**
+     * @brief Parameter access by name
+     * @param paramName const std::string&, parameter name
+     */
     QueryParameter& operator[](const std::string& paramName) const;
 
-    /// @brief Returns parameter count
+    /**
+     * @brief Returns parameter count
+     */
     uint32_t size() const;
 
-    /// @brief Returns the parameter pointers
-    ///
-    /// A parameter is included for every parameter position in the query.
-    /// @param params CParamVector&, parameters vector
+    /**
+     * @brief Returns the parameter pointers
+     *
+     * A parameter is included for every parameter position in the query.
+     * @param params CParamVector&, parameters vector
+     */
     void enumerate(CParamVector& params);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

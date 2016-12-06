@@ -33,34 +33,46 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief File Save Window.
-///
-/// Implements the dialog to save a file.
-/// @see CDialog, CFileDialog, CFileOpenDialog
+/**
+ * @brief File Save Window.
+ *
+ * Implements the dialog to save a file.
+ * @see CDialog, CFileDialog, CFileOpenDialog
+ */
 class CFileSaveDialog : public CFileDialog {
 protected:
-    /// @brief 'Ok' reaction
-    ///
-    /// Method okPressed() overloads the default CDialog reaction on pressing
-    /// 'Save' (former 'Ok') button.
-    /// @returns success (true) if the file could be created or opened for
-    /// writing
+    /**
+     * @brief 'Ok' reaction
+     *
+     * Method okPressed() overloads the default CDialog reaction on pressing
+     * 'Save' (former 'Ok') button.
+     * @returns success (true) if the file could be created or opened for
+     * writing
+     */
     virtual bool okPressed();
 
 public:
 
-    /// @brief Default constructor
-    ///
-    /// @param caption window caption
+    /**
+     * @brief Default constructor
+     *
+     * @param caption window caption
+     */
     CFileSaveDialog(std::string caption="Save File");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~CFileSaveDialog() {}
 }
 ;
-/// @}
+/**
+ * @}
+ */
 }
 #endif

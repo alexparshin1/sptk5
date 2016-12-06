@@ -35,43 +35,67 @@
 
 namespace sptk {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
 
-/// @brief Web Service Listener
-///
-/// Simple server to accept Web Service requests.
-/// Actual request processing is implemented in Web Service request processor,
-/// passed to constructor.
-/// As a bonus, WSListener also serves static files, located in staticFilesDirectory.
-/// That may be used to implement a web application.
+/**
+ * @brief Web Service Listener
+ *
+ * Simple server to accept Web Service requests.
+ * Actual request processing is implemented in Web Service request processor,
+ * passed to constructor.
+ * As a bonus, WSListener also serves static files, located in staticFilesDirectory.
+ * That may be used to implement a web application.
+ */
 class WSListener : public TCPServer
 {
 protected:
-    sptk::WSRequest&    m_service;              ///< Web Service request processor
-    sptk::Logger&       m_logger;               ///< Logger object
-    const std::string   m_staticFilesDirectory; ///< Web Service static files directory
+    /**
+     * Web Service request processor
+     */
+    sptk::WSRequest&    m_service;
 
-    /// @brief Creates connection thread derived from CTCPServerConnection
-    ///
-    /// Application should override this method to create concrete connection object.
-    /// Created connection object is maintained by CTCPServer.
-    /// @param connectionSocket SOCKET, Already accepted incoming connection socket
-    /// @param peer sockaddr_in*, Incoming connection information
+    /**
+     * Logger object
+     */
+    sptk::Logger&       m_logger;
+
+    /**
+     * Web Service static files directory
+     */
+    const std::string   m_staticFilesDirectory;
+
+
+    /**
+     * @brief Creates connection thread derived from CTCPServerConnection
+     *
+     * Application should override this method to create concrete connection object.
+     * Created connection object is maintained by CTCPServer.
+     * @param connectionSocket SOCKET, Already accepted incoming connection socket
+     * @param peer sockaddr_in*, Incoming connection information
+     */
     virtual sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
 
 public:
-    /// @brief Constructor
-    /// @param service sptk::CWSRequest&, Web Service request processor
-    /// @param logger sptk::Logger&, Logger
-    /// @param staticFilesDirectory const std::string&, Web Service static files directory
+    /**
+     * @brief Constructor
+     * @param service sptk::CWSRequest&, Web Service request processor
+     * @param logger sptk::Logger&, Logger
+     * @param staticFilesDirectory const std::string&, Web Service static files directory
+     */
     WSListener(sptk::WSRequest& service, sptk::Logger& logger, std::string staticFilesDirectory);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~WSListener();
  };
 
-/// @}
+/**
+ * @}
+ */
 
 }
 

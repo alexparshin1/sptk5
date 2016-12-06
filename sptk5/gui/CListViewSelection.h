@@ -33,78 +33,110 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 #define CLV_SELECTED       1    ///< List view item is selected
 #define CLV_CHECKED        2    ///< List view item is checked
 #define CLV_NOTDISPLAYED   4    ///< List view item is hidden
 
-/// @brief List view & friend items selection
-///
-/// Allows CListView to work with one or few selected rows
-/// without scanning through all the rows in list view for selected rows.
+/**
+ * @brief List view & friend items selection
+ *
+ * Allows CListView to work with one or few selected rows
+ * without scanning through all the rows in list view for selected rows.
+ */
 
 class SP_EXPORT CSelection
 {
     typedef CPackedStrings * PPackedStrings;
     typedef std::vector<PPackedStrings> CPSVector;
 
-    CPSVector m_selectedRows; ///< The list of the rows
+    /**
+     * The list of the rows
+     */
+    CPSVector m_selectedRows;
+
 
 public:
 
-    /// Default constructor
+    /**
+     * Default constructor
+     */
 
     CSelection()
     {
     }
 
-    /// Destructor
+    /**
+     * Destructor
+     */
 
     ~CSelection()
     {
         clear();
     }
 
-    /// Selects a row and adds it to the selection list
+    /**
+     * Selects a row and adds it to the selection list
+     */
     void select(CPackedStrings *row);
 
-    /// Deselects a row and removes it from the selection list
+    /**
+     * Deselects a row and removes it from the selection list
+     */
     void deselect(CPackedStrings *row);
 
-    /// Removes the row from the selection list
+    /**
+     * Removes the row from the selection list
+     */
     void remove
     (CPackedStrings *row);
 
-    /// Deselects all the rows in the selection list and empties the list
+    /**
+     * Deselects all the rows in the selection list and empties the list
+     */
     void deselectAll();
 
-    /// Removes all rows from the selection list
+    /**
+     * Removes all rows from the selection list
+     */
     void clear();
 
-    /// Returns the number of selected rows
+    /**
+     * Returns the number of selected rows
+     */
 
     uint32_t size() const
     {
         return(uint32_t) m_selectedRows.size();
     }
 
-    /// Element access to the selection, const version only
-    /// @param index int, index in the selection list
+    /**
+     * Element access to the selection, const version only
+     * @param index int, index in the selection list
+     */
     CPackedStrings& operator[] (int index) const
     {
         return *m_selectedRows[size_t(index)];
     }
 
-    /// Finds an item with a particular key value. Returns NULL if not found.
-    /// @param keyValue int, key value
+    /**
+     * Finds an item with a particular key value. Returns NULL if not found.
+     * @param keyValue int, key value
+     */
     CPackedStrings *findKey(int keyValue) const;
 
-    /// Finds an item with a particular caption. Returns NULL if not found.
-    /// @param caption CString, item caption (a string in the first column)
+    /**
+     * Finds an item with a particular caption. Returns NULL if not found.
+     * @param caption CString, item caption (a string in the first column)
+     */
     CPackedStrings *findCaption(std::string caption) const;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

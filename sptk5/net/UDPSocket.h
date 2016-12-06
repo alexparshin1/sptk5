@@ -34,31 +34,43 @@
 
 namespace sptk {
 
-/// @addtogroup net Networking Classes
-/// @{
+/**
+ * @addtogroup net Networking Classes
+ * @{
+ */
 
-/// @brief UDP Socket
-///
-/// Sends and receives data using UDP protocol.
-/// Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
+/**
+ * @brief UDP Socket
+ *
+ * Sends and receives data using UDP protocol.
+ * Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
+ */
 class UDPSocket : public BaseSocket
 {
 public:
-    /// @brief Constructor
-    /// @param domain SOCKET_ADDRESS_FAMILY, socket domain type
+    /**
+     * @brief Constructor
+     * @param domain SOCKET_ADDRESS_FAMILY, socket domain type
+     */
     UDPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~UDPSocket() {}
 
-    /// @brief Reads data from the socket
-    /// @param buffer char *, the memory buffer
-    /// @param size size_t, the number of bytes to read
-    /// @param from sockaddr_in*, an optional structure for source address
-    /// @returns the number of bytes read from the socket
+    /**
+     * @brief Reads data from the socket
+     * @param buffer char *, the memory buffer
+     * @param size size_t, the number of bytes to read
+     * @param from sockaddr_in*, an optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
     virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) THROWS_EXCEPTIONS;
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

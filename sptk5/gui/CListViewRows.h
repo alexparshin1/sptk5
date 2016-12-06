@@ -38,12 +38,16 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 class CListView;
 
-/// The list of CPackedStrings * used inside CListView as the list of rows.
+/**
+ * The list of CPackedStrings * used inside CListView as the list of rows.
+ */
 
 class SP_EXPORT CListViewRows
 {
@@ -51,70 +55,120 @@ class SP_EXPORT CListViewRows
     typedef std::vector<PPackedStrings> CPSVector;
     friend class CListView;
 private:
-    int32_t m_sortColumn; ///< The sort column number
-    VariantType m_sortColumnType; ///< The type of the sort column - determines the sort algorithm
-    bool m_sortAscending; ///< Sort direction - ascending/descending
-protected:
-    uint32_t m_fullHeight; ///< The summary height of the rows
-    CPSVector m_rows; ///< The list of the rows
+    /**
+     * The sort column number
+     */
+    int32_t m_sortColumn;
 
-    /// The sort column number for the sort functions
+    /**
+     * The type of the sort column - determines the sort algorithm
+     */
+    VariantType m_sortColumnType;
+
+    /**
+     * Sort direction - ascending/descending
+     */
+    bool m_sortAscending;
+
+protected:
+    /**
+     * The summary height of the rows
+     */
+    uint32_t m_fullHeight;
+
+    /**
+     * The list of the rows
+     */
+    CPSVector m_rows;
+
+
+    /**
+     * The sort column number for the sort functions
+     */
     static int currentSortColumn;
 
-    /// The string data compare function
+    /**
+     * The string data compare function
+     */
     static bool compare_strings(const PPackedStrings&, const PPackedStrings&);
 
-    /// The integer data compare function
+    /**
+     * The integer data compare function
+     */
     static bool compare_integers(const PPackedStrings&, const PPackedStrings&);
 
-    /// The float data compare function
+    /**
+     * The float data compare function
+     */
     static bool compare_floats(const PPackedStrings&, const PPackedStrings&);
 
-    /// The date data compare function
+    /**
+     * The date data compare function
+     */
     static bool compare_dates(const PPackedStrings&, const PPackedStrings&);
 
-    /// The date and time data compare function
+    /**
+     * The date and time data compare function
+     */
     static bool compare_datetimes(const PPackedStrings&, const PPackedStrings&);
 public:
 
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     CListViewRows();
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~CListViewRows();
 
-    /// destroys all the rows and removes them from the list
+    /**
+     * destroys all the rows and removes them from the list
+     */
     void clear();
 
-    /// Truncates a row list
-    /// @param count uint32_t, the maximum list size
+    /**
+     * Truncates a row list
+     * @param count uint32_t, the maximum list size
+     */
     void truncate(uint32_t count);
 
-    /// Removes a row
-    /// @param index uint32_t, row index
+    /**
+     * Removes a row
+     * @param index uint32_t, row index
+     */
     void remove(uint32_t index);
 
-    /// Adds the new row.
-    /// @param row CPackedStrings *, the new row pointer
-    /// @returns row index
+    /**
+     * Adds the new row.
+     * @param row CPackedStrings *, the new row pointer
+     * @returns row index
+     */
     uint32_t add
     (CPackedStrings *row);
 
-    /// Inserts the new row.
-    /// @param index uint32_t, insert position
-    /// @param row CPackedStrings *, the new row pointer
-    /// @returns row index
+    /**
+     * Inserts the new row.
+     * @param index uint32_t, insert position
+     * @param row CPackedStrings *, the new row pointer
+     * @returns row index
+     */
     uint32_t insert(uint32_t index, CPackedStrings *row);
 
-    /// Updates the row by replacing it with a new one.
-    /// @param index uint32_t, row index
-    /// @param row CPackedStrings *, the new row pointer
-    /// @returns row index
+    /**
+     * Updates the row by replacing it with a new one.
+     * @param index uint32_t, row index
+     * @param row CPackedStrings *, the new row pointer
+     * @returns row index
+     */
     uint32_t update(uint32_t index, CPackedStrings *row);
 
-    /// Row access by row index
-    /// @param index uint32_t, row index
-    /// @returns row pointer, or 0L if index is out of range
+    /**
+     * Row access by row index
+     * @param index uint32_t, row index
+     * @returns row pointer, or 0L if index is out of range
+     */
     CPackedStrings* operator [] (uint32_t index) const
     {
         if (index < m_rows.size())
@@ -122,53 +176,71 @@ public:
         return 0L;
     }
 
-    /// Finds the row
-    /// @param row CPackedStrings *, the row pointer
-    /// @returns the row index, or -1 if not found
+    /**
+     * Finds the row
+     * @param row CPackedStrings *, the row pointer
+     * @returns the row index, or -1 if not found
+     */
     int32_t indexOf(CPackedStrings *row) const;
 
-    /// Returns the row count
+    /**
+     * Returns the row count
+     */
 
     uint32_t size() const
     {
         return(uint32_t) m_rows.size();
     }
 
-    /// Sorts rows
+    /**
+     * Sorts rows
+     */
     void sort();
 
-    /// Returns the sort column number
+    /**
+     * Returns the sort column number
+     */
 
     int32_t sortColumn() const
     {
         return m_sortColumn;
     }
 
-    /// Sets the sort column
-    /// @param column int, sort column number (-1 means 'unsorted')
-    /// @param ctype VariantType, the sort column data type
-    /// @param sortNow bool, true if you want to sort immediatedly
+    /**
+     * Sets the sort column
+     * @param column int, sort column number (-1 means 'unsorted')
+     * @param ctype VariantType, the sort column data type
+     * @param sortNow bool, true if you want to sort immediatedly
+     */
     void sortColumn(int column, VariantType ctype, bool sortNow);
 
-    /// Returns the sort direction - ascending/descending
+    /**
+     * Returns the sort direction - ascending/descending
+     */
 
     bool sortAscending() const
     {
         return m_sortAscending;
     }
 
-    /// Sets the sort direction - ascending/descending
-    /// @param ascending bool, sort direction - ascending/descending
-    /// @param sortNow bool, true if you want to sort immediatedly
+    /**
+     * Sets the sort direction - ascending/descending
+     * @param ascending bool, sort direction - ascending/descending
+     * @param sortNow bool, true if you want to sort immediatedly
+     */
     void sortAscending(bool ascending, bool sortNow);
 
-    /// Returns summary height of all the rows
+    /**
+     * Returns summary height of all the rows
+     */
 
     int32_t fullHeight() const
     {
         return(int32_t) m_fullHeight;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

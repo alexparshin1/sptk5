@@ -35,61 +35,97 @@
 
 namespace sptk {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
 
-/// @brief Base type for all user WSDL types
+/**
+ * @brief Base type for all user WSDL types
+ */
 class WSComplexType
 {
 protected:
-   std::string  m_name;         ///< WSDL element name
-   bool         m_optional;     ///< Element optionality flag
-   bool         m_loaded;       ///< Is data loaded flage
+   /**
+    * WSDL element name
+    */
+   std::string  m_name;
+
+   /**
+    * Element optionality flag
+    */
+   bool         m_optional;
+
+   /**
+    * Is data loaded flage
+    */
+   bool         m_loaded;
+
 public:
-   /// @brief Default constructor
-   /// @param name const char*, Element name
-   /// @param optional bool, Element optionality flag
+   /**
+    * @brief Default constructor
+    * @param name const char*, Element name
+    * @param optional bool, Element optionality flag
+    */
     WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional), m_loaded(false) {}
 
-   /// @brief Destructor
+   /**
+    * @brief Destructor
+    */
    virtual ~WSComplexType() {}
 
-   /// @brief Copy data from other object
-   /// @brief other const WSComplexType&, Object to copy from
+   /**
+    * @brief Copy data from other object
+    * @brief other const WSComplexType&, Object to copy from
+    */
    void copyFrom(const WSComplexType& other);
 
-   /// @brief Load CAddHandler from XML node
-   /// @param input const sptk::XMLElement*, XML node containing CAddHandler data
+   /**
+    * @brief Load CAddHandler from XML node
+    * @param input const sptk::XMLElement*, XML node containing CAddHandler data
+    */
    virtual void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS = 0;
 
-   /// @brief Unload CAddHandler to existing XML node
-   /// @param output sptk::XMLElement*, existing XML node
+   /**
+    * @brief Unload CAddHandler to existing XML node
+    * @param output sptk::XMLElement*, existing XML node
+    */
    virtual void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS = 0;
 
-   /// @brief Unload CAddHandler to new XML node
-   /// @param parent sptk::XMLElement*, parent XML node where new node is created
+   /**
+    * @brief Unload CAddHandler to new XML node
+    * @param parent sptk::XMLElement*, parent XML node where new node is created
+    */
    virtual void addElement(sptk::XMLElement* parent) const THROWS_EXCEPTIONS;
 
-   /// @brief True is data was loaded
+   /**
+    * @brief True is data was loaded
+    */
    virtual bool isNull() const
    {
        return !m_loaded;
    }
 
-   /// @brief Returns element name
+   /**
+    * @brief Returns element name
+    */
    std::string name() const
    {
        return m_name;
    }
 
-   /// @brief True is element is optional
+   /**
+    * @brief True is element is optional
+    */
    virtual bool isOptional() const
    {
        return m_optional;
    }
 };
 
-/// @}
+/**
+ * @}
+ */
 
 }
 #endif

@@ -34,59 +34,86 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Location object
-///
-/// Stores file name and line number in the file
+/**
+ * @brief Location object
+ *
+ * Stores file name and line number in the file
+ */
 class SP_EXPORT CLocation
 {
-    const char*         m_file;         ///< File name
-    int                 m_line;         ///< Line number
+    /**
+     * File name
+     */
+    const char*         m_file;
+
+    /**
+     * Line number
+     */
+    int                 m_line;
+
 
 public:
-    /// @brief Constructor
-    /// @param file const char*, File name
-    /// @param line int, Line number
-    CLocation(const char* file, int line) :
-        m_file(file), m_line(line) {}
+    /**
+     * @brief Constructor
+     * @param file const char*, File name
+     * @param line int, Line number
+     */
+    CLocation(const char* file, int line) 
+    : m_file(file), m_line(line)
+    {}
 
-    /// @brief Modifies location
-    /// @param file const char*, File name
-    /// @param line int, Line number
+    /**
+     * @brief Modifies location
+     * @param file const char*, File name
+     * @param line int, Line number
+     */
     void set(const char* file, int line)
     {
         m_file = file;
         m_line = line;
     }
 
-    /// @brief Returns location file name
+    /**
+     * @brief Returns location file name
+     */
     const char* file() const
     {
         return m_file;
     }
 
-    /// @brief Returns location line number
+    /**
+     * @brief Returns location line number
+     */
     int line() const
     {
         return m_line;
     }
 
-    /// @brief Returns string presentation of location
+    /**
+     * @brief Returns string presentation of location
+     */
     std::string toString() const
     {
         return std::string(m_file) + "(" + int2string(m_line) + ")";
     }
 
-    /// @brief Returns true if location is empty
+    /**
+     * @brief Returns true if location is empty
+     */
     bool empty() const
     {
         return (m_file == NULL) && (m_line == 0);
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

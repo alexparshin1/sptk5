@@ -34,38 +34,50 @@
 
 namespace sptk {
 
-/// @addtogroup XML
-/// @{
+/**
+ * @addtogroup XML
+ * @{
+ */
 
-/// @brief XML entities
-///
-/// Maps an XML entity string to a presentation string.
+/**
+ * @brief XML entities
+ *
+ * Maps an XML entity string to a presentation string.
+ */
 class XMLEntities: public std::map<std::string, std::string>
 {
 public:
 
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     XMLEntities()
     {
     }
 
-    /// @brief Removes named entity
-    /// @param name const char *, entity name to remove
+    /**
+     * @brief Removes named entity
+     * @param name const char *, entity name to remove
+     */
     void removeEntity(const char *name)
     {
         erase(name);
     }
 
-    /// @brief Adds entity to map
-    ///
-    /// If entity named 'name' exists already in map, its value is replaced with 'replacement'
-    /// @param name const char *, entity to add/change
-    /// @param replacement const char *, value that represents entity
+    /**
+     * @brief Adds entity to map
+     *
+     * If entity named 'name' exists already in map, its value is replaced with 'replacement'
+     * @param name const char *, entity to add/change
+     * @param replacement const char *, value that represents entity
+     */
     void setEntity(const char *name, const char *replacement)
     {
         (*this)[name] = replacement;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

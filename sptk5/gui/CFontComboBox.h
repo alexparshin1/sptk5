@@ -34,42 +34,58 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Font combobox widget
-///
-/// A combobox filled with the system fonts names
+/**
+ * @brief Font combobox widget
+ *
+ * A combobox filled with the system fonts names
+ */
 class CFontComboBox : public CComboBox {
 public:
-    /// Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CFontComboBox(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CFontComboBox(int x,int y,int w,int h,const char *label = 0);
 #endif
-    /// Loads list of system fonts
+    /**
+     * Loads list of system fonts
+     */
     void loadFonts();
 
-    /// Returns currently selected font name
+    /**
+     * Returns currently selected font name
+     */
     std::string fontName() const {
         return data();
     }
 
-    /// Sets currently selected font name
+    /**
+     * Sets currently selected font name
+     */
     void fontName(const char *fn) {
         data(fn);
     }
 
-    /// Returns font index as Fl_Font
+    /**
+     * Returns font index as Fl_Font
+     */
     Fl_Font font() const
     {
         CPackedStrings* theSelectedRow = selectedRow();
@@ -78,15 +94,21 @@ public:
         return FL_HELVETICA;
     }
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "font_combo";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

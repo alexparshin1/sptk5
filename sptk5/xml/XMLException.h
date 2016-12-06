@@ -35,36 +35,48 @@
 
 namespace sptk {
 
-/// @addtogroup XML
-/// @{
+/**
+ * @addtogroup XML
+ * @{
+ */
 
-/// @brief XML exception
-///
-/// XML extension throws XMLException type exceptions.
-/// You should catch always at least these type of exceptions, when processing XML.
+/**
+ * @brief XML exception
+ *
+ * XML extension throws XMLException type exceptions.
+ * You should catch always at least these type of exceptions, when processing XML.
+ */
 class SP_EXPORT XMLException: public Exception
 {
 public:
 
-    /// Constructor
-    /// @param text std::string, the exception text
-    /// @param file std::string, the file where exception occurs
-    /// @param line int, the line number in the file where exception occurs
-    /// @param description std::string, the optional description information
+    /**
+     * Constructor
+     * @param text std::string, the exception text
+     * @param file std::string, the file where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     * @param description std::string, the optional description information
+     */
     XMLException(std::string text, std::string file = "", int line = 0, std::string description = "")
             : Exception(text, file, line, description)
     {}
 
-    /// @brief Copy constructor
-    /// @param other const CTimeoutException&, other exception object
+    /**
+     * @brief Copy constructor
+     * @param other const CTimeoutException&, other exception object
+     */
     XMLException(const TimeoutException& other)
             : Exception(other)
     {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~XMLException() DOESNT_THROW
     {}
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

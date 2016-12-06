@@ -36,80 +36,112 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Floating point value input widget.
-///
-/// Allows to input only Floating point numbers, and you can also define the input value range for the valid().
+/**
+ * @brief Floating point value input widget.
+ *
+ * Allows to input only Floating point numbers, and you can also define the input value range for the valid().
+ */
 class SP_EXPORT CFloatInput : public CInput {
     typedef class CInput inherited;
 
-    /// @brief Minimum value (optional)
+    /**
+     * @brief Minimum value (optional)
+     */
     double   m_minValue;
 
-    /// @brief Maximum value (optional)
+    /**
+     * @brief Maximum value (optional)
+     */
     double   m_maxValue;
 
-    /// @brief Number of decimal places to show
+    /**
+     * @brief Number of decimal places to show
+     */
     int      m_decimalPlaces;
 
 protected:
 
-    /// @brief Saves data to query
+    /**
+     * @brief Saves data to query
+     */
     virtual void save(Query *);
 
-    /// @brief Returns true if the input data is valid
+    /**
+     * @brief Returns true if the input data is valid
+     */
     virtual bool valid() const;
 
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CFloatInput(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CFloatInput(int,int,int,int,const char * = 0);
 #endif
 
-    /// @brief Sets limits for the value inside
-    /// @param limited bool, true if use the limits
-    /// @param min double, minimum value
-    /// @param max double, maximum value
+    /**
+     * @brief Sets limits for the value inside
+     * @param limited bool, true if use the limits
+     * @param min double, minimum value
+     * @param max double, maximum value
+     */
     void setLimits(bool limited,double min=0,double max=0);
 
-    /// @brief Returns the number of decimal places
+    /**
+     * @brief Returns the number of decimal places
+     */
     int     decimalPlaces() const {
         return m_decimalPlaces;
     }
 
-    /// @brief Sets the number of decimal places to show
+    /**
+     * @brief Sets the number of decimal places to show
+     */
     void    decimalPlaces(int dp) {
         m_decimalPlaces = dp;
     }
 
-    /// @brief Returns the control kind, SPTK-style RTTI
-    /// @see CControlKind for more information
+    /**
+     * @brief Returns the control kind, SPTK-style RTTI
+     * @see CControlKind for more information
+     */
     virtual CControlKind kind() const {
         return DCV_FLOAT;
     }
 
-    /// @brief Returns the control class name, SPTK-style RTTI
+    /**
+     * @brief Returns the control class name, SPTK-style RTTI
+     */
     virtual std::string className() const {
         return "float_input";
     }
 
-    /// @brief Creates a widget based on the XML node information
+    /**
+     * @brief Creates a widget based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

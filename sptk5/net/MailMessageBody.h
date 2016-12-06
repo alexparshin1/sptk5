@@ -35,60 +35,100 @@
 namespace sptk
 {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// Defines the type of the mail message
+/**
+ * Defines the type of the mail message
+ */
 enum MailMessageType
 {
-    MMT_PLAIN_TEXT_MESSAGE,        ///< Message has plain text only
-    MMT_HTML_MESSAGE               ///< Message has plain text and HTML parts
+    /**
+     * Message has plain text only
+     */
+    MMT_PLAIN_TEXT_MESSAGE,
+
+    /**
+     * Message has plain text and HTML parts
+     */
+    MMT_HTML_MESSAGE
+
 };
 
-/// @brief Mail message body text
-///
-/// Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
+/**
+ * @brief Mail message body text
+ *
+ * Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
+ */
 class SP_EXPORT MailMessageBody
 {
-    MailMessageType     m_type;       ///< Message type
-    std::string         m_plainText;  ///< Plain text part of the message
-    std::string         m_htmlText;   ///< Optional HTML part of the message
+    /**
+     * Message type
+     */
+    MailMessageType     m_type;
 
-    /// Builds a plain text string from HTML text
+    /**
+     * Plain text part of the message
+     */
+    std::string         m_plainText;
+
+    /**
+     * Optional HTML part of the message
+     */
+    std::string         m_htmlText;
+
+
+    /**
+     * Builds a plain text string from HTML text
+     */
     std::string stripHtml(const std::string& origHtml);
 
 public:
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     MailMessageBody()
     {
         m_type = MMT_PLAIN_TEXT_MESSAGE;
     }
 
-    /// @brief Sets the message text.
-    ///
-    /// Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message
-    /// @param messageText const std::string& messageText, the text of the message
-    /// @param smtp bool, special processing for smtp
+    /**
+     * @brief Sets the message text.
+     *
+     * Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message
+     * @param messageText const std::string& messageText, the text of the message
+     * @param smtp bool, special processing for smtp
+     */
     void text(const std::string& messageText, bool smtp);
 
-    /// @brief Returns the message body type
+    /**
+     * @brief Returns the message body type
+     */
     MailMessageType type()
     {
         return m_type;
     }
 
-    /// @brief Returns the plain text version of the message
+    /**
+     * @brief Returns the plain text version of the message
+     */
     const std::string& text() const
     {
         return m_plainText;
     }
 
-    /// @brief Returns the html version of the message (if presented)
+    /**
+     * @brief Returns the html version of the message (if presented)
+     */
     const std::string& html() const
     {
         return m_htmlText;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

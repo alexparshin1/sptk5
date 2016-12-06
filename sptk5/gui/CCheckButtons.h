@@ -35,94 +35,128 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief The check button.
-///
-/// Implements the SPTK check button that understands and reports
-/// its size requirements, and can be a layout client.
+/**
+ * @brief The check button.
+ *
+ * Implements the SPTK check button that understands and reports
+ * its size requirements, and can be a layout client.
+ */
 class SP_EXPORT CCheckButton : public Fl_Check_Button, public CLayoutClient {
 
 protected:
 
-    /// Draws the check button
+    /**
+     * Draws the check button
+     */
     virtual void draw();
 
 public:
 
-    /// SPTK-style constructor
-    /// @param label const char *, the widget label
-    /// @param layoutSize int, the size of widget in layout
-    /// @param layoutAlignment CLayoutAlign, widget align in the layout
+    /**
+     * SPTK-style constructor
+     * @param label const char *, the widget label
+     * @param layoutSize int, the size of widget in layout
+     * @param layoutAlignment CLayoutAlign, widget align in the layout
+     */
     CCheckButton(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
             : Fl_Check_Button(0,0,10,10,label), CLayoutClient(this,layoutSize,layoutAlignment) {}
 
-    /// A special handle method. See FLTK Fl_Widget::handle() for more information.
-    /// @param event int, FLTK event type
-    /// @return true if the event was processed
+    /**
+     * A special handle method. See FLTK Fl_Widget::handle() for more information.
+     * @param event int, FLTK event type
+     * @return true if the event was processed
+     */
     int handle(int event);
 
-    /// Reports the preferred size of the widget based on offered size.
-    /// @param w int, input/output desirable widget width
-    /// @param h int, input/output desirable widget heigth
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * Reports the preferred size of the widget based on offered size.
+     * @param w int, input/output desirable widget width
+     * @param h int, input/output desirable widget heigth
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 };
 
-/// @brief A set of check buttons.
-///
-/// Implements a group of check buttons with an optional CInput for the 'Other' choice.
-/// Data connector returns the current state as a string with selected buttons names separated with '|' character.
+/**
+ * @brief A set of check buttons.
+ *
+ * Implements a group of check buttons with an optional CInput for the 'Other' choice.
+ * Data connector returns the current state as a string with selected buttons names separated with '|' character.
+ */
 class SP_EXPORT CCheckButtons : public CRadioButtons {
     static void checkButtonsCallback(Fl_Widget *,void *);
 protected:
     virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
 public:
 
-    /// SPTK-style constructor
-    /// @param label const char *, the widget label
-    /// @param layoutSize int, the size of widget in layout
-    /// @param layoutAlignment CLayoutAlign, widget align in the layout
+    /**
+     * SPTK-style constructor
+     * @param label const char *, the widget label
+     * @param layoutSize int, the size of widget in layout
+     * @param layoutAlignment CLayoutAlign, widget align in the layout
+     */
     CCheckButtons(const char * label=0,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// FLTK-style constructor
-    /// @param x int, widget x-coordinate
-    /// @param y int, widget y-coordinate
-    /// @param w int, widget width
-    /// @param h int, widget height
-    /// @param label int, optional widget label
+    /**
+     * FLTK-style constructor
+     * @param x int, widget x-coordinate
+     * @param y int, widget y-coordinate
+     * @param w int, widget width
+     * @param h int, widget height
+     * @param label int, optional widget label
+     */
     CCheckButtons(int,int,int,int,const char * = 0);
 #endif
 
-    /// Gets the currently selected buttons argument()s
+    /**
+     * Gets the currently selected buttons argument()s
+     */
     void getSelections(IntList& selection) const;
 
-    /// Sets the currently selected buttons matching with argument()s
+    /**
+     * Sets the currently selected buttons matching with argument()s
+     */
     void setSelections(const IntList& selection);
 
-    /// Universal data connection reader.
-    /// @returns the list of selected button labels as pipe ('|') separated strings
+    /**
+     * Universal data connection reader.
+     * @returns the list of selected button labels as pipe ('|') separated strings
+     */
     virtual Variant data() const;
 
-    /// Universal data connection writer.
-    /// @param v CVariant, sets the selection from the list of labels as pipe ('|') separated strings
+    /**
+     * Universal data connection writer.
+     * @param v CVariant, sets the selection from the list of labels as pipe ('|') separated strings
+     */
     virtual void     data(const Variant v);
 
-    /// Returns an internal SPTK control type information
+    /**
+     * Returns an internal SPTK control type information
+     */
     virtual CControlKind kind() const {
         return DCV_CHECKBUTTONS;
     }
 
-    /// Returns an internal SPTK control class name information
+    /**
+     * Returns an internal SPTK control class name information
+     */
     virtual std::string className() const {
         return "check_buttons";
     }
     
-    /// @brief Creates chack buttons group based on the XML node information
+    /**
+     * @brief Creates chack buttons group based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

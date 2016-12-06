@@ -38,14 +38,18 @@
 #include <sqlite3.h>
 
 namespace sptk {
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
 class Query;
 
-/// @brief SQLite3 database
-///
-/// CSQLite3Connection is thread-safe connection to SQLite3 database.
+/**
+ * @brief SQLite3 database
+ *
+ * CSQLite3Connection is thread-safe connection to SQLite3 database.
+ */
 class SP_EXPORT SQLite3Connection: public DatabaseConnection
 {
     friend class Query;
@@ -55,74 +59,150 @@ class SP_EXPORT SQLite3Connection: public DatabaseConnection
 
 private:
 
-    sqlite3 *m_connect;   ///< The SQLite3 database connection object
+    /**
+     * The SQLite3 database connection object
+     */
+    sqlite3 *m_connect;
+
 
 protected:
 
-    /// @brief Begins the transaction
+    /**
+     * @brief Begins the transaction
+     */
     virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
-    /// @brief Ends the transaction
-    /// @param commit bool, commit if true, rollback if false
+    /**
+     * @brief Ends the transaction
+     * @param commit bool, commit if true, rollback if false
+     */
     virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by CQuery
-    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(Query *query);      ///< Allocates an SQLite3 statement
-    virtual void queryFreeStmt(Query *query);       ///< Deallocates an SQLite3 statement
-    virtual void queryCloseStmt(Query *query);      ///< Closes an SQLite3 statement
-    virtual void queryPrepare(Query *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(Query *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(Query *query);        ///< Executes a statement
-    virtual int queryColCount(Query *query);        ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
-    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(Query *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    /**
+     * Retrieves an error (if any) after executing a statement
+     */
+    virtual std::string queryError(const Query *query) const;
 
-    /// @brief Returns the SQLite3 connection object
+    /**
+     * Allocates an SQLite3 statement
+     */
+    virtual void queryAllocStmt(Query *query);
+
+    /**
+     * Deallocates an SQLite3 statement
+     */
+    virtual void queryFreeStmt(Query *query);
+
+    /**
+     * Closes an SQLite3 statement
+     */
+    virtual void queryCloseStmt(Query *query);
+
+    /**
+     * Prepares a query if supported by database
+     */
+    virtual void queryPrepare(Query *query);
+
+    /**
+     * Unprepares a query if supported by database
+     */
+    virtual void queryUnprepare(Query *query);
+
+    /**
+     * Executes a statement
+     */
+    virtual void queryExecute(Query *query);
+
+    /**
+     * Counts columns of the dataset (if any) returned by query
+     */
+    virtual int queryColCount(Query *query);
+
+    /**
+     * Binds the parameters to the query
+     */
+    virtual void queryBindParameters(Query *query);
+
+    /**
+     * Opens the query for reading data from the query' recordset
+     */
+    virtual void queryOpen(Query *query);
+
+    /**
+     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     */
+    virtual void queryFetch(Query *query);
+
+
+    /**
+     * @brief Returns the SQLite3 connection object
+     */
     sqlite3 *connection()
     {
         return m_connect;
     }
 
-    /// @brief Converts datatype from SQLite type to SPTK VariantType
+    /**
+     * @brief Converts datatype from SQLite type to SPTK VariantType
+     */
     void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
 
 public:
 
-    /// @brief Constructor
-    /// @param connectionString std::string, the SQLite3 connection string
+    /**
+     * @brief Constructor
+     * @param connectionString std::string, the SQLite3 connection string
+     */
     SQLite3Connection(std::string connectionString = "");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~SQLite3Connection();
 
-    /// @brief Returns driver-specific connection string
+    /**
+     * @brief Returns driver-specific connection string
+     */
     std::string nativeConnectionString() const;
 
-    /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the SQLite3 connection string
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString std::string, the SQLite3 connection string
+     */
     virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
-    /// @brief Closes the database connection. If unsuccessful throws an exception.
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
     virtual void closeDatabase() THROWS_EXCEPTIONS;
 
-    /// @brief Returns true if database is opened
+    /**
+     * @brief Returns true if database is opened
+     */
     virtual bool active() const;
 
-    /// @brief Returns the database connection handle
+    /**
+     * @brief Returns the database connection handle
+     */
     virtual void* handle() const;
 
-    /// @brief Returns the SQLite3 driver description for the active connection
+    /**
+     * @brief Returns the SQLite3 driver description for the active connection
+     */
     virtual std::string driverDescription() const;
 
-    /// @brief Lists database objects
-    /// @param objectType CDbObjectType, object type to list
-    /// @param objects Strings&, object list (output)
+    /**
+     * @brief Lists database objects
+     * @param objectType CDbObjectType, object type to list
+     * @param objects Strings&, object list (output)
+     */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

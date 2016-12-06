@@ -38,91 +38,135 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief A Yes/No dialog box
-///
-/// Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
+/**
+ * @brief A Yes/No dialog box
+ *
+ * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
+ */
 class CAskDialog : public CDialog {
-    Fl_Box    *m_imageBox; ///< The icon box
-    CHtmlBox  *m_textBox;  ///< The HTML box widget to show the message text
+    /**
+     * The icon box
+     */
+    Fl_Box    *m_imageBox;
+
+    /**
+     * The HTML box widget to show the message text
+     */
+    CHtmlBox  *m_textBox;
+
 protected:
-    CInput   *m_inputBox; ///< Input box, optionally shown
+    /**
+     * Input box, optionally shown
+     */
+    CInput   *m_inputBox;
+
 public:
-    /// Constructor
-    /// @param label const char *, window caption
-    /// @param w int, window width
+    /**
+     * Constructor
+     * @param label const char *, window caption
+     * @param w int, window width
+     */
     CAskDialog(const char *label,int w=400);
 
-    /// Shows message and waits for the user
-    /// @param msg const char *, message to show
+    /**
+     * Shows message and waits for the user
+     * @param msg const char *, message to show
+     */
     bool execute(std::string msg);
 
-    /// Sets icon for the window
-    /// @param image Fl_Pixmap *, icon to use, suggested size is 48x48 XPM
+    /**
+     * Sets icon for the window
+     * @param image Fl_Pixmap *, icon to use, suggested size is 48x48 XPM
+     */
     void icon(Fl_Image *image) {
         m_imageBox->image(image);
     }
 };
 
-/// @brief An information dialog box
-///
-/// Creates a dialog with the text or HTML text of message and one button (Ok)
+/**
+ * @brief An information dialog box
+ *
+ * Creates a dialog with the text or HTML text of message and one button (Ok)
+ */
 class CMessageDialog : public CAskDialog {
 public:
-    /// Constructor
-    /// @param label const char *, window caption
-    /// @param w int, window width
+    /**
+     * Constructor
+     * @param label const char *, window caption
+     * @param w int, window width
+     */
     CMessageDialog(const char *label,int w=400) : CAskDialog(label,w) {
         m_cancelButton->hide();
     }
 };
 
-/// @brief A single input Yes/No dialog box
-///
-/// Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
+/**
+ * @brief A single input Yes/No dialog box
+ *
+ * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
+ */
 class CInputDialog : public CAskDialog {
 public:
-    /// Constructor
-    /// @param label const char *, window caption
-    /// @param w int, window width
+    /**
+     * Constructor
+     * @param label const char *, window caption
+     * @param w int, window width
+     */
     CInputDialog(const char *label,int w=400) : CAskDialog(label,w) {
         m_inputBox->show();
     }
 
-    /// Shows message and waits for the user input
-    /// @param msg std::string, message to show
-    /// @param inputText std::string&, string to input
+    /**
+     * Shows message and waits for the user input
+     * @param msg std::string, message to show
+     * @param inputText std::string&, string to input
+     */
     bool execute(std::string msg,std::string& inputText);
 };
 
-/// @brief A Yes/No dialog box function
-///
-/// Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
+/**
+ * @brief A Yes/No dialog box function
+ *
+ * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
+ */
 int spAsk(std::string message);
 
-/// @brief A warning information dialog box warning function
-///
-/// Creates a dialog with the text or HTML text of message and one button (Ok)
+/**
+ * @brief A warning information dialog box warning function
+ *
+ * Creates a dialog with the text or HTML text of message and one button (Ok)
+ */
 int spWarning(std::string message);
 
-/// @brief An error information dialog box function
-///
-/// Creates a dialog with the text or HTML text of message and one button (Ok)
+/**
+ * @brief An error information dialog box function
+ *
+ * Creates a dialog with the text or HTML text of message and one button (Ok)
+ */
 int spError(std::string message);
 
-/// @brief An information dialog box function
-///
-/// Creates a dialog with the text or HTML text of message and one button (Ok)
+/**
+ * @brief An information dialog box function
+ *
+ * Creates a dialog with the text or HTML text of message and one button (Ok)
+ */
 int spInformation(std::string message);
 
-/// @brief A single input Yes/No dialog box
-///
-/// Creates a dialog with the text or HTML text of question (message),
-/// two buttons (Ok/Cancel), and input box
+/**
+ * @brief A single input Yes/No dialog box
+ *
+ * Creates a dialog with the text or HTML text of question (message),
+ * two buttons (Ok/Cancel), and input box
+ */
 int spInput(std::string message,std::string& inputText);
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

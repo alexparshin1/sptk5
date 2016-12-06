@@ -34,71 +34,101 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Toolbar widget
-///
-/// The slightely extended CGroup to work as a toolbar.
-/// Most of the toolbar functionality isn't implemented yet.
+/**
+ * @brief Toolbar widget
+ *
+ * The slightely extended CGroup to work as a toolbar.
+ * Most of the toolbar functionality isn't implemented yet.
+ */
 class SP_EXPORT CToolBar : public CGroup {
-    bool    m_colapsed; ///< Flag, true if the toolbar is collapsed
+    /**
+     * Flag, true if the toolbar is collapsed
+     */
+    bool    m_colapsed;
+
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CToolBar(CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     CToolBar(int x,int y,int w,int h);
 #endif
 
-    /// @brief Creates and adds a new button to the toolbar
-    /// @param buttonKind CButtonKind, button type
-    /// @param cb Fl_Callback_p, button callback
-    /// @param label const char *, button label
-    /// @param buttonAlign CLayoutAlign, button align in the toolbar
-    /// @see CButton
+    /**
+     * @brief Creates and adds a new button to the toolbar
+     * @param buttonKind CButtonKind, button type
+     * @param cb Fl_Callback_p, button callback
+     * @param label const char *, button label
+     * @param buttonAlign CLayoutAlign, button align in the toolbar
+     * @see CButton
+     */
     CButton *addButton(CButtonKind buttonKind,Fl_Callback_p cb,const char *label = 0,CLayoutAlign buttonAlign=SP_ALIGN_LEFT);
 
-    /// @brief Resizes the group and inside widgets.
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * @brief Resizes the group and inside widgets.
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     virtual void resize(int x,int y,int w,int h);
 
-    /// @brief Computes the optimal group size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * @brief Computes the optimal group size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// @brief Flag, true if the toolbar is collapsed
+    /**
+     * @brief Flag, true if the toolbar is collapsed
+     */
     bool collapsed() const {
         return m_colapsed;
     }
 
-    /// @brief Special handle() function
+    /**
+     * @brief Special handle() function
+     */
     int handle(int);
 
-    /// @brief Draws the toolbar
+    /**
+     * @brief Draws the toolbar
+     */
     void draw();
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "toolbar";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

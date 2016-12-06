@@ -35,54 +35,78 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Shared strings table
-///
-/// Contains a table of shared strings for the use with different objects
-/// such as XML node, ListView, etc
+/**
+ * @brief Shared strings table
+ *
+ * Contains a table of shared strings for the use with different objects
+ * such as XML node, ListView, etc
+ */
 class SP_EXPORT SharedStrings
 {
-    typedef std::set<std::string> Set;  ///< String set type
-    Set     m_strings;                  ///< Set of shared strings
+    /**
+     * String set type
+     */
+    typedef std::set<std::string> Set;
+
+    /**
+     * Set of shared strings
+     */
+    Set     m_strings;
+
 public:
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     SharedStrings();
 
-    /// @brief Find a shared string
-    ///
-    /// Looks for an existing shared string, and returns a const std::string&
-    /// to it. If a shared string not found, returns nullptr.
-    /// @param str const char *, a string to find
+    /**
+     * @brief Find a shared string
+     *
+     * Looks for an existing shared string, and returns a const std::string&
+     * to it. If a shared string not found, returns nullptr.
+     * @param str const char *, a string to find
+     */
     const std::string* findString(const char *str) const;
     
-    /// @brief Obtain a shared string
-    ///
-    /// Looks for an existing shared string, and returns a const std::string&
-    /// to it. If a shared string not found, it's created with reference count one.
-    /// For an existing shared string, every call of this method encreases string
-    /// reference counter by one
-    /// @param str const char *, a string to share
+    /**
+     * @brief Obtain a shared string
+     *
+     * Looks for an existing shared string, and returns a const std::string&
+     * to it. If a shared string not found, it's created with reference count one.
+     * For an existing shared string, every call of this method encreases string
+     * reference counter by one
+     * @param str const char *, a string to share
+     */
     const std::string& shareString(const char *str);
 
-    /// @brief Obtain a shared string
-    ///
-    /// Looks for an existing shared string, and returns a const char *pointer
-    /// to it. If a shared string not found, it's created with reference count one.
-    /// For an existing shared string, every call of this method encreases string
-    /// reference counter by one
-    /// @param str const std::string&, a string to share
+    /**
+     * @brief Obtain a shared string
+     *
+     * Looks for an existing shared string, and returns a const char *pointer
+     * to it. If a shared string not found, it's created with reference count one.
+     * For an existing shared string, every call of this method encreases string
+     * reference counter by one
+     * @param str const std::string&, a string to share
+     */
     const std::string& shareString(const std::string& str) 
     {
         return shareString(str.c_str());
     }
     
-    /// @brief Clear shared starings
+    /**
+     * @brief Clear shared starings
+     */
     void clear();
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

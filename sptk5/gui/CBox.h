@@ -37,106 +37,166 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Simple text viewer
-///
-/// Multiple line text box (read-only)
+/**
+ * @brief Simple text viewer
+ *
+ * Multiple line text box (read-only)
+ */
 class SP_EXPORT CBox : public CInput {
     typedef class CInput inherited;
 
-    int         m_xPushed;  ///< X-coordinate when mouse was pushed down
-    int         m_yPushed;  ///< Y-coordinate when mouse was pushed down
-    bool        m_dragable; ///< Flag that allows to drag a window, if true
+    /**
+     * X-coordinate when mouse was pushed down
+     */
+    int         m_xPushed;
 
-    /// @brief Constructor initializer
+    /**
+     * Y-coordinate when mouse was pushed down
+     */
+    int         m_yPushed;
+
+    /**
+     * Flag that allows to drag a window, if true
+     */
+    bool        m_dragable;
+
+
+    /**
+     * @brief Constructor initializer
+     */
     void ctor_init(const char *label);
 
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CBox(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CBox(int x,int y,int w,int h,const char *label = 0);
 #endif
 
-    /// @brief Universal data connection, returns data from control
+    /**
+     * @brief Universal data connection, returns data from control
+     */
     virtual Variant data() const;
 
-    /// @brief Universal data connection, sets data from control
+    /**
+     * @brief Universal data connection, sets data from control
+     */
     virtual void     data(const Variant v);
 
-    /// @brief Returns the control kind, SPTK-style RTTI
-    /// @see CControlKind for more information
+    /**
+     * @brief Returns the control kind, SPTK-style RTTI
+     * @see CControlKind for more information
+     */
     virtual CControlKind kind() const {
         return DCV_BOX;
     }
 
-    /// @brief Returns the control class name, SPTK-style RTTI
+    /**
+     * @brief Returns the control class name, SPTK-style RTTI
+     */
     virtual std::string className() const {
         return "box";
     }
 
-    /// @brief Returns the text font type
+    /**
+     * @brief Returns the text font type
+     */
     virtual Fl_Font  textFont() const;
 
-    /// @brief Sets the text font type
+    /**
+     * @brief Sets the text font type
+     */
     virtual void     textFont(Fl_Font f);
 
-    /// @brief Returns the text font size
+    /**
+     * @brief Returns the text font size
+     */
     virtual uchar    textSize() const;
 
-    /// @brief Sets the input text font size
+    /**
+     * @brief Sets the input text font size
+     */
     virtual void     textSize(uchar s);
 
-    /// @brief Returns the text alignment.
+    /**
+     * @brief Returns the text alignment.
+     */
     virtual uint32_t textAlign() const;
 
-    /// @brief Sets the text alignment
+    /**
+     * @brief Sets the text alignment
+     */
     virtual void     textAlign(uint32_t align);
 
-    /// @brief Computes totalHeight for the text inside
+    /**
+     * @brief Computes totalHeight for the text inside
+     */
     virtual int      totalHeight(int ww=0) const;
 
-    /// @brief Custom draw method
+    /**
+     * @brief Custom draw method
+     */
     virtual void     draw();
 
-    /// @brief Computes the optimal widget size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * @brief Computes the optimal widget size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// @brief Resizes the control and inside widgets.
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * @brief Resizes the control and inside widgets.
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     virtual void     resize(int x,int y,int w,int h);
 
-    /// @brief Creates a widget based on the XML node information
+    /**
+     * @brief Creates a widget based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 
-    /// @brief Custom handle() to support drag event
+    /**
+     * @brief Custom handle() to support drag event
+     */
     int handle(int event);
 
-    /// @brief Returns flag that allows to drag a window, if true
+    /**
+     * @brief Returns flag that allows to drag a window, if true
+     */
     bool dragable() const { return m_dragable; }
 
-    /// @brief Sets flag that allows to drag a window, if true
+    /**
+     * @brief Sets flag that allows to drag a window, if true
+     */
     void dragable(bool df) { m_dragable = df; }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

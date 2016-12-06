@@ -33,33 +33,47 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief SPTK OS operation exception
-///
-/// Retrieves information about OS error after failed OS operation.
+/**
+ * @brief SPTK OS operation exception
+ *
+ * Retrieves information about OS error after failed OS operation.
+ */
 class SP_EXPORT SystemException : public Exception
 {
 public:
-    /// @brief Constructor
-    /// @param context std::string, the exception context
-    /// @param file std::string, the file name where exception occurs
-    /// @param line int, the line number in the file where exception occurs
+    /**
+     * @brief Constructor
+     * @param context std::string, the exception context
+     * @param file std::string, the file name where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     */
     SystemException(std::string context, std::string file="", int line=0);
 
-    /// @brief Copy constructor
-    /// @param other const SystemException&, the other exception object
+    /**
+     * @brief Copy constructor
+     * @param other const SystemException&, the other exception object
+     */
     SystemException(const SystemException& other);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~SystemException() DOESNT_THROW;
 
-    /// @brief Returns OS error
+    /**
+     * @brief Returns OS error
+     */
     static std::string osError();
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

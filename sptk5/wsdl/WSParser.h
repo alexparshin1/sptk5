@@ -34,97 +34,167 @@
 namespace sptk
 {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
 
-/// @brief WSDL operation
+/**
+ * @brief WSDL operation
+ */
 struct WSOperation
 {
-    WSParserComplexType*   m_input;    ///< WSDL operation input
-    WSParserComplexType*   m_output;   ///< WSDL operation output
+    /**
+     * WSDL operation input
+     */
+    WSParserComplexType*   m_input;
+
+    /**
+     * WSDL operation output
+     */
+    WSParserComplexType*   m_output;
+
 };
 
-/// @brief Parser of WSDL files
-///
-/// Loads a WSDL file and converts it to a set of abstract classes that can be saved
-/// as C++ source files to a directory.
-/// The actual web service is built by deriving concrete classes from these abstract classes.
+/**
+ * @brief Parser of WSDL files
+ *
+ * Loads a WSDL file and converts it to a set of abstract classes that can be saved
+ * as C++ source files to a directory.
+ * The actual web service is built by deriving concrete classes from these abstract classes.
+ */
 class SP_EXPORT WSParser
 {
 public:
-    /// @brief Map of element names to element objects
+    /**
+     * @brief Map of element names to element objects
+     */
     typedef std::map<std::string, WSParserElement*>     ElementMap;
 
-    /// @brief Map of complex type names to complex type objects
+    /**
+     * @brief Map of complex type names to complex type objects
+     */
     typedef std::map<std::string,WSParserComplexType*>  ComplexTypeMap;
 
-    /// @brief Map of element names to corresponding WSDL (XML) elements
+    /**
+     * @brief Map of element names to corresponding WSDL (XML) elements
+     */
     typedef std::map<std::string,const XMLElement*>     XmlTypeMap;
 
-    /// @brief Map of operation names to operation objects
+    /**
+     * @brief Map of operation names to operation objects
+     */
     typedef std::map<std::string,WSOperation>          OperationMap;
 
-    /// @brief Map of operation names to operation objects
+    /**
+     * @brief Map of operation names to operation objects
+     */
     typedef std::map<std::string,std::string>           DocumentationMap;
 
 private:
-    std::string         m_serviceName;      ///< Service name, defining service class name and source file names
-    ElementMap          m_elements;         ///< Map of all elements
-    ComplexTypeMap      m_complexTypes;     ///< Map of all parsed complex types
-    OperationMap        m_operations;       ///< Map of all operations
-    DocumentationMap    m_documentation;    ///< Map of all operation documentation if any
+    /**
+     * Service name, defining service class name and source file names
+     */
+    std::string         m_serviceName;
+
+    /**
+     * Map of all elements
+     */
+    ElementMap          m_elements;
+
+    /**
+     * Map of all parsed complex types
+     */
+    ComplexTypeMap      m_complexTypes;
+
+    /**
+     * Map of all operations
+     */
+    OperationMap        m_operations;
+
+    /**
+     * Map of all operation documentation if any
+     */
+    DocumentationMap    m_documentation;
+
 
 protected:
-    /// @brief Parses xsd:element nodes directly under xsd:schema
-    /// @param element const XMLElement*, Schema element
+    /**
+     * @brief Parses xsd:element nodes directly under xsd:schema
+     * @param element const XMLElement*, Schema element
+     */
     void parseElement(const XMLElement* element) THROWS_EXCEPTIONS;
 
-    /// @brief Parses xsd:complexType nodes directly under xsd:schema
-    /// @param complexTypeElement const XMLElement*, Schema complex type
+    /**
+     * @brief Parses xsd:complexType nodes directly under xsd:schema
+     * @param complexTypeElement const XMLElement*, Schema complex type
+     */
     void parseComplexType(const XMLElement* complexTypeElement) THROWS_EXCEPTIONS;
 
-    /// @brief Parses wsdl:operation nodes directly under xsd:schema
-    /// @param operation XMLElement*, Schema complex type
+    /**
+     * @brief Parses wsdl:operation nodes directly under xsd:schema
+     * @param operation XMLElement*, Schema complex type
+     */
     void parseOperation(XMLElement* operation) THROWS_EXCEPTIONS;
 
-    /// @brief Parses xsd:schema
-    /// @param schemaElement XMLElement*, Schema element
+    /**
+     * @brief Parses xsd:schema
+     * @param schemaElement XMLElement*, Schema element
+     */
     void parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS;
 
-    /// @brief Generates service definition to output stream
-    /// @param usedClasses const Strings&, List of this service complex types (classes)
-    /// @param output std::ostream, Output stream
+    /**
+     * @brief Generates service definition to output stream
+     * @param usedClasses const Strings&, List of this service complex types (classes)
+     * @param output std::ostream, Output stream
+     */
     void generateDefinition(const Strings& usedClasses, std::ostream& output) THROWS_EXCEPTIONS;
 
-    /// @brief Generates service implementation to output stream
-    /// @param output std::ostream, Output stream
+    /**
+     * @brief Generates service implementation to output stream
+     * @param output std::ostream, Output stream
+     */
     void generateImplementation(std::ostream& output) THROWS_EXCEPTIONS;
 
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     WSParser();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~WSParser();
 
-    /// @brief Clears parsed data
+    /**
+     * @brief Clears parsed data
+     */
     void clear();
 
-    /// @brief Loads WSDL-file and parses it to output classes
-    /// @param wsdlFile std::string, WSDL file name
+    /**
+     * @brief Loads WSDL-file and parses it to output classes
+     * @param wsdlFile std::string, WSDL file name
+     */
     void parse(std::string wsdlFile) THROWS_EXCEPTIONS;
 
-    /// @brief Stores parsed classes to files in source directory
-    /// @param sourceDirectory std::string, Directory to store output classes
-    /// @param headerFile std::string, Optional header file to insert at the start of each generated file
+    /**
+     * @brief Stores parsed classes to files in source directory
+     * @param sourceDirectory std::string, Directory to store output classes
+     * @param headerFile std::string, Optional header file to insert at the start of each generated file
+     */
     void generate(std::string sourceDirectory=".", std::string headerFile="") THROWS_EXCEPTIONS;
 
-    /// @brief Utility function that removes namespace from the element name
-    /// @param name const std::string&, Element name
+    /**
+     * @brief Utility function that removes namespace from the element name
+     * @param name const std::string&, Element name
+     */
     static std::string strip_namespace(const std::string& name);
 
-    /// @brief Utility function that returns namespace from the element name
-    /// @param name const std::string&, Element name
+    /**
+     * @brief Utility function that returns namespace from the element name
+     * @param name const std::string&, Element name
+     */
     static std::string get_namespace(const std::string& name);
 };
 

@@ -34,68 +34,110 @@
 
 namespace sptk {
 
-/// Class name aliases, to make M$ VC-- compile the the class
+/**
+ * Class name aliases, to make M$ VC-- compile the the class
+ */
 typedef std::ostream _ostream;
 typedef std::ios _ios;
 
 class Logger;
 
-/// @addtogroup log Log Classes
-/// @{
+/**
+ * @addtogroup log Log Classes
+ * @{
+ */
 
-/// @brief Internal buffer for the CLogStream class
+/**
+ * @brief Internal buffer for the CLogStream class
+ */
 class SP_EXPORT CLogStreamBuf: public std::streambuf //, public Synchronized
 {
     friend class Logger;
 private:
-    char*           m_buffer;           ///< Internal buffer to store the current log message
-    uint32_t        m_size;             ///< The size of the internal buffer
-    uint32_t        m_bytes;            ///< The number of characters in the buffer
-    DateTime        m_date;             ///< Message timestamp
-    LogPriority     m_priority;         ///< Current message priority, should be defined for every message
-    Logger*         m_parent;           ///< Parent log object
+    /**
+     * Internal buffer to store the current log message
+     */
+    char*           m_buffer;
+
+    /**
+     * The size of the internal buffer
+     */
+    uint32_t        m_size;
+
+    /**
+     * The number of characters in the buffer
+     */
+    uint32_t        m_bytes;
+
+    /**
+     * Message timestamp
+     */
+    DateTime        m_date;
+
+    /**
+     * Current message priority, should be defined for every message
+     */
+    LogPriority     m_priority;
+
+    /**
+     * Parent log object
+     */
+    Logger*         m_parent;
+
 
 protected:
-    /// @brief Assignes the parent log object
-    ///
-    /// @param par Logger *, parent log object
+    /**
+     * @brief Assignes the parent log object
+     *
+     * @param par Logger *, parent log object
+     */
     void parent(Logger *par)
     {
         //SYNCHRONIZED_CODE;
         m_parent = par;
     }
 
-    /// Overwritten virtual method for std::streambuf
-    /// @param c int_type, a character sent to the stream on overflow
+    /**
+     * Overwritten virtual method for std::streambuf
+     * @param c int_type, a character sent to the stream on overflow
+     */
     virtual int_type overflow(int_type c);
 
 public:
-    /// @brief Constructor
-    ///
-    /// Constructs a buffer for CBaseLog.
+    /**
+     * @brief Constructor
+     *
+     * Constructs a buffer for CBaseLog.
+     */
     CLogStreamBuf();
 
-    /// @brief Destructor
-    ///
-    /// Sends the remaining part of the message to the log,
-    /// then releases the allocated memory
+    /**
+     * @brief Destructor
+     *
+     * Sends the remaining part of the message to the log,
+     * then releases the allocated memory
+     */
     ~CLogStreamBuf()
     {
         //SYNCHRONIZED_CODE;
         free(m_buffer);
     }
 
-    /// @brief Flushes message buffer
-    ///
-    /// Sends the remaining part of the message to the log
+    /**
+     * @brief Flushes message buffer
+     *
+     * Sends the remaining part of the message to the log
+     */
     void flush()
     {
         overflow(char(13));
     }
 
-    /// @brief Sets current message priority
-    ///
-    /// @param prt LogPriority, current message priority
+    /**
+     * @brief Sets current message priority
+     *
+     * @param prt LogPriority, current message priority
+     */
     void priority(LogPriority prt)
     {
         //SYNCHRONIZED_CODE;
@@ -103,59 +145,83 @@ public:
     }
 };
 
-/// @brief A log that sends all the log messages into another log.
-///
-/// The destination log is locked for a message adding period.
-/// Multiple Logger objects may send messages from different threads
-/// into the same destination log.
-/// The log options defining message format and min priority are used
-/// from destination log.
-/// @see CBaseLog for more information about basic log abilities.
+/**
+ * @brief A log that sends all the log messages into another log.
+ *
+ * The destination log is locked for a message adding period.
+ * Multiple Logger objects may send messages from different threads
+ * into the same destination log.
+ * The log options defining message format and min priority are used
+ * from destination log.
+ * @see CBaseLog for more information about basic log abilities.
+ */
 class SP_EXPORT Logger: public _ostream
 {
     friend class CLogStreamBuf;
 
-    LogEngine&      m_destination;      ///< The actual log to store messages to (destination log)
-    CLogStreamBuf*  m_buffer;           ///< Log buffer
+    /**
+     * The actual log to store messages to (destination log)
+     */
+    LogEngine&      m_destination;
+
+    /**
+     * Log buffer
+     */
+    CLogStreamBuf*  m_buffer;
+
 
 protected:
 
-    /// @brief Sends log message to actual destination
-    /// @param date DateTime, message timestamp
-    /// @param message const char *, message text
-    /// @param sz uint32_t, message size
-    /// @param priority LogPriority, message priority. @see LogPriority for more information.
+    /**
+     * @brief Sends log message to actual destination
+     * @param date DateTime, message timestamp
+     * @param message const char *, message text
+     * @param sz uint32_t, message size
+     * @param priority LogPriority, message priority. @see LogPriority for more information.
+     */
     virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
 
 public:
-    /// @brief Constructor
-    /// @param destination LogEngine&, destination logger
+    /**
+     * @brief Constructor
+     * @param destination LogEngine&, destination logger
+     */
     Logger(LogEngine& destination);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~Logger();
 
-    /// @brief Sets the message priority for the following messages
+    /**
+     * @brief Sets the message priority for the following messages
+     */
     void messagePriority(LogPriority prt) 
     {
         m_buffer->priority(prt);
     }
 
-    /// @brief Returns log engine (destination logger)
+    /**
+     * @brief Returns log engine (destination logger)
+     */
     LogEngine& destination()
     {
         return m_destination;
     }
 };
 
-/// @brief Sets the message priority
-///
-/// By default, the message priority is CLP_NOTICE.
-/// Changing the priority would hold till the new log message.
-/// The new message would start with the default priority.
+/**
+ * @brief Sets the message priority
+ *
+ * By default, the message priority is CLP_NOTICE.
+ * Changing the priority would hold till the new log message.
+ * The new message would start with the default priority.
+ */
 SP_EXPORT sptk::Logger& operator <<(sptk::Logger&, sptk::LogPriority);
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

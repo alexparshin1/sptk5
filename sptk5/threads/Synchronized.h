@@ -39,58 +39,88 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Synchronization object
+/**
+ * @brief Synchronization object
+ */
 class SP_EXPORT Synchronized
 {
-    /// @brief Throws error description for the error code
-    /// @param fileName const char*, File name where lock is invoked
-    /// @param lineNumber int, Line number where lock is invoked
+    /**
+     * @brief Throws error description for the error code
+     * @param fileName const char*, File name where lock is invoked
+     * @param lineNumber int, Line number where lock is invoked
+     */
     void throwError(const char* fileName=NULL, int lineNumber=0) THROWS_EXCEPTIONS;
 
-    /// @brief Sleeps until timeout occurs (unlocked)
-    /// @param timeoutMS int, timeout in milliseconds
-    /// @return 0 on success or -1 on timeout or error
+    /**
+     * @brief Sleeps until timeout occurs (unlocked)
+     * @param timeoutMS int, timeout in milliseconds
+     * @return 0 on success or -1 on timeout or error
+     */
     int msleepUnlocked(int timeoutMS);
 
 protected:
 
-    std::timed_mutex        m_synchronized;     ///< Mutex object
-    CLocation               m_location;         ///< Location of latest successfull lock()
+    /**
+     * Mutex object
+     */
+    std::timed_mutex        m_synchronized;
+
+    /**
+     * Location of latest successfull lock()
+     */
+    CLocation               m_location;
+
 
 public:
 
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     Synchronized();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~Synchronized();
 
-    /// @brief Tries to lock synchronization object. Blocks until the lock is successfull.
-    /// @param fileName const char*, lock location fileName
-    /// @param lineNumber int, lock location line number
+    /**
+     * @brief Tries to lock synchronization object. Blocks until the lock is successfull.
+     * @param fileName const char*, lock location fileName
+     * @param lineNumber int, lock location line number
+     */
     virtual void lock(const char* fileName=NULL, int lineNumber = 0);
 
-    /// @brief Tries to lock synchronization object. Blocks until the lock is obtained, or until timeout occurs.
-    ///
-    /// Throws CTimeoutException exception if timeout.
-    /// Throws CException exception if lock was interrupted.
-    /// @param timeoutMS uint32_t, lock timeout, milliseconds
-    /// @param fileName const char*, lock location fileName, default is NULL
-    /// @param lineNumber int, lock location line number, default is 0
+    /**
+     * @brief Tries to lock synchronization object. Blocks until the lock is obtained, or until timeout occurs.
+     *
+     * Throws CTimeoutException exception if timeout.
+     * Throws CException exception if lock was interrupted.
+     * @param timeoutMS uint32_t, lock timeout, milliseconds
+     * @param fileName const char*, lock location fileName, default is NULL
+     * @param lineNumber int, lock location line number, default is 0
+     */
     virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0) THROWS_EXCEPTIONS;
 
-    /// @brief Tries to lock synchronization object.
-    /// @return true is lock may be acquired, or false if not.
+    /**
+     * @brief Tries to lock synchronization object.
+     * @return true is lock may be acquired, or false if not.
+     */
     virtual bool tryLock();
 
-    /// @brief Unlocks the synchronization object.
+    /**
+     * @brief Unlocks the synchronization object.
+     */
     virtual void unlock();
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

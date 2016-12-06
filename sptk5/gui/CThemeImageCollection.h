@@ -35,51 +35,91 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief A collection of theme images
-///
-/// The images are stored for the different states of the object
+/**
+ * @brief A collection of theme images
+ *
+ * The images are stored for the different states of the object
+ */
 class CThemeImageCollection {
-    CPngImage*  m_images[MAX_IMAGE_STATES];         ///< List of images for different image states
-    CPngImage*  m_overlayImages[MAX_IMAGE_STATES];  ///< List of overlay images for different image states
-    int         m_border[4];                        ///< Border, for the first image
-    bool        m_stretch;                          ///< Stretch flag, for the first image
+    /**
+     * List of images for different image states
+     */
+    CPngImage*  m_images[MAX_IMAGE_STATES];
+
+    /**
+     * List of overlay images for different image states
+     */
+    CPngImage*  m_overlayImages[MAX_IMAGE_STATES];
+
+    /**
+     * Border, for the first image
+     */
+    int         m_border[4];
+
+    /**
+     * Stretch flag, for the first image
+     */
+    bool        m_stretch;
+
 public:
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     CThemeImageCollection();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CThemeImageCollection() { clear(); }
 
-    /// @brief Clears the collection
+    /**
+     * @brief Clears the collection
+     */
     void clear();
 
-    /// @brief Loads the collection from SPTK theme
+    /**
+     * @brief Loads the collection from SPTK theme
+     */
     void loadFromSptkTheme(const Strings& objectNames);
 
-    /// @brief Loads the collection from GTK theme
+    /**
+     * @brief Loads the collection from GTK theme
+     */
     void loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute="",std::string attributeValue="");
 
-    /// @brief Returns border for a paticular index (0..3)
+    /**
+     * @brief Returns border for a paticular index (0..3)
+     */
     int border(int ndx) const { return m_border[ndx]; }
 
     int* border() { return m_border; }
 
-    /// @brief Returns draw stretch flag
+    /**
+     * @brief Returns draw stretch flag
+     */
     bool stretch() const { return m_stretch; }
 
-    /// @brief Returns an image for a particular state
+    /**
+     * @brief Returns an image for a particular state
+     */
     CPngImage* image(CThemeImageState state) const; 
 
-    /// @brief Returns an overlay image for a particular state
+    /**
+     * @brief Returns an overlay image for a particular state
+     */
     CPngImage* overlayImage(CThemeImageState state) const;
 
     static std::string gtkFullFileName(std::string fileName);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

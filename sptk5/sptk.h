@@ -30,7 +30,11 @@
 #define __SPTK_H__ ///< sptk.h
 
 #if defined(__GNUC__) || defined(__SUNPRO_CC)
-    #define __UNIX_COMPILER__ ///< Unix compiler flag
+    /**
+     * Unix compiler flag
+     */
+    #define __UNIX_COMPILER__
+
 #endif
 
 #ifndef __UNIX_COMPILER__
@@ -81,7 +85,11 @@
 #endif
 
 #ifndef STRING_NPOS
-    #define STRING_NPOS string::npos    ///< Definition for string::npos missing in some compilers
+    /**
+     * Definition for string::npos missing in some compilers
+     */
+    #define STRING_NPOS string::npos
+
 #endif
 
 #include <map>
@@ -94,7 +102,9 @@ namespace sptk {
 #define ALIGN_RIGHT  2
 #define ALIGN_CENTER 3
 
-/// Infinite timeout (milliseconds)
+/**
+ * Infinite timeout (milliseconds)
+ */
 #define SP_INFINITY uint32_t(-1)
 }
 

@@ -39,14 +39,18 @@ class Fl_Button;
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Calendar widget
-///
-/// A calendar class implements one month calendar.
-/// The calendar window allows to select the date.
-/// You can change a day, a month and a year selected in the widget.
+/**
+ * @brief Calendar widget
+ *
+ * A calendar class implements one month calendar.
+ * The calendar window allows to select the date.
+ * You can change a day, a month and a year selected in the widget.
+ */
 class SP_EXPORT CCalendar : public ::Fl_Group, public CLayoutClient {
     Fl_Group  *m_headerBox;
     Fl_Group  *m_buttonBox;
@@ -59,109 +63,163 @@ class SP_EXPORT CCalendar : public ::Fl_Group, public CLayoutClient {
     int        m_activeButtonIndex;
     char       m_weekDayLabels[14];
 
-    /// Day button callback class function
+    /**
+     * Day button callback class function
+     */
     static void cbDayButtonClicked(Fl_Widget *,void *);
 
-    /// Month button callback class function
+    /**
+     * Month button callback class function
+     */
     static void cbSwitchButtonClicked(Fl_Widget *,void *);
 
-    /// Constructor initializer
+    /**
+     * Constructor initializer
+     */
     void ctor_init();
 
 protected:
-    /// @brief The reaction function for the clicking on one of the day buttons
+    /**
+     * @brief The reaction function for the clicking on one of the day buttons
+     */
     void dayButtonClicked(uint32_t day);
 
-    /// @brief The reaction function for the clicking on one of the month change buttonss
+    /**
+     * @brief The reaction function for the clicking on one of the month change buttonss
+     */
     void switchButtonClicked(int32_t monthChange);
 
 public:
 
-    /// @brief SPTK-style constructor
-    /// @param label const char *, the widget label
-    /// @param layoutSize int, the size of widget in layout
-    /// @param layoutAlignment CLayoutAlign, widget align in the layout
+    /**
+     * @brief SPTK-style constructor
+     * @param label const char *, the widget label
+     * @param layoutSize int, the size of widget in layout
+     * @param layoutAlignment CLayoutAlign, widget align in the layout
+     */
     CCalendar(const char * label,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
 
-    /// @brief FLTK-style constructor
-    /// @param x int, widget x-coordinate
-    /// @param y int, widget y-coordinate
-    /// @param w int, widget width
-    /// @param h int, widget height
-    /// @param label int, optional widget label
+    /**
+     * @brief FLTK-style constructor
+     * @param x int, widget x-coordinate
+     * @param y int, widget y-coordinate
+     * @param w int, widget width
+     * @param h int, widget height
+     * @param label int, optional widget label
+     */
     CCalendar(int x,int y,int w,int h,const char *label=0L);
 
-    /// @brief Widget resize
-    /// @param x int, widget x-coordinate
-    /// @param y int, widget y-coordinate
-    /// @param w int, widget width
-    /// @param h int, widget height
+    /**
+     * @brief Widget resize
+     * @param x int, widget x-coordinate
+     * @param y int, widget y-coordinate
+     * @param w int, widget width
+     * @param h int, widget height
+     */
     void resize(int x,int y,int w,int h);
 
-    /// @brief Reports the maximum height of the calendar widget
+    /**
+     * @brief Reports the maximum height of the calendar widget
+     */
     int  maxHeight() const;
 
-    /// @brief Resizes widget to the optimal height, considering minHeight
+    /**
+     * @brief Resizes widget to the optimal height, considering minHeight
+     */
     void autoHeight(int minHeight);
 
-    /// @brief Sets the calendar date
+    /**
+     * @brief Sets the calendar date
+     */
     void      date(DateTime dt);
 
-    /// @brief Reports the calendar date
+    /**
+     * @brief Reports the calendar date
+     */
     DateTime date() const;
 };
 
-/// @brief Popup Calendar
-///
-/// Creates a popup window with the calendar widget on it.
-/// Allows to select day, month, and year with increment/decrement buttons.
+/**
+ * @brief Popup Calendar
+ *
+ * Creates a popup window with the calendar widget on it.
+ * Allows to select day, month, and year with increment/decrement buttons.
+ */
 class SP_EXPORT CPopupCalendar : public CPopupWindow {
     friend class CCalendar;
-    CCalendar     *m_calendar;    ///< The calendar widget
-    Fl_Widget     *m_dateControl; ///< The widget that shows the pop-up calendar
+    /**
+     * The calendar widget
+     */
+    CCalendar     *m_calendar;
+
+    /**
+     * The widget that shows the pop-up calendar
+     */
+    Fl_Widget     *m_dateControl;
+
 protected:
-    int  handle(int);             ///< Internal handle() function for the FLTK widgets
+    /**
+     * Internal handle() function for the FLTK widgets
+     */
+    int  handle(int);
+
 public:
-    /// @brief Constructor
-    /// @param dateControl Fl_Widget, the widget the shows the popup calendar
+    /**
+     * @brief Constructor
+     * @param dateControl Fl_Widget, the widget the shows the popup calendar
+     */
     CPopupCalendar(Fl_Widget *dateControl);
 
-    /// @brief Attaches the calendar to another widget
+    /**
+     * @brief Attaches the calendar to another widget
+     */
     void attachTo(Fl_Widget *dateControl) {
         m_dateControl = dateControl;
     }
 
-    /// @brief Widget resize
-    /// @param x int, widget x-coordinate
-    /// @param y int, widget y-coordinate
-    /// @param w int, widget width
-    /// @param h int, widget height
+    /**
+     * @brief Widget resize
+     * @param x int, widget x-coordinate
+     * @param y int, widget y-coordinate
+     * @param w int, widget width
+     * @param h int, widget height
+     */
     void resize(int x,int y,int w,int h);
 
-    /// @brief Function that is used to report that calendar is clicked on and should be hidden.
+    /**
+     * @brief Function that is used to report that calendar is clicked on and should be hidden.
+     */
     void clicked() {
         m_clicked = 1;
     }
 
-    /// @brief Sets the calendar date
-    /// @param dt DateTime, new calendar date
+    /**
+     * @brief Sets the calendar date
+     * @param dt DateTime, new calendar date
+     */
     void date(DateTime dt) {
         m_calendar->date(dt);
     }
 
-    /// @brief Reports the calendar date
-    /// @returns DateTime value of the currently selected date
+    /**
+     * @brief Reports the calendar date
+     * @returns DateTime value of the currently selected date
+     */
     DateTime date() const       {
         return m_calendar->date();
     }
 
-    /// @brief Shows the calendar in modal mode
-    ///
-    /// The only difference from standard
-    /// modal mode is that if you click anywhere outside the calendar window and it closes.
-    /// @returns true if date was selected
+    /**
+     * @brief Shows the calendar in modal mode
+     *
+     * The only difference from standard
+     * modal mode is that if you click anywhere outside the calendar window and it closes.
+     * @returns true if date was selected
+     */
     bool showModal();
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

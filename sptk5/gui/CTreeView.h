@@ -35,151 +35,207 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Tree view widget.
-///
-/// Shows tree items with icons. Can use different icons for opened/closed folders.
+/**
+ * @brief Tree view widget.
+ *
+ * Shows tree items with icons. Can use different icons for opened/closed folders.
+ */
 class SP_EXPORT CTreeView : public CControl {
 
-    /// @brief The actual tree control
+    /**
+     * @brief The actual tree control
+     */
     CTreeControl *m_treeControl;
 
-    /// @brief Constructor initializer
+    /**
+     * @brief Constructor initializer
+     */
     void ctor_init();
 protected:
 
-    /// @brief Internal tree control callback
+    /**
+     * @brief Internal tree control callback
+     */
     static void internal_callback(Fl_Widget *,void *);
 
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CTreeView(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CTreeView(int x,int y,int w,int h,const char *label=0);
 #endif
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CTreeView();
 
-    /// @brief Returns controls' kind (internal SPTK RTTI).
+    /**
+     * @brief Returns controls' kind (internal SPTK RTTI).
+     */
     virtual CControlKind kind() const {
         return DCV_TREEVIEW;
     }
 
-    /// @brief Returns controls' class name (internal SPTK RTTI).
+    /**
+     * @brief Returns controls' class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "CTreeView";
     }
 
-    /// @brief Adds a child item to the item. If the closedImage parameter is omitted the openedImage is used instead.
-    /// @param label std::string, the item label
-    /// @param openedImage const Fl_Image *, the image for the opened state
-    /// @param closedImage const Fl_Image *, the image for the closed state
-    /// @param data void *, the user data or ID attached to the item
-    /// @returns the new child item
+    /**
+     * @brief Adds a child item to the item. If the closedImage parameter is omitted the openedImage is used instead.
+     * @param label std::string, the item label
+     * @param openedImage const Fl_Image *, the image for the opened state
+     * @param closedImage const Fl_Image *, the image for the closed state
+     * @param data void *, the user data or ID attached to the item
+     * @returns the new child item
+     */
     CTreeItem *addItem(std::string label,const Fl_Image *openedImage,const Fl_Image *closedImage=0L,void *data=0L) {
         return m_treeControl->addItem(label.c_str(),openedImage,closedImage,data);
     }
 
-    /// @brief Adds a child item to the item using the path. The required path items are created automatically.
-    /// @param path const Strings&, the path to the new child item relatively to the item
-    /// @param openedImage const Fl_Image *, the image for the opened folder
-    /// @param closedImage const Fl_Image *, the image for the closed folder
-    /// @param itemImage const Fl_Image *, the image for the child item
-    /// @param data void *, the user data or ID attached to the item
-    /// @returns the new child item
+    /**
+     * @brief Adds a child item to the item using the path. The required path items are created automatically.
+     * @param path const Strings&, the path to the new child item relatively to the item
+     * @param openedImage const Fl_Image *, the image for the opened folder
+     * @param closedImage const Fl_Image *, the image for the closed folder
+     * @param itemImage const Fl_Image *, the image for the child item
+     * @param data void *, the user data or ID attached to the item
+     * @returns the new child item
+     */
     CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L) {
         return m_treeControl->addPath(path,openedImage,closedImage,itemImage,data);
     }
 
-    /// @brief Adds a child item to the item using the default folder images.
-    /// @param path const Strings&, the item full path in the tree starting with '/'
-    /// @param itemImage const Fl_Image *, the image for the child item
-    /// @param data void *, the user data or ID attached to the item
-    /// @returns the new child item
+    /**
+     * @brief Adds a child item to the item using the default folder images.
+     * @param path const Strings&, the item full path in the tree starting with '/'
+     * @param itemImage const Fl_Image *, the image for the child item
+     * @param data void *, the user data or ID attached to the item
+     * @returns the new child item
+     */
     CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *itemImage=0L,void *data=0L) {
         return addPath(path,itemImage,data);
     }
 
-    /// @brief Removes an item from the parent tree item
+    /**
+     * @brief Removes an item from the parent tree item
+     */
     void removeItem(CTreeItem *item) {
         m_treeControl->removeItem(item);
     }
 
-    /// @brief Returns currently selected item
+    /**
+     * @brief Returns currently selected item
+     */
     CTreeItem *selected() const {
         return m_treeControl->selected();
     }
 
-    /// @brief Returns currently selected item path in the tree
+    /**
+     * @brief Returns currently selected item path in the tree
+     */
     std::string selectedPath() const;
 
-    /// @brief Removes all the tree items
+    /**
+     * @brief Removes all the tree items
+     */
     virtual void clear() {
         m_treeControl->clear();
     }
 
-    /// @brief Relayouts the tree. May be necessary after you've changed items data a lot
+    /**
+     * @brief Relayouts the tree. May be necessary after you've changed items data a lot
+     */
     void relayout() {
         m_treeControl->relayout();
         redraw();
     }
 
-    /// @brief Resizes the control and inside widgets.
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * @brief Resizes the control and inside widgets.
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     virtual void     resize(int x,int y,int w,int h);
 
-    /// @brief Returns the currently selected item ID (or user_data)
+    /**
+     * @brief Returns the currently selected item ID (or user_data)
+     */
     virtual Variant data() const;
 
-    /// @brief Selects the item with matching ID (or user_data)
+    /**
+     * @brief Selects the item with matching ID (or user_data)
+     */
     virtual void     data(const Variant v);
 
-    /// @brief Data connection isn't implemented yet
+    /**
+     * @brief Data connection isn't implemented yet
+     */
     virtual void load(Query *);
 
-    /// @brief Data connection isn't implemented yet
+    /**
+     * @brief Data connection isn't implemented yet
+     */
     virtual void save(Query *);
 
-    /// @brief Loads the the widget from XML node
-    ///
-    /// The widget information may include widget attributes
-    /// and widget data
-    /// @param node XMLNode*, XML node
+    /**
+     * @brief Loads the the widget from XML node
+     *
+     * The widget information may include widget attributes
+     * and widget data
+     * @param node XMLNode*, XML node
+     */
     virtual void load(const XMLNode *node);
 
-    /// @brief Saves the the widget to XML node
-    ///
-    /// The widget information may include widget attributes
-    /// and widget data
-    /// @param node XMLNode*, XML node
+    /**
+     * @brief Saves the the widget to XML node
+     *
+     * The widget information may include widget attributes
+     * and widget data
+     * @param node XMLNode*, XML node
+     */
     virtual void save(XMLNode *node) const;
 
-    /// @brief Returns tru if data is valid
+    /**
+     * @brief Returns tru if data is valid
+     */
     virtual bool valid() const {
         return true;
     }
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

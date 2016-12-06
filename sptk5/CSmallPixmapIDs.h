@@ -31,24 +31,60 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// A list of predefined small pixmaps
+/**
+ * A list of predefined small pixmaps
+ */
 enum CSmallPixmapType {
-    SXPM_EXECUTABLE,    ///< Small pixmap - executable
-    SXPM_FOLDER,        ///< Small pixmap - folder
-    SXPM_FOLDER_OPENED, ///< Small pixmap - opened folder
-    SXPM_DOCUMENT,      ///< Small pixmap - document
-    SXPM_TXT_DOCUMENT,  ///< Small pixmap - text document
-    SXPM_XLS_DOCUMENT,  ///< Small pixmap - Excel document
-    SXPM_DOC_DOCUMENT   ///< Small pixmap - Word document
+    /**
+     * Small pixmap - executable
+     */
+    SXPM_EXECUTABLE,
+
+    /**
+     * Small pixmap - folder
+     */
+    SXPM_FOLDER,
+
+    /**
+     * Small pixmap - opened folder
+     */
+    SXPM_FOLDER_OPENED,
+
+    /**
+     * Small pixmap - document
+     */
+    SXPM_DOCUMENT,
+
+    /**
+     * Small pixmap - text document
+     */
+    SXPM_TXT_DOCUMENT,
+
+    /**
+     * Small pixmap - Excel document
+     */
+    SXPM_XLS_DOCUMENT,
+
+    /**
+     * Small pixmap - Word document
+     */
+    SXPM_DOC_DOCUMENT
+
 };
 
-/// @brief A list of predefined icon names used by ListView, primarily
+/**
+ * @brief A list of predefined icon names used by ListView, primarily
+ */
 extern const char* smallPixmapIDs[7];
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

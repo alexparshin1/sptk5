@@ -50,246 +50,412 @@ class CButton;
 class CControl;
 class CDlgControls;
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief The closing dialog result value.
-///
-/// You can check it after the dialog exits the modal state, using modalResult() method.
-/// If the Ok button was pressed, it would return DMR_OK.
-/// For Cancel button it would return DMR_CANCEL. And, for user buttons, it would be DMR_USER.
+/**
+ * @brief The closing dialog result value.
+ *
+ * You can check it after the dialog exits the modal state, using modalResult() method.
+ * If the Ok button was pressed, it would return DMR_OK.
+ * For Cancel button it would return DMR_CANCEL. And, for user buttons, it would be DMR_USER.
+ */
 enum CDialogModalResult
 {
-    DMR_NONE,      ///< Modal result undefined
-    DMR_OK,        ///< Ok button pressed
-    DMR_CANCEL,    ///< Cancel button pressed
-    DMR_USER       ///< User-added button pressed
+    /**
+     * Modal result undefined
+     */
+    DMR_NONE,
+
+    /**
+     * Ok button pressed
+     */
+    DMR_OK,
+
+    /**
+     * Cancel button pressed
+     */
+    DMR_CANCEL,
+
+    /**
+     * User-added button pressed
+     */
+    DMR_USER
+
 };
 
-/// @brief Extended CTabs for dialog.
-///
-/// The main difference is - it hides the tab label
-/// and the border when there is only one tab.
+/**
+ * @brief Extended CTabs for dialog.
+ *
+ * The main difference is - it hides the tab label
+ * and the border when there is only one tab.
+ */
 class CDialogTabs: public CTabs
 {
-    /// @brief Sets the proper box type for the widget and for the group depending on the number of tabs
-    /// @param page Fl_Group *, newly added tab page
-    /// @returns same page
+    /**
+     * @brief Sets the proper box type for the widget and for the group depending on the number of tabs
+     * @param page Fl_Group *, newly added tab page
+     * @returns same page
+     */
     Fl_Group *adjustPage(Fl_Group *page);
 
 protected:
-    virtual void prepareNewPage(Fl_Group *page, bool autoColor);    ///< Sets default parameters for a new page
+    /**
+     * Sets default parameters for a new page
+     */
+    virtual void prepareNewPage(Fl_Group *page, bool autoColor);
+
 
 public:
 
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     CDialogTabs() :
             CTabs("", 10, SP_ALIGN_CLIENT)
     {
     }
 };
 
-/// @brief Dialog window.
-///
-/// Shows a modal window on the screen.
-/// CDialog has support for the database data exchange to edit a database record.
-/// The required SQL queries in this case are created on the fly, from the list
-/// of controls inside the dialog. Controls should have the field names defined, though.
-/// And don't forget to define a table name and key field name.
+/**
+ * @brief Dialog window.
+ *
+ * Shows a modal window on the screen.
+ * CDialog has support for the database data exchange to edit a database record.
+ * The required SQL queries in this case are created on the fly, from the list
+ * of controls inside the dialog. Controls should have the field names defined, though.
+ * And don't forget to define a table name and key field name.
+ */
 class SP_EXPORT CDialog: public CWindow
 {
 protected:
-    CButton*        m_okButton;           ///< Standard Ok button
-    CButton*        m_cancelButton;       ///< Standard Cancel button
-    CButton*        m_defaultButton;      ///< Pointer to the default button
-    std::string     m_tableName;          ///< Database interface: table name
-    std::string     m_keyField;           ///< Database interface: table key field name
-    int             m_keyValue;           ///< Database interface: table key field value for the record to edit
-    CControlList    m_defaultFields;      ///< Database interface: The list of controls for standard processing
-    CControlList    m_allFields;          ///< The list of all controls (CControl-descendants)
-    CGroup*         m_buttonGroup;        ///< The group buttons are placed on.
-    CDialogTabs*    m_pages;              ///< The tabs
-    Query*         m_selectQuery;        ///< Database interface: The query to select a database record
-    Query*         m_updateQuery;        ///< Database interface: The query to update a database record
-    Query*         m_insertQuery;        ///< Database interface: The query to insert a new database record
-    bool            m_queriesBuilt;       ///< Database interface: The flag indicating if queries are created from available controls.
-    bool            m_controlsScanned;     ///< Database interface: The flag indicating if available controls were scanned for field names.
-    CControlList    m_specialProcessingControls; ///< Database interface: The list of the controls to exclude from standard database queries.
-    CDialogModalResult m_modalResult;  ///< The result of exiting the modal mode.
+    /**
+     * Standard Ok button
+     */
+    CButton*        m_okButton;
 
-    /// @brief Ok button callback
-    ///
-    /// If it returns true the dialog closes.
-    /// False indicates an error and dialog stays open.
+    /**
+     * Standard Cancel button
+     */
+    CButton*        m_cancelButton;
+
+    /**
+     * Pointer to the default button
+     */
+    CButton*        m_defaultButton;
+
+    /**
+     * Database interface: table name
+     */
+    std::string     m_tableName;
+
+    /**
+     * Database interface: table key field name
+     */
+    std::string     m_keyField;
+
+    /**
+     * Database interface: table key field value for the record to edit
+     */
+    int             m_keyValue;
+
+    /**
+     * Database interface: The list of controls for standard processing
+     */
+    CControlList    m_defaultFields;
+
+    /**
+     * The list of all controls (CControl-descendants)
+     */
+    CControlList    m_allFields;
+
+    /**
+     * The group buttons are placed on.
+     */
+    CGroup*         m_buttonGroup;
+
+    /**
+     * The tabs
+     */
+    CDialogTabs*    m_pages;
+
+    /**
+     * Database interface: The query to select a database record
+     */
+    Query*         m_selectQuery;
+
+    /**
+     * Database interface: The query to update a database record
+     */
+    Query*         m_updateQuery;
+
+    /**
+     * Database interface: The query to insert a new database record
+     */
+    Query*         m_insertQuery;
+
+    /**
+     * Database interface: The flag indicating if queries are created from available controls.
+     */
+    bool            m_queriesBuilt;
+
+    /**
+     * Database interface: The flag indicating if available controls were scanned for field names.
+     */
+    bool            m_controlsScanned;
+
+    /**
+     * Database interface: The list of the controls to exclude from standard database queries.
+     */
+    CControlList    m_specialProcessingControls;
+
+    /**
+     * The result of exiting the modal mode.
+     */
+    CDialogModalResult m_modalResult;
+
+
+    /**
+     * @brief Ok button callback
+     *
+     * If it returns true the dialog closes.
+     * False indicates an error and dialog stays open.
+     */
     virtual bool okPressed();
 
-    /// @brief Ok button callback
-    ///
-    /// If it returns true the dialog closes.
-    /// False indicates an error and dialog stays open.
+    /**
+     * @brief Ok button callback
+     *
+     * If it returns true the dialog closes.
+     * False indicates an error and dialog stays open.
+     */
     virtual bool cancelPressed();
 
-    /// @brief Scans dialog controls
-    ///
-    /// If m_controlsScanned is already true, does nothing.
+    /**
+     * @brief Scans dialog controls
+     *
+     * If m_controlsScanned is already true, does nothing.
+     */
     virtual void scanControls();
 
-    /// @brief Builds database interface queries using table(), keyField(), and control field names
-    ///
-    /// If m_queriesBuilt is already true, does nothing.
+    /**
+     * @brief Builds database interface queries using table(), keyField(), and control field names
+     *
+     * If m_queriesBuilt is already true, does nothing.
+     */
     virtual bool buildQueries();
 
-    /// @brief Loads data into dialog
-    ///
-    /// Returns true upon success.
-    /// If you're overwriting this method make sure you're calling
-    /// the original CDialog::load() and use the result of it.
+    /**
+     * @brief Loads data into dialog
+     *
+     * Returns true upon success.
+     * If you're overwriting this method make sure you're calling
+     * the original CDialog::load() and use the result of it.
+     */
     virtual bool load();
 
-    /// @brief Saves data from dialog
-    ///
-    /// Returns true upon success.
-    /// If you're overwriting this method make sure you're calling
-    /// the original CDialog::save() and use the result of it.
+    /**
+     * @brief Saves data from dialog
+     *
+     * Returns true upon success.
+     * If you're overwriting this method make sure you're calling
+     * the original CDialog::save() and use the result of it.
+     */
     virtual bool save();
 
 public:
 
-    /// @brief Constructor
-    /// @param w int, dialog width
-    /// @param h int, dialog height
-    /// @param label const char *, dialog caption
+    /**
+     * @brief Constructor
+     * @param w int, dialog width
+     * @param h int, dialog height
+     * @param label const char *, dialog caption
+     */
     CDialog(int w, int h, const char *label = 0);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CDialog();
 
-    /// @brief Resets all the controls inside the dialog tabs by calling reset() for every control
+    /**
+     * @brief Resets all the controls inside the dialog tabs by calling reset() for every control
+     */
     virtual bool reset();
 
-    /// @brief Own handle() method to process dialog events the special way
-    /// @param event int, an FLTK event
-    /// @returns true if event was processed
+    /**
+     * @brief Own handle() method to process dialog events the special way
+     * @param event int, an FLTK event
+     * @returns true if event was processed
+     */
     int handle(int event);
 
-    /// @brief Shows modal dialog
-    /// @returns true if Ok button was used to close the dialog
+    /**
+     * @brief Shows modal dialog
+     * @returns true if Ok button was used to close the dialog
+     */
     bool showModal();
 
-    /// @brief Shows an alert box
+    /**
+     * @brief Shows an alert box
+     */
     void alert(std::string s) const;
 
-    /// @brief Defines the default button
-    /// @param btn CButton *, button in dialog to become the default button
+    /**
+     * @brief Defines the default button
+     * @param btn CButton *, button in dialog to become the default button
+     */
     void defaultButton(CButton *btn);
 
-    /// @brief Sets the database connection
-    /// @param db DatabaseConnection *, the database connection
+    /**
+     * @brief Sets the database connection
+     * @param db DatabaseConnection *, the database connection
+     */
     virtual void database(DatabaseConnection *db);
 
-    /// @brief Returns current database connection
+    /**
+     * @brief Returns current database connection
+     */
     DatabaseConnection *database() const;
 
-    /// @brief Defines database table to use
-    /// @param tableName std::string, the name of the database table
+    /**
+     * @brief Defines database table to use
+     * @param tableName std::string, the name of the database table
+     */
     void table(std::string tableName);
 
-    /// @brief Returnes used database table
+    /**
+     * @brief Returnes used database table
+     */
     std::string table() const
     {
         return m_tableName;
     }
 
-    /// @brief Fast setup of the database connection
-    /// @param db DatabaseConnection*, the database connection
-    /// @param tableName std::string, the name of the database table
-    /// @param keyFieldName std::string, the name of the key field in the database table
+    /**
+     * @brief Fast setup of the database connection
+     * @param db DatabaseConnection*, the database connection
+     * @param tableName std::string, the name of the database table
+     * @param keyFieldName std::string, the name of the key field in the database table
+     */
     void table(DatabaseConnection*db, std::string tableName, const std::string keyFieldName);
 
-    /// @brief Sets the key field name for the database table.
-    ///
-    /// The key field contains the unique value to find the database record.
-    /// @param keyFieldName std::string, the name of the key field in the database table
+    /**
+     * @brief Sets the key field name for the database table.
+     *
+     * The key field contains the unique value to find the database record.
+     * @param keyFieldName std::string, the name of the key field in the database table
+     */
     void keyField(std::string keyFieldName);
 
-    /// @brief Returns the key field name for the database table.
+    /**
+     * @brief Returns the key field name for the database table.
+     */
     std::string keyField() const
     {
         return m_keyField;
     }
 
-    /// @brief Finds the database record by the value in previously defined key field.
+    /**
+     * @brief Finds the database record by the value in previously defined key field.
+     */
     void keyValue(int val);
 
-    /// @brief Returns the current database record key value.
+    /**
+     * @brief Returns the current database record key value.
+     */
     int keyValue() const;
 
-    /// @brief Creates a new page as CGroup
-    /// @param label const char *, page label
-    /// @param autoColor bool, if true the page color is assigned automatically
-    /// @returns created group
+    /**
+     * @brief Creates a new page as CGroup
+     * @param label const char *, page label
+     * @param autoColor bool, if true the page color is assigned automatically
+     * @returns created group
+     */
     virtual Fl_Group* newPage(const char *label, bool autoColor = false);
 
-    /// @brief Creates a new page as CScroll
-    /// @param label const char *, page label
-    /// @param autoColor bool, if true the page color is assigned automatically
-    /// @returns created group
+    /**
+     * @brief Creates a new page as CScroll
+     * @param label const char *, page label
+     * @param autoColor bool, if true the page color is assigned automatically
+     * @returns created group
+     */
     virtual Fl_Group* newScroll(const char *label, bool autoColor = false);
 
-    /// @brief Adds a user-defined button to the dialog.
-    ///
-    /// User-defined buttons usually do something in the dialog
-    /// without closing the dialog.
-    /// @param buttonKind CButtonKind, button type
-    /// @param label const char *, button label
-    /// @param callback Fl_Callback_p, button callback
+    /**
+     * @brief Adds a user-defined button to the dialog.
+     *
+     * User-defined buttons usually do something in the dialog
+     * without closing the dialog.
+     * @param buttonKind CButtonKind, button type
+     * @param label const char *, button label
+     * @param callback Fl_Callback_p, button callback
+     */
     CButton* addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callback);
 
-    /// @brief Returns the number of controls inside the dialog with defined field names
+    /**
+     * @brief Returns the number of controls inside the dialog with defined field names
+     */
     uint32_t fieldCount() const
     {
         return (uint32_t) m_allFields.size();
     }
 
-    /// @brief Index operator to access controls with defined field name
-    ///
-    /// @param fieldName std::string, the control field name
+    /**
+     * @brief Index operator to access controls with defined field name
+     *
+     * @param fieldName std::string, the control field name
+     */
     CControl& operator [](std::string fieldName);
 
-    /// @brief Makes dialog to scan the widgets inside
+    /**
+     * @brief Makes dialog to scan the widgets inside
+     */
     void rescan()
     {
         m_queriesBuilt = false;
         m_controlsScanned = false;
     }
 
-    /// @brief Loads the dialog controls data from XML
-    ///
-    /// @param node const XMLNode*, the XML node to load data from
-    /// @see XMLNode
+    /**
+     * @brief Loads the dialog controls data from XML
+     *
+     * @param node const XMLNode*, the XML node to load data from
+     * @see XMLNode
+     */
     virtual void load(const XMLNode* node) THROWS_EXCEPTIONS;
 
-    /// @brief Saves the dialog controls into XML
-    ///
-    /// @param node XMLNode&, the XML node to save data into
-    /// @see XMLNode* node
+    /**
+     * @brief Saves the dialog controls into XML
+     *
+     * @param node XMLNode&, the XML node to save data into
+     * @see XMLNode* node
+     */
     virtual void save(XMLNode* node) const;
 
-    /// @brief Returns the modal result of the dialog.
-    ///
-    /// @see CDialogModalResult for more information.
-    /// @returns modal result
+    /**
+     * @brief Returns the modal result of the dialog.
+     *
+     * @see CDialogModalResult for more information.
+     * @returns modal result
+     */
     CDialogModalResult modalResult() const
     {
         return m_modalResult;
     }
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const
     {
         return "dialog";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

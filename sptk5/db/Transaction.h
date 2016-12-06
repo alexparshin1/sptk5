@@ -34,41 +34,67 @@
 
 namespace sptk {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
-/// @brief Database Transaction.
-///
-/// Allows to begin, commit, and rollback the transaction automatically.
-/// If the transaction object is deleted w/o commiting or rolling back
-/// the transaction, it rolls back the transaction (if active)
+/**
+ * @brief Database Transaction.
+ *
+ * Allows to begin, commit, and rollback the transaction automatically.
+ * If the transaction object is deleted w/o commiting or rolling back
+ * the transaction, it rolls back the transaction (if active)
+ */
 class SP_EXPORT Transaction
 {
-    bool                    m_active;   ///< Transaction activity
-    DatabaseConnection*     m_db;       ///< Database to work with
+    /**
+     * Transaction activity
+     */
+    bool                    m_active;
+
+    /**
+     * Database to work with
+     */
+    DatabaseConnection*     m_db;
+
 public:
-    /// Constructor
-    /// @param db DatabaseConnection&, the database to work with
+    /**
+     * Constructor
+     * @param db DatabaseConnection&, the database to work with
+     */
     Transaction(DatabaseConnection& db);
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~Transaction();
 
-    /// Begins the transaction
+    /**
+     * Begins the transaction
+     */
     void begin();
 
-    /// Commits the transaction
+    /**
+     * Commits the transaction
+     */
     void commit();
 
-    /// Rolls back the transaction
+    /**
+     * Rolls back the transaction
+     */
     void rollback();
 
-    /// Is transaction active?
+    /**
+     * Is transaction active?
+     */
     bool active() const
     {
         return m_active;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

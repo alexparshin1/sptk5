@@ -36,16 +36,32 @@
 
 namespace sptk {
 
-/// @brief Tar memory handle
+/**
+ * @brief Tar memory handle
+ */
 class MemoryTarHandle 
 {
 public:
-    size_t      position;         ///< Memory buffer position
-    char*       sourceBuffer;     ///< Memory buffer
-    size_t      sourceBufferLen;  ///< Memory buffer len
+    /**
+     * Memory buffer position
+     */
+    size_t      position;
+
+    /**
+     * Memory buffer
+     */
+    char*       sourceBuffer;
+
+    /**
+     * Memory buffer len
+     */
+    size_t      sourceBufferLen;
+
 public:
-    /// @brief Constructor
-    /// @param buffer CBuffer*, source data
+    /**
+     * @brief Constructor
+     * @param buffer CBuffer*, source data
+     */
     MemoryTarHandle(Buffer* buffer=0) {
         position = 0;
         if (buffer) {
@@ -60,87 +76,147 @@ public:
 
 typedef std::map<int, MemoryTarHandle*> TarHandleMap;
 
-/// @brief A wrapper for libtar functions
-///
-/// Allows reading tar archive files into memory buffers.
-/// The main usage currently is to read an SPTK theme from tar-archive.
+/**
+ * @brief A wrapper for libtar functions
+ *
+ * Allows reading tar archive files into memory buffers.
+ * The main usage currently is to read an SPTK theme from tar-archive.
+ */
 class Tar
 {
     typedef std::map<std::string,Buffer*>  FileCollection;
-    void*                 m_tar;         ///< Tar file header
-    FileCollection       m_files;       ///< File name to the file data map
-    Strings               m_fileNames;   ///< List of files in archive
-    bool                  m_memoryRead;  ///< Flag to indicate if tar data is red from the memory buffer
-    std::string           m_fileName;    ///< Tar file name
+    /**
+     * Tar file header
+     */
+    void*                 m_tar;
 
-    /// @brief Loads tar file into memory
+    /**
+     * File name to the file data map
+     */
+    FileCollection       m_files;
+
+    /**
+     * List of files in archive
+     */
+    Strings               m_fileNames;
+
+    /**
+     * Flag to indicate if tar data is red from the memory buffer
+     */
+    bool                  m_memoryRead;
+
+    /**
+     * Tar file name
+     */
+    std::string           m_fileName;
+
+
+    /**
+     * @brief Loads tar file into memory
+     */
     bool loadFile() THROWS_EXCEPTIONS;
 
-    /// @brief Throws an error
+    /**
+     * @brief Throws an error
+     */
     void throwError(std::string fileName) THROWS_EXCEPTIONS;
 public:
-    static int            lastTarHandle; ///< The last generated tar handle
-    static TarHandleMap*  tarHandleMap;  ///< The map of tar handles
+    /**
+     * The last generated tar handle
+     */
+    static int            lastTarHandle;
 
-        /// @brief Returns memory handle
-    /// @param handle int, tar handle
+    /**
+     * The map of tar handles
+     */
+    static TarHandleMap*  tarHandleMap;
+
+
+        /**
+         * @brief Returns memory handle
+     * @param handle int, tar handle
+         */
     static MemoryTarHandle* tarMemoryHandle(int handle);
 
-    /// @brief Overwrites standard tar open
+    /**
+     * @brief Overwrites standard tar open
+     */
     static int mem_open(const char *name, int x, ...);
 
-    /// @brief Overwrites standard tar close
-    /// @param handle int, tar handle
+    /**
+     * @brief Overwrites standard tar close
+     * @param handle int, tar handle
+     */
     static int mem_close(int handle);
 
-    /// @brief Overwrites standard tar read
-    /// @param handle int, tar handle
-    /// @param buf void*, data buffer
-    /// @param len size_t, read size
+    /**
+     * @brief Overwrites standard tar read
+     * @param handle int, tar handle
+     * @param buf void*, data buffer
+     * @param len size_t, read size
+     */
     static int mem_read(int handle, void *buf, size_t len);
 
-    /// @brief Overwrites standard tar write
-    ///@param handle int, tar handle
-    /// @param buf void*, data buffer
-    /// @param len size_t, write size
+    /**
+     * @brief Overwrites standard tar write
+     *@param handle int, tar handle
+     * @param buf void*, data buffer
+     * @param len size_t, write size
+     */
     static int mem_write(int handle, const void *buf, size_t len);
 
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     Tar();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~Tar() { clear(); }
 
-    /// @brief Reads tar archive from file
-    ///
-    /// The archive content is red into the internal set of buffers
-    /// @param fileName std::string, file name to open
+    /**
+     * @brief Reads tar archive from file
+     *
+     * The archive content is red into the internal set of buffers
+     * @param fileName std::string, file name to open
+     */
     void read(const std::string& fileName) THROWS_EXCEPTIONS
     {
         read(fileName.c_str());
     }
 
-    /// @brief Reads tar archive from file
-    ///
-    /// The archive content is red into the internal set of buffers
-    /// @param fileName std::string, file name to open
+    /**
+     * @brief Reads tar archive from file
+     *
+     * The archive content is red into the internal set of buffers
+     * @param fileName std::string, file name to open
+     */
     void read(const char* fileName) THROWS_EXCEPTIONS;
 
-    /// @brief Reads tar archive from buffer
-    ///
-    /// The archive content is red into the internal set of buffers
-    /// @param tarData const CBuffer&, tar file buffer
+    /**
+     * @brief Reads tar archive from buffer
+     *
+     * The archive content is red into the internal set of buffers
+     * @param tarData const CBuffer&, tar file buffer
+     */
     void read(const Buffer& tarData) THROWS_EXCEPTIONS;
 
-    /// @brief returns a list of files in tar archive
+    /**
+     * @brief returns a list of files in tar archive
+     */
     const Strings& fileList() const { return m_fileNames; }
 
-    /// @brief Returns file data by file name
-    /// @param fileName std::string, file name
+    /**
+     * @brief Returns file data by file name
+     * @param fileName std::string, file name
+     */
     const Buffer& file(std::string fileName) const THROWS_EXCEPTIONS;
 
-    /// @brief Clears the allocated memory
+    /**
+     * @brief Clears the allocated memory
+     */
     void clear();
 };
 

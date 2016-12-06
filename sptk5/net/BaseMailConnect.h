@@ -38,163 +38,241 @@
 namespace sptk
 {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Base mail socket
-///
-/// BaseMailConnect class is the base class for mail message components
+/**
+ * @brief Base mail socket
+ *
+ * BaseMailConnect class is the base class for mail message components
+ */
 class SP_EXPORT BaseMailConnect
 {
 protected:
-    std::string         m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
-    std::string         m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    std::string         m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    std::string         m_bcc;      ///< Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    std::string         m_subject;  ///< Mail SUBJECT:
-    MailMessageBody    m_body;     ///< Mail text (plain-text and html parts of the message)
-    std::string         m_attachments; ///< The list of attachment files separated with ';'
+    /**
+     * Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
+     */
+    std::string         m_from;
 
-    Buffer             m_messageBuffer; ///< Internal message buffer
+    /**
+     * Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+     */
+    std::string         m_to;
 
-    /// Encoding the message into internal message buffer
+    /**
+     * Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+     */
+    std::string         m_cc;
+
+    /**
+     * Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+     */
+    std::string         m_bcc;
+
+    /**
+     * Mail SUBJECT:
+     */
+    std::string         m_subject;
+
+    /**
+     * Mail text (plain-text and html parts of the message)
+     */
+    MailMessageBody    m_body;
+
+    /**
+     * The list of attachment files separated with ';'
+     */
+    std::string         m_attachments;
+
+
+    /**
+     * Internal message buffer
+     */
+    Buffer             m_messageBuffer;
+
+
+    /**
+     * Encoding the message into internal message buffer
+     */
     void mimeFile(std::string fileName, std::string fileAlias, std::stringstream& message);
 
 public:
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     BaseMailConnect()
     {
     }
 
-    /// Default destructor
+    /**
+     * Default destructor
+     */
     virtual ~BaseMailConnect();
 
-    /// Method from() returns the current value of 'FROM:' field of e-mail message.
-    /// @returns a single e-mail address.
+    /**
+     * Method from() returns the current value of 'FROM:' field of e-mail message.
+     * @returns a single e-mail address.
+     */
     std::string from() const
     {
         return m_from;
     }
 
-    /// Method from() sets the current value of 'FROM:' field
-    /// of e-mail message.
-    /// @param addr should be an e-mail address in format:
-    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+    /**
+     * Method from() sets the current value of 'FROM:' field
+     * of e-mail message.
+     * @param addr should be an e-mail address in format:
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     */
     void from(std::string addr)
     {
         m_from = addr;
     }
 
-    /// Method to() returns the current value of 'TO:' field
-    /// of e-mail message
+    /**
+     * Method to() returns the current value of 'TO:' field
+     * of e-mail message
+     */
     std::string to() const
     {
         return m_to;
     }
 
-    /// Method from() sets the current value of 'TO:' field
-    /// of e-mail message.
-    /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+    /**
+     * Method from() sets the current value of 'TO:' field
+     * of e-mail message.
+     * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     */
     void to(std::string addr)
     {
         m_to = addr;
     }
 
-    /// Method cc() returns the current value of 'CC:' field
-    /// of e-mail message
-    /// @returns a list of e-mail addresses. See method to() description for format
+    /**
+     * Method cc() returns the current value of 'CC:' field
+     * of e-mail message
+     * @returns a list of e-mail addresses. See method to() description for format
+     */
     std::string cc() const
     {
         return m_cc;
     }
 
-    /// Method cc() sets the current value of 'CC:' field
-    /// of e-mail message.
-    /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+    /**
+     * Method cc() sets the current value of 'CC:' field
+     * of e-mail message.
+     * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     */
     void cc(std::string addr)
     {
         m_cc = addr;
     }
 
-    /// Method bcc() returns the current value of 'BCC:' field
-    /// of e-mail message.
-    /// @returns a list of e-mail addresses. See method to() description for format
+    /**
+     * Method bcc() returns the current value of 'BCC:' field
+     * of e-mail message.
+     * @returns a list of e-mail addresses. See method to() description for format
+     */
     std::string bcc() const
     {
         return m_bcc;
     }
 
-    /// Method bcc() sets the current value of 'BCC:' field of e-mail message.
-    /// @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-    /// Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+    /**
+     * Method bcc() sets the current value of 'BCC:' field of e-mail message.
+     * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     */
     void bcc(std::string addr)
     {
         m_bcc = addr;
     }
 
-    /// Method subject() returns the current value of 'SUBJECT:' field of e-mail message.
-    /// @returns current message subject
+    /**
+     * Method subject() returns the current value of 'SUBJECT:' field of e-mail message.
+     * @returns current message subject
+     */
     std::string subject() const
     {
         return m_subject;
     }
 
-    /// Method subject() sets the current value of 'BCC:' field of e-mail message.
-    /// @param subj A message subject
+    /**
+     * Method subject() sets the current value of 'BCC:' field of e-mail message.
+     * @param subj A message subject
+     */
     void subject(std::string subj)
     {
         m_subject = subj;
     }
 
-    /// Method subject() returns the current plain text part of e-mail message.
-    /// @returns current message plain-text part
+    /**
+     * Method subject() returns the current plain text part of e-mail message.
+     * @returns current message plain-text part
+     */
     std::string body() const
     {
         return m_body.text();
     }
 
-    /// @brief Sets the current plain text part of e-mail message.
-    /// @param body std::string&, message body
-    /// @param smtp bool, do we need special pre-processing for SMTP?
+    /**
+     * @brief Sets the current plain text part of e-mail message.
+     * @param body std::string&, message body
+     * @param smtp bool, do we need special pre-processing for SMTP?
+     */
     void body(const std::string& body, bool smtp)
     {
         m_body.text(body, smtp);
     }
 
-    /// Method attachments() returns the current semicolon-separated
-    /// list of attachments of e-mail message. Example: "readme.txt;readme.doc".
-    /// @returns current message list of attachments
+    /**
+     * Method attachments() returns the current semicolon-separated
+     * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
+     * @returns current message list of attachments
+     */
     std::string attachments() const
     {
         return m_attachments;
     }
 
-    /// Method attachments() sets the current semicolon-separated
-    /// list of attachments of e-mail message. Example: "readme.txt;readme.doc".
-    /// @param attachments current message list of attachments
+    /**
+     * Method attachments() sets the current semicolon-separated
+     * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
+     * @param attachments current message list of attachments
+     */
     void attachments(std::string attachments)
     {
         m_attachments = attachments;
     }
 
-    /// Method messageBuffer() returns the reference to the internal current message text completely
-    /// prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
-    /// @returns reference to current message text
+    /**
+     * Method messageBuffer() returns the reference to the internal current message text completely
+     * prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
+     * @returns reference to current message text
+     */
     const Buffer& messageBuffer() const
     {
         return m_messageBuffer;
     }
 
-    /// Method mimeMessage() encodes the message components into RFC-822 message format.
-    /// @param buffer A buffer to put the encoded RFC-822 format message
+    /**
+     * Method mimeMessage() encodes the message components into RFC-822 message format.
+     * @param buffer A buffer to put the encoded RFC-822 format message
+     */
     void mimeMessage(Buffer& buffer);
 
-    /// Method sendMessage() builds an RFC-822 format message out of message parameters,
-    /// and sends it. Should be implemented in derived classes.
+    /**
+     * Method sendMessage() builds an RFC-822 format message out of message parameters,
+     * and sends it. Should be implemented in derived classes.
+     */
     virtual void sendMessage() = 0;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

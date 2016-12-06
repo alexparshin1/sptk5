@@ -36,41 +36,53 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 class CPopupWindow;
 class CPopupCalendar;
 class CDateControl;
 class CToggleTree;
 
-/// @brief Password input widget.
-///
-/// The extended version of Fl_SecretInput.
-/// Displays '*' for the text inside
+/**
+ * @brief Password input widget.
+ *
+ * The extended version of Fl_SecretInput.
+ * Displays '*' for the text inside
+ */
 class SP_EXPORT CPasswordInput : public CInput {
     typedef class CInput inherited;
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CPasswordInput(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CPasswordInput(int x,int y,int w,int h,const char * label=0);
 #endif
 
-    /// @brief Creates a widget based on the XML node information
+    /**
+     * @brief Creates a widget based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

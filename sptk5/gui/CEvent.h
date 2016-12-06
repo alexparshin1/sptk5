@@ -33,58 +33,160 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// Event type constants
+/**
+ * Event type constants
+ */
 enum CEvent {
-    CE_NONE,             ///< Empty event (no event)
-    CE_DATA_CHANGED,     ///< Control data changed
-    CE_FOCUS,            ///< Control received focus
-    CE_UNFOCUS,          ///< Control lost focus
-    CE_SHOW,             ///< Control visibility changed to show
-    CE_HIDE,             ///< Control visibility changed to hide
-    CE_KEYBOARD,         ///< Keyboard event in control
-    CE_MOUSE_CLICK,      ///< Mouse clicked on control
-    CE_MOUSE_DOUBLE_CLICK, ///< Mouse double-clicked on control
-    CE_MOUSE_DRAG,       ///< Mouse dragged on control
-    CE_MOUSE_MOVE,       ///< Mouse moved over control
-    CE_MOUSE_RELEASE,    ///< Mouse released over control
-    CE_MOUSE_WHEEL,      ///< Mouse wheel over control
-    CE_PROGRESS,         ///< Progress event (if control supports it)
-    CE_BUTTON_PRESSED,   ///< Keyboard button pressed
-    UC_ADD_ITEM,         ///< List event - item added (if control supports it)
-    UC_EDIT_ITEM,        ///< List event - item edited or changed (if control supports it)
-    UC_DELETE_ITEM,      ///< List event - item deleted (if control supports it)
-    UC_REFRESH,          ///< List event - list refreshed (if control supports it)
-    CE_LAST_EVENT        ///< Last event number (no event)
+    /**
+     * Empty event (no event)
+     */
+    CE_NONE,
+
+    /**
+     * Control data changed
+     */
+    CE_DATA_CHANGED,
+
+    /**
+     * Control received focus
+     */
+    CE_FOCUS,
+
+    /**
+     * Control lost focus
+     */
+    CE_UNFOCUS,
+
+    /**
+     * Control visibility changed to show
+     */
+    CE_SHOW,
+
+    /**
+     * Control visibility changed to hide
+     */
+    CE_HIDE,
+
+    /**
+     * Keyboard event in control
+     */
+    CE_KEYBOARD,
+
+    /**
+     * Mouse clicked on control
+     */
+    CE_MOUSE_CLICK,
+
+    /**
+     * Mouse double-clicked on control
+     */
+    CE_MOUSE_DOUBLE_CLICK,
+
+    /**
+     * Mouse dragged on control
+     */
+    CE_MOUSE_DRAG,
+
+    /**
+     * Mouse moved over control
+     */
+    CE_MOUSE_MOVE,
+
+    /**
+     * Mouse released over control
+     */
+    CE_MOUSE_RELEASE,
+
+    /**
+     * Mouse wheel over control
+     */
+    CE_MOUSE_WHEEL,
+
+    /**
+     * Progress event (if control supports it)
+     */
+    CE_PROGRESS,
+
+    /**
+     * Keyboard button pressed
+     */
+    CE_BUTTON_PRESSED,
+
+    /**
+     * List event - item added (if control supports it)
+     */
+    UC_ADD_ITEM,
+
+    /**
+     * List event - item edited or changed (if control supports it)
+     */
+    UC_EDIT_ITEM,
+
+    /**
+     * List event - item deleted (if control supports it)
+     */
+    UC_DELETE_ITEM,
+
+    /**
+     * List event - list refreshed (if control supports it)
+     */
+    UC_REFRESH,
+
+    /**
+     * Last event number (no event)
+     */
+    CE_LAST_EVENT
+
 };
 
-/// Event type information
+/**
+ * Event type information
+ */
 class CEventInfo {
-    CEvent        m_event;     ///< Event type
-    int32_t       m_argument;  ///< Event argument
+    /**
+     * Event type
+     */
+    CEvent        m_event;
+
+    /**
+     * Event argument
+     */
+    int32_t       m_argument;
+
 
 public:
-    /// Constructor
-    /// @param eventType CEvent, event type
-    /// @param eventArg CEvent, event argument
+    /**
+     * Constructor
+     * @param eventType CEvent, event type
+     * @param eventArg CEvent, event argument
+     */
     CEventInfo(CEvent eventType=CE_NONE,int32_t eventArg=0) {
         m_event = eventType;
         m_argument = eventArg;
     }
 
-    /// Reports event type
+    /**
+     * Reports event type
+     */
     CEvent  type() const {
         return m_event;
     }
 
-    /// Reports event argument
+    /**
+     * Reports event argument
+     */
     int32_t    argument() const {
         return m_argument;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

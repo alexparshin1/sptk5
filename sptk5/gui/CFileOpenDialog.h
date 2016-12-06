@@ -33,31 +33,43 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief File Open Window.
-///
-/// Implements the dialog to open an existing file.
-/// @see CDialog, CFileDialog, CFileSaveDialog
+/**
+ * @brief File Open Window.
+ *
+ * Implements the dialog to open an existing file.
+ * @see CDialog, CFileDialog, CFileSaveDialog
+ */
 class CFileOpenDialog : public CFileDialog {
 protected:
-    /// @brief Custom okPressed() method
-    /// Method okPressed() overloads the default CDialog reaction on pressing
-    /// 'Open' (former 'Ok') button.
-    /// @returns success (true) if the file exists and could be opened for reading
+    /**
+     * @brief Custom okPressed() method
+     * Method okPressed() overloads the default CDialog reaction on pressing
+     * 'Open' (former 'Ok') button.
+     * @returns success (true) if the file exists and could be opened for reading
+     */
     virtual bool okPressed();
 
 public:
-    /// @brief Default constructor
-    /// @param caption window caption
+    /**
+     * @brief Default constructor
+     * @param caption window caption
+     */
     CFileOpenDialog(std::string caption="Open File");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~CFileOpenDialog() {}
 }
 ;
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

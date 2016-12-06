@@ -39,15 +39,19 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
 class Query;
 class OracleStatement;
 
-/// @brief Oracle database
-///
-/// COracleConnection is thread-safe connection to Oracle database.
+/**
+ * @brief Oracle database
+ *
+ * COracleConnection is thread-safe connection to Oracle database.
+ */
 class SP_EXPORT OracleConnection: public DatabaseConnection
 {
     friend class Query;
@@ -63,58 +67,128 @@ public:
 
 private:
 
-    OracleEnvironment  m_environment;      ///< Oracle connection environment
-    Connection*         m_connection;       ///< Oracle database connection
-    std::string         m_lastError;        ///< Last error in this connection or query
+    /**
+     * Oracle connection environment
+     */
+    OracleEnvironment  m_environment;
+
+    /**
+     * Oracle database connection
+     */
+    Connection*         m_connection;
+
+    /**
+     * Last error in this connection or query
+     */
+    std::string         m_lastError;
+
 
 protected:
 
-    /// @brief Translates Oracle native type to CVariant type
-    /// @param oracleType oracle::occi::Type, Oracle native type
-    /// @returns Variant type
+    /**
+     * @brief Translates Oracle native type to CVariant type
+     * @param oracleType oracle::occi::Type, Oracle native type
+     * @returns Variant type
+     */
     static VariantType OracleTypeToVariantType(Type oracleType);
 
-    /// @brief Translates CVariant type to Oracle native type
-    /// @param dataType VariantType&, CVariant type
-    /// @returns Oracle native type
+    /**
+     * @brief Translates CVariant type to Oracle native type
+     * @param dataType VariantType&, CVariant type
+     * @returns Oracle native type
+     */
     static Type VariantTypeToOracleType(VariantType dataType);
 
 protected:
 
-    /// @brief Begins the transaction
+    /**
+     * @brief Begins the transaction
+     */
     virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
-    /// @brief Ends the transaction
-    /// @param commit bool, commit if true, rollback if false
+    /**
+     * @brief Ends the transaction
+     * @param commit bool, commit if true, rollback if false
+     */
     virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by CQuery
-    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(Query *query);      ///< Allocates an Oracle statement
-    virtual void queryFreeStmt(Query *query);       ///< Deallocates an Oracle statement
-    virtual void queryCloseStmt(Query *query);      ///< Closes an Oracle statement
-    virtual void queryPrepare(Query *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(Query *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(Query *query);        ///< Executes a statement
-    virtual int  queryColCount(Query *query);       ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
-    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(Query *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    /**
+     * Retrieves an error (if any) after executing a statement
+     */
+    virtual std::string queryError(const Query *query) const;
 
-    /// @brief Returns parameter mark
-    ///
-    /// Parameter mark is generated from the parameterIndex.
-    /// @param paramIndex unsigned, parameter index in SQL starting from 0
+    /**
+     * Allocates an Oracle statement
+     */
+    virtual void queryAllocStmt(Query *query);
+
+    /**
+     * Deallocates an Oracle statement
+     */
+    virtual void queryFreeStmt(Query *query);
+
+    /**
+     * Closes an Oracle statement
+     */
+    virtual void queryCloseStmt(Query *query);
+
+    /**
+     * Prepares a query if supported by database
+     */
+    virtual void queryPrepare(Query *query);
+
+    /**
+     * Unprepares a query if supported by database
+     */
+    virtual void queryUnprepare(Query *query);
+
+    /**
+     * Executes a statement
+     */
+    virtual void queryExecute(Query *query);
+
+    /**
+     * Counts columns of the dataset (if any) returned by query
+     */
+    virtual int  queryColCount(Query *query);
+
+    /**
+     * Binds the parameters to the query
+     */
+    virtual void queryBindParameters(Query *query);
+
+    /**
+     * Opens the query for reading data from the query' recordset
+     */
+    virtual void queryOpen(Query *query);
+
+    /**
+     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     */
+    virtual void queryFetch(Query *query);
+
+
+    /**
+     * @brief Returns parameter mark
+     *
+     * Parameter mark is generated from the parameterIndex.
+     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     */
     virtual std::string paramMark(unsigned paramIndex);
 
 public:
-    /// @brief Returns the Oracle connection object
+    /**
+     * @brief Returns the Oracle connection object
+     */
     Connection* connection() const
     {
         return m_connection;
     }
 
-    /// @brief Returns the Oracle connection object
+    /**
+     * @brief Returns the Oracle connection object
+     */
     Environment* environment() const
     {
         return m_environment.handle();
@@ -132,58 +206,82 @@ public:
 
 public:
 
-    /// @brief Constructor
-    /// @param connectionString std::string, the Oracle connection string
+    /**
+     * @brief Constructor
+     * @param connectionString std::string, the Oracle connection string
+     */
     OracleConnection(std::string connectionString = "");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~OracleConnection();
 
-    /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the Oracle connection string
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString std::string, the Oracle connection string
+     */
     virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
-    /// @brief Closes the database connection. If unsuccessful throws an exception.
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
     virtual void closeDatabase() THROWS_EXCEPTIONS;
 
-    /// @brief Returns true if database is opened
+    /**
+     * @brief Returns true if database is opened
+     */
     virtual bool active() const;
 
-    /// @brief Returns the database connection handle
+    /**
+     * @brief Returns the database connection handle
+     */
     virtual void* handle() const;
 
-    /// @brief Returns driver-specific connection string
+    /**
+     * @brief Returns driver-specific connection string
+     */
     virtual std::string nativeConnectionString() const;
 
-    /// @brief Returns the Oracle driver description for the active connection
+    /**
+     * @brief Returns the Oracle driver description for the active connection
+     */
     virtual std::string driverDescription() const;
 
-    /// @brief Lists database objects
-    /// @param objectType CDbObjectType, object type to list
-    /// @param objects Strings&, object list (output)
+    /**
+     * @brief Lists database objects
+     * @param objectType CDbObjectType, object type to list
+     * @param objects Strings&, object list (output)
+     */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
 
-    /// @brief Executes bulk inserts of data from memory buffer
-    ///
-    /// Data is inserted the fastest possible way. The server-specific format definition provides extra information
-    /// about data. If format is empty than default server-specific data format is used.
-    /// For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-    /// @param tableName std::string, table name to insert into
-    /// @param columnNames const Strings&, list of table columns to populate
-    /// @param data const Strings&, data for bulk insert
+    /**
+     * @brief Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName std::string, table name to insert into
+     * @param columnNames const Strings&, list of table columns to populate
+     * @param data const Strings&, data for bulk insert
+     */
     virtual void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="") THROWS_EXCEPTIONS;
 
-    /// @brief Executes SQL batch file
-    ///
-    /// Queries are executed in not prepared mode.
-    /// Syntax of the SQL batch file is matching the native for the database.
-    /// @param batchSQL const sptk::Strings&, SQL batch file
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL const sptk::Strings&, SQL batch file
+     */
     virtual void executeBatchSQL(const sptk::Strings& batchSQL) THROWS_EXCEPTIONS override;
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

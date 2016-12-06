@@ -35,50 +35,72 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// Extended version of Scroll Bar - to add theme support
+/**
+ * Extended version of Scroll Bar - to add theme support
+ */
 class SP_EXPORT CScrollBar : public Fl_Scrollbar, public CLayoutClient {
 protected:
-    int m_pushed;   ///< flag to detect pushed button
+    /**
+     * flag to detect pushed button
+     */
+    int m_pushed;
 
-    /// Custom draw method to support SPTK themes
+
+    /**
+     * Custom draw method to support SPTK themes
+     */
     void draw();
 public:
-    /// Constructor in SPTK style
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CScrollBar(int layoutSize=16,CLayoutAlign layoutAlign=SP_ALIGN_RIGHT)
             : Fl_Scrollbar(0,0,10,10), CLayoutClient(this,layoutSize,layoutAlign) {
         m_pushed = 0;
     }
 
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     CScrollBar(int x,int y,int w,int h)
             : Fl_Scrollbar(x,y,w,h), CLayoutClient(this,10,SP_ALIGN_NONE) {
         m_pushed = 0;
     }
 
-    /// Computes the optimal progress bar size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * Computes the optimal progress bar size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// Custom handle() method - event processing
+    /**
+     * Custom handle() method - event processing
+     */
     int handle(int event);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "scroll_bar";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

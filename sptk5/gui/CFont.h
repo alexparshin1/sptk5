@@ -35,24 +35,50 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Font information
+/**
+ * @brief Font information
+ */
 class CFont
 {
-    std::string m_name;   ///< Font name
-    uint32_t    m_size;   ///< Font size
-    uint32_t    m_color;  ///< Font color
-    uint32_t    m_index;  ///< Font index in fonts collection
-    uint32_t    m_attributes; ///< Optional font attributes
+    /**
+     * Font name
+     */
+    std::string m_name;
+
+    /**
+     * Font size
+     */
+    uint32_t    m_size;
+
+    /**
+     * Font color
+     */
+    uint32_t    m_color;
+
+    /**
+     * Font index in fonts collection
+     */
+    uint32_t    m_index;
+
+    /**
+     * Optional font attributes
+     */
+    uint32_t    m_attributes;
+
 public:
-    /// @brief Constructor
-    /// @param name std::string, full font name
-    /// @param size uint32_t, font size
-    /// @param color uint32_t, font color
-    /// @param index uint32_t, font index in the fonts collection
-    /// @param attributes uint32_t, optional font attributes
+    /**
+     * @brief Constructor
+     * @param name std::string, full font name
+     * @param size uint32_t, font size
+     * @param color uint32_t, font color
+     * @param index uint32_t, font index in the fonts collection
+     * @param attributes uint32_t, optional font attributes
+     */
     CFont(std::string name="arial",uint32_t size=10,uint32_t color=0,uint32_t index=0,uint32_t attributes=0)
     {
         m_name = name;
@@ -62,8 +88,10 @@ public:
         m_attributes = attributes;
     }
 
-    /// @brief Copy constructor
-    /// @param font const CFont&, font to copy from
+    /**
+     * @brief Copy constructor
+     * @param font const CFont&, font to copy from
+     */
     CFont(const CFont& font)
     {
         m_name = font.m_name;
@@ -73,110 +101,158 @@ public:
         m_attributes = font.m_attributes;
     }
 
-    /// @brief Returns font name
+    /**
+     * @brief Returns font name
+     */
     std::string name() const
     {
         return m_name;
     }
 
-    /// @brief Returns font size
+    /**
+     * @brief Returns font size
+     */
     uint32_t size() const
     {
         return m_size;
     }
 
-    /// @brief Returns font color
+    /**
+     * @brief Returns font color
+     */
     uint32_t color() const
     {
         return m_color;
     }
 
-    /// @brief Returns font index in the fonts collection
+    /**
+     * @brief Returns font index in the fonts collection
+     */
     uint32_t index() const
     {
         return m_index;
     }
 
-    /// @brief Returns font attributes
+    /**
+     * @brief Returns font attributes
+     */
     uint32_t attributes() const
     {
         return m_attributes;
     }
 
-    /// @brief Returns unique font id
-    ///
-    /// Font id combines all the font attributes separated with "|"
+    /**
+     * @brief Returns unique font id
+     *
+     * Font id combines all the font attributes separated with "|"
+     */
     std::string id() const;
 };
 
-/// @brief CFontsMap is a map font names to fonts
-///
-/// The map contains just pointers to the fonts stored in outside list.
+/**
+ * @brief CFontsMap is a map font names to fonts
+ *
+ * The map contains just pointers to the fonts stored in outside list.
+ */
 class CFontsMap : public std::map<std::string,CFont *>
 {
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     CFontsMap() {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CFontsMap() 
     {
         clear();
     }
 
-    /// @brief Clears the fonts
-    ///
-    /// All the memory allocated for CFont objects is released
+    /**
+     * @brief Clears the fonts
+     *
+     * All the memory allocated for CFont objects is released
+     */
     void clear();
 };
 
-/// @brief CFontsVector is a map font names to fonts
+/**
+ * @brief CFontsVector is a map font names to fonts
+ */
 class CFontsVector
 {
-    std::vector<CFont *>    m_items;  ///< Fonts vector
-    CFontsMap               m_index;  ///< Font names map
+    /**
+     * Fonts vector
+     */
+    std::vector<CFont *>    m_items;
+
+    /**
+     * Font names map
+     */
+    CFontsMap               m_index;
+
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     CFontsVector() {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CFontsVector()
     {
         clear();
     }
 
-    /// @brief Returns font by index
+    /**
+     * @brief Returns font by index
+     */
     CFont* operator[] (uint32_t index)
     {
         return m_items[index];
     }
 
-    /// @brief Returns font by index
+    /**
+     * @brief Returns font by index
+     */
     const CFont* operator[] (uint32_t index) const
     {
         return m_items[index];
     }
 
-    /// @brief Returns font by its name
+    /**
+     * @brief Returns font by its name
+     */
     CFont* find(std::string fontName) const;
 
-    /// @brief Appends a font to fonts vector
-    /// @param font CFont*, font to append
+    /**
+     * @brief Appends a font to fonts vector
+     * @param font CFont*, font to append
+     */
     void push_back(CFont* font);
 
-    /// @returns the size of the fonts vector
+    /**
+     * @returns the size of the fonts vector
+     */
     uint32_t size() const
     {
         return (uint32_t) m_items.size();
     }
 
-    /// @brief Clears the fonts
-    ///
-    /// All the memory allocated for CFont objects is released
+    /**
+     * @brief Clears the fonts
+     *
+     * All the memory allocated for CFont objects is released
+     */
     void clear();
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

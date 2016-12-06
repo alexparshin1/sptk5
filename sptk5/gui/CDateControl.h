@@ -33,66 +33,90 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 class CSmallButton;
 class CInput_;
 
-/// @brief Date input widget.
-///
-/// A masked date input with a small drop-down button inside.
-/// Clicking on the button displays the calendar window.
+/**
+ * @brief Date input widget.
+ *
+ * A masked date input with a small drop-down button inside.
+ * Clicking on the button displays the calendar window.
+ */
 class CDateControl : public Fl_Group {
 
-    /// Drop-down button
+    /**
+     * Drop-down button
+     */
     CSmallButton   *m_button;
 
-    /// Input box
+    /**
+     * Input box
+     */
     CInput_        *m_input;
 
 protected:
 
-    /// Internal callback
+    /**
+     * Internal callback
+     */
     static void date_cb(Fl_Widget *w,void *data);
 public:
 
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label const char *, label
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label const char *, label
+     */
     CDateControl(int x,int y,int w,int h,const char *label=0L);
 
-    /// Returns internal small button pointer
+    /**
+     * Returns internal small button pointer
+     */
     CSmallButton *button() {
         return m_button;
     }
 
-    /// Returns internal input box
+    /**
+     * Returns internal input box
+     */
     CInput_ *input() {
         return m_input;
     }
 
-    /// Resizes the control.
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * Resizes the control.
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     void resize(int x,int y,int w,int h);
 
-    /// Computes the best size for the control
-    /// @param w int&, control width
-    /// @param h int&, control height
-    /// @param editorWidth int& the width of date input
-    /// @param buttonWidth int& the width of button
+    /**
+     * Computes the best size for the control
+     * @param w int&, control width
+     * @param h int&, control height
+     * @param editorWidth int& the width of date input
+     * @param buttonWidth int& the width of button
+     */
     void preferredSize(int& w,int& h,int& editorWidth,int& buttonWidth);
 
-    /// Computes the best size for the control
-    /// @param h int&, control height
+    /**
+     * Computes the best size for the control
+     * @param h int&, control height
+     */
     void preferredHeight(int& h);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

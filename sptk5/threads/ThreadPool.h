@@ -38,70 +38,120 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Controls creation and execution of the threads.
-///
-/// When a thread is requested from the thread pool, it ether
-/// creates a new thread or returns one from the thread pool.
-/// If a thread is idle for the period longer than defined in constructor,
-/// it's automatically terminated.
+/**
+ * @brief Controls creation and execution of the threads.
+ *
+ * When a thread is requested from the thread pool, it ether
+ * creates a new thread or returns one from the thread pool.
+ * If a thread is idle for the period longer than defined in constructor,
+ * it's automatically terminated.
+ */
 class SP_EXPORT ThreadPool : public Synchronized, public ThreadEvent, public Thread
 {
-    SynchronizedList<WorkerThread*>     m_terminatedThreads;    ///< Terminated threads scheduled for delete
-    SynchronizedList<WorkerThread*>     m_threads;              ///< All threads created by this pool
-    size_t                              m_threadLimit;          ///< Maximum number of threads in this pool
-    SynchronizedQueue<Runable*>         m_taskQueue;            ///< Share task queue
-    Semaphore                           m_availableThreads;     ///< Semaphore indicating available threads
-    uint32_t                            m_threadIdleSeconds;    ///< Maximum thread idle time before thread in this pool is terminated
-    bool                                m_shutdown;             ///< Flag: true during pool shutdown
+    /**
+     * Terminated threads scheduled for delete
+     */
+    SynchronizedList<WorkerThread*>     m_terminatedThreads;
 
-    /// @brief Creates a new thread and adds it to thread pool
-    ///
-    /// Create new worker thread
+    /**
+     * All threads created by this pool
+     */
+    SynchronizedList<WorkerThread*>     m_threads;
+
+    /**
+     * Maximum number of threads in this pool
+     */
+    size_t                              m_threadLimit;
+
+    /**
+     * Share task queue
+     */
+    SynchronizedQueue<Runable*>         m_taskQueue;
+
+    /**
+     * Semaphore indicating available threads
+     */
+    Semaphore                           m_availableThreads;
+
+    /**
+     * Maximum thread idle time before thread in this pool is terminated
+     */
+    uint32_t                            m_threadIdleSeconds;
+
+    /**
+     * Flag: true during pool shutdown
+     */
+    bool                                m_shutdown;
+
+
+    /**
+     * @brief Creates a new thread and adds it to thread pool
+     *
+     * Create new worker thread
+     */
     WorkerThread* createThread();
 
 protected:
 
-    /// @brief Thread pool control thread function
-    ///
-    /// Manages terminated threads
+    /**
+     * @brief Thread pool control thread function
+     *
+     * Manages terminated threads
+     */
     virtual void threadFunction();
 
 public:
 
-    /// @brief Constructor
-    /// @param threadLimit uint32_t, Maximum number of threads in this pool
-    /// @param threadIdleSeconds int32_t, Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+    /**
+     * @brief Constructor
+     * @param threadLimit uint32_t, Maximum number of threads in this pool
+     * @param threadIdleSeconds int32_t, Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+     */
     ThreadPool(uint32_t threadLimit=100, uint32_t threadIdleSeconds=60);
 
-    /// @brief Destructor
-    ///
-    /// All worker threads are sent terminate() message,
-    /// then thread pool waits while threads are destroyed
+    /**
+     * @brief Destructor
+     *
+     * All worker threads are sent terminate() message,
+     * then thread pool waits while threads are destroyed
+     */
     virtual ~ThreadPool();
 
-    /// @brief Executes task
+    /**
+     * @brief Executes task
+     */
     void execute(Runable* task);
 
-    /// @brief Thread event callback function
-    ///
-    /// Receives events that occur in the threads
-    /// @param thread Thread*, Thread where event occured
-    /// @param eventType ThreadEvent::Type, Thread event type
+    /**
+     * @brief Thread event callback function
+     *
+     * Receives events that occur in the threads
+     * @param thread Thread*, Thread where event occured
+     * @param eventType ThreadEvent::Type, Thread event type
+     */
     virtual void threadEvent(Thread* thread, ThreadEvent::Type eventType);
 
-    /// @brief Sends terminate() message to all worker threads, and sets shutdown state
-    ///
-    /// After thread pool is stopped, it no longer accepts tasks for execution.
+    /**
+     * @brief Sends terminate() message to all worker threads, and sets shutdown state
+     *
+     * After thread pool is stopped, it no longer accepts tasks for execution.
+     */
     void stop();
 
-    /// @brief Number of active threads in the pool
+    /**
+     * @brief Number of active threads in the pool
+     */
     size_t size() const;
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

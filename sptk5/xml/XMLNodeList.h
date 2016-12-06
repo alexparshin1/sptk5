@@ -35,54 +35,76 @@
 
 namespace sptk {
 
-/// @addtogroup XML
-/// @{
+/**
+ * @addtogroup XML
+ * @{
+ */
 
 class XMLNode;
 
-/// @brief The vector of XMLNode *
+/**
+ * @brief The vector of XMLNode *
+ */
 typedef std::vector<XMLNode *> XMLNodeVector;
 
-/// @brief XML node list
-///
-/// The XMLNodeList interface provides the an ordered collection of nodes,
-/// The items in the NodeList are accessible via an integral index, starting from 0.
+/**
+ * @brief XML node list
+ *
+ * The XMLNodeList interface provides the an ordered collection of nodes,
+ * The items in the NodeList are accessible via an integral index, starting from 0.
+ */
 class SP_EXPORT XMLNodeList : public XMLNodeVector
 {
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     XMLNodeList()
     {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~XMLNodeList()
     {
         clear();
     }
 
-    /// @brief Clears the list of XML nodes and releases all the allocated memory
+    /**
+     * @brief Clears the list of XML nodes and releases all the allocated memory
+     */
     void clear();
 
-    /// @brief Finds the first node in the list with the matching name
-    /// @param nodeName const char*, a node name
-    /// @returns node iterator, or end()
+    /**
+     * @brief Finds the first node in the list with the matching name
+     * @param nodeName const char*, a node name
+     * @returns node iterator, or end()
+     */
     iterator findFirst(const char* nodeName);
 
-    /// @brief Finds the first node in the list with the matching name
-    /// @param nodeName const std::string&, a node name
-    /// @returns node iterator, or end()
+    /**
+     * @brief Finds the first node in the list with the matching name
+     * @param nodeName const std::string&, a node name
+     * @returns node iterator, or end()
+     */
     iterator findFirst(const std::string& nodeName);
 
-    /// @brief Finds the first node in the list with the matching name
-    /// @param nodeName const char*, a node name
-    /// @returns node iterator, or end()
+    /**
+     * @brief Finds the first node in the list with the matching name
+     * @param nodeName const char*, a node name
+     * @returns node iterator, or end()
+     */
     const_iterator findFirst(const char* nodeName) const;
 
-    /// @brief Finds the first node node in the list with the matching name
-    /// @param nodeName const std::string&, a node name
-    /// @returns node iterator, or end()
+    /**
+     * @brief Finds the first node node in the list with the matching name
+     * @param nodeName const std::string&, a node name
+     * @returns node iterator, or end()
+     */
     const_iterator findFirst(const std::string& nodeName) const;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

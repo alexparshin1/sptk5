@@ -38,44 +38,76 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
-/// @brief Parameter Binding descriptor
-///
-/// Stores the last information on parameter binding
+/**
+ * @brief Parameter Binding descriptor
+ *
+ * Stores the last information on parameter binding
+ */
 class SP_EXPORT QueryParameterBinding
 {
 public:
-    void*        m_stmt;        ///< Statement handle or id
-    VariantType  m_dataType;    ///< Data type
-    void*        m_buffer;      ///< Buffer
-    uint32_t     m_size;        ///< Buffer size
-    bool         m_output;      ///< Output parameter flag
+    /**
+     * Statement handle or id
+     */
+    void*        m_stmt;
+
+    /**
+     * Data type
+     */
+    VariantType  m_dataType;
+
+    /**
+     * Buffer
+     */
+    void*        m_buffer;
+
+    /**
+     * Buffer size
+     */
+    uint32_t     m_size;
+
+    /**
+     * Output parameter flag
+     */
+    bool         m_output;
+
 public:
-    /// @brief Constructor
-    /// @param isOutput bool, Output parameter flag
+    /**
+     * @brief Constructor
+     * @param isOutput bool, Output parameter flag
+     */
     QueryParameterBinding(bool isOutput)
     {
         reset(isOutput);
     }
 
-    /// @brief Resets the binding information
-    /// @param isOutput bool, Output parameter flag
+    /**
+     * @brief Resets the binding information
+     * @param isOutput bool, Output parameter flag
+     */
     void reset(bool isOutput);
 
-    /// @brief Checks if the parameter binding is matching the cached
-    ///
-    /// Returns true, if the passed parameters are matching last binding parameters.
-    /// Returns false and stores new parameters into last binding parameters otherwise.
-    /// @param stmt void*, statement handle
-    /// @param type VariantType, data type
-    /// @param size uint32_t, binding buffer size
-    /// @param buffer void*, binding buffer
+    /**
+     * @brief Checks if the parameter binding is matching the cached
+     *
+     * Returns true, if the passed parameters are matching last binding parameters.
+     * Returns false and stores new parameters into last binding parameters otherwise.
+     * @param stmt void*, statement handle
+     * @param type VariantType, data type
+     * @param size uint32_t, binding buffer size
+     * @param buffer void*, binding buffer
+     */
     bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

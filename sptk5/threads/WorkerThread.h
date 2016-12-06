@@ -36,54 +36,84 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Worker thread for thread manager
-///
-/// Worker threads are created by thread manager.
-/// They are designed to read tasks from internal or external
-/// queue. Executed tasks are objects derived from Runable.
-/// If a thread event object is defined, worker thread may report events
-/// such as thread start, task start, etc.
-/// Worker thread automatically terminates if it's idle for the period longer
-/// than defined maxIdleSec (seconds).
+/**
+ * @brief Worker thread for thread manager
+ *
+ * Worker threads are created by thread manager.
+ * They are designed to read tasks from internal or external
+ * queue. Executed tasks are objects derived from Runable.
+ * If a thread event object is defined, worker thread may report events
+ * such as thread start, task start, etc.
+ * Worker thread automatically terminates if it's idle for the period longer
+ * than defined maxIdleSec (seconds).
+ */
 class SP_EXPORT WorkerThread : public Thread
 {
-    bool                            m_queueOwner;       ///< If true then worker thread owns task queue
-    SynchronizedQueue<Runable*>*    m_queue;            ///< Task queue
-    ThreadEvent*                    m_threadEvent;      ///< Optional thread event interface
-    uint32_t                        m_maxIdleSeconds;   ///< Number of thread idle seconds before thread terminates automatically
+    /**
+     * If true then worker thread owns task queue
+     */
+    bool                            m_queueOwner;
+
+    /**
+     * Task queue
+     */
+    SynchronizedQueue<Runable*>*    m_queue;
+
+    /**
+     * Optional thread event interface
+     */
+    ThreadEvent*                    m_threadEvent;
+
+    /**
+     * Number of thread idle seconds before thread terminates automatically
+     */
+    uint32_t                        m_maxIdleSeconds;
+
 
 protected:
 
-    /// @brief Thread function
+    /**
+     * @brief Thread function
+     */
     void threadFunction();
 
 public:
 
-    /// @brief Constructor
-    ///
-    /// If queue is NULL then worker thread uses internal task queue.
-    /// Otherwise, external (shared) task queue is used.
-    /// If maxIdleSec is defined and thread is idle (not executing any tasks)
-    /// for a period longer than maxIdleSec then it terminates automatically.
-    /// @param queue SynchronizedQueue<Runable*>*, Task queue
-    /// @param threadEvent ThreadEvent*, Optional thread event interface
-    /// @param maxIdleSeconds int32_t, Maximum time the thread is idle, seconds
+    /**
+     * @brief Constructor
+     *
+     * If queue is NULL then worker thread uses internal task queue.
+     * Otherwise, external (shared) task queue is used.
+     * If maxIdleSec is defined and thread is idle (not executing any tasks)
+     * for a period longer than maxIdleSec then it terminates automatically.
+     * @param queue SynchronizedQueue<Runable*>*, Task queue
+     * @param threadEvent ThreadEvent*, Optional thread event interface
+     * @param maxIdleSeconds int32_t, Maximum time the thread is idle, seconds
+     */
     WorkerThread(SynchronizedQueue<Runable*>* queue=NULL,
                   ThreadEvent* threadEvent=NULL,
                   uint32_t maxIdleSeconds=SP_INFINITY);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~WorkerThread();
 
-    /// @brief Execute runable task
-    /// @param task Runable*, Task to execute in the worker thread
+    /**
+     * @brief Execute runable task
+     * @param task Runable*, Task to execute in the worker thread
+     */
     void execute(Runable* task);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

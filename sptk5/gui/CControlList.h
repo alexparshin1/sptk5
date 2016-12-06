@@ -35,48 +35,70 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief String to Control map.
-/// Uses strings and pointers to CControl.
-/// Strings are control field names.
+/**
+ * @brief String to Control map.
+ * Uses strings and pointers to CControl.
+ * Strings are control field names.
+ */
 typedef std::map<std::string, CControl *, CaseInsensitiveCompare> CStringControlMap;
 
-/// @brief List of CControl object pointers in Fl_Group
+/**
+ * @brief List of CControl object pointers in Fl_Group
+ */
 class CControlList: public CStringControlMap
 {
 protected:
 
-    /// @brief Scan group to find all CControl objects inside, including children groups
+    /**
+     * @brief Scan group to find all CControl objects inside, including children groups
+     */
     void scanControls(const Fl_Group *group);
 
 public:
 
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     CControlList()
     {
     }
 
-    /// @brief Adds a CControl pointer into the list
+    /**
+     * @brief Adds a CControl pointer into the list
+     */
     void add(CControl *control);
 
-    /// @brief Adds a list of CControl pointers into the list
+    /**
+     * @brief Adds a list of CControl pointers into the list
+     */
     void add(const CControlList& l);
 
-    /// @brief Adds a list of CControl pointers from the group into the list
+    /**
+     * @brief Adds a list of CControl pointers from the group into the list
+     */
     void add(const Fl_Group& g);
 
-    /// @brief Removes CControl pointer from the list
+    /**
+     * @brief Removes CControl pointer from the list
+     */
     void remove(CControl *control)
     {
         erase(control->fieldName());
     }
 
-    /// @brief Removes a list of CControl pointers from the list
+    /**
+     * @brief Removes a list of CControl pointers from the list
+     */
     void remove(const CControlList& l);
 
-    /// @brief Returns true if the control for the same field name exists
+    /**
+     * @brief Returns true if the control for the same field name exists
+     */
     bool contains(CControl *control) const
     {
         if (!control)
@@ -84,7 +106,9 @@ public:
         return find(control->fieldName()) != end();
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     CControlList& operator =(const Fl_Group& g)
     {
         clear();
@@ -92,7 +116,9 @@ public:
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     CControlList& operator =(const CControlList& l)
     {
         clear();
@@ -100,30 +126,40 @@ public:
         return *this;
     }
 
-    /// @brief Addition operation
+    /**
+     * @brief Addition operation
+     */
     CControlList& operator <<(CControl *c)
     {
         add(c);
         return *this;
     }
 
-    /// @brief Addition operation
+    /**
+     * @brief Addition operation
+     */
     CControlList& operator <<(const Fl_Group& g)
     {
         add(g);
         return *this;
     }
 
-    /// @brief Addition operation
+    /**
+     * @brief Addition operation
+     */
     CControlList& operator <<(const CControlList& l)
     {
         add(l);
         return *this;
     }
 
-    /// @brief Sends reset() signal to all the widgets in the list
+    /**
+     * @brief Sends reset() signal to all the widgets in the list
+     */
     void reset();
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

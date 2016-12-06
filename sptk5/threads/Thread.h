@@ -38,66 +38,114 @@
 namespace sptk
 {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Base thread object.
-///
-/// Should be used for deriving a user thread
-/// by overwriting threadFunction().
+/**
+ * @brief Base thread object.
+ *
+ * Should be used for deriving a user thread
+ * by overwriting threadFunction().
+ */
 class SP_EXPORT Thread
 {
     static void threadStart(void* athread);
 
 protected:
-    std::string         m_name;         ///< Thread name
-    std::thread         m_thread;       ///< Thread object
-    std::mutex          m_mutex;        ///< Thread synchronization object
-    bool                m_terminated;   ///< Flag: is the thread terminated?
+    /**
+     * Thread name
+     */
+    std::string         m_name;
+
+    /**
+     * Thread object
+     */
+    std::thread         m_thread;
+
+    /**
+     * Thread synchronization object
+     */
+    std::mutex          m_mutex;
+
+    /**
+     * Flag: is the thread terminated?
+     */
+    bool                m_terminated;
+
 
 public:
 
-    typedef std::thread::id Id;         ///< Thread ID type
+    /**
+     * Thread ID type
+     */
+    typedef std::thread::id Id;
 
-    /// @brief Constructor
-    /// @param name CString, name of the thread for future references.
+
+    /**
+     * @brief Constructor
+     * @param name CString, name of the thread for future references.
+     */
     Thread(std::string name);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~Thread();
 
-    /// @brief Starts the already created thread
+    /**
+     * @brief Starts the already created thread
+     */
     void run();
 
-    /// @brief The thread function. Should be overwritten by the derived class.
+    /**
+     * @brief The thread function. Should be overwritten by the derived class.
+     */
     virtual void threadFunction() = 0;
 
-    /// @brief Requests to terminate the thread
+    /**
+     * @brief Requests to terminate the thread
+     */
     virtual void terminate();
 
-    /// @brief This method is executed immediately after thread function exit
+    /**
+     * @brief This method is executed immediately after thread function exit
+     */
     virtual void onThreadExit() {}
 
-    /// @brief Returns true if the thread is terminated
+    /**
+     * @brief Returns true if the thread is terminated
+     */
     bool terminated();
 
-    /// @brief Waits until thread joins
+    /**
+     * @brief Waits until thread joins
+     */
     void join();
 
-    /// @brief Returns this thread OS id
+    /**
+     * @brief Returns this thread OS id
+     */
     Id id();
 
-    /// @brief Returns the name of the thread
+    /**
+     * @brief Returns the name of the thread
+     */
     const std::string& name() const
     {
         return m_name;
     }
 
-    /// @brief Pauses the thread
-    /// @param msec int, pause time in milliseconds
+    /**
+     * @brief Pauses the thread
+     * @param msec int, pause time in milliseconds
+     */
     static void msleep(int msec);
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

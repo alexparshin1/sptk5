@@ -34,43 +34,57 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Menu bar
-///
-/// Extended version of FLTK's standard Fl_Menu_Bar.
-/// Added the CLayoutClient interface and preferred size computations.
+/**
+ * @brief Menu bar
+ *
+ * Extended version of FLTK's standard Fl_Menu_Bar.
+ * Added the CLayoutClient interface and preferred size computations.
+ */
 class CMenuBar : public Fl_Menu_Bar, public CLayoutClient {
 public:
 
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     CMenuBar() : Fl_Menu_Bar(0,0,10,10), CLayoutClient(this,10,SP_ALIGN_TOP) {
         box(FL_THIN_UP_BOX);
     }
 
-    /// Computes the optimal menu size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
+    /**
+     * Computes the optimal menu size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     */
     virtual bool preferredSize(int& w,int& h) {
         h = textsize() + 10;
         return false;
     }
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node) {
        CMenuBar* widget = new CMenuBar;
        widget->load(node,LXM_LAYOUTDATA);
        return widget;
     }
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "menu";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

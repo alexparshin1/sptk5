@@ -35,90 +35,136 @@
 namespace sptk
 {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
 
-/// @brief Namespace defined within WSDL document
+/**
+ * @brief Namespace defined within WSDL document
+ */
 class WSNameSpace
 {
-    String  m_alias;        ///< Namespace alias
-    String  m_location;     ///< Namespace location
+    /**
+     * Namespace alias
+     */
+    String  m_alias;
+
+    /**
+     * Namespace location
+     */
+    String  m_location;
+
 public:
     
-    /// @brief Constructor
-    /// @param alias String, Namespace alias
-    /// @param location String, Namespace location
+    /**
+     * @brief Constructor
+     * @param alias String, Namespace alias
+     * @param location String, Namespace location
+     */
     WSNameSpace(String alias="", String location="")
     : m_alias(alias), m_location(location)
     {}
     
-    /// @brief Constructor
-    /// @param other const WSNameSpace&, Other namespace
+    /**
+     * @brief Constructor
+     * @param other const WSNameSpace&, Other namespace
+     */
     WSNameSpace(const WSNameSpace& other)
     : m_alias(other.m_alias), m_location(other.m_location)
     {}
     
-    /// @brief Get namespace alias
-    /// @return Namespace alias
+    /**
+     * @brief Get namespace alias
+     * @return Namespace alias
+     */
     const String& getAlias() const { return m_alias; }
     
-    /// @brief Get namespace location
-    /// @return Namespace location
+    /**
+     * @brief Get namespace location
+     * @return Namespace location
+     */
     const String& getLocation() const { return m_location; }
 };
     
-/// @brief Parser of WSDL requests
+/**
+ * @brief Parser of WSDL requests
+ */
 class WSRequest : public Synchronized
 {
-    WSNameSpace   m_soapNamespace;        ///< Detected SOAP Envelope namespace
-    WSNameSpace   m_requestNamespace;     ///< Detected request namespace
+    /**
+     * Detected SOAP Envelope namespace
+     */
+    WSNameSpace   m_soapNamespace;
+
+    /**
+     * Detected request namespace
+     */
+    WSNameSpace   m_requestNamespace;
+
 
 protected:
-    /// @brief Internal SOAP body processor
-    ///
-    /// Receives incoming SOAP body of Web Service requests, and returns
-    /// application response.
-    /// This method is abstract and overwritten in derived generated classes.
-    /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
+    /**
+     * @brief Internal SOAP body processor
+     *
+     * Receives incoming SOAP body of Web Service requests, and returns
+     * application response.
+     * This method is abstract and overwritten in derived generated classes.
+     * @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
+     */
     virtual void requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS = 0;
 
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     WSRequest() {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~WSRequest() {}
 
-    /// @brief Processes incoming requests
-    ///
-    /// The processing results are stored in the same request XML
-    /// @param request sptk::XMLDocument*, Incoming request and outgoing response
+    /**
+     * @brief Processes incoming requests
+     *
+     * The processing results are stored in the same request XML
+     * @param request sptk::XMLDocument*, Incoming request and outgoing response
+     */
     void processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS;
 
-    /// @brief Returns service title (for service handshake)
-    ///
-    /// Application should overwrite this method to return mor appropriate text
+    /**
+     * @brief Returns service title (for service handshake)
+     *
+     * Application should overwrite this method to return mor appropriate text
+     */
     virtual std::string title() const
     {
         return "Generic SPTK WS Request Broker";
     }
 
-    /// @brief Returns service default HTML page
-    ///
-    /// Application should overwrite this method to return mor appropriate text
+    /**
+     * @brief Returns service default HTML page
+     *
+     * Application should overwrite this method to return mor appropriate text
+     */
     virtual std::string defaultPage() const
     {
         return "index.html";
     }
 
-    /// @brief Returns SOAP envelope namespace
+    /**
+     * @brief Returns SOAP envelope namespace
+     */
     virtual const WSNameSpace& soapNameSpace()
     {
         SYNCHRONIZED_CODE;
         return m_soapNamespace;
     }
 
-    /// @brief Returns request namespace
+    /**
+     * @brief Returns request namespace
+     */
     virtual const WSNameSpace& requestNameSpace()
     {
         SYNCHRONIZED_CODE;

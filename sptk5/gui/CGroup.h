@@ -36,87 +36,121 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief SPTK group widget.
-///
-/// Extended version of FLTK Fl_Group that can be a layout manager and layout client
-/// at the same time.
+/**
+ * @brief SPTK group widget.
+ *
+ * Extended version of FLTK Fl_Group that can be a layout manager and layout client
+ * at the same time.
+ */
 class CGroup : public Fl_Group, public CLayoutManager {
 protected:
-    bool        m_drawClipped;  ///< Draw the contens of the group clipped inside the group
+    /**
+     * Draw the contens of the group clipped inside the group
+     */
+    bool        m_drawClipped;
 
-    /// Constructor initializer
-    /// @param label const char *, label
+
+    /**
+     * Constructor initializer
+     * @param label const char *, label
+     */
     void ctor_init(const char *label);
 
 public:
 
-    /// Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CGroup(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CGroup(int x,int y,int w,int h,const char *label=0L);
 #endif
 
-    /// Draws the group
+    /**
+     * Draws the group
+     */
     virtual void draw();
 
-    /// Resizes the group and inside widgets.
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * Resizes the group and inside widgets.
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     virtual void resize(int x,int y,int w,int h);
 
-    /// Computes the optimal group size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * Computes the optimal group size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// @brief Removes all the widgets inside the group
+    /**
+     * @brief Removes all the widgets inside the group
+     */
     virtual void clear() {
         Fl_Group::clear();
     }
 
-    /// @brief Returns the current label
+    /**
+     * @brief Returns the current label
+     */
     std::string label() const {
         return m_label;
     }
 
-    /// @brief Sets the new label
-    ///
-    /// @param lbl const char*, new label
+    /**
+     * @brief Sets the new label
+     *
+     * @param lbl const char*, new label
+     */
     void label(const char* lbl) {
         CLayoutClient::label(lbl);
     }
 
-    /// Sets label for the group, makes an internal copy of the string
-    /// @param lbl const string&, new label
+    /**
+     * Sets label for the group, makes an internal copy of the string
+     * @param lbl const string&, new label
+     */
     void label(const std::string& lbl) {
         CLayoutClient::label(lbl);
     }
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "group";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

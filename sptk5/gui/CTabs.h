@@ -34,91 +34,145 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 class CTabGroup;
 
-/// @brief Tabs widget
-///
-/// It can show the tabs in several rows if they are too wide to fit.
+/**
+ * @brief Tabs widget
+ *
+ * It can show the tabs in several rows if they are too wide to fit.
+ */
 class SP_EXPORT CTabs : public CGroup {
-    CTabGroup*  m_tabs;            ///< Tabs as a separate group
-    int32_t     m_autoColorIndex;  ///< The internal index inside tabs auto-color table
+    /**
+     * Tabs as a separate group
+     */
+    CTabGroup*  m_tabs;
 
-    /// auto-color table
+    /**
+     * The internal index inside tabs auto-color table
+     */
+    int32_t     m_autoColorIndex;
+
+
+    /**
+     * auto-color table
+     */
     static const Fl_Color AutoColorTable[16];
 
-    void        removeEmptyLastPage();                             ///< Removes an empty last page prior to adding a new page
+    /**
+     * Removes an empty last page prior to adding a new page
+     */
+    void        removeEmptyLastPage();
+
 protected:
-    virtual void prepareNewPage(Fl_Group *page,bool autoColor);    ///< Sets default parameters for a new page
+    /**
+     * Sets default parameters for a new page
+     */
+    virtual void prepareNewPage(Fl_Group *page,bool autoColor);
+
 public:
-    /// @brief Constructor in SPTK style
-    /// @param label const char*, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char*, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CTabs(const char* label=0L,int32_t layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char* label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char* label
+     */
     CTabs(int x,int y,int w,int h,const char* label = 0);
 #endif
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CTabs();
 
-    /// @brief Creates a new CGroup page
-    /// @param label const char*, tab and page label
-    /// @param autoColor bool, auto-color assignment on/off
+    /**
+     * @brief Creates a new CGroup page
+     * @param label const char*, tab and page label
+     * @param autoColor bool, auto-color assignment on/off
+     */
     virtual Fl_Group* newPage(const char* label,bool autoColor=false);
 
-    /// @brief Creates a new CScroll page
-    /// @param label const char*, tab and page label
-    /// @param autoColor bool, auto-color assignment on/off
+    /**
+     * @brief Creates a new CScroll page
+     * @param label const char*, tab and page label
+     * @param autoColor bool, auto-color assignment on/off
+     */
     virtual Fl_Group* newScroll(const char* label,bool autoColor=false);
 
-    /// @brief Custom draw method
+    /**
+     * @brief Custom draw method
+     */
     virtual void draw();
 
-    /// @brief Show/hide tabs flag
-    ///
-    /// @param show bool, if true the tabs would be visible
+    /**
+     * @brief Show/hide tabs flag
+     *
+     * @param show bool, if true the tabs would be visible
+     */
     void showTabs(bool show);
 
-    /// @brief Returns currently selected page
+    /**
+     * @brief Returns currently selected page
+     */
     Fl_Group *page();
 
-    /// Selects page
+    /**
+     * Selects page
+     */
     uint32_t page(Fl_Widget *page);
 
-    /// @brief Returns tabs count
+    /**
+     * @brief Returns tabs count
+     */
     uint32_t pageCount() const;
 
-    /// @brief Returns selected page number
+    /**
+     * @brief Returns selected page number
+     */
     uint32_t pageNumber() const;
 
-    /// @brief Sets selected page by number
-    /// @param pageNumber uint32_t, a page number to select
+    /**
+     * @brief Sets selected page by number
+     * @param pageNumber uint32_t, a page number to select
+     */
     void pageNumber(uint32_t pageNumber);
 
-    /// @brief Removes a page completely
-    /// @param page Fl_Group*, page to remove
+    /**
+     * @brief Removes a page completely
+     * @param page Fl_Group*, page to remove
+     */
     void remove(Fl_Group* page);
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "tabs";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -35,50 +35,78 @@
 namespace sptk
 {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Abstract runable object.
-///
-/// Should be used for deriving a user class for executing by a worker
-/// thread in a thread pool. Derived class must override run() method.
+/**
+ * @brief Abstract runable object.
+ *
+ * Should be used for deriving a user class for executing by a worker
+ * thread in a thread pool. Derived class must override run() method.
+ */
 class SP_EXPORT Runable
 {
-    bool            m_terminated;   ///< Flag: is the task sent terminate request?
-    Synchronized    m_running;      ///< Synchronized object locked while the task running
+    /**
+     * Flag: is the task sent terminate request?
+     */
+    bool            m_terminated;
+
+    /**
+     * Synchronized object locked while the task running
+     */
+    Synchronized    m_running;
+
 
 protected:
 
-    /// @brief Method that is executed by worker thread
-    ///
-    /// Should be overwritten by derived class.
+    /**
+     * @brief Method that is executed by worker thread
+     *
+     * Should be overwritten by derived class.
+     */
     virtual void run() THROWS_EXCEPTIONS = 0;
 
 public:
 
-    /// @brief Default Constructor
+    /**
+     * @brief Default Constructor
+     */
     Runable();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~Runable();
 
-    /// @brief Executes task' run method
-    ///
-    /// Task may be executed multiple times, but only one caller
-    /// may execute same task at a time.
+    /**
+     * @brief Executes task' run method
+     *
+     * Task may be executed multiple times, but only one caller
+     * may execute same task at a time.
+     */
     void execute() THROWS_EXCEPTIONS;
 
-    /// @brief Requests execution termination
+    /**
+     * @brief Requests execution termination
+     */
     void terminate();
 
-    /// @brief Returns true if terminate request is sent to runable
+    /**
+     * @brief Returns true if terminate request is sent to runable
+     */
     bool terminated();
 
-    /// @brief Returns true, if the task is completed
-    /// @param timeoutMS uint32_t, Wait timeout, milliseconds
+    /**
+     * @brief Returns true, if the task is completed
+     * @param timeoutMS uint32_t, Wait timeout, milliseconds
+     */
     bool completed(uint32_t timeoutMS=SP_INFINITY) THROWS_EXCEPTIONS;
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

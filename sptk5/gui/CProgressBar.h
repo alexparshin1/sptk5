@@ -33,77 +33,111 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Progress bar widget
-///
-/// The extended version of FLTK's standard Fl_Progress.
-/// Added the CLayoutClient interface and preferred size computations.
+/**
+ * @brief Progress bar widget
+ *
+ * The extended version of FLTK's standard Fl_Progress.
+ * Added the CLayoutClient interface and preferred size computations.
+ */
 class CProgressBar : public CInput {
 
-    /// Constructor initializer
-    /// @param label const char *, widget label
+    /**
+     * Constructor initializer
+     * @param label const char *, widget label
+     */
     void ctor_init(const char *label);
 
 public:
-    /// Constructor in SPTK style
-    /// @param lbl const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param lbl const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CProgressBar(const char *lbl,int layoutSize=20,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CProgressBar(int x,int y,int w,int h,const char * label=0);
 #endif
 
-    /// Computes the optimal progress bar size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * Computes the optimal progress bar size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// Defines the progress bar minimum value
-    /// The default is 0
+    /**
+     * Defines the progress bar minimum value
+     * The default is 0
+     */
     void minimum(float min);
 
-    /// Returnes the progress bar minimum value
+    /**
+     * Returnes the progress bar minimum value
+     */
     float minimum() const;
 
-    /// Defines the progress bar maximum value
-    /// The default is 100
+    /**
+     * Defines the progress bar maximum value
+     * The default is 100
+     */
     void maximum(float max);
 
-    /// Returnes the progress bar maximum value
+    /**
+     * Returnes the progress bar maximum value
+     */
     float maximum() const;
 
-    /// Sets progress bar units, default is "%"
+    /**
+     * Sets progress bar units, default is "%"
+     */
     void units(const char *un);
 
-    /// Returns progress bar units
+    /**
+     * Returns progress bar units
+     */
     std::string units() const;
 
-    /// Show the progress text or not?
-    /// The default is true
+    /**
+     * Show the progress text or not?
+     * The default is true
+     */
     void showText(bool flag=true);
 
-    /// Universal data connection, returns data from date control.
-    /// Data is returned as VAR_FLOAT.
+    /**
+     * Universal data connection, returns data from date control.
+     * Data is returned as VAR_FLOAT.
+     */
     virtual Variant data() const;
 
-    /// Universal data connection, sets data to date control
+    /**
+     * Universal data connection, sets data to date control
+     */
     virtual void     data(const Variant v);
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

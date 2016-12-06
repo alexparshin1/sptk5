@@ -36,97 +36,139 @@
 namespace sptk
 {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief A map of HTTP headers and their values (string to string)
+/**
+ * @brief A map of HTTP headers and their values (string to string)
+ */
 typedef std::map<std::string, std::string> HttpHeaders;
 
-/// @brief HTTP socket
-///
-/// Implements the GET and POST methods of HTTP protocol.
-/// Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
+/**
+ * @brief HTTP socket
+ *
+ * Implements the GET and POST methods of HTTP protocol.
+ * Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
+ */
 class SP_EXPORT HttpConnect
 {
-    Buffer         m_readBuffer;           ///< Internal read buffer
-    TCPSocket&     m_socket;               ///< External socket
+    /**
+     * Internal read buffer
+     */
+    Buffer         m_readBuffer;
+
+    /**
+     * External socket
+     */
+    TCPSocket&     m_socket;
+
 
 protected:
-    HttpHeaders     m_requestHeaders;       ///< HTTP request headers
-    HttpHeaders     m_responseHeaders;      ///< HTTP response headers
+    /**
+     * HTTP request headers
+     */
+    HttpHeaders     m_requestHeaders;
+
+    /**
+     * HTTP response headers
+     */
+    HttpHeaders     m_responseHeaders;
+
 
 protected:
-    /// @brief Sends a single command to HTTP server
-    ///
-    /// CRLF characters are automatically appended to the command.
-    /// @param cmd std::string, HTTP command
+    /**
+     * @brief Sends a single command to HTTP server
+     *
+     * CRLF characters are automatically appended to the command.
+     * @param cmd std::string, HTTP command
+     */
     void sendCommand(std::string cmd);
 
 public:
 
-    /// @brief Constructor
-    ///
-    /// External socket has to be active before HTTP operations.
-    /// In order to use HTTPS protocol, use COpenSSLSocket.
-    /// @param socket CTCPSocket&, external socket
+    /**
+     * @brief Constructor
+     *
+     * External socket has to be active before HTTP operations.
+     * In order to use HTTPS protocol, use COpenSSLSocket.
+     * @param socket CTCPSocket&, external socket
+     */
     HttpConnect(TCPSocket& socket);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~HttpConnect();
 
-    /// @brief Retrieves the server response on the command
-    ///
-    /// Stops when HTTP server closes the connection. The server response can then be
-    /// accessed through the htmlData() method.
-    /// @param timeoutMS uint32_t, Response timeout
+    /**
+     * @brief Retrieves the server response on the command
+     *
+     * Stops when HTTP server closes the connection. The server response can then be
+     * accessed through the htmlData() method.
+     * @param timeoutMS uint32_t, Response timeout
+     */
     void getResponse(uint32_t timeoutMS);
 
-    /// @brief Returns the internal read buffer
-    ///
-    /// The buffer makes sense only after sending a command to the server (if that command calls
-    /// getResponse() method internally). The buffer doesn't contain HTTP headers that are parsed
-    /// int m_headers map.
-    /// @returns internal read buffer reference
+    /**
+     * @brief Returns the internal read buffer
+     *
+     * The buffer makes sense only after sending a command to the server (if that command calls
+     * getResponse() method internally). The buffer doesn't contain HTTP headers that are parsed
+     * int m_headers map.
+     * @returns internal read buffer reference
+     */
     const Buffer& htmlData() const
     {
         return m_readBuffer;
     }
 
-    /// @brief Returns the HTTP request headers
-    ///
-    /// The HTTP headers request should be set before sending a command to the server
-    /// @returns internal http request headers reference
+    /**
+     * @brief Returns the HTTP request headers
+     *
+     * The HTTP headers request should be set before sending a command to the server
+     * @returns internal http request headers reference
+     */
     HttpHeaders& requestHeaders()
     {
         return m_requestHeaders;
     }
 
-    /// @brief Returns the HTTP headers
-    ///
-    /// The HTTP response headers make sense only after sending a command to the server (if that command calls
-    /// getResponse() method internally).
-    /// @returns internal http headers reference
+    /**
+     * @brief Returns the HTTP headers
+     *
+     * The HTTP response headers make sense only after sending a command to the server (if that command calls
+     * getResponse() method internally).
+     * @returns internal http headers reference
+     */
     const HttpHeaders& responseHeaders() const
     {
         return m_responseHeaders;
     }
 
-    /// @brief Sends the GET command to the server
-    ///
-    /// Retrieves the server response into internal read buffer.
-    /// @param pageName std::string, the name of the page without the server name.
-    /// @param getData const HttpParams&, the list of HTTP data to pass to the server
-    /// @param timeoutMS uint32_t, response timeout, milliseconds
+    /**
+     * @brief Sends the GET command to the server
+     *
+     * Retrieves the server response into internal read buffer.
+     * @param pageName std::string, the name of the page without the server name.
+     * @param getData const HttpParams&, the list of HTTP data to pass to the server
+     * @param timeoutMS uint32_t, response timeout, milliseconds
+     */
     void cmd_get(std::string pageName, const HttpParams& getData, uint32_t timeoutMS);
 
-    /// @brief Sends the POST command to the server
-    ///
-    /// Retrieves the server response into internal read buffer.
-    /// @param pageName std::string, the name of the page without the server name.
-    /// @param postData const HttpParams&, the list of HTTP data to pass to the server
-    /// @param timeoutMS uint32_t, response timeout, milliseconds
+    /**
+     * @brief Sends the POST command to the server
+     *
+     * Retrieves the server response into internal read buffer.
+     * @param pageName std::string, the name of the page without the server name.
+     * @param postData const HttpParams&, the list of HTTP data to pass to the server
+     * @param timeoutMS uint32_t, response timeout, milliseconds
+     */
     void cmd_post(std::string pageName, const HttpParams& postData, uint32_t timeoutMS);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

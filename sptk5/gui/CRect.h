@@ -31,21 +31,43 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// General class to work with rectangles
+/**
+ * General class to work with rectangles
+ */
 class CRect {
-    int m_x;    ///< rectangle X-coordinate
-    int   m_y;  ///< rectangle Y-coordinate
-    int   m_w;  ///< rectangle width
-    int   m_h;  ///< rectangle height
+    /**
+     * rectangle X-coordinate
+     */
+    int m_x;
+
+    /**
+     * rectangle Y-coordinate
+     */
+    int   m_y;
+
+    /**
+     * rectangle width
+     */
+    int   m_w;
+
+    /**
+     * rectangle height
+     */
+    int   m_h;
+
 public:
-    /// Default constructor
-    /// @param x int, rectangle X-coordinate
-    /// @param y int, rectangle Y-coordinate
-    /// @param w int, rectangle width
-    /// @param h int, rectangle height
+    /**
+     * Default constructor
+     * @param x int, rectangle X-coordinate
+     * @param y int, rectangle Y-coordinate
+     * @param w int, rectangle width
+     * @param h int, rectangle height
+     */
     CRect(int x=0,int y=0,int w=0,int h=0) {
         m_x = x;
         m_y = y;
@@ -53,68 +75,88 @@ public:
         m_h = h;
     }
 
-    /// returns rectangle X-coordinate
+    /**
+     * returns rectangle X-coordinate
+     */
     int x() const {
         return m_x;
     }
 
-    /// returns rectangle Y-coordinate
+    /**
+     * returns rectangle Y-coordinate
+     */
     int y() const {
         return m_y;
     }
 
-    /// returns rectangle width
+    /**
+     * returns rectangle width
+     */
     int w() const {
         return m_w;
     }
 
-    /// returns rectangle height
+    /**
+     * returns rectangle height
+     */
     int h() const {
         return m_h;
     }
 
-    /// sets rectangle X and Y coordinates
-    /// @param x int, rectangle X-coordinate
-    /// @param y int, rectangle Y-coordinate
+    /**
+     * sets rectangle X and Y coordinates
+     * @param x int, rectangle X-coordinate
+     * @param y int, rectangle Y-coordinate
+     */
     void move(int x,int y) {
         m_x = x;
         m_y = y;
     }
 
-    /// sets rectangle's width and height
-    /// @param w int, rectangle width
-    /// @param h int, rectangle height
+    /**
+     * sets rectangle's width and height
+     * @param w int, rectangle width
+     * @param h int, rectangle height
+     */
     void size(int w,int h) {
         m_w = w;
         m_h = h;
     }
 
-    /// shifts rectangle X and Y coordinates
-    /// @param dx int, rectangle X-coordinate shift
-    /// @param dy int, rectangle Y-coordinate shift
+    /**
+     * shifts rectangle X and Y coordinates
+     * @param dx int, rectangle X-coordinate shift
+     * @param dy int, rectangle Y-coordinate shift
+     */
     void shift(int dx,int dy) {
         m_x += dx;
         m_y += dy;
     }
 
-    /// shrinks rectangle width and height
-    /// @param dw int, rectangle width change
-    /// @param dh int, rectangle height change
+    /**
+     * shrinks rectangle width and height
+     * @param dw int, rectangle width change
+     * @param dh int, rectangle height change
+     */
     void shrink(int dw,int dh) {
         m_w -= dw;
         m_h -= dh;
     }
 
-    /// expands rectangle width and height
-    /// @param dw int, rectangle width change
-    /// @param dh int, rectangle height change
+    /**
+     * expands rectangle width and height
+     * @param dw int, rectangle width change
+     * @param dh int, rectangle height change
+     */
     void expand(int dw,int dh) {
         m_w += dw;
         m_h += dh;
     }
 }
 ;
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

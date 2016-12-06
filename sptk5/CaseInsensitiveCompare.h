@@ -32,19 +32,25 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Case-insensitive string compare class.
-///
-/// Lower case string compare class is really useful if we need
-/// a case-independent string map
+/**
+ * @brief Case-insensitive string compare class.
+ *
+ * Lower case string compare class is really useful if we need
+ * a case-independent string map
+ */
 class SP_EXPORT CaseInsensitiveCompare
 {
 public:
-    /// @brief Compare method
-    /// @param s1 const std::string&, First compare string
-    /// @param s2 const std::string&, Second compare string
+    /**
+     * @brief Compare method
+     * @param s1 const std::string&, First compare string
+     * @param s2 const std::string&, Second compare string
+     */
     bool operator()(const std::string& s1, const std::string& s2) const
     {
 #ifdef WIN32
@@ -55,7 +61,9 @@ public:
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 
 }
 

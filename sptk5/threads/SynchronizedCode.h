@@ -34,80 +34,100 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Synchronized code object
-///
-/// Automatically locks the synchronization object until goes out of scope.
-/// This allows thread-safe execution of the code after this object declaration.
+/**
+ * @brief Synchronized code object
+ *
+ * Automatically locks the synchronization object until goes out of scope.
+ * This allows thread-safe execution of the code after this object declaration.
+ */
 class SP_EXPORT SynchronizedCode
 {
-    Synchronized*    m_object;   ///< Controlled lock
+    /**
+     * Controlled lock
+     */
+    Synchronized*    m_object;
+
 
 public:
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// @param object Synchronized&, Synchronization object to lock.
+    /**
+     * @brief Constructor
+     *
+     * Automatically locks the lock object. That is needed for thread safety.
+     * @param object Synchronized&, Synchronization object to lock.
+     */
     SynchronizedCode(Synchronized& object)
     : m_object(&object)
     {
         m_object->lock();
     }
 
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// @param object Synchronized&, Synchronization object to lock.
+    /**
+     * @brief Constructor
+     *
+     * Automatically locks the lock object. That is needed for thread safety.
+     * @param object Synchronized&, Synchronization object to lock.
+     */
     SynchronizedCode(Synchronized* object)
     : m_object(object)
     {
         m_object->lock();
     }
 
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// If the lock isn't acquired within timeout period, CTimeoutException is thrown.
-    /// @param object Synchronized&, Synchronization object to lock.
-    /// @param timeoutMS uint32_t, lock timeout, milliseconds
-    /// @param fileName const char*, lock location fileName, default is NULL
-    /// @param lineNumber int, lock location line number, default is 0
+    /**
+     * @brief Constructor
+     *
+     * Automatically locks the lock object. That is needed for thread safety.
+     * If the lock isn't acquired within timeout period, CTimeoutException is thrown.
+     * @param object Synchronized&, Synchronization object to lock.
+     * @param timeoutMS uint32_t, lock timeout, milliseconds
+     * @param fileName const char*, lock location fileName, default is NULL
+     * @param lineNumber int, lock location line number, default is 0
+     */
     SynchronizedCode(Synchronized& object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0)
     : m_object(&object)
     {
         m_object->lock(timeoutMS, fileName, lineNumber);
     }
 
-    /// @brief Constructor
-    ///
-    /// Automatically locks the lock object. That is needed for thread safety.
-    /// If the lock isn't acquired within timeout period, CTimeoutException is thrown.
-    /// @param object Synchronized*, Synchronization object to lock.
-    /// @param timeoutMS uint32_t, lock timeout, milliseconds
-    /// @param fileName const char*, lock location fileName, default is NULL
-    /// @param lineNumber int, lock location line number, default is 0
+    /**
+     * @brief Constructor
+     *
+     * Automatically locks the lock object. That is needed for thread safety.
+     * If the lock isn't acquired within timeout period, CTimeoutException is thrown.
+     * @param object Synchronized*, Synchronization object to lock.
+     * @param timeoutMS uint32_t, lock timeout, milliseconds
+     * @param fileName const char*, lock location fileName, default is NULL
+     * @param lineNumber int, lock location line number, default is 0
+     */
     SynchronizedCode(Synchronized* object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0)
     : m_object(object)
     {
         m_object->lock(timeoutMS, fileName, lineNumber);
     }
     
-    /// @brief Destructor
-    ///
-    /// Unlocks the lock object defined in constructor.
+    /**
+     * @brief Destructor
+     *
+     * Unlocks the lock object defined in constructor.
+     */
     ~SynchronizedCode()
     {
         m_object->unlock();
     }
 };
 
-/// @brief SYNCHRONIZED_CODE macro definition
-///
-/// Used similarly to Windows CRITICAL_SECTION. Protects code starting from the SYNCHRONIZED_CODE definition
-/// until SYNCHRONIZED_CODE goes out of scope. @see CGuard class for more information.
-/// Uses 'this' object as a synchronization object, so it should be derived from Synchronized.
+/**
+ * @brief SYNCHRONIZED_CODE macro definition
+ *
+ * Used similarly to Windows CRITICAL_SECTION. Protects code starting from the SYNCHRONIZED_CODE definition
+ * until SYNCHRONIZED_CODE goes out of scope. @see CGuard class for more information.
+ * Uses 'this' object as a synchronization object, so it should be derived from Synchronized.
+ */
 #ifndef SPTK_LOCK_DEBUG
     #define SYNCHRONIZED_CODE sptk::SynchronizedCode lock(this)
 #else
@@ -115,7 +135,9 @@ public:
 #endif
 
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

@@ -43,84 +43,142 @@ namespace sptk
 
 class MySQLConnection;
 
-/// @brief MySQL statement wrapper
+/**
+ * @brief MySQL statement wrapper
+ */
 class MySQLStatement : public DatabaseStatement<MySQLConnection,MYSQL_STMT>
 {
-    std::string                     m_sql;              ///< Statement SQL
-    std::vector<MYSQL_BIND>         m_paramBuffers;     ///< Parameter binding buffers
-    std::vector<unsigned long>      m_paramLengths;     ///< Parameter data lengths
-    std::vector<MYSQL_BIND>         m_fieldBuffers;     ///< Fetch data buffers
+    /**
+     * Statement SQL
+     */
+    std::string                     m_sql;
 
-    MYSQL_RES*                      m_result;           ///< Statement handle
-    MYSQL_ROW                       m_row;              ///< Fetch data row
+    /**
+     * Parameter binding buffers
+     */
+    std::vector<MYSQL_BIND>         m_paramBuffers;
 
-    /// @brief Reads not prepared statement result row to query fields
-    /// @param fields CFieldList&, query fields (if any)
+    /**
+     * Parameter data lengths
+     */
+    std::vector<unsigned long>      m_paramLengths;
+
+    /**
+     * Fetch data buffers
+     */
+    std::vector<MYSQL_BIND>         m_fieldBuffers;
+
+
+    /**
+     * Statement handle
+     */
+    MYSQL_RES*                      m_result;
+
+    /**
+     * Fetch data row
+     */
+    MYSQL_ROW                       m_row;
+
+
+    /**
+     * @brief Reads not prepared statement result row to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
     void readUnpreparedResultRow(FieldList& fields);
 
-    /// @brief Reads prepared statement result row to query fields
-    /// @param fields CFieldList&, query fields (if any)
+    /**
+     * @brief Reads prepared statement result row to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
     void readPreparedResultRow(FieldList& fields);
 
 public:
 
-    /// @brief Translates MySQL native type to CVariant type
-    /// @param mysqlType enum_field_types, MySQL native type
-    /// @returns CVariant type
+    /**
+     * @brief Translates MySQL native type to CVariant type
+     * @param mysqlType enum_field_types, MySQL native type
+     * @returns CVariant type
+     */
     static VariantType mySQLTypeToVariantType(enum_field_types mysqlType);
 
-    /// @brief Translates CVariant type to MySQL native type
-    /// @param dataType VariantType&, CVariant type
-    /// @returns MySQL native type
+    /**
+     * @brief Translates CVariant type to MySQL native type
+     * @param dataType VariantType&, CVariant type
+     * @returns MySQL native type
+     */
     static enum_field_types variantTypeToMySQLType(VariantType dataType);
 
-    /// @brief Translates DateTime to MySQL time
-    /// @param mysqlDate MYSQL_TIME&, MySQL time
-    /// @param timestamp DateTime, Timestamp
-    /// @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
+    /**
+     * @brief Translates DateTime to MySQL time
+     * @param mysqlDate MYSQL_TIME&, MySQL time
+     * @param timestamp DateTime, Timestamp
+     * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
+     */
     static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType);
 
-    /// @brief Translates MySQL time to DateTime
-    /// @param timestamp DateTime&, Timestamp
-    /// @param mysqlDate const MYSQL_TIME&, MySQL time
+    /**
+     * @brief Translates MySQL time to DateTime
+     * @param timestamp DateTime&, Timestamp
+     * @param mysqlDate const MYSQL_TIME&, MySQL time
+     */
     static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
 
 public:
-    /// @brief Constructor
-    /// @param connection Connection*, MySQL connection
-    /// @param sql std::string, SQL statement
-    /// @param autoPrepare bool, If true then statement is executed as prepared.
+    /**
+     * @brief Constructor
+     * @param connection Connection*, MySQL connection
+     * @param sql std::string, SQL statement
+     * @param autoPrepare bool, If true then statement is executed as prepared.
+     */
     MySQLStatement(MySQLConnection* connection, std::string sql, bool autoPrepare);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~MySQLStatement();
 
-    /// @brief Generates normalized list of parameters
-    /// @param queryParams CParamList&, Standard query parameters
+    /**
+     * @brief Generates normalized list of parameters
+     * @param queryParams CParamList&, Standard query parameters
+     */
     void enumerateParams(QueryParameterList& queryParams);
 
-    /// @brief Sets actual parameter values for the statement execution
+    /**
+     * @brief Sets actual parameter values for the statement execution
+     */
     void setParameterValues();
 
-    /// @brief Prepares MySQL statement
-    /// @param sql const std::string, statement SQL
+    /**
+     * @brief Prepares MySQL statement
+     * @param sql const std::string, statement SQL
+     */
     void prepare(const std::string& sql);
 
-    /// @brief Executes statement
+    /**
+     * @brief Executes statement
+     */
     void execute(bool);
 
-    /// @brief Binds statement result metadata to query fields
-    /// @param fields CFieldList&, query fields (if any)
+    /**
+     * @brief Binds statement result metadata to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
     void bindResult(FieldList& fields);
 
-    /// @brief Fetches statement result metadata to query fields
-    /// @param fields CFieldList&, query fields (if any)
+    /**
+     * @brief Fetches statement result metadata to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
     void readResultRow(FieldList& fields);
 
-    /// @brief Closes statement and releases allocated resources
+    /**
+     * @brief Closes statement and releases allocated resources
+     */
     void close();
 
-    /// @brief Fetches next record
+    /**
+     * @brief Fetches next record
+     */
     void fetch();
 };
 

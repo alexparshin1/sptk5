@@ -34,73 +34,127 @@
 
 namespace sptk {
 
-    /// @addtogroup gui GUI Classes
-    /// @{
+    /**
+     * @addtogroup gui GUI Classes
+     * @{
+     */
 
-    typedef char *          pchar;  ///< Type definition for pchar
-    typedef const char *    cpchar; ///< Type definition for cpchar
+    /**
+     * Type definition for pchar
+     */
+    typedef char *          pchar;
 
-    /// @brief Packed strings list
-    ///
-    /// Special data structure to contain several strings packed into same memory block.
-    /// The idea was to minimize the memory allocation, and decrease the total required memory.
-    /// Also, contains special attributes for CListView row support.
+    /**
+     * Type definition for cpchar
+     */
+    typedef const char *    cpchar;
+
+
+    /**
+     * @brief Packed strings list
+     *
+     * Special data structure to contain several strings packed into same memory block.
+     * The idea was to minimize the memory allocation, and decrease the total required memory.
+     * Also, contains special attributes for CListView row support.
+     */
     class SP_EXPORT CPackedStrings {
-            uint16_t   m_size;   ///< Number of strings
-            void      *m_buffer; ///< Strings buffer
-            void      *m_data;   ///< User data
+            /**
+             * Number of strings
+             */
+            uint16_t   m_size;
+
+            /**
+             * Strings buffer
+             */
+            void      *m_buffer;
+
+            /**
+             * User data
+             */
+            void      *m_data;
+
 
         public:
 
-            /// Constructor
-            /// @param cnt int, source strings count
-            /// @param strings const char *, source strings
+            /**
+             * Constructor
+             * @param cnt int, source strings count
+             * @param strings const char *, source strings
+             */
             CPackedStrings(int cnt,const char *strings[]);
 
-            /// Constructor
-            /// @param fields CFieldList, the fields data
-            /// @param keyField int, the key field number
+            /**
+             * Constructor
+             * @param fields CFieldList, the fields data
+             * @param keyField int, the key field number
+             */
             CPackedStrings(FieldList& fields,int keyField);
 
-            /// Constructor
-            /// @param strings const Strings&, source strings
+            /**
+             * Constructor
+             * @param strings const Strings&, source strings
+             */
             CPackedStrings(const Strings& strings);
 
-            /// Destructor
+            /**
+             * Destructor
+             */
             ~CPackedStrings();
 
-            /// Strings count
+            /**
+             * Strings count
+             */
             uint16_t size() const { return *(uint16_t *)m_buffer; }
 
-            /// String access by index
+            /**
+             * String access by index
+             */
             const char * operator[](uint16_t index) const;
 
-            /// Assignment operator
+            /**
+             * Assignment operator
+             */
             CPackedStrings& operator=(const CPackedStrings&);
 
-            /// Assignment operator
+            /**
+             * Assignment operator
+             */
             CPackedStrings& operator=(const Strings&);
 
-            /// Sets user_data as void *
+            /**
+             * Sets user_data as void *
+             */
             void user_data(void *d) { m_data = d;           }
 
-            /// Returns user_data as void *
+            /**
+             * Returns user_data as void *
+             */
             void *user_data() const { return m_data;        }
 
-            /// Sets user_data as integer
+            /**
+             * Sets user_data as integer
+             */
             void argument(int32_t arg)  { m_data = (void *) (long) arg; }
 
-            /// Returns user_data as integer
+            /**
+             * Returns user_data as integer
+             */
             int32_t argument() const   { return (int32_t)(long) m_data;   }
 
         public:
 
-            /// Row height for CListView
+            /**
+             * Row height for CListView
+             */
             unsigned char    height;
 
-            /// Row flags for CListView
+            /**
+             * Row flags for CListView
+             */
             unsigned char    flags;
     };
-    /// @}
+    /**
+     * @}
+     */
 }
 #endif

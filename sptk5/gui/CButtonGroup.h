@@ -40,118 +40,182 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Base class for CCheckButtons and CRadioButtons.
-///
-/// Implements the most important data communication methods for these button groups.
+/**
+ * @brief Base class for CCheckButtons and CRadioButtons.
+ *
+ * Implements the most important data communication methods for these button groups.
+ */
 class SP_EXPORT CButtonGroup : public CControl {
-    int         m_maxHeight;        ///< Required group height
-protected:
-    std::string m_lastValue;        ///< Last value of the group (last list of choices)
-    Strings     m_buttonLabels;     ///< Button labels for the buttons inside
-    Fl_Button  *m_otherButton;      ///< The 'Other' Button if requested (add '*' in the button list)
-    CInput_    *m_otherInput;       ///< The 'Other' Input if requested (add '*' in the button list)
+    /**
+     * Required group height
+     */
+    int         m_maxHeight;
 
-    /// Internal callback processing
+protected:
+    /**
+     * Last value of the group (last list of choices)
+     */
+    std::string m_lastValue;
+
+    /**
+     * Button labels for the buttons inside
+     */
+    Strings     m_buttonLabels;
+
+    /**
+     * The 'Other' Button if requested (add '*' in the button list)
+     */
+    Fl_Button  *m_otherButton;
+
+    /**
+     * The 'Other' Input if requested (add '*' in the button list)
+     */
+    CInput_    *m_otherInput;
+
+
+    /**
+     * Internal callback processing
+     */
     virtual void controlDataChanged();
 
-    /// Finds a button by label
-    /// @param buttonLabel const char *, button label
-    /// @returns button index, or -1 if not found
+    /**
+     * Finds a button by label
+     * @param buttonLabel const char *, button label
+     * @returns button index, or -1 if not found
+     */
     int  buttonIndex(const char *buttonLabel);
 
-    /// Deselects all buttons
+    /**
+     * Deselects all buttons
+     */
     void deselectAllButtons();
 
-    /// Selects button by index
+    /**
+     * Selects button by index
+     */
     void selectButton(int choice);
 
-    /// Creates button. Should be implemented in the derived class.
+    /**
+     * Creates button. Should be implemented in the derived class.
+     */
     virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP) = 0;
 
-    /// Constructor initializer
+    /**
+     * Constructor initializer
+     */
     void ctor_init();
 
 protected:
 
-    /// SPTK-style constructor
-    /// @param label const char *, the widget label
-    /// @param layoutSize int, the size of widget in layout
-    /// @param layoutAlignment CLayoutAlign, widget align in the layout
+    /**
+     * SPTK-style constructor
+     * @param label const char *, the widget label
+     * @param layoutSize int, the size of widget in layout
+     * @param layoutAlignment CLayoutAlign, widget align in the layout
+     */
     CButtonGroup(const char * label=0,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// FLTK-style constructor
-    /// @param x int, widget x-coordinate
-    /// @param y int, widget y-coordinate
-    /// @param w int, widget width
-    /// @param h int, widget height
-    /// @param label int, optional widget label
+    /**
+     * FLTK-style constructor
+     * @param x int, widget x-coordinate
+     * @param y int, widget y-coordinate
+     * @param w int, widget width
+     * @param h int, widget height
+     * @param label int, optional widget label
+     */
     CButtonGroup(int,int,int,int,const char * = 0);
 #endif
 
 public:
-    /// @brief Sets the list of the buttons.
-    /// @param buttonList Strings, list of the buttons
+    /**
+     * @brief Sets the list of the buttons.
+     * @param buttonList Strings, list of the buttons
+     */
     void buttons(const Strings& buttonList);
 
-    /// @brief Returns the list of the buttons.
+    /**
+     * @brief Returns the list of the buttons.
+     */
     const Strings& buttons() const { return m_buttonLabels; }
 
-    /// @brief Clears the list of buttons.
+    /**
+     * @brief Clears the list of buttons.
+     */
     virtual void clearButtons();
 
-    /// @brief Returns the currently selected button(s) as pipe ('|') separated string
+    /**
+     * @brief Returns the currently selected button(s) as pipe ('|') separated string
+     */
     virtual Variant data() const;
 
-    /// @brief Sets the currently selected button(s)
-    ///
-    /// Buttons are presented as pipe ('|') separated string.
-    /// If the button group allows only one button to be selected at a time
-    /// (like radio buttons), only the first item of the string will be used.
+    /**
+     * @brief Sets the currently selected button(s)
+     *
+     * Buttons are presented as pipe ('|') separated string.
+     * If the button group allows only one button to be selected at a time
+     * (like radio buttons), only the first item of the string will be used.
+     */
     virtual void data(const Variant v);
 
-    /// @brief Loads the the currently selected button(s)
-    ///
-    /// Buttons should be presented as pipe ('|') separated string.
+    /**
+     * @brief Loads the the currently selected button(s)
+     *
+     * Buttons should be presented as pipe ('|') separated string.
+     */
     virtual void load(Query *);
 
-    /// @brief Saves the the currently selected button(s)
-    ///
-    /// Buttons are presented as pipe ('|') separated string
+    /**
+     * @brief Saves the the currently selected button(s)
+     *
+     * Buttons are presented as pipe ('|') separated string
+     */
     virtual void save(Query *);
 
-    /// @brief Loads control data from XML
-    ///
-    /// Layout information may also include widget size and position,
-    /// as well as visible() and active() states
-    /// @param node XMLNode*, the XML node
-    /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+    /**
+     * @brief Loads control data from XML
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node XMLNode*, the XML node
+     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     */
     virtual void     load(const XMLNode* node,CLayoutXMLmode xmlMode);
 
-    /// @brief Saves control data to XML
-    ///
-    /// Layout information may also include widget size and position,
-    /// as well as visible() and active() states
-    /// @param node XMLNode*, the XML node
-    /// @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+    /**
+     * @brief Saves control data to XML
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node XMLNode*, the XML node
+     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     */
     virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
 
-    /// @brief Tells if the the current data content is valid
-    ///
-    /// Always true for this widget.
+    /**
+     * @brief Tells if the the current data content is valid
+     *
+     * Always true for this widget.
+     */
     virtual bool valid() const {
         return true;
     }
 
-    /// @brief Computes the preferred size of the button group based on its contents
-    /// @param w int&, the optimal width 
-    /// @param h int&, the optimal height 
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * @brief Computes the preferred size of the button group based on its contents
+     * @param w int&, the optimal width 
+     * @param h int&, the optimal height 
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

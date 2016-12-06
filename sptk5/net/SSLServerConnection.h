@@ -33,19 +33,25 @@
 
 namespace sptk
 {
-/// @addtogroup net Networking Classes
-/// @{
+/**
+ * @addtogroup net Networking Classes
+ * @{
+ */
 
-/// @brief Abstract TCP server connection thread
-///
-/// Application derives concrete TCP server connections based on this class,
-/// to use with CTCPServer as connection template
+/**
+ * @brief Abstract TCP server connection thread
+ *
+ * Application derives concrete TCP server connections based on this class,
+ * to use with CTCPServer as connection template
+ */
 class SSLServerConnection: public ServerConnection
 {
 public:
-    /// @brief Constructor
-    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param sslContext CSSLContext&, Server SSL context (shared between connections)
+    /**
+     * @brief Constructor
+     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     * @param sslContext CSSLContext&, Server SSL context (shared between connections)
+     */
     SSLServerConnection(SOCKET connectionSocket, SSLContext& sslContext)
     : ServerConnection(connectionSocket, "SSLServerConnection")
     {
@@ -53,7 +59,9 @@ public:
         m_socket->attach(connectionSocket);
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~SSLServerConnection()
     {
         if (m_socket) {
@@ -63,6 +71,8 @@ public:
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

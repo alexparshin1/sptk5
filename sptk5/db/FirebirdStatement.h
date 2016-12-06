@@ -44,35 +44,57 @@ namespace sptk
 
 class FirebirdConnection;
 
-/// @brief Firebird-specific bind buffers
+/**
+ * @brief Firebird-specific bind buffers
+ */
 class FirebirdBindBuffers
 {
-    size_t  m_size;     ///< Buffer count
-    XSQLDA* m_sqlda;    ///< Buffers structure
-    short*  m_cbNulls;  ///< Null flags (callback)
+    /**
+     * Buffer count
+     */
+    size_t  m_size;
+
+    /**
+     * Buffers structure
+     */
+    XSQLDA* m_sqlda;
+
+    /**
+     * Null flags (callback)
+     */
+    short*  m_cbNulls;
+
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     FirebirdBindBuffers()
     : m_size(0), m_sqlda(NULL), m_cbNulls(NULL)
     {
         resize(16);
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~FirebirdBindBuffers()
     {
         free(m_sqlda);
         free(m_cbNulls);
     }
 
-    /// @brief Returns buffer structure
+    /**
+     * @brief Returns buffer structure
+     */
     XSQLDA& sqlda()
     {
         return *m_sqlda;
     }
 
-    /// @brief Resize bind buffers
-    /// @param size size_t, New size of buffer array
+    /**
+     * @brief Resize bind buffers
+     * @param size size_t, New size of buffer array
+     */
     void resize(size_t size)
     {
         if (size < 1)
@@ -89,91 +111,143 @@ public:
             m_sqlda->sqlvar[i].sqlind = cbNull;
     }
 
-    /// @brief Returns individual buffer
+    /**
+     * @brief Returns individual buffer
+     */
     XSQLVAR& operator [] (size_t index)
     {
         return m_sqlda->sqlvar[index];
     }
 
-    /// @brief Returns number of buffers
+    /**
+     * @brief Returns number of buffers
+     */
     size_t size() const
     {
         return m_size;
     }
 };
 
-/// @brief Firebird SQL statement
+/**
+ * @brief Firebird SQL statement
+ */
 class FirebirdStatement : public DatabaseStatement<FirebirdConnection,isc_stmt_handle>
 {
-    FirebirdBindBuffers    m_outputBuffers;        ///< Output result buffers
-    FirebirdBindBuffers    m_paramBuffers;         ///< Parameter buffers
-    ISC_STATUS              m_status_vector[20];    ///< Execution result
-    Buffer                  m_blobData;             ///< BLOB fetch buffer
+    /**
+     * Output result buffers
+     */
+    FirebirdBindBuffers    m_outputBuffers;
+
+    /**
+     * Parameter buffers
+     */
+    FirebirdBindBuffers    m_paramBuffers;
+
+    /**
+     * Execution result
+     */
+    ISC_STATUS              m_status_vector[20];
+
+    /**
+     * BLOB fetch buffer
+     */
+    Buffer                  m_blobData;
+
 
 public:
 
-    /// @brief Translates Firebird native type to CVariant type
-    /// @param firebirdType int, Firebird native type
-    /// @param firebirdSubtype int, Firebird native subtype
-    /// @returns CVariant type
+    /**
+     * @brief Translates Firebird native type to CVariant type
+     * @param firebirdType int, Firebird native type
+     * @param firebirdSubtype int, Firebird native subtype
+     * @returns CVariant type
+     */
     static VariantType firebirdTypeToVariantType(int firebirdType, int firebirdSubtype);
 
-    /// @brief Translates DateTime to Firebird time
-    /// @param firebirdDate tm&, Firebird time
-    /// @param timestamp DateTime, Timestamp
-    /// @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
+    /**
+     * @brief Translates DateTime to Firebird time
+     * @param firebirdDate tm&, Firebird time
+     * @param timestamp DateTime, Timestamp
+     * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
+     */
     static void dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType);
 
-    /// @brief Translates Firebird time to DateTime
-    /// @param timestamp DateTime&, Timestamp
-    /// @param firebirdDate const tm&, Firebird time
+    /**
+     * @brief Translates Firebird time to DateTime
+     * @param timestamp DateTime&, Timestamp
+     * @param firebirdDate const tm&, Firebird time
+     */
     static void firebirdDateToDateTime(DateTime& timestamp, const struct tm& firebirdDate);
 
-    /// @brief Creates new BLOB from parameter data
-    /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id
-    /// @param param QueryParameter*, BLOB field
+    /**
+     * @brief Creates new BLOB from parameter data
+     * @param blob_id ISC_QUAD*, Firebird-specific BLOB id
+     * @param param QueryParameter*, BLOB field
+     */
     isc_blob_handle createBLOB(ISC_QUAD* blob_id, QueryParameter* param) THROWS_EXCEPTIONS;
 
-    /// @brief Fetches BLOB data during fetch of query results
-    /// @param blob_id ISC_QUAD*, Firebird-specific BLOB id
-    /// @param field DatabaseField*, BLOB field
+    /**
+     * @brief Fetches BLOB data during fetch of query results
+     * @param blob_id ISC_QUAD*, Firebird-specific BLOB id
+     * @param field DatabaseField*, BLOB field
+     */
     size_t fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) THROWS_EXCEPTIONS;
 
 public:
-    /// @brief Constructor
-    /// @param connection Connection*, Firebird connection
-    /// @param sql std::string, SQL statement
+    /**
+     * @brief Constructor
+     * @param connection Connection*, Firebird connection
+     * @param sql std::string, SQL statement
+     */
     FirebirdStatement(FirebirdConnection* connection, std::string sql);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~FirebirdStatement();
 
-    /// @brief Generates normalized list of parameters
-    /// @param queryParams QueryParameterList&, Standard query parameters
+    /**
+     * @brief Generates normalized list of parameters
+     * @param queryParams QueryParameterList&, Standard query parameters
+     */
     void enumerateParams(QueryParameterList& queryParams);
 
-    /// @brief Sets actual parameter values for the statement execution
+    /**
+     * @brief Sets actual parameter values for the statement execution
+     */
     void setParameterValues();
 
-    /// @brief Prepares Firebird statement
-    /// @param sql const std::string, statement SQL
+    /**
+     * @brief Prepares Firebird statement
+     * @param sql const std::string, statement SQL
+     */
     void prepare(const std::string& sql);
 
-    /// @brief Executes statement
+    /**
+     * @brief Executes statement
+     */
     void execute(bool);
 
-    /// @brief Binds statement result metadata to query fields
-    /// @param fields CFieldList&, query fields (if any)
+    /**
+     * @brief Binds statement result metadata to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
     void bindResult(FieldList& fields);
 
-    /// @brief Fetches statement result metadata to query fields
-    /// @param fields CFieldList&, query fields (if any)
+    /**
+     * @brief Fetches statement result metadata to query fields
+     * @param fields CFieldList&, query fields (if any)
+     */
     void fetchResult(FieldList& fields);
 
-    /// @brief Closes statement and releases allocated resources
+    /**
+     * @brief Closes statement and releases allocated resources
+     */
     void close();
 
-    /// @brief Fetches next record
+    /**
+     * @brief Fetches next record
+     */
     void fetch();
 };
 

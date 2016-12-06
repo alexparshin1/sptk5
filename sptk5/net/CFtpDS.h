@@ -35,13 +35,19 @@
 namespace sptk
 {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// Progression callback function to receive the information about operation progress
+/**
+ * Progression callback function to receive the information about operation progress
+ */
 typedef void (*CProgressCallback)(int total, int progress);
 
-/// Show policy defines what will be shown
+/**
+ * Show policy defines what will be shown
+ */
 enum FtpShowPolicy
 {
     SHOW_ALL = 0,        /// Show everything
@@ -50,10 +56,12 @@ enum FtpShowPolicy
     NO_SORT = 4          /// Do not sort files and folders
 };
 
-/// @brief FTP datasource
-///
-/// Class CFtpDS allows to browse the list of files on FTP server.
-/// It returns a dataset with file names, sizes, modification times etc.
+/**
+ * @brief FTP datasource
+ *
+ * Class CFtpDS allows to browse the list of files on FTP server.
+ * It returns a dataset with file names, sizes, modification times etc.
+ */
 class FtpDS: public MemoryDS
 {
 private:
@@ -66,7 +74,9 @@ private:
     std::string         m_password;       /// FTP user password
     CProgressCallback   m_callback;       /// Internal callback to indicate the progress on open()
 public:
-    /// Default Constructor
+    /**
+     * Default Constructor
+     */
     FtpDS() :
             MemoryDS(),
             m_port(21),
@@ -75,96 +85,128 @@ public:
     {
     }
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     virtual ~FtpDS()
     {
         close();
     }
 
-    /// Returns current show policy, see CFtpShowPolicy
+    /**
+     * Returns current show policy, see CFtpShowPolicy
+     */
     int showPolicy() const
     {
         return m_showpolicy;
     }
 
-    /// Defines current show policy, see CFtpShowPolicy
+    /**
+     * Defines current show policy, see CFtpShowPolicy
+     */
     void showPolicy(char type)
     {
         m_showpolicy = type;
     }
 
-    /// FTP host name
+    /**
+     * FTP host name
+     */
     void host(std::string host_name)
     {
         m_host = host_name;
     }
 
-    /// FTP host name
+    /**
+     * FTP host name
+     */
     std::string host() const
     {
         return m_host;
     }
 
-    /// FTP port number
+    /**
+     * FTP port number
+     */
     void port(int p)
     {
         m_port = uint32_t(p);
     }
 
-    /// FTP port number
+    /**
+     * FTP port number
+     */
     int port() const
     {
         return int(m_port);
     }
 
-    /// FTP user name
+    /**
+     * FTP user name
+     */
     void user(std::string usr)
     {
         m_user = usr;
     }
 
-    /// FTP user name
+    /**
+     * FTP user name
+     */
     std::string user() const
     {
         return m_user;
     }
 
-    /// FTP user password
+    /**
+     * FTP user password
+     */
     void password(std::string pwd)
     {
         m_password = pwd;
     }
 
-    /// FTP user password
+    /**
+     * FTP user password
+     */
     std::string password() const
     {
         return m_password;
     }
 
-    /// FTP folder name
+    /**
+     * FTP folder name
+     */
     void folder(std::string d)
     {
         m_folder = d;
     }
 
-    /// FTP folder name
+    /**
+     * FTP folder name
+     */
     const std::string &folder() const
     {
         return m_folder;
     }
 
-    /// Establishes the connection with FTP host,
-    /// selects the FTP folder(),
-    /// reads the list of files and directories,
-    /// closes the FTP connection
+    /**
+     * Establishes the connection with FTP host,
+     * selects the FTP folder(),
+     * reads the list of files and directories,
+     * closes the FTP connection
+     */
     virtual bool open() THROWS_EXCEPTIONS;
 
-    /// Sets the callback for the open() progression
+    /**
+     * Sets the callback for the open() progression
+     */
     void callback(CProgressCallback cb)
     {
         m_callback = cb;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

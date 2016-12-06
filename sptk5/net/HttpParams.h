@@ -38,40 +38,58 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// HTTP fields are implemented as case-insensitive map
+/**
+ * HTTP fields are implemented as case-insensitive map
+ */
 typedef std::map<std::string, std::string, CaseInsensitiveCompare> StringHttpFieldMap;
 
-/// @brief HTTP params map
-///
-/// Designed to hold HTTP parametrs in
-/// CHttpConnect and CCgiApplication. It is, basically, a string-to-string
-/// map with an addition of encode and decode functions for HTTP Mime.
+/**
+ * @brief HTTP params map
+ *
+ * Designed to hold HTTP parametrs in
+ * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
+ * map with an addition of encode and decode functions for HTTP Mime.
+ */
 class HttpParams: public StringHttpFieldMap
 {
-    /// @brief Encodes a string into HTML parameters
+    /**
+     * @brief Encodes a string into HTML parameters
+     */
     static std::string encodeString(const std::string& str);
 
-    /// @brief Decodes a string from HTML parameters
+    /**
+     * @brief Decodes a string from HTML parameters
+     */
     static std::string decodeString(const std::string& str);
 public:
-    /// @brief Default constructor.
+    /**
+     * @brief Default constructor.
+     */
     HttpParams() :
         StringHttpFieldMap()
     {
     }
 
-    /// @brief Encodes HTTP parameters for sending to the server.
-    /// @param result CBuffer&, output - encoded parameters string (if any) as the buffer.
+    /**
+     * @brief Encodes HTTP parameters for sending to the server.
+     * @param result CBuffer&, output - encoded parameters string (if any) as the buffer.
+     */
     void encode(Buffer& result) const;
 
-    /// @brief Decodes HTTP parameters that came from the server as a string into parameters map.
-    /// @param paramString CBuffer, parameters string from HTTP server
-    /// @param lowerCaseNames bool, true if you want to lower-case the parameter names
+    /**
+     * @brief Decodes HTTP parameters that came from the server as a string into parameters map.
+     * @param paramString CBuffer, parameters string from HTTP server
+     * @param lowerCaseNames bool, true if you want to lower-case the parameter names
+     */
     void decode(const Buffer& paramString, bool lowerCaseNames = false);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

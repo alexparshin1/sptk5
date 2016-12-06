@@ -37,177 +37,233 @@ class Fl_Group;
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Universal data source for many SPTK widgets.
-///
-/// It's designed as a base class for multiple datasources available in SPTK.
-/// The main idea is to provide the simple interface that allows to open the datasource
-/// with certain parameters and read or write the datasource fields. And don't you forget to close it :)
+/**
+ * @brief Universal data source for many SPTK widgets.
+ *
+ * It's designed as a base class for multiple datasources available in SPTK.
+ * The main idea is to provide the simple interface that allows to open the datasource
+ * with certain parameters and read or write the datasource fields. And don't you forget to close it :)
+ */
 class SP_EXPORT DataSource
 {
     friend class Fl_Group;
 
 protected:
-    /// @brief Loads datasource data. Should be implemented in derived class
+    /**
+     * @brief Loads datasource data. Should be implemented in derived class
+     */
     virtual bool loadData()
     {
         return true;
     }
 
-    /// @brief Saves data from datasource. Should be implemented in derived class
+    /**
+     * @brief Saves data from datasource. Should be implemented in derived class
+     */
     virtual bool saveData()
     {
         return true;
     }
 
 public:
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     DataSource()
     {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~DataSource()
     {}
 
 public:
-    /// @brief Field access by the field index, const version.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @param fieldIndex uint32_t, field index
-    /// @returns field reference
+    /**
+     * @brief Field access by the field index, const version.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @param fieldIndex uint32_t, field index
+     * @returns field reference
+     */
     virtual const Field& operator [] (uint32_t fieldIndex) const = 0;
 
-    /// @brief Field access by the field index, non-const version
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @param fieldIndex uint32_t, field index
-    /// @returns field reference
+    /**
+     * @brief Field access by the field index, non-const version
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @param fieldIndex uint32_t, field index
+     * @returns field reference
+     */
     virtual Field&       operator [] (uint32_t fieldIndex) = 0;
 
-    /// @brief Field access by the field name, const version.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @param fieldName const char *, field name
-    /// @returns field reference
+    /**
+     * @brief Field access by the field name, const version.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @param fieldName const char *, field name
+     * @returns field reference
+     */
     virtual const Field& operator [] (const char *fieldName) const = 0;
 
-    /// @brief Field access by the field name, const version.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @param fieldName const char *, field name
-    /// @returns field reference
+    /**
+     * @brief Field access by the field name, const version.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @param fieldName const char *, field name
+     * @returns field reference
+     */
     virtual Field&       operator [] (const char *fieldName) = 0;
 
-    /// @brief Returns field count in the datasource.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @returns field count
+    /**
+     * @brief Returns field count in the datasource.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @returns field count
+     */
     virtual uint32_t fieldCount() const = 0;
 public:
 
-    /// @brief Returns record count in the datasource.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @returns record count
+    /**
+     * @brief Returns record count in the datasource.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @returns record count
+     */
     virtual uint32_t recordCount() const = 0;
 
-    /// @brief Returns user_data associated with the datasource.
+    /**
+     * @brief Returns user_data associated with the datasource.
+     */
     virtual void* user_data() const 
     {
         return 0L;
     }
 public:
-    /// @brief Reads the field by name from the datasource.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @param fieldName const char *, field name
-    /// @param fieldValue CVariant, field value
+    /**
+     * @brief Reads the field by name from the datasource.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @param fieldName const char *, field name
+     * @param fieldValue CVariant, field value
+     */
     virtual bool readField(const char *fieldName, Variant& fieldValue) = 0;
 
-    /// @brief Writes the field by name from the datasource.
-    ///
-    /// Purely virtual. Should be implemented in derived class
-    /// @param fieldName const char *, field name
-    /// @param fieldValue CVariant, field value
+    /**
+     * @brief Writes the field by name from the datasource.
+     *
+     * Purely virtual. Should be implemented in derived class
+     * @param fieldName const char *, field name
+     * @param fieldValue CVariant, field value
+     */
     virtual bool writeField(const char *fieldName, const Variant& fieldValue) = 0;
 public:
 
-    /// @brief Opens the datasource. Implemented in derved class.
+    /**
+     * @brief Opens the datasource. Implemented in derved class.
+     */
     virtual bool open() THROWS_EXCEPTIONS
     {
         return false;
     }
 
-    /// @brief Closes the datasource. Implemented in derved class.
+    /**
+     * @brief Closes the datasource. Implemented in derved class.
+     */
     virtual bool close()
     {
         return false;
     }
 
-    /// @brief Moves to the first record of the datasource. Implemented in derved class.
+    /**
+     * @brief Moves to the first record of the datasource. Implemented in derved class.
+     */
     virtual bool first()
     {
         return false;
     }
 
-    /// @brief Moves to the next record of the datasource. Implemented in derved class.
+    /**
+     * @brief Moves to the next record of the datasource. Implemented in derved class.
+     */
     virtual bool next()
     {
         return false;
     }
 
-    /// @brief Moves to the prior record of the datasource. Implemented in derved class.
+    /**
+     * @brief Moves to the prior record of the datasource. Implemented in derved class.
+     */
     virtual bool prior()
     {
         return false;
     }
 
-    /// @brief Moves to the last record of the datasource. Implemented in derved class.
+    /**
+     * @brief Moves to the last record of the datasource. Implemented in derved class.
+     */
     virtual bool last()
     {
         return false;
     }
 
-    /// @brief Moves to the specified record position of the datasource. Implemented in derved class.
+    /**
+     * @brief Moves to the specified record position of the datasource. Implemented in derved class.
+     */
     virtual bool find(Variant /*position*/)
     {
         return false;
     }
 
-    /// @brief Returns true if there are no more records in the datasource. Implemented in derved class.
+    /**
+     * @brief Returns true if there are no more records in the datasource. Implemented in derved class.
+     */
     virtual bool eof() const
     {
         return false;
     }
 
-    /// @brief Loads data into the datasource
+    /**
+     * @brief Loads data into the datasource
+     */
     bool load();
 
-    /// @brief Saves data from the datasource
+    /**
+     * @brief Saves data from the datasource
+     */
     bool save();
 
-    /// @brief Saves dataset row data into XML
-    ///
-    /// If the compactXmlMode is true, the node would have fields presented as attributues.
-    /// Otherwise, the fields are stored as subnodes.
-    /// @param node XMLNode&, the XML node to fill in
-    /// @param compactXmlMode bool, compact XML flag
+    /**
+     * @brief Saves dataset row data into XML
+     *
+     * If the compactXmlMode is true, the node would have fields presented as attributues.
+     * Otherwise, the fields are stored as subnodes.
+     * @param node XMLNode&, the XML node to fill in
+     * @param compactXmlMode bool, compact XML flag
+     */
     void rowToXML(XMLNode& node, bool compactXmlMode) const;
 
-    /// @brief Saves data into XML
-    ///
-    /// Opens the dataset, reads every row, and closes dataset.
-    /// For every row in the dataset, creates the node with the name nodeName.
-    /// If the compactXmlMode is true, the nodes would have fields presented as attributues.
-    /// Otherwise, the fields are stored as subnodes.
-    /// @param parentNode XMLNode&, the XML node to add subnodes to
-    /// @param nodeName std::string, the name for subnodes
-    /// @param compactXmlMode bool, compact XML flag
+    /**
+     * @brief Saves data into XML
+     *
+     * Opens the dataset, reads every row, and closes dataset.
+     * For every row in the dataset, creates the node with the name nodeName.
+     * If the compactXmlMode is true, the nodes would have fields presented as attributues.
+     * Otherwise, the fields are stored as subnodes.
+     * @param parentNode XMLNode&, the XML node to add subnodes to
+     * @param nodeName std::string, the name for subnodes
+     * @param compactXmlMode bool, compact XML flag
+     */
     virtual void toXML(XMLNode& parentNode, std::string nodeName, bool compactXmlMode);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

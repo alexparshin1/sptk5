@@ -34,46 +34,68 @@
 
 namespace sptk {
 
-/// @addtogroup log Log Classes
-/// @{
+/**
+ * @addtogroup log Log Classes
+ * @{
+ */
 
-/// @brief A log stored in the regular file.
-///
-/// A simplest possible way to implement logging.
-/// The log file is created automatically if it doesn't exist.
-/// @see CBaseLog for more information about basic log abilities.
+/**
+ * @brief A log stored in the regular file.
+ *
+ * A simplest possible way to implement logging.
+ * The log file is created automatically if it doesn't exist.
+ * @see CBaseLog for more information about basic log abilities.
+ */
 class SP_EXPORT FileLogEngine: public LogEngine
 {
-    std::ofstream   m_fileStream;   ///< Log file stream
-    std::string     m_fileName;     ///< Log file name
+    /**
+     * Log file stream
+     */
+    std::ofstream   m_fileStream;
+
+    /**
+     * Log file name
+     */
+    std::string     m_fileName;
+
 
 public:
-    /// @brief Stores or sends log message to actual destination
-    /// @param date DateTime, message timestamp
-    /// @param message const char *, message text
-    /// @param sz uint32_t, message size
-    /// @param priority LogPriority, message priority. @see LogPriority for more information.
+    /**
+     * @brief Stores or sends log message to actual destination
+     * @param date DateTime, message timestamp
+     * @param message const char *, message text
+     * @param sz uint32_t, message size
+     * @param priority LogPriority, message priority. @see LogPriority for more information.
+     */
     virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
 
 public:
-    /// @brief Constructor
-    ///
-    /// Creates a new log object based on the file name.
-    /// If this file doesn't exist - it will be created.
-    /// @param fileName string, log file name
+    /**
+     * @brief Constructor
+     *
+     * Creates a new log object based on the file name.
+     * If this file doesn't exist - it will be created.
+     * @param fileName string, log file name
+     */
     FileLogEngine(std::string fileName) : m_fileName(fileName) {}
 
-    /// @brief Destructor
-    ///
-    /// Destructs the log object, closes the log file, releases all the allocated resources
+    /**
+     * @brief Destructor
+     *
+     * Destructs the log object, closes the log file, releases all the allocated resources
+     */
     virtual ~FileLogEngine();
 
-    /// @brief Restarts the log
-    ///
-    /// The current log content is cleared. The file is recreated.
+    /**
+     * @brief Restarts the log
+     *
+     * The current log content is cleared. The file is recreated.
+     */
     virtual void reset() THROWS_EXCEPTIONS;
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

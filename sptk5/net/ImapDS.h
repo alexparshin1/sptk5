@@ -36,29 +36,65 @@
 namespace sptk
 {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// Progression callback function prototype
+/**
+ * Progression callback function prototype
+ */
 typedef void (*ProgressCallback)(int total, int progress);
 
-/// @brief IMAP datasource
-///
-/// Allows to browse the list of messages and folders on IMAP server.
-/// It returns a dataset with message headers.
+/**
+ * @brief IMAP datasource
+ *
+ * Allows to browse the list of messages and folders on IMAP server.
+ * It returns a dataset with message headers.
+ */
 class ImapDS: public MemoryDS
 {
 protected:
-    ImapConnect         m_imap;        ///< IMAP socket connector
-    std::string         m_folder;      ///< IMAP folder name
-    std::string         m_user;        ///< IMAP user name
-    std::string         m_password;    ///< IMAP user password
-    bool                m_fetchbody;   ///< True, if we want to fetch the message headers AND message body
-    ProgressCallback    m_callback;    ///< Internal prograssion callback for open()
-    int                 m_msgid;       ///< Internal message ID
+    /**
+     * IMAP socket connector
+     */
+    ImapConnect         m_imap;
+
+    /**
+     * IMAP folder name
+     */
+    std::string         m_folder;
+
+    /**
+     * IMAP user name
+     */
+    std::string         m_user;
+
+    /**
+     * IMAP user password
+     */
+    std::string         m_password;
+
+    /**
+     * True, if we want to fetch the message headers AND message body
+     */
+    bool                m_fetchbody;
+
+    /**
+     * Internal prograssion callback for open()
+     */
+    ProgressCallback    m_callback;
+
+    /**
+     * Internal message ID
+     */
+    int                 m_msgid;
+
 public:
 
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     ImapDS() :
             MemoryDS(),
             m_fetchbody(false),
@@ -67,98 +103,130 @@ public:
         m_msgid = 0;
     }
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     virtual ~ImapDS()
     {
         close();
     }
 
-    /// IMAP host name
+    /**
+     * IMAP host name
+     */
     void host(std::string host_name)
     {
         m_imap.host(host_name);
     }
 
-    /// IMAP host name
+    /**
+     * IMAP host name
+     */
     std::string host() const
     {
         return m_imap.host();
     }
 
-    /// IMAP user name
+    /**
+     * IMAP user name
+     */
     void user(std::string usr)
     {
         m_user = usr;
     }
 
-    /// IMAP user name
+    /**
+     * IMAP user name
+     */
     std::string user() const
     {
         return m_user;
     }
 
-    /// IMAP user password
+    /**
+     * IMAP user password
+     */
     void password(std::string pwd)
     {
         m_password = pwd;
     }
 
-    /// IMAP user password
+    /**
+     * IMAP user password
+     */
     std::string password() const
     {
         return m_password;
     }
 
-    /// IMAP folder name
+    /**
+     * IMAP folder name
+     */
     void folder(std::string d)
     {
         m_folder = d;
     }
 
-    /// IMAP folder name
+    /**
+     * IMAP folder name
+     */
     const std::string &folder() const
     {
         return m_folder;
     }
 
-    /// IMAP message ID (message number in the folder). If defined,
-    /// the open() will retrieve only the message with the selected ID (if any)
+    /**
+     * IMAP message ID (message number in the folder). If defined,
+     * the open() will retrieve only the message with the selected ID (if any)
+     */
     void messageID(int msgid)
     {
         m_msgid = msgid;
     }
 
-    /// Returns the ID of the message when defined to retrieve one message only
+    /**
+     * Returns the ID of the message when defined to retrieve one message only
+     */
     int messageID() const
     {
         return m_msgid;
     }
 
-    /// Sets the fetch body flag. Should be called prior to open().
-    /// If the fetch body flag is not set, only the message headers will be retrieved and that is much faster.
+    /**
+     * Sets the fetch body flag. Should be called prior to open().
+     * If the fetch body flag is not set, only the message headers will be retrieved and that is much faster.
+     */
     void fetchBody(bool fb)
     {
         m_fetchbody = fb;
     }
 
-    /// Returns the current value of the fetch body flag
-    /// @returns the fetch body flag
+    /**
+     * Returns the current value of the fetch body flag
+     * @returns the fetch body flag
+     */
     bool fetchBody() const
     {
         return m_fetchbody;
     }
 
-    /// Opens the IMAP server connection with user name and password defined with user() and password().
-    /// Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
+    /**
+     * Opens the IMAP server connection with user name and password defined with user() and password().
+     * Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
+     */
     virtual bool open() THROWS_EXCEPTIONS;
 
-    /// Optional callback for the open() method progression.
-    /// @param cb CProgressCallback, a callback function
+    /**
+     * Optional callback for the open() method progression.
+     * @param cb CProgressCallback, a callback function
+     */
     void callback(ProgressCallback cb)
     {
         m_callback = cb;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

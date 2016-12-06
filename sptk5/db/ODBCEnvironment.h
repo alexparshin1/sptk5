@@ -53,109 +53,169 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
 class ODBCEnvironment;
 class ODBCConnectionBase;
 class QueryParameter;
 
-/// @brief ODBC base
-///
-/// Base class for all ODBC classes
+/**
+ * @brief ODBC base
+ *
+ * Base class for all ODBC classes
+ */
 class SP_DRIVER_EXPORT ODBCBase : public Synchronized
 {
 protected:
-    /// Last RETCODE returned from ODBC function
+    /**
+     * Last RETCODE returned from ODBC function
+     */
     SQLRETURN m_Retcode;
 
-    /// Constructor
+    /**
+     * Constructor
+     */
     ODBCBase() : m_Retcode(SQL_SUCCESS)
     {
     }
 
 public:
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~ODBCBase()
     {
     }
 
-    /// Returns last ODBC operation result
+    /**
+     * Returns last ODBC operation result
+     */
     RETCODE retcode() const
     {
         return m_Retcode;
     }
 
-    /// Throws the exception
+    /**
+     * Throws the exception
+     */
     void exception(std::string text, int line) const;
 
 private:
 
-    /// Assignment operator, disabled
+    /**
+     * Assignment operator, disabled
+     */
     ODBCBase& operator=(const ODBCBase& d);
 
-    /// Copy constructor, disabled
+    /**
+     * Copy constructor, disabled
+     */
     ODBCBase(const ODBCBase&);
 };
 
-/// @brief ODBC environment
-///
-/// Environment is only used by ODBCConnection class
+/**
+ * @brief ODBC environment
+ *
+ * Environment is only used by ODBCConnection class
+ */
 class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
 {
     friend class ODBCConnectionBase;
 
 private:
 
-    /// ODBC environment handle
+    /**
+     * ODBC environment handle
+     */
     SQLHENV m_hEnvironment;
 
 protected:
 
-    /// Constructor
+    /**
+     * Constructor
+     */
     ODBCEnvironment();
 
-    /// Allocates enviromment handle
+    /**
+     * Allocates enviromment handle
+     */
     void allocEnv();
 
-    /// Deallocates enviromment handle
+    /**
+     * Deallocates enviromment handle
+     */
     void freeEnv();
 
-    /// Is enviromment handle allocated?
+    /**
+     * Is enviromment handle allocated?
+     */
     bool valid() const
     {
         return m_hEnvironment != SQL_NULL_HENV;
     }
 
-    /// Returns enviromment handle
+    /**
+     * Returns enviromment handle
+     */
     SQLHENV handle() const
     {
         return m_hEnvironment;
     }
 
-    /// Returns the error information
-    /// @returns ODBC driver error message with the user action
+    /**
+     * Returns the error information
+     * @returns ODBC driver error message with the user action
+     */
     std::string errorInformation();
 
 public:
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~ODBCEnvironment();
 };
 
-/// @brief ODBC connection
-///
-/// Class ODBCConnection represents the ODBC connection to a database.
+/**
+ * @brief ODBC connection
+ *
+ * Class ODBCConnection represents the ODBC connection to a database.
+ */
 class SP_DRIVER_EXPORT ODBCConnectionBase : public ODBCBase
 {
-    ODBCEnvironment&    m_cEnvironment;      ///< ODBC environment
-    SQLHDBC             m_hConnection;       ///< ODBC connection handle
-    bool                m_connected;         ///< Is connection active?
-    std::string         m_connectString;     ///< ODBC connection string
-    std::string         m_driverDescription; ///< Driver description, filled in during the connection to the DSN
+    /**
+     * ODBC environment
+     */
+    ODBCEnvironment&    m_cEnvironment;
+
+    /**
+     * ODBC connection handle
+     */
+    SQLHDBC             m_hConnection;
+
+    /**
+     * Is connection active?
+     */
+    bool                m_connected;
+
+    /**
+     * ODBC connection string
+     */
+    std::string         m_connectString;
+
+    /**
+     * Driver description, filled in during the connection to the DSN
+     */
+    std::string         m_driverDescription;
+
 protected:
-    /// Is connection active?
+    /**
+     * Is connection active?
+     */
     bool valid() const
     {
         return m_hConnection != SQL_NULL_HDBC;
@@ -163,83 +223,119 @@ protected:
 
 public:
 
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     ODBCConnectionBase();
 
-    /// Default destructor
+    /**
+     * Default destructor
+     */
     ~ODBCConnectionBase();
 
-    /// Allocates connection
+    /**
+     * Allocates connection
+     */
     void allocConnect();
 
-    /// Deallocates connection
+    /**
+     * Deallocates connection
+     */
     void freeConnect();
 
-    /// Connects to the database passing ODBC connection string.
-    /// The full connection string is returned in FinalConnectionString.
+    /**
+     * Connects to the database passing ODBC connection string.
+     * The full connection string is returned in FinalConnectionString.
+     */
     void connect(const std::string& ConnectionString, std::string& FinalConnectionString, bool EnableDriverPrompt = false);
 
-    /// Disconnects from the database passing ODBC connection string.
+    /**
+     * Disconnects from the database passing ODBC connection string.
+     */
     void disconnect();
 
-    /// Returns the connection handle
+    /**
+     * Returns the connection handle
+     */
     SQLHDBC handle() const
     {
         return m_hConnection;
     }
 
-    /// Returns true if the connection is active
+    /**
+     * Returns true if the connection is active
+     */
     bool isConnected() const
     {
         return m_connected;
     }
 
-    /// Sets the connection option
+    /**
+     * Sets the connection option
+     */
     void setConnectOption(UWORD fOption, UDWORD vParam);
 
-    /// Gets the connection information
+    /**
+     * Gets the connection information
+     */
     void getInfo(uint16_t fInfoType, LPSTR str, int size);
 
-    /// Gets the connection information
+    /**
+     * Gets the connection information
+     */
     void getInfo(uint16_t fInfoType, int16_t* num)
     {
         getInfo(fInfoType, (LPSTR) num, sizeof(num));
     }
 
-    /// Gets the connection information
+    /**
+     * Gets the connection information
+     */
     void getInfo(uint16_t fInfoType, DWORD* num)
     {
         getInfo(fInfoType, (LPSTR) num, sizeof(num));
     }
 
-    /// Returns the ODBC connection string for the active connection
+    /**
+     * Returns the ODBC connection string for the active connection
+     */
     std::string connectString() const
     {
         return m_connectString;
     }
 
-    /// Returns the ODBC driver description string for the active connection
+    /**
+     * Returns the ODBC driver description string for the active connection
+     */
     std::string driverDescription() const
     {
         return m_driverDescription;
     }
 
-    /// Begins transaction
+    /**
+     * Begins transaction
+     */
     void beginTransaction()
     {
         setConnectOption(SQL_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF);
     }
 
-    /// Controls transaction
+    /**
+     * Controls transaction
+     */
     void transact(uint16_t fType);
 
-    /// Commits transaction
+    /**
+     * Commits transaction
+     */
     void commit()
     {
         transact(SQL_COMMIT);
     }
 
-    /// Rollbacks transaction
+    /**
+     * Rollbacks transaction
+     */
     void rollback()
     {
         transact(SQL_ROLLBACK);
@@ -247,20 +343,28 @@ public:
 
 private:
 
-    /// Returns the only environment needed
+    /**
+     * Returns the only environment needed
+     */
     static ODBCEnvironment& GetStaticEnv();
 
 protected:
 
-    /// Retrieves an error information for user action name
-    /// @returns ODBC driver error message with the user action
+    /**
+     * Retrieves an error information for user action name
+     * @returns ODBC driver error message with the user action
+     */
     std::string errorInformation(const char* action);
 };
 
-/// Removes excessive driver information from error message
+/**
+ * Removes excessive driver information from error message
+ */
 const char* removeDriverIdentification(const char* error);
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif
 

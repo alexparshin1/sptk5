@@ -46,52 +46,98 @@ class OracleStatement
 : public DatabaseStatement<OracleConnection,oracle::occi::Statement>
 {
 public:
-    typedef oracle::occi::Connection    Connection; ///< Oracle connection type
-    typedef oracle::occi::Statement     Statement;  ///< Oracle statement type
-    typedef oracle::occi::ResultSet     ResultSet;  ///< Oracle result set type
-    typedef oracle::occi::MetaData      MetaData;   ///< Oracle result set metdata type
-private:
-    Statement*          m_createClobStatement;      ///< Statement for creating CLOBs
-    Statement*          m_createBlobStatement;      ///< Statement for creating BLOBs
-    ResultSet*          m_resultSet;                ///< Result set (if returned by statement)
+    /**
+     * Oracle connection type
+     */
+    typedef oracle::occi::Connection    Connection;
 
-    /// @brief Sets character data to a CLOB parameter
-    /// @param parameterIndex uint32_t, Parameter index
-    /// @param data unsigned char*, Character data buffer
-    /// @param dataSize uint32_t, Character data size
+    /**
+     * Oracle statement type
+     */
+    typedef oracle::occi::Statement     Statement;
+
+    /**
+     * Oracle result set type
+     */
+    typedef oracle::occi::ResultSet     ResultSet;
+
+    /**
+     * Oracle result set metdata type
+     */
+    typedef oracle::occi::MetaData      MetaData;
+
+private:
+    /**
+     * Statement for creating CLOBs
+     */
+    Statement*          m_createClobStatement;
+
+    /**
+     * Statement for creating BLOBs
+     */
+    Statement*          m_createBlobStatement;
+
+    /**
+     * Result set (if returned by statement)
+     */
+    ResultSet*          m_resultSet;
+
+
+    /**
+     * @brief Sets character data to a CLOB parameter
+     * @param parameterIndex uint32_t, Parameter index
+     * @param data unsigned char*, Character data buffer
+     * @param dataSize uint32_t, Character data size
+     */
     void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
-    /// @brief Sets binary data to a BLOB parameter
-    /// @param parameterIndex uint32_t, Parameter index
-    /// @param data unsigned char*, Binary data buffer
-    /// @param dataSize uint32_t, Binary data size
+    /**
+     * @brief Sets binary data to a BLOB parameter
+     * @param parameterIndex uint32_t, Parameter index
+     * @param data unsigned char*, Binary data buffer
+     * @param dataSize uint32_t, Binary data size
+     */
     void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
 public:
-    /// @brief Constructor
-    /// @param connection Connection*, Oracle connection
-    /// @param sql std::string, SQL statement
+    /**
+     * @brief Constructor
+     * @param connection Connection*, Oracle connection
+     * @param sql std::string, SQL statement
+     */
     OracleStatement(OracleConnection* connection, std::string sql);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~OracleStatement();
 
-    /// @brief Sets actual parameter values for the statement execution
+    /**
+     * @brief Sets actual parameter values for the statement execution
+     */
     void setParameterValues();
 
-    /// @brief Executes statement
-    /// @param inTransaction bool, True if statement is executed from transaction
+    /**
+     * @brief Executes statement
+     * @param inTransaction bool, True if statement is executed from transaction
+     */
     void execute(bool inTransaction);
 
-    /// @brief Executes statement in bulk mode
-    /// @param inTransaction bool, True if statement is executed from transaction
-    /// @param lastIteration bool, True if bulk operation is completed (all iterations added)
+    /**
+     * @brief Executes statement in bulk mode
+     * @param inTransaction bool, True if statement is executed from transaction
+     * @param lastIteration bool, True if bulk operation is completed (all iterations added)
+     */
     void execBulk(bool inTransaction, bool lastIteration);
 
-    /// @brief Closes statement and releases allocated resources
+    /**
+     * @brief Closes statement and releases allocated resources
+     */
     void close();
 
-    /// @brief Fetches next record
+    /**
+     * @brief Fetches next record
+     */
     void fetch()
     {
         if (m_resultSet) {
@@ -99,7 +145,9 @@ public:
         }
     }
 
-    /// @brief Returns result set (if returned by a statement)
+    /**
+     * @brief Returns result set (if returned by a statement)
+     */
     ResultSet* resultSet()
     {
         return m_resultSet;

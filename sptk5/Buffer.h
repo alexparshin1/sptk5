@@ -38,286 +38,380 @@
 namespace sptk
 {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Memory data buffer
-///
-/// Generic buffer with a special memory-allocation strategy for effective append() operation
+/**
+ * @brief Memory data buffer
+ *
+ * Generic buffer with a special memory-allocation strategy for effective append() operation
+ */
 class SP_EXPORT Buffer
 {
 
-    /// @brief Resizes current buffer
-    /// @param sz size_t, required memory size
+    /**
+     * @brief Resizes current buffer
+     * @param sz size_t, required memory size
+     */
     void adjustSize(size_t sz);
 
 protected:
 
-    size_t    m_size;     ///< Allocated size of the buffer
-    size_t    m_bytes;    ///< Actual size of the data in buffer
-    char*       m_buffer;   ///< The buffer itself
+    /**
+     * Allocated size of the buffer
+     */
+    size_t    m_size;
+
+    /**
+     * Actual size of the data in buffer
+     */
+    size_t    m_bytes;
+
+    /**
+     * The buffer itself
+     */
+    char*       m_buffer;
+
 
 public:
 
-    /// @brief Default constructor
-    ///
-    /// Creates an empty buffer.
-    /// The return of the bytes() method will be 0.
-    /// @param sz size_t, buffer size to be pre-allocated
+    /**
+     * @brief Default constructor
+     *
+     * Creates an empty buffer.
+     * The return of the bytes() method will be 0.
+     * @param sz size_t, buffer size to be pre-allocated
+     */
     Buffer(size_t sz = 16);
 
-    /// @brief Constructor
-    ///
-    /// Creates a buffer from string.
-    /// The string is copied inside the buffer.
-    /// The return of the bytes() method will be the input string length.
-    /// @param str const char *, input string
+    /**
+     * @brief Constructor
+     *
+     * Creates a buffer from string.
+     * The string is copied inside the buffer.
+     * The return of the bytes() method will be the input string length.
+     * @param str const char *, input string
+     */
     Buffer(const char* str);
 
-    /// @brief Constructor
-    ///
-    /// Creates a buffer from string.
-    /// The string is copied inside the buffer.
-    /// The return of the bytes() method will be the input string length.
-    /// @param str const std::string&, input string
+    /**
+     * @brief Constructor
+     *
+     * Creates a buffer from string.
+     * The string is copied inside the buffer.
+     * The return of the bytes() method will be the input string length.
+     * @param str const std::string&, input string
+     */
     Buffer(const std::string& str);
 
-    /// @brief Constructor
-    ///
-    /// Creates a buffer from void *data.
-    /// The data is copied inside the buffer.
-    /// The return of the bytes() method will be the input data size.
-    /// @param data void * data buffer
-    /// @param sz size_t, data buffer size
+    /**
+     * @brief Constructor
+     *
+     * Creates a buffer from void *data.
+     * The data is copied inside the buffer.
+     * The return of the bytes() method will be the input data size.
+     * @param data void * data buffer
+     * @param sz size_t, data buffer size
+     */
     Buffer(const void* data, size_t sz);
 
-    /// @brief Copy constructor
-    ///
-    /// Creates a buffer from another buffer.
-    /// The data is copied inside the buffer.
-    /// The return of the bytes() method will be the input data size.
-    /// @param buffer Buffer, data buffer
+    /**
+     * @brief Copy constructor
+     *
+     * Creates a buffer from another buffer.
+     * The data is copied inside the buffer.
+     * The return of the bytes() method will be the input data size.
+     * @param buffer Buffer, data buffer
+     */
     Buffer(const Buffer& buffer);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~Buffer()
     {
         if (m_buffer)
             free(m_buffer);
     }
 
-    /// @brief Returns pointer on the data buffer.
+    /**
+     * @brief Returns pointer on the data buffer.
+     */
     char* data() const
     {
         return m_buffer;
     }
 
-    /// @brief Returns const char pointer on the data buffer.
+    /**
+     * @brief Returns const char pointer on the data buffer.
+     */
     const char* c_str() const
     {
         return m_buffer;
     }
 
-    /// @brief Returns true if number of bytes in buffer is zero.
+    /**
+     * @brief Returns true if number of bytes in buffer is zero.
+     */
     bool empty() const
     {
         return m_bytes == 0;
     }
 
-    /// @brief Checks if the current buffer size is enough
-    ///
-    /// Allocates memory if needed.
-    /// @param sz size_t, required memory size
+    /**
+     * @brief Checks if the current buffer size is enough
+     *
+     * Allocates memory if needed.
+     * @param sz size_t, required memory size
+     */
     void checkSize(size_t sz)
     {
         if (sz > m_size)
             adjustSize(sz);
     }
 
-    /// @brief Copies the external data of size sz into the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param data const char*, external data buffer
-    /// @param sz size_t, required memory size
+    /**
+     * @brief Copies the external data of size sz into the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data const char*, external data buffer
+     * @param sz size_t, required memory size
+     */
     void set(const char* data, size_t sz);
 
-    /// @brief Copies the external data of size sz into the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param data const Buffer&, external data buffer
+    /**
+     * @brief Copies the external data of size sz into the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data const Buffer&, external data buffer
+     */
     void set(const Buffer& data)
     {
         set(data.m_buffer, data.m_bytes);
     }
 
-    /// @brief Copies the external data of size sz into the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param data const std::string&, external data
+    /**
+     * @brief Copies the external data of size sz into the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data const std::string&, external data
+     */
     void set(const std::string& data)
     {
         set(data.c_str(), data.length());
     }
 
-    /// @brief Appends a single char to the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param ch single character
+    /**
+     * @brief Appends a single char to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param ch single character
+     */
     void append(char ch);
 
-    /// @brief Appends a single char to the current buffer.
-    ///
-    /// Allocated memory isn't checked. Application should call checkSize() to make sure the required size is there
-    /// @param ch single character
+    /**
+     * @brief Appends a single char to the current buffer.
+     *
+     * Allocated memory isn't checked. Application should call checkSize() to make sure the required size is there
+     * @param ch single character
+     */
     void appendNoCheck(char ch);
 
-    /// @brief Appends the external data of size sz to the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param data const char *, external data buffer
-    /// @param sz size_t, required memory size
+    /**
+     * @brief Appends the external data of size sz to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data const char *, external data buffer
+     * @param sz size_t, required memory size
+     */
     void append(const char* data, size_t sz = 0);
 
-    /// @brief Appends the external data of size sz to the current buffer.
-    ///
-    /// Allocated memory isn't checked. Application should call checkSize() to make sure the required size is there
-    /// @param data const char *, external data buffer
-    /// @param sz size_t, required memory size
+    /**
+     * @brief Appends the external data of size sz to the current buffer.
+     *
+     * Allocated memory isn't checked. Application should call checkSize() to make sure the required size is there
+     * @param data const char *, external data buffer
+     * @param sz size_t, required memory size
+     */
     void appendNoCheck(const char* data, size_t sz = 0);
 
-    /// @brief Appends the string to the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param str std::string, string to append
+    /**
+     * @brief Appends the string to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param str std::string, string to append
+     */
     void append(const std::string& str)
     {
         return append(str.c_str(), str.length());
     }
 
-    /// @brief Appends the string to the current buffer.
-    ///
-    /// Allocates memory if needed.
-    /// @param buffer const Buffer&, data to append
+    /**
+     * @brief Appends the string to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param buffer const Buffer&, data to append
+     */
     void append(const Buffer& buffer)
     {
         return append(buffer.data(), buffer.bytes());
     }
 
-    /// @brief Truncates the current buffer to the size sz.
-    ///
-    /// Deallocates unused memory if needed.
-    /// @param sz size_t, the required data size in bytes
+    /**
+     * @brief Truncates the current buffer to the size sz.
+     *
+     * Deallocates unused memory if needed.
+     * @param sz size_t, the required data size in bytes
+     */
     void reset(size_t sz = 0);
 
-    /// @brief Fills the bytes() characters in buffer with character ch.
-    /// @param ch the character to fill the buffer
+    /**
+     * @brief Fills the bytes() characters in buffer with character ch.
+     * @param ch the character to fill the buffer
+     */
     void fill(char ch);
 
-    /// @brief Returns the size of memory allocated for the data buffer
-    /// @returns buffer size
+    /**
+     * @brief Returns the size of memory allocated for the data buffer
+     * @returns buffer size
+     */
     size_t size()  const
     {
         return m_size;
     }
 
-    /// @brief Returns the size of data in the data buffer
-    /// @returns data size
+    /**
+     * @brief Returns the size of data in the data buffer
+     * @returns data size
+     */
     size_t bytes() const
     {
         return m_bytes;
     }
 
-    /// @brief Returns the size of data in the data buffer
-    /// @returns data size
+    /**
+     * @brief Returns the size of data in the data buffer
+     * @returns data size
+     */
     size_t length() const
     {
         return m_bytes;
     }
 
-    /// @brief Sets the size of the data stored
-    ///
-    /// Doesn't check anything so use it this caution.
-    /// @param b size_t, the new size of the buffer
+    /**
+     * @brief Sets the size of the data stored
+     *
+     * Doesn't check anything so use it this caution.
+     * @param b size_t, the new size of the buffer
+     */
     void bytes(size_t b)
     {
         m_bytes = b;
     }
 
-    /// @brief Access the chars by index
-    /// @param index size_t, character index
+    /**
+     * @brief Access the chars by index
+     * @param index size_t, character index
+     */
     char& operator[](size_t index)
     {
         return m_buffer[index];
     }
 
-    /// @brief Access the chars by index, const version
-    /// @param index size_t, character index
+    /**
+     * @brief Access the chars by index, const version
+     * @param index size_t, character index
+     */
     const char& operator[](size_t index) const
     {
         return m_buffer[index];
     }
 
-    /// @brief Loads the buffer from file fileName.
-    /// @param fileName std::string, the name of the input file
+    /**
+     * @brief Loads the buffer from file fileName.
+     * @param fileName std::string, the name of the input file
+     */
     void loadFromFile(std::string fileName);
 
-    /// @brief Saves the buffer to the file fileName.
-    /// @param fileName std::string, the name of the output file
+    /**
+     * @brief Saves the buffer to the file fileName.
+     * @param fileName std::string, the name of the output file
+     */
     void saveToFile(std::string fileName) const;
 
-    /// @brief Moves buffer from another buffer
-    /// @param b Buffer&&, the buffer to move from
-    /// @returns this object
+    /**
+     * @brief Moves buffer from another buffer
+     * @param b Buffer&&, the buffer to move from
+     * @returns this object
+     */
     Buffer& operator = (Buffer&& b);
 
-    /// @brief Assigns from Buffer
-    /// @param b const Buffer&, the buffer to assign from
-    /// @returns this object
+    /**
+     * @brief Assigns from Buffer
+     * @param b const Buffer&, the buffer to assign from
+     * @returns this object
+     */
     Buffer& operator = (const Buffer& b);
 
-    /// @brief Assigns from String
-    /// @param str const std::string&, the string to assign from
-    /// @returns this object
+    /**
+     * @brief Assigns from String
+     * @param str const std::string&, the string to assign from
+     * @returns this object
+     */
     Buffer& operator = (const std::string& str);
 
-    /// @brief Assigns from char *
-    /// @param str const char *, the string to assign from
-    /// @returns this object
+    /**
+     * @brief Assigns from char *
+     * @param str const char *, the string to assign from
+     * @returns this object
+     */
     Buffer& operator = (const char* str);
 
-    /// @brief Appends another Buffer
-    /// @param b const Buffer&, the buffer to append
-    /// @returns this object
+    /**
+     * @brief Appends another Buffer
+     * @param b const Buffer&, the buffer to append
+     * @returns this object
+     */
     Buffer& operator += (const Buffer& b)
     {
         append(b);
         return *this;
     }
 
-    /// @brief Appends String
-    /// @param str const std::string&, the string to append
-    /// @returns this object
+    /**
+     * @brief Appends String
+     * @param str const std::string&, the string to append
+     * @returns this object
+     */
     Buffer& operator += (const std::string& str)
     {
         append(str);
         return *this;
     }
 
-    /// @brief Appends const char *
-    /// @param str const char *, the string to append
-    /// @returns this object
+    /**
+     * @brief Appends const char *
+     * @param str const char *, the string to append
+     * @returns this object
+     */
     Buffer& operator += (const char* str)
     {
         append(str);
         return *this;
     }
 
-    /// @brief Convertor to std::string
+    /**
+     * @brief Convertor to std::string
+     */
     operator std::string() const
     {
         return std::string(m_buffer, m_bytes);
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

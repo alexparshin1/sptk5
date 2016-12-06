@@ -35,31 +35,49 @@
 
 namespace sptk {
 
-    /// @brief WSDL Restriction
+    /**
+     * @brief WSDL Restriction
+     */
     class WSRestriction
     {
-        std::string m_typeName;     ///< WSDL type name
-        Strings     m_enumerations; ///< List of enumerations if any
+        /**
+         * WSDL type name
+         */
+        std::string m_typeName;
+
+        /**
+         * List of enumerations if any
+         */
+        Strings     m_enumerations;
+
     public:
-        /// @brief Constructor from WSDL (XML) definition
-        /// @param typeName std::string, WSDL type name
-        /// @param simpleTypeElement XMLNode*, Simple type XML node
+        /**
+         * @brief Constructor from WSDL (XML) definition
+         * @param typeName std::string, WSDL type name
+         * @param simpleTypeElement XMLNode*, Simple type XML node
+         */
         WSRestriction(std::string typeName, XMLNode* simpleTypeElement);
 
-        /// @brief Constructor from WSDL (XML) definition
-        /// @param typeName std::string, WSDL type name
-        /// @param enumerations std::string, Enumerations or empty string
-        /// @param delimiter const char*, Enumerations delimiter
+        /**
+         * @brief Constructor from WSDL (XML) definition
+         * @param typeName std::string, WSDL type name
+         * @param enumerations std::string, Enumerations or empty string
+         * @param delimiter const char*, Enumerations delimiter
+         */
         WSRestriction(std::string typeName, std::string enumerations, const char* delimiter="|");
 
-        /// @brief Restriction check
-        ///
-        /// Checks value to satisfy restriction.
-        /// If value violates restriction, throws exception.
-        /// @param value std::string, Value to check
+        /**
+         * @brief Restriction check
+         *
+         * Checks value to satisfy restriction.
+         * If value violates restriction, throws exception.
+         * @param value std::string, Value to check
+         */
         void check(std::string value) const;
 
-        /// @brief Generates restriction constructor for C++ skeleton
+        /**
+         * @brief Generates restriction constructor for C++ skeleton
+         */
         std::string generateConstructor(std::string variableName) const;
     };
 

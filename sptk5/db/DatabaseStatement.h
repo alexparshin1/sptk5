@@ -34,40 +34,82 @@
 namespace sptk
 {
 
-/// @brief Template class for database statements for different database drivers
+/**
+ * @brief Template class for database statements for different database drivers
+ */
 template <class Connection, class Statement> class DatabaseStatement
 {
 protected:
-    Connection*     m_connection;           ///< DB connection
-    Statement*      m_statement;            ///< Statement
-    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
+    /**
+     * DB connection
+     */
+    Connection*     m_connection;
+
+    /**
+     * Statement
+     */
+    Statement*      m_statement;
+
+    /**
+     * Enumerated parameters
+     */
+    CParamVector    m_enumeratedParams;
+
     struct
     {
-        unsigned    columnCount:12;         ///< Number of columns is result set
-        bool        eof:1;                  ///< EOF (end of file) flag
-        bool        transaction:1;          ///< Transaction in progress flag
-        unsigned    outputParameterCount:1; ///< Output parameter count
-    } m_state;                              ///< State flags
+        /**
+         * Number of columns is result set
+         */
+        unsigned    columnCount:12;
+
+        /**
+         * EOF (end of file) flag
+         */
+        bool        eof:1;
+
+        /**
+         * Transaction in progress flag
+         */
+        bool        transaction:1;
+
+        /**
+         * Output parameter count
+         */
+        unsigned    outputParameterCount:1;
+
+    /**
+     * State flags
+     */
+    } m_state;
+
 
 public:
-    /// @brief Constructor
-    /// @param connection Connection*, DB connection
+    /**
+     * @brief Constructor
+     * @param connection Connection*, DB connection
+     */
     DatabaseStatement(Connection* connection)
     : m_connection(connection)
     {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~DatabaseStatement()
     {}
 
-    /// @brief Returns current DB statement handle
+    /**
+     * @brief Returns current DB statement handle
+     */
     Statement* stmt() const
     {
         return m_statement;
     }
 
-    /// @brief Generates normalized list of parameters
-    /// @param queryParams CParamList&, Standard query parameters
+    /**
+     * @brief Generates normalized list of parameters
+     * @param queryParams CParamList&, Standard query parameters
+     */
     virtual void enumerateParams(QueryParameterList& queryParams)
     {
         queryParams.enumerate(m_enumeratedParams);
@@ -84,38 +126,54 @@ public:
         }
     }
 
-    /// @brief Returns normalized list of parameters
+    /**
+     * @brief Returns normalized list of parameters
+     */
     CParamVector& enumeratedParams()
     {
         return m_enumeratedParams;
     }
 
-    /// @brief Returns true if statement uses output parameters
+    /**
+     * @brief Returns true if statement uses output parameters
+     */
     bool outputParameterCount() const
     {
         return m_state.outputParameterCount;
     }
 
-    /// @brief Sets actual parameter values for the statement execution
+    /**
+     * @brief Sets actual parameter values for the statement execution
+     */
     virtual void setParameterValues() = 0;
 
-    /// @brief Executes statement
-    /// @param inTransaction bool, True if statement is executed from transaction
+    /**
+     * @brief Executes statement
+     * @param inTransaction bool, True if statement is executed from transaction
+     */
     virtual void execute(bool inTransaction) = 0;
 
-    /// @brief Closes statement and releases allocated resources
+    /**
+     * @brief Closes statement and releases allocated resources
+     */
     virtual void close() = 0;
 
-    /// @brief Fetches next record
+    /**
+     * @brief Fetches next record
+     */
     virtual void fetch() = 0;
 
-    /// @brief Returns true if recordset is in EOF state
+    /**
+     * @brief Returns true if recordset is in EOF state
+     */
     bool eof() const
     {
         return m_state.eof;
     }
 
-    /// @brief Returns recordset number of columns
+    /**
+     * @brief Returns recordset number of columns
+     */
     unsigned colCount() const
     {
         return m_state.columnCount;

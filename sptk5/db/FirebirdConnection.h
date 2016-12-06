@@ -38,13 +38,17 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
 class Query;
 class FirebirdStatement;
 
-/// @brief Firebird database connection
+/**
+ * @brief Firebird database connection
+ */
 class SP_EXPORT FirebirdConnection: public DatabaseConnection
 {
     friend class Query;
@@ -52,40 +56,104 @@ class SP_EXPORT FirebirdConnection: public DatabaseConnection
 
 protected:
 
-    isc_db_handle   m_connection;               ///< Database connection handle
-    isc_tr_handle   m_transaction;              ///< Database transaction handle
-    std::string     m_lastStatus;               ///< Connection status on last checkStatus
+    /**
+     * Database connection handle
+     */
+    isc_db_handle   m_connection;
+
+    /**
+     * Database transaction handle
+     */
+    isc_tr_handle   m_transaction;
+
+    /**
+     * Connection status on last checkStatus
+     */
+    std::string     m_lastStatus;
+
 
     void checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS;
 
-    /// @brief Begins the transaction
+    /**
+     * @brief Begins the transaction
+     */
     virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
 
-    /// @brief Ends the transaction
-    /// @param commit bool, commit if true, rollback if false
+    /**
+     * @brief Ends the transaction
+     * @param commit bool, commit if true, rollback if false
+     */
     virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
 
     // These methods implement the actions requested by Query
-    virtual std::string queryError(const Query *query) const; ///< Retrieves an error (if any) after executing a statement
-    virtual void queryAllocStmt(Query *query);      ///< Allocates an Firebird statement
-    virtual void queryFreeStmt(Query *query);       ///< Deallocates an Firebird statement
-    virtual void queryCloseStmt(Query *query);      ///< Closes an Firebird statement
-    virtual void queryPrepare(Query *query);        ///< Prepares a query if supported by database
-    virtual void queryUnprepare(Query *query);      ///< Unprepares a query if supported by database
-    virtual void queryExecute(Query *query);        ///< Executes a statement
-    virtual int  queryColCount(Query *query);       ///< Counts columns of the dataset (if any) returned by query
-    virtual void queryBindParameters(Query *query); ///< Binds the parameters to the query
-    virtual void queryOpen(Query *query);           ///< Opens the query for reading data from the query' recordset
-    virtual void queryFetch(Query *query);          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    /**
+     * Retrieves an error (if any) after executing a statement
+     */
+    virtual std::string queryError(const Query *query) const;
 
-    /// @brief Returns parameter mark
-    ///
-    /// Parameter mark is generated from the parameterIndex.
-    /// @param paramIndex unsigned, parameter index in SQL starting from 0
+    /**
+     * Allocates an Firebird statement
+     */
+    virtual void queryAllocStmt(Query *query);
+
+    /**
+     * Deallocates an Firebird statement
+     */
+    virtual void queryFreeStmt(Query *query);
+
+    /**
+     * Closes an Firebird statement
+     */
+    virtual void queryCloseStmt(Query *query);
+
+    /**
+     * Prepares a query if supported by database
+     */
+    virtual void queryPrepare(Query *query);
+
+    /**
+     * Unprepares a query if supported by database
+     */
+    virtual void queryUnprepare(Query *query);
+
+    /**
+     * Executes a statement
+     */
+    virtual void queryExecute(Query *query);
+
+    /**
+     * Counts columns of the dataset (if any) returned by query
+     */
+    virtual int  queryColCount(Query *query);
+
+    /**
+     * Binds the parameters to the query
+     */
+    virtual void queryBindParameters(Query *query);
+
+    /**
+     * Opens the query for reading data from the query' recordset
+     */
+    virtual void queryOpen(Query *query);
+
+    /**
+     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     */
+    virtual void queryFetch(Query *query);
+
+
+    /**
+     * @brief Returns parameter mark
+     *
+     * Parameter mark is generated from the parameterIndex.
+     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     */
     virtual std::string paramMark(unsigned paramIndex);
 
 public:
-    /// @brief Returns the Firebird connection object
+    /**
+     * @brief Returns the Firebird connection object
+     */
     isc_db_handle connection()
     {
         return m_connection;
@@ -97,44 +165,64 @@ public:
 
 public:
 
-    /// @brief Constructor
-    ///
-    /// Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-    /// For more information please refer to:
-    /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-    /// If the connection string is empty then default database with the name equal to user name is used.
-    /// @param connectionString std::string, the Firebird connection string
+    /**
+     * @brief Constructor
+     *
+     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
+     * For more information please refer to:
+     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
+     * If the connection string is empty then default database with the name equal to user name is used.
+     * @param connectionString std::string, the Firebird connection string
+     */
     FirebirdConnection(std::string connectionString = "");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~FirebirdConnection();
 
-    /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the Firebird connection string
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString std::string, the Firebird connection string
+     */
     virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
 
-    /// @brief Closes the database connection. If unsuccessful throws an exception.
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
     virtual void closeDatabase() THROWS_EXCEPTIONS;
 
-    /// @brief Returns true if database is opened
+    /**
+     * @brief Returns true if database is opened
+     */
     virtual bool active() const;
 
-    /// @brief Returns the database connection handle
+    /**
+     * @brief Returns the database connection handle
+     */
     virtual void* handle() const;
 
-    /// @brief Returns driver-specific connection string
+    /**
+     * @brief Returns driver-specific connection string
+     */
     virtual std::string nativeConnectionString() const;
 
-    /// @brief Returns the Firebird driver description for the active connection
+    /**
+     * @brief Returns the Firebird driver description for the active connection
+     */
     virtual std::string driverDescription() const;
 
-    /// @brief Lists database objects
-    /// @param objectType DatabaseObjectType, object type to list
-    /// @param objects Strings&, object list (output)
+    /**
+     * @brief Lists database objects
+     * @param objectType DatabaseObjectType, object type to list
+     * @param objects Strings&, object list (output)
+     */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

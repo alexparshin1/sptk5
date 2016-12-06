@@ -36,27 +36,63 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Icon size variations
+/**
+ * @brief Icon size variations
+ */
 enum CIconSize
 {
-    IS_COMBO_ICON,  ///< Combo box icon, 12x12
-    IS_SMALL_ICON,  ///< Small button icon, 16x16
-    IS_LARGE_ICON,  ///< Large button icon, 22x22
-    IS_DIALOG_ICON  ///< Dialog icon, 48x48
+    /**
+     * Combo box icon, 12x12
+     */
+    IS_COMBO_ICON,
+
+    /**
+     * Small button icon, 16x16
+     */
+    IS_SMALL_ICON,
+
+    /**
+     * Large button icon, 22x22
+     */
+    IS_LARGE_ICON,
+
+    /**
+     * Dialog icon, 48x48
+     */
+    IS_DIALOG_ICON
+
 };
 
-/// @brief Class CIcon provides a storage of PNG image
+/**
+ * @brief Class CIcon provides a storage of PNG image
+ */
 class CIcon
 {
-    CPngImage*  m_image;  ///< Icon image
-    std::string m_name;   ///< Icon image symbolic name
+    /**
+     * Icon image
+     */
+    CPngImage*  m_image;
+
+    /**
+     * Icon image symbolic name
+     */
+    std::string m_name;
+
 public:
-    bool        m_shared; ///< Is this icon shared (stock) icon
+    /**
+     * Is this icon shared (stock) icon
+     */
+    bool        m_shared;
+
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     CIcon(std::string name = "", CPngImage* image = 0L, bool shared = true) :
         m_image(image),
         m_name(name),
@@ -64,32 +100,42 @@ public:
     {
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CIcon()
     {
         if (m_image && !m_shared)
             delete m_image;
     }
 
-    /// @brief Loads a PNG image from buffer
-    /// @param imageData const CBuffer&, an image data to load PNG image from
+    /**
+     * @brief Loads a PNG image from buffer
+     * @param imageData const CBuffer&, an image data to load PNG image from
+     */
     void load(const Buffer& imageData);
 
-    /// @brief Returns an icon image
+    /**
+     * @brief Returns an icon image
+     */
     CPngImage* image()
     {
         return m_image;
     }
 
-    /// @brief Returns an icon symbolic name
+    /**
+     * @brief Returns an icon symbolic name
+     */
     const std::string name() const
     {
         return m_name;
     }
 
-    /// @brief Sets the image pointer
-    /// @param img CPngImage*, an image pointer
-    /// @param shared bool, if false then memory should be maintained by the class
+    /**
+     * @brief Sets the image pointer
+     * @param img CPngImage*, an image pointer
+     * @param shared bool, if false then memory should be maintained by the class
+     */
     void image(CPngImage* img, bool shared)
     {
         if (m_image && !m_shared)
@@ -99,39 +145,53 @@ public:
     }
 };
 
-/// @brief A map of theme icon names to theme icons
+/**
+ * @brief A map of theme icon names to theme icons
+ */
 class CIconMap: public std::map<std::string, CIcon*, CaseInsensitiveCompare>
 {
     bool m_shared;
 public:
-    /// @brief Default constructor
-    /// @param shared bool, if true then memory, allocated for the icons, isn't managed
+    /**
+     * @brief Default constructor
+     * @param shared bool, if true then memory, allocated for the icons, isn't managed
+     */
     CIconMap(bool shared = false)
     {
         m_shared = shared;
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~CIconMap()
     {
         clear();
     }
 
-    /// @brief Removes all the allocated images
+    /**
+     * @brief Removes all the allocated images
+     */
     void clear();
 
-    /// @brief Inserts a new icon into icon map
-    /// @param icon CIcon*, a pointer to an icon
+    /**
+     * @brief Inserts a new icon into icon map
+     * @param icon CIcon*, a pointer to an icon
+     */
     void insert(CIcon* icon);
 
-    /// @brief Loads a collection of images using information from XML node
-    ///
-    /// Any incorrect image information is ignored.
-    /// @param tar CTar&, the loaded tar archive where images are located
-    /// @param node XMLNode*, an XML node describing the theme icon images
+    /**
+     * @brief Loads a collection of images using information from XML node
+     *
+     * Any incorrect image information is ignored.
+     * @param tar CTar&, the loaded tar archive where images are located
+     * @param node XMLNode*, an XML node describing the theme icon images
+     */
     void load(Tar& tar, XMLNode* node);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -36,26 +36,50 @@
 namespace sptk
 {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
+/**
+ * @addtogroup wsdl WSDL-related Classes
+ * @{
+ */
 
-/// @brief Helper module to generate source files
+/**
+ * @brief Helper module to generate source files
+ */
 class SourceModule
 {
-    std::string     m_name;     ///< Module name
-    std::string     m_path;     ///< Module path
-    std::ofstream   m_header;   ///< Module hpp file
-    std::ofstream   m_source;   ///< Module cpp file
+    /**
+     * Module name
+     */
+    std::string     m_name;
+
+    /**
+     * Module path
+     */
+    std::string     m_path;
+
+    /**
+     * Module hpp file
+     */
+    std::ofstream   m_header;
+
+    /**
+     * Module cpp file
+     */
+    std::ofstream   m_source;
+
 public:
-    /// @brief Constructor
-    /// @param moduleName std::string, Module name
-    /// @param modulePath std::string, Module path
+    /**
+     * @brief Constructor
+     * @param moduleName std::string, Module name
+     * @param modulePath std::string, Module path
+     */
     SourceModule(std::string moduleName, std::string modulePath)
     : m_name(moduleName), m_path(modulePath)
     {
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~SourceModule()
     {
         if (m_header.is_open())
@@ -64,7 +88,9 @@ public:
             m_source.close();
     }
 
-    /// @brief Opens module output files
+    /**
+     * @brief Opens module output files
+     */
     void open()
     {
         if (m_path.empty())
@@ -78,20 +104,26 @@ public:
             throwException("Can't create file " + fileName + ".cpp");
     }
 
-    /// @brief Returns header file stream
+    /**
+     * @brief Returns header file stream
+     */
     std::ofstream& header()
     {
         return m_header;
     }
 
-    /// @brief Returns source file stream
+    /**
+     * @brief Returns source file stream
+     */
     std::ofstream& source()
     {
         return m_source;
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 
 }
 #endif

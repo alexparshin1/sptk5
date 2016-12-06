@@ -38,26 +38,68 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 enum CThemeColorIndex {
-    THM_FOREGROUND_COLOR,   ///< Foreground color index
-    THM_BACKGROUND_COLOR,   ///< Background color index
-    THM_BASE_COLOR,         ///< Base color index
-    THM_TEXT_COLOR          ///< Text color index
+    /**
+     * Foreground color index
+     */
+    THM_FOREGROUND_COLOR,
+
+    /**
+     * Background color index
+     */
+    THM_BACKGROUND_COLOR,
+
+    /**
+     * Base color index
+     */
+    THM_BASE_COLOR,
+
+    /**
+     * Text color index
+     */
+    THM_TEXT_COLOR
+
 };
 
 #define THM_MAX_COLOR_INDEX 4
 
 enum CThemeColorState
 {
-    THM_COLOR_UNDEFINED=-1, ///< Color is undefined
-    THM_COLOR_NORMAL=0,     ///< Normal color
-    THM_COLOR_PRELIGHT,     ///< Prelight color
-    THM_COLOR_SELECTED,     ///< Selection color
-    THM_COLOR_ACTIVE,       ///< Active (focused) color
-    THM_COLOR_INSENSITIVE   ///< Intensive color
+    /**
+     * Color is undefined
+     */
+    THM_COLOR_UNDEFINED=-1,
+
+    /**
+     * Normal color
+     */
+    THM_COLOR_NORMAL=0,
+
+    /**
+     * Prelight color
+     */
+    THM_COLOR_PRELIGHT,
+
+    /**
+     * Selection color
+     */
+    THM_COLOR_SELECTED,
+
+    /**
+     * Active (focused) color
+     */
+    THM_COLOR_ACTIVE,
+
+    /**
+     * Intensive color
+     */
+    THM_COLOR_INSENSITIVE
+
 };
 
 #define THM_MAX_COLOR_STATE 5
@@ -80,32 +122,50 @@ class CThemeColorCollection
     static Fl_Color mix(std::string expression);
 
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     CThemeColorCollection();
 
-    /// @brief Loads them from SPTK theme definition
+    /**
+     * @brief Loads them from SPTK theme definition
+     */
     void loadFromSptkTheme(XMLDocument& gtkTheme);
 
-    /// @brief Loads them from GTK theme definition
+    /**
+     * @brief Loads them from GTK theme definition
+     */
     void loadFromGtkTheme(XMLDocument& gtkTheme);
 
-    /// @brief Returns normal color
+    /**
+     * @brief Returns normal color
+     */
     Fl_Color color(CThemeColorIndex colorIndex,CThemeColorState state) const { return m_colors[colorIndex][state]; }
 
-    /// @brief Returns foreground color
+    /**
+     * @brief Returns foreground color
+     */
     Fl_Color fgColor(CThemeColorState state) const { return m_colors[THM_FOREGROUND_COLOR][state]; }
 
-    /// @brief Returns background color
+    /**
+     * @brief Returns background color
+     */
     Fl_Color bgColor(CThemeColorState state) const { return m_colors[THM_BACKGROUND_COLOR][state]; }
 
-    /// @brief Returns base color
+    /**
+     * @brief Returns base color
+     */
     Fl_Color baseColor(CThemeColorState state) const { return m_colors[THM_BASE_COLOR][state]; }
 
-    /// @brief Returns text color
+    /**
+     * @brief Returns text color
+     */
     Fl_Color textColor(CThemeColorState state) const { return m_colors[THM_TEXT_COLOR][state]; }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

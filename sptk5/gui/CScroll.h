@@ -37,10 +37,14 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Different modes for scrollbars
+/**
+ * @brief Different modes for scrollbars
+ */
 enum CScrollbarMode { // values for type()
     HORIZONTAL = 1,
     VERTICAL = 2,
@@ -51,120 +55,198 @@ enum CScrollbarMode { // values for type()
     BOTH_ALWAYS = 7
 };
 
-/// @brief Scroll area widget
-///
-/// Extended version of FLTK Fl_Group that can be a layout manager and layout client
-/// at the same time.
+/**
+ * @brief Scroll area widget
+ *
+ * Extended version of FLTK Fl_Group that can be a layout manager and layout client
+ * at the same time.
+ */
 class CScroll : public ::Fl_Group, public CLayoutManager {
 
-    int m_xposition;        ///< Current x-position of the scrolled area
-    int m_yposition;        ///< Current y-position of the scrolled area
-    int m_width;            ///< Current width of the scrolled area
-    int m_height;           ///< Current height of the scrolled area
-    int m_oldx;             ///< Former x-position of the scrolled area
-    int m_oldy;             ///< Former y-position of the scrolled area
+    /**
+     * Current x-position of the scrolled area
+     */
+    int m_xposition;
 
-    /// @brief Horizontal scrollbar callback
+    /**
+     * Current y-position of the scrolled area
+     */
+    int m_yposition;
+
+    /**
+     * Current width of the scrolled area
+     */
+    int m_width;
+
+    /**
+     * Current height of the scrolled area
+     */
+    int m_height;
+
+    /**
+     * Former x-position of the scrolled area
+     */
+    int m_oldx;
+
+    /**
+     * Former y-position of the scrolled area
+     */
+    int m_oldy;
+
+
+    /**
+     * @brief Horizontal scrollbar callback
+     */
     static void hscrollbar_cb(Fl_Widget*, void*);
 
-    /// @brief Vertical scrollbar callback
+    /**
+     * @brief Vertical scrollbar callback
+     */
     static void scrollbar_cb(Fl_Widget*, void*);
 
-    /// @brief Constructor initializer
+    /**
+     * @brief Constructor initializer
+     */
     void ctor_init();
 
-    /// @brief Insure the scrollbars are the last children:
+    /**
+     * @brief Insure the scrollbars are the last children:
+     */
     void fix_scrollbar_order();
 
-    /// @brief Draw the visible area. This is also the callback for fl_scroll.
+    /**
+     * @brief Draw the visible area. This is also the callback for fl_scroll.
+     */
     static void draw_clip(void* v,int X, int Y, int W, int H);
 
-    /// @brief Computed area for widgets
+    /**
+     * @brief Computed area for widgets
+     */
     void bbox(int& X, int& Y, int& W, int& H);
 
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CScroll(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CScroll(int x,int y,int w,int h,const char *label=0L);
 #endif
 
-    CScrollBar scrollbar;     ///< Vertical scrollbar
-    CScrollBar hscrollbar;    ///< Horizontal scrollbar
+    /**
+     * Vertical scrollbar
+     */
+    CScrollBar scrollbar;
 
-    /// @brief Resizes the group and inside widgets.
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * Horizontal scrollbar
+     */
+    CScrollBar hscrollbar;
+
+
+    /**
+     * @brief Resizes the group and inside widgets.
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     virtual void resize(int x,int y,int w,int h);
 
-    /// @brief Custom draw() method
+    /**
+     * @brief Custom draw() method
+     */
     virtual void draw();
 
-    /// @brief Computes the optimal group size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * @brief Computes the optimal group size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// @brief Removes all the child widgets
+    /**
+     * @brief Removes all the child widgets
+     */
     virtual void clear();
 
-    /// @brief Sets the position of the scrolled area
+    /**
+     * @brief Sets the position of the scrolled area
+     */
     virtual void position(int X, int Y);
 
-    /// @brief Returns the x-position of the scrolled area
+    /**
+     * @brief Returns the x-position of the scrolled area
+     */
     int xposition() const {
         return m_xposition;
     }
 
-    /// @brief Returns the y-position of the scrolled area
+    /**
+     * @brief Returns the y-position of the scrolled area
+     */
     int yposition() const {
         return m_yposition;
     }
 
-    /// @brief Custom handle method
+    /**
+     * @brief Custom handle method
+     */
     int handle(int);
 
-    /// @brief Returns the current label
+    /**
+     * @brief Returns the current label
+     */
     std::string label() const {
         return m_label;
     }
 
-    /// @brief Sets the new label
-    ///
-    /// @param lbl const char*, new label
+    /**
+     * @brief Sets the new label
+     *
+     * @param lbl const char*, new label
+     */
     void label(const char* lbl) {
         CLayoutClient::label(lbl);
     }
 
-    /// Sets label for the group, makes an internal copy of the string
-    /// @param lbl const string&, new label
+    /**
+     * Sets label for the group, makes an internal copy of the string
+     * @param lbl const string&, new label
+     */
     void label(const std::string& lbl) {
         CLayoutClient::label(lbl);
     }
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "scroll";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

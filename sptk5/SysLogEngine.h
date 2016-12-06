@@ -41,54 +41,74 @@
 namespace sptk
 {
 
-/// @addtogroup log Log Classes
-/// @{
+/**
+ * @addtogroup log Log Classes
+ * @{
+ */
 
-/// @brief A log stored in the system log.
-///
-/// On *nix , the log is sent to *nix syslog daemon.
-/// On Windows NT/2000+/XP the log is sent to Event Log (Application).
-/// On Windows 95/98/ME the system log isn't supported..
-/// The facility method allows to define - which system log is used
-/// @see CBaseLog for more information about basic log abilities.
+/**
+ * @brief A log stored in the system log.
+ *
+ * On *nix , the log is sent to *nix syslog daemon.
+ * On Windows NT/2000+/XP the log is sent to Event Log (Application).
+ * On Windows 95/98/ME the system log isn't supported..
+ * The facility method allows to define - which system log is used
+ * @see CBaseLog for more information about basic log abilities.
+ */
 class SP_EXPORT SysLogEngine: public LogEngine
 {
 #ifdef _WIN32
-    HANDLE              m_logHandle;    ///< (Windows) The handle of the log file
+    /**
+     * (Windows) The handle of the log file
+     */
+    HANDLE              m_logHandle;
+
 #endif
     
-    uint32_t            m_facilities;   ///< List of facilities allows to define one or more system logs where messages would be sent
+    /**
+     * List of facilities allows to define one or more system logs where messages would be sent
+     */
+    uint32_t            m_facilities;
+
     std::string         m_programName;
 
     void programName(std::string progName);
     
 public:
-    /// @brief Stores or sends log message to actual destination
-    ///
-    /// This method should be overwritten by the actual log implementation
-    /// @param date DateTime, message timestamp
-    /// @param message const char *, message text
-    /// @param sz uint32_t, message size
-    /// @param priority CLogPriority, message priority. @see CLogPriority for more information.
+    /**
+     * @brief Stores or sends log message to actual destination
+     *
+     * This method should be overwritten by the actual log implementation
+     * @param date DateTime, message timestamp
+     * @param message const char *, message text
+     * @param sz uint32_t, message size
+     * @param priority CLogPriority, message priority. @see CLogPriority for more information.
+     */
     virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
 public:
-    /// @brief Constructor
-    ///
-    /// Creates a new log object based on the syslog facility (or facilities).
-    /// For Windows, parameter facilities is ignored and messages are stored
-    /// into Application event log.
-    /// The program name is optional. It is set for all the CSysLog objects at once.
-    /// If set, it appears in the log as a message prefix. Every time the program
-    /// name is changed, the log is closed to be re-opened on next message.
-    /// @param programName std::string, a program name
-    /// @param facilities int, log facility or a set of facilities.
+    /**
+     * @brief Constructor
+     *
+     * Creates a new log object based on the syslog facility (or facilities).
+     * For Windows, parameter facilities is ignored and messages are stored
+     * into Application event log.
+     * The program name is optional. It is set for all the CSysLog objects at once.
+     * If set, it appears in the log as a message prefix. Every time the program
+     * name is changed, the log is closed to be re-opened on next message.
+     * @param programName std::string, a program name
+     * @param facilities int, log facility or a set of facilities.
+     */
     SysLogEngine(std::string programName = "", uint32_t facilities = LOG_USER);
 
-    /// @brief Destructor
-    ///
-    /// Destructs the log object, closes the log descriptor, releases all the allocated resources
+    /**
+     * @brief Destructor
+     *
+     * Destructs the log object, closes the log descriptor, releases all the allocated resources
+     */
     virtual ~SysLogEngine();
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

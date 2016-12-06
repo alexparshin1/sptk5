@@ -36,64 +36,90 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Phone number input widget
-///
-/// Phone number input with two input boxes - area code and phone number.
+/**
+ * @brief Phone number input widget
+ *
+ * Phone number input with two input boxes - area code and phone number.
+ */
 class SP_EXPORT CPhoneNumberInput : public CInput {
     typedef class CInput inherited;
 
-    /// @brief Constructor initializer
+    /**
+     * @brief Constructor initializer
+     */
     void ctor_init();
 
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CPhoneNumberInput(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CPhoneNumberInput(int x,int y,int w,int h,const char *label=0);
 #endif
 
-    /// @brief Returns the control kind, SPTK-style RTTI
-    /// @see CControlKind for more information
+    /**
+     * @brief Returns the control kind, SPTK-style RTTI
+     * @see CControlKind for more information
+     */
     virtual CControlKind kind() const {
         return DCV_PHONE;
     }
 
-    /// @brief Returns the control class name, SPTK-style RTTI
+    /**
+     * @brief Returns the control class name, SPTK-style RTTI
+     */
     virtual std::string className() const {
         return "phone_number";
     }
 
-    /// @brief Universal data connection, returns data from control
+    /**
+     * @brief Universal data connection, returns data from control
+     */
     virtual Variant data() const;
 
-    /// @brief Universal data connection, sets data from control
+    /**
+     * @brief Universal data connection, sets data from control
+     */
     virtual void     data(const Variant v);
 
-    /// @brief Returns true if the input data is valid
+    /**
+     * @brief Returns true if the input data is valid
+     */
     virtual bool valid() const;
 
-    /// @brief Computes the optimal widget width
-    /// @param w int&, input - width offered by the program, output - width required by widget
+    /**
+     * @brief Computes the optimal widget width
+     * @param w int&, input - width offered by the program, output - width required by widget
+     */
     virtual void     preferredWidth(int& w) const;
 
-    /// @brief Creates a widget based on the XML node information
+    /**
+     * @brief Creates a widget based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

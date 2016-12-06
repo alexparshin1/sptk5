@@ -62,143 +62,245 @@
 
 namespace sptk {
 
-/// @addtogroup log Log Classes
-/// @{
+/**
+ * @addtogroup log Log Classes
+ * @{
+ */
 
-/// @brief Log message priority
+/**
+ * @brief Log message priority
+ */
 enum LogPriority
 {
-    LP_DEBUG    = LOG_DEBUG,      ///< Debug message priority
-    LP_INFO     = LOG_INFO,       ///< Information message priority
-    LP_NOTICE   = LOG_NOTICE,     ///< Notice message priority
-    LP_WARNING  = LOG_WARNING,    ///< Warning message priority
-    LP_ERROR    = LOG_ERR,        ///< Error message priority
-    LP_CRITICAL = LOG_CRIT,       ///< Critical message priority
-    LP_ALERT    = LOG_ALERT,      ///< Alert message priority
-    LP_PANIC    = LOG_EMERG       ///< Panic message priority
+    /**
+     * Debug message priority
+     */
+    LP_DEBUG    = LOG_DEBUG,
+
+    /**
+     * Information message priority
+     */
+    LP_INFO     = LOG_INFO,
+
+    /**
+     * Notice message priority
+     */
+    LP_NOTICE   = LOG_NOTICE,
+
+    /**
+     * Warning message priority
+     */
+    LP_WARNING  = LOG_WARNING,
+
+    /**
+     * Error message priority
+     */
+    LP_ERROR    = LOG_ERR,
+
+    /**
+     * Critical message priority
+     */
+    LP_CRITICAL = LOG_CRIT,
+
+    /**
+     * Alert message priority
+     */
+    LP_ALERT    = LOG_ALERT,
+
+    /**
+     * Panic message priority
+     */
+    LP_PANIC    = LOG_EMERG
+
 };
 
-/// @brief Base class for various log engines.
-///
-/// This class is abstract. Derived classes have to implement
-/// at least saveMessage() method.
+/**
+ * @brief Base class for various log engines.
+ *
+ * This class is abstract. Derived classes have to implement
+ * at least saveMessage() method.
+ */
 class SP_EXPORT LogEngine: public Synchronized
 {
 protected:
-    LogPriority     m_defaultPriority;   ///< The default priority for the new message
-    LogPriority     m_minPriority;       ///< Min message priority, should be defined for every message
-    int             m_options;           ///< Log options, a bit combination of Option
+    /**
+     * The default priority for the new message
+     */
+    LogPriority     m_defaultPriority;
+
+    /**
+     * Min message priority, should be defined for every message
+     */
+    LogPriority     m_minPriority;
+
+    /**
+     * Log options, a bit combination of Option
+     */
+    int             m_options;
+
 
 public:
-    /// @brief Stores or sends log message to actual destination
-    /// @param date DateTime, message timestamp
-    /// @param message const char *, message text
-    /// @param sz uint32_t, message size
-    /// @param priority LogPriority, message priority. @see LogPriority for more information.
+    /**
+     * @brief Stores or sends log message to actual destination
+     * @param date DateTime, message timestamp
+     * @param message const char *, message text
+     * @param sz uint32_t, message size
+     * @param priority LogPriority, message priority. @see LogPriority for more information.
+     */
     virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS = 0;
 
-    /// @brief Log options
+    /**
+     * @brief Log options
+     */
     enum Option
     {
-        LO_STDOUT = 1,    ///< Duplicate messages to stdout
-        LO_DATE = 2,      ///< Print date for every log message
-        LO_TIME = 4,      ///< Print time for every log message
-        LO_PRIORITY = 8,  ///< Print message priority
-        LO_ENABLE = 16    ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+        /**
+         * Duplicate messages to stdout
+         */
+        LO_STDOUT = 1,
+
+        /**
+         * Print date for every log message
+         */
+        LO_DATE = 2,
+
+        /**
+         * Print time for every log message
+         */
+        LO_TIME = 4,
+
+        /**
+         * Print message priority
+         */
+        LO_PRIORITY = 8,
+
+        /**
+         * Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+         */
+        LO_ENABLE = 16
+
     };
 
 public:
-    /// @brief Constructor
-    ///
-    /// Creates a new log object.
+    /**
+     * @brief Constructor
+     *
+     * Creates a new log object.
+     */
     LogEngine();
 
-    /// @brief Destructor
-    ///
-    /// Destructs the log object, releases all the allocated resources
+    /**
+     * @brief Destructor
+     *
+     * Destructs the log object, releases all the allocated resources
+     */
     virtual ~LogEngine();
 
-    /// @brief Restarts the log
-    ///
-    /// The current log content is cleared.
-    /// Actual result depends on derived log engine.
+    /**
+     * @brief Restarts the log
+     *
+     * The current log content is cleared.
+     * Actual result depends on derived log engine.
+     */
     virtual void reset() THROWS_EXCEPTIONS {}
 
-    /// @brief Sets log options
-    /// @param ops int, a bit combination of Option
+    /**
+     * @brief Sets log options
+     * @param ops int, a bit combination of Option
+     */
     void options(int ops)
     {
         SYNCHRONIZED_CODE;
         m_options = ops;
     }
 
-    /// @brief Returns log options
-    /// @returns a bit combination of Option
+    /**
+     * @brief Returns log options
+     * @returns a bit combination of Option
+     */
     int options()
     {
         SYNCHRONIZED_CODE;
         return m_options;
     }
 
-    /// @brief Sets an option to true or false
+    /**
+     * @brief Sets an option to true or false
+     */
     void option(Option option, bool flag);
 
-    /// @brief Sets current message priority
-    /// @param prt LogPriority, current message priority
+    /**
+     * @brief Sets current message priority
+     * @param prt LogPriority, current message priority
+     */
     void priority(LogPriority prt)
     {
         SYNCHRONIZED_CODE;
         m_minPriority = prt;
     }
 
-    /// @brief Sets the default priority
-    ///
-    /// The default priority is used for the new message,
-    /// if you are not defining priority.
-    /// @param priority LogPriority, new default priority
+    /**
+     * @brief Sets the default priority
+     *
+     * The default priority is used for the new message,
+     * if you are not defining priority.
+     * @param priority LogPriority, new default priority
+     */
     virtual void defaultPriority(LogPriority priority)
     {
         SYNCHRONIZED_CODE;
         m_defaultPriority = priority;
     }
 
-    /// @brief Returns the default priority
-    ///
-    /// The default priority is used for the new message,
-    /// if you are not defining priority.
+    /**
+     * @brief Returns the default priority
+     *
+     * The default priority is used for the new message,
+     * if you are not defining priority.
+     */
     virtual LogPriority defaultPriority()
     {
         SYNCHRONIZED_CODE;
         return m_defaultPriority;
     }
 
-    /// @brief Sets min message priority
-    ///
-    /// Messages with priority less than requested are ignored
-    /// @param prt LogPriority, min message priority
+    /**
+     * @brief Sets min message priority
+     *
+     * Messages with priority less than requested are ignored
+     * @param prt LogPriority, min message priority
+     */
     virtual void minPriority(LogPriority prt)
     {
         SYNCHRONIZED_CODE;
         m_minPriority = prt;
     }
 
-    /// @brief Returns the min priority
-    ///
-    /// Messages with priority less than requested are ignored
+    /**
+     * @brief Returns the min priority
+     *
+     * Messages with priority less than requested are ignored
+     */
     virtual LogPriority minPriority()
     {
         SYNCHRONIZED_CODE;
         return m_minPriority;
     }
 
-    /// @brief String representation of priority
+    /**
+     * @brief String representation of priority
+     */
     static std::string priorityName(LogPriority prt);
 
-    /// @brief Priotrity from string representation
+    /**
+     * @brief Priotrity from string representation
+     */
     static LogPriority priorityFromName(std::string prt);
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

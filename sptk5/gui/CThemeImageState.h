@@ -31,14 +31,18 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 #define THMF_NORMAL 0
 #define THMF_ACTIVE 1
 #define THMF_HIGHLIGHTED 2
 
-/// @brief Theme button type - defines which routine to use for which FLTK button type
+/**
+ * @brief Theme button type - defines which routine to use for which FLTK button type
+ */
 enum CThemeImageState { 
     THM_IMAGE_NORMAL = THMF_NORMAL, 
     THM_IMAGE_ACTIVE = THMF_ACTIVE, 
@@ -48,7 +52,9 @@ enum CThemeImageState {
 
 #define MAX_IMAGE_STATES 5
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif	/* _CTHEMEIMAGESTATE_H */

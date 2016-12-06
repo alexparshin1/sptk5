@@ -35,77 +35,103 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 class CDatabase;
 class QueryParameter;
 
-/// @brief Drop-down list view.
-///
-/// A special derivation of CDBListView to support CDBDropDownList class.
+/**
+ * @brief Drop-down list view.
+ *
+ * A special derivation of CDBListView to support CDBDropDownList class.
+ */
 class SP_EXPORT CDBDropDownListView : public CDBListView {
 
 protected:
 
-    /// Internal mouse click callback
+    /**
+     * Internal mouse click callback
+     */
     void item_clicked(int mouse_btn);
 
-    /// Internal focus exits callback
+    /**
+     * Internal focus exits callback
+     */
     void onExit();
 
 public:
 
-    /// Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CDBDropDownListView(const char *label,int layoutSize,CLayoutAlign layoutAlign) : CDBListView(label,layoutSize,layoutAlign) {}
 
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     CDBDropDownListView(int x,int y,int w,int h) : CDBListView(x,y,w,h) {}
 #endif
 
 }
 ;
 
-/// @brief Drop-down window with CListView widget inside.
-///
-/// Designed specifically for CComboBox.
+/**
+ * @brief Drop-down window with CListView widget inside.
+ *
+ * Designed specifically for CComboBox.
+ */
 class SP_EXPORT CDBDropDownList : public CPopupWindow {
     friend class CBaseListBox;
     friend class CDBDropDownListView;
 protected:
-    /// Special version of handle() function
+    /**
+     * Special version of handle() function
+     */
     int  handle(int);
 public:
-    /// Modified list view widget
+    /**
+     * Modified list view widget
+     */
     CDBDropDownListView *listView;
 
-    /// Constructor
-    /// @param w int, window width
-    /// @param h int, window height
-    /// @param label const char *, window caption
+    /**
+     * Constructor
+     * @param w int, window width
+     * @param h int, window height
+     * @param label const char *, window caption
+     */
     CDBDropDownList(int w, int h, const char *label = 0);
 
-    /// Resizes window and internal widgets
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
+    /**
+     * Resizes window and internal widgets
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     */
     virtual void resize(int x,int y,int w,int h);
 
-    /// Computes the preferred size of the popup window
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * Computes the preferred size of the popup window
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

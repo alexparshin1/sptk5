@@ -38,8 +38,10 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
 class Query;
 
@@ -47,44 +49,80 @@ class Query;
 
 class FieldList;
 
-/// @brief Data field for CDataSource.
-///
-/// Contains field name, field type, field data and field format information.
+/**
+ * @brief Data field for CDataSource.
+ *
+ * Contains field name, field type, field data and field format information.
+ */
 class SP_EXPORT Field : public Variant
 {
     friend class FieldList;
 protected:
-    std::string m_name;         ///< Field name
+    /**
+     * Field name
+     */
+    std::string m_name;
+
 
 public:
-    std::string displayName;    ///< Optional display field name
+    /**
+     * Optional display field name
+     */
+    std::string displayName;
+
 public:
-    /// @brief Constructor
-    /// @param name const char *, field name
+    /**
+     * @brief Constructor
+     * @param name const char *, field name
+     */
     Field(const char *name);
 
-    /// @brief Combination of field view attributes
+    /**
+     * @brief Combination of field view attributes
+     */
     struct {
-        int     width:10;       ///< Field width
-        int     precision:5;    ///< Field precision
-        int     flags:16;       ///< Field flags like alignment, etc
-        bool    visible:1;      ///< Is field visible?
+        /**
+         * Field width
+         */
+        int     width:10;
+
+        /**
+         * Field precision
+         */
+        int     precision:5;
+
+        /**
+         * Field flags like alignment, etc
+         */
+        int     flags:16;
+
+        /**
+         * Is field visible?
+         */
+        bool    visible:1;
+
     } view;
 
-    /// @brief Returns field name
+    /**
+     * @brief Returns field name
+     */
     const std::string& fieldName() const
     {
         return m_name;
     }
 
-    /// @brief Sets the NULL state
-    ///
-    /// Useful for the database operations.
-    /// Retains the data type. Sets the data to zero(s).
-    /// @param vtype VariantType, optional variant type to enforce
+    /**
+     * @brief Sets the NULL state
+     *
+     * Useful for the database operations.
+     * Retains the data type. Sets the data to zero(s).
+     * @param vtype VariantType, optional variant type to enforce
+     */
     virtual void setNull(VariantType vtype = VAR_NONE);
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(const Variant &C)
     {
         if (this == &C)
@@ -94,109 +132,141 @@ public:
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(int64_t value)
     {
         setInt64(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(uint64_t value)
     {
         setInt64((int64_t) value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(int32_t value)
     {
         setInteger(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(uint32_t value)
     {
         setInteger((int32_t) value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(int16_t value)
     {
         setInteger(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(uint16_t value)
     {
         setInteger(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(float value)
     {
         setFloat(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(double value)
     {
         setFloat(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(const char * value)
     {
         setString(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(const std::string& value)
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(DateTime value)
     {
         setDateTime(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(const void *value)
     {
         setImagePtr(value);
         return *this;
     }
 
-    /// @brief Assignment operation
+    /**
+     * @brief Assignment operation
+     */
     virtual Field& operator =(const Buffer& value)
     {
         setBuffer(value.data(), value.bytes());
         return *this;
     }
 
-    /// @brief Better (than in base class) conversion method
+    /**
+     * @brief Better (than in base class) conversion method
+     */
     virtual std::string asString() const THROWS_EXCEPTIONS;
 
-    /// @brief Exports the field data into XML node
-    ///
-    /// If the compactXmlMode flag is true, the field is exported as an attribute.
-    /// Otherwise, the field is exported as subnodes.
-    /// For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
-    /// @param node XMLNode&, a node to export field data into
-    /// @param compactXmlMode bool, compact XML mode flag
+    /**
+     * @brief Exports the field data into XML node
+     *
+     * If the compactXmlMode flag is true, the field is exported as an attribute.
+     * Otherwise, the field is exported as subnodes.
+     * For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
+     * @param node XMLNode&, a node to export field data into
+     * @param compactXmlMode bool, compact XML mode flag
+     */
     void toXML(XMLNode& node, bool compactXmlMode) const;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

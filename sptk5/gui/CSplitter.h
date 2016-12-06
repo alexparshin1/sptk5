@@ -34,14 +34,18 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Splitter widget
-///
-/// CSplitter implements 'grab and resize' bar.
-/// It works only with SPTK-style widgets derived from CLayoutClient,
-/// and placed on a group derived from CLayoutManager (CGroup,CScroll).
+/**
+ * @brief Splitter widget
+ *
+ * CSplitter implements 'grab and resize' bar.
+ * It works only with SPTK-style widgets derived from CLayoutClient,
+ * and placed on a group derived from CLayoutManager (CGroup,CScroll).
+ */
 class CSplitter : public CBox {
     Fl_Widget      *m_chainedWidget;           /// Pointer on the widget that will be resized
     CLayoutClient  *m_chainedWidgetLayout;     /// Pointer on the CLayoutClient of the resized widget
@@ -51,24 +55,34 @@ class CSplitter : public CBox {
 protected:
     void findChainedControl();                 /// After the splitter is grabbed finds out which widget is resizing
 public:
-    /// Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CSplitter(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
-    /// Custom handle() method to process widget-specific events
+    /**
+     * Custom handle() method to process widget-specific events
+     */
     int handle(int event);
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "splitter";
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

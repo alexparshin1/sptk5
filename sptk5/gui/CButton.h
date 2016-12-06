@@ -41,276 +41,502 @@ class Fl_Image;
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Button widget kind
-///
-/// The button kind defines a picture and a default label for the button.
+/**
+ * @brief Button widget kind
+ *
+ * The button kind defines a picture and a default label for the button.
+ */
 enum CButtonKind {
-    SP_UNDEFINED_BUTTON = 0,            ///< default button without image, or with user-defined image
-    SP_OK_BUTTON        = 1,            ///< 'Ok' button
-    SP_CANCEL_BUTTON    = 2,            ///< 'Cancel' button
-    SP_NO_BUTTON        = 4,            ///< 'No' button
-    SP_ADD_BUTTON       = 8,            ///< 'Add' button
-    SP_DELETE_BUTTON    = 0x10,         ///< 'Delete' button
-    SP_EDIT_BUTTON      = 0x20,         ///< 'Edit' button
-    SP_BROWSE_BUTTON    = 0x40,         ///< 'Browse' button
-    SP_REFRESH_BUTTON   = 0x80,         ///< 'Refresh' button
-    SP_CALENDAR_BUTTON  = 0x100,        ///< 'Calendar' button
-    SP_OPEN_BUTTON      = 0x200,        ///< 'Open' button
-    SP_PRINT_BUTTON     = 0x400,        ///< 'Print' button
-    SP_SAVE_BUTTON      = 0x800,        ///< 'Save' button
-    SP_SAVE_AS_BUTTON   = 0x1000,       ///< 'Save As' button
-    SP_COPY_BUTTON      = 0x2000,       ///< 'Copy' button
-    SP_LEFT_BUTTON      = 0x4000,       ///< 'Left' button
-    SP_NEW_BUTTON       = 0x8000,       ///< 'New' button
-    SP_NEXT_BUTTON      = 0x10000,      ///< 'Next' button
-    SP_PRINTER_BUTTON   = 0x20000,      ///< 'Printer' button
-    SP_PRIOR_BUTTON     = 0x40000,      ///< 'Prior' button
-    SP_RIGHT_BUTTON     = 0x80000,      ///< 'Right' button
-    SP_SEARCH_BUTTON    = 0x100000,     ///< 'Left' button
-    SP_SEND_BUTTON      = 0x200000,     ///< 'Send' button
-    SP_STEPLEFT_BUTTON  = 0x400000,     ///< 'Step Left' button
-    SP_STEPRIGHT_BUTTON = 0x800000,     ///< 'Step Right' button
-    SP_VIEW_BUTTON      = 0x1000000,    ///< 'View' button
-    SP_HOME_BUTTON      = 0x2000000,    ///< 'Home' button
-    SP_CONFIGURE_BUTTON = 0x4000000,    ///< 'Configure' button
-    SP_EXEC_BUTTON      = 0x8000000,    ///< 'Execute' button
-    SP_STOP_BUTTON      = 0x10000000,   ///< 'Stop' button
-    SP_EXIT_BUTTON      = 0x20000000,   ///< 'Exit' button
-    SP_HELP_BUTTON      = 0x40000000,   ///< 'Help' button
-    SP_MAX_BUTTON       = 0x40000001    ///< Max button id
+    /**
+     * default button without image, or with user-defined image
+     */
+    SP_UNDEFINED_BUTTON = 0,
+
+    /**
+     * 'Ok' button
+     */
+    SP_OK_BUTTON        = 1,
+
+    /**
+     * 'Cancel' button
+     */
+    SP_CANCEL_BUTTON    = 2,
+
+    /**
+     * 'No' button
+     */
+    SP_NO_BUTTON        = 4,
+
+    /**
+     * 'Add' button
+     */
+    SP_ADD_BUTTON       = 8,
+
+    /**
+     * 'Delete' button
+     */
+    SP_DELETE_BUTTON    = 0x10,
+
+    /**
+     * 'Edit' button
+     */
+    SP_EDIT_BUTTON      = 0x20,
+
+    /**
+     * 'Browse' button
+     */
+    SP_BROWSE_BUTTON    = 0x40,
+
+    /**
+     * 'Refresh' button
+     */
+    SP_REFRESH_BUTTON   = 0x80,
+
+    /**
+     * 'Calendar' button
+     */
+    SP_CALENDAR_BUTTON  = 0x100,
+
+    /**
+     * 'Open' button
+     */
+    SP_OPEN_BUTTON      = 0x200,
+
+    /**
+     * 'Print' button
+     */
+    SP_PRINT_BUTTON     = 0x400,
+
+    /**
+     * 'Save' button
+     */
+    SP_SAVE_BUTTON      = 0x800,
+
+    /**
+     * 'Save As' button
+     */
+    SP_SAVE_AS_BUTTON   = 0x1000,
+
+    /**
+     * 'Copy' button
+     */
+    SP_COPY_BUTTON      = 0x2000,
+
+    /**
+     * 'Left' button
+     */
+    SP_LEFT_BUTTON      = 0x4000,
+
+    /**
+     * 'New' button
+     */
+    SP_NEW_BUTTON       = 0x8000,
+
+    /**
+     * 'Next' button
+     */
+    SP_NEXT_BUTTON      = 0x10000,
+
+    /**
+     * 'Printer' button
+     */
+    SP_PRINTER_BUTTON   = 0x20000,
+
+    /**
+     * 'Prior' button
+     */
+    SP_PRIOR_BUTTON     = 0x40000,
+
+    /**
+     * 'Right' button
+     */
+    SP_RIGHT_BUTTON     = 0x80000,
+
+    /**
+     * 'Left' button
+     */
+    SP_SEARCH_BUTTON    = 0x100000,
+
+    /**
+     * 'Send' button
+     */
+    SP_SEND_BUTTON      = 0x200000,
+
+    /**
+     * 'Step Left' button
+     */
+    SP_STEPLEFT_BUTTON  = 0x400000,
+
+    /**
+     * 'Step Right' button
+     */
+    SP_STEPRIGHT_BUTTON = 0x800000,
+
+    /**
+     * 'View' button
+     */
+    SP_VIEW_BUTTON      = 0x1000000,
+
+    /**
+     * 'Home' button
+     */
+    SP_HOME_BUTTON      = 0x2000000,
+
+    /**
+     * 'Configure' button
+     */
+    SP_CONFIGURE_BUTTON = 0x4000000,
+
+    /**
+     * 'Execute' button
+     */
+    SP_EXEC_BUTTON      = 0x8000000,
+
+    /**
+     * 'Stop' button
+     */
+    SP_STOP_BUTTON      = 0x10000000,
+
+    /**
+     * 'Exit' button
+     */
+    SP_EXIT_BUTTON      = 0x20000000,
+
+    /**
+     * 'Help' button
+     */
+    SP_HELP_BUTTON      = 0x40000000,
+
+    /**
+     * Max button id
+     */
+    SP_MAX_BUTTON       = 0x40000001
+
 };
 
-/// @brief Base button widget
-///
-/// Base class for CButton and CSmallButton, uses Fl_Image * or a stock image of CButtonKind.
+/**
+ * @brief Base button widget
+ *
+ * Base class for CButton and CSmallButton, uses Fl_Image * or a stock image of CButtonKind.
+ */
 class SP_EXPORT CBaseButton : public Fl_Button, public CLayoutClient {
     friend class CThemes;
 
-    bool              m_default;  ///< Is this button a default button?
-    CThemeButtonType  m_type;     ///< Button type - normal, thin, or combo box button
+    /**
+     * Is this button a default button?
+     */
+    bool              m_default;
 
-    /// @brief Draws the dotted line. The line angle should be divided by 45 degrees w/o remains.
-    /// @param xs int, x-coordinate for the starting point
-    /// @param ys int, y-coordinate for the starting point
-    /// @param xe int, x-coordinate for the ending point
-    /// @param ye int, y-coordinate for the ending point
+    /**
+     * Button type - normal, thin, or combo box button
+     */
+    CThemeButtonType  m_type;
+
+
+    /**
+     * @brief Draws the dotted line. The line angle should be divided by 45 degrees w/o remains.
+     * @param xs int, x-coordinate for the starting point
+     * @param ys int, y-coordinate for the starting point
+     * @param xe int, x-coordinate for the ending point
+     * @param ye int, y-coordinate for the ending point
+     */
     void drawFocusLine(int xs,int ys,int xe,int ye);
 
 protected:
 
-    CButtonKind       m_kind;     ///< Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
-    Fl_Image         *m_image;    ///< Internal image pointer
-    CIconSize         m_iconSize; ///< Icon size
+    /**
+     * Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
+     */
+    CButtonKind       m_kind;
 
-    /// @brief Sets the button image to the selected kind buttonKind
-    /// @param buttonKind CButtonKind, the button kind
-    /// @param iconSize CIconSize, the size of the icon
-    /// @param label const char*, optional label
+    /**
+     * Internal image pointer
+     */
+    Fl_Image         *m_image;
+
+    /**
+     * Icon size
+     */
+    CIconSize         m_iconSize;
+
+
+    /**
+     * @brief Sets the button image to the selected kind buttonKind
+     * @param buttonKind CButtonKind, the button kind
+     * @param iconSize CIconSize, the size of the icon
+     * @param label const char*, optional label
+     */
     void image(CButtonKind buttonKind,CIconSize iconSize,const char *label="");
 
-    /// @brief Draws the button
+    /**
+     * @brief Draws the button
+     */
     void draw();
 
-    /// @brief Draws the focus for the button.
-    /// @param usingTheme bool, to use theme's value for the focus corner radius. Otherwise, radius is 0.
+    /**
+     * @brief Draws the focus for the button.
+     * @param usingTheme bool, to use theme's value for the focus corner radius. Otherwise, radius is 0.
+     */
     void drawFocus(bool usingTheme);
 
-    /// Special handle() method
+    /**
+     * Special handle() method
+     */
     int  handle(int event);
 protected:
-    /// @brief Preferred size for the button computes the optimal size for the button
-    /// @param w int&, button width
-    /// @param h int&, button height
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * @brief Preferred size for the button computes the optimal size for the button
+     * @param w int&, button width
+     * @param h int&, button height
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// @brief Constructor in SPTK style
-    /// @param kind CButtonKind, stock image id
-    /// @param layoutAlign CLayoutAlign, widget align in layout
-    /// @param is_small bool, true for the small button (small pixmap, no label)
-    /// @param label const char * label
-    /// @param tbt CThemeButtonType, the type of button
+    /**
+     * @brief Constructor in SPTK style
+     * @param kind CButtonKind, stock image id
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     * @param is_small bool, true for the small button (small pixmap, no label)
+     * @param label const char * label
+     * @param tbt CThemeButtonType, the type of button
+     */
     CBaseButton(CButtonKind kind,CLayoutAlign layoutAlign=SP_ALIGN_RIGHT,bool is_small=false,const char *label=0,CThemeButtonType tbt=THM_BUTTON_NORMAL);
 
-    /// @brief Constructor in SPTK style. The image should be assigned separately.
-    /// @param label const char *, label
-    /// @param layoutAlign CLayoutAlign, widget align in layout
-    /// @param tbt CThemeButtonType, the type of button
+    /**
+     * @brief Constructor in SPTK style. The image should be assigned separately.
+     * @param label const char *, label
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     * @param tbt CThemeButtonType, the type of button
+     */
     CBaseButton(const char *label=0,CLayoutAlign layoutAlign=SP_ALIGN_RIGHT,CThemeButtonType tbt=THM_BUTTON_NORMAL);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param kind CButtonKind, stock image id
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label const char *, label
-    /// @param tbt CThemeButtonType, the type of button
+    /**
+     * @brief Constructor in FLTK style
+     * @param kind CButtonKind, stock image id
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label const char *, label
+     * @param tbt CThemeButtonType, the type of button
+     */
     CBaseButton(CButtonKind kind,int x,int y,int w,const char *l=0,CThemeButtonType tbt=THM_BUTTON_NORMAL);
 #endif
 
 public:
-    /// @brief Makes this button a default button
-    ///
-    /// Is used to define a button as default for the current
-    /// window of CDialog class. The default button is activated when an Enter button
-    /// is pressed inside CDialog on the widget and the widget doesn't process Enter
-    /// button.
-    /// @param defaultBtn bool makes button default or not
+    /**
+     * @brief Makes this button a default button
+     *
+     * Is used to define a button as default for the current
+     * window of CDialog class. The default button is activated when an Enter button
+     * is pressed inside CDialog on the widget and the widget doesn't process Enter
+     * button.
+     * @param defaultBtn bool makes button default or not
+     */
     void defaultButton(bool defaultBtn);
 
-    /// @brief Returns true if the button is a default button
-    /// @returns button type - default or not
+    /**
+     * @brief Returns true if the button is a default button
+     * @returns button type - default or not
+     */
     bool defaultButton() const {
         return m_default;
     }
 
-    /// @brief Returns widget class name (internal SPTK RTTI).
+    /**
+     * @brief Returns widget class name (internal SPTK RTTI).
+     */
     virtual std::string className() const {
         return "button";
     }
 
-    /// @brief Sets the stock image to the button. Purely virtual.
-    /// @param bkind CButtonKind stock image id.
-    /// @param iconSize CIconSize, the size of the icon
+    /**
+     * @brief Sets the stock image to the button. Purely virtual.
+     * @param bkind CButtonKind stock image id.
+     * @param iconSize CIconSize, the size of the icon
+     */
     virtual void buttonImage(CButtonKind bkind,CIconSize iconSize) = 0;
 
-    /// @brief Sets the image to the button. Purely virtual.
-    /// @param image Fl_Image * image pointer
+    /**
+     * @brief Sets the image to the button. Purely virtual.
+     * @param image Fl_Image * image pointer
+     */
     virtual void buttonImage(Fl_Image *image) = 0;
 
-    /// @brief Returns the button's image. Purely virtual.
-    /// @returns image pointer
+    /**
+     * @brief Returns the button's image. Purely virtual.
+     * @returns image pointer
+     */
     virtual Fl_Image *buttonImage() = 0;
 
-    /// @brief Returns button label
-    /// @returns button label
+    /**
+     * @brief Returns button label
+     * @returns button label
+     */
     const char *label() const {
         return m_label.c_str();
     }
 
-    /// @brief Sets button label
-    /// @param lbl const char *, new button label
+    /**
+     * @brief Sets button label
+     * @param lbl const char *, new button label
+     */
     void label(const char *lbl);
 };
 
-/// @brief Button widget
-///
-/// Button that displays an a regular Fl_Image *, or as a stock image of CButtonKind.
+/**
+ * @brief Button widget
+ *
+ * Button that displays an a regular Fl_Image *, or as a stock image of CButtonKind.
+ */
 class SP_EXPORT CButton : public CBaseButton {
 public:
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param kind CButtonKind stock image id
-    /// @param x int x-position
-    /// @param y int y-position
-    /// @param w int width
-    /// @param h int height
-    /// @param label const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param kind CButtonKind stock image id
+     * @param x int x-position
+     * @param y int y-position
+     * @param w int width
+     * @param h int height
+     * @param label const char * label
+     */
     CButton(CButtonKind kind,int x,int y,int w,const char *label=0,CThemeButtonType tbt=THM_BUTTON_NORMAL)
             : CBaseButton(kind,x,y,w,label,tbt) {}
 #endif
 
-    /// @brief Constructor in SPTK style
-    /// @param kind CButtonKind stock image id
-    /// @param layoutAlign CLayoutAlign widget align in layout
-    /// @param label const char * label
-    /// @param tbt CThemeButtonType, the size type of the button
+    /**
+     * @brief Constructor in SPTK style
+     * @param kind CButtonKind stock image id
+     * @param layoutAlign CLayoutAlign widget align in layout
+     * @param label const char * label
+     * @param tbt CThemeButtonType, the size type of the button
+     */
     CButton(CButtonKind kind,CLayoutAlign layoutAlign=SP_ALIGN_RIGHT,const char *label=0,CThemeButtonType tbt=THM_BUTTON_NORMAL)
             : CBaseButton(kind,layoutAlign,false,label,tbt) {}
 
-    /// @brief Default constructor in SPTK style
-    /// @param label const char * label
-    /// @param layoutAlign CLayoutAlign widget align in layout
-    /// @param tbt CThemeButtonType, the button type (size)
+    /**
+     * @brief Default constructor in SPTK style
+     * @param label const char * label
+     * @param layoutAlign CLayoutAlign widget align in layout
+     * @param tbt CThemeButtonType, the button type (size)
+     */
     CButton(const char *label=0,CLayoutAlign layoutAlign=SP_ALIGN_RIGHT,CThemeButtonType tbt=THM_BUTTON_NORMAL)
             : CBaseButton(label,layoutAlign,tbt) {}
 
-    /// @brief Sets the image to the button.
-    /// @param image const Fl_Image * image pointer
+    /**
+     * @brief Sets the image to the button.
+     * @param image const Fl_Image * image pointer
+     */
     virtual void buttonImage(Fl_Image *image) {
         m_image = image;
     }
 
-    /// @brief Sets the stock image to the button.
-    /// @param bkind CButtonKind stock image id.
-    /// @param iconSize CIconSize, the size of the icon
+    /**
+     * @brief Sets the stock image to the button.
+     * @param bkind CButtonKind stock image id.
+     * @param iconSize CIconSize, the size of the icon
+     */
     virtual void buttonImage(CButtonKind bkind,CIconSize iconSize=IS_LARGE_ICON) {
         image(bkind,iconSize,label());
     }
 
-    /// @brief Returns the button's image.
-    /// @returns image pointer
+    /**
+     * @brief Returns the button's image.
+     * @returns image pointer
+     */
     virtual Fl_Image *buttonImage() {
         return m_image;
     }
 
-    /// @brief Creates a button based on the XML node information
+    /**
+     * @brief Creates a button based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 
-    /// @brief Loads the the widget from XML node
-    ///
-    /// The widget information may include widget attributes
-    /// and widget data
-    /// @param node XMLNode*, XML node
+    /**
+     * @brief Loads the the widget from XML node
+     *
+     * The widget information may include widget attributes
+     * and widget data
+     * @param node XMLNode*, XML node
+     */
     virtual void load(const XMLNode *node);
 
-    /// @brief Saves the the widget to XML node
-    ///
-    /// The widget information may include widget attributes
-    /// and widget data
-    /// @param node XMLNode*, XML node
+    /**
+     * @brief Saves the the widget to XML node
+     *
+     * The widget information may include widget attributes
+     * and widget data
+     * @param node XMLNode*, XML node
+     */
     virtual void save(XMLNode *node) const;
 };
 
-/// @brief Small button widget
-///
-/// Displays a regular Fl_Image *, or as a stock image of CButtonKind.
-/// The button label is ignored
+/**
+ * @brief Small button widget
+ *
+ * Displays a regular Fl_Image *, or as a stock image of CButtonKind.
+ * The button label is ignored
+ */
 class SP_EXPORT CSmallButton : public CBaseButton {
 public:
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param kind CButtonKind stock image id
-    /// @param x int x-position
-    /// @param y int y-position
-    /// @param w int width
-    /// @param h int height
-    /// @param label const char * label
+    /**
+     * Constructor in FLTK style
+     * @param kind CButtonKind stock image id
+     * @param x int x-position
+     * @param y int y-position
+     * @param w int width
+     * @param h int height
+     * @param label const char * label
+     */
     CSmallButton(CButtonKind kind,int x,int y,int w,const char *label=0)
             : CBaseButton(kind,x,y,w,label,THM_BUTTON_COMBO) {}
 #endif
 
-    /// Default constructor in SPTK style
-    /// @param kind CButtonKind stock image id
-    /// @param layoutAlign CLayoutAlign widget align in layout
-    /// @param label const char *, label
+    /**
+     * Default constructor in SPTK style
+     * @param kind CButtonKind stock image id
+     * @param layoutAlign CLayoutAlign widget align in layout
+     * @param label const char *, label
+     */
     CSmallButton(CButtonKind kind,CLayoutAlign layoutAlign=SP_ALIGN_RIGHT,const char *label=0)
             : CBaseButton(kind,layoutAlign,true,label,THM_BUTTON_COMBO) {}
 
-    /// Sets the image to the button.
-    /// @param image const Fl_Image *, image pointer
+    /**
+     * Sets the image to the button.
+     * @param image const Fl_Image *, image pointer
+     */
     virtual void buttonImage(Fl_Image *image) {
         m_image = image;
     }
 
-    /// Sets the stock image to the button.
-    /// @param bkind CButtonKind, stock image id.
-    /// @param iconSize CIconSize, the size of the icon
+    /**
+     * Sets the stock image to the button.
+     * @param bkind CButtonKind, stock image id.
+     * @param iconSize CIconSize, the size of the icon
+     */
     virtual void buttonImage(CButtonKind bkind,CIconSize iconSize=IS_SMALL_ICON) {
         image(bkind,iconSize);
     }
 
-    /// Returns the button's image.
-    /// @returns image pointer
+    /**
+     * Returns the button's image.
+     * @returns image pointer
+     */
     virtual Fl_Image *buttonImage() {
         return m_image;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -38,13 +38,17 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
 class Query;
 class CMySQLStatement;
 
-/// @brief MySQL database connection
+/**
+ * @brief MySQL database connection
+ */
 class SP_EXPORT MySQLConnection: public DatabaseConnection
 {
     friend class Query;
@@ -52,38 +56,94 @@ class SP_EXPORT MySQLConnection: public DatabaseConnection
 
 private:
 
-    MYSQL*  m_connection;                           ///< MySQL database connection
+    /**
+     * MySQL database connection
+     */
+    MYSQL*  m_connection;
+
 
 protected:
 
-    /// @brief Begins the transaction
+    /**
+     * @brief Begins the transaction
+     */
     void driverBeginTransaction() THROWS_EXCEPTIONS override;
 
-    /// @brief Ends the transaction
-    /// @param commit bool, commit if true, rollback if false
+    /**
+     * @brief Ends the transaction
+     * @param commit bool, commit if true, rollback if false
+     */
     void driverEndTransaction(bool commit) THROWS_EXCEPTIONS override;
 
     // These methods implement the actions requested by CQuery
-    std::string queryError(const Query *query) const override; ///< Retrieves an error (if any) after executing a statement
-    void queryAllocStmt(Query *query) override;      ///< Allocates an MySQL statement
-    void queryFreeStmt(Query *query) override;       ///< Deallocates an MySQL statement
-    void queryCloseStmt(Query *query) override;      ///< Closes an MySQL statement
-    void queryPrepare(Query *query) override;        ///< Prepares a query if supported by database
-    void queryUnprepare(Query *query) override;      ///< Unprepares a query if supported by database
-    void queryExecute(Query *query) override;        ///< Executes a statement
-    int  queryColCount(Query *query) override;       ///< Counts columns of the dataset (if any) returned by query
-    void queryBindParameters(Query *query) override; ///< Binds the parameters to the query
-    void queryOpen(Query *query) override;           ///< Opens the query for reading data from the query' recordset
-    void queryFetch(Query *query) override;          ///< Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+    /**
+     * Retrieves an error (if any) after executing a statement
+     */
+    std::string queryError(const Query *query) const override;
 
-    /// @brief Returns parameter mark
-    ///
-    /// Parameter mark is generated from the parameterIndex.
-    /// @param paramIndex unsigned, parameter index in SQL starting from 0
+    /**
+     * Allocates an MySQL statement
+     */
+    void queryAllocStmt(Query *query) override;
+
+    /**
+     * Deallocates an MySQL statement
+     */
+    void queryFreeStmt(Query *query) override;
+
+    /**
+     * Closes an MySQL statement
+     */
+    void queryCloseStmt(Query *query) override;
+
+    /**
+     * Prepares a query if supported by database
+     */
+    void queryPrepare(Query *query) override;
+
+    /**
+     * Unprepares a query if supported by database
+     */
+    void queryUnprepare(Query *query) override;
+
+    /**
+     * Executes a statement
+     */
+    void queryExecute(Query *query) override;
+
+    /**
+     * Counts columns of the dataset (if any) returned by query
+     */
+    int  queryColCount(Query *query) override;
+
+    /**
+     * Binds the parameters to the query
+     */
+    void queryBindParameters(Query *query) override;
+
+    /**
+     * Opens the query for reading data from the query' recordset
+     */
+    void queryOpen(Query *query) override;
+
+    /**
+     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     */
+    void queryFetch(Query *query) override;
+
+
+    /**
+     * @brief Returns parameter mark
+     *
+     * Parameter mark is generated from the parameterIndex.
+     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     */
     std::string paramMark(unsigned paramIndex) override;
 
 public:
-    /// @brief Returns the MySQL connection object
+    /**
+     * @brief Returns the MySQL connection object
+     */
     MYSQL* connection() const
     {
         return m_connection;
@@ -95,63 +155,87 @@ public:
 
 public:
 
-    /// @brief Constructor
-    ///
-    /// Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-    /// For more information please refer to:
-    /// http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-    /// If the connection string is empty then default database with the name equal to user name is used.
-    /// @param connectionString std::string, the MySQL connection string
+    /**
+     * @brief Constructor
+     *
+     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
+     * For more information please refer to:
+     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
+     * If the connection string is empty then default database with the name equal to user name is used.
+     * @param connectionString std::string, the MySQL connection string
+     */
     MySQLConnection(std::string connectionString = "");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~MySQLConnection();
 
-    /// @brief Opens the database connection. If unsuccessful throws an exception.
-    /// @param connectionString std::string, the MySQL connection string
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString std::string, the MySQL connection string
+     */
     void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS override;
 
-    /// @brief Closes the database connection. If unsuccessful throws an exception.
+    /**
+     * @brief Closes the database connection. If unsuccessful throws an exception.
+     */
     void closeDatabase() THROWS_EXCEPTIONS override;
 
-    /// @brief Returns true if database is opened
+    /**
+     * @brief Returns true if database is opened
+     */
     bool active() const override;
 
-    /// @brief Returns the database connection handle
+    /**
+     * @brief Returns the database connection handle
+     */
     void* handle() const override;
 
-    /// @brief Returns driver-specific connection string
+    /**
+     * @brief Returns driver-specific connection string
+     */
     std::string nativeConnectionString() const override;
 
-    /// @brief Returns the MySQL driver description for the active connection
+    /**
+     * @brief Returns the MySQL driver description for the active connection
+     */
     std::string driverDescription() const override;
 
-    /// @brief Lists database objects
-    /// @param objectType CDbObjectType, object type to list
-    /// @param objects Strings&, object list (output)
+    /**
+     * @brief Lists database objects
+     * @param objectType CDbObjectType, object type to list
+     * @param objects Strings&, object list (output)
+     */
     void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
 
-    /// @brief Executes bulk inserts of data from memory buffer
-    ///
-    /// Data is inserted the fastest possible way. The server-specific format definition provides extra information
-    /// about data. If format is empty than default server-specific data format is used.
-    /// For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-    /// @param tableName std::string, table name to insert into
-    /// @param columnNames const Strings&, list of table columns to populate
-    /// @param data const Strings&, data for bulk insert
+    /**
+     * @brief Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName std::string, table name to insert into
+     * @param columnNames const Strings&, list of table columns to populate
+     * @param data const Strings&, data for bulk insert
+     */
     void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="") THROWS_EXCEPTIONS override;
 
-    /// @brief Executes SQL batch file
-    ///
-    /// Queries are executed in not prepared mode.
-    /// Syntax of the SQL batch file is matching the native for the database.
-    /// @param batchSQL const sptk::Strings&, SQL batch file
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL const sptk::Strings&, SQL batch file
+     */
     void executeBatchSQL(const sptk::Strings& batchSQL) THROWS_EXCEPTIONS override;
 };
 
 #define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection)))
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

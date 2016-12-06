@@ -39,43 +39,79 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Unique instance object
-///
-/// Tries to create a mutex object and check if it's unique for the
-/// program with the instance name. If one instance per user is desired
-/// simply incorporate the user name into the instance.
+/**
+ * @brief Unique instance object
+ *
+ * Tries to create a mutex object and check if it's unique for the
+ * program with the instance name. If one instance per user is desired
+ * simply incorporate the user name into the instance.
+ */
 class SP_EXPORT UniqueInstance
 {
-    std::string  m_instanceName;    ///< Instance name
-    bool         m_lockCreated;       ///< Lock is created
+    /**
+     * Instance name
+     */
+    std::string  m_instanceName;
+
+    /**
+     * Lock is created
+     */
+    bool         m_lockCreated;
+
 
 #ifdef _WIN32
 
-    HANDLE       m_mutex;             ///< The named mutex object
+    /**
+     * The named mutex object
+     */
+    HANDLE       m_mutex;
+
 #else
 
-    std::string  m_fileName;      ///< The lock file name
+    /**
+     * The lock file name
+     */
+    std::string  m_fileName;
 
-    int      read_pid();          ///< Gets the process ID
-    int      write_pid();         ///< Writes the process ID into the lock file
+
+    /**
+     * Gets the process ID
+     */
+    int      read_pid();
+
+    /**
+     * Writes the process ID into the lock file
+     */
+    int      write_pid();
+
 #endif
 
 public:
-    /// Constructor
-    /// @param instanceName CString, instance name
+    /**
+     * Constructor
+     * @param instanceName CString, instance name
+     */
     UniqueInstance(std::string instanceName);
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~UniqueInstance();
 
-    /// Reports true if the instance is unique
+    /**
+     * Reports true if the instance is unique
+     */
     bool isUnique();
 }
 ;
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

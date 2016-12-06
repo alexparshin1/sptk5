@@ -35,45 +35,87 @@
 namespace sptk
 {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
 
-/// @brief Database Connection String
-///
-/// Database connection string includes driver name ('odbc', 'sqlite3', etc) as a protocol name,
-/// and username, password, server name in a traditional form. Database name is optionally defined
-/// after server name and '/' delimiter.
-///
-/// Example:
-///   drivername://[username:password]\@servername[:port]/databasename
-///
-/// Some driver-specific parameters may be passed after '?':
-///   drivername://username:password\@servername/databasename?timeout=10&reconnect=30
-///
-/// This class is thread-safe.
+/**
+ * @brief Database Connection String
+ *
+ * Database connection string includes driver name ('odbc', 'sqlite3', etc) as a protocol name,
+ * and username, password, server name in a traditional form. Database name is optionally defined
+ * after server name and '/' delimiter.
+ *
+ * Example:
+ *   drivername://[username:password]\@servername[:port]/databasename
+ *
+ * Some driver-specific parameters may be passed after '?':
+ *   drivername://username:password\@servername/databasename?timeout=10&reconnect=30
+ *
+ * This class is thread-safe.
+ */
 class SP_EXPORT DatabaseConnectionString
 {
 public:
-    /// @brief Connection string parameters
+    /**
+     * @brief Connection string parameters
+     */
     typedef std::map<std::string,std::string> Parameters;
 
 protected:
-    /// @brief Parses connection string
+    /**
+     * @brief Parses connection string
+     */
     void parse() THROWS_EXCEPTIONS;
 
-    std::string     m_connectionString;         ///< Database connection string
-    std::string     m_driverName;               ///< Database driver name
-    std::string     m_hostName;                 ///< Database server host name
-    uint16_t        m_portNumber;               ///< Database server port number
-    std::string     m_userName;                 ///< Database user name
-    std::string     m_password;                 ///< Database user name
-    std::string     m_databaseName;             ///< Database user password
-    Parameters      m_parameters;               ///< Optional parameters
+    /**
+     * Database connection string
+     */
+    std::string     m_connectionString;
+
+    /**
+     * Database driver name
+     */
+    std::string     m_driverName;
+
+    /**
+     * Database server host name
+     */
+    std::string     m_hostName;
+
+    /**
+     * Database server port number
+     */
+    uint16_t        m_portNumber;
+
+    /**
+     * Database user name
+     */
+    std::string     m_userName;
+
+    /**
+     * Database user name
+     */
+    std::string     m_password;
+
+    /**
+     * Database user password
+     */
+    std::string     m_databaseName;
+
+    /**
+     * Optional parameters
+     */
+    Parameters      m_parameters;
+
 
 public:
-    /// @brief Constructor
-    /// @param connectionString std::string, Database connection string
+    /**
+     * @brief Constructor
+     * @param connectionString std::string, Database connection string
+     */
     DatabaseConnectionString(std::string connectionString) :
         m_connectionString(connectionString),
         m_portNumber(0)
@@ -81,8 +123,10 @@ public:
         parse();
     }
 
-    /// @brief Copy constructor
-    /// @param cs const DatabaseConnectionString&, Database connection string object to copy from
+    /**
+     * @brief Copy constructor
+     * @param cs const DatabaseConnectionString&, Database connection string object to copy from
+     */
     DatabaseConnectionString(const DatabaseConnectionString& cs) :
         m_connectionString(cs.m_connectionString),
         m_portNumber(0)
@@ -90,8 +134,10 @@ public:
         parse();
     }
 
-    /// @brief Assignment
-    /// @param cs const DatabaseConnectionString&, Database connection string object to copy from
+    /**
+     * @brief Assignment
+     * @param cs const DatabaseConnectionString&, Database connection string object to copy from
+     */
     DatabaseConnectionString& operator = (const DatabaseConnectionString& cs)
     {
         m_connectionString = cs.m_connectionString;
@@ -106,54 +152,72 @@ public:
         return *this;
     }
 
-    /// @brief Returns connection string
+    /**
+     * @brief Returns connection string
+     */
     const std::string& str() const
     {
         return m_connectionString;
     }
 
-    /// @brief Returns driver name
+    /**
+     * @brief Returns driver name
+     */
     const std::string& driverName() const
     {
         return m_driverName;
     }
 
-    /// @brief Returns host name
+    /**
+     * @brief Returns host name
+     */
     const std::string& hostName() const
     {
         return m_hostName;
     }
 
-    /// @brief Returns user name
+    /**
+     * @brief Returns user name
+     */
     const std::string& userName() const
     {
         return m_userName;
     }
 
-    /// @brief Returns user password
+    /**
+     * @brief Returns user password
+     */
     const std::string& password() const
     {
         return m_password;
     }
 
-    /// @brief Returns database name
+    /**
+     * @brief Returns database name
+     */
     const std::string& databaseName() const
     {
         return m_databaseName;
     }
 
-    /// @brief Returns server port number
+    /**
+     * @brief Returns server port number
+     */
     uint16_t portNumber() const
     {
         return m_portNumber;
     }
 
-    /// @brief Returns optional database parameters
+    /**
+     * @brief Returns optional database parameters
+     */
     const Parameters& parameters() const
     {
         return m_parameters;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

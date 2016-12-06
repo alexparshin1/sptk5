@@ -34,18 +34,24 @@
 namespace sptk
 {
 
-/// @addtogroup net Networking Classes
-/// @{
+/**
+ * @addtogroup net Networking Classes
+ * @{
+ */
 
-/// @brief Abstract TCP server connection thread
-///
-/// Application derives concrete TCP server connections based on this class,
-/// to use with CTCPServer as connection template
+/**
+ * @brief Abstract TCP server connection thread
+ *
+ * Application derives concrete TCP server connections based on this class,
+ * to use with CTCPServer as connection template
+ */
 class TCPServerConnection: public ServerConnection
 {
 public:
-    /// @brief Constructor
-    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+    /**
+     * @brief Constructor
+     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     */
     TCPServerConnection(SOCKET connectionSocket)
     : ServerConnection(connectionSocket, "TCPServerConnection")
     {
@@ -54,6 +60,8 @@ public:
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

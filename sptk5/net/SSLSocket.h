@@ -35,82 +35,114 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Encrypted TCP Socket
+/**
+ * @brief Encrypted TCP Socket
+ */
 class SSLSocket: public TCPSocket, public Synchronized
 {
-    SSL*        m_ssl;          ///< SSL socket
+    /**
+     * SSL socket
+     */
+    SSL*        m_ssl;
+
 
 public:
-    /// @brief Returns number of bytes available for read
+    /**
+     * @brief Returns number of bytes available for read
+     */
     virtual uint32_t socketBytes(); 
 
-    /// @brief Throws SSL error based on SSL function return code
-    /// @param rc int, SSL function return code
+    /**
+     * @brief Throws SSL error based on SSL function return code
+     * @param rc int, SSL function return code
+     */
     void throwSSLError(int rc);
 
 protected:
 
-    /// @brief Reads data from SSL socket
-    /// @param buffer void *, destination buffer
-    /// @param size size_t, destination buffer size
-    /// @return the number of bytes read from the socket
+    /**
+     * @brief Reads data from SSL socket
+     * @param buffer void *, destination buffer
+     * @param size size_t, destination buffer size
+     * @return the number of bytes read from the socket
+     */
     virtual size_t recv(void* buffer, size_t size) throw (std::exception);
 
-    /// @brief Sends data through SSL socket
-    /// @param buffer const void *, the send buffer
-    /// @param len uint32_t, the send data length
-    /// @return the number of bytes sent the socket
+    /**
+     * @brief Sends data through SSL socket
+     * @param buffer const void *, the send buffer
+     * @param len uint32_t, the send data length
+     * @return the number of bytes sent the socket
+     */
     virtual size_t send(const void* buffer, size_t len) throw (std::exception);
 
-    /// @brief Get error description for SSL error code
-    /// @param function std::string, SSL function
-    /// @param SSLError int32_t, error code returned by SSL_get_error() result
-    /// @return Error description
+    /**
+     * @brief Get error description for SSL error code
+     * @param function std::string, SSL function
+     * @param SSLError int32_t, error code returned by SSL_get_error() result
+     * @return Error description
+     */
     virtual std::string getSSLError(std::string function, int32_t SSLError) const;
 
 public:
 
-    /// @brief Constructor
-    /// @param sslContext CSSLContext&, SSL context that is used as SSL connection template
+    /**
+     * @brief Constructor
+     * @param sslContext CSSLContext&, SSL context that is used as SSL connection template
+     */
     SSLSocket(SSLContext& sslContext);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~SSLSocket();
 
-    /// @brief opens the socket connection by host and port
-    ///
-    /// Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
-    /// They could be defined by previous calls of  open(), port(), or host() methods.
-    /// @param hostName std::string, the host name
-    /// @param port uint32_t, the port number
-    /// @param openMode CSocketOpenMode, socket open mode
-    /// @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-    /// @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+    /**
+     * @brief opens the socket connection by host and port
+     *
+     * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
+     * They could be defined by previous calls of  open(), port(), or host() methods.
+     * @param hostName std::string, the host name
+     * @param port uint32_t, the port number
+     * @param openMode CSocketOpenMode, socket open mode
+     * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     */
     virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
 
-    /// @brief Attaches socket handle
-    ///
-    /// This method is designed to only attach socket handles
-    /// obtained with accept().
-    /// @param socketHandle SOCKET, existing socket handle
+    /**
+     * @brief Attaches socket handle
+     *
+     * This method is designed to only attach socket handles
+     * obtained with accept().
+     * @param socketHandle SOCKET, existing socket handle
+     */
     virtual void attach(SOCKET socketHandle) throw (std::exception);
 
-    /// @brief Closes the socket connection
-    ///
-    /// This method is not thread-safe.
+    /**
+     * @brief Closes the socket connection
+     *
+     * This method is not thread-safe.
+     */
     virtual void close();
 
-    /// @brief Returns SSL handle
+    /**
+     * @brief Returns SSL handle
+     */
     SSL* handle()
     {
         return m_ssl;
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

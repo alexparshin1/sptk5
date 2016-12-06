@@ -35,46 +35,70 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief SSL connection context
+/**
+ * @brief SSL connection context
+ */
 class SSLContext : public Synchronized
 {
-    SSL_CTX*        m_ctx;      ///< SSL connection context
-    std::string     m_password; ///< Password for auto-answer in callback function
+    /**
+     * SSL connection context
+     */
+    SSL_CTX*        m_ctx;
 
-    /// @brief Password auto-reply callback function
+    /**
+     * Password for auto-answer in callback function
+     */
+    std::string     m_password;
+
+
+    /**
+     * @brief Password auto-reply callback function
+     */
     static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);
 
     void throwError(std::string humanDescription);
 
 public:
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     SSLContext();
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~SSLContext();
 
-    /// @brief Loads private key and certificate(s)
-    ///
-    /// Private key and certificates must be encoded with PEM format.
-    /// A single file containing private key and certificate can be used by supplying it for both,
-    /// private key and certificate parameters.
-    /// If private key is protected with password, then password can be supplied to auto-answer.
-    /// @param keyFileName std::string, Private key file name
-    /// @param certificateFileName std::string, Certificate file name
-    /// @param password std::string, Key file password
-    /// @param caFileName std::string, optional CA (root certificate) file name
-    /// @param verifyMode int, ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-    /// @param verifyDepth int, Connection verify depth
+    /**
+     * @brief Loads private key and certificate(s)
+     *
+     * Private key and certificates must be encoded with PEM format.
+     * A single file containing private key and certificate can be used by supplying it for both,
+     * private key and certificate parameters.
+     * If private key is protected with password, then password can be supplied to auto-answer.
+     * @param keyFileName std::string, Private key file name
+     * @param certificateFileName std::string, Certificate file name
+     * @param password std::string, Key file password
+     * @param caFileName std::string, optional CA (root certificate) file name
+     * @param verifyMode int, ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
+     * @param verifyDepth int, Connection verify depth
+     */
     void loadKeys(std::string keyFileName, std::string certificateFileName, std::string password, std::string caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0) throw (std::exception);
 
-    /// @brief Returns SSL context handle
+    /**
+     * @brief Returns SSL context handle
+     */
     SSL_CTX* handle();
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

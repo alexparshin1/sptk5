@@ -39,97 +39,157 @@ namespace sptk
 
 class TCPServer;
 
-/// @addtogroup net Networking Classes
-/// @{
+/**
+ * @addtogroup net Networking Classes
+ * @{
+ */
 
-/// @brief Internal TCP server listener thread
+/**
+ * @brief Internal TCP server listener thread
+ */
 class TCPServerListener: public Thread, public Synchronized
 {
-    TCPServer*      m_server;           ///< TCP server created connection
-    TCPSocket       m_listenerSocket;   ///< Listener socket
-    std::string     m_error;            ///< Last socket error
+    /**
+     * TCP server created connection
+     */
+    TCPServer*      m_server;
+
+    /**
+     * Listener socket
+     */
+    TCPSocket       m_listenerSocket;
+
+    /**
+     * Last socket error
+     */
+    std::string     m_error;
+
 public:
-    /// @brief Constructor
-    /// @param server CTCPServer*, TCP server created connection
-    /// @param port int, Listener port number
+    /**
+     * @brief Constructor
+     * @param server CTCPServer*, TCP server created connection
+     * @param port int, Listener port number
+     */
     TCPServerListener(TCPServer* server, int port);
 
-    /// @brief Thread function
+    /**
+     * @brief Thread function
+     */
     virtual void threadFunction();
 
-    /// @brief Custom thread terminate method
+    /**
+     * @brief Custom thread terminate method
+     */
     virtual void terminate();
 
-    /// @brief Start socket listening
+    /**
+     * @brief Start socket listening
+     */
     void listen()
     {
         m_listenerSocket.listen();
     }
 
-    /// @brief Returns listener port number
+    /**
+     * @brief Returns listener port number
+     */
     int port() const
     {
         return m_listenerSocket.port();
     }
 
-    /// @brief Returns latest socket error (if any)
+    /**
+     * @brief Returns latest socket error (if any)
+     */
     std::string error() const
     {
         return m_error;
     }
 };
 
-/// @brief TCP server
-///
-/// For every incoming connection, creates connection thread.
+/**
+ * @brief TCP server
+ *
+ * For every incoming connection, creates connection thread.
+ */
 class TCPServer: public Synchronized
 {
     friend class TCPServerListener;
     friend class ServerConnection;
-    TCPServerListener*             m_listenerThread;           ///< Server listener object
-    Logger*                        m_logger;                   ///< Optional logger
-    std::set<ServerConnection*>    m_connectionThreads;        ///< Per-connection thread set
-    Synchronized                   m_connectionThreadsLock;    ///< Lock to protect per-connection thread set manipulations
+    /**
+     * Server listener object
+     */
+    TCPServerListener*             m_listenerThread;
+
+    /**
+     * Optional logger
+     */
+    Logger*                        m_logger;
+
+    /**
+     * Per-connection thread set
+     */
+    std::set<ServerConnection*>    m_connectionThreads;
+
+    /**
+     * Lock to protect per-connection thread set manipulations
+     */
+    Synchronized                   m_connectionThreadsLock;
+
 protected:
-    /// @brief Screens incoming connection request
-    ///
-    /// Method is called right after connection request is accepted,
-    /// and allows ignoring unwanted connections. By default simply returns true (allow).
-    /// @param connectionRequest sockaddr_in*, Incoming connection information
+    /**
+     * @brief Screens incoming connection request
+     *
+     * Method is called right after connection request is accepted,
+     * and allows ignoring unwanted connections. By default simply returns true (allow).
+     * @param connectionRequest sockaddr_in*, Incoming connection information
+     */
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
-    /// @brief Creates connection thread derived from CTCPServerConnection or CSSLServerConnection
-    ///
-    /// Application should override this method to create concrete connection object.
-    /// Created connection object is maintained by CTCPServer.
-    /// @param connectionSocket SOCKET, Already accepted incoming connection socket
-    /// @param peer sockaddr_in*, Incoming connection information
+    /**
+     * @brief Creates connection thread derived from CTCPServerConnection or CSSLServerConnection
+     *
+     * Application should override this method to create concrete connection object.
+     * Created connection object is maintained by CTCPServer.
+     * @param connectionSocket SOCKET, Already accepted incoming connection socket
+     * @param peer sockaddr_in*, Incoming connection information
+     */
     virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
-    /// @brief Receives notification on connection thread created
-    /// @param connection CServerConnection*, Newly created connection thread
+    /**
+     * @brief Receives notification on connection thread created
+     * @param connection CServerConnection*, Newly created connection thread
+     */
     void registerConnection(ServerConnection* connection);
 
-    /// @brief Receives notification on connection thread exited
-    ///
-    /// Connection thread is self-destructing immediately after exiting this method
-    /// @param connection CServerConnection*, Exited connection thread
+    /**
+     * @brief Receives notification on connection thread exited
+     *
+     * Connection thread is self-destructing immediately after exiting this method
+     * @param connection CServerConnection*, Exited connection thread
+     */
     void unregisterConnection(ServerConnection* connection);
 
 public:
-    /// @brief Constructor
+    /**
+     * @brief Constructor
+     */
     TCPServer(Logger* logger=NULL)
     : m_listenerThread(NULL), m_logger(logger)
     {
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~TCPServer()
     {
         stop();
     }
 
-    /// @brief Returns listener port number
+    /**
+     * @brief Returns listener port number
+     */
     int port() const
     {
         if (!m_listenerThread)
@@ -137,20 +197,28 @@ public:
         return m_listenerThread->port();
     }
 
-    /// @brief Starts listener
-    /// @param port int, Listener port number
+    /**
+     * @brief Starts listener
+     * @param port int, Listener port number
+     */
     void listen(int port);
 
-    /// @brief Stops listener
+    /**
+     * @brief Stops listener
+     */
     void stop();
 
-    /// @brief Returns server state
+    /**
+     * @brief Returns server state
+     */
     bool active() const
     {
         return m_listenerThread != NULL;
     }
 
-    /// @brief Server operation log
+    /**
+     * @brief Server operation log
+     */
     void log(LogPriority priority, std::string message)
     {
         if (m_logger)
@@ -158,6 +226,8 @@ public:
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

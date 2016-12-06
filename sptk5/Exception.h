@@ -43,131 +43,207 @@ namespace sptk {
     #define THROWS_EXCEPTIONS   throw(std::exception)
 #endif
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief SPTK generic exception class.
-///
-/// Contains information about what
-/// happened and where. It's based on std::exception, so if you
-/// just want to catch STL and SPTK exceptions - you can use
-/// try {} catch (std::exception& e) {} block.
+/**
+ * @brief SPTK generic exception class.
+ *
+ * Contains information about what
+ * happened and where. It's based on std::exception, so if you
+ * just want to catch STL and SPTK exceptions - you can use
+ * try {} catch (std::exception& e) {} block.
+ */
 class SP_EXPORT Exception: public std::exception
 {
-    std::string m_file;         ///< The file where exception occurs
-    int         m_line;         ///< The line number in the file where exception occurs
-    std::string m_text;         ///< The exception text
-    std::string m_description;  ///< The extended error information
-    std::string m_fullMessage;  ///< The complete error information combining everything together
+    /**
+     * The file where exception occurs
+     */
+    std::string m_file;
+
+    /**
+     * The line number in the file where exception occurs
+     */
+    int         m_line;
+
+    /**
+     * The exception text
+     */
+    std::string m_text;
+
+    /**
+     * The extended error information
+     */
+    std::string m_description;
+
+    /**
+     * The complete error information combining everything together
+     */
+    std::string m_fullMessage;
+
 public:
-    /// @brief Constructor
-    /// @param text std::string, the exception text
-    /// @param file std::string, the file where exception occurs
-    /// @param line int, the line number in the file where exception occurs
-    /// @param description std::string, the optional description information
+    /**
+     * @brief Constructor
+     * @param text std::string, the exception text
+     * @param file std::string, the file where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     * @param description std::string, the optional description information
+     */
     Exception(std::string text, std::string file = "", int line = 0, std::string description = "");
 
-    /// @brief Copy constructor
-    /// @param other const CException&, the other exception object
+    /**
+     * @brief Copy constructor
+     * @param other const CException&, the other exception object
+     */
     Exception(const Exception& other);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~Exception() DOESNT_THROW;
 
-    /// @brief Returns complete text of exception
+    /**
+     * @brief Returns complete text of exception
+     */
     virtual const char * what() const DOESNT_THROW;
 
-    /// @brief Returns exception message without file name, line number, or description
+    /**
+     * @brief Returns exception message without file name, line number, or description
+     */
     std::string message() const;
 
-    /// @brief Returns exception file name
+    /**
+     * @brief Returns exception file name
+     */
     std::string file() const;
 
-    /// @brief Returns exception line number
+    /**
+     * @brief Returns exception line number
+     */
     int line() const;
 
-    /// @brief Returns exception description
+    /**
+     * @brief Returns exception description
+     */
     std::string description() const;
 };
 
-/// @brief Timeout exception
-///
-/// Thrown every time when timeout error occurs.
+/**
+ * @brief Timeout exception
+ *
+ * Thrown every time when timeout error occurs.
+ */
 class SP_EXPORT TimeoutException: public Exception
 {
 public:
-    /// Constructor
-    /// @param text std::string, the exception text
-    /// @param file std::string, the file where exception occurs
-    /// @param line int, the line number in the file where exception occurs
-    /// @param description std::string, the optional description information
+    /**
+     * Constructor
+     * @param text std::string, the exception text
+     * @param file std::string, the file where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     * @param description std::string, the optional description information
+     */
     TimeoutException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
-    /// @brief Copy constructor
-    /// @param other const CTimeoutException&, other exception object
+    /**
+     * @brief Copy constructor
+     * @param other const CTimeoutException&, other exception object
+     */
     TimeoutException(const TimeoutException& other);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~TimeoutException() DOESNT_THROW;
 };
 
-/// @brief Database operation exception
-///
-/// Thrown every time when database operation error occurs.
+/**
+ * @brief Database operation exception
+ *
+ * Thrown every time when database operation error occurs.
+ */
 class SP_EXPORT DatabaseException: public Exception
 {
 public:
-    /// @brief Constructor
-    /// @param text std::string, the exception text
-    /// @param file std::string, the file where exception occurs
-    /// @param line int, the line number in the file where exception occurs
-    /// @param description std::string, the optional description information
+    /**
+     * @brief Constructor
+     * @param text std::string, the exception text
+     * @param file std::string, the file where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     * @param description std::string, the optional description information
+     */
     DatabaseException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
-    /// @brief Copy constructor
-    /// @param other const CDatabaseException&, other exception object
+    /**
+     * @brief Copy constructor
+     * @param other const CDatabaseException&, other exception object
+     */
     DatabaseException(const DatabaseException& other);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~DatabaseException() DOESNT_THROW;
 };
 
-/// @brief SOAP exception
-///
-/// Thrown every time when SOAP fault occurs.
+/**
+ * @brief SOAP exception
+ *
+ * Thrown every time when SOAP fault occurs.
+ */
 class SP_EXPORT SOAPException: public Exception
 {
 public:
-    /// Constructor
-    /// @param text std::string, the exception text
-    /// @param file std::string, the file where exception occurs
-    /// @param line int, the line number in the file where exception occurs
-    /// @param description std::string, the optional description information
+    /**
+     * Constructor
+     * @param text std::string, the exception text
+     * @param file std::string, the file where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     * @param description std::string, the optional description information
+     */
     SOAPException(std::string text, std::string file = "", int line = 0, std::string description = "");
 
-    /// @brief Copy constructor
-    /// @param other const CSOAPException&, other exception object
+    /**
+     * @brief Copy constructor
+     * @param other const CSOAPException&, other exception object
+     */
     SOAPException(const SOAPException& other);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     ~SOAPException() DOESNT_THROW;
 };
 
-/// Defines a handy macros that automatically registers filename and line number
-/// for the place an exception is thrown from
+/**
+ * Defines a handy macros that automatically registers filename and line number
+ * for the place an exception is thrown from
+ */
 
-/// @brief Throws exception with file name and line number
+/**
+ * @brief Throws exception with file name and line number
+ */
 #define throwException(msg) throw sptk::Exception(msg,__FILE__,__LINE__)
 
-/// @brief Throws timeout exception with file name and line number
+/**
+ * @brief Throws timeout exception with file name and line number
+ */
 #define throwTimeoutException(msg) throw sptk::TimeoutException(msg,__FILE__,__LINE__)
 
-/// @brief Throws database exception with file name and line number
+/**
+ * @brief Throws database exception with file name and line number
+ */
 #define throwDatabaseException(msg) throw sptk::DatabaseException(msg,__FILE__,__LINE__)
 
-/// @brief Throws SOAP exception with file name and line number
+/**
+ * @brief Throws SOAP exception with file name and line number
+ */
 #define throwSOAPException(msg) throw sptk::SOAPException(msg,__FILE__,__LINE__)
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

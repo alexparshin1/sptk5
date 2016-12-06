@@ -37,40 +37,66 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Generic unnamed semaphore class
+/**
+ * @brief Generic unnamed semaphore class
+ */
 class SP_EXPORT Semaphore
 {
-    std::mutex              m_mutex;        ///< Mutex object
-    std::condition_variable m_condition;    ///< Mutex condition object
-    std::atomic<int>        m_value;        ///< Semaphore value
+    /**
+     * Mutex object
+     */
+    std::mutex              m_mutex;
+
+    /**
+     * Mutex condition object
+     */
+    std::condition_variable m_condition;
+
+    /**
+     * Semaphore value
+     */
+    std::atomic<int>        m_value;
+
 
 public:
-    /// @brief Constructor
-    ///
-    /// Creates semaphore with starting value (default 0)
-    /// @param startingValue uint32_t, starting semaphore value
+    /**
+     * @brief Constructor
+     *
+     * Creates semaphore with starting value (default 0)
+     * @param startingValue uint32_t, starting semaphore value
+     */
     Semaphore(uint32_t startingValue=0);
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~Semaphore();
 
-    /// @brief Posts the semaphore
-    ///
-    /// The semaphore value is increased by one.
+    /**
+     * @brief Posts the semaphore
+     *
+     * The semaphore value is increased by one.
+     */
     void post() THROWS_EXCEPTIONS;
 
-    /// @brief Waits until semaphore value is greater than zero, or until timeout occurs
-    ///
-    /// If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-    /// Timeout interval is in milliseconds.
-    /// @param timeoutMS int32_t, wait timeout in milliseconds
-    /// @return true if semaphore was posted (signaled), or false if timeout occurs
+    /**
+     * @brief Waits until semaphore value is greater than zero, or until timeout occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * Timeout interval is in milliseconds.
+     * @param timeoutMS int32_t, wait timeout in milliseconds
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
     bool wait(uint32_t timeoutMS) THROWS_EXCEPTIONS;
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

@@ -31,36 +31,56 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 #ifdef _WIN32
 typedef int32_t COORD;
 #else
-/// @brief Coordinate type for shapes
+/**
+ * @brief Coordinate type for shapes
+ */
 typedef int16_t COORD;
 #endif
 
-/// @brief A point to define a shape
+/**
+ * @brief A point to define a shape
+ */
 class CShapePoint {
 public:
-    COORD       x;  ///< X-coordinate
-    COORD       y;  ///< Y-coordinate
+    /**
+     * X-coordinate
+     */
+    COORD       x;
+
+    /**
+     * Y-coordinate
+     */
+    COORD       y;
+
 public:
-    /// @brief Default constructor
-    /// @param _x COORD, X-coordinate
-    /// @param _y COORD, Y-coordinate
+    /**
+     * @brief Default constructor
+     * @param _x COORD, X-coordinate
+     * @param _y COORD, Y-coordinate
+     */
     CShapePoint(COORD _x=0,COORD _y=0) {
         x = _x;
         y = _y;
     }
-    /// @brief Copy constructor
-    /// @param p const CPoint&, point to copy from
+    /**
+     * @brief Copy constructor
+     * @param p const CPoint&, point to copy from
+     */
     CShapePoint(const CShapePoint& p) {
         x = p.x;
         y = p.y;
     }
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

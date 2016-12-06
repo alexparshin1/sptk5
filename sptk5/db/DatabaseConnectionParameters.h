@@ -35,24 +35,34 @@
 
 namespace sptk {
 
-/// @addtogroup Database Database Support
-/// @{
+/**
+ * @addtogroup Database Database Support
+ * @{
+ */
 
-/// @brief Database connection parameters
-///
-/// Converts database connection string to string-string map.
+/**
+ * @brief Database connection parameters
+ *
+ * Converts database connection string to string-string map.
+ */
 class SP_EXPORT DatabaseConnectionParameters: public std::map<std::string,std::string>
 {
 
 public:
 
-    /// @brief Constructor
-    /// @param connectionString std::string, the connection string
+    /**
+     * @brief Constructor
+     * @param connectionString std::string, the connection string
+     */
     DatabaseConnectionParameters(std::string connectionString);
 
-    /// @brief Returns connection string in format of name=value pairs
+    /**
+     * @brief Returns connection string in format of name=value pairs
+     */
     std::string toString(const char* delimiter=" ") const;
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

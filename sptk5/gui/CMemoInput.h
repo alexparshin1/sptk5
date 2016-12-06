@@ -46,85 +46,119 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
 class CPopupWindow;
 class CPopupCalendar;
 class CDateControl;
 class CToggleTree;
 
-/// @brief Simple text editor
-///
-/// Multiple line input box
+/**
+ * @brief Simple text editor
+ *
+ * Multiple line input box
+ */
 class SP_EXPORT CMemoInput: public CInput
 {
     typedef class CInput inherited;
 
-    /// @brief Constructor initializer
+    /**
+     * @brief Constructor initializer
+     */
     void ctor_init();
 
 public:
 
-    /// @brief Constructor in SPTK style
-    /// @param label const char *, label
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * @brief Constructor in SPTK style
+     * @param label const char *, label
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CMemoInput(const char *label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// @brief Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * @brief Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CMemoInput(int x,int y,int w,int h,const char *label=0);
 #endif
 
-    /// @brief Returns the control kind, SPTK-style RTTI
-    /// @see CControlKind for more information
+    /**
+     * @brief Returns the control kind, SPTK-style RTTI
+     * @see CControlKind for more information
+     */
     virtual CControlKind kind() const
     {
         return DCV_MEMO;
     }
 
-    /// @brief Returns the control class name, SPTK-style RTTI
+    /**
+     * @brief Returns the control class name, SPTK-style RTTI
+     */
     virtual std::string className() const
     {
         return "memo";
     }
 
-    /// @brief Universal data connection, returns data from control
+    /**
+     * @brief Universal data connection, returns data from control
+     */
     virtual Variant data() const;
 
-    /// @brief Universal data connection, sets data from control
+    /**
+     * @brief Universal data connection, sets data from control
+     */
     virtual void data(const Variant v);
 
-    /// @brief Returns the input text font type
+    /**
+     * @brief Returns the input text font type
+     */
     virtual Fl_Font textFont() const;
 
-    /// @brief Sets the input text font type
+    /**
+     * @brief Sets the input text font type
+     */
     virtual void textFont(Fl_Font f);
 
-    /// @brief Returns the input text font size
+    /**
+     * @brief Returns the input text font size
+     */
     virtual uchar textSize() const;
 
-    /// @brief Sets the input text font size
+    /**
+     * @brief Sets the input text font size
+     */
     virtual void textSize(uchar s);
 
-    /// @brief Saves data to query
+    /**
+     * @brief Saves data to query
+     */
     virtual void save(Query *);
 
-    /// @brief Computes the optimal widget size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * @brief Computes the optimal widget size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w, int& h);
 
-    /// @brief Creates a widget based on the XML node information
+    /**
+     * @brief Creates a widget based on the XML node information
+     */
     static CLayoutClient* creator(XMLNode *node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

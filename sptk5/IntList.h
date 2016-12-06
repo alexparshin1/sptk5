@@ -37,20 +37,28 @@ namespace sptk {
 
 class CControl;
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief The list of integers.
-///
-/// Extends the std::vector<int>
-/// with CSV string encoders and decoders.
+/**
+ * @brief The list of integers.
+ *
+ * Extends the std::vector<int>
+ * with CSV string encoders and decoders.
+ */
 class SP_EXPORT IntList : public std::vector<uint32_t>
 {
 public:
-    /// Constructor
+    /**
+     * Constructor
+     */
     IntList() {}
 
-    /// Assigns another CIntList
+    /**
+     * Assigns another CIntList
+     */
     IntList& operator = (const IntList& list)
     {
         resize(list.size());
@@ -58,14 +66,20 @@ public:
         return *this;
     }
 
-    /// Converts to string as a list of values, separated with user-defined character
-    /// (comma, by default)
+    /**
+     * Converts to string as a list of values, separated with user-defined character
+     * (comma, by default)
+     */
     std::string toString(const char * separator=",") const;
 
-    /// Converts from string of a list of values, separated with user-defined character
-    /// (comma, by default)
+    /**
+     * Converts from string of a list of values, separated with user-defined character
+     * (comma, by default)
+     */
     void fromString(const char * s,const char * separator=",");
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -39,106 +39,142 @@
 namespace sptk
 {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief SMTP socket
-///
-/// Sends an e-mail message using SMTP protocol.
-/// It uses CSocket class to establish the connection, and CBaseMailConnect
-/// to make the complete RFC 822 message.
+/**
+ * @brief SMTP socket
+ *
+ * Sends an e-mail message using SMTP protocol.
+ * It uses CSocket class to establish the connection, and CBaseMailConnect
+ * to make the complete RFC 822 message.
+ */
 class SP_EXPORT SmtpConnect: public BaseMailConnect,
                               public TCPSocket
 {
     Logger*    m_log;
     Strings    m_response;
 
-    /// @brief Processes tag for strippedHtml.
-    ///
-    /// Extracts the text information for the tag
-    /// @param tag std::string, the tag name
-    /// @param params std::string, the tag parameters
-    /// @returns the extracted text like URL
+    /**
+     * @brief Processes tag for strippedHtml.
+     *
+     * Extracts the text information for the tag
+     * @param tag std::string, the tag name
+     * @param params std::string, the tag parameters
+     * @returns the extracted text like URL
+     */
     static std::string processTag(std::string tag, std::string params);
 protected:
 
-    /// @brief Sends command using SMTP protocol
-    ///
-    /// The CRLF characters after the command are added automatically.
-    /// @param cmd std::string, SMTP protocol command
-    /// @param encode bool, encode the arguments to Base64 or not
+    /**
+     * @brief Sends command using SMTP protocol
+     *
+     * The CRLF characters after the command are added automatically.
+     * @param cmd std::string, SMTP protocol command
+     * @param encode bool, encode the arguments to Base64 or not
+     */
     void sendCommand(std::string cmd, bool encode = false);
 
-    /// @brief Retrieves the server response after the command into internal Strings buffer
-    ///
-    /// The response can be read then with response() method.
-    /// @param decode bool, decode the response from Base64 or not
+    /**
+     * @brief Retrieves the server response after the command into internal Strings buffer
+     *
+     * The response can be read then with response() method.
+     * @param decode bool, decode the response from Base64 or not
+     */
     int getResponse(bool decode = false);
 
-    /// @brief Mime-encodes the buffer
-    /// @param buffer const CBuffer&, Source data
-    /// @return MIME-encoded data
+    /**
+     * @brief Mime-encodes the buffer
+     * @param buffer const CBuffer&, Source data
+     * @return MIME-encoded data
+     */
     static std::string mime(const Buffer& buffer);
 
-    /// @brief Mime-encodes the string
-    /// @param s std::string, Source data
-    /// @return MIME-encoded data
+    /**
+     * @brief Mime-encodes the string
+     * @param s std::string, Source data
+     * @return MIME-encoded data
+     */
     static std::string mime(std::string s);
 
-    /// @brief Mime-decodes the string
-    /// @param s std::string, Source data
-    /// @return Decoded data
+    /**
+     * @brief Mime-decodes the string
+     * @param s std::string, Source data
+     * @return Decoded data
+     */
     static std::string unmime(std::string s);
 
 public:
 
-    /// @brief Default constructor
-    /// @param log Logger*, Optional log object
+    /**
+     * @brief Default constructor
+     * @param log Logger*, Optional log object
+     */
     SmtpConnect(Logger* log=NULL);
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~SmtpConnect();
 
-    /// Sends command using SMTP protocol and retrieve the server response.
-    /// The response can be read then with response() method.
-    /// The CRLF characters after the command are added automatically.
-    /// @param cmd std::string, SMTP protocol command
-    /// @param encodeCommand bool, encode the comand argument to Base64 or not
-    /// @param decodeResponse bool, decode the response from Base64 or not
+    /**
+     * Sends command using SMTP protocol and retrieve the server response.
+     * The response can be read then with response() method.
+     * The CRLF characters after the command are added automatically.
+     * @param cmd std::string, SMTP protocol command
+     * @param encodeCommand bool, encode the comand argument to Base64 or not
+     * @param decodeResponse bool, decode the response from Base64 or not
+     */
     int command(std::string cmd, bool encodeCommand = false, bool decodeResponse = false);
 
-    /// @brief The response from the server - makes sence after calling any command
+    /**
+     * @brief The response from the server - makes sence after calling any command
+     */
     Strings& response()
     {
         return m_response;
     }
 
-    /// @brief Logs in to the server host()
-    /// @param user std::string, user name
-    /// @param password std::string, user password
-    /// @param method std::string, AUTH method: "login" or "plain"
+    /**
+     * @brief Logs in to the server host()
+     * @param user std::string, user name
+     * @param password std::string, user password
+     * @param method std::string, AUTH method: "login" or "plain"
+     */
     void cmd_auth(std::string user, std::string password, std::string method = "plain");
 
-    /// @brief Sends the message
-    ///
-    /// Message is based on the information defined by the methods from
-    /// CBaseMailConnect, and retrieves the server output. An alias for sendMessage().
+    /**
+     * @brief Sends the message
+     *
+     * Message is based on the information defined by the methods from
+     * CBaseMailConnect, and retrieves the server output. An alias for sendMessage().
+     */
     void cmd_send();
 
-    /// Ends the SMTP session
+    /**
+     * Ends the SMTP session
+     */
     void cmd_quit();
 
-    /// @brief Sends the message
-    ///
-    /// The message based on the information defined by the methods from
-    /// CBaseMailConnect, and retrieves the server output.
+    /**
+     * @brief Sends the message
+     *
+     * The message based on the information defined by the methods from
+     * CBaseMailConnect, and retrieves the server output.
+     */
     virtual void sendMessage();
 
-    /// @brief Strips HTML tags off the message, prepare the alternative text for an HTML message
-    /// @param html const std::string&, the HTML text
-    /// @returns plain text with stripped HTML messages
+    /**
+     * @brief Strips HTML tags off the message, prepare the alternative text for an HTML message
+     * @param html const std::string&, the HTML text
+     * @returns plain text with stripped HTML messages
+     */
     static std::string stripHtml(const std::string& html);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -37,41 +37,63 @@ namespace sptk
 
 class TCPServer;
 
-/// @addtogroup net Networking Classes
-/// @{
+/**
+ * @addtogroup net Networking Classes
+ * @{
+ */
 
-/// @brief Abstract TCP or SSL server connection thread
-///
-/// Used a base class for CTCPServerConnection and COpenSSLServerConnection
+/**
+ * @brief Abstract TCP or SSL server connection thread
+ *
+ * Used a base class for CTCPServerConnection and COpenSSLServerConnection
+ */
 class ServerConnection: public Thread
 {
     friend class TCPServer;
 protected:
-    TCPSocket*     m_socket;   ///< Connection socket
-    TCPServer*     m_server;   ///< Parent server object
+    /**
+     * Connection socket
+     */
+    TCPSocket*     m_socket;
+
+    /**
+     * Parent server object
+     */
+    TCPServer*     m_server;
+
 public:
-    /// @brief Constructor
-    /// @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-    /// @param threadName std::string, Already accepted by accept() function incoming connection socket
+    /**
+     * @brief Constructor
+     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     * @param threadName std::string, Already accepted by accept() function incoming connection socket
+     */
     ServerConnection(SOCKET connectionSocket, std::string threadName)
     : Thread(threadName), m_socket(NULL)
     {
     }
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~ServerConnection()
     {
         if (m_socket)
             delete m_socket;
     }
 
-    /// @brief Thread function
+    /**
+     * @brief Thread function
+     */
     virtual void threadFunction() = 0;
 
-    /// @brief Method that is called upon thread exit
+    /**
+     * @brief Method that is called upon thread exit
+     */
     virtual void onThreadExit();
 };
 
-/// @}
+/**
+ * @}
+ */
 }
 #endif

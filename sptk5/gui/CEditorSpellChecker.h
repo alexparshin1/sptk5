@@ -41,119 +41,225 @@ struct AspellConfig;
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// CSpellOption represents an option of Aspell config.
+/**
+ * CSpellOption represents an option of Aspell config.
+ */
 class CSpellOption {
 public:
-    std::string  m_name;  ///< Option name
-    std::string  m_value; ///< Option value
+    /**
+     * Option name
+     */
+    std::string  m_name;
+
+    /**
+     * Option value
+     */
+    std::string  m_value;
+
 public:
-    /// Constructor
+    /**
+     * Constructor
+     */
     CSpellOption(std::string name,std::string value);
 
-    /// Copy constructor
+    /**
+     * Copy constructor
+     */
     CSpellOption(const CSpellOption& co) {
         m_name = co.m_name;
         m_value = co.m_value;
     }
 
-    /// Assigns a new value to the option
+    /**
+     * Assigns a new value to the option
+     */
     CSpellOption& operator = (const char *value);
 
-    /// Assigns a new value to the option
+    /**
+     * Assigns a new value to the option
+     */
     CSpellOption& operator = (std::string value);
 };
 
-/// CSpellOptions is a map of CSpellOption.
+/**
+ * CSpellOptions is a map of CSpellOption.
+ */
 class CSpellOptions : public std::map<std::string,CSpellOption> {
 
 public:
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     CSpellOptions() {}
 }
 ;
 
-/// CSpellChecker is a base class for Aspell interface.
+/**
+ * CSpellChecker is a base class for Aspell interface.
+ */
 class CSpellChecker : public CSpellOptions, public CDialog  {
-    CInput        *m_wordInput;            ///< Input widget to show the misspelled word
-    CInput        *m_replaceToInput;       ///< Input widget to show the replacement word
-    CListView     *m_suggestionListView;   ///< List view widget to show the list of suggestions
-    AspellSpeller *m_spellChecker;         ///< Pointer to the Aspell spell checker
+    /**
+     * Input widget to show the misspelled word
+     */
+    CInput        *m_wordInput;
+
+    /**
+     * Input widget to show the replacement word
+     */
+    CInput        *m_replaceToInput;
+
+    /**
+     * List view widget to show the list of suggestions
+     */
+    CListView     *m_suggestionListView;
+
+    /**
+     * Pointer to the Aspell spell checker
+     */
+    AspellSpeller *m_spellChecker;
+
 #ifdef _WIN32
 
-    std::string    m_personalDirectory;    ///< Full path to personal directory on Windows
+    /**
+     * Full path to personal directory on Windows
+     */
+    std::string    m_personalDirectory;
+
 #endif
 
-    /// Loads all Aspell config options into list of options
-    /// @param aconfig AspellConfig *, Aspell config structure
-    /// @param options CSpellOptions &, config options (output)
+    /**
+     * Loads all Aspell config options into list of options
+     * @param aconfig AspellConfig *, Aspell config structure
+     * @param options CSpellOptions &, config options (output)
+     */
     void getConfigStrings(AspellConfig *aconfig,CSpellOptions& options);
 
-    /// Saves changed (local) Aspell config options from internal list of options
-    /// @param aconfig AspellConfig *, Aspell config structure
+    /**
+     * Saves changed (local) Aspell config options from internal list of options
+     * @param aconfig AspellConfig *, Aspell config structure
+     */
     void setLocalOptions(AspellConfig *aconfig);
 
 protected:
-    static void cb_learn(Fl_Widget *,void *);       ///< Callback for the add word button
-    static void cb_ignore(Fl_Widget *,void *);      ///< Callback for the ignore word button
-    static void cb_suggest(Fl_Widget *,void *);     ///< Callback for the suggestion list click
-    static void cb_replaceword(Fl_Widget *,void *); ///< Callback for the replace word button
+    /**
+     * Callback for the add word button
+     */
+    static void cb_learn(Fl_Widget *,void *);
 
-    void learnAndClose();                           ///< Adds a word to personal dictionary and hides window to continue spelling
-    void ignoreAndClose();                          ///< Adds a word to ignore list and hides window to continue spelling
-    void checkForError();                           ///< Checks for error after the operation and throws CException if error is detected
+    /**
+     * Callback for the ignore word button
+     */
+    static void cb_ignore(Fl_Widget *,void *);
+
+    /**
+     * Callback for the suggestion list click
+     */
+    static void cb_suggest(Fl_Widget *,void *);
+
+    /**
+     * Callback for the replace word button
+     */
+    static void cb_replaceword(Fl_Widget *,void *);
+
+
+    /**
+     * Adds a word to personal dictionary and hides window to continue spelling
+     */
+    void learnAndClose();
+
+    /**
+     * Adds a word to ignore list and hides window to continue spelling
+     */
+    void ignoreAndClose();
+
+    /**
+     * Checks for error after the operation and throws CException if error is detected
+     */
+    void checkForError();
+
 public:
 
-    /// Default constructor
+    /**
+     * Default constructor
+     */
     CSpellChecker();
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     virtual ~CSpellChecker() { }
 
-    /// Sets the dictionary for the spell checking
-    /// @see getDictionaries for obtaining the list of available dictionaries
+    /**
+     * Sets the dictionary for the spell checking
+     * @see getDictionaries for obtaining the list of available dictionaries
+     */
     void selectDictionary(std::string dictionary);
 
-    /// Defines the directory where Aspell data (language) files are stored
+    /**
+     * Defines the directory where Aspell data (language) files are stored
+     */
     void languageDataDirectory(std::string path);
 
-    /// Defines the directory where Aspell dictionary files are stored
+    /**
+     * Defines the directory where Aspell dictionary files are stored
+     */
     void dictionaryDirectory(std::string path);
 
-    /// Downloads the list of installed dictionaries
+    /**
+     * Downloads the list of installed dictionaries
+     */
     void getDictionaries(Strings& dictionaries);
 
-    /// Downloads the Aspell options
+    /**
+     * Downloads the Aspell options
+     */
     void getOptions(CSpellOptions& options);
 
-    /// Resets the spell check position. Purely virtual, should be implemented in the derived class.
+    /**
+     * Resets the spell check position. Purely virtual, should be implemented in the derived class.
+     */
     virtual void textStart()=0;
 
-    /// Gets the next word and advances the spell check position. Purely virtual, should be implemented in the derived class.
+    /**
+     * Gets the next word and advances the spell check position. Purely virtual, should be implemented in the derived class.
+     */
     virtual bool getNextWord(std::string& w,int& wordStart,int& wordEnd)     {
         return false;
     }
 
-    /// Replaces the word and advances the spell check position. Purely virtual, should be implemented in the derived class.
+    /**
+     * Replaces the word and advances the spell check position. Purely virtual, should be implemented in the derived class.
+     */
     virtual bool replaceWord(const std::string& w,int wordStart,int wordEnd) {
         return false;
     }
 
-    /// Spell checks the text. Uses textStart(), getNextWord(), and replaceWord() to go through the text.
+    /**
+     * Spell checks the text. Uses textStart(), getNextWord(), and replaceWord() to go through the text.
+     */
     bool spellCheck();
 
-    /// Access (read and write) to the particular Aspell option.
+    /**
+     * Access (read and write) to the particular Aspell option.
+     */
     CSpellOption& operator [] (std::string optionName);
 
 #ifdef _WIN32
-    /// Sets full path to personal directory on Windows
+    /**
+     * Sets full path to personal directory on Windows
+     */
     void personalDirectory(std::string dir) {
         m_personalDirectory = dir;
     }
 
-    /// Returns full path to personal directory on Windows
+    /**
+     * Returns full path to personal directory on Windows
+     */
     std::string personalDirectory() const {
         return  m_personalDirectory;
     }
@@ -161,27 +267,47 @@ public:
 
 };
 
-/// Specialized spell checker to use with CEditor class.
+/**
+ * Specialized spell checker to use with CEditor class.
+ */
 class CEditorSpellChecker : public CSpellChecker {
-    CEditor     *m_editor;        ///< CEditor widget containing the spelling text
-    uint32_t    m_bufferPosition; ///< Current spell checking word buffer position
+    /**
+     * CEditor widget containing the spelling text
+     */
+    CEditor     *m_editor;
+
+    /**
+     * Current spell checking word buffer position
+     */
+    uint32_t    m_bufferPosition;
+
 public:
-    /// Constructor
-    /// @param editor CEditor *, widget to work with
+    /**
+     * Constructor
+     * @param editor CEditor *, widget to work with
+     */
     CEditorSpellChecker(CEditor *editor) {
         m_editor = editor;
         m_bufferPosition = 0;
     }
 
-    /// Resets the spell check position
+    /**
+     * Resets the spell check position
+     */
     virtual void textStart();
 
-    /// Gets the next word and advances the spell check position
+    /**
+     * Gets the next word and advances the spell check position
+     */
     virtual bool getNextWord(std::string& w,int& wordStart,int& wordEnd);
 
-    /// Replaces the word and advances the spell check position
+    /**
+     * Replaces the word and advances the spell check position
+     */
     virtual bool replaceWord(const std::string& w,int wordStart,int wordEnd);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

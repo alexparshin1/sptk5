@@ -36,45 +36,59 @@
 
 namespace sptk {
 
-/// @addtogroup utility Utility Classes
-/// @{
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
 
-/// @brief Base64 encoding/decoding.
-///
-/// This class is used for encoding and decoding the parts of mail messages.
-/// All the methods of this class are static.
+/**
+ * @brief Base64 encoding/decoding.
+ *
+ * This class is used for encoding and decoding the parts of mail messages.
+ * All the methods of this class are static.
+ */
 class Base64 
 {
 public:
-    /// @brief Data encoding.
-    /// Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
-    /// @param bufDest CBuffer Destination buffer
-    /// @param bufSource CBuffer Source buffer
+    /**
+     * @brief Data encoding.
+     * Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
+     * @param bufDest CBuffer Destination buffer
+     * @param bufSource CBuffer Source buffer
+     */
     static void encode(Buffer& bufDest, const Buffer& bufSource);
 
-    /// @brief Data encoding.
-    /// Encodes data (base64) in given buffer bufSource and returns result in std::string.
-    /// @param strDest std::string Destination string
-    /// @param bufSource CBuffer& Source buffer
+    /**
+     * @brief Data encoding.
+     * Encodes data (base64) in given buffer bufSource and returns result in std::string.
+     * @param strDest std::string Destination string
+     * @param bufSource CBuffer& Source buffer
+     */
     static void encode(std::string& strDest, const Buffer& bufSource);
 
-    /// @brief Data decoding.
-    /// Decodes base64 encoded buffer bufSource into buffer bufDest.
-    /// Throws CException in case of error
-    /// @param bufDest CBuffer destination buffer
-    /// @param bufSource CBuffer source buffer that holds base64 decoded data
-    /// @returns length of returned buffer
+    /**
+     * @brief Data decoding.
+     * Decodes base64 encoded buffer bufSource into buffer bufDest.
+     * Throws CException in case of error
+     * @param bufDest CBuffer destination buffer
+     * @param bufSource CBuffer source buffer that holds base64 decoded data
+     * @returns length of returned buffer
+     */
     static int decode(Buffer &bufDest, const Buffer &bufSource) THROWS_EXCEPTIONS;
 
-    /// @brief Data decoding.
-    /// Decodes base64 encoded string strSource into buffer bufDest.
-    /// Throws CException in case of error
-    /// @param bufDest CBuffer, destination buffer
-    /// @param strSource const std::string &, source string that holds base64 decoded data
-    /// @returns length of the returned string
+    /**
+     * @brief Data decoding.
+     * Decodes base64 encoded string strSource into buffer bufDest.
+     * Throws CException in case of error
+     * @param bufDest CBuffer, destination buffer
+     * @param strSource const std::string &, source string that holds base64 decoded data
+     * @returns length of the returned string
+     */
     static int decode(Buffer &bufDest, const std::string &strSource) THROWS_EXCEPTIONS;
 };
-/// @}
+/**
+ * @}
+ */
 }
 
 #endif

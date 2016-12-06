@@ -35,73 +35,109 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Text editor widget
-///
-/// Class CEditor is the Fl_Text_Editor combined with the layout client.
-/// It has a modified handle() function to track the current cursor position.
-/// It also allocates the text buffer in constructor and destroys it in destructor.
+/**
+ * @brief Text editor widget
+ *
+ * Class CEditor is the Fl_Text_Editor combined with the layout client.
+ * It has a modified handle() function to track the current cursor position.
+ * It also allocates the text buffer in constructor and destroys it in destructor.
+ */
 class CEditor : public Fl_Text_Editor, public CLayoutClient {
 
-    /// Constructor initializer
+    /**
+     * Constructor initializer
+     */
     void ctor_init();
 
-    int  m_lastCursorPosition;   ///< Last cursor position in bytes, from the beginning of the text buffer
-    bool m_wrapMode;             ///< Current wrap mode
+    /**
+     * Last cursor position in bytes, from the beginning of the text buffer
+     */
+    int  m_lastCursorPosition;
+
+    /**
+     * Current wrap mode
+     */
+    bool m_wrapMode;
+
 public:
 
-    /// Constructor in SPTK style
-    /// @param layoutSize int, widget align in layout
-    /// @param layoutAlign CLayoutAlign, widget align in layout
+    /**
+     * Constructor in SPTK style
+     * @param layoutSize int, widget align in layout
+     * @param layoutAlign CLayoutAlign, widget align in layout
+     */
     CEditor(int layoutSize=100,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
-    /// Constructor in FLTK style
-    /// @param x int, x-position
-    /// @param y int, y-position
-    /// @param w int, width
-    /// @param h int, height
-    /// @param label, const char * label
+    /**
+     * Constructor in FLTK style
+     * @param x int, x-position
+     * @param y int, y-position
+     * @param w int, width
+     * @param h int, height
+     * @param label, const char * label
+     */
     CEditor(int x, int y, int w, int h, const char *label);
 #endif
 
-    /// Destructor
+    /**
+     * Destructor
+     */
     ~CEditor();
 
-    /// Retruns internal text buffer
+    /**
+     * Retruns internal text buffer
+     */
     Fl_Text_Buffer *textBuffer() {
         return mBuffer;
     }
 
-    /// Retruns internal style buffer
+    /**
+     * Retruns internal style buffer
+     */
     Fl_Text_Buffer *styleBuffer() {
         return mStyleBuffer;
     }
 
-    /// Computes the optimal widgets size
-    /// @param w int&, input - width offered by the program, output - width required by widget
-    /// @param h int&, input - height offered by the program, output - height required by widget
-    /// @returns true if the size is stable (doesn't depend on input sizes)
+    /**
+     * Computes the optimal widgets size
+     * @param w int&, input - width offered by the program, output - width required by widget
+     * @param h int&, input - height offered by the program, output - height required by widget
+     * @returns true if the size is stable (doesn't depend on input sizes)
+     */
     virtual bool preferredSize(int& w,int& h);
 
-    /// Returns current cursor position
-    /// @param row int&, row number
-    /// @param col int&, column number
+    /**
+     * Returns current cursor position
+     * @param row int&, row number
+     * @param col int&, column number
+     */
     void cursorRowCol(int& row,int& col);
 
-    /// Returns current wrap mode
+    /**
+     * Returns current wrap mode
+     */
     bool wrapMode() {
         return m_wrapMode;
     }
 
-    /// Sets current wrap mode
+    /**
+     * Sets current wrap mode
+     */
     void wrapMode(bool wm);
 
-    /// Special version of handle() function
+    /**
+     * Special version of handle() function
+     */
     int handle(int event);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

@@ -35,12 +35,16 @@
 
 namespace sptk {
 
-/// @brief For the borders, border size indices
+/**
+ * @brief For the borders, border size indices
+ */
 enum CBorderIndex { BORDER_LEFT, BORDER_RIGHT, BORDER_TOP, BORDER_BOTTOM };
 
-/// @brief PNG image that is initialized from the memory buffer
-///
-/// This class is used by SPTK themes
+/**
+ * @brief PNG image that is initialized from the memory buffer
+ *
+ * This class is used by SPTK themes
+ */
 class CPngImage : public Fl_RGB_Image {
 
     friend class CIcon;
@@ -49,110 +53,144 @@ class CPngImage : public Fl_RGB_Image {
 
 protected:
 
-    /// @brief Internal loader from PNG image buffer
-    /// @param buffer const CBuffer&, image data
+    /**
+     * @brief Internal loader from PNG image buffer
+     * @param buffer const CBuffer&, image data
+     */
     void load(const Buffer& buffer);
 
-    /// @brief Draws a part of the image by cutting a corresponding source and tiling it in required area
-    /// @param image CPngImage*, source image
-    /// @param srcX int, x-coordinate of the source fragment
-    /// @param srcY int, y-coordinate of the source fragment
-    /// @param srcW int, width of the source fragment
-    /// @param srcH int, height of the source fragment
-    /// @param destX int, x-coordinate of the destination fragment
-    /// @param destY int, y-coordinate of the destination fragment
-    /// @param destW int, width of the destination fragment
-    /// @param destH int, height of the destination fragment
+    /**
+     * @brief Draws a part of the image by cutting a corresponding source and tiling it in required area
+     * @param image CPngImage*, source image
+     * @param srcX int, x-coordinate of the source fragment
+     * @param srcY int, y-coordinate of the source fragment
+     * @param srcW int, width of the source fragment
+     * @param srcH int, height of the source fragment
+     * @param destX int, x-coordinate of the destination fragment
+     * @param destY int, y-coordinate of the destination fragment
+     * @param destW int, width of the destination fragment
+     * @param destH int, height of the destination fragment
+     */
     static void cutTileDraw(CPngImage* image,int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH);
 
-    /// @brief Draws a part of the image by cutting a corresponding source and stretching it in required area
-    /// @param image CPngImage*, source image
-    /// @param srcX int, x-coordinate of the source fragment
-    /// @param srcY int, y-coordinate of the source fragment
-    /// @param srcW int, width of the source fragment
-    /// @param srcH int, height of the source fragment
-    /// @param destX int, x-coordinate of the destination fragment
-    /// @param destY int, y-coordinate of the destination fragment
-    /// @param destW int, width of the destination fragment
-    /// @param destH int, height of the destination fragment
+    /**
+     * @brief Draws a part of the image by cutting a corresponding source and stretching it in required area
+     * @param image CPngImage*, source image
+     * @param srcX int, x-coordinate of the source fragment
+     * @param srcY int, y-coordinate of the source fragment
+     * @param srcW int, width of the source fragment
+     * @param srcH int, height of the source fragment
+     * @param destX int, x-coordinate of the destination fragment
+     * @param destY int, y-coordinate of the destination fragment
+     * @param destW int, width of the destination fragment
+     * @param destH int, height of the destination fragment
+     */
     static void cutStretchDraw(CPngImage* image,int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH);
 
 public:
-    /// @brief The way how the resized parts of image are drawn
-    ///
-    /// By resized parts I mean everything besides four corners.
-    /// Corners are rectangles with the side of corner zone
+    /**
+     * @brief The way how the resized parts of image are drawn
+     *
+     * By resized parts I mean everything besides four corners.
+     * Corners are rectangles with the side of corner zone
+     */
     enum CPatternDrawMode {
-        PDM_UNDEFINED,  ///< Undefined and not drawn, should be defined later.
-        PDM_TILE,       ///< The resized parts are tiled
-        PDM_STRETCH     ///< The resized parts are stretched
+        /**
+         * Undefined and not drawn, should be defined later.
+         */
+        PDM_UNDEFINED,
+
+        /**
+         * The resized parts are tiled
+         */
+        PDM_TILE,
+
+        /**
+         * The resized parts are stretched
+         */
+        PDM_STRETCH
+
     };
 
-    /// @brief Draws a part of the image by cutting a corresponding source and tiling it in required area
-    /// @param srcX int, x-coordinate of the source fragment
-    /// @param srcY int, y-coordinate of the source fragment
-    /// @param srcW int, width of the source fragment
-    /// @param srcH int, height of the source fragment
-    /// @param destX int, x-coordinate of the destination fragment
-    /// @param destY int, y-coordinate of the destination fragment
-    /// @param destW int, width of the destination fragment
-    /// @param destH int, height of the destination fragment
+    /**
+     * @brief Draws a part of the image by cutting a corresponding source and tiling it in required area
+     * @param srcX int, x-coordinate of the source fragment
+     * @param srcY int, y-coordinate of the source fragment
+     * @param srcW int, width of the source fragment
+     * @param srcH int, height of the source fragment
+     * @param destX int, x-coordinate of the destination fragment
+     * @param destY int, y-coordinate of the destination fragment
+     * @param destW int, width of the destination fragment
+     * @param destH int, height of the destination fragment
+     */
     void cutTileDraw(int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH) {
         cutTileDraw(this,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
     }
 
-    /// @brief Draws a part of the image by cutting a corresponding source and stretching it in required area
-    /// @param srcX int, x-coordinate of the source fragment
-    /// @param srcY int, y-coordinate of the source fragment
-    /// @param srcW int, width of the source fragment
-    /// @param srcH int, height of the source fragment
-    /// @param destX int, x-coordinate of the destination fragment
-    /// @param destY int, y-coordinate of the destination fragment
-    /// @param destW int, width of the destination fragment
-    /// @param destH int, height of the destination fragment
+    /**
+     * @brief Draws a part of the image by cutting a corresponding source and stretching it in required area
+     * @param srcX int, x-coordinate of the source fragment
+     * @param srcY int, y-coordinate of the source fragment
+     * @param srcW int, width of the source fragment
+     * @param srcH int, height of the source fragment
+     * @param destX int, x-coordinate of the destination fragment
+     * @param destY int, y-coordinate of the destination fragment
+     * @param destW int, width of the destination fragment
+     * @param destH int, height of the destination fragment
+     */
     void cutStretchDraw(int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH) {
         cutStretchDraw(this,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
     }
 
 public:
-    /// @brief Constructor
-    ///
-    /// An object of the class contains it's own copy of the image data
-    /// @param imagedata const CBuffer&, PNG image data in memory buffer
+    /**
+     * @brief Constructor
+     *
+     * An object of the class contains it's own copy of the image data
+     * @param imagedata const CBuffer&, PNG image data in memory buffer
+     */
     CPngImage(const Buffer& imagedata);
 
-    /// @brief Constructor
-    ///
-    /// An object of the class contains it's own copy of the image data
-    /// @param image Fl_RGB_Image*, RGB image data in memory buffer
+    /**
+     * @brief Constructor
+     *
+     * An object of the class contains it's own copy of the image data
+     * @param image Fl_RGB_Image*, RGB image data in memory buffer
+     */
     CPngImage(const Fl_RGB_Image* image);
 
-    /// @brief Constructor
-    ///
-    /// An object of the class contains it's own copy of the image data
-    /// @param fileName std::string, image file (.png)
+    /**
+     * @brief Constructor
+     *
+     * An object of the class contains it's own copy of the image data
+     * @param fileName std::string, image file (.png)
+     */
     CPngImage(std::string fileName);
 
-    /// @brief Draws resized image
-    ///
-    /// @param x int, the x coordinate to draw image
-    /// @param y int, the y coordinate to draw image
-    /// @param w int, the width to draw image
-    /// @param h int, the height to draw image
-    /// @param cornerZone int, the height (and width) of the corners that are simply copied from the image w/o processing 
-    /// @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
-    /// @param drawBackground bool, if true then the internal area of the image is used for background
+    /**
+     * @brief Draws resized image
+     *
+     * @param x int, the x coordinate to draw image
+     * @param y int, the y coordinate to draw image
+     * @param w int, the width to draw image
+     * @param h int, the height to draw image
+     * @param cornerZone int, the height (and width) of the corners that are simply copied from the image w/o processing 
+     * @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
+     * @param drawBackground bool, if true then the internal area of the image is used for background
+     */
     void drawResized(int x,int y,int w,int h,int cornerZone,CPatternDrawMode drawMode,bool drawBackground);
 
-    /// @brief Draws resized image
-    ///
-    /// @param x int, the x coordinate to draw image
-    /// @param y int, the y coordinate to draw image
-    /// @param w int, the width to draw image
-    /// @param h int, the height to draw image
-    /// @param border int[], the borders that are copied from the image with minimal possible processing 
-    /// @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
-    /// @param drawBackground bool, if true then the internal area of the image is used for background
+    /**
+     * @brief Draws resized image
+     *
+     * @param x int, the x coordinate to draw image
+     * @param y int, the y coordinate to draw image
+     * @param w int, the width to draw image
+     * @param h int, the height to draw image
+     * @param border int[], the borders that are copied from the image with minimal possible processing 
+     * @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
+     * @param drawBackground bool, if true then the internal area of the image is used for background
+     */
     void drawResized(int x,int y,int w,int h,int border[],CPatternDrawMode drawMode,bool drawBackground);
 };
 

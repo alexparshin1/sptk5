@@ -35,54 +35,78 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Radio buttons widget.
-///
-/// A group of radio buttons with an optional
-/// edit entry for the 'Other' choice.
+/**
+ * @brief Radio buttons widget.
+ *
+ * A group of radio buttons with an optional
+ * edit entry for the 'Other' choice.
+ */
 class SP_EXPORT CRadioButtons : public CButtonGroup {
-    /// Internal callback function
+    /**
+     * Internal callback function
+     */
     static void radioButtonsCallback(Fl_Widget *,void *);
 protected:
-    /// Creates a radio button and adds it to the group
+    /**
+     * Creates a radio button and adds it to the group
+     */
     virtual Fl_Button *createButton(const char *label,int sz=10,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
 public:
-    /// SPTK-style constructor
-    /// @param label const char *, the widget label
-    /// @param layoutSize int, the size of widget in layout
-    /// @param layoutAlignment CLayoutAlign, widget align in the layout
+    /**
+     * SPTK-style constructor
+     * @param label const char *, the widget label
+     * @param layoutSize int, the size of widget in layout
+     * @param layoutAlignment CLayoutAlign, widget align in the layout
+     */
     CRadioButtons(const char * label=0,int layoutSize=20,CLayoutAlign layoutAlignment=SP_ALIGN_TOP);
 #ifdef __COMPATIBILITY_MODE__
-    /// FLTK-style constructor
-    /// @param x int, widget x-coordinate
-    /// @param y int, widget y-coordinate
-    /// @param w int, widget width
-    /// @param h int, widget height
-    /// @param label int, optional widget label
+    /**
+     * FLTK-style constructor
+     * @param x int, widget x-coordinate
+     * @param y int, widget y-coordinate
+     * @param w int, widget width
+     * @param h int, widget height
+     * @param label int, optional widget label
+     */
     CRadioButtons(int,int,int,int,const char * = 0);
 #endif
-    /// SPTK internal control type
+    /**
+     * SPTK internal control type
+     */
     virtual CControlKind kind() const {
         return DCV_RADIOBUTTONS;
     }
 
-    /// SPTK internal class name
+    /**
+     * SPTK internal class name
+     */
     virtual std::string className() const {
         return "radio_buttons";
     }
 
-    /// Gets the selected button's ID
+    /**
+     * Gets the selected button's ID
+     */
     int32_t intValue() const;
 
-    /// Sets the selected button by ID
+    /**
+     * Sets the selected button by ID
+     */
     void intValue(int32_t ID);
 
-    /// @brief Creates a widget based on the XML node information
-    /// @param node XMLNode*, an XML node with widget information
+    /**
+     * @brief Creates a widget based on the XML node information
+     * @param node XMLNode*, an XML node with widget information
+     */
     static CLayoutClient* creator(XMLNode* node);
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

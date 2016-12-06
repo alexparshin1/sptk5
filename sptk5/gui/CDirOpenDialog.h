@@ -33,33 +33,45 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Select Directory Window.
-///
-/// Implements the dialog to select a directory.
-/// @see CDialog, CFileDialog, CFileOpenDialog, CFileSaveDialog
+/**
+ * @brief Select Directory Window.
+ *
+ * Implements the dialog to select a directory.
+ * @see CDialog, CFileDialog, CFileOpenDialog, CFileSaveDialog
+ */
 class CDirOpenDialog : public CFileDialog {
 protected:
-    /// @brief 'Ok' reaction
-    ///
-    /// Method okPressed() overloads the default CDialog reaction on pressing
-    /// 'Open' (former 'Ok') button.
-    /// @returns success (true) if the file could be created or opened for
-    /// writing
+    /**
+     * @brief 'Ok' reaction
+     *
+     * Method okPressed() overloads the default CDialog reaction on pressing
+     * 'Open' (former 'Ok') button.
+     * @returns success (true) if the file could be created or opened for
+     * writing
+     */
     virtual bool okPressed();
 
 public:
 
-    /// @brief Default constructor
-    ///
-    /// @param caption window caption
+    /**
+     * @brief Default constructor
+     *
+     * @param caption window caption
+     */
     CDirOpenDialog(std::string caption="Open Directory");
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~CDirOpenDialog() {}
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

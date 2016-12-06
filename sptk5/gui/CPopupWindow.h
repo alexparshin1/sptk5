@@ -34,31 +34,45 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Base popup window
-///
-/// The CWindow descendant that closes the window if the user
-/// clicks outside of it with mouse or moves the focus outside
-/// the window any other way
+/**
+ * @brief Base popup window
+ *
+ * The CWindow descendant that closes the window if the user
+ * clicks outside of it with mouse or moves the focus outside
+ * the window any other way
+ */
 class SP_EXPORT CPopupWindow : public CWindow {
 protected:
-    /// The outside mouse click
+    /**
+     * The outside mouse click
+     */
     int  m_clicked;
-    /// The special handle() function
+    /**
+     * The special handle() function
+     */
     int  handle(int);
 public:
-    /// Constructor
-    /// @param w int, window width
-    /// @param h int, window height
-    /// @param label int, window label
+    /**
+     * Constructor
+     * @param w int, window width
+     * @param h int, window height
+     * @param label int, window label
+     */
     CPopupWindow(int w, int h, const char *label = 0);
 
-    /// Shows window in modal mode. Exits from the modal mode
-    /// when the focus is moved outside the window.
+    /**
+     * Shows window in modal mode. Exits from the modal mode
+     * when the focus is moved outside the window.
+     */
     bool showModal();
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif

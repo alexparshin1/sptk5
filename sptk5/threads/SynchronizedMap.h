@@ -35,56 +35,78 @@
 
 namespace sptk {
 
-/// @addtogroup threads Thread Classes
-/// @{
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
 
-/// @brief Synchronized map
-///
-/// Simple thread-safe map
+/**
+ * @brief Synchronized map
+ *
+ * Simple thread-safe map
+ */
 template <class K, class T>
 class SynchronizedMap
 {
     typedef std::map<K,T>   Map;
-    Map                     m_map;              ///< Map
+    /**
+     * Map
+     */
+    Map                     m_map;
+
 
 protected:
 
-    mutable Synchronized    m_sync;             ///< Lock to synchronize map operations
+    /**
+     * Lock to synchronize map operations
+     */
+    mutable Synchronized    m_sync;
+
 
 public:
 
-    /// @brief Map callback function used in each() method.
-    ///
-    /// Iterates through list until false is returned.
-    /// @param key const K&, Map item key
-    /// @param item T&, Map item
-    /// @param data void*, Optional function-specific data
+    /**
+     * @brief Map callback function used in each() method.
+     *
+     * Iterates through list until false is returned.
+     * @param key const K&, Map item key
+     * @param item T&, Map item
+     * @param data void*, Optional function-specific data
+     */
     typedef bool (CallbackFunction)(const K& key, T& item, void* data);
 
 public:
 
-    /// @brief Default constructor
+    /**
+     * @brief Default constructor
+     */
     SynchronizedMap()
     {}
 
-    /// @brief Destructor
+    /**
+     * @brief Destructor
+     */
     virtual ~SynchronizedMap()
     {}
 
-    /// @brief Inserts data item to the map
-    /// @param key const K&, A data key
-    /// @param data const T&, A data item
+    /**
+     * @brief Inserts data item to the map
+     * @param key const K&, A data key
+     * @param data const T&, A data item
+     */
     virtual void insert(const K& key, const T& data)
     {
         SynchronizedCode sc(m_sync);
         m_map[key] = data;
     }
 
-    /// @brief Finds a data item from the list front
-    ///
-    /// Returns true if key exists and data populated.
-    /// @param key const K&, A data key
-    /// @param item T&, A list item (output)
+    /**
+     * @brief Finds a data item from the list front
+     *
+     * Returns true if key exists and data populated.
+     * @param key const K&, A data key
+     * @param item T&, A list item (output)
+     */
     virtual bool get(const K& key, T& item)
     {
         SynchronizedCode sc(m_sync);
@@ -95,10 +117,12 @@ public:
         return true;
     }
 
-    /// @brief Removes data with matching key
-    ///
-    /// Returns true if key existed.
-    /// @param key const K&, A data key
+    /**
+     * @brief Removes data with matching key
+     *
+     * Returns true if key existed.
+     * @param key const K&, A data key
+     */
     virtual bool remove(const K& key)
     {
         SynchronizedCode sc(m_sync);
@@ -109,31 +133,39 @@ public:
         return true;
     }
 
-    /// @brief Returns true if the list is empty
+    /**
+     * @brief Returns true if the list is empty
+     */
     bool empty() const
     {
         SynchronizedCode sc(m_sync);
         return m_map.empty();
     }
 
-    /// @brief Returns number of items in the list
+    /**
+     * @brief Returns number of items in the list
+     */
     uint32_t size() const
     {
         SynchronizedCode sc(m_sync);
         return m_map.size();
     }
 
-    /// @brief Removes all items from the list
+    /**
+     * @brief Removes all items from the list
+     */
     void clear()
     {
         SynchronizedCode sc(m_sync);
         m_map.clear();
     }
 
-    /// @brief Calls callbackFunction() for every list until false is returned
-    /// @param callbackFunction CallbackFunction*, Callback function that is executed for list items
-    /// @param data void*, Function-specific data
-    /// @returns true if every list item was processed
+    /**
+     * @brief Calls callbackFunction() for every list until false is returned
+     * @param callbackFunction CallbackFunction*, Callback function that is executed for list items
+     * @param data void*, Function-specific data
+     * @returns true if every list item was processed
+     */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
         SynchronizedCode sc(m_sync);
@@ -146,7 +178,9 @@ public:
     }
 };
 
-/// @}
+/**
+ * @}
+ */
 
 }
 #endif

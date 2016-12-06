@@ -38,105 +38,175 @@
 
 namespace sptk {
 
-/// @addtogroup gui GUI Classes
-/// @{
+/**
+ * @addtogroup gui GUI Classes
+ * @{
+ */
 
-/// @brief Base class for CFileOpenDialog and CFileSaveDialog.
-///
-/// Actually implements most of these classes functionality.
-/// Can't be used by itself, only as a base class.
+/**
+ * @brief Base class for CFileOpenDialog and CFileSaveDialog.
+ *
+ * Actually implements most of these classes functionality.
+ * Can't be used by itself, only as a base class.
+ */
 class CFileDialog : public CDialog {
 protected:
-    DirectoryDS   m_directory;     ///< Directory Dataset
-    CListView     *m_directoryView; ///< File list in the directory
-    CComboBox     *m_lookInCombo;    ///< The combo with the list of the lookup directories
-    CInput        *m_fileNameInput; ///< The file name input box
-    CComboBox     *m_patternCombo;  ///< The file mask (pattern) selection combo
+    /**
+     * Directory Dataset
+     */
+    DirectoryDS   m_directory;
 
-    /// @brief Removes a trailing slash in the directory name
-    ///
-    /// @param dirname std::string, a directory name
+    /**
+     * File list in the directory
+     */
+    CListView     *m_directoryView;
+
+    /**
+     * The combo with the list of the lookup directories
+     */
+    CComboBox     *m_lookInCombo;
+
+    /**
+     * The file name input box
+     */
+    CInput        *m_fileNameInput;
+
+    /**
+     * The file mask (pattern) selection combo
+     */
+    CComboBox     *m_patternCombo;
+
+
+    /**
+     * @brief Removes a trailing slash in the directory name
+     *
+     * @param dirname std::string, a directory name
+     */
     static std::string removeTrailingSlash(std::string dirname);
 
-    /// Internal create folder button callback
+    /**
+     * Internal create folder button callback
+     */
     static void new_folder_cb(Fl_Widget *,void *);
 
-    /// Internal home button callback
+    /**
+     * Internal home button callback
+     */
     static void home_cb(Fl_Widget *,void *);
 
-    /// Internal go up button callback
+    /**
+     * Internal go up button callback
+     */
     static void up_cb(Fl_Widget *,void *);
 
-    /// Internal directory double-clicked callback
+    /**
+     * Internal directory double-clicked callback
+     */
     static void dirview_cb(Fl_Widget *w,void *);
 
-    /// Internal look-in combo callback
+    /**
+     * Internal look-in combo callback
+     */
     static void lookin_cb(Fl_Widget *w,void *);
 
-    /// Internal pattern combo callback
+    /**
+     * Internal pattern combo callback
+     */
     static void pattern_cb(Fl_Widget *w,void *);
 
-    /// Creates a new folder. The folder name is asked interactively.
+    /**
+     * Creates a new folder. The folder name is asked interactively.
+     */
     void createFolder();
 protected:
 
-    /// Default slash character, '\\' on Windows and '/' on Unux.
+    /**
+     * Default slash character, '\\' on Windows and '/' on Unux.
+     */
     static const char slashChar;
 
-    /// Default slash character string, "\\" on Windows and "/" on Unux.
+    /**
+     * Default slash character string, "\\" on Windows and "/" on Unux.
+     */
     static const char slashStr[];
 
-    /// Constructor
-    /// @param label std::string, window caption
-    /// @param saveMode bool, true for File Save Dialog and false for File Open Dialog.
+    /**
+     * Constructor
+     * @param label std::string, window caption
+     * @param saveMode bool, true for File Save Dialog and false for File Open Dialog.
+     */
     CFileDialog(std::string label,bool saveMode);
 
 public:
 
-    /// Returns the dialog's current directory
+    /**
+     * Returns the dialog's current directory
+     */
     std::string directory() const {
         return m_directory.directory();
     }
 
-    /// Sets the dialog's current directory
+    /**
+     * Sets the dialog's current directory
+     */
     void directory(std::string p);
 
-    /// Removes all the defined file name paterns
+    /**
+     * Removes all the defined file name paterns
+     */
     void clearPatterns();
 
-    /// Sets the file name patern in pattern combo box
-    /// @param patternName std::string, the name of the pattern as defined in call of addPattern()
+    /**
+     * Sets the file name patern in pattern combo box
+     * @param patternName std::string, the name of the pattern as defined in call of addPattern()
+     */
     void setPattern(std::string patternName);
 
-    /// Adds the file name patern to the pattern combo box
-    /// @param patternName std::string, the name of the pattern, like "All files"
-    /// @param pattern std::string, one or more the patterns, separated with semicolon like "*.cpp;*.cxx"
+    /**
+     * Adds the file name patern to the pattern combo box
+     * @param patternName std::string, the name of the pattern, like "All files"
+     * @param pattern std::string, one or more the patterns, separated with semicolon like "*.cpp;*.cxx"
+     */
     void addPattern(std::string patternName,std::string pattern);
 
-    /// Returns currently selected pattern
+    /**
+     * Returns currently selected pattern
+     */
     std::string pattern() const;
 
-    /// Sets the new directory, if parameter dir is defined, and reloads the file list.
-    /// @param dirName std::string, the name of the directory
+    /**
+     * Sets the new directory, if parameter dir is defined, and reloads the file list.
+     * @param dirName std::string, the name of the directory
+     */
     void refreshDirectory(std::string dirName="");
 
-    /// Returns the list of currently selected files without the full path, as a simicolon-separated string.
-    /// @returns The list of the selected file names.
+    /**
+     * Returns the list of currently selected files without the full path, as a simicolon-separated string.
+     * @returns The list of the selected file names.
+     */
     std::string fileName() const {
         return m_fileNameInput->data();
     }
 
-    /// Returns the list of currently selected files with the full path, as a simicolon-separated string
-    /// @returns The list of the selected full file names.
+    /**
+     * Returns the list of currently selected files with the full path, as a simicolon-separated string
+     * @returns The list of the selected full file names.
+     */
     std::string fullFileName() const;
 
-    /// Set the currently selected file name in edit entry
-    /// @param fileName std::string, the name of the file.
+    /**
+     * Set the currently selected file name in edit entry
+     * @param fileName std::string, the name of the file.
+     */
     void fileName(std::string fileName);
 
-    /// Initializes the dialog and shows it in the modal mode
+    /**
+     * Initializes the dialog and shows it in the modal mode
+     */
     bool execute();
 };
-/// @}
+/**
+ * @}
+ */
 }
 #endif
