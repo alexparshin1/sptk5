@@ -85,8 +85,8 @@ void error(string message, size_t position) throw (Exception)
     error << message;
     if (position > 0)
         error << ", in position " << position;
-    else if (position < 0)
-        error << ", after position " << -position;
+    else if (int(position) < 0)
+        error << ", after position " << -int(position);
     throw runtime_error(error.str());
 }
 
@@ -94,7 +94,7 @@ void skipSpaces(const string& json, size_t& readPosition)
 {
     size_t pos = json.find_first_not_of(" \n\t\r", readPosition);
     if (pos == string::npos)
-        error("Missing data", -readPosition);
+        error("Missing data", readPosition);
     readPosition = pos;
 }
 
@@ -104,7 +104,7 @@ string readJsonString(const string& json, size_t& readPosition)
     while (true) {
         pos = json.find_first_of("\\\"", pos);
         if (pos == string::npos)
-            error("Unexpected character", -readPosition);
+            error("Unexpected character", readPosition);
         char ch = json[pos];
         if (ch == '"')
             break;
