@@ -6,10 +6,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPURLINFOABOUT" Value="www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Linotex Pty Ltd"/>
-    <ROW Property="ProductCode" Value="1033:{62C5348F-4CA4-47E3-A66D-4E02A473EFAF} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{40BC469D-7B4E-45CD-8C87-4CCDBC35B47B} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.2.6" Type="32"/>
+    <ROW Property="ProductVersion" Value="5.2.7" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

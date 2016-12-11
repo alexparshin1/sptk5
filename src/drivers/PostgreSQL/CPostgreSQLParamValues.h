@@ -81,7 +81,7 @@ namespace sptk {
 
         void setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS;
 
-        unsigned size() const               { return m_count;   }
+        unsigned size() const               { return (unsigned) m_count;   }
         const char* const* values() const   { return &m_values[0]; }
         const int* lengths() const          { return &m_lengths[0]; }
         const int* formats() const          { return &m_formats[0]; }

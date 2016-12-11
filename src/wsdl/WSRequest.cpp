@@ -42,7 +42,7 @@ static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces
     }
 }
 
-void WSRequest::processRequest(XMLDocument* request) THROWS_EXCEPTIONS
+void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
 {
     XMLElement*             soapEnvelope = NULL;
     map<String,WSNameSpace> allNameSpaces;

@@ -31,6 +31,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace sptk;
 using namespace sptk::json;
 
 void Document::clear()
@@ -45,7 +46,7 @@ void Document::clear()
     }
 }
 
-void Document::parse(const string& json) throw(Exception)
+void Document::parse(const string& json) throw (Exception)
 {
     if (m_root) {
         delete m_root;

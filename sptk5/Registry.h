@@ -181,18 +181,19 @@ public:
 
     /**
      * @brief Saves registry to buffer.
-     * @param buffer CBuffer&, a buffer to save document
-     * @param indent int, how many indent spaces at start
+     * @param buffer CBuffer&, Output buffer to save document
+     * @param formatXML bool, If true then XML is formatted with indentation
      */
-    virtual void save(Buffer &buffer, int indent = 0) const
+    virtual void save(Buffer &buffer, bool formatXML=false) const
     {
-        XMLDocument::save(buffer, indent);
+        XMLDocument::save(buffer, formatXML);
     }
 
 public:
 
     /**
-     * Finds out the user's home directory
+     * Get current user home directory
+	 * @return current user home directory
      */
     static std::string homeDirectory();
 };
