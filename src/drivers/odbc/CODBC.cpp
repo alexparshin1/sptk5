@@ -62,7 +62,7 @@ static inline bool Successful(RETCODE ret)
  */
 void ODBCBase::exception(string text, int line) const
 {
-    throw Exception(text, __FILE__, line);
+    throw DatabaseException(text, __FILE__, line);
 }
 
 //---------------------------------------------------------------------------
