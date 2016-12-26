@@ -35,7 +35,8 @@
 
 namespace sptk {
 
-    class CPostgreSQLParamValues {
+    class CPostgreSQLParamValues
+    {
         friend class CPostgreSQLStatement;
     protected:
         size_t                      m_count;
@@ -46,7 +47,8 @@ namespace sptk {
         CParamVector                m_params;
         bool                        m_int64timestamps;
     public:
-        CPostgreSQLParamValues(bool int64timestamps) 
+        CPostgreSQLParamValues(bool int64timestamps)
+        : m_count(0)
         {
             resize(16);
             m_int64timestamps = int64timestamps;
@@ -56,12 +58,12 @@ namespace sptk {
         {
         }
 
-        void reset() 
+        void reset()
         {
             m_count = 0;
         }
 
-        void resize(unsigned sz) 
+        void resize(unsigned sz)
         {
             m_values.resize(sz);
             m_lengths.resize(sz);

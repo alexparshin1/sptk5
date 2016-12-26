@@ -357,7 +357,7 @@ bool DirectoryDS::open() THROWS_EXCEPTIONS
                 }
                 if (!matchFound) {
 #ifndef _WIN32
-					free((struct dirent*) files[n]);
+                    free((struct dirent*) files[n]);
                     files[n] = 0;
                     n++;
 #endif
