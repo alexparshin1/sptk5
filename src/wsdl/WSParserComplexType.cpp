@@ -165,6 +165,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << endl;
     classDeclaration << "#include <sptk5/sptk.h>" << endl;
     classDeclaration << "#include <sptk5/FieldList.h>" << endl;
+    classDeclaration << "#include <sptk5/db/QueryParameterList.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSBasicTypes.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSComplexType.h>" << endl;
     classDeclaration << "#include <sptk5/wsdl/WSRestriction.h>" << endl;
@@ -243,12 +244,12 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "    * Only simple WSDL type members are loaded." << endl;
     classDeclaration << "    * @param input const sptk::FieldList&, query field list containing " << className << " data" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   virtual void load(const sptk::FieldList& input) THROWS_EXCEPTIONS;" << endl << endl;
+    classDeclaration << "   void load(const sptk::FieldList& input) THROWS_EXCEPTIONS override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload " << className << " to existing XML node" << endl;
     classDeclaration << "    * @param output sptk::XMLElement*, existing XML node" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS override;" << endl;
+    classDeclaration << "   void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload " << className << " to Query's parameters" << endl;
     classDeclaration << "    * @param output sptk::QueryParameterList&, query parameters" << endl;
@@ -447,10 +448,9 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Unloader to ParamList
     classImplementation << "void " << className << "::unload(QueryParameterList& output) const THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
+    classImplementation << "   QueryParameter*  param;" << endl << endl;
     if (m_attributes.size()) {
         classImplementation << "   // Unload attributes" << endl;
-        classImplementation << "   QueryParameter*  param;" << endl;
-        classImplementation << "   WSBasicType*     element;" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
             classImplementation << "   param = output.find(\"" << attr.name() << "\");" << endl;
@@ -459,11 +459,12 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     }
     if (m_sequence.size()) {
         classImplementation << "   // Unload elements" << endl;
+        classImplementation << "   const Field* element;" << endl << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
-            classImplementation << "   element = dynamic_cast<WSBasicType*>(&m_" << complexType->name() << ");" << endl;
+            classImplementation << "   element = dynamic_cast<const Field*>(&m_" << complexType->name() << ");" << endl;
             classImplementation << "   param = output.find(\"" << complexType->name() << "\");" << endl;
-            classImplementation << "   if (param && element) *param = m_" << complexType->name() << ";" << endl;
+            classImplementation << "   if (param && element) *param = *element;" << endl;
         }
     }
     classImplementation << "}" << endl;

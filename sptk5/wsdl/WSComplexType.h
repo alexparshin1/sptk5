@@ -31,6 +31,8 @@
 
 #include <sptk5/cxml>
 #include <sptk5/Variant.h>
+#include <sptk5/FieldList.h>
+#include <sptk5/db/QueryParameterList.h>
 #include <sptk5/xml/XMLElement.h>
 
 namespace sptk {
@@ -81,22 +83,36 @@ public:
    void copyFrom(const WSComplexType& other);
 
    /**
-    * @brief Load CAddHandler from XML node
-    * @param input const sptk::XMLElement*, XML node containing CAddHandler data
+    * @brief Load data from XML node
+    * @param input const XMLElement*, XML node containing CAddHandler data
     */
-   virtual void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS = 0;
+   virtual void load(const XMLElement* input) THROWS_EXCEPTIONS = 0;
 
    /**
-    * @brief Unload CAddHandler to existing XML node
-    * @param output sptk::XMLElement*, existing XML node
+    * Load data from FieldList
+    *
+    * Only simple WSDL type members are loaded.
+    * @param input const sptk::FieldList&, query field list containing CMqType data
     */
-   virtual void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS = 0;
+   virtual void load(const sptk::FieldList& input) THROWS_EXCEPTIONS = 0;
 
    /**
-    * @brief Unload CAddHandler to new XML node
-    * @param parent sptk::XMLElement*, parent XML node where new node is created
+    * @brief Unload data to existing XML node
+    * @param output XMLElement*, existing XML node
     */
-   virtual void addElement(sptk::XMLElement* parent) const THROWS_EXCEPTIONS;
+   virtual void unload(XMLElement* output) const THROWS_EXCEPTIONS = 0;
+
+   /**
+    * Unload data to Query's parameters
+    * @param output QueryParameterList&, query parameters
+    */
+   virtual void unload(QueryParameterList& output) const THROWS_EXCEPTIONS = 0;
+
+   /**
+    * @brief Unload data to new XML node
+    * @param parent XMLElement*, parent XML node where new node is created
+    */
+   virtual void addElement(XMLElement* parent) const THROWS_EXCEPTIONS;
 
    /**
     * @brief True is data was loaded
