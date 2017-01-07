@@ -32,6 +32,7 @@
 #include <sptk5/cxml>
 #include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
+#include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/xml/XMLElement.h>
 
@@ -45,7 +46,7 @@ namespace sptk {
 /**
  * @brief Base type for all user WSDL types
  */
-class WSComplexType
+class WSComplexType : public WSTypeName
 {
 protected:
    /**
@@ -75,6 +76,11 @@ public:
     * @brief Destructor
     */
    virtual ~WSComplexType() {}
+
+    /**
+     * Return class name
+     */
+    std::string className() const override { return "WSComplexType"; }
 
    /**
     * @brief Copy data from other object

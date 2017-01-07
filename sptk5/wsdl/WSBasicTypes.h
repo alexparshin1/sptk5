@@ -41,9 +41,18 @@ namespace sptk {
  */
 
 /**
- * @brief Base type for all standard WSDL types
+ * Class name support for WS-classes
  */
-class WSBasicType : public Field
+class WSTypeName
+{
+public:
+    virtual std::string className() const = 0;
+};
+
+/**
+ * Base type for all standard WSDL types
+ */
+class WSBasicType : public Field, public WSTypeName
 {
 protected:
     /**
@@ -54,7 +63,7 @@ protected:
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -62,42 +71,42 @@ public:
     {}
 
     /**
-     * @brief Sets optionality flag
+     * Sets optionality flag
      * @param opt bool, Element optionality flag
      */
     void optional(bool opt) { m_optional = opt; }
 
     /**
-     * @brief Clears content (sets to NULL)
+     * Clears content (sets to NULL)
      */
     void clear() { setNull(); }
 
     /**
-     * @brief Loads type data from request XML node
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr) = 0;
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr) = 0;
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field) = 0;
 
     /**
-     * @brief Adds an element to response XML with this object data
+     * Adds an element to response XML with this object data
      * @param parent XMLElement*, Parent XML element
      */
     XMLElement* addElement(XMLElement* parent) const;
 
     /**
-     * @brief Returns element name
+     * Returns element name
      */
     std::string name() const
     {
@@ -106,13 +115,13 @@ public:
 };
 
 /**
- * @brief Base type for all standard WSDL types
+ * Base type for all standard WSDL types
  */
 class WSString : public WSBasicType
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -122,25 +131,30 @@ public:
     }
 
     /**
-     * @brief Loads type data from request XML node
+     * Return class name
+     */
+    std::string className() const override { return "WSString"; }
+
+    /**
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr);
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr);
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field);
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSString& operator =(const char * value)
     {
@@ -149,7 +163,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSString& operator =(const std::string& value)
     {
@@ -158,7 +172,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSString& operator =(const Buffer& value)
     {
@@ -167,7 +181,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSString& operator =(int32_t value)
     {
@@ -176,7 +190,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSString& operator =(int64_t value)
     {
@@ -185,7 +199,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const THROWS_EXCEPTIONS
     {
@@ -194,13 +208,13 @@ public:
 };
 
 /**
- * @brief Wrapper for WSDL bool type
+ * Wrapper for WSDL bool type
  */
 class WSBool : public WSBasicType
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -210,25 +224,30 @@ public:
     }
 
     /**
-     * @brief Loads type data from request XML node
+     * Return class name
+     */
+    std::string className() const override { return "WSBool"; }
+
+    /**
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr);
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr);
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field);
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSBool& operator =(bool value)
     {
@@ -237,7 +256,7 @@ public:
     }
 
     /**
-     * @brief Conversion to bool
+     * Conversion to bool
      */
     bool asBool() const THROWS_EXCEPTIONS
     {
@@ -245,7 +264,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const THROWS_EXCEPTIONS
     {
@@ -254,13 +273,13 @@ public:
 };
 
 /**
- * @brief Wrapper for WSDL date type
+ * Wrapper for WSDL date type
  */
 class WSDate : public WSBasicType
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -270,25 +289,30 @@ public:
     }
 
     /**
-     * @brief Loads type data from request XML node
+     * Return class name
+     */
+    std::string className() const override { return "WSDate"; }
+
+    /**
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr);
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr);
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field);
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSDate& operator =(DateTime value)
     {
@@ -297,7 +321,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator DateTime() const THROWS_EXCEPTIONS
     {
@@ -305,7 +329,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const THROWS_EXCEPTIONS
     {
@@ -314,13 +338,13 @@ public:
 };
 
 /**
- * @brief Wrapper for WSDL dateTime type
+ * Wrapper for WSDL dateTime type
  */
 class WSDateTime : public WSBasicType
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -330,30 +354,35 @@ public:
     }
 
     /**
-     * @brief Loads type data from request XML node
+     * Return class name
+     */
+    std::string className() const override { return "WSDateTime"; }
+
+    /**
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr);
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr);
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field);
 
     /**
-     * @brief Better (than in base class) conversion method
+     * Better (than in base class) conversion method
      */
     virtual std::string asString() const THROWS_EXCEPTIONS;
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSDateTime& operator =(DateTime value)
     {
@@ -362,7 +391,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator DateTime() const THROWS_EXCEPTIONS
     {
@@ -370,7 +399,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const THROWS_EXCEPTIONS
     {
@@ -379,13 +408,13 @@ public:
 };
 
 /**
- * @brief Wrapper for WSDL double type
+ * Wrapper for WSDL double type
  */
 class WSDouble : public WSBasicType
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -395,25 +424,30 @@ public:
     }
 
     /**
-     * @brief Loads type data from request XML node
+     * Return class name
+     */
+    std::string className() const override { return "WSDouble"; }
+
+    /**
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr);
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr);
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field);
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSDouble& operator =(float value)
     {
@@ -422,7 +456,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSDouble& operator =(double value)
     {
@@ -430,7 +464,7 @@ public:
         return *this;
     }
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator float() const THROWS_EXCEPTIONS
     {
@@ -438,7 +472,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator double() const THROWS_EXCEPTIONS
     {
@@ -446,7 +480,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const THROWS_EXCEPTIONS
     {
@@ -455,13 +489,13 @@ public:
 };
 
 /**
- * @brief Wrapper for WSDL int type
+ * Wrapper for WSDL int type
  */
 class WSInteger : public WSBasicType
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name const char*, WSDL element name
      * @param optional bool, Element optionality flag
      */
@@ -471,25 +505,30 @@ public:
     }
 
     /**
-     * @brief Loads type data from request XML node
+     * Return class name
+     */
+    std::string className() const override { return "WSInteger"; }
+
+    /**
+     * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
     virtual void load(const XMLNode* attr);
 
     /**
-     * @brief Loads type data from string
+     * Loads type data from string
      * @param attr std::string, A string
      */
     virtual void load(std::string attr);
 
     /**
-     * @brief Loads type data from database field
+     * Loads type data from database field
      * @param field const CField&, Database field
      */
     virtual void load(const Field& field);
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSInteger& operator =(int64_t value)
     {
@@ -498,7 +537,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSInteger& operator =(uint64_t value)
     {
@@ -507,7 +546,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSInteger& operator =(int32_t value)
     {
@@ -516,7 +555,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSInteger& operator =(uint32_t value)
     {
@@ -525,7 +564,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSInteger& operator =(int16_t value)
     {
@@ -534,7 +573,7 @@ public:
     }
 
     /**
-     * @brief Assignment operation
+     * Assignment operation
      */
     virtual WSInteger& operator =(uint16_t value)
     {
@@ -543,7 +582,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator int32_t() const THROWS_EXCEPTIONS
     {
@@ -551,7 +590,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator uint32_t() const THROWS_EXCEPTIONS
     {
@@ -559,7 +598,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator int64_t() const THROWS_EXCEPTIONS
     {
@@ -567,7 +606,7 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator uint64_t() const THROWS_EXCEPTIONS
     {
@@ -575,12 +614,24 @@ public:
     }
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const THROWS_EXCEPTIONS
     {
         return asString();
     }
+};
+
+/**
+ * Wrapper for WSDL int type
+ */
+template <class T> class WSArray : public std::vector<T>, public WSTypeName
+{
+public:
+    /**
+     * Return class name
+     */
+    std::string className() const override { return "WSArray"; }
 };
 
 /**

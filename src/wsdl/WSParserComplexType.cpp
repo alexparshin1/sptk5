@@ -189,7 +189,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
             char buffer[256];
             string cxxType = complexType->className();
             if (complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE))
-                cxxType = "std::vector<" + cxxType + "*>";
+                cxxType = "sptk::WSArray<" + cxxType + "*>";
             else {
                 string optional = (complexType->multiplicity() & WSM_OPTIONAL) ? ", true" : "";
                 ctorInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
@@ -462,9 +462,11 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         classImplementation << "   const Field* element;" << endl << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
-            classImplementation << "   element = dynamic_cast<const Field*>(&m_" << complexType->name() << ");" << endl;
-            classImplementation << "   param = output.find(\"" << complexType->name() << "\");" << endl;
-            classImplementation << "   if (param && element) *param = *element;" << endl;
+            classImplementation << "   if (m_" << complexType->name() << ".className() != \"WSArray\") {" << endl;
+            classImplementation << "     element = dynamic_cast<const Field*>(&m_" << complexType->name() << ");" << endl;
+            classImplementation << "     param = output.find(\"" << complexType->name() << "\");" << endl;
+            classImplementation << "     if (param && element) *param = *element;" << endl;
+            classImplementation << "   }" << endl;
         }
     }
     classImplementation << "}" << endl;
