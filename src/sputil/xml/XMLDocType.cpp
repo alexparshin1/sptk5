@@ -153,7 +153,9 @@ bool XMLDocType::encodeEntities(const char *str, Buffer& ret)
         if (pos) {
             uint32_t index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
             entity* ent = table + index;
-            dst->append(ptr, uint32_t(pos - ptr));
+            uint32_t tailBytes = uint32_t(pos - ptr);
+            if (tailBytes)
+                dst->append(ptr, tailBytes);
             dst->append('&');
             dst->append(ent->name);
             dst->append(';');
