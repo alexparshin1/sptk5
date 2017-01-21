@@ -72,9 +72,9 @@ protected:
      *
      * @param doc XMLDoc&, a document.
      */
-    XMLElement(XMLDocument& doc) : 
-        XMLNamedItem(doc), 
-        m_attributes(this) 
+    XMLElement(XMLDocument& doc) :
+        XMLNamedItem(doc),
+        m_attributes(this)
     {}
 
 public:
@@ -86,7 +86,7 @@ public:
      */
     XMLElement(XMLNode& parent, const char* tagname) :
         XMLNamedItem(parent,tagname),
-        m_attributes(this) 
+        m_attributes(this)
     {}
 
     /**

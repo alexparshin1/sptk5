@@ -48,11 +48,12 @@ namespace sptk {
  */
 class WSComplexType : public WSTypeName
 {
-protected:
    /**
     * WSDL element name
     */
    std::string  m_name;
+
+protected:
 
    /**
     * Element optionality flag
@@ -131,7 +132,7 @@ public:
    /**
     * @brief Returns element name
     */
-   std::string name() const
+   std::string complexTypeName() const
    {
        return m_name;
    }
