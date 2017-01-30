@@ -105,7 +105,7 @@ public:
      * @param name std::string, Child element name
      * @returns Child element reference, or throws exception if not found
      */
-    Element& operator[](std::string name);
+    Element& operator[](std::string name) throw(Exception);;
 
     /**
      * Find child element by name
@@ -114,22 +114,58 @@ public:
      */
     Element *find(std::string name);
 
-    const Element &operator[](std::string name) const throw(Exception);
+    /**
+     * Const reference child element by name
+     * @param name std::string, Child element name
+     * @returns Const child element reference, or throws exception if not found
+     */
+    const Element& operator[](std::string name) const throw(Exception);
 
+    /**
+     * Find child element by name
+     * @param name std::string, Child element name
+     * @returns Child element const pointer, or NULL if not found
+     */
     const Element *find(std::string name) const;
 
+    /**
+     * Remove child element by name (and release its memory)
+     * @param name std::string, Child element name
+     */
     void remove(std::string name);
 
+    /**
+     * Get begin iterator of child elements
+     * @return begin iterator of child elements
+     */
     iterator begin() { return m_items.begin(); }
 
+    /**
+     * Get end iterator of child elements
+     * @return end iterator of child elements
+     */
     iterator end() { return m_items.end(); }
 
+    /**
+     * Get const begin iterator of child elements
+     * @return const begin iterator of child elements
+     */
     const_iterator begin() const { return m_items.begin(); }
 
+    /**
+     * Get const end iterator of child elements
+     * @return const end iterator of child elements
+     */
     const_iterator end() const { return m_items.end(); }
 
+    /**
+     * Get number of child elements
+     * @return number of child elements
+     */
     size_t size() const { return m_items.size(); }
 };
+
+/// @}
 
 }}
 
