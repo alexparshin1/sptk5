@@ -93,8 +93,8 @@ void Logger::saveMessage(DateTime date, const char *message, uint32_t sz, LogPri
 
 SP_EXPORT Logger& sptk::operator <<(Logger& stream, LogPriority priority)
 {
-	if (stream.fail() || stream.bad())
-		stream.clear();
-	stream.messagePriority(priority);
+    if (stream.fail() || stream.bad())
+        stream.clear();
+    stream.messagePriority(priority);
     return stream;
 }

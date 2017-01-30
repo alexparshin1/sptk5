@@ -85,8 +85,13 @@ void QueryParameter::setString(const char * value, size_t maxlen)
     uint32_t dtype = VAR_STRING;
     if (maxlen)
         valueLength = (uint32_t) maxlen;
-    else
-        valueLength = (uint32_t) strlen(value);
+    else {
+        if (value)
+            valueLength = (uint32_t) strlen(value);
+        else
+            valueLength = 0;
+    }
+
     if (m_dataType == VAR_STRING && m_data.buffer.size >= valueLength + 1) {
         if (value) {
             memcpy(m_data.buffer.data, value, valueLength);
