@@ -48,24 +48,70 @@ class ObjectData
     friend class Element;
 
 public:
+    /**
+     * Type definition: map of element names to elements
+     */
     typedef std::map<std::string, Element*>     Map;
+
+    /**
+     * Type definition: map of element names to elements iterator
+     */
     typedef Map::iterator                       iterator;
+
+    /**
+     * Type definition: map of element names to elements const iterator
+     */
     typedef Map::const_iterator                 const_iterator;
+
 protected:
+
+    /**
+     * Parent JSON element
+     */
     Element*                                    m_parent;
+
+    /**
+     * Child JSON elements
+     */
     Map                                         m_items;
 
+    /**
+     * Set parent JSON element
+     */
     void setParent(Element *parent);
 
 public:
+
+    /**
+     * Constructor
+     * @param parent Element*, Parent JSON element
+     */
     ObjectData(Element *parent = NULL);
 
+    /**
+     * Destructor
+     */
     ~ObjectData();
 
+    /**
+     * Add child JSON element
+     * @param name std::string, Child element name
+     * @param element Element*, Child element
+     */
     void add(std::string name, Element *element);
 
-    Element &operator[](std::string name);
+    /**
+     * Reference child element by name
+     * @param name std::string, Child element name
+     * @returns Child element reference, or throws exception if not found
+     */
+    Element& operator[](std::string name);
 
+    /**
+     * Find child element by name
+     * @param name std::string, Child element name
+     * @returns Child element pointer, or NULL if not found
+     */
     Element *find(std::string name);
 
     const Element &operator[](std::string name) const throw(Exception);
