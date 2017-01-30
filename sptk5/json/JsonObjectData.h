@@ -101,11 +101,12 @@ public:
     void add(std::string name, Element *element);
 
     /**
-     * Reference child element by name
+     * Reference child element by name. If child element is not found,
+     * a new Element is created.
      * @param name std::string, Child element name
-     * @returns Child element reference, or throws exception if not found
+     * @returns Child element reference
      */
-    Element& operator[](std::string name) throw(Exception);;
+    Element& operator[](std::string name);
 
     /**
      * Find child element by name
