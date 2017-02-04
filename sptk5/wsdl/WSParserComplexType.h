@@ -45,7 +45,7 @@ namespace sptk
  */
 
 /**
- * @brief Multiplicity flag
+ * Multiplicity flag
  */
 enum WSMultiplicity {
     /**
@@ -71,7 +71,7 @@ enum WSMultiplicity {
 };
 
 /**
- * @brief WSDL element attribute
+ * WSDL element attribute
  */
 class WSParserAttribute
 {
@@ -98,54 +98,56 @@ class WSParserAttribute
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param name std::string, Attribute name
      * @param typeName std::string, Attribute WSDL type name
      */
     WSParserAttribute(std::string name="", std::string typeName="");
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param attr const CWSParserAttribute&, Attribute to copy from
      */
     WSParserAttribute(const WSParserAttribute& attr);
 
     /**
-     * @brief Returns attribute name
+     * Returns attribute name
      */
     std::string name() const { return m_name; }
 
     /**
-     * @brief Generates attribute presentation in C++ skeleton
+     * Generates attribute presentation in C++ skeleton
      */
     std::string generate() const;
 
     /**
-     * @brief Returns attribute C++ type name
+     * Returns attribute C++ type name
      */
     std::string cxxTypeName() const { return m_cxxTypeName; }
 
     /**
-     * @brief Returns attribute WSDL type name
+     * Returns attribute WSDL type name
      */
     std::string wsTypeName() const { return m_wsTypeName; }
 };
 
 /**
- * @brief Parses WSDL complexType element
+ * Parses WSDL complexType element
  */
 class WSParserComplexType
 {
     /**
-     * @brief Map of attribute names to attribute objects
+     * Map of attribute names to attribute objects
      */
     typedef std::map<std::string,WSParserAttribute*>   AttributeMap;
 
     /**
-     * @brief List of complex type elements
+     * List of complex type elements
      */
     typedef std::list<WSParserComplexType*>            ElementList;
+
 protected:
+
     /**
      * Element name
      */
@@ -186,26 +188,33 @@ protected:
      */
     WSRestriction*          m_restriction;
 
+    /**
+     * Optional documentation
+     */
+    sptk::String             m_documentation;
+
 
     /**
-     * @brief Generates C++ class declaration
+     * Generate C++ class declaration
+     * @param classDeclaration std::ostream&, Output header file stream
      */
     void generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS;
 
     /**
-     * @brief Generates C++ class implementation
+     * Generate C++ class implementation
+     * @param classImplementation std::ostream&, Output implementation file stream
      */
     void generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS;
 
 public:
     /**
-     * @brief WSDL class name
+     * WSDL class name
      */
     static std::string wsClassName(std::string);
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param complexTypeElement const XMLElement*, WSDL complexType element
      * @param name std::string, Object name
      * @param typeName std::string, Object types
@@ -213,12 +222,12 @@ public:
     WSParserComplexType(const XMLElement* complexTypeElement, std::string name="", std::string typeName="");
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~WSParserComplexType();
 
     /**
-     * @brief Returns element reference count
+     * Returns element reference count
      */
     int refCount()
     {
@@ -226,7 +235,7 @@ public:
     }
 
     /**
-     * @brief Increases element reference count
+     * Increases element reference count
      */
     void increaseRefCount()
     {
@@ -234,7 +243,7 @@ public:
     }
 
     /**
-     * @brief Decreases element reference count
+     * Decreases element reference count
      */
     void decreaseRefCount()
     {
@@ -245,7 +254,7 @@ public:
     }
 
     /**
-     * @brief WSDL element name
+     * WSDL element name
      */
     std::string name() const
     {
@@ -253,12 +262,12 @@ public:
     }
 
     /**
-     * @brief Generated C++ class name
+     * Generated C++ class name
      */
     std::string className() const;
 
     /**
-     * @brief Multiplicity flag
+     * Multiplicity flag
      */
     WSMultiplicity multiplicity() const
     {
@@ -266,23 +275,39 @@ public:
     }
 
     /**
-     * @brief Parses WSDL complexType element
+     * Is the type an array?
+     */
+    bool isArray() const
+    {
+        return m_multiplicity & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE);
+    }
+
+    /**
+     * Documentation
+     */
+    const sptk::String& documentation() const
+    {
+        return m_documentation;
+    }
+
+    /**
+     * Parses WSDL complexType element
      */
     virtual void parse() THROWS_EXCEPTIONS;
 
     /**
-     * @brief Parses WSDL child sequence
+     * Parses WSDL child sequence
      */
     void parseSequence(XMLElement* sequence) THROWS_EXCEPTIONS;
 
     /**
-     * @brief Generates C++ class declaration and implementation
+     * Generates C++ class declaration and implementation
      */
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation, std::string externalHeader) THROWS_EXCEPTIONS;
 };
 
 /**
- * @brief Alias for WSDL complex type
+ * Alias for WSDL complex type
  */
 typedef WSParserComplexType WSParserElement;
 

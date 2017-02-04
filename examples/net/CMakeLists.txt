@@ -11,7 +11,7 @@ IF (FLTK_FLAG)
     SET (NET_TESTS ${NET_TESTS} imap_connect http_connect)
     LINK_LIBRARIES (sputil5 sptk5 spdb5 spwsdl5 ${SOCKET_LIBRARY} ${FLTK_LIBRARIES} ${ASPELL_LIBRARIES})
 ELSE (FLTK_FLAG)
-    LINK_LIBRARIES (sputil5 spwsdl5 ${SOCKET_LIBRARY})
+    LINK_LIBRARIES (sputil5 spdb5 spwsdl5 ${SOCKET_LIBRARY})
 ENDIF (FLTK_FLAG)
 
 IF (UNIX)

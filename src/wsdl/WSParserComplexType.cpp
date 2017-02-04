@@ -69,6 +69,10 @@ WSParserComplexType::WSParserComplexType(const XMLElement* complexTypeElement, s
         }
     }
 
+    XMLNode* documentationElement = complexTypeElement->findFirst("xsd:documentation");
+    if (documentationElement)
+        m_documentation = documentationElement->text();
+
     if (m_typeName.empty())
         m_typeName = m_name;
 
@@ -189,7 +193,16 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
             WSParserComplexType* complexType = *itor;
             char buffer[256];
             string cxxType = complexType->className();
-            if (complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE))
+            if (!complexType->documentation().empty()) {
+                classDeclaration << endl;
+                classDeclaration << "   /**" << endl;
+                Strings rows(complexType->documentation(), "[\n\r]+", Strings::SM_REGEXP);
+                for (const String& row: rows) {
+                    classDeclaration << "    * " << row << endl;
+                }
+                classDeclaration << "    */" << endl;
+            }
+            if (complexType->isArray())
                 cxxType = "sptk::WSArray<" + cxxType + "*>";
             else {
                 string optional = (complexType->multiplicity() & WSM_OPTIONAL) ? ", true" : "";
@@ -415,7 +428,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
             classImplementation << "      throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
         }
     }
-    
+
     classImplementation << "}" << endl << endl;
 
     // Unloader to XMLElement
@@ -449,27 +462,26 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Unloader to ParamList
     classImplementation << "void " << className << "::unload(QueryParameterList& output) const THROWS_EXCEPTIONS" << endl;
     classImplementation << "{" << endl;
-    classImplementation << "   QueryParameter*  param;" << endl << endl;
-    if (m_attributes.size()) {
-        classImplementation << "   // Unload attributes" << endl;
+
+    if (!m_attributes.empty()) {
+        classImplementation << endl << "   // Unload attributes" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
-            classImplementation << "   param = output.find(\"" << attr.name() << "\");" << endl;
-            classImplementation << "   if (param) param->setString(m_" << attr.name() << ".asString());" << endl;
+            classImplementation << "   unload(output, \"" << attr.name() << "\", m_" << attr.name() << ")" << endl;
         }
     }
-    if (m_sequence.size()) {
-        classImplementation << "   // Unload elements" << endl;
-        classImplementation << "   const Field* element;" << endl << endl;
+
+    if (!m_sequence.empty()) {
+        if (!m_attributes.empty())
+            classImplementation << endl;
+        classImplementation << "   // Unload attributes" << endl;
         for (ElementList::iterator itor = m_sequence.begin(); itor != m_sequence.end(); ++itor) {
             WSParserComplexType* complexType = *itor;
-            classImplementation << "   if (m_" << complexType->name() << ".className() != \"WSArray\") {" << endl;
-            classImplementation << "     element = dynamic_cast<const Field*>(&m_" << complexType->name() << ");" << endl;
-            classImplementation << "     param = output.find(\"" << complexType->name() << "\");" << endl;
-            classImplementation << "     if (param && element) *param = *element;" << endl;
-            classImplementation << "   }" << endl;
+            if (!complexType->isArray())
+                classImplementation << "   WSComplexType::unload(output, \"" << complexType->name() << "\", dynamic_cast<const WSBasicType*>(&m_" << complexType->name() << "));" << endl;
         }
     }
+
     classImplementation << "}" << endl;
 }
 

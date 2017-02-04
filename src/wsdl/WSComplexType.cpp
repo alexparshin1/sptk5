@@ -39,6 +39,15 @@ void WSComplexType::copyFrom(const WSComplexType& other)
     load(element);
 }
 
+void WSComplexType::unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute)
+{
+    if (!elementOrAttribute)
+        return;
+    sptk::QueryParameter* param = output.find(paramName);
+    if (param)
+        *param = *elementOrAttribute;
+}
+
 void WSComplexType::addElement(XMLElement* parent) const THROWS_EXCEPTIONS
 {
    unload(new XMLElement(parent, m_name.c_str()));

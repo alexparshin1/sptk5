@@ -116,6 +116,14 @@ public:
    virtual void unload(QueryParameterList& output) const THROWS_EXCEPTIONS = 0;
 
    /**
+    * Unload single element or attribute to DB query parameter
+    * @param output QueryParameterList&, query parameters
+    * @param paramName const char*, query parameter name
+    * @param elementOrAttribute const WSBasicType*, complex type element (not an array!)
+    */
+   static void unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute);
+
+   /**
     * @brief Unload data to new XML node
     * @param parent XMLElement*, parent XML node where new node is created
     */

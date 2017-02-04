@@ -8,7 +8,7 @@ IF (UNIX)
 ENDIF (UNIX)
 
 ADD_EXECUTABLE (wsdl2cxx wsdl2cxx.cpp)
-TARGET_LINK_LIBRARIES (wsdl2cxx sputil5 spwsdl5)
+TARGET_LINK_LIBRARIES (wsdl2cxx sputil5 spdb5 spwsdl5)
 
 FILE (GLOB utilities "${CMAKE_SOURCE_DIR}/utilities/wsdl2cxx")
 INSTALL(TARGETS wsdl2cxx
