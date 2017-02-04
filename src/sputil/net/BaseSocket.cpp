@@ -100,7 +100,7 @@ BaseSocket::~BaseSocket()
 #endif
 }
 
-void BaseSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
+void BaseSocket::getHostAddress(std::string& hostname, sockaddr_in& addr, int socktype)
 {
     memset(&addr, 0, sizeof(addr));
 
@@ -110,22 +110,20 @@ void BaseSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
 #else
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = m_domain;     // IPv4 or IPv6
-    hints.ai_socktype = m_type;     // Socket type
-    //hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
-    hints.ai_protocol = m_protocol; 
+    hints.ai_family = AF_UNSPEC;     // IPv4 or IPv6
+    hints.ai_socktype = socktype;    // Socket type
+    //hints.ai_flags = AI_PASSIVE;   // For wildcard IP address
+    hints.ai_protocol = 0; 
 
     struct addrinfo *result;
     int rc = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
     if (rc)
         throw Exception(gai_strerror(rc));
     
-    memcpy(&addr, (struct sockaddr_in *) result->ai_addr, result->ai_addrlen);
+    memcpy(&addr, (struct sockaddr_in *) result->ai_addr, sizeof(addr));
 
     freeaddrinfo(result);
 #endif
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
-    addr.sin_port = htons(uint16_t(m_port));
 }
 
 void BaseSocket::blockingMode(bool blocking) THROWS_EXCEPTIONS
@@ -191,13 +189,13 @@ void BaseSocket::port (int32_t portNumber)
 }
 
 // Connect & disconnect
-void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr, uint32_t timeoutMS)
+void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, uint32_t timeoutMS)
 {
     if (active())
         close();
 
     // Create a new socket
-    m_sockfd = socket (m_domain, m_type, m_protocol);
+    m_sockfd = socket(m_domain, m_type, m_protocol);
     if (m_sockfd == INVALID_SOCKET)
         THROW_SOCKET_ERROR("Can't create socket");
 
@@ -208,20 +206,20 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr, uint32_
         case SOM_CONNECT:
             if (timeoutMS) {
                 blockingMode(false);
-                connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+                connect(m_sockfd, (sockaddr *) addr, sizeof(sockaddr_in));
                 if (!readyToWrite(timeoutMS))
                     throw Exception("Connection timeout");
                 rc = 0;
                 blockingMode(true);
             } else
-                rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+                rc = connect(m_sockfd, (sockaddr *) addr, sizeof(sockaddr_in));
             currentOperation = "connect";
             break;
         case SOM_BIND:
-            rc = bind (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+            rc = bind(m_sockfd, (sockaddr *) addr, sizeof(sockaddr_in));
             currentOperation = "bind";
             if (!rc && m_type != SOCK_DGRAM) {
-                rc = ::listen (m_sockfd, SOMAXCONN);
+                rc = ::listen(m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
             }
             break;
@@ -231,23 +229,23 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, sockaddr_in* addr, uint32_
 
     if (rc) {
         close();
-        throw Exception ("Can't open: " + currentOperation + "() failed.", __FILE__, __LINE__);
+        throw Exception("Can't open: " + currentOperation + "() failed.", __FILE__, __LINE__);
     }
 }
 
-void BaseSocket::listen (uint32_t portNumber)
+void BaseSocket::listen(uint32_t portNumber)
 {
     if (portNumber)
         m_port = portNumber;
 
     sockaddr_in addr;
 
-    memset (&addr, 0, sizeof (addr));
+    memset(&addr, 0, sizeof (addr));
     addr.sin_family = (SOCKET_ADDRESS_FAMILY)m_domain;
-    addr.sin_addr.s_addr = htonl (INADDR_ANY);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(uint16_t(m_port));
 
-    open_addr (SOM_BIND, &addr);
+    open_addr(SOM_BIND, &addr);
 }
 
 void BaseSocket::close()
@@ -257,13 +255,13 @@ void BaseSocket::close()
         shutdown(m_sockfd, SHUT_RDWR);
         ::close(m_sockfd);
 #else
-        closesocket (m_sockfd);
+        closesocket(m_sockfd);
 #endif
         m_sockfd = INVALID_SOCKET;
     }
 }
 
-void BaseSocket::attach (SOCKET socketHandle)
+void BaseSocket::attach(SOCKET socketHandle)
 {
     close();
     m_sockfd = socketHandle;
@@ -273,7 +271,7 @@ size_t BaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEP
 {
     int bytes;
     if (from) {
-        socklen_t flen = sizeof (sockaddr_in);
+        socklen_t flen = sizeof(sockaddr_in);
         bytes = ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
     } else
         bytes = ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);

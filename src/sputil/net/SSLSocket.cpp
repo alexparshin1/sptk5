@@ -125,10 +125,8 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void SSLSocket::startSSL(bool blockingMode) THROWS_EXCEPTIONS
 {
-    TCPSocket::open(hostName, port, openMode, blockingMode, timeoutMS);
-
     SYNCHRONIZED_CODE;
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
@@ -162,6 +160,18 @@ void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, b
             Thread::msleep(1);
         }
     }
+}
+
+void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+{
+    TCPSocket::open(hostName, port, openMode, blockingMode, timeoutMS);
+    startSSL(blockingMode);
+}
+
+void SSLSocket::open(const struct sockaddr_in& addr, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+{
+    TCPSocket::open(addr, openMode, blockingMode, timeoutMS);
+    startSSL(blockingMode);
 }
 
 void SSLSocket::close()
