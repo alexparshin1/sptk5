@@ -47,41 +47,110 @@ class ArrayData
     friend class Element;
 
 public:
+    /**
+     * Type definition: array of JSON elements
+     */
     typedef std::vector<Element*>   Vector;
+
+    /**
+     * Type definition: iterator on array of JSON elements
+     */
     typedef Vector::iterator        iterator;
+
+    /**
+     * Type definition: const iterator on array of JSON elements
+     */
     typedef Vector::const_iterator  const_iterator;
+
 protected:
+
+    /**
+     * Parent JSON element
+     */
     Element*                m_parent;
+
+    /**
+     * Array of elements
+     */
     Vector                  m_items;
 
-    void setParent(Element *parent);
+    /**
+     * Set parent JSON element for this array
+     * @param parent Element*, Parent JSON element
+     */
+    void setParent(Element* parent);
 
 public:
-    ArrayData(Element *parent = NULL);
 
+    /**
+     * Constructor
+     * @param parent Element*, Parent JSON element
+     */
+    ArrayData(Element* parent = NULL);
+
+    /**
+     * Destructor
+     */
     ~ArrayData();
 
-    void add(Element *element);
+    /**
+     * Add JSON element to this array
+     * @param element Element*, JSON element
+     */
+    void add(Element* element);
 
+    /**
+     * Add JSON element to this array.
+     *
+     * JSON element is constructed from value.
+     * @param value (template), JSON element value
+     */
     template <typename T> void add(T value)
     {
         add(new Element(value));
     }
 
-    Element &operator[](size_t index) throw(Exception);
+    /**
+     * Get JSON element from this array by index
+     * @param index size_t, Element index
+     */
+    Element& operator[](size_t index) throw(Exception);
 
-    const Element &operator[](size_t index) const throw(Exception);
+    /**
+     * Get JSON element from this array by index (const version)
+     * @param index size_t, Element index
+     */
+    const Element& operator[](size_t index) const throw(Exception);
 
+    /**
+     * Remove JSON element from this array by index (const version)
+     * @param index size_t, Element index
+     */
     void remove(size_t index);
 
+    /**
+     * Get array begin iterator
+     */
     iterator begin() { return m_items.begin(); }
 
+    /**
+     * Get array end iterator
+     */
     iterator end() { return m_items.end(); }
 
+    /**
+     * Get array const begin iterator
+     */
     const_iterator begin() const { return m_items.begin(); }
 
+    /**
+     * Get array const end iterator
+     */
     const_iterator end() const { return m_items.end(); }
 
+    /**
+     * Get array size
+     */
     size_t size() const { return m_items.size(); }
 };
 

@@ -287,9 +287,9 @@ public:
     /**
      * Add boolean field to JSON element
      * @param name std::string, Field name
-     * @param value int, Field value
+     * @param value boolean, Field value
      */
-    void add(std::string name, bool boolean) { add(name, new Element(value)); }
+    void add(std::string name, bool value) { add(name, new Element(value)); }
 
     /**
      * Add JSON array field to JSON element
