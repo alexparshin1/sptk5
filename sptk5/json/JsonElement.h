@@ -256,12 +256,54 @@ public:
      */
     void add(std::string name, Element* element);
 
+    /**
+     * Add integer field to JSON element
+     * @param name std::string, Field name
+     * @param value int, Field value
+     */
     void add(std::string name, int value) { add(name, new Element(value)); }
+
+    /**
+     * Add double field to JSON element
+     * @param name std::string, Field name
+     * @param value double, Field value
+     */
     void add(std::string name, double value) { add(name, new Element(value)); }
+
+    /**
+     * Add string field to JSON element
+     * @param name std::string, Field name
+     * @param value std::string, Field value
+     */
     void add(std::string name, std::string value) { add(name, new Element(value)); }
+
+    /**
+     * Add string field to JSON element
+     * @param name std::string, Field name
+     * @param value const char*, Field value
+     */
     void add(std::string name, const char* value) { add(name, new Element(value)); }
-    void add(std::string name, bool value) { add(name, new Element(value)); }
+
+    /**
+     * Add boolean field to JSON element
+     * @param name std::string, Field name
+     * @param value int, Field value
+     */
+    void add(std::string name, bool boolean) { add(name, new Element(value)); }
+
+    /**
+     * Add JSON array field to JSON element
+     * @param name std::string, Field name
+     * @param value ArrayData*, Field value
+     */
     void add(std::string name, ArrayData* value) { add(name, new Element(value)); }
+
+    /**
+     * Add JSON object field to JSON element
+     * @param name std::string, Field name
+     * @param value ObjectData*, Field value
+     *
+     */
     void add(std::string name, ObjectData* value) { add(name, new Element(value)); }
 
     /**
@@ -379,11 +421,40 @@ public:
      */
     void select(ElementSet& elements, std::string xpath);
 
+    /**
+     * Element type check
+     * @return true if element is a number
+     */
     bool isNumber()  const { return m_type == JDT_NUMBER; }
+
+    /**
+     * Element type check
+     * @return true if element is a string
+     */
     bool isString()  const { return m_type == JDT_STRING; }
+
+    /**
+     * Element type check
+     * @return true if element is a boolean
+     */
     bool isBoolean() const { return m_type == JDT_BOOLEAN; }
+
+    /**
+     * Element type check
+     * @return true if element is an array
+     */
     bool isArray()   const { return m_type == JDT_ARRAY; }
+
+    /**
+     * Element type check
+     * @return true if element is an object
+     */
     bool isObject()  const { return m_type == JDT_OBJECT; }
+
+    /**
+     * Element type check
+     * @return true if element is a null
+     */
     bool isNull()    const { return m_type == JDT_NULL; }
 };
 
