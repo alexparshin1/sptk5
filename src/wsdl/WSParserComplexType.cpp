@@ -464,10 +464,10 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "{" << endl;
 
     if (!m_attributes.empty()) {
-        classImplementation << endl << "   // Unload attributes" << endl;
+        classImplementation << "   // Unload attributes" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
-            classImplementation << "   unload(output, \"" << attr.name() << "\", m_" << attr.name() << ")" << endl;
+            classImplementation << "   WSComplexType::unload(output, \"" << attr.name() << "\", &m_" << attr.name() << ");" << endl;
         }
     }
 
