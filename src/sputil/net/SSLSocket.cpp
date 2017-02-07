@@ -70,7 +70,7 @@ class CSSLLibraryLoader
     static void init_locks(void)
     {
         m_locks = new Synchronized[CRYPTO_num_locks()];
-        CRYPTO_set_id_callback(thread_id);
+        //CRYPTO_set_id_callback(thread_id);
         CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
 

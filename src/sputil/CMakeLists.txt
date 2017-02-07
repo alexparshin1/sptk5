@@ -12,7 +12,7 @@ SET (SPUTIL_SOURCES
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/FTPConnect.cpp
     net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
-    net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp
+    net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
     net/TCPServer.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/FtpDS.cpp net/ImapDS.cpp
     xml/XMLAttributes.cpp xml/XMLDocument.cpp xml/XMLDocType.cpp xml/XMLNode.cpp xml/XMLNodeList.cpp xml/XMLValue.cpp
@@ -20,6 +20,11 @@ SET (SPUTIL_SOURCES
     threads/RWLock.cpp threads/Synchronized.cpp threads/Thread.cpp threads/ThreadPool.cpp
     threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp
     )
+
+IF (LINUX)
+    MESSAGE ("Socket events:      epoll (Linux)")
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} net/SocketPool.Linux.cpp)
+ENDIF ()
 
 IF (PCRE_FLAG)
     SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp)

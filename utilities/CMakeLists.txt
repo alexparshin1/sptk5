@@ -17,3 +17,5 @@ INSTALL(TARGETS wsdl2cxx
     ARCHIVE DESTINATION lib
   )
 
+ADD_SUBDIRECTORY (load_balance)
+
