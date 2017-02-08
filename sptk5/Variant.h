@@ -202,7 +202,7 @@ class SP_EXPORT Variant
 {
 protected:
     /**
-     * @brief Internal variant data storage
+     * Internal variant data storage
      */
     union variantData
     {
@@ -251,9 +251,6 @@ protected:
          */
         MoneyData           moneyData;
 
-    /**
-     * Data storage union
-     */
     } m_data;
 
     /**
