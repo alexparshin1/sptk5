@@ -46,6 +46,10 @@ namespace sptk {
 class WSTypeName
 {
 public:
+    /**
+     * Get WS type name
+     * @return WS type name
+     */
     virtual std::string className() const = 0;
 };
 
