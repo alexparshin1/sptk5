@@ -65,11 +65,7 @@ string SystemException::osError()
         return "Unknown system error";
 #else
     // Get Unix errno-based error
-    char buffer[256];
-    buffer[0] = 0;
-    const char* osError = (const char*) strerror_r(errno, buffer, sizeof(buffer));
-    if (buffer[0])
-        osError = buffer;
+    string osError = strerror(errno);
     return osError;
 #endif
 }

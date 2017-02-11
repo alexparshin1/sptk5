@@ -379,14 +379,21 @@ bool BaseSocket::readyToRead(uint32_t timeoutMS)
 {
     struct pollfd pfd;
     pfd.fd = m_sockfd;
-    pfd.fd = POLLIN | POLLRDHUP | POLLHUP;
+
+#if (__FreeBSD__ || __OpenBSD__)
+    int connClose = POLLHUP;
+#else
+    int connClose = POLLRDHUP | POLLHUP;
+#endif
+
+    pfd.fd = POLLIN | connClose;
     pfd.revents = 0;
 
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0 || pfd.revents & POLLERR)
         throw Exception("Can't read from socket: poll() error");
 
-    if (pfd.revents & (POLLRDHUP | POLLHUP))
+    if (pfd.revents & connClose)
         throw Exception("Can't read from socket: peer closed connection");
 
     return rc != 0;
@@ -396,14 +403,21 @@ bool BaseSocket::readyToWrite(uint32_t timeoutMS)
 {
     struct pollfd pfd;
     pfd.fd = m_sockfd;
-    pfd.fd = POLLOUT | POLLRDHUP | POLLHUP;
+
+#if (__FreeBSD__ || __OpenBSD__)
+    int connClose = POLLHUP;
+#else
+    int connClose = POLLRDHUP | POLLHUP;
+#endif
+
+    pfd.fd = POLLOUT | connClose;
     pfd.revents = 0;
 
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0 || pfd.revents & POLLERR)
         throw Exception("Can't write to socket: poll() error");
 
-    if (pfd.revents & (POLLRDHUP | POLLHUP))
+    if (pfd.revents & connClose)
         throw Exception("Can't write to socket: peer closed connection");
 
     return rc != 0;

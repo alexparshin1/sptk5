@@ -31,7 +31,6 @@
 
 #include <map>
 #include <mutex>
-#include <sys/epoll.h>
 #include <sptk5/Exception.h>
 #include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>

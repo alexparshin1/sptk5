@@ -30,6 +30,7 @@
 #include <sptk5/Exception.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 #ifndef _WIN32
 #ifdef __BORLANDC__
@@ -196,7 +197,7 @@ void DateTimeFormat::init()
     t.tm_sec = 59;
     t.tm_wday = 0;      // Sunday
 
-#ifndef _WIN32
+#ifdef __linux__
     // For unknown reason this call of setlocale() under Windows makes
     // calls of sprintf to produce access violations. If you know why please
     // tell me..
