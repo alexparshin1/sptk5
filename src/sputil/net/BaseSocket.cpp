@@ -30,11 +30,11 @@
 #include <stdlib.h>
 
 #ifdef _WIN32
-	#include <ws2tcpip.h>
-	#include <mstcpip.h>
+    #include <ws2tcpip.h>
+    #include <mstcpip.h>
 #else
-	#include <errno.h>
-	#include <poll.h>
+    #include <errno.h>
+    #include <poll.h>
 #endif
 
 #include <sptk5/net/BaseSocket.h>
@@ -381,30 +381,31 @@ size_t BaseSocket::write (const std::string& buffer, const sockaddr_in* peer) TH
 }
 
 #ifdef __linux__
-	#define CONNECTION_CLOSED (POLLRDHUP | POLLHUP)
+    #define CONNECTION_CLOSED (POLLRDHUP | POLLHUP)
 #else
-	#define CONNECTION_CLOSED (POLLHUP)
+    #define CONNECTION_CLOSED POLLHUP
 #endif
 
 bool BaseSocket::readyToRead(uint32_t timeoutMS)
 {
     struct pollfd pfd;
     pfd.fd = m_sockfd;
-	pfd.events = POLLIN | CONNECTION_CLOSED;
-	pfd.revents = 0;
+    pfd.events = POLLIN | CONNECTION_CLOSED;
+    pfd.revents = 0;
 
 #ifdef _WIN32
-	int rc = WSAPoll(&pfd, 1, timeoutMS);
+    int rc = WSAPoll(&pfd, 1, timeoutMS);
 #else
     int rc = poll(&pfd, 1, timeoutMS);
 #endif
-	if (rc < 0 || pfd.revents & POLLERR)
+    if (rc < 0 || pfd.revents & POLLERR)
         throw Exception("Can't read from socket: poll() error");
 
-    if (pfd.revents & CONNECTION_CLOSED)
+    if (pfd.revents & CONNECTION_CLOSED) {
         throw Exception("Can't read from socket: peer closed connection");
+    }
 
-	return rc != 0;
+    return rc != 0;
 }
 
 bool BaseSocket::readyToWrite(uint32_t timeoutMS)
@@ -415,7 +416,7 @@ bool BaseSocket::readyToWrite(uint32_t timeoutMS)
     pfd.revents = 0;
 
 #ifdef _WIN32
-	int rc = WSAPoll(&pfd, 1, timeoutMS);
+    int rc = WSAPoll(&pfd, 1, timeoutMS);
 #else
     int rc = poll(&pfd, 1, timeoutMS);
 #endif
