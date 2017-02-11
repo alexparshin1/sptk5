@@ -28,8 +28,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <poll.h>
+
+#ifdef _WIN32
+	#include <ws2tcpip.h>
+	#include <mstcpip.h>
+#else
+	#include <errno.h>
+	#include <poll.h>
+#endif
 
 #include <sptk5/net/BaseSocket.h>
 #include <sptk5/SystemException.h>
@@ -231,7 +237,6 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, ui
             break;
         case SOM_BIND:
             setOption(SOL_SOCKET, SO_REUSEADDR, enable);
-            setOption(SOL_SOCKET, SO_REUSEPORT, enable);
             if (::bind(m_sockfd, (sockaddr *) addr, sizeof(sockaddr_in)) < 0)
                 THROW_SOCKET_ERROR("Can't bind to port " + int2string(m_port));
             currentOperation = "bind";
@@ -375,49 +380,49 @@ size_t BaseSocket::write (const std::string& buffer, const sockaddr_in* peer) TH
     return write(buffer.c_str(), buffer.length(), peer);
 }
 
+#ifdef __linux__
+	#define CONNECTION_CLOSED (POLLRDHUP | POLLHUP)
+#else
+	#define CONNECTION_CLOSED (POLLHUP)
+#endif
+
 bool BaseSocket::readyToRead(uint32_t timeoutMS)
 {
     struct pollfd pfd;
     pfd.fd = m_sockfd;
+	pfd.events = POLLIN | CONNECTION_CLOSED;
+	pfd.revents = 0;
 
-#if (__FreeBSD__ || __OpenBSD__)
-    int connClose = POLLHUP;
+#ifdef _WIN32
+	int rc = WSAPoll(&pfd, 1, timeoutMS);
 #else
-    int connClose = POLLRDHUP | POLLHUP;
-#endif
-
-    pfd.fd = POLLIN | connClose;
-    pfd.revents = 0;
-
     int rc = poll(&pfd, 1, timeoutMS);
-    if (rc < 0 || pfd.revents & POLLERR)
+#endif
+	if (rc < 0 || pfd.revents & POLLERR)
         throw Exception("Can't read from socket: poll() error");
 
-    if (pfd.revents & connClose)
+    if (pfd.revents & CONNECTION_CLOSED)
         throw Exception("Can't read from socket: peer closed connection");
 
-    return rc != 0;
+	return rc != 0;
 }
 
 bool BaseSocket::readyToWrite(uint32_t timeoutMS)
 {
     struct pollfd pfd;
     pfd.fd = m_sockfd;
-
-#if (__FreeBSD__ || __OpenBSD__)
-    int connClose = POLLHUP;
-#else
-    int connClose = POLLRDHUP | POLLHUP;
-#endif
-
-    pfd.fd = POLLOUT | connClose;
+    pfd.fd = POLLOUT | CONNECTION_CLOSED;
     pfd.revents = 0;
 
+#ifdef _WIN32
+	int rc = WSAPoll(&pfd, 1, timeoutMS);
+#else
     int rc = poll(&pfd, 1, timeoutMS);
+#endif
     if (rc < 0 || pfd.revents & POLLERR)
         throw Exception("Can't write to socket: poll() error");
 
-    if (pfd.revents & connClose)
+    if (pfd.revents & CONNECTION_CLOSED)
         throw Exception("Can't write to socket: peer closed connection");
 
     return rc != 0;
