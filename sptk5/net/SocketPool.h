@@ -37,6 +37,10 @@
 
 namespace sptk {
 
+#ifdef _WIN32
+class EventWindow;
+#endif
+
 class SocketPool : public Synchronized
 {
 public:
@@ -50,7 +54,11 @@ public:
 
 private:
 
+#ifdef _WIN32
+    EventWindow*                m_pool;
+#else
     SOCKET                      m_pool;
+#endif
     EventCallback               m_eventsCallback;
     std::map<BaseSocket*,void*> m_socketData;
 

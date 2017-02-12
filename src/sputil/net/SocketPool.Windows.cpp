@@ -1,0 +1,226 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       DateTime.h - description                               ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  begin                Thursday Sep 17 2015                                   ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#include "sptk5/net/SocketPool.h"
+#include <iostream>
+#include "sptk5/SystemException.h"
+
+using namespace std;
+using namespace sptk;
+
+class EventWindowClass
+{
+    string                      m_className;
+    static ATOM                 m_windowClass;
+public:
+    EventWindowClass()
+    {
+        m_className = "EventWindow" + int2string(time(NULL));
+
+        WNDCLASS wndclass;
+        memset(&wndclass, 0, sizeof(wndclass));
+        wndclass.style = CS_HREDRAW | CS_VREDRAW;
+        wndclass.lpfnWndProc = (WNDPROC)windowProc;
+        wndclass.lpszClassName = m_className.c_str();
+        windowClass = RegisterClass(&wndclass);
+        if (!windowClass())
+            throw Exception("Can't register event window class");
+    }
+
+    const string className() const
+    {
+        return m_className;
+    }
+
+    const ATOM windowClass() const
+    {
+        return m_windowClass;
+    }
+};
+
+class EventWindow
+{
+    HWND                        m_window;
+    uint64_t                    m_threadId;
+    SocketPool::EventCallback   m_eventsCallback;
+
+    static LRESULT CALLBACK     windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+public:
+    EventWindow(SocketPool::EventCallback eventsCallback);
+    ~EventWindow();
+
+    void eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    HWND handle() { return m_window; }
+
+    int poll(size_t timeoutMS);
+};
+
+static const EventWindowClass eventWindowClass;
+
+EventWindow::EventWindow(SocketPool::EventCallback eventsCallback)
+: m_threadId(Thread::currentThreadId()), m_eventsCallback(eventsCallback)
+{
+    m_window = CreateWindow(eventWindowClass.className().c_str(),
+                                  "", WS_OVERLAPPEDWINDOW,
+                                  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                                  NULL, NULL, NULL, NULL);
+    if (!m_window)
+        throw CSystemException("Can't create EventWindow");
+}
+
+EventWindow::~EventWindow()
+{
+    DestroyWindow(m_window);
+}
+
+#define WM_SOCKET_EVENT (WM_USER + 1000)
+
+void EventWindow::eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    if (uMsg == WM_SOCKET_EVENT) {
+        short events = 0;
+
+        switch (WSAGETSELECTEVENT(lParam)) {
+        case FD_ACCEPT:
+        case FD_READ:
+            events = ET_HAS_DATA;
+            break;
+        case FD_CLOSE:
+            events = ET_CONNECTION_CLOSED;
+            break;
+        }
+
+        if (!events && WSAGETSELECTERROR(lParam))
+            events = ET_CONNECTION_CLOSED;
+
+        if (events)
+            m_eventsCallback(wParam, events);
+   }
+}
+
+int EventWindow::poll(size_t timeoutMS)
+{
+    UINT_PTR timeoutTimerId = SetTimer(m_window, 0, timeoutMS, NULL);
+
+    int rc = GetMessage(&msg, m_workerWindow, 0, 0);
+    if (rc == -1)
+        continue;
+
+    if (msg.message == WM_TIMER)
+        return false; // timeout
+    KillTimer(m_workerWindow, timeoutTimerId);
+
+    eventMessageFunction(msg.message, msg.wParam, msg.lParam);
+
+    return 1;
+}
+
+SocketPool::SocketPool(SocketPool::EventCallback eventsCallback)
+: m_pool(NULL), m_eventsCallback(eventsCallback)
+{
+    open();
+}
+
+SocketPool::~SocketPool()
+{
+    close();
+}
+
+void SocketPool::open() throw (Exception)
+{
+    if (m_pool)
+        return;
+    m_pool = new EventWindow(m_eventsCallback);
+}
+
+void SocketPool::close() throw (Exception)
+{
+    if (m_pool) {
+        delete m_pool;
+        m_pool = NULL;
+    }
+
+    SYNCHRONIZED_CODE;
+    for (auto itor: m_socketData)
+        free(itor.second);
+    m_socketData.clear();
+}
+
+void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exception)
+{
+    if (!socket.active())
+        throw Exception("Socket is closed");
+
+    SYNCHRONIZED_CODE;
+
+    int socketFD = socket.handle();
+
+    if (WSAAsyncSelect(socketFD, m_pool->handle(), WM_SOCKET_EVENT, FD_ACCEPT|FD_READ|FD_CLOSE) != 0)
+        throw SystemException("Can't add socket to WSAAsyncSelect");
+
+    m_socketData[&socket] = userData;
+}
+
+void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
+{
+    if (!socket.active())
+        throw Exception("Socket is closed");
+
+    {
+        SYNCHRONIZED_CODE;
+
+        map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
+        if (itor == m_socketData.end())
+            return;
+
+        m_socketData.erase(itor);
+    }
+
+    if (WSAAsyncSelect(socket.handle(), m_pool->handle(), WM_SOCKET_EVENT, 0))
+        throw SystemException("Can't remove socket from WSAAsyncSelect");
+}
+
+void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
+{
+    MSG msg;
+
+    uint64_t threadId = Thread::currentThreadId();
+    if (threadId != m_threadId)
+        throw CException("SocketPool has to be used in the same must thread where it is created");
+
+    m_pool->poll(timeoutMS);
+
+    for (int i = 0; i < eventCount; i++) {
+        epoll_event& event = events[i];
+        if (event.events & (EPOLLHUP | EPOLLRDHUP))
+            m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);
+        else
+            m_eventsCallback(event.data.ptr, ET_HAS_DATA);
+    }
+}

@@ -26,6 +26,11 @@ IF (LINUX)
     SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} net/SocketPool.Linux.cpp)
 ENDIF ()
 
+IF (WIN32)
+    MESSAGE ("Socket events:      WSAsyncSelect (Windows)")
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} net/SocketPool.Linux.cpp)
+ENDIF ()
+
 IF (BSD)
     MESSAGE ("Socket events:      kqueue (BSD)")
     SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} net/SocketPool.BSD.cpp)
