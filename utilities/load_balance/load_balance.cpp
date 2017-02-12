@@ -35,7 +35,9 @@ using namespace sptk;
 int main(int argc, const char* argv[])
 {
     // Mask unwanted signals
+#ifndef _WIN32
     signal(SIGPIPE, SIG_IGN);
+#endif
 
     Loop<Destination> destinations;
     destinations.add(Destination("localhost", 1883));
@@ -47,7 +49,7 @@ int main(int argc, const char* argv[])
 
     loadBalance.run();
     while (true) {
-        sleep(1);
+        Thread::msleep(100);
     }
 
     return 0;

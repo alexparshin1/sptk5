@@ -79,13 +79,13 @@ void LoadBalance::threadFunction()
     m_listener.listen(m_listenerPort);
 
     while (!terminated()) {
-        int sourceFD;
+        SOCKET sourceFD;
         m_listener.accept(sourceFD, addr);
         Channel* channel = new Channel(m_sourceEvents, m_destinationEvents);
         const Destination& destination = m_destinations.loop();
-        const String& interface = m_interfaces.loop();
+        const String& interfaceAddress = m_interfaces.loop();
         try {
-            channel->open(sourceFD, interface, destination);
+            channel->open(sourceFD, interfaceAddress, destination);
         }
         catch (const exception& e) {
             delete channel;

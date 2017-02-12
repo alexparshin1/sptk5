@@ -49,7 +49,7 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
 	class EventWindowClass
 	{
 		std::string                 m_className;
-		static ATOM                 m_windowClass;
+		ATOM						m_windowClass;
 	public:
 		EventWindowClass();
 		static LRESULT CALLBACK EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
