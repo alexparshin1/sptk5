@@ -37,56 +37,78 @@
 
 namespace sptk {
 
+/**
+ * Socket event types
+ */
 typedef enum {
-	ET_UNKNOW_EVENT,
-	ET_HAS_DATA,
-	ET_CONNECTION_CLOSED
+    /**
+     * Event is unknown or undefined
+     */
+    ET_UNKNOW_EVENT,
+    /**
+     * Socket has data available to read
+     */
+    ET_HAS_DATA,
+    /**
+     * Peer closed connection
+     */
+    ET_CONNECTION_CLOSED
 } SocketEventType;
 
+/**
+ * Type definition of socket event callback function
+ */
 typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
 
 #ifdef _WIN32
-	class EventWindowClass
-	{
-		std::string                 m_className;
-		ATOM						m_windowClass;
-	public:
-		EventWindowClass();
-		static LRESULT CALLBACK EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-		const std::string className() const;
-		const ATOM windowClass() const;
-	};
+    class EventWindowClass
+    {
+        std::string                 m_className;
+        ATOM                        m_windowClass;
+    public:
+        EventWindowClass();
+        static LRESULT CALLBACK EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+        const std::string className() const;
+        const ATOM windowClass() const;
+    };
 
-	struct event {
-		int		events;
-		void*	udate;
-	};
+    struct event {
+        int      events;
+        void*    udate;
+    };
 
-	class EventWindow
-	{
-		HWND                        m_window;
-		SocketEventCallback			m_eventsCallback;
+    class EventWindow
+    {
+        HWND                        m_window;
+        SocketEventCallback         m_eventsCallback;
 
-		static LRESULT CALLBACK     windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+        static LRESULT CALLBACK     windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	public:
-		EventWindow(SocketEventCallback eventsCallback);
-		~EventWindow();
+    public:
+        EventWindow(SocketEventCallback eventsCallback);
+        ~EventWindow();
 
-		void eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam);
-		HWND handle() { return m_window; }
+        void eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam);
+        HWND handle() { return m_window; }
 
-		int poll(std::vector<event>&, size_t timeoutMS);
-	};
+        int poll(std::vector<event>&, size_t timeoutMS);
+    };
 #endif
 
+/**
+ * Socket event manager.
+ *
+ * Uses OS-specific implementation.
+ * On Linux it is using epoll, on BSD it is using kqueue,
+ * and on Windows WSAAsyncSelect is used.
+ */
 class SocketPool : public Synchronized
 {
 private:
 
 #ifdef _WIN32
     EventWindow*                m_pool;
-	std::thread::id             m_threadId;
+    std::thread::id             m_threadId;
 #else
     SOCKET                      m_pool;
 #endif

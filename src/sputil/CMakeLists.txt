@@ -27,7 +27,7 @@ IF (LINUX)
 ENDIF ()
 
 IF (WIN32)
-    MESSAGE ("Socket events:      WSAsyncSelect (Windows)")
+    MESSAGE ("Socket events:      WSAAsyncSelect (Windows)")
     SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} net/SocketPool.Windows.cpp)
 ENDIF ()
 
