@@ -30,7 +30,9 @@
 #define __SPTK_DESTINATION_H__
 
 #include <sptk5/cutils>
+#ifndef _WIN32
 #include <netinet/in.h>
+#endif
 
 class Destination
 {

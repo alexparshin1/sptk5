@@ -31,7 +31,6 @@
 
 #include <map>
 #include <mutex>
-#include <sys/epoll.h>
 #include <sptk5/Exception.h>
 #include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
@@ -42,19 +41,19 @@ namespace sptk {
 
 class SocketEvents : public Thread
 {
-    SocketPool                      m_socketPool;
+    SocketPool              m_socketPool;
 
-    std::mutex                      m_mutex;
-    std::map<int, epoll_event*>     m_watchList;
+    std::mutex              m_mutex;
+    std::map<int, void*>	m_watchList;
 
-    size_t                          m_timeoutMS;
+    size_t                  m_timeoutMS;
 
 protected:
 
     void threadFunction() override;
 
 public:
-    SocketEvents(SocketPool::EventCallback eventsCallback, size_t timeoutMS=1000);
+    SocketEvents(SocketEventCallback eventsCallback, size_t timeoutMS=1000);
     ~SocketEvents();
 
     void watch(BaseSocket& socket, void *userData) throw (Exception);

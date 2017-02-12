@@ -37,33 +37,64 @@
 
 namespace sptk {
 
+typedef enum {
+	ET_UNKNOW_EVENT,
+	ET_HAS_DATA,
+	ET_CONNECTION_CLOSED
+} SocketEventType;
+
+typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
+
 #ifdef _WIN32
-class EventWindow;
+	class EventWindowClass
+	{
+		std::string                 m_className;
+		static ATOM                 m_windowClass;
+	public:
+		EventWindowClass();
+		static LRESULT CALLBACK EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		const std::string className() const;
+		const ATOM windowClass() const;
+	};
+
+	struct event {
+		int		events;
+		void*	udate;
+	};
+
+	class EventWindow
+	{
+		HWND                        m_window;
+		SocketEventCallback			m_eventsCallback;
+
+		static LRESULT CALLBACK     windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	public:
+		EventWindow(SocketEventCallback eventsCallback);
+		~EventWindow();
+
+		void eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		HWND handle() { return m_window; }
+
+		int poll(std::vector<event>&, size_t timeoutMS);
+	};
 #endif
 
 class SocketPool : public Synchronized
 {
-public:
-
-    enum EventType {
-        ET_HAS_DATA,
-        ET_CONNECTION_CLOSED
-    };
-
-    typedef void (*EventCallback)(void *userData, EventType eventType);
-
 private:
 
 #ifdef _WIN32
     EventWindow*                m_pool;
+	std::thread::id             m_threadId;
 #else
     SOCKET                      m_pool;
 #endif
-    EventCallback               m_eventsCallback;
+    SocketEventCallback         m_eventsCallback;
     std::map<BaseSocket*,void*> m_socketData;
 
 public:
-    SocketPool(EventCallback eventCallback);
+    SocketPool(SocketEventCallback eventCallback);
     ~SocketPool();
 
     void open() throw (Exception);

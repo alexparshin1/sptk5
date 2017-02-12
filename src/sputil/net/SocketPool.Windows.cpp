@@ -33,65 +33,46 @@
 using namespace std;
 using namespace sptk;
 
-class EventWindowClass
+EventWindowClass::EventWindowClass()
 {
-    string                      m_className;
-    static ATOM                 m_windowClass;
-public:
-    EventWindowClass()
-    {
-        m_className = "EventWindow" + int2string(time(NULL));
+	m_className = "EventWindow" + int2string(time(NULL));
 
-        WNDCLASS wndclass;
-        memset(&wndclass, 0, sizeof(wndclass));
-        wndclass.style = CS_HREDRAW | CS_VREDRAW;
-        wndclass.lpfnWndProc = (WNDPROC)windowProc;
-        wndclass.lpszClassName = m_className.c_str();
-        windowClass = RegisterClass(&wndclass);
-        if (!windowClass())
-            throw Exception("Can't register event window class");
-    }
+	WNDCLASS wndclass;
+	memset(&wndclass, 0, sizeof(wndclass));
+	wndclass.style = CS_HREDRAW | CS_VREDRAW;
+	wndclass.lpfnWndProc = (WNDPROC)windowProc;
+	wndclass.lpszClassName = m_className.c_str();
+	m_windowClass = RegisterClass(&wndclass);
+	if (!windowClass())
+		throw Exception("Can't register event window class");
+}
 
-    const string className() const
-    {
-        return m_className;
-    }
-
-    const ATOM windowClass() const
-    {
-        return m_windowClass;
-    }
-};
-
-class EventWindow
+LRESULT CALLBACK EventWindowClass::EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    HWND                        m_window;
-    uint64_t                    m_threadId;
-    SocketPool::EventCallback   m_eventsCallback;
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
 
-    static LRESULT CALLBACK     windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+const string EventWindowClass::className() const
+{
+	return m_className;
+}
 
-public:
-    EventWindow(SocketPool::EventCallback eventsCallback);
-    ~EventWindow();
-
-    void eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam);
-    HWND handle() { return m_window; }
-
-    int poll(size_t timeoutMS);
-};
+const ATOM EventWindowClass::windowClass() const
+{
+	return m_windowClass;
+}
 
 static const EventWindowClass eventWindowClass;
 
-EventWindow::EventWindow(SocketPool::EventCallback eventsCallback)
-: m_threadId(Thread::currentThreadId()), m_eventsCallback(eventsCallback)
+EventWindow::EventWindow(SocketEventCallback eventsCallback)
+: m_eventsCallback(eventsCallback)
 {
     m_window = CreateWindow(eventWindowClass.className().c_str(),
                                   "", WS_OVERLAPPEDWINDOW,
                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                                   NULL, NULL, NULL, NULL);
     if (!m_window)
-        throw CSystemException("Can't create EventWindow");
+        throw SystemException("Can't create EventWindow");
 }
 
 EventWindow::~EventWindow()
@@ -104,7 +85,7 @@ EventWindow::~EventWindow()
 void EventWindow::eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_SOCKET_EVENT) {
-        short events = 0;
+        SocketEventType events = ET_UNKNOW_EVENT;
 
         switch (WSAGETSELECTEVENT(lParam)) {
         case FD_ACCEPT:
@@ -116,33 +97,34 @@ void EventWindow::eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-        if (!events && WSAGETSELECTERROR(lParam))
+        if (events == ET_UNKNOW_EVENT && WSAGETSELECTERROR(lParam))
             events = ET_CONNECTION_CLOSED;
 
         if (events)
-            m_eventsCallback(wParam, events);
+            m_eventsCallback((void*)wParam, events);
    }
 }
 
-int EventWindow::poll(size_t timeoutMS)
+int EventWindow::poll(std::vector<event>&, size_t timeoutMS)
 {
-    UINT_PTR timeoutTimerId = SetTimer(m_window, 0, timeoutMS, NULL);
+	MSG			msg;
+    UINT_PTR	timeoutTimerId = SetTimer(m_window, 0, (UINT) timeoutMS, NULL);
 
-    int rc = GetMessage(&msg, m_workerWindow, 0, 0);
+    int rc = GetMessage(&msg, m_window, 0, 0);
     if (rc == -1)
-        continue;
+        return 0;
 
     if (msg.message == WM_TIMER)
         return false; // timeout
-    KillTimer(m_workerWindow, timeoutTimerId);
+    KillTimer(m_window, timeoutTimerId);
 
     eventMessageFunction(msg.message, msg.wParam, msg.lParam);
 
     return 1;
 }
 
-SocketPool::SocketPool(SocketPool::EventCallback eventsCallback)
-: m_pool(NULL), m_eventsCallback(eventsCallback)
+SocketPool::SocketPool(SocketEventCallback eventsCallback)
+: m_pool(NULL), m_threadId(this_thread::get_id()), m_eventsCallback(eventsCallback)
 {
     open();
 }
@@ -208,14 +190,13 @@ void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
 
 void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
 {
-    MSG msg;
-
-    uint64_t threadId = Thread::currentThreadId();
+    thread::id threadId = this_thread::get_id();
     if (threadId != m_threadId)
-        throw CException("SocketPool has to be used in the same must thread where it is created");
+        throw Exception("SocketPool has to be used in the same must thread where it is created");
 
-    m_pool->poll(timeoutMS);
-
+	vector<event> signaled;
+    m_pool->poll(signaled, timeoutMS);
+/*
     for (int i = 0; i < eventCount; i++) {
         epoll_event& event = events[i];
         if (event.events & (EPOLLHUP | EPOLLRDHUP))
@@ -223,4 +204,5 @@ void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
         else
             m_eventsCallback(event.data.ptr, ET_HAS_DATA);
     }
+*/
 }
