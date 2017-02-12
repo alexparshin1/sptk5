@@ -56,12 +56,12 @@ SocketEvents::~SocketEvents()
     }
 }
 
-void SocketEvents::watch(BaseSocket& socket, void* userData) throw (Exception)
+void SocketEvents::add(BaseSocket& socket, void* userData) throw (Exception)
 {
     m_socketPool.watchSocket(socket, userData);
 }
 
-void SocketEvents::forget(BaseSocket& socket) throw (Exception)
+void SocketEvents::remove(BaseSocket& socket) throw (Exception)
 {
     m_socketPool.forgetSocket(socket);
 }
