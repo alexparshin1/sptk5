@@ -32,11 +32,11 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(void *userData, SocketPool::EventType eventType)
+void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
 {
     Channel* channel = (Channel*) userData;
 
-    if (eventType == SocketPool::ET_CONNECTION_CLOSED) {
+    if (eventType == ET_CONNECTION_CLOSED) {
         channel->close();
         delete channel;
         return;
@@ -45,11 +45,11 @@ void LoadBalance::sourceEventCallback(void *userData, SocketPool::EventType even
     channel->copyData(channel->source(), channel->destination());
 }
 
-void LoadBalance::destinationEventCallback(void *userData, SocketPool::EventType eventType)
+void LoadBalance::destinationEventCallback(void *userData, SocketEventType eventType)
 {
     Channel* channel = (Channel*) userData;
 
-    if (eventType == SocketPool::ET_CONNECTION_CLOSED) {
+    if (eventType == ET_CONNECTION_CLOSED) {
         //cout << "Destination socket closed" << endl;
         //cout.flush();
         channel->close();

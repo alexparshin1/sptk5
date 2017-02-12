@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(SocketPool::EventCallback eventsCallback)
+SocketPool::SocketPool(SocketEventCallback eventsCallback)
 : m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
 {
     open();
