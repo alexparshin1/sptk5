@@ -110,16 +110,16 @@ void BaseSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
 #else
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = m_domain;     // IPv4 or IPv6
-    hints.ai_socktype = m_type;     // Socket type
-    //hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
-    hints.ai_protocol = m_protocol; 
+    hints.ai_family = AF_INET;          // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM;    // Socket type
+    //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
+    hints.ai_protocol = 0;
 
     struct addrinfo *result;
     int rc = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
     if (rc)
         throw Exception(gai_strerror(rc));
-    
+
     memcpy(&addr, (struct sockaddr_in *) result->ai_addr, result->ai_addrlen);
 
     freeaddrinfo(result);
