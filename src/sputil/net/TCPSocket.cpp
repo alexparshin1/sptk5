@@ -193,31 +193,20 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
         m_port = portNumber;
 
     sockaddr_in addr;
-    getHostAddress(m_host, addr, SOCK_STREAM);
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
-    addr.sin_port = htons(uint16_t(m_port));
+    getHostAddress(m_host, addr);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(portNumber);
 
-    open(addr, openMode, _blockingMode, timeoutMS);
+	open(addr, openMode, _blockingMode, timeoutMS);
 }
 
-void TCPSocket::open(const struct sockaddr_in& addr, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, int timeoutMS) THROWS_EXCEPTIONS
 {
-    if (!m_port) {
-        m_port = ntohs(addr.sin_port);
-        uint8_t* ip = (uint8_t*) & addr.sin_addr.s_addr;
-        char buffer[32];
-        snprintf(buffer, sizeof(buffer), "%u.%u.%u.%u", ip[0], ip[0], ip[0], ip[0]);
-        m_host = buffer;
-    }
+	open_addr(openMode, &address, timeoutMS);
+	m_reader.open();
 
-    if (active())
-        close();
-
-    open_addr(openMode, &addr, timeoutMS);
-    m_reader.open();
-
-    if (!_blockingMode)
-        blockingMode(false);
+	if (!_blockingMode)
+		blockingMode(false);
 }
 
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)

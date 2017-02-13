@@ -179,20 +179,20 @@ public:
      * @param port uint32_t, the port number
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
     virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
 
-    /**
-     * @brief Opens the client socket connection by host address
-     * @param addr const struct sockaddr_in&, the host address
-     * @param openMode CSocketOpenMode, socket open mode
-     * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, connection timeout, milliseconds. The default is 0 (wait forever)
-     */
-    virtual void open(const struct sockaddr_in& addr, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
+	/**
+	* @brief Opens the client socket connection by host and port
+	* @param address const sockaddr_in&, address and port
+	* @param openMode CSocketOpenMode, socket open mode
+	* @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
+	* @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+	*/
+	virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, int timeoutMS = 0) THROWS_EXCEPTIONS;
 
-    /**
+	/**
      * @brief In server mode, waits for the incoming connection.
      *
      * When incoming connection is made, exits returning the connection info

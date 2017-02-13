@@ -70,7 +70,7 @@ class CSSLLibraryLoader
     static void init_locks(void)
     {
         m_locks = new Synchronized[CRYPTO_num_locks()];
-        //CRYPTO_set_id_callback(thread_id);
+        CRYPTO_set_id_callback(thread_id);
         CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
 
@@ -92,9 +92,7 @@ public:
         CRYPTO_set_locking_callback(NULL);
         CRYPTO_set_id_callback(NULL);
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
-    #if OPENSSL_VERSION_NUMBER < 0x20000000L
         SSL_COMP_free_compression_methods();
-    #endif
 #endif
         ERR_free_strings();
         EVP_cleanup();
@@ -127,13 +125,32 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::startSSL(bool blockingMode) THROWS_EXCEPTIONS
+void SSLSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
+	if (hostName.length())
+		m_host = hostName;
+	if (!m_host.length())
+		throw Exception("Please, define the host name", __FILE__, __LINE__);
+	if (portNumber)
+		m_port = portNumber;
+
+	sockaddr_in addr;
+	getHostAddress(m_host, addr);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(portNumber);
+
+	open(addr, openMode, _blockingMode, timeoutMS);
+}
+
+void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, int timeoutMS) THROWS_EXCEPTIONS
+{
+    TCPSocket::open(address, openMode, _blockingMode, timeoutMS);
+
     SYNCHRONIZED_CODE;
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
 
-    if (blockingMode) {
+    if (_blockingMode) {
         int rc = SSL_connect(m_ssl);
         if (rc <= 0) {
             close();
@@ -162,18 +179,6 @@ void SSLSocket::startSSL(bool blockingMode) THROWS_EXCEPTIONS
             Thread::msleep(1);
         }
     }
-}
-
-void SSLSocket::open(string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
-{
-    TCPSocket::open(hostName, port, openMode, blockingMode, timeoutMS);
-    startSSL(blockingMode);
-}
-
-void SSLSocket::open(const struct sockaddr_in& addr, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
-{
-    TCPSocket::open(addr, openMode, blockingMode, timeoutMS);
-    startSSL(blockingMode);
 }
 
 void SSLSocket::close()
