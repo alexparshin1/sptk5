@@ -92,7 +92,9 @@ public:
         CRYPTO_set_locking_callback(NULL);
         CRYPTO_set_id_callback(NULL);
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
+    #if OPENSSL_VERSION_NUMBER > 0x20000000L
         SSL_COMP_free_compression_methods();
+    #endif    
 #endif
         ERR_free_strings();
         EVP_cleanup();
@@ -142,7 +144,7 @@ void SSLSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
 	open(addr, openMode, _blockingMode, timeoutMS);
 }
 
-void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, int timeoutMS) THROWS_EXCEPTIONS
+void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     TCPSocket::open(address, openMode, _blockingMode, timeoutMS);
 

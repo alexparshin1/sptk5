@@ -28,6 +28,7 @@
 
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/Strings.h>
+#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;

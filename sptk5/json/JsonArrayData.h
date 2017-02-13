@@ -31,6 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+#include <sptk5/json/JsonElement.h>
 
 namespace sptk { namespace json {
 

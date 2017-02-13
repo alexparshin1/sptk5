@@ -200,7 +200,7 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
 	open(addr, openMode, _blockingMode, timeoutMS);
 }
 
-void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, int timeoutMS) THROWS_EXCEPTIONS
+void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
 	open_addr(openMode, &address, timeoutMS);
 	m_reader.open();

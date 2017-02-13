@@ -122,7 +122,7 @@ void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
 
 void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
 {
-    static const struct timespec timeout = { 0, timeoutMS * 1000000 };
+    static const struct timespec timeout = { time_t(timeoutMS / 1000), long((timeoutMS % 1000) * 1000000) };
     struct kevent events[MAXEVENTS];
 
     int eventCount = kevent(m_pool, NULL, 0, events, MAXEVENTS, &timeout);

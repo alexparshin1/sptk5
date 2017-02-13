@@ -30,6 +30,7 @@
 #define __JSON_DOCUMENT_H__
 
 #include "JsonElement.h"
+#include "JsonArrayData.h"
 #include <istream>
 #include <sptk5/Buffer.h>
 

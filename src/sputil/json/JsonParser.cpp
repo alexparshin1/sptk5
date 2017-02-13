@@ -150,7 +150,7 @@ bool readJsonBoolean(const string& json, size_t& readPosition)
         error("Unexpected character", readPosition);
     pos++;
     string value = json.substr(readPosition, pos - readPosition);
-    bool result;
+    bool result = false;
     if (value == "true")
         result = true;
     else if (value == "false")
