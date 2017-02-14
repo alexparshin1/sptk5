@@ -43,6 +43,9 @@ namespace sptk {
  * @{
  */
 
+/**
+ * Theme color constants enumeration
+ */
 enum CThemeColorIndex {
     /**
      * Foreground color index
@@ -68,6 +71,9 @@ enum CThemeColorIndex {
 
 #define THM_MAX_COLOR_INDEX 4
 
+/**
+ * Theme color states enumeration
+ */
 enum CThemeColorState
 {
     /**

@@ -42,8 +42,10 @@ namespace sptk
 
 class OracleConnection;
 
-class OracleStatement
-: public DatabaseStatement<OracleConnection,oracle::occi::Statement>
+/**
+ * Oracle statement
+ */
+class OracleStatement : public DatabaseStatement<OracleConnection,oracle::occi::Statement>
 {
 public:
     /**
