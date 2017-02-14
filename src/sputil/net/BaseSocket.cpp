@@ -31,6 +31,7 @@
 #include <errno.h>
 
 #include <sptk5/net/BaseSocket.h>
+#include <sys/poll.h>
 
 using namespace std;
 using namespace sptk;
@@ -235,26 +236,26 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, u
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
 {
-	if (m_sockfd == INVALID_SOCKET) {
-		// Create a new socket
-		m_sockfd = socket(m_domain, m_type, m_protocol);
-		if (m_sockfd == INVALID_SOCKET)
-			THROW_SOCKET_ERROR("Can't create socket");
-	}
+    if (m_sockfd == INVALID_SOCKET) {
+        // Create a new socket
+        m_sockfd = socket(m_domain, m_type, m_protocol);
+        if (m_sockfd == INVALID_SOCKET)
+            THROW_SOCKET_ERROR("Can't create socket");
+    }
 
-	sockaddr_in addr;
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = (SOCKET_ADDRESS_FAMILY)m_domain;
+    sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY)m_domain;
 
-	if (address == NULL)
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	else
-		addr.sin_addr.s_addr = inet_addr(address);
+    if (address == NULL)
+        addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    else
+        addr.sin_addr.s_addr = inet_addr(address);
 
-	addr.sin_port = htons(uint16_t(portNumber));
+    addr.sin_port = htons(uint16_t(portNumber));
 
-	if (::bind(m_sockfd, (sockaddr *)&addr, sizeof(addr)) != 0)
-		THROW_SOCKET_ERROR("Can't bind socket to port " + int2string(portNumber));
+    if (::bind(m_sockfd, (sockaddr *)&addr, sizeof(addr)) != 0)
+        THROW_SOCKET_ERROR("Can't bind socket to port " + int2string(portNumber));
 }
 
 void BaseSocket::listen (uint32_t portNumber)
@@ -302,7 +303,7 @@ size_t BaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEP
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
-    
+
     return (size_t) bytes;
 }
 
@@ -357,8 +358,15 @@ size_t BaseSocket::write (const std::string& buffer, const sockaddr_in* peer) TH
     return write(buffer.c_str(), buffer.length(), peer);
 }
 
+#if (__FreeBSD__ | __OpenBSD__)
+    #define CONNCLOSED (POLLHUP)
+#else
+    #define CONNCLOSED (POLLRDHUP|POLLHUP)
+#endif
+
 bool BaseSocket::readyToRead(uint32_t timeoutMS)
 {
+#ifdef _WIN32
     struct timeval timeout;
     timeout.tv_sec = int32_t (timeoutMS) / 1000;
     timeout.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
@@ -373,12 +381,23 @@ bool BaseSocket::readyToRead(uint32_t timeoutMS)
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
-        THROW_SOCKET_ERROR("Socket closed");
+        THROW_SOCKET_ERROR("Connection closed");
+#else
+    struct pollfd pfd;
+    pfd.fd = m_sockfd;
+    pfd.events = POLLIN;
+    int rc = poll(&pfd, 1, timeoutMS);
+    if (rc < 0)
+        THROW_SOCKET_ERROR("Can't read from socket");
+    if (rc == 1 && pfd.revents & CONNCLOSED)
+        throw Exception("Connection closed");
+#endif
     return rc != 0;
 }
 
 bool BaseSocket::readyToWrite(uint32_t timeoutMS)
 {
+#ifdef _WIN32
     struct timeval timeout;
     timeout.tv_sec = int32_t (timeoutMS) / 1000;
     timeout.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
@@ -394,6 +413,16 @@ bool BaseSocket::readyToWrite(uint32_t timeoutMS)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
         THROW_SOCKET_ERROR("Socket closed");
+#else
+    struct pollfd pfd;
+    pfd.fd = m_sockfd;
+    pfd.events = POLLOUT;
+    int rc = poll(&pfd, 1, timeoutMS);
+    if (rc < 0)
+        THROW_SOCKET_ERROR("Can't read from socket");
+    if (rc == 1 && pfd.revents & CONNCLOSED)
+        throw Exception("Connection closed");
+#endif
     return rc != 0;
 }
 
