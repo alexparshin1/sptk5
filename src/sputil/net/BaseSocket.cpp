@@ -31,7 +31,6 @@
 #include <errno.h>
 
 #include <sptk5/net/BaseSocket.h>
-#include <sys/poll.h>
 
 using namespace std;
 using namespace sptk;
@@ -39,6 +38,8 @@ using namespace sptk;
 #ifdef _WIN32
     static int   m_socketCount;
     static bool  m_inited(false);
+#else
+	#include <sys/poll.h>
 #endif
 
 void BaseSocket::throwSocketError (std::string operation, const char* file, int line) THROWS_EXCEPTIONS
