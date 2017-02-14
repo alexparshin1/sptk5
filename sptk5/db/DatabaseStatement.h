@@ -55,8 +55,10 @@ protected:
      */
     CParamVector    m_enumeratedParams;
 
-    struct
-    {
+    /**
+     * Statement state type definition
+     */
+    typedef struct {
         /**
          * Number of columns is result set
          */
@@ -76,11 +78,12 @@ protected:
          * Output parameter count
          */
         unsigned    outputParameterCount:1;
+    } State;
 
     /**
      * State flags
      */
-    } m_state;
+    State m_state;
 
 
 public:
