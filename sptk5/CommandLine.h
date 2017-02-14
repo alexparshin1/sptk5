@@ -45,7 +45,7 @@ namespace sptk {
 /**
  * @brief Command line parser
  */
-class CCommandLine
+class CommandLine
 {
 public:
     /**
@@ -417,12 +417,12 @@ public:
      * @param description std::string, Program description (forhelp only).
      * @param commandLinePrototype std::string, Command line prototype (forhelp only).
      */
-    CCommandLine(std::string programVersion, std::string description, std::string commandLinePrototype);
+    CommandLine(std::string programVersion, std::string description, std::string commandLinePrototype);
 
     /**
      * @brief destructor
      */
-    virtual ~CCommandLine();
+    virtual ~CommandLine();
 
     /**
      * @brief Defines command line option

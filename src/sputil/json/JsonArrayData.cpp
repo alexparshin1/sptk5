@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/json/JsonElement.h>
+#include <sptk5/json/JsonArrayData.h>
 
 using namespace std;
 using namespace sptk;

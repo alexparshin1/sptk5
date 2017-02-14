@@ -28,20 +28,24 @@
 
 #include "Channel.h"
 
+#ifdef _WIN32
+#include <io.h>
+#endif
+
 using namespace std;
 using namespace sptk;
 
-void Channel::open(int sourceFD, const String& interface, const Destination& destination)
+void Channel::open(int sourceFD, const String& interfaceAddress, const Destination& destination)
 {
     lock_guard<mutex>   lock(m_mutex);
 
     m_source.attach(sourceFD);
 
-    m_destination.bind(interface.c_str(), 0);
+    m_destination.bind(interfaceAddress.c_str(), 0);
     m_destination.open(destination.address(), BaseSocket::SOM_CONNECT, false, 60000);
 
-    m_sourceEvents.watch(m_source, this);
-    m_destinationEvents.watch(m_destination, this);
+    m_sourceEvents.add(m_source, this);
+    m_destinationEvents.add(m_destination, this);
 }
 
 void Channel::close()
@@ -49,12 +53,12 @@ void Channel::close()
     lock_guard<mutex>   lock(m_mutex);
 
     if (m_source.active()) {
-        m_sourceEvents.forget(m_source);
+        m_sourceEvents.remove(m_source);
         m_source.close();
     }
 
     if (m_destination.active()) {
-        m_destinationEvents.forget(m_destination);
+        m_destinationEvents.remove(m_destination);
         m_destination.close();
     }
 }
@@ -70,13 +74,21 @@ int Channel::copyData(TCPSocket& source, TCPSocket& destination) throw (Exceptio
 
     while (readBytes == fragmentSize) {
 
+#ifdef _WIN32
+        readBytes = _read(source.handle(), buffer, fragmentSize);
+        if (readBytes < 0)
+            throw SystemException("Can't read from socket");
+
+        if (_write(destination.handle(), buffer, readBytes) < 0)
+            throw SystemException("Can't write to socket");
+#else
         readBytes = ::read(source.handle(), buffer, fragmentSize);
         if ( readBytes < 0)
             throw SystemException("Can't read from socket");
 
         if (::write(destination.handle(), buffer, readBytes) < 0)
             throw SystemException("Can't write to socket");
-
+#endif
         totalBytes += readBytes;
     }
 

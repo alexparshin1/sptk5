@@ -135,7 +135,7 @@ public:
     /**
      * @brief Returns node type
      */
-    virtual XMLNodeType type() const
+    virtual XMLNodeType type() const override
     {
         return DOM_DOCUMENT;
     }
@@ -143,18 +143,18 @@ public:
     /**
      * @brief Destroys all nodes in document
      */
-    virtual void clear();
+    virtual void clear() override;
 
     /**
      * @brief Returns the node name.
      */
-    virtual const std::string& name() const;
+    virtual const std::string& name() const override;
 
     /**
      * @brief Sets the new name for the node
      * @param name const std::string&, new node name
      */
-    virtual void name(const std::string& name)
+    virtual void name(const std::string& name) override
     {
     }
 
@@ -162,7 +162,7 @@ public:
      * @brief Sets new name for node
      * @param name const char *, new node name
      */
-    virtual void name(const char *name)
+    virtual void name(const char *name) override
     {
     }
 
@@ -245,6 +245,16 @@ public:
      * @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
      */
     virtual void save(Buffer& buffer, bool formalXML=false) const;
+
+    /**
+     * @brief Saves document to buffer.
+     * @param buffer CBuffer&, a buffer to save document
+     * @param indent int, formatting indent (spaces)
+     */
+    virtual void save(Buffer& buffer, int indent) const override
+    {
+        XMLElement::save(buffer, indent);
+    }
 };
 /**
  * @}

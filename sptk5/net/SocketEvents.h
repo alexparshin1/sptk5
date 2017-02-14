@@ -31,7 +31,6 @@
 
 #include <map>
 #include <mutex>
-#include <sys/epoll.h>
 #include <sptk5/Exception.h>
 #include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
@@ -40,25 +39,67 @@
 
 namespace sptk {
 
+/**
+ * Socket events manager.
+ *
+ * Dynamic collection of sockets that delivers socket events
+ * such as data available for read or peer closed connection,
+ * to its sockets.
+ */
 class SocketEvents : public Thread
 {
-    SocketPool                      m_socketPool;
+    /**
+     * OS-specific event manager
+     */
+    SocketPool              m_socketPool;
 
-    std::mutex                      m_mutex;
-    std::map<int, epoll_event*>     m_watchList;
+    /**
+     * Map of sockets to corresponding user data
+     */
+    std::map<int, void*>    m_watchList;
 
-    size_t                          m_timeoutMS;
+    /**
+     * Mutex that protects map of sockets to corresponding user data
+     */
+    std::mutex              m_mutex;
+
+    /**
+     * Timeout in event monitoring loop
+     */
+    size_t                  m_timeoutMS;
 
 protected:
 
+    /**
+     * Event monitoring thread
+     */
     void threadFunction() override;
 
 public:
-    SocketEvents(SocketPool::EventCallback eventsCallback, size_t timeoutMS=1000);
+    /**
+     * Constructor
+     * @param eventsCallback SocketEventCallback, Callback function called for socket events
+     * @param timeoutMS size_t, Timeout in event monitoring loop
+     */
+    SocketEvents(SocketEventCallback eventsCallback, size_t timeoutMS=1000);
+
+    /**
+     * Destructor
+     */
     ~SocketEvents();
 
-    void watch(BaseSocket& socket, void *userData) throw (Exception);
-    void forget(BaseSocket& socket) throw (Exception);
+    /**
+     * Add socket to collection and start monitoring its events
+     * @param socket BaseSocket, Socket to monitor
+     * @param userData void*, User data to pass into callback function
+     */
+    void add(BaseSocket& socket, void* userData) throw (Exception);
+
+    /**
+     * Remove socket from collection and stop monitoring its events
+     * @param socket BaseSocket, Socket to remove
+     */
+    void remove(BaseSocket& socket) throw (Exception);
 };
 
 }

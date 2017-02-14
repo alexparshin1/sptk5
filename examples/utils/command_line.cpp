@@ -34,14 +34,14 @@ using namespace sptk;
 
 int main(int argc, const char* argv[])
 {
-    CCommandLine commandLine(
+    CommandLine commandLine(
     		"Command Line Arguments demo v.1.00",
 			"Demonstrates basic command line support.",
 			"command_line <command> [options]");
 
-    commandLine.defineOption("help", "h", CCommandLine::Visibility(""), "Prints this help.");
-    commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CCommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
-    commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CCommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
+    commandLine.defineOption("help", "h", CommandLine::Visibility(""), "Prints this help.");
+    commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
+    commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
     commandLine.defineArgument("archive", "Archive data (does nothing)");
     commandLine.defineArgument("restore", "Restore data (does nothing)");
     try {

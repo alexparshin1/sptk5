@@ -134,11 +134,22 @@ public:
 
     /**
      * @brief Loads registry from the string list
+     * @param data const Strings&, source string
      */
     virtual void load(const Strings& data);
 
     /**
+     * @brief Loads registry from std::string.
+     * @param data const std::string&, source string
+     */
+    virtual void load(const std::string& data)
+    {
+        load(data.c_str());
+    }
+
+    /**
      * @brief Loads registry from buffer
+     * @param data const char*, source string
      */
     virtual void load(const char* data);
 
@@ -187,6 +198,16 @@ public:
     virtual void save(Buffer &buffer, bool formatXML=false) const
     {
         XMLDocument::save(buffer, formatXML);
+    }
+
+    /**
+     * @brief Saves registry to buffer.
+     * @param buffer CBuffer&, Output buffer to save document
+     * @param indent int, formatting indent (spaces)
+     */
+    virtual void save(Buffer &buffer, int indent) const
+    {
+        XMLDocument::save(buffer, indent);
     }
 
 public:

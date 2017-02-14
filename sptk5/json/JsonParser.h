@@ -30,6 +30,7 @@
 #define __JSON__PARSER_H__
 
 #include <sptk5/json/JsonElement.h>
+#include <sptk5/json/JsonArrayData.h>
 
 namespace sptk { namespace json {
 

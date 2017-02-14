@@ -202,9 +202,9 @@ class SP_EXPORT Variant
 {
 protected:
     /**
-     * @brief Internal variant data storage
+     * Internal variant data storage type definition
      */
-    union variantData
+    typedef union variantData
     {
         /**
          * Boolean data
@@ -251,10 +251,13 @@ protected:
          */
         MoneyData           moneyData;
 
+    } VariantData;
+
+
     /**
-     * Data storage union
+     * Internal variant data storage
      */
-    } m_data;
+    VariantData             m_data;
 
     /**
      * Data size

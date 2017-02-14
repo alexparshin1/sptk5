@@ -30,6 +30,7 @@
 #include <sptk5/Exception.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 #ifndef _WIN32
 #ifdef __BORLANDC__
@@ -147,16 +148,16 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 break;
             case 17:
                 pattern = "39";   // day
-                strncat(DateTime::datePartsOrder, "D", sizeof(DateTime::datePartsOrder));
+                strncat(DateTime::datePartsOrder, "D", sizeof(DateTime::datePartsOrder) - 1);
                 break;
             case 6:
                 pattern = "19";   // month
-                strncat(DateTime::datePartsOrder, "M", sizeof(DateTime::datePartsOrder));
+                strncat(DateTime::datePartsOrder, "M", sizeof(DateTime::datePartsOrder) - 1);
                 break;
             case 2000:
             case 0:
                 pattern = "2999"; // year
-                strncat(DateTime::datePartsOrder, "Y", sizeof(DateTime::datePartsOrder));
+                strncat(DateTime::datePartsOrder, "Y", sizeof(DateTime::datePartsOrder) - 1);
                 break;
             default:
                 pattern = NULL;
@@ -196,7 +197,7 @@ void DateTimeFormat::init()
     t.tm_sec = 59;
     t.tm_wday = 0;      // Sunday
 
-#ifndef _WIN32
+#ifdef __linux__
     // For unknown reason this call of setlocale() under Windows makes
     // calls of sprintf to produce access violations. If you know why please
     // tell me..
@@ -279,7 +280,7 @@ void DateTime::time24Mode(bool t24mode)
 
     _time24Mode = t24mode;
     DateTime::timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::fullTimeFormat, timeBuffer);
-    strncpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat, sizeof(DateTime::shortTimeFormat));
+    strncpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat, sizeof(DateTime::shortTimeFormat) - 1);
     char* p = strchr(DateTime::shortTimeFormat, DateTime::timeSeparator);
     if (p) {
         p = strchr(p + 1, DateTime::timeSeparator);
@@ -287,8 +288,8 @@ void DateTime::time24Mode(bool t24mode)
             *p = 0;
     }
     if (!_time24Mode) {
-        strncat(DateTime::fullTimeFormat, "TM", sizeof(DateTime::fullTimeFormat));
-        strncat(DateTime::shortTimeFormat, "TM", sizeof(DateTime::shortTimeFormat));
+        strncat(DateTime::fullTimeFormat, "TM", sizeof(DateTime::fullTimeFormat) - 1);
+        strncat(DateTime::shortTimeFormat, "TM", sizeof(DateTime::shortTimeFormat) - 1);
     }
 }
 

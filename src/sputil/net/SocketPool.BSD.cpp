@@ -26,74 +26,114 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "LoadBalance.h"
-#include "Channel.h"
+#include "sptk5/net/SocketPool.h"
+#include <sys/event.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <iostream>
+#include "sptk5/SystemException.h"
 
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
+SocketPool::SocketPool(SocketEventCallback eventsCallback)
+        : m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
 {
-    Channel* channel = (Channel*) userData;
+    open();
+}
 
-    if (eventType == ET_CONNECTION_CLOSED) {
-        channel->close();
-        delete channel;
+SocketPool::~SocketPool()
+{
+    close();
+}
+
+void SocketPool::open() throw (Exception)
+{
+    if (m_pool != INVALID_SOCKET)
         return;
-    }
-
-    channel->copyData(channel->source(), channel->destination());
+    m_pool = kqueue();
+    if (m_pool == -1)
+        new SystemException("epoll_create1");
 }
 
-void LoadBalance::destinationEventCallback(void *userData, SocketEventType eventType)
+void SocketPool::close() throw (Exception)
 {
-    Channel* channel = (Channel*) userData;
-
-    if (eventType == ET_CONNECTION_CLOSED) {
-        //cout << "Destination socket closed" << endl;
-        //cout.flush();
-        channel->close();
-        delete channel;
+    if (m_pool == INVALID_SOCKET)
         return;
+
+    ::close(m_pool);
+
+    SYNCHRONIZED_CODE;
+    for (auto itor: m_socketData)
+        free(itor.second);
+
+    m_socketData.clear();
+    m_pool = INVALID_SOCKET;
+}
+
+void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exception)
+{
+    if (!socket.active())
+        throw Exception("Socket is closed");
+
+    SYNCHRONIZED_CODE;
+
+    int socketFD = socket.handle();
+    struct kevent* event = (struct kevent*) malloc(sizeof(struct kevent));
+    EV_SET(event, socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, userData);
+
+    int rc = kevent(m_pool, event, 1, NULL, 0, NULL);
+    if (rc == -1)
+        throw SystemException("Can't add socket to kqueue");
+
+    m_socketData[&socket] = event;
+}
+
+void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
+{
+    if (!socket.active())
+        throw Exception("Socket is closed");
+
+    struct kevent* event;
+
+    {
+        SYNCHRONIZED_CODE;
+
+        map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
+        if (itor == m_socketData.end())
+            return;
+
+        event = (struct kevent*) itor->second;
+        m_socketData.erase(itor);
     }
 
-    channel->copyData(channel->destination(), channel->source());
+    int socketFD = socket.handle();
+    EV_SET(event, socketFD, 0, EV_DELETE, 0, 0, 0);
+    int rc = kevent(m_pool, event, 1, NULL, 0, NULL);
+    if (rc == -1)
+        throw SystemException("Can't remove socket from kqueue");
+
+    free(event);
 }
 
-LoadBalance::LoadBalance(int listenerPort, Loop<Destination>& destinations, Loop<String>& interfaces)
-: Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces),
-  m_sourceEvents(sourceEventCallback), m_destinationEvents(destinationEventCallback)
+#define MAXEVENTS 16
+
+void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
 {
-}
+    static const struct timespec timeout = { time_t(timeoutMS / 1000), long((timeoutMS % 1000) * 1000000) };
+    struct kevent events[MAXEVENTS];
 
-LoadBalance::~LoadBalance()
-{
-}
+    int eventCount = kevent(m_pool, NULL, 0, events, MAXEVENTS, &timeout);
+    if (eventCount < 0)
+        throw SystemException("Error waiting for socket activity");
 
-void LoadBalance::threadFunction()
-{
-    struct sockaddr_in addr;
-
-    m_sourceEvents.run();
-    m_destinationEvents.run();
-    m_listener.listen(m_listenerPort);
-
-    while (!terminated()) {
-        SOCKET sourceFD;
-        m_listener.accept(sourceFD, addr);
-        Channel* channel = new Channel(m_sourceEvents, m_destinationEvents);
-        const Destination& destination = m_destinations.loop();
-        const String& interfaceAddress = m_interfaces.loop();
-        try {
-            channel->open(sourceFD, interfaceAddress, destination);
-        }
-        catch (const exception& e) {
-            delete channel;
-            cerr << e.what() << endl;
-        }
+    for (int i = 0; i < eventCount; i++) {
+        struct kevent& event = events[i];
+        if (event.flags & EV_EOF)
+            m_eventsCallback(event.udata, ET_CONNECTION_CLOSED);
+        else
+            m_eventsCallback(event.udata, ET_HAS_DATA);
     }
-
-    m_listener.close();
-    m_sourceEvents.terminate();
-    m_destinationEvents.terminate();
 }

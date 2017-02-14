@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sys/epoll.h>
 #include "sptk5/net/SocketPool.h"
 #include <iostream>
 #include "sptk5/SystemException.h"
@@ -34,8 +33,98 @@
 using namespace std;
 using namespace sptk;
 
+EventWindowClass::EventWindowClass()
+{
+	m_className = "EventWindow" + int2string(time(NULL));
+
+	WNDCLASS wndclass;
+	memset(&wndclass, 0, sizeof(wndclass));
+	wndclass.style = CS_HREDRAW | CS_VREDRAW;
+	wndclass.lpfnWndProc = (WNDPROC)windowProc;
+	wndclass.lpszClassName = m_className.c_str();
+	m_windowClass = RegisterClass(&wndclass);
+	if (!windowClass())
+		throw Exception("Can't register event window class");
+}
+
+LRESULT CALLBACK EventWindowClass::EventWindowClass::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+const string EventWindowClass::className() const
+{
+	return m_className;
+}
+
+const ATOM EventWindowClass::windowClass() const
+{
+	return m_windowClass;
+}
+
+static const EventWindowClass eventWindowClass;
+
+EventWindow::EventWindow(SocketEventCallback eventsCallback)
+: m_eventsCallback(eventsCallback)
+{
+    m_window = CreateWindow(eventWindowClass.className().c_str(),
+                                  "", WS_OVERLAPPEDWINDOW,
+                                  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                                  NULL, NULL, NULL, NULL);
+    if (!m_window)
+        throw SystemException("Can't create EventWindow");
+}
+
+EventWindow::~EventWindow()
+{
+    DestroyWindow(m_window);
+}
+
+#define WM_SOCKET_EVENT (WM_USER + 1000)
+
+void EventWindow::eventMessageFunction(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    if (uMsg == WM_SOCKET_EVENT) {
+        SocketEventType events = ET_UNKNOW_EVENT;
+
+        switch (WSAGETSELECTEVENT(lParam)) {
+        case FD_ACCEPT:
+        case FD_READ:
+            events = ET_HAS_DATA;
+            break;
+        case FD_CLOSE:
+            events = ET_CONNECTION_CLOSED;
+            break;
+        }
+
+        if (events == ET_UNKNOW_EVENT && WSAGETSELECTERROR(lParam))
+            events = ET_CONNECTION_CLOSED;
+
+        if (events)
+            m_eventsCallback((void*)wParam, events);
+   }
+}
+
+int EventWindow::poll(std::vector<event>&, size_t timeoutMS)
+{
+	MSG			msg;
+    UINT_PTR	timeoutTimerId = SetTimer(m_window, 0, (UINT) timeoutMS, NULL);
+
+    int rc = GetMessage(&msg, m_window, 0, 0);
+    if (rc == -1)
+        return 0;
+
+    if (msg.message == WM_TIMER)
+        return false; // timeout
+    KillTimer(m_window, timeoutTimerId);
+
+    eventMessageFunction(msg.message, msg.wParam, msg.lParam);
+
+    return 1;
+}
+
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-: m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
+: m_pool(NULL), m_threadId(this_thread::get_id()), m_eventsCallback(eventsCallback)
 {
     open();
 }
@@ -47,18 +136,16 @@ SocketPool::~SocketPool()
 
 void SocketPool::open() throw (Exception)
 {
-    if (m_pool != INVALID_SOCKET)
+    if (m_pool)
         return;
-    m_pool = epoll_create1(0);
-    if (m_pool == -1)
-        new SystemException("epoll_create1");
+    m_pool = new EventWindow(m_eventsCallback);
 }
 
 void SocketPool::close() throw (Exception)
 {
-    if (m_pool != INVALID_SOCKET) {
-        ::close(m_pool);
-        m_pool = INVALID_SOCKET;
+    if (m_pool) {
+        delete m_pool;
+        m_pool = NULL;
     }
 
     SYNCHRONIZED_CODE;
@@ -76,23 +163,16 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exceptio
 
     int socketFD = socket.handle();
 
-    epoll_event* event = (epoll_event*) malloc(sizeof(epoll_event));
-    event->data.ptr = userData;
-    event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
+    if (WSAAsyncSelect(socketFD, m_pool->handle(), WM_SOCKET_EVENT, FD_ACCEPT|FD_READ|FD_CLOSE) != 0)
+        throw SystemException("Can't add socket to WSAAsyncSelect");
 
-    int rc = epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event);
-    if (rc == -1)
-      throw SystemException("Can't add socket to epoll");
-
-    m_socketData[&socket] = event;
+    m_socketData[&socket] = userData;
 }
 
 void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
 {
     if (!socket.active())
         throw Exception("Socket is closed");
-
-    epoll_event* event;
 
     {
         SYNCHRONIZED_CODE;
@@ -101,29 +181,22 @@ void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
         if (itor == m_socketData.end())
             return;
 
-        event = (epoll_event*) itor->second;
         m_socketData.erase(itor);
     }
 
-    int rc = epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.handle(), event);
-    if (rc == -1)
-        throw SystemException("Can't remove socket from epoll");
-
-    free(event);
+    if (WSAAsyncSelect(socket.handle(), m_pool->handle(), WM_SOCKET_EVENT, 0))
+        throw SystemException("Can't remove socket from WSAAsyncSelect");
 }
-
-#define MAXEVENTS 16
 
 void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
 {
-    epoll_event events[MAXEVENTS];
+    thread::id threadId = this_thread::get_id();
+    if (threadId != m_threadId)
+        throw Exception("SocketPool has to be used in the same must thread where it is created");
 
-    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, timeoutMS);
-    if (eventCount < 0)
-        throw SystemException("Error waiting for socket activity");
-
-    //cout << "Got " << eventCount << " events" << endl;
-
+	vector<event> signaled;
+    m_pool->poll(signaled, timeoutMS);
+/*
     for (int i = 0; i < eventCount; i++) {
         epoll_event& event = events[i];
         if (event.events & (EPOLLHUP | EPOLLRDHUP))
@@ -131,4 +204,5 @@ void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
         else
             m_eventsCallback(event.data.ptr, ET_HAS_DATA);
     }
+*/
 }

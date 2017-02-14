@@ -474,7 +474,7 @@ public:
      */
     virtual XMLAttributes& attributes()
     {
-        return *(XMLAttributes*) 0;
+        throw Exception("This node can't have attributes");
     }
 
     /**
@@ -484,7 +484,7 @@ public:
      */
     virtual const XMLAttributes& attributes() const
     {
-        return *(XMLAttributes*) 0;
+        throw Exception("This node can't have attributes");
     }
 
     /**

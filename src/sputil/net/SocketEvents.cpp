@@ -29,16 +29,19 @@
 #include "sptk5/net/SocketEvents.h"
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
 #include <signal.h>
 #include <iostream>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 using namespace std;
 using namespace sptk;
 
 #define MAXEVENTS 128
 
-SocketEvents::SocketEvents(SocketPool::EventCallback eventsCallback, size_t timeoutMS)
+SocketEvents::SocketEvents(SocketEventCallback eventsCallback, size_t timeoutMS)
 : Thread("socket events"), m_socketPool(eventsCallback), m_timeoutMS(timeoutMS)
 {
 }
@@ -53,12 +56,12 @@ SocketEvents::~SocketEvents()
     }
 }
 
-void SocketEvents::watch(BaseSocket& socket, void* userData) throw (Exception)
+void SocketEvents::add(BaseSocket& socket, void* userData) throw (Exception)
 {
     m_socketPool.watchSocket(socket, userData);
 }
 
-void SocketEvents::forget(BaseSocket& socket) throw (Exception)
+void SocketEvents::remove(BaseSocket& socket) throw (Exception)
 {
     m_socketPool.forgetSocket(socket);
 }

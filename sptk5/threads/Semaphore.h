@@ -60,8 +60,12 @@ class SP_EXPORT Semaphore
     /**
      * Semaphore value
      */
-    std::atomic<int>        m_value;
+    std::atomic<uint32_t>   m_value;
 
+    /**
+     * Semaphore max value
+     */
+    std::atomic<uint32_t>   m_maxValue;
 
 public:
     /**
@@ -69,8 +73,9 @@ public:
      *
      * Creates semaphore with starting value (default 0)
      * @param startingValue uint32_t, starting semaphore value
+     * @param maxValue uint32_t, maximum semaphore value, or 0 if unlimited
      */
-    Semaphore(uint32_t startingValue=0);
+    Semaphore(uint32_t startingValue=0, uint32_t maxValue=0);
 
     /**
      * @brief Destructor
