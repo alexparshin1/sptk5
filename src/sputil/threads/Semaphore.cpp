@@ -31,9 +31,9 @@
 using namespace std;
 using namespace sptk;
 
-Semaphore::Semaphore(uint32_t startingValue)
+Semaphore::Semaphore(uint32_t startingValue, uint32_t maxValue)
+: m_value(startingValue), m_maxValue(maxValue)
 {
-    m_value = (int) startingValue;
 }
 
 Semaphore::~Semaphore()
@@ -43,8 +43,10 @@ Semaphore::~Semaphore()
 void Semaphore::post() THROWS_EXCEPTIONS
 {
     lock_guard<mutex>  lock(m_mutex);
-    m_value++;
-    m_condition.notify_one();
+    if (m_maxValue == 0 || m_value < m_maxValue) {
+        m_value++;
+        m_condition.notify_one();
+    }
 }
 
 bool Semaphore::wait(uint32_t timeoutMS) THROWS_EXCEPTIONS

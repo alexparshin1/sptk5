@@ -110,19 +110,62 @@ private:
     EventWindow*                m_pool;
     std::thread::id             m_threadId;
 #else
+    /**
+     * Socket that controls other sockets events
+     */
     SOCKET                      m_pool;
 #endif
+
+    /**
+     * Callback function executed upon socket events
+     */
     SocketEventCallback         m_eventsCallback;
+
+    /**
+     * Map of sockets to corresponding user data
+     */
     std::map<BaseSocket*,void*> m_socketData;
 
 public:
+    /**
+     * Constructor
+     * @param eventCallback SocketEventCallback, Callback function executed upon socket events
+     */
     SocketPool(SocketEventCallback eventCallback);
+
+    /**
+     * Destructor
+     */
     ~SocketPool();
 
+    /**
+     * Initialize socket pool
+     */
     void open() throw (Exception);
+
+    /**
+     * Wait until one or more sockets are signaled.
+     *
+     * Execute callback function for each signaled socket.
+     */
     void waitForEvents(size_t timeoutMS) throw (Exception);
+
+    /**
+     * Shutdown socket pool.
+     */
     void close() throw (Exception);
-    void watchSocket(BaseSocket& socket, void *userData) throw (Exception);
+
+    /**
+     * Add socket to monitored pool
+     * @param socket BaseSocket&, Socket to monitor events
+     * @param userData void*, User data to pass to callback function
+     */
+    void watchSocket(BaseSocket& socket, void* userData) throw (Exception);
+
+    /**
+     * Remove socket from monitored pool
+     * @param socket BaseSocket&, Socket from this pool
+     */
     void forgetSocket(BaseSocket& socket) throw (Exception);
 };
 

@@ -94,9 +94,13 @@ public:
 
     /**
      * @brief Returns border for a paticular index (0..3)
+     * @param ndx int, border index
      */
     int border(int ndx) const { return m_border[ndx]; }
 
+    /**
+     * @brief Returns border sizes
+     */
     int* border() { return m_border; }
 
     /**
@@ -106,14 +110,20 @@ public:
 
     /**
      * @brief Returns an image for a particular state
+     * @param state CThemeImageState, image state
      */
-    CPngImage* image(CThemeImageState state) const; 
+    CPngImage* image(CThemeImageState state) const;
 
     /**
      * @brief Returns an overlay image for a particular state
+     * @param state CThemeImageState, image state
      */
     CPngImage* overlayImage(CThemeImageState state) const;
 
+    /**
+     * @brief Returns full file name
+     * @param fileName std::string, file name
+     */
     static std::string gtkFullFileName(std::string fileName);
 };
 

@@ -77,7 +77,11 @@ public:
 
     };
 
+    /**
+     * Scrollbar orientation
+     */
     CThemeScrollBarType m_orientation;
+
     /**
      * Scrollbar parts
      */
@@ -140,7 +144,7 @@ public:
 
 
     /**
-     * @brief Loads GTK theme scrollbar button images from <style> node
+     * @brief Loads GTK theme scrollbar button images from 'style' node
      * @param xml XMLDoc&, GTK theme converted to XML
      * @param orientation std::string, scrollbar button orientation ("UP","DOWN","LEFT","RIGHT")
      * @param buttonImages CThemeImageCollection&, output button images

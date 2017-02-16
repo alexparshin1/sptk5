@@ -70,69 +70,69 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
+    virtual void driverBeginTransaction() THROWS_EXCEPTIONS override;
 
     /**
      * @brief Ends the transaction
      * @param commit bool, commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
+    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS override;
 
     // These methods implement the actions requested by CQuery
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual std::string queryError(const Query *query) const;
+    virtual std::string queryError(const Query *query) const override;
 
     /**
      * Allocates an SQLite3 statement
      */
-    virtual void queryAllocStmt(Query *query);
+    virtual void queryAllocStmt(Query *query) override;
 
     /**
      * Deallocates an SQLite3 statement
      */
-    virtual void queryFreeStmt(Query *query);
+    virtual void queryFreeStmt(Query *query) override;
 
     /**
      * Closes an SQLite3 statement
      */
-    virtual void queryCloseStmt(Query *query);
+    virtual void queryCloseStmt(Query *query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query *query);
+    virtual void queryPrepare(Query *query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    virtual void queryUnprepare(Query *query);
+    virtual void queryUnprepare(Query *query) override;
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query *query);
+    virtual void queryExecute(Query *query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int queryColCount(Query *query);
+    virtual int queryColCount(Query *query) override;
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query *query);
+    virtual void queryBindParameters(Query *query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query *query);
+    virtual void queryOpen(Query *query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query *query);
+    virtual void queryFetch(Query *query) override;
 
 
     /**
@@ -164,33 +164,33 @@ public:
     /**
      * @brief Returns driver-specific connection string
      */
-    std::string nativeConnectionString() const;
+    std::string nativeConnectionString() const override;
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the SQLite3 connection string
      */
-    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
+    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase() THROWS_EXCEPTIONS;
+    virtual void closeDatabase() THROWS_EXCEPTIONS override;
 
     /**
      * @brief Returns true if database is opened
      */
-    virtual bool active() const;
+    virtual bool active() const override;
 
     /**
      * @brief Returns the database connection handle
      */
-    virtual void* handle() const;
+    virtual void* handle() const override;
 
     /**
      * @brief Returns the SQLite3 driver description for the active connection
      */
-    virtual std::string driverDescription() const;
+    virtual std::string driverDescription() const override;
 
     /**
      * @brief Lists database objects

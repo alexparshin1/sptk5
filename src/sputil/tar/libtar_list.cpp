@@ -15,6 +15,7 @@
 #include <sptk5/sptk.h>
 
 #include "string.h"
+#include "stdlib.h"
 #include "libtar_listhash.h"
 
 /*

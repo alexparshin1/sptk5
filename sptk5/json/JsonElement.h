@@ -32,7 +32,6 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Exception.h>
-#include <sptk5/json/JsonArrayData.h>
 #include <sptk5/json/JsonObjectData.h>
 #include <set>
 
@@ -58,6 +57,8 @@ enum Type {
     JDT_OBJECT  = 16,
     JDT_NULL    = 32
 };
+
+class ArrayData;
 
 /**
  * JSON Element

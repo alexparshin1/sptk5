@@ -63,7 +63,7 @@ namespace sptk {
             m_count = 0;
         }
 
-        void resize(unsigned sz)
+        void resize(size_t sz)
         {
             m_values.resize(sz);
             m_lengths.resize(sz);

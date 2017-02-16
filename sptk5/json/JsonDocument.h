@@ -30,6 +30,7 @@
 #define __JSON_DOCUMENT_H__
 
 #include "JsonElement.h"
+#include "JsonArrayData.h"
 #include <istream>
 #include <sptk5/Buffer.h>
 
@@ -99,7 +100,7 @@ public:
 
     /**
      * Export JSON element (and all children) to stream
-     * @param stream sptk::Buffer&, Buffer to export JSON
+     * @param buffer sptk::Buffer&, Buffer to export JSON
      * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
      */
     void exportTo(Buffer& buffer, bool formatted=true);

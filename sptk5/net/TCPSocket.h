@@ -179,18 +179,18 @@ public:
      * @param port uint32_t, the port number
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
+    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS override;
 
     /**
-     * @brief Opens the client socket connection by host address
-     * @param addr const struct sockaddr_in&, the host address
+     * @brief Opens the client socket connection by host and port
+     * @param address const sockaddr_in&, address and port
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& addr, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS override;
 
     /**
      * @brief In server mode, waits for the incoming connection.
@@ -237,7 +237,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS override;
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -248,7 +248,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS override;
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -259,7 +259,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS override;
 };
 
 /**

@@ -143,24 +143,24 @@ public:
      * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
-    virtual void load(const XMLNode* attr);
+    virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
      * @param attr std::string, A string
      */
-    virtual void load(std::string attr);
+    virtual void load(std::string attr) override;
 
     /**
      * Loads type data from database field
      * @param field const CField&, Database field
      */
-    virtual void load(const Field& field);
+    virtual void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const char * value)
+    virtual WSString& operator =(const char * value) override
     {
         setString(value);
         return *this;
@@ -169,7 +169,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const std::string& value)
+    virtual WSString& operator =(const std::string& value) override
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
@@ -178,7 +178,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const Buffer& value)
+    virtual WSString& operator =(const Buffer& value) override
     {
         setBuffer(value.data(), value.bytes());
         return *this;
@@ -187,7 +187,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(int32_t value)
+    virtual WSString& operator =(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -196,7 +196,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(int64_t value)
+    virtual WSString& operator =(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -236,19 +236,19 @@ public:
      * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
-    virtual void load(const XMLNode* attr);
+    virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
      * @param attr std::string, A string
      */
-    virtual void load(std::string attr);
+    virtual void load(std::string attr) override;
 
     /**
      * Loads type data from database field
      * @param field const CField&, Database field
      */
-    virtual void load(const Field& field);
+    virtual void load(const Field& field) override;
 
     /**
      * Assignment operation
@@ -301,24 +301,24 @@ public:
      * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
-    virtual void load(const XMLNode* attr);
+    virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
      * @param attr std::string, A string
      */
-    virtual void load(std::string attr);
+    virtual void load(std::string attr) override;
 
     /**
      * Loads type data from database field
      * @param field const CField&, Database field
      */
-    virtual void load(const Field& field);
+    virtual void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSDate& operator =(DateTime value)
+    virtual WSDate& operator =(DateTime value) override
     {
         setDate(value);
         return *this;
@@ -366,29 +366,29 @@ public:
      * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
-    virtual void load(const XMLNode* attr);
+    virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
      * @param attr std::string, A string
      */
-    virtual void load(std::string attr);
+    virtual void load(std::string attr) override;
 
     /**
      * Loads type data from database field
      * @param field const CField&, Database field
      */
-    virtual void load(const Field& field);
+    virtual void load(const Field& field) override;
 
     /**
      * Better (than in base class) conversion method
      */
-    virtual std::string asString() const THROWS_EXCEPTIONS;
+    virtual std::string asString() const THROWS_EXCEPTIONS override;
 
     /**
      * Assignment operation
      */
-    virtual WSDateTime& operator =(DateTime value)
+    virtual WSDateTime& operator =(DateTime value) override
     {
         setDateTime(value);
         return *this;
@@ -436,24 +436,24 @@ public:
      * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
-    virtual void load(const XMLNode* attr);
+    virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
      * @param attr std::string, A string
      */
-    virtual void load(std::string attr);
+    virtual void load(std::string attr) override;
 
     /**
      * Loads type data from database field
      * @param field const CField&, Database field
      */
-    virtual void load(const Field& field);
+    virtual void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator =(float value)
+    virtual WSDouble& operator =(float value) override
     {
         setFloat(value);
         return *this;
@@ -462,7 +462,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSDouble& operator =(double value)
+    virtual WSDouble& operator =(double value) override
     {
         setFloat(value);
         return *this;
@@ -517,24 +517,24 @@ public:
      * Loads type data from request XML node
      * @param attr const XMLNode*, XML node
      */
-    virtual void load(const XMLNode* attr);
+    virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
      * @param attr std::string, A string
      */
-    virtual void load(std::string attr);
+    virtual void load(std::string attr) override;
 
     /**
      * Loads type data from database field
      * @param field const CField&, Database field
      */
-    virtual void load(const Field& field);
+    virtual void load(const Field& field) override;
 
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(int64_t value)
+    virtual WSInteger& operator =(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -543,7 +543,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(uint64_t value)
+    virtual WSInteger& operator =(uint64_t value) override
     {
         setInt64((int64_t) value);
         return *this;
@@ -552,7 +552,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(int32_t value)
+    virtual WSInteger& operator =(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -561,7 +561,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(uint32_t value)
+    virtual WSInteger& operator =(uint32_t value) override
     {
         setInteger((int32_t) value);
         return *this;
@@ -570,7 +570,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(int16_t value)
+    virtual WSInteger& operator =(int16_t value) override
     {
         setInteger(value);
         return *this;
@@ -579,7 +579,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSInteger& operator =(uint16_t value)
+    virtual WSInteger& operator =(uint16_t value) override
     {
         setInteger(value);
         return *this;

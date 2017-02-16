@@ -279,7 +279,7 @@ public:
      */
     bool isArray() const
     {
-        return m_multiplicity & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE);
+        return (m_multiplicity & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0;
     }
 
     /**
