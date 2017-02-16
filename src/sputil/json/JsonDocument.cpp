@@ -88,8 +88,10 @@ void Document::load(istream& json) throw(Exception)
     string          row;
     for (;;) {
         getline(json, row);
-        if (json.eof())
+        if (json.eof()) {
+            buffer << row << "\n";
             break;
+        }
         if (!json.good())
             throw Exception("Error reading JSON data from stream");
         buffer << row << "\n";

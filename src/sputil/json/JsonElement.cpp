@@ -34,6 +34,8 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
+const Element Element::emptyElement("");
+
 Element::Element(double value)
 : m_parent(NULL), m_type(JDT_NUMBER)
 {
@@ -220,6 +222,17 @@ Element& Element::operator[](const std::string& name) throw (Exception)
     return (*m_data.m_object)[name];
 }
 
+const Element& Element::operator[](const std::string& name) const throw (Exception)
+{
+    if (m_type != JDT_OBJECT)
+        throw Exception("Parent element is not JSON object");
+
+    const Element* element = find(name);
+    if (!element)
+        return emptyElement;
+    return *element;
+}
+
 Element& Element::operator[](size_t index) throw (Exception)
 {
     if (m_type != JDT_ARRAY)
@@ -398,6 +411,42 @@ string Element::escape(const string& text)
     return result;
 }
 
+static std::string codePointToUTF8(unsigned cp)
+{
+   std::string result;
+
+   // based on description from http://en.wikipedia.org/wiki/UTF-8
+
+   if (cp <= 0x7f) 
+   {
+      result.resize(1);
+      result[0] = static_cast<char>(cp);
+   }
+   else if (cp <= 0x7FF) 
+   {
+      result.resize(2);
+      result[1] = static_cast<char>(0x80 | (0x3f & cp));
+      result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
+   } 
+   else if (cp <= 0xFFFF) 
+   {
+      result.resize(3);
+      result[2] = static_cast<char>(0x80 | (0x3f & cp));
+      result[1] = 0x80 | static_cast<char>((0x3f & (cp >> 6)));
+      result[0] = 0xE0 | static_cast<char>((0xf & (cp >> 12)));
+   }
+   else if (cp <= 0x10FFFF) 
+   {
+      result.resize(4);
+      result[3] = static_cast<char>(0x80 | (0x3f & cp));
+      result[2] = static_cast<char>(0x80 | (0x3f & (cp >> 6)));
+      result[1] = static_cast<char>(0x80 | (0x3f & (cp >> 12)));
+      result[0] = static_cast<char>(0xF0 | (0x7 & (cp >> 18)));
+   }
+
+   return result;
+}
+
 string Element::decode(const string& text)
 {
     string result;
@@ -423,6 +472,15 @@ string Element::decode(const string& text)
             case 'n':  result += '\n'; break;
             case 'r':  result += '\r'; break;
             case 't':  result += '\t'; break;
+            case 'u':
+            {
+                pos++;
+                string ucharCodeStr = text.substr(pos, 4);
+                unsigned ucharCode = strtol(ucharCodeStr.c_str(), NULL, 16);
+                pos += 4;
+                result += codePointToUTF8(ucharCode);
+                break;
+            }
             default:
                 throw runtime_error("Unknown escape character");
         }
@@ -453,19 +511,19 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
                 if (lastPosition) {
                     // Full xpath match
                     elements.insert(element);
-                } 
+                }
                 else {
                     // Continue to match children
                     element->selectElements(elements, xpath, xpathPosition + 1, false);
                 }
-            } 
+            }
         } else {
             for (auto& itor: *m_data.m_object) {
                 if (lastPosition) {
                     // Full xpath match
                     Element* element = itor.second;
                     elements.insert(element);
-                } 
+                }
                 else {
                     // Continue to match children
                     itor.second->selectElements(elements, xpath, xpathPosition + 1, false);

@@ -119,6 +119,8 @@ protected:
      */
     void exportValueTo(std::ostream& stream, bool formatted, int indent) const;
 
+    static const Element    emptyElement;
+
 public:
     /**
      * Escape special characters
@@ -329,6 +331,15 @@ public:
      * @returns Element for the name, or NULL if not found
      */
     Element& operator[](const std::string& name) throw (Exception);
+
+    /**
+     * Get JSON element in JSON object element by name.
+     * If element doesn't exist in JSON object yet, then reference to static const JSON null element is returned.
+     * If this element is not JSON object, an exception is thrown.
+     * @param name std::string, Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
+    const Element& operator[](const std::string& name) const throw (Exception);
 
     /**
      * Get JSON element in JSON array element by index.
