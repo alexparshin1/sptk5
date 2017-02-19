@@ -215,6 +215,7 @@ Element& Element::operator[](const std::string& name) throw (Exception)
 {
     if (m_type != JDT_OBJECT && m_type != JDT_NULL)
         throw Exception("Parent element is not JSON object");
+
     if (m_type == JDT_NULL || !m_data.m_object) {
         m_data.m_object = new ObjectData(this);
         m_type = JDT_OBJECT;
@@ -235,6 +236,20 @@ const Element& Element::operator[](const std::string& name) const throw (Excepti
 }
 
 Element& Element::operator[](size_t index) throw (Exception)
+{
+    if (m_type != JDT_ARRAY)
+        throw Exception("Parent element is not JSON array");
+
+    if (!m_data.m_array)
+        m_data.m_array = new ArrayData(this);
+
+    while (index <= m_data.m_array->size())
+        m_data.m_array->add(new Element(""));
+
+    return (*m_data.m_array)[index];
+}
+
+const Element& Element::operator[](size_t index) const throw (Exception)
 {
     if (m_type != JDT_ARRAY)
         throw Exception("Parent element is not JSON array");
@@ -282,7 +297,9 @@ string Element::getString() const
 
 bool Element::getBoolean() const
 {
-    if (m_type == JDT_BOOLEAN)
+    if (m_type == JDT_STRING)
+        return *m_data.m_string == "true";
+    else if (m_type == JDT_BOOLEAN)
         return m_data.m_boolean;
     throw Exception("Not a boolean");
 }

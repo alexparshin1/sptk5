@@ -111,6 +111,11 @@ public:
     Element& root();
 
     /**
+     * Get document root element
+     */
+    const Element& root() const;
+
+    /**
      * Clear document content
      */
     void clear();

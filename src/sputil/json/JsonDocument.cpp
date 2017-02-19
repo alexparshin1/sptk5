@@ -115,3 +115,8 @@ Element& Document::root()
 {
     return *m_root;
 }
+
+const Element& Document::root() const
+{
+    return *m_root;
+}

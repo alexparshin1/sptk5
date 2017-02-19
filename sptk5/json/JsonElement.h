@@ -351,6 +351,14 @@ public:
     Element& operator[](size_t index) throw (Exception);
 
     /**
+     * Get JSON element in JSON array element by index.
+     * If this element is not JSON array, or an element doesn't exist in JSON array yet, an exception is thrown.
+     * @param index uint32_t, Index of the element in the array element
+     * @returns Element for the name, or NULL if not found
+     */
+    const Element& operator[](size_t index) const throw (Exception);
+
+    /**
      * Remove JSON element by name from this JSON object element
      * @param name std::string, Name of the element in the object element
      */
