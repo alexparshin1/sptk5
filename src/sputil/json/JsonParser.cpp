@@ -113,6 +113,8 @@ string readJsonString(const string& json, size_t& readPosition)
             pos++;
         pos++;
     }
+    //if (readPosition == 188020)
+    //    cout << endl;
     string str = Element::decode(json.substr(readPosition + 1, pos - readPosition - 1));
 
     readPosition = pos + 1;

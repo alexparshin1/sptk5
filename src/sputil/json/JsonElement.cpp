@@ -227,7 +227,7 @@ Element& Element::operator[](const std::string& name) throw (Exception)
 const Element& Element::operator[](const std::string& name) const throw (Exception)
 {
     if (m_type != JDT_OBJECT)
-        throw Exception("Parent element is not JSON object");
+        return emptyElement;
 
     const Element* element = find(name);
     if (!element)
@@ -443,9 +443,10 @@ static std::string codePointToUTF8(unsigned cp)
    else if (cp <= 0x7FF) 
    {
       result.resize(2);
+
       result[1] = static_cast<char>(0x80 | (0x3f & cp));
       result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
-   } 
+   }
    else if (cp <= 0xFFFF) 
    {
       result.resize(3);
@@ -469,9 +470,10 @@ string Element::decode(const string& text)
 {
     string result;
 
+    size_t length = text.length();
     size_t position = 0;
 
-    for (;;) {
+    while (position < length) {
         size_t pos = text.find_first_of("\\", position);
         if (pos == string::npos) {
             if (position == 0)
@@ -479,7 +481,8 @@ string Element::decode(const string& text)
             result += text.substr(position);
             break;
         }
-        result += text.substr(position, pos - position);
+        if (pos != position)
+            result += text.substr(position, pos - position);
         pos++;
         switch (text[pos]) {
             case '"':   result += '"'; break;
@@ -495,7 +498,7 @@ string Element::decode(const string& text)
                 pos++;
                 string ucharCodeStr = text.substr(pos, 4);
                 unsigned ucharCode = strtol(ucharCodeStr.c_str(), NULL, 16);
-                pos += 4;
+                pos += 3;
                 result += codePointToUTF8(ucharCode);
                 break;
             }
