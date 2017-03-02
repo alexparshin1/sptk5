@@ -47,7 +47,7 @@ namespace sptk {
  * This class is used for encoding and decoding the parts of mail messages.
  * All the methods of this class are static.
  */
-class Base64 
+class Base64
 {
 public:
     /**

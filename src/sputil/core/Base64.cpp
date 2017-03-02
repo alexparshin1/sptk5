@@ -115,68 +115,66 @@ void Base64::encode(string& strDest, const Buffer& bufSource)
     strDest = string(bufOut.c_str(), bufOut.bytes());
 }
 
-static int internal_decode(Buffer &bufDest, const unsigned char *src, uint32_t src_len)
+static const std::string base64_chars = 
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+
+static inline bool is_base64(uint8_t c)
 {
-    const unsigned char *current = src;
-    unsigned char c;
-    int ch, j = 0;
-
-    if (!src_len)
-        return 0;
-
-    if ((src_len % 4) != 0)
-        throw Exception("Can't decode Base64 data - Source buffer length must be dividable by 4");
-
-    bufDest.reset();
-
-    for (unsigned i = 0; i < src_len; i++) {
-        ch = current[i];
-
-        if (ch == '=')
-            break;
-        if (ch == ' ')
-            ch = '+';
-        ch = Index_64[ch];
-        if (ch < 0)
-            continue;
-
-        switch (i % 4)
-        {
-            case 0:
-                c = (unsigned char) ((ch << 2) & 0xFF);
-                bufDest.append((char *) &c, 1);
-                break;
-            case 1:
-                bufDest.data()[j] |= ((ch >> 4) & 0xFF);
-                j++;
-                if (current[i + 1] != '=') {
-                    c = (unsigned char) ((ch << 4) & 0xFF);
-                    bufDest.append((char *) &c, 1);
-                } /* if */
-                break;
-            case 2:
-                bufDest.data()[j] |= ((ch >> 2) & 0x0f);
-                j++;
-                if (current[i + 1] != '=') {
-                    c = (unsigned char) ((ch << 6) & 0xFF);
-                    bufDest.append((char *) &c, 1);
-                }
-                break;
-            case 3:
-                bufDest.data()[j] |= ch;
-                j++;
-                break;
-        }
-    }
-    return j;
+    return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-int Base64::decode(Buffer &bufDest, const Buffer& bufSource) THROWS_EXCEPTIONS
+static int internal_decode(Buffer& dest, std::string const& encoded_string)
 {
-    return internal_decode(bufDest, (const unsigned char *)bufSource.data(), (uint32_t)bufSource.bytes());
+    int in_len = encoded_string.size();
+    int i = 0;
+    int j = 0;
+    int in_ = 0;
+    uint8_t char_array_4[4], char_array_3[3];
+
+    dest.reset();
+
+  while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+    char_array_4[i++] = encoded_string[in_]; in_++;
+    if (i ==4) {
+      for (i = 0; i <4; i++)
+        char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+      char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+      char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+      char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+      for (i = 0; (i < 3); i++)
+                dest.append(char_array_3[i]);
+      i = 0;
+    }
+  }
+
+  if (i) {
+    for (j = i; j <4; j++)
+      char_array_4[j] = 0;
+
+    for (j = 0; j <4; j++)
+      char_array_4[j] = base64_chars.find(char_array_4[j]);
+
+    char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+    char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+    char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+    for (j = 0; (j < i - 1); j++) dest.append(char_array_3[j]);
+  }
+
+  return dest.size();
+}
+
+int Base64::decode(Buffer& bufDest, const Buffer& bufSource) THROWS_EXCEPTIONS
+{
+    string source(bufSource.c_str(), bufSource.bytes());
+    return internal_decode(bufDest, source);
 }
 
 int Base64::decode(Buffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
 {
-    return internal_decode(bufDest,(const unsigned char *)strSource.c_str(),(uint32_t)strSource.length());
+    return internal_decode(bufDest, strSource);
 }
