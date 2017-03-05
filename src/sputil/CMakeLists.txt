@@ -8,7 +8,7 @@ SET (SPUTIL_SOURCES
     core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/Registry.cpp core/SharedStrings.cpp
     core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
     core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp
-    core/md5.cpp
+    core/md5.cpp core/ZLib.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/FTPConnect.cpp
     net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
@@ -38,7 +38,7 @@ ENDIF ()
 
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp core/ZLib.cpp core/ZLib.h)
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})

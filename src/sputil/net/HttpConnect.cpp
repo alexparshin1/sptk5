@@ -164,6 +164,8 @@ void HttpConnect::getResponse(uint32_t readTimeout)
         }
     }
 
+    m_readBuffer.saveToFile("/tmp/1.gz");
+    
     m_socket.close();
 }
 
