@@ -27,6 +27,7 @@
 */
 
 #include <fstream>
+#include <sstream>
 #include <string.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
@@ -132,16 +133,18 @@ void Strings::fromString(const string &src, const char *delimitter, SplitMode mo
     }
 }
 
-string Strings::asString(const char *delimiter) const
+string Strings::asString(const char *delimitter) const
 {
-    string result;
-    for (const_iterator str = begin(); str != end(); ++str) {
-        if (result.empty())
-            result = *str;
-        else
-            result += delimiter + *str;
+    stringstream result;
+    bool first = true;
+    for (auto& str: *this) {
+        if (first) {
+            result << str;
+            first = false;
+        } else
+            result << delimitter << str;
     }
-    return result;
+    return result.str();
 }
 
 int Strings::indexOf(string s) const
