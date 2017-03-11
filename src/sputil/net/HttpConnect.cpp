@@ -206,20 +206,12 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData, uint32_t 
     if (parameters.length())
         command += "?" + parameters;
 
-<<<<<<< HEAD
     command += " HTTP/1.1\r\n";
-    command += "Accept-Encoding: gzip,deflate\r\n";
+    command += "Accept-Encoding: gzip\r\n";
     command += "Host: " + m_socket.host() + ":" + int2string(m_socket.port()) + "\r\n";
+    command += "Accept: */*\n";
     command += "Connection: Keep-Alive\r\n";
     command += "User-Agent: SPTK Http Client\r\n";
-=======
-    command += " HTTP/1.1\n";
-    command += "User-Agent: SPTK HttpConnect\n";
-    command += "Accept: */*\n";
-    command += "Accept-Encoding: gzip\n";
-    command += "Host: " + m_socket.host() + ":"+ int2string(m_socket.port()) + "\n";
-    command += "Connection: Keep-Alive\n";
->>>>>>> 0b485d2af0e4d2ad1b6d2b3ac749ec9189d97456
 
     Buffer buff;
     buff.append(command);
