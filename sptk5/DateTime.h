@@ -374,6 +374,11 @@ public:
     std::string timeString(bool showSeconds=false, bool showTimezone=false) const;
 
     /**
+     * @brief Returns time as a ISO date and time string
+     */
+    std::string isoDateTimeString() const;
+
+    /**
      * @brief Returns date and time as a string
      */
     operator std::string () const

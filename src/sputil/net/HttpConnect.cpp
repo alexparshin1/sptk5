@@ -28,6 +28,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/net/HttpConnect.h>
+#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -77,6 +78,10 @@ void HttpConnect::getResponse(uint32_t readTimeout)
 
         headers.push_back(header);
     }
+
+    for (auto& header: headers)
+        cout << header << endl;
+    cout << endl;
 
     m_responseHeaders.clear();
 
@@ -164,12 +169,14 @@ void HttpConnect::getResponse(uint32_t readTimeout)
         }
     }
 
+    m_readBuffer.saveToFile("/tmp/read.data");
+
     m_socket.close();
 }
 
 void HttpConnect::sendCommand(string cmd)
 {
-    cmd += "\n";
+    cmd += "\r\n";
 
     if (!m_socket.active())
         throw Exception("Socket isn't open");
@@ -191,11 +198,11 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData, uint32_t 
     if (parameters.length())
         command += "?" + parameters;
 
-    command += " HTTP/1.1\n";
-    command += "User-Agent: Wget/1.15 (linux-gnu)\n";
-    command += "Accept: */*\n";
-    command += "Host: " + m_socket.host() + ":"+ int2string(m_socket.port()) + "\n";
-    command += "Connection: Keep-Alive\n";
+    command += " HTTP/1.1\r\n";
+    command += "Accept-Encoding: gzip,deflate\r\n";
+    command += "Host: " + m_socket.host() + ":" + int2string(m_socket.port()) + "\r\n";
+    command += "Connection: Keep-Alive\r\n";
+    command += "User-Agent: SPTK Http Client\r\n";
 
     Buffer buff;
     buff.append(command);

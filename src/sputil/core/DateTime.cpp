@@ -974,6 +974,11 @@ string DateTime::timeString(bool showSeconds, bool showTimezone) const
     return string(buffer);
 }
 
+std::string DateTime::isoDateTimeString() const
+{
+    return dateString(true) + "T" + timeString(true, true);
+}
+
 DateTime DateTime::convertCTime(const time_t tt)
 {
     struct tm* t = localtime((time_t*) &tt);
