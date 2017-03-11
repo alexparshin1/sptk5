@@ -1,0 +1,124 @@
+//
+// Created by alexeyp on 5/03/17.
+//
+
+#include <sptk5/Exception.h>
+#include "ZLib.h"
+#include "zlib.h"
+
+#define CHUNK 16384
+
+void sptk::ZLib::compress(sptk::Buffer& dest, const sptk::Buffer& src)
+{
+    int ret, flush;
+    unsigned have;
+    z_stream strm;
+    unsigned char in[CHUNK];
+    unsigned char out[CHUNK];
+
+    /* allocate deflate state */
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    ret = deflateInit2(&strm,
+                       Z_DEFAULT_COMPRESSION,
+                       Z_DEFLATED,
+                       MAX_WBITS + 16,
+                       ZLIB_VER_MAJOR,
+                       Z_DEFAULT_STRATEGY);
+    if (ret != Z_OK)
+        throw Exception("deflateInit() error");
+
+    bool eof = false;
+    size_t readPosition = 0;
+    /* compress until end of file */
+    do {
+        size_t bytesToRead = src.bytes() - readPosition;
+        if (bytesToRead > CHUNK)
+            bytesToRead = CHUNK;
+        else
+            eof = true;
+        memcpy(in, src.c_str() + readPosition, bytesToRead);
+        readPosition += bytesToRead;
+        strm.avail_in = bytesToRead;
+        flush = eof ? Z_FINISH : Z_NO_FLUSH;
+        strm.next_in = in;
+
+        /* run deflate() on input until output buffer not full, finish
+           compression if all of source has been read in */
+        do {
+            strm.avail_out = CHUNK;
+            strm.next_out = out;
+            ret = deflate(&strm, flush);    /* no bad return value */
+            if (ret == Z_STREAM_ERROR)  /* state not clobbered */
+                throw Exception("compressed data error");
+            have = CHUNK - strm.avail_out;
+            dest.append((char*) out, have);
+        } while (strm.avail_out == 0);
+        //assert(strm.avail_in == 0);     /* all input will be used */
+
+        /* done when last data in file processed */
+    } while (flush != Z_FINISH);
+    //assert(ret == Z_STREAM_END);        /* stream will be complete */
+
+    /* clean up and return */
+    (void)deflateEnd(&strm);
+}
+
+void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
+{
+    int ret;
+    unsigned have;
+    z_stream strm;
+    unsigned char in[CHUNK];
+    unsigned char out[CHUNK];
+
+    /* allocate inflate state */
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+    ret = inflateInit2(&strm, 16+MAX_WBITS);
+    if (ret != Z_OK)
+        throw Exception("inflateInit() error");
+
+    size_t readPosition = 0;
+    /* decompress until deflate stream ends or end of file */
+    do {
+        size_t bytesToRead = src.bytes() - readPosition;
+        if (bytesToRead > CHUNK)
+            bytesToRead = CHUNK;
+        memcpy(in, src.c_str() + readPosition, bytesToRead);
+        readPosition += bytesToRead;
+        strm.avail_in = bytesToRead;
+        if (strm.avail_in == 0)
+            break;
+        strm.next_in = in;
+
+        /* run inflate() on input until output buffer not full */
+        do {
+            strm.avail_out = CHUNK;
+            strm.next_out = out;
+            ret = inflate(&strm, Z_NO_FLUSH);
+            if (ret == Z_STREAM_ERROR)  /* state not clobbered */
+                throw Exception("compressed data error");
+            switch (ret) {
+                case Z_NEED_DICT:
+                    ret = Z_DATA_ERROR;     /* and fall through */
+                case Z_DATA_ERROR:
+                case Z_MEM_ERROR:
+                    (void)inflateEnd(&strm);
+                    throw Exception("premature compressed data error");
+            }
+            have = CHUNK - strm.avail_out;
+            dest.append((char*) out, have);
+        } while (strm.avail_out == 0);
+
+        /* done when inflate() says it's done */
+    } while (ret != Z_STREAM_END);
+
+    /* clean up and return */
+    (void)inflateEnd(&strm);
+    //return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+}

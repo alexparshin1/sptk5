@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       json_test1.cpp - description                           ║
+║                       DateTime.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 16 2013                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  begin                Thursday Sep 17 2015                                   ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,35 +26,21 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/json/JsonDocument.h>
+#ifndef __SPTK_ZLIB_H__
+#define __SPTK_ZLIB_H__
 
-#include <iostream>
-#include <fstream>
+#include <sptk5/Buffer.h>
 
-using namespace std;
-using namespace sptk;
-
-int main(int argc, char **argv)
+namespace sptk
 {
-    json::Document jsonDocument;
 
-    ifstream file("test.data/test2.json");
-    jsonDocument.load(file);
-    file.close();
+class ZLib
+{
+public:
+    static void compress(Buffer& dest, const Buffer& src);
+    static void decompress(Buffer& dest, const Buffer& src);
+};
 
-    json::ElementSet selected;
-    jsonDocument.root().exportTo(cout);
-    jsonDocument.root().select(selected, "//firstName");
-
-    cout << endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl;
-
-    int elementIndex = 1;
-    for (json::Element* element: selected) {
-        cout << "Element " << elementIndex << ":" << endl;
-        element->exportTo(cout);
-        cout << endl << endl;
-        elementIndex++;
-    }
-    
-    return 0;
 }
+
+#endif

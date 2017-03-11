@@ -30,6 +30,9 @@
 #include <sptk5/net/HttpConnect.h>
 #include <iostream>
 
+#include <iostream>
+#include <src/sputil/core/ZLib.h>
+
 using namespace std;
 using namespace sptk;
 
@@ -68,12 +71,11 @@ void HttpConnect::getResponse(uint32_t readTimeout)
         m_socket.readLine(header);
         if (header.empty())
             throw Exception("Invalid HTTP response");
-        char* tail = (char*) strpbrk(header.c_str(),"\r\n");
+        size_t pos = header.find("\r");
+        if (pos != string::npos)
+            header.resize(pos);
 
-        if (tail)
-            *tail = 0;
-
-        if (tail == header.c_str())
+        if (header.empty())
             break;
 
         headers.push_back(header);
@@ -84,6 +86,7 @@ void HttpConnect::getResponse(uint32_t readTimeout)
     cout << endl;
 
     m_responseHeaders.clear();
+    cout << headers.join("\n") << endl << endl;
 
     if (headers.empty())
         throw Exception("Can't detect HTTP headers");
@@ -169,8 +172,13 @@ void HttpConnect::getResponse(uint32_t readTimeout)
         }
     }
 
-    m_readBuffer.saveToFile("/tmp/read.data");
-
+    if (m_responseHeaders["Content-Encoding"] == "gzip") {
+        Buffer unzipBuffer;
+        ZLib::decompress(unzipBuffer, m_readBuffer);
+        m_readBuffer = move(unzipBuffer);
+    }
+    m_readBuffer.saveToFile("/tmp/1.gz");
+    
     m_socket.close();
 }
 
@@ -198,11 +206,20 @@ void HttpConnect::cmd_get(string pageName, const HttpParams& postData, uint32_t 
     if (parameters.length())
         command += "?" + parameters;
 
+<<<<<<< HEAD
     command += " HTTP/1.1\r\n";
     command += "Accept-Encoding: gzip,deflate\r\n";
     command += "Host: " + m_socket.host() + ":" + int2string(m_socket.port()) + "\r\n";
     command += "Connection: Keep-Alive\r\n";
     command += "User-Agent: SPTK Http Client\r\n";
+=======
+    command += " HTTP/1.1\n";
+    command += "User-Agent: SPTK HttpConnect\n";
+    command += "Accept: */*\n";
+    command += "Accept-Encoding: gzip\n";
+    command += "Host: " + m_socket.host() + ":"+ int2string(m_socket.port()) + "\n";
+    command += "Connection: Keep-Alive\n";
+>>>>>>> 0b485d2af0e4d2ad1b6d2b3ac749ec9189d97456
 
     Buffer buff;
     buff.append(command);
