@@ -70,12 +70,15 @@ Element* ObjectData::find(std::string name)
 
 Element& ObjectData::operator[](std::string name)
 {
-    Element* element = m_items[name];
-    if (element == NULL) {
+    auto itor = m_items.find(name);
+    Element* element;
+    if (itor == m_items.end()) {
         element = new Element;
         element->m_parent = m_parent;
         m_items[name] = element;
-    }
+    } else
+        element = itor->second;
+
     return *element;
 }
 
