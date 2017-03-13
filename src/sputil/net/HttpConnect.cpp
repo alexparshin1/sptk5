@@ -108,8 +108,6 @@ int HttpConnect::getResponse(uint32_t readTimeout)
 
     m_readBuffer.reset();
 
-    Strings headers;
-
     int    bytes;
 
     readHeaders(readTimeout);
@@ -155,13 +153,13 @@ int HttpConnect::getResponse(uint32_t readTimeout)
             if (chunkSizeStr.empty())
                 m_socket.readLine(chunkSizeStr);
 
-            size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(),0L,16);
+            size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), 0L, 16);
 
             if (chunkSize == 0)
                 break;
 
             read_buffer.checkSize(chunkSize);
-            bytes = (int) m_socket.read(read_buffer.data(),chunkSize,0);
+            bytes = (int) m_socket.read(read_buffer, chunkSize, NULL);
 
             if (bytes > 0) {
                 read_buffer.data() [bytes] = 0;
@@ -175,7 +173,6 @@ int HttpConnect::getResponse(uint32_t readTimeout)
         ZLib::decompress(unzipBuffer, m_readBuffer);
         m_readBuffer = move(unzipBuffer);
     }
-    m_readBuffer.saveToFile("/tmp/1.gz");
 
     m_socket.close();
 
@@ -213,8 +210,6 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
 
     for (auto itor: m_requestHeaders)
         command << itor.first << ": " << itor.second << "\r\n";
-
-    cout << command.str() << endl;
 
     sendCommand(command.str());
 
@@ -267,8 +262,6 @@ int HttpConnect::cmd_post(string pageName, const Buffer& postData, std::string c
     string command = headers.asString("\r\n") + "\r\n\r\n";
 
     command += postData.data();
-
-    //cout << "[" << command << "]" << endl;
 
     sendCommand(command);
 
