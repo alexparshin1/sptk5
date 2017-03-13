@@ -86,6 +86,23 @@ protected:
      */
     void sendCommand(std::string cmd);
 
+    /**
+     * @brief Read HTTP response headers
+     * @param timeoutMS uint32_t, Response timeout
+     * @return HTTP result code
+     */
+    int readHeaders(uint32_t timeoutMS);
+
+    /**
+     * @brief Retrieves the server response on the command
+     *
+     * Stops when HTTP server closes the connection. The server response can then be
+     * accessed through the htmlData() method.
+     * @param timeoutMS uint32_t, Response timeout
+     * @return HTTP result code
+     */
+    int getResponse(uint32_t timeoutMS);
+
 public:
 
     /**
@@ -101,15 +118,6 @@ public:
      * @brief Destructor
      */
     ~HttpConnect();
-
-    /**
-     * @brief Retrieves the server response on the command
-     *
-     * Stops when HTTP server closes the connection. The server response can then be
-     * accessed through the htmlData() method.
-     * @param timeoutMS uint32_t, Response timeout
-     */
-    void getResponse(uint32_t timeoutMS);
 
     /**
      * @brief Returns the internal read buffer
@@ -154,19 +162,41 @@ public:
      * @param pageName std::string, the name of the page without the server name.
      * @param getData const HttpParams&, the list of HTTP data to pass to the server
      * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @return HTTP result code
      */
-    void cmd_get(std::string pageName, const HttpParams& getData, uint32_t timeoutMS);
+    int cmd_get(std::string pageName, const HttpParams& getData, uint32_t timeoutMS);
 
     /**
      * @brief Sends the POST command to the server
      *
      * Retrieves the server response into internal read buffer.
      * @param pageName std::string, the name of the page without the server name.
-     * @param postData const HttpParams&, the list of HTTP data to pass to the server
+     * @param postData const HttpParams&, the list of HTTP headers to post to the server
      * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @return HTTP result code
      */
-    void cmd_post(std::string pageName, const HttpParams& postData, uint32_t timeoutMS);
+    int cmd_post(std::string pageName, const HttpParams& postData, uint32_t timeoutMS);
+
+    /**
+     * @brief Sends the POST command to the server
+     *
+     * Retrieves the server response into internal read buffer.
+     * @param pageName std::string, the name of the page without the server name.
+     * @param content const Buffer&, the data to post to the server
+     * @param contentType std::string, content type
+     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @return HTTP result code
+     */
+    int cmd_post(std::string pageName, const Buffer& content, std::string contentType, uint32_t timeoutMS);
+
+    /**
+     * @brief Get value of response header
+     * @param headerName std::string, response header name
+     * @return header value, or empty string if header is not a part of the response
+     */
+    std::string responseHeader(std::string headerName) const;
 };
+
 /**
  * @}
  */

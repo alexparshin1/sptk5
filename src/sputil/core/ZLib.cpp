@@ -3,7 +3,7 @@
 //
 
 #include <sptk5/Exception.h>
-#include "ZLib.h"
+#include <sptk5/ZLib.h>
 #include "zlib.h"
 
 #define CHUNK 16384

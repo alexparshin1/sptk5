@@ -28,10 +28,11 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/net/HttpConnect.h>
-#include <iostream>
+#include <sptk5/RegularExpression.h>
+#include <sptk5/ZLib.h>
 
+#include <sstream>
 #include <iostream>
-#include <src/sputil/core/ZLib.h>
 
 using namespace std;
 using namespace sptk;
@@ -48,76 +49,73 @@ HttpConnect::~HttpConnect()
     m_socket.close();
 }
 
+int HttpConnect::readHeaders(uint32_t timeoutMS)
+{
+    m_responseHeaders.clear();
+
+    if (!m_socket.readyToRead(timeoutMS)) {
+        m_socket.close();
+        throw Exception("Response timeout");
+    }
+
+    RegularExpression matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*$");
+    RegularExpression matchHeader("^([^:]+):\\s+(.*)\\r$");
+
+    /// Reading HTTP headers
+    Strings matches;
+    bool firstRow = true;
+    int rc = 0;
+    for (;;) {
+        string header;
+        m_socket.readLine(header);
+        if (header.empty())
+            throw Exception("Invalid HTTP response");
+        if (firstRow) {
+            if (!matchProtocolAndResponseCode.m(header, matches))
+                throw Exception("Broken HTTP version header");
+            rc = string2int(matches[1]);
+            firstRow = false;
+            continue;
+        }
+        if (matchHeader.m(header, matches)) {
+            m_responseHeaders[ matches[0] ] = matches[1];
+            continue;
+        }
+        if (header[0] == '\r')
+            break;
+    }
+
+    if (m_requestHeaders.empty())
+        throw Exception("Can't detect HTTP headers");
+
+    return rc;
+}
+
 #define RSP_BLOCK_SIZE 1024*64
 
-void HttpConnect::getResponse(uint32_t readTimeout)
+string HttpConnect::responseHeader(string headerName) const
 {
+    auto itor = m_responseHeaders.find(headerName);
+    if (itor == m_responseHeaders.end())
+        return "";
+    return itor->second;
+}
+
+int HttpConnect::getResponse(uint32_t readTimeout)
+{
+    int rc = 200;
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
     m_readBuffer.reset();
 
     Strings headers;
 
-    int    bytes, contentLength = 0;
-    string header;
+    int    bytes;
 
-    if (!m_socket.readyToRead(readTimeout)) {
-        m_socket.close();
-        throw Exception("Response timeout");
-    }
+    readHeaders(readTimeout);
 
-    /// Reading HTTP headers
-    for (;;) {
-        m_socket.readLine(header);
-        if (header.empty())
-            throw Exception("Invalid HTTP response");
-        size_t pos = header.find("\r");
-        if (pos != string::npos)
-            header.resize(pos);
-
-        if (header.empty())
-            break;
-
-        headers.push_back(header);
-    }
-
-    for (auto& header: headers)
-        cout << header << endl;
-    cout << endl;
-
-    m_responseHeaders.clear();
-    cout << headers.join("\n") << endl << endl;
-
-    if (headers.empty())
-        throw Exception("Can't detect HTTP headers");
-
-    /// Parsing HTTP headers
-    if (headers[0].find("HTTP/1.") != 0)
-        throw Exception("Broken HTTP version header");
-
-    m_responseHeaders["HTTP version"] = headers[0];
-
-    bool chunked = 0;
-
-    for (unsigned i = 0; i < headers.size(); i++) {
-        char* headerStr = (char*) headers[i].c_str();
-        char* headerValue = strstr(headerStr,": ");
-
-        if (!headerValue)
-            continue;
-
-        *headerValue = 0;
-        headerValue += 2;
-        m_responseHeaders[headerStr] = headerValue;
-
-        if (strcmp(headerStr,"Transfer-Encoding") == 0) {
-            chunked = strstr(headerValue,"chunked") != NULL;
-            continue;
-        } else if (strcmp(headerStr,"Content-Length") == 0) {
-            contentLength = atoi(headerValue);
-            continue;
-        }
-    }
+    int contentLength = string2int(responseHeader("Content-Length"));
+    bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
     int bytesToRead = contentLength;
     if (!chunked) {
@@ -178,8 +176,10 @@ void HttpConnect::getResponse(uint32_t readTimeout)
         m_readBuffer = move(unzipBuffer);
     }
     m_readBuffer.saveToFile("/tmp/1.gz");
-    
+
     m_socket.close();
+
+    return rc;
 }
 
 void HttpConnect::sendCommand(string cmd)
@@ -192,47 +192,44 @@ void HttpConnect::sendCommand(string cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
-void HttpConnect::cmd_get(string pageName, const HttpParams& postData, uint32_t timeoutMS)
+int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
 {
     m_readBuffer.checkSize(1024);
 
-    Buffer buffer;
-    postData.encode(buffer);
+    stringstream command;
 
-    string parameters(buffer.data());
+    command << "GET " + pageName;
 
-    string command = "GET " + pageName;
+    if (!requestParameters.empty()) {
+        Buffer buffer;
+        requestParameters.encode(buffer);
+        command << "?" << buffer.data();
+    }
 
-    if (parameters.length())
-        command += "?" + parameters;
+    command << " HTTP/1.1\r\n";
 
-    command += " HTTP/1.1\r\n";
-    command += "Accept-Encoding: gzip\r\n";
-    command += "Host: " + m_socket.host() + ":" + int2string(m_socket.port()) + "\r\n";
-    command += "Accept: */*\n";
-    command += "Connection: Keep-Alive\r\n";
-    command += "User-Agent: SPTK Http Client\r\n";
+    command << "Host: " << m_socket.host() << ":" << m_socket.port() << "\r\n";
+    //command += "Accept: */*\n";
 
-    Buffer buff;
-    buff.append(command);
+    for (auto itor: m_requestHeaders)
+        command << itor.first << ": " << itor.second << "\r\n";
 
-    sendCommand(command);
+    cout << command.str() << endl;
 
-    getResponse(timeoutMS);
+    sendCommand(command.str());
+
+    return getResponse(timeoutMS);
 }
 
-void HttpConnect::cmd_post(string pageName, const HttpParams& postData, uint32_t timeoutMS)
+int HttpConnect::cmd_post(string pageName, const HttpParams& postData, uint32_t timeoutMS)
 {
     Strings headers;
 
     headers.push_back("POST " + pageName + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host());
 
-    map<string,string>::iterator itor = m_requestHeaders.begin();
-    map<string,string>::iterator iend = m_requestHeaders.end();
-
-    for (; itor != iend; ++itor)
-        headers.push_back(itor->first + ": " + itor->second);
+    for (auto& itor: m_requestHeaders)
+        headers.push_back(itor.first + ": " + itor.second);
 
     Buffer buffer;
     postData.encode(buffer);
@@ -245,5 +242,35 @@ void HttpConnect::cmd_post(string pageName, const HttpParams& postData, uint32_t
     command += "\r\n";
     sendCommand(command);
 
-    getResponse(timeoutMS);
+    return getResponse(timeoutMS);
+}
+
+int HttpConnect::cmd_post(string pageName, const Buffer& postData, std::string contentType, uint32_t timeoutMS)
+{
+    Strings headers;
+
+    headers.push_back("POST " + pageName + " HTTP/1.1");
+    headers.push_back("HOST: " + m_socket.host() + ":" + int2string(m_socket.port()));
+    headers.push_back("Accept-Encoding: gzip");
+    if (!contentType.empty())
+        headers.push_back("Content-Type: " + contentType);
+    //headers.push_back("Connection: Keep-Alive");
+    headers.push_back("User-agent: SPTK HTTP Client");
+    map<string,string>::iterator itor = m_requestHeaders.begin();
+    map<string,string>::iterator iend = m_requestHeaders.end();
+
+    for (; itor != iend; ++itor)
+        headers.push_back(itor->first + ": " + itor->second);
+
+    headers.push_back("Content-Length: " + int2string((uint32_t) postData.bytes()));
+
+    string command = headers.asString("\r\n") + "\r\n\r\n";
+
+    command += postData.data();
+
+    //cout << "[" << command << "]" << endl;
+
+    sendCommand(command);
+
+    return getResponse(timeoutMS);
 }
