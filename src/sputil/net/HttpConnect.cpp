@@ -121,11 +121,12 @@ int HttpConnect::getResponse(uint32_t readTimeout)
 
         for (;;) {
 
+            if (!m_socket.readyToRead(readTimeout)) {
+                m_socket.close();
+                throw Exception("Response read timeout");
+            }
+
             if (contentLength) {
-                if (!m_socket.readyToRead(readTimeout)) {
-                    m_socket.close();
-                    throw Exception("Response read timeout");
-                }
                 bytes = m_socket.socketBytes();
                 if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
                     bytes = bytesToRead;
@@ -147,6 +148,10 @@ int HttpConnect::getResponse(uint32_t readTimeout)
         string chunkSizeStr;
 
         for (;;) {
+            if (!m_socket.readyToRead(readTimeout)) {
+                m_socket.close();
+                throw Exception("Response read timeout");
+            }
             m_socket.readLine(chunkSizeStr);
             chunkSizeStr = trim(chunkSizeStr);
 
@@ -181,7 +186,7 @@ int HttpConnect::getResponse(uint32_t readTimeout)
 
 void HttpConnect::sendCommand(string cmd)
 {
-    cmd += "\r\n";
+    //cmd += "\r\n";
 
     if (!m_socket.active())
         throw Exception("Socket isn't open");
@@ -189,80 +194,61 @@ void HttpConnect::sendCommand(string cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
-int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+Strings HttpConnect::makeHeaders(string httpCommand, string pageName, const HttpParams& requestParameters)
 {
-    m_readBuffer.checkSize(1024);
+    Strings headers;
 
-    stringstream command;
-
-    command << "GET " + pageName;
+    string command(httpCommand + " " + pageName);
 
     if (!requestParameters.empty()) {
         Buffer buffer;
         requestParameters.encode(buffer);
-        command << "?" << buffer.data();
+        command += string("?") + buffer.data();
     }
 
-    command << " HTTP/1.1\r\n";
+    headers.push_back(command + " HTTP/1.1");
+    headers.push_back("HOST: " + m_socket.host() + ":" + int2string(m_socket.port()));
 
-    command << "Host: " << m_socket.host() << ":" << m_socket.port() << "\r\n";
-    //command += "Accept: */*\n";
-
-    for (auto itor: m_requestHeaders)
-        command << itor.first << ": " << itor.second << "\r\n";
-
-    sendCommand(command.str());
-
-    return getResponse(timeoutMS);
-}
-
-int HttpConnect::cmd_post(string pageName, const HttpParams& postData, uint32_t timeoutMS)
-{
-    Strings headers;
-
-    headers.push_back("POST " + pageName + " HTTP/1.1");
-    headers.push_back("HOST: " + m_socket.host());
+    map<string,string>::iterator itor = m_requestHeaders.begin();
+    map<string,string>::iterator iend = m_requestHeaders.end();
 
     for (auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
 
-    Buffer buffer;
-    postData.encode(buffer);
+    return move(headers);
+}
 
-    headers.push_back("Content-Length: " + int2string((uint32_t) buffer.bytes()));
+int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+{
+    m_readBuffer.checkSize(1024);
+
+    Strings headers = makeHeaders("GET", pageName, requestParameters);
+    //command += "Accept: */*\n";
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
-
-    command += buffer.data();
-    command += "\r\n";
     sendCommand(command);
 
     return getResponse(timeoutMS);
 }
 
-int HttpConnect::cmd_post(string pageName, const Buffer& postData, std::string contentType, uint32_t timeoutMS)
+int HttpConnect::cmd_post(string pageName, const Buffer& postData, uint32_t timeoutMS)
 {
-    Strings headers;
-
-    headers.push_back("POST " + pageName + " HTTP/1.1");
-    headers.push_back("HOST: " + m_socket.host() + ":" + int2string(m_socket.port()));
+    Strings headers = makeHeaders("POST", pageName, HttpParams());
     headers.push_back("Accept-Encoding: gzip");
-    if (!contentType.empty())
-        headers.push_back("Content-Type: " + contentType);
-    //headers.push_back("Connection: Keep-Alive");
-    headers.push_back("User-agent: SPTK HTTP Client");
-    map<string,string>::iterator itor = m_requestHeaders.begin();
-    map<string,string>::iterator iend = m_requestHeaders.end();
-
-    for (; itor != iend; ++itor)
-        headers.push_back(itor->first + ": " + itor->second);
-
     headers.push_back("Content-Length: " + int2string((uint32_t) postData.bytes()));
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
-
     command += postData.data();
+    sendCommand(command);
 
+    return getResponse(timeoutMS);
+}
+
+int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+{
+    Strings headers = makeHeaders("DELETE", pageName, requestParameters);
+
+    string command = headers.asString("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
     return getResponse(timeoutMS);

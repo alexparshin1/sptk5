@@ -76,8 +76,13 @@ protected:
      */
     HttpHeaders     m_responseHeaders;
 
-
 protected:
+
+    /**
+     * Create default headers for HTTP request
+     */
+    sptk::Strings makeHeaders(std::string httpCommand, std::string pageName, const HttpParams& requestParameters);
+
     /**
      * @brief Sends a single command to HTTP server
      *
@@ -160,22 +165,11 @@ public:
      *
      * Retrieves the server response into internal read buffer.
      * @param pageName std::string, the name of the page without the server name.
-     * @param getData const HttpParams&, the list of HTTP data to pass to the server
+     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_get(std::string pageName, const HttpParams& getData, uint32_t timeoutMS);
-
-    /**
-     * @brief Sends the POST command to the server
-     *
-     * Retrieves the server response into internal read buffer.
-     * @param pageName std::string, the name of the page without the server name.
-     * @param postData const HttpParams&, the list of HTTP headers to post to the server
-     * @param timeoutMS uint32_t, response timeout, milliseconds
-     * @return HTTP result code
-     */
-    int cmd_post(std::string pageName, const HttpParams& postData, uint32_t timeoutMS);
+    int cmd_get(std::string pageName, const HttpParams& parameters, uint32_t timeoutMS);
 
     /**
      * @brief Sends the POST command to the server
@@ -187,7 +181,18 @@ public:
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_post(std::string pageName, const Buffer& content, std::string contentType, uint32_t timeoutMS);
+    int cmd_post(std::string pageName, const Buffer& content, uint32_t timeoutMS);
+
+   /**
+     * @brief Sends the DELETE command to the server
+     *
+     * Retrieves the server response into internal read buffer.
+     * @param pageName std::string, the name of the page without the server name.
+     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
+     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @return HTTP result code
+     */
+    int cmd_delete(std::string pageName, const HttpParams& parameters, uint32_t timeoutMS);
 
     /**
      * @brief Get value of response header
