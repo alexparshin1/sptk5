@@ -177,7 +177,17 @@ public:
      * Retrieves the server response into internal read buffer.
      * @param pageName std::string, the name of the page without the server name.
      * @param content const Buffer&, the data to post to the server
-     * @param contentType std::string, content type
+     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @return HTTP result code
+     */
+    int cmd_post(std::string pageName, const Buffer& content, uint32_t timeoutMS);
+
+    /**
+     * @brief Sends the PUT command to the server
+     *
+     * Retrieves the server response into internal read buffer.
+     * @param pageName std::string, the name of the page without the server name.
+     * @param content const Buffer&, the data to post to the server
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
