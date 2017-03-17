@@ -187,11 +187,12 @@ public:
      *
      * Retrieves the server response into internal read buffer.
      * @param pageName std::string, the name of the page without the server name.
+     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
      * @param content const Buffer&, the data to post to the server
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_post(std::string pageName, const Buffer& content, uint32_t timeoutMS);
+    int cmd_put(std::string pageName, const HttpParams& parameters, const Buffer& content, uint32_t timeoutMS);
 
    /**
      * @brief Sends the DELETE command to the server

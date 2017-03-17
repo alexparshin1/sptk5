@@ -244,14 +244,19 @@ int HttpConnect::cmd_post(string pageName, const Buffer& postData, uint32_t time
     return getResponse(timeoutMS);
 }
 
-int HttpConnect::cmd_put(string pageName, const Buffer& postData, uint32_t timeoutMS)
+int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, const Buffer& putData, uint32_t timeoutMS)
 {
-    Strings headers = makeHeaders("PUT", pageName, HttpParams());
+    Strings headers = makeHeaders("PUT", pageName, requestParameters);
     headers.push_back("Accept-Encoding: gzip");
-    headers.push_back("Content-Length: " + int2string((uint32_t) postData.bytes()));
+
+    if (!putData.empty())
+        headers.push_back("Content-Length: " + int2string((uint32_t) putData.bytes()));
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
-    command += postData.data();
+
+    if (!putData.empty())
+        command += putData.data();
+
     sendCommand(command);
 
     return getResponse(timeoutMS);
