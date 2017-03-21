@@ -120,6 +120,9 @@ protected:
      */
     void exportValueTo(std::ostream& stream, bool formatted, int indent) const;
 
+    /**
+     * Empty const Json element
+     */
     static const Element    emptyElement;
 
 public:
