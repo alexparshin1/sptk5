@@ -34,10 +34,24 @@
 namespace sptk
 {
 
+/**
+ * Simple wrapper for ZLib functions
+ */
 class ZLib
 {
 public:
+    /**
+     * Compress data using gzip format
+     * @param dest Buffer&, Destination buffer
+     * @param const src Buffer&, Source buffer
+     */
     static void compress(Buffer& dest, const Buffer& src);
+
+    /**
+     * Uncompress data in gzip format
+     * @param dest Buffer&, Destination buffer
+     * @param const src Buffer&, Source buffer
+     */
     static void decompress(Buffer& dest, const Buffer& src);
 };
 
