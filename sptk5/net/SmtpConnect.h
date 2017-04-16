@@ -141,9 +141,8 @@ public:
      * @brief Logs in to the server host()
      * @param user std::string, user name
      * @param password std::string, user password
-     * @param method std::string, AUTH method: "login" or "plain"
      */
-    void cmd_auth(std::string user, std::string password, std::string method = "plain");
+    void cmd_auth(std::string user, std::string password);
 
     /**
      * @brief Sends the message

@@ -29,8 +29,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sstream>
 
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
@@ -206,6 +208,7 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, u
 
     switch (openMode) {
         case SOM_CONNECT:
+            currentOperation = "connect";
             if (timeoutMS) {
                 blockingMode(false);
                 connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
@@ -215,12 +218,11 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, u
                 blockingMode(true);
             } else
                 rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
-            currentOperation = "connect";
             break;
         case SOM_BIND:
-            rc = ::bind (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
             currentOperation = "bind";
-            if (!rc && m_type != SOCK_DGRAM) {
+            rc = ::bind (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+            if (rc == 0 && m_type != SOCK_DGRAM) {
                 rc = ::listen (m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
             }
@@ -230,8 +232,10 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, u
     }
 
     if (rc) {
+        stringstream error;
+        error << "Can't " << currentOperation << " to " << m_host << ":" << m_port << ". " << SystemException::osError() << ".";
         close();
-        throw Exception ("Can't open: " + currentOperation + "() failed.", __FILE__, __LINE__);
+        throw Exception(error.str());
     }
 }
 

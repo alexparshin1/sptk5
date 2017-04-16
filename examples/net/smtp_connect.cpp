@@ -92,9 +92,8 @@ int main(int argc, char *argv[])
         SMTP.host(host);
         SMTP.port(port);
         if (!user.empty() && !password.empty())
-            SMTP.cmd_auth(user, password, "login"); // Supported methods are login and plain
-        else
-            SMTP.cmd_auth("", "", "");              // No authentication - SMTP server is an open relay
+            SMTP.cmd_auth(user, password);  // Supported methods are login and plain
+
         cout << SMTP.response().asString("\n") << endl;
 
         SMTP.subject("Test e-mail");

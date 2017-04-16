@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <sptk5/Base64.h>
 #include <sptk5/net/SmtpConnect.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -136,25 +137,36 @@ string SmtpConnect::unmime(string s)
     return result;
 }
 
-void SmtpConnect::cmd_auth(string user, string password, string method)
+void SmtpConnect::cmd_auth(string user, string password)
 {
     close();
     open();
 
     m_response.clear();
     getResponse();
-
+    
     int rc = command("EHLO localhost");
     if (rc > 251)
         throw Exception(m_response.asString("\n"));
 
-    method = trim(lowerCase(method));
-    if (trim(user).length()) {
-        if (method.empty())
-            return;
+    Strings authInfo = m_response.grep("^AUTH ");
+    if (authInfo.empty())
+        return; // Authentication not advertised and not required
 
-        if (method == "login") {
-            rc = command("auth login", false, true);
+    RegularExpression matchAuth("^AUTH ");
+    string authMethodsStr = matchAuth.s(authInfo[0], "");
+    Strings authMethods(authMethodsStr, " ");
+
+    string method = "LOGIN";
+    if (authMethods.indexOf("LOGIN") < 0) {
+        if (authMethods.indexOf("PLAIN") < 0)
+            throw Exception("This SMTP module only supports LOGIN and PLAIN authentication.");
+        method = "PLAIN";
+    }
+    
+    if (trim(user).length()) {
+        if (method == "LOGIN") {
+            rc = command("AUTH LOGIN", false, true);
             if (rc > 432)
                 throw Exception(m_response.asString("\n"));
 
@@ -168,7 +180,7 @@ void SmtpConnect::cmd_auth(string user, string password, string method)
             return;
         }
 
-        if (method == "plain") {
+        if (method == "PLAIN") {
             Buffer userAndPassword;
             char nullChar = 0;
             userAndPassword.append(&nullChar, 1);

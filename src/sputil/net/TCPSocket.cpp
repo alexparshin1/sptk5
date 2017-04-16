@@ -195,7 +195,7 @@ void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openM
     sockaddr_in addr;
     getHostAddress(m_host, addr);
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(portNumber);
+	addr.sin_port = htons(m_port);
 
 	open(addr, openMode, _blockingMode, timeoutMS);
 }
