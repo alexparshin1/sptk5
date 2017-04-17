@@ -612,11 +612,15 @@ void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
     RegularExpression  matchGo("^/\\s*$");
     RegularExpression  matchShowErrors("^SHOW\\s+ERRORS", "i");
+    RegularExpression  matchCommentRow("^\\s*--");
 
     Strings statements, matches;
     string statement;
     bool routineStarted = false;
     for (string row: sqlBatch) {
+        row = trim(row);
+        if (row.empty() || matchCommentRow.matches(row))
+            continue;
 
         if (!routineStarted) {
             row = trim(row);

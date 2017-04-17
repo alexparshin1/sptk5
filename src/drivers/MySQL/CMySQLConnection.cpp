@@ -397,10 +397,14 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) 
     RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
     RegularExpression  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
     RegularExpression  matchEscapeChars("([$.])", "g");
+    RegularExpression  matchCommentRow("^\\s*--");
 
     Strings statements, matches;
     string statement, delimiter = ";";
     for (string row: sqlBatch) {
+        row = trim(row);
+        if (row.empty() || matchCommentRow.matches(row))
+            continue;
         if (matchDelimiterChange.m(row, matches)) {
             delimiter = matches[0];
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");

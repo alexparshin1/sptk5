@@ -750,14 +750,19 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 
 void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) THROWS_EXCEPTIONS
 {
-    RegularExpression matchStatementEnd("(;\\s*)$");
-    RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
-    RegularExpression matchGo("^\\s*GO\\s*$", "i");
+    RegularExpression   matchStatementEnd("(;\\s*)$");
+    RegularExpression   matchRoutineStart("^CREATE\\s+FUNCTION", "i");
+    RegularExpression   matchGo("^\\s*GO\\s*$", "i");
+    RegularExpression   matchCommentRow("^\\s*--");
 
     Strings statements, matches;
     string statement;
     bool routineStarted = false;
     for (String row: sqlBatch) {
+        row = trim(row);
+        if (row.empty() || matchCommentRow.matches(row))
+            continue;
+
         if (!routineStarted) {
             row = trim(row);
             if (row.empty() || row.startsWith("--"))
