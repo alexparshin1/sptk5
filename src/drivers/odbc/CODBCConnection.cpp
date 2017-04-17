@@ -748,7 +748,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-void ODBCConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEPTIONS
+void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) THROWS_EXCEPTIONS
 {
     RegularExpression matchStatementEnd("(;\\s*)$");
     RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
@@ -789,9 +789,17 @@ void ODBCConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEPTIONS
         statements.push_back(statement);
 
     for (string stmt: statements) {
-        Query query(this, stmt, false);
-        //cout << "[ " << statement << " ]" << endl;
-        query.exec();
+        try {
+            Query query(this, stmt, false);
+            //cout << "[ " << statement << " ]" << endl;
+            query.exec();
+        }
+        catch (const exception& e) {
+            if (errors)
+                errors->push_back(e.what());
+            else
+                throw;
+        }
     }
 }
 

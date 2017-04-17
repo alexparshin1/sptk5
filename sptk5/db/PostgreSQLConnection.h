@@ -243,8 +243,9 @@ public:
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
      * @param batchSQL const sptk::Strings&, SQL batch file
+     * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchSQL(const sptk::Strings& batchSQL) THROWS_EXCEPTIONS override;
+    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) THROWS_EXCEPTIONS override;
 };
 
 /**

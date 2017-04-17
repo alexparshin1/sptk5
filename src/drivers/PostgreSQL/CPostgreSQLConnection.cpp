@@ -1090,11 +1090,12 @@ void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& colu
     }
 }
 
-void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEPTIONS
+void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) THROWS_EXCEPTIONS
 {
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
     RegularExpression matchStatementEnd(";(\\s*|\\s*--.*)$");
+    RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements, matches;
     string statement, delimiter;
@@ -1103,7 +1104,7 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEP
     for (string row : sqlBatch) {
         if (!functionHeader && !functionBody) {
             row = trim(row);
-            if (row.empty())
+            if (row.empty() || matchCommentRow.matches(row))
                 continue;
         }
         if (!functionHeader) {
@@ -1143,8 +1144,16 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch) THROWS_EXCEP
         statements.push_back(statement);
 
     for (string stmt : statements) {
-        Query query(this, stmt);
-        query.exec();
+        try {
+            Query query(this, stmt);
+            query.exec();
+        }
+        catch (const exception& e) {
+            if (errors)
+                errors->push_back(e.what());
+            else
+                throw;
+        }
     }
 }
 
