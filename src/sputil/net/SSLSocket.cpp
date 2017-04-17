@@ -129,19 +129,19 @@ SSLSocket::~SSLSocket()
 
 void SSLSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
-	if (hostName.length())
-		m_host = hostName;
-	if (!m_host.length())
-		throw Exception("Please, define the host name", __FILE__, __LINE__);
-	if (portNumber)
-		m_port = portNumber;
+    if (hostName.length())
+        m_host = hostName;
+    if (!m_host.length())
+        throw Exception("Please, define the host name", __FILE__, __LINE__);
+    if (portNumber)
+        m_port = portNumber;
 
-	sockaddr_in addr;
-	getHostAddress(m_host, addr);
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(portNumber);
+    sockaddr_in addr;
+    getHostAddress(m_host, addr);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(portNumber);
 
-	open(addr, openMode, _blockingMode, timeoutMS);
+    open(addr, openMode, _blockingMode, timeoutMS);
 }
 
 void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
@@ -277,6 +277,8 @@ size_t SSLSocket::recv(void* buffer, size_t size) throw (exception)
 #define WRITE_BLOCK 16384
 size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
 {
+    if (len == 0)
+        return 0;
     const char* ptr = (const char*) buffer;
     uint32_t    totalLen = (uint32_t)len;
     int         rc;
