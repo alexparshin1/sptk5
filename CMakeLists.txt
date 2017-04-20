@@ -1,6 +1,6 @@
 # Under Cygwin, CMake 2.8.4 and newer doesn't define WIN32 anymore.
 # For other environments, required CMake version can be 2.6 or higher.
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 
 # The name of our project is "SPTK".  CMakeLists files in this project can
@@ -12,7 +12,8 @@ PROJECT (SPTK)
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
-SET (VERSION "5.2.6")
+SET (VERSION "5.2.11")
+SET (SOVERSION "5")
 
 # Place compiled libraries and examples into ./bin/
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)

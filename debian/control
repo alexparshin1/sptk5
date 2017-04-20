@@ -1,0 +1,13 @@
+Source: sptk
+Maintainer: Alexey Parshin <alexeyp@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.8
+Build-Depends: debhelper (>= 9)
+
+Package: sptk
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Simply Powerful Toolkit
+ Collection of C++ classes to make development of database and network
+ intensive applications easier.
