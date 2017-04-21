@@ -1,5 +1,5 @@
-sptk (5.2.11-1) UNRELEASED; urgency=medium
+sptk (5.2.11) stable; urgency=medium
 
-  * Initial release. (Closes: #XXXXXX)
+  * Initial release. (Closes: #000001)
 
- -- Alexey Parshin <alexeyp@alexeyp@gmail.com>  Thu, 20 Apr 2017 19:39:00 +1100
+ -- Alexey Parshin <alexeyp@gmail.com>  Fri, 21 Apr 2017 09:48:24 +1000

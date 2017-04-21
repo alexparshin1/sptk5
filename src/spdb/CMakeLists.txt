@@ -8,6 +8,7 @@ ADD_LIBRARY (spdb5 ${LIBRARY_TYPE}
     DatabaseField.cpp QueryParameterBinding.cpp QueryParameter.cpp QueryParameterList.cpp
     Query.cpp Transaction.cpp DatabaseConnectionString.cpp
     DatabaseConnection.cpp DatabaseConnectionPool.cpp)
+SET_TARGET_PROPERTIES(spdb5 PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
 TARGET_LINK_LIBRARIES (spdb5 sputil5)
 

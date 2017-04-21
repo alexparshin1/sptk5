@@ -361,7 +361,7 @@ FILE (GLOB includeFilesGroup "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/c*")
 INSTALL (FILES ${includeFilesGroup} DESTINATION include/sptk5)
 
 IF (POSTGRESQL_FLAG)
-  FILE (GLOB pgSQLscripts "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.pl")
+  FILE (GLOB pgSQLscripts "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/sql2cpp")
   INSTALL (PROGRAMS ${pgSQLscripts} DESTINATION bin)
   FILE (GLOB pgSQLscriptConfigs "${CMAKE_CURRENT_SOURCE_DIR}/dbtools/*.conf")
   INSTALL (FILES ${pgSQLscriptConfigs} DESTINATION share/sptk5/doc)
