@@ -101,20 +101,22 @@ string HttpConnect::responseHeader(string headerName) const
     return itor->second;
 }
 
-int HttpConnect::getResponse(uint32_t readTimeout)
+int HttpConnect::getResponse(string resourceName, uint32_t readTimeout)
 {
-    int rc = 200;
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
     m_readBuffer.reset();
 
-    int    bytes;
-
-    readHeaders(readTimeout);
+    int rc = readHeaders(readTimeout);
+    if (rc >= 500)
+        throw Exception("Server error: Error " + int2string(rc) + ", resource: " + resourceName);
+    if (rc >= 400)
+        throw Exception("Resource not found: Error " + int2string(rc) + ", resource: " + resourceName);
 
     int contentLength = string2int(responseHeader("Content-Length"));
     bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
+    int bytes;
     int bytesToRead = contentLength;
     if (!chunked) {
         int totalBytes = 0;
@@ -209,9 +211,6 @@ Strings HttpConnect::makeHeaders(string httpCommand, string pageName, const Http
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host() + ":" + int2string(m_socket.port()));
 
-    map<string,string>::iterator itor = m_requestHeaders.begin();
-    map<string,string>::iterator iend = m_requestHeaders.end();
-
     for (auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
 
@@ -228,7 +227,7 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
     string command = headers.asString("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(pageName, timeoutMS);
 }
 
 int HttpConnect::cmd_post(string pageName, const Buffer& postData, uint32_t timeoutMS)
@@ -241,7 +240,7 @@ int HttpConnect::cmd_post(string pageName, const Buffer& postData, uint32_t time
     command += postData.data();
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(pageName, timeoutMS);
 }
 
 int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, const Buffer& putData, uint32_t timeoutMS)
@@ -259,7 +258,7 @@ int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, c
 
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(pageName, timeoutMS);
 }
 
 int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
@@ -269,5 +268,5 @@ int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters
     string command = headers.asString("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(pageName, timeoutMS);
 }

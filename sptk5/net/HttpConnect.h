@@ -103,10 +103,11 @@ protected:
      *
      * Stops when HTTP server closes the connection. The server response can then be
      * accessed through the htmlData() method.
+     * @param resourceName std::string, HTTP resource name
      * @param timeoutMS uint32_t, Response timeout
      * @return HTTP result code
      */
-    int getResponse(uint32_t timeoutMS);
+    int getResponse(std::string resourceName, uint32_t timeoutMS);
 
 public:
 
