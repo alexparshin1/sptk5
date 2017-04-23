@@ -29,6 +29,7 @@
 #include <sptk5/db/MySQLConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/RegularExpression.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -427,15 +428,17 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) 
         statements.push_back(statement);
 
     for (string stmt: statements) {
+        Query query(this, stmt, false);
         try {
-            Query query(this, stmt, false);
             query.exec();
         }
         catch (const exception& e) {
+            stringstream error;
+            error << e.what() << ", query: " << query.sql();
             if (errors)
-                errors->push_back(e.what());
+                errors->push_back(error.str());
             else
-                throw;
+                throw DatabaseException(error.str());
         }
     }
 }
