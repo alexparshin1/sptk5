@@ -58,7 +58,7 @@ int HttpConnect::readHeaders(uint32_t timeoutMS)
         throw Exception("Response timeout");
     }
 
-    RegularExpression matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*$");
+    RegularExpression matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*");
     RegularExpression matchHeader("^([^:]+):\\s+(.*)\\r$");
 
     /// Reading HTTP headers
