@@ -12,7 +12,7 @@ PROJECT (SPTK)
 #SET (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_BUILD_TYPE Debug)
 
-SET (VERSION "5.2.11")
+SET (VERSION "5.2.12")
 SET (SOVERSION "5")
 
 # Place compiled libraries and examples into ./bin/
