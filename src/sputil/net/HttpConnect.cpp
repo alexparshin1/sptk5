@@ -210,6 +210,7 @@ Strings HttpConnect::makeHeaders(string httpCommand, string pageName, const Http
 
     headers.push_back(command + " HTTP/1.1");
     headers.push_back("HOST: " + m_socket.host() + ":" + int2string(m_socket.port()));
+    headers.push_back("User-Agent: SPTK Connect 5.x");
 
     for (auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
@@ -225,6 +226,7 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
     //command += "Accept: */*\n";
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
+    //cout << command;
     sendCommand(command);
 
     return getResponse(pageName, timeoutMS);
