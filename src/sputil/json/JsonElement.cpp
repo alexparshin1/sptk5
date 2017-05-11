@@ -344,7 +344,10 @@ void Element::exportValueTo(ostream& stream, bool formatted, int indent) const
     }
     switch (m_type) {
         case JDT_NUMBER:
-            stream << m_data.m_number;
+            if (m_data.m_number == (long) m_data.m_number)
+                stream << fixed << (long) m_data.m_number;
+            else
+                stream << fixed << m_data.m_number;
             break;
         case JDT_STRING:
             stream << "\"" << escape(*m_data.m_string) << "\"";
