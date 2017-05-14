@@ -123,7 +123,7 @@ public:
         if (m_semaphore.wait(uint32_t(timeoutMS))) {
             SynchronizedCode sc(m_sync);
             if (!m_queue->empty()) {
-                item = m_queue->front();
+                item = std::move(m_queue->front());
                 m_queue->pop();
                 return true;
             }

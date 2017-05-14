@@ -1,6 +1,6 @@
 # Under Cygwin, CMake 2.8.4 and newer doesn't define WIN32 anymore.
 # For other environments, required CMake version can be 2.6 or higher.
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 
 # The name of our project is "SPTK".  CMakeLists files in this project can
