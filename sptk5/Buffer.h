@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <iostream>
 
 namespace sptk
 {
@@ -210,6 +211,22 @@ public:
      * @param ch single character
      */
     void append(char ch);
+
+    /**
+     * Append an integer to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param val uint8_t, Short integer
+     */
+    void append(uint8_t val);
+
+    /**
+     * Append an integer to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param val uint16_t, Short integer
+     */
+    void append(uint16_t val);
 
     /**
      * @brief Appends a single char to the current buffer.
@@ -410,6 +427,12 @@ public:
         return std::string(m_buffer, m_bytes);
     }
 };
+
+/**
+ * Print buffer to ostream as hexadecimal dump
+  */
+  std::ostream& operator<<(std::ostream&, const Buffer& buffer);
+
 /**
  * @}
  */

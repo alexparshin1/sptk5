@@ -29,6 +29,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/filedefs.h>
+#include <iomanip>
 
 using namespace std;
 using namespace sptk;
@@ -137,6 +138,20 @@ void Buffer::append(char ch)
     checkSize(m_bytes + 1);
     m_buffer[m_bytes] = ch;
     m_bytes++;
+}
+
+void Buffer::append(uint8_t val)
+{
+    checkSize(m_bytes + 1);
+    *(uint8_t*)(m_buffer + m_bytes) = val;
+    m_bytes += 1;
+}
+
+void Buffer::append(uint16_t val)
+{
+    checkSize(m_bytes + 2);
+    *(uint16_t*)(m_buffer + m_bytes) = val;
+    m_bytes += 2;
 }
 
 void Buffer::append(const char* data, size_t sz)
@@ -248,3 +263,49 @@ Buffer& Buffer::operator = (const char* str)
     m_bytes = sz;
     return *this;
 }
+
+ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
+{
+    char fillChar = stream.fill('0');
+
+    size_t offset = 0;
+
+    while (offset < buffer.bytes()) {
+        stream << hex << setw(8) << offset << "  ";
+
+        size_t printed = 0;
+        size_t rowOffset = offset;
+        for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
+            if (printed == 8)
+                stream << " ";
+            unsigned printChar = (uint8_t) buffer[rowOffset];
+            stream << hex << setw(2) << printChar << " ";
+        }
+
+        while (printed < 16) {
+            stream << "   ";
+            printed++;
+        }
+
+        stream << " ";
+
+        printed = 0;
+        rowOffset = offset;
+        for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
+            if (printed == 8)
+                stream << " ";
+            uint8_t testChar = (uint8_t) buffer[rowOffset];
+            if (testChar >= 32)
+                stream << buffer[rowOffset];
+            else
+                stream << ".";
+        }
+
+        stream << endl;
+        offset += 16;
+    }
+
+    stream.fill(fillChar);
+    return stream;
+}
+

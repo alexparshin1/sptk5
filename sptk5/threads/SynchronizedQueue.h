@@ -99,6 +99,21 @@ public:
     /**
      * @brief Pushes a data item to the queue
      *
+     * Item is moved inside the queue.
+     * Automatically posts internal semaphore to indicate
+     * queue item availability.
+     * @param data T&&, A data item
+     */
+    void push(T&& data)
+    {
+        SynchronizedCode sc(m_sync);
+        m_queue->push(std::move(data));
+        m_semaphore.post();
+    }
+
+    /**
+     * @brief Pushes a data item to the queue
+     *
      * Automatically posts internal semaphore to indicate
      * queue item availability.
      * @param data const T&, A data item
