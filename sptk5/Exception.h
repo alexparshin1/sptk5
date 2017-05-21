@@ -133,7 +133,7 @@ public:
 /**
  * @brief Timeout exception
  *
- * Thrown every time when timeout error occurs.
+ * Thrown when timeout error occurs.
  */
 class SP_EXPORT TimeoutException: public Exception
 {
@@ -149,7 +149,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param other const CTimeoutException&, other exception object
+     * @param other const TimeoutException&, other exception object
      */
     TimeoutException(const TimeoutException& other);
 
@@ -160,9 +160,38 @@ public:
 };
 
 /**
+ * @brief Connection exception
+ *
+ * Thrown when connection error occurs.
+ */
+class SP_EXPORT ConnectionException: public Exception
+{
+public:
+    /**
+     * Constructor
+     * @param text std::string, the exception text
+     * @param file std::string, the file where exception occurs
+     * @param line int, the line number in the file where exception occurs
+     * @param description std::string, the optional description information
+     */
+    ConnectionException(std::string text, std::string file = "", int line = 0, std::string description = "");
+
+    /**
+     * @brief Copy constructor
+     * @param other const ConnectionException&, other exception object
+     */
+    ConnectionException(const ConnectionException& other);
+
+    /**
+     * @brief Destructor
+     */
+    ~ConnectionException() DOESNT_THROW;
+};
+
+/**
  * @brief Database operation exception
  *
- * Thrown every time when database operation error occurs.
+ * Thrown when database operation error occurs.
  */
 class SP_EXPORT DatabaseException: public Exception
 {
@@ -178,7 +207,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param other const CDatabaseException&, other exception object
+     * @param other const DatabaseException&, other exception object
      */
     DatabaseException(const DatabaseException& other);
 
@@ -231,6 +260,11 @@ public:
  * @brief Throws timeout exception with file name and line number
  */
 #define throwTimeoutException(msg) throw sptk::TimeoutException(msg,__FILE__,__LINE__)
+
+/**
+ * @brief Throws connection exception with file name and line number
+ */
+#define throwConnectionException(msg) throw sptk::ConnectionException(msg,__FILE__,__LINE__)
 
 /**
  * @brief Throws database exception with file name and line number

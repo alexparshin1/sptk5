@@ -90,6 +90,20 @@ TimeoutException::~TimeoutException() DOESNT_THROW
 {
 }
 
+ConnectionException::ConnectionException(std::string text, std::string file, int line, string description)
+: Exception(text, file, line, description)
+{
+}
+
+ConnectionException::ConnectionException(const ConnectionException& other)
+: Exception(other)
+{
+}
+
+ConnectionException::~ConnectionException() DOESNT_THROW
+{
+}
+
 DatabaseException::DatabaseException(std::string text, std::string file, int line, std::string description)
 : Exception(text, file, line, description)
 {

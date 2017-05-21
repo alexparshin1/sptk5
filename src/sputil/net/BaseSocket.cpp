@@ -386,7 +386,7 @@ bool BaseSocket::readyToRead(uint32_t timeoutMS)
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
-        THROW_SOCKET_ERROR("Connection closed");
+        throw ConnectionException("Connection closed");
 #else
     struct pollfd pfd;
     pfd.fd = m_sockfd;
@@ -395,7 +395,7 @@ bool BaseSocket::readyToRead(uint32_t timeoutMS)
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (rc == 1 && pfd.revents & CONNCLOSED)
-        throw Exception("Connection closed");
+        throw ConnectionException("Connection closed");
 #endif
     return rc != 0;
 }
