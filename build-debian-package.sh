@@ -2,7 +2,7 @@
 
 which debuild > /dev/null || sudo apt install build-essential devscripts debhelper
 
-VERSION="5.2.12"
+VERSION="5.2.13"
 
 cmake . -DCMAKE_INSTALL_PREFIX=/usr
 
