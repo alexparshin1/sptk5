@@ -40,7 +40,7 @@ using namespace sptk;
 HttpConnect::HttpConnect(TCPSocket& socket)
 : m_socket(socket)
 {
-    m_requestHeaders["Content-Type"] = "application/x-www-form-urlencoded";
+    //m_requestHeaders["Content-Type"] = "application/x-www-form-urlencoded";
     m_requestHeaders["Connection"] = "close";
 }
 
@@ -232,16 +232,16 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
     return getResponse(pageName, timeoutMS);
 }
 
-int HttpConnect::cmd_post(string pageName, const Buffer& postData, uint32_t timeoutMS)
+int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const Buffer& postData, uint32_t timeoutMS)
 {
-    Strings headers = makeHeaders("POST", pageName, HttpParams());
-    headers.push_back("Accept-Encoding: gzip");
+    Strings headers = makeHeaders("POST", pageName, parameters);
+    //headers.push_back("Accept-Encoding: gzip");
     headers.push_back("Content-Length: " + int2string((uint32_t) postData.bytes()));
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
     command += postData.data();
     sendCommand(command);
-
+    
     return getResponse(pageName, timeoutMS);
 }
 
