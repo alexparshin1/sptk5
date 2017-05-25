@@ -266,12 +266,12 @@ string RegularExpression::s(string text, string outputPattern) const THROWS_EXCE
     return replaceAll(text, outputPattern, replaced);
 }
 
-bool operator==(std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
+bool operator==(const string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
 {
     return regexp == text;
 }
 
-bool operator!=(std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
+bool operator!=(const string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
 {
     return regexp != text;
 }

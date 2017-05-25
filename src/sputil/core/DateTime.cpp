@@ -30,7 +30,6 @@
 #include <sptk5/Exception.h>
 
 #include <string.h>
-#include <stdlib.h>
 
 #ifndef _WIN32
 #ifdef __BORLANDC__
@@ -316,9 +315,7 @@ void DateTime::encodeDate(double& dt, short year, short month, short day)
 void DateTime::encodeDate(double& dt, const char* dat)
 {
     char bdat[64];
-    short datePart[7], partNumber = 0;
-    char* ptr = NULL;
-    char actualDateSeparator = 0;
+    short datePart[7];
 
     memset(datePart, 0, sizeof(datePart));
     ::upperCase(bdat, dat);
@@ -327,6 +324,9 @@ void DateTime::encodeDate(double& dt, const char* dat)
         dt = Date();        // Sets the current date
         return;
     } else {
+        char actualDateSeparator = 0;
+        short partNumber = 0;
+        char* ptr = NULL;
         uint32_t len = (uint32_t) strlen(bdat);
         for (uint32_t i = 0; i <= len && partNumber < 7; i++) {
             char c = bdat[i];
@@ -460,10 +460,6 @@ int decodeTZOffset(const char* tzOffset)
 void DateTime::encodeTime(double& dt, const char* tim)
 {
     char bdat[32];
-    short timePart[4] = {0, 0, 0, 0};
-    short partNumber = 0;
-    char* ptr = NULL;
-    bool afternoon = false;
 
     ::upperCase(bdat, tim);
 
@@ -476,6 +472,10 @@ void DateTime::encodeTime(double& dt, const char* tim)
         dt = Time();        // Sets the current date
         return;
     } else {
+        char* ptr = NULL;
+        bool afternoon = false;
+        short timePart[4] = {0, 0, 0, 0};
+        short partNumber = 0;
         int tzOffsetMin = 0;
         char* p = strpbrk(bdat, "APZ+-"); // Looking for AM, PM, or timezone
         if (p) {

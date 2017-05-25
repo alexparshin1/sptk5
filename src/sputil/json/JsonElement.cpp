@@ -332,7 +332,7 @@ const json::ObjectData& Element::getObject() const
     throw Exception("Not an object");
 }
 
-void Element::exportValueTo(ostream& stream, bool formatted, int indent) const
+void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
     string indentSpaces, newLineChar, firstElement(" "), betweenElements(", ");
     if (formatted && m_type & (JDT_ARRAY|JDT_OBJECT)) {

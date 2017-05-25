@@ -28,7 +28,6 @@
 
 #include <sptk5/Strings.h>
 #include <sptk5/IntList.h>
-#include <stdlib.h>
 
 using namespace std;
 using namespace sptk;

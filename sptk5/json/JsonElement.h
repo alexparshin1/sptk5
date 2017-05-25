@@ -118,7 +118,7 @@ protected:
      * @param formatted bool, If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
      * @param indent int, Formatting indent
      */
-    void exportValueTo(std::ostream& stream, bool formatted, int indent) const;
+    void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
 
     /**
      * Empty const Json element

@@ -100,12 +100,12 @@ std::string SP_EXPORT capitalizeWords(const std::string& str);
 /**
  * Converts a string vector into CSV string
  */
-void SP_EXPORT join(std::string& dest, const std::vector<std::string> src, std::string separator);
+void SP_EXPORT join(std::string& dest, const std::vector<std::string>& src, const std::string& separator);
 
 /**
  * Converts a CSV string into string vector
  */
-void SP_EXPORT split(std::vector<std::string> dest, const std::string& src, std::string separator);
+void SP_EXPORT split(std::vector<std::string>& dest, const std::string& src, const std::string& separator);
 
 /**
  * Converts a CSV string into string vector

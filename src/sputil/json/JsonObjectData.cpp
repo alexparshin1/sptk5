@@ -56,7 +56,7 @@ void ObjectData::add(string name, Element* element)
 {
     element->m_parent = m_parent;
     pair<iterator, bool> result = m_items.insert(pair<string,Element*>(name, element));
-    if (result.second == false)
+    if (!result.second)
         delete result.first->second;
 }
 

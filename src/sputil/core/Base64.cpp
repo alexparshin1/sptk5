@@ -116,7 +116,6 @@ static int internal_decode(Buffer& dest, std::string const& encoded_string)
 {
     int in_len = encoded_string.size();
     int i = 0;
-    int j = 0;
     int in_ = 0;
     uint8_t char_array_4[4], char_array_3[3];
 
@@ -133,12 +132,13 @@ static int internal_decode(Buffer& dest, std::string const& encoded_string)
       char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 
       for (i = 0; (i < 3); i++)
-                dest.append(char_array_3[i]);
+        dest.append(char_array_3[i]);
       i = 0;
     }
   }
 
   if (i) {
+    int j = 0;
     for (j = i; j <4; j++)
       char_array_4[j] = 0;
 

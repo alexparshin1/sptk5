@@ -195,8 +195,8 @@ typedef RegularExpression RegularExpression;
  */
 }
 
-bool SP_EXPORT operator == (std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
-bool SP_EXPORT operator != (std::string text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
+bool SP_EXPORT operator == (const std::string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
+bool SP_EXPORT operator != (const std::string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
 
 #endif
 

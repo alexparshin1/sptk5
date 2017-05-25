@@ -772,7 +772,7 @@ size_t Variant::bufferSize() const
 //---------------------------------------------------------------------------
 void* Variant::dataBuffer() const
 {
-    return (void *) (variantData *) &m_data;
+    return (void *) &m_data;
 }
 
 //---------------------------------------------------------------------------

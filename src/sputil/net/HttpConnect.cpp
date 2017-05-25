@@ -58,7 +58,7 @@ int HttpConnect::readHeaders(uint32_t timeoutMS)
         throw Exception("Response timeout");
     }
 
-    RegularExpression matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*");
+    RegularExpression matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*(\\S.*)\r");
     RegularExpression matchHeader("^([^:]+):\\s+(.*)\\r$");
 
     /// Reading HTTP headers
@@ -74,6 +74,10 @@ int HttpConnect::readHeaders(uint32_t timeoutMS)
             if (!matchProtocolAndResponseCode.m(header, matches))
                 throw Exception("Broken HTTP version header");
             rc = string2int(matches[1]);
+            if (rc >= 400) {
+                m_socket.close();
+                throw Exception(matches[2]);
+            }
             firstRow = false;
             continue;
         }
@@ -108,10 +112,6 @@ int HttpConnect::getResponse(string resourceName, uint32_t readTimeout)
     m_readBuffer.reset();
 
     int rc = readHeaders(readTimeout);
-    if (rc >= 500)
-        throw Exception("Server error: Error " + int2string(rc) + ", resource: " + resourceName);
-    if (rc >= 400)
-        throw Exception("Resource not found: Error " + int2string(rc) + ", resource: " + resourceName);
 
     int contentLength = string2int(responseHeader("Content-Length"));
     bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;

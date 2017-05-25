@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-CommandLine::Visibility::Visibility(string pattern, bool _mustMatch)
+CommandLine::Visibility::Visibility(const string& pattern, bool _mustMatch)
 : m_inverted(!_mustMatch), m_pattern(pattern)
 {
     if (m_pattern.empty())
@@ -60,7 +60,7 @@ bool CommandLine::Visibility::any() const
     return m_regexp == NULL;
 }
 
-bool CommandLine::Visibility::matches(string command) const
+bool CommandLine::Visibility::matches(const string& command) const
 {
     Strings matches;
     if (m_inverted)
@@ -69,8 +69,8 @@ bool CommandLine::Visibility::matches(string command) const
 }
 //=============================================================================
 
-CommandLine::CommandLineElement::CommandLineElement(string name, string shortName, string help,
-    const Visibility& useWithCommands)
+CommandLine::CommandLineElement::CommandLineElement(const string& name, const string& shortName, const string& help,
+                                                    const Visibility& useWithCommands)
 : m_name(name), m_shortName(shortName), m_help(help), m_useWithCommands(useWithCommands)
 {
     if (m_name.empty())
@@ -94,20 +94,18 @@ bool CommandLine::CommandLineElement::hasValue() const
     return false;
 }
 
-void CommandLine::CommandLineElement::validate(string value) const { }
+void CommandLine::CommandLineElement::validate(const string& value) const { }
 
 string CommandLine::CommandLineElement::printableName() const
 {
     return m_name;
 }
 
-bool CommandLine::CommandLineElement::useWithCommand(string command) const
+bool CommandLine::CommandLineElement::useWithCommand(const string& command) const
 {
     if (command.empty())
         return true;
-    if (m_useWithCommands.any())
-        return true;
-    return m_useWithCommands.matches(command);
+    return m_useWithCommands.any() || m_useWithCommands.matches(command);
 }
 
 void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& formattedText) const
@@ -133,7 +131,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
         formattedText.push_back(row);
 }
 
-void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, string optionDefaultValue) const
+void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const string& optionDefaultValue) const
 {
     static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
@@ -156,23 +154,24 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
 
     if (!optionDefaultValue.empty()) {
         Strings matches;
-        if (!doesntNeedQuotes.m(optionDefaultValue, matches))
-            optionDefaultValue = "'" + optionDefaultValue + "'";
-        string defaultValueStr = "The default value is " + optionDefaultValue + ".";
+        string printDefaultValue = optionDefaultValue;
+        if (!doesntNeedQuotes.m(printDefaultValue, matches))
+            printDefaultValue = "'" + optionDefaultValue + "'";
+        string defaultValueStr = "The default value is " + printDefaultValue + ".";
         snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
         cout << rowBuffer << endl;
     }
 }
 //=============================================================================
 
-CommandLine::CommandLineArgument::CommandLineArgument(string name, string help)
+CommandLine::CommandLineArgument::CommandLineArgument(const string& name, const string& help)
 : CommandLineElement(name, "", help, Visibility("")) { }
 
 CommandLine::CommandLineArgument::~CommandLineArgument() { }
 //=============================================================================
 
-CommandLine::CommandLineOption::CommandLineOption(string name, string shortName,
-    const Visibility& useWithCommands, string help)
+CommandLine::CommandLineOption::CommandLineOption(const string& name, const string& shortName,
+                                                  const Visibility& useWithCommands, const string& help)
 : CommandLineElement(name, shortName, help, useWithCommands) { }
 
 CommandLine::CommandLineOption::~CommandLineOption() { }
@@ -203,8 +202,8 @@ string CommandLine::CommandLineOption::printableName() const
 }
 //=============================================================================
 
-CommandLine::CommandLineParameter::CommandLineParameter(string name, string shortName, string valueInfo,
-    string validateValue, const Visibility& useWithCommands, string help)
+CommandLine::CommandLineParameter::CommandLineParameter(const string& name, const string& shortName, const string& valueInfo,
+                                                        const string& validateValue, const Visibility& useWithCommands, const string& help)
 : CommandLineElement(name, shortName, help, useWithCommands), m_valueInfo(valueInfo)
 {
     if (validateValue.empty())
@@ -238,7 +237,7 @@ string CommandLine::CommandLineParameter::printableName() const
     return result;
 }
 
-void CommandLine::CommandLineParameter::validate(string value) const
+void CommandLine::CommandLineParameter::validate(const string& value) const
 {
     if (!m_validateValue)
         return;
@@ -266,12 +265,10 @@ bool CommandLine::startsWith(string str, string pattern)
 bool CommandLine::endsWith(string str, string pattern)
 {
     size_t pos = str.length() - pattern.length() - 1;
-    if (int(pos) < 0)
-        return false;
-    return str.substr(pos) == pattern;
+    return int(pos) >= 0 && str.substr(pos) == pattern;
 }
 
-CommandLine::CommandLine(string programVersion, string description, string commandLinePrototype)
+CommandLine::CommandLine(const string& programVersion, const string& description, const string& commandLinePrototype)
 : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype) { }
 
 CommandLine::~CommandLine()
@@ -280,7 +277,7 @@ CommandLine::~CommandLine()
         delete element;
 }
 
-void CommandLine::defineOption(string fullName, string shortName, Visibility useForCommands, string help)
+void CommandLine::defineOption(const string& fullName, const string& shortName, Visibility useForCommands, const string& help)
 {
     if (fullName.empty() && shortName.empty())
         return;
@@ -293,8 +290,8 @@ void CommandLine::defineOption(string fullName, string shortName, Visibility use
         m_optionTemplates[shortName] = optionTemplate;
 }
 
-void CommandLine::defineParameter(string fullName, string shortName, string valueName,
-    string validateValue, Visibility useForCommands, string defaultValue, string help)
+void CommandLine::defineParameter(const string& fullName, const string& shortName, const string& valueName,
+                                  const string& validateValue, Visibility useForCommands, const string& defaultValue, const string& help)
 {
     if (fullName.empty() && shortName.empty())
         return;
@@ -320,7 +317,7 @@ void CommandLine::defineParameter(string fullName, string shortName, string valu
     }
 }
 
-void CommandLine::defineArgument(string fullName, string helpText)
+void CommandLine::defineArgument(const string& fullName, const string& helpText)
 {
     if (!fullName.empty()) {
         CommandLineArgument* argumentTemplate = new CommandLineArgument(fullName, helpText);
@@ -436,7 +433,7 @@ bool CommandLine::hasOption(string name) const
     return m_values.find(name) != m_values.end();
 }
 
-void CommandLine::setOptionValue(string name, string value)
+void CommandLine::setOptionValue(const string& name, const string& value)
 {
     CommandLineElement* element = m_optionTemplates[name];
     if (!element)
@@ -450,7 +447,7 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(string ch, size_t count)
+void CommandLine::printLine(const string& ch, size_t count)
 {
     for (size_t i = 0; i < count; i++)
         cout << ch;
@@ -462,7 +459,7 @@ void CommandLine::printHelp(size_t screenColumns) const
     printHelp("", screenColumns);
 }
 
-void CommandLine::printHelp(string onlyForCommand, size_t screenColumns) const
+void CommandLine::printHelp(const string& onlyForCommand, size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
         cerr << "Command '" + onlyForCommand + "' is not defined" << endl;

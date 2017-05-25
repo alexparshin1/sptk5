@@ -71,17 +71,15 @@ string String::replace(string pattern, string replacement) const
 bool String::endsWith(string subject) const
 {
     size_t pos = rfind(subject);
-    if (pos == string::npos)
-        return false;
-    return pos == length() - subject.length();
+    return pos != string::npos && pos == length() - subject.length();
 }
 
 void Strings::splitByDelimiter(const string &src, const char *delimitter)
 {
-    size_t pos = 0, end = 0;
+    size_t pos = 0;
     size_t delimitterLength = strlen(delimitter);
     while (true) {
-        end = src.find(delimitter, pos);
+        size_t end = src.find(delimitter, pos);
         if (end != string::npos) {
             push_back(src.substr(pos, end - pos));
             pos = end + delimitterLength;
@@ -96,9 +94,9 @@ void Strings::splitByDelimiter(const string &src, const char *delimitter)
 
 void Strings::splitByAnyChar(const string &src, const char *delimitter)
 {
-    size_t pos = 0, end = 0;
+    size_t pos = 0;
     while (pos != string::npos) {
-        end = src.find_first_of(delimitter, pos);
+        size_t end = src.find_first_of(delimitter, pos);
         if (end != string::npos) {
             push_back(src.substr(pos, end - pos));
             pos = src.find_first_not_of(delimitter, end + 1);
@@ -170,6 +168,7 @@ void Strings::loadFromFile(string fileName) THROWS_EXCEPTIONS
     Buffer buffer;
     buffer.loadFromFile(fileName);
 
+    clear();
     // Load text
     string text(buffer.c_str(), buffer.bytes());
 

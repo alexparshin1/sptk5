@@ -179,6 +179,6 @@ private:
 /**
  * @brief Single data-to-MD5 function
  */
-std::string md5(const std::string str);
+std::string md5(const std::string& str);
 
 #endif

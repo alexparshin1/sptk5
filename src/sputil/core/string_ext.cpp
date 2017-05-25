@@ -94,7 +94,7 @@ string trim (const string& str)
     return str.substr(size_t(startpos), size_t(endpos-startpos+1));
 }
 
-void join (string& dest, const vector<string> src, string separator)
+void join(string& dest, const vector<string>& src, const string& separator)
 {
     dest = "";
     vector<string>::const_iterator itor = src.begin();
@@ -104,7 +104,7 @@ void join (string& dest, const vector<string> src, string separator)
     }
 }
 
-void split (vector<string> dest, const string& src, string delimitter)
+void split(vector<string>& dest, const string& src, const string& delimitter)
 {
     dest.clear();
     char *buffer = (char *) src.c_str();

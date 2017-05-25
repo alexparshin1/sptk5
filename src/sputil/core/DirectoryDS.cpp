@@ -357,7 +357,7 @@ bool DirectoryDS::open() THROWS_EXCEPTIONS
                 }
                 if (!matchFound) {
 #ifndef _WIN32
-                    free((struct dirent*) files[n]);
+                    free(files[n]);
                     files[n] = 0;
                     n++;
 #endif
@@ -406,7 +406,7 @@ bool DirectoryDS::open() THROWS_EXCEPTIONS
         }
 
 #ifndef _WIN32
-        free((struct dirent*) files[n]);
+        free(files[n]);
         files[n] = 0;
 #endif
 
@@ -433,7 +433,7 @@ bool DirectoryDS::open() THROWS_EXCEPTIONS
         }
 
 #ifndef _WIN32
-    free((struct dirent**) files);
+    free(files);
 #endif
 
     return m_list.size() > 0;
