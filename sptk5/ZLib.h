@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DateTime.h - description                               ║
+║                           ZLib.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday Sep 17 2015                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Thursday May 25 2000                                   ║
+║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,7 +41,9 @@ class ZLib
 {
 public:
     /**
-     * Compress data using gzip format
+     * Compress data using gzip format.
+     * 
+     * Compressed data is appended to destination buffer
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer
      */
@@ -49,6 +51,8 @@ public:
 
     /**
      * Uncompress data in gzip format
+     * 
+     * Uncompressed data is appended to destination buffer
      * @param dest Buffer&, Destination buffer
      * @param src const Buffer&, Source buffer
      */

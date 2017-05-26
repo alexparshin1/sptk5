@@ -186,14 +186,20 @@ int HttpConnect::getResponse(string resourceName, uint32_t readTimeout)
     return rc;
 }
 
-void HttpConnect::sendCommand(string cmd)
+void HttpConnect::sendCommand(const string& cmd)
 {
-    //cmd += "\r\n";
-
     if (!m_socket.active())
         throw Exception("Socket isn't open");
 
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
+}
+
+void HttpConnect::sendCommand(const Buffer& cmd)
+{
+    if (!m_socket.active())
+        throw Exception("Socket isn't open");
+
+    m_socket.write(cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
 Strings HttpConnect::makeHeaders(string httpCommand, string pageName, const HttpParams& requestParameters)
@@ -232,14 +238,23 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
     return getResponse(pageName, timeoutMS);
 }
 
-int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const Buffer& postData, uint32_t timeoutMS)
+int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent, uint32_t timeoutMS)
 {
     Strings headers = makeHeaders("POST", pageName, parameters);
-    //headers.push_back("Accept-Encoding: gzip");
-    headers.push_back("Content-Length: " + int2string((uint32_t) postData.bytes()));
+    headers.push_back("Accept-Encoding: gzip");
 
-    string command = headers.asString("\r\n") + "\r\n\r\n";
-    command += postData.data();
+    const Buffer* data = &postData;
+    Buffer compressedData;
+    if (gzipContent) {
+        ZLib::compress(compressedData, postData);
+        headers.push_back("Content-Encoding: gzip");
+        data = &compressedData;
+    }
+    headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
+    
+    Buffer command(headers.asString("\r\n") + "\r\n\r\n");
+    command.append(*data);
+
     sendCommand(command);
     
     return getResponse(pageName, timeoutMS);

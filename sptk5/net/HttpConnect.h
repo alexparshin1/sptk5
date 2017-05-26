@@ -89,7 +89,15 @@ protected:
      * CRLF characters are automatically appended to the command.
      * @param cmd std::string, HTTP command
      */
-    void sendCommand(std::string cmd);
+    void sendCommand(const std::string& cmd);
+
+    /**
+     * @brief Sends a single command to HTTP server
+     *
+     * CRLF characters are automatically appended to the command.
+     * @param cmd const Buffer&, HTTP command
+     */
+    void sendCommand(const Buffer& cmd);
 
     /**
      * @brief Read HTTP response headers
@@ -179,10 +187,11 @@ public:
      * @param pageName std::string, the name of the page without the server name.
      * @param parameters const HttpParams&, the list of HTTP data to pass to the server
      * @param content const Buffer&, the data to post to the server
+     * @param gzipContent bool, if true then compress buffer and set HTTP header Content-Encoding
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_post(std::string pageName, const HttpParams& parameters, const Buffer& content, uint32_t timeoutMS);
+    int cmd_post(std::string pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent, uint32_t timeoutMS);
 
     /**
      * @brief Sends the PUT command to the server
