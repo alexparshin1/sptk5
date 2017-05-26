@@ -56,7 +56,7 @@ protected:
     /// @param db DatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param recordCount size_t, number of records to insert
-    COracleBulkInsertQuery(DatabaseConnection *db, std::string sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
+    COracleBulkInsertQuery(DatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
 
     /// @brief Destructor
     ~COracleBulkInsertQuery();

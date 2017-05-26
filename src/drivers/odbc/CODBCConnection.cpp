@@ -48,7 +48,7 @@ protected:
     }
 
 public:
-    CODBCField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
+    CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale)
     : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }

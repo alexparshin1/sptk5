@@ -76,14 +76,14 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
 
 void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS
 {
-    static const char* booleanTrue = "t";
-    static const char* booleanFalse = "f";
-
     VariantType ptype = param->dataType();
 
     if (param->isNull())
         setParameterValue(paramIndex, 0, 0, 0, PG_VARCHAR);
     else {
+        static const char* booleanTrue = "t";
+        static const char* booleanFalse = "f";
+
         switch (ptype) {
             case VAR_BOOL:
                 if (param->asBool())

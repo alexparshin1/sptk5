@@ -45,7 +45,7 @@ public:
     double          m_numericScale;
 
 public:
-    FirebirdStatementField(std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
+    FirebirdStatementField(const std::string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
         DatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
         m_sqlvar(sqlvar), m_cbNull(0), m_numericScale(1)
     {

@@ -172,11 +172,10 @@ PostgreSQLConnection::~PostgreSQLConnection()
     }
 }
 
-static string csParam(string name, string value)
+static string csParam(const string& name, const string& value)
 {
     if (!value.empty())
         return name + "=" + value + " ";
-
     return "";
 }
 
