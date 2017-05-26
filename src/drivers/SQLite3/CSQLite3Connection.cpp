@@ -43,7 +43,7 @@ class CSQLite3Field : public DatabaseField
     friend class SQLite3Connection;
 
 public:
-    CSQLite3Field(const string& fieldName, int fieldColumn)
+    CSQLite3Field(const std::string& fieldName, int fieldColumn)
             :
             DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
     {
