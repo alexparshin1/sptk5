@@ -112,7 +112,7 @@ protected:
     /**
      * Port number
      */
-    uint32_t    m_port;
+    uint16_t    m_port;
 
 protected:
 
@@ -132,10 +132,10 @@ protected:
 public:
     /**
      * @brief Get address data from hostname
-     * @param hostname std::string&, Host name or address
+     * @param hostname const std::string&, Host name or address
      * @param address sockaddr_in&, Output address data
      */
-    static void getHostAddress(std::string& hostname, sockaddr_in& address);
+    static void getHostAddress(const std::string& hostname, sockaddr_in& address);
 
     /**
      * @brief A mode to open a socket, one of
@@ -230,28 +230,28 @@ public:
 
     /**
      * @brief Sets the port number
-     * @param portNumber int32_t, the port number
+     * @param portNumber uint16_t, the port number
      */
-    void port(int32_t portNumber);
+    void port(uint16_t portNumber);
 
     /**
      * @brief Returns the current port number
      * @returns port number
      */
-    int32_t port() const
+    uint16_t port() const
     {
-        return (int32_t) m_port;
+        return m_port;
     }
 
     /**
      * @brief Opens the client socket connection by host and port
-     * @param hostName std::string, the host name
-     * @param port uint32_t, the port number
+     * @param hostName const std::string&, the host name
+     * @param port uint16_t, the port number
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS
+    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS
     {}
 
     /**
@@ -275,7 +275,7 @@ public:
      * @brief Opens the server socket connection on port (binds/listens)
      * @param portNumber uint32_t, the port number
      */
-    void listen(uint32_t portNumber = 0);
+    void listen(uint16_t portNumber = 0);
 
     /**
      * @brief In server mode, waits for the incoming connection.

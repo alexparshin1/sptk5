@@ -113,7 +113,8 @@ public:
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
+    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT,
+                      bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS;
 
     /**
      * @brief Opens the client socket connection by host and port

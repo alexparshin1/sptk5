@@ -28,7 +28,6 @@
 
 #include <sys/epoll.h>
 #include "sptk5/net/SocketPool.h"
-#include <iostream>
 #include "sptk5/SystemException.h"
 
 using namespace std;
@@ -118,7 +117,7 @@ void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
 {
     epoll_event events[MAXEVENTS];
 
-    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, timeoutMS);
+    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeoutMS);
     if (eventCount < 0)
         throw SystemException("Error waiting for socket activity");
 

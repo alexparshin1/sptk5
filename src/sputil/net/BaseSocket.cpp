@@ -104,7 +104,7 @@ BaseSocket::~BaseSocket()
 #endif
 }
 
-void BaseSocket::getHostAddress(std::string& hostname, sockaddr_in& addr)
+void BaseSocket::getHostAddress(const string& hostname, sockaddr_in& addr)
 {
     memset(&addr, 0, sizeof(addr));
 
@@ -187,9 +187,9 @@ void BaseSocket::host (string hostName)
     m_host = hostName;
 }
 
-void BaseSocket::port (int32_t portNumber)
+void BaseSocket::port (uint16_t portNumber)
 {
-    m_port = (uint32_t) portNumber;
+    m_port = portNumber;
 }
 
 // Connect & disconnect
@@ -263,7 +263,7 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
         THROW_SOCKET_ERROR("Can't bind socket to port " + int2string(portNumber));
 }
 
-void BaseSocket::listen (uint32_t portNumber)
+void BaseSocket::listen(uint16_t portNumber)
 {
     if (portNumber)
         m_port = portNumber;
@@ -302,9 +302,9 @@ size_t BaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEP
     int bytes;
     if (from) {
         socklen_t flen = sizeof (sockaddr_in);
-        bytes = ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
+        bytes = (int) ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
     } else
-        bytes = ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);
+        bytes = (int) ::recv(m_sockfd, buffer, (int32_t) size, 0);
 
     if (bytes == -1)
         THROW_SOCKET_ERROR("Can't read from socket");
@@ -342,7 +342,7 @@ size_t BaseSocket::write(const char *buffer, size_t size, const sockaddr_in* pee
     int remaining = (int) size;
     while (remaining > 0) {
         if (peer)
-            bytes = sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr *) peer, sizeof(sockaddr_in));
+            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr *) peer, sizeof(sockaddr_in));
         else
             bytes = (int) send(p, (int32_t) size);
         if (bytes == -1)

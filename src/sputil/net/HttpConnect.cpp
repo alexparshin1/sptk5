@@ -31,9 +31,6 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/ZLib.h>
 
-#include <sstream>
-#include <iostream>
-
 using namespace std;
 using namespace sptk;
 
@@ -105,7 +102,7 @@ string HttpConnect::responseHeader(string headerName) const
     return itor->second;
 }
 
-int HttpConnect::getResponse(string resourceName, uint32_t readTimeout)
+int HttpConnect::getResponse(uint32_t readTimeout)
 {
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
@@ -132,7 +129,7 @@ int HttpConnect::getResponse(string resourceName, uint32_t readTimeout)
                 bytes = m_socket.socketBytes();
                 if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
                     bytes = bytesToRead;
-                bytes = (int) m_socket.read(read_buffer, bytes);
+                bytes = (int) m_socket.read(read_buffer, (size_t) bytes);
                 bytesToRead -= bytes;
             } else
                 bytes = (int) m_socket.read(read_buffer, 64*1024);
@@ -235,7 +232,7 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
     //cout << command;
     sendCommand(command);
 
-    return getResponse(pageName, timeoutMS);
+    return getResponse(timeoutMS);
 }
 
 int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent, uint32_t timeoutMS)
@@ -257,7 +254,7 @@ int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const B
 
     sendCommand(command);
     
-    return getResponse(pageName, timeoutMS);
+    return getResponse(timeoutMS);
 }
 
 int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, const Buffer& putData, uint32_t timeoutMS)
@@ -275,7 +272,7 @@ int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, c
 
     sendCommand(command);
 
-    return getResponse(pageName, timeoutMS);
+    return getResponse(timeoutMS);
 }
 
 int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
@@ -285,5 +282,5 @@ int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters
     string command = headers.asString("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
-    return getResponse(pageName, timeoutMS);
+    return getResponse(timeoutMS);
 }

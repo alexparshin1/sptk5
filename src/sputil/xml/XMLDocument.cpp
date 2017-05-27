@@ -30,7 +30,6 @@
 
 #include <sptk5/Strings.h>
 #include <sptk5/cxml>
-#include <iostream>
 
 using namespace std;
 
@@ -247,7 +246,7 @@ namespace sptk {
         XMLDocType *doctype = &docType();
         char* buffer = strdup(xmlData);
         try {
-            char* tokenStart = (char*)strchr(buffer, '<');
+            char* tokenStart = strchr(buffer, '<');
             while (tokenStart) {
                 tokenStart++;
                 char* tokenEnd = strpbrk(tokenStart, "\r\n >");

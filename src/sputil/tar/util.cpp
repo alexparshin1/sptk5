@@ -75,15 +75,14 @@ int oct_to_int(char *oct)
 char* libtar_strsep(register char **stringp, register const char *delim)
 {
     char *s;
-    const char *spanp;
-    int c, sc;
+    int sc;
     char *tok;
 
     if ((s = *stringp) == NULL)
         return NULL;
     for (tok = s;;) {
-        c = *s++;
-        spanp = delim;
+        int c = *s++;
+        const char *spanp = delim;
         do {
             if ((sc = *spanp++) == c) {
                 if (c == 0)

@@ -65,7 +65,6 @@ const Strings& FTPSocket::login(std::string user, std::string password)
 const Strings& FTPSocket::get_response()
 {
     char readBuffer[255];
-    char retCode[5];
 
     m_response.clear();
 
@@ -77,6 +76,7 @@ const Strings& FTPSocket::get_response()
     if (readBuffer[3] == '-') {
         readBuffer[3] = ' ';
         readBuffer[4] = 0;
+        char retCode[5];
         strncpy(retCode, readBuffer, sizeof(retCode));
         for (;;) {
             bytes = readLine(readBuffer, 255);
@@ -256,9 +256,9 @@ void CFTPConnect::cmd_store(std::string fileName)
         throw Exception("Can't open file <" + fileName + "> for reading");
     openDataPort();
     command("STOR " + fileName);
-    size_t len, bytes;
+    size_t len;
     while (!feof(infile)) {
-        bytes = (uint32_t) fread(buffer.data(), 1, 8192, infile);
+        size_t bytes = (uint32_t) fread(buffer.data(), 1, 8192, infile);
         char *p = buffer.data();
         while (bytes) {
             len = m_dataSocket.write(p, bytes);

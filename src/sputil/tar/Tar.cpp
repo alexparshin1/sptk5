@@ -194,7 +194,7 @@ void Tar::read(const Buffer& tarData) THROWS_EXCEPTIONS
 
 void Tar::clear()
 {
-    for (FileCollection::iterator itor = m_files.begin(); itor != m_files.end(); itor++)
+    for (FileCollection::iterator itor = m_files.begin(); itor != m_files.end(); ++itor)
         delete itor->second;
     m_fileName = "";
     m_files.clear();

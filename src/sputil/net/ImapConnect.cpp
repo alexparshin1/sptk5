@@ -86,7 +86,7 @@ bool ImapConnect::getResponse(string ident)
 
 const string ImapConnect::empty_quotes;
 
-static string quotes(string st)
+static string quotes(const string& st)
 {
     return "\"" + st + "\"";
 }

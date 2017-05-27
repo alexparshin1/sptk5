@@ -41,7 +41,7 @@ static char* next_dir_item(char* p, char** result)
     char* start = p;
     for (; *start == ' '; start++);
     *result = start;
-    start = (char*) strchr(start, ' ');
+    start = strchr(start, ' ');
     *start = 0;
     return start + 1;
 }

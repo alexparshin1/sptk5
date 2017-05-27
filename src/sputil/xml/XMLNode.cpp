@@ -116,10 +116,10 @@ namespace sptk {
             pathElement.elementName = &document->shareString(pathElementName.c_str());
 
         string& criteria = pathElement.criteria;
-        int& nodePosition = pathElement.nodePosition;
 
         if (!criteria.empty()) {
-            pathElement.nodePosition = string2int(pathElement.criteria);
+            int& nodePosition = pathElement.nodePosition;
+            nodePosition = string2int(pathElement.criteria);
             if (!nodePosition && criteria == "last()")
                 nodePosition = -1;
 
@@ -221,7 +221,7 @@ namespace sptk {
             else if (pathElement.attributeName) {
                 XMLAttribute* attributeNode = attributes().getAttributeNode(*pathElement.attributeName);
                 if (attributeNode)
-                    nodes.insert(nodes.end(), attributeNode);
+                    nodes.insert(nodes.end(), dynamic_cast<XMLNode*>(attributeNode));
             }
             return;
         }
@@ -410,7 +410,7 @@ namespace sptk {
                     else {
                         np->save(buffer, indent + m_document->indentSpaces());
                         if (buffer.data()[buffer.bytes() - 1] != '\n')
-                            buffer.append('\n');
+                            buffer.append(char('\n'));
                     }
                 }
                 // output indendation spaces

@@ -77,7 +77,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
 
     char *readPosition = m_buffer + m_readOffset;
     if (availableBytes < bytesToRead)
-        bytesToRead = (int) availableBytes;
+        bytesToRead = availableBytes;
 
     if (read_line) {
         if (delimiter == 0) {
@@ -87,7 +87,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
             if (eol)
                 bytesToRead++;
         } else {
-            char *cr = (char *) strchr(readPosition, delimiter);
+            char *cr = strchr(readPosition, delimiter);
             if (cr) {
                 eol = 1;
                 bytesToRead = int(cr - readPosition + 1);
@@ -118,7 +118,7 @@ size_t TCPSocketReader::read(char *dest, size_t sz, char delimiter, bool read_li
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (!eol) {
-        int bytesToRead = int(int(sz) - total);
+        int bytesToRead = int(sz) - total;
         if (bytesToRead <= 0)
             return sz;
 
@@ -183,7 +183,7 @@ TCPSocket::~TCPSocket()
 {
 }
 
-void TCPSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void TCPSocket::open(const string& hostName, uint16_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     if (hostName.length())
         m_host = hostName;
@@ -212,7 +212,7 @@ void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
 void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 {
     socklen_t len = sizeof(clientInfo);
-    clientSocketFD = (int) ::accept(m_sockfd, (struct sockaddr *) & clientInfo, &len);
+    clientSocketFD = ::accept(m_sockfd, (struct sockaddr *) & clientInfo, &len);
     if (clientSocketFD < 0)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }

@@ -127,7 +127,7 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::open(string hostName, uint32_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void SSLSocket::open(const string& hostName, uint16_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     if (hostName.length())
         m_host = hostName;
@@ -248,7 +248,7 @@ uint32_t SSLSocket::socketBytes()
     if (m_ssl) {
         char dummy[8];
         SSL_read(m_ssl, dummy, 0);
-        return SSL_pending(m_ssl);
+        return (uint32_t) SSL_pending(m_ssl);
     }
     return 0;
 }
@@ -271,7 +271,7 @@ size_t SSLSocket::recv(void* buffer, size_t size) throw (exception)
             break;
         }
     }
-    return rc;
+    return (size_t) rc;
 }
 
 #define WRITE_BLOCK 16384
@@ -281,12 +281,11 @@ size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
         return 0;
     const char* ptr = (const char*) buffer;
     uint32_t    totalLen = (uint32_t)len;
-    int         rc;
     for (;;) {
         size_t writeLen = totalLen;
         if (totalLen > WRITE_BLOCK)
             writeLen = WRITE_BLOCK;
-        rc = SSL_write(m_ssl, ptr, (int) writeLen);
+        int rc = SSL_write(m_ssl, ptr, (int) writeLen);
         if (rc > 0) {
             ptr += rc;
             totalLen -= rc;

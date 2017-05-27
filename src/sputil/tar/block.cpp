@@ -177,7 +177,7 @@ th_read(TAR *t)
 			printf("    th_read(): reading long filename "
 			       "(%d blocks left, ptr == %ld)\n", j, ptr);
 #endif
-			i = (int) tar_block_read(t, ptr);
+			i = tar_block_read(t, ptr);
 			if (i != T_BLOCKSIZE)
 			{
 				if (i != -1)

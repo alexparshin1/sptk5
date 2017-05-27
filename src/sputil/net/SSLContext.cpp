@@ -31,7 +31,6 @@
 #include <openssl/err.h>
 #include <string.h>
 #include <sptk5/net/SSLContext.h>
-#include <string.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,7 +39,7 @@ static int s_server_session_id_context = 1;
 
 void SSLContext::throwError(string humanDescription)
 {
-    int error = ERR_get_error();
+    unsigned long error = ERR_get_error();
     string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
     throwException(humanDescription + "\n" + errorStr);
 }
@@ -67,7 +66,7 @@ SSL_CTX* SSLContext::handle()
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
 {
-    strncpy(replyBuffer, (const char*) userdata, replySize);
+    strncpy(replyBuffer, (const char*) userdata, (size_t) replySize);
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }
