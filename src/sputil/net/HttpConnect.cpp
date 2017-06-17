@@ -28,14 +28,13 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/net/HttpConnect.h>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/ZLib.h>
 
 using namespace std;
 using namespace sptk;
 
 HttpConnect::HttpConnect(TCPSocket& socket)
-: m_socket(socket)
+: m_socket(socket), m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*(\\S.*)\r")
 {
     //m_requestHeaders["Content-Type"] = "application/x-www-form-urlencoded";
     m_requestHeaders["Connection"] = "close";
@@ -55,30 +54,33 @@ int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
         throw Exception("Response timeout");
     }
 
-    RegularExpression matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*(\\S.*)\r");
-    RegularExpression matchHeader("^([^:]+):\\s+(.*)\\r$");
-
     /// Reading HTTP headers
     Strings matches;
     bool firstRow = true;
     int rc = 0;
     for (;;) {
         string header;
+
         m_socket.readLine(header);
+
         if (header.empty())
             throw Exception("Invalid HTTP response");
         if (firstRow) {
-            if (!matchProtocolAndResponseCode.m(header, matches))
+            if (!m_matchProtocolAndResponseCode.m(header, matches))
                 throw Exception("Broken HTTP version header");
             rc = string2int(matches[1]);
             httpStatus = matches[2];
             firstRow = false;
             continue;
         }
-        if (matchHeader.m(header, matches)) {
-            m_responseHeaders[ matches[0] ] = matches[1];
+        size_t pos = header.find(":");
+        if (pos != string::npos) {
+            string headerName = header.substr(0, pos);
+            string headerValue = trim(header.substr(pos + 1));
+            m_responseHeaders[headerName] = headerValue;
             continue;
         }
+
         if (header[0] == '\r')
             break;
     }
@@ -110,9 +112,14 @@ int HttpConnect::getResponse(uint32_t readTimeout)
     int rc = readHeaders(readTimeout, httpStatus);
 
     string contentLengthStr = responseHeader("Content-Length");
-
+    if (contentLengthStr.empty()) {
+        if (rc == 204 || rc == 304)
+            contentLengthStr = "0";
+        //else
+            //contentLengthStr = "-1";
+    }
+    int contentLength = string2int(contentLengthStr);
     if (contentLengthStr != "0") {
-        int contentLength = string2int(contentLengthStr);
         bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
         int bytes;
@@ -156,7 +163,7 @@ int HttpConnect::getResponse(uint32_t readTimeout)
                 m_socket.readLine(chunkSizeStr);
                 chunkSizeStr = trim(chunkSizeStr);
 
-                if (chunkSizeStr.empty())
+                if (chunkSizeStr.empty() || chunkSizeStr == "0")
                     m_socket.readLine(chunkSizeStr);
 
                 size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), 0L, 16);
@@ -174,14 +181,16 @@ int HttpConnect::getResponse(uint32_t readTimeout)
             }
         }
 
-        if (m_responseHeaders["Content-Encoding"] == "gzip") {
+        auto itor = m_responseHeaders.find("Content-Encoding");
+        if (itor != m_responseHeaders.end() && itor->second == "gzip") {
             Buffer unzipBuffer;
             ZLib::decompress(unzipBuffer, m_readBuffer);
             m_readBuffer = move(unzipBuffer);
         }
     }
 
-    if (m_responseHeaders["Connection"] == "close")
+    auto itor = m_responseHeaders.find("Connection");
+    if (itor != m_responseHeaders.end() && itor->second == "close")
         m_socket.close();
 
     if (rc >= 400)
@@ -255,12 +264,12 @@ int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const B
         data = &compressedData;
     }
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
-    
+
     Buffer command(headers.asString("\r\n") + "\r\n\r\n");
     command.append(*data);
 
     sendCommand(command);
-    
+
     return getResponse(timeoutMS);
 }
 

@@ -396,13 +396,13 @@ public:
      * @brief Reports true if socket is ready for reading from it
      * @param timeoutMS uint32_t, read timeout in msec
      */
-    bool readyToRead(uint32_t timeoutMS);
+    virtual bool readyToRead(uint32_t timeoutMS);
 
     /**
      * @brief Reports true if socket is ready for writing to it
      * @param timeoutMS uint32_t, read timeout in msec
      */
-    bool readyToWrite(uint32_t timeoutMS);
+    virtual bool readyToWrite(uint32_t timeoutMS);
 };
 
 #define THROW_SOCKET_ERROR(msg) BaseSocket::throwSocketError(msg,__FILE__,__LINE__)

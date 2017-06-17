@@ -131,6 +131,11 @@ public:
      * @returns bytes read from the internal buffer
      */
     size_t readLine(Buffer& dest, char delimiter);
+
+    /**
+     * Returns number of bytes available to read
+     */
+    size_t availableBytes() const;
 };
 
 /**
@@ -158,7 +163,7 @@ protected:
      * @brief Reads a single char from the socket
      */
     char getChar();
-    
+
 public:
     /**
      * @brief Constructor
@@ -200,6 +205,17 @@ public:
      * @param clientInfo sockaddr_in&, connected client info
      */
     void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
+
+    /**
+     * @brief Returns number of bytes available in socket
+     */
+    virtual uint32_t socketBytes() override;
+
+    /**
+     * @brief Reports true if socket is ready for reading from it
+     * @param timeoutMS uint32_t, read timeout in msec
+     */
+    virtual bool readyToRead(uint32_t timeoutMS) override;
 
     /**
      * @brief Reads one line from the socket into existing memory buffer

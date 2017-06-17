@@ -32,6 +32,7 @@
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
+#include <sptk5/RegularExpression.h>
 
 namespace sptk
 {
@@ -64,6 +65,7 @@ class SP_EXPORT HttpConnect
      */
     TCPSocket&     m_socket;
 
+    const RegularExpression m_matchProtocolAndResponseCode;
 
 protected:
     /**
