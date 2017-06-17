@@ -102,9 +102,10 @@ protected:
     /**
      * @brief Read HTTP response headers
      * @param timeoutMS uint32_t, Response timeout
+     * @param httpStatus std::string&, HTTP result status
      * @return HTTP result code
      */
-    int readHeaders(uint32_t timeoutMS);
+    int readHeaders(uint32_t timeoutMS, std::string& httpStatus);
 
     /**
      * @brief Retrieves the server response on the command

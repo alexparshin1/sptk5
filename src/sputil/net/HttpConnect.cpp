@@ -46,7 +46,7 @@ HttpConnect::~HttpConnect()
     m_socket.close();
 }
 
-int HttpConnect::readHeaders(uint32_t timeoutMS)
+int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
 {
     m_responseHeaders.clear();
 
@@ -71,10 +71,7 @@ int HttpConnect::readHeaders(uint32_t timeoutMS)
             if (!matchProtocolAndResponseCode.m(header, matches))
                 throw Exception("Broken HTTP version header");
             rc = string2int(matches[1]);
-            if (rc >= 400) {
-                m_socket.close();
-                throw Exception(matches[2]);
-            }
+            httpStatus = matches[2];
             firstRow = false;
             continue;
         }
@@ -107,78 +104,88 @@ int HttpConnect::getResponse(uint32_t readTimeout)
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
     m_readBuffer.reset();
+    m_responseHeaders.clear();
 
-    int rc = readHeaders(readTimeout);
+    string httpStatus;
+    int rc = readHeaders(readTimeout, httpStatus);
 
-    int contentLength = string2int(responseHeader("Content-Length"));
-    bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
+    string contentLengthStr = responseHeader("Content-Length");
 
-    int bytes;
-    int bytesToRead = contentLength;
-    if (!chunked) {
-        int totalBytes = 0;
+    if (contentLengthStr != "0") {
+        int contentLength = string2int(contentLengthStr);
+        bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
-        for (;;) {
+        int bytes;
+        int bytesToRead = contentLength;
+        if (!chunked) {
+            int totalBytes = 0;
 
-            if (!m_socket.readyToRead(readTimeout)) {
-                m_socket.close();
-                throw Exception("Response read timeout");
-            }
+            for (;;) {
 
-            if (contentLength) {
-                bytes = m_socket.socketBytes();
-                if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
-                    bytes = bytesToRead;
-                bytes = (int) m_socket.read(read_buffer, (size_t) bytes);
-                bytesToRead -= bytes;
-            } else
-                bytes = (int) m_socket.read(read_buffer, 64*1024);
+                if (!m_socket.readyToRead(readTimeout)) {
+                    m_socket.close();
+                    throw Exception("Response read timeout");
+                }
 
-            if (bytes <= 0) // No more data
-                break;
+                if (contentLength) {
+                    bytes = m_socket.socketBytes();
+                    if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
+                        bytes = bytesToRead;
+                    bytes = (int) m_socket.read(read_buffer, (size_t) bytes);
+                    bytesToRead -= bytes;
+                } else
+                    bytes = (int) m_socket.read(read_buffer, 64*1024);
 
-            m_readBuffer.append(read_buffer);
-            totalBytes += bytes;
+                if (bytes <= 0) // No more data
+                    break;
 
-            if (contentLength && totalBytes >= contentLength)
-                break;
-        }
-    } else {
-        string chunkSizeStr;
-
-        for (;;) {
-            if (!m_socket.readyToRead(readTimeout)) {
-                m_socket.close();
-                throw Exception("Response read timeout");
-            }
-            m_socket.readLine(chunkSizeStr);
-            chunkSizeStr = trim(chunkSizeStr);
-
-            if (chunkSizeStr.empty())
-                m_socket.readLine(chunkSizeStr);
-
-            size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), 0L, 16);
-
-            if (chunkSize == 0)
-                break;
-
-            read_buffer.checkSize(chunkSize);
-            bytes = (int) m_socket.read(read_buffer, chunkSize, NULL);
-
-            if (bytes > 0) {
-                read_buffer.data() [bytes] = 0;
                 m_readBuffer.append(read_buffer);
+                totalBytes += bytes;
+
+                if (contentLength && totalBytes >= contentLength)
+                    break;
             }
+        } else {
+            string chunkSizeStr;
+
+            for (;;) {
+                if (!m_socket.readyToRead(readTimeout)) {
+                    m_socket.close();
+                    throw Exception("Response read timeout");
+                }
+                m_socket.readLine(chunkSizeStr);
+                chunkSizeStr = trim(chunkSizeStr);
+
+                if (chunkSizeStr.empty())
+                    m_socket.readLine(chunkSizeStr);
+
+                size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), 0L, 16);
+
+                if (chunkSize == 0)
+                    break;
+
+                read_buffer.checkSize(chunkSize);
+                bytes = (int) m_socket.read(read_buffer, chunkSize, NULL);
+
+                if (bytes > 0) {
+                    read_buffer.data() [bytes] = 0;
+                    m_readBuffer.append(read_buffer);
+                }
+            }
+        }
+
+        if (m_responseHeaders["Content-Encoding"] == "gzip") {
+            Buffer unzipBuffer;
+            ZLib::decompress(unzipBuffer, m_readBuffer);
+            m_readBuffer = move(unzipBuffer);
         }
     }
 
-    if (m_responseHeaders["Content-Encoding"] == "gzip") {
-        Buffer unzipBuffer;
-        ZLib::decompress(unzipBuffer, m_readBuffer);
-        m_readBuffer = move(unzipBuffer);
-    }
+    if (m_responseHeaders["Connection"] == "close")
+        m_socket.close();
 
-    m_socket.close();
+    if (rc >= 400)
+        throw Exception(httpStatus);
 
     return rc;
 }
