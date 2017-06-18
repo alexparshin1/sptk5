@@ -53,6 +53,9 @@ void Document::parse(const string& json) throw (Exception)
         m_root = new Element;
     }
 
+    if (json.empty())
+        return;
+
     Parser parser;
     parser.parse(*m_root, json);
 }
