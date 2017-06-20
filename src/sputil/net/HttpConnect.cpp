@@ -65,7 +65,10 @@ int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
 
         if (header.empty())
             throw Exception("Invalid HTTP response");
+
         if (firstRow) {
+            if (header.length() <= 2)
+                continue;
             if (!m_matchProtocolAndResponseCode.m(header, matches))
                 throw Exception("Broken HTTP version header");
             rc = string2int(matches[1]);
