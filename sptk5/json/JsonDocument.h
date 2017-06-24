@@ -56,6 +56,16 @@ class Document
      */
     void parse(const std::string& json) throw(Exception);
 
+    /**
+     * Disable copy constructor
+     */
+    Document(const Document&) : m_root(NULL) {}
+
+    /**
+     * Disable copy assignment
+     */
+    Document& operator = (const Document&) { return *this; }
+
 public:
     /**
      * Constructor
@@ -64,6 +74,14 @@ public:
      * @param isObject bool, If true then document root is JSON object. Otherwise, document root is JSON array.
      */
     Document(bool isObject=true);
+
+    /**
+     * Move constructor
+     * Creates empty JSON document.
+     * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
+     * @param isObject bool, If true then document root is JSON object. Otherwise, document root is JSON array.
+     */
+    Document(Document&& other);
 
     /**
      * Destructor

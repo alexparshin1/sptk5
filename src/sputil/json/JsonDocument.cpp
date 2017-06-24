@@ -48,10 +48,10 @@ void Document::clear()
 
 void Document::parse(const string& json) throw (Exception)
 {
-    if (m_root) {
+    if (m_root)
         delete m_root;
-        m_root = new Element;
-    }
+
+    m_root = new Element;
 
     if (json.empty())
         return;
@@ -66,6 +66,15 @@ Document::Document(bool isObject)
         m_root = new Element(new ObjectData);
     else
         m_root = new Element(new ArrayData);
+}
+
+Document::Document(Document&& other)
+: m_root(other.m_root)
+{
+    if (m_root->type() == JDT_OBJECT)
+        other.m_root = new Element(new ObjectData);
+    else
+        other.m_root = new Element(new ArrayData);
 }
 
 Document::~Document()
