@@ -64,12 +64,12 @@ class SP_EXPORT QueryParameterList
     /**
      * The list of parameters
      */
-    CParamVector                    m_items;
+    CParamVector                            m_items;
 
     /**
      * The parameters index
      */
-    std::map<std::string, QueryParameter*>   m_index;
+    std::map<std::string, QueryParameter*>  m_index;
 
     /**
      * Indicates that one of the parameters binding type has changed since prepare()
@@ -81,6 +81,17 @@ protected:
      * @brief Adds a parameter to the list
      */
     void add(QueryParameter* item);
+
+public:
+    /**
+     * Query parameter iterator
+     */
+    typedef CParamVector::iterator          iterator;
+
+    /**
+     * Query parameter const iterator
+     */
+    typedef CParamVector::const_iterator    const_iterator;
 
 public:
     /**
@@ -145,6 +156,38 @@ public:
      * @param params CParamVector&, parameters vector
      */
     void enumerate(CParamVector& params);
+
+    /**
+     * First parameter iterator
+     */
+    iterator begin()
+    {
+        return m_items.begin();
+    }
+
+    /**
+     * First parameter const iterator
+     */
+    const_iterator begin() const
+    {
+        return m_items.begin();
+    }
+
+    /**
+     * End iterator
+     */
+    iterator end()
+    {
+        return m_items.end();
+    }
+
+    /**
+     * End const iterator
+     */
+    const_iterator end() const
+    {
+        return m_items.end();
+    }
 };
 
 /**
