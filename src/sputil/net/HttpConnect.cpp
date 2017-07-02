@@ -42,7 +42,7 @@ HttpConnect::HttpConnect(TCPSocket& socket)
 
 HttpConnect::~HttpConnect()
 {
-    m_socket.close();
+    //m_socket.close();
 }
 
 int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
@@ -297,8 +297,8 @@ int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, c
 int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters);
+    string  command = headers.asString("\r\n") + "\r\n\r\n";
 
-    string command = headers.asString("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
     return getResponse(timeoutMS);
