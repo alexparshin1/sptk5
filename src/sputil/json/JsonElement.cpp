@@ -576,5 +576,9 @@ void Element::select(ElementSet& elements, std::string xpath)
     }
     Strings pathElements(xpath, "/");
     elements.clear();
+    if (pathElements.empty()) {
+        elements.insert(this);
+        return;
+    }
     selectElements(elements, pathElements, 0, rootOnly);
 }
