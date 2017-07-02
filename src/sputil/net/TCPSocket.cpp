@@ -85,7 +85,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
         if (delimiter == 0)
             len = strlen(readPosition);
         else {
-            char *cr = strchr(readPosition, delimiter);
+            cr = strchr(readPosition, delimiter);
             if (cr)
                 len = size_t(cr - readPosition + 1);
         }
@@ -265,8 +265,8 @@ size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
 size_t TCPSocket::readLine(std::string& s, char delimiter)
 {
     m_reader.readLine(m_stringBuffer, delimiter);
-    s = m_stringBuffer.data();
-    return m_stringBuffer.size() - 1;
+    s.assign(m_stringBuffer.c_str(),m_stringBuffer.bytes());
+    return m_stringBuffer.bytes();
 }
 
 size_t TCPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
