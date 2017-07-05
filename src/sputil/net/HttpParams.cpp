@@ -135,3 +135,11 @@ void HttpParams::encode(Buffer& result) const
         cnt++;
     }
 }
+
+string HttpParams::get(const string& paramName) const
+{
+    auto itor = find(paramName);
+    if (itor == end())
+        return "";
+    return itor->second;
+}

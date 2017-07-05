@@ -87,6 +87,13 @@ public:
      * @param lowerCaseNames bool, true if you want to lower-case the parameter names
      */
     void decode(const Buffer& paramString, bool lowerCaseNames = false);
+    
+    /**
+     * @brief Returns parameter value, or empty string if not found
+     * @param paramName const std::string&, parameter name
+     * @return parameter value
+     */
+    std::string get(const std::string& paramName) const;
 };
 /**
  * @}
