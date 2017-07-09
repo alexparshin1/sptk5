@@ -488,9 +488,9 @@ string Element::decode(const string& text)
             result += text.substr(position, pos - position);
         pos++;
         switch (text[pos]) {
-            case '"':   result += '"'; break;
-            case '\\':  result += '\\'; break;
-            case '/':   result += '/'; break;
+            case '"':  result += '"'; break;
+            case '\\': result += '\\'; break;
+            case '/':  result += '/'; break;
             case 'b':  result += '\b'; break;
             case 'f':  result += '\f'; break;
             case 'n':  result += '\n'; break;
