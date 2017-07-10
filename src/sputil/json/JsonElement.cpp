@@ -424,7 +424,7 @@ string Element::escape(const string& text)
             case '\r':  result += "\\r"; break;
             case '\t':  result += "\\t"; break;
             default:
-                throw runtime_error("Unknown escape character");
+                throw Exception("Unknown escape character");
         }
         position = pos + 1;
     }
@@ -506,7 +506,7 @@ string Element::decode(const string& text)
                 break;
             }
             default:
-                throw runtime_error("Unknown escape character");
+                throw Exception("Unknown escape character");
         }
         position = pos + 1;
     }
