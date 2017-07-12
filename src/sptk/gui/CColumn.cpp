@@ -92,7 +92,7 @@ void CColumnList::load(const XMLNode& node)
     XMLNode::const_iterator itor = node.begin();
     XMLNode::const_iterator iend = node.end();
     resize(node.size());
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         try {
             XMLNode& columnNode = *(*itor);
             unsigned columnIndex = columnNode.getAttribute("index");

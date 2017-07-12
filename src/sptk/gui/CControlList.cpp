@@ -77,20 +77,20 @@ void CControlList::add(const Fl_Group& group)
 void CControlList::add(const CControlList& list)
 {
     const_iterator itor = list.begin();
-    for (; itor != list.end(); itor++)
+    for (; itor != list.end(); ++itor)
         add(itor->second);
 }
 
 void CControlList::remove(const CControlList& l)
 {
     const_iterator itor = l.begin();
-    for (; itor != l.end(); itor++)
+    for (; itor != l.end(); ++itor)
         remove(itor->second);
 }
 
 void CControlList::reset()
 {
     iterator itor = begin();
-    for (; itor != end(); itor++)
+    for (; itor != end(); ++itor)
         itor->second->reset();
 }

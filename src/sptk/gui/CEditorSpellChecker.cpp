@@ -181,7 +181,7 @@ void CSpellChecker::getDictionaries(Strings& dictionaries) {
 
 void CSpellChecker::setLocalOptions(AspellConfig *aconfig) {
    CSpellOptions::iterator itor = CSpellOptions::begin();
-   for (; itor != CSpellOptions::end(); itor++) {
+   for (; itor != CSpellOptions::end(); ++itor) {
       CSpellOption& option = itor->second;
       aspell_config_replace(aconfig,itor->first.c_str(),option.m_value.c_str());
    }

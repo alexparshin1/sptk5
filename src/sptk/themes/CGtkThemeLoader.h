@@ -75,7 +75,7 @@ namespace sptk {
         CGtkThemeParser() {}
         
         /// @brief Loads GTK theme configuration
-        void load(std::string themeName) THROWS_EXCEPTIONS;
+        void load(const std::string& themeName) THROWS_EXCEPTIONS;
         
         sptk::XMLDocument& xml() { return m_xml; }
         

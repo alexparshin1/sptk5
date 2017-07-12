@@ -50,7 +50,7 @@ void CColorSchema::store()
 
 void CColorSchema::restore()
 {
-    for (map<Fl_Color,unsigned>::iterator itor = m_colorMap.begin(); itor != m_colorMap.end(); itor++)
+    for (map<Fl_Color,unsigned>::iterator itor = m_colorMap.begin(); itor != m_colorMap.end(); ++itor)
         Fl::set_color(itor->first,itor->second);
 }
 

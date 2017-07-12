@@ -39,7 +39,7 @@ string CFont::id() const {
 }
 
 void CFontsMap::clear() {
-    for (iterator itor = begin(); itor != end(); itor++)
+    for (iterator itor = begin(); itor != end(); ++itor)
         delete itor->second;
     map<string,CFont*>::clear();
 }

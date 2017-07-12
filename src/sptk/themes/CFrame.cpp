@@ -34,7 +34,7 @@ using namespace std;
 using namespace sptk;
 
 void CFrames::clear() {
-    for (CFrameMap::iterator itor = m_frames.begin(); itor != m_frames.end(); itor++) {
+    for (CFrameMap::iterator itor = m_frames.begin(); itor != m_frames.end(); ++itor) {
         CFrame* frame = itor->second;
         delete frame;
     }
@@ -51,7 +51,7 @@ void CFrames::load(Tar& tar,XMLNode* framesNode) {
     clear();
     XMLNode::iterator itor = framesNode->begin();
     XMLNode::iterator iend = framesNode->end();
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         XMLNode* frameNode = *itor;
         if (frameNode->name() != "frame")
             continue;

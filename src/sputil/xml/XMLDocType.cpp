@@ -66,7 +66,7 @@ class CEntityCache
     map<int, CEntityMap>    m_replacementMaps;
 public:
 
-    CEntityCache(struct entity entities[])
+    explicit CEntityCache(struct entity entities[])
     {
         struct entity *ent = entities;
         for (; ent->name; ent++) {

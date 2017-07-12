@@ -143,7 +143,6 @@ bool CDialog::cancelPressed()
 bool CDialog::showModal()
 {
     resize(x(), y(), w(), h());
-    Fl_Widget *pressed;
     int x = (Fl::w() - w()) / 2;
     int y = (Fl::h() - h()) / 2;
     position(x, y);
@@ -155,7 +154,7 @@ bool CDialog::showModal()
     m_modalResult = DMR_NONE;
 
     while (m_modalResult == DMR_NONE) {
-        pressed = Fl::readqueue();
+        Fl_Widget *pressed = Fl::readqueue();
 
         if (!pressed)
             Fl::wait(0.1);
@@ -249,7 +248,7 @@ bool CDialog::buildQueries()
 
     CControlList::const_iterator itor = m_defaultFields.begin();
     bool first = true;
-    for (; itor != m_defaultFields.end(); itor++) {
+    for (; itor != m_defaultFields.end(); ++itor) {
         const CControl* control = itor->second;
         const string& fieldName = control->fieldName();
         if (!first) {
@@ -281,7 +280,7 @@ bool CDialog::load()
         m_selectQuery->param("key").setInteger(m_keyValue);
         m_selectQuery->open();
         CControlList::iterator itor = m_defaultFields.begin();
-        for (; itor != m_defaultFields.end(); itor++) {
+        for (; itor != m_defaultFields.end(); ++itor) {
             try {
                 CControl* control = itor->second;
                 control->load(m_selectQuery);
@@ -305,7 +304,7 @@ bool CDialog::save()
 
     // Validating data in controls
     CControlList::iterator itor = m_defaultFields.begin();
-    for (; itor != m_defaultFields.end(); itor++) {
+    for (; itor != m_defaultFields.end(); ++itor) {
         CControl* control = itor->second;
         if (!control->valid()) {
             Fl::focus(control->control());
@@ -331,7 +330,7 @@ bool CDialog::save()
     }
 
     itor = m_defaultFields.begin();
-    for (; itor != m_defaultFields.end(); itor++) {
+    for (; itor != m_defaultFields.end(); ++itor) {
         CControl* control = itor->second;
         control->save(query);
     }

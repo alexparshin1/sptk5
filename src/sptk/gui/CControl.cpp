@@ -368,7 +368,6 @@ void CControl::notifyFocus(bool gotFocus)
 
 int CControl::handle(int event)
 {
-    bool newFocus = false;
     switch (event)
     {
     case FL_SHOW:
@@ -380,7 +379,7 @@ int CControl::handle(int event)
     }
     int rc = Fl_Group::handle(event);
     if (event == FL_UNFOCUS) {
-        newFocus = containsFocus();
+        bool newFocus = containsFocus();
         if (!newFocus) {
             m_hasFocus = false;
             fireEvent(CE_UNFOCUS, 0);
@@ -569,7 +568,7 @@ void sptk::createControls(const XMLNodeList& xmlControls) THROWS_EXCEPTIONS
 {
     XMLNodeList::const_iterator itor = xmlControls.begin();
     XMLNodeList::const_iterator iend = xmlControls.end();
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         XMLNode* node = *itor;
         CControlKind controlKind = CControlKindIndex::type(node->name());
         CControl* control = createControl(controlKind, node->getAttribute("label", ""), node->getAttribute("fieldName", ""),

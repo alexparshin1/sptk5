@@ -121,7 +121,7 @@ public:
         CParamVector::iterator
             itor = m_enumeratedParams.begin(),
             iend = m_enumeratedParams.end();
-        for (; itor != iend; itor++)
+        for (; itor != iend; ++itor)
         {
             QueryParameter* parameter = *itor;
             if (parameter->isOutput())

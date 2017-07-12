@@ -38,7 +38,7 @@ namespace sptk
 
 static const Strings notGroupingTags("styles;style;engine", ";");
 
-XMLNode* CGtkThemeParser::parseParameter(const std::string& row, XMLNode* parentNode, bool createAttributes)
+XMLNode* CGtkThemeParser::parseParameter(const string& row, XMLNode* parentNode, bool createAttributes)
 {
     try {
         size_t pos = row.find_first_of(":[ \t=");
@@ -217,7 +217,7 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
     buffer.saveToFile("gtkrc.xml");
 }
 
-void CGtkThemeParser::load(std::string themeName) THROWS_EXCEPTIONS
+void CGtkThemeParser::load(const string& themeName) THROWS_EXCEPTIONS
 {
     m_themeFolder = Registry::homeDirectory() + ".themes/" + themeName + "/gtk-2.0/";
     string gtkrcFile = m_themeFolder + "gtkrc";
