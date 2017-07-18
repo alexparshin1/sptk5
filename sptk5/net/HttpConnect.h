@@ -50,8 +50,8 @@ typedef std::map<std::string, std::string> HttpHeaders;
 /**
  * @brief HTTP socket
  *
- * Implements the GET and POST methods of HTTP protocol.
- * Allows to define the host, port, submit information, and then GET or POST the HTML data to the server.
+ * Implements the GET, POST, PUT and DELETE methods of HTTP protocol.
+ * Allows to define the host, port, submit information, and then sends the HTML request to the server.
  */
 class SP_EXPORT HttpConnect
 {

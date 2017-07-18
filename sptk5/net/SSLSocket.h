@@ -55,7 +55,7 @@ public:
     /**
      * @brief Returns number of bytes available for read
      */
-    virtual uint32_t socketBytes(); 
+    virtual uint32_t socketBytes();
 
     /**
      * @brief Throws SSL error based on SSL function return code
