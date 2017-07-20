@@ -32,12 +32,12 @@
 using namespace std;
 using namespace sptk;
 
-SystemException::SystemException(string context, std::string file, int line)
+SystemException::SystemException(string context, std::string file, int line) DOESNT_THROW
 : Exception(context + ": " + osError(), file, line)
 {
 }
 
-SystemException::SystemException(const SystemException& other)
+SystemException::SystemException(const SystemException& other) DOESNT_THROW
 : Exception(other)
 {
 }

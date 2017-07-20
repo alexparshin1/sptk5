@@ -44,10 +44,10 @@ static char B64Chars[64] = {
 
 void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
 {
-    char*  current = bufSource.data();
-    uint32_t len = (uint32_t) bufSource.bytes();
+    char* current = bufSource.data();
+    auto len = (uint32_t) bufSource.bytes();
     uint32_t outputLen = len / 3 * 4;
-    if (len % 3)
+    if ((len % 3) != 0)
         outputLen += 4;
     bufDest.checkSize(outputLen + 1);
     char* output = bufDest.data();

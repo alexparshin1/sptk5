@@ -52,13 +52,13 @@ public:
      * @param file std::string, the file name where exception occurs
      * @param line int, the line number in the file where exception occurs
      */
-    SystemException(std::string context, std::string file="", int line=0);
+    SystemException(std::string context, std::string file="", int line=0) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
      * @param other const SystemException&, the other exception object
      */
-    SystemException(const SystemException& other);
+    SystemException(const SystemException& other) DOESNT_THROW;
 
     /**
      * @brief Destructor

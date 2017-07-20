@@ -174,7 +174,7 @@ protected:
         /**
          * @brief Destructor
          */
-        virtual ~CommandLineElement();
+        virtual ~CommandLineElement() = default;
 
         /**
          * @brief Returns element type
@@ -394,14 +394,14 @@ protected:
      * @param subject std::string, String to check
      * @param pattern std::string, String fragment to match
      */
-    bool startsWith(std::string subject, std::string pattern);
+    bool startsWith(const std::string& subject, const std::string& pattern);
 
     /**
      * @brief Returns true if string end matches the pattern
      * @param subject std::string, String to check
      * @param pattern std::string, String fragment to match
      */
-    bool endsWith(std::string subject, std::string pattern);
+    bool endsWith(const std::string& subject, const std::string& pattern);
 
     /**
      * @brief prints a line of characters

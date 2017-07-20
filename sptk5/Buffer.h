@@ -30,6 +30,7 @@
 #define __SPTK_BUFFER_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -363,7 +364,7 @@ public:
      * @param b Buffer&&, the buffer to move from
      * @returns this object
      */
-    Buffer& operator = (Buffer&& b);
+    Buffer& operator = (Buffer&& b) DOESNT_THROW;
 
     /**
      * @brief Assigns from Buffer

@@ -38,7 +38,7 @@ Buffer::Buffer(size_t sz)
 {
     m_buffer = (char*)calloc(1, sz);
 
-    if (m_buffer)
+    if (m_buffer != nullptr)
         m_size = sz;
     else
         m_size = 0;
@@ -50,7 +50,7 @@ Buffer::Buffer(const void* data, size_t sz)
 {
     m_buffer = (char*)malloc(sz + 1);
 
-    if (m_buffer)
+    if (m_buffer != nullptr)
     {
         memcpy(m_buffer, data, sz);
         m_size = sz;
@@ -66,7 +66,7 @@ Buffer::Buffer(const char* str)
     size_t sz = (size_t) strlen(str) + 1;
     m_buffer = (char*)malloc(sz);
 
-    if (m_buffer) {
+    if (m_buffer != nullptr) {
         memcpy(m_buffer, str, sz);
         m_size = sz;
         m_bytes = sz - 1;
@@ -81,7 +81,7 @@ Buffer::Buffer(const string& str)
     size_t sz = (size_t) str.length() + 1;
     m_buffer = (char*)malloc(sz);
 
-    if (m_buffer) {
+    if (m_buffer != nullptr) {
         if (sz > 1)
             memcpy(m_buffer, str.c_str(), sz);
         else m_buffer[0] = 0;
@@ -99,7 +99,7 @@ Buffer::Buffer(const Buffer& buffer)
     size_t sz = buffer.bytes() + 1;
     m_buffer = (char*)malloc(sz);
 
-    if (m_buffer) {
+    if (m_buffer != nullptr) {
         memcpy(m_buffer, buffer.data(), sz);
         m_size = sz;
         m_bytes = sz - 1;
@@ -112,9 +112,9 @@ Buffer::Buffer(const Buffer& buffer)
 void Buffer::adjustSize(size_t sz)
 {
     size_t newSize = sz / 3 * 4 + 16;
-    char* p = (char*)realloc(m_buffer, newSize + 1);
+    auto p = (char*) realloc(m_buffer, newSize + 1);
 
-    if (!p)
+    if (p == nullptr)
         throw Exception("Can't reallocate a buffer");
 
     m_buffer = p;
@@ -125,7 +125,7 @@ void Buffer::set(const char* data, size_t sz)
 {
     checkSize(sz + 1);
 
-    if (data) {
+    if (data != nullptr) {
         memcpy(m_buffer, data, sz);
         m_buffer[sz] = 0;
     }
@@ -156,7 +156,7 @@ void Buffer::append(uint16_t val)
 
 void Buffer::append(const char* data, size_t sz)
 {
-    if (!sz)
+    if (sz == 0)
         sz = (size_t) strlen(data);
 
     checkSize(m_bytes + sz + 1);
@@ -172,10 +172,10 @@ void Buffer::fill(char c)
 
 void Buffer::reset(size_t sz)
 {
-    if (sz) {
-        char* p = (char*)realloc(m_buffer, sz + 1);
+    if (sz != 0) {
+        auto p = (char*)realloc(m_buffer, sz + 1);
 
-        if (!p)
+        if (p == nullptr)
             throw Exception("Can't reallocate a buffer");
 
         m_buffer = p;
@@ -189,12 +189,12 @@ void Buffer::loadFromFile(string fileName)
 {
     FILE* f = fopen(fileName.c_str(), "rb");
 
-    if (!f)
+    if (f == nullptr)
         throw SystemException("Can't open file " + fileName + " for reading");
 
-    struct stat st;
+    struct stat st = {};
     fstat(fileno(f), &st);
-    size_t size = (size_t) st.st_size;
+    auto size = (size_t) st.st_size;
 
     reset(size + 1);
     m_buffer[size] = 0;
@@ -206,16 +206,16 @@ void Buffer::saveToFile(string fileName) const
 {
     FILE* f = fopen(fileName.c_str(), "wb");
 
-    if (!f)
+    if (f == nullptr)
         throw SystemException("Can't open file " + fileName + " for writing");
 
     fwrite(m_buffer, bytes(), 1, f);
     fclose(f);
 }
 
-Buffer& Buffer::operator = (Buffer&& b)
+Buffer& Buffer::operator = (Buffer&& b) DOESNT_THROW
 {
-    if (m_buffer)
+    if (m_buffer != nullptr)
         free(m_buffer);
 
     m_bytes = b.m_bytes;
@@ -224,7 +224,7 @@ Buffer& Buffer::operator = (Buffer&& b)
 
     b.m_bytes = 0;
     b.m_size = 0;
-    b.m_buffer = NULL;
+    b.m_buffer = nullptr;
     return *this;
 }
 
@@ -232,7 +232,7 @@ Buffer& Buffer::operator = (const Buffer& b)
 {
     checkSize(b.m_bytes + 1);
 
-    if (b.m_buffer)
+    if (b.m_buffer != nullptr)
         memcpy(m_buffer, b.m_buffer, b.m_bytes);
 
     m_bytes = b.m_bytes;
@@ -242,10 +242,10 @@ Buffer& Buffer::operator = (const Buffer& b)
 
 Buffer& Buffer::operator = (const std::string& str)
 {
-    size_t sz = (size_t) str.length();
+    auto sz = (size_t) str.length();
     checkSize(sz + 1);
 
-    if (sz)
+    if (sz != 0)
         memcpy(m_buffer, str.c_str(), sz + 1);
 
     m_bytes = sz;
@@ -254,10 +254,10 @@ Buffer& Buffer::operator = (const std::string& str)
 
 Buffer& Buffer::operator = (const char* str)
 {
-    size_t sz = (size_t) strlen(str);
+    auto sz = (size_t) strlen(str);
     checkSize(sz + 1);
 
-    if (sz)
+    if (sz != 0)
         memcpy(m_buffer, str, sz + 1);
 
     m_bytes = sz;
@@ -294,7 +294,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
         for (; rowOffset < buffer.bytes() && printed < 16; rowOffset++, printed++) {
             if (printed == 8)
                 stream << " ";
-            uint8_t testChar = (uint8_t) buffer[rowOffset];
+            auto testChar = (uint8_t) buffer[rowOffset];
             if (testChar >= 32)
                 stream << buffer[rowOffset];
             else
