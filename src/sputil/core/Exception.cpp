@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(string text, string file, int line, string description)
+Exception::Exception(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
 {
     if (m_line && !m_file.empty())
@@ -42,12 +42,8 @@ Exception::Exception(string text, string file, int line, string description)
         m_fullMessage += "\n" + m_description;
 }
 
-Exception::Exception(const Exception& other)
+Exception::Exception(const Exception& other) DOESNT_THROW
 : m_file(other.m_file), m_line(other.m_line), m_text(other.m_text), m_description(other.m_description), m_fullMessage(other.m_fullMessage)
-{
-}
-
-Exception::~Exception() DOESNT_THROW
 {
 }
 
@@ -76,58 +72,42 @@ string Exception::description() const
     return m_description;
 }
 
-TimeoutException::TimeoutException(std::string text, std::string file, int line, string description)
+TimeoutException::TimeoutException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
 
-TimeoutException::TimeoutException(const TimeoutException& other)
+TimeoutException::TimeoutException(const TimeoutException& other) DOESNT_THROW
 : Exception(other)
 {
 }
 
-TimeoutException::~TimeoutException() DOESNT_THROW
-{
-}
-
-ConnectionException::ConnectionException(std::string text, std::string file, int line, string description)
+ConnectionException::ConnectionException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
 
-ConnectionException::ConnectionException(const ConnectionException& other)
+ConnectionException::ConnectionException(const ConnectionException& other) DOESNT_THROW
 : Exception(other)
 {
 }
 
-ConnectionException::~ConnectionException() DOESNT_THROW
-{
-}
-
-DatabaseException::DatabaseException(std::string text, std::string file, int line, std::string description)
+DatabaseException::DatabaseException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
 
-DatabaseException::DatabaseException(const DatabaseException& other)
+DatabaseException::DatabaseException(const DatabaseException& other) DOESNT_THROW
 : Exception(other)
 {
 }
     
-DatabaseException::~DatabaseException() DOESNT_THROW
-{
-}
-
-SOAPException::SOAPException(std::string text, std::string file, int line, string description)
+SOAPException::SOAPException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
 
-SOAPException::SOAPException(const SOAPException& other)
+SOAPException::SOAPException(const SOAPException& other) DOESNT_THROW
 : Exception(other)
-{
-}
-
-SOAPException::~SOAPException() DOESNT_THROW
 {
 }

@@ -91,18 +91,13 @@ public:
      * @param line int, the line number in the file where exception occurs
      * @param description std::string, the optional description information
      */
-    Exception(std::string text, std::string file = "", int line = 0, std::string description = "");
+    Exception(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
      * @param other const CException&, the other exception object
      */
-    Exception(const Exception& other);
-
-    /**
-     * @brief Destructor
-     */
-    ~Exception() DOESNT_THROW;
+    Exception(const Exception& other) DOESNT_THROW;
 
     /**
      * @brief Returns complete text of exception
@@ -145,18 +140,13 @@ public:
      * @param line int, the line number in the file where exception occurs
      * @param description std::string, the optional description information
      */
-    TimeoutException(std::string text, std::string file = "", int line = 0, std::string description = "");
+    TimeoutException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
      * @param other const TimeoutException&, other exception object
      */
-    TimeoutException(const TimeoutException& other);
-
-    /**
-     * @brief Destructor
-     */
-    ~TimeoutException() DOESNT_THROW;
+    TimeoutException(const TimeoutException& other) DOESNT_THROW;
 };
 
 /**
@@ -174,18 +164,13 @@ public:
      * @param line int, the line number in the file where exception occurs
      * @param description std::string, the optional description information
      */
-    ConnectionException(std::string text, std::string file = "", int line = 0, std::string description = "");
+    ConnectionException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
      * @param other const ConnectionException&, other exception object
      */
-    ConnectionException(const ConnectionException& other);
-
-    /**
-     * @brief Destructor
-     */
-    ~ConnectionException() DOESNT_THROW;
+    ConnectionException(const ConnectionException& other) DOESNT_THROW;
 };
 
 /**
@@ -203,18 +188,13 @@ public:
      * @param line int, the line number in the file where exception occurs
      * @param description std::string, the optional description information
      */
-    DatabaseException(std::string text, std::string file = "", int line = 0, std::string description = "");
+    DatabaseException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
      * @param other const DatabaseException&, other exception object
      */
-    DatabaseException(const DatabaseException& other);
-
-    /**
-     * @brief Destructor
-     */
-    ~DatabaseException() DOESNT_THROW;
+    DatabaseException(const DatabaseException& other) DOESNT_THROW;
 };
 
 /**
@@ -232,18 +212,13 @@ public:
      * @param line int, the line number in the file where exception occurs
      * @param description std::string, the optional description information
      */
-    SOAPException(std::string text, std::string file = "", int line = 0, std::string description = "");
+    SOAPException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
      * @param other const CSOAPException&, other exception object
      */
-    SOAPException(const SOAPException& other);
-
-    /**
-     * @brief Destructor
-     */
-    ~SOAPException() DOESNT_THROW;
+    SOAPException(const SOAPException& other) DOESNT_THROW;
 };
 
 /**
