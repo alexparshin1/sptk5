@@ -78,8 +78,8 @@ string Registry::homeDirectory()
     return homeDir;
 }
 
-Registry::Registry(const string& fileName, const string& programGroupName, RegistryMode mode)
-        : XMLDocument("Configuration"), m_fileName(fileName)
+Registry::Registry(const string& fileName, string programGroupName, RegistryMode mode)
+: XMLDocument("Configuration"), m_fileName(fileName)
 {
     if (!m_fileName.empty()) {
         string directory;

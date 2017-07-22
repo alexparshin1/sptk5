@@ -99,12 +99,12 @@ public:
     /**
      * @brief Constructor
      *
-     * @param fileName std::string, the registry file name w/o path
+     * @param fileName const std::string&, the registry file name w/o path
      * @param programGroupName std::string, the name of the program group to generate a directory name for the registry files.
      * Should be a single phrase without '\\' or '/'
      * @param mode RegistryMode, see RegistryMode for details
      */
-    Registry(const std::string& fileName, const std::string& programGroupName, RegistryMode mode = USER_REGISTRY);
+    Registry(const std::string& fileName, std::string programGroupName, RegistryMode mode = USER_REGISTRY);
 
     /**
      * @brief Destructor

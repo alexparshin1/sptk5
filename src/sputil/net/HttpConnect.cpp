@@ -125,10 +125,10 @@ int HttpConnect::getResponse(uint32_t readTimeout)
     if (contentLengthStr != "0") {
         bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
-        int bytes;
-        int bytesToRead = contentLength;
+        size_t bytes;
+        size_t bytesToRead = contentLength;
         if (!chunked) {
-            int totalBytes = 0;
+            size_t totalBytes = 0;
 
             for (;;) {
 
