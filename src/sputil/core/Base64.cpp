@@ -155,13 +155,13 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
   return dest.size();
 }
 
-int Base64::decode(Buffer& bufDest, const Buffer& bufSource) THROWS_EXCEPTIONS
+size_t Base64::decode(Buffer& bufDest, const Buffer& bufSource) THROWS_EXCEPTIONS
 {
     string source(bufSource.c_str(), bufSource.bytes());
     return internal_decode(bufDest, source);
 }
 
-int Base64::decode(Buffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
+size_t Base64::decode(Buffer &bufDest, const string& strSource) THROWS_EXCEPTIONS
 {
     return internal_decode(bufDest, strSource);
 }
