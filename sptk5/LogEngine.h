@@ -142,12 +142,12 @@ protected:
 public:
     /**
      * @brief Stores or sends log message to actual destination
-     * @param date DateTime, message timestamp
+     * @param date const DateTime&, message timestamp
      * @param message const char *, message text
      * @param sz uint32_t, message size
      * @param priority LogPriority, message priority. @see LogPriority for more information.
      */
-    virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS = 0;
+    virtual void saveMessage(const DateTime& date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS = 0;
 
     /**
      * @brief Log options

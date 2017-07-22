@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
 #include <sstream>
 
 #include <sptk5/net/BaseSocket.h>
@@ -38,13 +38,15 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-    static int   m_socketCount;
-    static bool  m_inited(false);
+static int   m_socketCount;
+static bool  m_inited(false);
 #else
-	#include <sys/poll.h>
+
+#include <sys/poll.h>
+
 #endif
 
-void BaseSocket::throwSocketError (std::string operation, const char* file, int line) THROWS_EXCEPTIONS
+void BaseSocket::throwSocketError(std::string operation, const char* file, int line) THROWS_EXCEPTIONS
 {
     string errorStr;
 #ifdef _WIN32
@@ -58,7 +60,7 @@ void BaseSocket::throwSocketError (std::string operation, const char* file, int 
 #else
     errorStr = strerror(errno);
 #endif
-    throw Exception (operation + ": " + errorStr, file, line);
+    throw Exception(operation + ": " + errorStr, file, line);
 }
 
 #ifdef _WIN32
@@ -80,17 +82,17 @@ void BaseSocket::cleanup()
 #endif
 
 // Constructor
-BaseSocket::BaseSocket (SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
 {
 #ifdef _WIN32
     init();
     m_socketCount++;
 #endif
-    m_sockfd   = INVALID_SOCKET;
-    m_domain   = domain;
-    m_type     = type;
+    m_sockfd = INVALID_SOCKET;
+    m_domain = domain;
+    m_type = type;
     m_protocol = protocol;
-    m_port     = 0;
+    m_port = 0;
 }
 
 // Destructor
@@ -112,19 +114,19 @@ void BaseSocket::getHostAddress(const string& hostname, sockaddr_in& addr)
     struct hostent* host_info = gethostbyname(hostname.c_str());
     memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
 #else
-    struct addrinfo hints;
+    struct addrinfo hints = {};
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;          // IPv4 or IPv6
     hints.ai_socktype = SOCK_STREAM;    // Socket type
     //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
     hints.ai_protocol = 0;
 
-    struct addrinfo *result;
-    int rc = getaddrinfo(hostname.c_str(), NULL, &hints, &result);
-    if (rc)
+    struct addrinfo* result;
+    int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result);
+    if (rc != 0)
         throw Exception(gai_strerror(rc));
 
-    memcpy(&addr, (struct sockaddr_in *) result->ai_addr, result->ai_addrlen);
+    memcpy(&addr, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
 
     freeaddrinfo(result);
 #endif
@@ -139,13 +141,13 @@ void BaseSocket::blockingMode(bool blocking) THROWS_EXCEPTIONS
     int rc = ioctlsocket(m_sockfd, FIONBIO, &arg2);
 #else
     int flags = fcntl(m_sockfd, F_GETFL);
-    if (flags & O_NONBLOCK)
+    if ((flags & O_NONBLOCK) == O_NONBLOCK)
         flags -= O_NONBLOCK;
     if (!blocking)
         flags |= O_NONBLOCK;
     int rc = fcntl(m_sockfd, F_SETFL, flags);
 #endif
-    if (rc)
+    if (rc != 0)
         THROW_SOCKET_ERROR("Can't set socket blocking mode");
 }
 
@@ -173,27 +175,27 @@ size_t BaseSocket::send(const void* buffer, size_t len)
     return (size_t) ::send(m_sockfd, (char*) buffer, (int32_t) len, 0);
 }
 
-int32_t BaseSocket::control (int flag, uint32_t *check)
+int32_t BaseSocket::control(int flag, const uint32_t* check)
 {
 #ifdef _WIN32
     return ioctlsocket (m_sockfd, flag, (u_long *) check);
 #else
-    return fcntl (m_sockfd, flag, *check);
+    return fcntl(m_sockfd, flag, *check);
 #endif
 }
 
-void BaseSocket::host (string hostName)
+void BaseSocket::host(const string& hostName)
 {
     m_host = hostName;
 }
 
-void BaseSocket::port (uint16_t portNumber)
+void BaseSocket::port(uint16_t portNumber)
 {
     m_port = portNumber;
 }
 
 // Connect & disconnect
-void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, uint32_t timeoutMS)
+void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, uint32_t timeoutMS)
 {
     if (active())
         close();
@@ -209,21 +211,21 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, u
     switch (openMode) {
         case SOM_CONNECT:
             currentOperation = "connect";
-            if (timeoutMS) {
+            if (timeoutMS != 0) {
                 blockingMode(false);
-                connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+                connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
                 if (!readyToWrite(timeoutMS))
                     throw Exception("Connection timeout");
                 rc = 0;
                 blockingMode(true);
             } else
-                rc = connect (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+                rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
             break;
         case SOM_BIND:
             currentOperation = "bind";
-            rc = ::bind (m_sockfd, (sockaddr *) addr, sizeof (sockaddr_in));
+            rc = ::bind(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
             if (rc == 0 && m_type != SOCK_DGRAM) {
-                rc = ::listen (m_sockfd, SOMAXCONN);
+                rc = ::listen(m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
             }
             break;
@@ -231,9 +233,10 @@ void BaseSocket::open_addr (CSocketOpenMode openMode, const sockaddr_in* addr, u
             break;
     }
 
-    if (rc) {
+    if (rc != 0) {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host << ":" << m_port << ". " << SystemException::osError() << ".";
+        error << "Can't " << currentOperation << " to " << m_host << ":" << m_port << ". " << SystemException::osError()
+              << ".";
         close();
         throw Exception(error.str());
     }
@@ -248,34 +251,34 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
             THROW_SOCKET_ERROR("Can't create socket");
     }
 
-    sockaddr_in addr;
+    sockaddr_in addr = {};
     memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY)m_domain;
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
 
-    if (address == NULL)
+    if (address == nullptr)
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
     else
         addr.sin_addr.s_addr = inet_addr(address);
 
     addr.sin_port = htons(uint16_t(portNumber));
 
-    if (::bind(m_sockfd, (sockaddr *)&addr, sizeof(addr)) != 0)
+    if (::bind(m_sockfd, (sockaddr*) &addr, sizeof(addr)) != 0)
         THROW_SOCKET_ERROR("Can't bind socket to port " + int2string(portNumber));
 }
 
 void BaseSocket::listen(uint16_t portNumber)
 {
-    if (portNumber)
+    if (portNumber != 0)
         m_port = portNumber;
 
-    sockaddr_in addr;
+    sockaddr_in addr = {};
 
-    memset (&addr, 0, sizeof (addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY)m_domain;
-    addr.sin_addr.s_addr = htonl (INADDR_ANY);
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(uint16_t(m_port));
 
-    open_addr (SOM_BIND, &addr);
+    open_addr(SOM_BIND, &addr);
 }
 
 void BaseSocket::close()
@@ -291,17 +294,17 @@ void BaseSocket::close()
     }
 }
 
-void BaseSocket::attach (SOCKET socketHandle)
+void BaseSocket::attach(SOCKET socketHandle)
 {
     close();
     m_sockfd = socketHandle;
 }
 
-size_t BaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
+size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     int bytes;
-    if (from) {
-        socklen_t flen = sizeof (sockaddr_in);
+    if (from != nullptr) {
+        socklen_t flen = sizeof(sockaddr_in);
         bytes = (int) ::recvfrom(m_sockfd, buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
     } else
         bytes = (int) ::recv(m_sockfd, buffer, (int32_t) size, 0);
@@ -312,37 +315,37 @@ size_t BaseSocket::read(char *buffer,size_t size,sockaddr_in* from) THROWS_EXCEP
     return (size_t) bytes;
 }
 
-size_t BaseSocket::read(Buffer& buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
+size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.checkSize(size);
-    size_t bytes = read(buffer.data(),size,from);
+    size_t bytes = read(buffer.data(), size, from);
     if (bytes != size)
         buffer.bytes(bytes);
     return bytes;
 }
 
-size_t BaseSocket::read(std::string& buffer,size_t size,sockaddr_in* from) THROWS_EXCEPTIONS
+size_t BaseSocket::read(std::string& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
 {
     buffer.resize(size);
-    size_t bytes = read((char*)buffer.data(),size,from);
+    size_t bytes = read((char*) buffer.data(), size, from);
     if (bytes != size)
         buffer.resize(bytes);
     return bytes;
 }
 
-size_t BaseSocket::write(const char *buffer, size_t size, const sockaddr_in* peer) THROWS_EXCEPTIONS
+size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
-    int         bytes;
+    int bytes;
     const char* p = buffer;
 
     if (int(size) == -1)
         size = strlen(buffer);
 
-    size_t  total = size;
-    int remaining = (int) size;
+    size_t total = size;
+    auto remaining = (int) size;
     while (remaining > 0) {
-        if (peer)
-            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr *) peer, sizeof(sockaddr_in));
+        if (peer != nullptr)
+            bytes = (int) sendto(m_sockfd, p, (int32_t) size, 0, (sockaddr*) peer, sizeof(sockaddr_in));
         else
             bytes = (int) send(p, (int32_t) size);
         if (bytes == -1)
@@ -353,20 +356,20 @@ size_t BaseSocket::write(const char *buffer, size_t size, const sockaddr_in* pee
     return total;
 }
 
-size_t BaseSocket::write (const Buffer& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
+size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
     return write(buffer.data(), buffer.bytes(), peer);
 }
 
-size_t BaseSocket::write (const std::string& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
+size_t BaseSocket::write(const std::string& buffer, const sockaddr_in* peer) THROWS_EXCEPTIONS
 {
     return write(buffer.c_str(), buffer.length(), peer);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)
-    #define CONNCLOSED (POLLHUP)
+#define CONNCLOSED (POLLHUP)
 #else
-    #define CONNCLOSED (POLLRDHUP|POLLHUP)
+#define CONNCLOSED (POLLRDHUP|POLLHUP)
 #endif
 
 bool BaseSocket::readyToRead(uint32_t timeoutMS)
@@ -388,13 +391,14 @@ bool BaseSocket::readyToRead(uint32_t timeoutMS)
     if (FD_ISSET(m_sockfd, &errors))
         throw ConnectionException("Connection closed");
 #else
-    struct pollfd pfd;
+    struct pollfd pfd = {};
+
     pfd.fd = m_sockfd;
     pfd.events = POLLIN;
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && pfd.revents & CONNCLOSED)
+    if (rc == 1 && (pfd.revents & CONNCLOSED) == CONNCLOSED)
         throw ConnectionException("Connection closed");
 #endif
     return rc != 0;
@@ -419,13 +423,13 @@ bool BaseSocket::readyToWrite(uint32_t timeoutMS)
     if (FD_ISSET(m_sockfd, &errors))
         THROW_SOCKET_ERROR("Socket closed");
 #else
-    struct pollfd pfd;
+    struct pollfd pfd = {};
     pfd.fd = m_sockfd;
     pfd.events = POLLOUT;
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && pfd.revents & CONNCLOSED)
+    if (rc == 1 && (pfd.revents & CONNCLOSED) == CONNCLOSED)
         throw Exception("Connection closed");
 #endif
     return rc != 0;
@@ -437,16 +441,16 @@ bool BaseSocket::readyToWrite(uint32_t timeoutMS)
 # define VALUE_TYPE(val) (void*)(val)
 #endif
 
-void BaseSocket::setOption (int level, int option, int value) THROWS_EXCEPTIONS
+void BaseSocket::setOption(int level, int option, int value) THROWS_EXCEPTIONS
 {
-    socklen_t len = sizeof (int);
-    if (setsockopt (m_sockfd, level, option, VALUE_TYPE (&value), len))
+    socklen_t len = sizeof(int);
+    if (setsockopt(m_sockfd, level, option, VALUE_TYPE (&value), len) != 0)
         THROW_SOCKET_ERROR("Can't set socket option");
 }
 
-void BaseSocket::getOption (int level, int option, int& value) THROWS_EXCEPTIONS
+void BaseSocket::getOption(int level, int option, int& value) THROWS_EXCEPTIONS
 {
-    socklen_t len = sizeof (int);
-    if (getsockopt (m_sockfd, level, option, VALUE_TYPE (&value), &len))
+    socklen_t len = sizeof(int);
+    if (getsockopt(m_sockfd, level, option, VALUE_TYPE (&value), &len) != 0)
         THROW_SOCKET_ERROR("Can't get socket option");
 }

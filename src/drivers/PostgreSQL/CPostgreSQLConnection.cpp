@@ -921,7 +921,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                     isNull = PQgetisnull(stmt, currentRow, column) == 1;
 
                 if (isNull)
-                    field->setNull();
+                    field->setNull(VAR_NONE);
                 else
                     field->setExternalString("", 0);
             } else {

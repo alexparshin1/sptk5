@@ -104,7 +104,7 @@ public:
      * Should be a single phrase without '\\' or '/'
      * @param mode RegistryMode, see RegistryMode for details
      */
-    Registry(std::string fileName, std::string programGroupName, RegistryMode mode = USER_REGISTRY);
+    Registry(const std::string& fileName, const std::string& programGroupName, RegistryMode mode = USER_REGISTRY);
 
     /**
      * @brief Destructor

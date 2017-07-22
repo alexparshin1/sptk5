@@ -33,7 +33,7 @@ using namespace sptk;
 
 CLogStreamBuf::CLogStreamBuf()
 {
-    m_parent = NULL;
+    m_parent = nullptr;
     m_bytes = 0;
     m_size = 1024;
     m_buffer = (char *) malloc(m_size);
@@ -49,9 +49,9 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
     bool lineBreak = c <= 13;
     
     if (lineBreak || bufferOverflow) {
-        if (m_bytes) {
+        if (m_bytes != 0) {
             m_buffer[m_bytes] = 0;
-            if (m_parent) {
+            if (m_parent != nullptr) {
                 if (m_priority <= m_parent->m_destination.minPriority())
                     m_parent->saveMessage(m_date, m_buffer, m_bytes, m_priority);
                 if (!bufferOverflow) {
@@ -86,7 +86,7 @@ Logger::~Logger()
     delete m_buffer;
 }
 
-void Logger::saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+void Logger::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     m_destination.saveMessage(date, message, sz, priority);
 }

@@ -83,7 +83,7 @@ public:
     /**
      * Clears content (sets to NULL)
      */
-    void clear() { setNull(); }
+    void clear() { setNull(VAR_NONE); }
 
     /**
      * Loads type data from request XML node

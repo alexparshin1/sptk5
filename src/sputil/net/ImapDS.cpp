@@ -41,15 +41,15 @@ bool ImapDS::open() THROWS_EXCEPTIONS {
    int32_t total_messages, first_message = 1;
    m_imap.cmd_select(m_folder,total_messages);
 
-   if (m_msgid) {
+   if (m_msgid != 0) {
       first_message = m_msgid;
       total_messages = m_msgid;
    }
-   if (total_messages) {
-      if (m_callback)
+   if (total_messages != 0) {
+      if (m_callback != nullptr)
          m_callback(total_messages,0);
       for (long msg_id = first_message; msg_id <= total_messages; msg_id++) {
-         FieldList   *df = new FieldList(false);
+         auto df = new FieldList(false);
 
          df->user_data((void *)(size_t)msg_id);
 
@@ -57,20 +57,20 @@ bool ImapDS::open() THROWS_EXCEPTIONS {
             m_imap.cmd_fetch_message((int32_t)msg_id,*df);
          else m_imap.cmd_fetch_headers((int32_t)msg_id,*df);
 
-         Field *fld = new Field("msg_id");
+         auto fld = new Field("msg_id");
          fld->view.width = 0;
          fld->setInteger((int32_t)msg_id);
          df->push_back(fld);
 
          m_list.push_back(df);
 
-         if (m_callback)
+         if (m_callback != nullptr)
             m_callback(total_messages,(int)msg_id);
       }
-      if (m_callback)
+      if (m_callback != nullptr)
          m_callback(total_messages,total_messages);
    } else {
-      if (m_callback)
+      if (m_callback != nullptr)
          m_callback(100,100);
    }
 
@@ -79,7 +79,7 @@ bool ImapDS::open() THROWS_EXCEPTIONS {
    m_imap.cmd_logout();
    m_imap.close();
 
-   m_eof = m_list.size() == 0;
+   m_eof = m_list.empty();
 
    return !m_eof;
 }

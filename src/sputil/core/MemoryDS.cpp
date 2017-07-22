@@ -56,7 +56,7 @@ uint32_t MemoryDS::recordCount() const
 
 uint32_t MemoryDS::fieldCount() const
 {
-    if (!m_current) return 0;
+    if (m_current == nullptr) return 0;
     checkDSopen(m_current);
     return m_current->size();
 }
@@ -104,7 +104,7 @@ bool MemoryDS::close()
 
 bool MemoryDS::first()
 {
-    if (m_list.size()) {
+    if (!m_list.empty()) {
         m_currentIndex = 0;
         m_current = (FieldList *) m_list[m_currentIndex];
         m_eof = false;
@@ -116,8 +116,8 @@ bool MemoryDS::first()
 
 bool MemoryDS::last()
 {
-    uint32_t cnt = (uint32_t) m_list.size();
-    if (cnt) {
+    auto cnt = (uint32_t) m_list.size();
+    if (cnt != 0) {
         m_currentIndex = cnt - 1;
         m_current = (FieldList *) m_list[m_currentIndex];
         m_eof = false;
@@ -129,7 +129,7 @@ bool MemoryDS::last()
 
 bool MemoryDS::next()
 {
-    uint32_t cnt = (uint32_t) m_list.size();
+    auto cnt = (uint32_t) m_list.size();
     if (m_currentIndex + 1 < cnt) {
         m_currentIndex++;
         m_current = (FieldList *) m_list[m_currentIndex];
@@ -154,7 +154,7 @@ bool MemoryDS::prior()
 
 bool MemoryDS::find(Variant position)
 {
-    uint32_t cnt = (uint32_t) m_list.size();
+    auto cnt = (uint32_t) m_list.size();
     string name;
     uint32_t i;
     switch (position.dataType()) {
@@ -184,13 +184,11 @@ bool MemoryDS::find(Variant position)
 
 void MemoryDS::clear()
 {
-    uint32_t cnt = (uint32_t) m_list.size();
-    for (uint32_t i = 0; i < cnt; i++) {
-        FieldList *df = (FieldList *) m_list[i];
-        delete df;
-    }
+    auto cnt = (uint32_t) m_list.size();
+    for (uint32_t i = 0; i < cnt; i++)
+        delete (FieldList *) m_list[i];
     m_list.clear();
-    m_current = 0L;
+    m_current = nullptr;
     m_currentIndex = 0;
     m_eof = true;
 }

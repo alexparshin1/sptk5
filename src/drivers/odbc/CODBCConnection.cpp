@@ -664,7 +664,7 @@ void ODBCConnection::queryFetch(Query* query)
                 dataLength = (SQLINTEGER) trimField(buffer, (uint32_t) dataLength);
 
             if (dataLength <= 0)
-                field->setNull();
+                field->setNull(VAR_NONE);
             else
                 field->dataSize(dataLength);
         } catch (exception& e) {

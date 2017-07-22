@@ -218,7 +218,7 @@ public:
      * @brief Sets the host name
      * @param hostName std::string, the host name
      */
-    void host(std::string hostName);
+    void host(const std::string& hostName);
 
     /**
      * @brief Returns the host name
@@ -303,7 +303,7 @@ public:
     /**
      * @brief Calls Unix fcntl() or Windows ioctlsocket()
      */
-    int32_t control(int flag, uint32_t *check);
+    int32_t control(int flag, const uint32_t* check);
 
     /**
      * @brief Sets socket option value

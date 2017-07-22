@@ -27,9 +27,9 @@
 */
 
 #include "sptk5/net/SocketEvents.h"
-#include <errno.h>
-#include <string.h>
-#include <signal.h>
+#include <cerrno>
+#include <cstring>
+#include <csignal>
 #include <iostream>
 
 #ifndef _WIN32

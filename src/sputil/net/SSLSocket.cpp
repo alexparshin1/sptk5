@@ -50,13 +50,13 @@ class CSSLLibraryLoader
 
     static void lock_callback(int mode, int type, char *file, int line)
     {
-        if (mode & CRYPTO_LOCK)
+        if ((mode & CRYPTO_LOCK) == CRYPTO_LOCK)
             m_locks[type].lock();
         else
             m_locks[type].unlock();
     }
 
-    static unsigned long thread_id(void)
+    static unsigned long thread_id()
     {
         unsigned long ret;
 #ifdef _WIN32
@@ -67,27 +67,35 @@ class CSSLLibraryLoader
         return(ret);
     }
 
-    static void init_locks(void)
+    static void init_locks()
     {
         m_locks = new Synchronized[CRYPTO_num_locks()];
         CRYPTO_set_id_callback(thread_id);
         CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
 
-    static void kill_locks(void)
+    static void kill_locks()
     {
         CRYPTO_set_locking_callback(NULL);
         delete [] m_locks;
     }
 
+    CSSLLibraryLoader(const CSSLLibraryLoader& other) = default;
+    CSSLLibraryLoader(CSSLLibraryLoader&& other) noexcept {}
+    CSSLLibraryLoader& operator = (const CSSLLibraryLoader& other) = default;
+    CSSLLibraryLoader& operator = (CSSLLibraryLoader&& other) noexcept
+    {
+        return *this;
+    }
+
 public:
-    CSSLLibraryLoader()
+    CSSLLibraryLoader() noexcept
     {
         load_library();
         init_locks();
     }
 
-    ~CSSLLibraryLoader()
+    ~CSSLLibraryLoader() noexcept
     {
         CRYPTO_set_locking_callback(NULL);
         CRYPTO_set_id_callback(NULL);
@@ -129,14 +137,14 @@ SSLSocket::~SSLSocket()
 
 void SSLSocket::open(const string& hostName, uint16_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
-    if (hostName.length())
+    if (!hostName.empty())
         m_host = hostName;
-    if (!m_host.length())
+    if (m_host.empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
-    if (portNumber)
+    if (portNumber != 0)
         m_port = portNumber;
 
-    sockaddr_in addr;
+    sockaddr_in addr = {};
     getHostAddress(m_host, addr);
     addr.sin_family = AF_INET;
     addr.sin_port = htons(portNumber);
@@ -159,27 +167,27 @@ void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
             throwSSLError(rc);
         }
         return;
-    } else {
-        time_t started = time(NULL);
-        for (;;) {
-            int rc = SSL_connect(m_ssl);
-            if (rc >= 0)
-                break;
-            int error = SSL_get_error(m_ssl, rc);
-            switch(error) {
-            case SSL_ERROR_WANT_READ:
-            case SSL_ERROR_WANT_WRITE:
-                break;
-            default:
-                close();
-                throwSSLError(rc);
-                break;
-            }
-            time_t now = time(NULL);
-            if (now - started > 30)
-                throw Exception("SSL handshake timeout");
-            Thread::msleep(1);
+    }
+
+    time_t started = time(nullptr);
+    for (;;) {
+        int rc = SSL_connect(m_ssl);
+        if (rc >= 0)
+            break;
+        int error = SSL_get_error(m_ssl, rc);
+        switch(error) {
+        case SSL_ERROR_WANT_READ:
+        case SSL_ERROR_WANT_WRITE:
+            break;
+        default:
+            close();
+            throwSSLError(rc);
+            break;
         }
+        time_t now = time(nullptr);
+        if (now - started > 30)
+            throw Exception("SSL handshake timeout");
+        Thread::msleep(1);
     }
 }
 
@@ -215,7 +223,7 @@ void SSLSocket::attach(SOCKET socketHandle) throw (std::exception)
     }
 }
 
-string SSLSocket::getSSLError(std::string function, int32_t openSSLError) const
+string SSLSocket::getSSLError(const string& function, int32_t openSSLError) const
 {
     string error("ERROR " + function + ": ");
     unsigned long unknownError;
@@ -236,7 +244,7 @@ string SSLSocket::getSSLError(std::string function, int32_t openSSLError) const
         return error + "Accept failed";
     default:
         unknownError = ERR_get_error();
-        if (!unknownError)
+        if (unknownError == 0)
             return error + "System call or protocol error";
     }
 
@@ -245,7 +253,7 @@ string SSLSocket::getSSLError(std::string function, int32_t openSSLError) const
 
 size_t SSLSocket::socketBytes()
 {
-    if (m_ssl) {
+    if (m_ssl != nullptr) {
         char dummy[8];
         SSL_read(m_ssl, dummy, 0);
         return (uint32_t) SSL_pending(m_ssl);
@@ -279,8 +287,8 @@ size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
 {
     if (len == 0)
         return 0;
-    const char* ptr = (const char*) buffer;
-    uint32_t    totalLen = (uint32_t)len;
+    auto ptr = (const char*) buffer;
+    auto totalLen = (uint32_t) len;
     for (;;) {
         size_t writeLen = totalLen;
         if (totalLen > WRITE_BLOCK)
@@ -289,7 +297,7 @@ size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
         if (rc > 0) {
             ptr += rc;
             totalLen -= rc;
-            if (!totalLen)
+            if (totalLen == 0)
                 return len;
             continue;
         }

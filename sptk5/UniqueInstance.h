@@ -96,7 +96,7 @@ public:
      * Constructor
      * @param instanceName CString, instance name
      */
-    UniqueInstance(std::string instanceName);
+    UniqueInstance(const std::string& instanceName);
 
     /**
      * Destructor

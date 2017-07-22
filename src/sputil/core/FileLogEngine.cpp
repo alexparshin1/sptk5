@@ -31,36 +31,36 @@
 using namespace std;
 using namespace sptk;
 
-void FileLogEngine::saveMessage(DateTime date, const char *message, uint32_t, LogPriority priority) THROWS_EXCEPTIONS
+void FileLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
 {
     SYNCHRONIZED_CODE;
-    if (m_options & LO_ENABLE) {
+    if ((m_options & LO_ENABLE) == LO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
                 throw Exception("Can't append or create log file '" + m_fileName + "'", __FILE__, __LINE__);
         }
 
-        if (m_options & LO_DATE)
+        if ((m_options & LO_DATE) == LO_DATE)
             m_fileStream << date.dateString() << " ";
 
-        if (m_options & LO_TIME)
+        if ((m_options & LO_TIME) == LO_TIME)
             m_fileStream << date.timeString(true) << " ";
 
-        if (m_options & LO_PRIORITY)
+        if ((m_options & LO_PRIORITY) == LO_PRIORITY)
             m_fileStream << "[" << priorityName(priority) << "] ";
 
         m_fileStream << message << endl;
     }
 
-    if (m_options & LO_STDOUT) {
-        if (m_options & LO_DATE)
+    if ((m_options & LO_STDOUT) == LO_STDOUT) {
+        if ((m_options & LO_DATE) == LO_DATE)
             cout << date.dateString() << " ";
 
-        if (m_options & LO_TIME)
+        if ((m_options & LO_TIME) == LO_TIME)
             cout << date.timeString(true) << " ";
 
-        if (m_options & LO_PRIORITY)
+        if ((m_options & LO_PRIORITY) == LO_PRIORITY)
             cout << "[" << priorityName(priority) << "] ";
 
         cout << message << endl;

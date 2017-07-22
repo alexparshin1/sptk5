@@ -51,7 +51,7 @@ void TCPServerListener::threadFunction()
             if (m_listenerSocket.readyToRead(1000)) {
                 try {
                     SOCKET connectionFD;
-                    struct sockaddr_in connectionInfo;
+                    sockaddr_in connectionInfo = {};
                     m_listenerSocket.accept(connectionFD, connectionInfo);
                     if (int(connectionFD) == -1)
                         continue;
@@ -97,7 +97,7 @@ void TCPServerListener::terminate()
 void TCPServer::listen(int port)
 {
     SYNCHRONIZED_CODE;
-    if (m_listenerThread) {
+    if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
         m_listenerThread->join();
         delete m_listenerThread;
@@ -126,11 +126,11 @@ void TCPServer::stop()
             break;
     }
 
-    if (m_listenerThread) {
+    if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
         m_listenerThread->join();
         delete m_listenerThread;
-        m_listenerThread = NULL;
+        m_listenerThread = nullptr;
     }
 }
 

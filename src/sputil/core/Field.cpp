@@ -31,32 +31,32 @@
 using namespace std;
 using namespace sptk;
 
-Field::Field(const char *name)
-: m_name(name), displayName(name)
+Field::Field(const char* name)
+    : m_name(name), displayName(name)
 {
     view.width = -1;
     view.flags = 4; // FL_ALIGN_LEFT
     view.visible = true;
     view.precision = 3; // default precision, only affects floating point fields
-    dataSize (0);
+    dataSize(0);
 }
 
 void Field::setNull(VariantType vtype)
 {
     switch (dataType()) {
-    default:
-        m_data.int64Data = 0;
-        break;
+        default:
+            m_data.int64Data = 0;
+            break;
 
-    case VAR_STRING:
-    case VAR_TEXT:
-    case VAR_BUFFER:
-        if (m_dataType & VAR_EXTERNAL_BUFFER)
-            m_data.buffer.data = 0;
-        else if (m_data.buffer.data)
-            m_data.buffer.data[0] = 0;
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            if ((m_dataType & VAR_EXTERNAL_BUFFER) == VAR_EXTERNAL_BUFFER)
+                m_data.buffer.data = nullptr;
+            else if (m_data.buffer.data != nullptr)
+                m_data.buffer.data[0] = 0;
 
-        break;
+            break;
     }
 
     if (vtype == VAR_NONE)
@@ -69,105 +69,105 @@ string Field::asString() const THROWS_EXCEPTIONS
 {
     char print_buffer[32];
 
-    if (m_dataType & VAR_NULL) return "";
+    if ((m_dataType & VAR_NULL) == VAR_NULL) return "";
 
     switch (dataType()) {
-    case VAR_BOOL:
-        if (m_data.intData)
-            return "true";
-        else
-            return "false";
+        case VAR_BOOL:
+            if (m_data.intData != 0)
+                return "true";
+            else
+                return "false";
 
-    case VAR_INT:
-        snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
-        return string(print_buffer);
+        case VAR_INT:
+            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
+            return string(print_buffer);
 
-    case VAR_INT64:
+        case VAR_INT64:
 #ifndef _WIN32
-        snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
+            snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
 #else
-        snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
+            snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
 #endif
-        return string (print_buffer);
+            return string(print_buffer);
 
-    case VAR_FLOAT: {
-        char formatString[10];
-        snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
-        snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
-        return string (print_buffer);
-    }
+        case VAR_FLOAT: {
+            char formatString[10];
+            snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
+            snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
+            return string(print_buffer);
+        }
 
-    case VAR_MONEY: {
-        char format[16];
-        int64_t absValue;
-        char *formatPtr = format;
+        case VAR_MONEY: {
+            char format[16];
+            int64_t absValue;
+            char* formatPtr = format;
 
-        if (m_data.moneyData.quantity < 0) {
-            *formatPtr = '-';
-            formatPtr++;
-            absValue = -m_data.moneyData.quantity;
-        } else
-            absValue = m_data.moneyData.quantity;
+            if (m_data.moneyData.quantity < 0) {
+                *formatPtr = '-';
+                formatPtr++;
+                absValue = -m_data.moneyData.quantity;
+            } else
+                absValue = m_data.moneyData.quantity;
 
-        snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
-        int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
-        int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-        snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
-        return string (print_buffer);
-    }
+            snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
+            int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
+            int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
+            snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
+            return string(print_buffer);
+        }
 
-    case VAR_STRING:
-    case VAR_TEXT:
-    case VAR_BUFFER:
-        if (!m_data.buffer.data)
-            return "";
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            if (m_data.buffer.data == nullptr)
+                return "";
 
-        return m_data.buffer.data;
+            return m_data.buffer.data;
 
-    case VAR_DATE:
-        return DateTime (m_data.floatData).dateString();
+        case VAR_DATE:
+            return DateTime(m_data.floatData).dateString();
 
-    case VAR_DATE_TIME: {
-        DateTime dt (m_data.floatData);
-        return dt.dateString() + " " + dt.timeString(true);
-    }
+        case VAR_DATE_TIME: {
+            DateTime dt(m_data.floatData);
+            return dt.dateString() + " " + dt.timeString(true);
+        }
 
-    case VAR_IMAGE_PTR:
-        snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
-        return string (print_buffer);
+        case VAR_IMAGE_PTR:
+            snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
+            return string(print_buffer);
 
-    case VAR_IMAGE_NDX:
-        snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
-        return string (print_buffer);
+        case VAR_IMAGE_NDX:
+            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
+            return string(print_buffer);
 
-    default:
-        throw Exception ("Can't convert field for that type");
+        default:
+            throw Exception("Can't convert field for that type");
     }
 }
 
-void Field::toXML (XMLNode& node,bool compactXmlMode) const
+void Field::toXML(XMLNode& node, bool compactXmlMode) const
 {
     string value = asString();
 
     if (!value.empty()) {
-        XMLElement* element = 0;
+        XMLElement* element = nullptr;
 
         if (dataType() == VAR_TEXT) {
-            element = new XMLElement (node,fieldName());
-            new XMLCDataSection (*element,value);
+            element = new XMLElement(node, fieldName());
+            new XMLCDataSection(*element, value);
         } else {
             if (compactXmlMode)
-                node.setAttribute (fieldName(),value);
+                node.setAttribute(fieldName(), value);
             else {
-                element = new XMLElement (node,"field");
-                element->value (value);
+                element = new XMLElement(node, "field");
+                element->value(value);
             }
         }
 
         if (!compactXmlMode) {
-            element->setAttribute ("name",fieldName());
-            element->setAttribute ("type",Variant::typeName (dataType()));
-            element->setAttribute ("size",int2string ( (uint32_t) dataSize()));
+            element->setAttribute("name", fieldName());
+            element->setAttribute("type", Variant::typeName(dataType()));
+            element->setAttribute("size", int2string((uint32_t) dataSize()));
         }
     }
 }

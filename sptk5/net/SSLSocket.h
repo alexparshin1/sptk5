@@ -87,7 +87,7 @@ protected:
      * @param SSLError int32_t, error code returned by SSL_get_error() result
      * @return Error description
      */
-    virtual std::string getSSLError(std::string function, int32_t SSLError) const;
+    virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
 
 public:
 
@@ -113,8 +113,7 @@ public:
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT,
-                      bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS;
+    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS override;
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -123,7 +122,7 @@ public:
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS;
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS override;
 
     /**
      * @brief Attaches socket handle

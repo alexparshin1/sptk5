@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <sptk5/Base64.h>
 #include <sptk5/net/SmtpConnect.h>
 #include <sptk5/RegularExpression.h>
@@ -63,7 +63,7 @@ int SmtpConnect::getResponse(bool decode)
             do {
                 len = readLine(readBuffer, RSP_BLOCK_SIZE);
                 longLine += readBuffer;
-                if (m_log)
+                if (m_log != nullptr)
                     *m_log << "[RECV] " << readBuffer << endl;
             }
             while (len == RSP_BLOCK_SIZE);
@@ -98,7 +98,7 @@ void SmtpConnect::sendCommand(string cmd, bool encode)
         throw Exception("Socket isn't open");
     if (encode)
         cmd = mime(cmd);
-    if (m_log)
+    if (m_log != nullptr)
         *m_log << "[SEND] " << cmd << endl;
     cmd += "\r\n";
     write(cmd.c_str(), (uint32_t) cmd.length());

@@ -420,14 +420,15 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
 
         CMySQLStatementField*   field = (CMySQLStatementField*) &fields[fieldIndex];
 
+        VariantType fieldType = field->dataType();
+
         const char* data = m_row[fieldIndex];
         if (data == NULL) {
             // Field data is null, no more processing of the field
-            field->setNull();
+            field->setNull(fieldType);
             continue;
         }
 
-        VariantType fieldType = field->dataType();
         uint32_t    dataLength = (uint32_t) lengths[fieldIndex];
 
         switch (fieldType) {
@@ -479,9 +480,10 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         MYSQL_BIND&             bind = m_fieldBuffers[fieldIndex];
 
         VariantType fieldType = field->dataType();
+
         if (*(bind.is_null)) {
             // Field data is null, no more processing
-            field->setNull();
+            field->setNull(fieldType);
             continue;
         }
 
@@ -500,7 +502,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                 MYSQL_TIME& mysqlTime = *(MYSQL_TIME*) bind.buffer;
                 if (mysqlTime.day == 0 && mysqlTime.month == 0) {
                     // Date returned as 0000-00-00
-                    field->setNull();
+                    field->setNull(fieldType);
                 } else {
                     DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
                                 short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));

@@ -67,7 +67,7 @@ public:
      * @param sz uint32_t, message size
      * @param priority LogPriority, message priority. @see LogPriority for more information.
      */
-    virtual void saveMessage(DateTime date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS;
+    virtual void saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS override;
 
 public:
     /**

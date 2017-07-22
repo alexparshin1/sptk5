@@ -33,27 +33,27 @@ using namespace std;
 using namespace sptk;
 
 //---------------------------------------------------------------------------
-string IntList::toString (const char * separator) const
+string IntList::toString(const char* separator) const
 {
     string s;
-    uint32_t cnt = (uint32_t) size();
+    auto cnt = (uint32_t) size();
 
-    if (!cnt) return s;
+    if (cnt == 0) return s;
 
-    s = int2string ( (uint32_t) (*this) [0]);
+    s = int2string((uint32_t) (*this)[0]);
 
     for (uint32_t i = 1; i < cnt; i++)
-        s += separator + int2string ( (int32_t) (*this) [i]);
+        s += separator + int2string((int32_t) (*this)[i]);
 
     return s;
 }
 
-void IntList::fromString (const char *s,const char * separator)
+void IntList::fromString(const char* s, const char* separator)
 {
-    Strings sl (s,separator);
+    Strings sl(s, separator);
 
     clear();
-    uint32_t cnt = (uint32_t) sl.size();
+    auto cnt = (uint32_t) sl.size();
 
     for (uint32_t i = 0; i < cnt; i++)
         push_back((uint32_t) atol(sl[i].c_str()));

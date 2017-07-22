@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 #include <sptk5/Exception.h>
 #include <sptk5/UniqueInstance.h>
@@ -42,7 +42,7 @@
 using namespace sptk;
 
 // Constructor
-UniqueInstance::UniqueInstance(std::string instanceName)
+UniqueInstance::UniqueInstance(const std::string& instanceName)
 {
     m_lockCreated = false;
     m_instanceName = instanceName;
@@ -81,7 +81,7 @@ int UniqueInstance::read_pid()
 
     // Try to read process id from the file
     FILE  *f = fopen(m_fileName.c_str(),"r+b");
-    if (!f)
+    if (f == nullptr)
         return 0;
     fgets(buffer,32,f);
     fclose(f);
@@ -89,10 +89,10 @@ int UniqueInstance::read_pid()
     // Is it a number?
     buffer[31] = 0;
     char *p = strchr(buffer,'\n');
-    if (p)
+    if (p != nullptr)
         *p = 0;
     int pid = atoi(buffer);
-    if (!pid)
+    if (pid == 0)
         return 0;
 
     // Does the process with this id exist?
@@ -107,7 +107,7 @@ int UniqueInstance::read_pid()
 int UniqueInstance::write_pid()
 {
     FILE  *f = fopen(m_fileName.c_str(),"w+b");
-    if (!f)
+    if (f == nullptr)
         return 0;
     int pid = getpid();
     fprintf(f,"%i\n",pid);

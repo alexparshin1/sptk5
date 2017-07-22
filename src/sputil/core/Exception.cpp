@@ -35,7 +35,7 @@ using namespace sptk;
 Exception::Exception(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
 {
-    if (m_line && !m_file.empty())
+    if (m_line != 0 && !m_file.empty())
         m_fullMessage += " " + m_file + "(" + int2string(uint32_t(m_line)) + ") ";
 
     if (!m_description.empty())
@@ -101,7 +101,7 @@ DatabaseException::DatabaseException(const DatabaseException& other) DOESNT_THRO
 : Exception(other)
 {
 }
-    
+
 SOAPException::SOAPException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {

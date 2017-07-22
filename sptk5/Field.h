@@ -118,7 +118,7 @@ public:
      * Retains the data type. Sets the data to zero(s).
      * @param vtype VariantType, optional variant type to enforce
      */
-    virtual void setNull(VariantType vtype = VAR_NONE);
+    virtual void setNull(VariantType vtype);
 
     /**
      * @brief Assignment operation
