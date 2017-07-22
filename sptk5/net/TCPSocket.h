@@ -209,7 +209,7 @@ public:
     /**
      * @brief Returns number of bytes available in socket
      */
-    virtual uint32_t socketBytes() override;
+    virtual size_t socketBytes() override;
 
     /**
      * @brief Reports true if socket is ready for reading from it

@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/SysLogEngine.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;

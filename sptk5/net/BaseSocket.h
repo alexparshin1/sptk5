@@ -198,7 +198,7 @@ public:
     /**
      * @brief Returns number of bytes available in socket
      */
-    virtual uint32_t socketBytes();
+    virtual size_t socketBytes();
 
     /**
      * @brief Returns socket handle

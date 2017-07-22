@@ -227,7 +227,7 @@ void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
         THROW_SOCKET_ERROR("Error on accept(). ");
 }
 
-uint32_t TCPSocket::socketBytes()
+size_t TCPSocket::socketBytes()
 {
     return m_reader.availableBytes() + BaseSocket::socketBytes();
 }

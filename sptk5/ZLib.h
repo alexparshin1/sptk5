@@ -29,6 +29,8 @@
 #ifndef __SPTK_ZLIB_H__
 #define __SPTK_ZLIB_H__
 
+#if HAVE_ZLIB
+
 #include <sptk5/Buffer.h>
 
 namespace sptk
@@ -60,5 +62,7 @@ public:
 };
 
 }
+
+#endif
 
 #endif

@@ -66,7 +66,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const std::string& key, con
         if (inlen > TEXT_BLOCK)
             inlen = TEXT_BLOCK;
         dest.checkSize(position + TEXT_BLOCK);
-        if (EVP_EncryptUpdate(ctx, (unsigned char*) dest.data() + dest.bytes(), &len, intext, inlen) != 1)
+        if (EVP_EncryptUpdate(ctx, (unsigned char*) dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
             throw Exception("Error calling EVP_EncryptUpdate()");
         dest.bytes(dest.bytes() + len);
     }
@@ -98,7 +98,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
         if (inlen > TEXT_BLOCK)
             inlen = TEXT_BLOCK;
         dest.checkSize(position + TEXT_BLOCK);
-        if (EVP_DecryptUpdate(ctx, (unsigned char*) dest.data() + dest.bytes(), &len, intext, inlen) != 1)
+        if (EVP_DecryptUpdate(ctx, (unsigned char*) dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
             throw Exception("Error calling EVP_DecryptUpdate()");
         dest.bytes(dest.bytes() + len);
         if (len < TEXT_BLOCK - 16)

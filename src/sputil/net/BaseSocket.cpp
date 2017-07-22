@@ -149,7 +149,7 @@ void BaseSocket::blockingMode(bool blocking) THROWS_EXCEPTIONS
         THROW_SOCKET_ERROR("Can't set socket blocking mode");
 }
 
-uint32_t BaseSocket::socketBytes()
+size_t BaseSocket::socketBytes()
 {
     uint32_t bytes = 0;
 #ifdef _WIN32

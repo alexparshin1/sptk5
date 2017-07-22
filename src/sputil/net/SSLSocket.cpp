@@ -243,7 +243,7 @@ string SSLSocket::getSSLError(std::string function, int32_t openSSLError) const
     return error + ERR_func_error_string(unknownError) + string(": ") + ERR_reason_error_string(unknownError);
 }
 
-uint32_t SSLSocket::socketBytes()
+size_t SSLSocket::socketBytes()
 {
     if (m_ssl) {
         char dummy[8];

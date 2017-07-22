@@ -186,9 +186,13 @@ int HttpConnect::getResponse(uint32_t readTimeout)
 
         auto itor = m_responseHeaders.find("Content-Encoding");
         if (itor != m_responseHeaders.end() && itor->second == "gzip") {
-            Buffer unzipBuffer;
+#if HAVE_ZLIB
+			Buffer unzipBuffer;
             ZLib::decompress(unzipBuffer, m_readBuffer);
             m_readBuffer = move(unzipBuffer);
+#else
+			throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
+#endif
         }
     }
 
@@ -262,10 +266,14 @@ int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const B
     const Buffer* data = &postData;
     Buffer compressedData;
     if (gzipContent) {
+#if HAVE_ZLIB
         ZLib::compress(compressedData, postData);
         headers.push_back("Content-Encoding: gzip");
         data = &compressedData;
-    }
+#else
+		throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
+#endif
+	}
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
 
     Buffer command(headers.asString("\r\n") + "\r\n\r\n");

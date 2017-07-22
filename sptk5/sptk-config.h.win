@@ -38,8 +38,9 @@
  * Use the Aspell lib, the spell checker
  */
 
-#define HAVE_ASPELL 1
-#define HAVE_SQLITE3 1
+#define HAVE_ASPELL    1
+#define HAVE_SQLITE3   1
+#define HAVE_ZLIB      0
 
 /*
  * WORDS_BIGENDIAN:

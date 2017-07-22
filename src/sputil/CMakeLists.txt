@@ -7,8 +7,7 @@ SET (SPUTIL_SOURCES
     core/Buffer.cpp core/DataSource.cpp core/DateTime.cpp core/Exception.cpp core/CommandLine.cpp
     core/Field.cpp core/FieldList.cpp core/FileLogEngine.cpp core/IntList.cpp core/Registry.cpp core/SharedStrings.cpp
     core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
-    core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp
-    core/md5.cpp core/ZLib.cpp
+    core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     net/BaseMailConnect.cpp net/BaseSocket.cpp net/FTPConnect.cpp
     net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
@@ -20,6 +19,10 @@ SET (SPUTIL_SOURCES
     threads/RWLock.cpp threads/Synchronized.cpp threads/Thread.cpp threads/ThreadPool.cpp
     threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp
     )
+
+IF (ZLIB_FOUND)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/ZLib.cpp)
+ENDIF ()
 
 IF (LINUX)
     MESSAGE ("Socket events:      epoll (Linux)")

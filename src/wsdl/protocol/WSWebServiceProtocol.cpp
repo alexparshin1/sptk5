@@ -55,7 +55,7 @@ void WSWebServiceProtocol::process()
         startOfMessage = data.c_str();
         endOfMessage = startOfMessage + data.bytes();
     } else {
-        uint32_t socketBytes = m_socket.socketBytes();
+        size_t socketBytes = m_socket.socketBytes();
         if (!socketBytes) {
             if (!m_socket.readyToRead(30000))
                 throwException("Client disconnected");
