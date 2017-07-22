@@ -109,6 +109,20 @@ Buffer::Buffer(const Buffer& buffer)
     }
 }
 
+Buffer::Buffer(Buffer&& other)
+{
+    if (m_buffer != nullptr)
+        free(m_buffer);
+
+    m_bytes = other.m_bytes;
+    m_size = other.m_size;
+    m_buffer = other.m_buffer;
+
+    other.m_bytes = 0;
+    other.m_size = 0;
+    other.m_buffer = nullptr;
+}
+
 void Buffer::adjustSize(size_t sz)
 {
     size_t newSize = sz / 3 * 4 + 16;

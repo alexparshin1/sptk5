@@ -247,12 +247,12 @@ public:
      * for the query calls. If file and line information is provided, then
      * calls statistics is stored to the database object during the query dtor.
      * @param db DatabaseConnection, the database to connect to, optional
-     * @param sql std::string, the SQL query text to use, optional
+     * @param sql const std::string&, the SQL query text to use, optional
      * @param autoPrepare bool, if true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      * @param createdFile const char*, the name of the file this query was created in (optional)
      * @param createdLine unsigned, the line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection *db = 0L, std::string sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
+    Query(DatabaseConnection *db = 0L, const std::string& sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
 
     /**
      * @brief Copy constructor
@@ -435,9 +435,9 @@ public:
      * @brief Executes the query and closes the statement.
      *
      * Query SQL would be set to the new SQL statement
-     * @param newSQL std::string, an SQL statement to execute
+     * @param newSQL const std::string&, an SQL statement to execute
      */
-    virtual void exec(std::string newSQL) THROWS_EXCEPTIONS
+    virtual void exec(const std::string& newSQL) THROWS_EXCEPTIONS
     {
         sql(newSQL);
         open();
@@ -528,7 +528,7 @@ public:
      * If the Query text is not the same and the db statement was prepared earlier
      * then the db statement is released and new one is created.
      */
-    virtual void sql(std::string _sql);
+    virtual void sql(const std::string& _sql);
 
     /**
      * @brief Returns the database the query is connected to
@@ -597,19 +597,19 @@ public:
      *
      * The log file should be set to active, otherwise no text is added to the log file.
      * Every successful call of this method adds a new line to the log file.
-     * @param text std::string, log text
+     * @param text const std::string&, log text
      * @param logPriority const LogPriority&, log message priority
      */
-    void logText(std::string text, const LogPriority& logPriority = LP_DEBUG);
+    void logText(const std::string& text, const LogPriority& logPriority = LP_DEBUG);
 
     /**
      * @brief Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
-     * @param method std::string, method name where error has occured
-     * @param error std::string, error text
+     * @param method const std::string&, method name where error has occured
+     * @param error const std::string&, error text
      */
-    void logAndThrow(std::string method, std::string error) THROWS_EXCEPTIONS;
+    void logAndThrow(const std::string& method, const std::string& error) THROWS_EXCEPTIONS;
 
     /**
      * @brief Access to diag messages

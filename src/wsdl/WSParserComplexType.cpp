@@ -304,7 +304,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         classImplementation << "   // Clear attributes" << endl;
         for (AttributeMap::iterator itor = m_attributes.begin(); itor != m_attributes.end(); ++itor) {
             WSParserAttribute& attr = *(itor->second);
-            classImplementation << "   m_" << attr.name() << ".setNull();" << endl;
+            classImplementation << "   m_" << attr.name() << ".setNull(VAR_NONE);" << endl;
         }
     }
     classImplementation << "}" << endl << endl;

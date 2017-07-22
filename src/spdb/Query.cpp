@@ -120,7 +120,7 @@ string Query::getError() const
 }
 
 //==============================================================================
-Query::Query(DatabaseConnection* _db, string _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
     : DataSource(), m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
@@ -181,7 +181,7 @@ Query::~Query()
         m_db->unlinkQuery(this);
 }
 
-void Query::sql(string _sql)
+void Query::sql(const string& _sql)
 {
     // Looking up for SQL parameters
     char delimitters[] = "':";
@@ -355,7 +355,7 @@ void Query::notImplemented(string functionName) const
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
-void Query::logText(std::string text, const LogPriority& priority)
+void Query::logText(const string& text, const LogPriority& priority)
 {
     if (!m_db)
         return;
@@ -368,7 +368,7 @@ void Query::logText(std::string text, const LogPriority& priority)
     }
 }
 
-void Query::logAndThrow(string method, string error) THROWS_EXCEPTIONS
+void Query::logAndThrow(const string& method, const string& error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, LP_ERROR);

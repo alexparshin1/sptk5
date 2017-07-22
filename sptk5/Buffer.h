@@ -123,11 +123,17 @@ public:
      * @brief Copy constructor
      *
      * Creates a buffer from another buffer.
-     * The data is copied inside the buffer.
-     * The return of the bytes() method will be the input data size.
-     * @param buffer Buffer, data buffer
+     * @param other const Buffer&, data buffer
      */
-    Buffer(const Buffer& buffer);
+    Buffer(const Buffer& other);
+
+    /**
+     * @brief Move constructor
+     *
+     * Moves a buffer from another buffer.
+     * @param other Buffer&&, data buffer
+     */
+    Buffer(Buffer&& other);
 
     /**
      * @brief Destructor
