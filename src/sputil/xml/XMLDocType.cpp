@@ -34,9 +34,9 @@ using namespace sptk;
 XMLDocType::XMLDocType(const char *name, const char *public_id, const char *system_id)
 {
     m_name = name;
-    if (public_id)
+    if (public_id != nullptr)
         m_public_id = public_id;
-    if (system_id)
+    if (system_id != nullptr)
         m_system_id = system_id;
 }
 
@@ -55,7 +55,7 @@ static struct entity builtin_ent_xml[] = {
         { "gt", 1, ">" },
         { "apos", 1, "'" },
         { "quot", 1, "\"" },
-        { NULL, 1, "\"" }
+        {nullptr, 1, "\"" }
 };
 
 const char xml_shortcut[] = "&<>'\"";
@@ -66,10 +66,10 @@ class CEntityCache
     map<int, CEntityMap>    m_replacementMaps;
 public:
 
-    explicit CEntityCache(struct entity entities[])
+    explicit CEntityCache(struct entity entities[]) noexcept
     {
         struct entity *ent = entities;
-        for (; ent->name; ent++) {
+        for (; ent->name != nullptr; ent++) {
             m_hash[ent->name] = ent;
             m_replacementMaps[ent->replacement_len][ent->replacement] = ent;
         }
@@ -77,10 +77,10 @@ public:
 
     const struct entity *find(const std::string &ent) const
     {
-        CEntityMap::const_iterator itor = m_hash.find(ent);
+        auto itor = m_hash.find(ent);
         if (itor != m_hash.end())
             return itor->second;
-        return 0L;
+        return nullptr;
     }
 
     const struct entity *encode(const char* str) const;
@@ -88,16 +88,16 @@ public:
 
 const struct entity *CEntityCache::encode(const char* str) const
 {
-    map<int, CEntityMap>::const_iterator maps = m_replacementMaps.begin();
+    auto maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); ++maps) {
         int len = maps->first;
         string fragment(str, size_t(len));
         const CEntityMap& replacements = maps->second;
-        CEntityMap::const_iterator itor = replacements.find(fragment);
+        auto itor = replacements.find(fragment);
         if (itor != replacements.end())
             return itor->second;
     }
-    return 0;
+    return nullptr;
 }
 
 static const CEntityCache xml_entities(builtin_ent_xml);
@@ -108,19 +108,19 @@ void XMLDocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
 
     const char* start = str;
     const char* ptr = str;
-    while (*ptr) {
+    while (*ptr != char(0)) {
         const char* ent_start = strchr(ptr, '&');
-        if (ent_start) {
-            char* ent_end = (char*) strchr(ent_start + 1, ';');
-            if (ent_end) {
+        if (ent_start != nullptr) {
+            auto ent_end = (char*) strchr(ent_start + 1, ';');
+            if (ent_end != nullptr) {
                 char ch = *ent_end;
                 *ent_end = 0;
                 uint32_t replacementLength = 0;
                 const char* rep = getReplacement(ent_start + 1, replacementLength);
                 *ent_end = ch;
-                if (rep) {
-                    uint32_t len = uint32_t(ent_start - start);
-                    if (len)
+                if (rep != nullptr) {
+                    auto len = uint32_t(ent_start - start);
+                    if (len != 0)
                         ret.append(start, len);
                     ptr = ent_end + 1;
                     start = ptr;
@@ -150,11 +150,11 @@ bool XMLDocType::encodeEntities(const char *str, Buffer& ret)
     dst->bytes(0);
     for (;;) {
         const char* pos = strpbrk(ptr, xml_shortcut);
-        if (pos) {
-            uint32_t index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
+        if (pos != nullptr) {
+            auto index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
             entity* ent = table + index;
-            uint32_t tailBytes = uint32_t(pos - ptr);
-            if (tailBytes)
+            auto tailBytes = uint32_t(pos - ptr);
+            if (tailBytes != 0)
                 dst->append(ptr, tailBytes);
             dst->append('&');
             dst->append(ent->name);
@@ -175,12 +175,12 @@ bool XMLDocType::encodeEntities(const char *str, Buffer& ret)
     }
 
     if (!m_entities.empty()) {
-        XMLEntities::iterator it = m_entities.begin();
+        auto it = m_entities.begin();
         for (; it != m_entities.end(); ++it) {
             std::string& val = it->second;
-            uint32_t len = (uint32_t) val.length();
+            auto len = (uint32_t) val.length();
             const char* pos = strstr(ptr, val.c_str());
-            while (pos) {
+            while (pos != nullptr) {
                 dst->append(ptr, uint32_t(pos - ptr));
                 dst->append('&');
                 dst->append(it->first);
@@ -188,7 +188,7 @@ bool XMLDocType::encodeEntities(const char *str, Buffer& ret)
                 replaced = true;
                 ptr = pos + len;
                 pos = strstr(ptr, val.c_str());
-                if (!pos) {
+                if (pos == nullptr) {
                     dst->append(ptr);
                     ptr = dst->data();
                     Buffer* tmp = dst;
@@ -212,13 +212,14 @@ const char* XMLDocType::getReplacement(const char *name, uint32_t& replacementLe
 {
     // &#123; style entity..
     if (name[0] == '#') {
-        if (isdigit(name[1])) {
-            m_replacementBuffer[0] = (char) strtol(name + 1, NULL, 10);
+        if (isdigit(name[1]) != 0) {
+            m_replacementBuffer[0] = (char) strtol(name + 1, nullptr, 10);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
-        } else if (name[1] == 'x' || name[1] == 'X') {
-            m_replacementBuffer[0] = (char) strtol(name + 2, NULL, 16);
+        }
+        if (name[1] == 'x' || name[1] == 'X') {
+            m_replacementBuffer[0] = (char) strtol(name + 2, nullptr, 16);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer;
@@ -227,7 +228,7 @@ const char* XMLDocType::getReplacement(const char *name, uint32_t& replacementLe
 
     // Find in built-ins, see entities.h
     const struct entity *entity = xml_entities.find(name);
-    if (entity) {
+    if (entity != nullptr) {
         replacementLength = uint32_t(entity->replacement_len);
         return entity->replacement;
     }
@@ -240,12 +241,12 @@ const char* XMLDocType::getReplacement(const char *name, uint32_t& replacementLe
         return rep.c_str();
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool XMLDocType::hasEntity(const char *name)
 {
     uint32_t len;
     const char* tmp = getReplacement(name, len);
-    return tmp != NULL;
+    return tmp != nullptr;
 }

@@ -287,7 +287,7 @@ public:
     /**
      * @brief Default constructor
      */
-    Strings()
+    Strings() noexcept
     {
         m_userData = 0;
     }
@@ -296,7 +296,7 @@ public:
      * @brief Copy constructor
      * @param src const Strings&, other object
      */
-    Strings(const Strings &src)
+    Strings(const Strings &src) noexcept
     : std::vector<String>(src), m_userData(src.m_userData)
     {
     }
@@ -305,7 +305,7 @@ public:
      * @brief Move constructor
      * @param src const Strings&, other object
      */
-    Strings(const Strings &&src)
+    Strings(Strings&& src) noexcept
     : std::vector<String>(std::move(src)), m_userData(src.m_userData)
     {
     }
@@ -316,7 +316,7 @@ public:
      * @param delimiter const char *, a delimiter string
      * @param mode SplitMode, delimiter string usage
      */
-    Strings(const std::string &src, const char *delimiter, SplitMode mode = SM_DELIMITER)
+    Strings(const std::string &src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
     : m_userData(0)
     {
         fromString(src.c_str(), delimiter, mode);
@@ -328,7 +328,7 @@ public:
      * @param delimiter const char *, a delimiter string
      * @param mode SplitMode, delimiter string usage
      */
-    Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER)
+    Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
     : m_userData(0)
     {
         clear();

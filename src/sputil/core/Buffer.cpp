@@ -185,7 +185,7 @@ void Buffer::reset(size_t sz)
     m_bytes = 0;
 }
 
-void Buffer::loadFromFile(string fileName)
+void Buffer::loadFromFile(const string& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "rb");
 

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLNode.cpp - description                             ║
+║                       XMLNode.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
@@ -69,28 +69,28 @@ namespace sptk {
     {
         if (m_parent == p)
             return;
-        if (m_parent)
+        if (m_parent != nullptr)
             m_parent->unlink(p);
 
         m_parent = p;
 
-        if (m_parent)
+        if (m_parent != nullptr)
             m_parent->push_back(this);
     }
 
     static void parsePathElement(XMLDocument* document, const string& pathElementStr, XPathElement& pathElement)
     {
-        pathElement.elementName = NULL;
-        pathElement.attributeName = NULL;
+        pathElement.elementName = nullptr;
+        pathElement.attributeName = nullptr;
         pathElement.axis = XPA_CHILD;
-        size_t backBracketPosition = pathElementStr.rfind("]");
+        size_t backBracketPosition = pathElementStr.rfind(']');
         string pathElementName;
         if (backBracketPosition == STRING_NPOS) {
             pathElementName = pathElementStr;
             pathElement.criteria.clear();
         }
         else {
-            size_t bracketPosition = pathElementStr.find("[");
+            size_t bracketPosition = pathElementStr.find('[');
             if (bracketPosition == STRING_NPOS || backBracketPosition < bracketPosition) {
                 pathElementName = pathElementStr;
                 pathElement.criteria.clear();
@@ -120,12 +120,12 @@ namespace sptk {
         if (!criteria.empty()) {
             int& nodePosition = pathElement.nodePosition;
             nodePosition = string2int(pathElement.criteria);
-            if (!nodePosition && criteria == "last()")
+            if (nodePosition == 0 && criteria == "last()")
                 nodePosition = -1;
 
             if (nodePosition == 0) {
                 if (criteria[0] == '@') {
-                    pos = criteria.find("=");
+                    pos = criteria.find('=');
                     if (pos == STRING_NPOS)
                         pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
                     else {
@@ -144,16 +144,17 @@ namespace sptk {
     bool XMLNode::matchPathElement(const XPathElement& pathElement, int nodePosition, const string* starPointer,
         bool& nameMatches, bool& positionMatches)
     {
-        if (pathElement.elementName && pathElement.elementName != starPointer && !nameIs(pathElement.elementName))
+        if (pathElement.elementName != nullptr && pathElement.elementName != starPointer && !nameIs(pathElement.elementName))
             return false;
 
         // Node criteria is position
-        if (pathElement.nodePosition) {
+        if (pathElement.nodePosition != 0) {
             positionMatches = pathElement.nodePosition == nodePosition;
             return positionMatches;
         }
+
         // Node criteria is attribute
-        else if (pathElement.attributeName && type() == DOM_ELEMENT) {
+        if (pathElement.attributeName != nullptr && type() == DOM_ELEMENT) {
             XMLAttributes& attributes = this->attributes();
             bool attributeMatch = false;
             if (pathElement.attributeValueDefined) {
@@ -177,21 +178,16 @@ namespace sptk {
             }
             return attributeMatch;
         }
-        else
-            return true;
-    #ifdef __MSCVER__
-        return false;
-    #endif
+        return true;
     }
 
     void XMLNode::scanDescendents(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
         const std::string* starPointer)
     {
         const XPathElement& pathElement = pathElements[size_t(pathPosition)];
-        XMLNode* lastNode = 0;
+        XMLNode* lastNode = nullptr;
         int currentPosition = 1;
-        for (iterator itor = begin(); itor != end(); ++itor) {
-            XMLNode* node = *itor;
+        for (auto node: *this) {
             bool nameMatches = false;
             bool positionMatches = false;
             if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
@@ -204,10 +200,10 @@ namespace sptk {
                 if (pathElement.nodePosition < 0 && nameMatches)
                     lastNode = node;
             }
-            if (node->type() & (DOM_DOCUMENT | DOM_ELEMENT))
+            if ((node->type() & (DOM_DOCUMENT | DOM_ELEMENT)) != 0)
                 node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
         }
-        if (lastNode)
+        if (lastNode != nullptr)
             lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
     }
 
@@ -216,11 +212,11 @@ namespace sptk {
         pathPosition++;
         if (pathPosition == (int)pathElements.size()) {
             const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
-            if (pathElement.elementName)
+            if (pathElement.elementName != nullptr)
                 nodes.insert(nodes.end(), this);
-            else if (pathElement.attributeName) {
+            else if (pathElement.attributeName != nullptr) {
                 XMLAttribute* attributeNode = attributes().getAttributeNode(*pathElement.attributeName);
-                if (attributeNode)
+                if (attributeNode != nullptr)
                     nodes.insert(nodes.end(), dynamic_cast<XMLNode*>(attributeNode));
             }
             return;
@@ -228,10 +224,9 @@ namespace sptk {
 
         const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-        XMLNode* lastNode = 0;
+        XMLNode* lastNode = nullptr;
         int currentPosition = 1;
-        for (iterator itor = begin(); itor != end(); ++itor) {
-            XMLNode* node = *itor;
+        for (auto node: *this) {
             bool nameMatches;
             bool positionMatches;
             //string nodeName = node->name();
@@ -244,7 +239,7 @@ namespace sptk {
             if (pathElement.axis == XPA_DESCENDANT)
                 node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
         }
-        if (lastNode)
+        if (lastNode != nullptr)
             lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
     }
 
@@ -277,17 +272,14 @@ namespace sptk {
             attributes() = node.attributes();
         }
 
-        const_iterator itor = node.begin();
-        const_iterator iend = node.end();
-        for (; itor != iend; ++itor) {
-            const XMLNode*childNode = *itor;
+        for (auto childNode: node) {
+            XMLNode* element;
             switch (childNode->type())
             {
-            case DOM_ELEMENT: {
-                XMLNode* element = new XMLElement(this, "");
+            case DOM_ELEMENT:
+                element = new XMLElement(this, "");
                 element->copy(*childNode);
-            }
-                                break;
+                break;
             case DOM_PI:
                 new XMLPI(*this, childNode->name(), childNode->value());
                 break;
@@ -310,14 +302,11 @@ namespace sptk {
     {
         std::string ret;
 
-        if (type() & (DOM_TEXT | DOM_CDATA_SECTION))
+        if ((type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
             ret += value();
         else {
-            const_iterator itor = begin();
-            const_iterator iend = end();
-            for (; itor != iend; ++itor) {
-                XMLNode *np = *itor;
-                if (np->type() & (DOM_TEXT | DOM_CDATA_SECTION))
+            for (auto np: *this) {
+                if ((np->type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
                     ret += np->value();
             }
         }
@@ -342,11 +331,10 @@ namespace sptk {
             buffer.append('<');
             buffer.append(name());
             const XMLAttributes& attributes = this->attributes();
-            if (attributes.size()) {
+            if (!attributes.empty()) {
                 // Output attributes
                 Buffer real_id, real_val;
-                for (XMLAttributes::const_iterator it = attributes.begin(); it != attributes.end(); ++it) {
-                    XMLNode* attributeNode = *it;
+                for (auto attributeNode: attributes) {
                     real_id.bytes(0);
                     real_val.bytes(0);
                     if (!document()->docType().encodeEntities(attributeNode->name().c_str(), real_id))
@@ -388,11 +376,9 @@ namespace sptk {
             break;
 
         case DOM_ELEMENT: {
-            if (size()) {
+            if (!empty()) {
                 bool only_cdata;
-                const_iterator itor = begin();
-                const_iterator iend = end();
-                XMLNode *nd = *itor;
+                XMLNode *nd = *begin();
                 if (size() == 1 && nd->type() == DOM_TEXT) {
                     only_cdata = true;
                     buffer.append('>');
@@ -403,8 +389,7 @@ namespace sptk {
                 }
 
                 // output all subnodes
-                for (; itor != iend; ++itor) {
-                    XMLNode *np = *itor;
+                for (auto np: *this) {
                     if (only_cdata)
                         np->save(buffer, -1);
                     else {
@@ -413,6 +398,7 @@ namespace sptk {
                             buffer.append(char('\n'));
                     }
                 }
+
                 // output indendation spaces
                 if (!only_cdata && indent > 0)
                     buffer.append(indentsString.c_str(), size_t(indent));
@@ -437,23 +423,22 @@ namespace sptk {
 
     XMLNode *XMLNode::findFirst(std::string aname, bool recursively) const
     {
-        for (const_iterator itor = begin(); itor != end(); ++itor) {
-            XMLNode *node = *itor;
+        for (auto node: *this) {
             if (node->name() == aname)
                 return node;
-            if (recursively && node->size()) {
+            if (recursively && !node->empty()) {
                 XMLNode *cnode = node->findFirst(aname, true);
-                if (cnode)
+                if (cnode != nullptr)
                     return cnode;
             }
         }
-        return 0L;
+        return nullptr;
     }
 
     XMLNode *XMLNode::findOrCreate(std::string aname, bool recursively)
     {
         XMLNode *node = findFirst(aname, recursively);
-        if (node)
+        if (node != nullptr)
             return node;
         return new XMLElement(*this, aname);
     }
@@ -487,7 +472,7 @@ namespace sptk {
 
     void XMLElement::unlink(XMLNode* node)
     {
-        iterator itor = find(begin(), end(), node);
+        auto itor = find(begin(), end(), node);
         if (itor == end())
             return;
         m_nodes.erase(itor);
@@ -495,7 +480,7 @@ namespace sptk {
 
     void XMLElement::remove(XMLNode* node)
     {
-        iterator itor = find(begin(), end(), node);
+        auto itor = find(begin(), end(), node);
         if (itor == end())
             return;
         delete *itor;

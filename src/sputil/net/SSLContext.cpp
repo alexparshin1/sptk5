@@ -29,7 +29,7 @@
 #include <sptk5/sptk.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <string.h>
+#include <cstring>
 #include <sptk5/net/SSLContext.h>
 
 using namespace std;
@@ -71,7 +71,8 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwf
     return (int) strlen(replyBuffer);
 }
 
-void SSLContext::loadKeys(string privateKeyFileName, string certificateFileName, string password, string caFileName, int verifyMode, int verifyDepth) throw(exception)
+void SSLContext::loadKeys(const string& privateKeyFileName, const string& certificateFileName, const string& password,
+                          const string& caFileName, int verifyMode, int verifyDepth) throw(exception)
 {
     SYNCHRONIZED_CODE;
 

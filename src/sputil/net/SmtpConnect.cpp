@@ -57,7 +57,7 @@ int SmtpConnect::getResponse(bool decode)
     while (!readCompleted) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
-        if (m_log)
+        if (m_log != nullptr)
             *m_log << "[RECV] " << readBuffer << endl;
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
@@ -104,7 +104,7 @@ void SmtpConnect::sendCommand(string cmd, bool encode)
     write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
-int SmtpConnect::command(string cmd, bool encodeCommand, bool decodeResponse)
+int SmtpConnect::command(const string& cmd, bool encodeCommand, bool decodeResponse)
 {
     m_response.clear();
     if (!active())
@@ -154,7 +154,7 @@ void SmtpConnect::cmd_auth(string user, string password)
         return; // Authentication not advertised and not required
 
     RegularExpression matchAuth("^AUTH ");
-    string authMethodsStr = matchAuth.s(authInfo[0], "");
+    String authMethodsStr = matchAuth.s(authInfo[0], "");
     Strings authMethods(authMethodsStr, " ");
 
     string method = "LOGIN";
@@ -164,7 +164,7 @@ void SmtpConnect::cmd_auth(string user, string password)
         method = "PLAIN";
     }
     
-    if (trim(user).length()) {
+    if (!trim(user).empty()) {
         if (method == "LOGIN") {
             rc = command("AUTH LOGIN", false, true);
             if (rc > 432)
@@ -212,8 +212,8 @@ void SmtpConnect::cmd_quit()
 
 string parseAddress(string fullAddress)
 {
-    size_t p1 = fullAddress.find("<");
-    size_t p2 = fullAddress.find(">");
+    size_t p1 = fullAddress.find('<');
+    size_t p2 = fullAddress.find('>');
     if (p1 == STRING_NPOS || p2 == STRING_NPOS || p2 < p1)
         return fullAddress;
     return trim(fullAddress.substr(p1 + 1, p2 - p1 - 1));
@@ -229,7 +229,7 @@ void SmtpConnect::sendMessage()
     rcpts = replaceAll(rcpts, ",", ";");
     rcpts = replaceAll(rcpts, " ", ";");
     Strings recepients(rcpts, ";");
-    uint32_t cnt = (uint32_t) recepients.size();
+    auto cnt = (uint32_t) recepients.size();
     for (uint32_t i = 0; i < cnt; i++) {
         string address = trim(recepients[i]);
         if (address[0] == 0) continue;

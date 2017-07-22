@@ -96,7 +96,7 @@ protected:
     /**
      * Encoding the message into internal message buffer
      */
-    void mimeFile(std::string fileName, std::string fileAlias, std::stringstream& message);
+    void mimeFile(const std::string& fileName, const std::string& fileAlias, std::stringstream& message);
 
 public:
     /**
@@ -105,11 +105,6 @@ public:
     BaseMailConnect()
     {
     }
-
-    /**
-     * Default destructor
-     */
-    virtual ~BaseMailConnect();
 
     /**
      * Method from() returns the current value of 'FROM:' field of e-mail message.

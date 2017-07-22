@@ -88,7 +88,8 @@ public:
      * @param verifyMode int, ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth int, Connection verify depth
      */
-    void loadKeys(std::string keyFileName, std::string certificateFileName, std::string password, std::string caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0) throw (std::exception);
+    void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
+                  const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0) throw (std::exception);
 
     /**
      * @brief Returns SSL context handle

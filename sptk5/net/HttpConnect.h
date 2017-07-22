@@ -83,7 +83,8 @@ protected:
     /**
      * Create default headers for HTTP request
      */
-    sptk::Strings makeHeaders(std::string httpCommand, std::string pageName, const HttpParams& requestParameters);
+    sptk::Strings makeHeaders(const std::string& httpCommand, const std::string& pageName,
+                              const HttpParams& requestParameters);
 
     /**
      * @brief Sends a single command to HTTP server
@@ -104,10 +105,10 @@ protected:
     /**
      * @brief Read HTTP response headers
      * @param timeoutMS uint32_t, Response timeout
-     * @param httpStatus std::string&, HTTP result status
+     * @param httpStatus String&, HTTP result status
      * @return HTTP result code
      */
-    int readHeaders(uint32_t timeoutMS, std::string& httpStatus);
+    int readHeaders(uint32_t timeoutMS, String& httpStatus);
 
     /**
      * @brief Retrieves the server response on the command
@@ -129,11 +130,6 @@ public:
      * @param socket CTCPSocket&, external socket
      */
     HttpConnect(TCPSocket& socket);
-
-    /**
-     * @brief Destructor
-     */
-    ~HttpConnect();
 
     /**
      * @brief Returns the internal read buffer
@@ -180,7 +176,7 @@ public:
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_get(std::string pageName, const HttpParams& parameters, uint32_t timeoutMS);
+    int cmd_get(const std::string& pageName, const HttpParams& parameters, uint32_t timeoutMS);
 
     /**
      * @brief Sends the POST command to the server
@@ -193,7 +189,8 @@ public:
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_post(std::string pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent, uint32_t timeoutMS);
+    int cmd_post(const std::string& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
+                 uint32_t timeoutMS);
 
     /**
      * @brief Sends the PUT command to the server
@@ -205,7 +202,7 @@ public:
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_put(std::string pageName, const HttpParams& parameters, const Buffer& content, uint32_t timeoutMS);
+    int cmd_put(const std::string& pageName, const HttpParams& parameters, const Buffer& content, uint32_t timeoutMS);
 
    /**
      * @brief Sends the DELETE command to the server
@@ -216,14 +213,14 @@ public:
      * @param timeoutMS uint32_t, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_delete(std::string pageName, const HttpParams& parameters, uint32_t timeoutMS);
+    int cmd_delete(const std::string& pageName, const HttpParams& parameters, uint32_t timeoutMS);
 
     /**
      * @brief Get value of response header
      * @param headerName std::string, response header name
      * @return header value, or empty string if header is not a part of the response
      */
-    std::string responseHeader(std::string headerName) const;
+    std::string responseHeader(const std::string& headerName) const;
 };
 
 /**

@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <sstream>
 
 #ifdef _MSC_VER
@@ -48,12 +48,12 @@ class ContentTypes
 {
     static map<string, string> m_contentTypes;
 public:
-    ContentTypes()
-    { if (!m_contentTypes.size()) init(); }
+    ContentTypes() noexcept
+    { if (m_contentTypes.empty()) init(); }
 
     void init();
 
-    static string type(string fileName);
+    static string type(const string& fileName);
 };
 
 map<string, string> ContentTypes::m_contentTypes;
@@ -76,32 +76,27 @@ void ContentTypes::init()
     m_contentTypes["wav"] = "application/data";
 }
 
-string ContentTypes::type(string fileName)
+string ContentTypes::type(const string& fileName)
 {
     const char* extension = strrchr(fileName.c_str(), '.');
-    if (!extension)
-        return "application/octet-stream";
-    extension++;
-    if (strlen(extension) > 4)
-        return "application/octet-stream";
-    const map<string, string>::iterator itor = m_contentTypes.find(extension);
-    if (itor != m_contentTypes.end()) return itor->second;
-    else
-        return "application/octet-stream";
+    if (extension != nullptr) {
+        extension++;
+        if (strlen(extension) > 4)
+            return "application/octet-stream";
+        auto itor = m_contentTypes.find(extension);
+        if (itor != m_contentTypes.end())
+            return itor->second;
+    }
+    return "application/octet-stream";
 }
 
-BaseMailConnect::~BaseMailConnect()
-{
-}
-
-
-void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& message)
+void BaseMailConnect::mimeFile(const string& fileName, const string& fileAlias, stringstream& message)
 {
     Buffer bufSource;
     string strDest;
     //char    *header = new char[1024];
 
-    bufSource.loadFromFile(fileName.c_str());
+    bufSource.loadFromFile(fileName);
 
     string ctype = contentTypes.type(trim(fileName));
 
@@ -112,7 +107,7 @@ void BaseMailConnect::mimeFile(string fileName, string fileAlias, stringstream& 
     Buffer buffer;
 
     Base64::encode(strDest, bufSource);
-    uint32_t cnt = (uint32_t) strDest.length();
+    auto cnt = (uint32_t) strDest.length();
     const char* data = strDest.c_str();
     char line[90];
     for (uint32_t p = 0; p < cnt; p += LINE_CHARS) {
@@ -134,7 +129,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     static const char boundary2[] = "--TEXT-MIME-BOUNDARY--";
     stringstream message;
 
-    if (m_from.length())
+    if (!m_from.empty())
         message << "From: " << m_from << endl;
     else
         message << "From: postmaster" << endl;
@@ -142,7 +137,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     replaceAll(m_to, ";", ", ");
     message << "To: " << m_to << endl;
 
-    if (m_cc.length()) {
+    if (!m_cc.empty()) {
         m_cc = replaceAll(m_cc, ";", ", ");
         message << "CC: " << m_cc << endl;
     }
@@ -208,20 +203,18 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     //message << endl << "--" << boundary << "--" << endl;
 
     Strings sl(m_attachments, ";");
-    for (unsigned i = 0; i < sl.size(); i++) {
-        string attachment = sl[i];
-        string attachmentAlias = attachment;
+    for (auto& attachment: sl) {
+        String attachmentAlias(attachment);
         const char* separator = "\\";
-        if (attachment.find("/") != STRING_NPOS)
+        if (attachment.find('/') != STRING_NPOS)
             separator = "/";
         Strings attachmentParts(attachment, separator);
-        uint32_t attachmentPartsCount = (uint32_t) attachmentParts.size();
+        auto attachmentPartsCount = (uint32_t) attachmentParts.size();
         if (attachmentPartsCount > 1)
             attachmentAlias = attachmentParts[attachmentPartsCount - 1].c_str();
-        if (attachment.length()) {
+        if (!attachment.empty()) {
             message << endl << "--" << boundary << endl;
             mimeFile(attachment, attachmentAlias, message);
-            //message << "--" << boundary << "--" << endl;
         }
     }
 

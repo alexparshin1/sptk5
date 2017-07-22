@@ -59,13 +59,13 @@ public:
     /**
      * @brief Constructor
      */
-    XMLNodeList()
+    XMLNodeList() noexcept
     {}
 
     /**
      * @brief Destructor
      */
-    ~XMLNodeList()
+    ~XMLNodeList() noexcept
     {
         clear();
     }

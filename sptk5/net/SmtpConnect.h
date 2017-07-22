@@ -127,7 +127,7 @@ public:
      * @param encodeCommand bool, encode the comand argument to Base64 or not
      * @param decodeResponse bool, decode the response from Base64 or not
      */
-    int command(std::string cmd, bool encodeCommand = false, bool decodeResponse = false);
+    int command(const std::string& cmd, bool encodeCommand = false, bool decodeResponse = false);
 
     /**
      * @brief The response from the server - makes sence after calling any command

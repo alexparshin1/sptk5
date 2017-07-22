@@ -75,7 +75,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exceptio
 
     int socketFD = socket.handle();
 
-    epoll_event* event = (epoll_event*) malloc(sizeof(epoll_event));
+    auto event = (epoll_event*) malloc(sizeof(epoll_event));
     event->data.ptr = userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
@@ -96,7 +96,7 @@ void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
     {
         SYNCHRONIZED_CODE;
 
-        map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
+        auto itor = m_socketData.find(&socket);
         if (itor == m_socketData.end())
             return;
 
@@ -125,7 +125,7 @@ void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
 
     for (int i = 0; i < eventCount; i++) {
         epoll_event& event = events[i];
-        if (event.events & (EPOLLHUP | EPOLLRDHUP))
+        if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
             m_eventsCallback(event.data.ptr, ET_CONNECTION_CLOSED);
         else
             m_eventsCallback(event.data.ptr, ET_HAS_DATA);

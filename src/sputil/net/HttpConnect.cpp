@@ -40,12 +40,7 @@ HttpConnect::HttpConnect(TCPSocket& socket)
     m_requestHeaders["Connection"] = "close";
 }
 
-HttpConnect::~HttpConnect()
-{
-    //m_socket.close();
-}
-
-int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
+int HttpConnect::readHeaders(uint32_t timeoutMS, String& httpStatus)
 {
     m_responseHeaders.clear();
 
@@ -76,7 +71,7 @@ int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
             firstRow = false;
             continue;
         }
-        size_t pos = header.find(":");
+        size_t pos = header.find(':');
         if (pos != string::npos) {
             string headerName = header.substr(0, pos);
             string headerValue = trim(header.substr(pos + 1));
@@ -94,9 +89,9 @@ int HttpConnect::readHeaders(uint32_t timeoutMS, string& httpStatus)
     return rc;
 }
 
-#define RSP_BLOCK_SIZE 1024*64
+#define RSP_BLOCK_SIZE (1024*64)
 
-string HttpConnect::responseHeader(string headerName) const
+string HttpConnect::responseHeader(const string& headerName) const
 {
     auto itor = m_responseHeaders.find(headerName);
     if (itor == m_responseHeaders.end())
@@ -111,7 +106,7 @@ int HttpConnect::getResponse(uint32_t readTimeout)
     m_readBuffer.reset();
     m_responseHeaders.clear();
 
-    string httpStatus;
+    String httpStatus;
     int rc = readHeaders(readTimeout, httpStatus);
 
     string contentLengthStr = responseHeader("Content-Length");
@@ -121,7 +116,7 @@ int HttpConnect::getResponse(uint32_t readTimeout)
         //else
             //contentLengthStr = "-1";
     }
-    int contentLength = string2int(contentLengthStr);
+    auto contentLength = (size_t) string2int(contentLengthStr);
     if (contentLengthStr != "0") {
         bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
@@ -137,7 +132,7 @@ int HttpConnect::getResponse(uint32_t readTimeout)
                     throw Exception("Response read timeout");
                 }
 
-                if (contentLength) {
+                if (contentLength != 0) {
                     bytes = m_socket.socketBytes();
                     if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
                         bytes = bytesToRead;
@@ -146,13 +141,13 @@ int HttpConnect::getResponse(uint32_t readTimeout)
                 } else
                     bytes = (int) m_socket.read(read_buffer, 64*1024);
 
-                if (bytes <= 0) // No more data
+                if (bytes == 0) // No more data
                     break;
 
                 m_readBuffer.append(read_buffer);
                 totalBytes += bytes;
 
-                if (contentLength && totalBytes >= contentLength)
+                if (contentLength != 0 && totalBytes >= contentLength)
                     break;
             }
         } else {
@@ -169,13 +164,13 @@ int HttpConnect::getResponse(uint32_t readTimeout)
                 if (chunkSizeStr.empty() || chunkSizeStr == "0")
                     m_socket.readLine(chunkSizeStr);
 
-                size_t chunkSize = (size_t) strtol(chunkSizeStr.c_str(), 0L, 16);
+                auto chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
 
                 if (chunkSize == 0)
                     break;
 
                 read_buffer.checkSize(chunkSize);
-                bytes = (int) m_socket.read(read_buffer, chunkSize, NULL);
+                bytes = (int) m_socket.read(read_buffer, chunkSize, nullptr);
 
                 if (bytes > 0) {
                     read_buffer.data() [bytes] = 0;
@@ -222,7 +217,7 @@ void HttpConnect::sendCommand(const Buffer& cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
-Strings HttpConnect::makeHeaders(string httpCommand, string pageName, const HttpParams& requestParameters)
+Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageName, const HttpParams& requestParameters)
 {
     Strings headers;
 
@@ -244,7 +239,7 @@ Strings HttpConnect::makeHeaders(string httpCommand, string pageName, const Http
     return move(headers);
 }
 
-int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
 {
     m_readBuffer.checkSize(1024);
 
@@ -258,7 +253,8 @@ int HttpConnect::cmd_get(string pageName, const HttpParams& requestParameters, u
     return getResponse(timeoutMS);
 }
 
-int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent, uint32_t timeoutMS)
+int HttpConnect::cmd_post(const string& pageName, const HttpParams& parameters, const Buffer& postData,
+                          bool gzipContent, uint32_t timeoutMS)
 {
     Strings headers = makeHeaders("POST", pageName, parameters);
     headers.push_back("Accept-Encoding: gzip");
@@ -284,7 +280,8 @@ int HttpConnect::cmd_post(string pageName, const HttpParams& parameters, const B
     return getResponse(timeoutMS);
 }
 
-int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, const Buffer& putData, uint32_t timeoutMS)
+int HttpConnect::cmd_put(const string& pageName, const HttpParams& requestParameters, const Buffer& putData,
+                         uint32_t timeoutMS)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters);
     headers.push_back("Accept-Encoding: gzip");
@@ -302,7 +299,7 @@ int HttpConnect::cmd_put(string pageName, const HttpParams& requestParameters, c
     return getResponse(timeoutMS);
 }
 
-int HttpConnect::cmd_delete(string pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+int HttpConnect::cmd_delete(const string& pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters);
     string  command = headers.asString("\r\n") + "\r\n\r\n";
