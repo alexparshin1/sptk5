@@ -30,6 +30,8 @@
 #include <sptk5/db/Query.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/RegularExpression.h>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 using namespace sptk;
@@ -55,7 +57,7 @@ public:
 };
 }
 
-ODBCConnection::ODBCConnection(string connectionString)
+ODBCConnection::ODBCConnection(const string& connectionString)
 : DatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnectionBase;
@@ -68,9 +70,9 @@ ODBCConnection::~ODBCConnection()
         if (m_inTransaction && active())
             rollbackTransaction();
         close();
-        while (m_queryList.size()) {
+        while (!m_queryList.empty()) {
             try {
-                Query* query = (Query*) m_queryList[0];
+                auto query = (Query*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -93,11 +95,11 @@ string ODBCConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void ODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCEPTIONS
+void ODBCConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
-        if (newConnectionString.length())
+        if (!newConnectionString.empty())
             m_connString = newConnectionString;
 
         string finalConnectionString;
@@ -109,9 +111,9 @@ void ODBCConnection::openDatabase(const string newConnectionString) THROWS_EXCEP
 
 void ODBCConnection::closeDatabase() THROWS_EXCEPTIONS
 {
-    for (unsigned i = 0; i < m_queryList.size(); i++) {
+    for (auto query: m_queryList) {
         try {
-            queryFreeStmt(m_queryList[i]);
+            queryFreeStmt(query);
         } catch (...) {
         }
     }
@@ -159,7 +161,7 @@ void ODBCConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 }
 
 //-----------------------------------------------------------------------------------------------
-static inline BOOL successful(int ret)
+static inline bool successful(int ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
@@ -182,9 +184,9 @@ string ODBCConnection::queryError(SQLHSTMT stmt) const
     int rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), stmt, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS) {
-        rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), 0L, errorState, &nativeError, errorDescription,
+        rc = SQLError(SQL_NULL_HENV, (SQLHDBC) handle(), nullptr, errorState, &nativeError, errorDescription,
                       sizeof(errorDescription), &pcnmsg);
-        if (rc != SQL_SUCCESS) if (!*errorDescription)
+        if (rc != SQL_SUCCESS && *errorDescription != char(0))
             strncpy((char*) errorDescription, "Unknown error", sizeof(errorDescription));
     }
 
@@ -200,11 +202,11 @@ void ODBCConnection::queryAllocStmt(Query* query)
 {
     SynchronizedCode lock(m_connect);
 
-    SQLHSTMT stmt = (SQLHSTMT) query->statement();
+    auto stmt = (SQLHSTMT) query->statement();
     if (stmt != SQL_NULL_HSTMT)
         SQLFreeStmt(stmt, SQL_DROP);
 
-    SQLHDBC hdb = (SQLHDBC) handle();
+    auto hdb = (SQLHDBC) handle();
     int rc = SQLAllocStmt(hdb, &stmt);
 
     if (rc != SQL_SUCCESS) {
@@ -300,7 +302,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SynchronizedCode lock(m_connect);
     SQLLEN result;
 
-    if (!successful(SQLColAttributes(query->statement(), column, descType, 0, 0, 0, &result)))
+    if (!successful(SQLColAttributes(query->statement(), column, descType, nullptr, 0, nullptr, &result)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
     value = (int32_t) result;
 }
@@ -308,12 +310,12 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, LPSTR buff, int len)
 {
     int16_t available;
-    if (!buff || len <= 0)
+    if (buff == nullptr || len <= 0)
         query->logAndThrow("CODBCConnection::queryColAttributes", "Invalid buffer or buffer len");
 
     SynchronizedCode lock(m_connect);
 
-    if (!successful(SQLColAttributes(query->statement(), (int16_t) column, descType, buff, (int16_t) len, &available, 0)))
+    if (!successful(SQLColAttributes(query->statement(), (int16_t) column, descType, buff, (int16_t) len, &available, nullptr)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
 }
 
@@ -333,7 +335,7 @@ void ODBCConnection::queryBindParameters(Query* query)
             int16_t paramType = 0, sqlType = 0, scale = 0;
             void* buff = param->dataBuffer();
             long len = 0;
-            int16_t paramNumber = int16_t(param->bindIndex(j) + 1);
+            auto paramNumber = int16_t(param->bindIndex(j) + 1);
 
             int16_t parameterMode = SQL_PARAM_INPUT;
             switch (ptype) {
@@ -382,10 +384,10 @@ void ODBCConnection::queryBindParameters(Query* query)
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
-                    TIMESTAMP_STRUCT* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
+                    auto t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
                     DateTime dt = param->getDateTime();
                     buff = t;
-                    if (dt) {
+                    if (int(dt) != 0) {
                         dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day);
                         t->hour = t->minute = t->second = 0;
                         t->fraction = 0;
@@ -400,11 +402,11 @@ void ODBCConnection::queryBindParameters(Query* query)
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
-                    TIMESTAMP_STRUCT* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
+                    auto t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
                     DateTime dt = param->getDateTime();
                     int16_t ms;
                     buff = t;
-                    if (dt) {
+                    if (int(dt) != 0) {
                         dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day);
                         dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
                         t->fraction = 0;
@@ -419,7 +421,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     query->logAndThrow("CODBCConnection::queryBindParameters",
                                        "Unknown type of parameter " + int2string(paramNumber));
             }
-            SQLLEN* cbValue = NULL;
+            SQLLEN* cbValue = nullptr;
             if (param->isNull()) {
                 cbValue = &cbNullValue;
                 len = 0;
@@ -506,7 +508,7 @@ void ODBCConnection::queryOpen(Query* query)
     if (query->active())
         return;
 
-    if (!query->statement())
+    if (query->statement() == nullptr)
         queryAllocStmt(query);
 
     try {
@@ -528,38 +530,47 @@ void ODBCConnection::queryOpen(Query* query)
     if (count < 1) {
         queryCloseStmt(query);
         return;
-    } else {
-        querySetActive(query, true);
+    }
 
-        if (query->fieldCount() == 0) {
-            // Reading the column attributes
-            char columnName[256];
-            int32_t columnType;
-            int32_t columnLength;
-            int32_t columnScale;
-            int32_t cType;
-            VariantType dataType;
-            for (int16_t column = 1; column <= count; column++) {
-                queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, 255);
-                queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
-                queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
-                queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
-                ODBCtypeToCType(columnType, cType, dataType);
-                if (dataType == VAR_STRING && columnLength > 65535)
-                    dataType = VAR_TEXT;
-                if (columnName[0] == 0)
-                    snprintf(columnName, sizeof(columnName), "column%02i", column);
-                if (columnLength > FETCH_BUFFER_SIZE)
-                    columnLength = FETCH_BUFFER_SIZE;
+    querySetActive(query, true);
 
-                if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
-                    columnScale = 0;
+    if (query->fieldCount() == 0) {
+        // Reading the column attributes
+        char columnName[256];
+        int32_t columnType;
+        int32_t columnLength;
+        int32_t columnScale;
+        int32_t cType;
+        VariantType dataType;
 
-                Field* field = new CODBCField(columnName, column, cType, dataType, (int) columnLength, (int) columnScale);
-                query->fields().push_back(field);
+        stringstream columnNameStr;
+        columnNameStr.fill('0');
+
+        for (int16_t column = 1; column <= count; column++) {
+            queryColAttributes(query, column, SQL_COLUMN_NAME, columnName, 255);
+            queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
+            queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
+            queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
+            ODBCtypeToCType(columnType, cType, dataType);
+            if (dataType == VAR_STRING && columnLength > 65535)
+                dataType = VAR_TEXT;
+            if (columnName[0] != 0)
+                columnNameStr.str(columnName);
+            else {
+                columnNameStr.str("column");
+                columnNameStr << setw(2) << column;
             }
+            if (columnLength > FETCH_BUFFER_SIZE)
+                columnLength = FETCH_BUFFER_SIZE;
+
+            if (dataType == VAR_FLOAT && (columnScale < 0 || columnScale > 20))
+                columnScale = 0;
+
+            Field* field = new CODBCField(columnNameStr.str(), column, cType, dataType, (int) columnLength, (int) columnScale);
+            query->fields().push_back(field);
         }
     }
+
     querySetEof(query, false);
     queryFetch(query);
 }
@@ -585,7 +596,7 @@ void ODBCConnection::queryFetch(Query* query)
     if (!query->active())
         query->logAndThrow("CODBCConnection::queryFetch", "Dataset isn't open");
 
-    SQLHSTMT statement = (SQLHSTMT) query->statement();
+    auto statement = (SQLHSTMT) query->statement();
 
     SynchronizedCode lock(m_connect);
 
@@ -595,7 +606,7 @@ void ODBCConnection::queryFetch(Query* query)
         if (rc < 0) {
             string error = queryError(query);
             query->logText(error);
-            throw DatabaseException(error, __FILE__, __LINE__, query->sql().c_str());
+            throw DatabaseException(error, __FILE__, __LINE__, query->sql());
         } else {
             querySetEof(query, rc == SQL_NO_DATA);
             return;
@@ -605,14 +616,14 @@ void ODBCConnection::queryFetch(Query* query)
     uint32_t fieldCount = query->fieldCount();
     SQLLEN dataLength = 0;
 
-    if (!fieldCount)
+    if (fieldCount == 0)
         return;
 
-    CODBCField* field = 0;
+    CODBCField* field = nullptr;
     for (unsigned column = 0; column < fieldCount;)
         try {
             field = (CODBCField*) &(*query)[column];
-            const int16_t fieldType = (int16_t) field->fieldType();
+            auto fieldType = (int16_t) field->fieldType();
             size_t readSize = field->bufferSize();
             char* buffer = field->getData();
 
@@ -626,7 +637,7 @@ void ODBCConnection::queryFetch(Query* query)
                     break;
 
                 case SQL_C_TIMESTAMP: {
-                    TIMESTAMP_STRUCT t;
+                    TIMESTAMP_STRUCT t = {};
                     rc = SQLGetData(statement, column, fieldType, &t, 0, &dataLength);
                     if (dataLength > 0) {
                         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
@@ -647,7 +658,7 @@ void ODBCConnection::queryFetch(Query* query)
                         buffer = (char*) field->getBuffer();
                         char* offset = buffer + readSize - 1;
                         readSize = dataLength - readSize + 2;
-                        rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), NULL);
+                        rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), nullptr);
                     }
                     break;
 
@@ -675,36 +686,35 @@ void ODBCConnection::queryFetch(Query* query)
 
 string ODBCConnection::driverDescription() const
 {
-    if (m_connect)
+    if (m_connect != nullptr)
         return m_connect->driverDescription();
-    else
-        return "";
+    return "";
 }
 
 void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
 {
     SynchronizedCode lock(m_connect);
 
-    SQLHSTMT stmt = 0;
+    SQLHSTMT stmt = nullptr;
     try {
         SQLRETURN rc;
-        SQLHDBC hdb = (SQLHDBC) handle();
+        auto hdb = (SQLHDBC) handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
             throw DatabaseException("CODBCConnection::queryAllocStmt");
 
         switch (objectType) {
             case DOT_TABLES:
-                if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
+                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*) "TABLE", SQL_NTS) != SQL_SUCCESS)
                     throw DatabaseException("SQLTables");
                 break;
 
             case DOT_VIEWS:
-                if (SQLTables(stmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
+                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*) "VIEW", SQL_NTS) != SQL_SUCCESS)
                     throw DatabaseException("SQLTables");
                 break;
 
             case DOT_PROCEDURES:
-                rc = SQLProcedures(stmt, NULL, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
+                rc = SQLProcedures(stmt, nullptr, 0, (SQLCHAR*) "", SQL_NTS, (SQLCHAR*) "%", SQL_NTS);
                 if (rc != SQL_SUCCESS)
                     throw DatabaseException("SQLProcedures");
                 break;
@@ -738,7 +748,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         SQLFreeStmt(stmt, SQL_DROP);
     } catch (exception& e) {
         string error;
-        if (stmt) {
+        if (stmt != nullptr) {
             error = queryError(stmt);
             SQLFreeStmt(stmt, SQL_DROP);
         }
@@ -793,14 +803,14 @@ void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) T
     if (!trim(statement).empty())
         statements.push_back(statement);
 
-    for (string stmt: statements) {
+    for (auto& stmt: statements) {
         try {
             Query query(this, stmt, false);
             //cout << "[ " << statement << " ]" << endl;
             query.exec();
         }
         catch (const exception& e) {
-            if (errors)
+            if (errors != nullptr)
                 errors->push_back(e.what());
             else
                 throw;

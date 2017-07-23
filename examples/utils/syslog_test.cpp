@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-int main(int,char*[])
+int main(int argc, char* argv[])
 {
 #ifdef _WIN32
    cout << "Attention: This example project must include file VC6\\events.rc." << endl;

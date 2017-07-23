@@ -85,12 +85,7 @@ public:
      * @param logger sptk::Logger&, Logger
      * @param staticFilesDirectory const std::string&, Web Service static files directory
      */
-    WSListener(sptk::WSRequest& service, sptk::Logger& logger, std::string staticFilesDirectory);
-
-    /**
-     * @brief Destructor
-     */
-    ~WSListener();
+    WSListener(sptk::WSRequest& service, sptk::Logger& logger, const std::string& staticFilesDirectory);
  };
 
 /**

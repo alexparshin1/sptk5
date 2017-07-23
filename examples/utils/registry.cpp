@@ -48,21 +48,17 @@ void printRegistry(RegistryMode mode)
       cout << "---> Reading " << mySettings.fileName() << endl;
 
       XMLNode* windowNode = mySettings.findFirst("window");
-      if (windowNode) {
-         XMLNode::iterator itor = windowNode->begin();
+      if (windowNode != nullptr) {
          // Processing the subnodes of <window> node
-         for (; itor != windowNode->end(); itor++) {
-            XMLNode*        node = *itor;
+         for (auto node: *windowNode) {
             if (node->name() == "position")
                cout << "Window position: "
                << (int) node->getAttribute("x") << ":"
                << (int) node->getAttribute("y") << endl;
             else if (node->name() == "colors") {
                // Processing the subnodes of <colors>
-               XMLNode::iterator stor = node->begin();
                cout << "Window colors:" << endl;
-               for (; stor != node->end(); stor++) {
-                  XMLNode* colorNode = *stor;
+               for (auto colorNode: *node) {
                   cout << "  " << (string) colorNode->getAttribute("name")
                   << ": fg " << (string) colorNode->getAttribute("foreground")
                   << ", bg " << (string) colorNode->getAttribute("background")

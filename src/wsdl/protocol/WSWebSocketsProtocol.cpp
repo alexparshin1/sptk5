@@ -47,7 +47,7 @@ static uint64_t ntoh64(uint64_t data)
     union {
         uint64_t    u64;
         uint32_t    u32[2];
-    } transform, output;
+    } transform = {}, output = {};
 
     transform.u64 = data;
     output.u32[0] = ntohl(transform.u32[1]);
@@ -58,14 +58,14 @@ static uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    const uint8_t* ptr = (const uint8_t*)incomingData;
+    auto ptr = (const uint8_t*) incomingData;
 
     m_finalMessage = (*ptr & 0x80) != 0;
     m_opcode = uint32_t(*ptr & 0xF);
 
     ptr++;
     bool masked = (*ptr & 0x80) != 0;
-    uint64_t payloadLength = uint64_t((*ptr) & 0x7F);
+    auto payloadLength = uint64_t((*ptr) & 0x7F);
     switch (payloadLength) {
         default:    ptr++; break;
         case 126:   ptr++; payloadLength = ntohs(*(const uint16_t*)ptr); ptr += 2; break;
@@ -91,7 +91,7 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buff
 {
     output.reset(payload.length() + 10);
 
-    uint8_t* ptr = (uint8_t*) output.data();
+    auto ptr = (uint8_t*) output.data();
 
     *ptr = opcode & 0xF;
     if (final)
@@ -152,7 +152,7 @@ void WSWebSocketsProtocol::process()
         if (m_socket.readyToRead(30000)) {
             Buffer message;
 
-            while (!m_socket.socketBytes())
+            while (m_socket.socketBytes() == 0)
                 Thread::msleep(100);
 
             size_t available = m_socket.socketBytes();

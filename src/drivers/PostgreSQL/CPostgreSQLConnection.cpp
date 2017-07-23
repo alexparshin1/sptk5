@@ -57,17 +57,15 @@ public:
 public:
 
     CPostgreSQLStatement(bool int64timestamps, bool prepared)
-    : m_stmt(NULL), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
+    : m_stmt(nullptr), m_stmtName(), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
     {
         if (prepared)
             snprintf(m_stmtName, sizeof(m_stmtName), "S%04u", ++index);
-        else
-            m_stmtName[0] = 0;
     }
 
     ~CPostgreSQLStatement()
     {
-        if (m_stmt)
+        if (m_stmt != nullptr)
             PQclear(m_stmt);
     }
 
@@ -79,9 +77,9 @@ public:
 
     void clearRows()
     {
-        if (m_stmt) {
+        if (m_stmt != nullptr) {
             PQclear(m_stmt);
-            m_stmt = 0;
+            m_stmt = nullptr;
         }
 
         m_rows = 0;
@@ -90,7 +88,7 @@ public:
 
     void stmt(PGresult* st, unsigned rows, unsigned cols = 99999)
     {
-        if (m_stmt)
+        if (m_stmt != nullptr)
             PQclear(m_stmt);
 
         m_stmt = st;
@@ -143,11 +141,11 @@ enum CPostgreSQLTimestampFormat
 };
 static CPostgreSQLTimestampFormat timestampsFormat;
 
-PostgreSQLConnection::PostgreSQLConnection(string connectionString)
+PostgreSQLConnection::PostgreSQLConnection(const string& connectionString)
         :
         DatabaseConnection(connectionString)
 {
-    m_connect = 0;
+    m_connect = nullptr;
     m_connType = DCT_POSTGRES;
 }
 
@@ -159,14 +157,13 @@ PostgreSQLConnection::~PostgreSQLConnection()
 
         close();
 
-        while (m_queryList.size()) {
+        while (!m_queryList.empty()) {
             try {
-                Query* query = (Query*) m_queryList[0];
+                auto query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
         }
-
         m_queryList.clear();
     } catch (...) {
     }
@@ -183,7 +180,7 @@ string PostgreSQLConnection::nativeConnectionString() const
 {
     string port;
 
-    if (m_connString.portNumber())
+    if (m_connString.portNumber() != 0)
         port = int2string(m_connString.portNumber());
 
     string result =
@@ -196,12 +193,12 @@ string PostgreSQLConnection::nativeConnectionString() const
     return result;
 }
 
-void PostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void PostgreSQLConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
 
-        if (newConnectionString.length())
+        if (!newConnectionString.empty())
             m_connString = newConnectionString;
 
         m_connect = PQconnectdb(nativeConnectionString().c_str());
@@ -209,7 +206,7 @@ void PostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCEP
         if (PQstatus(m_connect) != CONNECTION_OK) {
             string error = PQerrorMessage(m_connect);
             PQfinish(m_connect);
-            m_connect = NULL;
+            m_connect = nullptr;
             throw DatabaseException(error);
         }
 
@@ -225,16 +222,15 @@ void PostgreSQLConnection::openDatabase(string newConnectionString) THROWS_EXCEP
 
 void PostgreSQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
-    for (unsigned i = 0; i < m_queryList.size(); i++) {
+    for (auto query: m_queryList) {
         try {
-            Query* query = (Query*) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
     }
 
     PQfinish(m_connect);
-    m_connect = NULL;
+    m_connect = nullptr;
 }
 
 void* PostgreSQLConnection::handle() const
@@ -244,12 +240,12 @@ void* PostgreSQLConnection::handle() const
 
 bool PostgreSQLConnection::active() const
 {
-    return m_connect != 0L;
+    return m_connect != nullptr;
 }
 
 void PostgreSQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
-    if (!m_connect)
+    if (m_connect == nullptr)
         open();
 
     if (m_inTransaction)
@@ -297,7 +293,7 @@ void PostgreSQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
 
 //-----------------------------------------------------------------------------------------------
 
-string PostgreSQLConnection::queryError(const Query*) const
+string PostgreSQLConnection::queryError(const Query* query) const
 {
     return PQerrorMessage(m_connect);
 }
@@ -314,10 +310,10 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     SYNCHRONIZED_CODE;
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
 
-    if (statement) {
-        if (statement->stmt()) {
+    if (statement != nullptr) {
+        if (statement->stmt() != nullptr) {
             if (!statement->name().empty()) {
                 string deallocateCommand = "DEALLOCATE \"" + statement->name() + "\"";
                 PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
@@ -335,7 +331,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
         delete statement;
     }
 
-    querySetStmt(query, 0L);
+    querySetStmt(query, nullptr);
 
     querySetPrepared(query, false);
 }
@@ -344,7 +340,7 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
     SYNCHRONIZED_CODE;
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
     statement->clearRows();
 }
 
@@ -356,7 +352,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
 
     CPostgreSQLParamValues& params = statement->m_paramValues;
     params.setParameters(query->params());
@@ -374,9 +370,9 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     }
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    unsigned fieldCount = (unsigned) PQnfields(stmt2);
+    auto fieldCount = (unsigned) PQnfields(stmt2);
 
-    if (fieldCount && PQftype(stmt2, 0) == VOIDOID)
+    if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
         fieldCount = 0;   // VOID result considered as no result
 
     PQclear(stmt2);
@@ -393,8 +389,7 @@ void PostgreSQLConnection::queryUnprepare(Query* query)
 
 int PostgreSQLConnection::queryColCount(Query* query)
 {
-
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
 
     return (int) statement->colCount();
 }
@@ -403,19 +398,19 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     SYNCHRONIZED_CODE;
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
     CPostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) { 
+    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
 
     int resultFormat = 1;   // Results are presented in binary format
 
-    if (!statement->colCount())
+    if (statement->colCount() == 0)
         resultFormat = 0;   // VOID result or NO results, using text format
 
     PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(), 
@@ -455,12 +450,12 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
 {
     SYNCHRONIZED_CODE;
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
     CPostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
-    for (CParamVector::const_iterator ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
+    for (auto ptor = params.begin(); ptor != params.end(); ++ptor, paramNumber++) {
         QueryParameter* param = *ptor;
         paramValues.setParameterValue(paramNumber, param);
     }
@@ -590,7 +585,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
     if (query->active())
         return;
 
-    if (!query->statement())
+    if (query->statement() == nullptr)
         queryAllocStmt(query);
 
     if (query->autoPrepare()) {
@@ -600,38 +595,37 @@ void PostgreSQLConnection::queryOpen(Query* query)
     } else
         queryExecDirect(query);
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
 
-    short count = (short) queryColCount(query);
-
+    auto count = (short) queryColCount(query);
     if (count < 1) {
         //queryCloseStmt(query);
         return;
-    } else {
-        querySetActive(query, true);
+    }
 
-        if (query->fieldCount() == 0) {
-            SYNCHRONIZED_CODE;
-            // Reading the column attributes
-            char columnName[256];
-            //long  columnType;
-            //VariantType dataType;
-            const PGresult* stmt = statement->stmt();
+    querySetActive(query, true);
 
-            for (short column = 0; column < count; column++) {
-                strncpy(columnName, PQfname(stmt, column), 255);
-                columnName[255] = 0;
+    if (query->fieldCount() == 0) {
+        SYNCHRONIZED_CODE;
+        // Reading the column attributes
+        char columnName[256];
+        //long  columnType;
+        //VariantType dataType;
+        const PGresult* stmt = statement->stmt();
 
-                if (columnName[0] == 0)
-                    snprintf(columnName, sizeof(columnName), "column%02i", column + 1);
+        for (short column = 0; column < count; column++) {
+            strncpy(columnName, PQfname(stmt, column), 255);
+            columnName[255] = 0;
 
-                Oid dataType = PQftype(stmt, column);
-                VariantType fieldType;
-                PostgreTypeToCType((int) dataType, fieldType);
-                int fieldLength = PQfsize(stmt, column);
-                DatabaseField* field = new DatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
-                query->fields().push_back(field);
-            }
+            if (columnName[0] == 0)
+                snprintf(columnName, sizeof(columnName), "column%02i", column + 1);
+
+            Oid dataType = PQftype(stmt, column);
+            VariantType fieldType;
+            PostgreTypeToCType((int) dataType, fieldType);
+            int fieldLength = PQfsize(stmt, column);
+            DatabaseField* field = new DatabaseField(columnName, column, (int) dataType, fieldType, fieldLength);
+            query->fields().push_back(field);
         }
     }
 
@@ -640,48 +634,48 @@ void PostgreSQLConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-static inline bool readBool(char* data)
+static inline bool readBool(const char* data)
 {
-    return *data != 0;
+    return *data != char(0);
 }
 
-static inline int16_t readInt2(char* data)
+static inline int16_t readInt2(const char* data)
 {
     return (int16_t) ntohs(*(uint16_t*) data);
 }
 
-static inline int32_t readInt4(char* data)
+static inline int32_t readInt4(const char* data)
 {
     return (int32_t) ntohl(*(uint32_t*) data);
 }
 
-static inline int64_t readInt8(char* data)
+static inline int64_t readInt8(const char* data)
 {
     return (int64_t) ntohq(*(uint64_t*) data);
 }
 
-static inline float readFloat4(char* data)
+static inline float readFloat4(const char* data)
 {
-    int32_t v = (int32_t) ntohl(*(uint32_t*) data);
+    auto v = (int32_t) ntohl(*(uint32_t*) data);
     return *(float*) (void*) &v;
 }
 
-static inline double readFloat8(char* data)
+static inline double readFloat8(const char* data)
 {
-    int64_t v = (int64_t) ntohq(*(uint64_t*) data);
+    auto v = (int64_t) ntohq(*(uint64_t*) data);
     return *(double*) (void*) &v;
 }
 
-static inline double readDate(char* data)
+static inline double readDate(const char* data)
 {
-    int32_t dt = (int32_t) ntohl(*(uint32_t*) data);
+    auto dt = (int32_t) ntohl(*(uint32_t*) data);
     return dt + (int32_t) epochDate;
 }
 
-static inline double readTimestamp(char* data, bool integerTimestamps)
+static inline double readTimestamp(const char* data, bool integerTimestamps)
 {
-    int64_t v = (int64_t) ntohq(*(uint64_t*) data);
-    double dt = (double) epochDate;
+    auto v = (int64_t) ntohq(*(uint64_t*) data);
+    auto dt = (double) epochDate;
     if (integerTimestamps) {
         // time is in usecs
         dt += v / 1000000.0 / 3600.0 / 24.0;
@@ -733,11 +727,11 @@ static inline long double readNumericToFloat(char* v)
 */
 
 // Converts internal NUMERIC Postgresql binary to long double
-static inline MoneyData readNumericToScaledInteger(char* v)
+static inline MoneyData readNumericToScaledInteger(const char* v)
 {
-    int16_t ndigits = (int16_t) ntohs(*(uint16_t*) v);
-    int16_t weight = (int16_t) ntohs(*(uint16_t*) (v + 2));
-    int16_t sign = (int16_t) ntohs(*(uint16_t*) (v + 4));
+    auto ndigits = (int16_t) ntohs(*(uint16_t*) v);
+    auto weight = (int16_t) ntohs(*(uint16_t*) (v + 2));
+    auto sign = (int16_t) ntohs(*(uint16_t*) (v + 4));
     uint16_t dscale = ntohs(*(uint16_t*) (v + 6));
 
     v += 8;
@@ -751,7 +745,7 @@ static inline MoneyData readNumericToScaledInteger(char* v)
 
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; i++, v += 2, digitWeight--) {
-        int16_t digit = (int16_t) ntohs(*(int16_t*) v);
+        auto digit = (int16_t) ntohs(*(int16_t*) v);
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
@@ -786,7 +780,7 @@ static inline MoneyData readNumericToScaledInteger(char* v)
             break;
     }
 
-    if (sign)
+    if (sign != 0)
         value = -value;
 
     MoneyData moneyData = {value, uint8_t(dscale)};
@@ -795,7 +789,7 @@ static inline MoneyData readNumericToScaledInteger(char* v)
 }
 
 
-static void decodeArray(char* data, DatabaseField* field)
+static void decodeArray(const char* data, DatabaseField* field)
 {
     struct PGArrayHeader
     {
@@ -810,13 +804,13 @@ static void decodeArray(char* data, DatabaseField* field)
         uint32_t lowerBound;
     };
 
-    PGArrayHeader* arrayHeader = reinterpret_cast<PGArrayHeader*>(data);
+    auto arrayHeader = (PGArrayHeader*) data;
     arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
     arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
     arrayHeader->elementType = ntohl(arrayHeader->elementType);
     data += sizeof(PGArrayHeader);
 
-    PGArrayDimension* dimensions = reinterpret_cast<PGArrayDimension*>(data);
+    auto dimensions = (PGArrayDimension*) data;
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
     stringstream output;
@@ -826,7 +820,7 @@ static void decodeArray(char* data, DatabaseField* field)
         dimension->lowerBound = htonl(dimension->lowerBound);
         output << "{";
         for (size_t element = 0; element < dimension->elementCount; element++) {
-            if (element)
+            if (element != 0)
                 output << ",";
 
             uint32_t dataSize = ntohl(*(uint32_t*) data);
@@ -889,7 +883,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     SYNCHRONIZED_CODE;
 
-    CPostgreSQLStatement* statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (CPostgreSQLStatement*) query->statement();
 
     statement->fetch();
 
@@ -898,26 +892,26 @@ void PostgreSQLConnection::queryFetch(Query* query)
         return;
     }
 
-    int fieldCount = (int) query->fieldCount();
+    auto fieldCount = (int) query->fieldCount();
     int dataLength = 0;
 
-    if (!fieldCount)
+    if (fieldCount == 0)
         return;
 
-    DatabaseField* field = 0;
+    DatabaseField* field = nullptr;
     const PGresult* stmt = statement->stmt();
     int currentRow = statement->currentRow();
 
     for (int column = 0; column < fieldCount; column++) {
         try {
             field = (DatabaseField*) &(*query)[column];
-            short fieldType = (short) field->fieldType();
+            auto fieldType = (short) field->fieldType();
 
             dataLength = PQgetlength(stmt, currentRow, column);
 
-            if (!dataLength) {
+            if (dataLength == 0) {
                 bool isNull = true;
-                if (fieldType & (VAR_STRING | VAR_TEXT | VAR_BUFFER))
+                if ((fieldType & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0)
                     isNull = PQgetisnull(stmt, currentRow, column) == 1;
 
                 if (isNull)
@@ -1056,7 +1050,7 @@ std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
+void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
 {
     string sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
     PGresult* res = PQexec(m_connect, sql.c_str());
@@ -1071,8 +1065,8 @@ void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& colu
     PQclear(res);
 
     Buffer buffer;
-    for (Strings::const_iterator itor = data.begin(); itor != data.end(); ++itor) {
-        buffer.append(*itor);
+    for (auto& row: data) {
+        buffer.append(row);
         buffer.append('\n');
     }
 
@@ -1082,7 +1076,7 @@ void PostgreSQLConnection::bulkInsert(std::string tableName, const Strings& colu
         throw DatabaseException(error);
     }
 
-    if (PQputCopyEnd(m_connect, NULL) != 1) {
+    if (PQputCopyEnd(m_connect, nullptr) != 1) {
         string error = "COPY command end copy failed: ";
         error += PQerrorMessage(m_connect);
         throw DatabaseException(error);
@@ -1097,12 +1091,12 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
     RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements, matches;
-    string statement, delimiter;
+    String statement, delimiter;
     bool functionHeader = false;
     bool functionBody = false;
-    for (string row : sqlBatch) {
+    for (auto row : sqlBatch) {
         if (!functionHeader && !functionBody) {
-            row = trim(row);
+            row = row.trim();
             if (row.empty() || matchCommentRow.matches(row))
                 continue;
         }
@@ -1142,13 +1136,13 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
     if (!trim(statement).empty())
         statements.push_back(statement);
 
-    for (string stmt : statements) {
+    for (auto& stmt : statements) {
         try {
             Query query(this, stmt);
             query.exec();
         }
         catch (const exception& e) {
-            if (errors)
+            if (errors != nullptr)
                 errors->push_back(e.what());
             else
                 throw;

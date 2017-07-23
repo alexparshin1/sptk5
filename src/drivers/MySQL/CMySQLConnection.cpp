@@ -34,9 +34,9 @@
 using namespace std;
 using namespace sptk;
 
-MySQLConnection::MySQLConnection(string connectionString) :
+MySQLConnection::MySQLConnection(const string& connectionString) :
     DatabaseConnection(connectionString),
-    m_connection(NULL)
+    m_connection(nullptr)
 {
     m_connType = DCT_MYSQL;
 }
@@ -47,9 +47,9 @@ MySQLConnection::~MySQLConnection()
         if (m_inTransaction && active())
             rollbackTransaction();
         close();
-        while (m_queryList.size()) {
+        while (!m_queryList.empty()) {
             try {
-                Query *query = (Query *) m_queryList[0];
+                auto query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -60,13 +60,13 @@ MySQLConnection::~MySQLConnection()
 }
 
 
-void MySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void MySQLConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
 {
     static Synchronized libraryInitMutex;
 
     if (!active()) {
         m_inTransaction = false;
-        if (newConnectionString.length())
+        if (!newConnectionString.empty())
             m_connString = newConnectionString;
 
         {
@@ -78,41 +78,41 @@ void MySQLConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
         mysql_options(m_connection, MYSQL_INIT_COMMAND, "SET NAMES utf8");
 
         string connectionError;
-        if (!m_connection)
+        if (m_connection == nullptr)
             connectionError = "Can't initialize MySQL environment";
         else {
-            if (!mysql_real_connect(m_connection,
-                                    m_connString.hostName().c_str(),
-                                    m_connString.userName().c_str(),
-                                    m_connString.password().c_str(),
-                                    m_connString.databaseName().c_str(),
-                                    m_connString.portNumber(),
-                                    NULL,
-                                    CLIENT_MULTI_RESULTS)) {
+            if (mysql_real_connect(m_connection,
+                                   m_connString.hostName().c_str(),
+                                   m_connString.userName().c_str(),
+                                   m_connString.password().c_str(),
+                                   m_connString.databaseName().c_str(),
+                                   m_connString.portNumber(),
+                                   nullptr,
+                                   CLIENT_MULTI_RESULTS) == nullptr)
+            {
                 connectionError = mysql_error(m_connection);
                 mysql_close(m_connection);
-                m_connection = NULL;
+                m_connection = nullptr;
             }
         }
 
-        if (!m_connection)
+        if (m_connection == nullptr)
             throw DatabaseException("Can't connect to MySQL: " + connectionError);
     }
 }
 
 void MySQLConnection::closeDatabase() THROWS_EXCEPTIONS
 {
-    for (unsigned i = 0; i < m_queryList.size(); i++) {
+    for (auto query: m_queryList) {
         try {
-            Query *query = (Query *) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
     }
 
-    if (m_connection) {
+    if (m_connection != nullptr) {
         mysql_close(m_connection);
-        m_connection = NULL;
+        m_connection = nullptr;
     }
 }
 
@@ -123,23 +123,23 @@ void* MySQLConnection::handle() const
 
 bool MySQLConnection::active() const
 {
-    return m_connection != 0L;
+    return m_connection != nullptr;
 }
 
 string MySQLConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
     string connectionString = m_connString.hostName();
-    if (m_connString.portNumber())
+    if (m_connString.portNumber() != 0)
         connectionString += ":" + int2string(m_connString.portNumber());
-    if (m_connString.databaseName() != "")
+    if (!m_connString.databaseName().empty())
         connectionString += "/" + m_connString.databaseName();
     return connectionString;
 }
 
 void MySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
 {
-    if (!m_connection)
+    if (m_connection == nullptr)
         open();
 
     if (m_inTransaction)
@@ -151,7 +151,7 @@ void MySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
         throwMySQLException("Can't start transaction");
 
     MYSQL_RES *result = mysql_store_result(m_connection);
-    if (result)
+    if (result != nullptr)
         mysql_free_result(result);
 
     m_inTransaction = true;
@@ -167,14 +167,14 @@ void MySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
         throwMySQLException(string(action) + " failed");
 
     MYSQL_RES *result = mysql_store_result(m_connection);
-    if (result)
+    if (result != nullptr)
         mysql_free_result(result);
 
     m_inTransaction = false;
 }
 
 //-----------------------------------------------------------------------------------------------
-string MySQLConnection::queryError(const Query *) const
+string MySQLConnection::queryError(const Query *query) const
 {
     return mysql_error(m_connection);
 }
@@ -188,10 +188,10 @@ void MySQLConnection::queryAllocStmt(Query *query)
 void MySQLConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
-    MySQLStatement* statement = (MySQLStatement*) query->statement();
-    if (statement) {
+    auto statement = (MySQLStatement*) query->statement();
+    if (statement != nullptr) {
         delete statement;
-        querySetStmt(query, 0L);
+        querySetStmt(query, nullptr);
         querySetPrepared(query, false);
     }
 }
@@ -200,8 +200,8 @@ void MySQLConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     try {
-        MySQLStatement* statement = (MySQLStatement*) query->statement();
-        if (statement)
+        auto statement = (MySQLStatement*) query->statement();
+        if (statement != nullptr)
             statement->close();
     }
     catch (exception& e) {
@@ -214,15 +214,17 @@ void MySQLConnection::queryPrepare(Query *query)
     SYNCHRONIZED_CODE;
 
     if (!query->prepared()) {
-        MySQLStatement* statement = (MySQLStatement*) query->statement();
-        try {
-            statement->prepare(query->sql());
-            statement->enumerateParams(query->params());
+        auto statement = (MySQLStatement*) query->statement();
+        if (statement != nullptr) {
+            try {
+                statement->prepare(query->sql());
+                statement->enumerateParams(query->params());
+            }
+            catch (exception& e) {
+                query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
+            }
+            querySetPrepared(query, true);
         }
-        catch (exception& e) {
-            query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
-        }
-        querySetPrepared(query, true);
     }
 }
 
@@ -234,9 +236,9 @@ void MySQLConnection::queryUnprepare(Query *query)
 int MySQLConnection::queryColCount(Query *query)
 {
     int colCount = 0;
-    MySQLStatement* statement = (MySQLStatement*) query->statement();
+    auto statement = (MySQLStatement*) query->statement();
     try {
-        if (!statement)
+        if (statement == nullptr)
             throwDatabaseException("Query not opened");
         colCount = (int) statement->colCount();
     }
@@ -250,9 +252,9 @@ void MySQLConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
-    MySQLStatement* statement = (MySQLStatement*) query->statement();
+    auto statement = (MySQLStatement*) query->statement();
     try {
-        if (!statement)
+        if (statement == nullptr)
             throwDatabaseException("Query not prepared");
         statement->setParameterValues();
     }
@@ -263,9 +265,9 @@ void MySQLConnection::queryBindParameters(Query *query)
 
 void MySQLConnection::queryExecute(Query *query)
 {
-    MySQLStatement* statement = (MySQLStatement*) query->statement();
+    auto statement = (MySQLStatement*) query->statement();
     try {
-        if (!statement)
+        if (statement == nullptr)
             throwDatabaseException("Query is not prepared");
         statement->execute(m_inTransaction);
     }
@@ -282,7 +284,7 @@ void MySQLConnection::queryOpen(Query *query)
     if (query->active())
         return;
 
-    if (!query->statement()) {
+    if (query->statement() == nullptr) {
         queryAllocStmt(query);
     }
 
@@ -292,18 +294,18 @@ void MySQLConnection::queryOpen(Query *query)
         queryBindParameters(query);
     }
 
-    MySQLStatement* statement = (MySQLStatement*) query->statement();
+    auto statement = (MySQLStatement*) query->statement();
 
     queryExecute(query);
-    short fieldCount = (short) queryColCount(query);
+    auto fieldCount = (short) queryColCount(query);
     if (fieldCount < 1) {
         return;
-    } else {
-        querySetActive(query, true);
-        if (query->fieldCount() == 0) {
-            SYNCHRONIZED_CODE;
-            statement->bindResult(query->fields());
-        }
+    }
+
+    querySetActive(query, true);
+    if (query->fieldCount() == 0) {
+        SYNCHRONIZED_CODE;
+        statement->bindResult(query->fields());
     }
 
     querySetEof(query, statement->eof());
@@ -319,7 +321,7 @@ void MySQLConnection::queryFetch(Query *query)
     SYNCHRONIZED_CODE;
 
     try {
-        MySQLStatement* statement = (MySQLStatement*) query->statement();
+        auto statement = (MySQLStatement*) query->statement();
 
         statement->fetch();
         if (statement->eof()) {
@@ -378,7 +380,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
 }
 
-void MySQLConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
+void MySQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
 {
     char    fileName[256];
     snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%i", getpid(), rand());
@@ -387,7 +389,7 @@ void MySQLConnection::bulkInsert(std::string tableName, const Strings& columnNam
 
     int rc = mysql_query(m_connection, sql.c_str());
     unlink(fileName);
-    if (rc) {
+    if (rc != 0) {
         string error = mysql_error(m_connection);
         throwDatabaseException(error);
     }
@@ -401,9 +403,9 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) 
     RegularExpression  matchCommentRow("^\\s*--");
 
     Strings statements, matches;
-    string statement, delimiter = ";";
-    for (string row: sqlBatch) {
-        row = trim(row);
+    String statement, delimiter = ";";
+    for (auto row: sqlBatch) {
+        row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))
             continue;
         if (matchDelimiterChange.m(row, matches)) {
@@ -427,7 +429,7 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) 
     if (!trim(statement).empty())
         statements.push_back(statement);
 
-    for (string stmt: statements) {
+    for (auto& stmt: statements) {
         Query query(this, stmt, false);
         try {
             query.exec();
@@ -435,7 +437,7 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) 
         catch (const exception& e) {
             stringstream error;
             error << e.what() << ", query: " << query.sql();
-            if (errors)
+            if (errors != nullptr)
                 errors->push_back(error.str());
             else
                 throw DatabaseException(error.str());
@@ -445,7 +447,7 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) 
 
 std::string MySQLConnection::driverDescription() const
 {
-    if (m_connection)
+    if (m_connection != nullptr)
         return string("MySQL ") + mysql_get_server_info(m_connection);
     return "MySQL";
 }

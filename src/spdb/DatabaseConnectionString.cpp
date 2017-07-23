@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;
@@ -37,14 +36,14 @@ static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|fireb
 void DatabaseConnectionString::parse() THROWS_EXCEPTIONS
 {
     size_t pos;
-    string connStr(m_connectionString);
+    String connStr(m_connectionString);
 
     // Find extra parameters
-    pos = connStr.find_first_of("?");
+    pos = connStr.find_first_of('?');
     if (pos != string::npos) {
         Strings parameters(connStr.substr(pos + 1),"&");
-        for (Strings::iterator item = parameters.begin(); item != parameters.end(); ++item) {
-            Strings pair(*item, "='", Strings::SM_ANYCHAR);
+        for (auto& item: parameters) {
+            Strings pair(item, "='", Strings::SM_ANYCHAR);
             if (pair.size() == 2)
                 m_parameters[ pair[0] ] = pair[1];
         }
@@ -60,7 +59,7 @@ void DatabaseConnectionString::parse() THROWS_EXCEPTIONS
     } else
         throwDatabaseException("Driver name is missing: " + m_connectionString);
 
-    pos = connStr.find("@");
+    pos = connStr.find('@');
     if (pos != string::npos) {
         Strings usernameAndPassword(connStr.substr(0, pos),":");
         m_userName = usernameAndPassword[0];
@@ -69,16 +68,16 @@ void DatabaseConnectionString::parse() THROWS_EXCEPTIONS
         connStr.erase(0, pos + 1);
     }
 
-    pos = connStr.find("/");
+    pos = connStr.find('/');
     if (pos != string::npos) {
         m_databaseName = connStr.substr(pos + 1);
         connStr.erase(pos);
-        if (m_databaseName.find("/") != string::npos)
+        if (m_databaseName.find('/') != string::npos)
             m_databaseName = "/" + m_databaseName;
     }
 
     Strings hostAndPort(connStr, ":");
     m_hostName = hostAndPort[0];
     if (hostAndPort.size() > 1)
-        m_portNumber = (uint16_t) atoi(hostAndPort[1].c_str());
+        m_portNumber = (uint16_t) strtol(hostAndPort[1].c_str(), nullptr, 10);
 }

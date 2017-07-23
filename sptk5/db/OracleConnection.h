@@ -208,9 +208,9 @@ public:
 
     /**
      * @brief Constructor
-     * @param connectionString std::string, the Oracle connection string
+     * @param connectionString const std::string&, the Oracle connection string
      */
-    OracleConnection(std::string connectionString = "");
+    OracleConnection(const std::string& connectionString = "");
 
     /**
      * @brief Destructor
@@ -219,9 +219,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString std::string, the Oracle connection string
+     * @param connectionString const std::string&, the Oracle connection string
      */
-    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
+    virtual void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

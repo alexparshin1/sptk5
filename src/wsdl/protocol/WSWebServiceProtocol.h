@@ -54,7 +54,7 @@ public:
     /// @brief Process method
     ///
     /// Calls WebService request through service object
-    virtual void process();
+    void process() override;
 };
 
 /// @}

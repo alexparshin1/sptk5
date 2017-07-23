@@ -39,15 +39,11 @@ class WSConnection : public TCPServerConnection
 protected:
     WSRequest&      m_service;
     Logger&         m_logger;
-    const string&   m_staticFilesDirectory;
+    string          m_staticFilesDirectory;
+
 public:
-
-    WSConnection(SOCKET connectionSocket, sockaddr_in*, WSRequest& service, Logger& logger, const string& staticFilesDirectory)
+    WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger, const string& staticFilesDirectory)
     : TCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
-    {
-    }
-
-    virtual ~WSConnection()
     {
     }
 
@@ -64,7 +60,7 @@ void WSConnection::threadFunction()
     // Read request data
     string      row;
     Strings     matches;
-    string      protocolName, url, requestType;
+    String      protocolName, url, requestType;
 
     try {
         if (!m_socket->readyToRead(30000)) {
@@ -77,11 +73,11 @@ void WSConnection::threadFunction()
 
         try {
             while (!terminated()) {
-                if (!m_socket->readLine(data))
+                if (m_socket->readLine(data) == 0)
                     return;
                 row = trim(data.c_str());
                 if (protocolName.empty()) {
-                    if (strstr(row.c_str(), "<?xml")) {
+                    if (strstr(row.c_str(), "<?xml") != nullptr) {
                         protocolName = "xml";
                         break;
                     }
@@ -93,8 +89,8 @@ void WSConnection::threadFunction()
                     }
                 }
                 if (parseHeader.m(row, matches)) {
-                    string header = matches[0];
-                    string value = matches[1];
+                    String header = matches[0];
+                    String value = matches[1];
                     headers[header] = value;
                     continue;
                 }
@@ -147,12 +143,8 @@ void WSConnection::threadFunction()
     }
 }
 
-WSListener::WSListener(WSRequest& service, Logger& logger, string staticFilesDirectory)
-: TCPServer(), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
-{
-}
-
-WSListener::~WSListener()
+WSListener::WSListener(WSRequest& service, Logger& logger, const string& staticFilesDirectory)
+: m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
 

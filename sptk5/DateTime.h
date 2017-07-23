@@ -180,24 +180,24 @@ public:
      * @param mm int16_t, minute
      * @param s int16_t, second
      */
-    DateTime (int16_t y,int16_t m,int16_t d,int16_t h=0,int16_t mm=0,int16_t s=0);
+    DateTime (int16_t y,int16_t m,int16_t d,int16_t h=0,int16_t mm=0,int16_t s=0) noexcept;
 
     /**
      * @brief Constructor
      * @param dateStr const char *, date string
      */
-    DateTime (const char * dateStr);
+    DateTime (const char * dateStr) noexcept;
 
     /**
      * @brief Copy constructor
      */
-    DateTime (const DateTime &dt);
+    DateTime (const DateTime &dt) noexcept;
 
     /**
      * @brief Constructor
      * @param dt double, floating point date and time value
      */
-    DateTime (double dt=0);
+    DateTime (double dt=0) noexcept;
 
     /**
      * @brief Conversion to double
@@ -207,12 +207,12 @@ public:
     /**
      * @brief Assignment
      */
-    void operator = (const DateTime& date);
+    DateTime& operator =(const DateTime& date) = default;
 
     /**
      * @brief Assignment
      */
-    void operator = (const char * dat);
+    DateTime& operator =(const char* dat);
 
     /**
      * @brief Addition, another DateTime

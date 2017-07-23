@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <sptk5/db/DatabaseField.h>
 
 using namespace std;
@@ -104,8 +104,8 @@ bool DatabaseField::checkSize(unsigned sz)
 {
     if (sz > m_data.buffer.size) {
         unsigned newSize = (sz / 16 + 1) * 16;
-        char *p = (char *) realloc(m_data.buffer.data, newSize + 1);
-        if (!p)
+        auto p = (char *) realloc(m_data.buffer.data, newSize + 1);
+        if (p == nullptr)
             throw DatabaseException("Can't reallocate a buffer");
         m_data.buffer.data = p;
         m_data.buffer.size = newSize;

@@ -39,19 +39,19 @@ using namespace sptk;
 class DriverLoaders : public map<string, DatabaseDriver*, CaseInsensitiveCompare>
 {
 public:
-    DriverLoaders() {}
+    DriverLoaders() = default;
     ~DriverLoaders()
     {
-        for (iterator itor = begin(); itor != end(); ++itor)
-            delete itor->second;
+        for (auto itor: *this)
+            delete itor.second;
     }
 };
 
 static DriverLoaders m_loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(std::string connectionString, unsigned maxConnections) :
+DatabaseConnectionPool::DatabaseConnectionPool(const string& connectionString, unsigned maxConnections) :
     DatabaseConnectionString(connectionString),
-    m_driver(0),
+    m_driver(nullptr),
     m_maxConnections(maxConnections)
 {
 }
@@ -59,7 +59,7 @@ DatabaseConnectionPool::DatabaseConnectionPool(std::string connectionString, uns
 bool closeConnectionCB(DatabaseConnection*& item, void* data)
 {
     DatabaseConnection* connection = item;
-    DatabaseConnectionPool* connectionPool = (DatabaseConnectionPool*)data;
+    auto connectionPool = (DatabaseConnectionPool*)data;
     connectionPool->destroyConnection(connection,false);
     return true;
 }
@@ -78,7 +78,7 @@ void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
         driverName = "odbc";
 
     DatabaseDriver* loadedDriver = m_loadedDrivers[driverName];
-    if (loadedDriver) {
+    if (loadedDriver != nullptr) {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
         m_destroyConnection = loadedDriver->m_destroyConnection;
@@ -95,7 +95,7 @@ void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
     string driverFileName = "libspdb5_"+driverName+".so";
 
     DriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
-    if (!handle)
+    if (handle == nullptr)
         throw DatabaseException("Cannot load library: " + string(dlerror()));
 #endif
 
@@ -119,28 +119,28 @@ void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
         CreateDriverInstance*  create_func_ptr;
         DestroyDriverInstance* destroy_func_ptr;
         void*                   void_ptr;
-    } conv;
+    } conv = {};
 
     // load the symbols
     conv.void_ptr = dlsym(handle, create_connectionFunctionName.c_str());
     CreateDriverInstance* createConnection = conv.create_func_ptr;
 
-    DestroyDriverInstance* destroyConnection = NULL;
+    DestroyDriverInstance* destroyConnection = nullptr;
     const char* dlsym_error = dlerror();
-    if (!dlsym_error) {
+    if (dlsym_error == nullptr) {
         conv.void_ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
         destroyConnection = conv.destroy_func_ptr;
         dlsym_error = dlerror();
     }
 
-    if (dlsym_error) {
-        m_createConnection = 0;
+    if (dlsym_error != nullptr) {
+        m_createConnection = nullptr;
         dlclose(handle);
         throw DatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
     }
 
 #endif
-    DatabaseDriver* driver = new DatabaseDriver;
+    auto driver = new DatabaseDriver;
     driver->m_handle = handle;
     driver->m_createConnection = createConnection;
     driver->m_destroyConnection = destroyConnection;
@@ -154,9 +154,9 @@ void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
 
 DatabaseConnection* DatabaseConnectionPool::createConnection() THROWS_EXCEPTIONS
 {
-    if (!m_driver)
+    if (m_driver == nullptr)
         load();
-    DatabaseConnection* connection = NULL;
+    DatabaseConnection* connection = nullptr;
     if (m_connections.size() < m_maxConnections && m_pool.empty()) {
         connection = m_createConnection(str().c_str());
         m_connections.push_back(connection);

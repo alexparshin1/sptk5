@@ -154,7 +154,7 @@ public:
      * @brief Constructor
      * @param connectionString std::string, the SQLite3 connection string
      */
-    SQLite3Connection(std::string connectionString = "");
+    SQLite3Connection(const std::string& connectionString = "");
 
     /**
      * @brief Destructor
@@ -170,7 +170,7 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the SQLite3 connection string
      */
-    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS override;
+    virtual void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

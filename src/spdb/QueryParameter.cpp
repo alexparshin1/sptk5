@@ -51,13 +51,12 @@ uint32_t QueryParameter::bindIndex(uint32_t ind)
     return m_bindParamIndexes[ind];
 }
 
-QueryParameter::QueryParameter(const char *name, bool isOutput) :
-    Variant(),
-    m_name(lowerCase(name)),
-    m_timeData(new char[80]),
-    m_callbackLength(0),
-    m_paramList(NULL),
-    m_binding(isOutput)
+QueryParameter::QueryParameter(const char *name, bool isOutput)
+: m_name(lowerCase(name)),
+  m_timeData(new char[80]),
+  m_callbackLength(0),
+  m_paramList(nullptr),
+  m_binding(isOutput)
 {
 }
 
@@ -83,17 +82,17 @@ void QueryParameter::setString(const char * value, size_t maxlen)
 {
     uint32_t valueLength;
     uint32_t dtype = VAR_STRING;
-    if (maxlen)
+    if (maxlen != 0)
         valueLength = (uint32_t) maxlen;
     else {
-        if (value)
+        if (value != nullptr)
             valueLength = (uint32_t) strlen(value);
         else
             valueLength = 0;
     }
 
     if (m_dataType == VAR_STRING && m_data.buffer.size >= valueLength + 1) {
-        if (value) {
+        if (value != nullptr) {
             memcpy(m_data.buffer.data, value, valueLength);
             m_data.buffer.data[valueLength] = 0;
             m_dataSize = valueLength;
@@ -103,17 +102,17 @@ void QueryParameter::setString(const char * value, size_t maxlen)
             m_dataSize = 0;
         }
     } else {
-        if (value) {
+        if (value != nullptr) {
             m_dataSize = valueLength;
             m_data.buffer.size = valueLength + 1;
-            if (maxlen) {
+            if (maxlen != 0) {
                 m_data.buffer.data = (char *) realloc(m_data.buffer.data, m_data.buffer.size);
-                if (m_data.buffer.data) {
+                if (m_data.buffer.data != nullptr) {
                     strncpy(m_data.buffer.data, value, maxlen);
                     m_data.buffer.data[maxlen] = 0;
                 }
             } else {
-                if (m_dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER) && m_data.buffer.data)
+                if ((m_dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.buffer.data != nullptr)
                     free(m_data.buffer.data);
                 m_data.buffer.size = m_dataSize + 1;
                 m_data.buffer.data = strdup(value);

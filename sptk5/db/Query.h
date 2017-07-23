@@ -204,7 +204,7 @@ protected:
     /**
      * Internal function to throw 'Not implemented' exception
      */
-    void notImplemented(std::string functionName) const;
+    void notImplemented(const std::string& functionName) const;
 
 
 protected:

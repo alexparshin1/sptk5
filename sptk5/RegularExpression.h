@@ -126,7 +126,7 @@ public:
      * @param pattern std::string, PCRE pattern
      * @param options std::string, Pattern options
      */
-    RegularExpression(std::string pattern, std::string options="");
+    RegularExpression(const std::string& pattern, const std::string& options = "");
 
     /**
      * @brief Destructor
@@ -138,21 +138,21 @@ public:
      * @param text std::string, Input text
      * @return true if match found
      */
-    bool operator == (std::string text) const THROWS_EXCEPTIONS;
+    bool operator ==(const std::string& text) const THROWS_EXCEPTIONS;
 
     /**
      * @brief Returns true if text doesn't match with regular expression
      * @param text std::string, Input text
      * @return true if match found
      */
-    bool operator != (std::string text) const THROWS_EXCEPTIONS;
+    bool operator !=(const std::string& text) const THROWS_EXCEPTIONS;
 
     /**
      * @brief Returns true if text matches with regular expression
      * @param text std::string, Text to process
      * @return true if match found
      */
-    bool matches(std::string text) const THROWS_EXCEPTIONS;
+    bool matches(const std::string& text) const THROWS_EXCEPTIONS;
 
     /**
      * @brief Returns list of strings matched with regular expression
@@ -160,7 +160,7 @@ public:
      * @param matchedStrings sptk::Strings&, list of matched strings
      * @return true if match found
      */
-    bool m(std::string text, sptk::Strings& matchedStrings) const THROWS_EXCEPTIONS;
+    bool m(const std::string& text, sptk::Strings& matchedStrings) const THROWS_EXCEPTIONS;
 
     /**
      * @brief Replaces matches with replacement string
@@ -168,7 +168,7 @@ public:
      * @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
      */
-    std::string s(std::string text, std::string outputPattern) const THROWS_EXCEPTIONS;
+    std::string s(const std::string& text, std::string outputPattern) const THROWS_EXCEPTIONS;
 
     /**
      * @brief Returns list of strings split by regular expression
@@ -176,7 +176,7 @@ public:
      * @param outputStrings sptk::Strings&, list of matched strings
      * @return true if match found
      */
-    bool split(std::string text, sptk::Strings& outputStrings) const THROWS_EXCEPTIONS;
+    bool split(const std::string& text, sptk::Strings& outputStrings) const THROWS_EXCEPTIONS;
 
     /**
      * @brief Replaces matches with replacement string
@@ -185,7 +185,7 @@ public:
      * @param replaced bool&, optional flag if replacement was made
      * @return processed text
      */
-    std::string replaceAll(std::string text, std::string outputPattern, bool& replaced) const THROWS_EXCEPTIONS;
+    std::string replaceAll(const std::string& text, std::string outputPattern, bool& replaced) const THROWS_EXCEPTIONS;
 };
 
 typedef RegularExpression RegularExpression;

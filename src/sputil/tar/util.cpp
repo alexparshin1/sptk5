@@ -78,15 +78,15 @@ char* libtar_strsep(register char **stringp, register const char *delim)
     int sc;
     char *tok;
 
-    if ((s = *stringp) == NULL)
-        return NULL;
+    if ((s = *stringp) == nullptr)
+        return nullptr;
     for (tok = s;;) {
         int c = *s++;
         const char *spanp = delim;
         do {
             if ((sc = *spanp++) == c) {
                 if (c == 0)
-                    s = NULL;
+                    s = nullptr;
                 else
                     s[-1] = 0;
                 *stringp = s;
@@ -95,5 +95,5 @@ char* libtar_strsep(register char **stringp, register const char *delim)
         } while (sc != 0);
     }
     /* NOTREACHED */
-    return NULL;
+    return nullptr;
 }

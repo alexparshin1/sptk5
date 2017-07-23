@@ -164,7 +164,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString std::string, the MySQL connection string
      */
-    MySQLConnection(std::string connectionString = "");
+    MySQLConnection(const std::string& connectionString = "");
 
     /**
      * @brief Destructor
@@ -175,7 +175,7 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the MySQL connection string
      */
-    void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS override;
+    void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -219,7 +219,7 @@ public:
      * @param columnNames const Strings&, list of table columns to populate
      * @param data const Strings&, data for bulk insert
      */
-    void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="") THROWS_EXCEPTIONS override;
+    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") THROWS_EXCEPTIONS override;
 
     /**
      * @brief Executes SQL batch file

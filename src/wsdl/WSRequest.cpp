@@ -35,8 +35,8 @@ using namespace sptk;
 static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces)
 {
     for (XMLNode* attributeNode: node->attributes()) {
-        XMLAttribute* attribute = dynamic_cast<XMLAttribute*>(attributeNode);
-        if (!attribute || attribute->nameSpace() != "xmlns")
+        auto attribute = dynamic_cast<XMLAttribute*>(attributeNode);
+        if (attribute == nullptr || attribute->nameSpace() != "xmlns")
             continue;
         nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
     }
@@ -44,11 +44,11 @@ static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces
 
 void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
 {
-    XMLElement*             soapEnvelope = NULL;
+    XMLElement*             soapEnvelope = nullptr;
     map<String,WSNameSpace> allNameSpaces;
-    for (XMLElement::iterator itor = request->begin(); itor != request->end(); ++itor) {
-        XMLElement* node = dynamic_cast<XMLElement*>(*itor);
-        if (!node)
+    for (auto anode: *request) {
+        auto node = dynamic_cast<XMLElement*>(anode);
+        if (node == nullptr)
             continue;
         if (node->tagname() == "Envelope") {
             soapEnvelope = node;
@@ -62,21 +62,21 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
         }
     }
 
-    if (!soapEnvelope)
+    if (soapEnvelope == nullptr)
         throwException("Can't find SOAP Envelope node");
 
     XMLElement* soapBody;
     {
         SYNCHRONIZED_CODE;
         soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_soapNamespace.getAlias() + ":Body"));
-        if (!soapBody)
+        if (soapBody == nullptr)
             throwException("Can't find SOAP Body node in incoming request");
     }
 
-    XMLElement* requestNode = NULL;
-    for (XMLElement::iterator itor = soapBody->begin(); itor != soapBody->end(); ++itor) {
-        XMLElement* node = dynamic_cast<XMLElement*>(*itor);
-        if (node) {
+    XMLElement* requestNode = nullptr;
+    for (auto anode: *soapBody) {
+        auto node = dynamic_cast<XMLElement*>(anode);
+        if (node != nullptr) {
             requestNode = node;
             String nameSpaceAlias = requestNode->nameSpace();
             extractNameSpaces(requestNode, allNameSpaces);
@@ -84,7 +84,7 @@ void WSRequest::processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS
             break;
         }
     }
-    if (!requestNode)
+    if (requestNode == nullptr)
         throwException("Can't find request node in SOAP Body");
 
     requestBroker(requestNode);

@@ -327,7 +327,7 @@ protected:
      * classes.
      * @param connectionString std::string, the connection string
      */
-    DatabaseConnection(std::string connectionString);
+    DatabaseConnection(const std::string& connectionString);
 
     /**
      * Stub function to throw an exception in case if the
@@ -352,7 +352,7 @@ protected:
      * This method should be overwritten in derived classes
      * @param connectionString std::string, the ODBC connection string
      */
-    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
+    virtual void openDatabase(const std::string& connectionString) THROWS_EXCEPTIONS;
 
     /**
      * @brief Closes the database connection.
@@ -505,7 +505,7 @@ public:
      * @param data const Strings&, data for bulk insert
      * @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
      */
-    virtual void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="") THROWS_EXCEPTIONS;
+    virtual void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") THROWS_EXCEPTIONS;
 
     /**
      * @brief Executes SQL batch file
@@ -515,7 +515,7 @@ public:
      * @param batchFileName sptk::String, SQL batch file
      * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchFile(sptk::String batchFileName, Strings* errors=NULL) THROWS_EXCEPTIONS;
+    virtual void executeBatchFile(const String& batchFileName, Strings* errors = NULL) THROWS_EXCEPTIONS;
 
     /**
      * @brief Executes SQL batch queries

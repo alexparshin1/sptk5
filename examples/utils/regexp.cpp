@@ -107,7 +107,7 @@ int main()
             counter++;
     }
     finished = DateTime::Now();
-    cout << "Executed " << tests << " regexp tests (precompiled) for " << (finished - started) * 86400 << " seconds." << endl;
+    cout << "Executed " << counter << " regexp tests (precompiled) for " << (finished - started) * 86400 << " seconds." << endl;
     cout.precision(2);
     cout << "That is " << fixed << tests / ((finished - started) * 86400) / 1000000 << "M tests/sec" << endl;
 

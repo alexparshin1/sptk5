@@ -73,7 +73,7 @@ int main()
     cout << "TZ offset is " << DateTime::timeZoneOffset << endl;
 
 #ifndef _WIN32
-    setenv("TZ", ":US/Los_Angeles", true);
+    setenv("TZ", ":US/Los_Angeles", 1);
     DateTime::tzset();
 
     dt = DateTime::Now();

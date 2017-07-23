@@ -34,17 +34,17 @@ using namespace sptk;
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
     XMLDocument xml;
-    XMLElement* element = new XMLElement(xml, "temp");
+    auto element = new XMLElement(xml, "temp");
     other.unload(element);
     load(element);
 }
 
 void WSComplexType::unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute)
 {
-    if (!elementOrAttribute)
+    if (elementOrAttribute == nullptr)
         return;
     sptk::QueryParameter* param = output.find(paramName);
-    if (param)
+    if (param != nullptr)
         *param = *elementOrAttribute;
 }
 

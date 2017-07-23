@@ -130,7 +130,7 @@ public:
      * @param sql std::string, SQL statement
      * @param autoPrepare bool, If true then statement is executed as prepared.
      */
-    MySQLStatement(MySQLConnection* connection, std::string sql, bool autoPrepare);
+    MySQLStatement(MySQLConnection* connection, const std::string& sql, bool autoPrepare);
 
     /**
      * @brief Destructor

@@ -53,7 +53,7 @@ public:
     /**
      * @brief Constructor
      */
-    WSTypeTranslator();
+    WSTypeTranslator() noexcept;
 
     /**
      * @brief Translates WSDL type names to C++ type names

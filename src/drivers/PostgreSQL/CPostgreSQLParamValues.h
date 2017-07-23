@@ -47,15 +47,11 @@ namespace sptk {
         CParamVector                m_params;
         bool                        m_int64timestamps;
     public:
-        CPostgreSQLParamValues(bool int64timestamps)
+        explicit CPostgreSQLParamValues(bool int64timestamps)
         : m_count(0)
         {
             resize(16);
             m_int64timestamps = int64timestamps;
-        }
-
-        ~CPostgreSQLParamValues() 
-        {
         }
 
         void reset()

@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-RegularExpression::RegularExpression(std::string pattern, string options) :
+RegularExpression::RegularExpression(const string& pattern, const string& options) :
     m_pattern(pattern), m_global(false), m_pcre(NULL), m_pcreExtra(NULL), m_pcreOptions()
 {
     for (unsigned i = 0; i < options.length(); i++) {
@@ -121,21 +121,21 @@ size_t RegularExpression::nextMatch(const string &text, size_t &offset, Match ma
     return (size_t) matchCount;
 }
 
-bool RegularExpression::operator==(std::string text) const THROWS_EXCEPTIONS
+bool RegularExpression::operator==(const string& text) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
-bool RegularExpression::operator!=(std::string text) const THROWS_EXCEPTIONS
+bool RegularExpression::operator!=(const string& text) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
-bool RegularExpression::matches(std::string text) const THROWS_EXCEPTIONS
+bool RegularExpression::matches(const string& text) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
@@ -143,7 +143,7 @@ bool RegularExpression::matches(std::string text) const THROWS_EXCEPTIONS
     return matchCount > 0;
 }
 
-bool RegularExpression::m(std::string text, Strings &matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::m(const string& text, Strings& matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
@@ -167,7 +167,7 @@ bool RegularExpression::m(std::string text, Strings &matchedStrings) const THROW
     return totalMatches > 0;
 }
 
-bool RegularExpression::split(std::string text, Strings &matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::split(const string& text, Strings& matchedStrings) const THROWS_EXCEPTIONS
 {
     matchedStrings.clear();
 
@@ -196,7 +196,7 @@ bool RegularExpression::split(std::string text, Strings &matchedStrings) const T
     return totalMatches > 0;
 }
 
-string RegularExpression::replaceAll(string text, string outputPattern, bool &replaced) const THROWS_EXCEPTIONS
+string RegularExpression::replaceAll(const string& text, string outputPattern, bool& replaced) const THROWS_EXCEPTIONS
 {
     size_t offset = 0;
     size_t lastOffset = 0;
@@ -260,7 +260,7 @@ string RegularExpression::replaceAll(string text, string outputPattern, bool &re
     return result + text.substr(lastOffset);
 }
 
-string RegularExpression::s(string text, string outputPattern) const THROWS_EXCEPTIONS
+string RegularExpression::s(const string& text, string outputPattern) const THROWS_EXCEPTIONS
 {
     bool replaced;
     return replaceAll(text, outputPattern, replaced);

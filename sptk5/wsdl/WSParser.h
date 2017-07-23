@@ -160,7 +160,7 @@ public:
     /**
      * @brief Constructor
      */
-    WSParser();
+    WSParser() = default;
 
     /**
      * @brief Destructor

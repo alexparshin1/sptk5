@@ -174,7 +174,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString std::string, the Firebird connection string
      */
-    FirebirdConnection(std::string connectionString = "");
+    FirebirdConnection(const std::string& connectionString = "");
 
     /**
      * @brief Destructor
@@ -185,7 +185,7 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the Firebird connection string
      */
-    virtual void openDatabase(std::string connectionString = "") THROWS_EXCEPTIONS;
+    virtual void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

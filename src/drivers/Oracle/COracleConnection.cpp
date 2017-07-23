@@ -37,7 +37,7 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-OracleConnection::OracleConnection(string connectionString) :
+OracleConnection::OracleConnection(const string& connectionString) :
     DatabaseConnection(connectionString),
     m_connection(NULL)
 {
@@ -50,7 +50,7 @@ OracleConnection::~OracleConnection()
         if (m_inTransaction && active())
             rollbackTransaction();
         close();
-        while (m_queryList.size()) {
+        while (!m_queryList.empty()) {
             try {
                 Query *query = (Query *) m_queryList[0];
                 query->disconnect();
@@ -62,7 +62,7 @@ OracleConnection::~OracleConnection()
     }
 }
 
-void OracleConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void OracleConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
 {
     if (!active()) {
         m_inTransaction = false;
@@ -538,7 +538,7 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format) THROWS_EXCEPTIONS
+void OracleConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
 {
     Query tableColumnsQuery(this,
                         "SELECT column_name, data_type, data_length "
@@ -571,7 +571,7 @@ void OracleConnection::bulkInsert(std::string tableName, const Strings& columnNa
 
     QueryColumnTypeSizeVector columnTypeSizeVector;
     for (Strings::const_iterator itor = columnNames.begin(); itor != columnNames.end(); ++itor) {
-        map<string,QueryColumnTypeSize>::iterator column = columnTypeSizeMap.find(upperCase(*itor));
+        auto column = columnTypeSizeMap.find(upperCase(*itor));
         if (column == columnTypeSizeMap.end())
             throwDatabaseException("Column '" + *itor + "' doesn't belong to table " + tableName);
         columnTypeSizeVector.push_back(column->second);

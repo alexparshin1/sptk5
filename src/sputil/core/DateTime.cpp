@@ -29,7 +29,8 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 
-#include <string.h>
+#include <cstring>
+#include <cmath>
 
 #ifndef _WIN32
 #ifdef __BORLANDC__
@@ -55,11 +56,11 @@ namespace sptk
 class SP_EXPORT DateTimeFormat
 {
 public:
-    DateTimeFormat();
+    DateTimeFormat() noexcept;
 
-    void init();
+    void init() noexcept;
 
-    static char parseDateOrTime(char* format, const char* dt);
+    static char parseDateOrTime(char* format, const char* dateOrTime);
 };
 
 }
@@ -97,7 +98,7 @@ int      DateTime::timeZoneOffset;
 static void upperCase(char* dest, const char* src)
 {
     int i = 0;
-    int len = (int) strlen(src);
+    auto len = (int) strlen(src);
     for (; i < len; i++)
         dest[i] = (char) toupper(src[i]);
     dest[i] = 0;
@@ -111,16 +112,16 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     strncpy(dt, dateOrTime, sizeof(dt));
 
     // Cut-off trailing non-digit characters
-    int len = (int) strlen(dt);
+    auto len = (int) strlen(dt);
     for (int index = len - 1; index >= 0; index--) {
-        if (isdigit(dt[index])) {
+        if (isdigit(dt[index]) != 0) {
             dt[index + 1] = 0;
             break;
         }
     }
     char* ptr = dt;
     // find a separator char
-    while (isalnum(*ptr) || *ptr == ' ')
+    while (isalnum(*ptr) != 0 || *ptr == ' ')
         ptr++;
     separator[0] = *ptr;
     ptr = strtok(dt, separator);
@@ -128,7 +129,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
 
     bool processingTime = false;
     const char* pattern;
-    while (ptr) {
+    while (ptr != nullptr) {
         int number = atoi(ptr);
         switch (number) {
             case 10:
@@ -159,17 +160,17 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 strncat(DateTime::datePartsOrder, "Y", sizeof(DateTime::datePartsOrder) - 1);
                 break;
             default:
-                pattern = NULL;
+                pattern = nullptr;
                 break;
         }
-        if (pattern) {
+        if (pattern != nullptr) {
             strcat(format, pattern);
             strcat(format, separator);
         }
-        ptr = strtok(NULL, separator);
+        ptr = strtok(nullptr, separator);
     }
     len = (int) strlen(format);
-    if (len)
+    if (len != 0)
         format[len - 1] = 0;
     if (processingTime && _time24Mode)
         strcat(format, "TM");
@@ -177,17 +178,17 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     return separator[0];
 }
 
-DateTimeFormat::DateTimeFormat()
+DateTimeFormat::DateTimeFormat() noexcept
 {
     init();
 }
 
-void DateTimeFormat::init()
+void DateTimeFormat::init() noexcept
 {
     char dateBuffer[32];
     char timeBuffer[32];
     // make a special date and time - today :)
-    struct tm t;
+    struct tm t = {};
     t.tm_year = 100;    // since 1900, -> 2000
     t.tm_mon = 5;      // June (January=0)
     t.tm_mday = 17;
@@ -246,14 +247,14 @@ void DateTimeFormat::init()
 #else
     const char* ptr = tzname[0];
 #endif
-    int len = (int) strlen(ptr);
+    auto len = (int) strlen(ptr);
     const char* p1 = strchr(ptr, ' ');
-    if (p1)
+    if (p1 != nullptr)
         len = int(p1 - ptr);
 
     DateTime::timeZoneName = string(ptr, (unsigned) len);
 
-    time_t ts = time(NULL);
+    time_t ts = time(nullptr);
     char buf[16];
     struct tm *ltime = localtime(&ts);
     strftime(buf, sizeof(buf), "%z", ltime);
@@ -281,9 +282,9 @@ void DateTime::time24Mode(bool t24mode)
     DateTime::timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::fullTimeFormat, timeBuffer);
     strncpy(DateTime::shortTimeFormat, DateTime::fullTimeFormat, sizeof(DateTime::shortTimeFormat) - 1);
     char* p = strchr(DateTime::shortTimeFormat, DateTime::timeSeparator);
-    if (p) {
+    if (p != nullptr) {
         p = strchr(p + 1, DateTime::timeSeparator);
-        if (p)
+        if (p != nullptr)
             *p = 0;
     }
     if (!_time24Mode) {
@@ -323,81 +324,80 @@ void DateTime::encodeDate(double& dt, const char* dat)
     if (strcmp(bdat, "TODAY") == 0) {
         dt = Date();        // Sets the current date
         return;
-    } else {
-        char actualDateSeparator = 0;
-        short partNumber = 0;
-        char* ptr = NULL;
-        uint32_t len = (uint32_t) strlen(bdat);
-        for (uint32_t i = 0; i <= len && partNumber < 7; i++) {
-            char c = bdat[i];
-            if (!actualDateSeparator && c == '-') {
-                actualDateSeparator = c;
-                c = dateSeparator;
-            }
-            if (c == dateSeparator || c == timeSeparator || c == ' ' || c == '-' || c == 0) {
-                if (!actualDateSeparator && c == dateSeparator)
-                    actualDateSeparator = dateSeparator;
-                if (c == timeSeparator && partNumber < 3)
-                    partNumber = 3;
-                if (ptr) { // end of token
-                    bdat[i] = 0;
-                    datePart[partNumber] = (short) atoi(ptr);
-                    partNumber++;
-                    ptr = NULL;
-                }
-            } else {
-                if (!isdigit(c)) {
-                    dt = 0;
-                    return;
-                }
-                if (!ptr)
-                    ptr = bdat + i;
-            }
-        }
-        if (partNumber < 3) { // Not enough date parts
-            dt = 0;
-            return;
-        }
-        short month = 0, day = 0, year = 0;
-        if (actualDateSeparator != dateSeparator && datePart[0] > 31) {
-            // YYYY-MM-DD format
-            year = datePart[0];
-            month = datePart[1];
-            day = datePart[2];
-        } else {
-            for (int ii = 0; ii < 3; ii++) {
-                switch (datePartsOrder[ii]) {
-                    case 'M':
-                        month = datePart[ii];
-                        break;
-                    case 'D':
-                        day = datePart[ii];
-                        break;
-                    case 'Y':
-                        year = datePart[ii];
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        if (year < 100) {
-            if (year < 35)
-                year = short(year + 2000);
-            else
-                year = short(year + 1900);
-        }
-        double dd;
-        encodeDate(dd, year, month, day);
-        if (partNumber > 3) { // Time part included into string
-            double d;
-            encodeTime(d, datePart[3], datePart[4], datePart[5], datePart[6]);
-            dd += d;
-        }
-        dt = dd;
-
     }
+
+    char actualDateSeparator = 0;
+    short partNumber = 0;
+    char* ptr = nullptr;
+    auto len = (uint32_t) strlen(bdat);
+    for (uint32_t i = 0; i <= len && partNumber < 7; i++) {
+        char c = bdat[i];
+        if (actualDateSeparator == char(0) && c == '-') {
+            actualDateSeparator = c;
+            c = dateSeparator;
+        }
+        if (c == dateSeparator || c == timeSeparator || c == ' ' || c == '-' || c == 0) {
+            if (actualDateSeparator == char(0) && c == dateSeparator)
+                actualDateSeparator = dateSeparator;
+            if (c == timeSeparator && partNumber < 3)
+                partNumber = 3;
+            if (ptr != nullptr) { // end of token
+                bdat[i] = 0;
+                datePart[partNumber] = (short) atoi(ptr);
+                partNumber++;
+                ptr = nullptr;
+            }
+        } else {
+            if (isdigit(c) == 0) {
+                dt = 0;
+                return;
+            }
+            if (ptr == nullptr)
+                ptr = bdat + i;
+        }
+    }
+    if (partNumber < 3) { // Not enough date parts
+        dt = 0;
+        return;
+    }
+    short month = 0, day = 0, year = 0;
+    if (actualDateSeparator != dateSeparator && datePart[0] > 31) {
+        // YYYY-MM-DD format
+        year = datePart[0];
+        month = datePart[1];
+        day = datePart[2];
+    } else {
+        for (int ii = 0; ii < 3; ii++) {
+            switch (datePartsOrder[ii]) {
+                case 'M':
+                    month = datePart[ii];
+                    break;
+                case 'D':
+                    day = datePart[ii];
+                    break;
+                case 'Y':
+                    year = datePart[ii];
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    if (year < 100) {
+        if (year < 35)
+            year = short(year + 2000);
+        else
+            year = short(year + 1900);
+    }
+    double dd;
+    encodeDate(dd, year, month, day);
+    if (partNumber > 3) { // Time part included into string
+        double d;
+        encodeTime(d, datePart[3], datePart[4], datePart[5], datePart[6]);
+        dd += d;
+    }
+    dt = dd;
 }
 
 void DateTime::encodeTime(double& dt, short h, short m, short s, short ms)
@@ -410,7 +410,7 @@ void DateTime::encodeTime(double& dt, short h, short m, short s, short ms)
 
 static int trimRight(char* s)
 {
-    int len = (int) strlen(s);
+    auto len = (int) strlen(s);
 
     while (len > 0) {
         len--;
@@ -449,7 +449,7 @@ int decodeTZOffset(const char* tzOffset)
     }
     char* p1 = strchr(p, ':');
     int hours, minutes = 0;
-    if (p1) {
+    if (p1 != nullptr) {
         *p1 = 0;
         minutes = atoi(p1 + 1);
     }
@@ -463,7 +463,7 @@ void DateTime::encodeTime(double& dt, const char* tim)
 
     ::upperCase(bdat, tim);
 
-    if (!trimRight(bdat)) {
+    if (trimRight(bdat) == 0) {
         dt = 0;
         return;
     }
@@ -471,57 +471,57 @@ void DateTime::encodeTime(double& dt, const char* tim)
     if (strcmp(bdat, "TIME") == 0) {
         dt = Time();        // Sets the current date
         return;
-    } else {
-        char* ptr = NULL;
-        bool afternoon = false;
-        short timePart[4] = {0, 0, 0, 0};
-        short partNumber = 0;
-        int tzOffsetMin = 0;
-        char* p = strpbrk(bdat, "APZ+-"); // Looking for AM, PM, or timezone
-        if (p) {
-            char* p1;
-            switch (*p) {
-                case 'P':
-                    afternoon = true;
-                case 'A':
-                    p1 = strpbrk(bdat, "Z+-");
-                    if (p1)
-                        tzOffsetMin = -decodeTZOffset(p1);
-                    break;
-                default:
-                    tzOffsetMin = -decodeTZOffset(p);
-                    break;
-            }
-            *p = 0;
-            tzOffsetMin += DateTime::timeZoneOffset;
-        }
-        trimRight(bdat);
-        uint32_t len = (uint32_t) strlen(bdat);
-        for (uint32_t i = 0; i <= len && partNumber < 4; i++) {
-            char c = bdat[i];
-            if (c == timeSeparator || c == ' ' || c == '.' || c == 0) {
-                if (ptr) { // end of token
-                    bdat[i] = 0;
-                    timePart[partNumber] = (short) atoi(ptr);
-
-                    partNumber++;
-                    ptr = NULL;
-                }
-            } else {
-                if (!isdigit(c)) {
-                    dt = 0;
-                    return;
-                }
-                if (!ptr)
-                    ptr = bdat + i;
-            }
-        }
-        if (afternoon && timePart[0] != 12)
-            timePart[0] = short(timePart[0] + 12);
-        encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
-        if (tzOffsetMin)
-            dt += tzOffsetMin / 1440.0;
     }
+
+    char* ptr = nullptr;
+    bool afternoon = false;
+    short timePart[4] = {0, 0, 0, 0};
+    short partNumber = 0;
+    int tzOffsetMin = 0;
+    char* p = strpbrk(bdat, "APZ+-"); // Looking for AM, PM, or timezone
+    if (p != nullptr) {
+        char* p1;
+        switch (*p) {
+            case 'P':
+                afternoon = true;
+            case 'A':
+                p1 = strpbrk(bdat, "Z+-");
+                if (p1 != nullptr)
+                    tzOffsetMin = -decodeTZOffset(p1);
+                break;
+            default:
+                tzOffsetMin = -decodeTZOffset(p);
+                break;
+        }
+        *p = 0;
+        tzOffsetMin += DateTime::timeZoneOffset;
+    }
+    trimRight(bdat);
+    auto len = (uint32_t) strlen(bdat);
+    for (uint32_t i = 0; i <= len && partNumber < 4; i++) {
+        char c = bdat[i];
+        if (c == timeSeparator || c == ' ' || c == '.' || c == 0) {
+            if (ptr != nullptr) { // end of token
+                bdat[i] = 0;
+                timePart[partNumber] = (short) atoi(ptr);
+
+                partNumber++;
+                ptr = nullptr;
+            }
+        } else {
+            if (isdigit(c) == 0) {
+                dt = 0;
+                return;
+            }
+            if (ptr == nullptr)
+                ptr = bdat + i;
+        }
+    }
+    if (afternoon && timePart[0] != 12)
+        timePart[0] = short(timePart[0] + 12);
+    encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
+    if (tzOffsetMin != 0)
+        dt += tzOffsetMin / 1440.0;
 }
 
 const int S1 = 24 * 3600; // seconds in 1 day
@@ -534,8 +534,8 @@ void DateTime::decodeTime(double dt, short& h, short& m, short& s, short& ms)
         t++;
 
     double floatSecs = t * S1;
-    double msecs = int(floatSecs * 1000 + 0.5);
-    int secs = int(msecs / 1000);
+    double msecs = lround(floatSecs * 1000);
+    auto secs = int(msecs / 1000);
     ms = short((msecs / 1000 - secs) * 1000);
     h = short(secs / 3600);
     secs = secs % 3600;
@@ -599,33 +599,38 @@ void DateTime::decodeDate(double dat, short& year, short& month, short& day)
 //----------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------
-DateTime::DateTime(short year, short month, short day, short hour, short minute, short second)
+DateTime::DateTime(short year, short month, short day, short hour, short minute, short second) noexcept
 {
-    double t;
-    encodeDate(m_dateTime, year, month, day);
-    encodeTime(t, hour, minute, second);
-    m_dateTime += t;
+    try {
+        double t;
+        encodeDate(m_dateTime, year, month, day);
+        encodeTime(t, hour, minute, second);
+        m_dateTime += t;
+    }
+    catch (...) {
+        m_dateTime = 0;
+    }
 }
 
-DateTime::DateTime(const char* dat)
+DateTime::DateTime(const char* dat) noexcept
 {
-    while (*dat && *dat == ' ') dat++;
-    if (!*dat) {
+    while (*dat != char(0) && *dat == ' ') dat++;
+    if (*dat == char(0)) {
         m_dateTime = 0;
         return;
     }
 
     char* s1 = strdup(dat);
     char* s2 = strpbrk(s1, " T");
-    if (s2) {
+    if (s2 != nullptr) {
         *s2 = 0;
         s2++;
     }
 
     try {
-        if (strchr(s1, dateSeparator) || strchr(s1, '-')) {
+        if (strchr(s1, dateSeparator) != nullptr || strchr(s1, '-') != nullptr) {
             encodeDate(m_dateTime, s1);
-            if (s2 && strchr(s2, timeSeparator)) {
+            if (s2 != nullptr && strchr(s2, timeSeparator) != nullptr) {
                 double dt;
                 encodeTime(dt, s2);
                 m_dateTime += dt;
@@ -635,16 +640,16 @@ DateTime::DateTime(const char* dat)
         free(s1);
     } catch (...) {
         free(s1);
-        throw;
+        m_dateTime = 0;
     }
 }
 
-DateTime::DateTime(const DateTime& dt)
+DateTime::DateTime(const DateTime& dt) noexcept
 {
     m_dateTime = dt.m_dateTime;
 }
 
-DateTime::DateTime(double dt)
+DateTime::DateTime(double dt) noexcept
 {
     m_dateTime = dt;
 }
@@ -652,17 +657,14 @@ DateTime::DateTime(double dt)
 //----------------------------------------------------------------
 // Assignments
 //----------------------------------------------------------------
-void DateTime::operator=(const DateTime& dt)
-{
-    m_dateTime = dt.m_dateTime;
-}
 
-void DateTime::operator=(const char* dat)
+DateTime& DateTime::operator=(const char* dat)
 {
-    if (dat)
+    if (dat != nullptr)
         encodeDate(m_dateTime, dat);
     else
         m_dateTime = 0;
+    return *this;
 }
 
 //----------------------------------------------------------------
@@ -670,7 +672,7 @@ void DateTime::operator=(const char* dat)
 //----------------------------------------------------------------
 // DateTime::operator int (void) { return (int) dateTime; }
 
-DateTime::operator double(void) const
+DateTime::operator double() const
 {
     return m_dateTime;
 }
@@ -811,7 +813,7 @@ void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimez
     short h, m, s, ms;
 
     decodeTime(m_dateTime, h, m, s, ms);
-    const char* appendix = 0L;
+    const char* appendix = nullptr;
     if (showTimezone)
         ampm = false;
     if (ampm) {
@@ -845,7 +847,7 @@ void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimez
 //----------------------------------------------------------------
 //  Miscellaneous Routines
 //----------------------------------------------------------------
-short DateTime::dayOfYear(void) const
+short DateTime::dayOfYear() const
 {
     DateTime temp(1, 1, year());
 
@@ -857,13 +859,13 @@ DateTime DateTime::System()
 {
     double dat, tim;
 #ifndef _WIN32
-    timeval tp;
+    timeval tp = {};
     time_t tt;
     time(&tt);
     struct tm* t = localtime(&tt);
     encodeDate(dat, short(t->tm_year + 1900), short(t->tm_mon + 1), short(t->tm_mday));
-    gettimeofday(&tp, 0L);
-    short msec = short(tp.tv_usec / 1000);
+    gettimeofday(&tp, nullptr);
+    auto msec = short(tp.tv_usec / 1000);
     encodeTime(tim, short(t->tm_hour), short(t->tm_min), short(t->tm_sec), msec);
 #else
     SYSTEMTIME systemTime;
@@ -902,8 +904,8 @@ DateTime DateTime::Time()
 uint32_t DateTime::TimeOfDayMs()
 {
 #ifndef _WIN32
-    timeval tp;
-    gettimeofday(&tp, 0L);
+    timeval tp = {};
+    gettimeofday(&tp, nullptr);
     return uint32_t(tp.tv_sec * 1000 + tp.tv_usec / 1000);
 #else
     SYSTEMTIME systemTime;
@@ -945,12 +947,12 @@ short DateTime::year() const
     return y;
 }
 
-short DateTime::dayOfWeek(void) const
+short DateTime::dayOfWeek() const
 {
     return short((int(m_dateTime) - 1) % 7 + 1);
 }
 
-string DateTime::dayOfWeekName(void) const
+string DateTime::dayOfWeekName() const
 {
     return DateTime::weekDayNames[dayOfWeek() - 1];
 }

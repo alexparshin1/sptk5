@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include <sptk5/db/ODBCEnvironment.h>
 
@@ -162,7 +162,7 @@ void ODBCConnectionBase::freeConnect()
 void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalString, bool /*EnableDriverPrompt*/)
 {
     // Check parameters
-    if (!ConnectionString.length())
+    if (ConnectionString.empty())
         exception("Can'connect: connection string is empty", __LINE__);
 
     // If handle not allocated, allocate it
@@ -176,13 +176,13 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
 
     m_connectString = ConnectionString;
 
-    char* buff = new char[2048];
+    auto buff = new char[2048];
     SWORD bufflen = 0;
 
 #ifdef WIN32
     HWND ParentWnd = 0;
 #else
-    void* ParentWnd = 0;
+    void* ParentWnd = nullptr;
 #endif
     m_Retcode = ::SQLDriverConnect(m_hConnection, ParentWnd, (UCHAR FAR*) ConnectionString.c_str(), SQL_NTS,
                                    (UCHAR FAR*) buff, (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
@@ -198,7 +198,7 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    SQLCHAR* driverDescription = new SQLCHAR[2048];
+    auto driverDescription = new SQLCHAR[2048];
     SQLSMALLINT descriptionLength = 0;
     m_Retcode = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription, 2048, &descriptionLength);
     if (Successful(m_Retcode))
@@ -248,10 +248,10 @@ void ODBCConnectionBase::transact(UWORD fType)
 
 void ODBCConnectionBase::getInfo(UWORD fInfoType, LPSTR str, int size)
 {
-    if (!str || size < 1 || !isConnected())
+    if (str == nullptr || size < 1 || !isConnected())
         exception(errorInformation(cantGetInformation), __LINE__);
 
-    m_Retcode = SQLGetInfo(m_hConnection, fInfoType, str, (short) size, NULL);
+    m_Retcode = SQLGetInfo(m_hConnection, fInfoType, str, (short) size, nullptr);
 
     if (!Successful(m_Retcode))
         exception(errorInformation(cantGetInformation), __LINE__);
@@ -260,20 +260,20 @@ void ODBCConnectionBase::getInfo(UWORD fInfoType, LPSTR str, int size)
 //==============================================================================
 const char* sptk::removeDriverIdentification(const char* error)
 {
-    char* p = (char*) error;
+    auto p = (char*) error;
     const char* p1 = error;
-    while (p1) {
+    while (p1 != nullptr) {
         p1 = strstr(p, "][");
-        if (p1)
+        if (p1 != nullptr)
             p = (char*) p1 + 1;
     }
     p1 = strstr(p, "]");
-    if (p1)
+    if (p1 != nullptr)
         p = (char*) p1 + 1;
     p1 = strstr(p, "sqlerrm(");
-    if (p1) {
+    if (p1 != nullptr) {
         p = (char*) p1 + 8;
-        int len = (int) strlen(p);
+        auto len = (int) strlen(p);
         if (p[len - 1] == ')')
             p[len - 1] = 0;
     }
@@ -340,12 +340,11 @@ string ODBCConnectionBase::errorInformation(const char* function)
                       (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
     if (rc == SQL_SUCCESS)
         return extract_error(m_hConnection, SQL_HANDLE_DBC);
-    else {
-        rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState,
-                      &nativeError, (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
-        if (rc != SQL_SUCCESS)
-            exception(cantGetInformation, __LINE__);
-    }
+
+    rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR FAR*) errorState,
+                  &nativeError, (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg);
+    if (rc != SQL_SUCCESS)
+        exception(cantGetInformation, __LINE__);
 
     return removeDriverIdentification(errorDescription);
 }

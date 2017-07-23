@@ -35,8 +35,8 @@ XMLElement* WSBasicType::addElement(XMLElement* parent) const
 {
     string text(asString());
     if (m_optional && (isNull() || text.empty()))
-        return NULL;
-    XMLElement* element = new XMLElement(*parent, m_name);
+        return nullptr;
+    auto element = new XMLElement(*parent, m_name);
     element->text(text);
     return element;
 }
@@ -109,12 +109,12 @@ string WSDateTime::asString() const
 
 void WSDouble::load(const XMLNode* attr)
 {
-    setFloat(atof(attr->text().c_str()));
+    setFloat(strtod(attr->text().c_str(), nullptr));
 }
 
 void WSDouble::load(string attr)
 {
-    setFloat(atof(attr.c_str()));
+    setFloat(strtod(attr.c_str(), nullptr));
 }
 
 void WSDouble::load(const Field& field)
@@ -124,12 +124,12 @@ void WSDouble::load(const Field& field)
 
 void WSInteger::load(const XMLNode* attr)
 {
-    setInteger(atoi(attr->text().c_str()));
+    setInteger(strtol(attr->text().c_str(), nullptr, 10));
 }
 
 void WSInteger::load(string attr)
 {
-    setInteger(atoi(attr.c_str()));
+    setInteger(strtol(attr.c_str(), nullptr, 10));
 }
 
 void WSInteger::load(const Field& field)

@@ -102,13 +102,13 @@ public:
      * @param name std::string, Attribute name
      * @param typeName std::string, Attribute WSDL type name
      */
-    WSParserAttribute(std::string name="", std::string typeName="");
+    WSParserAttribute(const std::string& name = "", const std::string& typeName = "");
 
     /**
      * Copy constructor
      * @param attr const CWSParserAttribute&, Attribute to copy from
      */
-    WSParserAttribute(const WSParserAttribute& attr);
+    WSParserAttribute(const WSParserAttribute& attr) = default;
 
     /**
      * Returns attribute name

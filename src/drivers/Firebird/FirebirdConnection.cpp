@@ -50,7 +50,7 @@ FirebirdConnection::~FirebirdConnection()
         if (m_inTransaction && active())
             rollbackTransaction();
         close();
-        while (m_queryList.size()) {
+        while (!m_queryList.empty()) {
             try {
                 Query *query = (Query *) m_queryList[0];
                 query->disconnect();

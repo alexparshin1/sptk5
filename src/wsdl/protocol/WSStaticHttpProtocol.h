@@ -51,12 +51,12 @@ public:
     /// @param url String, File URL
     /// @param headers const std::map<String,String>&, Connection HTTP headers
     /// @param staticFilesDirectory String, Directory where static files reside on the server
-    WSStaticHttpProtocol(TCPSocket *socket, String url, const std::map<String,String>& headers, String staticFilesDirectory);
+    WSStaticHttpProtocol(TCPSocket* socket, const String& url, const std::map<String, String>& headers, const String& staticFilesDirectory);
 
     /// @brief Process method
     ///
     /// Writes HTTP response and file content to the connection
-    virtual void process();
+    void process() override;
 };
 
 /// @}

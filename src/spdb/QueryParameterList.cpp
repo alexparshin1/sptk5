@@ -50,7 +50,7 @@ void QueryParameterList::clear()
     unsigned sz = size();
 
     for (unsigned i = 0; i < sz; i++) {
-        QueryParameter* item = (QueryParameter*) m_items[i];
+        auto item = (QueryParameter*) m_items[i];
         delete item;
     }
 
@@ -68,10 +68,10 @@ void QueryParameterList::add(QueryParameter* item)
 QueryParameter* QueryParameterList::find(const char* paramName)
 {
     string pname(paramName);
-    map<string, QueryParameter*>::iterator itor = m_index.find(pname);
+    auto itor = m_index.find(pname);
 
     if (itor == m_index.end())
-        return 0;
+        return nullptr;
 
     return itor->second;
 }
@@ -79,7 +79,7 @@ QueryParameter* QueryParameterList::find(const char* paramName)
 QueryParameter& QueryParameterList::operator[](const char* paramName) const
 {
     string pname(paramName);
-    map<string, QueryParameter*>::const_iterator itor = m_index.find(pname);
+    auto itor = m_index.find(pname);
 
     if (itor == m_index.end())
         throwException("Invalid parameter name: " + pname);
@@ -104,7 +104,7 @@ uint32_t QueryParameterList::size() const
 
 void QueryParameterList::remove(uint32_t i)
 {
-    CParamVector::iterator itor = m_items.begin() + i;
+    auto itor = m_items.begin() + i;
     QueryParameter* item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);

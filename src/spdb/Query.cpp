@@ -28,6 +28,7 @@
 
 #include <sptk5/db/DatabaseConnection.h>
 #include <sptk5/db/Query.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -38,7 +39,7 @@ static const char cantAllocateStmt[] = "Can't allocate statement";
 
 void Query::allocStmt()
 {
-    if (!m_db) {
+    if (m_db == nullptr) {
         logText("Error in CQuery::allocStmt(): " + string(cantAllocateStmt));
         throw DatabaseException(cantAllocateStmt, __FILE__, __LINE__, m_sql);
     }
@@ -47,7 +48,7 @@ void Query::allocStmt()
 
 void Query::freeStmt()
 {
-    if (m_db && m_statement) {
+    if (m_db != nullptr && m_statement != nullptr) {
         m_db->queryFreeStmt(this);
         m_prepared = false;
         m_active = false;
@@ -56,7 +57,7 @@ void Query::freeStmt()
 
 void Query::closeStmt()
 {
-    if (m_db && m_statement) {
+    if (m_db != nullptr && m_statement != nullptr) {
         m_db->queryCloseStmt(this);
         m_active = false;
     }
@@ -68,7 +69,7 @@ void Query::prepare()
         throw DatabaseException("Can't prepare this statement");
     if (m_prepared)
         return;
-    if (m_db && m_statement) {
+    if (m_db != nullptr && m_statement != nullptr) {
         m_db->queryPrepare(this);
         m_prepared = true;
     }
@@ -78,7 +79,7 @@ void Query::unprepare()
 {
     if (!m_prepared)
         return;
-    if (m_db && m_statement) {
+    if (m_db != nullptr && m_statement != nullptr) {
         m_db->queryUnprepare(this);
         m_prepared = false;
         m_active = false;
@@ -87,7 +88,7 @@ void Query::unprepare()
 
 void Query::execute()
 {
-    if (m_db && m_statement) {
+    if (m_db != nullptr && m_statement != nullptr) {
         m_messages.clear();
         m_db->queryExecute(this);
     }
@@ -95,37 +96,37 @@ void Query::execute()
 
 int Query::countCols()
 {
-    if (m_db && m_statement)
+    if (m_db != nullptr && m_statement != nullptr)
         return m_db->queryColCount(this);
     return 0;
 }
 
 void Query::colAttributes(int16_t column, int16_t descType, int32_t& value)
 {
-    if (m_db && m_statement)
+    if (m_db != nullptr && m_statement != nullptr)
         m_db->queryColAttributes(this, column, descType, value);
 }
 
 void Query::colAttributes(int16_t column, int16_t descType, char* buff, int32_t len)
 {
-    if (m_db && m_statement)
+    if (m_db != nullptr && m_statement != nullptr)
         m_db->queryColAttributes(this, column, descType, buff, len);
 }
 
 string Query::getError() const
 {
-    if (m_db && m_statement)
+    if (m_db != nullptr && m_statement != nullptr)
         return m_db->queryError(this);
     return "";
 }
 
 //==============================================================================
 Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
-    : DataSource(), m_fields(true), m_bulkMode(false)
+    : m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
-    m_statement = 0L;
+    m_statement = nullptr;
     m_autoPrepare = autoPrepare;
     m_prepared = false;
     m_active = false;
@@ -135,22 +136,21 @@ Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, cons
     m_totalCalls = 0;
     m_createdFile = createdFile;
     m_createdLine = createdLine;
-    if (_db) {
+    if (_db != nullptr) {
         m_db = _db;
         m_db->linkQuery(this);
     } else {
-        m_db = NULL;
+        m_db = nullptr;
     }
     sql(_sql);
 }
 
 Query::Query(const Query& srcQuery)
-        :
-        DataSource(), m_fields(true)
+:   m_fields(true)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
-    m_statement = 0L;
+    m_statement = nullptr;
     m_autoPrepare = srcQuery.m_autoPrepare;
     m_prepared = false;
     m_active = false;
@@ -161,11 +161,11 @@ Query::Query(const Query& srcQuery)
     m_createdFile = srcQuery.m_createdFile;
     m_createdLine = srcQuery.m_createdLine;
 
-    if (srcQuery.m_db) {
+    if (srcQuery.m_db != nullptr) {
         m_db = srcQuery.m_db;
         m_db->linkQuery(this);
     } else {
-        m_db = NULL;
+        m_db = nullptr;
     }
 
     sql(srcQuery.m_sql);
@@ -177,7 +177,7 @@ Query::~Query()
         closeQuery(true);
     }
     catch (...) { }
-    if (m_db)
+    if (m_db != nullptr)
         m_db->unlinkQuery(this);
 }
 
@@ -196,13 +196,13 @@ void Query::sql(const string& _sql)
     for (; ;) {
         // Find param start
         paramStart = strpbrk(paramEnd, delimitters);
-        if (!paramStart)
+        if (paramStart == nullptr)
             break;      // No more parameters
 
         if (*paramStart == '\'') {
             // Started string constant
             const char* nextQuote = strchr(paramStart + 1, '\'');
-            if (!nextQuote)
+            if (nextQuote == nullptr)
                 break;  // Quote opened but never closed?
             odbcSQL += string(paramEnd, nextQuote - paramEnd + 1);
             paramEnd = (char*) nextQuote + 1;
@@ -221,7 +221,7 @@ void Query::sql(const string& _sql)
         paramEnd = paramStart + 1;
         for (; ; paramEnd++) {
 
-            if (isalnum(*paramEnd))
+            if (isalnum(*paramEnd) != 0)
                 continue;
 
             if (*paramEnd == '_')
@@ -236,12 +236,12 @@ void Query::sql(const string& _sql)
 
             string paramName(paramStart + 1, paramEnd - paramStart - 1);
             QueryParameter* param = m_params.find(paramName.c_str());
-            if (!param) {
+            if (param == nullptr) {
                 param = new QueryParameter(paramName.c_str());
                 m_params.add(param);
             }
             param->bindAdd(uint32_t(paramNumber));
-            if (!m_db)
+            if (m_db == nullptr)
                 throw DatabaseException("Query isn't connected to the database");
             odbcSQL += m_db->paramMark(uint32_t(paramNumber));
             paramNumber++;
@@ -255,7 +255,7 @@ void Query::sql(const string& _sql)
     free(s);
 
     for (int i = (int) m_params.size() - 1; i >= 0; i--)
-        if (!m_params[i].bindCount())
+        if (m_params[i].bindCount() == 0)
             m_params.remove(uint32_t(i));
 
     if (m_sql != odbcSQL) {
@@ -269,10 +269,10 @@ void Query::sql(const string& _sql)
 
 bool Query::open() THROWS_EXCEPTIONS
 {
-    if (!m_db)
+    if (m_db == nullptr)
         throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
 
-    if (m_db->logFile())
+    if (m_db->logFile() != nullptr)
         logText("Opening query: " + replaceAll(m_sql, "\n", " "));
 
     uint32_t started = DateTime::TimeOfDayMs();
@@ -283,10 +283,11 @@ bool Query::open() THROWS_EXCEPTIONS
     m_duration = (finished - started) / 1000.0;
     if (m_duration < 0)
         m_duration += 86400.0;
-    if (m_db->logFile()) {
-        char buffer[64];
-        snprintf(buffer, sizeof(buffer), "[Q%i] Duration %0.3f sec", m_objectIndex, m_duration);
-        *m_db->logFile() << LP_DEBUG << buffer << endl;
+    if (m_db->logFile() != nullptr) {
+        stringstream message;
+        message.precision(3);
+        message << "[Q" << m_objectIndex << "] Duration " << fixed << m_duration << " sec";
+        *m_db->logFile() << LP_DEBUG << message.str() << endl;
     }
 
     m_totalDuration += m_duration;
@@ -297,7 +298,7 @@ bool Query::open() THROWS_EXCEPTIONS
 
 void Query::fetch() THROWS_EXCEPTIONS
 {
-    if (!m_db || !m_active) {
+    if (m_db == nullptr || !m_active) {
         logText("Error in CQuery::fetch(): Dataset isn't open");
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, m_sql);
     }
@@ -309,7 +310,7 @@ void Query::closeQuery(bool releaseStatement)
 {
     m_active = false;
     m_eof = true;
-    if (m_statement) {
+    if (m_statement != nullptr) {
         if (releaseStatement) {
             freeStmt();
             logText("Released");
@@ -333,34 +334,34 @@ void Query::connect(DatabaseConnection* _db)
 void Query::disconnect()
 {
     closeQuery(true);
-    if (m_db)
+    if (m_db != nullptr)
         m_db->unlinkQuery(this);
-    m_db = NULL;
+    m_db = nullptr;
 }
 
-bool Query::readField(const char*, Variant&)
+bool Query::readField(const char* name, Variant& fvalue)
 {
     //fvalue = m_fields[fname];
     return true;
 }
 
-bool Query::writeField(const char*, const Variant&)
+bool Query::writeField(const char* name, const Variant& fvalue)
 {
     //m_fields[fname] = fvalue;
     return true;
 }
 
-void Query::notImplemented(string functionName) const
+void Query::notImplemented(const string& functionName) const
 {
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
 void Query::logText(const string& text, const LogPriority& priority)
 {
-    if (!m_db)
+    if (m_db == nullptr)
         return;
     Logger* alog = m_db->logFile();
-    if (alog) {
+    if (alog != nullptr) {
         Logger& blog = *alog;
         blog << priority;
         blog << "[Q" << m_objectIndex << "] ";

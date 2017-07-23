@@ -32,19 +32,19 @@
 using namespace std;
 using namespace sptk;
 
-WSRestriction::WSRestriction(string typeName, XMLNode* simpleTypeElement)
+WSRestriction::WSRestriction(const string& typeName, XMLNode* simpleTypeElement)
 : m_typeName(typeName)
 {
     XMLNodeVector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
-    for (XMLNode::iterator itor = enumerationNodes.begin(); itor != enumerationNodes.end(); ++itor) {
-        XMLElement* enumerationNode = dynamic_cast<XMLElement*>(*itor);
-        if (enumerationNode)
+    for (auto node: enumerationNodes) {
+        auto enumerationNode = dynamic_cast<XMLElement*>(node);
+        if (enumerationNode != nullptr)
             m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));
     }
 }
 
-WSRestriction::WSRestriction(string typeName, string enumerations, const char* delimiter)
+WSRestriction::WSRestriction(const string& typeName, const string& enumerations, const char* delimiter)
 : m_typeName(typeName), m_enumerations(enumerations, delimiter)
 {
 }

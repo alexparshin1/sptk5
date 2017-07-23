@@ -216,6 +216,11 @@ public:
      * @param subject std::string, Subject to look for
      */
     bool endsWith(std::string subject) const;
+
+    /**
+     * @brief Returns trimmed string
+     */
+    String trim() const;
 };
 
 /**

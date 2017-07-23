@@ -34,10 +34,10 @@ using namespace sptk;
 
 void QueryParameterBinding::reset(bool isOutput)
 {
-    m_stmt = 0;
+    m_stmt = nullptr;
     m_dataType = VAR_NONE;
     m_size = 0;
-    m_buffer = 0;
+    m_buffer = nullptr;
     m_output = isOutput;
 }
 

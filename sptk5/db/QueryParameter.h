@@ -214,7 +214,7 @@ public:
      * @brief Assign operator
      */
     QueryParameter& operator = (const char* s) {
-        setString(s);
+        setString(s, 0);
         return *this;
     }
 
@@ -222,7 +222,7 @@ public:
      * @brief Assign operator
      */
     QueryParameter& operator = (const std::string& s) {
-        setString(s.c_str());
+        setString(s.c_str(), s.length());
         return *this;
     }
 
@@ -258,7 +258,17 @@ public:
      * @param value const char*, string to assign
      * @param maxlen size_t, maximum length of the assigned string
      */
-    virtual void setString(const char* value, size_t maxlen = 0);
+    virtual void setString(const char* value) { setString(value, 0); }
+
+    /**
+     * @brief String assignment method
+     *
+     * In contrast to CVariant::setString() method, this method
+     * tries not to decrease the allocated buffer.
+     * @param value const char*, string to assign
+     * @param maxlen size_t, maximum length of the assigned string
+     */
+    virtual void setString(const char* value, size_t maxlen);
 
     /**
      * @brief String assignment method

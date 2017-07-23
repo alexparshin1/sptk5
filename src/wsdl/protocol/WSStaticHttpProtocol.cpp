@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket *socket, String url, const std::map<String,String>& headers, String staticFilesDirectory)
+WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const String& url, const std::map<String, String>& headers, const String& staticFilesDirectory)
 : WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
 {
 }

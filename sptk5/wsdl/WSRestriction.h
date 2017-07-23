@@ -56,7 +56,7 @@ namespace sptk {
          * @param typeName std::string, WSDL type name
          * @param simpleTypeElement XMLNode*, Simple type XML node
          */
-        WSRestriction(std::string typeName, XMLNode* simpleTypeElement);
+        WSRestriction(const std::string& typeName, XMLNode* simpleTypeElement);
 
         /**
          * @brief Constructor from WSDL (XML) definition
@@ -64,7 +64,7 @@ namespace sptk {
          * @param enumerations std::string, Enumerations or empty string
          * @param delimiter const char*, Enumerations delimiter
          */
-        WSRestriction(std::string typeName, std::string enumerations, const char* delimiter="|");
+        WSRestriction(const std::string& typeName, const std::string& enumerations, const char* delimiter = "|");
 
         /**
          * @brief Restriction check

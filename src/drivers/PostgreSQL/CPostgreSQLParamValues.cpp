@@ -40,7 +40,7 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
         VariantType ptype = param->dataType();
         PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i]);
 
-        if (ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) {
+        if ((ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) != 0) {
             m_formats[i] = 1; // Binary format
         } else
             m_formats[i] = 0; // Text format
@@ -79,7 +79,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
     VariantType ptype = param->dataType();
 
     if (param->isNull())
-        setParameterValue(paramIndex, 0, 0, 0, PG_VARCHAR);
+        setParameterValue(paramIndex, nullptr, 0, 0, PG_VARCHAR);
     else {
         static const char* booleanTrue = "t";
         static const char* booleanFalse = "f";
@@ -93,7 +93,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
                 break;
 
             case VAR_INT: {
-                uint32_t* bufferToSend = (uint32_t*) param->conversionBuffer();
+                auto bufferToSend = (uint32_t*) param->conversionBuffer();
                 *bufferToSend = htonl((uint32_t) param->getInteger());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1, PG_INT4);
             }
@@ -124,7 +124,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
             break;
 
             case VAR_INT64: {
-                uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
+                auto bufferToSend = (uint64_t*) param->conversionBuffer();
                 *bufferToSend = htonq((uint64_t)param->getInt64());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_INT8);
             }
@@ -132,14 +132,14 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
 
             case VAR_MONEY: {
                 double value = param->asFloat();
-                uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
+                auto bufferToSend = (uint64_t*) param->conversionBuffer();
                 *bufferToSend = htonq(*(uint64_t*)&value);
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
             }
             break;
 
             case VAR_FLOAT: {
-                uint64_t* bufferToSend = (uint64_t*) param->conversionBuffer();
+                auto bufferToSend = (uint64_t*) param->conversionBuffer();
                 *bufferToSend = htonq(*(uint64_t*)param->dataBuffer());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
             }

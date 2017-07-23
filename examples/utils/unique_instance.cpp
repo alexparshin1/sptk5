@@ -34,8 +34,8 @@
 // This example shows how to create "unique instance" application.
 // Such application may only have one process running simultaneously on the same computer.
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include <sptk5/UniqueInstance.h>
 

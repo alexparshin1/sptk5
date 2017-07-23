@@ -55,7 +55,7 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    string command = "";
+    String command;
     if (!commandLine.arguments().empty())
         command = commandLine.arguments()[0];
 

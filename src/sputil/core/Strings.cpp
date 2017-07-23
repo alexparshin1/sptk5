@@ -74,6 +74,15 @@ bool String::endsWith(string subject) const
     return pos != string::npos && pos == length() - subject.length();
 }
 
+String String::trim() const
+{
+    auto startPos = find_first_not_of(" \n\r\t\b");
+    if (startPos == string::npos)
+        return String("");
+    size_t endPos = find_last_not_of(" \n\r\t\b");
+    return substr(startPos, endPos - startPos + 1);
+}
+
 void Strings::splitByDelimiter(const string &src, const char *delimitter)
 {
     size_t pos = 0;

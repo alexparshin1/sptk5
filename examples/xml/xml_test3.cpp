@@ -43,7 +43,7 @@
 using namespace std;
 using namespace sptk;
 
-void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
+void testXPath(const string& fileName, const string& xpath, int expectedNodeCount = -1)
 {
     sptk::XMLDocument doc;
     Buffer buf;
@@ -57,8 +57,7 @@ void testXPath(string fileName, string xpath, int expectedNodeCount = -1)
 
     XMLNodeVector selectedNodes;
     doc.select(selectedNodes, xpath);
-    for (XMLNode::iterator itor = selectedNodes.begin(); itor != selectedNodes.end(); ++itor) {
-        XMLNode* node = *itor;
+    for (auto node: selectedNodes) {
         cout << node->name();
         if (node->hasAttribute("N"))
             cout << ", N=" << node->getAttribute("N").str();
@@ -80,15 +79,15 @@ int main(int argc, char *argv[])
         cout << "The XPath selection test started." << endl << endl;
 
         const char* endOfPath = strrchr(argv[0],'/');
-        if (!endOfPath)
+        if (endOfPath == nullptr)
             endOfPath = strrchr(argv[0],'\\');
         string workDirectory;
-        if (endOfPath)
+        if (endOfPath == nullptr)
             workDirectory.assign(argv[0], size_t(endOfPath - argv[0]));
         else
             workDirectory = "/";
 
-        if (chdir(workDirectory.c_str()))
+        if (chdir(workDirectory.c_str()) != 0)
             throw Exception("Can't change directory to " + workDirectory);
 
         // http://www.zvon.org/xxl/XPathTutorial/Output/example1.html

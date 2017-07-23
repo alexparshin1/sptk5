@@ -145,7 +145,7 @@ public:
      * @param connectionString std::string, Database connection string
      * @param maxConnections unsigned, Maximum number of connections in the pool
      */
-    DatabaseConnectionPool(std::string connectionString, unsigned maxConnections=100);
+    DatabaseConnectionPool(const std::string& connectionString, unsigned maxConnections = 100);
 
     /**
      * @brief Destructor

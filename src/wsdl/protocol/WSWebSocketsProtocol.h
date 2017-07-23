@@ -91,7 +91,7 @@ public:
     /// @brief Process method
     ///
     /// Implements WebSockets session
-    virtual void process();
+    void process() override;
 };
 
 class WSNotification
@@ -104,7 +104,7 @@ class WSNotificationManager
 {
     Strings  m_queues;
 public:
-    WSNotificationManager() {}
+    WSNotificationManager() = default;
     //bool receive(Buffer& message);
     //bool send(const std::map<String,String>& headers, String data);
 };

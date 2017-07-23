@@ -35,7 +35,7 @@ namespace sptk {
     WSTypeTranslator wsTypeTranslator;
 }
 
-WSTypeTranslator::WSTypeTranslator()
+WSTypeTranslator::WSTypeTranslator() noexcept
 {
     wsTypeToCxxTypeMap["xsd:boolean"]   = "sptk::WSBool";
     wsTypeToCxxTypeMap["xsd:date"]      = "sptk::WSDate";
@@ -49,7 +49,7 @@ WSTypeTranslator::WSTypeTranslator()
 
 std::string WSTypeTranslator::toCxxType(std::string wsType,std::string defaultType) const
 {
-    std::map<std::string,std::string>::const_iterator itor = wsTypeToCxxTypeMap.find(wsType);
+    auto itor = wsTypeToCxxTypeMap.find(wsType);
     if (itor == wsTypeToCxxTypeMap.end())
         return defaultType;
     return itor->second;

@@ -32,11 +32,11 @@
 using namespace std;
 using namespace sptk;
 
-DatabaseConnection::DatabaseConnection(string connectionString) :
-        m_connString(connectionString)
+DatabaseConnection::DatabaseConnection(const string& connectionString)
+:   m_connString(connectionString), m_connType(DCT_UNKNOWN)
 {
     m_inTransaction = false;
-    m_log = 0;
+    m_log = nullptr;
 }
 
 DatabaseConnection::~DatabaseConnection()
@@ -44,8 +44,8 @@ DatabaseConnection::~DatabaseConnection()
     // To prevent the exceptions, if the database connection
     // is terminated already
     try {
-        while (m_queryList.size()) {
-            Query *query = (Query *) m_queryList[0];
+        while (!m_queryList.empty()) {
+            auto query = (Query *) m_queryList[0];
             query->disconnect();
         }
     }
@@ -61,12 +61,12 @@ bool DatabaseConnection::linkQuery(Query *q)
 
 bool DatabaseConnection::unlinkQuery(Query *q)
 {
-    CQueryVector::iterator itor = find(m_queryList.begin(), m_queryList.end(), q);
+    auto itor = find(m_queryList.begin(), m_queryList.end(), q);
     m_queryList.erase(itor);
     return true;
 }
 
-void DatabaseConnection::openDatabase(string /*newConnectionString*/) THROWS_EXCEPTIONS
+void DatabaseConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
 {
     notImplemented("openDatabase");
 }
@@ -74,7 +74,7 @@ void DatabaseConnection::openDatabase(string /*newConnectionString*/) THROWS_EXC
 void DatabaseConnection::open(string newConnectionString) THROWS_EXCEPTIONS
 {
     openDatabase(newConnectionString);
-    if (m_log)
+    if (m_log != nullptr)
         *m_log << "Opened database: " << m_connString.str() << endl;
 }
 
@@ -90,12 +90,12 @@ void DatabaseConnection::close() THROWS_EXCEPTIONS
             rollbackTransaction();
             m_inTransaction = false;
         }
-        for (uint32_t i = 0; i < m_queryList.size(); i++) {
-            Query& query = *m_queryList[i];
-            query.closeQuery(true);
-        }
+
+        for (auto query: m_queryList)
+            query->closeQuery(true);
+
         closeDatabase();
-        if (m_log)
+        if (m_log != nullptr)
             *m_log << "Closed database: " << m_connString.str() << endl;
     }
 }
@@ -103,7 +103,7 @@ void DatabaseConnection::close() THROWS_EXCEPTIONS
 void* DatabaseConnection::handle() const
 {
     notImplemented("handle");
-    return 0;
+    return nullptr;
 }
 
 bool DatabaseConnection::active() const
@@ -114,28 +114,28 @@ bool DatabaseConnection::active() const
 
 void DatabaseConnection::beginTransaction() THROWS_EXCEPTIONS
 {
-    if (m_log)
+    if (m_log != nullptr)
         *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
 void DatabaseConnection::commitTransaction() THROWS_EXCEPTIONS
 {
-    if (m_log)
+    if (m_log != nullptr)
         *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
 void DatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
 {
-    if (m_log)
+    if (m_log != nullptr)
         *m_log << "Rollback transaction" << endl;
     driverEndTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
 
-string DatabaseConnection::queryError(const Query *) const
+string DatabaseConnection::queryError(const Query *q) const
 {
     notImplemented("queryError");
     return "";
@@ -171,22 +171,22 @@ void DatabaseConnection::querySetEof(Query *q, bool eof)
     q->m_eof = eof;
 }
 
-void DatabaseConnection::queryAllocStmt(Query *)
+void DatabaseConnection::queryAllocStmt(Query *query)
 {
     notImplemented("queryAllocStmt");
 }
 
-void DatabaseConnection::queryFreeStmt(Query *)
+void DatabaseConnection::queryFreeStmt(Query *query)
 {
     notImplemented("queryFreeStmt");
 }
 
-void DatabaseConnection::queryCloseStmt(Query *)
+void DatabaseConnection::queryCloseStmt(Query *query)
 {
     notImplemented("queryCloseStmt");
 }
 
-void DatabaseConnection::queryPrepare(Query *)
+void DatabaseConnection::queryPrepare(Query *query)
 {
     notImplemented("queryPrepare");
 }
@@ -196,38 +196,38 @@ void DatabaseConnection::queryUnprepare(Query *query)
     queryFreeStmt(query);
 }
 
-void DatabaseConnection::queryExecute(Query *)
+void DatabaseConnection::queryExecute(Query *query)
 {
     notImplemented("queryExecute");
 }
 
-int DatabaseConnection::queryColCount(Query *)
+int DatabaseConnection::queryColCount(Query *query)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void DatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, int32_t&)
+void DatabaseConnection::queryColAttributes(Query *query, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void DatabaseConnection::queryColAttributes(Query *, int16_t, int16_t, char *, int32_t)
+void DatabaseConnection::queryColAttributes(Query *query, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void DatabaseConnection::queryBindParameters(Query *)
+void DatabaseConnection::queryBindParameters(Query *query)
 {
     notImplemented("queryBindParameters");
 }
 
-void DatabaseConnection::queryOpen(Query *)
+void DatabaseConnection::queryOpen(Query *query)
 {
     notImplemented("queryOpen");
 }
 
-void DatabaseConnection::queryFetch(Query *)
+void DatabaseConnection::queryFetch(Query *query)
 {
     notImplemented("queryFetch");
 }
@@ -255,7 +255,7 @@ string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
 void DatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPTIONS
 {
     string errorText("Exception in " + method + ": " + error);
-    if (m_log)
+    if (m_log != nullptr)
         *m_log << "errorText" << endl;
     throw DatabaseException(errorText);
 }
@@ -282,20 +282,20 @@ void DatabaseConnection::driverEndTransaction(bool /*commit*/) THROWS_EXCEPTIONS
     notImplemented("driverEndTransaction");
 }
 
-void DatabaseConnection::bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string /*format*/) THROWS_EXCEPTIONS
+void DatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
 {
     Query insertQuery(this,
-                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") + 
-                       ") VALUES (:" + columnNames.asString(",:") + ")");
-    for (Strings::const_iterator row = data.begin(); row != data.end(); ++row) {
-        Strings rowData(*row,"\t");
+                      "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
+                      ") VALUES (:" + columnNames.asString(",:") + ")");
+    for (auto& row: data) {
+        Strings rowData(row,"\t");
         for (unsigned i = 0; i < columnNames.size(); i++)
             insertQuery.param(i).setString(rowData[i]);
         insertQuery.exec();
     }
 }
 
-void DatabaseConnection::executeBatchFile(String batchFileName, Strings* errors) THROWS_EXCEPTIONS
+void DatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors) THROWS_EXCEPTIONS
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName);

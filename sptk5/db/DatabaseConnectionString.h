@@ -30,7 +30,7 @@
 #define __SPTK_DATABASECONNECTIONSTRING_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
 
 namespace sptk
 {
@@ -62,7 +62,7 @@ public:
     /**
      * @brief Connection string parameters
      */
-    typedef std::map<std::string,std::string> Parameters;
+    typedef std::map<String,String> Parameters;
 
 protected:
     /**
@@ -73,50 +73,50 @@ protected:
     /**
      * Database connection string
      */
-    std::string     m_connectionString;
+    String     m_connectionString;
 
     /**
      * Database driver name
      */
-    std::string     m_driverName;
+    String     m_driverName;
 
     /**
      * Database server host name
      */
-    std::string     m_hostName;
+    String     m_hostName;
 
     /**
      * Database server port number
      */
-    uint16_t        m_portNumber;
+    uint16_t   m_portNumber;
 
     /**
      * Database user name
      */
-    std::string     m_userName;
+    String     m_userName;
 
     /**
      * Database user name
      */
-    std::string     m_password;
+    String     m_password;
 
     /**
      * Database user password
      */
-    std::string     m_databaseName;
+    String     m_databaseName;
 
     /**
      * Optional parameters
      */
-    Parameters      m_parameters;
+    Parameters m_parameters;
 
 
 public:
     /**
      * @brief Constructor
-     * @param connectionString std::string, Database connection string
+     * @param connectionString const std::string&, Database connection string
      */
-    DatabaseConnectionString(std::string connectionString) :
+    DatabaseConnectionString(const std::string& connectionString) :
         m_connectionString(connectionString),
         m_portNumber(0)
     {

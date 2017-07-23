@@ -57,13 +57,12 @@ public:
         if (fieldType == MYSQL_TYPE_NEWDECIMAL)
             m_tempBuffer = new char[fieldSize];
         else
-            m_tempBuffer = NULL;
+            m_tempBuffer = nullptr;
     }
 
     ~CMySQLStatementField()
     {
-        if (m_tempBuffer)
-            delete [] m_tempBuffer;
+        delete [] m_tempBuffer;
     }
     
     void bindCallbacks(MYSQL_BIND* bind)
@@ -85,20 +84,20 @@ public:
 };
 
 
-MySQLStatement::MySQLStatement(MySQLConnection* connection, string sql, bool autoPrepare)
-: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(NULL)
+MySQLStatement::MySQLStatement(MySQLConnection* connection, const string& sql, bool autoPrepare)
+: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(nullptr)
 {
     if (autoPrepare)
         m_statement = mysql_stmt_init((MYSQL*)connection->handle());
     else
-        m_statement = NULL; // direct execution
+        m_statement = nullptr; // direct execution
 }
 
 MySQLStatement::~MySQLStatement()
 {
-    if (m_statement)
+    if (m_statement != nullptr)
        mysql_stmt_close(m_statement);
-    if (m_result)
+    if (m_result != nullptr)
         mysql_free_result(m_result);
 }
 
@@ -137,11 +136,11 @@ void MySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& 
 void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
 {
     DatabaseStatement<MySQLConnection,MYSQL_STMT>::enumerateParams(queryParams);
-    uint32_t paramCount = (uint32_t) m_enumeratedParams.size();
+    auto paramCount = (uint32_t) m_enumeratedParams.size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);
     MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
-    if (paramCount) {
+    if (paramCount != 0) {
         memset(paramBuffers, 0, sizeof(MYSQL_BIND) * paramCount);
         for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++)
             m_paramBuffers[paramIndex].length = &m_paramLengths[paramIndex];
@@ -230,7 +229,7 @@ void MySQLStatement::setParameterValues()
 {
     static my_bool nullValue = 1;
 
-    unsigned paramCount = (unsigned) m_enumeratedParams.size();
+    auto paramCount = (unsigned) m_enumeratedParams.size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
         QueryParameter*     param = m_enumeratedParams[paramIndex];
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
@@ -277,7 +276,7 @@ void MySQLStatement::setParameterValues()
             bind.is_null = &nullValue;
         else
             bind.is_null = 0;
-        bind.error = 0;
+        bind.error = nullptr;
     }
         /// Bind the buffers
     if (mysql_stmt_bind_param(m_statement, &m_paramBuffers[0]) != 0)
@@ -290,18 +289,18 @@ void MySQLStatement::MySQLStatement::prepare(const string& sql)
         throwMySQLError;
 }
 
-void MySQLStatement::execute(bool)
+void MySQLStatement::execute(bool x)
 {
     m_state.eof = false;
-    if (m_result) {
+    if (m_result != nullptr) {
     	mysql_free_result(m_result);
-        m_result = NULL;
+        m_result = nullptr;
     }
-    if (m_statement) {
+    if (m_statement != nullptr) {
         if (mysql_stmt_execute(m_statement) != 0)
             throwMySQLError;
         m_state.columnCount = mysql_stmt_field_count(m_statement);
-        if (m_state.columnCount)
+        if (m_state.columnCount != 0)
             m_result = mysql_stmt_result_metadata(m_statement);
     } else {
     	MYSQL* conn = m_connection->m_connection;
@@ -310,7 +309,7 @@ void MySQLStatement::execute(bool)
             throw DatabaseException(error);
         }
         m_state.columnCount = mysql_field_count(conn);
-        if (m_state.columnCount)
+        if (m_state.columnCount != 0)
             m_result = mysql_store_result(conn);
     }
 }
@@ -318,36 +317,36 @@ void MySQLStatement::execute(bool)
 void MySQLStatement::bindResult(FieldList& fields)
 {
     fields.clear();
-    if (!m_result)
+    if (m_result == nullptr)
         return;
 
     char columnName[256];
     for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
         MYSQL_FIELD *fieldMetadata = mysql_fetch_field(m_result);
-        if (!fieldMetadata)
+        if (fieldMetadata == nullptr)
             throwMySQLError;
         strncpy(columnName, fieldMetadata->name, sizeof(columnName));
         columnName[sizeof(columnName)-1] = 0;
         if (columnName[0] == 0)
             snprintf(columnName, sizeof(columnName), "column_%02u", columnIndex + 1);
         VariantType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
-        unsigned fieldLength = (unsigned) fieldMetadata->length;
+        auto fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)
             fieldLength = FETCH_BUFFER;
         fields.push_back(new CMySQLStatementField(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength));
     }
 
-    if (m_statement) {
-        if (m_result) {
+    if (m_statement != nullptr) {
+        if (m_result != nullptr) {
             mysql_free_result(m_result);
-            m_result = NULL;
+            m_result = nullptr;
         }
         
         // Bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(m_state.columnCount);
         for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
-            CMySQLStatementField*   field = (CMySQLStatementField*) &fields[columnIndex];
-            MYSQL_BIND&             bind = m_fieldBuffers[columnIndex];
+            auto        field = (CMySQLStatementField*) &fields[columnIndex];
+            MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = (enum_field_types) field->fieldType();
 
@@ -406,7 +405,7 @@ void MySQLStatement::bindResult(FieldList& fields)
 
 void MySQLStatement::readResultRow(FieldList& fields)
 {
-    if (m_statement)
+    if (m_statement != nullptr)
         readPreparedResultRow(fields);
     else
         readUnpreparedResultRow(fields);
@@ -418,23 +417,23 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
     unsigned long*  lengths = mysql_fetch_lengths(m_result);
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
 
-        CMySQLStatementField*   field = (CMySQLStatementField*) &fields[fieldIndex];
+        auto field = (CMySQLStatementField*) &fields[fieldIndex];
 
         VariantType fieldType = field->dataType();
 
         const char* data = m_row[fieldIndex];
-        if (data == NULL) {
+        if (data == nullptr) {
             // Field data is null, no more processing of the field
             field->setNull(fieldType);
             continue;
         }
 
-        uint32_t    dataLength = (uint32_t) lengths[fieldIndex];
+        auto dataLength = (uint32_t) lengths[fieldIndex];
 
         switch (fieldType) {
 
         case VAR_BOOL:
-            field->setBool(strchr ("YyTt1", data[0]) != 0);
+            field->setBool(strchr("YyTt1", data[0]) != nullptr);
             break;
             
         case VAR_INT:
@@ -476,8 +475,8 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
     uint32_t    fieldCount = fields.size();
     bool        fieldSizeChanged = false;
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        CMySQLStatementField*   field = (CMySQLStatementField*) &fields[fieldIndex];
-        MYSQL_BIND&             bind = m_fieldBuffers[fieldIndex];
+        auto        field = (CMySQLStatementField*) &fields[fieldIndex];
+        MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
         VariantType fieldType = field->dataType();
 
@@ -487,7 +486,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             continue;
         }
 
-        uint32_t dataLength = (uint32_t) *(bind.length);
+        auto dataLength = (uint32_t) *(bind.length);
 
         switch (fieldType) {
 
@@ -533,14 +532,14 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         case VAR_BUFFER:
             if (dataLength == 0) {
                 // Empty string
-                char* data = (char*) field->getBuffer();
+                auto data = (char*) field->getBuffer();
                 *data = 0;
                 field->setDataSize(0);
             } else {
                 if (bind.buffer_length < dataLength) {
                     /// Fetch truncated, enlarge buffer and fetch remaining part
                     uint32_t remainingBytes = dataLength - bind.buffer_length;
-                    uint32_t offset = (uint32_t) bind.buffer_length;
+                    auto offset = (uint32_t) bind.buffer_length;
                     field->checkSize(dataLength+1);
                     bind.buffer = (char*) field->getBuffer() + offset;
                     bind.buffer_length = remainingBytes;
@@ -569,15 +568,15 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 
 void MySQLStatement::close()
 {
-    if (m_result) {
+    if (m_result != nullptr) {
         mysql_free_result(m_result);
-        m_result = NULL;
+        m_result = nullptr;
     }
 }
 
 void MySQLStatement::fetch()
 {
-    if (m_statement) {
+    if (m_statement != nullptr) {
         int rc = mysql_stmt_fetch(m_statement);
         switch (rc) {
         case 0: // Successful, the data has been fetched to application data buffers
@@ -594,7 +593,7 @@ void MySQLStatement::fetch()
         }
     } else {
         m_row = mysql_fetch_row(m_result);
-        if (!m_row) {
+        if (m_row == nullptr) {
             int err = mysql_errno(m_connection->m_connection);
             if (err != 0)
                 throwMySQLError;
