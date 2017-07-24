@@ -387,6 +387,14 @@ public:
     }
 
     /**
+     * @brief Returns this object DateTime + seconds
+     */
+    DateTime addSeconds(double seconds) const
+    {
+        return m_dateTime + seconds / 86400;
+    }
+
+    /**
      * @brief Returns interval between two dates in seconds
      */
     double secondsTo(DateTime toDate) const
