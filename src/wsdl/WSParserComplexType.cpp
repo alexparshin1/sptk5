@@ -216,18 +216,33 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
             copyInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
         }
     }
+    classDeclaration << "private:" << endl;
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Disabled move constructor" << endl;
+    classDeclaration << "    * @param other " << className << "&&, other element to move from" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   " << className << "(" << className << "&& other) noexcept" << endl << "   : " << copyInitializer.asString(", ") << endl
+        << "{}" << endl << endl;
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Disabled move assignment" << endl;
+    classDeclaration << "    * @param other " << className << "&&, other element to move from" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept" << endl
+        << "   {" << endl
+        << "       return *this;" << endl
+        << "   }" << endl << endl;
     classDeclaration << "public:" << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Constructor" << endl;
     classDeclaration << "    * @param elementName const char*, WSDL element name" << endl;
     classDeclaration << "    * @param optional bool, Is element optional flag" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   explicit " << className << "(const char* elementName, bool optional=false)" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
+    classDeclaration << "   explicit " << className << "(const char* elementName, bool optional=false) noexcept" << endl << "   : " << ctorInitializer.asString(", ") << endl << "   {}" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Copy constructor" << endl;
     classDeclaration << "    * @param other const " << className << "&, other element to copy from" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(const " << className << "& other)" << endl << "   : " << copyInitializer.asString(", ") << endl
+    classDeclaration << "   " << className << "(const " << className << "& other) noexcept" << endl << "   : " << copyInitializer.asString(", ") << endl
         << "   {" << endl
         << "       copyFrom(other);" << endl
         << "   }" << endl << endl;
@@ -239,6 +254,15 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "    * Clear content and releases allocated memory" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   virtual void clear();" << endl << endl;
+    classDeclaration << "   /**" << endl;
+    classDeclaration << "    * Copy assignment" << endl;
+    classDeclaration << "    * @param other const " << className << "&, other element to copy from" << endl;
+    classDeclaration << "    */" << endl;
+    classDeclaration << "   " << className << "& operator = (const " << className << "& other)" << endl
+        << "   {" << endl
+        << "       copyFrom(other);" << endl
+        << "       return *this;" << endl
+        << "   }" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Load " << className << " from XML node" << endl;
     classDeclaration << "    *" << endl;
@@ -288,8 +312,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "   // Clear elements" << endl;
     for (auto complexType: m_sequence) {
         if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-            classImplementation << "   for (vector<" << complexType->className() << "*>::iterator itor = m_" << complexType->name() << ".begin(); itor != m_" << complexType->name() << ".end(); ++itor)" << endl;
-            classImplementation << "      delete *itor;" << endl;
+            classImplementation << "   for (auto element: m_" << complexType->name() << ")" << endl;
+            classImplementation << "      delete element;" << endl;
         }
         classImplementation << "   m_" << complexType->name() << ".clear();" << endl;
     }
@@ -318,7 +342,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     if (!m_sequence.empty()) {
         classImplementation << endl << "   // Load elements" << endl;
-        classImplementation << "   for (XMLNode* node: *input) {" << endl;
+        classImplementation << "   for (auto node: *input) {" << endl;
         classImplementation << "      auto element = dynamic_cast<XMLElement*>(node);" << endl;
         classImplementation << "      if (element == nullptr) continue;" << endl;
         Strings requiredElements;
@@ -328,7 +352,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                 classImplementation << "         static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
             //string optional = complexType->multiplicity() & WSM_OPTIONAL ? "true" : "false";
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                classImplementation << "         " << complexType->className() << "* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
+                classImplementation << "         auto item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 classImplementation << "         item->load(element);" << endl;
                 if (complexType->m_restriction != nullptr)
                     classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
@@ -392,7 +416,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
             if (complexType->m_restriction != nullptr)
                 fieldLoads << "      static const " << complexType->m_restriction->generateConstructor("restriction") << ";" << endl;
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                fieldLoads << "      " << complexType->className() << "* item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
+                fieldLoads << "      auto item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 fieldLoads << "      item->load(*field);" << endl;
                 if (complexType->m_restriction != nullptr)
                     fieldLoads << "      restriction.check(m_" << complexType->name() << ".asString());" << endl;
@@ -436,11 +460,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         classImplementation << "   // Unload elements" << endl;
         for (auto complexType: m_sequence) {
             if ((complexType->multiplicity() & (WSM_ZERO_OR_MORE | WSM_ONE_OR_MORE)) != 0) {
-                classImplementation << "   for (vector<" << complexType->className() << "*>::const_iterator itor = m_" << complexType->name() << ".begin(); "
-                    << " itor != m_" << complexType->name() << ".end(); ++itor) {" << endl;
-                classImplementation << "      " << complexType->className() << "* item = *itor;" << endl;
-                classImplementation << "      item->addElement(output);" << endl;
-                classImplementation << "   }" << endl;
+                classImplementation << "   for (auto element: m_" << complexType->name() << ")" << endl;
+                classImplementation << "      element->addElement(output);" << endl;
             }
             else
                 classImplementation << "   m_" << complexType->name() << ".addElement(output);" << endl;
