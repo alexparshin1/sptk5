@@ -222,6 +222,13 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, ui
                 rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
             break;
         case SOM_BIND:
+            if (m_type != SOCK_DGRAM) {
+#ifndef _WIN32
+                setOption(SOL_SOCKET, SO_REUSEPORT, 1);
+#else
+                setOption(SOL_SOCKET, SO_REUSEADDR, 1);
+#endif                
+            }
             currentOperation = "bind";
             rc = ::bind(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
             if (rc == 0 && m_type != SOCK_DGRAM) {
