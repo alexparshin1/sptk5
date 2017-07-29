@@ -49,13 +49,13 @@ WSRestriction::WSRestriction(const string& typeName, const string& enumerations,
 {
 }
 
-void WSRestriction::check(std::string value) const
+void WSRestriction::check(const std::string& typeName, const std::string& value) const
 {
     if (!m_enumerations.empty() && m_enumerations.indexOf(value) == -1)
-        throw Exception("value '" + value + "' is invalid for restriction on " + m_typeName);
+        throw Exception("value '" + value + "' is invalid for restriction on " + m_typeName + " for type " + typeName);
 }
 
-string sptk::WSRestriction::generateConstructor(std::string variableName) const
+string sptk::WSRestriction::generateConstructor(const string& variableName) const
 {
     stringstream str;
     str << "WSRestriction " << variableName << "(\"" << m_typeName << "\", "

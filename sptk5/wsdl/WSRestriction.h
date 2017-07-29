@@ -73,12 +73,12 @@ namespace sptk {
          * If value violates restriction, throws exception.
          * @param value std::string, Value to check
          */
-        void check(std::string value) const;
+        void check(const std::string& typeName, const std::string& value) const;
 
         /**
          * @brief Generates restriction constructor for C++ skeleton
          */
-        std::string generateConstructor(std::string variableName) const;
+        std::string generateConstructor(const std::string& variableName) const;
     };
 
 }

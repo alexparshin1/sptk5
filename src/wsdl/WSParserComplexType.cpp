@@ -355,13 +355,13 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                 classImplementation << "         auto item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 classImplementation << "         item->load(element);" << endl;
                 if (complexType->m_restriction != nullptr)
-                    classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
+                    classImplementation << "         restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
                 classImplementation << "         m_" << complexType->name() << ".push_back(item);" << endl;
             }
             else {
                 classImplementation << "         m_" << complexType->name() << ".load(element);" << endl;
                 if (complexType->m_restriction != nullptr)
-                    classImplementation << "         restriction.check(m_" << complexType->name() << ".asString());" << endl;
+                    classImplementation << "         restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
                 classImplementation << "         continue;" << endl;
                 if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
                     requiredElements.push_back(complexType->name());
@@ -419,13 +419,13 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                 fieldLoads << "      auto item = new " << complexType->className() << "(\"" << complexType->name() << "\");" << endl;
                 fieldLoads << "      item->load(*field);" << endl;
                 if (complexType->m_restriction != nullptr)
-                    fieldLoads << "      restriction.check(m_" << complexType->name() << ".asString());" << endl;
+                    fieldLoads << "      restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
                 fieldLoads << "      m_" << complexType->name() << ".push_back(item);" << endl;
             }
             else {
                 fieldLoads << "      m_" << complexType->name() << ".load(*field);" << endl;
                 if (complexType->m_restriction != nullptr)
-                    fieldLoads << "      restriction.check(m_" << complexType->name() << ".asString());" << endl;
+                    fieldLoads << "      restriction.check(\"" << complexType->name() << "\", m_" << complexType->name() << ".asString());" << endl;
             }
             fieldLoads << "   }" << endl;
         }
