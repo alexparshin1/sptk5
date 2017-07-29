@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-void Channel::open(int sourceFD, const String& interfaceAddress, const Destination& destination)
+void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Destination& destination)
 {
     lock_guard<mutex>   lock(m_mutex);
 
