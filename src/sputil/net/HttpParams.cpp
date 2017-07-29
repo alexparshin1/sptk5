@@ -34,14 +34,14 @@ using namespace sptk;
 
 string HttpParams::encodeString(const string& str)
 {
-    uint32_t cnt = (uint32_t) str.length();
+    auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
-    char *buffer = (char *)calloc(cnt*3+1,1);
-    if (!buffer)
+    auto buffer = (char *)calloc(cnt*3+1,1);
+    if (buffer == nullptr)
         throw Exception("Out of memory");
     char *dest = buffer;
-    while (*src) {
-        if (isalnum(*src)) {
+    while (*src != 0) {
+        if (isalnum(*src) != 0) {
             *dest = *src;
             dest++;
         } else {
@@ -77,13 +77,13 @@ int hexCharToInt(unsigned char ch)
 
 string HttpParams::decodeString(const string& str)
 {
-    uint32_t cnt = (uint32_t) str.length();
+    auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
-    char *buffer = (char *)calloc(cnt+1,1);
-    if (!buffer)
+    auto buffer = (char *)calloc(cnt+1,1);
+    if (buffer == nullptr)
         throw Exception("Out of memory");
     char *dest = buffer;
-    while (*src) {
+    while (*src != 0) {
         switch (*src) {
         case '+':
             *dest = ' ';
@@ -113,7 +113,7 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
     Strings sl(cb.data(),"&");
     for (unsigned i=0; i < sl.size(); i++) {
         string& s = sl[i];
-        size_t pos = s.find("=");
+        size_t pos = s.find('=');
         if (pos != STRING_NPOS) {
             string key = s.substr(0, pos);
             string value = s.substr(pos+1);
@@ -124,12 +124,11 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 
 void HttpParams::encode(Buffer& result) const
 {
-    HttpParams::const_iterator itor = begin();
     unsigned cnt = 0;
-    for (; itor != end(); ++itor) {
+    for (auto& itor: *this) {
         string param;
-        param = itor->first + "=" + encodeString( itor->second );
-        if (cnt)
+        param = itor.first + "=" + encodeString(itor.second);
+        if (cnt != 0)
             result.append("&",1);
         result.append(param);
         cnt++;

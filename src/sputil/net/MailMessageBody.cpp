@@ -40,7 +40,7 @@ string MailMessageBody::stripHtml(const string& origHtml)
     // Remove comments and scripts
     for (i = 0; i < html.size(); i++) {
         string& str = html[i];
-        size_t pos = str.find(">");
+        size_t pos = str.find('>');
         if (pos == STRING_NPOS)
             continue;
         str = str.substr(pos + 1);

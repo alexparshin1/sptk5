@@ -35,7 +35,6 @@
 using namespace sptk;
 
 FTPSocket::FTPSocket()
-: TCPSocket()
 {
     m_port = 21;
     m_type = SOCK_STREAM;
@@ -48,7 +47,8 @@ FTPSocket::~FTPSocket()
         write("QUIT\n", 6);
 }
 
-void FTPSocket::open(std::string hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void FTPSocket::open(const std::string& hostName, uint32_t port, CSocketOpenMode openMode, bool blockingMode,
+                     uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
     TCPSocket::open(hostName, port, openMode, true, timeoutMS);
     get_response();
@@ -106,7 +106,7 @@ CFTPConnect::~CFTPConnect()
     close();
 }
 
-void CFTPConnect::host(std::string hostName, uint32_t portNumber)
+void CFTPConnect::host(const std::string& hostName, uint32_t portNumber)
 {
     close();
     m_port = portNumber;
@@ -127,7 +127,7 @@ void CFTPConnect::close()
     m_dataSocket.close();
 }
 
-void CFTPConnect::command(std::string cmd)
+void CFTPConnect::command(const std::string& cmd)
 {
     if (!active())
         throw Exception("Connection doesn't exist yet");
@@ -136,12 +136,11 @@ void CFTPConnect::command(std::string cmd)
 
 void CFTPConnect::openDataPort()
 {
-
     union
     {
         struct sockaddr sa;
         struct sockaddr_in in;
-    } sin;
+    } sin = {};
     uint32_t l = sizeof (sin);
     uint32_t v[6];
     struct linger lng = {
@@ -157,7 +156,7 @@ void CFTPConnect::openDataPort()
         memset(&sin, 0, l);
         sin.in.sin_family = AF_INET;
         const char *cp = strchr(resp.c_str(), '(');
-        if (cp == NULL)
+        if (cp == nullptr)
             throw Exception(resp);
         cp++;
         if (sscanf(cp, "%u,%u,%u,%u,%u,%u", &v[2], &v[3], &v[4], &v[5], &v[0], &v[1]) < 6)
@@ -195,7 +194,7 @@ void CFTPConnect::cmd_pwd()
     command("PWD ");
 }
 
-void CFTPConnect::getList(std::string cmd, Strings& list)
+void CFTPConnect::getList(const std::string& cmd, Strings& list)
 {
     Buffer buffer(1024);
     openDataPort();
@@ -204,10 +203,10 @@ void CFTPConnect::getList(std::string cmd, Strings& list)
     list.clear();
     do {
         len = m_dataSocket.readLine(buffer);
-        if (len)
+        if (len != 0)
             list.push_back(std::string(buffer.data(), len));
     }
-    while (len);
+    while (len != 0);
     m_dataSocket.close();
     m_commandSocket.get_response();
 }
@@ -225,23 +224,23 @@ void CFTPConnect::cmd_nlst(Strings& result)
 void CFTPConnect::cmd_retr(std::string fileName)
 {
     FILE *outfile = fopen(fileName.c_str(), "w+b");
-    if (!outfile)
+    if (outfile == nullptr)
         throw Exception("Can't open file <" + fileName + "> for writing");
-    char *buffer = new char[2048];
+    auto buffer = new char[2048];
     openDataPort();
     command("RETR " + fileName);
     size_t len;
     do {
-        len = m_dataSocket.read(buffer, 2048, 0);
-        if (len) {
-            uint32_t bytes = (uint32_t) fwrite(buffer, 1, len, outfile);
+        len = m_dataSocket.read(buffer, 2048, nullptr);
+        if (len != 0) {
+            auto bytes = (uint32_t) fwrite(buffer, 1, len, outfile);
             if (bytes != len) {
                 delete [] buffer;
                 throw Exception("Can't open file <" + fileName + "> for writing");
             }
         }
     }
-    while (len);
+    while (len != 0);
     m_dataSocket.close();
     fclose(outfile);
     m_commandSocket.get_response();
@@ -252,15 +251,15 @@ void CFTPConnect::cmd_store(std::string fileName)
 {
     Buffer buffer(8192);
     FILE *infile = fopen(fileName.c_str(), "rb");
-    if (!infile)
+    if (infile == nullptr)
         throw Exception("Can't open file <" + fileName + "> for reading");
     openDataPort();
     command("STOR " + fileName);
     size_t len;
-    while (!feof(infile)) {
+    while (feof(infile) == 0) {
         size_t bytes = (uint32_t) fread(buffer.data(), 1, 8192, infile);
         char *p = buffer.data();
-        while (bytes) {
+        while (bytes != 0) {
             len = m_dataSocket.write(p, bytes);
             if (len == 0) {
                 fclose(infile);
@@ -272,7 +271,7 @@ void CFTPConnect::cmd_store(std::string fileName)
         }
         fflush(stdout);
     }
-    m_dataSocket.write(NULL, 0);
+    m_dataSocket.write(nullptr, 0);
     m_dataSocket.close();
     fclose(infile);
 }

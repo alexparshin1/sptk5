@@ -87,7 +87,7 @@ public:
      * @brief Constructor
      * @param name CString, name of the thread for future references.
      */
-    Thread(std::string name);
+    Thread(const std::string& name);
 
     /**
      * @brief Destructor

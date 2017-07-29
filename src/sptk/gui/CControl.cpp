@@ -53,7 +53,7 @@ class CControlKindIndex
     static CNameTypeMap m_nameTypeMap;
     void registerType(CControlKind type,const char *name);
 public:
-    CControlKindIndex();
+    CControlKindIndex() noexcept;
     static string name(CControlKind type) THROWS_EXCEPTIONS;
     static CControlKind type(const string& name) THROWS_EXCEPTIONS
     {
@@ -92,7 +92,7 @@ static CControlKindName typeNames[] = {
                                           {DCV_UNKNOWN,""}
                                       };
 
-CControlKindIndex::CControlKindIndex()
+CControlKindIndex::CControlKindIndex() noexcept
 {
     CControlKindName *typeName = typeNames;
     while (typeName->type != DCV_UNKNOWN) {
@@ -110,13 +110,13 @@ void CControlKindIndex::registerType(CControlKind type, const char *name)
     pair<CNameTypeMap::iterator, bool> insertResult;
 
     insertResult = m_nameTypeMap.insert(CNameTypeMap::value_type(name, type));
-    CNameTypeMap::iterator itor = insertResult.first;
+    auto itor = insertResult.first;
     m_typeNameMap[type] = &itor->first;
 }
 
 string CControlKindIndex::name(CControlKind type) THROWS_EXCEPTIONS
 {
-    CTypeNameMap::iterator itor = m_typeNameMap.find(type);
+    auto itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
         throw Exception("Control type " + int2string(type) + " is undefined");
     return *itor->second;
@@ -124,7 +124,7 @@ string CControlKindIndex::name(CControlKind type) THROWS_EXCEPTIONS
 
 CControlKind CControlKindIndex::type(const char* name) THROWS_EXCEPTIONS
 {
-    CNameTypeMap::iterator itor = m_nameTypeMap.find(name);
+    auto itor = m_nameTypeMap.find(name);
     if (itor == m_nameTypeMap.end())
         throw Exception("Control name " + string(name) + " is undefined");
     return itor->second;
@@ -132,55 +132,55 @@ CControlKind CControlKindIndex::type(const char* name) THROWS_EXCEPTIONS
 
 //=========================================================================
 
-void CControl::defaultControlMenuCopy(Fl_Widget *w, void *)
+void CControl::defaultControlMenuCopy(Fl_Widget *w, void *d)
 {
-    CControl *control = dynamic_cast<CControl *>(w->parent());
-    if (control) {
+    auto control = dynamic_cast<CControl *>(w->parent());
+    if (control != nullptr) {
         std::string text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
     }
 }
 
-void CControl::defaultControlMenuCut(Fl_Widget *w, void *)
+void CControl::defaultControlMenuCut(Fl_Widget *w, void *d)
 {
-    CControl *control = dynamic_cast<CControl *>(w->parent());
-    if (control) {
+    auto control = dynamic_cast<CControl *>(w->parent());
+    if (control != nullptr) {
         std::string text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
         control->data("");
     }
 }
 
-void CControl::defaultControlMenuPaste(Fl_Widget *w, void *)
+void CControl::defaultControlMenuPaste(Fl_Widget *w, void *d)
 {
-    CControl *control = dynamic_cast<CControl *>(w->parent());
-    if (control) {
+    auto control = dynamic_cast<CControl *>(w->parent());
+    if (control != nullptr) {
         control->data("");
         Fl::paste(*control->m_control, 1);
     }
 }
 
-void CControl::defaultControlMenuClear(Fl_Widget *w, void *)
+void CControl::defaultControlMenuClear(Fl_Widget *w, void *d)
 {
-    CControl *control = dynamic_cast<CControl *>(w->parent());
-    if (control)
+    auto control = dynamic_cast<CControl *>(w->parent());
+    if (control != nullptr)
         control->data("");
 }
 
 void CControl::ctor_init(const char *label)
 {
-    if (label)
+    if (label != nullptr)
         m_label = label;
     m_limited = false;
     m_controlFlags = FGE_SINGLELINEENTRY;
     m_textFont = FL_HELVETICA;
     m_textSize = FL_NORMAL_SIZE;
     m_textColor = FL_FOREGROUND_COLOR;
-    m_control = 0;
+    m_control = nullptr;
     m_tag = 0;
     m_labelWidth = 100;
     m_labelColor = FL_FOREGROUND_COLOR;
-    m_menuButton = 0L;
+    m_menuButton = nullptr;
     m_hasFocus = false;
     box(FL_NO_BOX);
 }
@@ -210,7 +210,7 @@ unsigned CControl::labelHeight() const
 {
     fl_font(labelfont(), labelsize());
     int cw = m_labelWidth - 3, ch = 0;
-    if (m_labelWidth)
+    if (m_labelWidth != 0)
         fl_measure(m_label.c_str(), cw, ch);
     return ch;
 }
@@ -218,13 +218,13 @@ unsigned CControl::labelHeight() const
 void CControl::resize(int x, int y, int w, int h)
 {
     Fl_Group::resize(x, y, w, h);
-    if (m_control) {
+    if (m_control != nullptr) {
         int hh = h;
         if (!(m_controlFlags & FGE_MULTILINEENTRY))
             hh = textSize() + 8;
         m_control->resize(x + m_labelWidth, y, w - m_labelWidth, hh);
     }
-    if (m_menuButton)
+    if (m_menuButton != nullptr)
         m_menuButton->resize(x + m_labelWidth, y, w - m_labelWidth, h);
 }
 
@@ -240,11 +240,11 @@ void CControl::labelColor(Fl_Color clr)
 
 void CControl::draw()
 {
-    Fl_Group::label(0);
+    Fl_Group::label(nullptr);
     Fl_Group::draw();
     if (m_labelWidth > 5) {
         int hh = labelHeight();
-        if (hh) {
+        if (hh != 0) {
             fl_font(labelfont(), labelsize());
             fl_color(m_labelColor);
             fl_draw(m_label.c_str(), x() + 1, y() + 1, m_labelWidth - 3, hh,
@@ -333,15 +333,15 @@ bool sptk::checkFieldName(std::string fieldName)
     size_t len = fieldName.length();
     if (len > 80)
         return false;
-    if (!len)
+    if (len == 0)
         return true;
 
     for (size_t i = 0; i < len; i++) {
-        if (!isalnum(fieldName[i]))
+        if (isalnum(fieldName[i]) == 0)
             if (fieldName[i] != '_')
                 return false;
     }
-    if (!isalpha(fieldName[0]))
+    if (isalpha(fieldName[0]) == 0)
         return false;
     return true;
 }
@@ -518,15 +518,15 @@ CControlKind CControl::controlNameToType(std::string typeName, int& maxLength, s
 
 void CControl::menu(const Fl_Menu_Item *newMenu)
 {
-    if (!newMenu) {
-        if (m_menuButton) {
+    if (newMenu == nullptr) {
+        if (m_menuButton != nullptr) {
             remove(m_menuButton);
             delete m_menuButton;
-            m_menuButton = 0L;
+            m_menuButton = nullptr;
         }
         return;
     }
-    if (!m_menuButton) {
+    if (m_menuButton == nullptr) {
         Fl_Group *currentGroup = Fl_Group::current();
         begin();
         m_menuButton = new Fl_Menu_Button(m_labelWidth, 0, w() - m_labelWidth, h());
@@ -546,9 +546,9 @@ Fl_Menu_ *CControl::menu() const
 
 void CControl::internalCallback(Fl_Widget *internalWidget, void *data)
 {
-    for (Fl_Widget *parentWidget = internalWidget->parent(); parentWidget; parentWidget = parentWidget->parent()) {
-        CControl *control = dynamic_cast<CControl *>(parentWidget);
-        if (control) {
+    for (Fl_Widget *parentWidget = internalWidget->parent(); parentWidget != nullptr; parentWidget = parentWidget->parent()) {
+        auto control = dynamic_cast<CControl *>(parentWidget);
+        if (control != nullptr) {
             control->fireEvent(CE_DATA_CHANGED, long(data));
             break;
         }
@@ -557,7 +557,7 @@ void CControl::internalCallback(Fl_Widget *internalWidget, void *data)
 
 void CControl::fireEvent(CEvent ev, int32_t arg)
 {
-    if (callback()) {
+    if (callback() != nullptr) {
         m_event = CEventInfo(ev, arg);
         do_callback();
         m_event = CEventInfo(CE_NONE, 0);
@@ -566,10 +566,7 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
 
 void sptk::createControls(const XMLNodeList& xmlControls) THROWS_EXCEPTIONS
 {
-    XMLNodeList::const_iterator itor = xmlControls.begin();
-    XMLNodeList::const_iterator iend = xmlControls.end();
-    for (; itor != iend; ++itor) {
-        XMLNode* node = *itor;
+    for (auto node: xmlControls) {
         CControlKind controlKind = CControlKindIndex::type(node->name());
         CControl* control = createControl(controlKind, node->getAttribute("label", ""), node->getAttribute("fieldName", ""),
                 node->getAttribute("size", "12"));

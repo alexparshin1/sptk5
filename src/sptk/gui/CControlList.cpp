@@ -40,7 +40,7 @@ void CControlList::scanControls(const Fl_Group *group)
         Fl_Widget *widget = group->child(i);
 
         // The try {} catch() {} is only required for MSVC++
-        CControl *control = 0L;
+        CControl *control = nullptr;
         try {
             control = dynamic_cast<CControl *>(widget);
         } catch (...) {
@@ -52,7 +52,7 @@ void CControlList::scanControls(const Fl_Group *group)
             continue;
         }
 
-        Fl_Group *g = 0L;
+        Fl_Group *g = nullptr;
 
         try {
             g = dynamic_cast<Fl_Group *>(widget);

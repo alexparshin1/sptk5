@@ -48,7 +48,7 @@ ThreadPool::~ThreadPool()
 void ThreadPool::threadFunction()
 {
     while (!terminated()) {
-        WorkerThread* workerThread = NULL;
+        WorkerThread* workerThread = nullptr;
         if (m_terminatedThreads.pop_front(workerThread, 1000)) {
             m_threads.remove(workerThread);
             delete workerThread;
@@ -58,7 +58,7 @@ void ThreadPool::threadFunction()
 
 WorkerThread* ThreadPool::createThread()
 {
-    WorkerThread*  workerThread = new WorkerThread(&m_taskQueue, this, m_threadIdleSeconds);
+    auto workerThread = new WorkerThread(&m_taskQueue, this, m_threadIdleSeconds);
     m_threads.push_back(workerThread);
     workerThread->run();
     return workerThread;
@@ -108,7 +108,7 @@ void ThreadPool::stop()
         m_shutdown = true;
     }
     m_threads.each(terminateThread);
-    while (m_threads.size())
+    while (!m_threads.empty())
         Thread::msleep(100);
 }
 

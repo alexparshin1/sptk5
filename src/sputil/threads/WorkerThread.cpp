@@ -34,7 +34,7 @@ using namespace sptk;
 
 void WorkerThread::threadFunction()
 {
-    if (m_threadEvent)
+    if (m_threadEvent != nullptr)
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED);
 
     uint32_t idleSeconds = 0;
@@ -43,10 +43,10 @@ void WorkerThread::threadFunction()
         if (m_maxIdleSeconds != SP_INFINITY && idleSeconds >= m_maxIdleSeconds)
             break;
 
-        Runable* runable = NULL;
+        Runable* runable = nullptr;
         if (m_queue->pop(runable, 1000)) {
             idleSeconds = 0;
-            if (m_threadEvent)
+            if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED);
             try {
                 runable->execute();
@@ -57,12 +57,12 @@ void WorkerThread::threadFunction()
             catch (...) {
                 cerr << "Runable::run() : unknown exception" << endl;
             }
-            if (m_threadEvent)
+            if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED);
         } else
             idleSeconds++;
     }
-    if (m_threadEvent)
+    if (m_threadEvent != nullptr)
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED);
 }
 
@@ -71,11 +71,11 @@ WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* thre
     m_threadEvent(threadEvent),
     m_maxIdleSeconds(maxIdleSeconds)
 {
-    if (queue)
+    if (queue != nullptr)
         m_queue = queue;
     else
         m_queue = new SynchronizedQueue<Runable*>;
-    m_queueOwner = (queue == NULL);
+    m_queueOwner = (queue == nullptr);
 }
 
 WorkerThread::~WorkerThread()

@@ -36,10 +36,6 @@ Semaphore::Semaphore(uint32_t startingValue, uint32_t maxValue)
 {
 }
 
-Semaphore::~Semaphore()
-{
-}
-
 void Semaphore::post() THROWS_EXCEPTIONS
 {
     lock_guard<mutex>  lock(m_mutex);

@@ -176,7 +176,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~TCPSocket();
+    virtual ~TCPSocket() = default;
 
     /**
      * @brief Opens the client socket connection by host and port

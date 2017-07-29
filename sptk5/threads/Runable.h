@@ -78,7 +78,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~Runable();
+    virtual ~Runable() = default;
 
     /**
      * @brief Executes task' run method

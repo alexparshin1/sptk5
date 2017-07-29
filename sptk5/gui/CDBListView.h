@@ -149,7 +149,7 @@ public:
      * and contain the unique integer values so the row could be identified by that value.
      * @param fieldName std::string, the name of the field
      */
-    void keyField(std::string fieldName);
+    void keyField(const std::string& fieldName);
 
     /**
      * Returns key field name
@@ -165,7 +165,7 @@ public:
      * @param sql std::string,  the full refresh SQL query text
      * @param keyField std::string, the name of the key field
      */
-    void setup(DatabaseConnection* db,std::string sql,std::string keyField);
+    void setup(DatabaseConnection* db, const std::string& sql, const std::string& keyField);
 
     /**
      * Refreshes the data with full or fast method

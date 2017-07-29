@@ -80,7 +80,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~Semaphore();
+    virtual ~Semaphore() = default;
 
     /**
      * @brief Posts the semaphore

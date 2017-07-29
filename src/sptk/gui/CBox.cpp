@@ -47,7 +47,7 @@ void CBox::ctor_init(const char* label)
     m_control->callback(CControl::internalCallback);
     m_control->when(FL_WHEN_CHANGED);
     labelWidth(0);
-    if (label)
+    if (label != nullptr)
         data(label);
 }
 

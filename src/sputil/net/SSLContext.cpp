@@ -88,17 +88,17 @@ void SSLContext::loadKeys(const string& privateKeyFileName, const string& certif
     if (SSL_CTX_use_PrivateKey_file(m_ctx, privateKeyFileName.c_str(), SSL_FILETYPE_PEM) <= 0)
         throwError("Can't use private key file " + privateKeyFileName);
 
-    if (!SSL_CTX_check_private_key(m_ctx))
+    if (SSL_CTX_check_private_key(m_ctx) == 0)
         throwError("Can't check private key file " + privateKeyFileName);
 
     // Load the CAs we trust
-    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), 0) <= 0)
+    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), nullptr) <= 0)
         throwError("Can't load or verify CA file " + caFileName);
 
     if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)
         throwError("Can't set default verify paths");
 
-    SSL_CTX_set_verify(m_ctx, verifyMode, NULL);
+    SSL_CTX_set_verify(m_ctx, verifyMode, nullptr);
     SSL_CTX_set_verify_depth(m_ctx, verifyDepth);
 }
 

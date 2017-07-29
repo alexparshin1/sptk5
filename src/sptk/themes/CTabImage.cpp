@@ -101,23 +101,21 @@ void CTabImage::draw(int x,int y,int w,int h) {
 
 void CTabImages::load(const Tar& tar,const XMLNode* tabImagesNode) {
     clear();
-    XMLNode::const_iterator itor = tabImagesNode->begin();
-    for (; itor != tabImagesNode->end(); itor++) {
-        XMLNode*   tabNode = *itor;
-        CTabImage*  tabImage = new CTabImage(tar,tabNode);
+    for (auto tabNode: *tabImagesNode) {
+        auto tabImage = new CTabImage(tar,tabNode);
         (*this)[tabImage->name()] = tabImage;
     }
 }
 
 void CTabImages::clear() {
-    for (iterator itor = begin(); itor != end(); itor++)
-        delete itor->second;
+    for (auto itor: *this)
+        delete itor.second;
     map<std::string,CTabImage*>::clear();
 }
 
 CTabImage* CTabImages::tabImage(const char* imageName) {
-    iterator itor = find(imageName);
+    auto itor = find(imageName);
     if (itor == end())
-        return 0;
+        return nullptr;
     return itor->second;
 }

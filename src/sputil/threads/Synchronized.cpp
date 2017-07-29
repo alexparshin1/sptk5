@@ -32,11 +32,7 @@ using namespace std;
 using namespace sptk;
 
 Synchronized::Synchronized() :
-    m_location(NULL,0)
-{
-}
-
-Synchronized::~Synchronized()
+    m_location(nullptr, 0)
 {
 }
 
@@ -44,9 +40,9 @@ void Synchronized::throwError(const char* fileName, int lineNumber) THROWS_EXCEP
 {
     string error("Lock failed");
 
-    if (fileName) {
+    if (fileName != nullptr) {
         error += " at " + CLocation(fileName, lineNumber).toString();
-        if (m_location.file())
+        if (m_location.file() != nullptr)
             error += ", conflicting lock at " + m_location.toString();
     }
 

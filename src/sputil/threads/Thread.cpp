@@ -36,7 +36,7 @@ namespace sptk {
 
     void Thread::threadStart(void* athread)
     {
-        Thread* th = (Thread*) athread;
+        auto th = (Thread*) athread;
         try {
             th->threadFunction();
             th->onThreadExit();
@@ -50,7 +50,7 @@ namespace sptk {
     }
 }
 
-Thread::Thread(string name) :
+Thread::Thread(const string& name) :
     m_name(name),
     m_terminated(false)
 {

@@ -36,10 +36,6 @@ Runable::Runable() :
 {
 }
 
-Runable::~Runable()
-{
-}
-
 void Runable::execute() THROWS_EXCEPTIONS
 {
     SynchronizedCode   sc(m_running);

@@ -37,14 +37,15 @@
 using namespace std;
 using namespace sptk;
 
-CDBListView::CDBListView(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-: CListView(label,layoutSize,layoutAlignment) {
-   m_fastRefreshEnabed = false;
-   m_maxRecords = 0;
-   m_recordsLimited = false;
+CDBListView::CDBListView(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+    : CListView(label, layoutSize, layoutAlignment)
+{
+    m_fastRefreshEnabed = false;
+    m_maxRecords = 0;
+    m_recordsLimited = false;
 }
 
-#ifdef __COMPATIBILITY_MODE__    
+#ifdef __COMPATIBILITY_MODE__
 CDBListView::CDBListView(int x, int y, int w, int h, const char *label)
 : CListView(x, y, w, h, label) {
    m_fastRefreshEnabed = false;
@@ -53,73 +54,83 @@ CDBListView::CDBListView(int x, int y, int w, int h, const char *label)
 }
 #endif
 
-CDBListView::~CDBListView() {
-   m_fastRefreshQuery.close();
-   m_fullRefreshQuery.close();
+CDBListView::~CDBListView()
+{
+    m_fastRefreshQuery.close();
+    m_fullRefreshQuery.close();
 }
 
-CLayoutClient* CDBListView::creator(XMLNode *node) {
-    CDBListView* widget = new CDBListView("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CDBListView::creator(XMLNode* node)
+{
+    auto widget = new CDBListView("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CDBListView::database(DatabaseConnection *db) {
-   if (m_dataMode == LV_DATA_UNDEFINED)
-      m_dataMode = LV_DATA_KEY;
-   m_fastRefreshQuery.connect(db);
-   m_fullRefreshQuery.connect(db);
-   m_recordCountQuery.connect(db);
+void CDBListView::database(DatabaseConnection* db)
+{
+    if (m_dataMode == LV_DATA_UNDEFINED)
+        m_dataMode = LV_DATA_KEY;
+    m_fastRefreshQuery.connect(db);
+    m_fullRefreshQuery.connect(db);
+    m_recordCountQuery.connect(db);
 }
 
-DatabaseConnection *CDBListView::database() const {
-   return m_fullRefreshQuery.database();
+DatabaseConnection* CDBListView::database() const
+{
+    return m_fullRefreshQuery.database();
 }
 
-void CDBListView::sql(string _sql,string _recordCountSql,string _fastRefreshSQL) {
-   m_fullRefreshQuery.sql(_sql);
-   m_fastRefreshQuery.sql(_fastRefreshSQL);
-   m_recordCountQuery.sql(_recordCountSql);
-   m_fastRefreshEnabed = _fastRefreshSQL.length() > 0;
+void CDBListView::sql(string _sql, string _recordCountSql, string _fastRefreshSQL)
+{
+    m_fullRefreshQuery.sql(_sql);
+    m_fastRefreshQuery.sql(_fastRefreshSQL);
+    m_recordCountQuery.sql(_recordCountSql);
+    m_fastRefreshEnabed = _fastRefreshSQL.length() > 0;
 }
 
-string CDBListView::sql() {
-   return m_fullRefreshQuery.sql();
+string CDBListView::sql()
+{
+    return m_fullRefreshQuery.sql();
 }
 
-QueryParameter& CDBListView::param(const char *paramName,CRefreshKind refreshKind) {
-   if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST )
-      return m_fastRefreshQuery.param(paramName);
-   else  return m_fullRefreshQuery.param(paramName);
+QueryParameter& CDBListView::param(const char* paramName, CRefreshKind refreshKind)
+{
+    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
+        return m_fastRefreshQuery.param(paramName);
+    return m_fullRefreshQuery.param(paramName);
 }
 
-void CDBListView::setup(DatabaseConnection *db,string _sql,string _keyField) {
-   database(db);
-   sql(_sql);
-   keyField(_keyField);
+void CDBListView::setup(DatabaseConnection* db, const string& _sql, const string& _keyField)
+{
+    database(db);
+    sql(_sql);
+    keyField(_keyField);
 }
 
-void CDBListView::keyField(string keyField) {
-   m_keyField = keyField;
+void CDBListView::keyField(const string& keyField)
+{
+    m_keyField = keyField;
 }
 
-void CDBListView::refreshData(CRefreshKind refreshKind) {
-   m_lastRefresh = DateTime::Now();
+void CDBListView::refreshData(CRefreshKind refreshKind)
+{
+    m_lastRefresh = DateTime::Now();
 
-   fl_cursor(FL_CURSOR_WAIT);
-   Fl::check();
+    fl_cursor(FL_CURSOR_WAIT);
+    Fl::check();
 
-   unsigned recordsEstimated = 0;
-   if (m_recordCountQuery.sql().length()) {
-      m_recordCountQuery.open();
-      recordsEstimated = m_recordCountQuery[uint32_t(0)].asInteger();
-      m_recordCountQuery.close();
-   }
+    unsigned recordsEstimated = 0;
+    if (!m_recordCountQuery.sql().empty()) {
+        m_recordCountQuery.open();
+        recordsEstimated = m_recordCountQuery[uint32_t(0)].asInteger();
+        m_recordCountQuery.close();
+    }
 
-   Query *query = &m_fullRefreshQuery;
-   if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
-      query = &m_fastRefreshQuery;
-   else  refreshKind = LV_REFRESH_FULL;
+    Query* query = &m_fullRefreshQuery;
+    if (m_fastRefreshEnabed && refreshKind == LV_REFRESH_FAST)
+        query = &m_fastRefreshQuery;
+    else refreshKind = LV_REFRESH_FULL;
 
-   fill(*query,m_keyField,m_maxRecords,recordsEstimated,refreshKind);
+    fill(*query, m_keyField, m_maxRecords, recordsEstimated, refreshKind);
 }

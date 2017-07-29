@@ -86,7 +86,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~Synchronized();
+    virtual ~Synchronized() = default;
 
     /**
      * @brief Tries to lock synchronization object. Blocks until the lock is successfull.

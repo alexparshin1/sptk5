@@ -26,9 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include <cstdio>
+#include <cstdlib>
 #include <sptk5/net/TCPSocket.h>
 
 using namespace std;
@@ -54,13 +53,13 @@ void TCPSocketReader::open()
 
 int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
 {
-    int availableBytes = int(m_bytes - m_readOffset);
-    int bytesToRead = (int) sz;
+    auto availableBytes = int(m_bytes - m_readOffset);
+    auto bytesToRead = (int) sz;
     bool eol = false;
 
-    if (!availableBytes) {
+    if (availableBytes == 0) {
         m_readOffset = 0;
-        if (from) {
+        if (from != nullptr) {
             socklen_t flen = sizeof(sockaddr_in);
             m_bytes = recvfrom(m_socket.handle(), m_buffer, int32_t(m_size - 2), 0, (sockaddr*) from, &flen);
         } else {
@@ -71,7 +70,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
 
         availableBytes = int (m_bytes);
         m_buffer[m_bytes] = 0;
-        if (!m_bytes)
+        if (m_bytes == 0)
             return 0;
     }
 
@@ -79,14 +78,14 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
     if (availableBytes < bytesToRead)
         bytesToRead = availableBytes;
 
-    char *cr = NULL;
+    char *cr = nullptr;
     if (read_line) {
         size_t len = bytesToRead;
         if (delimiter == 0)
             len = strlen(readPosition);
         else {
             cr = strchr(readPosition, delimiter);
-            if (cr)
+            if (cr != nullptr)
                 len = size_t(cr - readPosition + 1);
         }
         if (len < sz) {
@@ -95,7 +94,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
             if (eol) {
                 if (delimiter == 0)
                     bytesToRead++;
-                if (cr)
+                if (cr != nullptr)
                     *cr = 0;
             }
         }
@@ -122,14 +121,14 @@ size_t TCPSocketReader::read(char *dest, size_t sz, char delimiter, bool read_li
     if (m_socket.handle() <= 0)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
-    while (!eol) {
+    while (eol == 0) {
         int bytesToRead = int(sz) - total;
         if (bytesToRead <= 0)
             return sz;
 
         int bytes = bufferedRead(dest, size_t(bytesToRead), delimiter, read_line, from);
 
-        if (!bytes) // No more data
+        if (bytes == 0) // No more data
             break;
 
         if (bytes < 0) { // Received the complete string
@@ -156,8 +155,8 @@ size_t TCPSocketReader::readLine(Buffer& destBuffer, char delimiter)
     if (m_socket.handle() <= 0)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
-    while (!eol) {
-        int bytesToRead = int(destBuffer.size() - total);
+    while (eol == 0) {
+        auto bytesToRead = int(destBuffer.size() - total);
         if (bytesToRead <= 128) {
             destBuffer.checkSize(destBuffer.size() + 128);
             bytesToRead = int(destBuffer.size() - total - 1);
@@ -167,7 +166,7 @@ size_t TCPSocketReader::readLine(Buffer& destBuffer, char delimiter)
 
         int bytes = bufferedRead(dest, size_t(bytesToRead), delimiter, true);
 
-        if (!bytes) // No more data
+        if (bytes == 0) // No more data
             break;
 
         if (bytes < 0) { // Received the complete string
@@ -188,21 +187,16 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
-// Destructor
-TCPSocket::~TCPSocket()
-{
-}
-
 void TCPSocket::open(const string& hostName, uint16_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
 {
-    if (hostName.length())
+    if (!hostName.empty())
         m_host = hostName;
-    if (!m_host.length())
+    if (m_host.empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
-    if (portNumber)
+    if (portNumber != 0)
         m_port = portNumber;
 
-    sockaddr_in addr;
+    sockaddr_in addr = {};
     getHostAddress(m_host, addr);
     addr.sin_family = AF_INET;
     addr.sin_port = htons(m_port);
@@ -247,7 +241,7 @@ char TCPSocket::getChar()
 #else
     ssize_t bytes = ::read(m_sockfd, &ch, 1);
 #endif
-    if (!bytes)
+    if (bytes == 0)
         return 0;
     return ch;
 }

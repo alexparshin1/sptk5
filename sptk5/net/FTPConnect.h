@@ -66,7 +66,8 @@ public:
     /**
      * Establish the connection
      */
-    virtual void open(std::string hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS;
+    virtual void open(const std::string& hostName = "", uint32_t port = 0, CSocketOpenMode openMode = SOM_CONNECT,
+                      bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS;
 
     /**
      * Returns a reference to server response string list
@@ -144,12 +145,12 @@ protected:
     /**
      * Sends command to the FTP server
      */
-    void command(std::string cmd);
+    void command(const std::string& cmd);
 
     /**
      * Gets the list from the FTP server
      */
-    void getList(std::string cmd, Strings& list);
+    void getList(const std::string& cmd, Strings& list);
 
 public:
 
@@ -214,7 +215,7 @@ public:
     /**
      * Sets the host name and port
      */
-    void host(std::string hostName, uint32_t portNumber = 21);
+    void host(const std::string& hostName, uint32_t portNumber = 21);
 
     /**
      * Opens the FTP connection

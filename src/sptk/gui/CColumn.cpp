@@ -89,8 +89,8 @@ int CColumnList::indexOf(const char *colname) const
 
 void CColumnList::load(const XMLNode& node)
 {
-    XMLNode::const_iterator itor = node.begin();
-    XMLNode::const_iterator iend = node.end();
+    auto itor = node.begin();
+    auto iend = node.end();
     resize(node.size());
     for (; itor != iend; ++itor) {
         try {

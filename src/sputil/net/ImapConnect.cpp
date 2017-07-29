@@ -69,7 +69,7 @@ bool ImapConnect::getResponse(string ident)
         if (longLine[0] == '+')
             return true;
         if (longLine.find(ident) == 0) {
-            uint32_t p = (uint32_t) ident.length();
+            auto p = (uint32_t) ident.length();
             while (longLine[p] == ' ') p++;
             switch (longLine[p]) {
                 case 'O': // OK
@@ -192,7 +192,7 @@ static const char *required_headers[] = {
     "Content-Type",
     "Reply-To",
     "Return-Path",
-    NULL
+    nullptr
 };
 
 static void parse_header(const string &header, string &header_name, string &header_value)
