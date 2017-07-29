@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string.h>
@@ -207,4 +208,9 @@ Strings Strings::grep(string pattern) const
             output.push_back(str);
     }
     return output;
+}
+
+void Strings::sort()
+{
+    ::sort(begin(),end());
 }

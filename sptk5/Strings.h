@@ -402,8 +402,8 @@ public:
     }
 
     /**
-     * @brief Removes a string from vector
-     * @param i uint32_t, string index in the vector
+     * @brief Removes a string from this object
+     * @param i uint32_t, string index in the string vector
      */
     void remove(uint32_t i)
     {
@@ -421,6 +421,11 @@ public:
      * @param pattern std::string, regex pattern
      */
     Strings grep(std::string pattern) const;
+
+    /**
+     * @brief Sort strings inside this object
+     */
+    void sort();
 };
 
 /**
