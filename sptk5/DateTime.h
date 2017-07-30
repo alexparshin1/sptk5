@@ -262,7 +262,7 @@ public:
     /**
      * @brief Print the date into str
      */
-    void formatTime(char *str, bool ampm=true, bool showSeconds=false, bool showTimezone=false) const;
+    void formatTime(char* str, bool ampm, bool showSeconds, bool showTimezone, bool showMilliseconds) const;
 
     /**
      * @brief Returns value as Unix epoch time.
@@ -371,7 +371,7 @@ public:
     /**
      * @brief Returns time as a string
      */
-    std::string timeString(bool showSeconds=false, bool showTimezone=false) const;
+    std::string timeString(bool showSeconds=false, bool showTimezone=false, bool showMilliseconds=false) const;
 
     /**
      * @brief Returns time as a ISO date and time string

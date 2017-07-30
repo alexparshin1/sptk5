@@ -84,7 +84,7 @@ public:
      * @brief Move constructor
      * @param src const Strings&, other object
      */
-    String(const String &&src)
+    String(String&& src)
     : std_string(std::move(src)), m_id(src.m_id)
     {
     }
@@ -93,7 +93,7 @@ public:
      * @brief Move constructor
      * @param src const Strings&, other object
      */
-    String(const std::string &&src)
+    String(std::string&& src)
     : std_string(std::move(src)), m_id(0)
     {
     }

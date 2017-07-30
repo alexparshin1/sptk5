@@ -808,7 +808,7 @@ void DateTime::formatDate(char* str, bool universalDateFormat) const
     }
 }
 
-void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimezone) const
+void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimezone, bool showMilliseconds) const
 {
     short h, m, s, ms;
 
@@ -827,8 +827,10 @@ void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimez
     int length;
     if (!showSeconds)
         length = sprintf(str, "%02i%c%02i", h, timeSeparator, m);
-    else
+    else if (!showMilliseconds)
         length = sprintf(str, "%02i%c%02i%c%02i", h, timeSeparator, m, timeSeparator, s);
+    else
+        length = sprintf(str, "%02i%c%02i%c%02i.%03i", h, timeSeparator, m, timeSeparator, s, ms);
     if (ampm)
         strcat(str, appendix);
     if (showTimezone) {
@@ -969,10 +971,10 @@ string DateTime::dateString(bool universalDateFormat) const
     return string(buffer);
 }
 
-string DateTime::timeString(bool showSeconds, bool showTimezone) const
+string DateTime::timeString(bool showSeconds, bool showTimezone, bool showMilliseconds) const
 {
     char buffer[32];
-    formatTime(buffer, !_time24Mode, showSeconds, showTimezone);
+    formatTime(buffer, !_time24Mode, showSeconds, showTimezone, showMilliseconds);
     return string(buffer);
 }
 
