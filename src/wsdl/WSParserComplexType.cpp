@@ -159,17 +159,19 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
         if (cxxType[0] == 'C')
             usedClasses.insert(cxxType);
     }
+    classDeclaration << endl;
 
-    classDeclaration << endl;
-    classDeclaration << "#include <sptk5/sptk.h>" << endl;
-    classDeclaration << "#include <sptk5/FieldList.h>" << endl;
-    classDeclaration << "#include <sptk5/db/QueryParameterList.h>" << endl;
-    classDeclaration << "#include <sptk5/wsdl/WSBasicTypes.h>" << endl;
-    classDeclaration << "#include <sptk5/wsdl/WSComplexType.h>" << endl;
-    classDeclaration << "#include <sptk5/wsdl/WSRestriction.h>" << endl;
+    Strings includeFiles;
+    includeFiles.push_back("#include <sptk5/sptk.h>");
+    includeFiles.push_back("#include <sptk5/FieldList.h>");
+    includeFiles.push_back("#include <sptk5/db/QueryParameterList.h>");
+    includeFiles.push_back("#include <sptk5/wsdl/WSBasicTypes.h>");
+    includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
+    includeFiles.push_back("#include <sptk5/wsdl/WSRestriction.h>");
     for (auto& usedClass: usedClasses)
-        classDeclaration << "#include \"" << usedClass << ".h\"" << endl;
-    classDeclaration << endl;
+        includeFiles.push_back("#include \"" + usedClass + ".h\"");
+    includeFiles.sort();
+    classDeclaration << includeFiles.join("\n") << endl << endl;
 
     classDeclaration << "/**" << endl;
     classDeclaration << " * WSDL complex type class " << className << "." << endl;
