@@ -237,6 +237,19 @@ class SP_EXPORT Strings
      */
     int32_t m_userData;
 
+    /**
+     * Ascending sort compare function, used in sort()
+     * @param first const String&, First compared string
+     * @param second const String&, Second compared string
+     */
+    static bool sortAscending(const String& first, const String& second);
+
+    /**
+     * Descending sort compare function, used in sort()
+     * @param first const String&, First compared string
+     * @param second const String&, Second compared string
+     */
+    static bool sortDescending(const String& first, const String& second);
 
     /**
      * @brief Splits source string on substrings using exact delimiter
@@ -425,7 +438,7 @@ public:
     /**
      * @brief Sort strings inside this object
      */
-    void sort();
+    void sort(bool ascending=true);
 };
 
 /**

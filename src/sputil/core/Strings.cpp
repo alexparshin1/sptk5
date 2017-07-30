@@ -210,7 +210,20 @@ Strings Strings::grep(string pattern) const
     return output;
 }
 
-void Strings::sort()
+bool Strings::sortAscending(const String& first, const String& second)
 {
-    ::sort(begin(),end());
+    return first < second;
+}
+
+bool Strings::sortDescending(const String& first, const String& second)
+{
+    return first > second;
+}
+
+void Strings::sort(bool ascending)
+{
+    if (ascending)
+        ::sort(begin(),end(), sortAscending);
+    else
+        ::sort(begin(),end(), sortDescending);
 }
