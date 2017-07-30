@@ -978,9 +978,9 @@ string DateTime::timeString(bool showSeconds, bool showTimezone, bool showMillis
     return string(buffer);
 }
 
-std::string DateTime::isoDateTimeString() const
+std::string DateTime::isoDateTimeString(bool showMilliseconds) const
 {
-    return dateString(true) + "T" + timeString(true, true);
+    return dateString(true) + "T" + timeString(true, true, showMilliseconds);
 }
 
 DateTime DateTime::convertCTime(const time_t tt)

@@ -376,7 +376,7 @@ public:
     /**
      * @brief Returns time as a ISO date and time string
      */
-    std::string isoDateTimeString() const;
+    std::string isoDateTimeString(bool showMilliseconds=false) const;
 
     /**
      * @brief Returns date and time as a string
