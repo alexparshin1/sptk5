@@ -49,7 +49,7 @@ Element::Element(int value)
     m_data.m_number = value;
 }
 
-Element::Element(string value)
+Element::Element(const std::string& value)
 : m_parent(NULL), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
@@ -181,7 +181,7 @@ void Element::add(Element* element)
     element->m_parent = this;
 }
 
-void Element::add(string name, Element* element)
+void Element::add(const std::string& name, Element* element)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is not JSON object");

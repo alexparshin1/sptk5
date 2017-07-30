@@ -179,9 +179,9 @@ public:
 
     /**
      * Constructor
-     * @param value std::string, String value
+     * @param value const std::string&, String value
      */
-    Element(std::string value);
+    Element(const std::string& value);
 
     /**
      * Constructor
@@ -258,71 +258,71 @@ public:
      * Add JSON element to JSON object element.
      *
      * Element takes ownership of added element.
-     * @param name std::string, Name of the element in the object element
+     * @param name const std::string&, Name of the element in the object element
      * @param element Element*, Element to add
      */
-    void add(std::string name, Element* element);
+    void add(const std::string& name, Element* element);
 
     /**
      * Add integer field to JSON element
-     * @param name std::string, Field name
+     * @param name const std::string&, Field name
      * @param value int, Field value
      */
-    void add(std::string name, int value) { add(name, new Element(value)); }
+    void add(const std::string& name, int value) { add(name, new Element(value)); }
 
     /**
      * Add double field to JSON element
-     * @param name std::string, Field name
+     * @param name const std::string&, Field name
      * @param value double, Field value
      */
-    void add(std::string name, double value) { add(name, new Element(value)); }
+    void add(const std::string& name, double value) { add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
-     * @param name std::string, Field name
-     * @param value std::string, Field value
+     * @param name const std::string&, Field name
+     * @param value const std::string&, Field value
      */
-    void add(std::string name, std::string value) { add(name, new Element(value)); }
+    void add(const std::string& name, const std::string& value) { add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
-     * @param name std::string, Field name
+     * @param name const std::string&, Field name
      * @param value const char*, Field value
      */
-    void add(std::string name, const char* value) { add(name, new Element(value)); }
+    void add(const std::string& name, const char* value) { add(name, new Element(value)); }
 
     /**
      * Add boolean field to JSON element
-     * @param name std::string, Field name
+     * @param name const std::string&, Field name
      * @param value boolean, Field value
      */
-    void add(std::string name, bool value) { add(name, new Element(value)); }
+    void add(const std::string& name, bool value) { add(name, new Element(value)); }
 
     /**
      * Add JSON array field to JSON element
-     * @param name std::string, Field name
+     * @param name const std::string&, Field name
      * @param value ArrayData*, Field value
      */
-    void add(std::string name, ArrayData* value) { add(name, new Element(value)); }
+    void add(const std::string& name, ArrayData* value) { add(name, new Element(value)); }
 
     /**
      * Add JSON object field to JSON element
-     * @param name std::string, Field name
+     * @param name const std::string&, Field name
      * @param value ObjectData*, Field value
      *
      */
-    void add(std::string name, ObjectData* value) { add(name, new Element(value)); }
+    void add(const std::string& name, ObjectData* value) { add(name, new Element(value)); }
 
     /**
      * Find JSON element in JSON object element
-     * @param name std::string, Name of the element in the object element
+     * @param name const std::string&, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     const Element* find(const std::string& name) const;
 
     /**
      * Find JSON element in JSON object element
-     * @param name std::string, Name of the element in the object element
+     * @param name const std::string&, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     Element* find(const std::string& name);
@@ -331,7 +331,7 @@ public:
      * Get JSON element in JSON object element by name.
      * If element doesn't exist in JSON object yet, it's created as JSON null element.
      * If this element is not JSON object, an exception is thrown.
-     * @param name std::string, Name of the element in the object element
+     * @param name const std::string&, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     Element& operator[](const std::string& name) throw (Exception);
@@ -340,7 +340,7 @@ public:
      * Get JSON element in JSON object element by name.
      * If element doesn't exist in JSON object yet, then reference to static const JSON null element is returned.
      * If this element is not JSON object, an exception is thrown.
-     * @param name std::string, Name of the element in the object element
+     * @param name const std::string&, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     const Element& operator[](const std::string& name) const throw (Exception);
@@ -363,7 +363,7 @@ public:
 
     /**
      * Remove JSON element by name from this JSON object element
-     * @param name std::string, Name of the element in the object element
+     * @param name const std::string&, Name of the element in the object element
      */
     void remove(const std::string& name);
 
