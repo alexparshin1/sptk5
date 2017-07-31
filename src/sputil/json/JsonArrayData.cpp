@@ -59,14 +59,14 @@ void ArrayData::add(Element* element)
     m_items.push_back(element);
 }
 
-Element& ArrayData::operator[](size_t index) throw (Exception)
+Element& ArrayData::operator[](size_t index)
 {
     if (index >= m_items.size())
         throw Exception("Element index out of bound");
     return *m_items[index];
 }
 
-const Element& ArrayData::operator[](size_t index) const throw (Exception)
+const Element& ArrayData::operator[](size_t index) const
 {
     if (index >= m_items.size())
         throw Exception("Element index out of bound");

@@ -44,7 +44,7 @@ SocketPool::~SocketPool()
     close();
 }
 
-void SocketPool::open() throw (Exception)
+void SocketPool::open()
 {
     if (m_pool != INVALID_SOCKET)
         return;
@@ -53,7 +53,7 @@ void SocketPool::open() throw (Exception)
         new SystemException("epoll_create1");
 }
 
-void SocketPool::close() throw (Exception)
+void SocketPool::close()
 {
     if (m_pool != INVALID_SOCKET) {
         ::close(m_pool);
@@ -66,7 +66,7 @@ void SocketPool::close() throw (Exception)
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exception)
+void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 {
     if (!socket.active())
         throw Exception("Socket is closed");
@@ -86,7 +86,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exceptio
     m_socketData[&socket] = event;
 }
 
-void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
+void SocketPool::forgetSocket(BaseSocket& socket)
 {
     if (!socket.active())
         throw Exception("Socket is closed");
@@ -113,7 +113,7 @@ void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
 
 #define MAXEVENTS 16
 
-void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
+void SocketPool::waitForEvents(size_t timeoutMS)
 {
     epoll_event events[MAXEVENTS];
 

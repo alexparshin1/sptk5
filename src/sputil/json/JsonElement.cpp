@@ -211,7 +211,7 @@ Element* Element::find(const string& name)
     return m_data.m_object->find(name);
 }
 
-Element& Element::operator[](const std::string& name) throw (Exception)
+Element& Element::operator[](const std::string& name)
 {
     if (m_type != JDT_OBJECT && m_type != JDT_NULL)
         throw Exception("Parent element is not JSON object");
@@ -224,7 +224,7 @@ Element& Element::operator[](const std::string& name) throw (Exception)
     return (*m_data.m_object)[name];
 }
 
-const Element& Element::operator[](const std::string& name) const throw (Exception)
+const Element& Element::operator[](const std::string& name) const
 {
     if (m_type != JDT_OBJECT)
         return emptyElement;
@@ -235,7 +235,7 @@ const Element& Element::operator[](const std::string& name) const throw (Excepti
     return *element;
 }
 
-Element& Element::operator[](size_t index) throw (Exception)
+Element& Element::operator[](size_t index)
 {
     if (m_type != JDT_ARRAY)
         throw Exception("Parent element is not JSON array");
@@ -249,7 +249,7 @@ Element& Element::operator[](size_t index) throw (Exception)
     return (*m_data.m_array)[index];
 }
 
-const Element& Element::operator[](size_t index) const throw (Exception)
+const Element& Element::operator[](size_t index) const
 {
     if (m_type != JDT_ARRAY)
         throw Exception("Parent element is not JSON array");

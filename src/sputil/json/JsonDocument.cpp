@@ -46,7 +46,7 @@ void Document::clear()
     }
 }
 
-void Document::parse(const string& json) throw (Exception)
+void Document::parse(const string& json)
 {
     if (m_root)
         delete m_root;
@@ -83,18 +83,18 @@ Document::~Document()
         delete m_root;
 }
 
-void Document::load(const string& json) throw(Exception)
+void Document::load(const string& json)
 {
     parse(json);
 }
 
-void Document::load(const char* json) throw(Exception)
+void Document::load(const char* json)
 {
     string json_str(json);
     parse(json_str);
 }
 
-void Document::load(istream& json) throw(Exception)
+void Document::load(istream& json)
 {
     stringstream    buffer;
     string          row;

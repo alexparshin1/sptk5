@@ -89,7 +89,7 @@ public:
      * @param verifyDepth int, Connection verify depth
      */
     void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
-                  const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0) throw (std::exception);
+                  const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 
     /**
      * @brief Returns SSL context handle

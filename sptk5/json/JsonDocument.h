@@ -54,7 +54,7 @@ class Document
      * @param json const std::string&, JSON text
      * @throw Exception if there is a problem parsing JSON document
      */
-    void parse(const std::string& json) throw(Exception);
+    void parse(const std::string& json);
 
     /**
      * Disable copy constructor
@@ -93,21 +93,21 @@ public:
      * @param json const std::string&, JSON text
      * @throw Exception if there is a problem parsing JSON document
      */
-    void load(const std::string& json) throw(Exception);
+    void load(const std::string& json);
 
     /**
      * Load document from JSON text, replacing existing document
      * @param json const char*, JSON text
      * @throw Exception if there is a problem parsing JSON document
      */
-    void load(const char* json) throw(Exception);
+    void load(const char* json);
 
     /**
      * Load document from JSON text, replacing existing document
      * @param json std::istream&, JSON text
      * @throw Exception if there is a problem parsing JSON document
      */
-    void load(std::istream& json) throw(Exception);
+    void load(std::istream& json);
 
     /**
      * Export JSON element (and all children) to stream

@@ -120,7 +120,7 @@ public:
      * @param name std::string, Child element name
      * @returns Const child element reference, or throws exception if not found
      */
-    const Element& operator[](std::string name) const throw(Exception);
+    const Element& operator[](std::string name) const;
 
     /**
      * Find child element by name

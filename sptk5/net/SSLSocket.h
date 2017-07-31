@@ -71,7 +71,7 @@ protected:
      * @param size size_t, destination buffer size
      * @return the number of bytes read from the socket
      */
-    virtual size_t recv(void* buffer, size_t size) throw (std::exception);
+    virtual size_t recv(void* buffer, size_t size);
 
     /**
      * @brief Sends data through SSL socket
@@ -79,7 +79,7 @@ protected:
      * @param len uint32_t, the send data length
      * @return the number of bytes sent the socket
      */
-    virtual size_t send(const void* buffer, size_t len) throw (std::exception);
+    virtual size_t send(const void* buffer, size_t len);
 
     /**
      * @brief Get error description for SSL error code
@@ -131,7 +131,7 @@ public:
      * obtained with accept().
      * @param socketHandle SOCKET, existing socket handle
      */
-    virtual void attach(SOCKET socketHandle) throw (std::exception);
+    virtual void attach(SOCKET socketHandle);
 
     /**
      * @brief Closes the socket connection

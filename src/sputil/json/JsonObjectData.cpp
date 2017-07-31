@@ -90,7 +90,7 @@ const Element* ObjectData::find(std::string name) const
     return itor->second;
 }
 
-const Element& ObjectData::operator[](std::string name) const throw (Exception)
+const Element& ObjectData::operator[](std::string name) const
 {
     return *find(name);
 }

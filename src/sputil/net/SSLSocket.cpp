@@ -197,7 +197,7 @@ void SSLSocket::close()
     TCPSocket::close();
 }
 
-void SSLSocket::attach(SOCKET socketHandle) throw (std::exception)
+void SSLSocket::attach(SOCKET socketHandle)
 {
     SYNCHRONIZED_CODE;
 
@@ -261,7 +261,7 @@ size_t SSLSocket::socketBytes()
     return 0;
 }
 
-size_t SSLSocket::recv(void* buffer, size_t size) throw (exception)
+size_t SSLSocket::recv(void* buffer, size_t size)
 {
     int rc;
     for (;;) {
@@ -283,7 +283,7 @@ size_t SSLSocket::recv(void* buffer, size_t size) throw (exception)
 }
 
 #define WRITE_BLOCK 16384
-size_t SSLSocket::send(const void* buffer, size_t len) throw (exception)
+size_t SSLSocket::send(const void* buffer, size_t len)
 {
     if (len == 0)
         return 0;

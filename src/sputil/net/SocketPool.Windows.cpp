@@ -134,14 +134,14 @@ SocketPool::~SocketPool()
     close();
 }
 
-void SocketPool::open() throw (Exception)
+void SocketPool::open()
 {
     if (m_pool)
         return;
     m_pool = new EventWindow(m_eventsCallback);
 }
 
-void SocketPool::close() throw (Exception)
+void SocketPool::close()
 {
     if (m_pool) {
         delete m_pool;
@@ -154,7 +154,7 @@ void SocketPool::close() throw (Exception)
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exception)
+void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 {
     if (!socket.active())
         throw Exception("Socket is closed");
@@ -169,7 +169,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData) throw (Exceptio
     m_socketData[&socket] = userData;
 }
 
-void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
+void SocketPool::forgetSocket(BaseSocket& socket)
 {
     if (!socket.active())
         throw Exception("Socket is closed");
@@ -188,13 +188,13 @@ void SocketPool::forgetSocket(BaseSocket& socket) throw (Exception)
         throw SystemException("Can't remove socket from WSAAsyncSelect");
 }
 
-void SocketPool::waitForEvents(size_t timeoutMS) throw (Exception)
+void SocketPool::waitForEvents(size_t timeoutMS)
 {
     thread::id threadId = this_thread::get_id();
     if (threadId != m_threadId)
         throw Exception("SocketPool has to be used in the same must thread where it is created");
 
-	vector<event> signaled;
+    vector<event> signaled;
     m_pool->poll(signaled, timeoutMS);
 /*
     for (int i = 0; i < eventCount; i++) {

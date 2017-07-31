@@ -115,13 +115,13 @@ public:
      * Get JSON element from this array by index
      * @param index size_t, Element index
      */
-    Element& operator[](size_t index) throw(Exception);
+    Element& operator[](size_t index);
 
     /**
      * Get JSON element from this array by index (const version)
      * @param index size_t, Element index
      */
-    const Element& operator[](size_t index) const throw(Exception);
+    const Element& operator[](size_t index) const;
 
     /**
      * Remove JSON element from this array by index (const version)

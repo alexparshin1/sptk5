@@ -334,7 +334,7 @@ public:
      * @param name const std::string&, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    Element& operator[](const std::string& name) throw (Exception);
+    Element& operator[](const std::string& name);
 
     /**
      * Get JSON element in JSON object element by name.
@@ -343,7 +343,7 @@ public:
      * @param name const std::string&, Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    const Element& operator[](const std::string& name) const throw (Exception);
+    const Element& operator[](const std::string& name) const;
 
     /**
      * Get JSON element in JSON array element by index.
@@ -351,7 +351,7 @@ public:
      * @param index uint32_t, Index of the element in the array element
      * @returns Element for the name, or NULL if not found
      */
-    Element& operator[](size_t index) throw (Exception);
+    Element& operator[](size_t index);
 
     /**
      * Get JSON element in JSON array element by index.
@@ -359,7 +359,7 @@ public:
      * @param index uint32_t, Index of the element in the array element
      * @returns Element for the name, or NULL if not found
      */
-    const Element& operator[](size_t index) const throw (Exception);
+    const Element& operator[](size_t index) const;
 
     /**
      * Remove JSON element by name from this JSON object element

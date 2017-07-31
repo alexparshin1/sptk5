@@ -58,7 +58,7 @@ public:
      * @param jsonElement Element&, JSON element
      * @param json const std::string&, JSON text
      */
-    void parse(Element& jsonElement, const std::string& json) throw(Exception);
+    void parse(Element& jsonElement, const std::string& json);
 };
 
 }}

@@ -141,32 +141,32 @@ public:
     /**
      * Initialize socket pool
      */
-    void open() throw (Exception);
+    void open();
 
     /**
      * Wait until one or more sockets are signaled.
      *
      * Execute callback function for each signaled socket.
      */
-    void waitForEvents(size_t timeoutMS) throw (Exception);
+    void waitForEvents(size_t timeoutMS);
 
     /**
      * Shutdown socket pool.
      */
-    void close() throw (Exception);
+    void close();
 
     /**
      * Add socket to monitored pool
      * @param socket BaseSocket&, Socket to monitor events
      * @param userData void*, User data to pass to callback function
      */
-    void watchSocket(BaseSocket& socket, void* userData) throw (Exception);
+    void watchSocket(BaseSocket& socket, void* userData);
 
     /**
      * Remove socket from monitored pool
      * @param socket BaseSocket&, Socket from this pool
      */
-    void forgetSocket(BaseSocket& socket) throw (Exception);
+    void forgetSocket(BaseSocket& socket);
 };
 
 }

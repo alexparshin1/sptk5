@@ -72,7 +72,7 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwf
 }
 
 void SSLContext::loadKeys(const string& privateKeyFileName, const string& certificateFileName, const string& password,
-                          const string& caFileName, int verifyMode, int verifyDepth) throw(exception)
+                          const string& caFileName, int verifyMode, int verifyDepth)
 {
     SYNCHRONIZED_CODE;
 

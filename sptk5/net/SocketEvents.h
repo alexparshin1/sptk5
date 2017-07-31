@@ -93,13 +93,13 @@ public:
      * @param socket BaseSocket, Socket to monitor
      * @param userData void*, User data to pass into callback function
      */
-    void add(BaseSocket& socket, void* userData) throw (Exception);
+    void add(BaseSocket& socket, void* userData);
 
     /**
      * Remove socket from collection and stop monitoring its events
      * @param socket BaseSocket, Socket to remove
      */
-    void remove(BaseSocket& socket) throw (Exception);
+    void remove(BaseSocket& socket);
 };
 
 }
