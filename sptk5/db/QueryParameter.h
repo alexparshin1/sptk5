@@ -256,7 +256,6 @@ public:
      * In contrast to CVariant::setString() method, this method
      * tries not to decrease the allocated buffer.
      * @param value const char*, string to assign
-     * @param maxlen size_t, maximum length of the assigned string
      */
     virtual void setString(const char* value) { setString(value, 0); }
 
