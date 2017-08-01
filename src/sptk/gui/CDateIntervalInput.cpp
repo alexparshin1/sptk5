@@ -136,7 +136,7 @@ Variant CDateIntervalInput::data() const {
     DateTime   dt1 = beginOfInterval();
     DateTime   dt2 = endOfInterval();
 
-    if ((double)dt1 == 0.0 && (double)dt2 == 0.0)
+    if (dt1.zero() && dt2.zero())
         return "";
 
     std::string result = m_firstDateInput->input()->value();
@@ -167,7 +167,7 @@ bool CDateIntervalInput::valid() const {
     DateTime   dt1 = beginOfInterval();
     DateTime   dt2 = endOfInterval();
 
-    if ((double)dt1 != 0 && (double)dt2 != 0 && dt1 > dt2)
+    if (!dt1.zero() && !dt2.zero() && dt1 > dt2)
         return false;
 
     return true;

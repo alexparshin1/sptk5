@@ -72,7 +72,7 @@ int SmtpConnect::getResponse(bool decode)
         if (longLine[3] == ' ') {
             readCompleted = true;
             longLine[3] = 0;
-            rc = atoi(longLine.c_str());
+            rc = string2int(longLine);
         }
 
         if (!longLine.empty()) {
@@ -210,7 +210,7 @@ void SmtpConnect::cmd_quit()
     close();
 }
 
-string parseAddress(string fullAddress)
+String parseAddress(const String& fullAddress)
 {
     size_t p1 = fullAddress.find('<');
     size_t p2 = fullAddress.find('>');

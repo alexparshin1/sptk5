@@ -145,8 +145,8 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "Subject: " << m_subject << endl;
 
     DateTime date = DateTime::Now();
-    short dy, dm, dd, th, tm, ts, tms;
-    date.decodeDate(&dy, &dm, &dd);
+    short dy, dm, dd, wd, yd, th, tm, ts, tms;
+    date.decodeDate(&dy, &dm, &dd, &wd, &yd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
     char dateBuffer[128];

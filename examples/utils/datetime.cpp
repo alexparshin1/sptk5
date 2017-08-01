@@ -36,7 +36,7 @@ int main()
 {
     DateTime now = DateTime::Now();
     cout << "Current time is " << now.dateString(true) + " " + now.timeString(true,true) << endl;
-	cout << "UTC epoch is " << now.toEpoch() << endl;
+	cout << "UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl;
 	cout << endl;
 
     cout << "Decode date and time in PST timezone and print it in local timezone:" << endl;
@@ -57,7 +57,7 @@ int main()
     cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
     cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString() << endl;
+    cout << "Time:   " << dt.timeString(true, false, true) << endl;
 
     cout << endl << "Get the date and time from the system, and print the date components:" << endl << endl;
     dt = DateTime::Now();
@@ -67,14 +67,15 @@ int main()
     cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
     cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString() << endl;
+    cout << "Time:   " << dt.timeString(true, false, true) << endl;
 
-    cout << endl << "Get the date and time from the system for TZ='US/Los_Angeles', and print the date components:" << endl << endl;
-    cout << "TZ offset is " << DateTime::timeZoneOffset << endl;
+    cout << endl << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl << endl;
+    cout << "Local TZ offset is " << DateTime::timeZoneOffset << " seconds." << endl;
 
 #ifndef _WIN32
-    setenv("TZ", ":US/Los_Angeles", 1);
+    setenv("TZ", ":US/Pacific", 1);
     DateTime::tzset();
+    cout << "US/Pacific TZ offset is " << DateTime::timeZoneOffset << " seconds."  << endl;
 
     dt = DateTime::Now();
 

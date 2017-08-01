@@ -38,6 +38,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 int main()
 {
@@ -49,7 +50,7 @@ int main()
 
         DateTime start = DateTime::Now();
         DateTime end;
-        double duration;
+        DateTime::duration duration;
         auto *buf = new Buffer;
 
         out << "The XML document generation test started:" << endl;
@@ -78,45 +79,45 @@ int main()
         out.precision(2);
 
         end = DateTime::Now();
-        duration = (end - start) * 3600 * 24;
+        duration = end - start;
         start = end;
 
-        out << "The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
+        out << "The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
         doc.save(*buf);
         buf->saveToFile("0.xml");
 
         end = DateTime::Now();
-        duration = (end - start) * 3600 * 24;
+        duration = end - start;
         start = end;
-        out << "The document is saved to buffer (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
+        out << "The document is saved to buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
         doc.clear();
 
         end = DateTime::Now();
-        duration = (end - start) * 3600 * 24;
+        duration = end - start;
         start = end;
-        out << "The document is cleared (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
+        out << "The document is cleared (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
         doc.load(*buf);
         end = DateTime::Now();
-        duration = (end - start) * 3600 * 24;
+        duration = end - start;
         start = end;
-        out << "The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
+        out << "The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
         doc.save(*buf);
 
         end = DateTime::Now();
-        duration = (end - start) * 3600 * 24;
+        duration = end - start;
         start = end;
-        out << "The document is saved to buffer(" << doc.size() * nodesPerRow << " nodes): " << duration << " seconds" << endl;
+        out << "The document is saved to buffer(" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
         buf->saveToFile("1.xml");
 
         end = DateTime::Now();
-        duration = (end - start) * 3600 * 24;
+        duration = end - start;
         start = end;
-        out << "The document is saved to disk: " << duration << " seconds" << endl;
+        out << "The document is saved to disk: " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
         out << "The XML document generation test completed." << endl;
 

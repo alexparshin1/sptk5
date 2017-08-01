@@ -229,7 +229,7 @@ protected:
         /**
          * DateTime data
          */
-        double              timeData;
+        int64_t             timeData;
 
         /**
          * A buffer for data with the variable length like strings, or just generic buffers
@@ -402,7 +402,7 @@ public:
     /**
      * @brief Assignment method
      */
-    void setExternalString(const char * value, int length = -1);
+    void setExternalString(const char *value, ssize_t length = -1);
 
     /**
      * @brief Assignment method

@@ -59,7 +59,7 @@ public:
     }
 
     void open(SOCKET sourceFD, const String& interfaceAddess, const Destination& destination);
-    int  copyData(TCPSocket& source, TCPSocket& destination) throw (Exception);
+    int  copyData(TCPSocket& source, TCPSocket& destination);
     void close();
 
     TCPSocket& source()      { return m_source; }

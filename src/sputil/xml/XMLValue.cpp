@@ -36,7 +36,7 @@ XMLValue::operator bool() const
         return false;
     char ch = m_value.c_str()[0];
     const char *p = strchr("TtYy1", ch);
-    return p != 0;
+    return p != nullptr;
 }
 
 XMLValue& XMLValue::operator =(bool v)
@@ -51,7 +51,7 @@ XMLValue& XMLValue::operator =(bool v)
 XMLValue& XMLValue::operator =(int32_t v)
 {
     char buff[64];
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%i", v);
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%i", v);
     m_value.assign(buff, sz);
     return *this;
 }
@@ -59,7 +59,7 @@ XMLValue& XMLValue::operator =(int32_t v)
 XMLValue& XMLValue::operator =(uint32_t v)
 {
     char buff[64];
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%u", v);
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%u", v);
     m_value.assign(buff, sz);
     return *this;
 }
@@ -68,7 +68,7 @@ XMLValue& XMLValue::operator =(int64_t v)
 {
     char buff[64];
 #ifndef _WIN32
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%li", v);
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%li", v);
 #else
     uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%lli", v);
 #endif
@@ -80,7 +80,7 @@ XMLValue& XMLValue::operator =(uint64_t v)
 {
     char buff[64];
 #ifndef _WIN32
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%lu", v);
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%lu", v);
 #else
     uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%llu", v);
 #endif
@@ -91,7 +91,7 @@ XMLValue& XMLValue::operator =(uint64_t v)
 XMLValue& XMLValue::operator =(double v)
 {
     char buff[64];
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%f", v);
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%f", v);
     m_value.assign(buff, sz);
     return *this;
 }

@@ -85,7 +85,7 @@ class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
     /**
      * @brief Internal attributes parser
      */
-    void processAttributes(XMLNode* node, char *ptr);
+    void processAttributes(XMLNode* node, const char *ptr);
 
 protected:
 

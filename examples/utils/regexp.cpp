@@ -30,6 +30,7 @@
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
 int main()
 {
@@ -96,9 +97,10 @@ int main()
             counter++;
     }
     DateTime finished = DateTime::Now();
-    cout << "Executed " << tests << " regexp tests (compiled on the fly) for " << (finished - started) * 86400 << " seconds." << endl;
+    double duration = duration_cast<milliseconds>(finished - started).count() / 1000.0;
+    cout << "Executed " << tests << " regexp tests (compiled on the fly) for " << duration << " seconds." << endl;
     cout.precision(2);
-    cout << "That is " << fixed << tests / ((finished - started) * 86400) / 1000000 << "M tests/sec" << endl;
+    cout << "That is " << fixed << tests / duration / 1000000 << "M tests/sec" << endl;
 
     started = DateTime::Now();
     counter = 0;
@@ -107,9 +109,10 @@ int main()
             counter++;
     }
     finished = DateTime::Now();
-    cout << "Executed " << counter << " regexp tests (precompiled) for " << (finished - started) * 86400 << " seconds." << endl;
+    duration = duration_cast<milliseconds>(finished - started).count() / 1000.0;
+    cout << "Executed " << counter << " regexp tests (precompiled) for " << duration << " seconds." << endl;
     cout.precision(2);
-    cout << "That is " << fixed << tests / ((finished - started) * 86400) / 1000000 << "M tests/sec" << endl;
+    cout << "That is " << fixed << tests / duration / 1000000 << "M tests/sec" << endl;
 
     return 0;
 }

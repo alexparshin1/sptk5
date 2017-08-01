@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdlib.h>
-
+#include <cstdlib>
 #include <sptk5/Strings.h>
 #include <sptk5/cxml>
 
@@ -57,14 +56,11 @@ namespace sptk {
 
     XMLNode *XMLDocument::rootNode()
     {
-        iterator itor = begin();
-        iterator iend = end();
-        for (; itor != iend; ++itor) {
-            XMLNode *nd = *itor;
+        for (auto nd: *this) {
             if (nd->type() == DOM_ELEMENT)
                 return nd;
         }
-        return 0;
+        return nullptr;
     }
 
     void XMLDocument::clear()
@@ -79,16 +75,17 @@ namespace sptk {
         return node;
     }
 
-    void XMLDocument::processAttributes(XMLNode* node, char *ptr)
+    void XMLDocument::processAttributes(XMLNode* node, const char *ptr)
     {
         const char* tokenStart = ptr;
 
         XMLAttributes& attr = node->attributes();
-        while (*tokenStart && *tokenStart <= ' ')
+        while (*tokenStart != 0 && *tokenStart <= ' ')
             tokenStart++;
-        while (*tokenStart) {
-            char* tokenEnd = (char*)strpbrk(tokenStart, " =");
-            if (!tokenEnd)
+
+        while (*tokenStart != 0) {
+            auto tokenEnd = (char*)strpbrk(tokenStart, " =");
+            if (tokenEnd == nullptr)
                 throw Exception("Incorrect attribute - missing '='");
             *tokenEnd = 0;
 
@@ -101,14 +98,14 @@ namespace sptk {
             if (delimiter == '\'' || delimiter == '\"') {
                 attributeValue++;
                 tokenEnd = strchr(attributeValue, delimiter);
-                if (!tokenEnd)
+                if (tokenEnd == nullptr)
                     throw Exception("Incorrect attribute format - missing quote");
                 *tokenEnd = 0;
                 valueLength = uint32_t(tokenEnd - attributeValue);
             }
             else {
                 tokenEnd = strchr(attributeValue, ' ');
-                if (tokenEnd) {
+                if (tokenEnd != nullptr) {
                     valueLength = uint32_t(tokenEnd - attributeValue);
                     *tokenEnd = 0;
                 }
@@ -121,28 +118,28 @@ namespace sptk {
             m_doctype.decodeEntities(attributeValue, valueLength, m_encodeBuffer);
             attr.setAttribute(attributeName, m_encodeBuffer.c_str());
 
-            if (tokenEnd)
+            if (tokenEnd != nullptr)
                 tokenStart = tokenEnd + 1;
             else
                 tokenStart = "";
 
-            while (*tokenStart && *tokenStart <= ' ')
+            while (*tokenStart != 0 && *tokenStart <= ' ')
                 tokenStart++;
         }
     }
 
     void XMLDocument::parseEntities(char* entitiesSection)
     {
-        unsigned char* start = (unsigned char*)entitiesSection;
-        while (start) {
+        auto start = (unsigned char*)entitiesSection;
+        while (start != nullptr) {
             start = (unsigned char*)strstr((char*)start, "<!ENTITY ");
-            if (!start)
+            if (start == nullptr)
                 break;
             start += 9;
             while (*start <= ' ')
                 start++;
-            unsigned char* end = (unsigned char*)strchr((char*)start, ' ');
-            if (!end)
+           auto end = (unsigned char*)strchr((char*)start, ' ');
+            if (end == nullptr)
                 break;
             *end = 0;
             unsigned char* ent_name = start;
@@ -153,18 +150,18 @@ namespace sptk {
             if (delimiter == '\'' || delimiter == '\"') {
                 ent_value++;
                 end = (unsigned char*)strchr((char*)ent_value, (char)delimiter);
-                if (!end)
+                if (end == nullptr)
                     break;
                 *end = 0;
             }
             else {
                 end = (unsigned char*)strpbrk((char*)ent_value, " >");
-                if (!end)
+                if (end == nullptr)
                     break;
                 if (*end == ' ') {
                     *end = 0;
                     end = (unsigned char*)strchr((char*)ent_value, '>');
-                    if (!end)
+                    if (end == nullptr)
                         break;
                 }
                 *end = 0;
@@ -185,32 +182,32 @@ namespace sptk {
         //uint32_t len = strlen(docTypeSection);
         int t = 0;
         char* entitiesSection = strchr(docTypeSection, '[');
-        if (entitiesSection) {
+        if (entitiesSection != nullptr) {
             *entitiesSection = 0;
             entitiesSection++;
             char* end = strchr(entitiesSection, ']');
-            if (end) {
+            if (end != nullptr) {
                 *end = 0;
                 parseEntities(entitiesSection);
             }
         }
         char delimiter = ' ';
-        while (start) {
+        while (start != nullptr) {
             while (*start == ' ' || *start == delimiter)
                 start++;
             char* end = strchr(start, delimiter);
-            if (end)
+            if (end != nullptr)
                 *end = 0;
             switch (index)
             {
             case 0:
                 m_doctype.m_name = start;
-                if (!end)
+                if (end == nullptr)
                     return;
                 break;
             case 1:
             case 3:
-                if (!end)
+                if (end == nullptr)
                     break;
                 if (strcmp(start, "SYSTEM") == 0) {
                     t = 0;
@@ -232,7 +229,7 @@ namespace sptk {
                 }
                 break;
             }
-            if (!end)
+            if (end == nullptr)
                 break;
             start = end + 1;
             index++;
@@ -247,10 +244,10 @@ namespace sptk {
         char* buffer = strdup(xmlData);
         try {
             char* tokenStart = strchr(buffer, '<');
-            while (tokenStart) {
+            while (tokenStart != nullptr) {
                 tokenStart++;
                 char* tokenEnd = strpbrk(tokenStart, "\r\n >");
-                if (!tokenEnd)
+                if (tokenEnd == nullptr)
                     break; /// Tag started but not completed
 
                 char ch = *tokenEnd;
@@ -264,7 +261,7 @@ namespace sptk {
                         /// Comment
                         *tokenEnd = ch; // ' ' or '>' could be within a comment
                         nodeEnd = strstr(nodeName + 3, "-->");
-                        if (!nodeEnd)
+                        if (nodeEnd == nullptr)
                             throw Exception("Invalid end of the comment tag");
                         *nodeEnd = 0;
                         new XMLComment(currentNode, nodeName + 3);
@@ -275,7 +272,7 @@ namespace sptk {
                         /// CDATA section
                         *tokenEnd = ch;
                         nodeEnd = strstr(nodeName + 1, "]]>");
-                        if (!nodeEnd)
+                        if (nodeEnd == nullptr)
                             throw Exception("Invalid CDATA section");
                         *nodeEnd = 0;
                         new XMLCDataSection(currentNode, nodeName + 8);
@@ -287,13 +284,13 @@ namespace sptk {
                         if (ch == '>')
                             break;
                         nodeEnd = strstr(tokenEnd + 1, "]>");
-                        if (nodeEnd) { /// ENTITIES
+                        if (nodeEnd != nullptr) { /// ENTITIES
                             nodeEnd++;
                             *nodeEnd = 0;
                         }
                         else {
                             nodeEnd = strchr(tokenEnd + 1, '>');
-                            if (!nodeEnd)
+                            if (nodeEnd == nullptr)
                                 throw Exception("Invalid CDATA section");
                             *nodeEnd = 0;
                         }
@@ -313,7 +310,7 @@ namespace sptk {
                         value = "";
                         nodeEnd = strstr(tokenStart, "?");
                     }
-                    if (!nodeEnd)
+                    if (nodeEnd == nullptr)
                         throw Exception("Invalid PI section");
                     *nodeEnd = 0;
                     new XMLPI(currentNode, nodeName + 1, value);
@@ -329,7 +326,7 @@ namespace sptk {
                     if (currentNode->name() != nodeName)
                         throw Exception("Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
                     currentNode = currentNode->parent();
-                    if (!currentNode)
+                    if (currentNode == nullptr)
                         throw Exception("Closing tag <" + string(nodeName) + "> doesn't have corresponding opening tag");
                     break;
 
@@ -348,7 +345,7 @@ namespace sptk {
                     /// Attributes
                     tokenStart = tokenEnd + 1;
                     nodeEnd = strchr(tokenStart, '>');
-                    if (!nodeEnd)
+                    if (nodeEnd == nullptr)
                         throw Exception("Invalid tag (started, not closed)");
                     *nodeEnd = 0;
                     XMLNode* anode;
@@ -364,7 +361,7 @@ namespace sptk {
                     break;
                 }
                 tokenStart = strchr(tokenEnd + 1, '<');
-                if (!tokenStart) {
+                if (tokenStart == nullptr) {
                     if (currentNode == this)
                         break;
                     throw Exception("Tag started but not closed");
@@ -394,7 +391,7 @@ namespace sptk {
 
     void XMLDocument::save(Buffer &buffer, bool formalXML) const
     {
-        XMLNode *xml_pi = 0;
+        XMLNode *xml_pi = nullptr;
 
         buffer.reset();
 
@@ -402,10 +399,7 @@ namespace sptk {
             buffer.append("<?xml version=\"1.0\"  encoding=\"UTF-8\" ?>\n");
 
         // Write XML PI
-        const_iterator itor = begin();
-        const_iterator iend = end();
-        for (; itor != iend; ++itor) {
-            XMLNode *node = *itor;
+        for (auto node: *this) {
             if (node->type() == DOM_PI && node->name() == "XML") {
                 xml_pi = node;
                 xml_pi->save(buffer);
@@ -420,21 +414,18 @@ namespace sptk {
             if (!docType().publicID().empty())
                 buffer.append(" PUBLIC \"" + docType().publicID() + "\"");
 
-            if (docType().entities().size() > 0) {
+            if (!docType().entities().empty()) {
                 buffer.append(" [\n", 3);
                 const XMLEntities& entities = docType().entities();
-                XMLEntities::const_iterator it = entities.begin();
-                for (; it != entities.end(); ++it) {
-                    buffer.append("<!ENTITY " + it->first + " \"" + it->second + "\">\n");
-                }
+                for (auto it: entities)
+                    buffer.append("<!ENTITY " + it.first + " \"" + it.second + "\">\n");
                 buffer.append("]", 1);
             }
             buffer.append(">\n", 2);
         }
 
         // call save() method of the first (and hopefully only) node in xmldocument
-        for (itor = begin(); itor != iend; ++itor) {
-            XMLNode *node = *itor;
+        for (auto node: *this) {
             if (node == xml_pi)
                 continue;
             node->save(buffer, 0);

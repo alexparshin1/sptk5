@@ -12,10 +12,10 @@
 
 #include "libtar.h"
 
-#include <errno.h>
+#include <cerrno>
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 
 #define BIT_ISSET(bitmask, bit) ((bitmask) & (bit))
@@ -41,8 +41,7 @@ th_read_internal(TAR *t)
 			if (!BIT_ISSET(t->options, TAR_IGNORE_EOT)
 			    && num_zero_blocks >= 2)
 				return 0;	/* EOF */
-			else
-				continue;
+			continue;
 		}
 
 		/* verify magic and version */
@@ -96,16 +95,16 @@ th_read(TAR *t)
 	printf("==> th_read(t=0x%lx)\n", t);
 #endif
 
-	if (t->th_buf.gnu_longname != NULL)
+	if (t->th_buf.gnu_longname != nullptr)
 		free(t->th_buf.gnu_longname);
-	if (t->th_buf.gnu_longlink != NULL)
+	if (t->th_buf.gnu_longlink != nullptr)
 		free(t->th_buf.gnu_longlink);
 	memset(&(t->th_buf), 0, sizeof(struct tar_header));
 
 	i = th_read_internal(t);
 	if (i == 0)
 		return 1;
-	else if (i != T_BLOCKSIZE)
+	if (i != T_BLOCKSIZE)
 	{
 		if (i != -1)
 			errno = EINVAL;
@@ -122,7 +121,7 @@ th_read(TAR *t)
 		       "(%ld bytes, %d blocks)\n", sz, j);
 #endif
 		t->th_buf.gnu_longlink = (char *)malloc(size_t(j) * T_BLOCKSIZE);
-		if (t->th_buf.gnu_longlink == NULL)
+		if (t->th_buf.gnu_longlink == nullptr)
 			return -1;
 
 		for (ptr = t->th_buf.gnu_longlink; j > 0;
@@ -167,7 +166,7 @@ th_read(TAR *t)
 		       "(%ld bytes, %d blocks)\n", sz, j);
 #endif
 		t->th_buf.gnu_longname = (char *)malloc(size_t(j) * T_BLOCKSIZE);
-		if (t->th_buf.gnu_longname == NULL)
+		if (t->th_buf.gnu_longname == nullptr)
 			return -1;
 
 		for (ptr = t->th_buf.gnu_longname; j > 0;

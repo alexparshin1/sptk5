@@ -34,17 +34,15 @@ using namespace sptk;
 
 void XMLNodeList::clear()
 {
-    iterator _begin = begin();
-    iterator _end = end();
-    for (iterator itor = _begin; itor != _end; ++itor)
-        delete *itor;
+    for (auto item: *this)
+        delete item;
     XMLNodeVector::clear();
 }
 
 XMLNodeList::iterator XMLNodeList::findFirst(const char* nodeName)
 {
-    iterator _begin = begin();
-    iterator _end = end();
+    auto _begin = begin();
+    auto _end = end();
     if (_begin == _end)
         return _end;
 
@@ -67,8 +65,8 @@ XMLNodeList::iterator XMLNodeList::findFirst(const string& nodeName)
 
 XMLNodeList::const_iterator XMLNodeList::findFirst(const char* nodeName) const
 {
-    const_iterator _begin = begin();
-    const_iterator _end = end();
+    auto _begin = begin();
+    auto _end = end();
     if (_begin == _end)
         return _end;
 

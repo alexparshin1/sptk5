@@ -29,8 +29,9 @@
 #ifndef __SPTK_DATETIME_H__
 #define __SPTK_DATETIME_H__ 
 
+#include <chrono>
+#include <ctime>
 #include <sptk5/sptk.h>
-#include <time.h>
 #include <string>
 
 namespace sptk {
@@ -53,46 +54,53 @@ class DateTimeFormat;
 class SP_EXPORT DateTime
 {
     friend class DateTimeFormat;
+    typedef std::chrono::system_clock               clock;
+
+public:
+    typedef std::chrono::system_clock::time_point   time_point;
+    typedef std::chrono::system_clock::duration     duration;
+
 protected:
 
     /**
      * @brief Internal decode date operation into year, month, and day
-     * @param dt double, Date to decode
+     * @param dt Clock::time_point, Date to decode
      * @param year int16_t&, Year (output)
      * @param month int16_t&, Month (output)
      * @param day int16_t&, Day (output)
      */
-    static void   decodeDate(double dt, int16_t& year, int16_t& month, int16_t& day);
+    static void decodeDate(const time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
+                               bool gmt=false);
 
     /**
      * @brief Internal decode time operation into hour, minute, second, and millisecond
-     * @param dt double, Date to decode
+     * @param dt Clock::time_point, Date to decode
      * @param hour int16_t&, Hour (output)
      * @param minute int16_t&, Minute (output)
      * @param second int16_t&, Second (output)
      * @param millisecond int16_t&, Millisecond (output)
      */
-    static void   decodeTime(double dt, int16_t& hour, int16_t& minute, int16_t& second, int16_t& millisecond);
+    static void decodeTime(const time_point& dt, short& hour, short& minute, short& second, short& millisecond, bool gmt);
 
     /**
      * @brief Internal encode date operation from y,m,d
      */
-    static void   encodeDate(double &dt,int16_t y=0,int16_t m=0,int16_t d=0);
+    static void   encodeDate(time_point& dt,int16_t y=0,int16_t m=0,int16_t d=0);
 
     /**
      * @brief Internal encode date operation from string
      */
-    static void   encodeDate(double &dt,const char *dat);
+    static void   encodeDate(time_point& dt,const char *dat);
 
     /**
      * @brief Internal encode timee operation from h,m,s,ms
      */
-    static void   encodeTime(double &dt,int16_t h=0,int16_t m=0,int16_t s=0,int16_t ms=0);
+    static void   encodeTime(time_point& dt,int16_t h=0,int16_t m=0,int16_t s=0,int16_t ms=0);
 
     /**
      * @brief Internal encode timee operation from string
      */
-    static void   encodeTime(double &dt,const char *tim);
+    static void   encodeTime(time_point& dt,const char *tim);
 
     /**
      * @brief Returns true for the leap year
@@ -107,7 +115,7 @@ protected:
     /**
      * Actual date and time value
      */
-    double                m_dateTime;
+    time_point            m_dateTime;
 
 
 public:
@@ -172,6 +180,11 @@ public:
 public:
 
     /**
+     * @brief Default constructor
+     */
+    DateTime() noexcept {}
+
+    /**
      * @brief Constructor
      * @param y int16_t, year
      * @param m int16_t, month
@@ -191,18 +204,35 @@ public:
     /**
      * @brief Copy constructor
      */
-    DateTime (const DateTime &dt) noexcept;
+    DateTime (const DateTime& dt) noexcept = default;
 
     /**
      * @brief Constructor
-     * @param dt double, floating point date and time value
+     * @param dt const time_point&, Time point
      */
-    DateTime (double dt=0) noexcept;
+    DateTime(const time_point& dt) noexcept;
 
     /**
-     * @brief Conversion to double
+     * @brief Constructor
+     * @param dt const duration&, Duration since epoch
      */
-    operator double () const;
+    DateTime(const duration& dt) noexcept;
+
+    /**
+     * @brief Constructor
+     * @param dt int64_t, Time since epoch, milliseconds
+     */
+    DateTime(int64_t sinceEpochMS) noexcept;
+
+    time_point& timePoint()
+    {
+        return m_dateTime;
+    }
+
+    const time_point& timePoint() const
+    {
+        return m_dateTime;
+    }
 
     /**
      * @brief Assignment
@@ -217,22 +247,22 @@ public:
     /**
      * @brief Addition, another DateTime
      */
-    DateTime  operator + (DateTime& dt);
+    DateTime  operator + (duration& dt);
 
     /**
      * @brief Substruction, another DateTime
      */
-    DateTime  operator - (DateTime& dt);
+    DateTime  operator - (duration& dt);
 
     /**
      * @brief Increment by another DateTime
      */
-    DateTime& operator += (DateTime& dt);
+    DateTime& operator += (duration& dt);
 
     /**
      * @brief Decrement by another DateTime
      */
-    DateTime& operator -= (DateTime& dt);
+    DateTime& operator -= (duration& dt);
 
     /**
      * @brief Increment by day, prefix
@@ -265,16 +295,12 @@ public:
     void formatTime(char* str, bool ampm, bool showSeconds, bool showTimezone, bool showMilliseconds) const;
 
     /**
-     * @brief Returns value as Unix epoch time.
-     * @return Unix epoch time
+     * Duration since epoch
      */
-    time_t toEpoch() const;
-
-    /**
-     * @brief Sets value as Unix epoch time.
-     * @param dt time_t, Unix epoch time
-     */
-    void fromEpoch(time_t dt);
+    duration sinceEpoch() const
+    {
+        return m_dateTime.time_since_epoch();
+    }
 
     /**
      * @brief Set the current date and time for this program only.
@@ -303,14 +329,6 @@ public:
      * @brief Reports the current time.
      */
     static DateTime Time();
-
-    /**
-     * @brief Reports the current time of day in milliseconds
-     *
-     * This is fast method to get a time of day without considering dateTimeOffset.
-     * It's useful for measuring short time intervals (shorter than one day, anyway).
-     */
-    static uint32_t TimeOfDayMs();
 
     /**
      * @brief Converts C time into DateTime
@@ -343,9 +361,9 @@ public:
     std::string monthName() const;
 
     /**
-     * @brief Reports the date as an integer
+     * @brief Reports the date part only
      */
-    uint32_t date() const;
+    DateTime date() const;
 
     /**
      * @brief Reports the day of month (1..31)
@@ -387,35 +405,24 @@ public:
     }
 
     /**
-     * @brief Returns this object DateTime + seconds
-     */
-    DateTime addSeconds(double seconds) const
-    {
-        return m_dateTime + seconds / 86400;
-    }
-
-    /**
-     * @brief Returns interval between two dates in seconds
-     */
-    double secondsTo(DateTime toDate) const
-    {
-        return (toDate - m_dateTime) * 86400;
-    }
-
-    /**
      * @brief Decodes date into y,m,d
      */
-    void decodeDate(int16_t *y,int16_t *m,int16_t *d) const
+    void decodeDate(short* year, short* month, short *day, short* wday, short* yday, bool gmt=false) const
     {
-        decodeDate(m_dateTime,*y,*m,*d);
+        decodeDate(m_dateTime, *year, *month, *day, *wday, *yday, gmt);
     }
 
     /**
      * @brief Decodes time into h,m,s,ms
      */
-    void decodeTime(int16_t *h,int16_t *m,int16_t *s,int16_t *ms) const
+    void decodeTime(int16_t *h,int16_t *m,int16_t *s,int16_t *ms, bool gmt = false) const
     {
-        decodeTime(m_dateTime,*h,*m,*s,*ms);
+        decodeTime(m_dateTime,*h,*m,*s,*ms, gmt);
+    }
+
+    bool zero() const
+    {
+        return m_dateTime.time_since_epoch() == std::chrono::microseconds(0);
     }
 
     /**
@@ -434,43 +441,53 @@ public:
 }
 
 /**
- * @brief Compares CDatetime values
+ * @brief Compares DateTime values
  */
-bool operator <  (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+bool operator <  (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * @brief Compares DateTime values
  */
-bool operator <= (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+bool operator <= (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
  * @brief Compares DateTime values
  */
-bool operator >  (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+bool operator >  (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares CDatetime values
+ * @brief Compares DateTime values
  */
-bool operator >= (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+bool operator >= (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares CDatetime values
+ * @brief Compares DateTime values
  */
-bool operator == (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+bool operator == (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Compares CDatetime values
+ * @brief Compares DateTime values
  */
-bool operator != (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+bool operator != (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * @brief Adds two CDatetime values
+ * @brief Adds two DateTime values
  */
-sptk::DateTime operator + (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+sptk::DateTime operator + (const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
 
 /**
- * @brief Subtracts two CDatetime values
+ * @brief Adds two DateTime values
  */
-sptk::DateTime operator - (const sptk::DateTime &dt1, const sptk::DateTime &dt2);
+sptk::DateTime operator - (const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
+
+/**
+ * @brief Subtracts two DateTime values
+ */
+sptk::DateTime::duration operator - (const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+
+/**
+ * Convert duration into seconds, with 1 msec accuracy
+ */
+double duration2seconds(const sptk::DateTime::duration& duration);
 
 #endif

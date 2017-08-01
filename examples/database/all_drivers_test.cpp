@@ -30,12 +30,11 @@
 #include <iomanip>
 
 #include <sptk5/cdatabase>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-int testTransactions(DatabaseConnection* db, string tableName, bool rollback)
+bool testTransactions(DatabaseConnection *db, const string &tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
@@ -116,7 +115,7 @@ void testBLOBs(DatabaseConnection* db)
     dropTableQuery.exec();
 }
 
-int testDatabase(string connectionString)
+int testDatabase(const string& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString);
     DatabaseConnection* db = connectionPool.createConnection();
@@ -149,9 +148,9 @@ int testDatabase(string connectionString)
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
 
-        Query step1Query(db);
+        Query createTempTableQuery(db);
         if (db->driverDescription().find("Microsoft") != string::npos)
-            step1Query.sql(
+            createTempTableQuery.sql(
                 "CREATE TABLE " + tableName + "("
                     "id             INT, "
                     "name           NCHAR(80), "
@@ -159,25 +158,25 @@ int testDatabase(string connectionString)
                     "hire_date      DATETIME, "
                     "rate           NUMERIC(16,10))");
         else
-            step1Query.sql(
+            createTempTableQuery.sql(
                 "CREATE TABLE " + tableName + "("
                     "id             INT, "
                     "name           CHAR(80), "
                     "position_name  CHAR(80), "
                     "hire_date      TIMESTAMP, "
                     "rate           NUMERIC(16,10))");
-        Query step2Query(db, "INSERT INTO " + tableName +
+        Query insertRecordQuery(db, "INSERT INTO " + tableName +
                               " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__, __LINE__);
-        Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > 1 OR id IS NULL", false, __FILE__, __LINE__);
-        Query step4Query(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
+        Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false, __FILE__, __LINE__);
+        Query dropTempTableQuery(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
-            step1Query.exec();
+            createTempTableQuery.exec();
             if (db->connectionType() == DatabaseConnection::DCT_FIREBIRD)
                 db->commitTransaction(); // Some databases don't recognize table existense until it is committed
         } catch (exception& e) {
-            if (strstr(e.what(), " already ") == NULL)
+            if (strstr(e.what(), " already ") == nullptr)
                 throw;
             cout << "Table already exists, ";
         }
@@ -186,21 +185,21 @@ int testDatabase(string connectionString)
 
         // The following example shows how to use the paramaters,
         // addressing them by name
-        step2Query.param("person_id") = 1;
-        step2Query.param("person_name") = "John Doe";
-        step2Query.param("position_name") = "CIO";
-        step2Query.param("hire_date") = DateTime::Now();
-        step2Query.param("rate") = 0.0000123;
-        step2Query.exec();
+        insertRecordQuery.param("person_id") = 1;
+        insertRecordQuery.param("person_name") = "John Doe";
+        insertRecordQuery.param("position_name") = "CIO";
+        insertRecordQuery.param("hire_date") = DateTime::Now();
+        insertRecordQuery.param("rate") = 0.0000123;
+        insertRecordQuery.exec();
 
         // Here is the example of using parameters by index.
         // This is the even faster than stream
-        step2Query.param(uint32_t(0)) = 3;
-        step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
-        step2Query.param(2).setNull(VAR_STRING);
-        step2Query.param(3).setDate(DateTime::Now());
-        step2Query.param(4) = 12340.001234;
-        step2Query.exec();
+        insertRecordQuery.param(uint32_t(0)) = 3;
+        insertRecordQuery.param(1) = "UTF-8: тестик (Russian, 6 chars)";
+        insertRecordQuery.param(2).setNull(VAR_STRING);
+        insertRecordQuery.param(3).setDate(DateTime::Now());
+        insertRecordQuery.param(4) = 12340.001234;
+        insertRecordQuery.exec();
         /*
         step2Query.param(uint32_t(0)) = 3;
         step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
@@ -214,11 +213,11 @@ int testDatabase(string connectionString)
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
         // So, lets define the parameter variables
-        QueryParameter& id_param = step2Query.param("person_id");
-        QueryParameter& name_param = step2Query.param("person_name");
-        QueryParameter& position_param = step2Query.param("position_name");
-        QueryParameter& hire_date_param = step2Query.param("hire_date");
-        QueryParameter& rate_param = step2Query.param("rate");
+        QueryParameter& id_param = insertRecordQuery.param("person_id");
+        QueryParameter& name_param = insertRecordQuery.param("person_name");
+        QueryParameter& position_param = insertRecordQuery.param("position_name");
+        QueryParameter& hire_date_param = insertRecordQuery.param("hire_date");
+        QueryParameter& rate_param = insertRecordQuery.param("rate");
 
         // Now, we can use these variables, re-defining their values before each .exec() if needed:
         id_param = 4;
@@ -226,14 +225,14 @@ int testDatabase(string connectionString)
         position_param = "Fearless fiction vampire slayer";
         hire_date_param.setDateTime(DateTime::Now());
         rate_param = 81.2345;
-        step2Query.exec();
+        insertRecordQuery.exec();
 
         // Now, we can use these variables
         id_param = 5;
         name_param = "Buffy 2";
         position_param = "Fearless fiction vampire slayer";
         rate_param = 82.3456;
-        step2Query.exec();
+        insertRecordQuery.exec();
 
         // .. and use these variables again for the next insert
         // This is the way to set fields to NULL:
@@ -242,73 +241,74 @@ int testDatabase(string connectionString)
         position_param.setNull();
         hire_date_param.setNull();
         rate_param.setNull();
-        step2Query.exec();
+        insertRecordQuery.exec();
 
         cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
-        step3Query.open();
+        selectRecordsQuery.open();
 
-        while (!step3Query.eof()) {
+        while (!selectRecordsQuery.eof()) {
 
             // getting data from the query by the field name
-            int64_t id = step3Query["id"];
+            int64_t id = selectRecordsQuery["id"];
 
             // we can check field for NULL value
-            if (step3Query["id"].isNull())
+            if (selectRecordsQuery["id"].isNull())
                 cout << setw(7) << "<NULL>";
             else
                 cout << setw(7) << id;
 
             // Another method: getting data by the column number.
             // For printing values we use custom function implemented above
-            string name = fieldToString(step3Query[1]);
-            string position_name = fieldToString(step3Query[2]);
-            string date = fieldToString(step3Query[3]);
-            string rate = fieldToString(step3Query[4]);
+            string name = fieldToString(selectRecordsQuery[1]);
+            string position_name = fieldToString(selectRecordsQuery[2]);
+            string date = fieldToString(selectRecordsQuery[3]);
+            string rate = fieldToString(selectRecordsQuery[4]);
 
             cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
             endl;
 
-            step3Query.fetch();
+            selectRecordsQuery.fetch();
         }
-        step3Query.close();
+        selectRecordsQuery.close();
 
         cout << "Ok.\nStep 4: Selecting the information through the field iterator .." << endl;
         //step3Query.param("some_id") = 1;
-        step3Query.open();
+        selectRecordsQuery.open();
 
-        while (!step3Query.eof()) {
+        while (!selectRecordsQuery.eof()) {
 
             int id;
             string name, position_name, hire_date;
 
             int fieldIndex = 0;
-            for (Field* field: step3Query.fields()) {
+            for (Field* field: selectRecordsQuery.fields()) {
                 switch (fieldIndex) {
                     case 0: id = field->asInteger(); break;
                     case 1: name = field->asString(); break;
                     case 2: position_name = field->asString(); break;
                     case 3: hire_date = field->asString(); break;
+                    default: break;
                 }
                 fieldIndex++;
             }
 
             cout << setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl;
 
-            step3Query.fetch();
+            selectRecordsQuery.fetch();
         }
-        step3Query.close();
+        selectRecordsQuery.close();
 
         cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
-        step3Query.open();
+        selectRecordsQuery.open();
 
         // First, find the field references by name or by number
-        Field& idField = step3Query[uint32_t(0)];
-        Field& nameField = step3Query["name"];
-        Field& positionNameField = step3Query["position_name"];
-        Field& dateField = step3Query["hire_date"];
-        Field& rateField = step3Query["rate"];
+        Field& idField = selectRecordsQuery[uint32_t(0)];
+        Field& nameField = selectRecordsQuery["name"];
+        Field& positionNameField = selectRecordsQuery["position_name"];
+        Field& dateField = selectRecordsQuery["hire_date"];
+        Field& rateField = selectRecordsQuery["rate"];
 
-        while (!step3Query.eof()) {
+        while (!selectRecordsQuery.eof()) {
 
             int64_t id = idField;
             string name = nameField;
@@ -319,9 +319,9 @@ int testDatabase(string connectionString)
             cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
             hire_date << " | " << rate << endl;
 
-            step3Query.fetch();
+            selectRecordsQuery.fetch();
         }
-        step3Query.close();
+        selectRecordsQuery.close();
 
         cout << "Ok.\n***********************************************\nTesting the transactions.\n";
 
@@ -336,7 +336,7 @@ int testDatabase(string connectionString)
         testTransactions(db, tableName, false);
         cout << endl;
 
-        step4Query.exec();
+        dropTempTableQuery.exec();
 
         cout << "Ok.\nStep 6: Closing the database.. ";
         db->close();
@@ -356,32 +356,32 @@ int main(int argc, const char* argv[])
     if (argc == 2)
         connectionString = argv[1];
     else {
-        connectionString = "mssql://protis:wsxedc@Protis/protis";
-        //connectionString = "postgresql://localhost/protis_global";
+        //connectionString = "mssql://protis:wsxedc@Protis/protis";
+        connectionString = "postgresql://localhost/test";
     }
-
-    const char* availableDatabaseTypes[] = {
-#if HAVE_MYSQL == 1
-            "mysql",
-#endif
-#if HAVE_ORACLE == 1
-            "oracle",
-#endif
-#if HAVE_POSTGRESQL == 1
-            "postgres",
-#endif
-#if HAVE_ODBC == 1
-            "odbc",
-            "mssql",
-#endif
-#if HAVE_FIREBIRD == 1
-            "firebird",
-#endif
-            NULL};
 
     if (connectionString.empty()) {
         Strings databaseTypes;
-        for (size_t i = 0; availableDatabaseTypes[i] != NULL; i++)
+        const char* availableDatabaseTypes[] = {
+#if HAVE_MYSQL == 1
+                "mysql",
+#endif
+#if HAVE_ORACLE == 1
+                "oracle",
+#endif
+#if HAVE_POSTGRESQL == 1
+                "postgres",
+#endif
+#if HAVE_ODBC == 1
+                "odbc",
+                "mssql",
+#endif
+#if HAVE_FIREBIRD == 1
+                "firebird",
+#endif
+                nullptr};
+
+        for (size_t i = 0; availableDatabaseTypes[i] != nullptr; i++)
             databaseTypes.push_back(string(availableDatabaseTypes[i]));
 
         string dbtype, dbname, username, password, hostOrDSN;

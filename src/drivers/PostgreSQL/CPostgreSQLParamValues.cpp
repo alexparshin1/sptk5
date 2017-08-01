@@ -29,6 +29,7 @@
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
 
+using namespace std;
 using namespace sptk;
 
 void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
@@ -74,6 +75,9 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
     }
 }
 
+static const char* booleanTrue = "t";
+static const char* booleanFalse = "f";
+
 void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS
 {
     VariantType ptype = param->dataType();
@@ -81,9 +85,6 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
     if (param->isNull())
         setParameterValue(paramIndex, nullptr, 0, 0, PG_VARCHAR);
     else {
-        static const char* booleanTrue = "t";
-        static const char* booleanFalse = "f";
-
         switch (ptype) {
             case VAR_BOOL:
                 if (param->asBool())
@@ -100,24 +101,25 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
             break;
 
             case VAR_DATE: {
+                long days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
                 if (m_int64timestamps) {
-                    int64_t dt = int64_t(double(param->getDateTime() - epochDate) + 1E-6) * 3600 * 24 * 1000000;
+                    int64_t dt = int64_t(days) * 86400 * 1000000;
                     htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 } else {
-                double dt = int32_t(double(param->getDateTime() - epochDate) + 1E-6) * 3600 * 24;
-                htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                    double dt = days * 86400.0;
+                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
             }
             break;
 
             case VAR_DATE_TIME: {
+                int64_t mcs = chrono::duration_cast<chrono::microseconds>(param->getDateTime() - epochDate).count();
                 if (m_int64timestamps) {
-                    int64_t dt = int64_t((param->getDateTime() - epochDate) * 3600 * 24 * 1000000);
-                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                    htonq_inplace((uint64_t*) &mcs,(uint64_t*) param->conversionBuffer());
                 } else {
-                double dt = (param->getDateTime() - epochDate) * 3600 * 24;
-                htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                    double dt = mcs / 1E6;
+                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
             }

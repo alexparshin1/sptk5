@@ -43,6 +43,8 @@ namespace sptk
 {
 
 const DateTime epochDate(2000, 1, 1);
+const long     daysSinceEpoch = chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / 24;
+const int64_t  microsecondsSinceEpoch = chrono::duration_cast<chrono::microseconds>(epochDate.timePoint().time_since_epoch()).count();
 
 class CPostgreSQLStatement
 {
@@ -666,24 +668,27 @@ static inline double readFloat8(const char* data)
     return *(double*) (void*) &v;
 }
 
-static inline double readDate(const char* data)
+static inline DateTime readDate(const char* data)
 {
     auto dt = (int32_t) ntohl(*(uint32_t*) data);
-    return dt + (int32_t) epochDate;
+    return epochDate + chrono::hours(dt * 24);
 }
 
-static inline double readTimestamp(const char* data, bool integerTimestamps)
+static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
     auto v = (int64_t) ntohq(*(uint64_t*) data);
-    auto dt = (double) epochDate;
+
     if (integerTimestamps) {
         // time is in usecs
-        dt += v / 1000000.0 / 3600.0 / 24.0;
-    } else {
-        // time is in secs
-        dt += *(double*) (void*) &v / 3600.0 / 24.0;
+        return epochDate + chrono::microseconds(v);
     }
-    return dt;
+
+    double seconds = *(double*) (void*) &v;
+    // time is in secs
+    cout << seconds << endl;
+    DateTime ts = epochDate + chrono::microseconds((int64_t) seconds * 1000000);
+    cout << ts.isoDateTimeString(true) << endl;
+    return ts;
 }
 
 // Converts internal NUMERIC Postgresql binary to long double

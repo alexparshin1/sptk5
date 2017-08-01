@@ -55,23 +55,23 @@ TarHandleMap* Tar::tarHandleMap;
 
 MemoryTarHandle* Tar::tarMemoryHandle(int handle)
 {
-    TarHandleMap::iterator itor = tarHandleMap->find(handle);
+    auto itor = tarHandleMap->find(handle);
     if (itor == tarHandleMap->end())
-        return 0;
+        return nullptr;
     return itor->second;
 }
 
 int Tar::mem_open(const char* name, int x, ...)
 {
     lastTarHandle++;
-    MemoryTarHandle* memHandle = new MemoryTarHandle;
+    auto memHandle = new MemoryTarHandle;
     (*tarHandleMap)[lastTarHandle] = memHandle;
     return lastTarHandle;
 }
 
 int Tar::mem_close(int handle)
 {
-    TarHandleMap::iterator itor = tarHandleMap->find(handle);
+    auto itor = tarHandleMap->find(handle);
     if (itor == tarHandleMap->end())
         return -1;
     MemoryTarHandle* memHandle = itor->second;
@@ -83,10 +83,10 @@ int Tar::mem_close(int handle)
 int Tar::mem_read(int x, void* buf, size_t len)
 {
     MemoryTarHandle* memHandle = tarMemoryHandle(x);
-    if (!memHandle) return -1;
+    if (memHandle == nullptr) return -1;
     if (memHandle->position + len > memHandle->sourceBufferLen)
         len = memHandle->sourceBufferLen - memHandle->position;
-    if (buf)
+    if (buf != nullptr)
         memcpy(buf, memHandle->sourceBuffer + memHandle->position, len);
     memHandle->position += (uint32_t) len;
     return (int) len;
@@ -99,8 +99,8 @@ int Tar::mem_write(int x, const void* buf, size_t len)
 
 Tar::Tar()
 {
-    m_tar = 0;
-    if (!tarHandleMap) {
+    m_tar = nullptr;
+    if (tarHandleMap == nullptr) {
         memtype.openfunc = (CMemOpenCallback) mem_open;
         memtype.closefunc = (CMemCloseCallback) mem_close;
         memtype.readfunc = (CMemReadCallback) mem_read;
@@ -111,17 +111,17 @@ Tar::Tar()
 
 bool Tar::loadFile() THROWS_EXCEPTIONS
 {
-    TAR* tar = (TAR*) m_tar;
+    auto tar = (TAR*) m_tar;
     // Read file header
     int rc = th_read(tar);
     if (rc > 0) return false; // End of archive
     if (rc < 0) throwError(m_fileName);
 
     string fileName = th_get_pathname(tar);
-    uint32_t fileSize = (uint32_t) th_get_size(tar);
+    auto fileSize = (uint32_t) th_get_size(tar);
 
-    if (fileSize) {
-        Buffer* buffer = new Buffer(fileSize + 1);
+    if (fileSize != 0) {
+        auto buffer = new Buffer(fileSize + 1);
         char* buf = buffer->data();
 
         uint32_t offset = 0;
@@ -139,10 +139,10 @@ bool Tar::loadFile() THROWS_EXCEPTIONS
         m_fileNames.push_back(fileName);
         m_files[fileName] = buffer;
 
-        off_t emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
+        auto emptyTail = off_t(T_BLOCKSIZE - fileSize % T_BLOCKSIZE);
         char buff[T_BLOCKSIZE];
         if (m_memoryRead) {
-            mem_read((int) tar->fd, NULL, size_t(emptyTail));
+            mem_read((int) tar->fd, nullptr, size_t(emptyTail));
         } else {
             if (::read((int) tar->fd, buff, size_t(emptyTail)) == -1)
                 //if (lseek(tar->fd,emptyTail,SEEK_CUR) == (off_t) -1)
@@ -166,12 +166,12 @@ void Tar::read(const char* fileName) THROWS_EXCEPTIONS
     m_memoryRead = false;
     TAR* tar;
     clear();
-    int rc = tar_open(&tar, (char*) fileName, 0, 0, 0, TAR_GNU);
+    int rc = tar_open(&tar, (char*) fileName, nullptr, 0, 0, TAR_GNU);
     if (rc < 0) throwError(fileName);
     m_tar = tar;
     while (loadFile()) { }
     tar_close((TAR*) m_tar);
-    m_tar = 0;
+    m_tar = nullptr;
 }
 
 void Tar::read(const Buffer& tarData) THROWS_EXCEPTIONS
@@ -182,20 +182,20 @@ void Tar::read(const Buffer& tarData) THROWS_EXCEPTIONS
     clear();
     tar_open(&tar, (char*) "memory", &memtype, 0, 0, TAR_GNU);
     MemoryTarHandle* memHandle = tarMemoryHandle((int) tar->fd);
-    if (!memHandle)
+    if (memHandle == nullptr)
         throw Exception("Can't open the archive", __FILE__, __LINE__);
     memHandle->sourceBuffer = tarData.data();
     memHandle->sourceBufferLen = tarData.bytes();
     m_tar = tar;
     while (loadFile()) { }
     tar_close((TAR*) m_tar);
-    m_tar = 0;
+    m_tar = nullptr;
 }
 
 void Tar::clear()
 {
-    for (FileCollection::iterator itor = m_files.begin(); itor != m_files.end(); ++itor)
-        delete itor->second;
+    for (auto m_file : m_files)
+        delete m_file.second;
     m_fileName = "";
     m_files.clear();
     m_fileNames.clear();
@@ -203,7 +203,7 @@ void Tar::clear()
 
 const Buffer& Tar::file(std::string fileName) const THROWS_EXCEPTIONS
 {
-    FileCollection::const_iterator itor = m_files.find(fileName);
+    auto itor = m_files.find(fileName);
     if (itor == m_files.end())
         throw Exception("File '" + fileName + "' isn't found", __FILE__, __LINE__);
     return *(itor->second);

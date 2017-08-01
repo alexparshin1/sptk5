@@ -387,8 +387,9 @@ void ODBCConnection::queryBindParameters(Query* query)
                     auto t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
                     DateTime dt = param->getDateTime();
                     buff = t;
-                    if (int(dt) != 0) {
-                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day);
+                    if (!dt.zero()) {
+                        short wday, yday;
+                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
                         t->hour = t->minute = t->second = 0;
                         t->fraction = 0;
                     } else {
@@ -406,8 +407,9 @@ void ODBCConnection::queryBindParameters(Query* query)
                     DateTime dt = param->getDateTime();
                     int16_t ms;
                     buff = t;
-                    if (int(dt) != 0) {
-                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day);
+                    if (!dt.zero()) {
+                        short wday, yday;
+                        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
                         dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
                         t->fraction = 0;
                     } else {

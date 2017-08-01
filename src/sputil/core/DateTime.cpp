@@ -38,6 +38,7 @@
 #else
 
 #include <sys/time.h>
+#include <sptk5/string_ext.h>
 
 #endif
 #endif
@@ -48,6 +49,7 @@
 #endif
 
 using namespace std;
+using namespace std::chrono;
 using namespace sptk;
 
 namespace sptk
@@ -79,10 +81,8 @@ static const short _monthDaySums[2][13] =
 
 static const DateTime epoch(1970, 1, 1);
 
-#define DateDelta 693594
-
 static bool _time24Mode;
-static double dateTimeOffset;
+static DateTime::duration dateTimeOffset;
 
 char     DateTime::dateFormat[32];
 char     DateTime::datePartsOrder[4];
@@ -130,7 +130,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     bool processingTime = false;
     const char* pattern;
     while (ptr != nullptr) {
-        int number = atoi(ptr);
+        int number = string2int(ptr);
         switch (number) {
             case 10:
                 pattern = "19";   // hour (12-hour mode)
@@ -258,7 +258,7 @@ void DateTimeFormat::init() noexcept
     char buf[16];
     struct tm *ltime = localtime(&ts);
     strftime(buf, sizeof(buf), "%z", ltime);
-    int offset = atoi(buf);
+    int offset = string2int(buf);
     int minutes = offset % 100;
     int hours = offset / 100;
     DateTime::timeZoneOffset = hours * 60 + minutes;
@@ -293,27 +293,24 @@ void DateTime::time24Mode(bool t24mode)
     }
 }
 
-void DateTime::encodeDate(double& dt, short year, short month, short day)
+void DateTime::encodeDate(time_point& dt, short year, short month, short day)
 {
     if (year == 0 && month == 0 && day == 0) {
-        dt = 0;
+        time_point tp;
+        dt = tp;
         return;
     }
-    if (month < 1 || month > 12)
-        throw Exception("Invalid month in the date");
-    int yearKind = isLeapYear(year);
-    month--;
-    if (day < 1 || day > _monthDays[yearKind][month])
-        throw Exception("Invalid day in the date");
-    if (year <= 0 || year > 9999)
-        throw Exception("Invalid year in the date");
 
-    day += _monthDaySums[yearKind][month];
-    int i = year - 1;
-    dt = i * 365 + i / 4 - i / 100 + i / 400 + day - DateDelta;
+    tm time = {};
+    time.tm_year = year - 1900;
+    time.tm_mon = month - 1;
+    time.tm_mday = day;
+
+    time_t t = mktime(&time);
+    dt = clock::from_time_t(t);
 }
 
-void DateTime::encodeDate(double& dt, const char* dat)
+void DateTime::encodeDate(time_point& dt, const char* dat)
 {
     char bdat[64];
     short datePart[7];
@@ -322,7 +319,7 @@ void DateTime::encodeDate(double& dt, const char* dat)
     ::upperCase(bdat, dat);
 
     if (strcmp(bdat, "TODAY") == 0) {
-        dt = Date();        // Sets the current date
+        dt = Date().timePoint();
         return;
     }
 
@@ -343,13 +340,13 @@ void DateTime::encodeDate(double& dt, const char* dat)
                 partNumber = 3;
             if (ptr != nullptr) { // end of token
                 bdat[i] = 0;
-                datePart[partNumber] = (short) atoi(ptr);
+                datePart[partNumber] = (short) string2int(ptr);
                 partNumber++;
                 ptr = nullptr;
             }
         } else {
             if (isdigit(c) == 0) {
-                dt = 0;
+                dt = time_point();
                 return;
             }
             if (ptr == nullptr)
@@ -357,7 +354,7 @@ void DateTime::encodeDate(double& dt, const char* dat)
         }
     }
     if (partNumber < 3) { // Not enough date parts
-        dt = 0;
+        dt = time_point();
         return;
     }
     short month = 0, day = 0, year = 0;
@@ -390,22 +387,16 @@ void DateTime::encodeDate(double& dt, const char* dat)
         else
             year = short(year + 1900);
     }
-    double dd;
+    time_point dd;
     encodeDate(dd, year, month, day);
-    if (partNumber > 3) { // Time part included into string
-        double d;
-        encodeTime(d, datePart[3], datePart[4], datePart[5], datePart[6]);
-        dd += d;
-    }
+    if (partNumber > 3) // Time part included into string
+        encodeTime(dd, datePart[3], datePart[4], datePart[5], datePart[6]);
     dt = dd;
 }
 
-void DateTime::encodeTime(double& dt, short h, short m, short s, short ms)
+void DateTime::encodeTime(time_point& dt, short h, short m, short s, short ms)
 {
-    double seconds = s + ms / 1000.0;
-    double minutes = m + seconds / 60.0;
-    double hours = h + (minutes / 60.0);
-    dt = hours / 24.0;
+    dt += hours(h) + minutes(m) + seconds(s) + milliseconds(ms);
 }
 
 static int trimRight(char* s)
@@ -451,25 +442,25 @@ int decodeTZOffset(const char* tzOffset)
     int hours, minutes = 0;
     if (p1 != nullptr) {
         *p1 = 0;
-        minutes = atoi(p1 + 1);
+        minutes = string2int(p1 + 1);
     }
-    hours = atoi(p);
+    hours = string2int(p);
     return sign * (hours * 60 + minutes);
 }
 
-void DateTime::encodeTime(double& dt, const char* tim)
+void DateTime::encodeTime(time_point& dt, const char* tim)
 {
     char bdat[32];
 
     ::upperCase(bdat, tim);
 
     if (trimRight(bdat) == 0) {
-        dt = 0;
+        dt = time_point();
         return;
     }
 
     if (strcmp(bdat, "TIME") == 0) {
-        dt = Time();        // Sets the current date
+        dt = Time().m_dateTime;        // Sets the current date
         return;
     }
 
@@ -503,14 +494,14 @@ void DateTime::encodeTime(double& dt, const char* tim)
         if (c == timeSeparator || c == ' ' || c == '.' || c == 0) {
             if (ptr != nullptr) { // end of token
                 bdat[i] = 0;
-                timePart[partNumber] = (short) atoi(ptr);
+                timePart[partNumber] = (short) string2int(ptr);
 
                 partNumber++;
                 ptr = nullptr;
             }
         } else {
             if (isdigit(c) == 0) {
-                dt = 0;
+                dt = time_point();
                 return;
             }
             if (ptr == nullptr)
@@ -521,27 +512,29 @@ void DateTime::encodeTime(double& dt, const char* tim)
         timePart[0] = short(timePart[0] + 12);
     encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
     if (tzOffsetMin != 0)
-        dt += tzOffsetMin / 1440.0;
+        dt += minutes(tzOffsetMin);
 }
 
 const int S1 = 24 * 3600; // seconds in 1 day
 
-void DateTime::decodeTime(double dt, short& h, short& m, short& s, short& ms)
+void DateTime::decodeTime(const time_point& dt, short &h, short &m, short &s, short &ms, bool gmt)
 {
-    double t = dt - (int) dt;
+    time_t tt = clock::to_time_t(dt);
 
-    if (t < 0)
-        t++;
+    tm time = {};
+    if (gmt)
+        gmtime_r(&tt, &time);
+    else
+        localtime_r(&tt, &time);
 
-    double floatSecs = t * S1;
-    double msecs = lround(floatSecs * 1000);
-    auto secs = int(msecs / 1000);
-    ms = short((msecs / 1000 - secs) * 1000);
-    h = short(secs / 3600);
-    secs = secs % 3600;
-    m = short(secs / 60);
-    secs = secs % 60;
-    s = short(secs);
+    h = (short) time.tm_hour;
+    m = (short) time.tm_min;
+    s = (short) time.tm_sec;
+
+    duration dur = dt.time_since_epoch();
+    seconds sec = duration_cast<seconds>(dt.time_since_epoch());
+    milliseconds msec = duration_cast<milliseconds>(dur - sec);
+    ms = (short) msec.count();
 }
 
 const int D1 = 365;              // Days in 1 year
@@ -555,45 +548,22 @@ inline void DivMod(int op1, int op2, int& div, int& mod)
     mod = op1 % op2;
 }
 
-void DateTime::decodeDate(double dat, short& year, short& month, short& day)
+void DateTime::decodeDate(const time_point &dt, short &year, short &month, short &day, short &dayOfWeek, short &dayOfYear,
+                          bool gmt)
 {
-    int M, D, I;
-    int T = (int) dat + DateDelta - 1;
+    time_t tt = clock::to_time_t(dt);
 
-    int fourCenturiesCount = T / D400;
-    T %= D400;
-    int Y = fourCenturiesCount * 400 + 1;
-
-    DivMod(T, D100, I, D);
-    if (I == 4) {
-        I--;
-        D += D100;
-    }
-
-    Y += I * 100;
-    DivMod(D, D4, I, D);
-    Y += I * 4;
-    DivMod(D, D1, I, D);
-    if (I == 4) {
-        I--;
-        D += D1;
-    }
-    Y += I;
-    year = (short) Y;
-    //year  = short (Y + 1900);
-
-    int leapYear = isLeapYear(short(year));
-    M = D / 31;
-    int mds = _monthDaySums[leapYear][M + 1];
-    if (mds <= D)
-        M++;
+    tm time = {};
+    if (gmt)
+        gmtime_r(&tt, &time);
     else
-        mds = _monthDaySums[leapYear][M];
+        localtime_r(&tt, &time);
 
-    D -= mds;
-
-    month = short(M + 1);
-    day = short(D + 1);
+    year = (short) time.tm_year + 1900;
+    month = (short) time.tm_mon + 1;
+    day = (short) time.tm_mday;
+    dayOfWeek = (short) time.tm_wday;
+    dayOfYear = (short) time.tm_yday;
 }
 
 //----------------------------------------------------------------
@@ -602,21 +572,19 @@ void DateTime::decodeDate(double dat, short& year, short& month, short& day)
 DateTime::DateTime(short year, short month, short day, short hour, short minute, short second) noexcept
 {
     try {
-        double t;
         encodeDate(m_dateTime, year, month, day);
-        encodeTime(t, hour, minute, second);
-        m_dateTime += t;
+        encodeTime(m_dateTime, hour, minute, second);
     }
     catch (...) {
-        m_dateTime = 0;
+        m_dateTime = time_point();
     }
 }
 
 DateTime::DateTime(const char* dat) noexcept
 {
-    while (*dat != char(0) && *dat == ' ') dat++;
+    while (*dat == ' ') dat++;
     if (*dat == char(0)) {
-        m_dateTime = 0;
+        m_dateTime = time_point();
         return;
     }
 
@@ -630,28 +598,30 @@ DateTime::DateTime(const char* dat) noexcept
     try {
         if (strchr(s1, dateSeparator) != nullptr || strchr(s1, '-') != nullptr) {
             encodeDate(m_dateTime, s1);
-            if (s2 != nullptr && strchr(s2, timeSeparator) != nullptr) {
-                double dt;
-                encodeTime(dt, s2);
-                m_dateTime += dt;
-            }
+            if (s2 != nullptr && strchr(s2, timeSeparator) != nullptr)
+                encodeTime(m_dateTime, s2);
         } else
             encodeTime(m_dateTime, s1);
         free(s1);
     } catch (...) {
         free(s1);
-        m_dateTime = 0;
+        m_dateTime = time_point();
     }
 }
 
-DateTime::DateTime(const DateTime& dt) noexcept
+DateTime::DateTime(const time_point& dt) noexcept
+: m_dateTime(dt)
 {
-    m_dateTime = dt.m_dateTime;
 }
 
-DateTime::DateTime(double dt) noexcept
+DateTime::DateTime(const duration& dt) noexcept
+: m_dateTime(dt)
 {
-    m_dateTime = dt;
+}
+
+DateTime::DateTime(int64_t sinceEpochMS) noexcept
+: m_dateTime(milliseconds(sinceEpochMS))
+{
 }
 
 //----------------------------------------------------------------
@@ -663,66 +633,56 @@ DateTime& DateTime::operator=(const char* dat)
     if (dat != nullptr)
         encodeDate(m_dateTime, dat);
     else
-        m_dateTime = 0;
+        m_dateTime = time_point();
     return *this;
-}
-
-//----------------------------------------------------------------
-// Conversion operations
-//----------------------------------------------------------------
-// DateTime::operator int (void) { return (int) dateTime; }
-
-DateTime::operator double() const
-{
-    return m_dateTime;
 }
 
 //----------------------------------------------------------------
 // Date Arithmetic
 //----------------------------------------------------------------
-DateTime DateTime::operator+(DateTime& dt)
+DateTime DateTime::operator+(duration& dt)
 {
-    return DateTime(m_dateTime + dt.m_dateTime);
+    return DateTime(m_dateTime + dt);
 }
 
-DateTime DateTime::operator-(DateTime& dt)
+DateTime DateTime::operator-(duration& dt)
 {
-    return DateTime(m_dateTime - dt.m_dateTime);
+    return DateTime(m_dateTime - dt);
 }
 
-DateTime& DateTime::operator+=(DateTime& dt)
+DateTime& DateTime::operator+=(duration& dt)
 {
-    m_dateTime += dt.m_dateTime;
+    m_dateTime += dt;
     return *this;
 }
 
-DateTime& DateTime::operator-=(DateTime& dt)
+DateTime& DateTime::operator-=(duration& dt)
 {
-    m_dateTime -= dt.m_dateTime;
+    m_dateTime -= dt;
     return *this;
 }
 
 DateTime& DateTime::operator++()
 {
-    m_dateTime += 1;
+    m_dateTime += hours(24);
     return *this;
 }
 
 DateTime& DateTime::operator++(int)
 {
-    m_dateTime += 1;
+    m_dateTime += hours(24);
     return *this;
 }
 
 DateTime& DateTime::operator--()
 {
-    m_dateTime -= 1;
+    m_dateTime -= hours(24);
     return *this;
 }
 
 DateTime& DateTime::operator--(int)
 {
-    m_dateTime -= 1;
+    m_dateTime -= hours(24);
     return *this;
 }
 
@@ -732,42 +692,47 @@ DateTime& DateTime::operator--(int)
 
 bool operator<(const DateTime& dt1, const DateTime& dt2)
 {
-    return ((double) dt1 < (double) dt2);
+    return (dt1.timePoint() < dt2.timePoint());
 }
 
 bool operator<=(const DateTime& dt1, const DateTime& dt2)
 {
-    return ((double) dt1 <= (double) dt2);
+    return (dt1.timePoint() <= dt2.timePoint());
 }
 
 bool operator>(const DateTime& dt1, const DateTime& dt2)
 {
-    return ((double) dt1 > (double) dt2);
+    return (dt1.timePoint() > dt2.timePoint());
 }
 
 bool operator>=(const DateTime& dt1, const DateTime& dt2)
 {
-    return ((double) dt1 >= (double) dt2);
+    return (dt1.timePoint() >= dt2.timePoint());
 }
 
 bool operator==(const DateTime& dt1, const DateTime& dt2)
 {
-    return ((double) dt1 == (double) dt2);
+    return (dt1.timePoint() == dt2.timePoint());
 }
 
 bool operator!=(const DateTime& dt1, const DateTime& dt2)
 {
-    return ((double) dt1 != (double) dt2);
+    return (dt1.timePoint() != dt2.timePoint());
 }
 
-DateTime operator+(const DateTime& dt1, const DateTime& dt2)
+DateTime operator+(const DateTime &dt, const sptk::DateTime::duration &duration)
 {
-    return double(dt1) + double(dt2);
+    return dt.timePoint() + duration;
 }
 
-DateTime operator-(const DateTime& dt1, const DateTime& dt2)
+DateTime operator-(const DateTime &dt, const sptk::DateTime::duration &duration)
 {
-    return double(dt1) - double(dt2);
+    return dt.timePoint() - duration;
+}
+
+DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
+{
+    return dt.timePoint() - dt2.timePoint();
 }
 
 //----------------------------------------------------------------
@@ -776,13 +741,13 @@ DateTime operator-(const DateTime& dt1, const DateTime& dt2)
 void DateTime::formatDate(char* str, bool universalDateFormat) const
 {
     char* ptr = str;
-    short month, day, year;
+    short month, day, year, wday, yday;
 
-    if (m_dateTime == 0) {
+    if (m_dateTime == time_point()) {
         *str = 0;
         return;
     }
-    decodeDate(m_dateTime, year, month, day);
+    decodeDate(m_dateTime, year, month, day, wday, yday, false);
     if (universalDateFormat) {
         int bytes = sprintf(str, "%04d-%02d-%02d", year, month, day);
         ptr += bytes;
@@ -812,7 +777,8 @@ void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimez
 {
     short h, m, s, ms;
 
-    decodeTime(m_dateTime, h, m, s, ms);
+    decodeTime(m_dateTime, h, m, s, ms,
+               false);
     const char* appendix = nullptr;
     if (showTimezone)
         ampm = false;
@@ -851,107 +817,83 @@ void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimez
 //----------------------------------------------------------------
 short DateTime::dayOfYear() const
 {
-    DateTime temp(1, 1, year());
+    short y, m, d, wd, yd;
+    decodeDate(m_dateTime, y, m, d, wd, yd, false);
 
-    return (short) (m_dateTime - temp.m_dateTime);
+    return d;
 }
 
 // Get the current system time
 DateTime DateTime::System()
 {
-    double dat, tim;
-#ifndef _WIN32
-    timeval tp = {};
-    time_t tt;
-    time(&tt);
-    struct tm* t = localtime(&tt);
-    encodeDate(dat, short(t->tm_year + 1900), short(t->tm_mon + 1), short(t->tm_mday));
-    gettimeofday(&tp, nullptr);
-    auto msec = short(tp.tv_usec / 1000);
-    encodeTime(tim, short(t->tm_hour), short(t->tm_min), short(t->tm_sec), msec);
-#else
-    SYSTEMTIME systemTime;
-    GetLocalTime(&systemTime);
-    encodeDate(dat,short(systemTime.wYear),short(systemTime.wMonth),short(systemTime.wDay));
-    encodeTime(tim,short(systemTime.wHour),short(systemTime.wMinute),short(systemTime.wSecond),short(systemTime.wMilliseconds));
-#endif
-
-    return dat + tim;
+    return clock::now();
 }
 
 // Get the current system time with optional synchronization offset
 DateTime DateTime::Now()
 {
-    return (double) DateTime::System() + ::dateTimeOffset;
+    return clock::now() + ::dateTimeOffset;
 }
 
 // Set the synchronization offset
 void DateTime::Now(DateTime dt)
 {
-    ::dateTimeOffset = (double) dt - (double) DateTime::System();
+    ::dateTimeOffset = dt.m_dateTime - DateTime::System().m_dateTime;
 }
 
 DateTime DateTime::Date()
 {
-    double dat = Now();
-    return double(int(dat));
+    return Now().date();
 }
 
 DateTime DateTime::Time()
 {
-    double dat = Now();
-    return dat - int(dat);
-}
-
-uint32_t DateTime::TimeOfDayMs()
-{
-#ifndef _WIN32
-    timeval tp = {};
-    gettimeofday(&tp, nullptr);
-    return uint32_t(tp.tv_sec * 1000 + tp.tv_usec / 1000);
-#else
-    SYSTEMTIME systemTime;
-    GetLocalTime(&systemTime);
-    return ((systemTime.wHour * 60 + systemTime.wMinute) *60 + systemTime.wSecond) * 1000 + systemTime.wMilliseconds;
-#endif
+    duration sinceEpoch = clock::now().time_since_epoch();
+    duration thisDay = sinceEpoch - hours(duration_cast<hours>(sinceEpoch).count() / 24 * 24);
+    return time_point() + thisDay;
 }
 
 short DateTime::daysInMonth() const
 {
-    short y, m, d;
-    decodeDate(m_dateTime, y, m, d);
+    short y, m, d, wd, yd;
+    decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return _monthDays[isLeapYear(y)][m - 1];
 }
 
-uint32_t DateTime::date() const
+DateTime DateTime::date() const
 {
-    return uint32_t(m_dateTime);
+    duration sinceEpoch = m_dateTime.time_since_epoch();
+    int days = duration_cast<hours>(sinceEpoch).count() / 24;
+    DateTime dt = time_point() + hours(days * 24);  // Sets the current date
+    return dt;
 }
 
 short DateTime::day() const
 {
-    short y, m, d;
-    decodeDate(m_dateTime, y, m, d);
+    short y, m, d, wd, yd;
+    decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return d;
 }
 
 short DateTime::month() const
 {
-    short y, m, d;
-    decodeDate(m_dateTime, y, m, d);
+    short y, m, d, wd, yd;
+    decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return m;
 }
 
 short DateTime::year() const
 {
-    short y, m, d;
-    decodeDate(m_dateTime, y, m, d);
+    short y, m, d, wd, yd;
+    decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return y;
 }
 
 short DateTime::dayOfWeek() const
 {
-    return short((int(m_dateTime) - 1) % 7 + 1);
+    short y, m, d, wd, yd;
+    decodeDate(m_dateTime, y, m, d, wd, yd, false);
+    return wd + 1;
 }
 
 string DateTime::dayOfWeekName() const
@@ -985,25 +927,15 @@ std::string DateTime::isoDateTimeString(bool showMilliseconds) const
 
 DateTime DateTime::convertCTime(const time_t tt)
 {
-    struct tm* t = localtime((time_t*) &tt);
-    double dat, tim;
-    encodeDate(dat, short(t->tm_year + 1900), short(t->tm_mon + 1), short(t->tm_mday));
-    encodeTime(tim, short(t->tm_hour), short(t->tm_min), short(t->tm_sec), short(0));
-    return dat + tim;
-}
-
-#define EPOCH_DATETIME 25569
-time_t DateTime::toEpoch() const
-{
-    return (time_t) ((m_dateTime - EPOCH_DATETIME) * 86400.0 + 0.01) - timeZoneOffset * 60;
-}
-
-void DateTime::fromEpoch(time_t dt)
-{
-    m_dateTime = double(dt) / 86400.0 + double(epoch)  + timeZoneOffset * 60 / 86400.0;
+    return clock::from_time_t(tt);
 }
 
 bool DateTime::time24Mode()
 {
     return _time24Mode;
+}
+
+double duration2seconds(const DateTime::duration& duration)
+{
+    return chrono::duration_cast<milliseconds>(duration).count() / 1000.0;
 }

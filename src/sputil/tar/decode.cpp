@@ -16,7 +16,7 @@
 #if defined(__GNUC__) || defined(__SUNPRO_C)
 	#include <sys/param.h>
 #endif
-#include <string.h>
+#include <cstring>
 
 
 #ifndef MAXPATHLEN
@@ -29,7 +29,7 @@ th_get_pathname(TAR *t)
 {
 	char filename[MAXPATHLEN];
 
-	if (t->th_buf.gnu_longname)
+	if (t->th_buf.gnu_longname != nullptr)
 		return t->th_buf.gnu_longname;
 
 	if (t->th_buf.prefix[0] != '\0')

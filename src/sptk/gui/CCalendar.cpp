@@ -90,8 +90,8 @@ void CCalendar::dayButtonClicked(uint32_t day) {
 }
 
 void CCalendar::switchButtonClicked(int32_t monthChange) {
-   short year, month, day;
-   m_date.decodeDate(&year,&month,&day);
+   short year, month, day, wday, yday;
+   m_date.decodeDate(&year,&month,&day, &wday, &yday);
    month += (short) monthChange;
    if (month < 1) {
       month += 12;
@@ -164,7 +164,7 @@ void CCalendar::ctor_init() {
    }
 
    end();
-   m_date = (int) DateTime::Now();
+   m_date = DateTime::Now();
 }
 
 CCalendar::CCalendar(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
@@ -194,9 +194,10 @@ void CCalendar::resize(int xx,int yy,int ww,int hh) {
       m_dayNameBoxes[i]->resize(xx+i*bw,yy+bh,bw,bh);
 
    // compute the month start date
-   short year, month, day;
-   if ((double)m_date < 1) m_date = DateTime::Now();
-   m_date.decodeDate(&year,&month,&day);
+   short year, month, day, wday, yday;
+   if (m_date.zero())
+       m_date = DateTime::Now();
+   m_date.decodeDate(&year,&month,&day, &wday, &yday);
    DateTime   monthDate(year,month,1);
    m_headerLabel = monthDate.monthName() + ", " + int2string(year);
    m_monthNameBox->label(m_headerLabel.c_str());
@@ -250,8 +251,8 @@ void CCalendar::date(DateTime dt) {
 }
 
 DateTime CCalendar::date() const {
-   short year, month, day;
-   m_date.decodeDate(&year,&month,&day);
+   short year, month, day, wday, yday;
+   m_date.decodeDate(&year,&month,&day, &wday, &yday);
    if (m_activeButtonIndex > -1)
       day = short(m_activeButtonIndex + 1);
    return DateTime(year, month, day);

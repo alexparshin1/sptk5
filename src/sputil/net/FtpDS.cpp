@@ -116,8 +116,8 @@ FieldList* parse_file_info_string(string& file_info)
         ptr = next_dir_item(ptr, &year);
         int m = month_names.indexOf(month) + 1;
         if (m >= 0) {
-            int d = atoi(day);
-            int y = atoi(year);
+            int d = string2int(day);
+            int y = string2int(year);
             DateTime unixDate((short) y, (short) m, (short) d);
             dt = unixDate;
         }
@@ -136,7 +136,7 @@ FieldList* parse_file_info_string(string& file_info)
 
     df->push_back("", false).setImageNdx(pixmapType);
     df->push_back("Name", false) = file_name;
-    df->push_back("Size", false) = (uint32_t) atoi(size);
+    df->push_back("Size", false) = (uint32_t) string2int(size);
     df->push_back("Modified", false) = dt;
 
     (*df)[uint32_t(0)].view.width = 3;

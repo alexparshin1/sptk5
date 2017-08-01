@@ -28,7 +28,7 @@
 
 #include <sptk5/Variant.h>
 #include <sptk5/Field.h>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -60,12 +60,12 @@ MoneyData::operator bool() const
 //---------------------------------------------------------------------------
 void Variant::releaseBuffers()
 {
-    if (m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) {
-        if (m_data.buffer.data) {
-            if (!(m_dataType & VAR_EXTERNAL_BUFFER))
+    if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0) {
+        if (m_data.buffer.data != nullptr) {
+            if ((m_dataType & VAR_EXTERNAL_BUFFER) == 0)
                 free(m_data.buffer.data);
 
-            m_data.buffer.data = NULL;
+            m_data.buffer.data = nullptr;
             m_data.buffer.size = 0;
         }
     }
@@ -159,7 +159,8 @@ Variant::Variant(const std::string& v)
 Variant::Variant(DateTime v)
 {
     m_dataType = VAR_DATE_TIME;
-    m_data.timeData = v;
+    DateTime::duration sinceEpoch = v.timePoint().time_since_epoch();
+    m_data.timeData = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
 }
 
 //---------------------------------------------------------------------------
@@ -255,8 +256,8 @@ void Variant::setString(const char* value, size_t maxlen)
 {
     uint32_t dtype = VAR_STRING;
 
-    if (dataType() == VAR_STRING && maxlen && m_data.buffer.size == maxlen + 1) {
-        if (value) {
+    if (dataType() == VAR_STRING && maxlen != 0 && m_data.buffer.size == maxlen + 1) {
+        if (value != nullptr) {
             strncpy(m_data.buffer.data, value, maxlen);
             m_data.buffer.data[maxlen] = 0;
         }
@@ -268,12 +269,12 @@ void Variant::setString(const char* value, size_t maxlen)
     else {
         releaseBuffers();
 
-        if (value) {
-            if (maxlen) {
+        if (value != nullptr) {
+            if (maxlen != 0) {
                 dataSize(maxlen);
                 m_data.buffer.size = maxlen + 1;
                 m_data.buffer.data = (char*) malloc(m_data.buffer.size);
-                if (m_data.buffer.data) {
+                if (m_data.buffer.data != nullptr) {
                     strncpy(m_data.buffer.data, value, maxlen);
                     m_data.buffer.data[maxlen] = 0;
                 }
@@ -286,7 +287,7 @@ void Variant::setString(const char* value, size_t maxlen)
             }
         }
         else {
-            m_data.buffer.data = NULL;
+            m_data.buffer.data = nullptr;
             dataSize(0);
             m_data.buffer.size = 0;
             dtype |= VAR_NULL;
@@ -303,14 +304,14 @@ void Variant::setString(const std::string& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalString(const char* value, int length)
+void Variant::setExternalString(const char *value, ssize_t length)
 {
     uint32_t dtype = VAR_STRING;
 
-    if (!(m_dataType & VAR_EXTERNAL_BUFFER))
+    if ((m_dataType & VAR_EXTERNAL_BUFFER) == 0)
         releaseBuffers();
 
-    if (value) {
+    if (value != nullptr) {
         if (length < 0)
             length = (int) strlen(value);
 
@@ -340,14 +341,14 @@ void Variant::setText(const char* value)
     releaseBuffers();
     dataType(VAR_TEXT);
 
-    if (value) {
+    if (value != nullptr) {
         dataSize(strlen(value));
         m_data.buffer.size = dataSize() + 1;
         m_data.buffer.data = strdup(value);
     }
     else {
         m_dataType |= VAR_NULL;
-        m_data.buffer.data = NULL;
+        m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
         dataSize(0);
     }
@@ -360,14 +361,14 @@ void Variant::setText(const string& value)
     dataType(VAR_TEXT);
     size_t vlen = value.length();
 
-    if (vlen) {
+    if (vlen != 0) {
         dataSize(vlen);
         m_data.buffer.size = vlen + 1;
         m_data.buffer.data = strdup(value.c_str());
     }
     else {
         m_dataType |= VAR_NULL;
-        m_data.buffer.data = NULL;
+        m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
         dataSize(0);
     }
@@ -379,7 +380,7 @@ void Variant::setExternalText(const char* value)
     releaseBuffers();
     dataType(VAR_TEXT);
 
-    if (value) {
+    if (value != nullptr) {
         dataSize(strlen(value));
         m_data.buffer.size = dataSize() + 1;
         m_data.buffer.data = (char*) value;
@@ -387,7 +388,7 @@ void Variant::setExternalText(const char* value)
     }
     else {
         m_dataType |= VAR_NULL;
-        m_data.buffer.data = NULL;
+        m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
         dataSize(0);
     }
@@ -399,12 +400,12 @@ void Variant::setBuffer(const void* value, size_t sz)
     releaseBuffers();
     dataType(VAR_BUFFER);
 
-    if (value || sz) {
+    if (value != nullptr || sz != 0) {
         m_data.buffer.size = sz;
         dataSize(sz);
         m_data.buffer.data = (char*) malloc(sz);
 
-        if (m_data.buffer.data && value)
+        if (m_data.buffer.data != nullptr && value != nullptr)
             memcpy(m_data.buffer.data, value, sz);
     }
     else
@@ -423,12 +424,12 @@ void Variant::setBuffer(const string& value)
     dataType(VAR_BUFFER);
     size_t vlen = value.length();
 
-    if (vlen) {
+    if (vlen != 0) {
         size_t sz = vlen + 1;
         m_data.buffer.size = sz;
         dataSize(sz);
         m_data.buffer.data = (char*) malloc(sz);
-        if (m_data.buffer.data && value.c_str())
+        if (m_data.buffer.data != nullptr && !value.empty())
             memcpy(m_data.buffer.data, value.c_str(), sz);
     }
     else
@@ -442,7 +443,7 @@ void Variant::setExternalBuffer(const void* value, size_t sz)
     dataType(VAR_BUFFER);
     m_data.buffer.data = (char*) value;
 
-    if (value) {
+    if (value != nullptr) {
         m_data.buffer.size = sz;
         dataSize(sz);
         m_dataType |= VAR_EXTERNAL_BUFFER;
@@ -461,8 +462,8 @@ void Variant::setDateTime(DateTime value)
         dataType(VAR_DATE_TIME);
         dataSize(sizeof(value));
     }
-
-    m_data.floatData = value;
+    DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
+    m_data.timeData = chrono::duration_cast<chrono::microseconds>(sinceEpoch).count();
 }
 
 //---------------------------------------------------------------------------
@@ -474,7 +475,9 @@ void Variant::setDate(DateTime value)
         dataSize(sizeof(value));
     }
 
-    m_data.floatData = value;
+    DateTime::duration sinceEpoch = value.timePoint().time_since_epoch();
+    int64_t days = chrono::duration_cast<chrono::hours>(sinceEpoch).count() / 24;
+    m_data.timeData = days * 86400 * 1000000;
 }
 
 //---------------------------------------------------------------------------
@@ -518,7 +521,7 @@ void Variant::setData(const Variant& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
-            setInteger(C.getBool());
+            setInteger(C.getBool()? 1: 0);
             break;
 
         case VAR_INT:
@@ -730,13 +733,14 @@ const char* Variant::getText() const
 //---------------------------------------------------------------------------
 DateTime Variant::getDateTime() const
 {
-    return m_data.floatData;
+    return DateTime::time_point(chrono::microseconds(m_data.timeData));
 }
 
 //---------------------------------------------------------------------------
 DateTime Variant::getDate() const
 {
-    return (int) m_data.floatData;
+    int64_t days = m_data.timeData / 1000000 / 86400;
+    return DateTime::time_point(chrono::hours(days * 24));
 }
 
 //---------------------------------------------------------------------------
@@ -839,12 +843,12 @@ Variant::operator DateTime() const THROWS_EXCEPTIONS
 // convertors
 int32_t Variant::asInteger() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return 0;
 
     switch (dataType()) {
         case VAR_BOOL:
-            return m_data.boolData;
+            return m_data.boolData ? 1 : 0;
 
         case VAR_INT:
             return m_data.intData;
@@ -861,11 +865,13 @@ int32_t Variant::asInteger() const THROWS_EXCEPTIONS
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return (int32_t) atol(m_data.buffer.data);
+            return (int32_t) string2int(m_data.buffer.data);
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-            return (int32_t) m_data.floatData;
+            // Time is in microseconds since epoch
+            // - returning seconds since epoch
+            return m_data.timeData / 1000000;
 
         default:
             throw Exception("Can't convert field for that type");
@@ -874,12 +880,12 @@ int32_t Variant::asInteger() const THROWS_EXCEPTIONS
 
 int64_t Variant::asInt64() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return 0;
 
     switch (dataType()) {
         case VAR_BOOL:
-            return m_data.boolData;
+            return m_data.boolData ? 1 : 0;
 
         case VAR_INT:
             return m_data.intData;
@@ -899,12 +905,14 @@ int64_t Variant::asInt64() const THROWS_EXCEPTIONS
 #ifdef _MSC_VER
             return _atoi64 (m_data.buffer.data);
 #else
-            return atol(m_data.buffer.data);
+            return string2int64(m_data.buffer.data);
 #endif
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-            return int64_t(m_data.floatData);
+            // Time is in microseconds since epoch
+            // - returning seconds since epoch
+            return m_data.timeData / 1000000;
 
         case VAR_IMAGE_PTR:
             return int64_t(m_data.imagePtr);
@@ -921,7 +929,7 @@ bool Variant::asBool() const THROWS_EXCEPTIONS
 {
     char ch;
 
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return false;
 
     switch (dataType()) {
@@ -944,14 +952,14 @@ bool Variant::asBool() const THROWS_EXCEPTIONS
         case VAR_TEXT:
         case VAR_BUFFER:
             ch = m_data.buffer.data[0];
-            return (strchr("YyTt1", ch) != 0);
+            return (strchr("YyTt1", ch) != nullptr);
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-            return bool(m_data.floatData != 0);
+            return bool(m_data.timeData != 0);
 
         case VAR_IMAGE_PTR:
-            return bool(m_data.imagePtr != 0);
+            return bool(m_data.imagePtr != nullptr);
 
         case VAR_IMAGE_NDX:
             return bool(m_data.imageNdx != 0);
@@ -963,12 +971,12 @@ bool Variant::asBool() const THROWS_EXCEPTIONS
 
 double Variant::asFloat() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return 0;
 
     switch (dataType()) {
         case VAR_BOOL:
-            return m_data.boolData;
+            return m_data.boolData ? 1 : 0;
 
         case VAR_INT:
             return m_data.intData;
@@ -985,11 +993,13 @@ double Variant::asFloat() const THROWS_EXCEPTIONS
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return strtod(m_data.buffer.data, 0);
+            return strtod(m_data.buffer.data, nullptr);
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-            return m_data.floatData;
+            // Time is in microseconds since epoch
+            // - returning seconds since epoch
+            return m_data.timeData / 1000000;
 
         default:
             throw Exception("Can't convert field for that type");
@@ -998,7 +1008,7 @@ double Variant::asFloat() const THROWS_EXCEPTIONS
 
 string Variant::asString() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return "";
 
     char print_buffer[64];
@@ -1014,16 +1024,10 @@ string Variant::asString() const THROWS_EXCEPTIONS
             return "f";
 
         case VAR_INT:
-            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
-            return string(print_buffer);
+            return int2string(m_data.intData);
 
         case VAR_INT64:
-#ifndef _WIN32
-            snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
-#else
-            snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
-#endif
-            return string(print_buffer);
+            return int2string(m_data.int64Data);
 
         case VAR_MONEY: {
             char format[16];
@@ -1061,16 +1065,16 @@ string Variant::asString() const THROWS_EXCEPTIONS
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (m_data.buffer.data)
+            if (m_data.buffer.data != nullptr)
                 return m_data.buffer.data;
             else
                 return "";
 
         case VAR_DATE:
-            return DateTime(m_data.floatData).dateString();
+            return DateTime(chrono::microseconds(m_data.timeData)).dateString();
 
         case VAR_DATE_TIME: {
-            DateTime dt(m_data.floatData);
+            DateTime dt(chrono::microseconds(m_data.timeData));
             return dt.dateString() + " " + dt.timeString(true);
         }
 
@@ -1079,14 +1083,13 @@ string Variant::asString() const THROWS_EXCEPTIONS
             return string(print_buffer);
 
         case VAR_IMAGE_NDX:
-            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
-            return string(print_buffer);
+            return int2string(m_data.imageNdx);
     }
 }
 
 DateTime Variant::asDate() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return 0.0;
 
     switch (dataType()) {
@@ -1111,8 +1114,10 @@ DateTime Variant::asDate() const THROWS_EXCEPTIONS
             return m_data.buffer.data;
 
         case VAR_DATE:
-        case VAR_DATE_TIME:
-            return int(m_data.floatData);
+        case VAR_DATE_TIME: {
+                DateTime::duration dt = chrono::hours(m_data.timeData / 1000000 / 86400 * 24);
+                return DateTime(dt);
+            }
 
         default:
             throw Exception("Can't convert field for that type");
@@ -1121,33 +1126,35 @@ DateTime Variant::asDate() const THROWS_EXCEPTIONS
 
 DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
-        return 0.0;
+    if ((m_dataType & VAR_NULL) != 0)
+        return DateTime();
 
     switch (dataType()) {
         case VAR_BOOL:
-            return double(0);
+            return DateTime();
 
         case VAR_INT:
-            return m_data.intData;
+            return DateTime(chrono::seconds(m_data.intData));
 
         case VAR_INT64:
-            return (double) m_data.int64Data;
+            return DateTime(chrono::seconds(m_data.int64Data));
 
         case VAR_MONEY:
-            return (double) m_data.moneyData;
+            return DateTime();
 
         case VAR_FLOAT:
-            return m_data.floatData;
+            return DateTime(chrono::seconds((long)m_data.floatData));
 
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return m_data.buffer.data;
+            return DateTime(m_data.buffer.data);
 
         case VAR_DATE:
-        case VAR_DATE_TIME:
-            return m_data.floatData;
+        case VAR_DATE_TIME: {
+            DateTime::duration dt(chrono::microseconds(m_data.timeData));
+            return DateTime(dt);
+        }
 
         default:
             throw Exception("Can't convert field for that type");
@@ -1156,7 +1163,7 @@ DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
 
 void* Variant::asImagePtr() const THROWS_EXCEPTIONS
 {
-    if (m_dataType & VAR_NULL)
+    if ((m_dataType & VAR_NULL) != 0)
         return 0;
 
     switch (dataType()) {
@@ -1183,9 +1190,9 @@ void Variant::setNull(VariantType vtype)
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            if (m_dataType & VAR_EXTERNAL_BUFFER)
-                m_data.buffer.data = 0;
-            else if (m_data.buffer.data)
+            if ((m_dataType & VAR_EXTERNAL_BUFFER) != 0)
+                m_data.buffer.data = nullptr;
+            else if (m_data.buffer.data != nullptr)
                 m_data.buffer.data[0] = 0;
 
             break;
@@ -1249,16 +1256,15 @@ VariantType Variant::nameType(const char* name)
 
     if (nameToTypeMap.empty()) {
         for (int type = VAR_INT; type <= VAR_BOOL; type *= 2) {
-            VariantType vtype = (VariantType) type;
+            auto vtype = (VariantType) type;
             nameToTypeMap[typeName(vtype)] = vtype;
         }
     }
 
-    if (!name || name[0] == 0)
+    if (name == nullptr || name[0] == 0)
         name = "string";
 
-    std::map<string, VariantType>::iterator itor = nameToTypeMap.find(lowerCase(name));
-
+    auto itor = nameToTypeMap.find(lowerCase(name));
     if (itor == nameToTypeMap.end())
         throw Exception("Type name " + string(name) + " isn't recognized", __FILE__, __LINE__);
 

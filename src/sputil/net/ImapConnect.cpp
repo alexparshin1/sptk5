@@ -105,9 +105,9 @@ string ImapConnect::sendCommand(string cmd)
 
 void ImapConnect::command(string cmd, const std::string &arg1, const std::string &arg2)
 {
-    if (arg1.length() || &arg1 == &empty_quotes)
+    if (!arg1.empty() || &arg1 == &empty_quotes)
         cmd += " " + quotes(arg1);
-    if (arg2.length() || &arg2 == &empty_quotes)
+    if (!arg2.empty() || &arg2 == &empty_quotes)
         cmd += " " + quotes(arg2);
     m_response.clear();
     string ident = sendCommand(cmd);
@@ -154,7 +154,7 @@ void ImapConnect::cmd_select(string mail_box, int32_t &total_msgs)
         if (st[0] == '*') {
             size_t p = st.find("EXISTS");
             if (p != STRING_NPOS) {
-                total_msgs = atoi(st.substr(2, p - 2).c_str());
+                total_msgs = string2int(st.substr(2, p - 2).c_str());
                 break;
             }
         }
@@ -200,7 +200,7 @@ static void parse_header(const string &header, string &header_name, string &head
     if (header[0] == ' ')
         return;
 
-    size_t p = header.find(" ");
+    size_t p = header.find(' ');
     if (p == STRING_NPOS)
         return;
     if (header[p - 1] == ':') {
@@ -216,9 +216,10 @@ static DateTime decodeDate(const std::string &dt)
     // 1. get the day of the month
     char *p1 = temp;
     char *p2 = strchr(p1, ' ');
-    if (!p2) return DateTime(0.0);
+    if (p2 == nullptr)
+        return DateTime();
     *p2 = 0;
-    int mday = atoi(p1);
+    int mday = string2int(p1);
     // 2. get the month
     p1 = p2 + 1;
     int month = 1;
@@ -268,20 +269,21 @@ static DateTime decodeDate(const std::string &dt)
     p1 += 4;
     p2 = p1 + 4;
     *p2 = 0;
-    int year = atoi(p1);
+    int year = string2int(p1);
     p1 = p2 + 1;
     p2 = strchr(p1, ' ');
-    if (p2) *p2 = 0;
+    if (p2 != nullptr)
+        *p2 = 0;
     DateTime time(p1);
     DateTime date((short) year, (short) month, (short) mday);
-    return double(date) + double(time);
+    return date + time.timePoint().time_since_epoch();
 }
 
 void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 {
     results.clear();
     unsigned i;
-    for (i = 0; required_headers[i]; i++) {
+    for (i = 0; required_headers[i] != nullptr; i++) {
         string headerName = required_headers[i];
         Field *fld = new Field(lowerCase(headerName).c_str());
         switch (i) {
@@ -299,11 +301,11 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     i = 1;
     for (; i < m_response.size() - 1; i++) {
         std::string &st = m_response[i];
-        if (!st.length())
+        if (st.empty())
             break;
         string header_name, header_value;
         parse_header(st, header_name, header_value);
-        if (header_name.length()) {
+        if (!header_name.empty()) {
             try {
                 Field &field = results[header_name];
                 if (header_name == "date")
@@ -352,7 +354,7 @@ string ImapConnect::cmd_fetch_flags(int32_t msg_id)
     for (size_t i = 0; i < count;) {
         std::string &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
-        if (!fpos)
+        if (fpos == nullptr)
             return "";
         string flags(fpos + 1);
         size_t pos = flags.find("))");
@@ -372,7 +374,7 @@ static string strip_framing_quotes(string st)
 {
     if (st[0] == '\"')
         return st.substr(1, st.length() - 2);
-    else return st;
+    return st;
 }
 
 void ImapConnect::parseFolderList()
@@ -384,10 +386,10 @@ void ImapConnect::parseFolderList()
         if (st.find(prefix) == 0) {
             // passing the attribute(s)
             const char *p = strstr(st.c_str() + prefix.length(), ") ");
-            if (!p) continue;
+            if (p == nullptr) continue;
             // passing the reference
             p = strchr(p + 2, ' ');
-            if (!p) continue;
+            if (p == nullptr) continue;
             p++;
             // Ok, we found the path
             folder_names.push_back(strip_framing_quotes(p));

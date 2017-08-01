@@ -103,9 +103,9 @@ MySQLStatement::~MySQLStatement()
 
 void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
 {
-    short year, month, day, hour, minute, second, msecond;
+    short year, month, day, wday, yday, hour, minute, second, msecond;
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
-    timestamp.decodeDate(&year, &month, &day);
+    timestamp.decodeDate(&year, &month, &day, &wday, &yday);
     mysqlDate.year = (unsigned) year;
     mysqlDate.month = (unsigned) month;
     mysqlDate.day = (unsigned) day;

@@ -88,6 +88,8 @@ namespace sptk {
     };
 
     extern const DateTime epochDate;
+    extern const long     daysSinceEpoch;
+    extern const int64_t  microsecondsSinceEpoch;
 
 }
 

@@ -100,9 +100,9 @@ void CDateTimeBaseInput::save(XMLNode *node,CLayoutXMLmode xmlMode) const {
 
 bool CDateTimeBaseInput::valid() const {
     try {
-        double val = dateTimeValue();
+        DateTime val = dateTimeValue();
         if (m_limited)
-            return val >= double(m_minValue) && val <= double(m_maxValue);
+            return val >= m_minValue && val <= m_maxValue;
         return true;
     } catch (...) {
     }
@@ -277,7 +277,7 @@ void CDateTimeInput::dateTimeValue(DateTime dt) {
 
 DateTime CDateTimeInput::dateTimeValue() const {
     DateTime   dt = DateTime( m_dateInput->input()->value() );
-    DateTime   tm = DateTime( m_timeInput->value() );
+    DateTime::duration tm = DateTime( m_timeInput->value() ).sinceEpoch();
     return dt + tm;
 }
 

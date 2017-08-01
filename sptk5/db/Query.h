@@ -98,23 +98,22 @@ protected:
     /**
      * List of query fields - makes sense after fetch
      */
-    FieldList       m_fields;
-
+    FieldList               m_fields;
 
     /**
      * The duration of last execution, in seconds
      */
-    double          m_duration;
+    DateTime::duration      m_duration;
 
     /**
      * The total duration of executions, in seconds
      */
-    double          m_totalDuration;
+    DateTime::duration      m_totalDuration;
 
     /**
      * The total number of query executions
      */
-    unsigned        m_totalCalls;
+    unsigned            m_totalCalls;
 
 
     /**

@@ -71,44 +71,42 @@ void XMLAttribute::value(const char *new_value)
 XMLAttributes& XMLAttributes::operator =(const XMLAttributes& s)
 {
     clear();
-    for (XMLAttributes::const_iterator it = s.begin(); it != s.end(); ++it) {
-        XMLNode* node = *it;
+    for (auto node: s)
         new XMLAttribute(m_parent, node->name(), node->value());
-    }
     return *this;
 }
 
 XMLAttribute* XMLAttributes::getAttributeNode(std::string attr)
 {
-    iterator itor = findFirst(attr.c_str());
+    auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (XMLAttribute*) *itor;
-    return NULL;
+    return nullptr;
 }
 
 const XMLAttribute* XMLAttributes::getAttributeNode(std::string attr) const
 {
-    const_iterator itor = findFirst(attr.c_str());
+    auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (const XMLAttribute*) *itor;
-    return NULL;
+    return nullptr;
 }
 
 XMLValue XMLAttributes::getAttribute(std::string attr, const char *defaultValue) const
 {
-    const_iterator itor = findFirst(attr.c_str());
+    auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (*itor)->value();
     XMLValue rc;
-    if (defaultValue)
+    if (defaultValue != nullptr)
         rc = defaultValue;
     return rc;
 }
 
 void XMLAttributes::setAttribute(std::string attr, XMLValue value, const char *defaultValue)
 {
-    iterator itor = findFirst(attr);
-    if (defaultValue && value.str() == defaultValue) {
+    auto itor = findFirst(attr);
+    if (defaultValue != nullptr && value.str() == defaultValue) {
         if (itor != end()) {
             delete *itor;
             erase(itor);
@@ -123,6 +121,6 @@ void XMLAttributes::setAttribute(std::string attr, XMLValue value, const char *d
 
 bool XMLAttributes::hasAttribute(std::string attr) const
 {
-    const_iterator itor = findFirst(attr.c_str());
+    auto itor = findFirst(attr.c_str());
     return itor != end();
 }

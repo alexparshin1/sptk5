@@ -115,7 +115,7 @@ void go_callback(Fl_Widget *,void *)
         }
 
         DateTime    finished = DateTime::Now();
-        int durationMS = int(started.secondsTo(finished) * 1000);
+        int durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
         textdisp->textBuffer()->text(sock.htmlData().data());
         statsInput->data("Received " + int2string(sock.htmlData().bytes()) + " bytes for " + int2string(durationMS) + "ms");
     } catch (Exception &e) {

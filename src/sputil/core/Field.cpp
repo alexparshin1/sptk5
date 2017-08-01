@@ -125,11 +125,11 @@ string Field::asString() const THROWS_EXCEPTIONS
             return m_data.buffer.data;
 
         case VAR_DATE:
-            return DateTime(m_data.floatData).dateString();
+            return DateTime(chrono::microseconds(m_data.timeData)).dateString();
 
         case VAR_DATE_TIME: {
-            DateTime dt(m_data.floatData);
-            return dt.dateString() + " " + dt.timeString(true);
+            DateTime dt(chrono::microseconds(m_data.timeData));
+            return dt.dateString() + " " + dt.timeString(true,true,true);
         }
 
         case VAR_IMAGE_PTR:

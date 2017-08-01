@@ -131,8 +131,8 @@ Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, cons
     m_prepared = false;
     m_active = false;
     m_eof = true;
-    m_duration = 0;
-    m_totalDuration = 0;
+    m_duration = chrono::microseconds(0);
+    m_totalDuration = chrono::microseconds(0);
     m_totalCalls = 0;
     m_createdFile = createdFile;
     m_createdLine = createdLine;
@@ -155,8 +155,8 @@ Query::Query(const Query& srcQuery)
     m_prepared = false;
     m_active = false;
     m_eof = true;
-    m_duration = 0;
-    m_totalDuration = 0;
+    m_duration = chrono::microseconds(0);
+    m_totalDuration = chrono::microseconds(0);
     m_totalCalls = 0;
     m_createdFile = srcQuery.m_createdFile;
     m_createdLine = srcQuery.m_createdLine;
@@ -275,18 +275,16 @@ bool Query::open() THROWS_EXCEPTIONS
     if (m_db->logFile() != nullptr)
         logText("Opening query: " + replaceAll(m_sql, "\n", " "));
 
-    uint32_t started = DateTime::TimeOfDayMs();
+    DateTime started = DateTime::Now();
     m_db->queryOpen(this);
-    uint32_t finished = DateTime::TimeOfDayMs();
+    DateTime finished = DateTime::Now();
 
     // Execute duration, in seconds
-    m_duration = (finished - started) / 1000.0;
-    if (m_duration < 0)
-        m_duration += 86400.0;
+    m_duration = finished - started;
     if (m_db->logFile() != nullptr) {
         stringstream message;
         message.precision(3);
-        message << "[Q" << m_objectIndex << "] Duration " << fixed << m_duration << " sec";
+        message << "[Q" << m_objectIndex << "] Duration " << fixed << chrono::duration_cast<chrono::milliseconds>(m_duration).count() << " msec";
         *m_db->logFile() << LP_DEBUG << message.str() << endl;
     }
 

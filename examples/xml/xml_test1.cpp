@@ -129,6 +129,11 @@ XMLDocument *build_doc()
 
 extern int autoLayoutCounter;
 
+double diffSeconds(DateTime start, DateTime end)
+{
+    return chrono::duration_cast<chrono::milliseconds>(end-start).count() / 1000.0;
+}
+
 int main(int argc, char **argv)
 {
     // Initialize themes
@@ -174,7 +179,7 @@ int main(int argc, char **argv)
         DateTime end = DateTime::Now();
 
         char message[128];
-        snprintf(message, sizeof(message), "XML Test - loaded file in %0.2f sec", ((double) end - double(start)) * 24 * 3600);
+        snprintf(message, sizeof(message), "XML Test - loaded file in %0.2f sec", diffSeconds(start, end));
         window->label(message);
         puts(message);
 
@@ -182,7 +187,7 @@ int main(int argc, char **argv)
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();
-        printf("XML Test - relayouted tree in %0.2f sec\n", ((double) end - double(start)) * 24 * 3600);
+        printf("XML Test - relayouted tree in %0.2f sec\n", diffSeconds(start, end));
 
         try {
             DateTime start = DateTime::Now();
@@ -190,7 +195,7 @@ int main(int argc, char **argv)
             doc->save(savebuffer);
             savebuffer.saveToFile("MyXML.xml");
             end = DateTime::Now();
-            printf("XML Test - saved for %0.2f sec\n", ((double) end - double(start)) * 24 * 3600);
+            printf("XML Test - saved for %0.2f sec\n", diffSeconds(start, end));
         }
         catch (...) {
             Fl::warning("Error!");
