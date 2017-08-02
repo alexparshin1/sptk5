@@ -35,7 +35,13 @@ using namespace sptk;
 int main()
 {
     DateTime now = DateTime::Now();
-    cout << "Current time is " << now.dateString(true) + " " + now.timeString(true,true) << endl;
+    int printFlags = DateTime::PF_TIMEZONE;
+
+    // Print current date and time, showing timezone and milliseconds
+    cout << "Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PA_MILLISECONDS) << endl;
+
+    // Print same date and time as GMT, showing timezone and milliseconds
+    cout << "Current GMT time is " << now.dateString() + " " + now.timeString(printFlags|DateTime::PF_GMT, DateTime::PA_MILLISECONDS) << endl;
 	cout << "UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl;
 	cout << endl;
 
@@ -43,12 +49,12 @@ int main()
     const char*  pstDateTimeStr = "2013-10-01 10:00:00-7:00";
     DateTime    pstDateTime(pstDateTimeStr);
     cout << "From PST(-7:00): " << pstDateTimeStr
-         << " to local: " << pstDateTime.dateString(true) << "T" << pstDateTime.timeString(true,true) << endl;
+         << " to local: " << pstDateTime.isoDateTimeString() << endl;
 
     const char*  utcDateTimeStr = "2013-10-01T10:00:00Z";
     DateTime     utcDateTime(utcDateTimeStr);
     cout << "From UTC: " << utcDateTimeStr
-         << " to local: " << utcDateTime.dateString(true) << "T" << utcDateTime.timeString(true,true) << endl;
+         << " to local: " << utcDateTime.isoDateTimeString() << endl;
 
     cout << endl << "Define the date as 2003/09/28, and print the date components:" << endl;
 
@@ -57,7 +63,7 @@ int main()
     cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
     cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString(true, false, true) << endl;
+    cout << "Time:   " << dt.timeString(printFlags) << endl;
 
     cout << endl << "Get the date and time from the system, and print the date components:" << endl << endl;
     dt = DateTime::Now();
@@ -67,7 +73,7 @@ int main()
     cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
     cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
     cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString(true, false, true) << endl;
+    cout << "Time:   " << dt.timeString(printFlags) << endl;
 
     cout << endl << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl << endl;
     cout << "Local TZ offset is " << DateTime::timeZoneOffset << " seconds." << endl;

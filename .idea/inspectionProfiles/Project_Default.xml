@@ -31,6 +31,9 @@
     <inspection_tool class="CheckTagEmptyBody" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="CheckValidXmlInScriptTagBody" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="CheckXmlFileWithXercesValidator" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="ClangTidyInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="clangTidyChecks" value="*,-cert-env33-c,-cppcoreguidelines-no-malloc,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-pro-type-const-cast,-cppcoreguidelines-pro-type-cstyle-cast,-cppcoreguidelines-pro-type-union-access,-google-*,google-default-arguments,google-explicit-constructor,google-runtime-member-string-references,google-runtime-memset,google-runtime-operator,-readability-simplify-boolean-expr,-readability-braces-around-statements,-readability-identifier-naming,-misc-bool-pointer-implicit-conversion,-misc-unused-parameters,-modernize-use-using,-safety-no-assembler" />
+    </inspection_tool>
     <inspection_tool class="CommandLineInspection" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HardwiredNamespacePrefix" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlDeprecatedTag" enabled="false" level="WARNING" enabled_by_default="false" />

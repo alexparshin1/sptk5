@@ -129,7 +129,7 @@ string Field::asString() const THROWS_EXCEPTIONS
 
         case VAR_DATE_TIME: {
             DateTime dt(chrono::microseconds(m_data.timeData));
-            return dt.dateString() + " " + dt.timeString(true,true,true);
+            return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
         }
 
         case VAR_IMAGE_PTR:

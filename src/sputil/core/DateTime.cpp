@@ -26,26 +26,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <cmath>
+#include <cstring>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 
-#include <cstring>
-#include <cmath>
-
 #ifndef _WIN32
-#ifdef __BORLANDC__
-#include <time.h>
-#else
-
-#include <sys/time.h>
+#include <iomanip>
 #include <sptk5/string_ext.h>
-
-#endif
-#endif
-
-#ifdef _WIN32
+#include <sstream>
+#else
 #include <winsock2.h>
 #include <windows.h>
+#include <sys/time.h>
 #endif
 
 using namespace std;
@@ -65,21 +58,13 @@ public:
     static char parseDateOrTime(char* format, const char* dateOrTime);
 };
 
-}
+} // namespace sptk
 
 static const short _monthDays[2][13] =
 {
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
     {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 };
-
-static const short _monthDaySums[2][13] =
-{
-    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365},
-    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}
-};
-
-static const DateTime epoch(1970, 1, 1);
 
 static bool _time24Mode;
 static DateTime::duration dateTimeOffset;
@@ -127,7 +112,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     ptr = strtok(dt, separator);
     strcpy(format, "");
 
-    bool processingTime = false;
+    //bool processingTime = false;
     const char* pattern;
     while (ptr != nullptr) {
         int number = string2int(ptr);
@@ -172,8 +157,8 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     len = (int) strlen(format);
     if (len != 0)
         format[len - 1] = 0;
-    if (processingTime && _time24Mode)
-        strcat(format, "TM");
+    //if (processingTime && _time24Mode)
+    //    strcat(format, "TM");
 
     return separator[0];
 }
@@ -515,8 +500,6 @@ void DateTime::encodeTime(time_point& dt, const char* tim)
         dt += minutes(tzOffsetMin);
 }
 
-const int S1 = 24 * 3600; // seconds in 1 day
-
 void DateTime::decodeTime(const time_point& dt, short &h, short &m, short &s, short &ms, bool gmt)
 {
     time_t tt = clock::to_time_t(dt);
@@ -537,17 +520,6 @@ void DateTime::decodeTime(const time_point& dt, short &h, short &m, short &s, sh
     ms = (short) msec.count();
 }
 
-const int D1 = 365;              // Days in 1 year
-const int D4 = D1 * 4 + 1;       // Days in 4 years
-const int D100 = D4 * 25 - 1;    // Days in 100 years
-const int D400 = D100 * 4 + 1;   // Days in 400 years
-
-inline void DivMod(int op1, int op2, int& div, int& mod)
-{
-    div = op1 / op2;
-    mod = op1 % op2;
-}
-
 void DateTime::decodeDate(const time_point &dt, short &year, short &month, short &day, short &dayOfWeek, short &dayOfYear,
                           bool gmt)
 {
@@ -559,8 +531,8 @@ void DateTime::decodeDate(const time_point &dt, short &year, short &month, short
     else
         localtime_r(&tt, &time);
 
-    year = (short) time.tm_year + 1900;
-    month = (short) time.tm_mon + 1;
+    year = (short) (time.tm_year + 1900);
+    month = (short) (time.tm_mon + 1);
     day = (short) time.tm_mday;
     dayOfWeek = (short) time.tm_wday;
     dayOfYear = (short) time.tm_yday;
@@ -738,49 +710,47 @@ DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
 //----------------------------------------------------------------
 // Format routine
 //----------------------------------------------------------------
-void DateTime::formatDate(char* str, bool universalDateFormat) const
+void DateTime::formatDate(ostream& str, int printFlags) const
 {
-    char* ptr = str;
     short month, day, year, wday, yday;
 
-    if (m_dateTime == time_point()) {
-        *str = 0;
+    if (zero())
         return;
-    }
-    decodeDate(m_dateTime, year, month, day, wday, yday, false);
-    if (universalDateFormat) {
-        int bytes = sprintf(str, "%04d-%02d-%02d", year, month, day);
-        ptr += bytes;
-        *ptr = 0;
-    } else {
+
+    decodeDate(m_dateTime, year, month, day, wday, yday, (printFlags & PF_GMT) != 0);
+    char savedFill = str.fill('0');
+    if ((printFlags & PF_RFC_DATE) != 0)
+        str << setw(4) << year << "-" << setw(2) << month << "-" << setw(2) << day;
+    else {
         for (int i = 0; i < 3; i++) {
+            if (i != 0)
+                str << dateSeparator;
             switch (datePartsOrder[i]) {
                 case 'M':
-                    sprintf(ptr, "%02i%c", month, dateSeparator);
+                    str << setw(2) << month;
                     break;
                 case 'D':
-                    sprintf(ptr, "%02i%c", day, dateSeparator);
+                    str << setw(2) << day;
                     break;
                 case 'Y':
-                    sprintf(ptr, "%04i%c", year, dateSeparator);
+                    str << setw(4) << year;
                     break;
                 default:
                     break;
             }
-            ptr += strlen(ptr);
         }
-        *(ptr - 1) = 0;
     }
+    str.fill(savedFill);
 }
 
-void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimezone, bool showMilliseconds) const
+void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccuracy) const
 {
     short h, m, s, ms;
 
-    decodeTime(m_dateTime, h, m, s, ms,
-               false);
+    decodeTime(m_dateTime, h, m, s, ms, (printFlags & PF_GMT) != 0);
     const char* appendix = nullptr;
-    if (showTimezone)
+    bool ampm = (printFlags & PF_12HOURS) != 0;
+    if ((printFlags & PF_TIMEZONE) != 0)
         ampm = false;
     if (ampm) {
         if (h > 11)
@@ -790,26 +760,40 @@ void DateTime::formatTime(char* str, bool ampm, bool showSeconds, bool showTimez
         if (h > 12)
             h = short(h % 12);
     }
-    int length;
-    if (!showSeconds)
-        length = sprintf(str, "%02i%c%02i", h, timeSeparator, m);
-    else if (!showMilliseconds)
-        length = sprintf(str, "%02i%c%02i%c%02i", h, timeSeparator, m, timeSeparator, s);
-    else
-        length = sprintf(str, "%02i%c%02i%c%02i.%03i", h, timeSeparator, m, timeSeparator, s, ms);
-    if (ampm)
-        strcat(str, appendix);
-    if (showTimezone) {
-        int minutes;
-        if (timeZoneOffset > 0) {
-            str[length] = '+';
-            minutes = timeZoneOffset;
-        } else {
-            str[length] = '-';
-            minutes = -timeZoneOffset;
-        }
-        sprintf(str + length + 1, "%02d:%02d", minutes / 60, minutes % 60);
+
+    char savedFill = str.fill('0');
+    str << setw(2) << h << timeSeparator << setw(2) << m;
+    switch (printAccuracy) {
+        case PA_MINUTES:
+            break;
+        case PA_SECONDS:
+            str << timeSeparator << setw(2) << s;
+            break;
+        case PA_MILLISECONDS:
+            str << timeSeparator << setw(2) << s << "." << setw(3) << ms;
+            break;
     }
+
+    if (ampm)
+        str << appendix;
+
+    if ((printFlags & PF_TIMEZONE) != 0) {
+        int minutes;
+        if (timeZoneOffset == 0 || (printFlags & PF_GMT) != 0)
+            str << "Z";
+        else {
+            if (timeZoneOffset > 0) {
+                str << '+';
+                minutes = timeZoneOffset;
+            } else {
+                str << '-';
+                minutes = -timeZoneOffset;
+            }
+            str << setw(2) << minutes / 60 << ":" << setw(2) << minutes % 60;
+        }
+    }
+
+    str.fill(savedFill);
 }
 
 //----------------------------------------------------------------
@@ -863,7 +847,7 @@ short DateTime::daysInMonth() const
 DateTime DateTime::date() const
 {
     duration sinceEpoch = m_dateTime.time_since_epoch();
-    int days = duration_cast<hours>(sinceEpoch).count() / 24;
+    long days = duration_cast<hours>(sinceEpoch).count() / 24;
     DateTime dt = time_point() + hours(days * 24);  // Sets the current date
     return dt;
 }
@@ -893,7 +877,7 @@ short DateTime::dayOfWeek() const
 {
     short y, m, d, wd, yd;
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
-    return wd + 1;
+    return short(wd + 1);
 }
 
 string DateTime::dayOfWeekName() const
@@ -906,23 +890,27 @@ string DateTime::monthName() const
     return DateTime::monthNames[month() - 1];
 }
 
-string DateTime::dateString(bool universalDateFormat) const
+string DateTime::dateString(int printFlags) const
 {
-    char buffer[32];
-    formatDate(buffer, universalDateFormat);
-    return string(buffer);
+    stringstream str;
+    formatDate(str, printFlags);
+    return str.str();
 }
 
-string DateTime::timeString(bool showSeconds, bool showTimezone, bool showMilliseconds) const
+string DateTime::timeString(int printFlags, PrintAccuracy printAccuracy) const
 {
-    char buffer[32];
-    formatTime(buffer, !_time24Mode, showSeconds, showTimezone, showMilliseconds);
-    return string(buffer);
+    stringstream str;
+    formatTime(str, printFlags, printAccuracy);
+    return str.str();
 }
 
-std::string DateTime::isoDateTimeString(bool showMilliseconds) const
+std::string DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) const
 {
-    return dateString(true) + "T" + timeString(true, true, showMilliseconds);
+    int printFlags = PF_TIMEZONE;
+    if (gmt)
+        printFlags |= PF_GMT;
+
+    return dateString(PF_RFC_DATE) + "T" + timeString(printFlags, printAccuracy);
 }
 
 DateTime DateTime::convertCTime(const time_t tt)

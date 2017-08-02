@@ -104,7 +104,7 @@ void WSDateTime::load(const Field& field)
 string WSDateTime::asString() const
 {
     DateTime dt = asDateTime();
-    return dt.dateString(true) + "T" + dt.timeString(true,true);
+    return dt.isoDateTimeString();
 }
 
 void WSDouble::load(const XMLNode* attr)
@@ -124,12 +124,12 @@ void WSDouble::load(const Field& field)
 
 void WSInteger::load(const XMLNode* attr)
 {
-    setInteger(strtol(attr->text().c_str(), nullptr, 10));
+    setInt64(strtol(attr->text().c_str(), nullptr, 10));
 }
 
 void WSInteger::load(string attr)
 {
-    setInteger(strtol(attr.c_str(), nullptr, 10));
+    setInt64(strtol(attr.c_str(), nullptr, 10));
 }
 
 void WSInteger::load(const Field& field)

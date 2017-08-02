@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
@@ -66,7 +65,7 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CBox::creator(XMLNode* node)
 {
-    CBox* widget = new CBox("", 10, SP_ALIGN_TOP);
+    auto widget = new CBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     widget->dragable(node->getAttribute("drag", "N"));
     return widget;
@@ -95,12 +94,12 @@ void CBox::data(const Variant v)
 {
     std::string text = v.asString();
     m_label.resize(text.length());
-    if (m_label.length()) {
+    if (!m_label.empty()) {
         unsigned i = 0;
-        for (const char* c = text.c_str(); *c; c++) {
-            if (*c == '\r')
+        for (auto& c: text) {
+            if (c == '\r')
                 continue;
-            m_label[i] = *c;
+            m_label[i] = c;
             i++;
         }
         m_label[i] = 0;
@@ -122,7 +121,7 @@ void CBox::textFont(Fl_Font f)
 
 uchar CBox::textSize() const
 {
-    return m_control->labelsize();
+    return (uchar) m_control->labelsize();
 }
 
 void CBox::textSize(uchar s)
@@ -166,7 +165,7 @@ bool CBox::preferredSize(int& w, int& h)
     switch (m_layoutAlign) {
         case SP_ALIGN_TOP:
         case SP_ALIGN_BOTTOM:
-            if (!(align() & FL_ALIGN_WRAP))
+            if ((align() & FL_ALIGN_WRAP) == 0)
                 cw = 0;
             else
                 cw = w - dw;
