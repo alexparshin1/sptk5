@@ -906,11 +906,11 @@ string DateTime::timeString(int printFlags, PrintAccuracy printAccuracy) const
 
 std::string DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) const
 {
-    int printFlags = PF_TIMEZONE;
+    int printFlags = PF_TIMEZONE | PF_RFC_DATE;
     if (gmt)
         printFlags |= PF_GMT;
 
-    return dateString(PF_RFC_DATE) + "T" + timeString(printFlags, printAccuracy);
+    return dateString(printFlags) + "T" + timeString(printFlags, printAccuracy);
 }
 
 DateTime DateTime::convertCTime(const time_t tt)
