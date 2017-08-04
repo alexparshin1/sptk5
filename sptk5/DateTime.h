@@ -259,11 +259,17 @@ public:
      */
     DateTime(int64_t sinceEpochMS) noexcept;
 
+    /**
+     * Returns time_point presentation of the date and time
+     */
     time_point& timePoint()
     {
         return m_dateTime;
     }
 
+    /**
+     * Returns time_point presentation of the date and time
+     */
     const time_point& timePoint() const
     {
         return m_dateTime;

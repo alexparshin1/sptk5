@@ -53,15 +53,15 @@ namespace sptk {
     public:
         /**
          * @brief Constructor from WSDL (XML) definition
-         * @param typeName std::string, WSDL type name
+         * @param typeName const std::string&, WSDL type name
          * @param simpleTypeElement XMLNode*, Simple type XML node
          */
         WSRestriction(const std::string& typeName, XMLNode* simpleTypeElement);
 
         /**
          * @brief Constructor from WSDL (XML) definition
-         * @param typeName std::string, WSDL type name
-         * @param enumerations std::string, Enumerations or empty string
+         * @param typeName const std::string&, WSDL type name
+         * @param enumerations const std::string&, Enumerations or empty string
          * @param delimiter const char*, Enumerations delimiter
          */
         WSRestriction(const std::string& typeName, const std::string& enumerations, const char* delimiter = "|");
@@ -71,7 +71,8 @@ namespace sptk {
          *
          * Checks value to satisfy restriction.
          * If value violates restriction, throws exception.
-         * @param value std::string, Value to check
+         * @param typeName const std::string&, Name of the checked type (for error messages)
+         * @param value const std::string&, Value to check
          */
         void check(const std::string& typeName, const std::string& value) const;
 
