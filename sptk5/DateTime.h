@@ -52,76 +52,90 @@ namespace sptk {
  * with the external date/time, without affecting the local host
  * system time.
  */
-    class SP_EXPORT DateTime
+class SP_EXPORT DateTime
+{
+    friend class DateTimeFormat;
+
+    typedef std::chrono::system_clock clock;
+
+public:
+    /**
+     * DateTime::time_point type definition
+     */
+    typedef std::chrono::system_clock::time_point time_point;
+
+    /**
+     * DateTime::duration type definition
+     */
+    typedef std::chrono::system_clock::duration duration;
+
+    /**
+     * Time print accuracy
+     */
+    enum PrintAccuracy
     {
-        friend class DateTimeFormat;
+        PA_MINUTES = 1,
+        PA_SECONDS = 2,
+        PA_MILLISECONDS = 3
+    };
 
-        typedef std::chrono::system_clock clock;
-
-    public:
-        typedef std::chrono::system_clock::time_point time_point;
-        typedef std::chrono::system_clock::duration duration;
-
-        enum PrintAccuracy
-        {
-            PA_MINUTES = 1,
-            PA_SECONDS = 2,
-            PA_MILLISECONDS = 3
-        };
-
-        enum PrintFlags
-        {
-            PF_RFC_DATE = 1,
-            PF_TIMEZONE = 2,
-            PF_12HOURS = 4,
-            PF_GMT = 16
-        };
+    /**
+     * Date and time print flags
+     */
+    enum PrintFlags
+    {
+        PF_RFC_DATE = 1,
+        PF_TIMEZONE = 2,
+        PF_12HOURS = 4,
+        PF_GMT = 16
+    };
 
     protected:
 
-        /**
-      * @brief Internal decode date operation into year, month, and day
-      * @param dt Clock::time_point, Date to decode
-      * @param year short&, Year (output)
-      * @param month short&, Month (output)
-      * @param day short&, Day (output)
-      * @param gmt bool, Use GMT timezone for output
-      */
-        static void
-        decodeDate(const time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
-                   bool gmt = false);
+    /**
+     * @brief Internal decode date operation into year, month, and day
+     * @param dt Clock::time_point, Date to decode
+     * @param year short&, Year (output)
+     * @param month short&, Month (output)
+     * @param day short&, Day (output)
+     * @param dayOfWeek short&, Day of week, 0..6 (output)
+     * @param day short&, Day of year (output)
+     * @param gmt bool, Use GMT timezone for output
+    */
+    static void decodeDate(const time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
+                           bool gmt = false);
 
-        /**
-      * @brief Internal decode time operation into hour, minute, second, and millisecond
-      * @param dt Clock::time_point, Date to decode
-      * @param hour short&, Hour (output)
-      * @param minute short&, Minute (output)
-      * @param second short&, Second (output)
-      * @param millisecond short&, Millisecond (output)
-      * @param gmt bool, Use GMT timezone for output
-      */
-        static void decodeTime(const time_point& dt, short& hour, short& minute, short& second, short& millisecond,
-                               bool gmt = false);
+    /**
+     * @brief Internal decode time operation into hour, minute, second, and millisecond
+     * @param dt Clock::time_point, Date to decode
+     * @param hour short&, Hour (output)
+     * @param minute short&, Minute (output)
+     * @param second short&, Second (output)
+     * @param millisecond short&, Millisecond (output)
+     * @param gmt bool, Use GMT timezone for output
+    */
+    static void decodeTime(const time_point& dt, short& hour, short& minute, short& second, short& millisecond,
+                           bool gmt = false);
 
-        /**
-      * @brief Internal encode date operation from y,m,d
-      */
-        static void encodeDate(time_point& dt, short y = 0, short m = 0, short d = 0);
+    /**
+     * @brief Internal encode date operation from y,m,d
+     */
+    static void encodeDate(time_point& dt, short y = 0, short m = 0, short d = 0);
 
-        /**
-      * @brief Internal encode date operation from string
-      */
-        static void encodeDate(time_point& dt, const char* dat);
+    /**
+     * @brief Internal encode date operation from string
+     */
+    static void encodeDate(time_point& dt, const char* dat);
 
-        /**
-      * @brief Internal encode timee operation from h,m,s,ms
-      */
-        static void encodeTime(time_point& dt, short h = 0, short m = 0, short s = 0, short ms = 0);
+    /**
+     * @brief Internal encode timee operation from h,m,s,ms
+     */
+    static void encodeTime(time_point& dt, short h = 0, short m = 0, short s = 0, short ms = 0);
 
-        /**
-      * @brief Internal encode timee operation from string
-      */
-        static void encodeTime(time_point& dt, const char* tim);
+    /**
+     * @brief Internal encode timee operation from string
+     */
+    static void encodeTime(time_point& dt, const char* tim);
 
     /**
      * @brief Returns true for the leap year
@@ -241,7 +255,7 @@ public:
 
     /**
      * @brief Constructor
-     * @param dt int64_t, Time since epoch, milliseconds
+     * @param sinceEpochMS int64_t, Time since epoch, milliseconds
      */
     DateTime(int64_t sinceEpochMS) noexcept;
 
@@ -450,6 +464,9 @@ public:
         decodeTime(m_dateTime, *h, *m, *s, *ms, gmt);
     }
 
+    /**
+     * @brief Return true if date and time are at epoch
+     */
     bool zero() const
     {
         return m_dateTime.time_since_epoch() == std::chrono::microseconds(0);
