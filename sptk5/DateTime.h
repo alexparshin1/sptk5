@@ -99,7 +99,7 @@ public:
      * @param month short&, Month (output)
      * @param day short&, Day (output)
      * @param dayOfWeek short&, Day of week, 0..6 (output)
-     * @param day short&, Day of year (output)
+     * @param dayOfYear short&, Day of year (output)
      * @param gmt bool, Use GMT timezone for output
     */
     static void decodeDate(const time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
