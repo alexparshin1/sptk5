@@ -79,8 +79,7 @@ int main()
     cout << "Local TZ offset is " << DateTime::timeZoneOffset << " seconds." << endl;
 
 #ifndef _WIN32
-    setenv("TZ", ":US/Pacific", 1);
-    DateTime::tzset();
+    DateTime::setTimeZone(":US/Pacific");
     cout << "US/Pacific TZ offset is " << DateTime::timeZoneOffset << " seconds."  << endl;
 
     dt = DateTime::Now();

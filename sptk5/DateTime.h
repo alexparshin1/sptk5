@@ -206,9 +206,10 @@ public:
 
 
     /**
-    * Call that function if standard tzset() was called
+    * Set timezone for the application
+    * @param tzname const std::string&, Time zone name, such as "UTC", ":US/Pacific", etc
     */
-    static void tzset();
+    static void setTimeZone(const std::string& tzname);
 
 
 public:

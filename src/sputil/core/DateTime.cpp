@@ -251,8 +251,10 @@ void DateTimeFormat::init() noexcept
 
 static DateTimeFormat dateTimeFormatInitializer;
 
-void DateTime::tzset()
+void sptk::DateTime::setTimeZone(const string& tzname)
 {
+    setenv("TZ", tzname.c_str(), 1);
+    ::tzset();
     dateTimeFormatInitializer.init();
 }
 
