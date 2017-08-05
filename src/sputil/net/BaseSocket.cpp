@@ -214,8 +214,10 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, ui
             if (timeoutMS != 0) {
                 blockingMode(false);
                 connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
-                if (!readyToWrite(timeoutMS))
+                if (!readyToWrite(timeoutMS)) {
+                    close();
                     throw Exception("Connection timeout");
+                }
                 rc = 0;
                 blockingMode(true);
             } else
@@ -227,7 +229,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, ui
                 setOption(SOL_SOCKET, SO_REUSEPORT, 1);
 #else
                 setOption(SOL_SOCKET, SO_REUSEADDR, 1);
-#endif                
+#endif
             }
             currentOperation = "bind";
             rc = ::bind(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
