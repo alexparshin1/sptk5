@@ -34,11 +34,6 @@
 #include <sptk5/string_ext.h>
 #include <sstream>
 
-#ifndef _WIN32
-#include <winsock2.h>
-#include <windows.h>
-#endif
-
 using namespace std;
 using namespace std::chrono;
 using namespace sptk;
