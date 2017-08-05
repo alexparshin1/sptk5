@@ -82,7 +82,7 @@ DatabaseField::DatabaseField(const std::string fName, int fieldColumn, int field
 
     case VAR_DATE:
     case VAR_DATE_TIME:
-        setDateTime(0.0);
+        setDateTime(DateTime());
         Field::dataType(dataType);
         view.width = 10;
         break;

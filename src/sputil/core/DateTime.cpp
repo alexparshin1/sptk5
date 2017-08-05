@@ -30,15 +30,13 @@
 #include <cstring>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
-
-#ifndef _WIN32
 #include <iomanip>
 #include <sptk5/string_ext.h>
 #include <sstream>
-#else
+
+#ifndef _WIN32
 #include <winsock2.h>
 #include <windows.h>
-#include <sys/time.h>
 #endif
 
 using namespace std;
@@ -253,7 +251,11 @@ static DateTimeFormat dateTimeFormatInitializer;
 
 void sptk::DateTime::setTimeZone(const string& tzname)
 {
-    setenv("TZ", tzname.c_str(), 1);
+#ifdef _WIN32
+	_putenv_s("TZ", tzname.c_str());
+#else
+	setenv("TZ", tzname.c_str(), 1);
+#endif
     ::tzset();
     dateTimeFormatInitializer.init();
 }
@@ -507,10 +509,18 @@ void DateTime::decodeTime(const time_point& dt, short &h, short &m, short &s, sh
     time_t tt = clock::to_time_t(dt);
 
     tm time = {};
-    if (gmt)
+
+#ifdef _WIN32
+	if (gmt)
+		gmtime_s(&time, &tt);
+	else
+		localtime_s(&time, &tt);
+#else
+	if (gmt)
         gmtime_r(&tt, &time);
     else
         localtime_r(&tt, &time);
+#endif
 
     h = (short) time.tm_hour;
     m = (short) time.tm_min;
@@ -528,10 +538,17 @@ void DateTime::decodeDate(const time_point &dt, short &year, short &month, short
     time_t tt = clock::to_time_t(dt);
 
     tm time = {};
-    if (gmt)
-        gmtime_r(&tt, &time);
-    else
-        localtime_r(&tt, &time);
+#ifdef _WIN32
+	if (gmt)
+		gmtime_s(&time, &tt);
+	else
+		localtime_s(&time, &tt);
+#else
+	if (gmt)
+		gmtime_r(&tt, &time);
+	else
+		localtime_r(&tt, &time);
+#endif
 
     year = (short) (time.tm_year + 1900);
     month = (short) (time.tm_mon + 1);

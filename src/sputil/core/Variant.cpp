@@ -304,7 +304,7 @@ void Variant::setString(const std::string& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalString(const char *value, ssize_t length)
+void Variant::setExternalString(const char *value, int length)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -871,7 +871,7 @@ int32_t Variant::asInteger() const THROWS_EXCEPTIONS
         case VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
-            return m_data.timeData / 1000000;
+            return int32_t(m_data.timeData / 1000000);
 
         default:
             throw Exception("Can't convert field for that type");
@@ -999,7 +999,7 @@ double Variant::asFloat() const THROWS_EXCEPTIONS
         case VAR_DATE_TIME:
             // Time is in microseconds since epoch
             // - returning seconds since epoch
-            return m_data.timeData / 1000000;
+            return m_data.timeData / 1000000.0;
 
         default:
             throw Exception("Can't convert field for that type");
@@ -1089,35 +1089,29 @@ string Variant::asString() const THROWS_EXCEPTIONS
 
 DateTime Variant::asDate() const THROWS_EXCEPTIONS
 {
-    if ((m_dataType & VAR_NULL) != 0)
-        return 0.0;
+    if ((m_dataType & VAR_NULL) != 0) 
+        return DateTime();
 
     switch (dataType()) {
         case VAR_BOOL:
-            return double(0);
+		case VAR_MONEY:
+		case VAR_FLOAT:
+			return DateTime();
 
-        case VAR_INT:
-            return m_data.intData;
+		case VAR_INT:
+			return DateTime(chrono::seconds(m_data.int64Data)).date();
 
         case VAR_INT64:
-            return (double) m_data.int64Data;
-
-        case VAR_MONEY:
-            return (double) m_data.moneyData;
-
-        case VAR_FLOAT:
-            return m_data.floatData;
+            return DateTime(chrono::microseconds(m_data.int64Data)).date();
 
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return m_data.buffer.data;
+            return DateTime(m_data.buffer.data).date();
 
         case VAR_DATE:
-        case VAR_DATE_TIME: {
-                DateTime::duration dt = chrono::hours(m_data.timeData / 1000000 / 86400 * 24);
-                return DateTime(dt);
-            }
+        case VAR_DATE_TIME:
+                DateTime(chrono::microseconds(m_data.timeData)).date();
 
         default:
             throw Exception("Can't convert field for that type");
@@ -1131,19 +1125,15 @@ DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
 
     switch (dataType()) {
         case VAR_BOOL:
-            return DateTime();
+		case VAR_MONEY:
+		case VAR_FLOAT:
+			return DateTime();
 
         case VAR_INT:
             return DateTime(chrono::seconds(m_data.intData));
 
         case VAR_INT64:
-            return DateTime(chrono::seconds(m_data.int64Data));
-
-        case VAR_MONEY:
-            return DateTime();
-
-        case VAR_FLOAT:
-            return DateTime(chrono::seconds((long)m_data.floatData));
+            return DateTime(chrono::microseconds(m_data.int64Data));
 
         case VAR_STRING:
         case VAR_TEXT:
@@ -1151,10 +1141,8 @@ DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
             return DateTime(m_data.buffer.data);
 
         case VAR_DATE:
-        case VAR_DATE_TIME: {
-            DateTime::duration dt(chrono::microseconds(m_data.timeData));
-            return DateTime(dt);
-        }
+        case VAR_DATE_TIME:
+			return DateTime(chrono::microseconds(m_data.timeData));
 
         default:
             throw Exception("Can't convert field for that type");

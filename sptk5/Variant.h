@@ -402,7 +402,7 @@ public:
     /**
      * @brief Assignment method
      */
-    void setExternalString(const char *value, ssize_t length = -1);
+    void setExternalString(const char *value, int length = -1);
 
     /**
      * @brief Assignment method
