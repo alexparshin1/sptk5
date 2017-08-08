@@ -162,7 +162,7 @@ bool RegularExpression::m(const string& text, Strings& matchedStrings) const THR
             matchedStrings.push_back(string(text.c_str() + match.m_start, size_t(match.m_end - match.m_start)));
         }
 
-    } while (offset);
+    } while (offset < text.length());
 
     return totalMatches > 0;
 }
