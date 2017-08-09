@@ -184,10 +184,9 @@ Query::~Query()
 void Query::sql(const string& _sql)
 {
     // Looking up for SQL parameters
-    char delimitters[] = "':";
-    char* s = strdup(_sql.c_str());
-    char* paramStart;
-    char* paramEnd = s;
+    char delimitters[] = "':-";
+    const char* paramStart;
+    const char* paramEnd = _sql.c_str();
     int paramNumber = 0;
 
     m_params.clear();
@@ -209,8 +208,18 @@ void Query::sql(const string& _sql)
             continue;
         }
 
+        if (*paramStart == '-' && paramStart[1] == '-') {
+            // Started inline comment '--comment text', jump to the end of comment
+            const char* endOfRow = strchr(paramStart + 1, '\n');
+            if (endOfRow == nullptr)
+                break;  // Comment at the end of last row
+            odbcSQL += string(paramEnd, endOfRow - paramEnd + 1);
+            paramEnd = (char*) endOfRow + 1;
+            continue;
+        }
+
         if (paramStart[1] == ':' || paramStart[1] == '=') {
-            // Started PostgreSQL type qualifier or ':='
+            // Started PostgreSQL type qualifier '::' or assignment ':='
             odbcSQL += string(paramEnd, paramStart - paramEnd + 2);
             paramEnd = paramStart + 2;
             continue;
@@ -251,8 +260,6 @@ void Query::sql(const string& _sql)
     }
 
     odbcSQL += paramEnd;
-
-    free(s);
 
     for (int i = (int) m_params.size() - 1; i >= 0; i--)
         if (m_params[i].bindCount() == 0)
