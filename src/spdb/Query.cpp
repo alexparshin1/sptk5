@@ -184,7 +184,7 @@ Query::~Query()
 void Query::sql(const string& _sql)
 {
     // Looking up for SQL parameters
-    char delimitters[] = "':-";
+    char delimitters[] = "':-/";
     const char* paramStart;
     const char* paramEnd = _sql.c_str();
     int paramNumber = 0;
@@ -215,6 +215,16 @@ void Query::sql(const string& _sql)
                 break;  // Comment at the end of last row
             odbcSQL += string(paramEnd, endOfRow - paramEnd + 1);
             paramEnd = (char*) endOfRow + 1;
+            continue;
+        }
+
+        if (*paramStart == '/' && paramStart[1] == '*') {
+            // Started block comment '/* comment text */', jump to the end of comment
+            const char* endOfRow = strstr(paramStart + 1, "*/");
+            if (endOfRow == nullptr)
+                break;  // Comment at the end of last row
+            odbcSQL += string(paramEnd, endOfRow - paramEnd + 2);
+            paramEnd = (char*) endOfRow + 2;
             continue;
         }
 
