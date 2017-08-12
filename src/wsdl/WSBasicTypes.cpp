@@ -53,52 +53,85 @@ void WSString::load(std::string attr)
 
 void WSString::load(const Field& field)
 {
-    setString(field);
+    if (field.isNull())
+        setNull(VAR_STRING);
+    else
+        setString(field);
 }
 
 void WSBool::load(const XMLNode* attr)
 {
-    setBool(attr->text() == "true");
+    string text = attr->text();
+    if (text.empty())
+        setNull(VAR_BOOL);
+    else
+        setBool(attr->text() == "true");
 }
 
 void WSBool::load(string attr)
 {
-    setBool(attr == "true");
+    if (attr.empty())
+        setNull(VAR_BOOL);
+    else
+        setBool(attr == "true");
 }
 
 void WSBool::load(const Field& field)
 {
-    setBool(field);
+    if (field.isNull())
+        setNull(VAR_BOOL);
+    else
+        setBool(field);
 }
 
 void WSDate::load(const XMLNode* attr)
 {
-    setDate(DateTime(attr->text().c_str()));
+    string text = attr->text();
+    if (text.empty())
+        setNull(VAR_DATE);
+    else
+        setDate(DateTime(attr->text().c_str()));
 }
 
 void WSDate::load(string attr)
 {
-    setDate(DateTime(attr.c_str()));
+    if (attr.empty())
+        setNull(VAR_DATE);
+    else
+        setDate(DateTime(attr.c_str()));
 }
 
 void WSDate::load(const Field& field)
 {
-    setDate(field);
+    if (field.isNull())
+        setNull(VAR_DATE);
+    else
+        setDate(field);
 }
 
 void WSDateTime::load(const XMLNode* attr)
 {
-    setDateTime(DateTime(attr->text().c_str()));
+    string text = attr->text();
+    if (text.empty())
+        setNull(VAR_DATE_TIME);
+    else
+        setDateTime(DateTime(attr->text().c_str()));
 }
 
 void WSDateTime::load(string attr)
 {
-    setDateTime(DateTime(attr.c_str()));
+    if (attr.empty())
+        setNull(VAR_DATE_TIME);
+    else
+        setDateTime(DateTime(attr.c_str()));
 }
 
 void WSDateTime::load(const Field& field)
 {
-    setDateTime(field);
+    if (field.isNull())
+        setNull(VAR_DATE_TIME);
+    else
+        setDateTime(field);
 }
 
 string WSDateTime::asString() const
@@ -114,25 +147,41 @@ void WSDouble::load(const XMLNode* attr)
 
 void WSDouble::load(string attr)
 {
-    setFloat(strtod(attr.c_str(), nullptr));
+    if (attr.empty())
+        setNull(VAR_INT);
+    else
+        setFloat(strtod(attr.c_str(), nullptr));
 }
 
 void WSDouble::load(const Field& field)
 {
-    setFloat(field);
+    if (field.isNull())
+        setNull(VAR_FLOAT);
+    else
+        setFloat(field);
 }
 
 void WSInteger::load(const XMLNode* attr)
 {
-    setInt64(strtol(attr->text().c_str(), nullptr, 10));
+    string text = attr->text();
+    if (text.empty())
+        setNull(VAR_INT64);
+    else
+        setInt64(strtol(attr->text().c_str(), nullptr, 10));
 }
 
 void WSInteger::load(string attr)
 {
-    setInt64(strtol(attr.c_str(), nullptr, 10));
+    if (attr.empty())
+        setNull(VAR_INT64);
+    else
+        setInt64(strtol(attr.c_str(), nullptr, 10));
 }
 
 void WSInteger::load(const Field& field)
 {
-    setInteger(field);
+    if (field.isNull())
+        setNull(VAR_INT64);
+    else
+        setInt64(field);
 }
