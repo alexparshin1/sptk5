@@ -259,7 +259,7 @@ size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
 size_t TCPSocket::readLine(std::string& s, char delimiter)
 {
     m_reader.readLine(m_stringBuffer, delimiter);
-    s.assign(m_stringBuffer.c_str(),m_stringBuffer.bytes());
+    s.assign(m_stringBuffer.c_str(),m_stringBuffer.bytes() - 1);
     return m_stringBuffer.bytes();
 }
 
