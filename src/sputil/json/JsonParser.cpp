@@ -64,12 +64,12 @@ void Parser::parse(Element& jsonElement, const string& json)
     switch (json[pos]) {
         case '{':
             jsonElement.m_type = JDT_OBJECT;
-            jsonElement.m_data.m_object = NULL;
+            jsonElement.m_data.m_object = new ObjectData(&jsonElement);
             readObjectData(&jsonElement, json, pos);
             break;
         case '[':
             jsonElement.m_type = JDT_ARRAY;
-            jsonElement.m_data.m_array = NULL;
+            jsonElement.m_data.m_array = new ArrayData(&jsonElement);
             readArrayData(&jsonElement, json, pos);
             break;
         default:
