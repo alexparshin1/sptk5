@@ -812,10 +812,12 @@ void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) T
             query.exec();
         }
         catch (const exception& e) {
+            stringstream error;
+            error << e.what() << ". Query: " << stmt;
             if (errors != nullptr)
-                errors->push_back(e.what());
+                errors->push_back(error.str());
             else
-                throw;
+                throw DatabaseException(error.str());
         }
     }
 }
