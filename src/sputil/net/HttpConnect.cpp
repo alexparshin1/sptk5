@@ -182,11 +182,11 @@ int HttpConnect::getResponse(uint32_t readTimeout)
         auto itor = m_responseHeaders.find("Content-Encoding");
         if (itor != m_responseHeaders.end() && itor->second == "gzip") {
 #if HAVE_ZLIB
-			Buffer unzipBuffer;
+            Buffer unzipBuffer;
             ZLib::decompress(unzipBuffer, m_readBuffer);
             m_readBuffer = move(unzipBuffer);
 #else
-			throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
+            throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
 #endif
         }
     }
