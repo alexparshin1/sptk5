@@ -228,7 +228,7 @@ void Query::sql(const string& _sql)
             continue;
         }
 
-        if (paramStart[1] == ':' || paramStart[1] == '=') {
+        if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=') {
             // Started PostgreSQL type qualifier '::' or assignment ':='
             odbcSQL += string(paramEnd, paramStart - paramEnd + 2);
             paramEnd = paramStart + 2;
