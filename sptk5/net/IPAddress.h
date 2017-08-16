@@ -79,15 +79,18 @@ public:
      * @brief Copy constructor
      * @param other const IPAddress&, Other address
      */
-    IPAddress(const IPAddress& address);
+    IPAddress(const IPAddress& other)
+    {
+        memcpy(&m_address, &other.m_address, sizeof(m_address));
+    }
 
     /**
      * @brief Assignment
      * @param other const IPAddress&, Other address
      */
-    IPAddress& operator=(const IPAddress& address)
+    IPAddress& operator=(const IPAddress& other)
     {
-        memcpy(&m_address, address, sizeof(m_address));
+        memcpy(&m_address, &other.m_address, sizeof(m_address));
     }
 
     /**
