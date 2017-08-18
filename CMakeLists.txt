@@ -258,10 +258,10 @@ IF (WIN32)
                     "$ENV{ProgramW6432}/Microsoft SDKs/Windows/*/Bin/x64")
   IF (MC_COMPILER)
     MESSAGE("Windows SDK mc:     found")
-    ADD_SUBDIRECTORY (events.w32)
   ELSE (MC_COMPILER)
     MESSAGE("Windows SDK mc:     not found")
   ENDIF (MC_COMPILER)
+  ADD_SUBDIRECTORY (events.w32)
 ENDIF (WIN32)
 
 
