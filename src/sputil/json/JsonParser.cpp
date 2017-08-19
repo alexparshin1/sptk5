@@ -137,7 +137,7 @@ string readJsonName(const string& json, size_t& readPosition)
 
 double readJsonNumber(const string& json, size_t& readPosition)
 {
-    size_t pos = json.find_first_not_of("-0123456789.", readPosition + 1);
+    size_t pos = json.find_first_not_of("-+0123456789.Ee", readPosition + 1);
     if (pos == string::npos)
         error("Unexpected character", readPosition);
     string number = json.substr(readPosition, pos - readPosition);
