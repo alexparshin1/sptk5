@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       htonq.cpp - description                                ║
+║                       IPAddress.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  begin                Wednesday August 16, 2017                              ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,38 +26,84 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#ifndef __IP_ADDRESS_H__
+#define __IP_ADDRESS_H__
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
+namespace sptk
+{
 
-namespace sptk {
+/**
+ * @addtogroup network Network Classes
+ * @{
+ */
 
-    uint64_t htonq(uint64_t val) {
-        uint64_t result;
-        auto src = (uint32_t *)(void *)&val;
-        auto dst = (uint32_t *)(void *)&result;
-        dst[0] = htonl(src[1]);
-        dst[1] = htonl(src[0]);
-        return result;
-    }
+/**
+ * @brief IPv4 and IPv6 address presentation
+ */
+class SP_EXPORT IPAddress
+{
+    union {
+        sockaddr_in     ipv4;
+        sockaddr_in6    ipv6;
+        sockaddr        generic;
+    } m_address;
+public:
 
-    uint64_t ntohq(uint64_t val) {
-        uint64_t result;
-        auto src = (uint32_t *)(void *)&val;
-        auto dst = (uint32_t *)(void *)&result;
-        dst[0] = htonl(src[1]);
-        dst[1] = htonl(src[0]);
-        return result;
-    }
-
-    void htonq_inplace(uint64_t* in, uint64_t* out)
+    /**
+     * @brief Default constructor
+     */
+    IPAddress()
     {
-        auto src = (uint32_t *)(void *)in;
-        auto dst = (uint32_t *)(void *)out;
-        dst[1] = htonl(src[0]);
-        dst[0] = htonl(src[1]);
+        memset(&m_address, 0, sizeof(m_address));
     }
 
-} // namespace sptk
+    /**
+     * @brief Constructor
+     * @param address const sockaddr_in*, IPv4 address
+     */
+    IPAddress(const sockaddr_in* address)
+    {
+        memcpy(&m_address, address, sizeof(sockaddr_in));
+    }
+
+    /**
+     * @brief Constructor
+     * @param address const sockaddr_in6*, IPv6 address
+     */
+    IPAddress(const sockaddr_in6* address)
+    {
+        memcpy(&m_address, address, sizeof(sockaddr_in6));
+    }
+
+    /**
+     * @brief Copy constructor
+     * @param other const IPAddress&, Other address
+     */
+    IPAddress(const IPAddress& other)
+    {
+        memcpy(&m_address, &other.m_address, sizeof(m_address));
+    }
+
+    /**
+     * @brief Assignment
+     * @param other const IPAddress&, Other address
+     */
+    IPAddress& operator=(const IPAddress& other)
+    {
+        memcpy(&m_address, &other.m_address, sizeof(m_address));
+    }
+
+    /**
+     * @brief Get address data
+     */
+    const sockaddr* address() const
+    {
+        return &m_address.generic;
+    }
+};
+
+/**
+ * @}
+ */
+}
+#endif

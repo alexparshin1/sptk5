@@ -26,9 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-#include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/ssl.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/threads/Thread.h>
 

@@ -234,7 +234,7 @@ void OracleConnection::queryUnprepare(Query *query)
 int OracleConnection::queryColCount(Query *query)
 {
     OracleStatement* statement = (OracleStatement*) query->statement();
-    if (!statement)
+    if (statement == nullptr)
         throwOracleException("Query not opened");
     return (int) statement->colCount();
 }

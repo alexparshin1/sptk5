@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/wsdl/WSRequest.h>
 
 using namespace std;
 using namespace sptk;

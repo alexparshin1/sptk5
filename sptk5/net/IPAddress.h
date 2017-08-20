@@ -29,6 +29,40 @@
 #ifndef __IPADDRESS_H__
 #define __IPADDRESS_H__
 
+#include <sptk5/sptk.h>
+
+#ifndef _WIN32
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sptk5/Strings.h>
+
+/**
+ * A socket handle is an integer
+ */
+typedef int SOCKET;
+typedef sa_family_t SOCKET_ADDRESS_FAMILY;
+
+#ifdef __APPLE__
+typedef int socklen_t;
+#endif
+
+/**
+ * A value to indicate an invalid handle
+ */
+#define INVALID_SOCKET -1
+
+#else
+#include <winsock2.h>
+    #include <windows.h>
+    typedef int socklen_t;
+    typedef unsigned short SOCKET_ADDRESS_FAMILY;
+#endif
+
 namespace sptk
 {
 
@@ -42,56 +76,40 @@ namespace sptk
  */
 class SP_EXPORT IPAddress
 {
+    /**
+     * Shared storage for IPv4 and IPv6 addresses
+     */
     union {
         sockaddr_in     ipv4;
         sockaddr_in6    ipv6;
         sockaddr        generic;
     } m_address;
+
+    String  m_addressStr;
 public:
 
     /**
      * @brief Default constructor
      */
-    IPAddress()
-    {
-        memset(&m_address, 0, sizeof(m_address));
-    }
+    IPAddress();
 
     /**
      * @brief Constructor
-     * @param address const sockaddr_in*, IPv4 address
+     * @param address const sockaddr&, IPv4 address
      */
-    IPAddress(const sockaddr_in* address)
-    {
-        memcpy(&m_address, address, sizeof(sockaddr_in));
-    }
-
-    /**
-     * @brief Constructor
-     * @param address const sockaddr_in6*, IPv6 address
-     */
-    IPAddress(const sockaddr_in6* address)
-    {
-        memcpy(&m_address, address, sizeof(sockaddr_in6));
-    }
+    explicit IPAddress(const sockaddr& address);
 
     /**
      * @brief Copy constructor
      * @param other const IPAddress&, Other address
      */
-    IPAddress(const IPAddress& other)
-    {
-        memcpy(&m_address, &other.m_address, sizeof(m_address));
-    }
+    IPAddress(const IPAddress& other);
 
     /**
      * @brief Assignment
      * @param other const IPAddress&, Other address
      */
-    IPAddress& operator=(const IPAddress& other)
-    {
-        memcpy(&m_address, &other.m_address, sizeof(m_address));
-    }
+    IPAddress& operator=(const IPAddress& other);
 
     /**
      * @brief Get address data
@@ -99,6 +117,36 @@ public:
     const sockaddr* address() const
     {
         return &m_address.generic;
+    }
+
+    /**
+     * Return length of address
+     * @return length of address
+     */
+    size_t length() const
+    {
+        return addressLength(m_address.generic);
+    }
+
+    /**
+     * Return IP address as a string
+     * @return string presentation of IP address
+     */
+    const String& toString() const
+    {
+        return m_addressStr;
+    }
+
+    /**
+     * Return length of actual address
+     * @param address const sockaddr&, Address data
+     * @return length of actual address
+     */
+    static size_t addressLength(const sockaddr& address)
+    {
+        if (address.sa_family == AF_INET)
+            return sizeof(sockaddr_in);
+        return sizeof(sockaddr_in6);
     }
 };
 

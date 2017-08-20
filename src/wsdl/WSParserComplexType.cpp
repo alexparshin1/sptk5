@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
-#include <sptk5/RegularExpression.h>
 #include <sstream>
 #include <iomanip>
 

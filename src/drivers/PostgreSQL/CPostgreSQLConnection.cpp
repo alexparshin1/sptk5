@@ -29,10 +29,9 @@
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
 #include <iomanip>
-#include <sptk5/db/DatabaseField.h>
-#include <sptk5/db/PostgreSQLConnection.h>
-#include <sptk5/db/Query.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/db/DatabaseField.h>
+#include <sptk5/db/Query.h>
 #include <sstream>
 
 using namespace std;
@@ -41,10 +40,8 @@ using namespace sptk;
 namespace sptk {
 
     const DateTime epochDate(2000, 1, 1);
-    const long daysSinceEpoch =
-        chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / 24;
-    const int64_t microsecondsSinceEpoch = chrono::duration_cast<chrono::microseconds>(
-        epochDate.timePoint().time_since_epoch()).count();
+    const long daysSinceEpoch = chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / 24;
+    const int64_t microsecondsSinceEpoch = chrono::duration_cast<chrono::microseconds>(epochDate.timePoint().time_since_epoch()).count();
 
     class CPostgreSQLStatement
     {

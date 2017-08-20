@@ -103,7 +103,7 @@ void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamet
             case VAR_DATE: {
                 long days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
                 if (m_int64timestamps) {
-                    int64_t dt = int64_t(days) * 86400 * 1000000;
+                    int64_t dt = days * 86400 * 1000000;
                     htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 } else {
                     double dt = days * 86400.0;

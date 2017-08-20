@@ -30,6 +30,7 @@
 #define __SPTK_SOURCEMODULE_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
 #include <iostream>
 #include <fstream>
 
@@ -98,10 +99,10 @@ public:
         std::string fileName = m_path + "/" + m_name;
         m_header.open((fileName + ".h").c_str(), std::ofstream::out | std::ofstream::trunc);
         if (!m_header.is_open())
-            throwException("Can't create file " + fileName + ".h");
+            throw Exception("Can't create file " + fileName + ".h");
         m_source.open((fileName + ".cpp").c_str(), std::ofstream::out | std::ofstream::trunc);
         if (!m_source.is_open())
-            throwException("Can't create file " + fileName + ".cpp");
+            throw Exception("Can't create file " + fileName + ".cpp");
     }
 
     /**

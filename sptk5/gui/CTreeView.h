@@ -88,7 +88,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~CTreeView();
+    ~CTreeView() = default;
 
     /**
      * @brief Returns controls' kind (internal SPTK RTTI).

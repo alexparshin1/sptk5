@@ -30,14 +30,14 @@
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CGroup.h>
 
 using namespace std;
 using namespace sptk;
 
 void CGroup::ctor_init(const char *alabel) {
-    if (!alabel)
+    if (alabel == nullptr)
         alabel = "";
     m_drawClipped = true;
     label(alabel);
@@ -56,7 +56,7 @@ CGroup::CGroup(int x,int y,int w,int h,const char *alabel)
 #endif
 
 CLayoutClient* CGroup::creator(XMLNode* node) {
-    CGroup* widget = new CGroup("",10,SP_ALIGN_TOP);
+    auto widget = new CGroup("",10,SP_ALIGN_TOP);
     widget->loadLayout(node,LXM_LAYOUTDATA);
     return widget;
 }
@@ -68,7 +68,7 @@ void CGroup::resize(int xx,int yy,int ww,int hh) {
     //int offsetY = offsetX;
 
     const char *lbl = m_label.c_str();
-    if (align() & FL_ALIGN_INSIDE && lbl && lbl[0] ) {
+    if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0 ) {
         int tw = ww - 8, th = 0;
         fl_font(labelfont(),labelsize());
         fl_measure(lbl,tw,th);
@@ -83,7 +83,7 @@ bool CGroup::preferredSize(int& ww,int& hh) {
     int offsetY = offsetX;
 
     const char *lbl = m_label.c_str();
-    if ((align() & FL_ALIGN_INSIDE) && lbl && lbl[0] ) {
+    if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0 ) {
         int tw = ww - 8, th = 0;
         fl_font(labelfont(),labelsize());
         fl_measure(lbl,tw,th);
@@ -100,7 +100,7 @@ void CGroup::draw() {
     Fl_Boxtype b = box();
 
     if (damage() & ~FL_DAMAGE_CHILD) { // redraw the entire thing:
-        if (!m_frame)
+        if (m_frame == nullptr)
             fl_draw_box(box(),x(),y(),w(),h(),color());
         paintBackground();
     }

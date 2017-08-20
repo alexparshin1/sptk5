@@ -35,7 +35,8 @@ using namespace std;
 using namespace sptk;
 
 CToolBar::CToolBar(CLayoutAlign layoutAlignment)
-        : CGroup("",5,layoutAlignment) {
+    : CGroup("", 5, layoutAlignment)
+{
     m_colapsed = false;
     layoutSpacing(4);
     box(FL_UP_BOX);
@@ -50,15 +51,17 @@ CToolBar::CToolBar(int x,int y,int w,int h)
 }
 #endif
 
-CLayoutClient* CToolBar::creator(XMLNode *node) {
-    CToolBar* widget = new CToolBar(SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CToolBar::creator(XMLNode* node)
+{
+    auto widget = new CToolBar(SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-CButton *CToolBar::addButton(CButtonKind buttonKind,Fl_Callback_p cb,const char *label,CLayoutAlign buttonAlign) {
-    CButton *b = new CButton(buttonKind,buttonAlign,label);
-    if (cb)
+CButton* CToolBar::addButton(CButtonKind buttonKind, Fl_Callback_p cb, const char* label, CLayoutAlign buttonAlign)
+{
+    auto b = new CButton(buttonKind, buttonAlign, label);
+    if (cb != nullptr)
         b->callback(cb);
     return b;
 }
@@ -66,32 +69,35 @@ CButton *CToolBar::addButton(CButtonKind buttonKind,Fl_Callback_p cb,const char 
 #define HIDE_BAR_WIDTH 8
 #define HIDE_BAR_WIDTH_COLLAPSED 30
 
-void CToolBar::resize(int xx,int yy,int ww,int hh) {
+void CToolBar::resize(int xx, int yy, int ww, int hh)
+{
     if (m_colapsed) {
-        Fl_Widget::resize(xx,yy,ww,HIDE_BAR_WIDTH+Fl::box_dh(box()));
+        Fl_Widget::resize(xx, yy, ww, HIDE_BAR_WIDTH + Fl::box_dh(box()));
     } else {
-        Fl_Widget::resize(xx,yy,ww,hh);
+        Fl_Widget::resize(xx, yy, ww, hh);
         xx += HIDE_BAR_WIDTH;
         ww -= HIDE_BAR_WIDTH;
-        autoLayout(xx,yy,ww,hh,true);
+        autoLayout(xx, yy, ww, hh, true);
     }
 }
 
-bool CToolBar::preferredSize(int& ww,int& hh) {
+bool CToolBar::preferredSize(int& ww, int& hh)
+{
     if (m_colapsed) {
-        hh = HIDE_BAR_WIDTH+Fl::box_dh(box());
-        int wm = HIDE_BAR_WIDTH_COLLAPSED+Fl::box_dw(box());
+        hh = HIDE_BAR_WIDTH + Fl::box_dh(box());
+        int wm = HIDE_BAR_WIDTH_COLLAPSED + Fl::box_dw(box());
         if (ww < wm)
             ww = wm;
     } else {
         ww -= HIDE_BAR_WIDTH + 1;
-        autoLayout(0,0,ww,hh,false);
+        autoLayout(0, 0, ww, hh, false);
         ww += HIDE_BAR_WIDTH + 1;
     }
     return false;
 }
 
-int CToolBar::handle(int event) {
+int CToolBar::handle(int event)
+{
     if (event == FL_PUSH) {
         int xzone = HIDE_BAR_WIDTH;
         if (m_colapsed)
@@ -99,42 +105,43 @@ int CToolBar::handle(int event) {
 
         if (Fl::event_x() <= x() + xzone) {
             m_colapsed = !m_colapsed;
-            CLayoutManager *parentLayoutManager = dynamic_cast<CLayoutManager *>(parent());
+            auto parentLayoutManager = dynamic_cast<CLayoutManager*>(parent());
             //CLayoutManager *parentLayoutManager = dynamic_cast<CLayoutManager *>(window());
-            if (parentLayoutManager)
+            if (parentLayoutManager != nullptr)
                 parentLayoutManager->relayout();
-            else 
+            else
                 relayout();
             window()->redraw();
-            return true;
+            return 1;
         }
     }
     return CGroup::handle(event);
 }
 
-void CToolBar::draw() {
+void CToolBar::draw()
+{
     int dx = Fl::box_dx(box());
     int dy = Fl::box_dy(box());
     int dh = Fl::box_dh(box());
-    int xs = x()+dx+1;
-    int ys = y()+dy+1;
-    int hs = h()-dh-2;
+    int xs = x() + dx + 1;
+    int ys = y() + dy + 1;
+    int hs = h() - dh - 2;
     if (m_colapsed) {
         draw_box();
         //fl_draw_box(FL_THIN_UP_BOX,xs,ys,HIDE_BAR_WIDTH_COLLAPSED,hs,color());
         //xs += 1;
         //ys += 1;
         int xe = xs + HIDE_BAR_WIDTH_COLLAPSED - 4;
-        for (int xx = xs; xx < xe; xx+= 3) {
-            fl_draw_box(FL_THIN_UP_BOX,xx,ys,2,2,FL_WHITE);
-            fl_draw_box(FL_THIN_UP_BOX,xx+1,ys+3,2,2,FL_WHITE);
+        for (int xx = xs; xx < xe; xx += 3) {
+            fl_draw_box(FL_THIN_UP_BOX, xx, ys, 2, 2, FL_WHITE);
+            fl_draw_box(FL_THIN_UP_BOX, xx + 1, ys + 3, 2, 2, FL_WHITE);
         }
     } else {
         CGroup::draw();
         int ye = ys + hs - 2;
-        for (int yy = ys; yy < ye; yy+= 3) {
-            fl_draw_box(FL_THIN_UP_BOX,xs,yy,2,2,FL_WHITE);
-            fl_draw_box(FL_THIN_UP_BOX,xs+3,yy+1,2,2,FL_WHITE);
+        for (int yy = ys; yy < ye; yy += 3) {
+            fl_draw_box(FL_THIN_UP_BOX, xs, yy, 2, 2, FL_WHITE);
+            fl_draw_box(FL_THIN_UP_BOX, xs + 3, yy + 1, 2, 2, FL_WHITE);
         }
     }
 }

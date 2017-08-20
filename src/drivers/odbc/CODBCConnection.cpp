@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <iomanip>
+#include <sptk5/RegularExpression.h>
+#include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
-#include <sptk5/db/DatabaseField.h>
-#include <sptk5/RegularExpression.h>
 #include <sstream>
-#include <iomanip>
 
 using namespace std;
 using namespace sptk;
@@ -55,7 +55,7 @@ public:
     {
     }
 };
-}
+} // namespace sptk
 
 ODBCConnection::ODBCConnection(const string& connectionString)
 : DatabaseConnection(connectionString)

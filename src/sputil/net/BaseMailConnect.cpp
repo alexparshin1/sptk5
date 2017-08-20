@@ -35,9 +35,9 @@
 #endif
 
 #include <sptk5/Base64.h>
-#include <sptk5/net/BaseMailConnect.h>
-#include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
+#include <sptk5/Strings.h>
+#include <sptk5/net/BaseMailConnect.h>
 
 #define LINE_CHARS 72
 

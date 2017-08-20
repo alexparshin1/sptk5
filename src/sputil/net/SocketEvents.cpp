@@ -27,14 +27,6 @@
 */
 
 #include "sptk5/net/SocketEvents.h"
-#include <cerrno>
-#include <cstring>
-#include <csignal>
-#include <iostream>
-
-#ifndef _WIN32
-#include <unistd.h>
-#endif
 
 using namespace std;
 using namespace sptk;

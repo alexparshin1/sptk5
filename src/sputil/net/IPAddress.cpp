@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLContext.cpp - description                           ║
+║                       IPAddress.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  begin                Wednesday August 16, 2017                              ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,78 +26,32 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-#include <sptk5/net/SSLContext.h>
+#include <sptk5/net/IPAddress.h>
 
 using namespace std;
 using namespace sptk;
 
-static int s_server_session_id_context = 1;
-
-void SSLContext::throwError(string humanDescription)
+IPAddress::IPAddress()
 {
-    unsigned long error = ERR_get_error();
-    string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
-    throwException(humanDescription + "\n" + errorStr);
+    memset(&m_address, 0, sizeof(m_address));
 }
 
-SSLContext::SSLContext()
+IPAddress::IPAddress(const sockaddr& address)
 {
-    m_ctx = SSL_CTX_new(SSLv23_method());
-    SSL_CTX_set_cipher_list(m_ctx, "ALL");
-    SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-    SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context, sizeof s_server_session_id_context);
+    char buffer[64];
+    memcpy(&m_address, &address, addressLength(address));
+    m_addressStr = inet_ntop(m_address.generic.sa_family, &m_address.generic, buffer, sizeof(buffer));
 }
 
-SSLContext::~SSLContext()
+IPAddress::IPAddress(const IPAddress& other)
 {
-    SYNCHRONIZED_CODE;
-    SSL_CTX_free(m_ctx);
+    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    m_addressStr = other.m_addressStr;
 }
 
-SSL_CTX* SSLContext::handle()
+IPAddress& IPAddress::operator=(const IPAddress& other)
 {
-    SYNCHRONIZED_CODE;
-    return m_ctx;
+    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    m_addressStr = other.m_addressStr;
+    return *this;
 }
-
-int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
-{
-    strncpy(replyBuffer, (const char*) userdata, (size_t) replySize);
-    replyBuffer[replySize - 1] = '\0';
-    return (int) strlen(replyBuffer);
-}
-
-void SSLContext::loadKeys(const string& privateKeyFileName, const string& certificateFileName, const string& password,
-                          const string& caFileName, int verifyMode, int verifyDepth)
-{
-    SYNCHRONIZED_CODE;
-
-    m_password = password;
-
-    // Load keys and certificates
-    if (SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
-        throwError("Can't use certificate file " + certificateFileName);
-
-    // Define password for auto-answer in callback function
-    SSL_CTX_set_default_passwd_cb(m_ctx, passwordReplyCallback);
-    SSL_CTX_set_default_passwd_cb_userdata(m_ctx, (void*) m_password.c_str());
-    if (SSL_CTX_use_PrivateKey_file(m_ctx, privateKeyFileName.c_str(), SSL_FILETYPE_PEM) <= 0)
-        throwError("Can't use private key file " + privateKeyFileName);
-
-    if (SSL_CTX_check_private_key(m_ctx) == 0)
-        throwError("Can't check private key file " + privateKeyFileName);
-
-    // Load the CAs we trust
-    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), nullptr) <= 0)
-        throwError("Can't load or verify CA file " + caFileName);
-
-    if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)
-        throwError("Can't set default verify paths");
-
-    SSL_CTX_set_verify(m_ctx, verifyMode, nullptr);
-    SSL_CTX_set_verify_depth(m_ctx, verifyDepth);
-}
-

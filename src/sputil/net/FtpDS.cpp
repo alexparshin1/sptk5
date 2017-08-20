@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/CFtpDS.h>
 #include <sptk5/CSmallPixmapIDs.h>
+#include <sptk5/net/CFtpDS.h>
 
 #ifndef FL_ALIGN_RIGHT
 #define FL_ALIGN_RIGHT 8

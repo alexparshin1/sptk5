@@ -26,10 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/WSListener.h>
 #include "protocol/WSStaticHttpProtocol.h"
 #include "protocol/WSWebServiceProtocol.h"
 #include "protocol/WSWebSocketsProtocol.h"
+#include <sptk5/wsdl/WSListener.h>
 
 using namespace std;
 using namespace sptk;

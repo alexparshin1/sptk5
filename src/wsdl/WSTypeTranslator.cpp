@@ -31,9 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-namespace sptk {
-    WSTypeTranslator wsTypeTranslator;
-}
+WSTypeTranslator sptk::wsTypeTranslator;
 
 WSTypeTranslator::WSTypeTranslator() noexcept
 {

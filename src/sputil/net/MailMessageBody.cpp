@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/MailMessageBody.h>
 #include <sptk5/Strings.h>
+#include <sptk5/net/MailMessageBody.h>
 
 using namespace std;
 using namespace sptk;

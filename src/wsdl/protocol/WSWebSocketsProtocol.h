@@ -29,8 +29,8 @@
 #ifndef __WSWEBSOCKETSPROTOCOL_H__
 #define __WSWEBSOCKETSPROTOCOL_H__
 
-#include <sptk5/cnet>
 #include "WSProtocol.h"
+#include <sptk5/cnet>
 
 namespace sptk {
 
@@ -109,6 +109,6 @@ public:
     //bool send(const std::map<String,String>& headers, String data);
 };
 
-}
+} // namespace sptk
 
 #endif

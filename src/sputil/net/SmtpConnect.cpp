@@ -28,8 +28,8 @@
 
 #include <cstdio>
 #include <sptk5/Base64.h>
-#include <sptk5/net/SmtpConnect.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/net/SmtpConnect.h>
 
 using namespace std;
 using namespace sptk;

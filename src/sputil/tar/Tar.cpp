@@ -28,8 +28,8 @@
    Please report all bugs and problems to "alexeyp@gmail.com"
  ***************************************************************************/
 
-#include <sptk5/Tar.h>
 #include "libtar.h"
+#include <sptk5/Tar.h>
 
 #ifdef _WIN32
     #include <io.h>

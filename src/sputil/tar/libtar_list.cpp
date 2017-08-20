@@ -12,18 +12,17 @@
 **  University of Illinois at Urbana-Champaign
 */
 
-#include <sptk5/sptk.h>
-
-#include "string.h"
-#include "stdlib.h"
 #include "libtar_listhash.h"
+#include <cstdlib>
+#include <cstring>
+#include <sptk5/sptk.h>
 
 /*
 ** libtar_listptr_reset() - reset a list pointer
 */
 void libtar_listptr_reset(libtar_listptr_t* lp)
 {
-    *lp = NULL;
+    *lp = nullptr;
 }
 
 
@@ -51,13 +50,13 @@ libtar_list_t* libtar_list_new(int flags, libtar_cmpfunc_t cmpfunc)
         && flags != LIST_STACK
         && flags != LIST_QUEUE) {
         errno = EINVAL;
-        return NULL;
+        return nullptr;
     }
 
     newlist = (libtar_list_t*) calloc(1, sizeof(libtar_list_t));
-    if (!newlist)
-        return NULL;
-    if (cmpfunc != NULL)
+    if (newlist == nullptr)
+        return nullptr;
+    if (cmpfunc != nullptr)
         newlist->cmpfunc = cmpfunc;
     else
         newlist->cmpfunc = (libtar_cmpfunc_t) strcmp;
@@ -75,10 +74,10 @@ int libtar_list_iterate(libtar_list_t* l, libtar_iterate_func_t plugin, void* st
 {
     libtar_listptr_t n;
 
-    if (l == NULL)
+    if (l == nullptr)
         return -1;
 
-    for (n = l->first; n != NULL; n = n->next) {
+    for (n = l->first; n != nullptr; n = n->next) {
         if ((*plugin)(n->data, state) == -1)
             return -1;
     }
@@ -94,9 +93,9 @@ void libtar_list_empty(libtar_list_t* l, libtar_freefunc_t freefunc)
 {
     libtar_listptr_t n;
 
-    for (n = l->first; n != NULL; n = l->first) {
+    for (n = l->first; n != nullptr; n = l->first) {
         l->first = n->next;
-        if (freefunc != NULL)
+        if (freefunc != nullptr)
             (*freefunc)(n->data);
         free(n);
     }
@@ -139,7 +138,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
 #endif
 
     n = (libtar_listptr_t) malloc(sizeof(struct libtar_node));
-    if (n == NULL)
+    if (n == nullptr)
         return -1;
     n->data = data;
     l->nents++;
@@ -149,9 +148,9 @@ int libtar_list_add(libtar_list_t* l, void* data)
 #endif
 
     /* if the list is empty */
-    if (l->first == NULL) {
+    if (l->first == nullptr) {
         l->last = l->first = n;
-        n->next = n->prev = NULL;
+        n->next = n->prev = nullptr;
 #ifdef LIBTAR_DEBUG2
         printf("<== libtar_list_add(): list was empty; "
                "added first element and returning 0\n");
@@ -164,9 +163,9 @@ int libtar_list_add(libtar_list_t* l, void* data)
 #endif
 
     if (l->flags == LIST_STACK) {
-        n->prev = NULL;
+        n->prev = nullptr;
         n->next = l->first;
-        if (l->first != NULL)
+        if (l->first != nullptr)
             l->first->prev = n;
         l->first = n;
 #ifdef LIBTAR_DEBUG2
@@ -178,8 +177,8 @@ int libtar_list_add(libtar_list_t* l, void* data)
 
     if (l->flags == LIST_QUEUE) {
         n->prev = l->last;
-        n->next = NULL;
-        if (l->last != NULL)
+        n->next = nullptr;
+        if (l->last != nullptr)
             l->last->next = n;
         l->last = n;
 #ifdef LIBTAR_DEBUG2
@@ -189,7 +188,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
         return 0;
     }
 
-    for (m = l->first; m != NULL; m = m->next)
+    for (m = l->first; m != nullptr; m = m->next)
         if ((*(l->cmpfunc))(data, m->data) < 0) {
             /*
             ** if we find one that's bigger,
@@ -201,7 +200,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
 #endif
             if (m == l->first) {
                 l->first = n;
-                n->prev = NULL;
+                n->prev = nullptr;
                 m->prev = n;
                 n->next = m;
 #ifdef LIBTAR_DEBUG2
@@ -230,7 +229,7 @@ int libtar_list_add(libtar_list_t* l, void* data)
     l->last->next = n;
     n->prev = l->last;
     l->last = n;
-    n->next = NULL;
+    n->next = nullptr;
 #ifdef LIBTAR_DEBUG2
     printf("<== libtar_list_add(): added end, returning 0\n");
 #endif
@@ -254,11 +253,11 @@ void libtar_list_del(libtar_list_t* l, libtar_listptr_t* n)
 
     m = (*n)->next;
 
-    if ((*n)->prev)
+    if ((*n)->prev != nullptr)
         (*n)->prev->next = (*n)->next;
     else
         l->first = (*n)->next;
-    if ((*n)->next)
+    if ((*n)->next != nullptr)
         (*n)->next->prev = (*n)->prev;
     else
         l->last = (*n)->prev;
@@ -277,12 +276,12 @@ void libtar_list_del(libtar_list_t* l, libtar_listptr_t* n)
 int libtar_list_next(libtar_list_t* l,
                  libtar_listptr_t* n)
 {
-    if (*n == NULL)
+    if (*n == nullptr)
         *n = l->first;
     else
         *n = (*n)->next;
 
-    return (*n != NULL ? 1 : 0);
+    return (*n != nullptr ? 1 : 0);
 }
 
 
@@ -295,12 +294,12 @@ int libtar_list_next(libtar_list_t* l,
 int libtar_list_prev(libtar_list_t* l,
                  libtar_listptr_t* n)
 {
-    if (*n == NULL)
+    if (*n == nullptr)
         *n = l->last;
     else
         *n = (*n)->prev;
 
-    return (*n != NULL ? 1 : 0);
+    return (*n != nullptr ? 1 : 0);
 }
 
 
@@ -332,7 +331,7 @@ int libtar_list_add_str(libtar_list_t* l, char* str, char* delim)
 
     strncpy(tmp, str, sizeof(tmp));
     tmp[10240] = '\0';
-    while ((tokp = libtar_strsep(&nextp, delim)) != NULL) {
+    while ((tokp = libtar_strsep(&nextp, delim)) != nullptr) {
         if (*tokp == '\0')
             continue;
         if (libtar_list_add(l, strdup(tokp)))
@@ -359,15 +358,15 @@ libtar_list_search(libtar_list_t* l,
            l, n, (char *)data);
 #endif
 
-    if (matchfunc == NULL)
+    if (matchfunc == nullptr)
         matchfunc = (libtar_matchfunc_t) libtar_str_match;
 
-    if (*n == NULL)
+    if (*n == nullptr)
         *n = l->first;
     else
         *n = (*n)->next;
 
-    for (; *n != NULL; *n = (*n)->next) {
+    for (; *n != nullptr; *n = (*n)->next) {
 #ifdef LIBTAR_DEBUG2
         printf("checking against \"%s\"\n", (char *)(*n)->data);
 #endif
@@ -392,7 +391,7 @@ libtar_list_dup(libtar_list_t* l)
     libtar_listptr_t n;
 
     newlist = libtar_list_new(l->flags, l->cmpfunc);
-    for (n = l->first; n != NULL; n = n->next)
+    for (n = l->first; n != nullptr; n = n->next)
         libtar_list_add(newlist, n->data);
 
 #ifdef LIBTAR_DEBUG2
@@ -415,10 +414,10 @@ libtar_list_merge(libtar_cmpfunc_t cmpfunc, int flags,
 
     newlist = libtar_list_new(flags, cmpfunc);
 
-    n = NULL;
+    n = nullptr;
     while (libtar_list_next(list1, &n) != 0)
         libtar_list_add(newlist, n->data);
-    n = NULL;
+    n = nullptr;
     while (libtar_list_next(list2, &n) != 0)
         libtar_list_add(newlist, n->data);
 

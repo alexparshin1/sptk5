@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/HttpParams.h>
 #include <sptk5/Strings.h>
+#include <sptk5/net/HttpParams.h>
 
 using namespace std;
 using namespace sptk;

@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sys/epoll.h>
-#include "sptk5/net/SocketPool.h"
 #include "sptk5/SystemException.h"
+#include "sptk5/net/SocketPool.h"
+#include <sys/epoll.h>
 
 using namespace std;
 using namespace sptk;

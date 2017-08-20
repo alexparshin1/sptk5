@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/string_ext.h>
 #include <sptk5/net/ImapConnect.h>
 
 using namespace std;
@@ -154,7 +153,7 @@ void ImapConnect::cmd_select(string mail_box, int32_t &total_msgs)
         if (st[0] == '*') {
             size_t p = st.find("EXISTS");
             if (p != STRING_NPOS) {
-                total_msgs = string2int(st.substr(2, p - 2).c_str());
+                total_msgs = string2int(st.substr(2, p - 2));
                 break;
             }
         }
@@ -351,7 +350,7 @@ string ImapConnect::cmd_fetch_flags(int32_t msg_id)
     string result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
     size_t count = m_response.size() - 1;
-    for (size_t i = 0; i < count;) {
+    for (size_t i = 0; i < count; i++) {
         std::string &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)

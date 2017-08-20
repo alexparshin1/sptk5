@@ -26,10 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/wsdl/WSParser.h>
-#include <sptk5/wsdl/SourceModule.h>
-
 #include <iomanip>
+#include <sptk5/wsdl/SourceModule.h>
+#include <sptk5/wsdl/WSParser.h>
 
 using namespace std;
 using namespace sptk;
@@ -279,7 +278,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
 
     Strings serviceOperations;
     for (auto itor: m_operations) {
-        string requestName = strip_namespace(itor.second.m_input->name());
+        String requestName = strip_namespace(itor.second.m_input->name());
         serviceOperations.push_back(requestName);
     }
     string operationNames = serviceOperations.asString("|");

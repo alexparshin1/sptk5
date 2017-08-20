@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/RegularExpression.h>
 #include <sptk5/db/MySQLConnection.h>
 #include <sptk5/db/Query.h>
-#include <sptk5/RegularExpression.h>
 #include <sstream>
 
 using namespace std;

@@ -10,10 +10,9 @@
  **  University of Illinois at Urbana-Champaign
  */
 
-#include <sptk5/sptk.h>
-
-#include <string.h>
 #include "libtar.h"
+#include <sptk5/sptk.h>
+#include <cstring>
 
 #if defined(__GNUC__) || defined(__SUNPRO_C)
 #include <sys/param.h>

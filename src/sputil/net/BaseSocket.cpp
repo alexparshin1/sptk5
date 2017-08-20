@@ -26,13 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
-#include <cstdlib>
 #include <cerrno>
-#include <sstream>
-
-#include <sptk5/net/BaseSocket.h>
 #include <sptk5/SystemException.h>
+#include <sptk5/net/BaseSocket.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;

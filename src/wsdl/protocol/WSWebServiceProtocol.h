@@ -29,8 +29,8 @@
 #ifndef __WSWEBSERVICEPROTOCOL_H__
 #define __WSWEBSERVICEPROTOCOL_H__
 
-#include <sptk5/cnet>
 #include "WSProtocol.h"
+#include <sptk5/cnet>
 
 namespace sptk {
 
@@ -59,6 +59,6 @@ public:
 
 /// @}
 
-}
+} // namespace sptk
 
 #endif

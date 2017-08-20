@@ -39,6 +39,6 @@ namespace sptk {
     uint64_t htonq(uint64_t val);
     uint64_t ntohq(uint64_t val);
     void htonq_inplace(uint64_t* in,uint64_t* out);
-}
+} // namespace sptk
 
 #endif
