@@ -236,7 +236,7 @@ Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageNa
     for (auto& itor: m_requestHeaders)
         headers.push_back(itor.first + ": " + itor.second);
 
-    return move(headers);
+    return headers;
 }
 
 int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParameters, uint32_t timeoutMS)

@@ -9,11 +9,11 @@ SET (SPUTIL_SOURCES
     core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
     core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
-    net/BaseMailConnect.cpp net/BaseSocket.cpp net/FTPConnect.cpp
+    net/BaseMailConnect.cpp net/BaseSocket.cpp
     net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/IPAddress.cpp net/MailMessageBody.cpp
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
     net/TCPServer.cpp net/TCPSocket.cpp net/ServerConnection.cpp
-    net/UDPSocket.cpp net/FtpDS.cpp net/ImapDS.cpp
+    net/UDPSocket.cpp net/ImapDS.cpp
     xml/XMLAttributes.cpp xml/XMLDocument.cpp xml/XMLDocType.cpp xml/XMLNode.cpp xml/XMLNodeList.cpp xml/XMLValue.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/RWLock.cpp threads/Synchronized.cpp threads/Thread.cpp threads/ThreadPool.cpp
