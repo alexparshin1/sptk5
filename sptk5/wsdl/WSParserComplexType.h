@@ -90,12 +90,6 @@ class WSParserAttribute
      */
     std::string     m_cxxTypeName;
 
-    /**
-     * Multiplicity flag
-     */
-    WSMultiplicity  m_multiplicity;
-
-
 public:
     /**
      * Constructor

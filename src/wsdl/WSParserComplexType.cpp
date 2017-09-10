@@ -37,8 +37,7 @@ using namespace sptk;
 
 WSParserAttribute::WSParserAttribute(const string& name, const string& typeName)
 : m_name(name),
-m_wsTypeName(typeName),
-m_multiplicity(WSM_OPTIONAL)
+m_wsTypeName(typeName)
 {
     m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
 }
