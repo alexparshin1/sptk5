@@ -91,7 +91,7 @@ public:
      *
      * The current log content is cleared. The file is recreated.
      */
-    virtual void reset() THROWS_EXCEPTIONS;
+    void reset() THROWS_EXCEPTIONS override;
 };
 /**
  * @}
