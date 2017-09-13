@@ -4,7 +4,7 @@
 ║                       WSParser.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -123,38 +123,38 @@ protected:
      * @brief Parses xsd:element nodes directly under xsd:schema
      * @param element const XMLElement*, Schema element
      */
-    void parseElement(const XMLElement* element) THROWS_EXCEPTIONS;
+    void parseElement(const XMLElement* element);
 
     /**
      * @brief Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement const XMLElement*, Schema complex type
      */
-    void parseComplexType(const XMLElement* complexTypeElement) THROWS_EXCEPTIONS;
+    void parseComplexType(const XMLElement* complexTypeElement);
 
     /**
      * @brief Parses wsdl:operation nodes directly under xsd:schema
      * @param operation XMLElement*, Schema complex type
      */
-    void parseOperation(XMLElement* operation) THROWS_EXCEPTIONS;
+    void parseOperation(XMLElement* operation);
 
     /**
      * @brief Parses xsd:schema
      * @param schemaElement XMLElement*, Schema element
      */
-    void parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS;
+    void parseSchema(XMLElement* schemaElement);
 
     /**
      * @brief Generates service definition to output stream
      * @param usedClasses const Strings&, List of this service complex types (classes)
      * @param output std::ostream, Output stream
      */
-    void generateDefinition(const Strings& usedClasses, std::ostream& output) THROWS_EXCEPTIONS;
+    void generateDefinition(const Strings& usedClasses, std::ostream& output);
 
     /**
      * @brief Generates service implementation to output stream
      * @param output std::ostream, Output stream
      */
-    void generateImplementation(std::ostream& output) THROWS_EXCEPTIONS;
+    void generateImplementation(std::ostream& output);
 
 public:
     /**
@@ -176,14 +176,14 @@ public:
      * @brief Loads WSDL-file and parses it to output classes
      * @param wsdlFile std::string, WSDL file name
      */
-    void parse(std::string wsdlFile) THROWS_EXCEPTIONS;
+    void parse(std::string wsdlFile);
 
     /**
      * @brief Stores parsed classes to files in source directory
      * @param sourceDirectory std::string, Directory to store output classes
      * @param headerFile std::string, Optional header file to insert at the start of each generated file
      */
-    void generate(std::string sourceDirectory=".", std::string headerFile="") THROWS_EXCEPTIONS;
+    void generate(std::string sourceDirectory=".", std::string headerFile="");
 
     /**
      * @brief Utility function that removes namespace from the element name

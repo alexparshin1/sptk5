@@ -4,7 +4,7 @@
 ║                       Synchronized.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@ Synchronized::Synchronized() :
 {
 }
 
-void Synchronized::throwError(const char* fileName, int lineNumber) THROWS_EXCEPTIONS
+void Synchronized::throwError(const char* fileName, int lineNumber)
 {
     string error("Lock failed");
 
@@ -55,7 +55,7 @@ void Synchronized::lock(const char* fileName, int lineNumber)
     lock(uint32_t(-1), fileName, lineNumber);
 }
 
-void Synchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber) THROWS_EXCEPTIONS
+void Synchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber)
 {
     if (timeoutMS == uint32_t(-1))
         m_synchronized.lock();

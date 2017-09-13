@@ -4,7 +4,7 @@
 ║                       LogEngine.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -147,7 +147,7 @@ public:
      * @param sz uint32_t, message size
      * @param priority LogPriority, message priority. @see LogPriority for more information.
      */
-    virtual void saveMessage(const DateTime& date, const char *message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS = 0;
+    virtual void saveMessage(const DateTime& date, const char *message, uint32_t sz, LogPriority priority) = 0;
 
     /**
      * @brief Log options
@@ -202,7 +202,7 @@ public:
      * The current log content is cleared.
      * Actual result depends on derived log engine.
      */
-    virtual void reset() THROWS_EXCEPTIONS {}
+    virtual void reset() {}
 
     /**
      * @brief Sets log options

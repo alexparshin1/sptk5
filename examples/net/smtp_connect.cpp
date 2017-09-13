@@ -4,7 +4,7 @@
 ║                       smtp_connect.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -89,8 +89,7 @@ int main(int argc, char *argv[])
     cout << "\nTrying to connect to SMTP server.." << endl;
 
     try {
-        SMTP.host(host);
-        SMTP.port(port);
+        SMTP.host(Host(host, port));
         if (!user.empty() && !password.empty())
             SMTP.cmd_auth(user, password);  // Supported methods are login and plain
 

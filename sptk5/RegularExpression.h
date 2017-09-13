@@ -4,7 +4,7 @@
 ║                       RegularExpression.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -111,7 +111,7 @@ class SP_EXPORT RegularExpression
      * @param matchOffsetsSize size_t, Output match positions array size (in elements)
      * @return number of matches
      */
-    size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const THROWS_EXCEPTIONS;
+    size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const;
 
 public:
     /**
@@ -138,21 +138,21 @@ public:
      * @param text std::string, Input text
      * @return true if match found
      */
-    bool operator ==(const std::string& text) const THROWS_EXCEPTIONS;
+    bool operator ==(const std::string& text) const;
 
     /**
      * @brief Returns true if text doesn't match with regular expression
      * @param text std::string, Input text
      * @return true if match found
      */
-    bool operator !=(const std::string& text) const THROWS_EXCEPTIONS;
+    bool operator !=(const std::string& text) const;
 
     /**
      * @brief Returns true if text matches with regular expression
      * @param text std::string, Text to process
      * @return true if match found
      */
-    bool matches(const std::string& text) const THROWS_EXCEPTIONS;
+    bool matches(const std::string& text) const;
 
     /**
      * @brief Returns list of strings matched with regular expression
@@ -160,7 +160,7 @@ public:
      * @param matchedStrings sptk::Strings&, list of matched strings
      * @return true if match found
      */
-    bool m(const std::string& text, sptk::Strings& matchedStrings) const THROWS_EXCEPTIONS;
+    bool m(const std::string& text, sptk::Strings& matchedStrings) const;
 
     /**
      * @brief Replaces matches with replacement string
@@ -168,7 +168,7 @@ public:
      * @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
      */
-    std::string s(const std::string& text, std::string outputPattern) const THROWS_EXCEPTIONS;
+    std::string s(const std::string& text, std::string outputPattern) const;
 
     /**
      * @brief Returns list of strings split by regular expression
@@ -176,7 +176,7 @@ public:
      * @param outputStrings sptk::Strings&, list of matched strings
      * @return true if match found
      */
-    bool split(const std::string& text, sptk::Strings& outputStrings) const THROWS_EXCEPTIONS;
+    bool split(const std::string& text, sptk::Strings& outputStrings) const;
 
     /**
      * @brief Replaces matches with replacement string
@@ -185,7 +185,7 @@ public:
      * @param replaced bool&, optional flag if replacement was made
      * @return processed text
      */
-    std::string replaceAll(const std::string& text, std::string outputPattern, bool& replaced) const THROWS_EXCEPTIONS;
+    std::string replaceAll(const std::string& text, std::string outputPattern, bool& replaced) const;
 };
 
 typedef RegularExpression RegularExpression;
@@ -195,8 +195,8 @@ typedef RegularExpression RegularExpression;
  */
 }
 
-bool SP_EXPORT operator == (const std::string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
-bool SP_EXPORT operator != (const std::string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS;
+bool SP_EXPORT operator == (const std::string& text, const sptk::RegularExpression& regexp);
+bool SP_EXPORT operator != (const std::string& text, const sptk::RegularExpression& regexp);
 
 #endif
 

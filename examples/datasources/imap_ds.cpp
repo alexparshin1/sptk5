@@ -4,7 +4,7 @@
 ║                       imap_ds.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,31 +34,33 @@
 using namespace std;
 using namespace sptk;
 
-CListView      *filesListView;
-ImapDS        *imapDS;
-CInput         *imapServer;
-CInput         *imapUser;
-CPasswordInput *imapPassword;
-CInput         *imapMailBox;
+CListView* filesListView;
+ImapDS* imapDS;
+CInput* imapServer;
+CInput* imapUser;
+CPasswordInput* imapPassword;
+CInput* imapMailBox;
 
-void exit_cb(Fl_Widget *w,void *) {
-   w->window()->hide();
+void exit_cb(Fl_Widget* w, void*)
+{
+    w->window()->hide();
 }
 
-void go_cb(Fl_Widget *w,void *) {
-   imapDS->host(imapServer->data());
-   imapDS->user(imapUser->data());
-   imapDS->password(imapPassword->data());
-   imapDS->folder(imapMailBox->data());
-   try {
-      filesListView->fill(*imapDS);
-   }
-   catch (exception& e) {
-      fl_alert("%s", e.what());
-   }
+void go_cb(Fl_Widget* w, void*)
+{
+    imapDS->host(Host(imapServer->data().asString()));
+    imapDS->user(imapUser->data());
+    imapDS->password(imapPassword->data());
+    imapDS->folder(imapMailBox->data());
+    try {
+        filesListView->fill(*imapDS);
+    }
+    catch (exception& e) {
+        fl_alert("%s", e.what());
+    }
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
     // Initialize themes
     CThemes themes;
@@ -66,30 +68,30 @@ int main(int argc,char *argv[])
     CWindow mainWindow(600, 400, "CImapDS Test");
 
     CGroup agroup1;
-    imapServer = new CInput("Host:",100,SP_ALIGN_LEFT);
+    imapServer = new CInput("Host:", 100, SP_ALIGN_LEFT);
     imapServer->labelWidth(40);
-    imapUser = new CInput("User:",100,SP_ALIGN_LEFT);
+    imapUser = new CInput("User:", 100, SP_ALIGN_LEFT);
     imapUser->labelWidth(40);
-    imapPassword = new CPasswordInput("Password:",120,SP_ALIGN_LEFT);
+    imapPassword = new CPasswordInput("Password:", 120, SP_ALIGN_LEFT);
     imapPassword->labelWidth(70);
-    imapMailBox = new CInput("Mail Box:",130,SP_ALIGN_LEFT);
+    imapMailBox = new CInput("Mail Box:", 130, SP_ALIGN_LEFT);
     imapMailBox->labelWidth(70);
     imapMailBox->data("Inbox");
-    CButton goButton(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Messages");
+    CButton goButton(SP_EXEC_BUTTON, SP_ALIGN_RIGHT, "Messages");
     goButton.callback(go_cb);
     agroup1.end();
 
-    CGroup agroup2("",10,SP_ALIGN_BOTTOM);
-    CButton exitButton(SP_EXIT_BUTTON,SP_ALIGN_RIGHT);
+    CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
+    CButton exitButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
     exitButton.callback(exit_cb);
     agroup2.end();
 
-    filesListView = new CListView("",10,SP_ALIGN_CLIENT);
+    filesListView = new CListView("", 10, SP_ALIGN_CLIENT);
     imapDS = new ImapDS();
 
     mainWindow.end();
     mainWindow.resizable(mainWindow);
-    mainWindow.show(argc,argv);
+    mainWindow.show(argc, argv);
 
     //goButton.do_callback();
 

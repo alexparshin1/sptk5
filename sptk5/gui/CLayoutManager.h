@@ -4,7 +4,7 @@
 ║                       CLayoutManager.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -246,7 +246,7 @@ public:
      * @param node const XMLNode*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void loadLayout(const XMLNode* node,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS;
+    virtual void loadLayout(const XMLNode* node,CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves group controls data into XML node

@@ -4,7 +4,7 @@
 ║                       ImapConnect.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -163,19 +163,19 @@ public:
     /**
      * Logs in the server. The server name or address should be defined
      * with the call of host() method.
-     * @param user std::string, user name on the server
-     * @param password std::string, user password on the server
+     * @param user std::string&, user name on the server
+     * @param password std::string&, user password on the server
      */
-    void cmd_login(std::string user, std::string password);
+    void cmd_login(const std::string& user, const std::string& password);
 
     // IMAPv4 commands - logged in, mailbox-operations
 
     /**
      * Selects the mail box for future operations.
-     * @param mail_box std::string, the name of the mail box
+     * @param mail_box const std::string&, the name of the mail box
      * @param total_msgs int32_t&, returns the total messages in the mail box
      */
-    void cmd_select(std::string mail_box, int32_t& total_msgs);
+    void cmd_select(const std::string& mail_box, int32_t& total_msgs);
 
     /**
      * Retrieves the mail box information into response().
@@ -244,7 +244,7 @@ public:
      * @param mail_box std::string, the name of the mail box
      * @param message CBuffer, the RFC-2060 defined message
      */
-    void cmd_append(std::string mail_box, const Buffer& message);
+    void cmd_append(const std::string& mail_box, const Buffer& message);
 
     // IMAPv4 commands - logged in, selected mailbox-operations
 

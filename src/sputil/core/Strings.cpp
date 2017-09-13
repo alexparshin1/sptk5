@@ -4,7 +4,7 @@
 ║                       Strings.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -163,7 +163,7 @@ int Strings::indexOf(string s) const
     return (int) distance(begin(), itor);
 }
 
-void Strings::saveToFile(string fileName) const THROWS_EXCEPTIONS
+void Strings::saveToFile(string fileName) const
 {
     Buffer buffer;
     for (const_iterator str = begin(); str != end(); ++str) {
@@ -173,7 +173,7 @@ void Strings::saveToFile(string fileName) const THROWS_EXCEPTIONS
     buffer.saveToFile(fileName);
 }
 
-void Strings::loadFromFile(string fileName) THROWS_EXCEPTIONS
+void Strings::loadFromFile(string fileName)
 {
     Buffer buffer;
     buffer.loadFromFile(fileName);

@@ -4,7 +4,7 @@
 ║                       FirebirdConnection.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -62,7 +62,7 @@ FirebirdConnection::~FirebirdConnection()
     }
 }
 
-void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS
+void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char* file, int line)
 {
     if (status_vector[0] == 1 && status_vector[1])
     {
@@ -77,7 +77,7 @@ void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char
         m_lastStatus.clear();
 }
 
-void FirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPTIONS
+void FirebirdConnection::openDatabase(string newConnectionString)
 {
     ISC_STATUS status_vector[20];
 
@@ -113,7 +113,7 @@ void FirebirdConnection::openDatabase(string newConnectionString) THROWS_EXCEPTI
     }
 }
 
-void FirebirdConnection::closeDatabase() THROWS_EXCEPTIONS
+void FirebirdConnection::closeDatabase()
 {
     ISC_STATUS status_vector[20];
 
@@ -160,7 +160,7 @@ string FirebirdConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void FirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void FirebirdConnection::driverBeginTransaction()
 {
     ISC_STATUS status_vector[20];
 
@@ -180,7 +180,7 @@ void FirebirdConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void FirebirdConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void FirebirdConnection::driverEndTransaction(bool commit)
 {
     ISC_STATUS status_vector[20];
 
@@ -356,7 +356,7 @@ void FirebirdConnection::queryFetch(Query *query)
     }
 }
 
-void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
     string objectsSQL;
     objects.clear();

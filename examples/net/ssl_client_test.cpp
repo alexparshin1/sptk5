@@ -4,7 +4,7 @@
 ║                       ssl_client_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -43,7 +43,7 @@ int main(int, const char**)
         Buffer buffer;
 
         for (unsigned i = 0; i < 10; i++) {
-            client.open("localhost", 443);
+            client.open(Host("localhost", 443));
 
             client.write("GET /\n",6);
             client.readLine(buffer, '\n');

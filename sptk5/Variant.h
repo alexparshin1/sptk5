@@ -4,7 +4,7 @@
 ║                       Variant.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -627,66 +627,66 @@ public:
     /**
      * @brief Conversion operator
      */
-    operator bool() const THROWS_EXCEPTIONS;
+    operator bool() const;
 
     /**
      * @brief Conversion operator
      */
-    operator int32_t() const THROWS_EXCEPTIONS;
+    operator int32_t() const;
 
     /**
      * @brief Conversion operator
      */
-    operator uint32_t() const THROWS_EXCEPTIONS;
+    operator uint32_t() const;
 
     /**
      * @brief Conversion operator
      */
-    operator int64_t() const THROWS_EXCEPTIONS;
+    operator int64_t() const;
 
     /**
      * @brief Conversion operator
      */
-    operator uint64_t() const THROWS_EXCEPTIONS;
+    operator uint64_t() const;
 
     /**
      * @brief Conversion operator
      */
-    operator float() const THROWS_EXCEPTIONS;
+    operator float() const;
 
     /**
      * @brief Conversion operator
      */
-    operator double() const THROWS_EXCEPTIONS;
+    operator double() const;
 
     /**
      * @brief Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS;
+    operator std::string() const;
 
     /**
      * @brief Conversion operator
      */
-    operator String() const THROWS_EXCEPTIONS;
+    operator String() const;
 
     /**
      * @brief Conversion operator
      */
-    operator DateTime() const THROWS_EXCEPTIONS;
+    operator DateTime() const;
 
     /**
      * @brief Conversion method
      *
      * Converts variant value to double.
      */
-    int32_t asInteger() const THROWS_EXCEPTIONS;
+    int32_t asInteger() const;
 
     /**
      * @brief Conversion method
      *
      * Converts variant value to double.
      */
-    int64_t asInt64() const THROWS_EXCEPTIONS;
+    int64_t asInt64() const;
 
     /**
      * @brief Conversion to bool
@@ -695,35 +695,35 @@ public:
      * and one of 'N','n','F','f' to false.
      * For the integer and float values, the value <=0 is false, and > 0 is true.
      */
-    bool asBool() const THROWS_EXCEPTIONS;
+    bool asBool() const;
 
     /**
      * @brief Conversion to double
      *
      * Converts variant value to double.
      */
-    double asFloat() const THROWS_EXCEPTIONS;
+    double asFloat() const;
 
     /**
      * @brief Conversion to string
      *
      * Converts variant value to string.
      */
-    virtual std::string asString() const THROWS_EXCEPTIONS;
+    virtual std::string asString() const;
 
     /**
      * @brief Conversion method
      *
      * Converts variant value to DateTime. The time part of CDdatetime is empty.
      */
-    DateTime asDate() const THROWS_EXCEPTIONS;
+    DateTime asDate() const;
 
     /**
      * @brief Conversion method
      *
      * Converts variant value to DateTime.
      */
-    DateTime asDateTime() const THROWS_EXCEPTIONS;
+    DateTime asDateTime() const;
 
     /**
      * @brief Conversion method
@@ -731,7 +731,7 @@ public:
      * Simply returns the internal data pointer for string/text/blob types.
      * For incompatible types throws an exception.
      */
-    void *asImagePtr() const THROWS_EXCEPTIONS;
+    void *asImagePtr() const;
 
     /**
      * @brief Sets the NULL state

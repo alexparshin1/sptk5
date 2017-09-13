@@ -4,7 +4,7 @@
 ║                        FirebirdConnection.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -72,18 +72,18 @@ protected:
     std::string     m_lastStatus;
 
 
-    void checkStatus(const ISC_STATUS* status_vector, const char* file, int line) THROWS_EXCEPTIONS;
+    void checkStatus(const ISC_STATUS* status_vector, const char* file, int line);
 
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
+    virtual void driverBeginTransaction();
 
     /**
      * @brief Ends the transaction
      * @param commit bool, commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
+    virtual void driverEndTransaction(bool commit);
 
     // These methods implement the actions requested by Query
     /**
@@ -185,12 +185,12 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the Firebird connection string
      */
-    virtual void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
+    virtual void openDatabase(const std::string& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase() THROWS_EXCEPTIONS;
+    virtual void closeDatabase();
 
     /**
      * @brief Returns true if database is opened
@@ -217,7 +217,7 @@ public:
      * @param objectType DatabaseObjectType, object type to list
      * @param objects Strings&, object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
 };
 
 /**

@@ -4,7 +4,7 @@
 ║                       TCPServer.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,8 +39,7 @@ bool TCPServer::allowConnection(sockaddr_in* connectionRequest)
 TCPServerListener::TCPServerListener(TCPServer* server, int port)
 : Thread("CTCPServer::Listener"), m_server(server)
 {
-    m_listenerSocket.host("localhost");
-    m_listenerSocket.port(port);
+    m_listenerSocket.host(Host("localhost", port));
 }
 
 void TCPServerListener::threadFunction()

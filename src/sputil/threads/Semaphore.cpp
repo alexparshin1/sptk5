@@ -4,7 +4,7 @@
 ║                       Semaphore.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@ Semaphore::Semaphore(uint32_t startingValue, uint32_t maxValue)
 {
 }
 
-void Semaphore::post() THROWS_EXCEPTIONS
+void Semaphore::post()
 {
     lock_guard<mutex>  lock(m_mutex);
     if (m_maxValue == 0 || m_value < m_maxValue) {
@@ -45,7 +45,7 @@ void Semaphore::post() THROWS_EXCEPTIONS
     }
 }
 
-bool Semaphore::wait(uint32_t timeoutMS) THROWS_EXCEPTIONS
+bool Semaphore::wait(uint32_t timeoutMS)
 {
     unique_lock<mutex>  lock(m_mutex);
     auto now = std::chrono::system_clock::now();

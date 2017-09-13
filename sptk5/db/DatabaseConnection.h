@@ -4,7 +4,7 @@
 ║                        DatabaseConnection.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -352,21 +352,21 @@ protected:
      * This method should be overwritten in derived classes
      * @param connectionString std::string, the ODBC connection string
      */
-    virtual void openDatabase(const std::string& connectionString) THROWS_EXCEPTIONS;
+    virtual void openDatabase(const std::string& connectionString);
 
     /**
      * @brief Closes the database connection.
      *
      * This method should be overwritten in derived classes
      */
-    virtual void closeDatabase() THROWS_EXCEPTIONS;
+    virtual void closeDatabase();
 
     /**
      * @brief Begins the transaction
      *
      * This method should be implemented in derived driver
      */
-    virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
+    virtual void driverBeginTransaction();
 
     /**
      * @brief Ends the transaction
@@ -374,7 +374,7 @@ protected:
      * This method should be implemented in derived driver
      * @param commit bool, commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
+    virtual void driverEndTransaction(bool commit);
 
     /**
      * @brief Throws an exception
@@ -383,7 +383,7 @@ protected:
      * @param method std::string, method name where error has occured
      * @param error std::string, error text
      */
-    void logAndThrow(std::string method, std::string error) THROWS_EXCEPTIONS;
+    void logAndThrow(std::string method, std::string error);
 
 public:
     /**
@@ -400,12 +400,12 @@ public:
      * If unsuccessful throws an exception.
      * @param connectionString std::string, the ODBC connection string
      */
-    void open(std::string connectionString = "") THROWS_EXCEPTIONS;
+    void open(std::string connectionString = "");
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    void close() THROWS_EXCEPTIONS;
+    void close();
 
     /**
      * @brief Returns true if database is opened
@@ -449,17 +449,17 @@ public:
     /**
      * @brief Begins the transaction
      */
-    void beginTransaction() THROWS_EXCEPTIONS;
+    void beginTransaction();
 
     /**
      * @brief Commits the transaction
      */
-    void commitTransaction() THROWS_EXCEPTIONS;
+    void commitTransaction();
 
     /**
      * @brief Rolls back the transaction
      */
-    void rollbackTransaction() THROWS_EXCEPTIONS;
+    void rollbackTransaction();
 
     /**
      * @brief Reports true if in transaction
@@ -477,7 +477,7 @@ public:
      * @param objectType CDbObjectType, object type to list
      * @param objects Strings&, object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS = 0;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) = 0;
 
     /**
      * @brief Sets a log file for the database operations.
@@ -505,7 +505,7 @@ public:
      * @param data const Strings&, data for bulk insert
      * @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
      */
-    virtual void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") THROWS_EXCEPTIONS;
+    virtual void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "");
 
     /**
      * @brief Executes SQL batch file
@@ -515,7 +515,7 @@ public:
      * @param batchFileName sptk::String, SQL batch file
      * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchFile(const String& batchFileName, Strings* errors = NULL) THROWS_EXCEPTIONS;
+    virtual void executeBatchFile(const String& batchFileName, Strings* errors = NULL);
 
     /**
      * @brief Executes SQL batch queries
@@ -525,7 +525,7 @@ public:
      * @param batchSQL const sptk::Strings&, SQL batch file
      * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) THROWS_EXCEPTIONS;
+    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL);
 };
 /**
  * @}

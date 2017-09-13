@@ -4,7 +4,7 @@
 ║                       UDPSocket.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -66,7 +66,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL) THROWS_EXCEPTIONS;
+    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL);
 };
 
 /**

@@ -4,7 +4,7 @@
 ║                       FirebirdStatement.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -346,7 +346,7 @@ void FirebirdStatement::bindResult(FieldList& fields)
     }
 }
 
-isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter* param) THROWS_EXCEPTIONS
+isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter* param)
 {
     isc_db_handle   db = m_connection->connection();
     isc_blob_handle blob_handle = 0;
@@ -383,7 +383,7 @@ isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter*
     return blob_handle;
 }
 
-size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field) THROWS_EXCEPTIONS
+size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field)
 {
     isc_db_handle   db = m_connection->connection();
 

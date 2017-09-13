@@ -4,7 +4,7 @@
 ║                       DataSource.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -167,7 +167,7 @@ public:
     /**
      * @brief Opens the datasource. Implemented in derved class.
      */
-    virtual bool open() THROWS_EXCEPTIONS
+    virtual bool open()
     {
         return false;
     }

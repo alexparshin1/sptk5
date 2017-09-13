@@ -4,7 +4,7 @@
 ║                        Query.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -391,7 +391,7 @@ public:
      * It is necessary for the select queries and some stored procedures
      * that may return the dataset. First-time call for open() also prepares the query.
      */
-    virtual bool open() THROWS_EXCEPTIONS;
+    virtual bool open();
 
     /**
      * @brief Closes the query
@@ -425,7 +425,7 @@ public:
     /**
      * @brief Executes the query and closes the statement.
      */
-    virtual void exec() THROWS_EXCEPTIONS
+    virtual void exec()
     {
         open();
     }
@@ -436,7 +436,7 @@ public:
      * Query SQL would be set to the new SQL statement
      * @param newSQL const std::string&, an SQL statement to execute
      */
-    virtual void exec(const std::string& newSQL) THROWS_EXCEPTIONS
+    virtual void exec(const std::string& newSQL)
     {
         sql(newSQL);
         open();
@@ -445,7 +445,7 @@ public:
     /**
      * @brief Fetches the next row from the recordset, same as next()
      */
-    void fetch() THROWS_EXCEPTIONS;
+    void fetch();
 
     /**
      * @brief Connects a query to a database
@@ -608,7 +608,7 @@ public:
      * @param method const std::string&, method name where error has occured
      * @param error const std::string&, error text
      */
-    void logAndThrow(const std::string& method, const std::string& error) THROWS_EXCEPTIONS;
+    void logAndThrow(const std::string& method, const std::string& error);
 
     /**
      * @brief Access to diag messages

@@ -4,7 +4,7 @@
 ║                       Synchronized.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,7 +54,7 @@ class SP_EXPORT Synchronized
      * @param fileName const char*, File name where lock is invoked
      * @param lineNumber int, Line number where lock is invoked
      */
-    void throwError(const char* fileName=NULL, int lineNumber=0) THROWS_EXCEPTIONS;
+    void throwError(const char* fileName=NULL, int lineNumber=0);
 
     /**
      * @brief Sleeps until timeout occurs (unlocked)
@@ -104,7 +104,7 @@ public:
      * @param fileName const char*, lock location fileName, default is NULL
      * @param lineNumber int, lock location line number, default is 0
      */
-    virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0) THROWS_EXCEPTIONS;
+    virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0);
 
     /**
      * @brief Tries to lock synchronization object.

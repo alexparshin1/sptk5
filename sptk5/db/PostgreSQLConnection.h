@@ -4,7 +4,7 @@
 ║                        PostgreSQLConnection.h - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -71,13 +71,13 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    void driverBeginTransaction() THROWS_EXCEPTIONS override;
+    void driverBeginTransaction() override;
 
     /**
      * @brief Ends the transaction
      * @param commit bool, commit if true, rollback if false
      */
-    void driverEndTransaction(bool commit) THROWS_EXCEPTIONS override;
+    void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
@@ -196,12 +196,12 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the PostgreSQL connection string
      */
-    void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
+    void openDatabase(const std::string& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    void closeDatabase() THROWS_EXCEPTIONS override;
+    void closeDatabase() override;
 
     /**
      * @brief Returns true if database is opened
@@ -223,7 +223,7 @@ public:
      * @param objectType CDbObjectType, object type to list
      * @param objects Strings&, object list (output)
      */
-    void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
      * @brief Executes bulk inserts of data from memory buffer
@@ -235,7 +235,7 @@ public:
      * @param columnNames const Strings&, list of table columns to populate
      * @param data const Strings&, data for bulk insert
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") THROWS_EXCEPTIONS override;
+    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") override;
 
     /**
      * @brief Executes SQL batch file
@@ -245,7 +245,7 @@ public:
      * @param batchSQL const sptk::Strings&, SQL batch file
      * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) THROWS_EXCEPTIONS override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
 };
 
 /**

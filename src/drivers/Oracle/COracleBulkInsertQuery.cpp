@@ -4,7 +4,7 @@
 ║                       COracleBulkInsertQuery.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,7 +41,7 @@ COracleBulkInsertQuery::~COracleBulkInsertQuery()
 {
 }
 
-void COracleBulkInsertQuery::execNext() THROWS_EXCEPTIONS
+void COracleBulkInsertQuery::execNext()
 {
     m_recordNumber++;
     m_lastIteration = (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0);

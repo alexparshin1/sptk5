@@ -4,7 +4,7 @@
 ║                       CGtkThemeLoader.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -217,7 +217,7 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
     buffer.saveToFile("gtkrc.xml");
 }
 
-void CGtkThemeParser::load(const string& themeName) THROWS_EXCEPTIONS
+void CGtkThemeParser::load(const string& themeName)
 {
     m_themeFolder = Registry::homeDirectory() + ".themes/" + themeName + "/gtk-2.0/";
     string gtkrcFile = m_themeFolder + "gtkrc";

@@ -4,7 +4,7 @@
 ║                       WSRequest.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -112,7 +112,7 @@ protected:
      * This method is abstract and overwritten in derived generated classes.
      * @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
      */
-    virtual void requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS = 0;
+    virtual void requestBroker(XMLElement* requestNode) = 0;
 
 public:
     /**
@@ -131,7 +131,7 @@ public:
      * The processing results are stored in the same request XML
      * @param request sptk::XMLDocument*, Incoming request and outgoing response
      */
-    void processRequest(sptk::XMLDocument* request) THROWS_EXCEPTIONS;
+    void processRequest(sptk::XMLDocument* request);
 
     /**
      * @brief Returns service title (for service handshake)

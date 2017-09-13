@@ -4,7 +4,7 @@
 ║                       CTreeControl.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -592,7 +592,7 @@ public:
      * @param node const XMLNode&, node to load data from
      * @param autoCreate bool, create widgets if they are not found
      */
-    virtual void load (const XMLNode& node,bool autoCreate=false) THROWS_EXCEPTIONS;
+    virtual void load (const XMLNode& node,bool autoCreate=false);
 
     /**
      * @brief Loads group controls data from XML node
@@ -600,7 +600,7 @@ public:
      * @param node const XMLNode*, node to load data from
      * @param autoCreate bool, create widgets if they are not found
      */
-    virtual void load (const XMLNode* node,bool autoCreate=false) THROWS_EXCEPTIONS
+    virtual void load (const XMLNode* node,bool autoCreate=false)
     {
         load (*node,autoCreate);
     }

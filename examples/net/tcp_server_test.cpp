@@ -4,7 +4,7 @@
 ║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,8 +37,7 @@ int main( int argc, char* argv[] )
    try {
       // Create the socket
       TCPSocket server;
-      server.port(3000);
-      server.host("localhost");
+      server.host(Host("localhost", 3000));
 
       SOCKET clientSocketFD;
       struct sockaddr_in clientInfo;

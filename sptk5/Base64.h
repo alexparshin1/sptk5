@@ -4,7 +4,7 @@
 ║                       Base64.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -74,7 +74,7 @@ public:
      * @param bufSource CBuffer source buffer that holds base64 decoded data
      * @returns length of returned buffer
      */
-    static size_t decode(Buffer &bufDest, const Buffer &bufSource) THROWS_EXCEPTIONS;
+    static size_t decode(Buffer &bufDest, const Buffer &bufSource);
 
     /**
      * @brief Data decoding.
@@ -84,7 +84,7 @@ public:
      * @param strSource const std::string &, source string that holds base64 decoded data
      * @returns length of the returned string
      */
-    static size_t decode(Buffer &bufDest, const std::string &strSource) THROWS_EXCEPTIONS;
+    static size_t decode(Buffer &bufDest, const std::string &strSource);
 };
 /**
  * @}

@@ -4,7 +4,7 @@
 ║                       WSComplexType.h - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -93,7 +93,7 @@ public:
     * @brief Load data from XML node
     * @param input const XMLElement*, XML node containing CAddHandler data
     */
-   virtual void load(const XMLElement* input) THROWS_EXCEPTIONS = 0;
+   virtual void load(const XMLElement* input) = 0;
 
    /**
     * Load data from FieldList
@@ -101,19 +101,19 @@ public:
     * Only simple WSDL type members are loaded.
     * @param input const sptk::FieldList&, query field list containing CMqType data
     */
-   virtual void load(const sptk::FieldList& input) THROWS_EXCEPTIONS = 0;
+   virtual void load(const sptk::FieldList& input) = 0;
 
    /**
     * @brief Unload data to existing XML node
     * @param output XMLElement*, existing XML node
     */
-   virtual void unload(XMLElement* output) const THROWS_EXCEPTIONS = 0;
+   virtual void unload(XMLElement* output) const = 0;
 
    /**
     * Unload data to Query's parameters
     * @param output QueryParameterList&, query parameters
     */
-   virtual void unload(QueryParameterList& output) const THROWS_EXCEPTIONS = 0;
+   virtual void unload(QueryParameterList& output) const = 0;
 
    /**
     * Unload single element or attribute to DB query parameter
@@ -127,7 +127,7 @@ public:
     * @brief Unload data to new XML node
     * @param parent XMLElement*, parent XML node where new node is created
     */
-   virtual void addElement(XMLElement* parent) const THROWS_EXCEPTIONS;
+   virtual void addElement(XMLElement* parent) const;
 
    /**
     * @brief True is data was loaded

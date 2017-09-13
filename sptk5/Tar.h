@@ -4,7 +4,7 @@
 ║                       CTar.h - description                                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -114,12 +114,12 @@ class Tar
     /**
      * @brief Loads tar file into memory
      */
-    bool loadFile() THROWS_EXCEPTIONS;
+    bool loadFile();
 
     /**
      * @brief Throws an error
      */
-    void throwError(std::string fileName) THROWS_EXCEPTIONS;
+    void throwError(std::string fileName);
 public:
     /**
      * The last generated tar handle
@@ -182,7 +182,7 @@ public:
      * The archive content is red into the internal set of buffers
      * @param fileName std::string, file name to open
      */
-    void read(const std::string& fileName) THROWS_EXCEPTIONS
+    void read(const std::string& fileName)
     {
         read(fileName.c_str());
     }
@@ -193,7 +193,7 @@ public:
      * The archive content is red into the internal set of buffers
      * @param fileName std::string, file name to open
      */
-    void read(const char* fileName) THROWS_EXCEPTIONS;
+    void read(const char* fileName);
 
     /**
      * @brief Reads tar archive from buffer
@@ -201,7 +201,7 @@ public:
      * The archive content is red into the internal set of buffers
      * @param tarData const CBuffer&, tar file buffer
      */
-    void read(const Buffer& tarData) THROWS_EXCEPTIONS;
+    void read(const Buffer& tarData);
 
     /**
      * @brief returns a list of files in tar archive
@@ -212,7 +212,7 @@ public:
      * @brief Returns file data by file name
      * @param fileName std::string, file name
      */
-    const Buffer& file(std::string fileName) const THROWS_EXCEPTIONS;
+    const Buffer& file(std::string fileName) const;
 
     /**
      * @brief Clears the allocated memory

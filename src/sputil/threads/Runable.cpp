@@ -4,7 +4,7 @@
 ║                       Runable.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@ Runable::Runable() :
 {
 }
 
-void Runable::execute() THROWS_EXCEPTIONS
+void Runable::execute()
 {
     SynchronizedCode   sc(m_running);
     m_terminated = false;
@@ -53,7 +53,7 @@ bool Runable::terminated()
     return m_terminated;
 }
 
-bool Runable::completed(uint32_t timeoutMS) THROWS_EXCEPTIONS
+bool Runable::completed(uint32_t timeoutMS)
 {
     try {
         m_running.lock(timeoutMS);

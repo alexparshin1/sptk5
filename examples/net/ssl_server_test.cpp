@@ -4,7 +4,7 @@
 ║                       ssl_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -78,8 +78,7 @@ int main(int argc, const char *argv[])
         //int server = OpenListener(atoi(portnum));    /* create server socket */
 
         TCPSocket server;
-        server.port(port);
-        server.host("localhost");
+        server.host(Host("localhost", 3000));
 
         server.listen();
 

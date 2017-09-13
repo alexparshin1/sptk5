@@ -4,7 +4,7 @@
 ║                       WSParser.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -53,7 +53,7 @@ void WSParser::clear()
     m_elements.clear();
 }
 
-void WSParser::parseElement(const XMLElement* elementNode) THROWS_EXCEPTIONS
+void WSParser::parseElement(const XMLElement* elementNode)
 {
     string elementName = elementNode->getAttribute("name");
     string elementType = elementNode->getAttribute("type");
@@ -75,7 +75,7 @@ void WSParser::parseElement(const XMLElement* elementNode) THROWS_EXCEPTIONS
     m_elements[elementName] = complexType;
 }
 
-void WSParser::parseComplexType(const XMLElement* complexTypeElement) THROWS_EXCEPTIONS
+void WSParser::parseComplexType(const XMLElement* complexTypeElement)
 {
     string complexTypeName = complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
@@ -95,7 +95,7 @@ void WSParser::parseComplexType(const XMLElement* complexTypeElement) THROWS_EXC
     complexType->parse();
 }
 
-void WSParser::parseOperation(XMLElement* operationNode) THROWS_EXCEPTIONS
+void WSParser::parseOperation(XMLElement* operationNode)
 {
     XMLNodeVector messageNodes;
     operationNode->document()->select(messageNodes, "//wsdl:message");
@@ -139,7 +139,7 @@ void WSParser::parseOperation(XMLElement* operationNode) THROWS_EXCEPTIONS
     }
 }
 
-void WSParser::parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS
+void WSParser::parseSchema(XMLElement* schemaElement)
 {
     XMLNodeVector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
@@ -157,7 +157,7 @@ void WSParser::parseSchema(XMLElement* schemaElement) THROWS_EXCEPTIONS
     }
 }
 
-void WSParser::parse(std::string wsdlFile) THROWS_EXCEPTIONS
+void WSParser::parse(std::string wsdlFile)
 {
     XMLDocument wsdlXML;
     Buffer buffer;
@@ -207,7 +207,7 @@ string WSParser::get_namespace(const string& name)
     return name.substr(0, pos);
 }
 
-void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition) THROWS_EXCEPTIONS
+void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition)
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     string defineName = "__" + upperCase(serviceClassName) + "__";
@@ -232,7 +232,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         string requestName = strip_namespace(itor.second.m_input->name());
         serviceDefinition << "   /// @brief Internal Web Service " << requestName << " processing" << endl;
         serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Operation input/output XML data" << endl;
-        serviceDefinition << "   void process_" << requestName << "(sptk::XMLElement* requestNode) THROWS_EXCEPTIONS;" << endl << endl;
+        serviceDefinition << "   void process_" << requestName << "(sptk::XMLElement* requestNode);" << endl << endl;
     }
     serviceDefinition << "protected:" << endl;
     serviceDefinition << "   /// @brief Internal SOAP body processor" << endl;
@@ -240,7 +240,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "   /// Receive incoming SOAP body of Web Service requests, and returns" << endl;
     serviceDefinition << "   /// application response." << endl;
     serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element" << endl;
-    serviceDefinition << "   void requestBroker(sptk::XMLElement* requestNode) THROWS_EXCEPTIONS override;" << endl << endl;
+    serviceDefinition << "   void requestBroker(sptk::XMLElement* requestNode) override;" << endl << endl;
     serviceDefinition << "public:" << endl;
     serviceDefinition << "   /// @brief Constructor" << endl;
     serviceDefinition << "   " << serviceClassName << "() = default;" << endl << endl;
@@ -266,13 +266,13 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition
             << "   virtual void " << itor.first
             << "(const " << operation.m_input->className() << "& input, "
-            << operation.m_output->className() << "& output) THROWS_EXCEPTIONS = 0;" << endl;
+            << operation.m_output->className() << "& output) = 0;" << endl;
     }
     serviceDefinition << "};" << endl << endl;
     serviceDefinition << "#endif" << endl;
 }
 
-void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXCEPTIONS
+void WSParser::generateImplementation(ostream& serviceImplementation)
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
@@ -289,7 +289,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
-    serviceImplementation << "void " << serviceClassName << "::requestBroker(XMLElement* requestNode) THROWS_EXCEPTIONS" << endl;
+    serviceImplementation << "void " << serviceClassName << "::requestBroker(XMLElement* requestNode)" << endl;
     serviceImplementation << "{" << endl;
     serviceImplementation << "   static const Strings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
     serviceImplementation << "   string requestName = WSParser::strip_namespace(requestNode->name());" << endl;
@@ -332,7 +332,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
             requestName = nameParts[1];
         }
         WSOperation& operation = itor.second;
-        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(XMLElement* requestNode) THROWS_EXCEPTIONS" << endl;
+        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(XMLElement* requestNode)" << endl;
         serviceImplementation << "{" << endl;
         serviceImplementation << "   String ns(requestNameSpace().getAlias());" << endl;
         serviceImplementation << "   C" << operation.m_input->name() << " inputData((ns + \":" << operation.m_input->name() << "\").c_str());" << endl;
@@ -350,7 +350,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) THROWS_EXC
 
 /// @brief Stores parsed classes to files in source directory
 /// @param sourceDirectory std::string, Directory to store output classes
-void WSParser::generate(std::string sourceDirectory, std::string headerFile) THROWS_EXCEPTIONS
+void WSParser::generate(std::string sourceDirectory, std::string headerFile)
 {
     Buffer externalHeader;
     if (!headerFile.empty())

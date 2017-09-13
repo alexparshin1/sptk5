@@ -41,7 +41,7 @@ ENDIF ()
 
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp net/Host.cpp)
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})

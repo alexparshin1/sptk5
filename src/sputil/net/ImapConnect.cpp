@@ -4,7 +4,7 @@
 ║                       ImapConnect.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,7 +36,6 @@ using namespace sptk;
 
 ImapConnect::ImapConnect()
 {
-    m_port = 143;
     m_ident = 1;
 }
 
@@ -113,7 +112,7 @@ void ImapConnect::command(string cmd, const std::string &arg1, const std::string
     getResponse(ident);
 }
 
-void ImapConnect::cmd_login(string user, string password)
+void ImapConnect::cmd_login(const string& user, const string& password)
 {
     close();
     open();
@@ -135,7 +134,7 @@ CBuffer testMsg(
    "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
    "Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
  */
-void ImapConnect::cmd_append(string mail_box, const Buffer &message)
+void ImapConnect::cmd_append(const string& mail_box, const Buffer &message)
 {
     string cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
     string ident = sendCommand(cmd);
@@ -145,7 +144,7 @@ void ImapConnect::cmd_append(string mail_box, const Buffer &message)
     getResponse(ident);
 }
 
-void ImapConnect::cmd_select(string mail_box, int32_t &total_msgs)
+void ImapConnect::cmd_select(const string& mail_box, int32_t &total_msgs)
 {
     command("select", mail_box);
     for (unsigned i = 0; i < m_response.size(); i++) {

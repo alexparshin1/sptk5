@@ -4,7 +4,7 @@
 ║                       TCPSocket.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -180,13 +180,12 @@ public:
 
     /**
      * @brief Opens the client socket connection by host and port
-     * @param hostName const std::string&, the host name
-     * @param port uint16_t, the port number
+     * @param host const Host&, the host
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS override;
+    virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) override;
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -195,7 +194,7 @@ public:
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS override;
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0) override;
 
     /**
      * @brief In server mode, waits for the incoming connection.
@@ -253,7 +252,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS override;
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) override;
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -264,7 +263,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS override;
+    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) override;
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -275,7 +274,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS override;
+    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) override;
 };
 
 /**

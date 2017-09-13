@@ -4,7 +4,7 @@
 ║                       CDialog.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -339,7 +339,7 @@ bool CDialog::save()
     return true;
 }
 
-void CDialog::load(const XMLNode* node) THROWS_EXCEPTIONS
+void CDialog::load(const XMLNode* node)
 {
     CLayoutManager::loadLayout(node, LXM_DATA);
     loadPosition(node);

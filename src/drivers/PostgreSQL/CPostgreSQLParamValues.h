@@ -4,7 +4,7 @@
 ║                       CPostgreSQLParamValues.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -77,7 +77,7 @@ namespace sptk {
             m_types[paramIndex] = dataType;
         }
 
-        void setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS;
+        void setParameterValue(unsigned paramIndex, QueryParameter* param);
 
         unsigned size() const               { return (unsigned) m_count;   }
         const char* const* values() const   { return &m_values[0]; }

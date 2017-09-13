@@ -4,7 +4,7 @@
 ║                       Strings.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -389,13 +389,13 @@ public:
      * @brief Saves strings to file. String ids are discarded.
      * @param fileName std::string, the name of the file
      */
-    void saveToFile(std::string fileName) const THROWS_EXCEPTIONS;
+    void saveToFile(std::string fileName) const;
 
     /**
      * @brief Loads strings from file. String ids are not loaded.
      * @param fileName std::string, the name of the file
      */
-    void loadFromFile(std::string fileName) THROWS_EXCEPTIONS;
+    void loadFromFile(std::string fileName);
 
     /**
      * @brief Returns user data as integer

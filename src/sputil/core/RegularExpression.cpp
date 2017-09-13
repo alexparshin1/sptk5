@@ -4,7 +4,7 @@
 ║                       RegularExpression.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -88,7 +88,7 @@ RegularExpression::~RegularExpression()
 #define MAX_MATCHES 128
 
 size_t RegularExpression::nextMatch(const string &text, size_t &offset, Match matchOffsets[],
-                          size_t matchOffsetsSize) const THROWS_EXCEPTIONS
+                          size_t matchOffsetsSize) const
 {
     if (!m_pcre)
         throwException(m_error);
@@ -121,21 +121,21 @@ size_t RegularExpression::nextMatch(const string &text, size_t &offset, Match ma
     return (size_t) matchCount;
 }
 
-bool RegularExpression::operator==(const string& text) const THROWS_EXCEPTIONS
+bool RegularExpression::operator==(const string& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
-bool RegularExpression::operator!=(const string& text) const THROWS_EXCEPTIONS
+bool RegularExpression::operator!=(const string& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
-bool RegularExpression::matches(const string& text) const THROWS_EXCEPTIONS
+bool RegularExpression::matches(const string& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
@@ -143,7 +143,7 @@ bool RegularExpression::matches(const string& text) const THROWS_EXCEPTIONS
     return matchCount > 0;
 }
 
-bool RegularExpression::m(const string& text, Strings& matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::m(const string& text, Strings& matchedStrings) const
 {
     matchedStrings.clear();
 
@@ -167,7 +167,7 @@ bool RegularExpression::m(const string& text, Strings& matchedStrings) const THR
     return totalMatches > 0;
 }
 
-bool RegularExpression::split(const string& text, Strings& matchedStrings) const THROWS_EXCEPTIONS
+bool RegularExpression::split(const string& text, Strings& matchedStrings) const
 {
     matchedStrings.clear();
 
@@ -196,7 +196,7 @@ bool RegularExpression::split(const string& text, Strings& matchedStrings) const
     return totalMatches > 0;
 }
 
-string RegularExpression::replaceAll(const string& text, string outputPattern, bool& replaced) const THROWS_EXCEPTIONS
+string RegularExpression::replaceAll(const string& text, string outputPattern, bool& replaced) const
 {
     size_t offset = 0;
     size_t lastOffset = 0;
@@ -260,18 +260,18 @@ string RegularExpression::replaceAll(const string& text, string outputPattern, b
     return result + text.substr(lastOffset);
 }
 
-string RegularExpression::s(const string& text, string outputPattern) const THROWS_EXCEPTIONS
+string RegularExpression::s(const string& text, string outputPattern) const
 {
     bool replaced;
     return replaceAll(text, outputPattern, replaced);
 }
 
-bool operator==(const string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
+bool operator==(const string& text, const sptk::RegularExpression& regexp)
 {
     return regexp == text;
 }
 
-bool operator!=(const string& text, const sptk::RegularExpression& regexp) THROWS_EXCEPTIONS
+bool operator!=(const string& text, const sptk::RegularExpression& regexp)
 {
     return regexp != text;
 }

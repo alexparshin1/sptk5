@@ -4,7 +4,7 @@
 ║                       Runable.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -66,7 +66,7 @@ protected:
      *
      * Should be overwritten by derived class.
      */
-    virtual void run() THROWS_EXCEPTIONS = 0;
+    virtual void run() = 0;
 
 public:
 
@@ -86,7 +86,7 @@ public:
      * Task may be executed multiple times, but only one caller
      * may execute same task at a time.
      */
-    void execute() THROWS_EXCEPTIONS;
+    void execute();
 
     /**
      * @brief Requests execution termination
@@ -102,7 +102,7 @@ public:
      * @brief Returns true, if the task is completed
      * @param timeoutMS uint32_t, Wait timeout, milliseconds
      */
-    bool completed(uint32_t timeoutMS=SP_INFINITY) THROWS_EXCEPTIONS;
+    bool completed(uint32_t timeoutMS=SP_INFINITY);
 };
 /**
  * @}

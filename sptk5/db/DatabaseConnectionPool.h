@@ -4,7 +4,7 @@
 ║                        DatabaseConnectionPool.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -134,7 +134,7 @@ protected:
      *
      * First successfull driver load places driver into driver cache.
      */
-    void load() THROWS_EXCEPTIONS;
+    void load();
 
 public:
     /**
@@ -157,7 +157,7 @@ public:
     /**
      * @brief Creates database connection
      */
-    DatabaseConnection* createConnection() THROWS_EXCEPTIONS;
+    DatabaseConnection* createConnection();
 
     /**
      * @brief Returns used database connection back to the pool

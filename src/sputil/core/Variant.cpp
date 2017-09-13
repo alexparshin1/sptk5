@@ -4,7 +4,7 @@
 ║                       CVariant.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -780,68 +780,68 @@ void* Variant::dataBuffer() const
 }
 
 //---------------------------------------------------------------------------
-Variant::operator bool() const THROWS_EXCEPTIONS
+Variant::operator bool() const
 {
     return asBool();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator int32_t() const THROWS_EXCEPTIONS
+Variant::operator int32_t() const
 {
     return asInteger();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator uint32_t() const THROWS_EXCEPTIONS
+Variant::operator uint32_t() const
 {
     return (uint32_t) asInteger();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator int64_t() const THROWS_EXCEPTIONS
+Variant::operator int64_t() const
 {
     return asInt64();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator uint64_t() const THROWS_EXCEPTIONS
+Variant::operator uint64_t() const
 {
     return (uint64_t) asInt64();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator float() const THROWS_EXCEPTIONS
+Variant::operator float() const
 {
     return (float) asFloat();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator double() const THROWS_EXCEPTIONS
+Variant::operator double() const
 {
     return asFloat();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator std::string() const THROWS_EXCEPTIONS
+Variant::operator std::string() const
 {
     return asString();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator String() const THROWS_EXCEPTIONS
+Variant::operator String() const
 {
     return asString();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator DateTime() const THROWS_EXCEPTIONS
+Variant::operator DateTime() const
 {
     return asDateTime();
 }
 
 //---------------------------------------------------------------------------
 // convertors
-int32_t Variant::asInteger() const THROWS_EXCEPTIONS
+int32_t Variant::asInteger() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
@@ -878,7 +878,7 @@ int32_t Variant::asInteger() const THROWS_EXCEPTIONS
     }
 }
 
-int64_t Variant::asInt64() const THROWS_EXCEPTIONS
+int64_t Variant::asInt64() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
@@ -925,7 +925,7 @@ int64_t Variant::asInt64() const THROWS_EXCEPTIONS
     }
 }
 
-bool Variant::asBool() const THROWS_EXCEPTIONS
+bool Variant::asBool() const
 {
     char ch;
 
@@ -969,7 +969,7 @@ bool Variant::asBool() const THROWS_EXCEPTIONS
     }
 }
 
-double Variant::asFloat() const THROWS_EXCEPTIONS
+double Variant::asFloat() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
@@ -1006,7 +1006,7 @@ double Variant::asFloat() const THROWS_EXCEPTIONS
     }
 }
 
-string Variant::asString() const THROWS_EXCEPTIONS
+string Variant::asString() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return "";
@@ -1087,7 +1087,7 @@ string Variant::asString() const THROWS_EXCEPTIONS
     }
 }
 
-DateTime Variant::asDate() const THROWS_EXCEPTIONS
+DateTime Variant::asDate() const
 {
     if ((m_dataType & VAR_NULL) != 0) 
         return DateTime();
@@ -1118,7 +1118,7 @@ DateTime Variant::asDate() const THROWS_EXCEPTIONS
     }
 }
 
-DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
+DateTime Variant::asDateTime() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return DateTime();
@@ -1149,7 +1149,7 @@ DateTime Variant::asDateTime() const THROWS_EXCEPTIONS
     }
 }
 
-void* Variant::asImagePtr() const THROWS_EXCEPTIONS
+void* Variant::asImagePtr() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return 0;
