@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       semaphore.cpp - description                            ║
+║                       cnet - description                                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday September 13 2017                            ║
 ║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,29 +26,20 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/cthreads>
+#include <sptk5/net/Host.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
 
-int main()
+Host::Host(const std::string& hostAndPort)
+: m_port(0)
 {
-    Semaphore  semaphore;
-    try {
-        semaphore.post();
-        cout << "Semaphore posted       (Ok)" << endl;
-        if (semaphore.wait(1000))
-            cout << "Semaphore was posted   (Ok)" << endl;
-        else
-            cout << "Semaphore wait timeout (Error)" << endl;
-        if (semaphore.wait(1000))
-            cout << "Semaphore was posted   (Error)" << endl;
-        else
-            cout << "Semaphore wait timeout (Ok)" << endl;
+    RegularExpression matchHost("^(\\[.*\\]|[^\\[].*)(:\\d+)?");
+    Strings matches;
+    if (matchHost.m(hostAndPort, matches)) {
+        m_hostname = matches[0];
+        if (matches.size() > 1)
+            m_port = string2int(matches[1]);
     }
-    catch (exception& e) {
-        cout << e.what() << endl;
-    }
-    return 0;
 }

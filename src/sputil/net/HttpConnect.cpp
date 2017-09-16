@@ -4,7 +4,7 @@
 ║                       HttpConnect.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -230,7 +230,7 @@ Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageNa
     }
 
     headers.push_back(command + " HTTP/1.1");
-    headers.push_back("HOST: " + m_socket.host() + ":" + int2string(m_socket.port()));
+    headers.push_back("HOST: " + m_socket.host().toString());
     headers.push_back("User-Agent: SPTK Connect 5.x");
 
     for (auto& itor: m_requestHeaders)

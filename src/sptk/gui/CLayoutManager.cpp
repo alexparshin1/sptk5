@@ -4,7 +4,7 @@
 ║                       CLayoutManager.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -354,7 +354,7 @@ void CLayoutManager::paintBackground() {
         m_frame->drawResized(m_group->x(),m_group->y(),m_group->w(),m_group->h(),m_frameDrawBackground);
 }
 
-void CLayoutManager::loadLayout(const XMLNode* groupNode,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS {
+void CLayoutManager::loadLayout(const XMLNode* groupNode,CLayoutXMLmode xmlMode) {
     if (m_noXml)
         return;
 

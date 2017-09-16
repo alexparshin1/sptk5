@@ -4,7 +4,7 @@
 ║                       DatabaseConnectionPool.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -69,7 +69,7 @@ DatabaseConnectionPool::~DatabaseConnectionPool()
     m_connections.each(closeConnectionCB,this);
 }
 
-void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
+void DatabaseConnectionPool::load()
 {
     SYNCHRONIZED_CODE;
 
@@ -152,7 +152,7 @@ void DatabaseConnectionPool::load() THROWS_EXCEPTIONS
     m_loadedDrivers[driverName] = driver;
 }
 
-DatabaseConnection* DatabaseConnectionPool::createConnection() THROWS_EXCEPTIONS
+DatabaseConnection* DatabaseConnectionPool::createConnection()
 {
     if (m_driver == nullptr)
         load();

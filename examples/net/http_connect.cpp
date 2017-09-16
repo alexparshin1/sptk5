@@ -4,7 +4,7 @@
 ║                       http_connect.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -87,7 +87,7 @@ void go_callback(Fl_Widget *,void *)
 
         HttpConnect sock(*socket);
 
-        socket->open(hostName, port);
+        socket->open(Host(hostName, port));
 
         Strings text(paramsInput->data(),"\n");
         HttpParams httpFields;

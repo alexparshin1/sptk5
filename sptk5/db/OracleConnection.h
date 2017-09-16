@@ -4,7 +4,7 @@
 ║                        OracleConnection.h - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -104,13 +104,13 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction() THROWS_EXCEPTIONS;
+    virtual void driverBeginTransaction();
 
     /**
      * @brief Ends the transaction
      * @param commit bool, commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS;
+    virtual void driverEndTransaction(bool commit);
 
     // These methods implement the actions requested by CQuery
     /**
@@ -221,12 +221,12 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString const std::string&, the Oracle connection string
      */
-    virtual void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
+    virtual void openDatabase(const std::string& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase() THROWS_EXCEPTIONS;
+    virtual void closeDatabase();
 
     /**
      * @brief Returns true if database is opened
@@ -253,7 +253,7 @@ public:
      * @param objectType CDbObjectType, object type to list
      * @param objects Strings&, object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
      * @brief Executes bulk inserts of data from memory buffer
@@ -265,7 +265,7 @@ public:
      * @param columnNames const Strings&, list of table columns to populate
      * @param data const Strings&, data for bulk insert
      */
-    virtual void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="") THROWS_EXCEPTIONS;
+    virtual void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="");
 
     /**
      * @brief Executes SQL batch file
@@ -275,7 +275,7 @@ public:
      * @param batchSQL const sptk::Strings&, SQL batch file
      * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) THROWS_EXCEPTIONS override;
+    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }

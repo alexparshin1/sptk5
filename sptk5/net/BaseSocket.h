@@ -4,7 +4,7 @@
 ║                       BaseSocket.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -64,6 +64,7 @@
 #endif
 
 #include <sptk5/Exception.h>
+#include <sptk5/net/Host.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 
@@ -105,14 +106,9 @@ protected:
     int32_t     m_protocol;
 
     /**
-     * Host name
+     * Host
      */
-    std::string m_host;
-
-    /**
-     * Port number
-     */
-    uint16_t    m_port;
+    Host        m_host;
 
 protected:
 
@@ -161,11 +157,11 @@ public:
 
     /**
      * @brief Throws socket exception with error description retrieved from socket state
-     * @param message std::string, error message
+     * @param message const std::string&, error message
      * @param file const char*, source file name
      * @param line int, source file line number
      */
-    static void throwSocketError(std::string message, const char* file, int line) THROWS_EXCEPTIONS;
+    static void throwSocketError(const std::string& message, const char* file, int line);
 
     /**
      * @brief Opens the socket connection by address.
@@ -193,7 +189,7 @@ public:
      * @brief Set blocking mode
      * @param blocking bool, socket blocking mode flag
      */
-    void blockingMode(bool blocking) THROWS_EXCEPTIONS;
+    void blockingMode(bool blocking);
 
     /**
      * @brief Returns number of bytes available in socket
@@ -216,43 +212,26 @@ public:
 
     /**
      * @brief Sets the host name
-     * @param hostName std::string, the host name
+     * @param host const Host&, the host
      */
-    void host(const std::string& hostName);
+    void host(const Host& host);
 
     /**
-     * @brief Returns the host name
+     * @brief Returns the host
      */
-    std::string host() const
+    const Host& host() const
     {
         return m_host;
     }
 
     /**
-     * @brief Sets the port number
-     * @param portNumber uint16_t, the port number
-     */
-    void port(uint16_t portNumber);
-
-    /**
-     * @brief Returns the current port number
-     * @returns port number
-     */
-    uint16_t port() const
-    {
-        return m_port;
-    }
-
-    /**
      * @brief Opens the client socket connection by host and port
-     * @param hostName const std::string&, the host name
-     * @param port uint16_t, the port number
+     * @param host const Host&, the host
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS
-    {}
+    virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0);
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -261,7 +240,7 @@ public:
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0) THROWS_EXCEPTIONS
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0)
     {}
 
     /**
@@ -309,14 +288,14 @@ public:
      * @brief Sets socket option value
      * Throws an error if not succeeded
      */
-    void setOption(int level, int option, int value) THROWS_EXCEPTIONS;
+    void setOption(int level, int option, int value);
 
     /**
      * @brief Gets socket option value
      *
      * Throws an error if not succeeded
      */
-    void getOption(int level, int option, int& value) THROWS_EXCEPTIONS;
+    void getOption(int level, int option, int& value);
 
     /**
      * @brief Reads data from the socket in regular or TLS mode
@@ -341,7 +320,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL);
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -352,7 +331,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL);
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -363,7 +342,7 @@ public:
      * @param from sockaddr_in*, an optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) THROWS_EXCEPTIONS;
+    virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL);
 
     /**
      * @brief Writes data to the socket
@@ -374,7 +353,7 @@ public:
      * @param peer const sockaddr_in*, optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
+    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = NULL);
 
     /**
      * @brief Writes data to the socket
@@ -382,7 +361,7 @@ public:
      * @param peer const sockaddr_in*, optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
+    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = NULL);
 
     /**
      * @brief Writes data to the socket
@@ -390,7 +369,7 @@ public:
      * @param peer const sockaddr_in*, optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL) THROWS_EXCEPTIONS;
+    virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL);
 
     /**
      * @brief Reports true if socket is ready for reading from it

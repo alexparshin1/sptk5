@@ -4,7 +4,7 @@
 ║                       SysLogEngine.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -67,7 +67,7 @@ SysLogEngine::SysLogEngine(string _programName, uint32_t facilities)
     programName(_programName);
 }
 
-void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS
+void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
     SYNCHRONIZED_CODE;
     if (m_options & LO_ENABLE) {

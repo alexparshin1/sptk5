@@ -4,7 +4,7 @@
 ║                       CWindow.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -99,7 +99,7 @@ void CWindow::draw() {
     x(savex);
 }
 
-void CWindow::load(const XMLNode* node,CLayoutXMLmode xmlMode) THROWS_EXCEPTIONS {
+void CWindow::load(const XMLNode* node,CLayoutXMLmode xmlMode) {
     CLayoutManager::loadLayout(node,xmlMode);
     loadPosition(node);
 }

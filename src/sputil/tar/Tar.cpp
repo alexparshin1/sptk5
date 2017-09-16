@@ -3,7 +3,7 @@
                           CTar.cpp  -  description
                              -------------------
     begin                : Fri Sep 1 2006
-    copyright            : (C) 1999-2016 by Alexey Parshin. All rights reserved.
+    copyright            : (C) 1999-2017 by Alexey Parshin. All rights reserved.
 
     This module creation was sponsored by Total Knowledge (http://www.total-knowledge.com).
     Author thanks the developers of CPPSERV project (http://www.total-knowledge.com/progs/cppserv)
@@ -109,7 +109,7 @@ Tar::Tar()
     }
 }
 
-bool Tar::loadFile() THROWS_EXCEPTIONS
+bool Tar::loadFile()
 {
     auto tar = (TAR*) m_tar;
     // Read file header
@@ -152,7 +152,7 @@ bool Tar::loadFile() THROWS_EXCEPTIONS
     return true;
 }
 
-void Tar::throwError(string fileName) THROWS_EXCEPTIONS
+void Tar::throwError(string fileName)
 {
     char* ptr = strerror(errno);
     if (fileName.empty())
@@ -160,7 +160,7 @@ void Tar::throwError(string fileName) THROWS_EXCEPTIONS
     throw Exception(fileName + ": " + string(ptr));
 }
 
-void Tar::read(const char* fileName) THROWS_EXCEPTIONS
+void Tar::read(const char* fileName)
 {
     m_fileName = fileName;
     m_memoryRead = false;
@@ -174,7 +174,7 @@ void Tar::read(const char* fileName) THROWS_EXCEPTIONS
     m_tar = nullptr;
 }
 
-void Tar::read(const Buffer& tarData) THROWS_EXCEPTIONS
+void Tar::read(const Buffer& tarData)
 {
     m_fileName = "";
     m_memoryRead = true;
@@ -201,7 +201,7 @@ void Tar::clear()
     m_fileNames.clear();
 }
 
-const Buffer& Tar::file(std::string fileName) const THROWS_EXCEPTIONS
+const Buffer& Tar::file(std::string fileName) const
 {
     auto itor = m_files.find(fileName);
     if (itor == m_files.end())

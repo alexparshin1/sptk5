@@ -4,7 +4,7 @@
 ║                       tcp_client_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,8 +33,7 @@ using namespace sptk;
 int main(int argc, char* argv[]) {
    try {
       TCPSocket client;
-      client.port(3000);
-      client.host("localhost");
+      client.host(Host("localhost",3000));
 
       client.open();
 

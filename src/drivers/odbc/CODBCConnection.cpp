@@ -4,7 +4,7 @@
 ║                       CODBCConnection.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -95,7 +95,7 @@ string ODBCConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void ODBCConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
+void ODBCConnection::openDatabase(const string& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -109,7 +109,7 @@ void ODBCConnection::openDatabase(const string& newConnectionString) THROWS_EXCE
     }
 }
 
-void ODBCConnection::closeDatabase() THROWS_EXCEPTIONS
+void ODBCConnection::closeDatabase()
 {
     for (auto query: m_queryList) {
         try {
@@ -130,7 +130,7 @@ bool ODBCConnection::active() const
     return m_connect->isConnected();
 }
 
-void ODBCConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void ODBCConnection::driverBeginTransaction()
 {
     if (!m_connect->isConnected())
         open();
@@ -142,7 +142,7 @@ void ODBCConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void ODBCConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void ODBCConnection::driverEndTransaction(bool commit)
 {
     if (!m_inTransaction) {
         if (commit)
@@ -693,7 +693,7 @@ string ODBCConnection::driverDescription() const
     return "";
 }
 
-void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
     SynchronizedCode lock(m_connect);
 
@@ -760,7 +760,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) THROWS_EXCEPTIONS
+void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression   matchStatementEnd("(;\\s*)$");
     RegularExpression   matchRoutineStart("^CREATE\\s+FUNCTION", "i");

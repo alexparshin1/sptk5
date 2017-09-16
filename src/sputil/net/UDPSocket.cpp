@@ -4,7 +4,7 @@
 ║                       UDPSocket.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +37,7 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY domain)
     m_sockfd = socket (m_domain, m_type, m_protocol);
 }
 
-size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
+size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 {
     socklen_t addrLength = sizeof(sockaddr_in);
     auto bytes = recvfrom(m_sockfd, buffer, (int) size, 0, (sockaddr*) from, &addrLength);

@@ -4,7 +4,7 @@
 ║                       DirectoryDS.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -284,7 +284,7 @@ void DirectoryDS::directory(string d)
 
 // read the directory() and move item into the first entry
 
-bool DirectoryDS::open() THROWS_EXCEPTIONS
+bool DirectoryDS::open()
 {
     clear();
 

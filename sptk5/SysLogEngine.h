@@ -4,7 +4,7 @@
 ║                       SysLogEngine.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -84,7 +84,7 @@ public:
      * @param sz uint32_t, message size
      * @param priority CLogPriority, message priority. @see CLogPriority for more information.
      */
-    virtual void saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) THROWS_EXCEPTIONS override;
+    virtual void saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) override;
 public:
     /**
      * @brief Constructor

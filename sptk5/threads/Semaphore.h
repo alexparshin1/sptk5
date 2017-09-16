@@ -4,7 +4,7 @@
 ║                       Semaphore.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -87,7 +87,7 @@ public:
      *
      * The semaphore value is increased by one.
      */
-    void post() THROWS_EXCEPTIONS;
+    void post();
 
     /**
      * @brief Waits until semaphore value is greater than zero, or until timeout occurs
@@ -97,7 +97,7 @@ public:
      * @param timeoutMS int32_t, wait timeout in milliseconds
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool wait(uint32_t timeoutMS) THROWS_EXCEPTIONS;
+    bool wait(uint32_t timeoutMS);
 };
 /**
  * @}

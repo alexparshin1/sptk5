@@ -4,7 +4,7 @@
 ║                       Exception.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,10 +37,8 @@ namespace sptk {
 
 #ifndef _WIN32
     #define DOESNT_THROW        noexcept
-    #define THROWS_EXCEPTIONS   noexcept(false)
 #else
     #define DOESNT_THROW        throw()
-    #define THROWS_EXCEPTIONS   throw(std::exception)
 #endif
 
 /**

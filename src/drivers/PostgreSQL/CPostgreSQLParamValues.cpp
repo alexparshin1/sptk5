@@ -4,7 +4,7 @@
 ║                       CPostgreSQLParamValues.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -78,7 +78,7 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
 static const char* booleanTrue = "t";
 static const char* booleanFalse = "f";
 
-void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param) THROWS_EXCEPTIONS
+void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
 {
     VariantType ptype = param->dataType();
 

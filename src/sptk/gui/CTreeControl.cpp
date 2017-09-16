@@ -4,7 +4,7 @@
 ║                       CTreeControl.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -823,7 +823,7 @@ int CTreeControl::handle(int event)
     return CScroll::handle(event);
 }
 
-void CTreeControl::load(const XMLNode& groupNode, bool autoCreate) THROWS_EXCEPTIONS
+void CTreeControl::load(const XMLNode& groupNode, bool autoCreate)
 {
     if (m_noXml)
         return;

@@ -4,7 +4,7 @@
 ║                       CControl.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,12 +54,12 @@ class CControlKindIndex
     void registerType(CControlKind type,const char *name);
 public:
     CControlKindIndex() noexcept;
-    static string name(CControlKind type) THROWS_EXCEPTIONS;
-    static CControlKind type(const string& name) THROWS_EXCEPTIONS
+    static string name(CControlKind type);
+    static CControlKind type(const string& name)
     {
         return type(name.c_str());
     }
-    static CControlKind type(const char* name) THROWS_EXCEPTIONS;
+    static CControlKind type(const char* name);
 };
 
 struct CControlKindName
@@ -114,7 +114,7 @@ void CControlKindIndex::registerType(CControlKind type, const char *name)
     m_typeNameMap[type] = &itor->first;
 }
 
-string CControlKindIndex::name(CControlKind type) THROWS_EXCEPTIONS
+string CControlKindIndex::name(CControlKind type)
 {
     auto itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
@@ -122,7 +122,7 @@ string CControlKindIndex::name(CControlKind type) THROWS_EXCEPTIONS
     return *itor->second;
 }
 
-CControlKind CControlKindIndex::type(const char* name) THROWS_EXCEPTIONS
+CControlKind CControlKindIndex::type(const char* name)
 {
     auto itor = m_nameTypeMap.find(name);
     if (itor == m_nameTypeMap.end())
@@ -564,7 +564,7 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     }
 }
 
-void sptk::createControls(const XMLNodeList& xmlControls) THROWS_EXCEPTIONS
+void sptk::createControls(const XMLNodeList& xmlControls)
 {
     for (auto node: xmlControls) {
         CControlKind controlKind = CControlKindIndex::type(node->name());

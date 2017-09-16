@@ -4,7 +4,7 @@
 ║                       COracleConnection.cpp - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -62,7 +62,7 @@ OracleConnection::~OracleConnection()
     }
 }
 
-void OracleConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
+void OracleConnection::openDatabase(const string& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -90,7 +90,7 @@ void OracleConnection::openDatabase(const string& newConnectionString) THROWS_EX
     }
 }
 
-void OracleConnection::closeDatabase() THROWS_EXCEPTIONS
+void OracleConnection::closeDatabase()
 {
     for (unsigned i = 0; i < m_queryList.size(); i++) {
         try {
@@ -130,7 +130,7 @@ string OracleConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void OracleConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void OracleConnection::driverBeginTransaction()
 {
     if (!m_connection)
         open();
@@ -141,7 +141,7 @@ void OracleConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void OracleConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void OracleConnection::driverEndTransaction(bool commit)
 {
     if (!m_inTransaction)
         throwOracleException("Transaction isn't started.");
@@ -510,7 +510,7 @@ void OracleConnection::queryFetch(Query *query)
     }
 }
 
-void OracleConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void OracleConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
     string objectsSQL;
     objects.clear();
@@ -538,7 +538,7 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
+void OracleConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
 {
     Query tableColumnsQuery(this,
                         "SELECT column_name, data_type, data_length "
@@ -606,7 +606,7 @@ std::string OracleConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) THROWS_EXCEPTIONS
+void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression  matchStatementEnd("(;\\s*)$");
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");

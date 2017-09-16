@@ -4,7 +4,7 @@
 ║                       WSParserComplexType.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -192,13 +192,13 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS;
+    void generateDefinition(std::ostream& classDeclaration);
 
     /**
      * Generate C++ class implementation
      * @param classImplementation std::ostream&, Output implementation file stream
      */
-    void generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS;
+    void generateImplementation(std::ostream& classImplementation);
 
 public:
     /**
@@ -287,17 +287,17 @@ public:
     /**
      * Parses WSDL complexType element
      */
-    virtual void parse() THROWS_EXCEPTIONS;
+    virtual void parse();
 
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(XMLElement* sequence) THROWS_EXCEPTIONS;
+    void parseSequence(XMLElement* sequence);
 
     /**
      * Generates C++ class declaration and implementation
      */
-    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, std::string externalHeader) THROWS_EXCEPTIONS;
+    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, std::string externalHeader);
 };
 
 /**

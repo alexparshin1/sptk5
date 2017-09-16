@@ -4,7 +4,7 @@
 ║                       CGtkThemeLoader.h - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -75,7 +75,7 @@ namespace sptk {
         CGtkThemeParser() {}
         
         /// @brief Loads GTK theme configuration
-        void load(const std::string& themeName) THROWS_EXCEPTIONS;
+        void load(const std::string& themeName);
         
         sptk::XMLDocument& xml() { return m_xml; }
         

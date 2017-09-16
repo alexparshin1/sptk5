@@ -4,7 +4,7 @@
 ║                       ImapDS.h - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -112,17 +112,17 @@ public:
     }
 
     /**
-     * IMAP host name
+     * Set IMAP host
      */
-    void host(std::string host_name)
+    void host(const Host& host)
     {
-        m_imap.host(host_name);
+        m_imap.host(host);
     }
 
     /**
-     * IMAP host name
+     * Get IMAP host
      */
-    std::string host() const
+    const Host& host() const
     {
         return m_imap.host();
     }
@@ -130,7 +130,7 @@ public:
     /**
      * IMAP user name
      */
-    void user(std::string usr)
+    void user(const std::string& usr)
     {
         m_user = usr;
     }
@@ -138,7 +138,7 @@ public:
     /**
      * IMAP user name
      */
-    std::string user() const
+    const std::string& user() const
     {
         return m_user;
     }
@@ -146,7 +146,7 @@ public:
     /**
      * IMAP user password
      */
-    void password(std::string pwd)
+    void password(const std::string& pwd)
     {
         m_password = pwd;
     }
@@ -154,7 +154,7 @@ public:
     /**
      * IMAP user password
      */
-    std::string password() const
+    const std::string& password() const
     {
         return m_password;
     }
@@ -162,7 +162,7 @@ public:
     /**
      * IMAP folder name
      */
-    void folder(std::string d)
+    void folder(const std::string& d)
     {
         m_folder = d;
     }
@@ -170,7 +170,7 @@ public:
     /**
      * IMAP folder name
      */
-    const std::string &folder() const
+    const std::string& folder() const
     {
         return m_folder;
     }
@@ -214,7 +214,7 @@ public:
      * Opens the IMAP server connection with user name and password defined with user() and password().
      * Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
      */
-    virtual bool open() THROWS_EXCEPTIONS;
+    virtual bool open();
 
     /**
      * Optional callback for the open() method progression.

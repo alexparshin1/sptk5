@@ -4,7 +4,7 @@
 ║                       SmtpConnect.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -101,10 +101,10 @@ protected:
 
     /**
      * @brief Mime-decodes the string
-     * @param s std::string, Source data
+     * @param s const std::string&, Source data
      * @return Decoded data
      */
-    static std::string unmime(std::string s);
+    static std::string unmime(const std::string& s);
 
 public:
 
@@ -142,7 +142,7 @@ public:
      * @param user std::string, user name
      * @param password std::string, user password
      */
-    void cmd_auth(std::string user, std::string password);
+    void cmd_auth(const std::string& user, const std::string& password);
 
     /**
      * @brief Sends the message

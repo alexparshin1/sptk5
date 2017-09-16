@@ -4,7 +4,7 @@
 ║                       thread_pool_test.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,7 +44,7 @@ public:
     CMyTask(FileLogEngine& sharedLog);
 
     // The thread function.
-    void run() THROWS_EXCEPTIONS override;
+    void run() override;
 
     string name() const
     {
@@ -62,7 +62,7 @@ CMyTask::CMyTask(FileLogEngine& sharedLog)
 }
 
 // The task function. Prints a message once a second till terminated
-void CMyTask::run() THROWS_EXCEPTIONS
+void CMyTask::run()
 {
     m_log << name() << " started" << endl;
 

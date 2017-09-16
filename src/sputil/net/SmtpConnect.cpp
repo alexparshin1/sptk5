@@ -4,7 +4,7 @@
 ║                       SmtpConnect.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +37,6 @@ using namespace sptk;
 SmtpConnect::SmtpConnect(Logger* log)
 : m_log(log)
 {
-    m_port = 25;
 }
 
 SmtpConnect::~SmtpConnect()
@@ -129,7 +128,7 @@ string SmtpConnect::mime(string s)
     return result;
 }
 
-string SmtpConnect::unmime(string s)
+string SmtpConnect::unmime(const string& s)
 {
     Buffer dest;
     Base64::decode(dest, s);
@@ -137,7 +136,7 @@ string SmtpConnect::unmime(string s)
     return result;
 }
 
-void SmtpConnect::cmd_auth(string user, string password)
+void SmtpConnect::cmd_auth(const string& user, const string& password)
 {
     close();
     open();

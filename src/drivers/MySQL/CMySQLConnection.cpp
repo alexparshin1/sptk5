@@ -4,7 +4,7 @@
 ║                       CMySQLConnection.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -60,7 +60,7 @@ MySQLConnection::~MySQLConnection()
 }
 
 
-void MySQLConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
+void MySQLConnection::openDatabase(const string& newConnectionString)
 {
     static Synchronized libraryInitMutex;
 
@@ -101,7 +101,7 @@ void MySQLConnection::openDatabase(const string& newConnectionString) THROWS_EXC
     }
 }
 
-void MySQLConnection::closeDatabase() THROWS_EXCEPTIONS
+void MySQLConnection::closeDatabase()
 {
     for (auto query: m_queryList) {
         try {
@@ -137,7 +137,7 @@ string MySQLConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void MySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void MySQLConnection::driverBeginTransaction()
 {
     if (m_connection == nullptr)
         open();
@@ -157,7 +157,7 @@ void MySQLConnection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void MySQLConnection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void MySQLConnection::driverEndTransaction(bool commit)
 {
     if (!m_inTransaction)
         throwDatabaseException("Transaction isn't started.");
@@ -336,7 +336,7 @@ void MySQLConnection::queryFetch(Query *query)
     }
 }
 
-void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
     string objectsSQL;
     objects.clear();
@@ -380,7 +380,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
 }
 
-void MySQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
+void MySQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
 {
     char    fileName[256];
     snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%i", getpid(), rand());
@@ -395,7 +395,7 @@ void MySQLConnection::bulkInsert(const String& tableName, const Strings& columnN
     }
 }
 
-void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors) THROWS_EXCEPTIONS
+void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression* matchStatementEnd = new RegularExpression("(;\\s*)$");
     RegularExpression  matchDelimiterChange("^DELIMITER\\s+(\\S+)");

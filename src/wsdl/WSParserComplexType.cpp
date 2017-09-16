@@ -4,7 +4,7 @@
 ║                       WSParserComplexType.cpp - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -109,7 +109,7 @@ string WSParserComplexType::className() const
     return "C" + m_typeName.substr(pos + 1);
 }
 
-void WSParserComplexType::parseSequence(XMLElement* sequence) THROWS_EXCEPTIONS
+void WSParserComplexType::parseSequence(XMLElement* sequence)
 {
     for (auto node: *sequence) {
         auto element = dynamic_cast<XMLElement*>(node);
@@ -119,7 +119,7 @@ void WSParserComplexType::parseSequence(XMLElement* sequence) THROWS_EXCEPTIONS
     }
 }
 
-void WSParserComplexType::parse() THROWS_EXCEPTIONS
+void WSParserComplexType::parse()
 {
     m_attributes.clear();
     if (m_element == nullptr)
@@ -143,7 +143,7 @@ std::string WSParserComplexType::wsClassName(std::string name)
     return name;
 }
 
-void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THROWS_EXCEPTIONS
+void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 {
     string className = "C" + wsClassName(m_name);
     set<string> usedClasses;
@@ -270,30 +270,30 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration) THR
     classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "    * @param input const sptk::XMLElement*, XML node containing " << className << " data" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::XMLElement* input) THROWS_EXCEPTIONS override;" << endl << endl;
+    classDeclaration << "   void load(const sptk::XMLElement* input) override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Load " << className << " from FieldList" << endl;
     classDeclaration << "    *" << endl;
     classDeclaration << "    * Only simple WSDL type members are loaded." << endl;
     classDeclaration << "    * @param input const sptk::FieldList&, query field list containing " << className << " data" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::FieldList& input) THROWS_EXCEPTIONS override;" << endl << endl;
+    classDeclaration << "   void load(const sptk::FieldList& input) override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload " << className << " to existing XML node" << endl;
     classDeclaration << "    * @param output sptk::XMLElement*, existing XML node" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void unload(sptk::XMLElement* output) const THROWS_EXCEPTIONS override;" << endl << endl;
+    classDeclaration << "   void unload(sptk::XMLElement* output) const override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload " << className << " to Query's parameters" << endl;
     classDeclaration << "    * @param output sptk::QueryParameterList&, query parameters" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void unload(sptk::QueryParameterList& output) const THROWS_EXCEPTIONS override;" << endl;
+    classDeclaration << "   void unload(sptk::QueryParameterList& output) const override;" << endl;
     classDeclaration << "};" << endl;
     classDeclaration << endl;
     classDeclaration << "#endif" << endl;
 }
 
-void WSParserComplexType::generateImplementation(std::ostream& classImplementation) THROWS_EXCEPTIONS
+void WSParserComplexType::generateImplementation(std::ostream& classImplementation)
 {
     string className = "C" + wsClassName(m_name);
 
@@ -328,7 +328,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Loader from XML element
-    classImplementation << "void " << className << "::load(const XMLElement* input) THROWS_EXCEPTIONS" << endl;
+    classImplementation << "void " << className << "::load(const XMLElement* input)" << endl;
     classImplementation << "{" << endl;
     classImplementation << "   clear();" << endl;
     classImplementation << "   m_loaded = true;" << endl;
@@ -384,7 +384,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     RegularExpression matchStandardType("^xsd:");
 
     // Loader from FieldList
-    classImplementation << "void " << className << "::load(const FieldList& input) THROWS_EXCEPTIONS" << endl;
+    classImplementation << "void " << className << "::load(const FieldList& input)" << endl;
     classImplementation << "{" << endl;
     classImplementation << "   clear();" << endl;
     classImplementation << "   m_loaded = true;" << endl;
@@ -448,7 +448,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Unloader to XMLElement
-    classImplementation << "void " << className << "::unload(XMLElement* output) const THROWS_EXCEPTIONS" << endl;
+    classImplementation << "void " << className << "::unload(XMLElement* output) const" << endl;
     classImplementation << "{" << endl;
     if (!m_attributes.empty()) {
         classImplementation << "   // Unload attributes" << endl;
@@ -471,7 +471,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Unloader to ParamList
-    classImplementation << "void " << className << "::unload(QueryParameterList& output) const THROWS_EXCEPTIONS" << endl;
+    classImplementation << "void " << className << "::unload(QueryParameterList& output) const" << endl;
     classImplementation << "{" << endl;
 
     if (!m_attributes.empty()) {
@@ -495,7 +495,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl;
 }
 
-void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation, string externalHeader) THROWS_EXCEPTIONS
+void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation, string externalHeader)
 {
     if (!externalHeader.empty()) {
         classDeclaration << externalHeader << endl;

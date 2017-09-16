@@ -4,7 +4,7 @@
 ║                       CWSComplexType.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -48,7 +48,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         *param = *elementOrAttribute;
 }
 
-void WSComplexType::addElement(XMLElement* parent) const THROWS_EXCEPTIONS
+void WSComplexType::addElement(XMLElement* parent) const
 {
    unload(new XMLElement(parent, m_name.c_str()));
 }

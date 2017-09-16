@@ -4,7 +4,7 @@
 ║                       SSLSocket.h - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -107,13 +107,12 @@ public:
      *
      * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
      * They could be defined by previous calls of  open(), port(), or host() methods.
-     * @param hostName std::string, the host name
-     * @param port uint32_t, the port number
+     * @param host const Host&, the host name
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const std::string& hostName = "", uint16_t port = 0, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) THROWS_EXCEPTIONS override;
+    virtual void open(const Host& host, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) override;
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -122,7 +121,7 @@ public:
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS override;
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) override;
 
     /**
      * @brief Attaches socket handle

@@ -4,7 +4,7 @@
 ║                       WSBasicTypes.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -205,7 +205,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS
+    operator std::string() const
     {
         return asString();
     }
@@ -262,7 +262,7 @@ public:
     /**
      * Conversion to bool
      */
-    bool asBool() const THROWS_EXCEPTIONS
+    bool asBool() const
     {
         return Field::asBool();
     }
@@ -270,7 +270,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS
+    operator std::string() const
     {
         return asString();
     }
@@ -327,7 +327,7 @@ public:
     /**
      * Conversion operator
      */
-    operator DateTime() const THROWS_EXCEPTIONS
+    operator DateTime() const
     {
         return asDate();
     }
@@ -335,7 +335,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS
+    operator std::string() const
     {
         return asString();
     }
@@ -383,7 +383,7 @@ public:
     /**
      * Better (than in base class) conversion method
      */
-    virtual std::string asString() const THROWS_EXCEPTIONS override;
+    virtual std::string asString() const override;
 
     /**
      * Assignment operation
@@ -397,7 +397,7 @@ public:
     /**
      * Conversion operator
      */
-    operator DateTime() const THROWS_EXCEPTIONS
+    operator DateTime() const
     {
         return asDateTime();
     }
@@ -405,7 +405,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS
+    operator std::string() const
     {
         return asString();
     }
@@ -470,7 +470,7 @@ public:
     /**
      * Conversion operator
      */
-    operator float() const THROWS_EXCEPTIONS
+    operator float() const
     {
         return (float) asFloat();
     }
@@ -478,7 +478,7 @@ public:
     /**
      * Conversion operator
      */
-    operator double() const THROWS_EXCEPTIONS
+    operator double() const
     {
         return asFloat();
     }
@@ -486,7 +486,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS
+    operator std::string() const
     {
         return asString();
     }
@@ -588,7 +588,7 @@ public:
     /**
      * Conversion operator
      */
-    operator int32_t() const THROWS_EXCEPTIONS
+    operator int32_t() const
     {
         return asInteger();
     }
@@ -596,7 +596,7 @@ public:
     /**
      * Conversion operator
      */
-    operator uint32_t() const THROWS_EXCEPTIONS
+    operator uint32_t() const
     {
         return (uint32_t) asInteger();
     }
@@ -604,7 +604,7 @@ public:
     /**
      * Conversion operator
      */
-    operator int64_t() const THROWS_EXCEPTIONS
+    operator int64_t() const
     {
         return asInt64();
     }
@@ -612,7 +612,7 @@ public:
     /**
      * Conversion operator
      */
-    operator uint64_t() const THROWS_EXCEPTIONS
+    operator uint64_t() const
     {
         return (uint64_t) asInt64();
     }
@@ -620,7 +620,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const THROWS_EXCEPTIONS
+    operator std::string() const
     {
         return asString();
     }

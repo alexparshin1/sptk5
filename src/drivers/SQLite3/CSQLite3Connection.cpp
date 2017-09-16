@@ -4,7 +4,7 @@
 ║                       CSQLite3Connection.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -100,7 +100,7 @@ string SQLite3Connection::nativeConnectionString() const
     return m_connString.databaseName();
 }
 
-void SQLite3Connection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
+void SQLite3Connection::openDatabase(const string& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -117,7 +117,7 @@ void SQLite3Connection::openDatabase(const string& newConnectionString) THROWS_E
     }
 }
 
-void SQLite3Connection::closeDatabase() THROWS_EXCEPTIONS
+void SQLite3Connection::closeDatabase()
 {
     for (auto query: m_queryList) {
         try {
@@ -140,7 +140,7 @@ bool SQLite3Connection::active() const
     return m_connect != nullptr;
 }
 
-void SQLite3Connection::driverBeginTransaction() THROWS_EXCEPTIONS
+void SQLite3Connection::driverBeginTransaction()
 {
     if (m_connect == nullptr)
         open();
@@ -156,7 +156,7 @@ void SQLite3Connection::driverBeginTransaction() THROWS_EXCEPTIONS
     m_inTransaction = true;
 }
 
-void SQLite3Connection::driverEndTransaction(bool commit) THROWS_EXCEPTIONS
+void SQLite3Connection::driverEndTransaction(bool commit)
 {
     if (!m_inTransaction)
         throw DatabaseException("Transaction isn't started.");
@@ -509,7 +509,7 @@ void SQLite3Connection::queryFetch(Query* query)
     }
 }
 
-void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS
+void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
     string objectTypeName;
     objects.clear();

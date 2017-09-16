@@ -4,7 +4,7 @@
 ║                       TCPSocket.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -187,24 +187,22 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
-void TCPSocket::open(const string& hostName, uint16_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
 {
-    if (!hostName.empty())
-        m_host = hostName;
-    if (m_host.empty())
+    if (!host.hostname().empty())
+        m_host = host;
+    if (m_host.hostname().empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
-    if (portNumber != 0)
-        m_port = portNumber;
 
     sockaddr_in addr = {};
-    getHostAddress(m_host, addr);
+    getHostAddress(m_host.hostname(), addr);
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(m_port);
+    addr.sin_port = htons(m_host.port());
 
     open(addr, openMode, _blockingMode, timeoutMS);
 }
 
-void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
 {
     open_addr(openMode, &address, timeoutMS);
     m_reader.open();
@@ -263,13 +261,13 @@ size_t TCPSocket::readLine(std::string& s, char delimiter)
     return m_stringBuffer.bytes();
 }
 
-size_t TCPSocket::read(char *buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
+size_t TCPSocket::read(char *buffer, size_t size, sockaddr_in* from)
 {
     m_reader.read(buffer, size, 0, false, from);
     return size;
 }
 
-size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
+size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
     size_t rc = m_reader.read(buffer.data(), size, 0, false, from);
@@ -277,7 +275,7 @@ size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from) THROWS_EX
     return rc;
 }
 
-size_t TCPSocket::read(string& buffer, size_t size, sockaddr_in* from) THROWS_EXCEPTIONS
+size_t TCPSocket::read(string& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
     size_t rc = m_reader.read((char*)buffer.c_str(), size, 0, false, from);

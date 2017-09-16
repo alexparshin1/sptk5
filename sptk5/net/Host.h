@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       semaphore.cpp - description                            ║
+║                       cnet - description                                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday September 13 2017                            ║
 ║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,29 +26,71 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/cthreads>
+#ifndef __HOST_H__
+#define __HOST_H__
 
-using namespace std;
-using namespace sptk;
+#include <sstream>
 
-int main()
+namespace sptk {
+
+class Host
 {
-    Semaphore  semaphore;
-    try {
-        semaphore.post();
-        cout << "Semaphore posted       (Ok)" << endl;
-        if (semaphore.wait(1000))
-            cout << "Semaphore was posted   (Ok)" << endl;
-        else
-            cout << "Semaphore wait timeout (Error)" << endl;
-        if (semaphore.wait(1000))
-            cout << "Semaphore was posted   (Error)" << endl;
-        else
-            cout << "Semaphore wait timeout (Ok)" << endl;
+    std::string m_hostname;
+    uint16_t    m_port;
+
+public:
+
+    Host()
+        : m_port(0)
+    {}
+
+    Host(const std::string& hostname, uint16_t port)
+        : m_hostname(hostname), m_port(port)
+    {}
+
+    explicit Host(const std::string& hostAndPort);
+
+    explicit Host(const Host& other)
+        : m_hostname(other.m_hostname), m_port(other.m_port)
+    {}
+
+    explicit Host(Host&& other)
+        : m_hostname(move(other.m_hostname)), m_port(other.m_port)
+    {
+        other.m_port = 0;
     }
-    catch (exception& e) {
-        cout << e.what() << endl;
+
+    Host& operator = (const Host& other)
+    {
+        m_hostname = other.m_hostname;
+        m_port = other.m_port;
+        return *this;
     }
-    return 0;
+
+    bool operator == (const Host& other) const
+    {
+        return m_hostname == other.m_hostname && m_port == other.m_port;
+    }
+
+    bool operator != (const Host& other) const
+    {
+        return m_hostname != other.m_hostname || m_port != other.m_port;
+    }
+
+    const std::string& hostname() const {return m_hostname; }
+
+    void port(uint16_t p) { m_port = p; }
+    uint16_t port() const {return m_port; }
+
+    std::string toString() const
+    {
+        std::stringstream str;
+        str << m_hostname << ":" << m_port;
+        return str.str();
+    }
+
+};
+
 }
+
+#endif

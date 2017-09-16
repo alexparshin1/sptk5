@@ -4,7 +4,7 @@
 ║                        DatabaseConnectionString.h - description              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -68,7 +68,7 @@ protected:
     /**
      * @brief Parses connection string
      */
-    void parse() THROWS_EXCEPTIONS;
+    void parse();
 
     /**
      * Database connection string

@@ -4,7 +4,7 @@
 ║                       imap_connect.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -67,7 +67,7 @@ int main( int argc, char *argv[] )
             user = (string) hostNode->getAttribute("user");
             password = (string) hostNode->getAttribute("password");
         }
-        IMAP.host(server);
+        IMAP.host(Host(server,143));
     }
     catch (...) {}
 
@@ -75,7 +75,7 @@ int main( int argc, char *argv[] )
 		printf("IMAP server name: ");
 		scanf("%s",buffer);
 		server = buffer;
-		IMAP.host(server);
+		IMAP.host(Host(server,143));
 
 		printf("IMAP user name: ");
 		scanf("%s",buffer);

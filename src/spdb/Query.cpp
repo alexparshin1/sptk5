@@ -4,7 +4,7 @@
 ║                       CQuery.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -284,7 +284,7 @@ void Query::sql(const string& _sql)
     }
 }
 
-bool Query::open() THROWS_EXCEPTIONS
+bool Query::open()
 {
     if (m_db == nullptr)
         throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
@@ -311,7 +311,7 @@ bool Query::open() THROWS_EXCEPTIONS
     return true;
 }
 
-void Query::fetch() THROWS_EXCEPTIONS
+void Query::fetch()
 {
     if (m_db == nullptr || !m_active) {
         logText("Error in CQuery::fetch(): Dataset isn't open");
@@ -384,7 +384,7 @@ void Query::logText(const string& text, const LogPriority& priority)
     }
 }
 
-void Query::logAndThrow(const string& method, const string& error) THROWS_EXCEPTIONS
+void Query::logAndThrow(const string& method, const string& error)
 {
     string errorText("Exception in " + method + ": " + error);
     logText(errorText, LP_ERROR);

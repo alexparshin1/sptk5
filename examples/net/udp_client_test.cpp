@@ -4,7 +4,7 @@
 ║                       udp_client_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,16 +35,15 @@ int main (int argc, char* argv[])
 {
     try {
         UDPSocket client;
-        client.port(3000);
-        client.host("127.0.0.1");
+        client.host(Host("localhost", 3000));
 
         string data;
 
         struct sockaddr_in serv;
         memset (&serv, 0, sizeof (serv));
         serv.sin_family = AF_INET;
-        serv.sin_port = htons(client.port());
-        serv.sin_addr.s_addr = inet_addr(client.host().c_str());
+        serv.sin_port = htons(client.host().port());
+        serv.sin_addr.s_addr = inet_addr(client.host().hostname().c_str());
         
         data = "Data 1";
         client.write(data, &serv);

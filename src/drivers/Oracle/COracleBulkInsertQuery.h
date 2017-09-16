@@ -4,7 +4,7 @@
 ║                       COracleBulkInsertQuery.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -63,7 +63,7 @@ protected:
     
 public:
     /// @brief Executes next iteration of bulk insert
-    void execNext() THROWS_EXCEPTIONS;
+    void execNext();
 
     size_t batchSize() const { return m_batchSize; }
     bool lastIteration() const { return m_lastIteration; }

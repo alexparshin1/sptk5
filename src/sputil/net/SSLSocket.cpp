@@ -4,7 +4,7 @@
 ║                       SSLSocket.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -136,24 +136,22 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::open(const string& hostName, uint16_t portNumber, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
 {
-    if (!hostName.empty())
-        m_host = hostName;
-    if (m_host.empty())
+    if (!host.hostname().empty())
+        m_host = host;
+    if (m_host.hostname().empty())
         throw Exception("Please, define the host name", __FILE__, __LINE__);
-    if (portNumber != 0)
-        m_port = portNumber;
 
     sockaddr_in addr = {};
-    getHostAddress(m_host, addr);
+    getHostAddress(m_host.hostname(), addr);
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(portNumber);
+    addr.sin_port = htons(m_host.port());
 
     open(addr, openMode, _blockingMode, timeoutMS);
 }
 
-void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS) THROWS_EXCEPTIONS
+void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
 {
     TCPSocket::open(address, openMode, _blockingMode, timeoutMS);
 

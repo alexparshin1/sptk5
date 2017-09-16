@@ -4,7 +4,7 @@
 ║                       DatabaseConnection.cpp - description                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -66,24 +66,24 @@ bool DatabaseConnection::unlinkQuery(Query *q)
     return true;
 }
 
-void DatabaseConnection::openDatabase(const string& newConnectionString) THROWS_EXCEPTIONS
+void DatabaseConnection::openDatabase(const string& newConnectionString)
 {
     notImplemented("openDatabase");
 }
 
-void DatabaseConnection::open(string newConnectionString) THROWS_EXCEPTIONS
+void DatabaseConnection::open(string newConnectionString)
 {
     openDatabase(newConnectionString);
     if (m_log != nullptr)
         *m_log << "Opened database: " << m_connString.str() << endl;
 }
 
-void DatabaseConnection::closeDatabase() THROWS_EXCEPTIONS
+void DatabaseConnection::closeDatabase()
 {
     //closeDatabase();
 }
 
-void DatabaseConnection::close() THROWS_EXCEPTIONS
+void DatabaseConnection::close()
 {
     if (active()) {
         if (m_inTransaction) {
@@ -112,21 +112,21 @@ bool DatabaseConnection::active() const
     return true;
 }
 
-void DatabaseConnection::beginTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::beginTransaction()
 {
     if (m_log != nullptr)
         *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
-void DatabaseConnection::commitTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::commitTransaction()
 {
     if (m_log != nullptr)
         *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
-void DatabaseConnection::rollbackTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::rollbackTransaction()
 {
     if (m_log != nullptr)
         *m_log << "Rollback transaction" << endl;
@@ -252,7 +252,7 @@ string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
     return "?";
 }
 
-void DatabaseConnection::logAndThrow(string method, string error) THROWS_EXCEPTIONS
+void DatabaseConnection::logAndThrow(string method, string error)
 {
     string errorText("Exception in " + method + ": " + error);
     if (m_log != nullptr)
@@ -272,17 +272,17 @@ Logger* DatabaseConnection::logFile()
     return m_log;
 }
 
-void DatabaseConnection::driverBeginTransaction() THROWS_EXCEPTIONS
+void DatabaseConnection::driverBeginTransaction()
 {
     notImplemented("driverBeginTransaction");
 }
 
-void DatabaseConnection::driverEndTransaction(bool /*commit*/) THROWS_EXCEPTIONS
+void DatabaseConnection::driverEndTransaction(bool /*commit*/)
 {
     notImplemented("driverEndTransaction");
 }
 
-void DatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format) THROWS_EXCEPTIONS
+void DatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
 {
     Query insertQuery(this,
                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
@@ -295,14 +295,14 @@ void DatabaseConnection::bulkInsert(const String& tableName, const Strings& colu
     }
 }
 
-void DatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors) THROWS_EXCEPTIONS
+void DatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName);
     executeBatchSQL(batchFileContent, errors);
 }
 
-void DatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/) THROWS_EXCEPTIONS
+void DatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

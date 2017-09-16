@@ -4,7 +4,7 @@
 ║                        SQLite3Connection.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -70,13 +70,13 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction() THROWS_EXCEPTIONS override;
+    virtual void driverBeginTransaction() override;
 
     /**
      * @brief Ends the transaction
      * @param commit bool, commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit) THROWS_EXCEPTIONS override;
+    virtual void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
@@ -170,12 +170,12 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the SQLite3 connection string
      */
-    virtual void openDatabase(const std::string& connectionString = "") THROWS_EXCEPTIONS override;
+    virtual void openDatabase(const std::string& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase() THROWS_EXCEPTIONS override;
+    virtual void closeDatabase() override;
 
     /**
      * @brief Returns true if database is opened
@@ -197,7 +197,7 @@ public:
      * @param objectType CDbObjectType, object type to list
      * @param objects Strings&, object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) THROWS_EXCEPTIONS override;
+    virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
 };
 
 /**
