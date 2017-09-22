@@ -96,11 +96,11 @@ FirebirdStatement::~FirebirdStatement()
 
 void FirebirdStatement::dateTimeToFirebirdDate(struct tm& firebirdDate, DateTime timestamp, VariantType timeType)
 {
-    short year, month, day, hour, minute, second, msecond;
+    short year, month, day, wday, yday, hour, minute, second, msecond;
     memset(&firebirdDate, 0, sizeof(firebirdDate));
     if (timeType == VAR_DATE) {
         // Date only
-        timestamp.decodeDate(&year, &month, &day);
+        timestamp.decodeDate(&year, &month, &day, &wday, &yday);
         firebirdDate.tm_year = year - 1900;
         firebirdDate.tm_mon = month - 1;
         firebirdDate.tm_mday = day;
@@ -425,7 +425,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
         FirebirdStatementField*    field = (FirebirdStatementField*) &fields[fieldIndex];
         XSQLVAR&                    sqlvar = m_outputBuffers[fieldIndex];
         if (*sqlvar.sqlind) {
-            field->setNull();
+            field->setNull(VAR_STRING);
             continue;
         }
         field->clearNull();
