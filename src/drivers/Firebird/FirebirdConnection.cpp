@@ -37,7 +37,7 @@
 using namespace std;
 using namespace sptk;
 
-FirebirdConnection::FirebirdConnection(string connectionString) :
+FirebirdConnection::FirebirdConnection(const string& connectionString) :
     DatabaseConnection(connectionString),
     m_connection(0)
 {
@@ -77,7 +77,7 @@ void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char
         m_lastStatus.clear();
 }
 
-void FirebirdConnection::openDatabase(string newConnectionString)
+void FirebirdConnection::openDatabase(const string& newConnectionString)
 {
     ISC_STATUS status_vector[20];
 
