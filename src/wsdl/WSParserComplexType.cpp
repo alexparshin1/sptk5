@@ -328,7 +328,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Loader from XML element
-    classImplementation << "void " << className << "::load(const XMLElement* input)" << endl;
+    classImplementation << "void " << className << "::load(const sptk::XMLElement* input)" << endl;
     classImplementation << "{" << endl;
     classImplementation << "   clear();" << endl;
     classImplementation << "   m_loaded = true;" << endl;
@@ -384,7 +384,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     RegularExpression matchStandardType("^xsd:");
 
     // Loader from FieldList
-    classImplementation << "void " << className << "::load(const FieldList& input)" << endl;
+    classImplementation << "void " << className << "::load(const sptk::FieldList& input)" << endl;
     classImplementation << "{" << endl;
     classImplementation << "   clear();" << endl;
     classImplementation << "   m_loaded = true;" << endl;
@@ -448,7 +448,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Unloader to XMLElement
-    classImplementation << "void " << className << "::unload(XMLElement* output) const" << endl;
+    classImplementation << "void " << className << "::unload(sptk::XMLElement* output) const" << endl;
     classImplementation << "{" << endl;
     if (!m_attributes.empty()) {
         classImplementation << "   // Unload attributes" << endl;
@@ -471,7 +471,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Unloader to ParamList
-    classImplementation << "void " << className << "::unload(QueryParameterList& output) const" << endl;
+    classImplementation << "void " << className << "::unload(sptk::QueryParameterList& output) const" << endl;
     classImplementation << "{" << endl;
 
     if (!m_attributes.empty()) {
@@ -505,4 +505,3 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     generateDefinition(classDeclaration);
     generateImplementation(classImplementation);
 }
-
