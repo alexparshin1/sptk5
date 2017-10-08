@@ -51,6 +51,11 @@ class XMLNode;
 class XMLAttribute;
 class XMLAttributes;
 
+namespace json {
+    class Document;
+    class Element;
+}
+
 /**
  * @brief XPath Axis enum
  */
@@ -541,11 +546,23 @@ public:
     }
 
     /**
-     * @brief Saves node to buffer.
+     * @brief Save node to buffer.
      * @param buffer to save
      * @param indent how many indent spaces at start
      */
     virtual void save(Buffer &buffer, int indent = 0) const;
+
+    /**
+     * @brief Save node to JSON object.
+     * @param json json::Element&, JSON element
+     */
+    virtual void save(json::Element& json) const;
+
+    /**
+     * @brief Save node to JSON document
+     * @param json json::Element&, JSON element
+     */
+    virtual void save(json::Document& json) const;
 
     /**
      * @brief Returns the first subnode iterator

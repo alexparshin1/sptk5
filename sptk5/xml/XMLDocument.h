@@ -46,6 +46,8 @@ namespace sptk
  * @{
  */
 
+namespace json { class Document; }
+
 /**
  * @brief XML document.
  *
@@ -180,7 +182,7 @@ public:
     }
 
     /**
-     * @brief Returns doctype of document.
+     * @brief Return doctype of document.
      *
      * You can use it to add e.g. custom entities.
      * <pre>
@@ -198,7 +200,7 @@ public:
     XMLNode *rootNode();
 
     /**
-     * @brief Returns indentation in save
+     * Return indentation in save
      */
     int indentSpaces()
     {
@@ -216,13 +218,13 @@ public:
     }
 
     /**
-     * @brief Loads document from buffer.
+     * @brief Load document from buffer.
      * @param buffer const char*, source buffer
      */
     virtual void load(const char* buffer);
 
     /**
-     * @brief Loads document from std::string.
+     * @brief Load document from std::string.
      * @param str const std::string&, source string
      */
     virtual void load(const std::string& str)
@@ -231,7 +233,7 @@ public:
     }
 
     /**
-     * @brief Loads document from buffer.
+     * @brief Load document from buffer.
      * @param buffer const CBuffer&, source buffer
      */
     virtual void load(const Buffer& buffer)
@@ -240,20 +242,29 @@ public:
     }
 
     /**
-     * @brief Saves document to buffer.
+     * @brief Save document to buffer.
      * @param buffer CBuffer&, a buffer to save document
      * @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
      */
     virtual void save(Buffer& buffer, bool formalXML=false) const;
 
     /**
-     * @brief Saves document to buffer.
+     * @brief Save document to buffer.
      * @param buffer CBuffer&, a buffer to save document
      * @param indent int, formatting indent (spaces)
      */
     virtual void save(Buffer& buffer, int indent) const override
     {
         XMLElement::save(buffer, indent);
+    }
+
+    /**
+     * @brief Save document to JSON element.
+     * @param json json::Element&, JSON element
+     */
+    virtual void save(json::Document& json) const override
+    {
+        XMLElement::save(json);
     }
 };
 /**

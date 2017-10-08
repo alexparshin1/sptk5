@@ -74,8 +74,9 @@ void ObjectData::add(string name, Element* element)
                 m_items[name] = new Element(arrayData);
                 break;
         }
-    } else
+    } else {
         m_items[name] = element;
+    }
 }
 
 Element* ObjectData::find(std::string name)

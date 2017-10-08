@@ -29,6 +29,8 @@
 #include <sptk5/Exception.h>
 #include <sptk5/cxml>
 
+#include <sptk5/json/JsonDocument.h>
+
 using namespace std;
 
 namespace sptk {
@@ -326,10 +328,12 @@ namespace sptk {
         if (indent > 0)
             buffer.append(indentsString.c_str(), size_t(indent));
 
+        const string& nodeName = name();
+
         if (type() == DOM_ELEMENT) {
             // Output tag name
             buffer.append('<');
-            buffer.append(name());
+            buffer.append(nodeName);
             const XMLAttributes& attributes = this->attributes();
             if (!attributes.empty()) {
                 // Output attributes
@@ -414,11 +418,71 @@ namespace sptk {
                 buffer.append("/>\n", 3);
             }
         }
-                            break;
+            break;
 
         default: // unknown nodetype
             break;
         }
+    }
+
+    void XMLNode::save(json::Element& json) const
+    {
+        if (name() == "children")
+            cout << " ";
+
+        auto object = new json::Element(new json::ObjectData());
+        json.add(name(), object);
+
+        if (type() == DOM_ELEMENT) {
+            const XMLAttributes& attributes = this->attributes();
+            if (!attributes.empty()) {
+                auto attrs = new json::Element(new json::ObjectData());
+                object->add("attributes", attrs);
+                for (auto attributeNode: attributes)
+                    attrs->add(attributeNode->name(), attributeNode->value());
+            }
+        }
+
+        switch (type())
+        {
+            case DOM_PI: {
+                    json::Element* element = new json::Element(new json::ObjectData());
+                    object->add("pi", element);
+                    element->add(name(), value());
+                }
+                break;
+
+            case DOM_TEXT:
+            case DOM_CDATA_SECTION:
+                if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
+                    *object = json::Element(value().substr(9, value().length() - 12));
+                else
+                    *object = json::Element(value());
+                break;
+
+            case DOM_COMMENT:
+                // output all subnodes
+                object->add("comments", value());
+                break;
+
+            case DOM_ELEMENT: {
+                if (!empty()) {
+                    // output all subnodes
+                    for (auto np: *this)
+                        np->save(*object);
+                }
+            }
+                break;
+
+            default: // unknown nodetype
+                break;
+        }
+    }
+
+    void XMLNode::save(json::Document& json) const
+    {
+        for (auto np: *this)
+            np->save(json.root());
     }
 
     XMLNode *XMLNode::findFirst(std::string aname, bool recursively) const
