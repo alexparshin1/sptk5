@@ -27,7 +27,8 @@
       "number": "123 456-7890"
     }
   ],
-  "children": [],
+  "children": "Bob",
+  "children": "Jane",
   "spouse": null
 }
 

@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/json/JsonElement.h>
+#include <sptk5/json/JsonArrayData.h>
 
 using namespace std;
 using namespace sptk;
@@ -55,9 +56,26 @@ void ObjectData::setParent(Element* parent)
 void ObjectData::add(string name, Element* element)
 {
     element->m_parent = m_parent;
-    pair<iterator, bool> result = m_items.insert(pair<string,Element*>(name, element));
-    if (!result.second)
-        delete result.first->second;
+    auto itor = m_items.find(name);
+    if (itor != m_items.end()) {
+        // Is it array?
+        Element* existingElement = itor->second;
+        ArrayData* arrayData;
+        switch (existingElement->m_type) {
+            case JDT_ARRAY:
+                existingElement->add(element);
+                break;
+            case JDT_OBJECT:
+                throw Exception("Element " + name + " conflicts with same name object");
+            default:
+                arrayData = new ArrayData();
+                arrayData->add(existingElement);
+                arrayData->add(element);
+                m_items[name] = new Element(arrayData);
+                break;
+        }
+    } else
+        m_items[name] = element;
 }
 
 Element* ObjectData::find(std::string name)
