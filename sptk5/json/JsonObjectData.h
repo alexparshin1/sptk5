@@ -98,7 +98,7 @@ public:
      * @param name std::string, Child element name
      * @param element Element*, Child element
      */
-    void add(std::string name, Element *element);
+    void add(const std::string& name, Element *element);
 
     /**
      * Reference child element by name. If child element is not found,
@@ -106,34 +106,41 @@ public:
      * @param name std::string, Child element name
      * @returns Child element reference
      */
-    Element& operator[](std::string name);
+    Element& operator[](const std::string& name);
 
     /**
      * Find child element by name
      * @param name std::string, Child element name
      * @returns Child element pointer, or NULL if not found
      */
-    Element *find(std::string name);
+    Element *find(const std::string& name);
 
     /**
      * Const reference child element by name
      * @param name std::string, Child element name
      * @returns Const child element reference, or throws exception if not found
      */
-    const Element& operator[](std::string name) const;
+    const Element& operator[](const std::string& name) const;
 
     /**
      * Find child element by name
      * @param name std::string, Child element name
      * @returns Child element const pointer, or NULL if not found
      */
-    const Element *find(std::string name) const;
+    const Element* find(const std::string& name) const;
 
     /**
      * Remove child element by name (and release its memory)
      * @param name std::string, Child element name
      */
-    void remove(std::string name);
+    void remove(const std::string& name);
+
+    /**
+     * Remove child element by name from object, without destroying it
+     * @param name std::string, Child element name
+     * @return Element pointer
+     */
+    Element* move(const std::string& name);
 
     /**
      * Get begin iterator of child elements

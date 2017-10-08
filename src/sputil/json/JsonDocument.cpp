@@ -138,3 +138,11 @@ const Element& Document::root() const
 {
     return *m_root;
 }
+
+/**
+ * Optimize arrays
+ * Walks through the JSON document, and convert objects that contain
+ * only single array field, to arrays - by removing unnenecessary name.
+ * @param name const std::string&, Optional field name, use any name if empty string
+ */
+void optimizeArrays(const std::string& name="item");

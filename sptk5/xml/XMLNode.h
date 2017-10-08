@@ -556,7 +556,7 @@ public:
      * @brief Save node to JSON object.
      * @param json json::Element&, JSON element
      */
-    virtual void save(json::Element& json) const;
+    virtual void save(json::Element& json, std::string& text) const;
 
     /**
      * @brief Save node to JSON document

@@ -494,6 +494,20 @@ public:
      * @return true if element is a null
      */
     bool isNull()    const { return m_type == JDT_NULL; }
+
+    /**
+     * Get number of elements in array or object.
+     * Returns 0 for not { JDT_ARRAY, JDT_OBJECT }
+     */
+    size_t size() const;
+
+    /**
+     * Optimize arrays
+     * Walks through the JSON document, and convert objects that contain
+     * only single array field, to arrays - by removing unnenecessary name.
+     * @param name const std::string&, Optional field name, use any name if empty string
+     */
+    void optimizeArrays(const std::string& name="item");
 };
 
 }}

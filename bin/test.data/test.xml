@@ -1,13 +1,34 @@
 <?xml version="1.0"  encoding="UTF-8" ?>
 <data>
+    <address>
+        <city>New York</city>
+        <postalCode>10021-3100</postalCode>
+        <state>NY</state>
+        <streetAddress>21 &quot;2nd&quot;	 Street</streetAddress>
+    </address>
+    <age>25</age>
     <children>Bob</children>
     <children>Jane</children>
+    <firstName>John 1</firstName>
+    <isAlive/>
+    <lastName>Smith 1</lastName>
     <phoneNumbers>
         <item>
             <number>212 555-1234</number>
+            <type>home</type>
         </item>
         <item>
             <number>646 555-4567</number>
+            <type>office</type>
+        </item>
+        <item>
+            <number>123 456-7890</number>
+            <type>mobile</type>
         </item>
     </phoneNumbers>
+    <relative>
+        <firstName>John 2</firstName>
+        <lastName>Smith 2</lastName>
+    </relative>
+    <spouse/>
 </data>

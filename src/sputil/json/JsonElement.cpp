@@ -190,8 +190,23 @@ void Element::add(const std::string& name, Element* element)
     if (!m_data.m_object)
         m_data.m_object = new ObjectData(this);
 
-    m_data.m_object->add(name, element);
-    element->m_parent = this;
+    Element* sameNameExistingElement = m_data.m_object->find(name);
+    if (sameNameExistingElement == nullptr) {
+        m_data.m_object->add(name, element);
+        element->m_parent = this;
+        return;
+    }
+
+    if (sameNameExistingElement->isArray()) {
+        sameNameExistingElement->add(element);
+        return;
+    }
+
+    m_data.m_object->move(name);
+    Element* array = new Element(new ArrayData());
+    array->add(sameNameExistingElement);
+    array->add(element);
+    add(name, array);
 }
 
 const Element* Element::find(const string& name) const
@@ -628,4 +643,41 @@ void Element::select(ElementSet& elements, std::string xpath)
         return;
     }
     selectElements(elements, pathElements, 0, rootOnly);
+}
+
+size_t Element::size() const
+{
+    if (m_type == JDT_OBJECT)
+        return m_data.m_object->size();
+    if (m_type == JDT_ARRAY)
+        return m_data.m_array->size();
+    return 0;
+}
+
+void Element::optimizeArrays(const std::string& name)
+{
+    if (isObject()) {
+        if (size() == 1) {
+            auto itor = m_data.m_object->begin();
+            Element* element = itor->second;
+            if ((itor->first == name || name.empty()) && element->isArray()) {
+                (*m_parent->m_data.m_object)[name] = element;
+                m_data.m_object->move(itor->first);
+                delete this;
+            }
+            element->optimizeArrays(name);
+            return;
+        }
+        for (auto itor: *m_data.m_object) {
+            Element* element = itor.second;
+            element->optimizeArrays(name);
+        }
+        return;
+    }
+
+    if (isArray()) {
+        for (auto element: *m_data.m_array)
+            element->optimizeArrays(name);
+        return;
+    }
 }

@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <sptk5/Strings.h>
 #include <sptk5/cxml>
+#include <sptk5/json/JsonDocument.h>
 
 using namespace std;
 
@@ -438,4 +439,9 @@ namespace sptk {
         return nodeNameString;
     }
 
+    void XMLDocument::save(json::Document& json) const
+    {
+        XMLElement::save(json);
+        json.root().optimizeArrays("item");
+    }
 }

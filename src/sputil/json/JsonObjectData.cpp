@@ -53,33 +53,16 @@ void ObjectData::setParent(Element* parent)
     }
 }
 
-void ObjectData::add(string name, Element* element)
+void ObjectData::add(const string& name, Element* element)
 {
     element->m_parent = m_parent;
     auto itor = m_items.find(name);
-    if (itor != m_items.end()) {
-        // Is it array?
-        Element* existingElement = itor->second;
-        ArrayData* arrayData;
-        switch (existingElement->m_type) {
-            case JDT_ARRAY:
-                existingElement->add(element);
-                break;
-            case JDT_OBJECT:
-                throw Exception("Element " + name + " conflicts with same name object");
-            default:
-                arrayData = new ArrayData();
-                arrayData->add(existingElement);
-                arrayData->add(element);
-                m_items[name] = new Element(arrayData);
-                break;
-        }
-    } else {
-        m_items[name] = element;
-    }
+    if (itor != m_items.end())
+        throw Exception("Element " + name + " conflicts with same name object");
+    m_items[name] = element;
 }
 
-Element* ObjectData::find(std::string name)
+Element* ObjectData::find(const string& name)
 {
     const_iterator itor = m_items.find(name);
     if (itor == m_items.end())
@@ -87,7 +70,7 @@ Element* ObjectData::find(std::string name)
     return itor->second;
 }
 
-Element& ObjectData::operator[](std::string name)
+Element& ObjectData::operator[](const string& name)
 {
     auto itor = m_items.find(name);
     Element* element;
@@ -101,7 +84,7 @@ Element& ObjectData::operator[](std::string name)
     return *element;
 }
 
-const Element* ObjectData::find(std::string name) const
+const Element* ObjectData::find(const string& name) const
 {
     const_iterator itor = m_items.find(name);
     if (itor == m_items.end())
@@ -109,16 +92,25 @@ const Element* ObjectData::find(std::string name) const
     return itor->second;
 }
 
-const Element& ObjectData::operator[](std::string name) const
+const Element& ObjectData::operator[](const string& name) const
 {
     return *find(name);
 }
 
-void ObjectData::remove(std::string name)
+void ObjectData::remove(const string& name)
 {
     iterator itor = m_items.find(name);
     if (itor == m_items.end())
         return;
     delete itor->second;
     m_items.erase(itor);
+}
+
+Element* ObjectData::move(const string& name)
+{
+    iterator itor = m_items.find(name);
+    if (itor == m_items.end())
+        return NULL;
+    m_items.erase(itor);
+    return itor->second;
 }

@@ -425,13 +425,25 @@ namespace sptk {
         }
     }
 
-    void XMLNode::save(json::Element& json) const
+    void XMLNode::save(json::Element& json, string& text) const
     {
         if (name() == "children")
             cout << " ";
 
+        const string& nodeName = name();
+
+        if (name() == "#text") {
+            text.append(this->text());
+            return;
+        }
+
+        if (type() == DOM_PI) {
+            json.add(name(), value());
+            return;
+        }
+
         auto object = new json::Element(new json::ObjectData());
-        json.add(name(), object);
+        json.add(nodeName, object);
 
         if (type() == DOM_ELEMENT) {
             const XMLAttributes& attributes = this->attributes();
@@ -445,13 +457,6 @@ namespace sptk {
 
         switch (type())
         {
-            case DOM_PI: {
-                    json::Element* element = new json::Element(new json::ObjectData());
-                    object->add("pi", element);
-                    element->add(name(), value());
-                }
-                break;
-
             case DOM_TEXT:
             case DOM_CDATA_SECTION:
                 if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
@@ -468,8 +473,11 @@ namespace sptk {
             case DOM_ELEMENT: {
                 if (!empty()) {
                     // output all subnodes
+                    string text;
                     for (auto np: *this)
-                        np->save(*object);
+                        np->save(*object, text);
+                    if (object->isObject() && object->size() == 0)
+                        *object = json::Element(text);
                 }
             }
                 break;
@@ -481,8 +489,9 @@ namespace sptk {
 
     void XMLNode::save(json::Document& json) const
     {
+        string text;
         for (auto np: *this)
-            np->save(json.root());
+            np->save(json.root(), text);
     }
 
     XMLNode *XMLNode::findFirst(std::string aname, bool recursively) const

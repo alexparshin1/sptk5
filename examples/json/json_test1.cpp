@@ -37,7 +37,7 @@ using namespace sptk;
 
 int main(int argc, char **argv)
 {
-    /*
+
     json::Document jsonDocument;
 
     ifstream file("test.data/test.json");
@@ -52,12 +52,12 @@ int main(int argc, char **argv)
     jsonDocument.exportTo(doc);
     doc.save(buffer,true);
     cout << buffer.c_str() << endl << endl;
-*/
+/*
     XMLDocument doc;
     Buffer      buffer;
     buffer.loadFromFile("test.data/test.xml");
     doc.load(buffer);
-
+*/
     json::Document doc2;
     doc.save(doc2);
     doc2.root().exportTo(cout, true);

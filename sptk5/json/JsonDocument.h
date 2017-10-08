@@ -144,6 +144,7 @@ public:
      * Clear document content
      */
     void clear();
+
 };
 
 }}
