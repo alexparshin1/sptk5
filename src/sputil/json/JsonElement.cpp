@@ -30,6 +30,7 @@
 #include <sptk5/json/JsonArrayData.h>
 #include <sstream>
 #include <string.h>
+#include <sptk5/xml/XMLElement.h>
 
 using namespace std;
 using namespace sptk;
@@ -394,9 +395,55 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
     }
 }
 
-void Element::exportTo(ostream& stream, bool formatted)
+void Element::exportValueTo(const string& name, XMLElement& parentNode) const
+{
+    XMLElement* node = new XMLElement(parentNode, name);
+    switch (m_type) {
+        case JDT_NUMBER: {
+            stringstream stream;
+            if (m_data.m_number == (long) m_data.m_number)
+                stream << fixed << (long) m_data.m_number;
+            else
+                stream << fixed << m_data.m_number;
+            node->text(stream.str());
+            break;
+        }
+
+        case JDT_STRING:
+            node->text(*m_data.m_string);
+            break;
+
+        case JDT_BOOLEAN:
+            node->value(m_data.m_boolean ? "true" : "false");
+            break;
+
+        case JDT_ARRAY:
+            if (m_data.m_array) {
+                for (Element* element: *m_data.m_array)
+                    element->exportValueTo("item", *node);
+            }
+            break;
+
+        case JDT_OBJECT:
+            if (m_data.m_object) {
+                for (auto& itor: *m_data.m_object)
+                    itor.second->exportValueTo(itor.first, *node);
+            }
+            break;
+
+        case JDT_NULL:
+            break;
+    }
+}
+
+void Element::exportTo(ostream& stream, bool formatted) const
 {
     exportValueTo(stream, formatted, 0);
+}
+
+void Element::exportTo(const string& name, XMLElement& parentNode) const
+{
+    exportValueTo(name, parentNode);
 }
 
 string Element::escape(const string& text)

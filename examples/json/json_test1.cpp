@@ -46,5 +46,11 @@ int main(int argc, char **argv)
     jsonDocument.root().exportTo(cout, true);
     cout << endl;
 
+    XMLDocument doc;
+    Buffer      buffer;
+    jsonDocument.exportTo(doc);
+    doc.save(buffer,true);
+    cout << buffer.c_str() << endl;
+
     return 0;
 }

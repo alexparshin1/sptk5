@@ -114,14 +114,21 @@ public:
      * @param stream std::ostream&, Stream to export JSON
      * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
      */
-    void exportTo(std::ostream& stream, bool formatted=true);
+    void exportTo(std::ostream& stream, bool formatted=true) const;
 
     /**
-     * Export JSON element (and all children) to stream
+     * Export JSON element (and all children) to buffer
      * @param buffer sptk::Buffer&, Buffer to export JSON
      * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
      */
-    void exportTo(Buffer& buffer, bool formatted=true);
+    void exportTo(Buffer& buffer, bool formatted=true) const;
+
+    /**
+     * Export JSON element (and all children) to XML document
+     * @param document sptk::XMLDocument&, XML document to export JSON
+     * @param rootNodeName const std::string&, XML document root node name
+     */
+    void exportTo(XMLDocument& document, const std::string& rootNodeName="data") const;
 
     /**
      * Get document root element

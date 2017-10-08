@@ -29,6 +29,7 @@
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/json/JsonParser.h>
 #include <sstream>
+#include <sptk5/xml/XMLDocument.h>
 
 using namespace std;
 using namespace sptk;
@@ -111,16 +112,21 @@ void Document::load(istream& json)
     load(buffer.str());
 }
 
-void Document::exportTo(std::ostream& stream, bool formatted)
+void Document::exportTo(std::ostream& stream, bool formatted) const
 {
     m_root->exportTo(stream, formatted);
 }
 
-void Document::exportTo(Buffer& buffer, bool formatted)
+void Document::exportTo(Buffer& buffer, bool formatted) const
 {
     stringstream stream;
     m_root->exportTo(stream, formatted);
     buffer.set(stream.str());
+}
+
+void Document::exportTo(XMLDocument& document, const string& rootNodeName) const
+{
+    m_root->exportTo(rootNodeName, document);
 }
 
 Element& Document::root()

@@ -29,7 +29,7 @@
 #ifndef __JSON__ELEMENT_H__
 #define __JSON__ELEMENT_H__
 
-#include <sptk5/sptk.h>
+#include <sptk5/cxml>
 #include <sptk5/Strings.h>
 #include <sptk5/Exception.h>
 #include <sptk5/json/JsonObjectData.h>
@@ -119,6 +119,13 @@ protected:
      * @param indent int, Formatting indent
      */
     void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
+
+    /**
+     * Export JSON element to XML element
+     * @param name const std::string, JSON element name
+     * @param element XMLElement*, XML element to export to
+     */
+    void exportValueTo(const std::string& name, XMLElement& element) const;
 
     /**
      * Empty const Json element
@@ -431,7 +438,14 @@ public:
      * @param stream std::ostream&, Stream to export JSON
      * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
      */
-    void exportTo(std::ostream& stream, bool formatted=true);
+    void exportTo(std::ostream& stream, bool formatted=true) const;
+
+    /**
+     * Export JSON element (and all children) to XML element
+     * @param name const std::string, Parent element name
+     * @param parentNode XMLElement&, XML element to export JSON
+     */
+    void exportTo(const std::string& name, XMLElement& parentNode) const;
 
     /** @brief Selects elements as defined by XPath
      *
