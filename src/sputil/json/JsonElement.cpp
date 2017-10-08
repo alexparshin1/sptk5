@@ -659,14 +659,13 @@ void Element::optimizeArrays(const std::string& name)
     if (isObject()) {
         if (size() == 1) {
             auto itor = m_data.m_object->begin();
-            Element* element = itor->second;
-            if ((itor->first == name || name.empty()) && element->isArray()) {
-                (*m_parent->m_data.m_object)[name] = element;
+            Element* itemElement = itor->second;
+            if ((itor->first == name || name.empty()) && itemElement->isArray()) {
                 m_data.m_object->move(itor->first);
-                delete this;
+                *this = ::move(*itemElement);
+                optimizeArrays(name);
+                return;
             }
-            element->optimizeArrays(name);
-            return;
         }
         for (auto itor: *m_data.m_object) {
             Element* element = itor.second;

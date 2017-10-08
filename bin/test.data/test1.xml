@@ -1,13 +1,7 @@
 <?xml version="1.0"  encoding="UTF-8" ?>
 <data>
-    <address>
-        <city>New York</city>
-        <postalCode>10021-3100</postalCode>
-        <state>NY</state>
-        <streetAddress>21 &quot;2nd&quot;	 Street</streetAddress>
-    </address>
-    <age>25</age>
     <children>Bob</children>
+    <children>Jane</children>
     <firstName>John 1</firstName>
     <isAlive/>
     <lastName>Smith 1</lastName>
