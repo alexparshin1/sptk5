@@ -30,10 +30,10 @@
 #define __SPTK_REGULAREXPRESSION_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/Strings.h>
 
 #if HAVE_PCRE
 
-#include <sptk5/cutils>
 #include <vector>
 #include <pcre.h>
 
@@ -187,8 +187,6 @@ public:
      */
     std::string replaceAll(const std::string& text, std::string outputPattern, bool& replaced) const;
 };
-
-typedef RegularExpression RegularExpression;
 
 /**
  * @}

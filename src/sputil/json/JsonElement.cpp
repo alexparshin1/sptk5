@@ -447,6 +447,7 @@ void Element::exportValueTo(const string& name, XMLElement& parentNode) const
             break;
 
         case JDT_NULL:
+            new XMLElement(node, "null");
             break;
     }
 }

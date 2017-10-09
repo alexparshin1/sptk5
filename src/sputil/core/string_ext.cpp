@@ -32,6 +32,7 @@
 #include <iostream>
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
+#include <sptk5/Exception.h>
 
 using namespace std;
 
@@ -189,6 +190,30 @@ int64_t string2int64 (const string& str, int64_t defaultValue)
     char *endptr;
     errno = 0;
     auto result = (int64_t) strtoll(str.c_str(), &endptr, 10);
+
+    if (errno)
+        return defaultValue;
+
+    return result;
+}
+
+double string2double (const string& str)
+{
+    char *endptr;
+    errno = 0;
+    auto result = strtod(str.c_str(), &endptr);
+
+    if (errno)
+        throw Exception("Invalid number");
+
+    return result;
+}
+
+double string2double (const string& str, double defaultValue)
+{
+    char *endptr;
+    errno = 0;
+    auto result = strtod(str.c_str(), &endptr);
 
     if (errno)
         return defaultValue;

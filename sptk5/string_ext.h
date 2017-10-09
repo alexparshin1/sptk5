@@ -88,6 +88,18 @@ int SP_EXPORT string2int(const std::string& str, int defaultValue=0);
 int64_t SP_EXPORT string2int64(const std::string& str, int64_t defaultValue=0);
 
 /**
+ * Converts string to double. The exception is thrown
+ * for unsuccessful conversion
+ */
+double SP_EXPORT string2double(const std::string& str);
+
+/**
+ * Converts string to double. The optional default value is used
+ * for unsuccessful conversion
+ */
+double SP_EXPORT string2double(const std::string& str, double defaultValue);
+
+/**
  * Replaces all the pattern in str with replacement
  */
 std::string SP_EXPORT replaceAll(const std::string& str,const std::string& pattern,const std::string& replacement);

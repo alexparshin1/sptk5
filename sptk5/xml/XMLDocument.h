@@ -34,6 +34,7 @@
 #include <sptk5/xml/XMLElement.h>
 #include <sptk5/SharedStrings.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/RegularExpression.h>
 
 #include <string>
 #include <map>
@@ -61,18 +62,17 @@ class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
     /**
      * Document type
      */
-    XMLDocType m_doctype;
+    XMLDocType          m_doctype;
 
     /**
      * Indent spaces
      */
-    int        m_indentSpaces;
+    int                 m_indentSpaces;
 
     /**
      * Buffer to encode entities
      */
-    Buffer     m_encodeBuffer;
-
+    Buffer              m_encodeBuffer;
 
     /**
      * @brief Internal entities parser
@@ -90,6 +90,11 @@ class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
     void processAttributes(XMLNode* node, const char *ptr);
 
 protected:
+
+    /**
+     * Regular expression to match a number
+     */
+    RegularExpression   m_matchNumber;
 
     /**
      * Decode and encode buffer

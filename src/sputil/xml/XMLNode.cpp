@@ -427,17 +427,14 @@ namespace sptk {
 
     void XMLNode::save(json::Element& json, string& text) const
     {
-        if (name() == "children")
-            cout << " ";
-
         const string& nodeName = name();
 
-        if (name() == "#text") {
+        if (isText()) {
             text.append(this->text());
             return;
         }
 
-        if (type() == DOM_PI) {
+        if (isPI()) {
             json.add(name(), value());
             return;
         }
@@ -445,7 +442,7 @@ namespace sptk {
         auto object = new json::Element(new json::ObjectData());
         json.add(nodeName, object);
 
-        if (type() == DOM_ELEMENT) {
+        if (isElement()) {
             const XMLAttributes& attributes = this->attributes();
             if (!attributes.empty()) {
                 auto attrs = new json::Element(new json::ObjectData());
@@ -471,13 +468,30 @@ namespace sptk {
                 break;
 
             case DOM_ELEMENT: {
-                if (!empty()) {
-                    // output all subnodes
-                    string text;
-                    for (auto np: *this)
-                        np->save(*object, text);
-                    if (object->isObject() && object->size() == 0)
-                        *object = json::Element(text);
+                if (empty()) {
+                    *object = json::Element("");
+                } else {
+                    bool done = false;
+                    if (size() == 1) {
+                        for (auto np: *this)
+                            if (np->name() == "null") {
+                                *object = json::Element();
+                                done = true;
+                            }
+                    }
+                    if (!done) {
+                        // output all subnodes
+                        string text;
+                        for (auto np: *this)
+                            np->save(*object, text);
+                        if (object->isObject() && object->size() == 0) {
+                            if (m_document->m_matchNumber.matches(text)) {
+                                double value = string2double(text);
+                                *object = json::Element(value);
+                            } else
+                                *object = json::Element(text);
+                        }
+                    }
                 }
             }
                 break;

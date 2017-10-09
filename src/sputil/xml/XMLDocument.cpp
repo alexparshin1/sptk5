@@ -35,15 +35,19 @@ using namespace std;
 
 namespace sptk {
 
+    static const char* MATCH_NUMBER = "^[+\\-]?(\\d|[1-9]\\d*)(\\.\\d+)?(e-?\\d+)?$";
+
     XMLDocument::XMLDocument() :
         XMLElement(*this),
-        m_indentSpaces(2)
+        m_indentSpaces(2),
+        m_matchNumber(MATCH_NUMBER,"i")
     {
     }
 
     XMLDocument::XMLDocument(string xml) :
         XMLElement(*this),
-        m_indentSpaces(2)
+        m_indentSpaces(2),
+        m_matchNumber(MATCH_NUMBER,"i")
     {
         load(xml);
     }
@@ -51,7 +55,8 @@ namespace sptk {
     XMLDocument::XMLDocument(const char *aname, const char *public_id, const char *system_id) :
         XMLElement(*this),
         m_doctype(aname, public_id, system_id),
-        m_indentSpaces(2)
+        m_indentSpaces(2),
+        m_matchNumber(MATCH_NUMBER,"i")
     {
     }
 
@@ -441,7 +446,8 @@ namespace sptk {
 
     void XMLDocument::save(json::Document& json) const
     {
-        XMLElement::save(json);
+        XMLNode* rootNode = *begin();
+        rootNode->save(json);
         json.root().optimizeArrays("item");
     }
 }
