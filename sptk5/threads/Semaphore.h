@@ -60,12 +60,12 @@ class SP_EXPORT Semaphore
     /**
      * Semaphore value
      */
-    std::atomic<uint32_t>   m_value;
+    uint32_t                m_value;
 
     /**
      * Semaphore max value
      */
-    std::atomic<uint32_t>   m_maxValue;
+    uint32_t                m_maxValue;
 
 public:
     /**

@@ -56,9 +56,13 @@ class SP_EXPORT DateTime
 {
     friend class DateTimeFormat;
 
+public:
+
+    /**
+     * Clock used by DateTime
+     */
     typedef std::chrono::system_clock clock;
 
-public:
     /**
      * DateTime::time_point type definition
      */
