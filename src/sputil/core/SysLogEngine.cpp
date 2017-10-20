@@ -110,8 +110,13 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
         if (!ReportEvent(
                         m_logHandle,    // handle returned by RegisterEventSource
                         eventType,		// event type to log
+<<<<<<< HEAD
                         SPTK_MSG_CATEGORY, // event category
                         MSG_TEXT,		// event identifier
+=======
+                        0,				// event category
+						MSG_INFO_1,		// event identifier
+>>>>>>> 25e49a61fcf4ef271001f60cf16044a97f66f6ab
                         NULL,			// user security identifier (optional)
                         1,				// number of strings to merge with message
                         0,				// size of binary data, in bytes
@@ -158,12 +163,13 @@ void SysLogEngine::programName(string progName)
     m_logOpened = false;
     closelog();
 #else
-    char *buffer = new char[_MAX_PATH];
-    GetModuleFileName(0,buffer,_MAX_PATH);
-    m_moduleFileName = buffer;
+    char exe_path[_MAX_PATH];
+    GetModuleFileName(0, exe_path,_MAX_PATH);
+    m_moduleFileName = string(exe_path);
 
 	std::string value;
 	if (!m_registrySet) {
+<<<<<<< HEAD
         string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + progName;
 
         HKEY keyHandle;
@@ -173,13 +179,16 @@ void SysLogEngine::programName(string progName)
 			&keyHandle);
 		if (rc != ERROR_SUCCESS)
 			throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+=======
+        string key_path = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\SPTK Event Provider";
 
-        unsigned long len = _MAX_PATH;
-        unsigned long vtype = REG_EXPAND_SZ;
-		if (RegQueryValueEx(
-			keyHandle,       // handle to key to query
-			"EventMessageFile",
+		HKEY key;
+>>>>>>> 25e49a61fcf4ef271001f60cf16044a97f66f6ab
+
+		DWORD last_error = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+			key_path.c_str(),
 			0,
+<<<<<<< HEAD
 			&vtype,
 			(BYTE *)buffer,// buffer for returned string
 			&len// receives size of returned string
@@ -226,21 +235,57 @@ void SysLogEngine::programName(string progName)
 					value,							// address of value data
 					valueSize						// size of value data
 				);
+=======
+			0,
+			REG_OPTION_NON_VOLATILE,
+			KEY_SET_VALUE,
+			0,
+			&key,
+			0);
 
-				if (rc != ERROR_SUCCESS) {
-					stringstream error;
-					error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
-					error << "value '" << valueData[i].name << "' to ";
-					if (valueData[i].strValue == NULL)
-						error << "REG_DWORD " << valueData[i].intValue;
-					else
-						error << "REG_SZ " << valueData[i].strValue;
-					throw Exception(error.str());
-				}
+		if (ERROR_SUCCESS == last_error)
+		{
+			DWORD last_error;
+			const DWORD types_supported = EVENTLOG_ERROR_TYPE |
+				EVENTLOG_WARNING_TYPE |
+				EVENTLOG_INFORMATION_TYPE;
+
+			last_error = RegSetValueEx(key,
+				"EventMessageFile",
+				0,
+				REG_SZ,
+				(BYTE*)exe_path,
+				(DWORD)strlen(exe_path));
+
+			if (ERROR_SUCCESS == last_error)
+			{
+				last_error = RegSetValueEx(key,
+					"TypesSupported",
+					0,
+					REG_DWORD,
+					(LPBYTE)&types_supported,
+					sizeof(types_supported));
+			}
+>>>>>>> 25e49a61fcf4ef271001f60cf16044a97f66f6ab
+
+			if (ERROR_SUCCESS != last_error)
+			{
+				std::cerr << "Failed to install source values: "
+					<< last_error << "\n";
 			}
 
+<<<<<<< HEAD
 			RegCloseKey(keyHandle);
         }
+=======
+			RegCloseKey(key);
+		}
+		else
+		{
+			std::cerr << "Failed to install source: " << last_error << "\n";
+		}
+
+>>>>>>> 25e49a61fcf4ef271001f60cf16044a97f66f6ab
         m_registrySet = true;
     }
 #endif

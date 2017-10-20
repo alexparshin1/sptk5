@@ -6,7 +6,11 @@ IF (WIN32)
         OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.rc
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.mc
         COMMAND ${MC_COMPILER}
+<<<<<<< HEAD
         ARGS -A ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.mc -h ${CMAKE_CURRENT_SOURCE_DIR} -r ${CMAKE_CURRENT_SOURCE_DIR}
+=======
+        ARGS -A -b -c ${CMAKE_CURRENT_SOURCE_DIR}/events.mc -h ${CMAKE_CURRENT_SOURCE_DIR} -r ${CMAKE_CURRENT_SOURCE_DIR}
+>>>>>>> 25e49a61fcf4ef271001f60cf16044a97f66f6ab
     )
 
     # Build target for event_provider.rc

@@ -124,7 +124,7 @@ void Document::exportTo(Buffer& buffer, bool formatted) const
     buffer.set(stream.str());
 }
 
-void Document::exportTo(XMLDocument& document, const string& rootNodeName) const
+void Document::exportTo(sptk::XMLDocument& document, const string& rootNodeName) const
 {
     m_root->exportTo(rootNodeName, document);
 }
