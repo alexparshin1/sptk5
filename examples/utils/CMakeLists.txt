@@ -10,6 +10,10 @@ ENDIF (UNIX)
 
 SET (CONSOLE_TESTS command_line datetime exceptions logfile_test syslog_test unique_instance registry string2md5 encrypt_decrypt)
 
+IF (WIN32)
+    SET (CONSOLE_TESTS ${CONSOLE_TESTS} eventlog_test)
+ENDIF ()
+
 IF (PCRE_FLAG)
     SET (CONSOLE_TESTS ${CONSOLE_TESTS} regexp)
 ENDIF (PCRE_FLAG)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="13.5" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="14.3" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
   <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
     <ROW Name="HiddenItems" Value="AppXAppDetailsComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent"/>
   </COMPONENT>
@@ -27,7 +27,7 @@
     <ROW Property="WindowsTypeNT50Display" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT5X" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
-    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:32 bit Operating Systems" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:32-bit Windows versions" ValueLocId="-"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -103,9 +103,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="Base64.h" Component_="Base64.h" FileName="Base64.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Base64.h" SelfReg="false" NextFile="Buffer.h"/>
     <ROW File="BaseMailConnect.h" Component_="BaseMailConnect.h" FileName="BASEMA~1.H|BaseMailConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\BaseMailConnect.h" SelfReg="false" NextFile="BaseSocket.h"/>
-    <ROW File="BaseSocket.h" Component_="BaseMailConnect.h" FileName="BASESO~1.H|BaseSocket.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\BaseSocket.h" SelfReg="false" NextFile="CFtpDS.h"/>
+    <ROW File="BaseSocket.h" Component_="BaseMailConnect.h" FileName="BASESO~1.H|BaseSocket.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\BaseSocket.h" SelfReg="false" NextFile="HttpConnect.h"/>
     <ROW File="Buffer.h" Component_="Base64.h" FileName="Buffer.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Buffer.h" SelfReg="false" NextFile="CaseInsensitiveCompare.h"/>
-    <ROW File="CFtpDS.h" Component_="BaseMailConnect.h" FileName="CFtpDS.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\CFtpDS.h" SelfReg="false" NextFile="FTPConnect.h"/>
     <ROW File="CSmallPixmapIDs.h" Component_="Base64.h" FileName="CSMALL~1.H|CSmallPixmapIDs.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CSmallPixmapIDs.h" SelfReg="false" NextFile="cthreads"/>
     <ROW File="CaseInsensitiveCompare.h" Component_="Base64.h" FileName="CASEIN~1.H|CaseInsensitiveCompare.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CaseInsensitiveCompare.h" SelfReg="false" NextFile="cdatabase"/>
     <ROW File="CommandLine.h" Component_="Base64.h" FileName="COMMAN~1.H|CommandLine.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CommandLine.h" SelfReg="false" NextFile="CSmallPixmapIDs.h"/>
@@ -121,7 +120,6 @@
     <ROW File="DebugMacros.h" Component_="Base64.h" FileName="DEBUGM~1.H|DebugMacros.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\DebugMacros.h" SelfReg="false" NextFile="DirectoryDS.h"/>
     <ROW File="DirectoryDS.h" Component_="Base64.h" FileName="DIRECT~1.H|DirectoryDS.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\DirectoryDS.h" SelfReg="false" NextFile="Exception.h"/>
     <ROW File="Exception.h" Component_="Base64.h" FileName="EXCEPT~1.H|Exception.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Exception.h" SelfReg="false" NextFile="Field.h"/>
-    <ROW File="FTPConnect.h" Component_="BaseMailConnect.h" FileName="FTPCON~1.H|FTPConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\FTPConnect.h" SelfReg="false" NextFile="HttpConnect.h"/>
     <ROW File="Field.h" Component_="Base64.h" FileName="Field.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Field.h" SelfReg="false" NextFile="FieldList.h"/>
     <ROW File="FieldList.h" Component_="Base64.h" FileName="FIELDL~1.H|FieldList.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\FieldList.h" SelfReg="false" NextFile="filedefs.h"/>
     <ROW File="FileLogEngine.h" Component_="Base64.h" FileName="FILELO~1.H|FileLogEngine.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\FileLogEngine.h" SelfReg="false" NextFile="IntList.h"/>
@@ -325,7 +323,7 @@
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="DefaultBuild"/>
     <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101" Builds="DefaultBuild"/>

@@ -6,7 +6,7 @@ IF (WIN32)
         OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/events.rc
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/events.mc
         COMMAND ${MC_COMPILER}
-        ARGS -A ${CMAKE_CURRENT_SOURCE_DIR}/events.mc -h ${CMAKE_CURRENT_SOURCE_DIR} -r ${CMAKE_CURRENT_SOURCE_DIR}
+        ARGS -A -b -c ${CMAKE_CURRENT_SOURCE_DIR}/events.mc -h ${CMAKE_CURRENT_SOURCE_DIR} -r ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
     # Build target for events.rc

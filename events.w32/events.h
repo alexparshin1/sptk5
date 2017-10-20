@@ -1,4 +1,5 @@
- // Categories of events:
+#ifndef _EXAMPLE_EVENT_LOG_MESSAGE_FILE_H_
+#define _EXAMPLE_EVENT_LOG_MESSAGE_FILE_H_
 //
 //  Values are 32 bit values laid out as follows:
 //
@@ -28,10 +29,6 @@
 //
 // Define the facility codes
 //
-#define FACILITY_SYSTEM                  0x0
-#define FACILITY_RUNTIME                 0x2
-#define FACILITY_STUBS                   0x3
-#define FACILITY_IO_ERROR_CODE           0x4
 
 
 //
@@ -44,22 +41,39 @@
 
 
 //
-// MessageId: SPTK_MSG_CATEGORY
-//
-// MessageText:
-//
-// SPTK events
-//
-#define SPTK_MSG_CATEGORY                ((WORD)0x00000001L)
-
- // Message definitions:
-//
-// MessageId: SPTK_MSG
+// MessageId: MSG_INFO_1
 //
 // MessageText:
 //
 // %1
 //
-#define SPTK_MSG                         ((WORD)0xC0020001L)
+#define MSG_INFO_1                       ((DWORD)0x60000000L)
 
-
+//
+// MessageId: MSG_WARNING_1
+//
+// MessageText:
+//
+// %1
+//
+#define MSG_WARNING_1                    ((DWORD)0xA0000001L)
+
+//
+// MessageId: MSG_ERROR_1
+//
+// MessageText:
+//
+// %1
+//
+#define MSG_ERROR_1                      ((DWORD)0xE0000002L)
+
+//
+// MessageId: MSG_SUCCESS_1
+//
+// MessageText:
+//
+// %1
+//
+#define MSG_SUCCESS_1                    ((DWORD)0x20000003L)
+
+#endif
