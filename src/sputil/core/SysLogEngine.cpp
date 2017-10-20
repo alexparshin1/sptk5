@@ -36,7 +36,7 @@ using namespace sptk;
     static int      m_objectCounter(0);
     static bool     m_logOpened(false);
 #else
-    #include <events.w32/events.h>
+    #include <events.w32/event_provider.h>
     static string   m_moduleFileName;
     static bool     m_registrySet(false);
 #endif
@@ -111,7 +111,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
                         m_logHandle,    // handle returned by RegisterEventSource
                         eventType,		// event type to log
                         SPTK_MSG_CATEGORY, // event category
-                        SPTK_MSG,		// event identifier
+                        MSG_TEXT,		// event identifier
                         NULL,			// user security identifier (optional)
                         1,				// number of strings to merge with message
                         0,				// size of binary data, in bytes
@@ -164,13 +164,14 @@ void SysLogEngine::programName(string progName)
 
 	std::string value;
 	if (!m_registrySet) {
-        string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\SPTK Event Provider";
+        string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + progName;
 
         HKEY keyHandle;
-        if (RegCreateKey(
+        int rc = RegCreateKey(
                         HKEY_LOCAL_MACHINE,
                         keyName.c_str(),
-                        &keyHandle) != ERROR_SUCCESS)
+			&keyHandle);
+		if (rc != ERROR_SUCCESS)
 			throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
 
         unsigned long len = _MAX_PATH;
@@ -193,11 +194,11 @@ void SysLogEngine::programName(string progName)
 				const char* strValue;
 				DWORD       intValue;
 			} valueData[5] = {
-				{ "CategoryCount", NULL, 1 },
+				{ "CategoryCount", NULL, 3 },
 				{ "CategoryMessageFile", m_moduleFileName.c_str(), 0 },
 				{ "EventMessageFile", m_moduleFileName.c_str(), 0 },
 				{ "ParameterMessageFile", m_moduleFileName.c_str(), 0 },
-				{ "TypesSupported", NULL, 1 }
+				{ "TypesSupported", NULL, 7 }
 			};
 
 			for (int i = 0; i < 5; i++) {
@@ -238,17 +239,7 @@ void SysLogEngine::programName(string progName)
 				}
 			}
 
-            unsigned typesSupported = 7;
-            if (RegSetValueEx(
-                            keyHandle,// handle to key to set value for
-                            "TypesSupported",// name of the value to set
-                            0,// reserved
-                            REG_DWORD,// flag for value type
-                            (CONST BYTE *)&typesSupported,// address of value data
-                            sizeof(typesSupported)// size of value data
-                    ) != ERROR_SUCCESS)
-				throw Exception("Can't set registry key HKEY_LOCAL_MACHINE '" + keyName + "' value 'TypesSupported' to 7" + m_moduleFileName + "'");
-            RegCloseKey(keyHandle);
+			RegCloseKey(keyHandle);
         }
         m_registrySet = true;
     }
