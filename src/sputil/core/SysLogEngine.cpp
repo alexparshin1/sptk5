@@ -36,7 +36,7 @@ using namespace sptk;
     static int      m_objectCounter(0);
     static bool     m_logOpened(false);
 #else
-    #include <events.w32/events.h>
+    #include <events.w32/event_provider.h>
     static string   m_moduleFileName;
     static bool     m_registrySet(false);
 #endif
@@ -111,7 +111,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
                         m_logHandle,    // handle returned by RegisterEventSource
                         eventType,		// event type to log
                         SPTK_MSG_CATEGORY, // event category
-                        SPTK_MSG,		// event identifier
+                        MSG_TEXT,		// event identifier
                         NULL,			// user security identifier (optional)
                         1,				// number of strings to merge with message
                         0,				// size of binary data, in bytes
@@ -151,106 +151,86 @@ SysLogEngine::~SysLogEngine()
 #endif
 }
 
+void SysLogEngine::setupEventSource()
+{
+#ifndef _WIN32
+	m_logOpened = false;
+	closelog();
+#else
+	char *buffer = new char[_MAX_PATH];
+	GetModuleFileName(0, buffer, _MAX_PATH);
+	string moduleFileName = buffer;
+
+	string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + m_programName;
+
+	HKEY keyHandle;
+	if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
+		throw runtime_error("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+
+	unsigned long len = _MAX_PATH;
+	unsigned long vtype = REG_EXPAND_SZ;
+	if (RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*)buffer, &len) != ERROR_SUCCESS)
+		throw runtime_error("Can't create registry value '" + keyName + "\\EventMessageFile'");
+
+	//if (string(buffer) == moduleFileName)
+	//	return;
+
+	struct ValueData {
+		const char* name;
+		const char* strValue;
+		DWORD       intValue;
+	} valueData[5] = {
+		{ "CategoryCount", NULL, 3 },
+		{ "CategoryMessageFile", moduleFileName.c_str(), 0 },
+		{ "EventMessageFile", moduleFileName.c_str(), 0 },
+		{ "ParameterMessageFile", moduleFileName.c_str(), 0 },
+		{ "TypesSupported", NULL, 7 }
+	};
+
+	for (int i = 0; i < 5; i++) {
+		int rc;
+		CONST BYTE * value;
+		DWORD valueSize;
+		DWORD valueType;
+		if (valueData[i].strValue == NULL) {
+			// DWORD value
+			value = (CONST BYTE *) &(valueData[i].intValue);
+			valueSize = sizeof(valueData[i].intValue);
+			valueType = REG_DWORD;
+		}
+		else {
+			// String value
+			value = (CONST BYTE *) valueData[i].strValue;
+			valueSize = (DWORD)strlen(valueData[i].strValue) + 1;
+			valueType = REG_EXPAND_SZ;
+		}
+		rc = RegSetValueEx(
+			keyHandle,						// handle to key to set value for
+			valueData[i].name,				// name of the value to set
+			0,								// reserved
+			valueType,						// flag for value type
+			value,							// address of value data
+			valueSize						// size of value data
+		);
+
+		if (rc != ERROR_SUCCESS) {
+			stringstream error;
+			error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
+			error << "value '" << valueData[i].name << "' to ";
+			if (valueData[i].strValue == NULL)
+				error << "REG_DWORD " << valueData[i].intValue;
+			else
+				error << "REG_SZ " << valueData[i].strValue;
+			throw runtime_error(error.str());
+		}
+	}
+
+	RegCloseKey(keyHandle);
+#endif
+}
+
 void SysLogEngine::programName(string progName)
 {
     m_programName = progName;
-#ifndef _WIN32
-    m_logOpened = false;
-    closelog();
-#else
-    char *buffer = new char[_MAX_PATH];
-    GetModuleFileName(0,buffer,_MAX_PATH);
-    m_moduleFileName = buffer;
-
-	std::string value;
-	if (!m_registrySet) {
-        string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\SPTK Event Provider";
-
-        HKEY keyHandle;
-        if (RegCreateKey(
-                        HKEY_LOCAL_MACHINE,
-                        keyName.c_str(),
-                        &keyHandle) != ERROR_SUCCESS)
-			throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
-
-        unsigned long len = _MAX_PATH;
-        unsigned long vtype = REG_EXPAND_SZ;
-		if (RegQueryValueEx(
-			keyHandle,       // handle to key to query
-			"EventMessageFile",
-			0,
-			&vtype,
-			(BYTE *)buffer,// buffer for returned string
-			&len// receives size of returned string
-		) == ERROR_SUCCESS) {
-			value = buffer;
-		}
-
-        if (value.empty()) {
-
-			struct ValueData {
-				const char* name;
-				const char* strValue;
-				DWORD       intValue;
-			} valueData[5] = {
-				{ "CategoryCount", NULL, 1 },
-				{ "CategoryMessageFile", m_moduleFileName.c_str(), 0 },
-				{ "EventMessageFile", m_moduleFileName.c_str(), 0 },
-				{ "ParameterMessageFile", m_moduleFileName.c_str(), 0 },
-				{ "TypesSupported", NULL, 1 }
-			};
-
-			for (int i = 0; i < 5; i++) {
-				int rc;
-				CONST BYTE * value;
-				DWORD valueSize;
-				DWORD valueType;
-				if (valueData[i].strValue == NULL) {
-					// DWORD value
-					value = (CONST BYTE *) &(valueData[i].intValue);
-					valueSize = sizeof(valueData[i].intValue);
-					valueType = REG_DWORD;
-				}
-				else {
-					// String value
-					value = (CONST BYTE *) valueData[i].strValue;
-					valueSize = (DWORD) strlen(valueData[i].strValue) + 1;
-					valueType = REG_EXPAND_SZ;
-				}
-				rc = RegSetValueEx(
-					keyHandle,						// handle to key to set value for
-					valueData[i].name,				// name of the value to set
-					0,								// reserved
-					valueType,						// flag for value type
-					value,							// address of value data
-					valueSize						// size of value data
-				);
-
-				if (rc != ERROR_SUCCESS) {
-					stringstream error;
-					error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
-					error << "value '" << valueData[i].name << "' to ";
-					if (valueData[i].strValue == NULL)
-						error << "REG_DWORD " << valueData[i].intValue;
-					else
-						error << "REG_SZ " << valueData[i].strValue;
-					throw Exception(error.str());
-				}
-			}
-
-            unsigned typesSupported = 7;
-            if (RegSetValueEx(
-                            keyHandle,// handle to key to set value for
-                            "TypesSupported",// name of the value to set
-                            0,// reserved
-                            REG_DWORD,// flag for value type
-                            (CONST BYTE *)&typesSupported,// address of value data
-                            sizeof(typesSupported)// size of value data
-                    ) != ERROR_SUCCESS)
-				throw Exception("Can't set registry key HKEY_LOCAL_MACHINE '" + keyName + "' value 'TypesSupported' to 7" + m_moduleFileName + "'");
-            RegCloseKey(keyHandle);
-        }
-        m_registrySet = true;
-    }
-#endif
+	setupEventSource();
 }

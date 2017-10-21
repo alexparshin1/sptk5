@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Semaphore.cpp - description                            ║
+║                       logfile_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
@@ -26,39 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Semaphore.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-Semaphore::Semaphore(uint32_t startingValue, uint32_t maxValue)
-: m_value(startingValue), m_maxValue(maxValue)
+int main()
 {
-}
+   try {
+      cout << "Creating a log file ./logfile_test.log: " << endl;
+      FileLogEngine fileLog("logfile_test.log");
+      Logger  log(fileLog);
 
-void Semaphore::post()
-{
-    lock_guard<mutex>  lock(m_mutex);
-    if (m_maxValue == 0 || m_value < m_maxValue) {
-        m_value++;
-        m_condition.notify_all();
-    }
-}
+      /// Cleaning log file before test.
+      fileLog.reset();
+	  fileLog.option(LogEngine::LO_STDOUT, true);
 
-bool Semaphore::wait(uint32_t timeoutMS)
-{
-    unique_lock<mutex>  lock(m_mutex);
-    auto now = std::chrono::system_clock::now();
+      /// Set the minimal priority for the messages.
+      /// Any messages with the less priority are ignored.
+      /// This means, in this example, that no messages with CLP_DEBUG priority
+      /// would make it to the log.
+      fileLog.minPriority(LP_INFO);
+      
+      cout << "Sending 'Hello, World!' to this file.." << endl;
+      log << "Hello, World!" << endl;
+      log << "Welcome to SPTK." << endl;
+      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
+      log << LP_INFO << "This is the end of the log." << endl;
+   }
+   catch (exception& e) {
+      puts(e.what());
+   }
 
-    // Wait until semaphore value is greater than 0
-    if (!m_condition.wait_until(lock,
-                                now + chrono::milliseconds(timeoutMS),
-                                [this](){return m_value > 0;}))
-    {
-        return false;
-    }
-
-    m_value--;
-
-    return true;
+   return 0;
 }

@@ -73,7 +73,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
     std::string         m_programName;
 
     void programName(std::string progName);
-    
+	void setupEventSource();
 public:
     /**
      * @brief Stores or sends log message to actual destination

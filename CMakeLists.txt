@@ -260,6 +260,7 @@ IF (WIN32)
                     "$ENV{ProgramFiles}/Windows Kits/*/bin/*/x64"
                     "$ENV{ProgramW6432}/Windows Kits/*/bin/*/x64"
                     "$ENV{ProgramFiles}/Windows Kits/10/bin/10.0.15063.0/x64"
+                    "$ENV{${PROGRAM_FILES_86}}/Windows Kits/*/bin/*/x64"
                     "$ENV{${PROGRAM_FILES_86}}/Windows Kits/*/bin/*/x86"
                     )
   IF (MC_COMPILER)

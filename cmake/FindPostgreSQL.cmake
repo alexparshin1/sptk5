@@ -1,20 +1,20 @@
 IF (WIN32)
    SET (PGSQL_POSSIBLE_INCLUDE_PATHS
-        $ENV{SystemDrive}/*/include
         $ENV{SystemDrive}/PostgreSQL/*/include
         $ENV{ProgramFiles}/*/include
         $ENV{ProgramFiles}/PostgreSQL/*/include
         $ENV{ProgramW6432}/*/include
         $ENV{ProgramW6432}/PostgreSQL/*/include)
    SET (PGSQL_POSSIBLE_LIB_PATHS
-        $ENV{SystemDrive}/*/lib
         $ENV{SystemDrive}/PostgreSQL/*/lib
         $ENV{ProgramFiles}/*/lib
         $ENV{ProgramFiles}/PostgreSQL/*/lib
         $ENV{ProgramW6432}/*/lib
         $ENV{ProgramW6432}/PostgreSQL/*/lib)
    FIND_PATH(PostgreSQL_INCLUDE_DIR libpq-fe.h ${PGSQL_POSSIBLE_INCLUDE_PATHS})
-   FIND_LIBRARY(PostgreSQL_LIBRARY NAMES libpq PATHS ${PGSQL_POSSIBLE_LIB_PATHS})
+   FIND_LIBRARY(PostgreSQL_LIBRARY NAMES libpq pq PATHS ${PGSQL_POSSIBLE_LIB_PATHS})
+   MESSAGE(${PGSQL_POSSIBLE_LIB_PATHS})
+   MESSAGE(${PostgreSQL_LIBRARY})
 ELSE (WIN32)
    FIND_PROGRAM (PGSQL_CONFIG pg_config PATHS /usr/bin /usr/postgres/*/bin /usr/local/bin)
    IF (PGSQL_CONFIG)
