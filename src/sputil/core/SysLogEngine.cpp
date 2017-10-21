@@ -169,62 +169,59 @@ void SysLogEngine::setupEventSource()
 
 	unsigned long len = _MAX_PATH;
 	unsigned long vtype = REG_EXPAND_SZ;
-	if (RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*)buffer, &len) != ERROR_SUCCESS)
-		throw runtime_error("Can't create registry value '" + keyName + "\\EventMessageFile'");
+	int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*)buffer, &len);
+	if (rc != ERROR_SUCCESS) {
 
-	//if (string(buffer) == moduleFileName)
-	//	return;
+		struct ValueData {
+			const char* name;
+			const char* strValue;
+			DWORD       intValue;
+		} valueData[5] = {
+			{ "CategoryCount", NULL, 3 },
+			{ "CategoryMessageFile", moduleFileName.c_str(), 0 },
+			{ "EventMessageFile", moduleFileName.c_str(), 0 },
+			{ "ParameterMessageFile", moduleFileName.c_str(), 0 },
+			{ "TypesSupported", NULL, 7 }
+		};
 
-	struct ValueData {
-		const char* name;
-		const char* strValue;
-		DWORD       intValue;
-	} valueData[5] = {
-		{ "CategoryCount", NULL, 3 },
-		{ "CategoryMessageFile", moduleFileName.c_str(), 0 },
-		{ "EventMessageFile", moduleFileName.c_str(), 0 },
-		{ "ParameterMessageFile", moduleFileName.c_str(), 0 },
-		{ "TypesSupported", NULL, 7 }
-	};
+		for (int i = 0; i < 5; i++) {
+			int rc;
+			CONST BYTE * value;
+			DWORD valueSize;
+			DWORD valueType;
+			if (valueData[i].strValue == NULL) {
+				// DWORD value
+				value = (CONST BYTE *) &(valueData[i].intValue);
+				valueSize = sizeof(valueData[i].intValue);
+				valueType = REG_DWORD;
+			}
+			else {
+				// String value
+				value = (CONST BYTE *) valueData[i].strValue;
+				valueSize = (DWORD)strlen(valueData[i].strValue) + 1;
+				valueType = REG_EXPAND_SZ;
+			}
+			rc = RegSetValueEx(
+				keyHandle,						// handle to key to set value for
+				valueData[i].name,				// name of the value to set
+				0,								// reserved
+				valueType,						// flag for value type
+				value,							// address of value data
+				valueSize						// size of value data
+			);
 
-	for (int i = 0; i < 5; i++) {
-		int rc;
-		CONST BYTE * value;
-		DWORD valueSize;
-		DWORD valueType;
-		if (valueData[i].strValue == NULL) {
-			// DWORD value
-			value = (CONST BYTE *) &(valueData[i].intValue);
-			valueSize = sizeof(valueData[i].intValue);
-			valueType = REG_DWORD;
-		}
-		else {
-			// String value
-			value = (CONST BYTE *) valueData[i].strValue;
-			valueSize = (DWORD)strlen(valueData[i].strValue) + 1;
-			valueType = REG_EXPAND_SZ;
-		}
-		rc = RegSetValueEx(
-			keyHandle,						// handle to key to set value for
-			valueData[i].name,				// name of the value to set
-			0,								// reserved
-			valueType,						// flag for value type
-			value,							// address of value data
-			valueSize						// size of value data
-		);
-
-		if (rc != ERROR_SUCCESS) {
-			stringstream error;
-			error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
-			error << "value '" << valueData[i].name << "' to ";
-			if (valueData[i].strValue == NULL)
-				error << "REG_DWORD " << valueData[i].intValue;
-			else
-				error << "REG_SZ " << valueData[i].strValue;
-			throw runtime_error(error.str());
+			if (rc != ERROR_SUCCESS) {
+				stringstream error;
+				error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
+				error << "value '" << valueData[i].name << "' to ";
+				if (valueData[i].strValue == NULL)
+					error << "REG_DWORD " << valueData[i].intValue;
+				else
+					error << "REG_SZ " << valueData[i].strValue;
+				throw runtime_error(error.str());
+			}
 		}
 	}
-
 	RegCloseKey(keyHandle);
 #endif
 }

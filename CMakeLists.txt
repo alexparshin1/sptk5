@@ -30,6 +30,9 @@ OPTION (USE_PCRE       "Build PCRE (Perl Regexp) support" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 
+OPTION (BUILD_EXAMPLES "Build usage examples" OFF)
+OPTION (BUILD_UTILS    "Build utitlity programs" ON)
+
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
@@ -337,8 +340,14 @@ IF (FLTK_FLAG)
 ENDIF (FLTK_FLAG)
 
 ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (examples)
-ADD_SUBDIRECTORY (utilities)
+
+IF (BUILD_EXAMPLES)
+  ADD_SUBDIRECTORY (examples)
+ENDIF ()
+
+IF (BUILD_UTILS)
+  ADD_SUBDIRECTORY (utilities)
+ENDIF ()
 
 FILE (GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL (FILES ${includeFiles} DESTINATION include/sptk5)

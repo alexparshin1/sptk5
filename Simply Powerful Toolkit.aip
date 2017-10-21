@@ -12,10 +12,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="http://www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Linotex Pty Ltd"/>
     <ROW Property="MsiLogging" MultiBuildValue="DefaultBuild:vp"/>
-    <ROW Property="ProductCode" Value="1033:{2C29F12D-7FED-48CB-BBC3-46D2BD2C2B38} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{8EF79E26-0AEA-479C-B56C-559DAF19FF4F} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.2.12" Type="32"/>
+    <ROW Property="ProductVersion" Value="5.2.13" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -53,29 +53,29 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="AI_ExePath" ComponentId="{46CFA9FB-9E2C-4C37-B719-895E817FD887}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
     <ROW Component="Application" ComponentId="{5AA5A3F5-A95D-43C5-9040-CD9FDBD45C17}" Directory_="APPDIR" Attributes="260" KeyPath="Application"/>
-    <ROW Component="Base64.h" ComponentId="{A447ECBC-DD65-4100-9A77-D767BACB634B}" Directory_="sptk5_Dir" Attributes="0" KeyPath="Base64.h" Type="0"/>
-    <ROW Component="BaseMailConnect.h" ComponentId="{3D07955F-3254-4AE0-9C4F-7533F8A20219}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
+    <ROW Component="Base64.h" ComponentId="{E5BB8E76-EF27-44AD-A87E-61C88CB5FD60}" Directory_="sptk5_Dir" Attributes="0" KeyPath="Base64.h" Type="0"/>
+    <ROW Component="BaseMailConnect.h" ComponentId="{1BB35EA4-C959-4D0D-B934-1B6552724DDE}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
     <ROW Component="CategoryCount" ComponentId="{BCAFF568-6B0E-4089-8707-2663C170E4CE}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryCount"/>
     <ROW Component="CategoryMessageFile" ComponentId="{609E634C-812E-4920-8EE1-F8F16184B8BF}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryMessageFile"/>
-    <ROW Component="ConnectionParameters.h" ComponentId="{927EC458-A2BF-4AE4-B695-FA3B23C2B167}" Directory_="db_Dir" Attributes="0" KeyPath="ConnectionParameters.h" Type="0"/>
+    <ROW Component="ConnectionParameters.h" ComponentId="{A50E148B-DE90-4CFD-AB2C-878310EBDCA2}" Directory_="db_Dir" Attributes="0" KeyPath="ConnectionParameters.h" Type="0"/>
     <ROW Component="EventLog" ComponentId="{72558A19-B26C-43EE-B8CF-73F9C318D46F}" Directory_="APPDIR" Attributes="260" KeyPath="EventLog"/>
     <ROW Component="EventMessageFile" ComponentId="{5D57D2E4-3290-47F9-91CD-F3DDB4B499D6}" Directory_="APPDIR" Attributes="260" KeyPath="EventMessageFile"/>
-    <ROW Component="JsonArrayData.h" ComponentId="{29A822E2-963D-41E6-9FFC-C17970EFFCE6}" Directory_="json_Dir" Attributes="0" KeyPath="JsonArrayData.h" Type="0"/>
-    <ROW Component="Location.h" ComponentId="{FFDC8B16-A784-4820-8EA0-C2A518BB4F2B}" Directory_="threads_Dir" Attributes="0" KeyPath="Location.h" Type="0"/>
+    <ROW Component="JsonArrayData.h" ComponentId="{24594C01-A2A5-4D5E-B8B3-B81100D93D3E}" Directory_="json_Dir" Attributes="0" KeyPath="JsonArrayData.h" Type="0"/>
+    <ROW Component="Location.h" ComponentId="{AD31BF79-E9EE-4255-A3DF-8D47E6CBAC9B}" Directory_="threads_Dir" Attributes="0" KeyPath="Location.h" Type="0"/>
     <ROW Component="New_Key" ComponentId="{1AC045D3-FD6C-473C-AA41-48D4F69D95AF}" Directory_="APPDIR" Attributes="260" KeyPath="New_Key"/>
     <ROW Component="ParameterMessageFile" ComponentId="{A00B10D6-392E-4AFF-95A2-FA3FA635DC4B}" Directory_="APPDIR" Attributes="260" KeyPath="ParameterMessageFile"/>
     <ROW Component="ProductInformation" ComponentId="{9F3242C3-7926-48D4-88F7-F62CF2DBAFD5}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="SYSTEM" ComponentId="{018D2633-AEB0-4B3E-9AC6-C847985E397A}" Directory_="APPDIR" Attributes="260" KeyPath="SYSTEM"/>
     <ROW Component="Services" ComponentId="{5139979C-7948-4BC9-96F1-0F0F087D6922}" Directory_="APPDIR" Attributes="260" KeyPath="Services"/>
-    <ROW Component="SourceModule.h" ComponentId="{308B53BD-836F-4779-AD62-DEBAF6555E7D}" Directory_="wsdl_Dir" Attributes="0" KeyPath="SourceModule.h" Type="0"/>
+    <ROW Component="SourceModule.h" ComponentId="{E3EF1C67-74BA-4636-A1EB-1D23B6475CF1}" Directory_="wsdl_Dir" Attributes="0" KeyPath="SourceModule.h" Type="0"/>
     <ROW Component="TypesSupported" ComponentId="{6D325452-8F71-49EF-BA3E-071E6365A994}" Directory_="APPDIR" Attributes="260" KeyPath="TypesSupported"/>
-    <ROW Component="XMLAttributes.h" ComponentId="{10D32D88-AC12-4A8D-92D0-F6CB568F3A53}" Directory_="xml_Dir" Attributes="0" KeyPath="XMLAttributes.h" Type="0"/>
+    <ROW Component="XMLAttributes.h" ComponentId="{AE34835A-5930-4646-B8B9-9DB525455C8F}" Directory_="xml_Dir" Attributes="0" KeyPath="XMLAttributes.h" Type="0"/>
     <ROW Component="bin" ComponentId="{F3E6616A-98D6-4B9E-9D72-11E1ABE70452}" Directory_="bin_1_Dir" Attributes="0"/>
     <ROW Component="command_line.exe" ComponentId="{335BE3A0-72CA-43F8-B559-C944136A29D8}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="datetime.exe" ComponentId="{682BCB15-17A6-4BCE-B899-ACA2A42456AA}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="doc" ComponentId="{8FE5E742-5964-4C3D-AC9B-353B2FFAC11D}" Directory_="doc_Dir" Attributes="0"/>
     <ROW Component="driver_load_test.exe" ComponentId="{3E2EDD39-A086-4271-9B2B-542124FDCE9D}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="events.rc" ComponentId="{1D022DA9-4CD2-4D54-B539-3E67D438ACD1}" Directory_="resources_Dir" Attributes="0" KeyPath="events.rc" Type="0"/>
+    <ROW Component="events.rc" ComponentId="{1D022DA9-4CD2-4D54-B539-3E67D438ACD1}" Directory_="resources_Dir" Attributes="0" KeyPath="MSG00409.bin" Type="0"/>
     <ROW Component="exceptions.exe" ComponentId="{13C30DDF-B4A2-4192-8C9E-B78ADAFE410D}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="logfile_test.exe" ComponentId="{6FB21073-13D4-49A8-AA2E-91A057791B15}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="odbc_test.exe" ComponentId="{8DC5D433-1CE5-4EE1-9C06-0469625F5D01}" Directory_="bin_1_Dir" Attributes="256"/>
@@ -103,12 +103,13 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="Base64.h" Component_="Base64.h" FileName="Base64.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Base64.h" SelfReg="false" NextFile="Buffer.h"/>
     <ROW File="BaseMailConnect.h" Component_="BaseMailConnect.h" FileName="BASEMA~1.H|BaseMailConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\BaseMailConnect.h" SelfReg="false" NextFile="BaseSocket.h"/>
-    <ROW File="BaseSocket.h" Component_="BaseMailConnect.h" FileName="BASESO~1.H|BaseSocket.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\BaseSocket.h" SelfReg="false" NextFile="HttpConnect.h"/>
+    <ROW File="BaseSocket.h" Component_="BaseMailConnect.h" FileName="BASESO~1.H|BaseSocket.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\BaseSocket.h" SelfReg="false" NextFile="Host.h"/>
     <ROW File="Buffer.h" Component_="Base64.h" FileName="Buffer.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Buffer.h" SelfReg="false" NextFile="CaseInsensitiveCompare.h"/>
     <ROW File="CSmallPixmapIDs.h" Component_="Base64.h" FileName="CSMALL~1.H|CSmallPixmapIDs.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CSmallPixmapIDs.h" SelfReg="false" NextFile="cthreads"/>
     <ROW File="CaseInsensitiveCompare.h" Component_="Base64.h" FileName="CASEIN~1.H|CaseInsensitiveCompare.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CaseInsensitiveCompare.h" SelfReg="false" NextFile="cdatabase"/>
-    <ROW File="CommandLine.h" Component_="Base64.h" FileName="COMMAN~1.H|CommandLine.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CommandLine.h" SelfReg="false" NextFile="CSmallPixmapIDs.h"/>
+    <ROW File="CommandLine.h" Component_="Base64.h" FileName="COMMAN~1.H|CommandLine.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\CommandLine.h" SelfReg="false" NextFile="Crypt.h"/>
     <ROW File="ConnectionParameters.h" Component_="ConnectionParameters.h" FileName="CONNEC~1.H|ConnectionParameters.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\db\ConnectionParameters.h" SelfReg="false" NextFile="DatabaseConnection.h"/>
+    <ROW File="Crypt.h" Component_="Base64.h" FileName="Crypt.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Crypt.h" SelfReg="false" NextFile="CSmallPixmapIDs.h"/>
     <ROW File="DataSource.h" Component_="Base64.h" FileName="DATASO~1.H|DataSource.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\DataSource.h" SelfReg="false" NextFile="DateTime.h"/>
     <ROW File="DatabaseConnection.h" Component_="ConnectionParameters.h" FileName="DATABA~1.H|DatabaseConnection.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\db\DatabaseConnection.h" SelfReg="false" NextFile="DatabaseConnectionParameters.h"/>
     <ROW File="DatabaseConnectionParameters.h" Component_="ConnectionParameters.h" FileName="DATABA~2.H|DatabaseConnectionParameters.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\db\DatabaseConnectionParameters.h" SelfReg="false" NextFile="DatabaseConnectionPool.h"/>
@@ -125,10 +126,12 @@
     <ROW File="FileLogEngine.h" Component_="Base64.h" FileName="FILELO~1.H|FileLogEngine.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\FileLogEngine.h" SelfReg="false" NextFile="IntList.h"/>
     <ROW File="FirebirdConnection.h" Component_="ConnectionParameters.h" FileName="FIREBI~1.H|FirebirdConnection.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\db\FirebirdConnection.h" SelfReg="false" NextFile="FirebirdStatement.h"/>
     <ROW File="FirebirdStatement.h" Component_="ConnectionParameters.h" FileName="FIREBI~2.H|FirebirdStatement.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\db\FirebirdStatement.h" SelfReg="false" NextFile="MySQLConnection.h"/>
+    <ROW File="Host.h" Component_="BaseMailConnect.h" FileName="Host.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\Host.h" SelfReg="false" NextFile="HttpConnect.h"/>
     <ROW File="HttpConnect.h" Component_="BaseMailConnect.h" FileName="HTTPCO~1.H|HttpConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\HttpConnect.h" SelfReg="false" NextFile="HttpParams.h"/>
     <ROW File="HttpParams.h" Component_="BaseMailConnect.h" FileName="HTTPPA~1.H|HttpParams.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\HttpParams.h" SelfReg="false" NextFile="ImapConnect.h"/>
+    <ROW File="IPAddress.h" Component_="BaseMailConnect.h" FileName="IPADDR~1.H|IPAddress.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\IPAddress.h" SelfReg="false" NextFile="MailMessageBody.h"/>
     <ROW File="ImapConnect.h" Component_="BaseMailConnect.h" FileName="IMAPCO~1.H|ImapConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\ImapConnect.h" SelfReg="false" NextFile="ImapDS.h"/>
-    <ROW File="ImapDS.h" Component_="BaseMailConnect.h" FileName="ImapDS.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\ImapDS.h" SelfReg="false" NextFile="MailMessageBody.h"/>
+    <ROW File="ImapDS.h" Component_="BaseMailConnect.h" FileName="ImapDS.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\ImapDS.h" SelfReg="false" NextFile="IPAddress.h"/>
     <ROW File="IntList.h" Component_="Base64.h" FileName="IntList.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\IntList.h" SelfReg="false" NextFile="JsonArrayData.h"/>
     <ROW File="JsonArrayData.h" Component_="JsonArrayData.h" FileName="JSONAR~1.H|JsonArrayData.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\json\JsonArrayData.h" SelfReg="false" NextFile="JsonDocument.h"/>
     <ROW File="JsonDocument.h" Component_="JsonArrayData.h" FileName="JSONDO~1.H|JsonDocument.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\json\JsonDocument.h" SelfReg="false" NextFile="JsonElement.h"/>
@@ -138,7 +141,7 @@
     <ROW File="Location.h" Component_="Location.h" FileName="Location.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\threads\Location.h" SelfReg="false" NextFile="Runable.h"/>
     <ROW File="LogEngine.h" Component_="Base64.h" FileName="LOGENG~1.H|LogEngine.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\LogEngine.h" SelfReg="false" NextFile="Logger.h"/>
     <ROW File="Logger.h" Component_="Base64.h" FileName="Logger.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Logger.h" SelfReg="false" NextFile="md5.h"/>
-    <ROW File="MSG00409.bin" Component_="events.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false" NextFile="Base64.h"/>
+    <ROW File="MSG00409.bin" Component_="events.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false" NextFile="event_provider.rc"/>
     <ROW File="MailMessageBody.h" Component_="BaseMailConnect.h" FileName="MAILME~1.H|MailMessageBody.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\MailMessageBody.h" SelfReg="false" NextFile="ServerConnection.h"/>
     <ROW File="MemoryDS.h" Component_="Base64.h" FileName="MemoryDS.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\MemoryDS.h" SelfReg="false" NextFile="BaseMailConnect.h"/>
     <ROW File="MySQLConnection.h" Component_="ConnectionParameters.h" FileName="MYSQLC~1.H|MySQLConnection.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\db\MySQLConnection.h" SelfReg="false" NextFile="MySQLStatement.h"/>
@@ -165,7 +168,9 @@
     <ROW File="Semaphore.h" Component_="Location.h" FileName="SEMAPH~1.H|Semaphore.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\threads\Semaphore.h" SelfReg="false" NextFile="Synchronized.h"/>
     <ROW File="ServerConnection.h" Component_="BaseMailConnect.h" FileName="SERVER~1.H|ServerConnection.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\ServerConnection.h" SelfReg="false" NextFile="SmtpConnect.h"/>
     <ROW File="SharedStrings.h" Component_="Base64.h" FileName="SHARED~1.H|SharedStrings.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\SharedStrings.h" SelfReg="false" NextFile="sptkconfig.h"/>
-    <ROW File="SmtpConnect.h" Component_="BaseMailConnect.h" FileName="SMTPCO~1.H|SmtpConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\SmtpConnect.h" SelfReg="false" NextFile="SSLContext.h"/>
+    <ROW File="SmtpConnect.h" Component_="BaseMailConnect.h" FileName="SMTPCO~1.H|SmtpConnect.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\SmtpConnect.h" SelfReg="false" NextFile="SocketEvents.h"/>
+    <ROW File="SocketEvents.h" Component_="BaseMailConnect.h" FileName="SOCKET~1.H|SocketEvents.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\SocketEvents.h" SelfReg="false" NextFile="SocketPool.h"/>
+    <ROW File="SocketPool.h" Component_="BaseMailConnect.h" FileName="SOCKET~2.H|SocketPool.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\net\SocketPool.h" SelfReg="false" NextFile="SSLContext.h"/>
     <ROW File="SourceModule.h" Component_="SourceModule.h" FileName="SOURCE~1.H|SourceModule.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\wsdl\SourceModule.h" SelfReg="false" NextFile="WSBasicTypes.h"/>
     <ROW File="Strings.h" Component_="Base64.h" FileName="Strings.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\Strings.h" SelfReg="false" NextFile="string_ext.h"/>
     <ROW File="Synchronized.h" Component_="Location.h" FileName="SYNCHR~1.H|Synchronized.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\threads\Synchronized.h" SelfReg="false" NextFile="SynchronizedCode.h"/>
@@ -203,14 +208,15 @@
     <ROW File="XMLException.h" Component_="XMLAttributes.h" FileName="XMLEXC~1.H|XMLException.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\xml\XMLException.h" SelfReg="false" NextFile="XMLNode.h"/>
     <ROW File="XMLNode.h" Component_="XMLAttributes.h" FileName="XMLNode.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\xml\XMLNode.h" SelfReg="false" NextFile="XMLNodeList.h"/>
     <ROW File="XMLNodeList.h" Component_="XMLAttributes.h" FileName="XMLNOD~1.H|XMLNodeList.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\xml\XMLNodeList.h" SelfReg="false" NextFile="XMLValue.h"/>
-    <ROW File="XMLValue.h" Component_="XMLAttributes.h" FileName="XMLValue.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\xml\XMLValue.h" SelfReg="false"/>
+    <ROW File="XMLValue.h" Component_="XMLAttributes.h" FileName="XMLValue.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\xml\XMLValue.h" SelfReg="false" NextFile="ZLib.h"/>
+    <ROW File="ZLib.h" Component_="Base64.h" FileName="ZLib.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\ZLib.h" SelfReg="false"/>
     <ROW File="cdatabase" Component_="Base64.h" FileName="CDATAB~1|cdatabase" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\cdatabase" SelfReg="false" NextFile="cgui"/>
     <ROW File="cgui" Component_="Base64.h" FileName="cgui" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\cgui" SelfReg="false" NextFile="cnet"/>
     <ROW File="cnet" Component_="Base64.h" FileName="cnet" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\cnet" SelfReg="false" NextFile="CommandLine.h"/>
     <ROW File="cthreads" Component_="Base64.h" FileName="cthreads" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\cthreads" SelfReg="false" NextFile="cutils"/>
     <ROW File="cutils" Component_="Base64.h" FileName="cutils" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\cutils" SelfReg="false" NextFile="cxml"/>
     <ROW File="cxml" Component_="Base64.h" FileName="cxml" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\cxml" SelfReg="false" NextFile="DataSource.h"/>
-    <ROW File="events.rc" Component_="events.rc" FileName="events.rc" Attributes="0" SourcePath="..\..\Program Files\SPTK\share\sptk5\resources\events.rc" SelfReg="false" NextFile="MSG00409.bin"/>
+    <ROW File="event_provider.rc" Component_="events.rc" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false" NextFile="Base64.h"/>
     <ROW File="filedefs.h" Component_="Base64.h" FileName="filedefs.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\filedefs.h" SelfReg="false" NextFile="FileLogEngine.h"/>
     <ROW File="md5.h" Component_="Base64.h" FileName="md5.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\md5.h" SelfReg="false" NextFile="MemoryDS.h"/>
     <ROW File="spdb5.lib" Component_="spdb5.lib" FileName="spdb5.lib" Attributes="0" SourcePath="..\..\Program Files\SPTK\lib\spdb5.lib" SelfReg="false" NextFile="spdb5_odbc.lib"/>
@@ -221,7 +227,7 @@
     <ROW File="sptk.h" Component_="Base64.h" FileName="sptk.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\sptk.h" SelfReg="false" NextFile="Strings.h"/>
     <ROW File="sptkconfig.h" Component_="Base64.h" FileName="SPTK-C~1.H|sptk-config.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\sptk-config.h" SelfReg="false" NextFile="sptk.h"/>
     <ROW File="sputil5.lib" Component_="spdb5.lib" FileName="sputil5.lib" Attributes="0" SourcePath="..\..\Program Files\SPTK\lib\sputil5.lib" SelfReg="false" NextFile="spwsdl5.lib"/>
-    <ROW File="spwsdl5.lib" Component_="spdb5.lib" FileName="spwsdl5.lib" Attributes="0" SourcePath="..\..\Program Files\SPTK\lib\spwsdl5.lib" SelfReg="false" NextFile="events.rc"/>
+    <ROW File="spwsdl5.lib" Component_="spdb5.lib" FileName="spwsdl5.lib" Attributes="0" SourcePath="..\..\Program Files\SPTK\lib\spwsdl5.lib" SelfReg="false" NextFile="MSG00409.bin"/>
     <ROW File="string_ext.h" Component_="Base64.h" FileName="STRING~1.H|string_ext.h" Attributes="0" SourcePath="..\..\Program Files\SPTK\include\sptk5\string_ext.h" SelfReg="false" NextFile="SysLogEngine.h"/>
     <ROW File="wsdl2cxx.exe" Component_="wsdl2cxx.exe_1" FileName="wsdl2cxx.exe" Attributes="0" SourcePath="..\..\Program Files\SPTK\bin\wsdl2cxx.exe" SelfReg="false" NextFile="spdb5.lib" DigSign="true"/>
   </COMPONENT>
