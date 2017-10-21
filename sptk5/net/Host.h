@@ -33,33 +33,65 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
+
+/**
+ * Network host information
+ */
 class Host
 {
-    std::string m_hostname;
-    uint16_t    m_port;
+    std::string m_hostname;     ///< Host name or IP address
+    uint16_t    m_port;         ///< Port number
 
 public:
 
-    Host()
-        : m_port(0)
+    /**
+     * Default constructor
+     */
+    Host() : m_port(0)
     {}
 
+    /**
+     * Constructor
+     * @param hostname Host name or IP address
+     * @param port Port number
+     */
     Host(const std::string& hostname, uint16_t port)
-        : m_hostname(hostname), m_port(port)
+    : m_hostname(hostname), m_port(port)
     {}
 
+    /**
+     * Constructor
+     * In order to work with IPv6 address, enclose address part in square brackets.
+     * @param hostAndPort The host and port definition, in the format <ipv4addr>:<port>.
+     */
     explicit Host(const std::string& hostAndPort);
 
+    /**
+     * Copy constructor
+     * @param other The other object
+     */
     explicit Host(const Host& other)
-        : m_hostname(other.m_hostname), m_port(other.m_port)
+    : m_hostname(other.m_hostname), m_port(other.m_port)
     {}
 
+    /**
+     * Move constructor
+     * @param other The other object
+     */
     explicit Host(Host&& other)
-        : m_hostname(move(other.m_hostname)), m_port(other.m_port)
+    : m_hostname(move(other.m_hostname)), m_port(other.m_port)
     {
         other.m_port = 0;
     }
 
+    /**
+     * Assign from another host
+     * @param other The other object
+     */
     Host& operator = (const Host& other)
     {
         m_hostname = other.m_hostname;
@@ -67,29 +99,62 @@ public:
         return *this;
     }
 
+    /**
+     * Compare to another host
+     * @param other The other object
+     */
     bool operator == (const Host& other) const
     {
         return m_hostname == other.m_hostname && m_port == other.m_port;
     }
 
+    /**
+     * Compare to another host
+     * @param other The other object
+     */
     bool operator != (const Host& other) const
     {
         return m_hostname != other.m_hostname || m_port != other.m_port;
     }
 
-    const std::string& hostname() const {return m_hostname; }
+    /**
+     * Get host name
+     * @return host name
+     */
+    const std::string& hostname() const { return m_hostname; }
 
+    /**
+     * Set port number
+     * @param p Port number
+     */
     void port(uint16_t p) { m_port = p; }
-    uint16_t port() const {return m_port; }
 
+    /**
+     * Get port number
+     * @return port number
+     */
+    uint16_t port() const { return m_port; }
+
+    /**
+     * Get host name and port as a string.
+     * IPv6 addresses are enclosed in square brackets.
+     * @return host name and port string
+     */
     std::string toString() const
     {
         std::stringstream str;
-        str << m_hostname << ":" << m_port;
+        if (hostname().find(':') != std::string::npos)
+            str << "[" << m_hostname << "]:" << m_port;
+        else
+            str << m_hostname << ":" << m_port;
         return str.str();
     }
 
 };
+
+/**
+ * @}
+ */
 
 }
 
