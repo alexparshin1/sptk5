@@ -33,17 +33,30 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
+
+/**
+ * @brief Network host information
+ */
 class Host
 {
-    std::string m_hostname;
-    uint16_t    m_port;
+    std::string m_hostname;     ///< Host name or IP address
+    uint16_t    m_port;         ///< Port number
 
 public:
 
-    Host()
-        : m_port(0)
+    /**
+     * Constructor
+     */
+    Host() : m_port(0)
     {}
 
+    /**
+     * Constructor
+     */
     Host(const std::string& hostname, uint16_t port)
         : m_hostname(hostname), m_port(port)
     {}
