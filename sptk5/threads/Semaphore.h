@@ -93,8 +93,7 @@ public:
      * @brief Waits until semaphore value is greater than zero, or until timeout occurs
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * Timeout interval is in milliseconds.
-     * @param timeout int32_t, wait timeout in milliseconds
+     * @param timeout std::chrono::milliseconds, wait timeout
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
     bool wait(std::chrono::milliseconds timeout);
