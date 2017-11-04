@@ -110,18 +110,18 @@ public:
      * @param host const Host&, the host name
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeout std::chrono::milliseconds, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const Host& host, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0) override;
+    virtual void open(const Host& host, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
 
     /**
      * @brief Opens the client socket connection by host and port
      * @param address const sockaddr_in&, address and port
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeout uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS) override;
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * @brief Attaches socket handle

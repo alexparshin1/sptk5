@@ -57,7 +57,7 @@ void WSWebServiceProtocol::process()
     } else {
         size_t socketBytes = m_socket.socketBytes();
         if (socketBytes == 0) {
-            if (!m_socket.readyToRead(30000))
+            if (!m_socket.readyToRead(chrono::seconds(30)))
                 throwException("Client disconnected");
             socketBytes = m_socket.socketBytes();
         }

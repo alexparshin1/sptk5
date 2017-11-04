@@ -37,15 +37,15 @@ void WorkerThread::threadFunction()
     if (m_threadEvent != nullptr)
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED);
 
-    uint32_t idleSeconds = 0;
+    chrono::milliseconds idleSeconds(0);
     while (!terminated()) {
 
-        if (m_maxIdleSeconds != SP_INFINITY && idleSeconds >= m_maxIdleSeconds)
+        if (idleSeconds >= m_maxIdleSeconds)
             break;
 
         Runable* runable = nullptr;
-        if (m_queue->pop(runable, 1000)) {
-            idleSeconds = 0;
+        if (m_queue->pop(runable, chrono::milliseconds(1000))) {
+            idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED);
             try {
@@ -66,10 +66,11 @@ void WorkerThread::threadFunction()
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED);
 }
 
-WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* threadEvent, uint32_t maxIdleSeconds) :
+WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* threadEvent,
+                           chrono::milliseconds maxIdleTime) :
     Thread("worker"),
     m_threadEvent(threadEvent),
-    m_maxIdleSeconds(maxIdleSeconds)
+    m_maxIdleSeconds(maxIdleTime)
 {
     if (queue != nullptr)
         m_queue = queue;

@@ -100,9 +100,9 @@ public:
 
     /**
      * @brief Returns true, if the task is completed
-     * @param timeoutMS uint32_t, Wait timeout, milliseconds
+     * @param timeout std::chrono::milliseconds, Wait timeout
      */
-    bool completed(uint32_t timeoutMS=SP_INFINITY);
+    bool completed(std::chrono::milliseconds timeout);
 };
 /**
  * @}

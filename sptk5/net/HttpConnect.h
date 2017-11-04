@@ -104,21 +104,21 @@ protected:
 
     /**
      * @brief Read HTTP response headers
-     * @param timeoutMS uint32_t, Response timeout
+     * @param timeout std::chrono::milliseconds, Response timeout
      * @param httpStatus String&, HTTP result status
      * @return HTTP result code
      */
-    int readHeaders(uint32_t timeoutMS, String& httpStatus);
+    int readHeaders(std::chrono::milliseconds timeout, String& httpStatus);
 
     /**
      * @brief Retrieves the server response on the command
      *
      * Stops when HTTP server closes the connection. The server response can then be
      * accessed through the htmlData() method.
-     * @param timeoutMS uint32_t, Response timeout
+     * @param timeout std::chrono::milliseconds, Response timeout
      * @return HTTP result code
      */
-    int getResponse(uint32_t timeoutMS);
+    int getResponse(std::chrono::milliseconds timeout);
 
 public:
 
@@ -173,10 +173,10 @@ public:
      * Retrieves the server response into internal read buffer.
      * @param pageName std::string, the name of the page without the server name.
      * @param parameters const HttpParams&, the list of HTTP data to pass to the server
-     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @param timeout std::chrono::milliseconds, response timeout
      * @return HTTP result code
      */
-    int cmd_get(const std::string& pageName, const HttpParams& parameters, uint32_t timeoutMS);
+    int cmd_get(const std::string& pageName, const HttpParams& parameters, std::chrono::milliseconds timeout);
 
     /**
      * @brief Sends the POST command to the server
@@ -186,11 +186,11 @@ public:
      * @param parameters const HttpParams&, the list of HTTP data to pass to the server
      * @param content const Buffer&, the data to post to the server
      * @param gzipContent bool, if true then compress buffer and set HTTP header Content-Encoding
-     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @param timeout std::chrono::milliseconds, response timeout
      * @return HTTP result code
      */
     int cmd_post(const std::string& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
-                 uint32_t timeoutMS);
+                 std::chrono::milliseconds timeout);
 
     /**
      * @brief Sends the PUT command to the server
@@ -199,10 +199,10 @@ public:
      * @param pageName std::string, the name of the page without the server name.
      * @param parameters const HttpParams&, the list of HTTP data to pass to the server
      * @param content const Buffer&, the data to post to the server
-     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @param timeout std::chrono::milliseconds, response timeout
      * @return HTTP result code
      */
-    int cmd_put(const std::string& pageName, const HttpParams& parameters, const Buffer& content, uint32_t timeoutMS);
+    int cmd_put(const std::string& pageName, const HttpParams& parameters, const Buffer& content, std::chrono::milliseconds timeout);
 
    /**
      * @brief Sends the DELETE command to the server
@@ -210,10 +210,10 @@ public:
      * Retrieves the server response into internal read buffer.
      * @param pageName std::string, the name of the page without the server name.
      * @param parameters const HttpParams&, the list of HTTP data to pass to the server
-     * @param timeoutMS uint32_t, response timeout, milliseconds
+     * @param timeout std::chrono::milliseconds, response timeout, milliseconds
      * @return HTTP result code
      */
-    int cmd_delete(const std::string& pageName, const HttpParams& parameters, uint32_t timeoutMS);
+    int cmd_delete(const std::string& pageName, const HttpParams& parameters, std::chrono::milliseconds timeout);
 
     /**
      * @brief Get value of response header

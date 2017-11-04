@@ -83,15 +83,15 @@ public:
 
     /**
      * Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.
-     * @param timeout int, timeout in milliseconds
+     * @param timeout std::chrono::milliseconds, Lock timeout
      */
-    int lockR(int timeout);
+    int lockR(std::chrono::milliseconds timeout);
 
     /**
      * Try to lock the object for writing. Blocks if object is locked for reading or writing.
-     * @param timeout int, timeout in milliseconds
+     * @param timeout std::chrono::milliseconds, Lock timeout
      */
-    int lockRW(int timeout);
+    int lockRW(std::chrono::milliseconds timeout);
 
     /**
      * Releases lock on the object.

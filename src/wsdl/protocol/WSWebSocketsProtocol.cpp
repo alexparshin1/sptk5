@@ -149,7 +149,7 @@ void WSWebSocketsProtocol::process()
         m_socket.write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
         m_socket.write("\r\n");
 
-        if (m_socket.readyToRead(30000)) {
+        if (m_socket.readyToRead(chrono::seconds(30))) {
             Buffer message;
 
             while (m_socket.socketBytes() == 0)

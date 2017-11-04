@@ -63,7 +63,7 @@ void WSConnection::threadFunction()
     String      protocolName, url, requestType;
 
     try {
-        if (!m_socket->readyToRead(30000)) {
+        if (!m_socket->readyToRead(chrono::seconds(30))) {
             m_socket->close();
             m_logger << LP_DEBUG << "Client closed connection" << endl;
             return;

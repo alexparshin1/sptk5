@@ -42,7 +42,7 @@ void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Destin
     m_source.attach(sourceFD);
 
     m_destination.bind(interfaceAddress.c_str(), 0);
-    m_destination.open(destination.address(), BaseSocket::SOM_CONNECT, false, 60000);
+    m_destination.open(destination.address(), BaseSocket::SOM_CONNECT, false, chrono::seconds(60));
 
     m_sourceEvents.add(m_source, this);
     m_destinationEvents.add(m_destination, this);

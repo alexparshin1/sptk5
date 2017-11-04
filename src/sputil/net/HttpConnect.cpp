@@ -40,11 +40,11 @@ HttpConnect::HttpConnect(TCPSocket& socket)
     m_requestHeaders["Connection"] = "close";
 }
 
-int HttpConnect::readHeaders(uint32_t timeoutMS, String& httpStatus)
+int HttpConnect::readHeaders(std::chrono::milliseconds timeout, String& httpStatus)
 {
     m_responseHeaders.clear();
 
-    if (!m_socket.readyToRead(timeoutMS)) {
+    if (!m_socket.readyToRead(timeout)) {
         m_socket.close();
         throw Exception("Response timeout");
     }
@@ -99,7 +99,7 @@ string HttpConnect::responseHeader(const string& headerName) const
     return itor->second;
 }
 
-int HttpConnect::getResponse(uint32_t readTimeout)
+int HttpConnect::getResponse(std::chrono::milliseconds readTimeout)
 {
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
@@ -239,7 +239,7 @@ Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageNa
     return headers;
 }
 
-int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
 {
     m_readBuffer.checkSize(1024);
 
@@ -250,11 +250,11 @@ int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParame
     //cout << command;
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(timeout);
 }
 
 int HttpConnect::cmd_post(const string& pageName, const HttpParams& parameters, const Buffer& postData,
-                          bool gzipContent, uint32_t timeoutMS)
+                          bool gzipContent, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("POST", pageName, parameters);
     headers.push_back("Accept-Encoding: gzip");
@@ -277,11 +277,11 @@ int HttpConnect::cmd_post(const string& pageName, const HttpParams& parameters, 
 
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(timeout);
 }
 
 int HttpConnect::cmd_put(const string& pageName, const HttpParams& requestParameters, const Buffer& putData,
-                         uint32_t timeoutMS)
+                         chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters);
     headers.push_back("Accept-Encoding: gzip");
@@ -296,15 +296,15 @@ int HttpConnect::cmd_put(const string& pageName, const HttpParams& requestParame
 
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(timeout);
 }
 
-int HttpConnect::cmd_delete(const string& pageName, const HttpParams& requestParameters, uint32_t timeoutMS)
+int HttpConnect::cmd_delete(const string& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters);
     string  command = headers.asString("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 
-    return getResponse(timeoutMS);
+    return getResponse(timeout);
 }

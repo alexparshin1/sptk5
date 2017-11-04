@@ -36,7 +36,7 @@ bool TCPServer::allowConnection(sockaddr_in* connectionRequest)
     return true;
 }
 
-TCPServerListener::TCPServerListener(TCPServer* server, int port)
+TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
 : Thread("CTCPServer::Listener"), m_server(server)
 {
     m_listenerSocket.host(Host("localhost", port));
@@ -47,7 +47,7 @@ void TCPServerListener::threadFunction()
     try {
         while (!terminated()) {
             SYNCHRONIZED_CODE;
-            if (m_listenerSocket.readyToRead(1000)) {
+            if (m_listenerSocket.readyToRead(chrono::milliseconds(1000))) {
                 try {
                     SOCKET connectionFD;
                     sockaddr_in connectionInfo = {};

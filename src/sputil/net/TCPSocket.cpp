@@ -86,7 +86,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
         else {
             cr = strchr(readPosition, delimiter);
             if (cr != nullptr)
-                len = size_t(cr - readPosition + 1);
+                len = cr - readPosition + 1;
         }
         if (len < sz) {
             eol = true;
@@ -187,7 +187,7 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
-void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
+void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!host.hostname().empty())
         m_host = host;
@@ -199,10 +199,10 @@ void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
     addr.sin_family = AF_INET;
     addr.sin_port = htons(m_host.port());
 
-    open(addr, openMode, _blockingMode, timeoutMS);
+    open(addr, openMode, _blockingMode, timeout);
 }
 
-void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
+void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeoutMS)
 {
     open_addr(openMode, &address, timeoutMS);
     m_reader.open();
@@ -224,11 +224,9 @@ size_t TCPSocket::socketBytes()
     return m_reader.availableBytes() + BaseSocket::socketBytes();
 }
 
-bool TCPSocket::readyToRead(uint32_t timeoutMS)
+bool TCPSocket::readyToRead(chrono::milliseconds timeoutMS)
 {
-    if (m_reader.availableBytes() > 0)
-        return true;
-    return BaseSocket::readyToRead(timeoutMS);
+    return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeoutMS);
 }
 
 char TCPSocket::getChar()

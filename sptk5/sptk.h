@@ -102,10 +102,6 @@ namespace sptk {
 #define ALIGN_RIGHT  2
 #define ALIGN_CENTER 3
 
-/**
- * Infinite timeout (milliseconds)
- */
-#define SP_INFINITY uint32_t(-1)
 }
 
 #ifdef __UNIX_COMPILER__

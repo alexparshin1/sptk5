@@ -131,11 +131,11 @@ public:
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A queue item (output)
-     * @param timeoutMS int32_t, Operation timeout in milliseconds
+     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
      */
-    bool pop(T& item, int32_t timeoutMS)
+    bool pop(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.wait(uint32_t(timeoutMS))) {
+        if (m_semaphore.wait(timeout)) {
             SynchronizedCode sc(m_sync);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());

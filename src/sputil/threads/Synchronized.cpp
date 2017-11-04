@@ -52,17 +52,14 @@ void Synchronized::throwError(const char* fileName, int lineNumber)
 
 void Synchronized::lock(const char* fileName, int lineNumber)
 {
-    lock(uint32_t(-1), fileName, lineNumber);
+    lock(std::chrono::seconds(3600), fileName, lineNumber);
 }
 
-void Synchronized::lock(uint32_t timeoutMS, const char* fileName, int lineNumber)
+void Synchronized::lock(chrono::milliseconds timeout, const char* fileName, int lineNumber)
 {
-    if (timeoutMS == uint32_t(-1))
-        m_synchronized.lock();
-    else {
-        if (!m_synchronized.try_lock_for(chrono::milliseconds(timeoutMS)))
-            throwError(fileName, lineNumber);
-    }
+    if (!m_synchronized.try_lock_for(timeout))
+        throwError(fileName, lineNumber);
+
     // Storing successful lock invocation location
     m_location.set(fileName, lineNumber);
 }

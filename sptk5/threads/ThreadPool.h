@@ -81,7 +81,7 @@ class SP_EXPORT ThreadPool : public Synchronized, public ThreadEvent, public Thr
     /**
      * Maximum thread idle time before thread in this pool is terminated
      */
-    uint32_t                            m_threadIdleSeconds;
+    std::chrono::milliseconds           m_threadIdleSeconds;
 
     /**
      * Flag: true during pool shutdown

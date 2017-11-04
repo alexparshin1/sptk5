@@ -70,7 +70,7 @@ public:
      * @param server CTCPServer*, TCP server created connection
      * @param port int, Listener port number
      */
-    TCPServerListener(TCPServer* server, int port);
+    TCPServerListener(TCPServer* server, uint16_t port);
 
     /**
      * @brief Thread function

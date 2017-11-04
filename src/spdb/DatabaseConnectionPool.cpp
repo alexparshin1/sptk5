@@ -162,7 +162,7 @@ DatabaseConnection* DatabaseConnectionPool::createConnection()
         m_connections.push_back(connection);
         return connection;
     }
-    m_pool.pop(connection, 10000);
+    m_pool.pop(connection, std::chrono::seconds(10));
     return connection;
 }
 

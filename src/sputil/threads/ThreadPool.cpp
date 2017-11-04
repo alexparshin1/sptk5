@@ -49,7 +49,7 @@ void ThreadPool::threadFunction()
 {
     while (!terminated()) {
         WorkerThread* workerThread = nullptr;
-        if (m_terminatedThreads.pop_front(workerThread, 1000)) {
+        if (m_terminatedThreads.pop_front(workerThread, std::chrono::milliseconds(1000))) {
             m_threads.remove(workerThread);
             delete workerThread;
         }
@@ -70,7 +70,7 @@ void ThreadPool::execute(Runable* task)
     if (m_shutdown)
         throw Exception("Thread manager is stopped");
 
-    if (!m_availableThreads.wait(10)) {
+    if (!m_availableThreads.wait(std::chrono::milliseconds(10))) {
         if (m_threads.size() < m_threadLimit)
             createThread();
     }

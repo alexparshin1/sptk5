@@ -31,7 +31,6 @@
 
 // These two includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
-#include <openssl/ssl.h>
 
 using namespace std;
 using namespace sptk;
@@ -136,7 +135,7 @@ SSLSocket::~SSLSocket()
     SSL_free(m_ssl);
 }
 
-void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
+void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     if (!host.hostname().empty())
         m_host = host;
@@ -148,12 +147,12 @@ void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
     addr.sin_family = AF_INET;
     addr.sin_port = htons(m_host.port());
 
-    open(addr, openMode, _blockingMode, timeoutMS);
+    open(addr, openMode, _blockingMode, timeout);
 }
 
-void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, uint32_t timeoutMS)
+void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
-    TCPSocket::open(address, openMode, _blockingMode, timeoutMS);
+    TCPSocket::open(address, openMode, _blockingMode, timeout);
 
     SYNCHRONIZED_CODE;
 

@@ -63,6 +63,7 @@
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
 
+#include <chrono>
 #include <sptk5/Exception.h>
 #include <sptk5/net/Host.h>
 #include <sptk5/Strings.h>
@@ -167,9 +168,9 @@ public:
      * @brief Opens the socket connection by address.
      * @param openMode CSocketOpenMode, SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param addr const sockaddr_in*, defines socket address/port information
-     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeoutMS std::chrono::milliseconds, Connection timeout. If 0 the wait forever;
      */
-    void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = 0L, uint32_t timeoutMS=0);
+    void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
 public:
     /**
@@ -229,18 +230,18 @@ public:
      * @param host const Host&, the host
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeoutMS std::chrono::milliseconds, Connection timeout. The default is 0 (wait forever)
      */
-    virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS=0);
+    virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0));
 
     /**
      * @brief Opens the client socket connection by host and port
      * @param address const sockaddr_in&, address and port
      * @param openMode CSocketOpenMode, socket open mode
      * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param timeoutMS uint32_t, Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, uint32_t timeoutMS = 0)
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {}
 
     /**
@@ -373,15 +374,15 @@ public:
 
     /**
      * @brief Reports true if socket is ready for reading from it
-     * @param timeoutMS uint32_t, read timeout in msec
+     * @param timeout std::chrono::milliseconds, read timeout
      */
-    virtual bool readyToRead(uint32_t timeoutMS);
+    virtual bool readyToRead(std::chrono::milliseconds timeout);
 
     /**
      * @brief Reports true if socket is ready for writing to it
-     * @param timeoutMS uint32_t, read timeout in msec
+     * @param timeout std::chrono::milliseconds, write timeout
      */
-    virtual bool readyToWrite(uint32_t timeoutMS);
+    virtual bool readyToWrite(std::chrono::milliseconds timeout);
 };
 
 #define THROW_SOCKET_ERROR(msg) BaseSocket::throwSocketError(msg,__FILE__,__LINE__)

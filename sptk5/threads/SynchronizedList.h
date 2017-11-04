@@ -116,11 +116,11 @@ public:
      * If list is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A list item (output)
-     * @param timeoutMS uint32_t, Operation timeout in milliseconds, default if INFINITE_TIMEOUT
+     * @param timeout std::chrono::milliseconds, Operation timeout
      */
-    virtual bool pop_front(T& item, uint32_t timeoutMS=SP_INFINITY)
+    virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.wait(timeoutMS)) {
+        if (m_semaphore.wait(timeout)) {
             SynchronizedCode sc(m_sync);
             if (!m_list->empty()) {
                 item = m_list->front();
@@ -151,11 +151,11 @@ public:
      * If list is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A list item (output)
-     * @param timeoutMS uint32_t, Operation timeout in milliseconds, default is INFINITE_TIMEOUT
+     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
      */
-    virtual bool pop_back(T& item, uint32_t timeoutMS=SP_INFINITY)
+    virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.wait(timeoutMS)) {
+        if (m_semaphore.wait(timeout)) {
             SynchronizedCode sc(m_sync);
             if (!m_list->empty()) {
                 item = m_list->back();

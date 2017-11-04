@@ -72,7 +72,7 @@ class SP_EXPORT WorkerThread : public Thread
     /**
      * Number of thread idle seconds before thread terminates automatically
      */
-    uint32_t                        m_maxIdleSeconds;
+    std::chrono::milliseconds       m_maxIdleSeconds;
 
 
 protected:
@@ -93,11 +93,11 @@ public:
      * for a period longer than maxIdleSec then it terminates automatically.
      * @param queue SynchronizedQueue<Runable*>*, Task queue
      * @param threadEvent ThreadEvent*, Optional thread event interface
-     * @param maxIdleSeconds int32_t, Maximum time the thread is idle, seconds
+     * @param maxIdleTime int32_t, Maximum time the thread is idle, seconds
      */
-    WorkerThread(SynchronizedQueue<Runable*>* queue=NULL,
-                  ThreadEvent* threadEvent=NULL,
-                  uint32_t maxIdleSeconds=SP_INFINITY);
+    WorkerThread(SynchronizedQueue<Runable*>* queue = NULL,
+                 ThreadEvent* threadEvent = NULL,
+                 std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
 
     /**
      * @brief Destructor

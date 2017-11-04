@@ -53,10 +53,10 @@ bool Runable::terminated()
     return m_terminated;
 }
 
-bool Runable::completed(uint32_t timeoutMS)
+bool Runable::completed(chrono::milliseconds timeout)
 {
     try {
-        m_running.lock(timeoutMS);
+        m_running.lock(timeout);
         m_running.unlock();
         // Not running
         return true;

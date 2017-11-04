@@ -100,11 +100,11 @@ public:
      *
      * Throws CTimeoutException exception if timeout.
      * Throws CException exception if lock was interrupted.
-     * @param timeoutMS uint32_t, lock timeout, milliseconds
+     * @param timeout std::chrono::milliseconds, lock timeout, milliseconds
      * @param fileName const char*, lock location fileName, default is NULL
      * @param lineNumber int, lock location line number, default is 0
      */
-    virtual void lock(uint32_t timeoutMS, const char* fileName=NULL, int lineNumber = 0);
+    virtual void lock(std::chrono::milliseconds timeout, const char* fileName = NULL, int lineNumber = 0);
 
     /**
      * @brief Tries to lock synchronization object.

@@ -185,8 +185,10 @@ void BaseSocket::host(const Host& host)
 }
 
 // Connect & disconnect
-void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, uint32_t timeoutMS)
+void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, std::chrono::milliseconds timeout)
 {
+    auto timeoutMS = (int) timeout.count();
+
     if (active())
         close();
 
@@ -204,7 +206,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, ui
             if (timeoutMS != 0) {
                 blockingMode(false);
                 connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
-                if (!readyToWrite(timeoutMS)) {
+                if (!readyToWrite(timeout)) {
                     close();
                     throw Exception("Connection timeout");
                 }
@@ -241,7 +243,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, ui
     }
 }
 
-void BaseSocket::open(const Host& host, CSocketOpenMode openMode, bool blockingMode, uint32_t timeoutMS)
+void BaseSocket::open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
 {}
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
@@ -374,8 +376,9 @@ size_t BaseSocket::write(const std::string& buffer, const sockaddr_in* peer)
 #define CONNCLOSED (POLLRDHUP|POLLHUP)
 #endif
 
-bool BaseSocket::readyToRead(uint32_t timeoutMS)
+bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 {
+    auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
     struct timeval timeout;
     timeout.tv_sec = int32_t (timeoutMS) / 1000;
@@ -406,8 +409,9 @@ bool BaseSocket::readyToRead(uint32_t timeoutMS)
     return rc != 0;
 }
 
-bool BaseSocket::readyToWrite(uint32_t timeoutMS)
+bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 {
+    auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
     struct timeval timeout;
     timeout.tv_sec = int32_t (timeoutMS) / 1000;

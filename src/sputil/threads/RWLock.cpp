@@ -42,16 +42,13 @@ RWLock::~RWLock()
 {
 }
 
-int RWLock::lockR(int timeoutMS)
+int RWLock::lockR(chrono::milliseconds timeout)
 {
-    if (timeoutMS < 0)
-        timeoutMS = 999999999;
-
     unique_lock<mutex>  lock(m_writeLock);
 
     // Wait for no writers
     if (!m_condition.wait_for(lock, 
-                              chrono::milliseconds(timeoutMS), 
+                              timeout,
                               [this](){return m_writerMode == false;}))
     {
         return false;
@@ -62,16 +59,13 @@ int RWLock::lockR(int timeoutMS)
     return true;
 }
 
-int RWLock::lockRW(int timeoutMS)
+int RWLock::lockRW(chrono::milliseconds timeout)
 {
-    if (timeoutMS < 0)
-        timeoutMS = 999999999;
-
     unique_lock<mutex>  lock(m_writeLock);
 
     // Wait for no readers or writers
     if (!m_condition.wait_for(lock, 
-                              chrono::milliseconds(timeoutMS), 
+                              timeout,
                               [this](){return m_writerMode == false && m_readerCount == 0;}))
     {
         return false;

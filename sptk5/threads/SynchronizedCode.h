@@ -84,11 +84,11 @@ public:
      * Automatically locks the lock object. That is needed for thread safety.
      * If the lock isn't acquired within timeout period, CTimeoutException is thrown.
      * @param object Synchronized&, Synchronization object to lock.
-     * @param timeoutMS uint32_t, lock timeout, milliseconds
+     * @param timeoutMS std::chrono::milliseconds, lock timeout
      * @param fileName const char*, lock location fileName, default is NULL
      * @param lineNumber int, lock location line number, default is 0
      */
-    SynchronizedCode(Synchronized& object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0)
+    SynchronizedCode(Synchronized& object, std::chrono::milliseconds timeoutMS, const char* fileName = NULL, int lineNumber = 0)
     : m_object(&object)
     {
         m_object->lock(timeoutMS, fileName, lineNumber);
@@ -100,11 +100,11 @@ public:
      * Automatically locks the lock object. That is needed for thread safety.
      * If the lock isn't acquired within timeout period, CTimeoutException is thrown.
      * @param object Synchronized*, Synchronization object to lock.
-     * @param timeoutMS uint32_t, lock timeout, milliseconds
+     * @param timeoutMS std::chrono::milliseconds, lock timeout, milliseconds
      * @param fileName const char*, lock location fileName, default is NULL
      * @param lineNumber int, lock location line number, default is 0
      */
-    SynchronizedCode(Synchronized* object, uint32_t timeoutMS, const char* fileName = NULL, int lineNumber = 0)
+    SynchronizedCode(Synchronized* object, std::chrono::milliseconds timeoutMS, const char* fileName = NULL, int lineNumber = 0)
     : m_object(object)
     {
         m_object->lock(timeoutMS, fileName, lineNumber);
@@ -131,7 +131,7 @@ public:
 #ifndef SPTK_LOCK_DEBUG
     #define SYNCHRONIZED_CODE sptk::SynchronizedCode lock(this)
 #else
-    #define SYNCHRONIZED_CODE sptk::SynchronizedCode lock(this, 10000, __FILE__, __LINE__)
+    #define SYNCHRONIZED_CODE sptk::SynchronizedCode lock(this, std::chrono::seconds(10), __FILE__, __LINE__)
 #endif
 
 
