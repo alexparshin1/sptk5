@@ -95,8 +95,3 @@ void Thread::run()
     m_terminated = false;
     m_thread = thread(threadStart, (void *) this);
 }
-
-void Thread::msleep(int msec)
-{
-    this_thread::sleep_for(chrono::milliseconds(msec));
-}

@@ -109,7 +109,7 @@ void ThreadPool::stop()
     }
     m_threads.each(terminateThread);
     while (!m_threads.empty())
-        Thread::msleep(100);
+        this_thread::sleep_for(chrono::seconds(1));
 }
 
 size_t ThreadPool::size() const

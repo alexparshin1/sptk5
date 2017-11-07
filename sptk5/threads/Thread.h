@@ -136,12 +136,6 @@ public:
     {
         return m_name;
     }
-
-    /**
-     * @brief Pauses the thread
-     * @param msec int, pause time in milliseconds
-     */
-    static void msleep(int msec);
 };
 /**
  * @}

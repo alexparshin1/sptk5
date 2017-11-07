@@ -48,9 +48,8 @@ int main(int argc, const char* argv[])
     LoadBalance loadBalance(1100, destinations, interfaces);
 
     loadBalance.run();
-    while (true) {
-        Thread::msleep(100);
-    }
+    while (true)
+        this_thread::sleep_for(chrono::milliseconds(100));
 
     return 0;
 }

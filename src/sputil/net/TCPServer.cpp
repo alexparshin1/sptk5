@@ -119,7 +119,7 @@ void TCPServer::stop()
     }
 
     while (true) {
-        Thread::msleep(100);
+        this_thread::sleep_for(chrono::milliseconds(100));
         SynchronizedCode   m_sync(m_connectionThreadsLock);
         if (m_connectionThreads.empty())
             break;

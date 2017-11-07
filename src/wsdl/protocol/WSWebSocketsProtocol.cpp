@@ -153,7 +153,7 @@ void WSWebSocketsProtocol::process()
             Buffer message;
 
             while (m_socket.socketBytes() == 0)
-                Thread::msleep(100);
+                this_thread::sleep_for(chrono::milliseconds(100));
 
             size_t available = m_socket.socketBytes();
             m_socket.read(message, available);

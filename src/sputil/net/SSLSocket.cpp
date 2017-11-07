@@ -185,7 +185,7 @@ void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
         time_t now = time(nullptr);
         if (now - started > 30)
             throw Exception("SSL handshake timeout");
-        Thread::msleep(1);
+        this_thread::sleep_for(chrono::milliseconds(1));
     }
 }
 
@@ -302,6 +302,6 @@ size_t SSLSocket::send(const void* buffer, size_t len)
         int32_t errorCode = SSL_get_error(m_ssl, rc);
         if (errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
             throw Exception(getSSLError("writing to SSL connection", errorCode));
-        Thread::msleep(10);
+        this_thread::sleep_for(chrono::milliseconds(10));
     }
 }
