@@ -35,11 +35,11 @@ using namespace sptk;
 class StubRequest : public WSRequest
 {
 protected:
-    virtual void requestBroker(XMLElement* requestNode)
+    void requestBroker(XMLElement* requestNode) override
     {}
 
 public:
-    StubRequest() {}
+    StubRequest() = default;
 };
 
 int main( int argc, char* argv[] )
@@ -52,7 +52,7 @@ int main( int argc, char* argv[] )
         WSListener server(request, logger, "/var/lib/pgman/webapp");
         server.listen(8000);
         while (true)
-            Thread::msleep(1000);
+            this_thread::sleep_for(chrono::milliseconds(1000));
     }
     catch (std::exception& e) {
         std::cout << "Exception was caught: " << e.what() << "\nExiting.\n";

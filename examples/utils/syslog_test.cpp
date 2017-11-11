@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
    }
    catch (exception& e) {
       puts(e.what());
-      Thread::msleep(5000);
+      this_thread::sleep_for(chrono::seconds(5));
    }
 
    return 0;

@@ -41,7 +41,7 @@ class CMyTask : public Runable
 public:
 
     // Constructor
-    CMyTask(FileLogEngine& sharedLog);
+    explicit CMyTask(FileLogEngine& sharedLog);
 
     // The thread function.
     void run() override;
@@ -70,7 +70,7 @@ void CMyTask::run()
     while (!terminated()) {
         m_log << "Output " << counter << " from " << name() << endl;
         counter++;
-        Thread::msleep(100);
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 
     m_log << name() << " is terminated" << endl;
@@ -100,7 +100,7 @@ int main(int, char* [])
         tasks.push_back(new CMyTask(sharedLog));
 
     cout << tasks.size() << " tasks are created." << endl;
-    Thread::msleep(100);
+    this_thread::sleep_for(chrono::milliseconds(100));
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl;
 
@@ -109,16 +109,16 @@ int main(int, char* [])
         threadPool.execute(tasks[i]);
 
     cout << tasks.size() << " tasks are created." << endl;
-    Thread::msleep(100);
+    this_thread::sleep_for(chrono::milliseconds(100));
 
     cout << "Waiting 1 seconds while tasks are running.." << endl;
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::milliseconds(1000));
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl;
     cout << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
 
@@ -128,12 +128,12 @@ int main(int, char* [])
 
     cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
 
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
 
     cout << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
 
     cout << "Stopping thread pool..." << endl;
     threadPool.stop();

@@ -50,7 +50,7 @@ public:
     void actionL()
     {
         cout << name << " is trying to lock" << endl;
-        int rc = lock->lockR(10);
+        int rc = lock->lockR(chrono::milliseconds(10));
         cout << name << " got it(" << rc << ")" << endl;
         if (a == 1)
             a = 0;
@@ -66,7 +66,7 @@ public:
     void threadFunction() override
     {
         cout << "Thread " << name << " starting" << endl;
-        while (1) {
+        while (true) {
             //cout<<name<<": act="<<a<<'\n';
             switch (a)
             {
@@ -81,7 +81,7 @@ public:
             default:
                 break;
             }
-            msleep(1000);
+            this_thread::sleep_for(chrono::seconds(1));
         }
     }
 };
@@ -103,7 +103,7 @@ public:
     void actionL()
     {
         cout << name << " is trying to lock" << endl;
-        int rc = lock->lockRW(10);
+        int rc = lock->lockRW(chrono::milliseconds(10));
         cout << name << " got it(" << rc << ")" << endl;
         if (a == 1)
             a = 0;
@@ -119,7 +119,7 @@ public:
     void threadFunction() override
     {
         cout << "Thread " << name << " starting" << endl;
-        while (1) {
+        while (true) {
             //cout<<name<<": act="<<a<<'\n';
             switch (a)
             {
@@ -134,7 +134,7 @@ public:
             default:
                 break;
             }
-            msleep(1000);
+            this_thread::sleep_for(chrono::seconds(1));
         }
     }
 };
@@ -145,21 +145,21 @@ int main()
     T1 t11("t11", &lock), t12("t12", &lock);
     T2 t21("t21", &lock), t22("t22", &lock);
     t11.run();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t12.run();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t21.run();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t22.run();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t12.act(2);
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t21.act(2);
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t22.act(2);
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
     t11.act(2);
-    Thread::msleep(5000);
+    this_thread::sleep_for(chrono::seconds(1));
     t11.act(3);
     t12.act(3);
     t21.act(3);
@@ -168,5 +168,5 @@ int main()
 //    t12.terminate();
 //    t21.terminate();
 //    t22.terminate();
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
 }

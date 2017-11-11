@@ -38,13 +38,13 @@ class CMyThread: public Thread
 public:
 
     // Constructor
-    CMyThread(string threadName, FileLogEngine& sharedLog);
+    CMyThread(const string& threadName, FileLogEngine& sharedLog);
 
     // The thread function.
     void threadFunction() override;
 };
 
-CMyThread::CMyThread(string threadName, FileLogEngine& sharedLog) :
+CMyThread::CMyThread(const string& threadName, FileLogEngine& sharedLog) :
         Thread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
@@ -95,7 +95,7 @@ int main()
         threads[i]->run();
 
     puts("Waiting 1 second while threads are running..");
-    Thread::msleep(1000);
+    this_thread::sleep_for(chrono::seconds(1));
 
     log << "Sending 'terminate' signal to all the threads." << endl;
     // That signal suggests thread to terminate and exits ASAP.

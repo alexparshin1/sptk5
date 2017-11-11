@@ -28,7 +28,6 @@
 
 #include <sptk5/net/SSLContext.h>
 #include <sptk5/net/SSLSocket.h>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -40,7 +39,7 @@ void readAndReply(SSLSocket& socket)
     size_t      bytes;
     const char* HTMLecho="<html><body><pre>%s</pre></body></html>\n\n";
 
-    if (!socket.readyToRead(3000)) {
+    if (!socket.readyToRead(chrono::seconds(3))) {
         cerr << "Read timeout" << endl;
         return;
     }
@@ -63,7 +62,7 @@ void readAndReply(SSLSocket& socket)
 
 int main(int argc, const char *argv[])
 {
-    int port = atoi(argv[1]);
+    int port = string2int(argv[1]);
 
     if (argc != 2 || port == 0) {
         printf("Usage: %s <portnum>\n", argv[0]);
@@ -82,10 +81,10 @@ int main(int argc, const char *argv[])
 
         server.listen();
 
-        while (1)
+        while (true)
         {
             SOCKET clientSocketFD;
-            struct sockaddr_in clientInfo;
+            struct sockaddr_in clientInfo = {};
 
             server.accept(clientSocketFD, clientInfo);
             printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), (unsigned) ntohs(clientInfo.sin_port));
@@ -96,12 +95,12 @@ int main(int argc, const char *argv[])
                 readAndReply(connection);         /* service connection */
                 connection.close();
             }
-            catch (Exception e) {
+            catch (const Exception& e) {
                 cerr << e.what() << endl;
             }
         }
     }
-    catch (Exception e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
     }
 }

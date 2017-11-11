@@ -41,7 +41,7 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(DatabaseConnection& db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection& db, const string& tableName, bool rollback)
 {
     try {
         Query step5Query(&db, "DELETE FROM " + tableName);
@@ -128,7 +128,7 @@ int main(int argc, const char* argv[])
         try {
             step1Query.exec();
         } catch (exception& e) {
-            if (strstr(e.what(), "already exists") == NULL)
+            if (strstr(e.what(), "already exists") == nullptr)
                 throw;
             cout << "Table already exists, ";
         }
@@ -226,7 +226,7 @@ int main(int argc, const char* argv[])
         cout << "Please, read the README.txt for more information." << endl;
     }
 
-    Thread::msleep(3000);
+    this_thread::sleep_for(chrono::milliseconds(1000));
 
     return 0;
 }

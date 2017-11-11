@@ -38,7 +38,7 @@ int main (int argc, char* argv[])
         UDPSocket server;
         server.host(Host("localhost",3000));
 
-        struct sockaddr_in clientInfo;
+        struct sockaddr_in clientInfo = {};
 
         server.listen();
 
@@ -47,7 +47,7 @@ int main (int argc, char* argv[])
         char readBuffer[1024];
 
         for (;;) {
-            if (server.readyToRead(1000)) {
+            if (server.readyToRead(chrono::seconds(1))) {
                 size_t bytes = server.read(readBuffer, sizeof(readBuffer),&clientInfo);
 
                 string data(readBuffer, bytes);

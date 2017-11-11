@@ -38,11 +38,11 @@ int main()
     try {
         semaphore.post();
         cout << "Semaphore posted       (Ok)" << endl;
-        if (semaphore.wait(1000))
+        if (semaphore.wait(chrono::seconds(1)))
             cout << "Semaphore was posted   (Ok)" << endl;
         else
             cout << "Semaphore wait timeout (Error)" << endl;
-        if (semaphore.wait(1000))
+        if (semaphore.wait(chrono::seconds(1)))
             cout << "Semaphore was posted   (Error)" << endl;
         else
             cout << "Semaphore wait timeout (Ok)" << endl;
