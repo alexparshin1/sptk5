@@ -247,7 +247,7 @@ int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParame
     //command += "Accept: */*\n";
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
-    //cout << command;
+    cout << command;
     sendCommand(command);
 
     return getResponse(timeout);

@@ -85,9 +85,9 @@ void error(const string& message, size_t position)
     stringstream error;
     error << message;
     if (position > 0)
-        error << ", in position " << position;
+        error << ", in position 0x" << hex << position;
     else if (int(position) < 0)
-        error << ", after position " << -int(position);
+        error << ", after position 0x" << hex << -int(position);
     throw runtime_error(error.str());
 }
 

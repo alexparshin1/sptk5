@@ -131,7 +131,7 @@ int main(int argc,char *argv[])
     // Initialize themes
     CThemes themes;
 
-    CWindow main_window(600,400,"CHttpConnect test");
+    CWindow main_window(600,400,"HttpConnect test");
 
     CToolBar urlToolBar;
     CButton go_button(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Go");
