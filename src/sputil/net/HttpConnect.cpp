@@ -120,7 +120,7 @@ int HttpConnect::getResponse(std::chrono::milliseconds readTimeout)
     if (contentLengthStr != "0") {
         bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
 
-        size_t bytes;
+        int bytes;
         size_t bytesToRead = contentLength;
         if (!chunked) {
             size_t totalBytes = 0;
@@ -134,7 +134,7 @@ int HttpConnect::getResponse(std::chrono::milliseconds readTimeout)
 
                 if (contentLength != 0) {
                     bytes = m_socket.socketBytes();
-                    if (bytes == 0 || bytes > bytesToRead) // 0 bytes case is a workaround for OpenSSL
+                    if (bytes == 0 || bytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL
                         bytes = bytesToRead;
                     bytes = (int) m_socket.read(read_buffer, (size_t) bytes);
                     bytesToRead -= bytes;
