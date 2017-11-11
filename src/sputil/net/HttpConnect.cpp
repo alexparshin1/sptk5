@@ -26,15 +26,16 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/cthreads>
 #include <sptk5/net/HttpConnect.h>
+
 #include <sptk5/ZLib.h>
 
 using namespace std;
 using namespace sptk;
 
 HttpConnect::HttpConnect(TCPSocket& socket)
-: m_socket(socket), m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s*(\\S.*)\r")
+: m_socket(socket), m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s+(\\S.*)?\r")
 {
     //m_requestHeaders["Content-Type"] = "application/x-www-form-urlencoded";
     m_requestHeaders["Connection"] = "close";
@@ -53,6 +54,7 @@ int HttpConnect::readHeaders(std::chrono::milliseconds timeout, String& httpStat
     Strings matches;
     bool firstRow = true;
     int rc = 0;
+    httpStatus = "";
     for (;;) {
         string header;
 
@@ -67,7 +69,8 @@ int HttpConnect::readHeaders(std::chrono::milliseconds timeout, String& httpStat
             if (!m_matchProtocolAndResponseCode.m(header, matches))
                 throw Exception("Broken HTTP version header");
             rc = string2int(matches[1]);
-            httpStatus = matches[2];
+            if (matches.size() > 2)
+                httpStatus = matches[2];
             firstRow = false;
             continue;
         }
@@ -158,20 +161,26 @@ int HttpConnect::getResponse(std::chrono::milliseconds readTimeout)
                     m_socket.close();
                     throw Exception("Response read timeout");
                 }
-                m_socket.readLine(chunkSizeStr);
-                chunkSizeStr = trim(chunkSizeStr);
 
-                if (chunkSizeStr.empty() || chunkSizeStr == "0")
-                    m_socket.readLine(chunkSizeStr);
+                chunkSizeStr = "";
+                while (chunkSizeStr.empty()) {
+                    if (m_socket.readLine(chunkSizeStr) == 0) {
+                        this_thread::sleep_for(chrono::milliseconds(10));
+                        continue;
+                    }
+                    chunkSizeStr = trim(chunkSizeStr);
+                }
 
+                errno = 0;
                 auto chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
+                if (errno != 0 || !isdigit(chunkSizeStr[0]))
+                    cerr << "ERROR: chunkSizeStr " << chunkSizeStr << endl;
 
                 if (chunkSize == 0)
                     break;
 
                 read_buffer.checkSize(chunkSize);
                 bytes = (int) m_socket.read(read_buffer, chunkSize, nullptr);
-
                 if (bytes > 0) {
                     read_buffer.data() [bytes] = 0;
                     m_readBuffer.append(read_buffer);
@@ -195,8 +204,15 @@ int HttpConnect::getResponse(std::chrono::milliseconds readTimeout)
     if (itor != m_responseHeaders.end() && itor->second == "close")
         m_socket.close();
 
-    if (rc >= 400)
+    if (rc >= 400) {
+        if (httpStatus.empty()) {
+            if (rc >= 500)
+                httpStatus = "Unknown server error";
+            else
+                httpStatus = "Unknown client error";
+        }
         throw Exception(httpStatus);
+    }
 
     return rc;
 }
@@ -247,7 +263,7 @@ int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParame
     //command += "Accept: */*\n";
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
-    cout << command;
+    //cout << command;
     sendCommand(command);
 
     return getResponse(timeout);
@@ -267,9 +283,9 @@ int HttpConnect::cmd_post(const string& pageName, const HttpParams& parameters, 
         headers.push_back("Content-Encoding: gzip");
         data = &compressedData;
 #else
-		throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
+        throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
 #endif
-	}
+    }
     headers.push_back("Content-Length: " + int2string((uint32_t) data->bytes()));
 
     Buffer command(headers.asString("\r\n") + "\r\n\r\n");

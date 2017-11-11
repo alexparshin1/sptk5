@@ -105,8 +105,8 @@ namespace sptk {
 }
 
 #ifdef __UNIX_COMPILER__
-    #include <stdint.h>
     #include <inttypes.h>
+    #include <stdint.h>
 
 #elif __BORLANDC__
     #include <stdint.h>

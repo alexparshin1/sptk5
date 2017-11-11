@@ -61,7 +61,7 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
         m_readOffset = 0;
         if (from != nullptr) {
             socklen_t flen = sizeof(sockaddr_in);
-            m_bytes = recvfrom(m_socket.handle(), m_buffer, int32_t(m_size - 2), 0, (sockaddr*) from, &flen);
+            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_size - 2, 0, (sockaddr*) from, &flen);
         } else {
             m_bytes = m_socket.recv(m_buffer, m_size - 2);
         }
@@ -80,23 +80,33 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
 
     char *cr = nullptr;
     if (read_line) {
-        size_t len = bytesToRead;
+        size_t len;
         if (delimiter == 0)
             len = strlen(readPosition);
         else {
             cr = strchr(readPosition, delimiter);
             if (cr != nullptr)
                 len = cr - readPosition + 1;
+            else {
+                if (m_readOffset != 0) {
+                    memmove(m_buffer, m_buffer + m_readOffset, (int) availableBytes);
+                    m_readOffset = 0;
+                    m_bytes = (size_t) availableBytes;
+                } else {
+                    checkSize(m_size + 128);
+                }
+                size_t bytes = m_socket.recv(m_buffer + availableBytes, m_size - availableBytes);
+                m_bytes += bytes;
+                return 0;
+            }
         }
         if (len < sz) {
             eol = true;
             bytesToRead = (int) len;
-            if (eol) {
-                if (delimiter == 0)
-                    bytesToRead++;
-                if (cr != nullptr)
-                    *cr = 0;
-            }
+            if (delimiter == 0)
+                bytesToRead++;
+            if (cr != nullptr)
+                *cr = 0;
         }
     }
 
@@ -229,19 +239,6 @@ bool TCPSocket::readyToRead(chrono::milliseconds timeoutMS)
     return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeoutMS);
 }
 
-char TCPSocket::getChar()
-{
-    char ch;
-#ifdef _WIN32
-    int bytes = ::recv(m_sockfd, &ch, 1, 0);
-#else
-    ssize_t bytes = ::read(m_sockfd, &ch, 1);
-#endif
-    if (bytes == 0)
-        return 0;
-    return ch;
-}
-
 size_t TCPSocket::readLine(char *buffer, size_t size, char delimiter)
 {
     return m_reader.read(buffer, size, delimiter, true);
@@ -255,7 +252,10 @@ size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
 size_t TCPSocket::readLine(std::string& s, char delimiter)
 {
     m_reader.readLine(m_stringBuffer, delimiter);
-    s.assign(m_stringBuffer.c_str(),m_stringBuffer.bytes() - 1);
+    if (m_stringBuffer.empty())
+        s = "";
+    else
+        s.assign(m_stringBuffer.c_str(),m_stringBuffer.bytes() - 1);
     return m_stringBuffer.bytes();
 }
 

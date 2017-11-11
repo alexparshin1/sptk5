@@ -29,10 +29,10 @@
 #ifndef __HTTPCONNECT_H__
 #define __HTTPCONNECT_H__
 
-#include <sptk5/net/TCPSocket.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
-#include <sptk5/RegularExpression.h>
+#include <sptk5/net/TCPSocket.h>
 
 namespace sptk
 {

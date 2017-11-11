@@ -30,14 +30,14 @@
 #define __TCPSOCKET_H__
 
 #ifndef _WIN32
+    #include <arpa/inet.h>
+    #include <fcntl.h>
+    #include <netdb.h>
+    #include <netinet/in.h>
     #include <sys/types.h>
     #include <sys/socket.h>
     #include <sys/un.h>
     #include <unistd.h>
-    #include <fcntl.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
 
     /**
      * A socket handle is an integer
@@ -57,9 +57,9 @@
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif
 
+#include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
-#include <sptk5/Buffer.h>
 #include <sptk5/net/BaseSocket.h>
 
 namespace sptk
@@ -156,13 +156,6 @@ protected:
      * Buffer to read a line
      */
     Buffer              m_stringBuffer;
-
-protected:
-
-    /**
-     * @brief Reads a single char from the socket
-     */
-    char getChar();
 
 public:
     /**

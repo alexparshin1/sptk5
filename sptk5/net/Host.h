@@ -89,12 +89,28 @@ public:
     }
 
     /**
+     * Destructor
+     */
+    virtual ~Host() {}
+
+    /**
      * Assign from another host
      * @param other The other object
      */
     Host& operator = (const Host& other)
     {
         m_hostname = other.m_hostname;
+        m_port = other.m_port;
+        return *this;
+    }
+
+    /**
+     * Move assignment from another host
+     * @param other The other object
+     */
+    Host& operator = (Host&& other)
+    {
+        m_hostname = std::move(other.m_hostname);
         m_port = other.m_port;
         return *this;
     }
