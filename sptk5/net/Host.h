@@ -29,6 +29,7 @@
 #ifndef __HOST_H__
 #define __HOST_H__
 
+#include <sptk5/Strings.h>
 #include <sstream>
 
 namespace sptk {
@@ -43,7 +44,7 @@ namespace sptk {
  */
 class Host
 {
-    std::string m_hostname;     ///< Host name or IP address
+    sptk::String m_hostname;    ///< Host name or IP address
     uint16_t    m_port;         ///< Port number
 
 public:

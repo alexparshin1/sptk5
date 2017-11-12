@@ -29,7 +29,6 @@
 #include "CPostgreSQLParamValues.h"
 #include "htonq.h"
 #include <iomanip>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
 #include <sstream>

@@ -251,7 +251,7 @@ public:
      * @param buffer CBuffer&, a buffer to save document
      * @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
      */
-    virtual void save(Buffer& buffer, bool formalXML=false) const;
+    virtual void save(Buffer& buffer, bool formalXML) const;
 
     /**
      * @brief Save document to buffer.

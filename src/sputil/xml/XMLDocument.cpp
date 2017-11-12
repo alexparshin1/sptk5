@@ -234,6 +234,8 @@ namespace sptk {
                     break;
                 }
                 break;
+            default:
+                break;
             }
             if (end == nullptr)
                 break;
@@ -450,4 +452,4 @@ namespace sptk {
         rootNode->save(json);
         json.root().optimizeArrays("item");
     }
-}
+} // namespace sptk

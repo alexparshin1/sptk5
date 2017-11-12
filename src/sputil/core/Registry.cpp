@@ -152,7 +152,7 @@ void Registry::save(Strings& outputData)
     Buffer buffer;
     prepareDirectory();
     outputData.clear();
-    XMLDocument::save(buffer);
+    XMLDocument::save(buffer, true);
     outputData.fromString(buffer.data(), "\n", Strings::SM_DELIMITER);
 }
 
@@ -160,7 +160,7 @@ void Registry::save()
 {
     Buffer outputData;
     prepareDirectory();
-    XMLDocument::save(outputData);
+    XMLDocument::save(outputData, true);
     outputData.saveToFile(m_fileName);
 }
 

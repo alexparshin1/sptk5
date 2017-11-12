@@ -472,7 +472,7 @@ public:
     /**
      * @brief Assignment operator
      */
-    virtual Variant& operator =(const Variant &C);
+    Variant& operator =(const Variant &C);
 
     /**
      * @brief Assignment operator

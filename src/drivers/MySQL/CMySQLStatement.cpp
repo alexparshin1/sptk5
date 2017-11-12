@@ -60,7 +60,7 @@ public:
             m_tempBuffer = nullptr;
     }
 
-    ~CMySQLStatementField()
+    virtual ~CMySQLStatementField()
     {
         delete [] m_tempBuffer;
     }
@@ -538,7 +538,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             } else {
                 if (bind.buffer_length < dataLength) {
                     /// Fetch truncated, enlarge buffer and fetch remaining part
-                    uint32_t remainingBytes = dataLength - bind.buffer_length;
+                    uint32_t remainingBytes = uint32_t(dataLength - bind.buffer_length);
                     auto offset = (uint32_t) bind.buffer_length;
                     field->checkSize(dataLength+1);
                     bind.buffer = (char*) field->getBuffer() + offset;

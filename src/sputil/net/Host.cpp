@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/Host.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/net/Host.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,6 +40,6 @@ Host::Host(const std::string& hostAndPort)
     if (matchHost.m(hostAndPort, matches)) {
         m_hostname = matches[0];
         if (matches.size() > 1)
-            m_port = string2int(matches[1]);
+            m_port = (uint16_t) string2int(matches[1]);
     }
 }

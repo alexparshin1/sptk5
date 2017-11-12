@@ -329,7 +329,7 @@ void ODBCConnection::queryBindParameters(Query* query)
     for (uint32_t i = 0; i < query->paramCount(); i++) {
         QueryParameter* param = &query->param(i);
         VariantType ptype = param->dataType();
-        SQLLEN& cblen = (SQLLEN&) param->callbackLength();
+        auto cblen = (SQLLEN&) param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
             int16_t paramType = 0, sqlType = 0, scale = 0;

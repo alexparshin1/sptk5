@@ -41,7 +41,7 @@ class FirebirdStatementField: public DatabaseField
 public:
     // Callback variables
     ISC_SHORT       m_cbNull;
-    ISC_QUAD        m_blob_id;
+    //ISC_QUAD        m_blob_id;
     double          m_numericScale;
 
 public:
@@ -66,7 +66,7 @@ public:
             case SQL_TEXT:
             case SQL_BLOB:
             case SQL_VARYING:
-                setBuffer(NULL, (size_t) fieldSize + 1);
+                setBuffer(nullptr, (size_t) fieldSize + 1);
                 m_sqlvar.sqldata = (ISC_SCHAR*) getBuffer();
                 break;
         }
@@ -89,7 +89,7 @@ FirebirdStatement::FirebirdStatement(FirebirdConnection* connection, string sql)
 
 FirebirdStatement::~FirebirdStatement()
 {
-    if (*m_statement)
+    if (*m_statement != 0)
         isc_dsql_free_statement(m_status_vector, m_statement, DSQL_drop);
     delete m_statement;
 }
@@ -180,8 +180,8 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
 
 void FirebirdStatement::setParameterValues()
 {
-    unsigned        paramCount = (unsigned) m_enumeratedParams.size();
-    struct tm       firebirdDateTime;
+    auto            paramCount = (unsigned) m_enumeratedParams.size();
+    struct tm       firebirdDateTime = {};
     ISC_TIMESTAMP*  pts;
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
         QueryParameter*     param = m_enumeratedParams[paramIndex];
@@ -297,7 +297,7 @@ void FirebirdStatement::FirebirdStatement::prepare(const string& sql)
     if (!m_connection->m_transaction) 
         m_connection->driverBeginTransaction();
 
-    isc_dsql_prepare(m_status_vector, &m_connection->m_transaction, m_statement, 0, sql.c_str(), SQL_DIALECT_CURRENT, NULL);
+    isc_dsql_prepare(m_status_vector, &m_connection->m_transaction, m_statement, 0, sql.c_str(), SQL_DIALECT_CURRENT, nullptr);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
 }
 
@@ -358,7 +358,7 @@ isc_blob_handle FirebirdStatement::createBLOB(ISC_QUAD* blob_id, QueryParameter*
         &blob_handle,
         blob_id,
         0, // Blob Parameter Buffer length = 0; no filter will be used
-        NULL // NULL Blob Parameter Buffer, since no filter will be used
+        nullptr // NULL Blob Parameter Buffer, since no filter will be used
     );
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
 
@@ -391,7 +391,7 @@ size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field)
         return 0;
 
     isc_blob_handle blob_handle = 0;
-    isc_open_blob2(m_status_vector, &db, &m_connection->m_transaction, &blob_handle, blob_id, 0, NULL);
+    isc_open_blob2(m_status_vector, &db, &m_connection->m_transaction, &blob_handle, blob_id, 0, nullptr);
     m_connection->checkStatus(m_status_vector, __FILE__, __LINE__);
 
     size_t  dataLength = 0;
@@ -422,8 +422,8 @@ void FirebirdStatement::fetchResult(FieldList& fields)
     uint32_t        fieldCount = fields.size();
 
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        FirebirdStatementField*    field = (FirebirdStatementField*) &fields[fieldIndex];
-        XSQLVAR&                    sqlvar = m_outputBuffers[fieldIndex];
+        auto*       field = (FirebirdStatementField*) &fields[fieldIndex];
+        XSQLVAR&    sqlvar = m_outputBuffers[fieldIndex];
         if (*sqlvar.sqlind) {
             field->setNull(VAR_STRING);
             continue;

@@ -236,7 +236,8 @@ int OracleConnection::queryColCount(Query *query)
     OracleStatement* statement = (OracleStatement*) query->statement();
     if (statement == nullptr)
         throwOracleException("Query not opened");
-    return (int) statement->colCount();
+    else
+        return (int) statement->colCount();
 }
 
 void OracleConnection::queryBindParameters(Query *query)
@@ -318,7 +319,7 @@ void OracleConnection::queryExecute(Query *query)
     try {
         OracleStatement* statement = (OracleStatement*) query->statement();
         if (!statement)
-            throwOracleException("Query is not prepared");
+            throw Exception("Query is not prepared");
         if (query->bulkMode()) {
             COracleBulkInsertQuery* bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
             statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());

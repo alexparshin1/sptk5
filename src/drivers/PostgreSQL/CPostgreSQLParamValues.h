@@ -91,6 +91,6 @@ namespace sptk {
     extern const long     daysSinceEpoch;
     extern const int64_t  microsecondsSinceEpoch;
 
-}
+} // namespace sptk
 
 #endif

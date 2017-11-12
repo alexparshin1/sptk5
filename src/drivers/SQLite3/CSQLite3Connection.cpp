@@ -30,10 +30,9 @@
 
 #if HAVE_SQLITE3
 
-#include <sqlite3.h>
-#include <sptk5/db/SQLite3Connection.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
+#include <sptk5/db/SQLite3Connection.h>
 
 namespace sptk
 {
@@ -57,7 +56,7 @@ public:
     }
 };
 
-}
+} // namespace sptk
 
 using namespace std;
 using namespace sptk;
@@ -84,7 +83,7 @@ SQLite3Connection::~SQLite3Connection()
 
         while (!m_queryList.empty()) {
             try {
-                Query *query = (Query *) m_queryList[0];
+                auto query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -170,7 +169,7 @@ void SQLite3Connection::driverEndTransaction(bool commit)
 
     char* zErrMsg;
 
-    if (sqlite3_exec(m_connect, action.c_str(), 0, 0, &zErrMsg) != SQLITE_OK)
+    if (sqlite3_exec(m_connect, action.c_str(), nullptr, nullptr, &zErrMsg) != SQLITE_OK)
         throw DatabaseException(zErrMsg);
 
     m_inTransaction = false;
@@ -274,7 +273,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
         //SQLINTEGER& cblen = param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
-            int rc = -1;
+            int rc;
             auto paramNumber = short(param->bindIndex(j) + 1);
 
             if (param->isNull())

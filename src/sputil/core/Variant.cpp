@@ -26,9 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Variant.h>
-#include <sptk5/Field.h>
 #include <cmath>
+#include <sptk5/Field.h>
 
 using namespace std;
 using namespace sptk;
@@ -316,7 +315,7 @@ void Variant::setExternalString(const char *value, int length)
             length = (int) strlen(value);
 
         m_dataSize = size_t(length);
-        m_data.buffer.size = size_t(length + 1);
+        m_data.buffer.size = (size_t)length + 1;
         dtype |= VAR_EXTERNAL_BUFFER;
     }
     else {
@@ -1075,7 +1074,7 @@ string Variant::asString() const
 
         case VAR_DATE_TIME: {
             DateTime dt(chrono::microseconds(m_data.timeData));
-            return dt.dateString() + " " + dt.timeString(true);
+            return dt.dateString() + " " + dt.timeString();
         }
 
         case VAR_IMAGE_PTR:
@@ -1152,7 +1151,7 @@ DateTime Variant::asDateTime() const
 void* Variant::asImagePtr() const
 {
     if ((m_dataType & VAR_NULL) != 0)
-        return 0;
+        return nullptr;
 
     switch (dataType()) {
         case VAR_IMAGE_PTR:

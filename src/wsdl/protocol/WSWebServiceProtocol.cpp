@@ -101,7 +101,7 @@ void WSWebServiceProtocol::process()
 
     Buffer output;
     m_service.processRequest(&message);
-    message.save(output);
+    message.save(output, true);
 
     //cout << output.c_str() << endl;
 
