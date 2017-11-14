@@ -266,12 +266,12 @@ string RegularExpression::s(const string& text, string outputPattern) const
     return replaceAll(text, outputPattern, replaced);
 }
 
-bool operator==(const string& text, const sptk::RegularExpression& regexp)
+bool sptk::operator==(const string& text, const sptk::RegularExpression& regexp)
 {
     return regexp == text;
 }
 
-bool operator!=(const string& text, const sptk::RegularExpression& regexp)
+bool sptk::operator!=(const string& text, const sptk::RegularExpression& regexp)
 {
     return regexp != text;
 }

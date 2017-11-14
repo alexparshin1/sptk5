@@ -105,10 +105,10 @@ class SP_EXPORT RegularExpression
 
     /**
      * @brief Computes match positions and lengths
-     * @param text const std::string&, Input text
-     * @param offset size_t&, starting match offset, advanced with every successful match
-     * @param matchOffsets Match*, Output match positions array
-     * @param matchOffsetsSize size_t, Output match positions array size (in elements)
+     * @param text              Input text
+     * @param offset            Starting match offset, advanced with every successful match
+     * @param matchOffsets      Output match positions array
+     * @param matchOffsetsSize  Output match positions array size (in elements)
      * @return number of matches
      */
     size_t nextMatch(const std::string& text, size_t& offset, Match matchOffsets[], size_t matchOffsetsSize) const;
@@ -123,8 +123,8 @@ public:
      * 'm'  multiple lines match
      * 's'  dot character matches even newlines
      * 'x'  ignore whitespaces
-     * @param pattern std::string, PCRE pattern
-     * @param options std::string, Pattern options
+     * @param pattern           PCRE pattern
+     * @param options           Pattern options
      */
     RegularExpression(const std::string& pattern, const std::string& options = "");
 
@@ -135,66 +135,79 @@ public:
 
     /**
      * @brief Returns true if text matches with regular expression
-     * @param text std::string, Input text
+     * @param text              Input text
      * @return true if match found
      */
     bool operator ==(const std::string& text) const;
 
     /**
      * @brief Returns true if text doesn't match with regular expression
-     * @param text std::string, Input text
+     * @param text              Input text
      * @return true if match found
      */
     bool operator !=(const std::string& text) const;
 
     /**
      * @brief Returns true if text matches with regular expression
-     * @param text std::string, Text to process
+     * @param text              Text to process
      * @return true if match found
      */
     bool matches(const std::string& text) const;
 
     /**
      * @brief Returns list of strings matched with regular expression
-     * @param text std::string, Text to process
-     * @param matchedStrings sptk::Strings&, list of matched strings
+     * @param text              Text to process
+     * @param matchedStrings    List of matched strings
      * @return true if match found
      */
     bool m(const std::string& text, sptk::Strings& matchedStrings) const;
 
     /**
      * @brief Replaces matches with replacement string
-     * @param text std::string, text to process
-     * @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
+     * @param text              Text to process
+     * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
      */
     std::string s(const std::string& text, std::string outputPattern) const;
 
     /**
      * @brief Returns list of strings split by regular expression
-     * @param text std::string, Text to process
-     * @param outputStrings sptk::Strings&, list of matched strings
+     * @param text              Text to process
+     * @param outputStrings     List of matched strings
      * @return true if match found
      */
     bool split(const std::string& text, sptk::Strings& outputStrings) const;
 
     /**
      * @brief Replaces matches with replacement string
-     * @param text std::string, text to process
-     * @param outputPattern std::string, output pattern using "\\N" as placeholders, with "\\1" as first match
-     * @param replaced bool&, optional flag if replacement was made
+     * @param text              Text to process
+     * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
+     * @param replaced          Optional flag if replacement was made
      * @return processed text
      */
     std::string replaceAll(const std::string& text, std::string outputPattern, bool& replaced) const;
 };
 
 /**
+ * Match text to regular expression
+ * @param text Text to match
+ * @param regexp Regular expression
+ * @return true if text matches to regular expression
+ */
+bool SP_EXPORT operator == (const std::string& text, const sptk::RegularExpression& regexp);
+
+/**
+ * Match text to regular expression
+ * @param text Text to match
+ * @param regexp Regular expression
+ * @return true if text doesn't match to regular expression
+ */
+bool SP_EXPORT operator != (const std::string& text, const sptk::RegularExpression& regexp);
+
+/**
  * @}
  */
 }
-
-bool SP_EXPORT operator == (const std::string& text, const sptk::RegularExpression& regexp);
-bool SP_EXPORT operator != (const std::string& text, const sptk::RegularExpression& regexp);
 
 #endif
 
