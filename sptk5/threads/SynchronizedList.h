@@ -113,7 +113,7 @@ public:
     /**
      * @brief Pops a data item from the list front
      *
-     * If list is empty then waits until timeoutMS milliseconds timeout occurs.
+     * If list is empty then waits until timeout milliseconds occurs.
      * Returns false if timeout occurs.
      * @param item T&, A list item (output)
      * @param timeout std::chrono::milliseconds, Operation timeout
@@ -148,10 +148,10 @@ public:
     /**
      * @brief Pops a data item from the list back
      *
-     * If list is empty then waits until timeoutMS milliseconds timeout occurs.
+     * If list is empty then waits until timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A list item (output)
-     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
+     * @param timeout std::chrono::milliseconds, Operation timeout
      */
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {

@@ -58,7 +58,7 @@ public:
      * @brief Constructor
      *
      * Automatically locks the lock object. That is needed for thread safety.
-     * @param object Synchronized&, Synchronization object to lock.
+     * @param object Synchronization object to lock.
      */
     SynchronizedCode(Synchronized& object)
     : m_object(&object)
@@ -70,7 +70,7 @@ public:
      * @brief Constructor
      *
      * Automatically locks the lock object. That is needed for thread safety.
-     * @param object Synchronized&, Synchronization object to lock.
+     * @param object            Synchronization object to lock.
      */
     SynchronizedCode(Synchronized* object)
     : m_object(object)
@@ -83,15 +83,15 @@ public:
      *
      * Automatically locks the lock object. That is needed for thread safety.
      * If the lock isn't acquired within timeout period, CTimeoutException is thrown.
-     * @param object Synchronized&, Synchronization object to lock.
-     * @param timeoutMS std::chrono::milliseconds, lock timeout
-     * @param fileName const char*, lock location fileName, default is NULL
-     * @param lineNumber int, lock location line number, default is 0
+     * @param object            Synchronization object to lock.
+     * @param timeout           Lock timeout
+     * @param fileName          Lock location fileName, default is NULL
+     * @param lineNumber        Lock location line number, default is 0
      */
-    SynchronizedCode(Synchronized& object, std::chrono::milliseconds timeoutMS, const char* fileName = NULL, int lineNumber = 0)
+    SynchronizedCode(Synchronized& object, std::chrono::milliseconds timeout, const char* fileName = NULL, int lineNumber = 0)
     : m_object(&object)
     {
-        m_object->lock(timeoutMS, fileName, lineNumber);
+        m_object->lock(timeout, fileName, lineNumber);
     }
 
     /**
@@ -99,17 +99,17 @@ public:
      *
      * Automatically locks the lock object. That is needed for thread safety.
      * If the lock isn't acquired within timeout period, CTimeoutException is thrown.
-     * @param object Synchronized*, Synchronization object to lock.
-     * @param timeoutMS std::chrono::milliseconds, lock timeout, milliseconds
-     * @param fileName const char*, lock location fileName, default is NULL
-     * @param lineNumber int, lock location line number, default is 0
+     * @param object Synchronization object to lock.
+     * @param timeout           Lock timeout, milliseconds
+     * @param fileName          Lock location fileName, default is NULL
+     * @param lineNumber        Lock location line number, default is 0
      */
-    SynchronizedCode(Synchronized* object, std::chrono::milliseconds timeoutMS, const char* fileName = NULL, int lineNumber = 0)
+    SynchronizedCode(Synchronized* object, std::chrono::milliseconds timeout, const char* fileName = NULL, int lineNumber = 0)
     : m_object(object)
     {
-        m_object->lock(timeoutMS, fileName, lineNumber);
+        m_object->lock(timeout, fileName, lineNumber);
     }
-    
+
     /**
      * @brief Destructor
      *

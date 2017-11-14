@@ -68,12 +68,12 @@ protected:
     /**
      * Mutex object
      */
-    mutable std::timed_mutex	m_synchronized;
+    mutable std::timed_mutex    m_synchronized;
 
     /**
      * Location of latest successfull lock()
      */
-    CLocation					m_location;
+    CLocation                   m_location;
 
 
 public:
