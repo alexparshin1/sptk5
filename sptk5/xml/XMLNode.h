@@ -134,7 +134,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param xpe const CXPathElement&, CXPathElement object to copy from
+     * @param xpe CXPathElement object to copy from
      */
     XPathElement(const XPathElement& xpe)
     {
@@ -227,33 +227,40 @@ private:
 
     /**
      * @brief Checks if any descendent node matches the path element (internal)
-     * @param nodes XMLNodeVector&, output list of matched nodes
-     * @param pathElements const std::vector<CXPathElement>&, the path elements
-     * @param pathPosition int, current path elements position
-     * @param starPointer const std::string*, the pointer to SST '*' string
+     * @param nodes             Output list of matched nodes
+     * @param pathElements      The path elements
+     * @param pathPosition      Current path elements position
+     * @param starPointer       The pointer to SST '*' string
      */
     void scanDescendents(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
             const std::string* starPointer);
 
     /**
      * @brief Checks if the node matches the path element (internal)
-     * @param pathElement const CXPathElement&, the path elements
-     * @param nodePosition int, the position of the node in the matching group
-     * @param starPointer const std::string*, the pointer to SST '*' string
-     * @param nameMatches bool&, (output) true if the node name matches the XPath element
-     * @param positionMatches bool&, (output) true if the node position matches the XPath element
+     * @param pathElement       The path elements
+     * @param nodePosition      The position of the node in the matching group
+     * @param starPointer       The pointer to SST '*' string
+     * @param nameMatches       (output) true if the node name matches the XPath element
+     * @param positionMatches   (output) true if the node position matches the XPath element
      * @returns true if node matches the XPath element
      */
     bool matchPathElement(const XPathElement& pathElement, int nodePosition, const std::string* starPointer, bool& nameMatches, bool& positionMatches);
 
     /**
      * @brief Checks if the node matches the path element (internal)
-     * @param nodes XMLNodeVector&, output list of matched nodes
-     * @param pathElements const std::vector<CXPathElement>&, the path elements
-     * @param pathPosition int, current path elements position
-     * @param starPointer const std::string*, the pointer to SST '*' string
+     * @param nodes             Output list of matched nodes
+     * @param pathElements      The path elements
+     * @param pathPosition      Current path elements position
+     * @param starPointer       The pointer to SST '*' string
      */
     void matchNode(XMLNodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition, const std::string* starPointer);
+
+    /**
+     * @brief Save node to JSON object.
+     * @param json              JSON element
+     * @param text              Temporary text buffer
+     */
+    virtual void save(json::Element& json, std::string& text) const;
 
 protected:
     /**
@@ -280,7 +287,7 @@ protected:
     /**
      * @brief Protected constructor - for derived classes
      *
-     * @param doc XMLDoc&, node document
+     * @param doc               Node document
      */
     XMLNode(XMLDocument& doc)
     {
@@ -291,7 +298,7 @@ protected:
     /**
      * @brief Protected constructor - for derived classes
      *
-     * @param parent XMLNode&, node document
+     * @param parent            Node document
      */
     XMLNode(XMLNode& parent)
     {
@@ -312,30 +319,30 @@ public:
     /**
      * @brief Finds the first subnode with the given name
      *
-     * Returns node pointer or NULL, if the node with such name is not found.
-     * @param name std::string, the name to find
-     * @param recursively bool, if true, also search in all subnodes
+     * Returns node             Pointer or NULL, if the node with such name is not found.
+     * @param name              The name to find
+     * @param recursively       If true, also search in all subnodes
      */
-    XMLNode* findFirst(std::string name, bool recursively = true) const;
+    XMLNode* findFirst(const std::string& name, bool recursively = true) const;
 
     /**
      * @brief Finds the first subnode with the given name, or creates a new one.
      *
      * Returns node pointer. If the node with such name is not found, then new
      * node is created.
-     * @param name std::string, the name to find
-     * @param recursively bool, if true, also search in all subnodes
+     * @param name              The name to find
+     * @param recursively       If true, also search in all subnodes
      */
-    XMLNode* findOrCreate(std::string name, bool recursively = true);
+    XMLNode* findOrCreate(const std::string& name, bool recursively = true);
 
     /**
      * @brief Finds the first subnode with the given name, or creates a new one.
      *
      * Returns node pointer. If the node with such name is not found, then new
      * node is created. This is a shortcut for findOrCreate(name,false);
-     * @param name std::string, the name to find
+     * @param name              The name to find
      */
-    XMLNode& operator[](std::string name)
+    XMLNode& operator[](const std::string& name)
     {
         return *findOrCreate(name, false);
     }
@@ -352,15 +359,15 @@ public:
      * Currently, examples 1 through 6 from http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
      * are working fine with the exceptions:
      * - no functions are supported yet.
-     * @param nodes XMLNodeVector&, the resulting list of subnodes
-     * @param xpath std::string, the xpath for subnodes
+     * @param nodes             The resulting list of subnodes
+     * @param xpath             The xpath for subnodes
      */
     void select(XMLNodeVector& nodes, std::string xpath);
 
     /**
      * @brief Performs a deep copy of node and all its subnodes
      *
-     * @param node const XMLNode&, a node to copy from
+     * @param node              Node to copy from
      */
     virtual void copy(const XMLNode& node);
 
@@ -424,13 +431,13 @@ public:
 
     /**
      * @brief Sets the new name for the node
-     * @param name const std::string&, new node name
+     * @param name              New node name
      */
     virtual void name(const std::string& name)=0;
 
     /**
      * @brief Sets new name for node
-     * @param name const char *, new node name
+     * @param name              New node name
      */
     virtual void name(const char *name)=0;
 
@@ -468,7 +475,7 @@ public:
      *
      * First, the node child nodes are removed.
      * Then, new XMLNodeText is added to this node.
-     * @param txt std::string, node text
+     * @param txt               Node text
      */
     void text(std::string txt);
 
@@ -512,11 +519,11 @@ public:
      * @brief Returns attribute value for given attribute.
      *
      * HTML tags can have empty attributes, for those you should use has_attribute() method.
-     * @param attr name of attribute
-     * @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
+     * @param attr              Name of attribute
+     * @param defaultValue      A default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    virtual XMLValue getAttribute(std::string attr, const char *defaultValue = "") const
+    virtual XMLValue getAttribute(const std::string& attr, const char *defaultValue = "") const
     {
         return defaultValue;
     }
@@ -525,9 +532,9 @@ public:
      * @brief Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
-     * @param attr attribute name
-     * @param value attribute value
-     * @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
+     * @param attr              Attribute name
+     * @param value             Attribute value
+     * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
     virtual void setAttribute(const char *attr, XMLValue value, const char *defaultValue = "")
     {
@@ -537,9 +544,9 @@ public:
      * @brief Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
-     * @param attr const string&, an attribute name
-     * @param value XMLValue, attribute value
-     * @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
+     * @param attr              Attribute name
+     * @param value             Attribute value
+     * @param defaultValue      A default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
     virtual void setAttribute(const std::string& attr, XMLValue value, const char *defaultValue = "")
     {
@@ -547,20 +554,14 @@ public:
 
     /**
      * @brief Save node to buffer.
-     * @param buffer to save
-     * @param indent how many indent spaces at start
+     * @param buffer            Buffer to save to
+     * @param indent            Number of indent spaces at start
      */
     virtual void save(Buffer &buffer, int indent = 0) const;
 
     /**
-     * @brief Save node to JSON object.
-     * @param json json::Element&, JSON element
-     */
-    virtual void save(json::Element& json, std::string& text) const;
-
-    /**
      * @brief Save node to JSON document
-     * @param json json::Element&, JSON element
+     * @param json              JSON element
      */
     virtual void save(json::Document& json) const;
 
@@ -610,8 +611,8 @@ public:
     /**
      * @brief Inserts a subnode
      *
-     * @param pos iterator, insert position with the list of subnodes
-     * @param node XMLNode*, node to insert
+     * @param pos               Insert position with the list of subnodes
+     * @param node              Node to insert
      */
     virtual void insert(iterator pos, XMLNode* node)
     {
@@ -705,7 +706,7 @@ protected:
     /**
      * @brief Protected constructor for creating XMLDoc only
      *
-     * @param doc XMLDoc&, a document.
+     * @param doc a document.
      */
     XMLNamedItem(XMLDocument& doc) :
             XMLNode(doc)
@@ -714,7 +715,7 @@ protected:
 
     /**
      * @brief Returns true if node name pointer (from SST) matches aname pointer
-     * @param sstName const string*, node name pointer to compare with this node name pointer
+     * @param sstName           Node name pointer to compare with this node name pointer
      */
     virtual bool nameIs(const std::string* sstName) const
     {
@@ -725,11 +726,11 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param tagname const char*, a name of XML tag
+     * @param parent            Parent node.
+     * @param tagname           Name of XML tag
      */
-    XMLNamedItem(XMLNode& parent, const char* tagname) :
-            XMLNode(parent)
+    XMLNamedItem(XMLNode& parent, const char* tagname)
+    : XMLNode(parent)
     {
         name(tagname);
     }
@@ -737,11 +738,11 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param tagname const char*, a name of XML tag
+     * @param parent            Parent node.
+     * @param tagname           Name of XML tag
      */
-    XMLNamedItem(XMLNode* parent, const char* tagname) :
-            XMLNode(*parent)
+    XMLNamedItem(XMLNode* parent, const char* tagname)
+    : XMLNode(*parent)
     {
         name(tagname);
     }
@@ -749,11 +750,11 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node.
-     * @param tagname const string&, a name of XML tag
+     * @param parent            Parent node.
+     * @param tagname           Name of XML tag
      */
-    XMLNamedItem(XMLNode& parent, const std::string& tagname) :
-            XMLNode(parent)
+    XMLNamedItem(XMLNode& parent, const std::string& tagname)
+    : XMLNode(parent)
     {
         name(tagname);
     }
@@ -790,13 +791,13 @@ public:
 
     /**
      * @brief Sets the new name for the node
-     * @param name const std::string&, new node name
+     * @param name              New node name
      */
     virtual void name(const std::string& name);
 
     /**
      * @brief Sets new name for node
-     * @param name const char *, new node name
+     * @param name              New node name
      */
     virtual void name(const char *name);
 
@@ -828,8 +829,8 @@ public:
     /**
      * @brief Constructor
      */
-    XMLBaseTextNode(XMLNode *parent, const char *data) :
-            XMLNode(*parent)
+    XMLBaseTextNode(XMLNode *parent, const char *data)
+    : XMLNode(*parent)
     {
         value(data);
     }
@@ -848,7 +849,7 @@ public:
     /**
      * @brief Sets new value to node.
      *
-     * @param new_value const std::string &, new value
+     * @param new_value         New value
      * @see value()
      */
     virtual void value(const std::string &new_value)
@@ -859,7 +860,7 @@ public:
     /**
      * @brief Sets new value to node
      *
-     * @param new_value const char *, value to set
+     * @param new_value         New value
      * @see value()
      */
     virtual void value(const char *new_value)
@@ -879,7 +880,7 @@ public:
 
     /**
      * @brief Sets the new name for the node
-     * @param name const std::string&, new node name
+     * @param name              New node name
      */
     virtual void name(const std::string& name)
     {
@@ -887,7 +888,7 @@ public:
 
     /**
      * @brief Sets new name for node
-     * @param name const char *, new node name
+     * @param name              New node name
      */
     virtual void name(const char *name)
     {
@@ -909,33 +910,33 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode&, a parent node.
-     * @param data const char*, a text
+     * @param parent            Parent node.
+     * @param data              Text
      */
-    XMLText(XMLNode& parent, const char *data) :
-            XMLBaseTextNode(&parent, data)
+    XMLText(XMLNode& parent, const char *data)
+    : XMLBaseTextNode(&parent, data)
     {
     }
 
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param data const char*, a text
+     * @param parent            Parent node.
+     * @param data              Text
      */
-    XMLText(XMLNode* parent, const char *data) :
-            XMLBaseTextNode(parent, data)
+    XMLText(XMLNode* parent, const char *data)
+    : XMLBaseTextNode(parent, data)
     {
     }
 
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node.
-     * @param data const std::string&, a text
+     * @param parent            Parent node.
+     * @param data              Text
      */
-    XMLText(XMLNode& parent, const std::string& data) :
-            XMLBaseTextNode(&parent, data.c_str())
+    XMLText(XMLNode& parent, const std::string& data)
+    : XMLBaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -962,33 +963,33 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node.
-     * @param data const char *, a comment
+     * @param parent            Parent node.
+     * @param data              Comment
      */
-    XMLComment(XMLNode& parent, const char *data) :
-            XMLBaseTextNode(&parent, data)
+    XMLComment(XMLNode& parent, const char *data)
+    : XMLBaseTextNode(&parent, data)
     {
     }
 
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param data const char*, a comment
+     * @param parent            Parent node.
+     * @param data              Comment
      */
-    XMLComment(XMLNode* parent, const char* data) :
-            XMLBaseTextNode(parent, data)
+    XMLComment(XMLNode* parent, const char* data)
+    : XMLBaseTextNode(parent, data)
     {
     }
 
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node.
-     * @param data const std::string&, a comment
+     * @param parent            Parent node.
+     * @param data              Comment
      */
-    XMLComment(XMLNode& parent, const std::string& data) :
-            XMLBaseTextNode(&parent, data.c_str())
+    XMLComment(XMLNode& parent, const std::string& data)
+    : XMLBaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -1015,32 +1016,32 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode&, a parent node.
-     * @param data const char*, a data
+     * @param parent            Parent node.
+     * @param data              Data
      */
-    XMLCDataSection(XMLNode& parent, const char* data) :
-            XMLBaseTextNode(&parent, data)
+    XMLCDataSection(XMLNode& parent, const char* data)
+    : XMLBaseTextNode(&parent, data)
     {
     }
 
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param data const char*, a data
+     * @param parent            Parent node.
+     * @param data              Data
      */
-    XMLCDataSection(XMLNode* parent, const char* data) :
-            XMLBaseTextNode(parent, data)
+    XMLCDataSection(XMLNode* parent, const char* data)
+    : XMLBaseTextNode(parent, data)
     {
     }
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node.
-     * @param data const std::string&, a data
+     * @param parent            Parent node.
+     * @param data              Data
      */
-    XMLCDataSection(XMLNode& parent, const std::string& data) :
-            XMLBaseTextNode(&parent, data.c_str())
+    XMLCDataSection(XMLNode& parent, const std::string& data)
+    : XMLBaseTextNode(&parent, data.c_str())
     {
     }
 
@@ -1067,12 +1068,12 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node. Make sure it's a pointer to the existing node.
-     * @param target std::string, a target tag name
-     * @param data const char *, a data
+     * @param parent            Parent node. Make sure it's a pointer to the existing node.
+     * @param target            Target tag name
+     * @param data              Data
      */
-    XMLPI(XMLNode& parent, std::string target, const char *data) :
-            XMLBaseTextNode(&parent, data)
+    XMLPI(XMLNode& parent, std::string target, const char *data)
+    : XMLBaseTextNode(&parent, data)
     {
         name(target);
     }
@@ -1080,12 +1081,12 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode&, a parent node. Make sure it's a pointer to the existing node.
-     * @param target std::string, a target tag name
-     * @param data const char*, a data
+     * @param parent            Parent node. Make sure it's a pointer to the existing node.
+     * @param target            Target tag name
+     * @param data              Data
      */
-    XMLPI(XMLNode* parent, std::string target, const char* data) :
-            XMLBaseTextNode(parent, data)
+    XMLPI(XMLNode* parent, std::string target, const char* data)
+    : XMLBaseTextNode(parent, data)
     {
         name(target);
     }
@@ -1093,12 +1094,12 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node
-     * @param target std::string, a target tag name
-     * @param data const std::string&, a data
+     * @param parent            Parent node
+     * @param target            Target tag name
+     * @param data              Data
      */
-    XMLPI(XMLNode& parent, std::string target, const std::string& data) :
-            XMLBaseTextNode(&parent, data.c_str())
+    XMLPI(XMLNode& parent, std::string target, const std::string& data)
+    : XMLBaseTextNode(&parent, data.c_str())
     {
         name(target);
     }
@@ -1115,13 +1116,13 @@ public:
 
     /**
      * @brief Sets the new name for the node
-     * @param name const std::string&, new node name
+     * @param name              New node name
      */
     virtual void name(const std::string& name);
 
     /**
      * @brief Sets new name for node
-     * @param name const char *, new node name
+     * @param name              New node name
      */
     virtual void name(const char *name);
 

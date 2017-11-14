@@ -508,7 +508,7 @@ namespace sptk {
             np->save(json.root(), text);
     }
 
-    XMLNode *XMLNode::findFirst(std::string aname, bool recursively) const
+    XMLNode *XMLNode::findFirst(const std::string& aname, bool recursively) const
     {
         for (auto node: *this) {
             if (node->name() == aname)
@@ -522,7 +522,7 @@ namespace sptk {
         return nullptr;
     }
 
-    XMLNode *XMLNode::findOrCreate(std::string aname, bool recursively)
+    XMLNode *XMLNode::findOrCreate(const std::string& aname, bool recursively)
     {
         XMLNode *node = findFirst(aname, recursively);
         if (node != nullptr)
