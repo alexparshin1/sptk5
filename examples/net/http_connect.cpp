@@ -40,128 +40,51 @@
 using namespace std;
 using namespace sptk;
 
-CInput         *urlInput;
-CInput         *statsInput;
-CMemoInput     *paramsInput;
-CComboBox      *paramsCombo;
-CEditor        *textdisp;
-
-void go_callback(Fl_Widget *,void *)
+int main(int argc,char *argv[])
 {
-    textdisp->textBuffer()->text("");
-    textdisp->redraw();
+    system("rm -rf /tmp/logs");
+    system("mkdir /tmp/logs");
 
-    std::string  input = urlInput->data();
-
-    RegularExpression     getpage("^(http://|https://){0,1}([^/]+)(/.*)*", "i");
-    Strings    matches;
-
-    getpage.m(input, matches);
-
-    int         port = 80;
-    string      protocol = matches[0];
-    bool        https = false;
-    if (lowerCase(protocol) == "https://") {
-        https = true;
-        port = 443;
-    }
-
-    string      hostName = matches[1];
-    std::string pageName = matches[2];
-
-    size_t portPos = hostName.find(":");
-    if (portPos != string::npos) {
-        portPos++;
-        port = string2int(hostName.c_str() + portPos);
-    }
-
-    TCPSocket*     socket;
-    SSLContext sslContext;
+    for (int i = 0; i < 10; i++)
     try {
         DateTime        started = DateTime::Now();
 
-        if (!https)
-            socket = new TCPSocket;
-        else
-            socket = new SSLSocket(sslContext);
+        TCPSocket* socket = new TCPSocket;
 
         HttpConnect sock(*socket);
 
-        socket->open(Host(hostName, port));
+        Host api("api.karrostech.io", 80);
+        socket->open(api);
 
-        Strings text(paramsInput->data(),"\n");
         HttpParams httpFields;
+        httpFields["tenant"] = "7561721b-abf2-4c35-a47d-21b4d1157bdb";
+        httpFields["startdate"]="2017-08-23T21:00:00.000Z";
+        httpFields["size"] = "10000";
+        httpFields["page"] = "0";
+        httpFields["enddate"] = "2017-08-23T21:59:59.999Z";
 
-        if (paramsCombo->data() == "HTTP Get") {
-
-            for (unsigned i = 0; i < text.size(); i++) {
-                Strings data(text[i],"=");
-                if (data.size() == 2) {
-                    httpFields["first_name"] = text[0];
-                    httpFields["last_name"] = text[1];
-                }
-            }
-
-            sock.cmd_get(pageName, httpFields, 30000);
-        } else {
-            for (unsigned i = 0; i < text.size(); i++) {
-                Strings data(text[i],"=");
-
-                if (data.size() == 2) {
-                    httpFields["first_name"] = text[0];
-                    httpFields["last_name"] = text[1];
-                }
-            }
+        sock.requestHeaders()["Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5jb20iLCJzdWIiOjEsImlhdCI6MTUwNzkxMTAxMDc4NywiZXhwIjoxNTE0NDE5MTk5MDAwLCJlbWFpbCI6ImFkbWluQGVkdWxvZy5jb20iLCJmaXJzdE5hbWUiOiJBZG1pbiIsIm1pZGRsZU5hbWUiOm51bGwsImxhc3ROYW1lIjpudWxsLCJhdXRob3JpemF0aW9uIjp7Imdyb3VwcyI6W3siZ3JvdXBOYW1lIjoiQWNjb3VudCBNYW5hZ2VtZW50Iiwicm9sZXMiOlsiQWRtaW4iXX0seyJncm91cE5hbWUiOiJQYXJlbnQgUG9ydGFsIiwicm9sZXMiOlsiQWRtaW4iXX0seyJncm91cE5hbWUiOiJFZHVsb2ciLCJyb2xlcyI6WyJTeXN0ZW0gQWRtaW4iXX1dfX0.9n-ZuM_mVgxOiKYR-qxiuFYyJLw0fmU4DwOdsHE68zc";
+        try {
+            sock.cmd_get("/event/api/0.1/events", httpFields, chrono::seconds(30));
         }
+        catch (const exception& e) {
+            cerr << e.what() << endl;
+            cerr << sock.htmlData().c_str() << endl;
+        }
+
+        cout << "Received " << sock.htmlData().bytes() << endl << endl;
 
         DateTime    finished = DateTime::Now();
         int durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
-        textdisp->textBuffer()->text(sock.htmlData().data());
-        statsInput->data("Received " + int2string(sock.htmlData().bytes()) + " bytes for " + int2string(durationMS) + "ms");
-    } catch (Exception &e) {
+
+        cout << "Elapsed " << durationMS << " ms " << endl;
+
         delete socket;
-        spError(e.what());
-        return;
+
+    } catch (Exception &e) {
+        cerr << e.what() << endl;
+        return 1;
     }
-    delete socket;
-}
 
-int main(int argc,char *argv[])
-{
-    // Initialize themes
-    CThemes themes;
-
-    CWindow main_window(600,400,"HttpConnect test");
-
-    CToolBar urlToolBar;
-    CButton go_button(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Go");
-    go_button.callback(go_callback);
-    urlInput = new CInput("http/https", 300, SP_ALIGN_CLIENT);
-    urlToolBar.end();
-
-    CToolBar paramsToolBar;
-    paramsToolBar.layoutSize(150);
-    paramsCombo = new CComboBox("Mode",10,SP_ALIGN_TOP);
-    //paramsCombo->labelWidth(80);
-    paramsCombo->addRows("http mode",Strings("HTTP Get|HTTP Post","|"));
-    paramsCombo->columns()[0].width(100);
-    paramsCombo->data("HTTP Post");
-    statsInput = new CInput("Stats");
-    paramsInput = new CMemoInput("",80,SP_ALIGN_CLIENT);
-    paramsToolBar.end();
-
-    CEditor  editor(10,SP_ALIGN_CLIENT);
-
-    textdisp = &editor;
-
-    CGroup status_line("",25,SP_ALIGN_BOTTOM);
-    status_line.layoutSpacing(1);
-
-    status_line.end();
-
-    main_window.end();
-    main_window.resizable(main_window);
-    main_window.show(argc,argv);
-
-    return Fl::run();
+    return 0;
 }

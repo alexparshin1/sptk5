@@ -672,10 +672,11 @@ DateTime& DateTime::operator--(int)
     return *this;
 }
 
+namespace sptk {
+
 //----------------------------------------------------------------
 // Date comparison
 //----------------------------------------------------------------
-
 bool operator<(const DateTime& dt1, const DateTime& dt2)
 {
     return (dt1.timePoint() < dt2.timePoint());
@@ -719,6 +720,9 @@ DateTime operator-(const DateTime &dt, const sptk::DateTime::duration &duration)
 DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
 {
     return dt.timePoint() - dt2.timePoint();
+}
+
+
 }
 
 //----------------------------------------------------------------
@@ -937,7 +941,7 @@ bool DateTime::time24Mode()
     return _time24Mode;
 }
 
-double duration2seconds(const DateTime::duration& duration)
+double sptk::duration2seconds(const DateTime::duration& duration)
 {
     return chrono::duration_cast<milliseconds>(duration).count() / 1000.0;
 }

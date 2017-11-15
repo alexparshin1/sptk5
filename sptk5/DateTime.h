@@ -493,10 +493,6 @@ public:
      */
     static void time24Mode(bool t24mode);
 };
-/**
- * @}
- */
-}
 
 /**
  * @brief Compares DateTime values
@@ -547,5 +543,10 @@ sptk::DateTime::duration operator-(const sptk::DateTime& dt1, const sptk::DateTi
  * Convert duration into seconds, with 1 msec accuracy
  */
 double duration2seconds(const sptk::DateTime::duration& duration);
+
+/**
+ * @}
+ */
+}
 
 #endif

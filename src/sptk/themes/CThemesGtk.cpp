@@ -112,8 +112,8 @@ void CThemes::loadGtkTheme(string gtkThemeName) {
     m_themeFolder = gtkThemeLoader.themeFolder();
 
     Buffer buffer;
-    gtkThemeLoader.xml().save(buffer);
-    
+    gtkThemeLoader.xml().save(buffer, true);
+
     try { // Debug
         buffer.saveToFile("/svn/sptk5/trunk/" + testThemeName + ".xml");
     }

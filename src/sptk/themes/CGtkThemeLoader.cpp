@@ -213,7 +213,7 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
         else
             parseParameter(str, &m_xml);
     }
-    m_xml.save(buffer);
+    m_xml.save(buffer, true);
     buffer.saveToFile("gtkrc.xml");
 }
 

@@ -117,7 +117,7 @@ XMLDocument *build_doc()
 
     try {
         Buffer savebuffer;
-        doc->save(savebuffer);
+        doc->save(savebuffer, true);
         savebuffer.saveToFile("MyXML2.xml");
     }
     catch (...) {
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
         try {
             DateTime start = DateTime::Now();
             Buffer savebuffer;
-            doc->save(savebuffer);
+            doc->save(savebuffer, true);
             savebuffer.saveToFile("MyXML.xml");
             end = DateTime::Now();
             printf("XML Test - saved for %0.2f sec\n", diffSeconds(start, end));

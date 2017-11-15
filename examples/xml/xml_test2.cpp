@@ -84,7 +84,7 @@ int main()
 
         out << "The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
-        doc.save(*buf);
+        doc.save(*buf, true);
         buf->saveToFile("0.xml");
 
         end = DateTime::Now();
@@ -105,7 +105,7 @@ int main()
         start = end;
         out << "The document is loaded from the buffer (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;
 
-        doc.save(*buf);
+        doc.save(*buf, true);
 
         end = DateTime::Now();
         duration = end - start;
