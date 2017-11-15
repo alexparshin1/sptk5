@@ -51,22 +51,22 @@ class SocketEvents : public Thread
     /**
      * OS-specific event manager
      */
-    SocketPool              m_socketPool;
+    SocketPool                  m_socketPool;
 
     /**
      * Map of sockets to corresponding user data
      */
-    std::map<int, void*>    m_watchList;
+    std::map<int, void*>        m_watchList;
 
     /**
      * Mutex that protects map of sockets to corresponding user data
      */
-    std::mutex              m_mutex;
+    std::mutex                  m_mutex;
 
     /**
      * Timeout in event monitoring loop
      */
-    size_t                  m_timeoutMS;
+    std::chrono::milliseconds   m_timeout;
 
 protected:
 
@@ -78,10 +78,10 @@ protected:
 public:
     /**
      * Constructor
-     * @param eventsCallback SocketEventCallback, Callback function called for socket events
-     * @param timeoutMS size_t, Timeout in event monitoring loop
+     * @param eventsCallback        Callback function called for socket events
+     * @param timeout	            Timeout in event monitoring loop
      */
-    SocketEvents(SocketEventCallback eventsCallback, size_t timeoutMS=1000);
+    SocketEvents(SocketEventCallback eventsCallback, std::chrono::milliseconds timeout = std::chrono::milliseconds(1000));
 
     /**
      * Destructor
@@ -90,14 +90,14 @@ public:
 
     /**
      * Add socket to collection and start monitoring its events
-     * @param socket BaseSocket, Socket to monitor
-     * @param userData void*, User data to pass into callback function
+     * @param socket	            Socket to monitor
+     * @param userData	            User data to pass into callback function
      */
     void add(BaseSocket& socket, void* userData);
 
     /**
      * Remove socket from collection and stop monitoring its events
-     * @param socket BaseSocket, Socket to remove
+     * @param socket	            Socket to remove
      */
     void remove(BaseSocket& socket);
 };

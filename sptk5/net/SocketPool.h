@@ -148,7 +148,7 @@ public:
      *
      * Execute callback function for each signaled socket.
      */
-    void waitForEvents(size_t timeoutMS);
+    void waitForEvents(std::chrono::milliseconds timeout);
 
     /**
      * Shutdown socket pool.

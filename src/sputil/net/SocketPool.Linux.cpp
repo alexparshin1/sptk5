@@ -113,11 +113,11 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 
 #define MAXEVENTS 16
 
-void SocketPool::waitForEvents(size_t timeoutMS)
+void SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
     epoll_event events[MAXEVENTS];
 
-    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeoutMS);
+    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, timeout.count());
     if (eventCount < 0)
         throw SystemException("Error waiting for socket activity");
 

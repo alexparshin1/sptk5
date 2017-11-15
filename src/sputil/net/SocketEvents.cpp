@@ -33,8 +33,8 @@ using namespace sptk;
 
 #define MAXEVENTS 128
 
-SocketEvents::SocketEvents(SocketEventCallback eventsCallback, size_t timeoutMS)
-: Thread("socket events"), m_socketPool(eventsCallback), m_timeoutMS(timeoutMS)
+SocketEvents::SocketEvents(SocketEventCallback eventsCallback, chrono::milliseconds timeout)
+: Thread("socket events"), m_socketPool(eventsCallback), m_timeout(timeout)
 {
 }
 
@@ -63,7 +63,7 @@ void SocketEvents::threadFunction()
     m_socketPool.open();
     while (!terminated()) {
         try {
-            m_socketPool.waitForEvents(m_timeoutMS);
+            m_socketPool.waitForEvents(m_timeout);
         }
         catch (const Exception& e) {
             cerr << e.message() << endl;
