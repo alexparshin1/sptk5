@@ -196,7 +196,7 @@ public:
      * @param clientSocketFD    Connected client socket FD
      * @param clientInfo        Connected client info
      */
-    void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
+    virtual void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
 
     /**
      * @brief Returns number of bytes available in socket

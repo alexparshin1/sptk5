@@ -37,11 +37,10 @@ using namespace sptk;
 HttpConnect::HttpConnect(TCPSocket& socket)
 : m_socket(socket), m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s+(\\S.*)?\r")
 {
-    //m_requestHeaders["Content-Type"] = "application/x-www-form-urlencoded";
     m_requestHeaders["Connection"] = "close";
 }
 
-int HttpConnect::readHeaders(std::chrono::milliseconds timeout, String& httpStatus)
+int HttpConnect::readHeaders(chrono::milliseconds timeout, String& httpStatus)
 {
     m_responseHeaders.clear();
 
@@ -102,7 +101,7 @@ string HttpConnect::responseHeader(const string& headerName) const
     return itor->second;
 }
 
-int HttpConnect::getResponse(std::chrono::milliseconds readTimeout)
+int HttpConnect::getResponse(chrono::milliseconds readTimeout)
 {
     Buffer read_buffer(RSP_BLOCK_SIZE);
 

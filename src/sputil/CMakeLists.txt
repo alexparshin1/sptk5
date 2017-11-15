@@ -9,8 +9,8 @@ SET (SPUTIL_SOURCES
     core/Strings.cpp core/SysLogEngine.cpp core/UniqueInstance.cpp core/Variant.cpp core/string_ext.cpp
     core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
-    net/BaseMailConnect.cpp net/BaseSocket.cpp
-    net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
+    net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp
+    net/Host.cpp net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
     net/TCPServer.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/ImapDS.cpp
@@ -41,7 +41,7 @@ ENDIF ()
 
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp net/Host.cpp)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp)
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})
