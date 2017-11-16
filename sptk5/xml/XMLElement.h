@@ -81,8 +81,8 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param tagname const char*, a name of XML tag
+     * @param parent            Parent node.
+     * @param tagname           Name of XML tag
      */
     XMLElement(XMLNode& parent, const char* tagname) :
         XMLNamedItem(parent,tagname),
@@ -92,8 +92,8 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode*, a parent node.
-     * @param tagname const char*, a name of XML tag
+     * @param parent            Parent node.
+     * @param tagname           Name of XML tag
      */
     XMLElement(XMLNode* parent, const char* tagname) : 
         XMLNamedItem(*parent,tagname),
@@ -103,8 +103,8 @@ public:
     /**
      * @brief Constructor
      *
-     * @param parent XMLNode &, a parent node.
-     * @param tagname const string&, a name of XML tag
+     * @param parent            Parent node.
+     * @param tagname           Name of XML tag
      */
     XMLElement(XMLNode& parent, const std::string& tagname) : 
         XMLNamedItem(parent,tagname),
@@ -114,7 +114,7 @@ public:
     /**
      * @brief Returns node type
      */
-    virtual XMLNodeType type() const
+    XMLNodeType type() const override
     {
         return DOM_ELEMENT;
     }
@@ -170,15 +170,15 @@ public:
     /**
      * @brief Appends a subnode
      *
-     * @param node XMLNode*, node to append
+     * @param node              Node to append
      */
     virtual void push_back(XMLNode* node);
 
     /**
      * @brief Inserts a subnode
      *
-     * @param pos iterator, insert position with the list of subnodes
-     * @param node XMLNode*, node to insert
+     * @param pos               Insert position with the list of subnodes
+     * @param node              Node to insert
      */
     virtual void insert(iterator pos, XMLNode* node);
 
@@ -187,7 +187,7 @@ public:
      *
      * Any memory allocated for subnode is released and subnode is
      * removed from its parent
-     * @param node XMLNode*, node to remove
+     * @param node              Node to remove
      */
     virtual void remove(XMLNode* node);
 
@@ -239,9 +239,9 @@ public:
 
     /**
      * @brief Returns true, if given attribute is found
-     * @param attr const char *, attribute to search
+     * @param attr              Attribute to search
      */
-    virtual bool hasAttribute(const char *attr) const
+    bool hasAttribute(const char *attr) const override
     {
         return m_attributes.hasAttribute(attr);
     }
@@ -250,11 +250,11 @@ public:
      * @brief Returns attribute value for given attribute.
      *
      * HTML tags can have empty attributes, for those you should use has_attribute() method.
-     * @param attr std::string, name of attribute
-     * @param defaultValue const char *, a default value. If attribute doesn't exist then default value is returned.
+     * @param attr              Name of attribute
+     * @param defaultValue      Default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    virtual XMLValue getAttribute(std::string attr, const char *defaultValue="") const
+    XMLValue getAttribute(const std::string& attr, const char *defaultValue="") const override
     {
         return m_attributes.getAttribute(attr,defaultValue);
     }
@@ -263,11 +263,11 @@ public:
      * @brief Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
-     * @param attr const char*, attribute name
-     * @param value XMLValue, attribute value
-     * @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
+     * @param attr              Attribute name
+     * @param value             Attribute value
+     * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const char *attr, XMLValue value, const char *defaultValue="")
+    void setAttribute(const char *attr, XMLValue value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr,value,defaultValue);
     }
@@ -276,11 +276,11 @@ public:
      * @brief Sets new value to attribute 'attr'.
      *
      * If attribute is not found, it's added to map.
-     * @param attr const string&, an attribute name
-     * @param value XMLValue, attribute value
-     * @param defaultValue const char *, a default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
+     * @param attr              Attribute name
+     * @param value             Attribute value
+     * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    virtual void setAttribute(const std::string& attr, XMLValue value, const char *defaultValue="")
+    void setAttribute(const std::string& attr, XMLValue value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
     }
