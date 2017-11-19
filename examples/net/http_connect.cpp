@@ -52,7 +52,6 @@ int main(int argc,char *argv[])
         DateTime        started = DateTime::Now();
 
         auto socket = new TCPSocket;
-
         HttpConnect sock(*socket);
 
         Host api("api.karrostech.io", 80);
