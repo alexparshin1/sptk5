@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTTPPARAMS_H__
-#define __HTTPPARAMS_H__
+#ifndef __HTTP_PARAMS_H__
+#define __HTTP_PARAMS_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>

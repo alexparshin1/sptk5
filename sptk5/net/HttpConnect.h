@@ -32,6 +32,7 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
+#include <sptk5/net/HttpReader.h>
 #include <sptk5/net/TCPSocket.h>
 
 namespace sptk
@@ -43,11 +44,6 @@ namespace sptk
  */
 
 /**
- * @brief A map of HTTP headers and their values (string to string)
- */
-typedef std::map<std::string, std::string> HttpHeaders;
-
-/**
  * @brief HTTP socket
  *
  * Implements the GET, POST, PUT and DELETE methods of HTTP protocol.
@@ -56,27 +52,20 @@ typedef std::map<std::string, std::string> HttpHeaders;
 class SP_EXPORT HttpConnect
 {
     /**
-     * Internal read buffer
+     * HTTP reader
      */
-    Buffer         m_readBuffer;
+    HttpReader      m_reader;
 
     /**
      * External socket
      */
-    TCPSocket&     m_socket;
-
-    const RegularExpression m_matchProtocolAndResponseCode;
+    TCPSocket&      m_socket;
 
 protected:
     /**
      * HTTP request headers
      */
     HttpHeaders     m_requestHeaders;
-
-    /**
-     * HTTP response headers
-     */
-    HttpHeaders     m_responseHeaders;
 
 protected:
 
@@ -101,14 +90,6 @@ protected:
      * @param cmd const Buffer&, HTTP command
      */
     void sendCommand(const Buffer& cmd);
-
-    /**
-     * @brief Read HTTP response headers
-     * @param timeout std::chrono::milliseconds, Response timeout
-     * @param httpStatus String&, HTTP result status
-     * @return HTTP result code
-     */
-    int readHeaders(std::chrono::milliseconds timeout, String& httpStatus);
 
     /**
      * @brief Retrieves the server response on the command
@@ -141,7 +122,7 @@ public:
      */
     const Buffer& htmlData() const
     {
-        return m_readBuffer;
+        return m_reader;
     }
 
     /**
@@ -164,7 +145,7 @@ public:
      */
     const HttpHeaders& responseHeaders() const
     {
-        return m_responseHeaders;
+        return m_reader.getResponseHeaders();
     }
 
     /**

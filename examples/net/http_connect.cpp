@@ -31,9 +31,9 @@
 #include <sptk5/cnet>
 #include <sptk5/cgui>
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/SSLSocket.h>
 
@@ -45,11 +45,13 @@ int main(int argc,char *argv[])
     system("rm -rf /tmp/logs");
     system("mkdir /tmp/logs");
 
+    DateTime totalStarted = DateTime::Now();
+
     for (int i = 0; i < 10; i++)
     try {
         DateTime        started = DateTime::Now();
 
-        TCPSocket* socket = new TCPSocket;
+        auto socket = new TCPSocket;
 
         HttpConnect sock(*socket);
 
@@ -64,6 +66,7 @@ int main(int argc,char *argv[])
         httpFields["enddate"] = "2017-08-23T21:59:59.999Z";
 
         sock.requestHeaders()["Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5jb20iLCJzdWIiOjEsImlhdCI6MTUwNzkxMTAxMDc4NywiZXhwIjoxNTE0NDE5MTk5MDAwLCJlbWFpbCI6ImFkbWluQGVkdWxvZy5jb20iLCJmaXJzdE5hbWUiOiJBZG1pbiIsIm1pZGRsZU5hbWUiOm51bGwsImxhc3ROYW1lIjpudWxsLCJhdXRob3JpemF0aW9uIjp7Imdyb3VwcyI6W3siZ3JvdXBOYW1lIjoiQWNjb3VudCBNYW5hZ2VtZW50Iiwicm9sZXMiOlsiQWRtaW4iXX0seyJncm91cE5hbWUiOiJQYXJlbnQgUG9ydGFsIiwicm9sZXMiOlsiQWRtaW4iXX0seyJncm91cE5hbWUiOiJFZHVsb2ciLCJyb2xlcyI6WyJTeXN0ZW0gQWRtaW4iXX1dfX0.9n-ZuM_mVgxOiKYR-qxiuFYyJLw0fmU4DwOdsHE68zc";
+        //sock.requestHeaders()["Accept-Encoding"] = "gzip";
         try {
             sock.cmd_get("/event/api/0.1/events", httpFields, chrono::seconds(30));
         }
@@ -72,12 +75,12 @@ int main(int argc,char *argv[])
             cerr << sock.htmlData().c_str() << endl;
         }
 
-        cout << "Received " << sock.htmlData().bytes() << endl << endl;
+        cout << "Received " << sock.htmlData().bytes() << endl;
 
         DateTime    finished = DateTime::Now();
         int durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
 
-        cout << "Elapsed " << durationMS << " ms " << endl;
+        cout << "Elapsed " << durationMS << " ms " << endl << endl;
 
         delete socket;
 
@@ -85,6 +88,9 @@ int main(int argc,char *argv[])
         cerr << e.what() << endl;
         return 1;
     }
+
+    int totalMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - totalStarted).count();
+    cout << "Total Elapsed " << totalMS << " ms " << endl << endl;
 
     return 0;
 }

@@ -35,185 +35,32 @@ using namespace std;
 using namespace sptk;
 
 HttpConnect::HttpConnect(TCPSocket& socket)
-: m_socket(socket), m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s+(\\S.*)?\r")
+: m_socket(socket)
 {
     m_requestHeaders["Connection"] = "close";
-}
-
-int HttpConnect::readHeaders(chrono::milliseconds timeout, String& httpStatus)
-{
-    m_responseHeaders.clear();
-
-    if (!m_socket.readyToRead(timeout)) {
-        m_socket.close();
-        throw Exception("Response timeout");
-    }
-
-    /// Reading HTTP headers
-    Strings matches;
-    bool firstRow = true;
-    int rc = 0;
-    httpStatus = "";
-    for (;;) {
-        string header;
-
-        m_socket.readLine(header);
-
-        if (header.empty())
-            throw Exception("Invalid HTTP response");
-
-        if (firstRow) {
-            if (header.length() <= 2)
-                continue;
-            if (!m_matchProtocolAndResponseCode.m(header, matches))
-                throw Exception("Broken HTTP version header");
-            rc = string2int(matches[1]);
-            if (matches.size() > 2)
-                httpStatus = matches[2];
-            firstRow = false;
-            continue;
-        }
-        size_t pos = header.find(':');
-        if (pos != string::npos) {
-            string headerName = header.substr(0, pos);
-            string headerValue = trim(header.substr(pos + 1));
-            m_responseHeaders[headerName] = headerValue;
-            continue;
-        }
-
-        if (header[0] == '\r')
-            break;
-    }
-
-    if (m_requestHeaders.empty())
-        throw Exception("Can't detect HTTP headers");
-
-    return rc;
 }
 
 #define RSP_BLOCK_SIZE (1024*64)
 
 string HttpConnect::responseHeader(const string& headerName) const
 {
-    auto itor = m_responseHeaders.find(headerName);
-    if (itor == m_responseHeaders.end())
-        return "";
-    return itor->second;
+    return m_reader.responseHeader(headerName);
 }
 
 int HttpConnect::getResponse(chrono::milliseconds readTimeout)
 {
     Buffer read_buffer(RSP_BLOCK_SIZE);
 
-    m_readBuffer.reset();
-    m_responseHeaders.clear();
-
-    String httpStatus;
-    int rc = readHeaders(readTimeout, httpStatus);
-
-    string contentLengthStr = responseHeader("Content-Length");
-    if (contentLengthStr.empty()) {
-        if (rc == 204 || rc == 304)
-            contentLengthStr = "0";
-        //else
-            //contentLengthStr = "-1";
-    }
-    auto contentLength = (size_t) string2int(contentLengthStr);
-    if (contentLengthStr != "0") {
-        bool chunked = responseHeader("Transfer-Encoding").find("chunked") != string::npos;
-
-        int bytes;
-        size_t bytesToRead = contentLength;
-        if (!chunked) {
-            size_t totalBytes = 0;
-
-            for (;;) {
-
-                if (!m_socket.readyToRead(readTimeout)) {
-                    m_socket.close();
-                    throw Exception("Response read timeout");
-                }
-
-                if (contentLength != 0) {
-                    bytes = m_socket.socketBytes();
-                    if (bytes == 0 || bytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL
-                        bytes = bytesToRead;
-                    bytes = (int) m_socket.read(read_buffer, (size_t) bytes);
-                    bytesToRead -= bytes;
-                } else
-                    bytes = (int) m_socket.read(read_buffer, 64*1024);
-
-                if (bytes == 0) // No more data
-                    break;
-
-                m_readBuffer.append(read_buffer);
-                totalBytes += bytes;
-
-                if (contentLength != 0 && totalBytes >= contentLength)
-                    break;
-            }
-        } else {
-            string chunkSizeStr;
-
-            for (;;) {
-                if (!m_socket.readyToRead(readTimeout)) {
-                    m_socket.close();
-                    throw Exception("Response read timeout");
-                }
-
-                chunkSizeStr = "";
-                while (chunkSizeStr.empty()) {
-                    if (m_socket.readLine(chunkSizeStr) == 0) {
-                        this_thread::sleep_for(chrono::milliseconds(10));
-                        continue;
-                    }
-                    chunkSizeStr = trim(chunkSizeStr);
-                }
-
-                errno = 0;
-                auto chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
-                if (errno != 0 || !isdigit(chunkSizeStr[0]))
-                    cerr << "ERROR: chunkSizeStr " << chunkSizeStr << endl;
-
-                if (chunkSize == 0)
-                    break;
-
-                read_buffer.checkSize(chunkSize);
-                bytes = (int) m_socket.read(read_buffer, chunkSize, nullptr);
-                if (bytes > 0) {
-                    read_buffer.data() [bytes] = 0;
-                    m_readBuffer.append(read_buffer);
-                }
-            }
+    while (m_reader.getReaderState() < HttpReader::COMPLETED) {
+        if (!m_socket.readyToRead(readTimeout)) {
+            m_socket.close();
+            throw Exception("Response read timeout");
         }
 
-        auto itor = m_responseHeaders.find("Content-Encoding");
-        if (itor != m_responseHeaders.end() && itor->second == "gzip") {
-#if HAVE_ZLIB
-            Buffer unzipBuffer;
-            ZLib::decompress(unzipBuffer, m_readBuffer);
-            m_readBuffer = move(unzipBuffer);
-#else
-            throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
-#endif
-        }
+        m_reader.read(m_socket);
     }
 
-    auto itor = m_responseHeaders.find("Connection");
-    if (itor != m_responseHeaders.end() && itor->second == "close")
-        m_socket.close();
-
-    if (rc >= 400) {
-        if (httpStatus.empty()) {
-            if (rc >= 500)
-                httpStatus = "Unknown server error";
-            else
-                httpStatus = "Unknown client error";
-        }
-        throw Exception(httpStatus);
-    }
-
-    return rc;
+    return m_reader.getStatusCode();
 }
 
 void HttpConnect::sendCommand(const string& cmd)
@@ -256,8 +103,6 @@ Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageNa
 
 int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
 {
-    m_readBuffer.checkSize(1024);
-
     Strings headers = makeHeaders("GET", pageName, requestParameters);
     //command += "Accept: */*\n";
 
