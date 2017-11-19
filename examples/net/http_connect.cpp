@@ -65,8 +65,6 @@ int main(int argc,char *argv[])
         httpFields["page"] = "0";
         httpFields["enddate"] = "2017-08-23T21:59:59.999Z";
 
-        sock.requestHeaders()["Authorization"] = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5jb20iLCJzdWIiOjEsImlhdCI6MTUwNzkxMTAxMDc4NywiZXhwIjoxNTE0NDE5MTk5MDAwLCJlbWFpbCI6ImFkbWluQGVkdWxvZy5jb20iLCJmaXJzdE5hbWUiOiJBZG1pbiIsIm1pZGRsZU5hbWUiOm51bGwsImxhc3ROYW1lIjpudWxsLCJhdXRob3JpemF0aW9uIjp7Imdyb3VwcyI6W3siZ3JvdXBOYW1lIjoiQWNjb3VudCBNYW5hZ2VtZW50Iiwicm9sZXMiOlsiQWRtaW4iXX0seyJncm91cE5hbWUiOiJQYXJlbnQgUG9ydGFsIiwicm9sZXMiOlsiQWRtaW4iXX0seyJncm91cE5hbWUiOiJFZHVsb2ciLCJyb2xlcyI6WyJTeXN0ZW0gQWRtaW4iXX1dfX0.9n-ZuM_mVgxOiKYR-qxiuFYyJLw0fmU4DwOdsHE68zc";
-        //sock.requestHeaders()["Accept-Encoding"] = "gzip";
         try {
             sock.cmd_get("/event/api/0.1/events", httpFields, chrono::seconds(30));
         }
