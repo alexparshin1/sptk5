@@ -30,6 +30,7 @@
 #define __SPTK_SEMAPHORE_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <condition_variable>
 #include <atomic>
@@ -72,8 +73,8 @@ public:
      * @brief Constructor
      *
      * Creates semaphore with starting value (default 0)
-     * @param startingValue uint32_t, starting semaphore value
-     * @param maxValue uint32_t, maximum semaphore value, or 0 if unlimited
+     * @param startingValue     Starting semaphore value
+     * @param maxValue          Maximum semaphore value, or 0 if unlimited
      */
     Semaphore(uint32_t startingValue=0, uint32_t maxValue=0);
 
@@ -90,13 +91,22 @@ public:
     void post();
 
     /**
-     * @brief Waits until semaphore value is greater than zero, or until timeout occurs
+     * @brief Waits until semaphore value is greater than zero, or until timeout interval is passed
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout std::chrono::milliseconds, wait timeout
+     * @param timeout           Wait timeout
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
     bool wait(std::chrono::milliseconds timeout);
+
+    /**
+     * @brief Waits until semaphore value is greater than zero, or until timeoutAt occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * @param timeout           Timeout moment
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
+    bool wait(DateTime timeout);
 };
 /**
  * @}

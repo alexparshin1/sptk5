@@ -47,12 +47,16 @@ void Semaphore::post()
 
 bool Semaphore::wait(chrono::milliseconds timeout)
 {
-    unique_lock<mutex>  lock(m_mutex);
-    auto now = std::chrono::system_clock::now();
+    auto timeoutAt = DateTime::Now() + timeout;
+    return wait(timeoutAt);
+}
 
+bool Semaphore::wait(DateTime timeoutAt)
+{
+    unique_lock<mutex>  lock(m_mutex);
     // Wait until semaphore value is greater than 0
     if (!m_condition.wait_until(lock,
-                                now + timeout,
+                                timeoutAt.timePoint(),
                                 [this](){return m_value > 0;}))
     {
         return false;
