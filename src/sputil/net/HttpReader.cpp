@@ -146,7 +146,7 @@ bool HttpReader::readData(TCPSocket& socket)
                 }
 
                 m_currentChunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
-                if (errno != 0 || !isdigit(chunkSizeStr[0]))
+                if (errno != 0)
                     throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
 
                 if (m_currentChunkSize == 0)
