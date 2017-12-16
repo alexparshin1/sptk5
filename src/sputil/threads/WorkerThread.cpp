@@ -52,10 +52,10 @@ void WorkerThread::threadFunction()
                 runable->execute();
             }
             catch (exception& e) {
-                cerr << "Runable::run() : " << e.what() << endl;
+                cerr << "Runable::execute() : " << e.what() << endl;
             }
             catch (...) {
-                cerr << "Runable::run() : unknown exception" << endl;
+                cerr << "Runable::execute() : unknown exception" << endl;
             }
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED);
