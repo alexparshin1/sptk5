@@ -38,6 +38,8 @@ namespace sptk {
  * @{
  */
 
+class Runable;
+
 /**
  * @brief Thread event interface
  */
@@ -80,10 +82,11 @@ public:
      *
      * In order to receive thread events, event receiver
      * should be derived from this class.
-     * @param thread Thread*, Thread where event occured
-     * @param eventType Type, Thread event type
+     * @param thread            Thread where event occured
+     * @param eventType         Thread event type
+     * @param runable           Related runable (if any)
      */
-    virtual void threadEvent(Thread* thread, Type eventType) = 0;
+    virtual void threadEvent(Thread* thread, Type eventType, Runable* runable) = 0;
 
     /**
      * @brief Destructor

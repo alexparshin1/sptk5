@@ -35,7 +35,7 @@ using namespace sptk;
 void WorkerThread::threadFunction()
 {
     if (m_threadEvent != nullptr)
-        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED);
+        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_STARTED, nullptr);
 
     chrono::milliseconds idleSeconds(0);
     while (!terminated()) {
@@ -47,7 +47,7 @@ void WorkerThread::threadFunction()
         if (m_queue->pop(runable, chrono::milliseconds(1000))) {
             idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)
-                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED);
+                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED, runable);
             try {
                 runable->execute();
             }
@@ -58,19 +58,18 @@ void WorkerThread::threadFunction()
                 cerr << "Runable::execute() : unknown exception" << endl;
             }
             if (m_threadEvent != nullptr)
-                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED);
+                m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_FINISHED, runable);
         } else
             idleSeconds++;
     }
     if (m_threadEvent != nullptr)
-        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED);
+        m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED, nullptr);
 }
 
-WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* threadEvent,
-                           chrono::milliseconds maxIdleTime) :
-    Thread("worker"),
-    m_threadEvent(threadEvent),
-    m_maxIdleSeconds(maxIdleTime)
+WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
+: Thread("worker"),
+  m_threadEvent(threadEvent),
+  m_maxIdleSeconds(maxIdleTime)
 {
     if (queue != nullptr)
         m_queue = queue;

@@ -38,7 +38,7 @@ Runable::Runable() :
 
 void Runable::execute()
 {
-    SynchronizedCode   sc(m_running);
+    SynchronizedCode sc(m_running);
     m_terminated = false;
     run();
 }
