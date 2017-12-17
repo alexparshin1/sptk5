@@ -31,11 +31,11 @@
 using namespace std;
 using namespace sptk;
 
-ThreadPool::ThreadPool(uint32_t threadLimit, uint32_t threadIdleSeconds) :
-    Thread("thread manager"),
-    m_threadLimit(threadLimit),
-    m_threadIdleSeconds(threadIdleSeconds),
-    m_shutdown(false)
+ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const string& threadName)
+: Thread(threadName),
+  m_threadLimit(threadLimit),
+      m_threadIdleTime(threadIdleSeconds),
+  m_shutdown(false)
 {
     run();
 }
@@ -58,7 +58,7 @@ void ThreadPool::threadFunction()
 
 WorkerThread* ThreadPool::createThread()
 {
-    auto workerThread = new WorkerThread(&m_taskQueue, this, m_threadIdleSeconds);
+    auto workerThread = new WorkerThread(&m_taskQueue, this, m_threadIdleTime);
     m_threads.push_back(workerThread);
     workerThread->run();
     return workerThread;
@@ -78,7 +78,7 @@ void ThreadPool::execute(Runable* task)
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType)
+void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
 {
     switch (eventType) {
     case ThreadEvent::RUNABLE_STARTED:

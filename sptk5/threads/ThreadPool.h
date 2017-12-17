@@ -81,7 +81,7 @@ class SP_EXPORT ThreadPool : public Synchronized, public ThreadEvent, public Thr
     /**
      * Maximum thread idle time before thread in this pool is terminated
      */
-    std::chrono::milliseconds           m_threadIdleSeconds;
+    std::chrono::milliseconds           m_threadIdleTime;
 
     /**
      * Flag: true during pool shutdown
@@ -109,10 +109,11 @@ public:
 
     /**
      * @brief Constructor
-     * @param threadLimit uint32_t, Maximum number of threads in this pool
-     * @param threadIdleSeconds int32_t, Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+     * @param threadLimit       Maximum number of threads in this pool
+     * @param threadIdleTime    Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
+     * @param threadName        Thread pool own threadName
      */
-    ThreadPool(uint32_t threadLimit=100, uint32_t threadIdleSeconds=60);
+    ThreadPool(uint32_t threadLimit=100, std::chrono::milliseconds threadIdleTime=std::chrono::seconds(600), const std::string& threadName="Thread Pool");
 
     /**
      * @brief Destructor
@@ -124,17 +125,19 @@ public:
 
     /**
      * @brief Executes task
+     * @param task              Task to execute
      */
-    void execute(Runable* task);
+    virtual void execute(Runable* task);
 
     /**
      * @brief Thread event callback function
      *
      * Receives events that occur in the threads
-     * @param thread Thread*, Thread where event occured
-     * @param eventType ThreadEvent::Type, Thread event type
+     * @param thread            Thread where event occured
+     * @param eventType         Thread event type
+     * @param runable           Related runable (if any)
      */
-    virtual void threadEvent(Thread* thread, ThreadEvent::Type eventType);
+    void threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable) override;
 
     /**
      * @brief Sends terminate() message to all worker threads, and sets shutdown state
