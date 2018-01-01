@@ -84,16 +84,16 @@ class SP_EXPORT Exception: public std::exception
 public:
     /**
      * @brief Constructor
-     * @param text std::string, the exception text
-     * @param file std::string, the file where exception occurs
-     * @param line int, the line number in the file where exception occurs
-     * @param description std::string, the optional description information
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
      */
     Exception(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
-     * @param other const CException&, the other exception object
+     * @param other             The other exception object
      */
     Exception(const Exception& other) DOESNT_THROW;
 
@@ -133,16 +133,16 @@ class SP_EXPORT TimeoutException: public Exception
 public:
     /**
      * Constructor
-     * @param text std::string, the exception text
-     * @param file std::string, the file where exception occurs
-     * @param line int, the line number in the file where exception occurs
-     * @param description std::string, the optional description information
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
      */
     TimeoutException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
-     * @param other const TimeoutException&, other exception object
+     * @param other             Other exception object
      */
     TimeoutException(const TimeoutException& other) DOESNT_THROW;
 };
@@ -157,16 +157,16 @@ class SP_EXPORT ConnectionException: public Exception
 public:
     /**
      * Constructor
-     * @param text std::string, the exception text
-     * @param file std::string, the file where exception occurs
-     * @param line int, the line number in the file where exception occurs
-     * @param description std::string, the optional description information
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
      */
     ConnectionException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
-     * @param other const ConnectionException&, other exception object
+     * @param other             Other exception object
      */
     ConnectionException(const ConnectionException& other) DOESNT_THROW;
 };
@@ -181,16 +181,16 @@ class SP_EXPORT DatabaseException: public Exception
 public:
     /**
      * @brief Constructor
-     * @param text std::string, the exception text
-     * @param file std::string, the file where exception occurs
-     * @param line int, the line number in the file where exception occurs
-     * @param description std::string, the optional description information
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
      */
     DatabaseException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
-     * @param other const DatabaseException&, other exception object
+     * @param other             Other exception object
      */
     DatabaseException(const DatabaseException& other) DOESNT_THROW;
 };
@@ -205,16 +205,16 @@ class SP_EXPORT SOAPException: public Exception
 public:
     /**
      * Constructor
-     * @param text std::string, the exception text
-     * @param file std::string, the file where exception occurs
-     * @param line int, the line number in the file where exception occurs
-     * @param description std::string, the optional description information
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
      */
     SOAPException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
-     * @param other const CSOAPException&, other exception object
+     * @param other             Other exception object
      */
     SOAPException(const SOAPException& other) DOESNT_THROW;
 };
