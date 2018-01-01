@@ -168,3 +168,14 @@ int HttpConnect::cmd_delete(const string& pageName, const HttpParams& requestPar
 
     return getResponse(timeout);
 }
+
+int HttpConnect::statusCode() const
+{
+    return m_reader.getStatusCode();
+}
+
+string HttpConnect::statusText() const
+{
+    return m_reader.getStatusText();
+}
+

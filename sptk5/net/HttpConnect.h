@@ -79,7 +79,7 @@ protected:
      * @brief Sends a single command to HTTP server
      *
      * CRLF characters are automatically appended to the command.
-     * @param cmd std::string, HTTP command
+     * @param cmd               HTTP command
      */
     void sendCommand(const std::string& cmd);
 
@@ -87,7 +87,7 @@ protected:
      * @brief Sends a single command to HTTP server
      *
      * CRLF characters are automatically appended to the command.
-     * @param cmd const Buffer&, HTTP command
+     * @param cmd               HTTP command
      */
     void sendCommand(const Buffer& cmd);
 
@@ -96,7 +96,7 @@ protected:
      *
      * Stops when HTTP server closes the connection. The server response can then be
      * accessed through the htmlData() method.
-     * @param timeout std::chrono::milliseconds, Response timeout
+     * @param timeout           Response timeout
      * @return HTTP result code
      */
     int getResponse(std::chrono::milliseconds timeout);
@@ -108,7 +108,7 @@ public:
      *
      * External socket has to be active before HTTP operations.
      * In order to use HTTPS protocol, use COpenSSLSocket.
-     * @param socket CTCPSocket&, external socket
+     * @param socket            external socket
      */
     HttpConnect(TCPSocket& socket);
 
@@ -152,9 +152,9 @@ public:
      * @brief Sends the GET command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName std::string, the name of the page without the server name.
-     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
-     * @param timeout std::chrono::milliseconds, response timeout
+     * @param pageName          The name of the page without the server name.
+     * @param parameters        The list of HTTP data to pass to the server
+     * @param timeout           Response timeout
      * @return HTTP result code
      */
     int cmd_get(const std::string& pageName, const HttpParams& parameters, std::chrono::milliseconds timeout);
@@ -163,11 +163,11 @@ public:
      * @brief Sends the POST command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName std::string, the name of the page without the server name.
-     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
-     * @param content const Buffer&, the data to post to the server
-     * @param gzipContent bool, if true then compress buffer and set HTTP header Content-Encoding
-     * @param timeout std::chrono::milliseconds, response timeout
+     * @param pageName          The name of the page without the server name.
+     * @param parameters        The list of HTTP data to pass to the server
+     * @param content           The data to post to the server
+     * @param gzipContent       If true then compress buffer and set HTTP header Content-Encoding
+     * @param timeout           Response timeout
      * @return HTTP result code
      */
     int cmd_post(const std::string& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
@@ -177,10 +177,10 @@ public:
      * @brief Sends the PUT command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName std::string, the name of the page without the server name.
-     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
-     * @param content const Buffer&, the data to post to the server
-     * @param timeout std::chrono::milliseconds, response timeout
+     * @param pageName          The name of the page without the server name.
+     * @param parameters        The list of HTTP data to pass to the server
+     * @param content           The data to post to the server
+     * @param timeout           Response timeout
      * @return HTTP result code
      */
     int cmd_put(const std::string& pageName, const HttpParams& parameters, const Buffer& content, std::chrono::milliseconds timeout);
@@ -189,19 +189,31 @@ public:
      * @brief Sends the DELETE command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName std::string, the name of the page without the server name.
-     * @param parameters const HttpParams&, the list of HTTP data to pass to the server
-     * @param timeout std::chrono::milliseconds, response timeout, milliseconds
+     * @param pageName          The name of the page without the server name.
+     * @param parameters        The list of HTTP data to pass to the server
+     * @param timeout           Request timeout
      * @return HTTP result code
      */
     int cmd_delete(const std::string& pageName, const HttpParams& parameters, std::chrono::milliseconds timeout);
 
     /**
      * @brief Get value of response header
-     * @param headerName std::string, response header name
+     * @param headerName        Response header name
      * @return header value, or empty string if header is not a part of the response
      */
     std::string responseHeader(const std::string& headerName) const;
+
+    /**
+     * @brief Get the request execution status code
+     * @return request execution status code
+     */
+    int statusCode() const;
+
+    /**
+     * @brief Get the request execution status text
+     * @return request execution status text
+     */
+    std::string statusText() const;
 };
 
 /**
