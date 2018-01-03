@@ -238,6 +238,11 @@ void Query::sql(const string& _sql)
         odbcSQL += string(paramEnd, paramStart - paramEnd);
 
         paramEnd = paramStart + 1;
+        if (*paramStart != ':') {
+            odbcSQL += *paramStart;
+            continue;
+        }
+
         for (; ; paramEnd++) {
 
             if (isalnum(*paramEnd) != 0)
