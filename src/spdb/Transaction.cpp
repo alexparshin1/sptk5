@@ -39,16 +39,19 @@ Transaction::Transaction(DatabaseConnection& db)
 
 Transaction::~Transaction()
 {
-    if (m_active)
-        m_db->rollbackTransaction();
+    try {
+        if (m_active)
+            m_db->rollbackTransaction();
+    }
+    catch (...) {}
 }
 
 void Transaction::begin()
 {
     if (m_active)
         throw DatabaseException("This transaction is already active");
-    m_active = true;
     m_db->beginTransaction();
+    m_active = true;
 }
 
 void Transaction::commit()
