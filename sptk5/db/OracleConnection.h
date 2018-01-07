@@ -87,14 +87,14 @@ protected:
 
     /**
      * @brief Translates Oracle native type to CVariant type
-     * @param oracleType oracle::occi::Type, Oracle native type
+     * @param oracleType        Oracle native type
      * @returns Variant type
      */
     static VariantType OracleTypeToVariantType(Type oracleType);
 
     /**
      * @brief Translates CVariant type to Oracle native type
-     * @param dataType VariantType&, CVariant type
+     * @param dataType          CVariant type
      * @returns Oracle native type
      */
     static Type VariantTypeToOracleType(VariantType dataType);
@@ -104,78 +104,78 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction();
+    void driverBeginTransaction() override;
 
     /**
      * @brief Ends the transaction
-     * @param commit bool, commit if true, rollback if false
+     * @param commit            commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit);
+    void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual std::string queryError(const Query *query) const;
+    std::string queryError(const Query *query) const override;
 
     /**
      * Allocates an Oracle statement
      */
-    virtual void queryAllocStmt(Query *query);
+    void queryAllocStmt(Query *query) override;
 
     /**
      * Deallocates an Oracle statement
      */
-    virtual void queryFreeStmt(Query *query);
+    void queryFreeStmt(Query *query) override;
 
     /**
      * Closes an Oracle statement
      */
-    virtual void queryCloseStmt(Query *query);
+    void queryCloseStmt(Query *query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query *query);
+    void queryPrepare(Query *query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    virtual void queryUnprepare(Query *query);
+    void queryUnprepare(Query *query) override;
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query *query);
+    void queryExecute(Query *query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int  queryColCount(Query *query);
+    int  queryColCount(Query *query) override;
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query *query);
+    void queryBindParameters(Query *query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query *query);
+    void queryOpen(Query *query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query *query);
+    void queryFetch(Query *query) override;
 
 
     /**
      * @brief Returns parameter mark
      *
      * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     * @param paramIndex        parameter index in SQL starting from 0
      */
-    virtual std::string paramMark(unsigned paramIndex);
+    std::string paramMark(unsigned paramIndex) override;
 
 public:
     /**
@@ -194,7 +194,7 @@ public:
         return m_environment.handle();
     }
 
-    Statement* createStatement(std::string sql)
+    Statement* createStatement(const std::string& sql)
     {
         return m_connection->createStatement(sql);
     }
@@ -208,7 +208,7 @@ public:
 
     /**
      * @brief Constructor
-     * @param connectionString const std::string&, the Oracle connection string
+     * @param connectionString  The Oracle connection string
      */
     OracleConnection(const std::string& connectionString = "");
 
@@ -219,41 +219,41 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString const std::string&, the Oracle connection string
+     * @param connectionString  The Oracle connection string
      */
-    virtual void openDatabase(const std::string& connectionString = "") override;
+    void openDatabase(const std::string& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase();
+    void closeDatabase() override;
 
     /**
      * @brief Returns true if database is opened
      */
-    virtual bool active() const;
+    bool active() const override;
 
     /**
      * @brief Returns the database connection handle
      */
-    virtual void* handle() const;
+    void* handle() const override;
 
     /**
      * @brief Returns driver-specific connection string
      */
-    virtual std::string nativeConnectionString() const;
+    std::string nativeConnectionString() const override;
 
     /**
      * @brief Returns the Oracle driver description for the active connection
      */
-    virtual std::string driverDescription() const;
+    std::string driverDescription() const override;
 
     /**
      * @brief Lists database objects
-     * @param objectType CDbObjectType, object type to list
-     * @param objects Strings&, object list (output)
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
      * @brief Executes bulk inserts of data from memory buffer
@@ -261,21 +261,21 @@ public:
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
      * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName std::string, table name to insert into
-     * @param columnNames const Strings&, list of table columns to populate
-     * @param data const Strings&, data for bulk insert
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
      */
-    virtual void bulkInsert(std::string tableName, const Strings& columnNames, const Strings& data, std::string format="");
+    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format="") override;
 
     /**
      * @brief Executes SQL batch file
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL const sptk::Strings&, SQL batch file
-     * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }

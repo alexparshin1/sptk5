@@ -32,11 +32,11 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-OracleStatement::OracleStatement(OracleConnection* connection, string sql) :
+OracleStatement::OracleStatement(OracleConnection* connection, const string& sql) :
     DatabaseStatement<OracleConnection,oracle::occi::Statement>(connection),
-    m_createClobStatement(NULL),
-    m_createBlobStatement(NULL),
-    m_resultSet(NULL)
+    m_createClobStatement(nullptr),
+    m_createBlobStatement(nullptr),
+    m_resultSet(nullptr)
 {
     m_statement = connection->createStatement(sql);
     m_state.columnCount = 0;
@@ -61,7 +61,7 @@ void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* d
 {
     if (m_connection) {
         if (!m_createClobStatement) {
-            OracleConnection* oracleConnection = (OracleConnection*)m_connection;
+            auto oracleConnection = (OracleConnection*)m_connection;
             m_createClobStatement =
                 oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
             m_createClobStatement->registerOutParam(1, OCCICLOB);
@@ -81,7 +81,7 @@ void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* d
 {
     if (m_connection) {
         if (!m_createBlobStatement) {
-            OracleConnection* oracleConnection = (OracleConnection*)m_connection;
+            auto oracleConnection = (OracleConnection*)m_connection;
             m_createBlobStatement =
                 oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
             m_createBlobStatement->registerOutParam(1, OCCIBLOB);
@@ -99,11 +99,10 @@ void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* d
 
 void OracleStatement::setParameterValues()
 {
-    CParamVector::iterator
-        itor = m_enumeratedParams.begin(),
-        iend = m_enumeratedParams.end();
+    auto itor = m_enumeratedParams.begin();
+    auto iend = m_enumeratedParams.end();
 
-    for (int parameterIndex = 1; itor != iend; ++itor, parameterIndex++)
+    for (unsigned parameterIndex = 1; itor != iend; ++itor, parameterIndex++)
     {
         QueryParameter& parameter = *(*itor);
         VariantType& priorDataType = parameter.m_binding.m_dataType;
@@ -134,17 +133,17 @@ void OracleStatement::setParameterValues()
                 break;
 
             case VAR_TEXT:      ///< String pointer, corresponding to CLOB in database
-                setClobParameter(parameterIndex, (unsigned char*) parameter.getString(), parameter.dataSize());
+                setClobParameter(parameterIndex, (unsigned char*) parameter.getString(), (unsigned) parameter.dataSize());
                 break;
 
             case VAR_BUFFER:    ///< Data pointer, corresponding to BLOB in database
-                setBlobParameter(parameterIndex, (unsigned char*) parameter.getString(), parameter.dataSize());
+                setBlobParameter(parameterIndex, (unsigned char*) parameter.getString(), (unsigned) parameter.dataSize());
                 break;
 
             case VAR_DATE:      ///< DateTime (double)
                 {
-                    int16_t year, month, day;
-                    parameter.asDate().decodeDate(&year, &month, &day);
+                    int16_t year, month, day, wday, yday;
+                    parameter.asDate().decodeDate(&year, &month, &day, &wday, &yday);
                     Date dateValue(m_connection->environment(), year, month, day);
                     m_statement->setDate(parameterIndex, dateValue);
                 }
@@ -152,8 +151,8 @@ void OracleStatement::setParameterValues()
 
             case VAR_DATE_TIME: ///< DateTime (double)
                 {
-                    int16_t year, month, day;
-                    parameter.asDateTime().decodeDate(&year, &month, &day);
+                    int16_t year, month, day, wday, yday;
+                    parameter.asDateTime().decodeDate(&year, &month, &day, &wday, &yday);
                     int16_t hour, minute, second, msecond;
                     parameter.getDateTime().decodeTime(&hour, &minute, &second, &msecond);
                     Timestamp timestampValue(m_connection->environment(),
@@ -218,13 +217,12 @@ void OracleStatement::execute(bool inTransaction)
         m_resultSet = m_statement->getResultSet();
 
         vector<MetaData> resultSetMetaData = m_resultSet->getColumnListMetaData();
-        vector<MetaData>::iterator
-            itor = resultSetMetaData.begin(),
-            iend = resultSetMetaData.end();
+        auto itor = resultSetMetaData.begin(),
+             iend = resultSetMetaData.end();
 
-        m_state.columnCount = resultSetMetaData.size();
+        m_state.columnCount = (unsigned) resultSetMetaData.size();
 
-        int columnIndex = 1;
+        unsigned columnIndex = 1;
         for (; itor != iend; ++itor, columnIndex++) {
             const MetaData& metaData = *itor;
             // If resultSet contains cursor, use that cursor as resultSet
@@ -233,7 +231,7 @@ void OracleStatement::execute(bool inTransaction)
                 ResultSet* resultSet = m_resultSet->getCursor(columnIndex);
                 m_resultSet->cancel();
                 m_resultSet = resultSet;
-                m_state.columnCount = m_resultSet->getColumnListMetaData().size();
+                m_state.columnCount = (unsigned) m_resultSet->getColumnListMetaData().size();
                 break;
             }
         }
@@ -245,5 +243,5 @@ void OracleStatement::close()
     if (m_resultSet)
         m_resultSet->cancel();
 
-    m_resultSet = NULL;
+    m_resultSet = nullptr;
 }

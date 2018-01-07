@@ -30,7 +30,7 @@ OPTION (USE_PCRE       "Build PCRE (Perl Regexp) support" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 
-OPTION (BUILD_EXAMPLES "Build usage examples" OFF)
+OPTION (BUILD_EXAMPLES "Build usage examples" ON)
 OPTION (BUILD_UTILS    "Build utitlity programs" ON)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindASPELL.cmake)
@@ -72,11 +72,13 @@ ELSE ()
         -Wno-shadow
         -Wno-switch-enum
         -Wno-unused-parameter
-        -D_GLIBCXX_USE_CXX11_ABI=1
     )
   ELSE()
-    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -D_GLIBCXX_USE_CXX11_ABI=1)
+    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   ENDIF()
+
+  # For Oracle client libraries, we need compatibility with old ABI
+  ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -D_GLIBCXX_USE_CXX11_ABI=0)
 
   IF (LINUX)
     LINK_LIBRARIES(pthread rt dl)

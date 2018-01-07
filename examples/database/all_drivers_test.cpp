@@ -356,8 +356,8 @@ int main(int argc, const char* argv[])
     if (argc == 2)
         connectionString = argv[1];
     else {
-        //connectionString = "mssql://protis:wsxedc@Protis/protis";
-        connectionString = "postgresql://localhost/test";
+        connectionString = "oracle://protis:wsxedc@oracledb/protis";
+        //connectionString = "postgresql://localhost/test";
     }
 
     if (connectionString.empty()) {

@@ -325,7 +325,7 @@ protected:
      * Protected constructor prevents creating an instance of the
      * DatabaseConnection. Instead, it is possible to create an instance of derived
      * classes.
-     * @param connectionString std::string, the connection string
+     * @param connectionString  The connection string
      */
     DatabaseConnection(const std::string& connectionString);
 
@@ -350,7 +350,7 @@ protected:
      * @brief Opens the database connection.
      *
      * This method should be overwritten in derived classes
-     * @param connectionString std::string, the ODBC connection string
+     * @param connectionString  The ODBC connection string
      */
     virtual void openDatabase(const std::string& connectionString);
 
@@ -372,7 +372,7 @@ protected:
      * @brief Ends the transaction
      *
      * This method should be implemented in derived driver
-     * @param commit bool, commit if true, rollback if false
+     * @param commit            Commit if true, rollback if false
      */
     virtual void driverEndTransaction(bool commit);
 
@@ -380,8 +380,8 @@ protected:
      * @brief Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
-     * @param method std::string, method name where error has occured
-     * @param error std::string, error text
+     * @param method            Method name where error has occured
+     * @param error             Error text
      */
     void logAndThrow(std::string method, std::string error);
 
@@ -398,7 +398,7 @@ public:
      * @brief Opens the database connection
      *
      * If unsuccessful throws an exception.
-     * @param connectionString std::string, the ODBC connection string
+     * @param connectionString  The ODBC connection string
      */
     void open(std::string connectionString = "");
 
@@ -474,8 +474,8 @@ public:
      *
      * Not implemented in DatabaseConnection. The derived database class
      * must provide its own implementation
-     * @param objectType CDbObjectType, object type to list
-     * @param objects Strings&, object list (output)
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
      */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) = 0;
 
@@ -484,7 +484,7 @@ public:
      *
      * If the database log is set, the database would log the events in DatabaseConnection and CQuery objects
      * into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
-     * @param logFile Logger *, the log file object to use.
+     * @param logFile           The log file object to use.
      */
     void logFile(Logger *logFile);
 
@@ -500,10 +500,10 @@ public:
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
      * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName std::string, table name to insert into
-     * @param columnNames const Strings&, list of table columns to populate
-     * @param data const Strings&, data for bulk insert
-     * @param format std::string, data format (may be database-specific). The default is TAB-delimited data.
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     * @param format            Data format (may be database-specific). The default is TAB-delimited data.
      */
     virtual void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "");
 
@@ -512,8 +512,8 @@ public:
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName sptk::String, SQL batch file
-     * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchFileName     SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
     virtual void executeBatchFile(const String& batchFileName, Strings* errors = NULL);
 
@@ -522,8 +522,8 @@ public:
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL const sptk::Strings&, SQL batch file
-     * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
     virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL);
 };

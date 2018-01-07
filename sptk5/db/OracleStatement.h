@@ -107,7 +107,7 @@ public:
      * @param connection Connection*, Oracle connection
      * @param sql std::string, SQL statement
      */
-    OracleStatement(OracleConnection* connection, std::string sql);
+    OracleStatement(OracleConnection* connection, const std::string& sql);
 
     /**
      * @brief Destructor
