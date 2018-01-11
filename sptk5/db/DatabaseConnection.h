@@ -70,8 +70,12 @@ enum DatabaseObjectType
     /**
      * Stored functions
      */
-    DOT_FUNCTIONS
+    DOT_FUNCTIONS,
 
+    /**
+     * Available databases
+     */
+    DOT_DATABASES
 };
 
 /**

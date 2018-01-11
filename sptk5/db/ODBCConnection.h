@@ -163,6 +163,12 @@ protected:
         return m_connect;
     }
 
+    /**
+     * List all data sources (user and system)
+     * @param dsns
+     */
+    void listDataSources(Strings& dsns);
+
 public:
 
     /**

@@ -693,9 +693,52 @@ string ODBCConnection::driverDescription() const
     return "";
 }
 
+void ODBCConnection::listDataSources(Strings& dsns)
+{
+    dsns.clear();
+#define MAX_BUF 1024
+    SQLCHAR     datasrc[MAX_BUF] = {0};
+    SQLCHAR     descrip[MAX_BUF] = {0};
+    SQLSMALLINT rdsrc = 0, rdesc = 0;
+    SQLRETURN ret;
+
+    SQLHENV hEnv = ODBCConnectionBase::getEnvironment().handle();
+    bool offline = hEnv == nullptr;
+    if (offline) {
+        ret = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv);
+        ret = SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER);
+    }
+
+    SQLSMALLINT direction =
+            SQL_FETCH_FIRST;
+            // SQL_FETCH_FIRST_USER;
+            //SQL_FETCH_FIRST_SYSTEM;
+    while(1)
+    {
+        ret = SQLDataSources(
+                hEnv, direction,
+                datasrc, MAX_BUF, &rdsrc,
+                descrip, MAX_BUF, &rdesc);
+        if (ret == SQL_NO_DATA)
+            break;
+        direction = SQL_FETCH_NEXT;
+        //CharToOem(datasrc, datasrc);
+        //CharToOem(descrip, descrip);
+        dsns.push_back(string((char*) datasrc) + " (" +  string((char*) descrip) + ")");
+    }
+
+    if (offline)
+        SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
+}
+
 void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
     SynchronizedCode lock(m_connect);
+
+    if (objectType == DOT_DATABASES) {
+        listDataSources(objects);
+        return;
+    }
 
     SQLHSTMT stmt = nullptr;
     try {
@@ -723,6 +766,10 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 
             case DOT_FUNCTIONS:
                 // not yet supported
+                break;
+
+            case DOT_DATABASES:
+                // handled earlier
                 break;
         }
 

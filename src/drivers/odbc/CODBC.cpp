@@ -106,7 +106,7 @@ void ODBCEnvironment::freeEnv()
 
 ODBCConnectionBase::ODBCConnectionBase()
         :
-        m_cEnvironment(GetStaticEnv()),
+        m_cEnvironment(getEnvironment()),
         m_hConnection(SQL_NULL_HDBC),
         m_connected(false)
 {
@@ -120,7 +120,7 @@ ODBCConnectionBase::~ODBCConnectionBase()
 }
 
 // Static environment object inside this function
-ODBCEnvironment& ODBCConnectionBase::GetStaticEnv()
+ODBCEnvironment& ODBCConnectionBase::getEnvironment()
 {
     static ODBCEnvironment Env;
     return Env;

@@ -1023,6 +1023,11 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
         case DOT_VIEWS:
             objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
             break;
+
+        case DOT_DATABASES:
+            objectsSQL =
+                "SELECT datname FROM pg_database WHERE datname NOT IN ('postgres','template0','template1')";
+            break;
     }
 
     Query query(this, objectsSQL);

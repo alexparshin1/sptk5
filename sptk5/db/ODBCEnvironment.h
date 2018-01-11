@@ -158,6 +158,8 @@ protected:
         return m_hEnvironment != SQL_NULL_HENV;
     }
 
+public:
+
     /**
      * Returns enviromment handle
      */
@@ -341,14 +343,12 @@ public:
         transact(SQL_ROLLBACK);
     }
 
-private:
+public:
 
     /**
      * Returns the only environment needed
      */
-    static ODBCEnvironment& GetStaticEnv();
-
-protected:
+    static ODBCEnvironment& getEnvironment();
 
     /**
      * Retrieves an error information for user action name

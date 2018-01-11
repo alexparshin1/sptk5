@@ -365,6 +365,10 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
             "SELECT CONCAT(table_schema, '.', table_name) object_name "
             "FROM information_schema.views";
         break;
+    case DOT_DATABASES:
+        objectsSQL =
+            "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
+        break;
     }
     Query query(this, objectsSQL);
     try {
