@@ -302,7 +302,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SynchronizedCode lock(m_connect);
     SQLLEN result;
 
-    if (!successful(SQLColAttributes(query->statement(), column, descType, nullptr, 0, nullptr, &result)))
+    if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr, &result)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
     value = (int32_t) result;
 }
@@ -315,7 +315,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 
     SynchronizedCode lock(m_connect);
 
-    if (!successful(SQLColAttributes(query->statement(), (int16_t) column, descType, buff, (int16_t) len, &available, nullptr)))
+    if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len, &available, nullptr)))
         query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
 }
 
@@ -371,8 +371,8 @@ void ODBCConnection::queryBindParameters(Query* query)
                     buff = (void*) param->getString();
                     len = (long) param->dataSize();
                     cblen = len;
-                    rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, SQL_C_BINARY,
-                                          SQL_LONGVARBINARY, len, scale, buff, SQLINTEGER(len), &cblen);
+                    rc = SQLBindParameter((SQLHSTMT) query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, SQL_C_BINARY,
+                                          SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
                     if (rc != 0) {
                         param->m_binding.reset(false);
                         query->logAndThrow("CODBCConnection::queryBindParameters",
@@ -429,7 +429,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                 len = 0;
             }
 
-            rc = SQLBindParameter((SQLHSTMT) query->statement(), paramNumber, parameterMode, paramType, sqlType, len, scale,
+            rc = SQLBindParameter((SQLHSTMT) query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType, (SQLULEN) len, scale,
                                   buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
                 param->m_binding.reset(false);
@@ -527,7 +527,7 @@ void ODBCConnection::queryOpen(Query* query)
 
     queryExecute(query);
 
-    int16_t count = queryColCount(query);
+    int count = queryColCount(query);
 
     if (count < 1) {
         queryCloseStmt(query);
@@ -635,12 +635,12 @@ void ODBCConnection::queryFetch(Query* query)
 
                 case SQL_C_SLONG:
                 case SQL_C_DOUBLE:
-                    rc = SQLGetData(statement, column, fieldType, buffer, 0, &dataLength);
+                    rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, 0, &dataLength);
                     break;
 
                 case SQL_C_TIMESTAMP: {
                     TIMESTAMP_STRUCT t = {};
-                    rc = SQLGetData(statement, column, fieldType, &t, 0, &dataLength);
+                    rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, &t, 0, &dataLength);
                     if (dataLength > 0) {
                         DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
                         if (field->dataType() == VAR_DATE)
@@ -654,18 +654,18 @@ void ODBCConnection::queryFetch(Query* query)
                 case SQL_C_BINARY:
                 case SQL_C_CHAR:
                     buffer = (char*) field->getBuffer();
-                    rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
+                    rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
                     if (dataLength > SQLINTEGER(readSize)) { // continue to fetch BLOB data
                         field->checkSize(uint32_t(dataLength + 1));
                         buffer = (char*) field->getBuffer();
                         char* offset = buffer + readSize - 1;
                         readSize = dataLength - readSize + 2;
-                        rc = SQLGetData(statement, column, fieldType, offset, SQLINTEGER(readSize), nullptr);
+                        rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, offset, SQLINTEGER(readSize), nullptr);
                     }
                     break;
 
                 case SQL_BIT:
-                    rc = SQLGetData(statement, column, fieldType, buffer, 1, &dataLength);
+                    rc = SQLGetData(statement, (SQLUSMALLINT) column, fieldType, buffer, 1, &dataLength);
                     break;
 
                 default:
@@ -709,11 +709,11 @@ void ODBCConnection::listDataSources(Strings& dsns)
         ret = SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER);
     }
 
-    SQLSMALLINT direction =
+    SQLUSMALLINT direction =
             SQL_FETCH_FIRST;
             // SQL_FETCH_FIRST_USER;
             //SQL_FETCH_FIRST_SYSTEM;
-    while(1)
+    while (true)
     {
         ret = SQLDataSources(
                 hEnv, direction,
