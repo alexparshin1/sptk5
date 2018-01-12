@@ -388,6 +388,8 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
             "WHERE rdb$system_flag = 0 AND rdb$view_source IS NOT NULL "
             "ORDER BY 1";
         break;
+    default:
+        throw Exception("Not supported");
     }
     Query query(this, objectsSQL);
     try {
