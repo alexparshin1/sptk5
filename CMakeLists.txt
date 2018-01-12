@@ -78,7 +78,7 @@ ELSE ()
   ENDIF()
 
   # For Oracle client libraries, we need compatibility with old ABI
-  ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -D_GLIBCXX_USE_CXX11_ABI=0)
+  ADD_DEFINITIONS (-D_GLIBCXX_USE_CXX11_ABI=1)
 
   IF (LINUX)
     LINK_LIBRARIES(pthread rt dl)
