@@ -380,9 +380,9 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
-    struct timeval timeout;
-    timeout.tv_sec = int32_t (timeoutMS) / 1000;
-    timeout.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
+    struct timeval time;
+    time.tv_sec = int32_t (timeoutMS) / 1000;
+    time.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
 
     fd_set  inputs, errors;
     FD_ZERO(&inputs);
@@ -390,7 +390,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     FD_SET(m_sockfd, &inputs);
     FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, &inputs, NULL, &errors, &timeout);
+    int rc = select(FD_SETSIZE, &inputs, NULL, &errors, &time);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
@@ -413,9 +413,9 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
-    struct timeval timeout;
-    timeout.tv_sec = int32_t (timeoutMS) / 1000;
-    timeout.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
+    struct timeval time;
+    time.tv_sec = int32_t (timeoutMS) / 1000;
+    time.tv_usec = int32_t (timeoutMS) % 1000 * 1000;
 
     fd_set  inputs, errors;
     FD_ZERO(&inputs);
@@ -423,7 +423,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     FD_SET(m_sockfd, &inputs);
     FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, NULL, &inputs, &errors, &timeout);
+    int rc = select(FD_SETSIZE, NULL, &inputs, &errors, &time);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
