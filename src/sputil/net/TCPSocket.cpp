@@ -60,8 +60,12 @@ int32_t TCPSocketReader::bufferedRead(char *dest, size_t sz, char delimiter, boo
     if (availableBytes == 0) {
         m_readOffset = 0;
         if (from != nullptr) {
-            socklen_t flen = sizeof(sockaddr_in);
-            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_size - 2, 0, (sockaddr*) from, &flen);
+#ifdef _WIN32
+            int flen = sizeof(sockaddr_in);
+#else
+			socklen_t flen = sizeof(sockaddr_in);
+#endif
+            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, (int) m_size - 2, 0, (sockaddr*) from, &flen);
         } else {
             m_bytes = m_socket.recv(m_buffer, m_size - 2);
         }

@@ -188,8 +188,9 @@ void SocketPool::forgetSocket(BaseSocket& socket)
         throw SystemException("Can't remove socket from WSAAsyncSelect");
 }
 
-void SocketPool::waitForEvents(size_t timeoutMS)
+void SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
+	size_t timeoutMS = timeout.count();
     thread::id threadId = this_thread::get_id();
     if (threadId != m_threadId)
         throw Exception("SocketPool has to be used in the same must thread where it is created");

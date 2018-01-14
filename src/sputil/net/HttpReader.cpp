@@ -162,7 +162,7 @@ bool HttpReader::readData(TCPSocket& socket)
                 return false; // Not the last chunk
             }
         }
-        bytes = socket.socketBytes();
+        bytes = (int) socket.socketBytes();
     }
     return true;
 }
