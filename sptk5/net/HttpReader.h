@@ -57,7 +57,7 @@ public:
         READING_HEADERS = 1,    ///< Reader is reading headers
         READING_DATA = 2,       ///< Reader is reading data
         COMPLETED = 4,          ///< Reading completed
-        ERROR = 8               ///< Reading error (transfer terminated prematurely)
+        READ_ERROR = 8          ///< Reading error (transfer terminated prematurely)
     };
 
 private:

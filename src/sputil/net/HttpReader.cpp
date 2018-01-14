@@ -55,7 +55,7 @@ bool HttpReader::readStatus(TCPSocket& socket)
         return false;
     Strings matches;
     if (!m_matchProtocolAndResponseCode.m(status, matches)) {
-        m_readerState = ERROR;
+        m_readerState = READ_ERROR;
         throw Exception("Broken HTTP version header");
     }
     m_statusCode = string2int(matches[1]);
