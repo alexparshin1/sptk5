@@ -19,6 +19,9 @@ SET (SOVERSION "5")
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
+IF (LINUX)
+    OPTION (USE_NEW_ABI "Use new GCC ABI" ON)
+ENDIF ()
 
 OPTION (USE_FIREBIRD   "Build Firebird support library" ON)
 OPTION (USE_FLTK       "Build GUI library" ON)
@@ -77,8 +80,14 @@ ELSE ()
     ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
   ENDIF()
 
-  # For Oracle client libraries, we need compatibility with old ABI
-  ADD_DEFINITIONS (-D_GLIBCXX_USE_CXX11_ABI=1)
+  IF (USE_NEW_ABI)
+    # For Oracle client libraries, we need compatibility with old ABI
+    MESSAGE ("GCC ABI:            1")
+    ADD_DEFINITIONS (-D_GLIBCXX_USE_CXX11_ABI=1)
+  ELSE ()
+    MESSAGE ("GCC ABI:            0")
+    ADD_DEFINITIONS (-D_GLIBCXX_USE_CXX11_ABI=0)
+  ENDIF ()
 
   IF (LINUX)
     LINK_LIBRARIES(pthread rt dl)
