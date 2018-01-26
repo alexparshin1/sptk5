@@ -191,7 +191,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
                 classDeclaration << "   /**" << endl;
                 Strings rows(complexType->documentation(), "[\n\r]+", Strings::SM_REGEXP);
                 for (const String& row: rows) {
-                    classDeclaration << "    * " << row << endl;
+                    classDeclaration << "    * " << trim(row) << endl;
                 }
                 classDeclaration << "    */" << endl;
             }
@@ -223,7 +223,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * @param other " << className << "&&, other element to move from" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   " << className << "(" << className << "&& other) noexcept" << endl << "   : " << copyInitializer.asString(", ") << endl
-        << "{}" << endl << endl;
+        << "   {}" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Disabled move assignment" << endl;
     classDeclaration << "    * @param other " << className << "&&, other element to move from" << endl;
