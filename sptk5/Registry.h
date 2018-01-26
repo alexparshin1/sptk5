@@ -77,7 +77,7 @@ class SP_EXPORT Registry: public XMLDocument
     void prepareDirectory();
 
     /**
-     * @brief Saves a node into CStrings
+     * @brief Saves a node into Strings
      *
      * The node is saved in INI file format.
      * @param outputData CStrings&, the string list to save data into

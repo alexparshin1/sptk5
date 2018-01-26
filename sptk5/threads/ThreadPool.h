@@ -103,7 +103,7 @@ protected:
      *
      * Manages terminated threads
      */
-    virtual void threadFunction();
+    void threadFunction() override;
 
 public:
 

@@ -77,69 +77,69 @@ protected:
     /**
      * @brief Begins the transaction
      */
-    virtual void driverBeginTransaction();
+    void driverBeginTransaction() override;
 
     /**
      * @brief Ends the transaction
      * @param commit bool, commit if true, rollback if false
      */
-    virtual void driverEndTransaction(bool commit);
+    void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by Query
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual std::string queryError(const Query *query) const;
+    std::string queryError(const Query *query) const override;
 
     /**
      * Allocates an Firebird statement
      */
-    virtual void queryAllocStmt(Query *query);
+    void queryAllocStmt(Query *query) override;
 
     /**
      * Deallocates an Firebird statement
      */
-    virtual void queryFreeStmt(Query *query);
+    void queryFreeStmt(Query *query) override;
 
     /**
      * Closes an Firebird statement
      */
-    virtual void queryCloseStmt(Query *query);
+    void queryCloseStmt(Query *query) override;
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query *query);
+    void queryPrepare(Query *query) override;
 
     /**
      * Unprepares a query if supported by database
      */
-    virtual void queryUnprepare(Query *query);
+    void queryUnprepare(Query *query) override;
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query *query);
+    void queryExecute(Query *query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int  queryColCount(Query *query);
+    int  queryColCount(Query *query) override;
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query *query);
+    void queryBindParameters(Query *query) override;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query *query);
+    void queryOpen(Query *query) override;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query *query);
+    void queryFetch(Query *query) override;
 
 
     /**
@@ -148,7 +148,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex unsigned, parameter index in SQL starting from 0
      */
-    virtual std::string paramMark(unsigned paramIndex);
+    std::string paramMark(unsigned paramIndex) override;
 
 public:
     /**
@@ -179,45 +179,45 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~FirebirdConnection();
+    ~FirebirdConnection() override;
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString std::string, the Firebird connection string
      */
-    virtual void openDatabase(const std::string& connectionString = "") override;
+    void openDatabase(const std::string& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase();
+    void closeDatabase() override;
 
     /**
      * @brief Returns true if database is opened
      */
-    virtual bool active() const;
+    bool active() const override;
 
     /**
      * @brief Returns the database connection handle
      */
-    virtual void* handle() const;
+    void* handle() const override;
 
     /**
      * @brief Returns driver-specific connection string
      */
-    virtual std::string nativeConnectionString() const;
+    std::string nativeConnectionString() const override;
 
     /**
      * @brief Returns the Firebird driver description for the active connection
      */
-    virtual std::string driverDescription() const;
+    std::string driverDescription() const override;
 
     /**
      * @brief Lists database objects
      * @param objectType DatabaseObjectType, object type to list
      * @param objects Strings&, object list (output)
      */
-    virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
+    void objectList(DatabaseObjectType objectType, Strings& objects) override;
 };
 
 /**

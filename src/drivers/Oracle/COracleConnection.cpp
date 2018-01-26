@@ -526,6 +526,8 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     case DOT_VIEWS:
         objectsSQL = "SELECT view_name FROM user_views";
         break;
+    case DOT_DATABASES:
+        throw Exception("Not implemented yet");
     }
     Query query(this, objectsSQL);
     query.open();

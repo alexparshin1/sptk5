@@ -122,7 +122,7 @@ public:
     /**
      * @brief Returns the first subnode iterator
      */
-    virtual iterator begin()
+    iterator begin() override
     {
         return m_nodes.begin();
     }
@@ -130,7 +130,7 @@ public:
     /**
      * @brief Returns the first subnode const iterator
      */
-    virtual const_iterator begin() const
+    const_iterator begin() const override
     {
         return m_nodes.begin();
     }
@@ -138,7 +138,7 @@ public:
     /**
      * @brief Returns the end subnode iterator
      */
-    virtual iterator end()
+    iterator end() override
     {
         return m_nodes.end();
     }
@@ -146,7 +146,7 @@ public:
     /**
      * @brief Returns the end subnode const iterator
      */
-    virtual const_iterator end() const
+    const_iterator end() const override
     {
         return m_nodes.end();
     }
@@ -154,7 +154,7 @@ public:
     /**
      * @brief Returns a number of subnodes
      */
-    virtual uint32_t size() const
+    uint32_t size() const override
     {
         return (uint32_t) m_nodes.size();
     }
@@ -162,7 +162,7 @@ public:
     /**
      * @brief Returns true if node has no subnodes of subnodes
      */
-    virtual bool empty() const
+    bool empty() const override
     {
         return m_nodes.empty();
     }
@@ -172,7 +172,7 @@ public:
      *
      * @param node              Node to append
      */
-    virtual void push_back(XMLNode* node);
+    void push_back(XMLNode* node) override;
 
     /**
      * @brief Inserts a subnode
@@ -180,7 +180,7 @@ public:
      * @param pos               Insert position with the list of subnodes
      * @param node              Node to insert
      */
-    virtual void insert(iterator pos, XMLNode* node);
+    void insert(iterator pos, XMLNode* node) override;
 
     /**
      * @brief Removes a subnode
@@ -189,21 +189,21 @@ public:
      * removed from its parent
      * @param node              Node to remove
      */
-    virtual void remove(XMLNode* node);
+    void remove(XMLNode* node) override;
 
     /**
      * @brief Removes a subnode
      *
      * Disconnects subnode from parent (this node)
      */
-    virtual void unlink(XMLNode* node);
+    void unlink(XMLNode* node) override;
 
     /**
      * @brief Deletes all child nodes
      *
      * Any memory, associated with child nodes, is released.
      */
-    virtual void clearChildren();
+    void clearChildren() override;
 
     /**
      * @brief Deletes all children and clears all the attributes
@@ -211,12 +211,12 @@ public:
      * Any memory, associated with children or attributes,
      * is released.
      */
-    virtual void clear();
+    void clear() override;
 
     /**
      * @brief Returns referrence to node attributes
      */
-    virtual XMLAttributes& attributes()
+    XMLAttributes& attributes() override
     {
         return m_attributes;
     }
@@ -224,7 +224,7 @@ public:
     /**
      * @brief Returns referrence to node attributes (const version)
      */
-    virtual const XMLAttributes& attributes() const
+    const XMLAttributes& attributes() const override
     {
         return m_attributes;
     }
@@ -232,7 +232,7 @@ public:
     /**
      * @brief Returns true, if node has any attributes
      */
-    virtual bool hasAttributes() const
+    bool hasAttributes() const override
     {
         return m_attributes.size() != 0;
     }

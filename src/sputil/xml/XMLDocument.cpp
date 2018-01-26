@@ -397,14 +397,13 @@ namespace sptk {
         free(buffer);
     }
 
-    void XMLDocument::save(Buffer &buffer, bool formalXML) const
+    void XMLDocument::save(Buffer &buffer, int) const
     {
         XMLNode *xml_pi = nullptr;
 
         buffer.reset();
 
-        if (formalXML)
-            buffer.append("<?xml version=\"1.0\"  encoding=\"UTF-8\" ?>\n");
+        buffer.append("<?xml version=\"1.0\"  encoding=\"UTF-8\" ?>\n");
 
         // Write XML PI
         for (auto node: *this) {
@@ -446,7 +445,7 @@ namespace sptk {
         return nodeNameString;
     }
 
-    void XMLDocument::save(json::Document& json) const
+    void XMLDocument::saveToJSON(json::Document &json) const
     {
         XMLNode* rootNode = *begin();
         rootNode->save(json);

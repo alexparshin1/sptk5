@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     doc.load(buffer);
 */
     json::Document doc2;
-    doc.save(doc2);
+    doc.saveToJSON(doc2);
     doc2.root().exportTo(cout, true);
     cout << endl << endl;
 

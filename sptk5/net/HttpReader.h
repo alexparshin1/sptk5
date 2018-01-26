@@ -102,11 +102,6 @@ private:
     size_t              m_currentChunkSize;
 
     /**
-     * Received current chunk size so far
-     */
-    size_t              m_currentChunkReceivedSize;
-
-    /**
      * Chunked content (as defined in responce headers)
      */
     bool                m_contentIsChunked;

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLDoc.h - description                                 ║
+║                       XMLDocument.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XMLDOCUMENT_H__
-#define __SPTK_XMLDOCUMENT_H__
+#ifndef __XML_DOCUMENT_H__
+#define __XML_DOCUMENT_H__
 
 #include <sptk5/xml/XMLNode.h>
 #include <sptk5/xml/XMLDocType.h>
@@ -105,7 +105,7 @@ protected:
     /**
      * Creates new named node of type XMLNode::DOM_ELEMENT.
      * It can be added to document DOM tree.
-     * @param tagname const char *, name of the element
+     * @param tagname           Name of the element
      * @see XMLNode
      */
     XMLNode *createElement(const char *tagname);
@@ -119,15 +119,15 @@ public:
 
     /**
      * @brief Constructs a document from XML string
-     * @param xml std::string, XML string
+     * @param xml               XML string
      */
     XMLDocument(std::string xml);
     
     /**
      * @brief Constructs an empty document, with doctype.
-     * @param name const char *, name of the document.
-     * @param public_id const char *, public id of the document, placed on DOCTYPE declaration
-     * @param system_id const char *, system id of the document, placed on DOCTYPE declaration
+     * @param name              Name of the document.
+     * @param public_id         Public id of the document, placed on DOCTYPE declaration
+     * @param system_id         System id of the document, placed on DOCTYPE declaration
      */
     XMLDocument(const char *name, const char *public_id, const char *system_id);
 
@@ -159,7 +159,7 @@ public:
 
     /**
      * @brief Sets the new name for the node
-     * @param name const std::string&, new node name
+     * @param name              New node name
      */
     virtual void name(const std::string& name) override
     {
@@ -167,7 +167,7 @@ public:
 
     /**
      * @brief Sets new name for node
-     * @param name const char *, new node name
+     * @param name              New node name
      */
     virtual void name(const char *name) override
     {
@@ -215,7 +215,7 @@ public:
     /**
      * @brief Set indentation in save, defaults to 2
      *
-     * @param i as new indent spaces
+     * @param i                 New indent spaces
      */
     void indentSpaces(int i)
     {
@@ -224,13 +224,13 @@ public:
 
     /**
      * @brief Load document from buffer.
-     * @param buffer const char*, source buffer
+     * @param buffer            Source buffer
      */
     virtual void load(const char* buffer);
 
     /**
      * @brief Load document from std::string.
-     * @param str const std::string&, source string
+     * @param str               Source string
      */
     virtual void load(const std::string& str)
     {
@@ -239,7 +239,7 @@ public:
 
     /**
      * @brief Load document from buffer.
-     * @param buffer const CBuffer&, source buffer
+     * @param buffer            Source buffer
      */
     virtual void load(const Buffer& buffer)
     {
@@ -248,26 +248,16 @@ public:
 
     /**
      * @brief Save document to buffer.
-     * @param buffer CBuffer&, a buffer to save document
-     * @param formalXML bool, if true then prepend with '<?xml version="1.0" ?>'
+     * @param buffer            Buffer to save document
+     * @param indent            Current indent, ignored (always 0)
      */
-    virtual void save(Buffer& buffer, bool formalXML) const;
-
-    /**
-     * @brief Save document to buffer.
-     * @param buffer CBuffer&, a buffer to save document
-     * @param indent int, formatting indent (spaces)
-     */
-    virtual void save(Buffer& buffer, int indent) const override
-    {
-        XMLElement::save(buffer, indent);
-    }
+    void save(Buffer& buffer, int indent) const override;
 
     /**
      * @brief Save document to JSON element.
-     * @param json json::Element&, JSON element
+     * @param json              JSON element
      */
-    virtual void save(json::Document& json) const override;
+    virtual void saveToJSON(json::Document& json) const;
 };
 /**
  * @}

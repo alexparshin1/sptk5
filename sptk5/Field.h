@@ -123,7 +123,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(const Variant &C)
+    Field& operator = (const Variant &C)
     {
         if (this == &C)
             return *this;
@@ -135,7 +135,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(int64_t value)
+    Field& operator =(int64_t value) override
     {
         setInt64(value);
         return *this;
@@ -144,7 +144,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(uint64_t value)
+    Field& operator =(uint64_t value) override
     {
         setInt64((int64_t) value);
         return *this;
@@ -153,7 +153,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(int32_t value)
+    Field& operator =(int32_t value) override
     {
         setInteger(value);
         return *this;
@@ -162,7 +162,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(uint32_t value)
+    Field& operator =(uint32_t value) override
     {
         setInteger((int32_t) value);
         return *this;
@@ -171,7 +171,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(int16_t value)
+    Field& operator =(int16_t value) override
     {
         setInteger(value);
         return *this;
@@ -180,7 +180,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(uint16_t value)
+    Field& operator =(uint16_t value) override
     {
         setInteger(value);
         return *this;
@@ -189,7 +189,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(float value)
+    Field& operator =(float value) override
     {
         setFloat(value);
         return *this;
@@ -198,7 +198,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(double value)
+    Field& operator =(double value) override
     {
         setFloat(value);
         return *this;
@@ -207,7 +207,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(const char * value)
+    Field& operator =(const char * value) override
     {
         setString(value);
         return *this;
@@ -216,7 +216,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(const std::string& value)
+    Field& operator =(const std::string& value) override
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
@@ -225,7 +225,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(DateTime value)
+    Field& operator =(DateTime value) override
     {
         setDateTime(value);
         return *this;
@@ -234,7 +234,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(const void *value)
+    Field& operator =(const void *value) override
     {
         setImagePtr(value);
         return *this;
@@ -243,7 +243,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    virtual Field& operator =(const Buffer& value)
+    Field& operator =(const Buffer& value) override
     {
         setBuffer(value.data(), value.bytes());
         return *this;
@@ -252,7 +252,7 @@ public:
     /**
      * @brief Better (than in base class) conversion method
      */
-    virtual std::string asString() const;
+    std::string asString() const override;
 
     /**
      * @brief Exports the field data into XML node
