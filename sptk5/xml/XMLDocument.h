@@ -122,7 +122,7 @@ public:
      * @param xml               XML string
      */
     XMLDocument(std::string xml);
-    
+
     /**
      * @brief Constructs an empty document, with doctype.
      * @param name              Name of the document.

@@ -403,15 +403,18 @@ namespace sptk {
 
         buffer.reset();
 
-        buffer.append("<?xml version=\"1.0\"  encoding=\"UTF-8\" ?>\n");
-
         // Write XML PI
+        bool hasXmlPI = false;
         for (auto node: *this) {
-            if (node->type() == DOM_PI && node->name() == "XML") {
+            if (node->type() == DOM_PI && lowerCase(node->name()) == "xml") {
                 xml_pi = node;
                 xml_pi->save(buffer);
+                hasXmlPI = true;
+                break;
             }
         }
+        if (!hasXmlPI)
+            buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 
         if (!docType().name().empty()) {
             buffer.append("<!DOCTYPE " + docType().name());
