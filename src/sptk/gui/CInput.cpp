@@ -47,7 +47,6 @@ using namespace sptk;
 
 #define ctrl(x) (x^0x40)
 
-static const char timeMask[] = "H0:N0AX";
 static const char phoneMask[] = "(999)-999-9999";
 
 static const char maskControlCharacters[] = "@0123456789AaLlZz#Tt";

@@ -494,7 +494,7 @@ protected:
     /**
      * @brief General draw function. Draws everything
      */
-    virtual void draw();
+    void draw() override;
 
     /**
      * @brief Internal callback if selected another item with the different user _data (key).
@@ -535,7 +535,7 @@ public:
     /**
      * @brief Overwritten handle()
      */
-    int handle(int);
+    int handle(int) override;
 
     /**
      * @brief Resizes the control and inside widgets.
@@ -544,7 +544,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    void resize(int x, int y, int w, int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Removes row
@@ -668,6 +668,14 @@ public:
     void show(int index);
 
     /**
+     * Show widget
+     */
+    void show() override
+    {
+        CControl::show();
+    }
+
+    /**
      * Switch the visibility flag for the row index
      * @param index int, row number
      */
@@ -676,8 +684,7 @@ public:
     /**
      * Hides the list view widget
      */
-
-    void hide()
+    void hide() override
     {
         Fl_Widget::hide();
     }
@@ -734,13 +741,13 @@ public:
      * The universal data connector,
      * @returns control data
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
      * The universal data connector, selects row with user data
      * @param v const CVariant, user data value to find and select
      */
-    virtual void data(const Variant v);
+    void data(const Variant v) override;
 
     /**
      * Returns row pointer
@@ -808,12 +815,12 @@ protected:
     /**
      * @brief Loads the key value from the query
      */
-    virtual void load(Query *);
+    void load(Query *) override;
 
     /**
      * @brief Saves the key value from the query
      */
-    virtual void save(Query *);
+    void save(Query *) override;
 
     /**
      * @brief Loads control data from XML
@@ -823,7 +830,7 @@ protected:
      * @param node XMLNode*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
+    void load(const XMLNode* node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -833,13 +840,13 @@ protected:
      * @param node XMLNode*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
+    void save(XMLNode* node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief True if the data is valid
      */
 
-    virtual bool valid() const
+    virtual bool valid() const override
     {
         return true;
     }
@@ -970,7 +977,7 @@ public:
      * @see CControlKind
      */
 
-    virtual CControlKind kind() const
+    CControlKind kind() const override
     {
         return DCV_LISTBOX;
     }
@@ -993,7 +1000,7 @@ public:
      * @brief Returns text font type
      */
 
-    Fl_Font textFont() const
+    Fl_Font textFont() const override
     {
         return m_textFont;
     }
@@ -1002,7 +1009,7 @@ public:
      * @brief Sets text font type
      */
 
-    void textFont(Fl_Font f)
+    void textFont(Fl_Font f) override
     {
         m_textFont = f;
     }
@@ -1011,7 +1018,7 @@ public:
      * Returns text font size
      */
 
-    uchar textSize() const
+    uchar textSize() const override
     {
         return m_textSize;
     }
@@ -1020,7 +1027,7 @@ public:
      * @brief Sets text font size
      */
 
-    void textSize(uchar s)
+    void textSize(uchar s) override
     {
         m_textSize = s;
     }
@@ -1029,7 +1036,7 @@ public:
      * @brief Returns text color
      */
 
-    Fl_Color textColor() const
+    Fl_Color textColor() const override
     {
         return m_textColor;
     }
@@ -1038,7 +1045,7 @@ public:
      * @brief Sets text color
      */
 
-    void textColor(Fl_Color n)
+    void textColor(Fl_Color n) override
     {
         m_textColor = n;
     }
@@ -1230,7 +1237,7 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * @brief Returns header height
@@ -1291,7 +1298,7 @@ public:
      * @brief Returns widget class name (internal SPTK RTTI).
      */
 
-    virtual std::string className() const
+    std::string className() const override
     {
         return "list_view";
     }

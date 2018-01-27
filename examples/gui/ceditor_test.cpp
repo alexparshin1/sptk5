@@ -578,7 +578,7 @@ void set_title(Fl_Window* w)
         else strncpy(title, filename, sizeof(title));
     }
 
-    if (changed) strncat(title, " (modified)", sizeof(title));
+    if (changed) strncat(title, " (modified)", sizeof(title) - 1);
 
     w->label(title);
 }

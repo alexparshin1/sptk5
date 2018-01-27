@@ -130,6 +130,28 @@ public:
  */
 class SP_EXPORT CDialog: public CWindow
 {
+    /**
+     * @brief Loads window coordinates and widgets from XML node
+     *
+     * @param node const XMLNode*, node to load data from
+     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
+     */
+    void load(const XMLNode* node, CLayoutXMLmode xmlMode) override
+    {
+        CWindow::load(node, xmlMode);
+    }
+
+    /**
+     * @brief Saves window coordinates and widgets into XML node
+     *
+     * @param node XMLNode*, node to save data into
+     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
+     */
+    void save(XMLNode* node, CLayoutXMLmode xmlMode) const override
+    {
+        CWindow::save(node, xmlMode);
+    }
+
 protected:
     /**
      * Standard Ok button
@@ -290,7 +312,7 @@ public:
      * @param event int, an FLTK event
      * @returns true if event was processed
      */
-    int handle(int event);
+    int handle(int event) override;
 
     /**
      * @brief Shows modal dialog
@@ -425,7 +447,7 @@ public:
      * @param node const XMLNode*, the XML node to load data from
      * @see XMLNode
      */
-    virtual void load(const XMLNode* node);
+    void load(const XMLNode* node) override;
 
     /**
      * @brief Saves the dialog controls into XML
@@ -433,7 +455,7 @@ public:
      * @param node XMLNode&, the XML node to save data into
      * @see XMLNode* node
      */
-    virtual void save(XMLNode* node) const;
+    void save(XMLNode* node) const override;
 
     /**
      * @brief Returns the modal result of the dialog.
@@ -449,7 +471,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual std::string className() const
+    std::string className() const override
     {
         return "dialog";
     }

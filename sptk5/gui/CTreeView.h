@@ -126,7 +126,7 @@ public:
      * @returns the new child item
      */
     CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L) {
-        return m_treeControl->addPath(path,openedImage,closedImage,itemImage,data);
+        return m_treeControl->addPath(path, openedImage, closedImage, itemImage, data);
     }
 
     /**
@@ -136,8 +136,8 @@ public:
      * @param data void *, the user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *itemImage=0L,void *data=0L) {
-        return addPath(path,itemImage,data);
+    CTreeItem *addPath(const std::vector<std::string>& path, const Fl_Image *itemImage=0L, void *data=0L) {
+        return m_treeControl->addPath(path, itemImage, itemImage, itemImage, data);
     }
 
     /**

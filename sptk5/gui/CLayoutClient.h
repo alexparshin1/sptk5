@@ -70,7 +70,6 @@ enum CLayoutXMLmode {
      * Load and save controls data and layout
      */
     LXM_LAYOUTDATA=3
-
 };
 
 /**
@@ -240,7 +239,8 @@ public:
      * @param w int&, input/output widget preferred width
      * @param h int&, input/output widget preferred height
      */
-    virtual bool computeSize(int& w,int& h) {
+    virtual bool computeSize(int& w,int& h)
+    {
         bool rc = preferredSize(w,h);
         m_lastPreferredW = w;
         m_lastPreferredH = h;
@@ -250,7 +250,8 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual std::string className() const {
+    virtual std::string className() const
+    {
         return "Undefined";
     }
 

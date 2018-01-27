@@ -132,7 +132,7 @@ public:
      *
      * Mostly used for supporting non-rectangular shape windows.
      */
-    int handle(int event);
+    virtual int handle(int event);
 
     /**
      * @brief Loads window coordinates and widgets from XML node
@@ -140,7 +140,17 @@ public:
      * @param node const XMLNode*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void load(const XMLNode* node,CLayoutXMLmode xmlMode);
+    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
+
+    /**
+     * @brief Loads window coordinates and widgets from XML node
+     *
+     * @param node const XMLNode*, node to load data from
+     */
+    virtual void load(const XMLNode* node)
+    {
+        load(node, LXM_DATA);
+    }
 
     /**
      * @brief Saves window coordinates and widgets into XML node
@@ -148,7 +158,17 @@ public:
      * @param node XMLNode*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
+
+    /**
+     * @brief Saves window coordinates and widgets into XML node
+     *
+     * @param node XMLNode*, node to save data into
+     */
+    virtual void save(XMLNode* node) const
+    {
+        save(node, LXM_DATA);
+    }
 
     /**
      * @brief Loads the window position from XML node

@@ -633,6 +633,19 @@ public:
     virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
 
     /**
+     * @brief Loads control data from XML
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node XMLNode*, the XML node
+     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     */
+    virtual void load(const XMLNode* node)
+    {
+        load(node, LXM_DATA);
+    }
+
+    /**
      * @brief Saves control data to XML
      *
      * Layout information may also include widget size and position,
@@ -641,6 +654,18 @@ public:
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
     virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
+
+    /**
+     * @brief Saves control data to XML
+     *
+     * Layout information may also include widget size and position,
+     * as well as visible() and active() states
+     * @param node XMLNode*, the XML node
+     */
+    virtual void save(XMLNode* node) const
+    {
+        save(node, LXM_DATA);
+    }
 
     /**
      * @brief Returns true if the control state is valid, and the data is inside the limits (if applicable)
