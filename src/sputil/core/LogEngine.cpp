@@ -53,7 +53,7 @@ void LogEngine::option(Option option, bool flag)
         m_options &= ~option;
 }
 
-string LogEngine::priorityName(LogPriority prt)
+String LogEngine::priorityName(LogPriority prt)
 {
     switch (prt) {
     case LP_DEBUG:     return "DEBUG";
@@ -68,7 +68,7 @@ string LogEngine::priorityName(LogPriority prt)
     return "";
 }
 
-LogPriority LogEngine::priorityFromName(string prt)
+LogPriority LogEngine::priorityFromName(const String& prt)
 {
     static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
 

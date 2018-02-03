@@ -27,6 +27,8 @@
 */
 
 #include <sptk5/db/DatabaseConnectionString.h>
+#include <sptk5/Exception.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -80,4 +82,35 @@ void DatabaseConnectionString::parse()
     m_hostName = hostAndPort[0];
     if (hostAndPort.size() > 1)
         m_portNumber = (uint16_t) strtol(hostAndPort[1].c_str(), nullptr, 10);
+}
+
+String DatabaseConnectionString::toString() const
+{
+    stringstream result;
+
+    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
+    if (!m_userName.empty()) {
+        result << m_userName;
+        if (!m_password.empty())
+            result << ":" << m_password;
+        result << "@";
+    }
+
+    result << m_hostName;
+    if (!m_databaseName.empty())
+        result << "/" << m_databaseName;
+
+    if (!m_parameters.empty()) {
+        result << "?";
+        bool first = true;
+        for (auto& parameter: m_parameters) {
+            if (first)
+                first = false;
+            else
+                result << "&";
+            result << parameter.first << "=" << parameter.second;
+        }
+    }
+
+    return result.str();
 }

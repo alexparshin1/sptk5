@@ -65,9 +65,10 @@ void Field::setNull(VariantType vtype)
         m_dataType = vtype | VAR_NULL;
 }
 
-string Field::asString() const
+String Field::asString() const
 {
     char print_buffer[32];
+    int len;
 
     if ((m_dataType & VAR_NULL) == VAR_NULL) return "";
 
@@ -79,22 +80,22 @@ string Field::asString() const
                 return "false";
 
         case VAR_INT:
-            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.intData);
+            return String(print_buffer, len);
 
         case VAR_INT64:
 #ifndef _WIN32
-            snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%li", m_data.int64Data);
 #else
-            snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%lli", m_data.int64Data);
 #endif
-            return string(print_buffer);
+            return String(print_buffer, len);
 
         case VAR_FLOAT: {
             char formatString[10];
             snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
-            snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
+            return String(print_buffer, len);
         }
 
         case VAR_MONEY: {
@@ -112,8 +113,8 @@ string Field::asString() const
             snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
             int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
             int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-            snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
+            return String(print_buffer, len);
         }
 
         case VAR_STRING:
@@ -133,12 +134,12 @@ string Field::asString() const
         }
 
         case VAR_IMAGE_PTR:
-            snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
+            return String(print_buffer, len);
 
         case VAR_IMAGE_NDX:
-            snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%i", m_data.imageNdx);
+            return String(print_buffer, len);
 
         default:
             throw Exception("Can't convert field for that type");
@@ -147,7 +148,7 @@ string Field::asString() const
 
 void Field::toXML(XMLNode& node, bool compactXmlMode) const
 {
-    string value = asString();
+    String value = asString();
 
     if (!value.empty()) {
         XMLElement* element = nullptr;

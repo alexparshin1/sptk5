@@ -173,7 +173,7 @@ public:
 
     /**
      * @brief Constructor
-     * @param connectionString std::string, the ODBC connection string
+     * @param connectionString  The ODBC connection string
      */
     ODBCConnection(const std::string& connectionString = "");
 
@@ -189,9 +189,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString std::string, the ODBC connection string
+     * @param connectionString  The ODBC connection string
      */
-    void openDatabase(const std::string& connectionString = "") override;
+    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -220,8 +220,8 @@ public:
 
     /**
      * @brief Lists database objects
-     * @param objectType CDbObjectType, object type to list
-     * @param objects Strings&, object list (output)
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
@@ -230,8 +230,8 @@ public:
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL const sptk::Strings&, SQL batch file
-     * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file
+     * @param errors            Instead of exceptions
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
 };

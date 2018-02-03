@@ -654,7 +654,7 @@ Variant& Variant::operator =(const char * value)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const std::string& value)
+Variant& Variant::operator =(const String& value)
 {
     setString(value.c_str(), value.length());
     return *this;
@@ -1005,12 +1005,13 @@ double Variant::asFloat() const
     }
 }
 
-string Variant::asString() const
+String Variant::asString() const
 {
     if ((m_dataType & VAR_NULL) != 0)
         return "";
 
     char print_buffer[64];
+    int len;
 
     switch (dataType()) {
         default:
@@ -1044,8 +1045,8 @@ string Variant::asString() const
             snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
             int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
             int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-            snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
+            return String(print_buffer, len);
         }
 
         case VAR_FLOAT: {
@@ -1057,8 +1058,8 @@ string Variant::asString() const
             if (fabs(m_data.floatData) > 1e16)
                 formatString = "%0.4e";
 
-            snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
+            return String(print_buffer, len);
         }
 
         case VAR_STRING:
@@ -1078,8 +1079,8 @@ string Variant::asString() const
         }
 
         case VAR_IMAGE_PTR:
-            snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
-            return string(print_buffer);
+            len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
+            return String(print_buffer, len);
 
         case VAR_IMAGE_NDX:
             return int2string(m_data.imageNdx);
@@ -1093,12 +1094,12 @@ DateTime Variant::asDate() const
 
     switch (dataType()) {
         case VAR_BOOL:
-		case VAR_MONEY:
-		case VAR_FLOAT:
-			return DateTime();
+        case VAR_MONEY:
+        case VAR_FLOAT:
+            return DateTime();
 
-		case VAR_INT:
-			return DateTime(chrono::seconds(m_data.int64Data)).date();
+        case VAR_INT:
+            return DateTime(chrono::seconds(m_data.int64Data)).date();
 
         case VAR_INT64:
             return DateTime(chrono::microseconds(m_data.int64Data)).date();
@@ -1124,9 +1125,9 @@ DateTime Variant::asDateTime() const
 
     switch (dataType()) {
         case VAR_BOOL:
-		case VAR_MONEY:
-		case VAR_FLOAT:
-			return DateTime();
+        case VAR_MONEY:
+        case VAR_FLOAT:
+            return DateTime();
 
         case VAR_INT:
             return DateTime(chrono::seconds(m_data.intData));
@@ -1141,7 +1142,7 @@ DateTime Variant::asDateTime() const
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-			return DateTime(chrono::microseconds(m_data.timeData));
+            return DateTime(chrono::microseconds(m_data.timeData));
 
         default:
             throw Exception("Can't convert field for that type");
@@ -1193,7 +1194,7 @@ bool Variant::isNull() const
     return (m_dataType & VAR_NULL) != 0;
 }
 
-string Variant::typeName(VariantType type)
+String Variant::typeName(VariantType type)
 {
     switch (type) {
         default:

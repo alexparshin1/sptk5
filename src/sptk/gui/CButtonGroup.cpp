@@ -184,7 +184,7 @@ void CButtonGroup::save(Query *updateQuery) {
 
 void CButtonGroup::load(const XMLNode *node,CLayoutXMLmode xmlMode) {
     CControl::load(node,xmlMode);
-    Strings btns(node->getAttribute("buttons"),"|");
+    Strings btns(node->getAttribute("buttons"), "|");
     if (btns.size())
         buttons(btns);
 }

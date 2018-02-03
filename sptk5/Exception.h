@@ -30,7 +30,7 @@
 #define __SPTK_EXCEPTION_H__
 
 #include <sptk5/sptk.h>
-#include <string>
+#include <sptk5/Strings.h>
 #include <stdexcept>
 
 namespace sptk {
@@ -59,7 +59,7 @@ class SP_EXPORT Exception: public std::exception
     /**
      * The file where exception occurs
      */
-    std::string m_file;
+    String      m_file;
 
     /**
      * The line number in the file where exception occurs
@@ -69,17 +69,17 @@ class SP_EXPORT Exception: public std::exception
     /**
      * The exception text
      */
-    std::string m_text;
+    String      m_text;
 
     /**
      * The extended error information
      */
-    std::string m_description;
+    String      m_description;
 
     /**
      * The complete error information combining everything together
      */
-    std::string m_fullMessage;
+    String      m_fullMessage;
 
 public:
     /**
@@ -89,7 +89,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    Exception(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
+    Exception(const String& text, const String& file = "", int line = 0, const String& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -105,12 +105,12 @@ public:
     /**
      * @brief Returns exception message without file name, line number, or description
      */
-    std::string message() const;
+    String message() const;
 
     /**
      * @brief Returns exception file name
      */
-    std::string file() const;
+    String file() const;
 
     /**
      * @brief Returns exception line number
@@ -120,7 +120,7 @@ public:
     /**
      * @brief Returns exception description
      */
-    std::string description() const;
+    String description() const;
 };
 
 /**
@@ -138,7 +138,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    TimeoutException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
+    TimeoutException(const String& text, const String& file = "", int line = 0, const String& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -162,7 +162,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    ConnectionException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
+    ConnectionException(const String& text, const String& file = "", int line = 0, const String& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -186,7 +186,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    DatabaseException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
+    DatabaseException(const String& text, const String& file = "", int line = 0, const String& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -210,7 +210,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    SOAPException(const std::string& text, const std::string& file = "", int line = 0, const std::string& description = "") DOESNT_THROW;
+    SOAPException(const String& text, const String& file = "", int line = 0, const String& description = "") DOESNT_THROW;
 
     /**
      * @brief Copy constructor

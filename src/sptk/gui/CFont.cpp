@@ -29,7 +29,7 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CFont.h>
-#include <sptk5/string_ext.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;

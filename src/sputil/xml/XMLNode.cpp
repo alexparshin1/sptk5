@@ -36,13 +36,13 @@ using namespace std;
 namespace sptk {
 
     /// An empty string to use as a stub for value()
-    static const std::string emptyString;
+    static const String emptyString;
     static const string indentsString(1024, ' ');
 
     /// An empty nodes set to emulate a set of stub iterators
     static XMLNodeList emptyNodes;
 
-    const std::string& XMLNode::value() const
+    const String& XMLNode::value() const
     {
         return emptyString;
     }
@@ -300,9 +300,9 @@ namespace sptk {
         }
     }
 
-    std::string XMLNode::text() const
+    String XMLNode::text() const
     {
-        std::string ret;
+        String ret;
 
         if ((type() & (DOM_TEXT | DOM_CDATA_SECTION)) != 0)
             ret += value();
@@ -316,7 +316,7 @@ namespace sptk {
         return ret;
     }
 
-    void XMLNode::text(std::string txt)
+    void XMLNode::text(const String& txt)
     {
         clearChildren();
         new XMLText(*this, txt);

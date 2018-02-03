@@ -50,7 +50,7 @@ public:
      * Get WS type name
      * @return WS type name
      */
-    virtual std::string className() const = 0;
+    virtual sptk::String className() const = 0;
 };
 
 /**
@@ -68,15 +68,15 @@ protected:
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional) : Field(name), m_optional(optional)
     {}
 
     /**
      * Sets optionality flag
-     * @param opt bool, Element optionality flag
+     * @param opt               Element optionality flag
      */
     void optional(bool opt) { m_optional = opt; }
 
@@ -87,32 +87,32 @@ public:
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) = 0;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) = 0;
+    virtual void load(const String& attr) = 0;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) = 0;
 
     /**
      * Adds an element to response XML with this object data
-     * @param parent XMLElement*, Parent XML element
+     * @param parent            Parent XML element
      */
     XMLElement* addElement(XMLElement* parent) const;
 
     /**
      * Returns element name
      */
-    std::string name() const
+    sptk::String name() const
     {
         return fieldName();
     }
@@ -126,8 +126,8 @@ class WSString : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSString(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
@@ -137,23 +137,23 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSString"; }
+    sptk::String className() const override { return "WSString"; }
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) override;
+    virtual void load(const String& attr) override;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) override;
 
@@ -169,7 +169,7 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSString& operator =(const std::string& value) override
+    virtual WSString& operator =(const sptk::String& value) override
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
@@ -205,7 +205,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const
+    operator sptk::String() const
     {
         return asString();
     }
@@ -219,8 +219,8 @@ class WSBool : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSBool(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
@@ -230,23 +230,23 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSBool"; }
+    sptk::String className() const override { return "WSBool"; }
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) override;
+    virtual void load(const String& attr) override;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) override;
 
@@ -270,7 +270,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const
+    operator sptk::String() const
     {
         return asString();
     }
@@ -284,8 +284,8 @@ class WSDate : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSDate(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
@@ -295,23 +295,23 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSDate"; }
+    sptk::String className() const override { return "WSDate"; }
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) override;
+    virtual void load(const String& attr) override;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) override;
 
@@ -335,7 +335,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const
+    operator sptk::String() const
     {
         return asString();
     }
@@ -349,8 +349,8 @@ class WSDateTime : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSDateTime(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
@@ -360,30 +360,30 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSDateTime"; }
+    sptk::String className() const override { return "WSDateTime"; }
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) override;
+    virtual void load(const sptk::String& attr) override;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) override;
 
     /**
      * Better (than in base class) conversion method
      */
-    virtual std::string asString() const override;
+    virtual sptk::String asString() const override;
 
     /**
      * Assignment operation
@@ -405,7 +405,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const
+    operator sptk::String() const
     {
         return asString();
     }
@@ -419,8 +419,8 @@ class WSDouble : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSDouble(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
@@ -430,23 +430,23 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSDouble"; }
+    sptk::String className() const override { return "WSDouble"; }
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) override;
+    virtual void load(const sptk::String& attr) override;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) override;
 
@@ -486,7 +486,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const
+    operator sptk::String() const
     {
         return asString();
     }
@@ -500,8 +500,8 @@ class WSInteger : public WSBasicType
 public:
     /**
      * Constructor
-     * @param name const char*, WSDL element name
-     * @param optional bool, Element optionality flag
+     * @param name              WSDL element name
+     * @param optional          Element optionality flag
      */
     WSInteger(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
@@ -511,23 +511,23 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSInteger"; }
+    sptk::String className() const override { return "WSInteger"; }
 
     /**
      * Loads type data from request XML node
-     * @param attr const XMLNode*, XML node
+     * @param attr              XML node
      */
     virtual void load(const XMLNode* attr) override;
 
     /**
      * Loads type data from string
-     * @param attr std::string, A string
+     * @param attr              A string
      */
-    virtual void load(std::string attr) override;
+    virtual void load(const sptk::String& attr) override;
 
     /**
      * Loads type data from database field
-     * @param field const CField&, Database field
+     * @param field             Database field
      */
     virtual void load(const Field& field) override;
 
@@ -620,7 +620,7 @@ public:
     /**
      * Conversion operator
      */
-    operator std::string() const
+    operator sptk::String() const
     {
         return asString();
     }
@@ -635,7 +635,7 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSArray"; }
+    sptk::String className() const override { return "WSArray"; }
 };
 
 /**

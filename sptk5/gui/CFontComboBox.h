@@ -103,7 +103,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "font_combo";
     }
 };

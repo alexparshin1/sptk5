@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(const string& text, const string& file, int line, const string& description) DOESNT_THROW
+Exception::Exception(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
 {
     if (m_line != 0 && !m_file.empty())
@@ -52,12 +52,12 @@ const char* Exception::what() const DOESNT_THROW
     return m_fullMessage.c_str();
 }
 
-std::string Exception::message() const
+String Exception::message() const
 {
     return m_text;
 }
 
-string Exception::file() const
+String Exception::file() const
 {
     return m_file;
 }
@@ -67,12 +67,12 @@ int Exception::line() const
     return m_line;
 }
 
-string Exception::description() const
+String Exception::description() const
 {
     return m_description;
 }
 
-TimeoutException::TimeoutException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
+TimeoutException::TimeoutException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
@@ -82,7 +82,7 @@ TimeoutException::TimeoutException(const TimeoutException& other) DOESNT_THROW
 {
 }
 
-ConnectionException::ConnectionException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
+ConnectionException::ConnectionException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
@@ -92,7 +92,7 @@ ConnectionException::ConnectionException(const ConnectionException& other) DOESN
 {
 }
 
-DatabaseException::DatabaseException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
+DatabaseException::DatabaseException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }
@@ -102,7 +102,7 @@ DatabaseException::DatabaseException(const DatabaseException& other) DOESNT_THRO
 {
 }
 
-SOAPException::SOAPException(const string& text, const string& file, int line, const string& description) DOESNT_THROW
+SOAPException::SOAPException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : Exception(text, file, line, description)
 {
 }

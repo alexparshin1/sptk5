@@ -33,13 +33,14 @@
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
 #include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
 
 using namespace std;
 
 namespace sptk
 {
 
-string upperCase (const string& str)
+String upperCase(const String& str)
 {
     auto len = (uint32_t) str.length();
     string result;
@@ -51,7 +52,7 @@ string upperCase (const string& str)
     return result;
 }
 
-string lowerCase (const string& str)
+String lowerCase(const String& str)
 {
     auto len = (uint32_t) str.length();
     string result;
@@ -63,7 +64,7 @@ string lowerCase (const string& str)
     return result;
 }
 
-string trim (const string& str)
+String trim(const String& str)
 {
     auto len = (uint32_t) str.length();
 
@@ -137,21 +138,21 @@ void split(vector<string>& dest, const string& src, const string& delimitter)
     }
 }
 
-string int2string (int32_t value)
+String int2string(int32_t value)
 {
     char buff[32];
     snprintf(buff, sizeof(buff), "%i", value);
     return string(buff);
 }
 
-string int2string (uint32_t value)
+String int2string(uint32_t value)
 {
     char buff[64];
     snprintf(buff, sizeof(buff), "%u", value);
     return string(buff);
 }
 
-string int2string (int64_t value)
+String int2string(int64_t value)
 {
     char buff[128];
 #ifdef _WIN32
@@ -162,7 +163,7 @@ string int2string (int64_t value)
     return string(buff);
 }
 
-string int2string (uint64_t value)
+String int2string(uint64_t value)
 {
     char buff[128];
 #ifdef _WIN32
@@ -173,7 +174,7 @@ string int2string (uint64_t value)
     return string(buff);
 }
 
-int string2int (const string& str, int defaultValue)
+int string2int(const String& str, int defaultValue)
 {
     char *endptr;
     errno = 0;
@@ -185,7 +186,7 @@ int string2int (const string& str, int defaultValue)
     return result;
 }
 
-int64_t string2int64 (const string& str, int64_t defaultValue)
+int64_t string2int64(const String& str, int64_t defaultValue)
 {
     char *endptr;
     errno = 0;
@@ -197,7 +198,7 @@ int64_t string2int64 (const string& str, int64_t defaultValue)
     return result;
 }
 
-double string2double (const string& str)
+double string2double(const String& str)
 {
     char *endptr;
     errno = 0;
@@ -209,7 +210,7 @@ double string2double (const string& str)
     return result;
 }
 
-double string2double (const string& str, double defaultValue)
+double string2double(const String& str, double defaultValue)
 {
     char *endptr;
     errno = 0;
@@ -221,7 +222,7 @@ double string2double (const string& str, double defaultValue)
     return result;
 }
 
-string capitalizeWords (const std::string& str)
+string capitalizeWords(const String& str)
 {
     string s (str);
     auto current = (char *) s.c_str();
@@ -256,7 +257,7 @@ string capitalizeWords (const std::string& str)
     return s;
 }
 
-string replaceAll (const string& src,const string& pattern,const string& replacement)
+string replaceAll(const String& src, const String& pattern, const String& replacement)
 {
     string str (src);
 
@@ -274,36 +275,6 @@ string replaceAll (const string& src,const string& pattern,const string& replace
     }
 
     return str;
-}
-
-void stringToStringVector (const string& src,vector<string> dest,string delimitter)
-{
-    string buffer (src);
-    dest.clear();
-
-    if (buffer[0] == char(0))
-        return;
-
-    auto dlen = (uint32_t) delimitter.length();
-    if (dlen == 0)
-        return;
-
-    auto p = (char *) buffer.c_str();
-
-    for (;;) {
-        char *end = strstr (p,delimitter.c_str());
-
-        if (end != nullptr) {
-            char sc = *end;
-            *end = 0;
-            dest.push_back (p);
-            *end = sc;
-            p = end + dlen;
-        } else {
-            dest.push_back (p);
-            break;
-        }
-    }
 }
 
 }

@@ -290,12 +290,12 @@ public:
     /**
      * @brief String representation of priority
      */
-    static std::string priorityName(LogPriority prt);
+    static String priorityName(LogPriority prt);
 
     /**
      * @brief Priotrity from string representation
      */
-    static LogPriority priorityFromName(std::string prt);
+    static LogPriority priorityFromName(const String& prt);
 };
 
 /**

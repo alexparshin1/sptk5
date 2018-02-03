@@ -50,27 +50,27 @@ protected:
     /**
      * Column name
      */
-    std::string  m_name;
+    String          m_name;
 
     /**
      * Column width in pixels
      */
-    uint32_t     m_width;
+    uint32_t        m_width;
 
     /**
      * Column data type
      */
-    VariantType m_type;
+    VariantType     m_type;
 
     /**
      * Column visibility
      */
-    bool         m_visible;
+    bool            m_visible;
 
     /**
      * Column auto width flag
      */
-    bool         m_autoWidth;
+    bool            m_autoWidth;
 
 public:
 

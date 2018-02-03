@@ -114,9 +114,9 @@ protected:
 public:
     /**
      * @brief Constructor
-     * @param connectionString const std::string&, Database connection string
+     * @param connectionString  Database connection string
      */
-    DatabaseConnectionString(const std::string& connectionString) :
+    DatabaseConnectionString(const String& connectionString) :
         m_connectionString(connectionString),
         m_portNumber(0)
     {
@@ -125,7 +125,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param cs const DatabaseConnectionString&, Database connection string object to copy from
+     * @param cs                Database connection string object to copy from
      */
     DatabaseConnectionString(const DatabaseConnectionString& cs) :
         m_connectionString(cs.m_connectionString),
@@ -136,7 +136,7 @@ public:
 
     /**
      * @brief Assignment
-     * @param cs const DatabaseConnectionString&, Database connection string object to copy from
+     * @param cs                Database connection string object to copy from
      */
     DatabaseConnectionString& operator = (const DatabaseConnectionString& cs)
     {
@@ -155,15 +155,12 @@ public:
     /**
      * @brief Returns connection string
      */
-    const std::string& str() const
-    {
-        return m_connectionString;
-    }
+    String toString() const;
 
     /**
      * @brief Returns driver name
      */
-    const std::string& driverName() const
+    const String& driverName() const
     {
         return m_driverName;
     }
@@ -171,7 +168,7 @@ public:
     /**
      * @brief Returns host name
      */
-    const std::string& hostName() const
+    const String& hostName() const
     {
         return m_hostName;
     }
@@ -179,7 +176,7 @@ public:
     /**
      * @brief Returns user name
      */
-    const std::string& userName() const
+    const String& userName() const
     {
         return m_userName;
     }
@@ -187,7 +184,7 @@ public:
     /**
      * @brief Returns user password
      */
-    const std::string& password() const
+    const String& password() const
     {
         return m_password;
     }
@@ -195,7 +192,7 @@ public:
     /**
      * @brief Returns database name
      */
-    const std::string& databaseName() const
+    const String& databaseName() const
     {
         return m_databaseName;
     }
@@ -214,6 +211,24 @@ public:
     const Parameters& parameters() const
     {
         return m_parameters;
+    }
+
+    /**
+     * @brief Set new user name
+     * @param user              New user name
+     */
+    void userName(const String& user)
+    {
+        m_userName = user;
+    }
+
+    /**
+     * @brief Set new password
+     * @param pass              New password
+     */
+    void password(const String& pass)
+    {
+        m_password = pass;
     }
 };
 /**

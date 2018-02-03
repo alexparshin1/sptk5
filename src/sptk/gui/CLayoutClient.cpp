@@ -134,7 +134,7 @@ void CLayoutClient::save(XMLNode* node,CLayoutXMLmode xmlMode) const {
         if (!m_widget->active())
             node->setAttribute("enable",m_widget->active());
 
-        string layoutAlignStr;
+        String layoutAlignStr;
         switch (m_layoutAlign) {
         case SP_ALIGN_TOP:
             layoutAlignStr = "top";

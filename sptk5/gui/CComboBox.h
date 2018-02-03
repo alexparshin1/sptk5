@@ -509,7 +509,7 @@ public:
      * SPTK RTTI information
      * @returns control type name
      */
-    virtual std::string className() const
+    virtual String className() const
     {
         return "combo_box";
     }
@@ -564,7 +564,7 @@ public:
      * SPTK RTTI information
      * @returns control type name
      */
-    virtual std::string className() const
+    virtual String className() const
     {
         return "list_box";
     }

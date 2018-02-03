@@ -55,7 +55,7 @@ protected:
     /**
      * Attribute value
      */
-    std::string m_value;
+    String m_value;
 
 
     /**
@@ -84,7 +84,7 @@ public:
     /**
      * @brief Returns the value of the node
      */
-    virtual const std::string& value() const;
+    virtual const String& value() const;
 
     /**
      * @brief Sets new value to node.

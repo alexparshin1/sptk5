@@ -158,7 +158,7 @@ DatabaseConnection* DatabaseConnectionPool::createConnection()
         load();
     DatabaseConnection* connection = nullptr;
     if (m_connections.size() < m_maxConnections && m_pool.empty()) {
-        connection = m_createConnection(str().c_str());
+        connection = m_createConnection(toString().c_str());
         m_connections.push_back(connection);
         return connection;
     }

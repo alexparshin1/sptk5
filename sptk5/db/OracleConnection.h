@@ -221,7 +221,7 @@ public:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The Oracle connection string
      */
-    void openDatabase(const std::string& connectionString = "") override;
+    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

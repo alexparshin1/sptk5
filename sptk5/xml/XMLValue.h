@@ -52,7 +52,7 @@ class SP_EXPORT XMLValue
     /**
      * XML value
      */
-    std::string     m_value;
+    String      m_value;
 
 public:
     /**
@@ -68,7 +68,7 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from character string
-     * @param v const char *, value
+     * @param v                 Value
      */
     XMLValue(const char *v) :
         m_value(v)
@@ -79,8 +79,8 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from character string
-     * @param v const char *, value
-     * @param sz size_t, value length
+     * @param v                 Value
+     * @param sz                Value length
      */
     XMLValue(const char *v, size_t sz) :
         m_value(v, sz)
@@ -90,10 +90,10 @@ public:
     /**
      * @brief Constructor
      *
-     * Creates an XML attribute from std::string
-     * @param v const std::string&, value
+     * Creates an XML attribute from string
+     * @param v                 value
      */
-    XMLValue(const std::string& v) :
+    XMLValue(const String& v) :
         m_value(v)
     {
     }
@@ -102,7 +102,7 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from integer
-     * @param v int32_t, value
+     * @param v                 Value
      */
     XMLValue(int32_t v)
     {
@@ -113,7 +113,7 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from integer
-     * @param v uint32_t, value
+     * @param v                 Value
      */
     XMLValue(uint32_t v)
     {
@@ -123,8 +123,8 @@ public:
     /**
      * @brief Constructor
      *
-     * Creates an XML attribute from int32_t
-     * @param v int64_t, value
+     * Creates an XML attribute from int64_t
+     * @param v                 Value
      */
     XMLValue(int64_t v)
     {
@@ -134,8 +134,8 @@ public:
     /**
      * @brief Constructor
      *
-     * Creates an XML attribute from uint32_t
-     * @param v uint64_t, value
+     * Creates an XML attribute from uint64_t
+     * @param v                 Value
      */
     XMLValue(uint64_t v)
     {
@@ -146,7 +146,7 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from double
-     * @param v double, value
+     * @param v                 Value
      */
     XMLValue(double v)
     {
@@ -157,7 +157,7 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from bool
-     * @param v bool, value
+     * @param v                 Value
      */
     XMLValue(bool v)
     {
@@ -168,7 +168,7 @@ public:
      * @brief Constructor
      *
      * Creates an XML attribute from DateTime
-     * @param v int32_t, value
+     * @param v                 Value
      */
     XMLValue(DateTime v) :
         m_value(v)
@@ -178,51 +178,51 @@ public:
     /**
      * @brief Assignment of the value
      *
-     * @param v bool, a new value
+     * @param v                 New value
      */
     XMLValue& operator =(bool v);
 
     /**
      * @brief Assignment of the value
      *
-     * @param v int32_t, a new value
+     * @param v                 New value
      */
     XMLValue& operator =(int32_t v);
 
     /**
      * @brief Assignment of the value
      *
-     * @param v uint32_t, a new value
+     * @param v                 New value
      */
     XMLValue& operator =(uint32_t v);
 
     /**
      * @brief Assignment of the value
      *
-     * @param v int64_t, a new value
+     * @param v                 New value
      */
     XMLValue& operator =(int64_t v);
 
     /**
      * @brief Assignment of the value
      *
-     * @param v int64_t, a new value
+     * @param v                 New value
      */
     XMLValue& operator =(uint64_t v);
 
     /**
      * @brief Assignment of the value
      *
-     * @param v double, a new value
+     * @param v                 New value
      */
     XMLValue& operator =(double v);
 
     /**
      * @brief Assignment of the value
      *
-     * @param s const std::string, a new value
+     * @param s                 New value
      */
-    XMLValue& operator =(const std::string& s)
+    XMLValue& operator =(const char* s)
     {
         m_value = s;
         return *this;
@@ -231,9 +231,9 @@ public:
     /**
      * @brief Assignment of the value
      *
-     * @param s const char *, a new value
+     * @param s                 New value
      */
-    XMLValue& operator =(const char *s)
+    XMLValue& operator =(const String& s)
     {
         m_value = s;
         return *this;
@@ -242,7 +242,7 @@ public:
     /**
      * @brief Assignment of the value
      *
-     * @param s DateTime, a new value
+     * @param s                 New value
      */
     XMLValue& operator =(DateTime s)
     {
@@ -253,7 +253,7 @@ public:
     /**
      * @brief Returns const reference to string value
      */
-    const std::string& str() const
+    const String& str() const
     {
         return m_value;
     }
@@ -265,7 +265,15 @@ public:
     {
         return m_value.c_str();
     }
-    
+
+    /**
+     * @brief Returns the value with the conversion
+     */
+    operator String() const
+    {
+        return m_value;
+    }
+
     /**
      * @brief Returns the value with the conversion
      */

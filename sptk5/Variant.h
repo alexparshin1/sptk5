@@ -527,7 +527,7 @@ public:
     /**
      * @brief Assignment operator
      */
-    virtual Variant& operator =(const std::string& value);
+    virtual Variant& operator =(const String& value);
 
     /**
      * @brief Assignment operator
@@ -709,7 +709,7 @@ public:
      *
      * Converts variant value to string.
      */
-    virtual std::string asString() const;
+    virtual String asString() const;
 
     /**
      * @brief Conversion method
@@ -763,7 +763,7 @@ public:
      * @brief Returns a name for a particular variant type
      * @param type VariantType, a variant type
      */
-    static std::string typeName(VariantType type);
+    static String typeName(VariantType type);
 
     /**
      * @brief Returns a type for a particular variant type name

@@ -847,7 +847,7 @@ void CTreeControl::save(XMLNode& groupNode) const
     if (m_noXml)
         return;
 
-    string label = m_group->label();
+    String label = m_group->label();
 
     if (!label.empty())
         groupNode.setAttribute("label", label);

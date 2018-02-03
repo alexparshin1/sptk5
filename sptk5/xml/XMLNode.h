@@ -447,7 +447,7 @@ public:
      * The meaning of the value depends on the node type.
      * DOM_DOCUMENT and DOM_ELEMENT don't have values
      */
-    virtual const std::string& value() const;
+    virtual const String& value() const;
 
     /**
      * @brief Sets new value to node.
@@ -468,7 +468,7 @@ public:
      *
      * E.g. "Some <tag>text</tag> here" becomes: "Some text here"
      */
-    std::string text() const;
+    String text() const;
 
     /**
      * @brief Sets text for the node.
@@ -477,7 +477,7 @@ public:
      * Then, new XMLNodeText is added to this node.
      * @param txt               Node text
      */
-    void text(std::string txt);
+    void text(const String& txt);
 
     /**
      * @brief Returns referrence to node attributes
@@ -818,7 +818,7 @@ class SP_EXPORT XMLBaseTextNode: public XMLNode
     /**
      * Node value
      */
-    std::string     m_value;
+    String     m_value;
 
 protected:
     /**
@@ -841,7 +841,7 @@ public:
      * The meaning of the value depends on the node type.
      * DOM_DOCUMENT and DOM_ELEMENT don't have values
      */
-    virtual const std::string& value() const
+    virtual const String& value() const
     {
         return m_value;
     }

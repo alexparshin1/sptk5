@@ -74,16 +74,6 @@ class CScroll : public ::Fl_Group, public CLayoutManager {
     int m_yposition;
 
     /**
-     * Current width of the scrolled area
-     */
-    int m_width;
-
-    /**
-     * Current height of the scrolled area
-     */
-    int m_height;
-
-    /**
      * Former x-position of the scrolled area
      */
     int m_oldx;
@@ -241,7 +231,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "scroll";
     }
 };

@@ -187,7 +187,7 @@ public:
     /**
      * @brief Returns the current label
      */
-    std::string label() const {
+    String label() const {
         return m_label;
     }
 
@@ -211,7 +211,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "window";
     }
 };

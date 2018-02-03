@@ -92,33 +92,33 @@ protected:
      * If the widget isn't in CLayoutManager group - it is ignored.
      * If it doesn't contradict with preferred widget size it will define the final size of the widget.
      */
-    int          m_layoutSize;
+    int             m_layoutSize;
 
     /**
      * The width as a result of the last call of preferredSize()
      */
-    int          m_lastPreferredW;
+    int             m_lastPreferredW;
 
     /**
      * The width as a result of the last call of preferredSize()
      */
-    int          m_lastPreferredH;
+    int             m_lastPreferredH;
 
 
     /**
      * Widget to manage
      */
-    Fl_Widget*   m_widget;
+    Fl_Widget*      m_widget;
 
     /**
      * Widget name (widget id)
      */
-    std::string  m_name;
+    String          m_name;
 
     /**
      * Widget caption storage
      */
-    std::string  m_label;
+    String          m_label;
 
     /**
      * The layout align for the widget in CLayoutManager group
@@ -191,7 +191,7 @@ public:
     /**
      * @brief Returns the current label
      */
-    const std::string& label() const {
+    const String& label() const {
         return m_label;
     }
 
@@ -209,14 +209,14 @@ public:
      *
      * @param aname std::string&, new widget name
      */
-    void name(const std::string& aname) {
+    void name(const String& aname) {
         m_name = aname;
     }
 
     /**
      * @brief Returns the current name
      */
-    const std::string& name() const {
+    const String& name() const {
         return m_name;
     }
 
@@ -250,7 +250,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual std::string className() const
+    virtual String className() const
     {
         return "Undefined";
     }

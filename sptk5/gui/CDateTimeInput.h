@@ -221,7 +221,7 @@ public:
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "date_input";
     }
 
@@ -297,7 +297,7 @@ public:
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "time_input";
     }
 
@@ -359,7 +359,7 @@ public:
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "date_time_input";
     }
 

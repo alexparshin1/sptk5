@@ -71,7 +71,7 @@ protected:
 
     /**
      * @brief Ends the transaction
-     * @param commit bool, commit if true, rollback if false
+     * @param commit            Rollback if false
      */
     void driverEndTransaction(bool commit) override;
 
@@ -136,7 +136,7 @@ protected:
      * @brief Returns parameter mark
      *
      * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     * @param paramIndex        Parameter index in SQL starting from 0
      */
     std::string paramMark(unsigned paramIndex) override;
 
@@ -162,7 +162,7 @@ public:
      * For more information please refer to:
      * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
      * If the connection string is empty then default database with the name equal to user name is used.
-     * @param connectionString std::string, the MySQL connection string
+     * @param connectionString  The MySQL connection string
      */
     MySQLConnection(const std::string& connectionString = "");
 
@@ -173,9 +173,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString std::string, the MySQL connection string
+     * @param connectionString  The MySQL connection string
      */
-    void openDatabase(const std::string& connectionString = "") override;
+    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -204,8 +204,8 @@ public:
 
     /**
      * @brief Lists database objects
-     * @param objectType CDbObjectType, object type to list
-     * @param objects Strings&, object list (output)
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
@@ -215,9 +215,9 @@ public:
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
      * about data. If format is empty than default server-specific data format is used.
      * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName std::string, table name to insert into
-     * @param columnNames const Strings&, list of table columns to populate
-     * @param data const Strings&, data for bulk insert
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
      */
     void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") override;
 
@@ -226,8 +226,8 @@ public:
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL const sptk::Strings&, SQL batch file
-     * @param errors Strings*, Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file
+     * @param errors            Instead of exceptions
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
 };

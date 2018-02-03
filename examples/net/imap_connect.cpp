@@ -54,7 +54,7 @@ int main( int argc, char *argv[] )
 
     char           buffer[128];
     ImapConnect    IMAP;
-    std::string    user, password, server;
+    String    	   user, password, server;
     Registry       registry("imap_connect.ini","");
 
     puts("Testing IMAP connectivity.\n");

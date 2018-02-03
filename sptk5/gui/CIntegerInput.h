@@ -112,7 +112,7 @@ public:
     /**
      * @brief Returns the control class name, SPTK-style RTTI
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "integer_input";
     }
 

@@ -31,7 +31,7 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <iomanip>
-#include <sptk5/string_ext.h>
+#include <sptk5/Strings.h>
 #include <sstream>
 
 using namespace std;

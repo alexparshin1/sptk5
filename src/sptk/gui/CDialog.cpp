@@ -40,8 +40,6 @@
 using namespace std;
 using namespace sptk;
 
-static const unsigned headerHeight = 20;
-
 //==============================================================================
 void CDialogTabs::prepareNewPage(Fl_Group *page, bool autoColor)
 {

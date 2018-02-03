@@ -31,7 +31,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
-#include <sptk5/Exception.h>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -174,48 +173,48 @@ public:
 
     /**
      * @brief Checks if string is matching with regular expression pattern
-     * @param pattern std::string, Regular expression pattern
-     * @param options std::string, Regular expression options (@see class CRegExp)
+     * @param pattern           Regular expression pattern
+     * @param options           Regular expression options (@see class CRegExp)
      */
-    bool matches(std::string pattern, std::string options="") const;
+    bool matches(const String& pattern, const String& options="") const;
 
     /**
      * @brief Returns strings produced from current string by splitting it using regular expression pattern
-     * @param pattern std::string, Regular expression pattern
+     * @param pattern           Regular expression pattern
      */
-    Strings split(std::string pattern) const;
+    Strings split(const String& pattern) const;
 
     /**
      * @brief Returns string with regular expression pattern replaced to replacement string
      *
      * Replacement string may optionally use references to pattern's group
      * @return Processed string
-     * @param pattern std::string, Regular expression pattern
-     * @param replacement std::string, Replacement string
+     * @param pattern           Regular expression pattern
+     * @param replacement       Replacement string
      */
-    std::string replace(std::string pattern, std::string replacement) const;
+    String replace(const String& pattern, const String& replacement) const;
 
     /**
      * @brief Returns upper case version of the string
      */
-    std::string toUpperCase() const;
+    String toUpperCase() const;
 
     /**
      * @brief Returns upper case version of the string
      */
-    std::string toLowerCase() const;
+    String toLowerCase() const;
 
     /**
      * @brief Returns true if the string starts from subject
-     * @param subject std::string, Subject to look for
+     * @param subject           Subject to look for
      */
-    bool startsWith(std::string subject) const;
+    bool startsWith(const String& subject) const;
 
     /**
      * @brief Returns true if the string ends with subject
-     * @param subject std::string, Subject to look for
+     * @param subject           Subject to look for
      */
-    bool endsWith(std::string subject) const;
+    bool endsWith(const String& subject) const;
 
     /**
      * @brief Returns trimmed string
@@ -239,15 +238,15 @@ class SP_EXPORT Strings
 
     /**
      * Ascending sort compare function, used in sort()
-     * @param first const String&, First compared string
-     * @param second const String&, Second compared string
+     * @param first             First compared string
+     * @param second            Second compared string
      */
     static bool sortAscending(const String& first, const String& second);
 
     /**
      * Descending sort compare function, used in sort()
-     * @param first const String&, First compared string
-     * @param second const String&, Second compared string
+     * @param first             First compared string
+     * @param second            Second compared string
      */
     static bool sortDescending(const String& first, const String& second);
 
@@ -255,28 +254,28 @@ class SP_EXPORT Strings
      * @brief Splits source string on substrings using exact delimiter
      *
      * Consequent delimiters create empty strings.
-     * @param src const std::string&, a source string
-     * @param delimiter const char *, a delimiter string
+     * @param src               Source string
+     * @param delimiter         Delimiter string
      */
-    void splitByDelimiter(const std::string &src, const char *delimiter);
+    void splitByDelimiter(const String& src, const char *delimiter);
 
     /**
      * @brief Splits source string on substrings using any char in delimiter
      *
      * Consequent delimiters are treated as a single one.
-     * @param src const std::string&, a source string
-     * @param delimiter const char *, a delimiter string
+     * @param src               Source string
+     * @param delimiter         Delimiter string
      */
-    void splitByAnyChar(const std::string &src, const char *delimiter);
+    void splitByAnyChar(const String& src, const char *delimiter);
 
     /**
      * @brief Splits source string on substrings using regular expression
      *
      * Consequent delimiters are treated as a single one.
-     * @param src const std::string&, a source string
-     * @param pattern const char *, a regex pattern string
+     * @param src               Source string
+     * @param pattern           Regex pattern string
      */
-    void splitByRegExp(const std::string &src, const char *pattern);
+    void splitByRegExp(const String& src, const char *pattern);
 
 public:
 
@@ -312,7 +311,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param src const Strings&, other object
+     * @param src               Other object
      */
     Strings(const Strings &src) noexcept
     : std::vector<String>(src), m_userData(src.m_userData)
@@ -321,7 +320,7 @@ public:
 
     /**
      * @brief Move constructor
-     * @param src const Strings&, other object
+     * @param src               Other object
      */
     Strings(Strings&& src) noexcept
     : std::vector<String>(std::move(src)), m_userData(src.m_userData)
@@ -330,11 +329,11 @@ public:
 
     /**
      * @brief Constructor from a string with elements separated by a delimiter string
-     * @param src const std::string&, a source string
-     * @param delimiter const char *, a delimiter string
-     * @param mode SplitMode, delimiter string usage
+     * @param src               Source string
+     * @param delimiter         Delimiter string
+     * @param mode              Delimiter string usage
      */
-    Strings(const std::string &src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
+    Strings(const String& src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
     : m_userData(0)
     {
         fromString(src.c_str(), delimiter, mode);
@@ -342,9 +341,9 @@ public:
 
     /**
      * @brief Constructor from a string with elements separated by a delimiter string
-     * @param src const char *, a source string
-     * @param delimiter const char *, a delimiter string
-     * @param mode SplitMode, delimiter string usage
+     * @param src               Source string
+     * @param delimiter         Delimiter string
+     * @param mode              Delimiter string usage
      */
     Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
     : m_userData(0)
@@ -355,7 +354,7 @@ public:
 
     /**
      * @brief Assignment operator
-     * @param other const Strings&, other object
+     * @param other             Other object
      */
     Strings &operator=(const Strings &other)
     {
@@ -366,36 +365,36 @@ public:
 
     /**
      * @brief Assigns strings from a string with elements separated by a delimiter string
-     * @param src const std::string&, a source string
-     * @param delimiter const char *, a delimiter string
-     * @param mode SplitMode, delimiter string usage
+     * @param src               Source string
+     * @param delimiter         Delimiter string
+     * @param mode              Delimiter string usage
      */
-    void fromString(const std::string &src, const char *delimiter, SplitMode mode);
+    void fromString(const String& src, const char *delimiter, SplitMode mode);
 
     /**
      * @brief Makes string from own strings separated by a delimiter string
-     * @param delimiter const char *, a delimiter string
+     * @param delimiter         Delimiter string
      */
-    std::string asString(const char *delimiter) const;
+    String asString(const char* delimiter) const;
 
     /**
      * @brief Returns an index of the string in strings, or -1 if not found
-     * @param s std::string, a string to find
-     * @returns a string index, or -1
+     * @param s                 String to find
+     * @returns                 String index, or -1
      */
-    int indexOf(std::string s) const;
+    int indexOf(const String& s) const;
 
     /**
      * @brief Saves strings to file. String ids are discarded.
-     * @param fileName std::string, the name of the file
+     * @param fileName          The name of the file
      */
-    void saveToFile(std::string fileName) const;
+    void saveToFile(const String& fileName) const;
 
     /**
      * @brief Loads strings from file. String ids are not loaded.
-     * @param fileName std::string, the name of the file
+     * @param fileName          The name of the file
      */
-    void loadFromFile(std::string fileName);
+    void loadFromFile(const String& fileName);
 
     /**
      * @brief Returns user data as integer
@@ -407,7 +406,7 @@ public:
 
     /**
      * @brief Sets user data as integer
-     * @param d int, new value for user data
+     * @param d                 New value for user data
      */
     void argument(int32_t d)
     {
@@ -416,7 +415,7 @@ public:
 
     /**
      * @brief Removes a string from this object
-     * @param i uint32_t, string index in the string vector
+     * @param i                 String index in the string vector
      */
     void remove(uint32_t i)
     {
@@ -425,15 +424,15 @@ public:
 
     /**
      * @brief Returns concatenated string
-     * @param delimiter std::string, delimiter
+     * @param delimiter         Delimiter
      */
-    std::string join(std::string delimiter) const;
+    String join(const String& delimiter) const;
 
     /**
      * @brief Returns strings matching regex pattern
-     * @param pattern std::string, regex pattern
+     * @param pattern           Regex pattern
      */
-    Strings grep(std::string pattern) const;
+    Strings grep(const String& pattern) const;
 
     /**
      * @brief Sort strings inside this object

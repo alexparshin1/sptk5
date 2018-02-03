@@ -301,7 +301,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
         std::string &st = m_response[i];
         if (st.empty())
             break;
-        string header_name, header_value;
+        String header_name, header_value;
         parse_header(st, header_name, header_value);
         if (!header_name.empty()) {
             try {

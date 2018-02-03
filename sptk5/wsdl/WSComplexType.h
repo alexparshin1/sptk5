@@ -81,7 +81,7 @@ public:
     /**
      * Return class name
      */
-    std::string className() const override { return "WSComplexType"; }
+    String className() const override { return "WSComplexType"; }
 
    /**
     * @brief Copy data from other object

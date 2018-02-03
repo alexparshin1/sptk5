@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
 #if HAVE_PCRE

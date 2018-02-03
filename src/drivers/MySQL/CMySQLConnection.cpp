@@ -60,7 +60,7 @@ MySQLConnection::~MySQLConnection()
 }
 
 
-void MySQLConnection::openDatabase(const string& newConnectionString)
+void MySQLConnection::openDatabase(const String& newConnectionString)
 {
     static Synchronized libraryInitMutex;
 

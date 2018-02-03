@@ -356,7 +356,7 @@ protected:
      * This method should be overwritten in derived classes
      * @param connectionString  The ODBC connection string
      */
-    virtual void openDatabase(const std::string& connectionString);
+    virtual void openDatabase(const String& connectionString);
 
     /**
      * @brief Closes the database connection.

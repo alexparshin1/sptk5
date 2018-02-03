@@ -85,7 +85,7 @@ public:
     /**
      * SPTK internal class name
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "radio_buttons";
     }
 

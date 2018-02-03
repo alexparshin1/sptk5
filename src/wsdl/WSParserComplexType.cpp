@@ -49,7 +49,8 @@ string WSParserAttribute::generate() const
     return str.str();
 }
 
-WSParserComplexType::WSParserComplexType(const XMLElement* complexTypeElement, string name, string typeName)
+WSParserComplexType::WSParserComplexType(const XMLElement* complexTypeElement, const String& name,
+                                         const String& typeName)
 : m_element(complexTypeElement), m_refcount(0), m_restriction(nullptr)
 {
     m_name = name.empty() ? complexTypeElement->getAttribute("name").str() : name;

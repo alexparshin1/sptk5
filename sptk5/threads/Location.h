@@ -31,6 +31,7 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -97,9 +98,9 @@ public:
     /**
      * @brief Returns string presentation of location
      */
-    std::string toString() const
+    String toString() const
     {
-        return std::string(m_file) + "(" + int2string(m_line) + ")";
+        return String(m_file) + "(" + int2string(m_line) + ")";
     }
 
     /**

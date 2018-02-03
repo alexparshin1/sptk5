@@ -61,7 +61,7 @@ protected:
     /**
      * Field name
      */
-    std::string m_name;
+    String m_name;
 
 
 public:
@@ -106,7 +106,7 @@ public:
     /**
      * @brief Returns field name
      */
-    const std::string& fieldName() const
+    const String& fieldName() const
     {
         return m_name;
     }
@@ -216,7 +216,7 @@ public:
     /**
      * @brief Assignment operation
      */
-    Field& operator =(const std::string& value) override
+    Field& operator =(const sptk::String& value) override
     {
         setString(value.c_str(), (uint32_t) value.length());
         return *this;
@@ -252,7 +252,7 @@ public:
     /**
      * @brief Better (than in base class) conversion method
      */
-    std::string asString() const override;
+    String asString() const override;
 
     /**
      * @brief Exports the field data into XML node

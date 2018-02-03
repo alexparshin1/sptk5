@@ -37,39 +37,39 @@
 using namespace std;
 using namespace sptk;
 
-bool String::matches(string pattern, string options) const
+bool String::matches(const String& pattern, const String& options) const
 {
     return *this == RegularExpression(pattern, options);
 }
 
-string String::toUpperCase() const
+String String::toUpperCase() const
 {
     return upperCase(*this);
 }
 
-string String::toLowerCase() const
+String String::toLowerCase() const
 {
     return lowerCase(*this);
 }
 
-Strings String::split(string pattern) const
+Strings String::split(const String& pattern) const
 {
     return Strings(*this, pattern.c_str(), Strings::SM_REGEXP);
 }
 
-bool String::startsWith(string subject) const
+bool String::startsWith(const String& subject) const
 {
     return find(subject) == 0;
 }
 
-string String::replace(string pattern, string replacement) const
+String String::replace(const String& pattern, const String& replacement) const
 {
     RegularExpression regexp(pattern);
     bool replaced = false;
     return regexp.replaceAll(*this, replacement, replaced);
 }
 
-bool String::endsWith(string subject) const
+bool String::endsWith(const String& subject) const
 {
     size_t pos = rfind(subject);
     return pos != string::npos && pos == length() - subject.length();
@@ -84,7 +84,7 @@ String String::trim() const
     return substr(startPos, endPos - startPos + 1);
 }
 
-void Strings::splitByDelimiter(const string &src, const char *delimitter)
+void Strings::splitByDelimiter(const String& src, const char *delimitter)
 {
     size_t pos = 0;
     size_t delimitterLength = strlen(delimitter);
@@ -102,7 +102,7 @@ void Strings::splitByDelimiter(const string &src, const char *delimitter)
     }
 }
 
-void Strings::splitByAnyChar(const string &src, const char *delimitter)
+void Strings::splitByAnyChar(const String& src, const char *delimitter)
 {
     size_t pos = 0;
     while (pos != string::npos) {
@@ -119,13 +119,13 @@ void Strings::splitByAnyChar(const string &src, const char *delimitter)
     }
 }
 
-void Strings::splitByRegExp(const string &src, const char *pattern)
+void Strings::splitByRegExp(const String& src, const char *pattern)
 {
     RegularExpression regularExpression(pattern);
     regularExpression.split(src, *this);
 }
 
-void Strings::fromString(const string &src, const char *delimitter, SplitMode mode)
+void Strings::fromString(const String& src, const char *delimitter, SplitMode mode)
 {
     clear();
     switch (mode) {
@@ -141,7 +141,7 @@ void Strings::fromString(const string &src, const char *delimitter, SplitMode mo
     }
 }
 
-string Strings::asString(const char *delimitter) const
+String Strings::asString(const char* delimitter) const
 {
     stringstream result;
     bool first = true;
@@ -155,7 +155,7 @@ string Strings::asString(const char *delimitter) const
     return result.str();
 }
 
-int Strings::indexOf(string s) const
+int Strings::indexOf(const String& s) const
 {
     const_iterator itor = find(begin(), end(), s.c_str());
     if (itor == end())
@@ -163,7 +163,7 @@ int Strings::indexOf(string s) const
     return (int) distance(begin(), itor);
 }
 
-void Strings::saveToFile(string fileName) const
+void Strings::saveToFile(const String& fileName) const
 {
     Buffer buffer;
     for (const_iterator str = begin(); str != end(); ++str) {
@@ -173,7 +173,7 @@ void Strings::saveToFile(string fileName) const
     buffer.saveToFile(fileName);
 }
 
-void Strings::loadFromFile(string fileName)
+void Strings::loadFromFile(const String& fileName)
 {
     Buffer buffer;
     buffer.loadFromFile(fileName);
@@ -194,12 +194,12 @@ void Strings::loadFromFile(string fileName)
     splitByDelimiter(text, delimiter.c_str());
 }
 
-string Strings::join(string delimiter) const
+String Strings::join(const String& delimiter) const
 {
     return asString(delimiter.c_str());
 }
 
-Strings Strings::grep(string pattern) const
+Strings Strings::grep(const String& pattern) const
 {
     RegularExpression regularExpression(pattern);
     Strings output;

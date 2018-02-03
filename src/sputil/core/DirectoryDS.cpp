@@ -368,7 +368,7 @@ bool DirectoryDS::open()
             is_dir = true;
 
         CSmallPixmapType pixmapType;
-        string modeName = getFileType(st, pixmapType, file);
+        String modeName = getFileType(st, pixmapType, file);
 
         if (is_link) {
             modeName += ' ';

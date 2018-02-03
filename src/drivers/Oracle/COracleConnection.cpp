@@ -60,7 +60,7 @@ OracleConnection::~OracleConnection()
     }
 }
 
-void OracleConnection::openDatabase(const string& newConnectionString)
+void OracleConnection::openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;

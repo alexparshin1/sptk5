@@ -191,7 +191,7 @@ string PostgreSQLConnection::nativeConnectionString() const
     return result;
 }
 
-void PostgreSQLConnection::openDatabase(const string& newConnectionString)
+void PostgreSQLConnection::openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -202,7 +202,7 @@ void PostgreSQLConnection::openDatabase(const string& newConnectionString)
         m_connect = PQconnectdb(nativeConnectionString().c_str());
 
         if (PQstatus(m_connect) != CONNECTION_OK) {
-            string error = PQerrorMessage(m_connect);
+            String error = PQerrorMessage(m_connect);
             PQfinish(m_connect);
             m_connect = nullptr;
             throw DatabaseException(error);

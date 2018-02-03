@@ -146,7 +146,7 @@ public:
     /**
      * Returns an internal SPTK control class name information
      */
-    virtual std::string className() const {
+    virtual String className() const {
         return "check_buttons";
     }
     

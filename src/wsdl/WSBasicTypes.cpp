@@ -46,7 +46,7 @@ void WSString::load(const XMLNode* attr)
     setString(attr->text());
 }
 
-void WSString::load(std::string attr)
+void WSString::load(const String& attr)
 {
     setString(attr);
 }
@@ -68,7 +68,7 @@ void WSBool::load(const XMLNode* attr)
         setBool(attr->text() == "true");
 }
 
-void WSBool::load(string attr)
+void WSBool::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_BOOL);
@@ -93,7 +93,7 @@ void WSDate::load(const XMLNode* attr)
         setDate(DateTime(attr->text().c_str()));
 }
 
-void WSDate::load(string attr)
+void WSDate::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_DATE);
@@ -118,7 +118,7 @@ void WSDateTime::load(const XMLNode* attr)
         setDateTime(DateTime(attr->text().c_str()));
 }
 
-void WSDateTime::load(string attr)
+void WSDateTime::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_DATE_TIME);
@@ -134,7 +134,7 @@ void WSDateTime::load(const Field& field)
         setDateTime(field);
 }
 
-string WSDateTime::asString() const
+String WSDateTime::asString() const
 {
     DateTime dt = asDateTime();
     return dt.isoDateTimeString();
@@ -145,7 +145,7 @@ void WSDouble::load(const XMLNode* attr)
     setFloat(strtod(attr->text().c_str(), nullptr));
 }
 
-void WSDouble::load(string attr)
+void WSDouble::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_INT);
@@ -170,7 +170,7 @@ void WSInteger::load(const XMLNode* attr)
         setInt64(strtol(attr->text().c_str(), nullptr, 10));
 }
 
-void WSInteger::load(string attr)
+void WSInteger::load(const String& attr)
 {
     if (attr.empty())
         setNull(VAR_INT64);

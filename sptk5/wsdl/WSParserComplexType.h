@@ -213,7 +213,7 @@ public:
      * @param name std::string, Object name
      * @param typeName std::string, Object types
      */
-    WSParserComplexType(const XMLElement* complexTypeElement, std::string name="", std::string typeName="");
+    WSParserComplexType(const XMLElement* complexTypeElement, const String& name = "", const String& typeName = "");
 
     /**
      * Destructor

@@ -95,7 +95,7 @@ string ODBCConnection::nativeConnectionString() const
     return connectionString;
 }
 
-void ODBCConnection::openDatabase(const string& newConnectionString)
+void ODBCConnection::openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;

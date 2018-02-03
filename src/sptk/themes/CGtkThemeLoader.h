@@ -46,7 +46,7 @@ namespace sptk {
         /// @param row const std::string&, text row
         /// @param parentNode sptk::XMLNoode* parentNode, a node to attach resulting node
         /// @returns resulting XML node
-        sptk::XMLNode* parseParameter(const std::string& row, sptk::XMLNode* parentNode,bool createAttributes=false);
+        sptk::XMLNode* parseParameter(const String& row, sptk::XMLNode* parentNode, bool createAttributes = false);
         
         /// @brief Parses a group of rows defining GTK image
         /// @param gtkrc const sptk::CStrings&, text of the GTK theme configuration file

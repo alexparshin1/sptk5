@@ -47,7 +47,7 @@ XMLAttribute::XMLAttribute(XMLElement* parent, const std::string& tagname, XMLVa
 }
 
 /// @brief Returns the value of the node
-const std::string& XMLAttribute::value() const
+const String& XMLAttribute::value() const
 {
     return m_value;
 }

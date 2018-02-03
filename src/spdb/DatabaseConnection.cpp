@@ -66,7 +66,7 @@ bool DatabaseConnection::unlinkQuery(Query *q)
     return true;
 }
 
-void DatabaseConnection::openDatabase(const string& newConnectionString)
+void DatabaseConnection::openDatabase(const String& newConnectionString)
 {
     notImplemented("openDatabase");
 }
@@ -75,7 +75,7 @@ void DatabaseConnection::open(string newConnectionString)
 {
     openDatabase(newConnectionString);
     if (m_log != nullptr)
-        *m_log << "Opened database: " << m_connString.str() << endl;
+        *m_log << "Opened database: " << m_connString.toString() << endl;
 }
 
 void DatabaseConnection::closeDatabase()
@@ -96,7 +96,7 @@ void DatabaseConnection::close()
 
         closeDatabase();
         if (m_log != nullptr)
-            *m_log << "Closed database: " << m_connString.str() << endl;
+            *m_log << "Closed database: " << m_connString.toString() << endl;
     }
 }
 

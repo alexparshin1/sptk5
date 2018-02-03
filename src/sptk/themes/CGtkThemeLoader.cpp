@@ -38,13 +38,13 @@ namespace sptk
 
 static const Strings notGroupingTags("styles;style;engine", ";");
 
-XMLNode* CGtkThemeParser::parseParameter(const string& row, XMLNode* parentNode, bool createAttributes)
+XMLNode* CGtkThemeParser::parseParameter(const String& row, XMLNode* parentNode, bool createAttributes)
 {
     try {
         size_t pos = row.find_first_of(":[ \t=");
-        string name = row.substr(0, pos);
+        String name = row.substr(0, pos);
 
-        string subName;
+        String subName;
         pos = row.find_first_not_of(" \t", pos);
         if (pos == STRING_NPOS)
             throw runtime_error("value not found");
@@ -101,7 +101,7 @@ XMLNode* CGtkThemeParser::parseParameter(const string& row, XMLNode* parentNode,
             maxValueSize = int(pos2 - pos);
         }
         XMLNode* node = NULL;
-        string value = trim(row.substr(pos, maxValueSize));
+        String value = trim(row.substr(pos, maxValueSize));
         bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
         if (!attemptGrouping)
             valueMode = false;

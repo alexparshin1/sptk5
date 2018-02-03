@@ -1298,7 +1298,7 @@ public:
      * @brief Returns widget class name (internal SPTK RTTI).
      */
 
-    std::string className() const override
+    String className() const override
     {
         return "list_view";
     }
