@@ -41,16 +41,15 @@ void Document::clear()
     if (m_root) {
         delete m_root;
         if (elementType == JDT_ARRAY)
-            m_root = new Element((ArrayData*)NULL);
+            m_root = new Element((ArrayData*)nullptr);
         else
-            m_root = new Element((ObjectData*)NULL);
+            m_root = new Element((ObjectData*)nullptr);
     }
 }
 
 void Document::parse(const string& json)
 {
-    if (m_root)
-        delete m_root;
+    delete m_root;
 
     m_root = new Element;
 
@@ -69,7 +68,7 @@ Document::Document(bool isObject)
         m_root = new Element(new ArrayData);
 }
 
-Document::Document(Document&& other)
+Document::Document(Document&& other) noexcept
 : m_root(other.m_root)
 {
     if (m_root->type() == JDT_OBJECT)
@@ -80,8 +79,7 @@ Document::Document(Document&& other)
 
 Document::~Document()
 {
-    if (m_root)
-        delete m_root;
+    delete m_root;
 }
 
 void Document::load(const string& json)

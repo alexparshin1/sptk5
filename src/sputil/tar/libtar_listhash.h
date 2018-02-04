@@ -152,7 +152,7 @@ void libtar_hashptr_reset(libtar_hashptr_t *);
 void *libtar_hashptr_data(libtar_hashptr_t *);
 
 /* default hash function, optimized for 7-bit strings */
-unsigned int libtar_str_hashfunc(char *, unsigned int);
+unsigned int libtar_str_hashfunc(const char*, unsigned int);
 
 /* return number of elements from hash */
 unsigned int libtar_hash_nents(libtar_hash_t *);

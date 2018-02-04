@@ -230,7 +230,7 @@ void SmtpConnect::sendMessage()
     Strings recepients(rcpts, ";");
     auto cnt = (uint32_t) recepients.size();
     for (uint32_t i = 0; i < cnt; i++) {
-        string address = trim(recepients[i]);
+        String address = trim(recepients[i]);
         if (address[0] == 0) continue;
         rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
         if (rc > 251)

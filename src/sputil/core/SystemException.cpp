@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/SystemException.h>
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 using namespace sptk;
@@ -39,10 +39,6 @@ SystemException::SystemException(string context, std::string file, int line) DOE
 
 SystemException::SystemException(const SystemException& other) DOESNT_THROW
 : Exception(other)
-{
-}
-
-SystemException::~SystemException() DOESNT_THROW
 {
 }
 

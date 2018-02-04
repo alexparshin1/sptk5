@@ -232,7 +232,7 @@ string absolutePath(string path)
     char slashStr[] = {slash, 0};
     char currentDir[256];
     string fullPath;
-    if (getcwd(currentDir, 255) == NULL)
+    if (getcwd(currentDir, 255) == nullptr)
         currentDir[0] = 0;
 #ifdef _WIN32
 
@@ -277,7 +277,7 @@ string absolutePath(string path)
     return path;
 }
 
-void DirectoryDS::directory(string d)
+void DirectoryDS::directory(const string& d)
 {
     m_directory = absolutePath(d);
 }
@@ -301,12 +301,12 @@ bool DirectoryDS::open()
 #else
     dirent **files;
     //int num_files = fl_filename_list(m_directory.c_str(), &files);
-    int num_files = scandir(m_directory.c_str(), &files, 0, alphasort);
+    int num_files = scandir(m_directory.c_str(), &files, nullptr, alphasort);
     if (num_files <= 0)
         return false;
 #endif
 
-    struct stat st;
+    struct stat st = {};
 
     vector<FieldList*> fileList;
     int n = 0;
@@ -321,7 +321,7 @@ bool DirectoryDS::open()
             n++;
             continue;
         }
-        char* file = (char *) files[n]->d_name;
+        auto file = (char *) files[n]->d_name;
 #endif
 
         size_t len = strlen(file);
@@ -358,7 +358,7 @@ bool DirectoryDS::open()
                 if (!matchFound) {
 #ifndef _WIN32
                     free(files[n]);
-                    files[n] = 0;
+                    files[n] = nullptr;
                     n++;
 #endif
                     continue;
@@ -382,7 +382,7 @@ bool DirectoryDS::open()
             useEntry = (showPolicy() & DDS_HIDE_FILES) == 0;
 
         if (useEntry) {
-            FieldList *df = new FieldList(false);
+            auto df = new FieldList(false);
             df->push_back(" ", false).setImageNdx(pixmapType);
             df->push_back("Name", false) = file;
             if (modeName == "Directory")
@@ -407,7 +407,7 @@ bool DirectoryDS::open()
 
 #ifndef _WIN32
         free(files[n]);
-        files[n] = 0;
+        files[n] = nullptr;
 #endif
 
         n++;
@@ -419,8 +419,8 @@ bool DirectoryDS::open()
         ;
 #endif
 
-    for (unsigned i = 0; i < fileList.size(); i++)
-        m_list.push_back(fileList[i]);
+    for (auto& file: fileList)
+        m_list.push_back(file);
     fileList.clear();
 
     first();
@@ -436,5 +436,5 @@ bool DirectoryDS::open()
     free(files);
 #endif
 
-    return m_list.size() > 0;
+    return !m_list.empty();
 }

@@ -251,7 +251,7 @@ public:
      * Assignment operator
      * @param other Element&&, Element to assign from
      */
-    Element& operator = (Element&& other);
+    Element& operator = (Element&& other) noexcept;
 
     /**
      * Add JSON element to JSON array element.

@@ -48,10 +48,10 @@ using namespace sptk;
 #endif
 
 //----------------------------------------------------------------------------
-string Registry::homeDirectory()
+String Registry::homeDirectory()
 {
 #ifndef _WIN32
-    string homeDir = trim(getenv("HOME"));
+    String homeDir = trim(getenv("HOME"));
     if (homeDir.empty())
         homeDir = ".";
     homeDir += "/";
@@ -166,8 +166,8 @@ void Registry::save()
 
 void Registry::clean(XMLNode* node)
 {
-    XMLNode::iterator itor = node->begin();
-    XMLNode::iterator iend = node->end();
+    auto itor = node->begin();
+    auto iend = node->end();
     XMLNodeVector toDelete;
     for (; itor != iend; ++itor) {
         XMLNode* anode = *itor;
@@ -175,13 +175,12 @@ void Registry::clean(XMLNode* node)
             toDelete.push_back(anode);
             continue;
         }
-        if (anode->size())
+        if (!anode->empty())
             clean(anode);
     }
-    XMLNodeVector::iterator it = toDelete.begin();
+    auto it = toDelete.begin();
     for (; it != toDelete.end(); ++it)
-        node->remove
-                    (*it);
+        node->remove(*it);
 }
 
 void Registry::load(const XMLDocument& data)

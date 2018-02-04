@@ -259,7 +259,7 @@ public:
      * @param nodeName std::string, the name for subnodes
      * @param compactXmlMode bool, compact XML flag
      */
-    virtual void toXML(XMLNode& parentNode, std::string nodeName, bool compactXmlMode);
+    virtual void toXML(XMLNode& parentNode, const std::string& nodeName, bool compactXmlMode);
 };
 
 /**

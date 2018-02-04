@@ -174,7 +174,7 @@ int HttpConnect::statusCode() const
     return m_reader.getStatusCode();
 }
 
-string HttpConnect::statusText() const
+String HttpConnect::statusText() const
 {
     return m_reader.getStatusText();
 }

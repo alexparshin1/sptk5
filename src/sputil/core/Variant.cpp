@@ -1295,7 +1295,7 @@ void Variant::load(const XMLNode* node)
 
 void Variant::save(XMLNode& node) const
 {
-    string stringValue(asString());
+    String stringValue(asString());
     node.setAttribute("type", typeName(dataType()));
 
     if (!stringValue.empty()) {

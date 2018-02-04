@@ -164,14 +164,11 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
 CommandLine::CommandLineArgument::CommandLineArgument(const string& name, const string& help)
 : CommandLineElement(name, "", help, Visibility("")) { }
 
-CommandLine::CommandLineArgument::~CommandLineArgument() { }
 //=============================================================================
 
 CommandLine::CommandLineOption::CommandLineOption(const string& name, const string& shortName,
                                                   const Visibility& useWithCommands, const string& help)
 : CommandLineElement(name, shortName, help, useWithCommands) { }
-
-CommandLine::CommandLineOption::~CommandLineOption() { }
 
 bool CommandLine::CommandLineOption::hasValue() const
 {

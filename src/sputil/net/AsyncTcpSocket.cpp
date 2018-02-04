@@ -36,10 +36,6 @@ AsyncTcpSocket::AsyncTcpSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32
 {
 }
 
-AsyncTcpSocket::~AsyncTcpSocket()
-{
-}
-
 void AsyncTcpSocket::open(const Host& host, BaseSocket::CSocketOpenMode openMode, bool blockingMode, chrono::milliseconds timeout)
 {
     TCPSocket::open(host, openMode, blockingMode, timeout);

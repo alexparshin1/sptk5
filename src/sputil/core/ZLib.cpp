@@ -36,7 +36,7 @@ void sptk::ZLib::compress(sptk::Buffer& dest, const sptk::Buffer& src)
 {
     int ret, flush;
     unsigned have;
-    z_stream strm;
+    z_stream strm = {};
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
 
@@ -93,7 +93,7 @@ void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
 {
     int ret;
     unsigned have;
-    z_stream strm;
+    z_stream strm = {};
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
 

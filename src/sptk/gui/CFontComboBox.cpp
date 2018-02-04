@@ -43,7 +43,7 @@ void CFontComboBox::loadFonts() {
    int k = Fl::set_fonts("*");
    for (int i = 0; i < k; i++) {
       int t;
-      String fontIdString(Fl::get_font_name((Fl_Font)i,&t),i);
+      String fontIdString(string(Fl::get_font_name((Fl_Font)i,&t)),i);
       fontNames.push_back(fontIdString);
    }
    addRows("Fonts",fontNames);

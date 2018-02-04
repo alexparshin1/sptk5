@@ -106,7 +106,7 @@ bool HttpReader::readHeaders(TCPSocket& socket)
 
 bool HttpReader::readData(TCPSocket& socket)
 {
-    int bytes = (int) socket.socketBytes();
+    auto bytes = (int) socket.socketBytes();
     if (bytes == 0) {
         if (m_contentLength != 0)
             throw Exception("Server closed connection");

@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
  */
 
-#include <string.h>
+#include <cstring>
 
 #include <sptk5/Exception.h>
 #include <sptk5/FieldList.h>
@@ -36,24 +36,23 @@ using namespace sptk;
 
 FieldList::FieldList(bool indexed, bool compactXmlMode)
 {
-    m_userData = 0;
+    m_userData = nullptr;
     m_compactXmlMode = compactXmlMode;
     if (indexed)
         m_index = new Map;
     else
-        m_index = 0L;
+        m_index = nullptr;
 }
 
 FieldList::~FieldList()
 {
     clear();
-    if (m_index)
-        delete m_index;
+    delete m_index;
 }
 
 void FieldList::clear()
 {
-    uint32_t cnt = (uint32_t) m_list.size();
+    auto cnt = (uint32_t) m_list.size();
     if (cnt) {
         for (uint32_t i = 0; i < cnt; i++)
             delete m_list[i];
@@ -69,14 +68,14 @@ Field& FieldList::push_back(const char *fname, bool checkDuplicates)
     bool duplicate = false;
     if (checkDuplicates) {
         if (m_index) {
-            Map::iterator itor = m_index->find(fname);
+            auto itor = m_index->find(fname);
             if (itor != m_index->end())
                 duplicate = true;
         }
         else {
             try {
                 Field *pfld = fieldByName(fname);
-                duplicate = (pfld != 0L);
+                duplicate = (pfld != nullptr);
             }
             catch (...) {
             }
@@ -86,7 +85,7 @@ Field& FieldList::push_back(const char *fname, bool checkDuplicates)
     if (duplicate)
         throw Exception("Attempt to duplicate field name");
 
-    Field *field = new Field(fname);
+    auto field = new Field(fname);
 
     m_list.push_back(field);
 
@@ -114,9 +113,9 @@ Field *FieldList::fieldByName(const char *fname) const
             return itor->second;
     }
     else {
-        uint32_t cnt = (uint32_t) m_list.size();
+        auto cnt = (uint32_t) m_list.size();
         for (uint32_t i = 0; i < cnt; i++) {
-            Field *field = (Field *) m_list[i];
+            auto field = (Field *) m_list[i];
             if (strcmp(field->m_name.c_str(), fname) == 0)
                 return field;
         }
@@ -126,8 +125,8 @@ Field *FieldList::fieldByName(const char *fname) const
 
 void FieldList::toXML(XMLNode& node) const
 {
-    const_iterator itor = m_list.begin();
-    const_iterator iend = m_list.end();
+    auto itor = m_list.begin();
+    auto iend = m_list.end();
     for (; itor != iend; ++itor) {
         Field *field = *itor;
         field->toXML(node, m_compactXmlMode);

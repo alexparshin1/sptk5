@@ -66,7 +66,7 @@ Element* ObjectData::find(const string& name)
 {
     const_iterator itor = m_items.find(name);
     if (itor == m_items.end())
-        return NULL;
+        return nullptr;
     return itor->second;
 }
 
@@ -86,7 +86,7 @@ Element& ObjectData::operator[](const string& name)
 
 const Element* ObjectData::find(const string& name) const
 {
-    const_iterator itor = m_items.find(name);
+    auto itor = m_items.find(name);
     if (itor == m_items.end())
         throw Exception("Element name isn't found");
     return itor->second;
@@ -99,7 +99,7 @@ const Element& ObjectData::operator[](const string& name) const
 
 void ObjectData::remove(const string& name)
 {
-    iterator itor = m_items.find(name);
+    auto itor = m_items.find(name);
     if (itor == m_items.end())
         return;
     delete itor->second;
@@ -108,9 +108,9 @@ void ObjectData::remove(const string& name)
 
 Element* ObjectData::move(const string& name)
 {
-    iterator itor = m_items.find(name);
+    auto itor = m_items.find(name);
     if (itor == m_items.end())
-        return NULL;
+        return nullptr;
     m_items.erase(itor);
     return itor->second;
 }

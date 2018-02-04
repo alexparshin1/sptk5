@@ -75,7 +75,7 @@ streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
 //==========================================================================================
 
 Logger::Logger(LogEngine& destination)
-: _ios(0), _ostream((m_buffer = new CLogStreamBuf)), m_destination(destination)
+: _ios(nullptr), _ostream((m_buffer = new CLogStreamBuf)), m_destination(destination)
 {
     m_buffer->parent(this);
 }

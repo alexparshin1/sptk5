@@ -83,7 +83,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const std::string& key, con
 void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, const std::string& iv)
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-    if (ctx == 0)
+    if (ctx == nullptr)
         throw Exception("Error calling EVP_CIPHER_CTX_new()");
 
     if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (unsigned char*) key.c_str(), (unsigned char*) iv.c_str()) != 1)

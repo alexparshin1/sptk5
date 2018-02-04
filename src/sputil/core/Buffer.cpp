@@ -109,7 +109,7 @@ Buffer::Buffer(const Buffer& buffer)
     }
 }
 
-Buffer::Buffer(Buffer&& other)
+Buffer::Buffer(Buffer&& other) noexcept
 {
     if (m_buffer != nullptr)
         free(m_buffer);

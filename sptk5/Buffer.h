@@ -133,7 +133,7 @@ public:
      * Moves a buffer from another buffer.
      * @param other Buffer&&, data buffer
      */
-    Buffer(Buffer&& other);
+    Buffer(Buffer&& other) noexcept;
 
     /**
      * @brief Destructor

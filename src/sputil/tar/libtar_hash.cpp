@@ -43,7 +43,7 @@ libtar_hashptr_data(libtar_hashptr_t *hp)
 **				      7-bit strings
 */
 unsigned int
-libtar_str_hashfunc(char *key, unsigned int num_buckets)
+libtar_str_hashfunc(const char* key, unsigned int num_buckets)
 {
 #if 0
 	register unsigned result = 0;

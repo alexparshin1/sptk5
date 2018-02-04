@@ -35,10 +35,10 @@ using namespace std;
 using namespace sptk;
 
 RegularExpression::RegularExpression(const string& pattern, const string& options) :
-    m_pattern(pattern), m_global(false), m_pcre(NULL), m_pcreExtra(NULL), m_pcreOptions()
+    m_pattern(pattern), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
 {
-    for (unsigned i = 0; i < options.length(); i++) {
-        switch (options[i]) {
+    for (auto ch: options) {
+        switch (ch) {
             case 'i':
                 m_pcreOptions |= PCRE_CASELESS;
                 break;
@@ -61,7 +61,7 @@ RegularExpression::RegularExpression(const string& pattern, const string& option
 
     const char *error;
     int errorOffset;
-    m_pcre = pcre_compile(m_pattern.c_str(), m_pcreOptions, &error, &errorOffset, NULL);
+    m_pcre = pcre_compile(m_pattern.c_str(), m_pcreOptions, &error, &errorOffset, nullptr);
     if (!m_pcre)
         m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
 #if PCRE_MAJOR > 7
@@ -69,7 +69,7 @@ RegularExpression::RegularExpression(const string& pattern, const string& option
         m_pcreExtra = pcre_study(m_pcre, 0, &error);
         if (!m_pcreExtra && error) {
             pcre_free(m_pcre);
-            m_pcre = NULL;
+            m_pcre = nullptr;
             m_error = "PCRE pattern study error : " + string(error);
         }
     }
@@ -126,21 +126,21 @@ bool RegularExpression::operator==(const string& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
-    return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) > 0;
+    return nextMatch(text, offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
 bool RegularExpression::operator!=(const string& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
-    return nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES) == 0;
+    return nextMatch(text, offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
 bool RegularExpression::matches(const string& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
-    size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+    size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
     return matchCount > 0;
 }
 
@@ -153,7 +153,7 @@ bool RegularExpression::m(const string& text, Strings& matchedStrings) const
     size_t totalMatches = 0;
 
     do {
-        size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
         totalMatches += matchCount;
@@ -178,7 +178,7 @@ bool RegularExpression::split(const string& text, Strings& matchedStrings) const
 
     int lastMatchEnd = 0;
     do {
-        size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
 
@@ -209,7 +209,7 @@ string RegularExpression::replaceAll(const string& text, string outputPattern, b
 
     do {
         size_t fragmentOffset = offset;
-        size_t matchCount = nextMatch(text.c_str(), offset, matchOffsets, MAX_MATCHES);
+        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
         //if (matchCount == 1) // String matched but no strings extracted
@@ -225,7 +225,7 @@ string RegularExpression::replaceAll(const string& text, string outputPattern, b
         while (pos != string::npos) {
             size_t placeHolderStart = pos;
             for (; ; placeHolderStart++) {
-                placeHolderStart = outputPattern.find("\\", placeHolderStart);
+                placeHolderStart = outputPattern.find('\\', placeHolderStart);
                 if (placeHolderStart == string::npos)
                     break;
                 if (isdigit(outputPattern[placeHolderStart + 1]))
@@ -238,7 +238,7 @@ string RegularExpression::replaceAll(const string& text, string outputPattern, b
 
             nextReplacement += outputPattern.substr(pos, placeHolderStart - pos);
             placeHolderStart++;
-            size_t placeHolderIndex = (size_t) atoi(outputPattern.c_str() + placeHolderStart);
+            auto placeHolderIndex = (size_t) atoi(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
                 Match &match = matchOffsets[placeHolderIndex];
@@ -261,7 +261,7 @@ string RegularExpression::replaceAll(const string& text, string outputPattern, b
     return result + text.substr(lastOffset);
 }
 
-string RegularExpression::s(const string& text, string outputPattern) const
+string RegularExpression::s(const string& text, const string& outputPattern) const
 {
     bool replaced;
     return replaceAll(text, outputPattern, replaced);

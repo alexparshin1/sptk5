@@ -37,17 +37,16 @@
 
 using namespace std;
 
-namespace sptk
-{
+namespace sptk {
 
 String upperCase(const String& str)
 {
     auto len = (uint32_t) str.length();
     string result;
-    result.resize (len);
+    result.resize(len);
 
     for (uint32_t i = 0; i < len; i++)
-        result[i] = (char) toupper (str[i]);
+        result[i] = (char) toupper(str[i]);
 
     return result;
 }
@@ -56,10 +55,10 @@ String lowerCase(const String& str)
 {
     auto len = (uint32_t) str.length();
     string result;
-    result.resize (len);
+    result.resize(len);
 
     for (uint32_t i = 0; i < len; i++)
-        result[i] = (char) tolower (str[i]);
+        result[i] = (char) tolower(str[i]);
 
     return result;
 }
@@ -71,8 +70,8 @@ String trim(const String& str)
     if (len == 0)
         return "";
 
-    auto *s = (const unsigned char *) str.c_str();
-    int i, startpos = 0, endpos = int (len - 1);
+    auto* s = (const unsigned char*) str.c_str();
+    int i, startpos = 0, endpos = int(len - 1);
     bool found = false;
 
     for (i = endpos; i >= 0; i--) {
@@ -93,7 +92,7 @@ String trim(const String& str)
         }
     }
 
-    return str.substr(size_t(startpos), size_t(endpos-startpos+1));
+    return str.substr(size_t(startpos), size_t(endpos - startpos + 1));
 }
 
 void join(string& dest, const vector<string>& src, const string& separator)
@@ -109,7 +108,7 @@ void join(string& dest, const vector<string>& src, const string& separator)
 void split(vector<string>& dest, const string& src, const string& delimitter)
 {
     dest.clear();
-    auto buffer = (char *) src.c_str();
+    auto buffer = (char*) src.c_str();
 
     if (strlen(buffer) == 0)
         return;
@@ -119,20 +118,20 @@ void split(vector<string>& dest, const string& src, const string& delimitter)
     if (dlen == 0)
         return;
 
-    char *p = buffer;
+    char* p = buffer;
 
     for (;;) {
-        char *end = strstr (p, delimitter.c_str());
+        char* end = strstr(p, delimitter.c_str());
 
         if (end != nullptr) {
             //int len = end - p;
             char sc = *end;
             *end = 0;
-            dest.push_back (p);
+            dest.emplace_back(p);
             *end = sc;
             p = end + dlen;
         } else {
-            dest.push_back (p);
+            dest.emplace_back(p);
             break;
         }
     }
@@ -176,7 +175,7 @@ String int2string(uint64_t value)
 
 int string2int(const String& str, int defaultValue)
 {
-    char *endptr;
+    char* endptr;
     errno = 0;
     auto result = (int) strtol(str.c_str(), &endptr, 10);
 
@@ -188,7 +187,7 @@ int string2int(const String& str, int defaultValue)
 
 int64_t string2int64(const String& str, int64_t defaultValue)
 {
-    char *endptr;
+    char* endptr;
     errno = 0;
     auto result = (int64_t) strtoll(str.c_str(), &endptr, 10);
 
@@ -200,7 +199,7 @@ int64_t string2int64(const String& str, int64_t defaultValue)
 
 double string2double(const String& str)
 {
-    char *endptr;
+    char* endptr;
     errno = 0;
     auto result = strtod(str.c_str(), &endptr);
 
@@ -212,7 +211,7 @@ double string2double(const String& str)
 
 double string2double(const String& str, double defaultValue)
 {
-    char *endptr;
+    char* endptr;
     errno = 0;
     auto result = strtod(str.c_str(), &endptr);
 
@@ -224,24 +223,24 @@ double string2double(const String& str, double defaultValue)
 
 string capitalizeWords(const String& str)
 {
-    string s (str);
-    auto current = (char *) s.c_str();
-    char *wordStart = nullptr;
+    String s(str);
+    auto current = (char*) s.c_str();
+    char* wordStart = nullptr;
 
     if (*current != char(0)) {
         for (;;) {
-            if (isalnum (*current) != 0) {
+            if (isalnum(*current) != 0) {
                 if (wordStart == nullptr)
                     wordStart = current;
             } else {
                 if (current - wordStart > 3) {
                     if (wordStart != nullptr)
-                        *wordStart = (char) toupper (*wordStart);
+                        *wordStart = (char) toupper(*wordStart);
                     else
                         wordStart = current;
 
-                    for (char *ptr = wordStart + 1; ptr < current; ptr++)
-                        *ptr = (char) tolower (*ptr);
+                    for (char* ptr = wordStart + 1; ptr < current; ptr++)
+                        *ptr = (char) tolower(*ptr);
                 }
 
                 wordStart = nullptr;
@@ -259,7 +258,7 @@ string capitalizeWords(const String& str)
 
 string replaceAll(const String& src, const String& pattern, const String& replacement)
 {
-    string str (src);
+    string str(src);
 
     if (pattern.empty())
         return src;
@@ -267,11 +266,11 @@ string replaceAll(const String& src, const String& pattern, const String& replac
     size_t patternLength = pattern.length();
     size_t replacementLength = replacement.length();
 
-    size_t i = str.find (pattern);
+    size_t i = str.find(pattern);
 
     while (i != STRING_NPOS) { // While not at the end of the string
-        str.replace (i,patternLength,replacement);
-        i = str.find (pattern, i + replacementLength);
+        str.replace(i, patternLength, replacement);
+        i = str.find(pattern, i + replacementLength);
     }
 
     return str;

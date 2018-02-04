@@ -56,7 +56,7 @@ using namespace sptk;
  { "uucp", LOG_UUCP },
  */
 
-SysLogEngine::SysLogEngine(string _programName, uint32_t facilities)
+SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 : m_facilities(facilities)
 {
 #ifndef _WIN32
@@ -226,7 +226,7 @@ void SysLogEngine::setupEventSource()
 #endif
 }
 
-void SysLogEngine::programName(string progName)
+void SysLogEngine::programName(const string& progName)
 {
     m_programName = progName;
 	setupEventSource();

@@ -216,7 +216,7 @@ public:
      * Get current user home directory
 	 * @return current user home directory
      */
-    static std::string homeDirectory();
+    static String homeDirectory();
 };
 /**
  * @}

@@ -103,7 +103,16 @@ public:
      * @param str				Source string
      * @param id				Optional string id
      */
-    String(const std::string &str, int32_t id = 0) : std_string(str), m_id(id)
+    String(const std::string& str, int32_t id = 0) : std_string(str), m_id(id)
+    {
+    }
+
+    /**
+     * @brief Constructor
+     * @param str				Source string
+     * @param id				Optional string id
+     */
+    String(const char* str, int32_t id = 0) : std_string(str), m_id(id)
     {
     }
 
@@ -114,14 +123,6 @@ public:
      * @param id				Optional string id
      */
     String(const char *str, size_t len, int32_t id=0) : std_string(str, len), m_id(id)
-    {
-    }
-
-    /**
-     * Constructor
-     * @param str				Source string
-     */
-    String(const char *str) : std_string(str), m_id(0)
     {
     }
 

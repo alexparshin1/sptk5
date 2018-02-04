@@ -90,14 +90,14 @@ class SP_EXPORT TCPSocketReader: protected Buffer
      * @brief Performs buffered read
      *
      * Data is read from the opened socket into a character buffer of limited size
-     * @param dest              Destination buffer
+     * @param destination       Destination buffer
      * @param sz                Size of the destination buffer
      * @param delimiter         Line delimiter
      * @param readLine          True if we want to read one line (ended with CRLF) only
      * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    int32_t bufferedRead(char *dest, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
+    int32_t bufferedRead(char *destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
 
 public:
 
@@ -115,14 +115,14 @@ public:
 
     /**
      * @brief Performs the buffered read
-     * @param dest              Destination buffer
+     * @param destination              Destination buffer
      * @param sz                Size of the destination buffer
      * @param delimiter         Line delimiter
      * @param readLine          True if we want to read one line (ended with CRLF) only
      * @param from              An optional structure for source address
      * @returns bytes read from the internal buffer
      */
-    size_t read(char *dest, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
+    size_t read(char* destination, size_t sz, char delimiter, bool readLine, struct sockaddr_in* from = NULL);
 
     /**
      * @brief Performs the buffered read of LF-terminated string

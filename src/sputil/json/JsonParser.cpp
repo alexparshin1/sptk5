@@ -28,7 +28,7 @@
 
 #include <sptk5/json/JsonParser.h>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 
 using namespace std;
@@ -46,9 +46,6 @@ namespace sptk { namespace json {
     void readArrayData(Element* parent, const std::string& json, size_t& readPosition);
     void readObjectData(Element* parent, const std::string& json, size_t& readPosition);
 } }
-
-Parser::Parser()
-{}
 
 void Parser::parse(Element& jsonElement, const string& json)
 {
@@ -148,7 +145,7 @@ double readJsonNumber(const string& json, size_t& readPosition)
 
 bool readJsonBoolean(const string& json, size_t& readPosition)
 {
-    size_t pos = json.find_first_of("e", readPosition + 1);
+    size_t pos = json.find_first_of('e', readPosition + 1);
     if (pos == string::npos)
         error("Unexpected character", readPosition);
     pos++;
@@ -198,7 +195,7 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition)
 
             case '[':
             {
-                Element* jsonArrayElement = new Element(new ArrayData);
+                auto jsonArrayElement = new Element(new ArrayData);
                 readArrayData(jsonArrayElement, json, readPosition);
                 parent->add(jsonArrayElement);
             }
@@ -206,7 +203,7 @@ void readArrayData(Element* parent, const string& json, size_t& readPosition)
 
             case '{':
             {
-                Element* jsonObjectElement = new Element(new ObjectData);
+                auto jsonObjectElement = new Element(new ObjectData);
                 readObjectData(jsonObjectElement, json, readPosition);
                 parent->add(jsonObjectElement);
             }
@@ -289,7 +286,7 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition)
 
             case '[':
             {
-                Element* jsonArrayElement = new Element(new ArrayData);
+                auto jsonArrayElement = new Element(new ArrayData);
                 readArrayData(jsonArrayElement, json, readPosition);
                 parent->add(elementName, jsonArrayElement);
             }
@@ -297,7 +294,7 @@ void readObjectData(Element* parent, const string& json, size_t& readPosition)
 
             case '{':
             {
-                Element* jsonObjectElement = new Element(new ObjectData);
+                auto jsonObjectElement = new Element(new ObjectData);
                 readObjectData(jsonObjectElement, json, readPosition);
                 parent->add(elementName, jsonObjectElement);
             }

@@ -72,7 +72,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
 
     std::string         m_programName;
 
-    void programName(std::string progName);
+    void programName(const std::string& progName);
 	void setupEventSource();
 public:
     /**
@@ -98,7 +98,7 @@ public:
      * @param programName std::string, a program name
      * @param facilities int, log facility or a set of facilities.
      */
-    SysLogEngine(std::string programName = "", uint32_t facilities = LOG_USER);
+    SysLogEngine(const std::string& programName = "", uint32_t facilities = LOG_USER);
 
     /**
      * @brief Destructor

@@ -244,7 +244,7 @@ protected:
         /**
          * @brief Destructor
          */
-        virtual ~CommandLineArgument();
+        virtual ~CommandLineArgument() = default;
     };
 
     /**
@@ -268,7 +268,7 @@ protected:
         /**
          * @brief Destructor
          */
-        virtual ~CommandLineOption();
+        virtual ~CommandLineOption() = default;
 
         /**
          * @brief Returns true if element expects value

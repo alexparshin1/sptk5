@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
@@ -157,7 +157,7 @@ String Strings::asString(const char* delimitter) const
 
 int Strings::indexOf(const String& s) const
 {
-    const_iterator itor = find(begin(), end(), s.c_str());
+    auto itor = find(begin(), end(), s.c_str());
     if (itor == end())
         return -1;
     return (int) distance(begin(), itor);
@@ -166,8 +166,8 @@ int Strings::indexOf(const String& s) const
 void Strings::saveToFile(const String& fileName) const
 {
     Buffer buffer;
-    for (const_iterator str = begin(); str != end(); ++str) {
-        buffer.append(*str);
+    for (auto& str: *this) {
+        buffer.append(str);
         buffer.append("\n");
     }
     buffer.saveToFile(fileName);

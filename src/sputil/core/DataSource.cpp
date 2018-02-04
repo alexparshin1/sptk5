@@ -52,7 +52,7 @@ void DataSource::rowToXML(XMLNode& node, bool compactXmlMode) const
     }
 }
 
-void DataSource::toXML(XMLNode& parentNode, std::string nodeName, bool compactXmlMode)
+void DataSource::toXML(XMLNode& parentNode, const string& nodeName, bool compactXmlMode)
 {
     try {
         open();

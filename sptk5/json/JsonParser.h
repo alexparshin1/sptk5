@@ -50,7 +50,7 @@ public:
     /**
      * Constructor
      */
-    Parser();
+    Parser() = default;
 
     /**
      * Parse JSON text

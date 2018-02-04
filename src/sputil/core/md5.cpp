@@ -34,7 +34,7 @@ documentation and/or software.
 #include <sptk5/md5.h>
 
 /* system implementation headers */
-#include <string.h>
+#include <cstring>
 
 
 // Constants for MD5Transform routine.

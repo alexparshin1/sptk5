@@ -81,7 +81,7 @@ public:
      * Use one of the load() methods to populate it, or use add(), remove() methods of the root element to modify it.
      * @param other Document&&, Object to move
      */
-    Document(Document&& other);
+    Document(Document&& other) noexcept;
 
     /**
      * Destructor

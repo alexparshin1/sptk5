@@ -38,10 +38,6 @@ RWLock::RWLock()
     m_writerMode = false;
 }
 
-RWLock::~RWLock()
-{
-}
-
 int RWLock::lockR(chrono::milliseconds timeout)
 {
     unique_lock<mutex>  lock(m_writeLock);

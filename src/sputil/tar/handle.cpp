@@ -13,7 +13,7 @@
 #include <sptk5/sptk.h>
 #include "libtar.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <fcntl.h>
 
 #ifdef _WIN32
@@ -32,7 +32,7 @@ static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int mod
 	}
 
 	*t = (TAR *)calloc(1, sizeof(TAR));
-	if (*t == NULL)
+	if (*t == nullptr)
 		return -1;
 
 	(*t)->pathname = pathname;
@@ -41,7 +41,7 @@ static int tar_init(TAR **t, char *pathname, tartype_t *type,int oflags, int mod
 	(*t)->oflags = oflags;
 
 	(*t)->h = libtar_hash_new(256, (libtar_hashfunc_t)path_hashfunc);
-	if ((*t)->h == NULL)
+	if ((*t)->h == nullptr)
 	{
 		free(*t);
 		return -1;
@@ -85,7 +85,7 @@ tar_close(TAR *t)
 
 	i = (*(t->type->closefunc))((int)t->fd);
 
-	if (t->h != NULL)
+	if (t->h != nullptr)
 		libtar_hash_free(t->h, free);
 	free(t);
 

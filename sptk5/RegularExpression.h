@@ -168,7 +168,7 @@ public:
      * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
      */
-    std::string s(const std::string& text, std::string outputPattern) const;
+    std::string s(const std::string& text, const std::string& outputPattern) const;
 
     /**
      * @brief Returns list of strings split by regular expression

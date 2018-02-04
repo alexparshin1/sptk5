@@ -63,7 +63,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~SystemException() DOESNT_THROW;
+    virtual ~SystemException() = default;
 
     /**
      * @brief Returns OS error

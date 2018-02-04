@@ -213,7 +213,7 @@ public:
      * @brief Get the request execution status text
      * @return request execution status text
      */
-    std::string statusText() const;
+    String statusText() const;
 };
 
 /**

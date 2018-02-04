@@ -79,7 +79,7 @@ public:
     /**
      * Destructor
      */
-    ~RWLock();
+    ~RWLock() = default;
 
     /**
      * Try to lock the object for reading. Blocks if object is locked for writing, or there are pending write locks.

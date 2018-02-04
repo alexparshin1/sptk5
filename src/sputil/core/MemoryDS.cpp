@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-#define checkDSopen(ds) if (!ds) throw Exception("Dataset isn't open") 
+#define checkDSopen(ds) if (!(ds)) throw Exception("Dataset isn't open")
 
 // access to the field by name
 const Field& MemoryDS::operator [] (const char *field_name) const

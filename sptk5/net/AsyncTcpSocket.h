@@ -50,7 +50,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~AsyncTcpSocket();
+    virtual ~AsyncTcpSocket() = default;
 
     void open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 

@@ -29,7 +29,7 @@
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <sptk5/xml/XMLElement.h>
 
 using namespace std;
@@ -39,37 +39,37 @@ using namespace sptk::json;
 const Element Element::emptyElement("");
 
 Element::Element(double value)
-: m_parent(NULL), m_type(JDT_NUMBER)
+: m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
 Element::Element(int value)
-: m_parent(NULL), m_type(JDT_NUMBER)
+: m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
 Element::Element(const std::string& value)
-: m_parent(NULL), m_type(JDT_STRING)
+: m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
 Element::Element(const char* value)
-: m_parent(NULL), m_type(JDT_STRING)
+: m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
 Element::Element(bool value)
-: m_parent(NULL), m_type(JDT_BOOLEAN)
+: m_parent(nullptr), m_type(JDT_BOOLEAN)
 {
     m_data.m_boolean = value;
 }
 
 Element::Element(ArrayData* value)
-: m_parent(NULL), m_type(JDT_ARRAY)
+: m_parent(nullptr), m_type(JDT_ARRAY)
 {
     m_data.m_array = value;
     for (Element* jsonElement: *m_data.m_array)
@@ -77,7 +77,7 @@ Element::Element(ArrayData* value)
 }
 
 Element::Element(ObjectData* value)
-: m_parent(NULL), m_type(JDT_OBJECT)
+: m_parent(nullptr), m_type(JDT_OBJECT)
 {
     m_data.m_object = value;
     for (auto itor: *m_data.m_object)
@@ -89,7 +89,7 @@ Element::Element(ArrayData& value) {}
 Element::Element(ObjectData& value) {}
 
 Element::Element()
-: m_parent(NULL), m_type(JDT_NULL)
+: m_parent(nullptr), m_type(JDT_NULL)
 {
     m_data.m_boolean = false;
 }
@@ -138,7 +138,7 @@ Element& Element::operator = (const Element& other)
     return *this;
 }
 
-Element& Element::operator = (Element&& other)
+Element& Element::operator = (Element&& other) noexcept
 {
     moveElement(move(other));
     return *this;
@@ -152,13 +152,11 @@ void Element::clear()
             break;
 
         case JDT_ARRAY:
-            if (m_data.m_array)
-                delete m_data.m_array;
+            delete m_data.m_array;
             break;
 
         case JDT_OBJECT:
-            if (m_data.m_object)
-                delete m_data.m_object;
+            delete m_data.m_object;
             break;
 
         default:
@@ -203,7 +201,7 @@ void Element::add(const std::string& name, Element* element)
     }
 
     m_data.m_object->move(name);
-    Element* array = new Element(new ArrayData());
+    auto array = new Element(new ArrayData());
     array->add(sameNameExistingElement);
     array->add(element);
     add(name, array);
@@ -214,7 +212,7 @@ const Element* Element::find(const string& name) const
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is nether JSON array nor JSON object");
     if (!m_data.m_object)
-        return NULL;
+        return nullptr;
     return m_data.m_object->find(name);
 }
 
@@ -223,7 +221,7 @@ Element* Element::find(const string& name)
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is nether JSON array nor JSON object");
     if (!m_data.m_object)
-        return NULL;
+        return nullptr;
     return m_data.m_object->find(name);
 }
 
@@ -412,7 +410,7 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
 
 void Element::exportValueTo(const string& name, XMLElement& parentNode) const
 {
-    XMLElement* node = new XMLElement(parentNode, name);
+    auto node = new XMLElement(parentNode, name);
     switch (m_type) {
         case JDT_NUMBER: {
             stringstream stream;
@@ -540,7 +538,7 @@ string Element::decode(const string& text)
     size_t position = 0;
 
     while (position < length) {
-        size_t pos = text.find_first_of("\\", position);
+        size_t pos = text.find_first_of('\\', position);
         if (pos == string::npos) {
             if (position == 0)
                 return text;
@@ -563,7 +561,7 @@ string Element::decode(const string& text)
             {
                 pos++;
                 string ucharCodeStr = text.substr(pos, 4);
-                unsigned ucharCode = strtol(ucharCodeStr.c_str(), NULL, 16);
+                unsigned ucharCode = strtol(ucharCodeStr.c_str(), nullptr, 16);
                 pos += 3;
                 result += codePointToUTF8(ucharCode);
                 break;
@@ -579,7 +577,7 @@ string Element::decode(const string& text)
 
 void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly)
 {
-    string xpathElement(xpath[xpathPosition]);
+    String xpathElement(xpath[xpathPosition]);
     bool matchAnyElement = xpathElement == "*";
     bool lastPosition = xpath.size() == xpathPosition + 1;
 

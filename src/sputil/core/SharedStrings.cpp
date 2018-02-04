@@ -40,7 +40,7 @@ SharedStrings::SharedStrings()
 const std::string* SharedStrings::findString(const char *str) const
 {
     string s(str);
-    Set::iterator itor = m_strings.find(s);
+    auto itor = m_strings.find(s);
     if (itor == m_strings.end()) 
         return nullptr;
     return &(*itor);
@@ -49,7 +49,7 @@ const std::string* SharedStrings::findString(const char *str) const
 const string& SharedStrings::shareString(const char* str)
 {
     string s(str);
-    Set::iterator itor = m_strings.find(s);
+    auto itor = m_strings.find(s);
     if (itor == m_strings.end()) {
         pair<Set::iterator, bool> insertResult = m_strings.insert(s);
         itor = insertResult.first;

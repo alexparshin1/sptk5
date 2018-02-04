@@ -39,11 +39,6 @@ LogEngine::LogEngine()
     m_options = LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY;
 }
 
-LogEngine::~LogEngine()
-{
-}
-
-
 void LogEngine::option(Option option, bool flag)
 {
     SYNCHRONIZED_CODE;
