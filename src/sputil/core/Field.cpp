@@ -68,7 +68,7 @@ void Field::setNull(VariantType vtype)
 String Field::asString() const
 {
     char print_buffer[32];
-    int len;
+    size_t len;
 
     if ((m_dataType & VAR_NULL) == VAR_NULL) return "";
 

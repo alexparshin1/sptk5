@@ -1,3 +1,4 @@
+
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
@@ -73,7 +74,7 @@ public:
 
     /**
      * @brief Copy constructor
-     * @param str const idstring&, source string
+     * @param str				Source string
      */
     String(const String &str) : std_string(str), m_id(str.m_id)
     {
@@ -81,7 +82,7 @@ public:
 
     /**
      * @brief Move constructor
-     * @param src const Strings&, other object
+     * @param src				Other object
      */
     String(String&& src)
     : std_string(std::move(src)), m_id(src.m_id)
@@ -90,7 +91,7 @@ public:
 
     /**
      * @brief Move constructor
-     * @param src const Strings&, other object
+     * @param src				Other object
      */
     String(std::string&& src)
     : std_string(std::move(src)), m_id(0)
@@ -99,8 +100,8 @@ public:
 
     /**
      * @brief Constructor
-     * @param str const string&, source string
-     * @param id in, optional string id
+     * @param str				Source string
+     * @param id				Optional string id
      */
     String(const std::string &str, int32_t id = 0) : std_string(str), m_id(id)
     {
@@ -108,17 +109,17 @@ public:
 
     /**
      * Constructor
-     * @param str const char *, source string
-     * @param len int, optional string length
-     * @param id int, optional string id
+     * @param str				Source string
+     * @param len				Optional string length
+     * @param id				Optional string id
      */
-    String(const char *str, int32_t len, int32_t id=0) : std_string(str, len), m_id(id)
+    String(const char *str, size_t len, int32_t id=0) : std_string(str, len), m_id(id)
     {
     }
 
     /**
      * Constructor
-     * @param str const char *, source string
+     * @param str				Source string
      */
     String(const char *str) : std_string(str), m_id(0)
     {
@@ -126,7 +127,8 @@ public:
 
     /**
      * Assignment operator
-     */
+	 * @param si 				Source string
+	 */
     String &operator=(const std::string& si)
     {
         assign(si);
@@ -136,7 +138,8 @@ public:
 
     /**
      * Assignment operator
-     */
+	 * @param si 				Source string
+	 */
     String &operator=(const String& si)
     {
         assign(si);
@@ -146,7 +149,7 @@ public:
 
     /**
      * Assignment operator
-     * @param str const char *, source string
+     * @param str				Source string
      */
     String &operator=(const char *str)
     {

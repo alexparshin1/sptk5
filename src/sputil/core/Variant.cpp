@@ -1011,7 +1011,7 @@ String Variant::asString() const
         return "";
 
     char print_buffer[64];
-    int len;
+    size_t len;
 
     switch (dataType()) {
         default:
