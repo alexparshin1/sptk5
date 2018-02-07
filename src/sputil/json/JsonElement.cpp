@@ -30,7 +30,6 @@
 #include <sptk5/json/JsonArrayData.h>
 #include <sstream>
 #include <cstring>
-#include <sptk5/xml/XMLElement.h>
 
 using namespace std;
 using namespace sptk;

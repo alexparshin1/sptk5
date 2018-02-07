@@ -84,7 +84,7 @@ public:
 
     /**
      * Constructor
-     * @param parent Element*, Parent JSON element
+     * @param parent            Parent JSON element
      */
     ObjectData(Element *parent = NULL);
 
@@ -95,49 +95,49 @@ public:
 
     /**
      * Add child JSON element
-     * @param name std::string, Child element name
-     * @param element Element*, Child element
+     * @param name              Child element name
+     * @param element           Child element
      */
     void add(const std::string& name, Element *element);
 
     /**
      * Reference child element by name. If child element is not found,
      * a new Element is created.
-     * @param name std::string, Child element name
+     * @param name              Child element name
      * @returns Child element reference
      */
     Element& operator[](const std::string& name);
 
     /**
      * Find child element by name
-     * @param name std::string, Child element name
+     * @param name              Child element name
      * @returns Child element pointer, or NULL if not found
      */
     Element *find(const std::string& name);
 
     /**
      * Const reference child element by name
-     * @param name std::string, Child element name
+     * @param name              Child element name
      * @returns Const child element reference, or throws exception if not found
      */
     const Element& operator[](const std::string& name) const;
 
     /**
      * Find child element by name
-     * @param name std::string, Child element name
+     * @param name              Child element name
      * @returns Child element const pointer, or NULL if not found
      */
     const Element* find(const std::string& name) const;
 
     /**
      * Remove child element by name (and release its memory)
-     * @param name std::string, Child element name
+     * @param name              Child element name
      */
     void remove(const std::string& name);
 
     /**
      * Remove child element by name from object, without destroying it
-     * @param name std::string, Child element name
+     * @param name              Child element name
      * @return Element pointer
      */
     Element* move(const std::string& name);

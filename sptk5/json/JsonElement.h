@@ -102,7 +102,7 @@ protected:
 
     /**
      * Assign from another element
-     * @param other const Element&, Element to assign from
+     * @param other             Element to assign from
      */
     void assign(const Element& other);
 
@@ -114,16 +114,16 @@ protected:
 
     /**
      * Export JSON element to text format
-     * @param stream std::ostream&, Output stream
-     * @param formatted bool, If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
-     * @param indent int, Formatting indent
+     * @param stream            Output stream
+     * @param formatted         If true then output JSON text is indented. Otherwise, it is using minimal formatting (elements separated with single space).
+     * @param indent            Formatting indent
      */
     void exportValueTo(std::ostream& stream, bool formatted, size_t indent) const;
 
     /**
      * Export JSON element to XML element
-     * @param name const std::string, JSON element name
-     * @param element XMLElement*, XML element to export to
+     * @param name              JSON element name
+     * @param element           XML element to export to
      */
     void exportValueTo(const std::string& name, XMLElement& element) const;
 
@@ -135,24 +135,24 @@ protected:
 public:
     /**
      * Escape special characters
-     * @param text const std::string&, text with special characters
+     * @param text              Text with special characters
      * @returns escaped text
      */
     static std::string escape(const std::string& text);
 
     /**
      * Decode escaped text
-     * @param text const std::string&, escaped text
+     * @param text              Escaped text
      * @returns decoded text
      */
     static std::string decode(const std::string& text);
 
     /**
      * Find all child elements matching particular xpath element
-     * @param elements ElementVector&, Elements matching xpath (output)
-     * @param xpath const Strings&, Xpath elements
-     * @param xpathPosition size_t, Position in xpath currently being checked
-     * @param rootOnly bool, Flag indicating that only root level elements are checked
+     * @param elements          Elements matching xpath (output)
+     * @param xpath             Xpath elements
+     * @param xpathPosition     Position in xpath currently being checked
+     * @param rootOnly          Flag indicating that only root level elements are checked
      */
     void selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly);
 
@@ -160,13 +160,13 @@ private:
 
     /**
      * Blocked constructor
-     * @param value const ArrayData&, Array of JSON Elements
+     * @param value             Array of JSON Elements
      */
     Element(ArrayData& value);
 
     /**
      * Blocked constructor
-     * @param value const ObjectData&, Map of JSON Elements
+     * @param value             Map of JSON Elements
      */
     Element(ObjectData& value);
 
@@ -174,31 +174,31 @@ public:
 
     /**
      * Constructor
-     * @param value double, Floating point value
+     * @param value             Floating point value
      */
     Element(double value);
 
     /**
      * Constructor
-     * @param value int, Integer value
+     * @param value             Integer value
      */
     Element(int value);
 
     /**
      * Constructor
-     * @param value const std::string&, String value
+     * @param value             String value
      */
     Element(const std::string& value);
 
     /**
      * Constructor
-     * @param value const char*, String value
+     * @param value             String value
      */
     Element(const char* value);
 
     /**
      * Constructor
-     * @param value bool, Boolean value
+     * @param value             Boolean value
      */
     Element(bool value);
 
@@ -206,7 +206,7 @@ public:
      * Constructor
      * Element takes ownership of value.
      * Elements in value are set their parent pointer to this element.
-     * @param value const ArrayData*, Array of JSON Elements
+     * @param value             Array of JSON Elements
      */
     Element(ArrayData* value);
 
@@ -214,7 +214,7 @@ public:
      * Constructor
      * Element takes ownership of value.
      * Elements in value are set their parent pointer to this element.
-     * @param value const ObjectData*, Map of names to JSON elements
+     * @param value             Map of names to JSON elements
      */
     Element(ObjectData* value);
 
@@ -226,13 +226,13 @@ public:
 
     /**
      * Copy constructor
-     * @param other const Element&, Element to assign from
+     * @param other             Element to assign from
      */
     Element(const Element& other);
 
     /**
      * Move constructor
-     * @param other Element&&, Element to assign from
+     * @param other             Element to assign from
      */
     Element(Element&& other) noexcept;
 
@@ -243,13 +243,13 @@ public:
 
     /**
      * Assignment operator
-     * @param other const Element&, Element to assign from
+     * @param other             Element to assign from
      */
     Element& operator = (const Element& other);
 
     /**
      * Assignment operator
-     * @param other Element&&, Element to assign from
+     * @param other             Element to assign from
      */
     Element& operator = (Element&& other) noexcept;
 
@@ -257,7 +257,7 @@ public:
      * Add JSON element to JSON array element.
      *
      * Element takes ownership of added element.
-     * @param element Element*, Element to add
+     * @param element           Element to add
      */
     void add(Element* element);
 
@@ -265,71 +265,71 @@ public:
      * Add JSON element to JSON object element.
      *
      * Element takes ownership of added element.
-     * @param name const std::string&, Name of the element in the object element
-     * @param element Element*, Element to add
+     * @param name              Name of the element in the object element
+     * @param element           Element to add
      */
     void add(const std::string& name, Element* element);
 
     /**
      * Add integer field to JSON element
-     * @param name const std::string&, Field name
-     * @param value int, Field value
+     * @param name              Field name
+     * @param value             Field value
      */
     void add(const std::string& name, int value) { add(name, new Element(value)); }
 
     /**
      * Add double field to JSON element
-     * @param name const std::string&, Field name
-     * @param value double, Field value
+     * @param name              Field name
+     * @param value             Field value
      */
     void add(const std::string& name, double value) { add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
-     * @param name const std::string&, Field name
-     * @param value const std::string&, Field value
+     * @param name              Field name
+     * @param value             Field value
      */
     void add(const std::string& name, const std::string& value) { add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
-     * @param name const std::string&, Field name
-     * @param value const char*, Field value
+     * @param name              Field name
+     * @param value             Field value
      */
     void add(const std::string& name, const char* value) { add(name, new Element(value)); }
 
     /**
      * Add boolean field to JSON element
-     * @param name const std::string&, Field name
-     * @param value boolean, Field value
+     * @param name              Field name
+     * @param value             Field value
      */
     void add(const std::string& name, bool value) { add(name, new Element(value)); }
 
     /**
      * Add JSON array field to JSON element
-     * @param name const std::string&, Field name
-     * @param value ArrayData*, Field value
+     * @param name              Field name
+     * @param value             Field value
      */
     void add(const std::string& name, ArrayData* value) { add(name, new Element(value)); }
 
     /**
      * Add JSON object field to JSON element
-     * @param name const std::string&, Field name
-     * @param value ObjectData*, Field value
+     * @param name              Field name
+     * @param value             Field value
      *
      */
     void add(const std::string& name, ObjectData* value) { add(name, new Element(value)); }
 
     /**
      * Find JSON element in JSON object element
-     * @param name const std::string&, Name of the element in the object element
+     * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     const Element* find(const std::string& name) const;
 
     /**
      * Find JSON element in JSON object element
-     * @param name const std::string&, Name of the element in the object element
+     * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     Element* find(const std::string& name);
@@ -338,7 +338,7 @@ public:
      * Get JSON element in JSON object element by name.
      * If element doesn't exist in JSON object yet, it's created as JSON null element.
      * If this element is not JSON object, an exception is thrown.
-     * @param name const std::string&, Name of the element in the object element
+     * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     Element& operator[](const std::string& name);
@@ -347,7 +347,7 @@ public:
      * Get JSON element in JSON object element by name.
      * If element doesn't exist in JSON object yet, then reference to static const JSON null element is returned.
      * If this element is not JSON object, an exception is thrown.
-     * @param name const std::string&, Name of the element in the object element
+     * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
     const Element& operator[](const std::string& name) const;
@@ -355,7 +355,7 @@ public:
     /**
      * Get JSON element in JSON array element by index.
      * If this element is not JSON array, or an element doesn't exist in JSON array yet, an exception is thrown.
-     * @param index uint32_t, Index of the element in the array element
+     * @param index             Index of the element in the array element
      * @returns Element for the name, or NULL if not found
      */
     Element& operator[](size_t index);
@@ -363,14 +363,14 @@ public:
     /**
      * Get JSON element in JSON array element by index.
      * If this element is not JSON array, or an element doesn't exist in JSON array yet, an exception is thrown.
-     * @param index uint32_t, Index of the element in the array element
+     * @param index             Index of the element in the array element
      * @returns Element for the name, or NULL if not found
      */
     const Element& operator[](size_t index) const;
 
     /**
      * Remove JSON element by name from this JSON object element
-     * @param name const std::string&, Name of the element in the object element
+     * @param name              Name of the element in the object element
      */
     void remove(const std::string& name);
 
@@ -435,15 +435,15 @@ public:
 
     /**
      * Export JSON element (and all children) to stream
-     * @param stream std::ostream&, Stream to export JSON
-     * @param formatted bool, If true then JSON text is nicely formatted, but takes more space
+     * @param stream            Stream to export JSON
+     * @param formatted         If true then JSON text is nicely formatted, but takes more space
      */
     void exportTo(std::ostream& stream, bool formatted=true) const;
 
     /**
      * Export JSON element (and all children) to XML element
-     * @param name const std::string, Parent element name
-     * @param parentNode XMLElement&, XML element to export JSON
+     * @param name              Parent element name
+     * @param parentNode        XML element to export JSON
      */
     void exportTo(const std::string& name, XMLElement& parentNode) const;
 
@@ -454,8 +454,8 @@ public:
      * are working fine with the exceptions:
      * - no functions are supported yet
      * - no attributes supported, because it isn't XML
-     * @param elements ElementPaths&, the resulting list of elements
-     * @param xpath std::string, the xpath for elements
+     * @param elements          The resulting list of elements
+     * @param xpath             The xpath for elements
      */
     void select(ElementSet& elements, std::string xpath);
 
@@ -504,8 +504,8 @@ public:
     /**
      * Optimize arrays
      * Walks through the JSON document, and convert objects that contain
-     * only single array field, to arrays - by removing unnenecessary name.
-     * @param name const std::string&, Optional field name, use any name if empty string
+     * only single array field, to arrays - by removing unnecessary name.
+     * @param name              Optional field name, use any name if empty string
      */
     void optimizeArrays(const std::string& name="item");
 };
