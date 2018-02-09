@@ -53,8 +53,17 @@ public:
     /**
      * @brief Data encoding.
      * Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
-     * @param bufDest CBuffer Destination buffer
-     * @param bufSource CBuffer Source buffer
+     * @param bufDest           Destination buffer
+     * @param bufSource         Source buffer
+     * @param len               Size of source buffer
+     */
+    static void encode(Buffer& bufDest, const char* bufSource, size_t len);
+
+    /**
+     * @brief Data encoding.
+     * Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
+     * @param bufDest           Destination buffer
+     * @param bufSource         Source buffer
      */
     static void encode(Buffer& bufDest, const Buffer& bufSource);
 

@@ -42,10 +42,9 @@ static char B64Chars[64] = {
 //#define base64val(c) Index_64[(uint32_t)(c)]
 #define base64chars(c) B64Chars[(uint32_t)((c) & 0x3F)]
 
-void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
+void Base64::encode(Buffer& bufDest, const char* bufSource, size_t len)
 {
-    char* current = bufSource.data();
-    auto len = (uint32_t) bufSource.bytes();
+    const char* current = bufSource;
     uint32_t outputLen = len / 3 * 4;
     if ((len % 3) != 0)
         outputLen += 4;
@@ -92,6 +91,11 @@ void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
     }
     *output = 0;
     bufDest.bytes(outputLen);
+}
+
+void Base64::encode(Buffer& bufDest, const Buffer& bufSource)
+{
+    encode(bufDest, bufSource.data(), bufSource.bytes());
 }
 
 void Base64::encode(string& strDest, const Buffer& bufSource)

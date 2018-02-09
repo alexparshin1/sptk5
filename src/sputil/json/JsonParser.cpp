@@ -70,7 +70,11 @@ void Parser::parse(Element& jsonElement, const string& json)
             readArrayData(&jsonElement, json, pos);
             break;
         default:
-            error("Unexpected character in position", pos);
+            {
+                stringstream msg;
+                msg << "Unexpected character " << json[pos] << " in position";
+                error(msg.str(), pos);
+            }
             break;
     }
 }

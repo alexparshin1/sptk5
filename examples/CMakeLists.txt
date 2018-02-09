@@ -8,6 +8,7 @@ ELSE (NO_EXAMPLES)
 
     ADD_SUBDIRECTORY (json)
     ADD_SUBDIRECTORY (xml)
+    ADD_SUBDIRECTORY (jwt)
     ADD_SUBDIRECTORY (database)
     ADD_SUBDIRECTORY (threads)
     ADD_SUBDIRECTORY (utils)

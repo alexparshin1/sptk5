@@ -13,7 +13,8 @@
 #ifndef JWT_H
 #define JWT_H
 
-#include <stdio.h>
+#include <cstdio>
+#include <fstream>
 
 namespace sptk {
 
@@ -114,7 +115,7 @@ JWT_EXPORT int jwt_new(jwt_t **jwt);
  *     signature, however, standard validation of the token is still
  *     performed.
  */
-JWT_EXPORT int jwt_decode(jwt_t **jwt, const char *token,
+JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token,
 	                 const unsigned char *key, int key_len);
 
 /**
@@ -164,7 +165,7 @@ JWT_EXPORT jwt_t *jwt_dup(jwt_t *jwt);
  * values (e.g. arrays) or use jwt_get_grant_int() to get simple integer
  * values.
  */
-JWT_EXPORT const char *jwt_get_grant(jwt_t *jwt, const char *grant);
+JWT_EXPORT std::string jwt_get_grant(jwt_t *jwt, const char *grant);
 
 /**
  * Return the value of an integer grant.
@@ -366,7 +367,7 @@ JWT_EXPORT char *jwt_dump_str(jwt_t *jwt, int pretty);
  * @param fp Valid FILE pointer to write data to.
  * @return Returns 0 on success, valid errno otherwise.
  */
-JWT_EXPORT int jwt_encode_fp(jwt_t *jwt, FILE *fp);
+JWT_EXPORT int jwt_encode_fp(jwt_t *jwt, std::ofstream& fp);
 
 /**
  * Fully encode a JWT object and return as a string.
@@ -378,7 +379,7 @@ JWT_EXPORT int jwt_encode_fp(jwt_t *jwt, FILE *fp);
  * @return A nul terminated string on success, NULL on error with errno
  *     set appropriately.
  */
-JWT_EXPORT char *jwt_encode_str(jwt_t *jwt);
+JWT_EXPORT std::string jwt_encode_str(jwt_t *jwt);
 
 /** @} */
 

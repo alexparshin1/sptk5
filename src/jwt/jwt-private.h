@@ -21,7 +21,7 @@ struct jwt
 };
 
 /* Helper routines. */
-void jwt_base64uri_encode(char* str);
+void jwt_base64uri_encode(Buffer& buffer);
 
 void* jwt_b64_decode(const char* src, int* ret_len);
 
