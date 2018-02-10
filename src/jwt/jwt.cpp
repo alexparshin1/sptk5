@@ -15,7 +15,6 @@
 
 #include "jwt-private.h"
 #include "base64.h"
-#include "config.h"
 
 using namespace std;
 using namespace sptk;
@@ -82,81 +81,6 @@ static void jwt_scrub_key(jwt_t *jwt)
 {
     jwt->key = "";
     jwt->alg = JWT_ALG_NONE;
-}
-
-int sptk::jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const String &key)
-{
-    /* No matter what happens here, we do this. */
-    jwt_scrub_key(jwt);
-
-    if (alg < JWT_ALG_NONE || alg >= JWT_ALG_INVAL)
-        return EINVAL;
-
-    switch (alg) {
-        case JWT_ALG_NONE:
-            if (!key.empty())
-                return EINVAL;
-            break;
-
-        default:
-            if (key.empty())
-                return EINVAL;
-    }
-
-    jwt->key = key;
-    jwt->alg = alg;
-
-    return 0;
-}
-
-jwt_alg_t sptk::jwt_get_alg(jwt_t *jwt)
-{
-    return jwt->alg;
-}
-
-int sptk::jwt_new(jwt_t **jwt)
-{
-    if (!jwt)
-        return EINVAL;
-
-    *jwt = new jwt_t;
-
-    return 0;
-}
-
-void sptk::jwt_free(jwt_t *jwt)
-{
-    if (!jwt)
-        return;
-
-    jwt_scrub_key(jwt);
-
-    free(jwt);
-}
-
-jwt_t* sptk::jwt_dup(jwt_t *jwt)
-{
-    jwt_t *newJWT = nullptr;
-
-    if (!jwt) {
-        errno = EINVAL;
-        return nullptr;
-    }
-
-    errno = 0;
-
-    newJWT = new jwt_t;
-
-    if (!jwt->key.empty()) {
-        newJWT->alg = jwt->alg;
-        newJWT->key = jwt->key;
-    }
-
-    Buffer tempBuffer;
-    jwt->grants.exportTo(tempBuffer, false);
-    newJWT->grants.load(tempBuffer.c_str());
-
-    return newJWT;
 }
 
 static string get_js_string(json::Element *js, const char *key)
@@ -386,7 +310,7 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
     *jwt = nullptr;
 
     // Now that we have everything split up, let's check out the header.
-    jwt_new(&newData);
+    newData = new jwt_t;
 
     // Copy the key over for verify_head.
     if (!key.empty())
@@ -441,7 +365,7 @@ int sptk::jwt_get_grant_bool(jwt_t *jwt, const char *grant)
     return get_js_bool(&jwt->grants.root(), grant);
 }
 
-string jwt_get_grants_json(jwt_t *jwt, const char *grant)
+String jwt_get_grants_json(jwt_t *jwt, const char *grant)
 {
     json::Element *js_val = nullptr;
 
@@ -597,20 +521,6 @@ static void jwt_dump(jwt_t *jwt, ostream& output, int pretty)
     jwt_write_body(jwt, output, pretty);
 }
 
-void jwt_dump_fp(jwt_t *jwt, ofstream& f, int pretty)
-{
-    jwt_dump(jwt, f, pretty);
-}
-
-string jwt_dump_str(jwt_t *jwt, int pretty)
-{
-    stringstream out;
-
-    jwt_dump(jwt, out, pretty);
-
-    return out.str();
-}
-
 static int jwt_encode(jwt_t *jwt, ostream& out)
 {
     int ret;
@@ -658,18 +568,4 @@ static int jwt_encode(jwt_t *jwt, ostream& out)
     output.append(signature);
 
     return ret;
-}
-
-int sptk::jwt_encode_fp(jwt_t *jwt, ofstream& fp)
-{
-    jwt_encode(jwt, fp);
-    return 0;
-}
-
-string sptk::jwt_encode_str(jwt_t *jwt)
-{
-    stringstream str;
-    jwt_encode(jwt, str);
-
-    return str.str();
 }

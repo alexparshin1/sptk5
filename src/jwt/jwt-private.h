@@ -21,6 +21,75 @@ struct jwt
     jwt() : alg(JWT_ALG_NONE), grants(true)
     {
     }
+
+    jwt_t* clone()
+    {
+        auto newJWT = new jwt_t;
+
+        if (!key.empty()) {
+            newJWT->alg = alg;
+            newJWT->key = key;
+        }
+
+        Buffer tempBuffer;
+        grants.exportTo(tempBuffer, false);
+        newJWT->grants.load(tempBuffer.c_str());
+
+        return newJWT;
+    }
+
+    void add_grant(const String& grant, const String& val)
+    {
+        if (grant.empty())
+            throw Exception("Invalid grant name");
+
+        if (!get_js_string(&grants.root(), grant).empty())
+            throw Exception("Grant already exists");
+
+        grants.root().add(grant, val);
+    }
+
+    jwt_alg_t get_alg() const
+    {
+        return alg;
+    }
+
+    void set_alg(jwt_alg_t alg, const String &key)
+    {
+        switch (alg) {
+            case JWT_ALG_NONE:
+                if (!key.empty())
+                    throw Exception("Key is not expected here");
+                break;
+
+            default:
+                if (key.empty())
+                    throw Exception("Empty key is not expected here");
+        }
+
+        this->key = key;
+        this->alg = alg;
+    }
+
+private:
+
+    void jwt_scrub_key()
+    {
+        key = "";
+        alg = JWT_ALG_NONE;
+    }
+
+    static String get_js_string(json::Element *js, const String& key)
+    {
+        json::Element *element = js;
+        if (js->isObject())
+            element = js->find(key);
+
+        if (element != nullptr && element->isString())
+            return element->getString();
+
+        return String();
+    }
 };
 
 /* Helper routines. */

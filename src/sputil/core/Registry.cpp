@@ -130,7 +130,7 @@ void Registry::prepareDirectory()
 void Registry::load(const Strings& inputData)
 {
     clear();
-    Buffer buffer = inputData.asString("\n");
+    Buffer buffer(inputData.asString("\n"));
     XMLDocument::load(buffer);
 }
 

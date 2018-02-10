@@ -1,10 +1,8 @@
 /* Public domain, no copyright. Use at your own risk. */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
@@ -15,40 +13,23 @@
 using namespace std;
 using namespace sptk;
 
-void test_jwt_new()
-{
-	jwt_t *newJWT = NULL;
-	jwt_new(&newJWT);
-    if (newJWT == NULL) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Can't create JWT object");
-    }
-	jwt_free(newJWT);
-}
-
 void test_jwt_dup()
 {
-	jwt_t *jwt = NULL, *newJWT = NULL;
+	jwt_t *newJWT = nullptr;
 	int ret = 0;
 	time_t now;
 	long valint;
 
-	ret = jwt_new(&jwt);
-    if (jwt == NULL) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Can't create JWT object");
-    }
+	auto jwt = new jwt_t;
 
-	ret = jwt_add_grant(jwt, "iss", "test");
-    if (ret != 0) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Can't add grant");
-    }
-
+	jwt->add_grant("iss", "test");
     string val = jwt_get_grant(jwt, "iss");
     if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
 
-	newJWT = jwt_dup(jwt);
-    if (newJWT == NULL) {
+	newJWT = jwt->clone();
+    if (newJWT == nullptr) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't duplicate JWT object");
     }
 
@@ -61,11 +42,11 @@ void test_jwt_dup()
         throw Exception(string(__PRETTY_FUNCTION__) + " Got incorrect grant");
     }
 
-	if (jwt_get_alg(newJWT) != JWT_ALG_NONE) {
+	if (jwt->get_alg() != JWT_ALG_NONE) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Got incorrect alogorithm");
     }
 
-	now = time(NULL);
+	now = time(nullptr);
 	ret = jwt_add_grant_int(jwt, "iat", (long)now);
     if (ret != 0) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_add_grant_int()");
@@ -76,48 +57,35 @@ void test_jwt_dup()
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
 
-	jwt_free(newJWT);
-	jwt_free(jwt);
+	delete newJWT;
+	delete jwt;
 }
 
 
 void test_jwt_dup_signed()
 {
 	String key256("012345678901234567890123456789XY");
-	jwt_t *jwt = NULL, *newJWT = NULL;
-	int ret = 0;
+	jwt_t *jwt = nullptr, *newJWT = nullptr;
 
-	ret = jwt_new(&jwt);
-    if (jwt == NULL) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Can't create JWT object");
-    }
+	jwt = new jwt_t;
 
-	ret = jwt_add_grant(jwt, "iss", "test");
-    if (ret != 0) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_add_grant_int()");
-    }
+	jwt->add_grant("iss", "test");
 
-	ret = jwt_set_alg(jwt, JWT_ALG_HS256, key256);
-    if (ret != 0) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_set_alg()");
-    }
+	jwt->set_alg(JWT_ALG_HS256, key256);
 
-	newJWT = jwt_dup(jwt);
-    if (newJWT == NULL) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Can't create JWT object");
-    }
+	newJWT = jwt->clone();
 
 	string val = jwt_get_grant(newJWT, "iss");
     if (val != "test") {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
 
-    if (jwt_get_alg(newJWT) != JWT_ALG_HS256) {
+    if (jwt->get_alg() != JWT_ALG_HS256) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_alg()");
     }
 
-	jwt_free(newJWT);
-	jwt_free(jwt);
+	delete newJWT;
+    delete jwt;
 }
 
 
@@ -136,12 +104,12 @@ void test_jwt_decode()
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
 
-	alg = jwt_get_alg(jwt);
+	alg = jwt->get_alg();
 	if (alg != JWT_ALG_NONE) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_alg()");
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -159,7 +127,7 @@ void test_jwt_decode_invalid_final_dot()
     catch (...) {
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -177,7 +145,7 @@ void test_jwt_decode_invalid_alg()
     catch (...) {
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -195,7 +163,7 @@ void test_jwt_decode_invalid_typ()
     catch (...) {
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -213,7 +181,7 @@ void test_jwt_decode_invalid_head()
     catch (...) {
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -231,7 +199,7 @@ void test_jwt_decode_alg_none_with_key()
     catch (...) {
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -249,7 +217,7 @@ void test_jwt_decode_invalid_body()
     catch (...) {
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -268,7 +236,7 @@ void test_jwt_decode_hs256()
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -292,7 +260,7 @@ void test_jwt_decode_hs384()
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -315,7 +283,7 @@ void test_jwt_decode_hs512()
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
 
-	jwt_free(jwt);
+	delete jwt;
 }
 
 
@@ -337,7 +305,6 @@ int main(int argc, char *argv[])
     }
 */
     try {
-        test_jwt_new();
         test_jwt_dup();
         test_jwt_dup_signed();
         test_jwt_decode();

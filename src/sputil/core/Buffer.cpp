@@ -94,6 +94,24 @@ Buffer::Buffer(const string& str)
     }
 }
 
+Buffer::Buffer(const String& str)
+{
+    size_t sz = (size_t) str.length() + 1;
+    m_buffer = (char*)malloc(sz);
+
+    if (m_buffer != nullptr) {
+        if (sz > 1)
+            memcpy(m_buffer, str.c_str(), sz);
+        else m_buffer[0] = 0;
+
+        m_size = sz;
+        m_bytes = sz - 1;
+    } else {
+        m_size = 0;
+        m_bytes = 0;
+    }
+}
+
 Buffer::Buffer(const Buffer& buffer)
 {
     size_t sz = buffer.bytes() + 1;

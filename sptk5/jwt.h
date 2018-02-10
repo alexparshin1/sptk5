@@ -82,18 +82,6 @@ typedef enum jwt_alg {
  */
 
 /**
- * Allocate a new, empty, JWT object.
- *
- * This is used to create a new object for a JWT. After you have finished
- * with the object, use jwt_free() to clean up the memory used by it.
- *
- * @param jwt Pointer to a JWT object pointer. Will be allocated on
- *     success.
- * @return 0 on success, valid errno otherwise.
- */
-JWT_EXPORT int jwt_new(jwt_t **jwt);
-
-/**
  * Verify an existing JWT and allocate a new JWT object from it.
  *
  * Decodes a JWT string and verifies the signature (if one is supplied).
@@ -117,28 +105,6 @@ JWT_EXPORT int jwt_new(jwt_t **jwt);
  *     performed.
  */
 JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token, const String& key="");
-
-/**
- * Free a JWT object and any other resources it is using.
- *
- * After calling, the JWT object referenced will no longer be valid and
- * its memory will be freed.
- *
- * @param jwt Pointer to a JWT object previously created with jwt_new()
- *            or jwt_decode().
- */
-JWT_EXPORT void jwt_free(jwt_t *jwt);
-
-/**
- * Duplicate an existing JWT object.
- *
- * Copies all grants and algorithm specific bits to a new JWT object.
- *
- * @param jwt Pointer to a JWT object.
- * @return A new object on success, NULL on error with errno set
- *     appropriately.
- */
-JWT_EXPORT jwt_t *jwt_dup(jwt_t *jwt);
 
 /** @} */
 
@@ -216,7 +182,7 @@ JWT_EXPORT int jwt_get_grant_bool(jwt_t *jwt, const char *grant);
  * @return Returns a string for the value, or NULL when not found. The
  *     returned string must be freed by the caller.
  */
-JWT_EXPORT char *jwt_get_grants_json(jwt_t *jwt, const char *grant);
+JWT_EXPORT String jwt_get_grants_json(jwt_t *jwt, const char *grant);
 
 /**
  * Add a new string grant to this JWT object.
@@ -320,70 +286,6 @@ DEPRECATED(JWT_EXPORT int jwt_del_grant(jwt_t *jwt, const char *grant));
 /** @} */
 
 /**
- * @defgroup jwt_encode JWT Output Functions
- * Functions that enable seeing the plain text or fully encoded version of
- * a JWT object.
- * @{
- */
-
-/**
- * Output plain text representation to a FILE pointer.
- *
- * This function will write a plain text representation of this JWT object
- * without Base64 encoding. This only writes the header and body, and does
- * not compute the signature or encryption (if such an algorithm were being
- * used).
- *
- * @param jwt Pointer to a JWT object.
- * @param fp Valid FILE pointer to write data to.
- * @param pretty Enables better visual formatting of output. Generally only
- *     used for debugging.
- * @return Returns 0 on success, valid errno otherwise.
- */
-JWT_EXPORT int jwt_dump_fp(jwt_t *jwt, FILE *fp, int pretty);
-
-/**
- * Return plain text representation as a string.
- *
- * Similar to jwt_dump_fp() except that a string is returned. The string
- * must be freed by the caller.
- *
- * @param jwt Pointer to a JWT object.
- * @param pretty Enables better visual formatting of output. Generally only
- *     used for debugging.
- * @return A nul terminated string on success, NULL on error with errno
- *     set appropriately.
- */
-JWT_EXPORT char *jwt_dump_str(jwt_t *jwt, int pretty);
-
-/**
- * Fully encode a JWT object and write it to FILE.
- *
- * This will create and write the complete JWT object to FILE. All parts
- * will be Base64 encoded and signatures or encryption will be applied if
- * the algorithm specified requires it.
- *
- * @param jwt Pointer to a JWT object.
- * @param fp Valid FILE pointer to write data to.
- * @return Returns 0 on success, valid errno otherwise.
- */
-JWT_EXPORT int jwt_encode_fp(jwt_t *jwt, std::ofstream& fp);
-
-/**
- * Fully encode a JWT object and return as a string.
- *
- * Similar to jwt_encode_fp() except that a string is returned. The string
- * must be freed by the caller.
- *
- * @param jwt Pointer to a JWT object.
- * @return A nul terminated string on success, NULL on error with errno
- *     set appropriately.
- */
-JWT_EXPORT std::string jwt_encode_str(jwt_t *jwt);
-
-/** @} */
-
-/**
  * @defgroup jwt_alg JWT Algorithm Functions
  * Set and check algorithms and algorithm specific values.
  *
@@ -393,32 +295,6 @@ JWT_EXPORT std::string jwt_encode_str(jwt_t *jwt);
  * exists, is scrubbed).
  * @{
  */
-
-/**
- * Set an algorithm from jwt_alg_t for this JWT object.
- *
- * Specifies an algorithm for a JWT object. If JWT_ALG_NONE is used, then
- * key must be NULL and len must be 0. All other algorithms must have a
- * valid pointer to key data, which may be specific to the algorithm (e.g
- * RS256 expects a PEM formatted RSA key).
- *
- * @param jwt Pointer to a JWT object.
- * @param alg A valid jwt_alg_t specifier.
- * @param key The key data to use for the algorithm.
- * @param len The length of the key data.
- * @return Returns 0 on success, valid errno otherwise.
- */
-JWT_EXPORT int jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const String& key);
-
-/**
- * Get the jwt_alg_t set for this JWT object.
- *
- * Returns the jwt_alg_t type for this JWT object.
- *
- * @param jwt Pointer to a JWT object.
- * @returns Returns a jwt_alg_t type for this object.
- */
-JWT_EXPORT jwt_alg_t jwt_get_alg(jwt_t *jwt);
 
 /**
  * Convert alg type to it's string representation.
