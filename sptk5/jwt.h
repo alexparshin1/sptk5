@@ -17,53 +17,9 @@
 #include <cstdio>
 #include <fstream>
 #include <sptk5/Strings.h>
+#include <sptk5/JWT.h>
 
 namespace sptk {
-
-#ifdef _MSC_VER
-
-	#define DEPRECATED(func) __declspec(deprecated) func
-
-	#define alloca _alloca
-	#define strcasecmp _stricmp
-	#define strdup _strdup
-
-	#ifdef JWT_DLL_CONFIG
-		#ifdef JWT_BUILD_SHARED_LIBRARY
-			#define JWT_EXPORT __declspec(dllexport)
-		#else
-			#define JWT_EXPORT __declspec(dllimport)
-		#endif
-	#else
-		#define JWT_EXPORT
-	#endif
-
-#else
-
-	#define DEPRECATED(func) func __attribute__ ((deprecated))
-	#define JWT_EXPORT
-
-#endif
-
-/** Opaque JWT object. */
-typedef struct jwt jwt_t;
-
-/** JWT algorithm types. */
-typedef enum jwt_alg {
-	JWT_ALG_NONE = 0,
-	JWT_ALG_HS256,
-	JWT_ALG_HS384,
-	JWT_ALG_HS512,
-	JWT_ALG_RS256,
-	JWT_ALG_RS384,
-	JWT_ALG_RS512,
-	JWT_ALG_ES256,
-	JWT_ALG_ES384,
-	JWT_ALG_ES512,
-	JWT_ALG_TERM
-} jwt_alg_t;
-
-#define JWT_ALG_INVAL JWT_ALG_TERM
 
 /**
  * @defgroup jwt_new JWT Object Creation
@@ -104,7 +60,7 @@ typedef enum jwt_alg {
  *     signature, however, standard validation of the token is still
  *     performed.
  */
-JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token, const String& key="");
+void jwt_decode(JWT **jwt, const char *token, const String& key="");
 
 /** @} */
 
@@ -121,7 +77,7 @@ JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token, const String& key="")
  * @return Returns a string for the value, or NULL when not found. The
  *     returned string must be freed by the caller.
  */
-JWT_EXPORT String jwt_get_grants_json(jwt_t *jwt, const char *grant);
+String jwt_get_grants_json(JWT *jwt, const char *grant);
 
 /**
  * Add a new string grant to this JWT object.
@@ -141,7 +97,7 @@ JWT_EXPORT String jwt_get_grants_json(jwt_t *jwt, const char *grant);
  * integer grants, then use jwt_add_grant_int(). If you wish to add more
  * complex grants (e.g. an array), then use jwt_add_grants_json().
  */
-JWT_EXPORT int jwt_add_grant(jwt_t *jwt, const char *grant, const char *val);
+int jwt_add_grant(JWT *jwt, const char *grant, const char *val);
 
 /**
  * Add a new integer grant to this JWT object.
@@ -160,7 +116,7 @@ JWT_EXPORT int jwt_add_grant(jwt_t *jwt, const char *grant, const char *val);
  * string grants, then use jwt_add_grant(). If you wish to add more
  * complex grants (e.g. an array), then use jwt_add_grants_json().
  */
-JWT_EXPORT int jwt_add_grant_int(jwt_t *jwt, const char *grant, long val);
+int jwt_add_grant_int(JWT *jwt, const char *grant, long val);
 
 /**
  * Add a new boolean grant to this JWT object.
@@ -179,7 +135,7 @@ JWT_EXPORT int jwt_add_grant_int(jwt_t *jwt, const char *grant, long val);
  * string grants, then use jwt_add_grant(). If you wish to add more
  * complex grants (e.g. an array), then use jwt_add_grants_json().
  */
-JWT_EXPORT int jwt_add_grant_bool(jwt_t *jwt, const char *grant, int val);
+int jwt_add_grant_bool(JWT *jwt, const char *grant, int val);
 
 /**
  * Add grants from a JSON encoded object string.
@@ -193,7 +149,7 @@ JWT_EXPORT int jwt_add_grant_bool(jwt_t *jwt, const char *grant, int val);
  * @param json String containing a JSON encoded object of grants.
  * @return Returns 0 on success, valid errno otherwise.
  */
-JWT_EXPORT int jwt_add_grants_json(jwt_t *jwt, const char *json);
+int jwt_add_grants_json(JWT *jwt, const char *json);
 
 /** @} */
 

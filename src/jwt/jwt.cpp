@@ -13,31 +13,12 @@
 #include <sstream>
 #include <sptk5/Base64.h>
 
-#include "jwt-private.h"
+#include "sptk5/JWT.h"
 #include "base64.h"
 
 using namespace std;
 using namespace sptk;
 
-
-static void jwt_scrub_key(jwt_t *jwt)
-{
-    jwt->key = "";
-    jwt->alg = JWT_ALG_NONE;
-}
-
-static string get_js_string(json::Element *js, const char *key)
-{
-    json::Element *element = js;
-    if (js->isObject())
-        element = js->find(key);
-
-    if (element != nullptr && element->isString())
-        return element->getString();
-
-    errno = ENOENT;
-    return string();
-}
 
 void * sptk::jwt_b64_decode(const char *src, int *ret_len)
 {
@@ -112,24 +93,24 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
     str[t] = '\0';
 }
 
-static int jwt_sign(jwt_t *jwt, char **out, unsigned int *len, const char *str)
+static int jwt_sign(JWT *jwt, char **out, unsigned int *len, const char *str)
 {
     switch (jwt->alg) {
         /* HMAC */
-        case JWT_ALG_HS256:
-        case JWT_ALG_HS384:
-        case JWT_ALG_HS512:
+        case JWT::JWT_ALG_HS256:
+        case JWT::JWT_ALG_HS384:
+        case JWT::JWT_ALG_HS512:
             return jwt_sign_sha_hmac(jwt, out, len, str);
 
             /* RSA */
-        case JWT_ALG_RS256:
-        case JWT_ALG_RS384:
-        case JWT_ALG_RS512:
+        case JWT::JWT_ALG_RS256:
+        case JWT::JWT_ALG_RS384:
+        case JWT::JWT_ALG_RS512:
 
             /* ECC */
-        case JWT_ALG_ES256:
-        case JWT_ALG_ES384:
-        case JWT_ALG_ES512:
+        case JWT::JWT_ALG_ES256:
+        case JWT::JWT_ALG_ES384:
+        case JWT::JWT_ALG_ES512:
             return jwt_sign_sha_pem(jwt, out, len, str);
 
             /* You wut, mate? */
@@ -138,24 +119,24 @@ static int jwt_sign(jwt_t *jwt, char **out, unsigned int *len, const char *str)
     }
 }
 
-static int jwt_verify(jwt_t *jwt, const Buffer& head, const Buffer& sig)
+static int jwt_verify(JWT *jwt, const Buffer& head, const Buffer& sig)
 {
     switch (jwt->alg) {
         /* HMAC */
-        case JWT_ALG_HS256:
-        case JWT_ALG_HS384:
-        case JWT_ALG_HS512:
+        case JWT::JWT_ALG_HS256:
+        case JWT::JWT_ALG_HS384:
+        case JWT::JWT_ALG_HS512:
             return jwt_verify_sha_hmac(jwt, head.c_str(), sig.c_str());
 
             /* RSA */
-        case JWT_ALG_RS256:
-        case JWT_ALG_RS384:
-        case JWT_ALG_RS512:
+        case JWT::JWT_ALG_RS256:
+        case JWT::JWT_ALG_RS384:
+        case JWT::JWT_ALG_RS512:
 
             /* ECC */
-        case JWT_ALG_ES256:
-        case JWT_ALG_ES384:
-        case JWT_ALG_ES512:
+        case JWT::JWT_ALG_ES256:
+        case JWT::JWT_ALG_ES384:
+        case JWT::JWT_ALG_ES512:
             return jwt_verify_sha_pem(jwt, head.c_str(), sig.c_str());
 
             /* You wut, mate? */
@@ -164,31 +145,31 @@ static int jwt_verify(jwt_t *jwt, const Buffer& head, const Buffer& sig)
     }
 }
 
-static void jwt_parse_body(jwt_t *jwt, const Buffer& body)
+static void jwt_parse_body(JWT *jwt, const Buffer& body)
 {
     jwt_b64_decode_json(jwt->grants, body);
 }
 
-static void jwt_verify_head(jwt_t *jwt, const Buffer& head)
+static void jwt_verify_head(JWT *jwt, const Buffer& head)
 {
     json::Document jsdoc;
     jwt_b64_decode_json(jsdoc, head);
     json::Element* js = &jsdoc.root();
 
-    string val = get_js_string(js, "alg");
-    jwt->alg = jwt_t::str_alg(val.c_str());
-    if (jwt->alg == JWT_ALG_INVAL) {
+    string val = JWT::get_js_string(js, "alg");
+    jwt->alg = JWT::str_alg(val.c_str());
+    if (jwt->alg == JWT::JWT_ALG_INVAL) {
         throw Exception("Invalid algorithm");
     }
 
-    if (jwt->alg != JWT_ALG_NONE) {
+    if (jwt->alg != JWT::JWT_ALG_NONE) {
         /* If alg is not NONE, there may be a typ. */
-        val = get_js_string(js, "typ");
+        val = JWT::get_js_string(js, "typ");
         if (val != "JWT")
             throw Exception("Invalid algorithm name");
 
         if (jwt->key.empty())
-            jwt_scrub_key(jwt);
+            jwt->alg = JWT::JWT_ALG_NONE;
     } else {
         /* If alg is NONE, there should not be a key */
         if (!jwt->key.empty()) {
@@ -197,7 +178,7 @@ static void jwt_verify_head(jwt_t *jwt, const Buffer& head)
     }
 }
 
-void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
+void sptk::jwt_decode(JWT **jwt, const char *token, const String& key)
 {
     struct {
         const char* data;
@@ -222,12 +203,12 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
 
     Buffer head(parts[0].data, parts[0].length), body(parts[1].data, parts[1].length), sig(parts[2].data, parts[2].length);
 
-    jwt_t *newData = nullptr;
+    JWT *newData = nullptr;
 
     *jwt = nullptr;
 
     // Now that we have everything split up, let's check out the header.
-    newData = new jwt_t;
+    newData = new JWT;
 
     // Copy the key over for verify_head.
     if (!key.empty())
@@ -237,7 +218,7 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
     jwt_parse_body(newData, body);
 
     // Check the signature, if needed.
-    if (newData->alg != JWT_ALG_NONE) {
+    if (newData->alg != JWT::JWT_ALG_NONE) {
         // Re-add this since it's part of the verified data.
         //body[-1] = '.';
         jwt_verify(newData, head, sig);
@@ -246,46 +227,7 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
     *jwt = newData;
 }
 
-String jwt_get_grants_json(jwt_t *jwt, const char *grant)
-{
-    json::Element *js_val = nullptr;
-
-    errno = EINVAL;
-
-    if (!jwt)
-        return nullptr;
-
-    if (grant && strlen(grant))
-        js_val = jwt->grants.root().find(grant);
-    else
-        js_val = &jwt->grants.root();
-
-    if (js_val == nullptr)
-        return nullptr;
-
-    errno = 0;
-
-    stringstream output;
-    js_val->exportTo(output, false);
-    return output.str();
-}
-
-int sptk::jwt_add_grant(jwt_t *jwt, const char *grant, const char *val)
-{
-    if (!jwt || !grant || !strlen(grant) || !val)
-        return EINVAL;
-
-    json::Element* grants = &jwt->grants.root();
-
-    if (!get_js_string(grants, grant).empty())
-        return EEXIST;
-
-    grants->add(grant, val);
-
-    return 0;
-}
-
-int sptk::jwt_add_grants_json(jwt_t *jwt, const char *json)
+int sptk::jwt_add_grants_json(JWT *jwt, const char *json)
 {
     if (!jwt)
         return EINVAL;
@@ -303,65 +245,21 @@ int sptk::jwt_add_grants_json(jwt_t *jwt, const char *json)
     return 0;
 }
 
-static void jwt_write_head(jwt_t *jwt, ostream& output, int pretty)
+static void jwt_dump(JWT *jwt, ostream& output, int pretty)
 {
-    output << "{";
-
-    if (pretty)
-        output << endl;
-
-    /* An unsecured JWT is a JWS and provides no "typ".
-     * -- draft-ietf-oauth-json-web-token-32 #6. */
-    if (jwt->alg != JWT_ALG_NONE) {
-        if (pretty)
-            output << "    ";
-
-        output << "\"typ\":";
-        if (pretty)
-            output << " ";
-        output << "\"JWT\",";
-
-        if (pretty)
-            output << endl;
-    }
-
-    if (pretty)
-        output << "    ";
-
-    output << "\"alg\":";
-    if (pretty)
-        output << " ";
-    output << "\"" << jwt_t::alg_str(jwt->alg) << "\"";
-
-    if (pretty)
-        output << endl;
-
-    output << "}";
-
-    if (pretty)
-        output << endl;
-}
-
-static void jwt_write_body(jwt_t *jwt, ostream& output, int pretty)
-{
-    jwt->grants.exportTo(output, pretty);
-}
-
-static void jwt_dump(jwt_t *jwt, ostream& output, int pretty)
-{
-    jwt_write_head(jwt, output, pretty);
+    jwt->write_head(output, pretty);
     output << ".";
-    jwt_write_body(jwt, output, pretty);
+    jwt->write_body(output, pretty);
 }
 
-static int jwt_encode(jwt_t *jwt, ostream& out)
+static int jwt_encode(JWT *jwt, ostream& out)
 {
     int ret;
     unsigned int sig_len;
 
     /* First the header. */
     stringstream header;
-    jwt_write_head(jwt, header, false);
+    jwt->write_head(header, false);
 
     string data(header.str());
     Buffer encodedHead;
@@ -369,7 +267,7 @@ static int jwt_encode(jwt_t *jwt, ostream& out)
 
     /* Now the body. */
     stringstream body;
-    jwt_write_body(jwt, body, false);
+    jwt->write_body(body, false);
 
     data = body.str();
     Buffer encodedBody;
@@ -382,7 +280,7 @@ static int jwt_encode(jwt_t *jwt, ostream& out)
     output.append('.');
     output.append(encodedBody);
 
-    if (jwt->alg == JWT_ALG_NONE) {
+    if (jwt->alg == JWT::JWT_ALG_NONE) {
         output.append('.');
         return 0;
     }

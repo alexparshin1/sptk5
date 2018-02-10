@@ -16,8 +16,6 @@
 
 #include <sptk5/jwt.h>
 
-#include "jwt-private.h"
-
 using namespace std;
 using namespace sptk;
 
@@ -53,20 +51,20 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-int jwt_sign_sha_hmac(jwt_t* jwt, char** out, unsigned int* len,
+int jwt_sign_sha_hmac(JWT* jwt, char** out, unsigned int* len,
                       const char* str)
 {
     const EVP_MD* alg;
 
     switch (jwt->alg) {
         /* HMAC */
-        case JWT_ALG_HS256:
+        case JWT::JWT_ALG_HS256:
             alg = EVP_sha256();
             break;
-        case JWT_ALG_HS384:
+        case JWT::JWT_ALG_HS384:
             alg = EVP_sha384();
             break;
-        case JWT_ALG_HS512:
+        case JWT::JWT_ALG_HS512:
             alg = EVP_sha512();
             break;
         default:
@@ -84,7 +82,7 @@ int jwt_sign_sha_hmac(jwt_t* jwt, char** out, unsigned int* len,
     return 0;
 }
 
-int jwt_verify_sha_hmac(jwt_t* jwt, const char* head, const char* sig)
+int jwt_verify_sha_hmac(JWT* jwt, const char* head, const char* sig)
 {
     unsigned char res[EVP_MAX_MD_SIZE];
     BIO* bmem = nullptr, * b64 = nullptr;
@@ -94,13 +92,13 @@ int jwt_verify_sha_hmac(jwt_t* jwt, const char* head, const char* sig)
     Buffer readBuf;
 
     switch (jwt->alg) {
-        case JWT_ALG_HS256:
+        case JWT::JWT_ALG_HS256:
             alg = EVP_sha256();
             break;
-        case JWT_ALG_HS384:
+        case JWT::JWT_ALG_HS384:
             alg = EVP_sha384();
             break;
-        case JWT_ALG_HS512:
+        case JWT::JWT_ALG_HS512:
             alg = EVP_sha512();
             break;
         default:
@@ -148,7 +146,7 @@ int jwt_verify_sha_hmac(jwt_t* jwt, const char* head, const char* sig)
 
 #define SIGN_ERROR(__err) { ret = __err; goto jwt_sign_sha_pem_done; }
 
-int jwt_sign_sha_pem(jwt_t* jwt, char** out, unsigned int* len,
+int jwt_sign_sha_pem(JWT* jwt, char** out, unsigned int* len,
                      const char* str)
 {
     EVP_MD_CTX* mdctx = nullptr;
@@ -166,29 +164,29 @@ int jwt_sign_sha_pem(jwt_t* jwt, char** out, unsigned int* len,
 
     switch (jwt->alg) {
         /* RSA */
-        case JWT_ALG_RS256:
+        case JWT::JWT_ALG_RS256:
             alg = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
-        case JWT_ALG_RS384:
+        case JWT::JWT_ALG_RS384:
             alg = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
-        case JWT_ALG_RS512:
+        case JWT::JWT_ALG_RS512:
             alg = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
-        case JWT_ALG_ES256:
+        case JWT::JWT_ALG_ES256:
             alg = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
-        case JWT_ALG_ES384:
+        case JWT::JWT_ALG_ES384:
             alg = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
-        case JWT_ALG_ES512:
+        case JWT::JWT_ALG_ES512:
             alg = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
@@ -289,7 +287,7 @@ int jwt_sign_sha_pem(jwt_t* jwt, char** out, unsigned int* len,
 
 #define VERIFY_ERROR(__err) { ret = __err; goto jwt_verify_sha_pem_done; }
 
-int jwt_verify_sha_pem(jwt_t* jwt, const char* head, const char* sig_b64)
+int jwt_verify_sha_pem(JWT* jwt, const char* head, const char* sig_b64)
 {
     unsigned char* sig = nullptr;
     EVP_MD_CTX* mdctx = nullptr;
@@ -306,29 +304,29 @@ int jwt_verify_sha_pem(jwt_t* jwt, const char* head, const char* sig_b64)
 
     switch (jwt->alg) {
         /* RSA */
-        case JWT_ALG_RS256:
+        case JWT::JWT_ALG_RS256:
             alg = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
-        case JWT_ALG_RS384:
+        case JWT::JWT_ALG_RS384:
             alg = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
-        case JWT_ALG_RS512:
+        case JWT::JWT_ALG_RS512:
             alg = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
-        case JWT_ALG_ES256:
+        case JWT::JWT_ALG_ES256:
             alg = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
-        case JWT_ALG_ES384:
+        case JWT::JWT_ALG_ES384:
             alg = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
-        case JWT_ALG_ES512:
+        case JWT::JWT_ALG_ES512:
             alg = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
