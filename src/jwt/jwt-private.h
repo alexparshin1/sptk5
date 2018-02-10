@@ -14,27 +14,18 @@ namespace sptk {
 
 struct jwt
 {
-	jwt_alg_t alg;
+	JWT::jwt_alg_t alg;
 	unsigned char* key;
 	int key_len;
 	json::Document* grants;
 };
 
-/* Helper routines. */
-void jwt_base64uri_encode(Buffer& buffer);
+int jwt_verify_sha_hmac(JWT::jwt_t* jwt, const char* head, const char* sig);
 
-void* jwt_b64_decode(const char* src, int* ret_len);
-
-/* These routines are implemented by the crypto backend. */
-int jwt_sign_sha_hmac(jwt_t* jwt, char** out, unsigned int* len,
-					  const char* str);
-
-int jwt_verify_sha_hmac(jwt_t* jwt, const char* head, const char* sig);
-
-int jwt_sign_sha_pem(jwt_t* jwt, char** out, unsigned int* len,
+int jwt_sign_sha_pem(JWT::jwt_t* jwt, char** out, unsigned int* len,
 					 const char* str);
 
-int jwt_verify_sha_pem(jwt_t* jwt, const char* head, const char* sig_b64);
+int jwt_verify_sha_pem(JWT::jwt_t* jwt, const char* head, const char* sig_b64);
 
 }
 

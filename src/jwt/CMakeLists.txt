@@ -1,7 +1,5 @@
 set (TARGET_NAME spjwt)
 
-option (WITHOUT_OPENSSL "Use GnuTLS for encryption instead of OpenSSL" OFF)
-
 if (UNIX)
     option (ENABLE_PIC "Use position independent code in static library build." OFF)
 endif ()
