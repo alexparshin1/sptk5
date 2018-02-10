@@ -109,49 +109,6 @@ JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token, const String& key="")
 /** @} */
 
 /**
- * @defgroup jwt_grant JWT Grant Manipulation
- * These functions allow you to add, remove and retrieve grants from a JWT
- * object.
- * @{
- */
-
-/**
- * Return the value of an integer grant.
- *
- * Returns the int value for a grant (e.g. "exp"). If it does not exist,
- * 0 will be returned.
- *
- * @param jwt Pointer to a JWT object.
- * @param grant String containing the name of the grant to return a value
- *     for.
- * @return Returns an int for the value. Sets errno to ENOENT when not
- * found.
- *
- * Note, this will only return grants with JSON integer values. Use
- * jwt_get_grant_json() to get the JSON representation of more complex
- * values (e.g. arrays) or use jwt_get_grant() to get string values.
- */
-JWT_EXPORT long jwt_get_grant_int(jwt_t *jwt, const char *grant);
-
-/**
- * Return the value of an boolean grant.
- *
- * Returns the int value for a grant (e.g. "exp"). If it does not exist,
- * 0 will be returned.
- *
- * @param jwt Pointer to a JWT object.
- * @param grant String containing the name of the grant to return a value
- *     for.
- * @return Returns a boolean for the value. Sets errno to ENOENT when not
- * found.
- *
- * Note, this will only return grants with JSON boolean values. Use
- * jwt_get_grant_json() to get the JSON representation of more complex
- * values (e.g. arrays) or use jwt_get_grant() to get string values.
- */
-JWT_EXPORT int jwt_get_grant_bool(jwt_t *jwt, const char *grant);
-
-/**
  * Return the value of a grant as JSON encoded object string.
  *
  * Returns the JSON encoded string value for a grant (e.g. "iss"). If it
@@ -237,70 +194,6 @@ JWT_EXPORT int jwt_add_grant_bool(jwt_t *jwt, const char *grant, int val);
  * @return Returns 0 on success, valid errno otherwise.
  */
 JWT_EXPORT int jwt_add_grants_json(jwt_t *jwt, const char *json);
-
-/**
- * Delete a grant from this JWT object.
- *
- * Deletes the named grant from this object. It is not an error if there
- * is no grant matching the passed name. If grant is NULL, then all grants
- * are deleted from this JWT.
- *
- * @param jwt Pointer to a JWT object.
- * @param grant String containing the name of the grant to delete. If this
- *    is NULL, then all grants are deleted.
- * @return Returns 0 on success, valid errno otherwise.
- */
-JWT_EXPORT int jwt_del_grants(jwt_t *jwt, const char *grant);
-
-/**
- * @deprecated
- * Delete a grant from this JWT object.
- *
- * Deletes the named grant from this object. It is not an error if there
- * is no grant matching the passed name.
- *
- * @param jwt Pointer to a JWT object.
- * @param grant String containing the name of the grant to delete.
- * @return Returns 0 on success, valid errno otherwise.
- */
-DEPRECATED(JWT_EXPORT int jwt_del_grant(jwt_t *jwt, const char *grant));
-
-/** @} */
-
-/**
- * @defgroup jwt_alg JWT Algorithm Functions
- * Set and check algorithms and algorithm specific values.
- *
- * When working with functions that require a key, the underlying library
- * takes care to scrub memory when the key is no longer used (e.g. when
- * calling jwt_free() or when changing the algorithm, the old key, if it
- * exists, is scrubbed).
- * @{
- */
-
-/**
- * Convert alg type to it's string representation.
- *
- * Returns a string that matches the alg type provided.
- *
- * @param alg A valid jwt_alg_t specifier.
- * @returns Returns a string (e.g. "RS256") matching the alg or NULL for
- *     invalid alg.
- */
-JWT_EXPORT const char *jwt_alg_str(jwt_alg_t alg);
-
-/**
- * Convert alg string to type.
- *
- * Returns an alg type based on the string representation.
- *
- * @param alg A valid string algorithm type (e.g. "RS256").
- * @returns Returns an alg type matching the string or JWT_ALG_INVAL if no
- *     matches were found.
- *
- * Note, this only works for algorithms that LibJWT supports or knows about.
- */
-JWT_EXPORT jwt_alg_t jwt_str_alg(const char *alg);
 
 /** @} */
 

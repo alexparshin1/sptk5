@@ -131,9 +131,9 @@ int jwt_verify_sha_hmac(jwt_t* jwt, const char* head, const char* sig)
     if (len < 0)
         goto jwt_verify_hmac_done;
 
-    readBuf.checkSize(len + 1);
+    readBuf.checkSize(size_t(len + 1));
     len = BIO_read(bmem, readBuf.data(), len);
-    readBuf.bytes(len);
+    readBuf.bytes(size_t(len));
 
     jwt_base64uri_encode(readBuf);
 

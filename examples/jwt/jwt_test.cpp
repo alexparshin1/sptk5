@@ -15,8 +15,6 @@ using namespace sptk;
 
 void test_jwt_dup()
 {
-	jwt_t *newJWT = nullptr;
-	int ret = 0;
 	time_t now;
 	long valint;
 
@@ -28,7 +26,7 @@ void test_jwt_dup()
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
 
-	newJWT = jwt->clone();
+	auto newJWT = jwt->clone();
     if (newJWT == nullptr) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't duplicate JWT object");
     }
@@ -47,12 +45,9 @@ void test_jwt_dup()
     }
 
 	now = time(nullptr);
-	ret = jwt_add_grant_int(jwt, "iat", (long)now);
-    if (ret != 0) {
-        throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_add_grant_int()");
-    }
+	jwt->add_grant_int("iat", (long)now);
 
-	valint = jwt_get_grant_int(jwt, "iat");
+	valint = jwt->get_grant_int("iat");
     if (((long)now) != valint) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
@@ -65,16 +60,12 @@ void test_jwt_dup()
 void test_jwt_dup_signed()
 {
 	String key256("012345678901234567890123456789XY");
-	jwt_t *jwt = nullptr, *newJWT = nullptr;
 
-	jwt = new jwt_t;
-
+	auto jwt = new jwt_t;
 	jwt->add_grant("iss", "test");
-
 	jwt->set_alg(JWT_ALG_HS256, key256);
 
-	newJWT = jwt->clone();
-
+	auto newJWT = jwt->clone();
 	String val = newJWT->get_grant("iss");
     if (val != "test") {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");

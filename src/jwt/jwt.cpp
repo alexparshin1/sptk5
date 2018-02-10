@@ -20,63 +20,6 @@ using namespace std;
 using namespace sptk;
 
 
-const char * sptk::jwt_alg_str(jwt_alg_t alg)
-{
-    switch (alg) {
-        case JWT_ALG_NONE:
-            return "none";
-        case JWT_ALG_HS256:
-            return "HS256";
-        case JWT_ALG_HS384:
-            return "HS384";
-        case JWT_ALG_HS512:
-            return "HS512";
-        case JWT_ALG_RS256:
-            return "RS256";
-        case JWT_ALG_RS384:
-            return "RS384";
-        case JWT_ALG_RS512:
-            return "RS512";
-        case JWT_ALG_ES256:
-            return "ES256";
-        case JWT_ALG_ES384:
-            return "ES384";
-        case JWT_ALG_ES512:
-            return "ES512";
-        default:
-            return nullptr;
-    }
-}
-
-jwt_alg_t sptk::jwt_str_alg(const char *alg)
-{
-    if (alg == nullptr)
-        return JWT_ALG_INVAL;
-
-    if (!strcasecmp(alg, "none"))
-        return JWT_ALG_NONE;
-    else if (!strcasecmp(alg, "HS256"))
-        return JWT_ALG_HS256;
-    else if (!strcasecmp(alg, "HS384"))
-        return JWT_ALG_HS384;
-    else if (!strcasecmp(alg, "HS512"))
-        return JWT_ALG_HS512;
-    else if (!strcasecmp(alg, "RS256"))
-        return JWT_ALG_RS256;
-    else if (!strcasecmp(alg, "RS384"))
-        return JWT_ALG_RS384;
-    else if (!strcasecmp(alg, "RS512"))
-        return JWT_ALG_RS512;
-    else if (!strcasecmp(alg, "ES256"))
-        return JWT_ALG_ES256;
-    else if (!strcasecmp(alg, "ES384"))
-        return JWT_ALG_ES384;
-    else if (!strcasecmp(alg, "ES512"))
-        return JWT_ALG_ES512;
-
-    return JWT_ALG_INVAL;
-}
-
 static void jwt_scrub_key(jwt_t *jwt)
 {
     jwt->key = "";
@@ -96,37 +39,11 @@ static string get_js_string(json::Element *js, const char *key)
     return string();
 }
 
-static long get_js_int(json::Element *js, const char *key)
-{
-    json::Element *element = js;
-    if (js->isObject())
-        element = js->find(key);
-
-    if (element != nullptr && element->isNumber())
-        return element->getNumber();
-
-    errno = ENOENT;
-    return -1;
-}
-
-static int get_js_bool(json::Element *js, const char *key)
-{
-    json::Element *element = js;
-    if (js->isObject())
-        element = js->find(key);
-
-    if (element != nullptr && element->isBoolean())
-        return element->isBoolean() ? 1 : 0;
-
-    errno = ENOENT;
-    return -1;
-}
-
 void * sptk::jwt_b64_decode(const char *src, int *ret_len)
 {
     void *buf;
     char *newData;
-    int len, i, z;
+    size_t len, i, z;
 
     /* Decode based on RFC-4648 URI safe encoding. */
     len = strlen(src);
@@ -259,7 +176,7 @@ static void jwt_verify_head(jwt_t *jwt, const Buffer& head)
     json::Element* js = &jsdoc.root();
 
     string val = get_js_string(js, "alg");
-    jwt->alg = jwt_str_alg(val.c_str());
+    jwt->alg = jwt_t::str_alg(val.c_str());
     if (jwt->alg == JWT_ALG_INVAL) {
         throw Exception("Invalid algorithm");
     }
@@ -329,30 +246,6 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
     *jwt = newData;
 }
 
-long sptk::jwt_get_grant_int(jwt_t *jwt, const char *grant)
-{
-    if (!jwt || !grant || !strlen(grant)) {
-        errno = EINVAL;
-        return 0;
-    }
-
-    errno = 0;
-
-    return get_js_int(&jwt->grants.root(), grant);
-}
-
-int sptk::jwt_get_grant_bool(jwt_t *jwt, const char *grant)
-{
-    if (!jwt || !grant || !strlen(grant)) {
-        errno = EINVAL;
-        return 0;
-    }
-
-    errno = 0;
-
-    return get_js_bool(&jwt->grants.root(), grant);
-}
-
 String jwt_get_grants_json(jwt_t *jwt, const char *grant)
 {
     json::Element *js_val = nullptr;
@@ -392,36 +285,6 @@ int sptk::jwt_add_grant(jwt_t *jwt, const char *grant, const char *val)
     return 0;
 }
 
-int sptk::jwt_add_grant_int(jwt_t *jwt, const char *grant, long val)
-{
-    if (!jwt || !grant || !strlen(grant))
-        return EINVAL;
-
-    json::Element* grants = &jwt->grants.root();
-
-    if (get_js_int(grants, grant) != -1)
-        return EEXIST;
-
-    grants->add(grant, double(val));
-
-    return 0;
-}
-
-int sptk::jwt_add_grant_bool(jwt_t *jwt, const char *grant, int val)
-{
-    if (!jwt || !grant || !strlen(grant))
-        return EINVAL;
-
-    json::Element* grants = &jwt->grants.root();
-
-    if (get_js_int(grants, grant) != -1)
-        return EEXIST;
-
-    grants->add(grant, bool(val));
-
-    return 0;
-}
-
 int sptk::jwt_add_grants_json(jwt_t *jwt, const char *json)
 {
     if (!jwt)
@@ -438,24 +301,6 @@ int sptk::jwt_add_grants_json(jwt_t *jwt, const char *json)
     }
 
     return 0;
-}
-
-int sptk::jwt_del_grants(jwt_t *jwt, const char *grant)
-{
-    if (!jwt)
-        return EINVAL;
-
-    if (grant == nullptr || !strlen(grant))
-        jwt->grants.clear();
-    else
-        jwt->grants.root().remove(grant);
-
-    return 0;
-}
-
-int sptk::jwt_del_grant(jwt_t *jwt, const char *grant)
-{
-    return jwt_del_grants(jwt, grant);
 }
 
 static void jwt_write_head(jwt_t *jwt, ostream& output, int pretty)
@@ -486,7 +331,7 @@ static void jwt_write_head(jwt_t *jwt, ostream& output, int pretty)
     output << "\"alg\":";
     if (pretty)
         output << " ";
-    output << "\"" << jwt_alg_str(jwt->alg) << "\"";
+    output << "\"" << jwt_t::alg_str(jwt->alg) << "\"";
 
     if (pretty)
         output << endl;

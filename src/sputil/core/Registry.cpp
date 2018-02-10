@@ -82,7 +82,7 @@ Registry::Registry(const string& fileName, string programGroupName, RegistryMode
 : XMLDocument("Configuration"), m_fileName(fileName)
 {
     if (!m_fileName.empty()) {
-        string directory;
+        String directory;
         if (mode == USER_REGISTRY)
             directory = homeDirectory();
         directory += "/";
