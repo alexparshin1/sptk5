@@ -86,10 +86,10 @@ void test_jwt_decode()
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
 	JWT::jwt_alg_t alg;
-	JWT *jwt;
 
+	auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
@@ -109,10 +109,10 @@ void test_jwt_decode_invalid_final_dot()
 	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ";
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -127,10 +127,10 @@ void test_jwt_decode_invalid_alg()
 	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ.";
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -145,10 +145,10 @@ void test_jwt_decode_invalid_typ()
 	const char token[] = "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ.";
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -163,10 +163,10 @@ void test_jwt_decode_invalid_head()
 	const char token[] = "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ.";
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -181,10 +181,10 @@ void test_jwt_decode_alg_none_with_key()
 	const char token[] = "eyJhbGciOiJub25lIn0."
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ.";
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -199,10 +199,10 @@ void test_jwt_decode_invalid_body()
 	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
 			     "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ.";
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -218,10 +218,10 @@ void test_jwt_decode_hs256()
 			     "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
 			     "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
 	String key256("012345678901234567890123456789XY");
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token, key256);
+        jwt->decode(token, key256);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
@@ -242,10 +242,10 @@ void test_jwt_decode_hs384()
 	String key384(
             "aaaabbbbccccddddeeeeffffg"
 			"ggghhhhiiiijjjjkkkkllll");
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt_decode(&jwt, token, key384);
+        jwt->decode(token, key384);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
@@ -265,10 +265,10 @@ void test_jwt_decode_hs512()
 	String key512(
             "012345678901234567890123456789XY"
 			"012345678901234567890123456789XY");
-	JWT *jwt;
 
+    auto jwt = new JWT;
     try {
-	    jwt_decode(&jwt, token, key512);
+        jwt->decode(token, key512);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));

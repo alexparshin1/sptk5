@@ -22,49 +22,6 @@
 namespace sptk {
 
 /**
- * @defgroup jwt_new JWT Object Creation
- * Functions used to create and destroy JWT objects.
- *
- * Generally, one would use the jwt_new() function to create an object
- * from scratch and jwt_decode() to create and verify and object from an
- * existing token.
- *
- * Note, when using RSA keys (e.g. with RS256), the key is expected to be
- * a private key in PEM format. If the RSA private key requires a passphrase,
- * the default is to request it on the command line from stdin. However,
- * you can override this using OpenSSL's default_passwd routines. For
- * example, using SSL_CTX_set_default_passwd_cb().
- * @{
- */
-
-/**
- * Verify an existing JWT and allocate a new JWT object from it.
- *
- * Decodes a JWT string and verifies the signature (if one is supplied).
- * If no signature is used (JWS, alg="none") or key is NULL, then no
- * validation is done other than formatting. It is not suggested to use
- * this on a string that has a signature without passing the key to
- * verify it. If the JWT is encrypted and no key is supplied, an error
- * is returned.
- *
- * @param jwt Pointer to a JWT object pointer. Will be allocated on
- *     success.
- * @param token Pointer to a valid JWT string, nul terminated.
- * @param key Pointer to the key for validating the JWT signature or for
- *     decrypting the token or empty string if no validation is to be performed.
- * @return 0 on success, valid errno otherwise.
- *
- * @remark If a key is supplied, the token must pass sig check or decrypt
- *     for it to be parsed without error. If no key is supplied, then a
- *     non-encrypted token will be parsed without any checks for a valid
- *     signature, however, standard validation of the token is still
- *     performed.
- */
-void jwt_decode(JWT **jwt, const char *token, const String& key="");
-
-/** @} */
-
-/**
  * Return the value of a grant as JSON encoded object string.
  *
  * Returns the JSON encoded string value for a grant (e.g. "iss"). If it

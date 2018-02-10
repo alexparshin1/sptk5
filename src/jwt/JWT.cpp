@@ -1,4 +1,6 @@
 #include <sptk5/JWT.h>
+#include <sptk5/Base64.h>
+#include "base64.h"
 
 using namespace std;
 using namespace sptk;
@@ -84,6 +86,19 @@ void JWT::add_grant_bool(const String& grant, bool val)
         throw Exception("Grant already exists");
 
     grants.root().add(grant, bool(val));
+}
+
+void JWT::add_grants_json(const char *json)
+{
+    json::Document newGrantsDoc(true);
+    newGrantsDoc.load(json);
+    json::ObjectData& newGrantsObject = newGrantsDoc.root().getObject();
+    for (auto itor: newGrantsObject) {
+        json::Element* existingGrant = grants.root().find(itor.first);
+        if (existingGrant)
+            newGrantsObject.remove(itor.first);
+        grants.root().add(itor.first, itor.second);
+    }
 }
 
 void JWT::del_grant(const String& grant)
@@ -262,3 +277,258 @@ void JWT::write_body(std::ostream& output, int pretty) const
     grants.exportTo(output, pretty);
 }
 
+int JWT::sign(char **out, unsigned int *len, const char *str)
+{
+    switch (alg) {
+        /* HMAC */
+        case JWT::JWT_ALG_HS256:
+        case JWT::JWT_ALG_HS384:
+        case JWT::JWT_ALG_HS512:
+            return jwt_sign_sha_hmac(this, out, len, str);
+
+            /* RSA */
+        case JWT::JWT_ALG_RS256:
+        case JWT::JWT_ALG_RS384:
+        case JWT::JWT_ALG_RS512:
+
+            /* ECC */
+        case JWT::JWT_ALG_ES256:
+        case JWT::JWT_ALG_ES384:
+        case JWT::JWT_ALG_ES512:
+            return jwt_sign_sha_pem(this, out, len, str);
+
+            /* You wut, mate? */
+        default:
+            return EINVAL;
+    }
+}
+
+int JWT::encode(ostream& out)
+{
+    int ret;
+    unsigned int sig_len;
+
+    /* First the header. */
+    stringstream header;
+    write_head(header, false);
+
+    string data(header.str());
+    Buffer encodedHead;
+    Base64::encode(encodedHead, data.c_str(), data.length());
+
+    /* Now the body. */
+    stringstream body;
+    write_body(body, false);
+
+    data = body.str();
+    Buffer encodedBody;
+    Base64::encode(encodedBody, data.c_str(), data.length());
+
+    jwt_base64uri_encode(encodedHead);
+    jwt_base64uri_encode(encodedBody);
+
+    Buffer output(move(encodedHead));
+    output.append('.');
+    output.append(encodedBody);
+
+    if (alg == JWT::JWT_ALG_NONE) {
+        output.append('.');
+        return 0;
+    }
+
+    /* Now the signature. */
+    char* sig;
+    ret = sign(&sig, &sig_len, output.data());
+    if (ret)
+        return ret;
+
+    Buffer signature;
+    Base64::encode(signature, sig, sig_len);
+    jwt_base64uri_encode(signature);
+
+    output.append('.');
+    output.append(signature);
+
+    return ret;
+}
+
+void JWT::exportTo(ostream& output, int pretty) const
+{
+    write_head(output, pretty);
+    output << ".";
+    write_body(output, pretty);
+}
+
+void * sptk::jwt_b64_decode(const char *src, int *ret_len)
+{
+    void *buf;
+    char *newData;
+    size_t len, i, z;
+
+    /* Decode based on RFC-4648 URI safe encoding. */
+    len = strlen(src);
+    newData = (char*) alloca(len + 4);
+    if (!newData)
+        return nullptr;
+
+    for (i = 0; i < len; i++) {
+        switch (src[i]) {
+            case '-':
+                newData[i] = '+';
+                break;
+            case '_':
+                newData[i] = '/';
+                break;
+            default:
+                newData[i] = src[i];
+        }
+    }
+    z = 4 - (i % 4);
+    if (z < 4) {
+        while (z--)
+            newData[i++] = '=';
+    }
+    newData[i] = '\0';
+
+    buf = malloc(i);
+    if (buf == nullptr)
+        return nullptr;
+
+    *ret_len = jwt_Base64decode((char *)buf, newData);
+
+    return buf;
+}
+
+
+static void jwt_b64_decode_json(json::Document &dest, const Buffer &src)
+{
+    Buffer decodedData;
+    Base64::decode(decodedData, src);
+
+    dest.load(decodedData.c_str());
+}
+
+void sptk::jwt_base64uri_encode(Buffer& buffer)
+{
+    char* str = buffer.data();
+    int len = strlen(str);
+    int i, t;
+
+    for (i = t = 0; i < len; i++) {
+        switch (str[i]) {
+            case '+':
+                str[t++] = '-';
+                break;
+            case '/':
+                str[t++] = '_';
+                break;
+            case '=':
+                break;
+            default:
+                str[t++] = str[i];
+        }
+    }
+
+    str[t] = '\0';
+}
+
+static int jwt_verify(JWT *jwt, const Buffer& head, const Buffer& sig)
+{
+    switch (jwt->alg) {
+        /* HMAC */
+        case JWT::JWT_ALG_HS256:
+        case JWT::JWT_ALG_HS384:
+        case JWT::JWT_ALG_HS512:
+            return jwt_verify_sha_hmac(jwt, head.c_str(), sig.c_str());
+
+            /* RSA */
+        case JWT::JWT_ALG_RS256:
+        case JWT::JWT_ALG_RS384:
+        case JWT::JWT_ALG_RS512:
+
+            /* ECC */
+        case JWT::JWT_ALG_ES256:
+        case JWT::JWT_ALG_ES384:
+        case JWT::JWT_ALG_ES512:
+            return jwt_verify_sha_pem(jwt, head.c_str(), sig.c_str());
+
+            /* You wut, mate? */
+        default:
+            return EINVAL;
+    }
+}
+
+static void jwt_parse_body(JWT *jwt, const Buffer& body)
+{
+    jwt_b64_decode_json(jwt->grants, body);
+}
+
+static void jwt_verify_head(JWT *jwt, const Buffer& head)
+{
+    json::Document jsdoc;
+    jwt_b64_decode_json(jsdoc, head);
+    json::Element* js = &jsdoc.root();
+
+    string val = JWT::get_js_string(js, "alg");
+    jwt->alg = JWT::str_alg(val.c_str());
+    if (jwt->alg == JWT::JWT_ALG_INVAL) {
+        throw Exception("Invalid algorithm");
+    }
+
+    if (jwt->alg != JWT::JWT_ALG_NONE) {
+        /* If alg is not NONE, there may be a typ. */
+        val = JWT::get_js_string(js, "typ");
+        if (val != "JWT")
+            throw Exception("Invalid algorithm name");
+
+        if (jwt->key.empty())
+            jwt->alg = JWT::JWT_ALG_NONE;
+    } else {
+        /* If alg is NONE, there should not be a key */
+        if (!jwt->key.empty()) {
+            throw Exception("Unexpected key");
+        }
+    }
+}
+
+void JWT::decode(const char *token, const String& key)
+{
+    struct {
+        const char* data;
+        size_t      length;
+    } parts[3] = {};
+
+    size_t index = 0;
+    for (const char* data = token; data != nullptr && index < 3; index++) {
+        parts[index].data = data;
+        const char* end = strchr(data, '.');
+        if (end == nullptr) {
+            parts[index].length = strlen(data);
+            data = nullptr;
+            break;
+        }
+        parts[index].length = end - data;
+        data = end + 1;
+    }
+
+    if (parts[1].data == nullptr)
+        throw Exception("Invalid number of token parts");
+
+    Buffer head(parts[0].data, parts[0].length), body(parts[1].data, parts[1].length), sig(parts[2].data, parts[2].length);
+
+    // Now that we have everything split up, let's check out the header.
+
+    // Copy the key over for verify_head.
+    if (!key.empty())
+        this->key = key;
+
+    jwt_verify_head(this, head);
+    jwt_parse_body(this, body);
+
+    // Check the signature, if needed.
+    if (this->alg != JWT::JWT_ALG_NONE) {
+        // Re-add this since it's part of the verified data.
+        //body[-1] = '.';
+        jwt_verify(this, head, sig);
+    }
+}

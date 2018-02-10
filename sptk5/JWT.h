@@ -49,6 +49,7 @@ public:
     void add_grant(const String& grant, const String& val);
     void add_grant_int(const String& grant, long val);
     void add_grant_bool(const String& grant, bool val);
+    void add_grants_json(const char *json);
 
     void del_grant(const String& grant);
 
@@ -56,6 +57,13 @@ public:
     void set_alg(jwt_alg_t alg, const String &key);
     static const char * alg_str(jwt_alg_t alg);
     static jwt_alg_t str_alg(const char *alg);
+
+    int sign(char **out, unsigned int *len, const char *str);
+    int encode(std::ostream& out);
+
+    void decode(const char *token, const String& key="");
+
+    void exportTo(std::ostream& output, int pretty) const;
 
 private:
 
