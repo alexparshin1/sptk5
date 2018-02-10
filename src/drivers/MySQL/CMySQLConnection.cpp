@@ -126,7 +126,7 @@ bool MySQLConnection::active() const
     return m_connection != nullptr;
 }
 
-string MySQLConnection::nativeConnectionString() const
+String MySQLConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
     string connectionString = m_connString.hostName();
@@ -449,7 +449,7 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     }
 }
 
-std::string MySQLConnection::driverDescription() const
+String MySQLConnection::driverDescription() const
 {
     if (m_connection != nullptr)
         return string("MySQL ") + mysql_get_server_info(m_connection);

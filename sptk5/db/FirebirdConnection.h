@@ -81,7 +81,7 @@ protected:
 
     /**
      * @brief Ends the transaction
-     * @param commit bool, commit if true, rollback if false
+     * @param commit            Commit if true, rollback if false
      */
     void driverEndTransaction(bool commit) override;
 
@@ -146,7 +146,7 @@ protected:
      * @brief Returns parameter mark
      *
      * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     * @param paramIndex        Parameter index in SQL starting from 0
      */
     std::string paramMark(unsigned paramIndex) override;
 
@@ -172,9 +172,9 @@ public:
      * For more information please refer to:
      * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
      * If the connection string is empty then default database with the name equal to user name is used.
-     * @param connectionString std::string, the Firebird connection string
+     * @param connectionString  The Firebird connection string
      */
-    FirebirdConnection(const std::string& connectionString = "");
+    explicit FirebirdConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor
@@ -183,9 +183,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString std::string, the Firebird connection string
+     * @param connectionString  The Firebird connection string
      */
-    void openDatabase(const std::string& connectionString = "") override;
+    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -205,17 +205,17 @@ public:
     /**
      * @brief Returns driver-specific connection string
      */
-    std::string nativeConnectionString() const override;
+    String nativeConnectionString() const override;
 
     /**
      * @brief Returns the Firebird driver description for the active connection
      */
-    std::string driverDescription() const override;
+    String driverDescription() const override;
 
     /**
      * @brief Lists database objects
      * @param objectType DatabaseObjectType, object type to list
-     * @param objects Strings&, object list (output)
+     * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 };

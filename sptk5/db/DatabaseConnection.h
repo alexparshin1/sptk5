@@ -432,7 +432,7 @@ public:
     /**
      * @brief Returns driver-specific connection string
      */
-    virtual std::string nativeConnectionString() const = 0;
+    virtual String nativeConnectionString() const = 0;
 
     /**
      * @brief Returns the connection type
@@ -445,7 +445,7 @@ public:
     /**
      * @brief Returns the driver description
      */
-    virtual std::string driverDescription() const
+    virtual String driverDescription() const
     {
         return m_driverDescription;
     }

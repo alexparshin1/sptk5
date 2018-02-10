@@ -74,7 +74,7 @@ protected:
 
     /**
      * @brief Ends the transaction
-     * @param commit bool, commit if true, rollback if false
+     * @param commit            Commit if true, rollback if false
      */
     virtual void driverEndTransaction(bool commit) override;
 
@@ -152,9 +152,9 @@ public:
 
     /**
      * @brief Constructor
-     * @param connectionString std::string, the SQLite3 connection string
+     * @param connectionString  The SQLite3 connection string
      */
-    SQLite3Connection(const std::string& connectionString = "");
+    explicit SQLite3Connection(const String& connectionString = "");
 
     /**
      * @brief Destructor
@@ -164,13 +164,13 @@ public:
     /**
      * @brief Returns driver-specific connection string
      */
-    std::string nativeConnectionString() const override;
+    String nativeConnectionString() const override;
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString std::string, the SQLite3 connection string
+     * @param connectionString  The SQLite3 connection string
      */
-    virtual void openDatabase(const std::string& connectionString = "") override;
+    virtual void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -190,12 +190,12 @@ public:
     /**
      * @brief Returns the SQLite3 driver description for the active connection
      */
-    virtual std::string driverDescription() const override;
+    virtual String driverDescription() const override;
 
     /**
      * @brief Lists database objects
-     * @param objectType CDbObjectType, object type to list
-     * @param objects Strings&, object list (output)
+     * @param objectType        Object type to list
+     * @param objects           Object list (output)
      */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
 };

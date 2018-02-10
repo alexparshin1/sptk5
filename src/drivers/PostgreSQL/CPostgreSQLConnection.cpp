@@ -174,7 +174,7 @@ static string csParam(const string& name, const string& value)
     return "";
 }
 
-string PostgreSQLConnection::nativeConnectionString() const
+String PostgreSQLConnection::nativeConnectionString() const
 {
     string port;
 
@@ -1041,7 +1041,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
     query.close();
 }
 
-std::string PostgreSQLConnection::driverDescription() const
+String PostgreSQLConnection::driverDescription() const
 {
     return "PostgreSQL";
 }

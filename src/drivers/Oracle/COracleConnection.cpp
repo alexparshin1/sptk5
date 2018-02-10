@@ -116,10 +116,10 @@ bool OracleConnection::active() const
     return m_connection != nullptr;
 }
 
-string OracleConnection::nativeConnectionString() const
+String OracleConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
-    string connectionString = m_connString.hostName();
+    String connectionString = m_connString.hostName();
     if (m_connString.portNumber())
         connectionString += ":" + int2string(m_connString.portNumber());
     if (!m_connString.databaseName().empty())
@@ -552,8 +552,8 @@ void OracleConnection::bulkInsert(const String& tableName, const Strings& column
     //string numericTypes("DECIMAL|FLOAT|DOUBLE|NUMBER");
     QueryColumnTypeSizeMap columnTypeSizeMap;
     while (!tableColumnsQuery.eof()) {
-        string columnName = column_name.asString();
-        string columnType = data_type.asString();
+        String columnName = column_name.asString();
+        String columnType = data_type.asString();
         auto maxDataLength = (size_t) data_length.asInteger();
         QueryColumnTypeSize columnTypeSize = {};
         columnTypeSize.type = VAR_STRING;
@@ -570,10 +570,10 @@ void OracleConnection::bulkInsert(const String& tableName, const Strings& column
     tableColumnsQuery.close();
 
     QueryColumnTypeSizeVector columnTypeSizeVector;
-    for (auto itor = columnNames.begin(); itor != columnNames.end(); ++itor) {
-        auto column = columnTypeSizeMap.find(upperCase(*itor));
+    for (auto& columnName: columnNames) {
+        auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end())
-            throwDatabaseException("Column '" + *itor + "' doesn't belong to table " + tableName);
+            throwDatabaseException("Column '" + columnName + "' doesn't belong to table " + tableName);
         columnTypeSizeVector.push_back(column->second);
     }
 
@@ -594,7 +594,7 @@ void OracleConnection::bulkInsert(const String& tableName, const Strings& column
     }
 }
 
-std::string OracleConnection::driverDescription() const
+String OracleConnection::driverDescription() const
 {
     return m_environment.clientVersion();
 }
@@ -617,8 +617,8 @@ void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     Strings statements, matches;
     string statement;
     bool routineStarted = false;
-    for (string row: sqlBatch) {
-        row = trim(row);
+    for (auto& arow: sqlBatch) {
+        String row = trim(arow);
         if (row.empty() || matchCommentRow.matches(row))
             continue;
 

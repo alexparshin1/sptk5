@@ -241,12 +241,12 @@ public:
     /**
      * @brief Returns driver-specific connection string
      */
-    std::string nativeConnectionString() const override;
+    String nativeConnectionString() const override;
 
     /**
      * @brief Returns the Oracle driver description for the active connection
      */
-    std::string driverDescription() const override;
+    String driverDescription() const override;
 
     /**
      * @brief Lists database objects

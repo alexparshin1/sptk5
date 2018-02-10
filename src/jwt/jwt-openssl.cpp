@@ -296,7 +296,6 @@ void JWT::jwt_verify_sha_pem(const char* head, const Buffer& sig_b64)
     int type;
     int pkey_type;
     BIO* bufkey = nullptr;
-    int ret = 0;
     int slen;
 
     switch (m_jwt.alg) {

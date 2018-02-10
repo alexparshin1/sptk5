@@ -83,7 +83,7 @@ ODBCConnection::~ODBCConnection()
     }
 }
 
-string ODBCConnection::nativeConnectionString() const
+String ODBCConnection::nativeConnectionString() const
 {
     string connectionString = "DSN=" + m_connString.hostName();
     if (!m_connString.userName().empty())
@@ -686,7 +686,7 @@ void ODBCConnection::queryFetch(Query* query)
         }
 }
 
-string ODBCConnection::driverDescription() const
+String ODBCConnection::driverDescription() const
 {
     if (m_connect != nullptr)
         return m_connect->driverDescription();

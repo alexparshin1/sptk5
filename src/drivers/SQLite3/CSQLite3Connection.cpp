@@ -65,7 +65,7 @@ extern "C" {
 typedef void (* sqlite3cb)(void*);
 }
 
-SQLite3Connection::SQLite3Connection(const string& connectionString)
+SQLite3Connection::SQLite3Connection(const String& connectionString)
         :
         DatabaseConnection(connectionString)
 {
@@ -94,12 +94,12 @@ SQLite3Connection::~SQLite3Connection()
     }
 }
 
-string SQLite3Connection::nativeConnectionString() const
+String SQLite3Connection::nativeConnectionString() const
 {
     return m_connString.databaseName();
 }
 
-void SQLite3Connection::openDatabase(const string& newConnectionString)
+void SQLite3Connection::openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -537,7 +537,7 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
     query.close();
 }
 
-std::string SQLite3Connection::driverDescription() const
+String SQLite3Connection::driverDescription() const
 {
     return "SQLite3 " SQLITE_VERSION;
 }

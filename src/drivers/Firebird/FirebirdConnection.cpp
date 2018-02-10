@@ -28,16 +28,13 @@
 
 #include <sptk5/db/FirebirdConnection.h>
 #include <sptk5/db/FirebirdStatement.h>
-#include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
-
-#include <string>
-#include <stdio.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-FirebirdConnection::FirebirdConnection(const string& connectionString) :
+FirebirdConnection::FirebirdConnection(const String& connectionString) :
     DatabaseConnection(connectionString),
     m_connection(0)
 {
@@ -52,7 +49,7 @@ FirebirdConnection::~FirebirdConnection()
         close();
         while (!m_queryList.empty()) {
             try {
-                Query *query = (Query *) m_queryList[0];
+                auto query = (Query *) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -77,7 +74,7 @@ void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char
         m_lastStatus.clear();
 }
 
-void FirebirdConnection::openDatabase(const string& newConnectionString)
+void FirebirdConnection::openDatabase(const String& newConnectionString)
 {
     ISC_STATUS status_vector[20];
 
@@ -120,9 +117,8 @@ void FirebirdConnection::closeDatabase()
     if (m_transaction)
         driverEndTransaction(false);
 
-    for (unsigned i = 0; i < m_queryList.size(); i++) {
+    for (auto query: m_queryList) {
         try {
-            Query *query = (Query *) m_queryList[i];
             queryFreeStmt(query);
         } catch (...) {
         }
@@ -139,7 +135,7 @@ void* FirebirdConnection::handle() const
     union {
         isc_db_handle   connection;
         void*           handle;
-    } convert;
+    } convert = {};
     convert.connection = m_connection;
     return convert.handle;
 }
@@ -149,15 +145,16 @@ bool FirebirdConnection::active() const
     return m_connection != 0L;
 }
 
-string FirebirdConnection::nativeConnectionString() const
+String FirebirdConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
-    string connectionString = m_connString.hostName();
+    stringstream connectionString;
+    connectionString << m_connString.hostName();
     if (m_connString.portNumber())
-        connectionString += ":" + int2string(m_connString.portNumber());
-    if (m_connString.databaseName() != "")
-        connectionString += "/" + m_connString.databaseName();
-    return connectionString;
+        connectionString << ":" << int2string(m_connString.portNumber());
+    if (!m_connString.databaseName().empty())
+        connectionString << "/" << m_connString.databaseName();
+    return connectionString.str();
 }
 
 void FirebirdConnection::driverBeginTransaction()
@@ -212,10 +209,10 @@ void FirebirdConnection::queryAllocStmt(Query *query)
 void FirebirdConnection::queryFreeStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
-    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+    auto statement = (FirebirdStatement*) query->statement();
     if (statement) {
         delete statement;
-        querySetStmt(query, 0L);
+        querySetStmt(query, nullptr);
         querySetPrepared(query, false);
     }
 }
@@ -224,7 +221,7 @@ void FirebirdConnection::queryCloseStmt(Query *query)
 {
     SYNCHRONIZED_CODE;
     try {
-        FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+        auto statement = (FirebirdStatement*) query->statement();
         if (statement)
             statement->close();
     }
@@ -238,7 +235,7 @@ void FirebirdConnection::queryPrepare(Query *query)
     SYNCHRONIZED_CODE;
 
     if (!query->prepared()) {
-        FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+        auto statement = (FirebirdStatement*) query->statement();
         try {
             statement->prepare(query->sql());
             statement->enumerateParams(query->params());
@@ -258,7 +255,7 @@ void FirebirdConnection::queryUnprepare(Query *query)
 int FirebirdConnection::queryColCount(Query *query)
 {
     int colCount = 0;
-    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+    auto statement = (FirebirdStatement*) query->statement();
     try {
         colCount = (int) statement->colCount();
     }
@@ -272,7 +269,7 @@ void FirebirdConnection::queryBindParameters(Query *query)
 {
     SYNCHRONIZED_CODE;
 
-    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+    auto statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not prepared");
@@ -285,7 +282,7 @@ void FirebirdConnection::queryBindParameters(Query *query)
 
 void FirebirdConnection::queryExecute(Query *query)
 {
-    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+    auto statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query is not prepared");
@@ -313,10 +310,10 @@ void FirebirdConnection::queryOpen(Query *query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+    auto statement = (FirebirdStatement*) query->statement();
 
     queryExecute(query);
-    short fieldCount = (short) queryColCount(query);
+    auto fieldCount = (short) queryColCount(query);
     if (fieldCount < 1) {
         return;
     } else {
@@ -340,7 +337,7 @@ void FirebirdConnection::queryFetch(Query *query)
     SYNCHRONIZED_CODE;
 
     try {
-        FirebirdStatement* statement = (FirebirdStatement*) query->statement();
+        auto statement = (FirebirdStatement*) query->statement();
 
         statement->fetch();
 
@@ -405,7 +402,7 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
     }
 }
 
-std::string FirebirdConnection::driverDescription() const
+String FirebirdConnection::driverDescription() const
 {
     return "Firebird";
 }
