@@ -329,18 +329,6 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
     *jwt = newData;
 }
 
-string sptk::jwt_get_grant(jwt_t *jwt, const char *grant)
-{
-    if (!jwt || !grant || !strlen(grant)) {
-        errno = EINVAL;
-        return nullptr;
-    }
-
-    errno = 0;
-
-    return get_js_string(&jwt->grants.root(), grant);
-}
-
 long sptk::jwt_get_grant_int(jwt_t *jwt, const char *grant)
 {
     if (!jwt || !grant || !strlen(grant)) {

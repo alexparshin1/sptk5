@@ -23,7 +23,7 @@ void test_jwt_dup()
 	auto jwt = new jwt_t;
 
 	jwt->add_grant("iss", "test");
-    string val = jwt_get_grant(jwt, "iss");
+    String val = jwt->get_grant("iss");
     if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
@@ -33,7 +33,7 @@ void test_jwt_dup()
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't duplicate JWT object");
     }
 
-	val = jwt_get_grant(newJWT, "iss");
+	val = newJWT->get_grant("iss");
 	if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
@@ -75,7 +75,7 @@ void test_jwt_dup_signed()
 
 	newJWT = jwt->clone();
 
-	string val = jwt_get_grant(newJWT, "iss");
+	String val = newJWT->get_grant("iss");
     if (val != "test") {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }

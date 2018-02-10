@@ -38,6 +38,14 @@ struct jwt
         return newJWT;
     }
 
+    String get_grant(const String& grant) const
+    {
+        if (grant.empty())
+            throw Exception("Invalid grant name");
+
+        return get_js_string(&grants.root(), grant);
+    }
+
     void add_grant(const String& grant, const String& val)
     {
         if (grant.empty())
@@ -79,9 +87,9 @@ private:
         alg = JWT_ALG_NONE;
     }
 
-    static String get_js_string(json::Element *js, const String& key)
+    static String get_js_string(const json::Element *js, const String& key)
     {
-        json::Element *element = js;
+        const json::Element *element = js;
         if (js->isObject())
             element = js->find(key);
 

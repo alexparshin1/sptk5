@@ -116,24 +116,6 @@ JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token, const String& key="")
  */
 
 /**
- * Return the value of a string grant.
- *
- * Returns the string value for a grant (e.g. "iss"). If it does not exist,
- * NULL will be returned.
- *
- * @param jwt Pointer to a JWT object.
- * @param grant String containing the name of the grant to return a value
- *     for.
- * @return Returns a string for the value, or NULL when not found.
- *
- * Note, this will only return grants with JSON string values. Use
- * jwt_get_grant_json() to get the JSON representation of more complex
- * values (e.g. arrays) or use jwt_get_grant_int() to get simple integer
- * values.
- */
-JWT_EXPORT std::string jwt_get_grant(jwt_t *jwt, const char *grant);
-
-/**
  * Return the value of an integer grant.
  *
  * Returns the int value for a grant (e.g. "exp"). If it does not exist,
