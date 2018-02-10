@@ -121,13 +121,6 @@ int sptk::jwt_new(jwt_t **jwt)
 
     *jwt = new jwt_t;
 
-    (*jwt)->grants = new json::Document(true);
-    if (!(*jwt)->grants) {
-        free(*jwt);
-        *jwt = nullptr;
-        return ENOMEM;
-    }
-
     return 0;
 }
 
@@ -137,8 +130,6 @@ void sptk::jwt_free(jwt_t *jwt)
         return;
 
     jwt_scrub_key(jwt);
-
-    delete jwt->grants;
 
     free(jwt);
 }
@@ -162,9 +153,8 @@ jwt_t* sptk::jwt_dup(jwt_t *jwt)
     }
 
     Buffer tempBuffer;
-    jwt->grants->exportTo(tempBuffer, false);
-    newJWT->grants = new json::Document(true);
-    newJWT->grants->load(tempBuffer.c_str());
+    jwt->grants.exportTo(tempBuffer, false);
+    newJWT->grants.load(tempBuffer.c_str());
 
     return newJWT;
 }
@@ -249,15 +239,12 @@ void * sptk::jwt_b64_decode(const char *src, int *ret_len)
 }
 
 
-static sptk::json::Document *jwt_b64_decode_json(const Buffer& src)
+static void jwt_b64_decode_json(json::Document &dest, const Buffer &src)
 {
     Buffer decodedData;
     Base64::decode(decodedData, src);
 
-    auto js = new json::Document(true);
-    js->load(decodedData.c_str());
-
-    return js;
+    dest.load(decodedData.c_str());
 }
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
@@ -338,48 +325,38 @@ static int jwt_verify(jwt_t *jwt, const Buffer& head, const Buffer& sig)
 
 static void jwt_parse_body(jwt_t *jwt, const Buffer& body)
 {
-    if (jwt->grants) {
-        delete jwt->grants;
-        jwt->grants = nullptr;
-    }
-
-    jwt->grants = jwt_b64_decode_json(body);
+    jwt_b64_decode_json(jwt->grants, body);
 }
 
 static void jwt_verify_head(jwt_t *jwt, const Buffer& head)
 {
-    json::Document* jsdoc = jwt_b64_decode_json(head);
-    json::Element* js = &jsdoc->root();
+    json::Document jsdoc;
+    jwt_b64_decode_json(jsdoc, head);
+    json::Element* js = &jsdoc.root();
 
-    try {
-        string val = get_js_string(js, "alg");
-        jwt->alg = jwt_str_alg(val.c_str());
-        if (jwt->alg == JWT_ALG_INVAL) {
-            throw Exception("Invalid algorithm");
-        }
-
-        if (jwt->alg != JWT_ALG_NONE) {
-            /* If alg is not NONE, there may be a typ. */
-            val = get_js_string(js, "typ");
-            if (val != "JWT")
-                throw Exception("Invalid algorithm name");
-
-            if (jwt->key.empty())
-                jwt_scrub_key(jwt);
-        } else {
-            /* If alg is NONE, there should not be a key */
-            if (!jwt->key.empty()) {
-                throw Exception("Unexpected key");
-            }
-        }
+    string val = get_js_string(js, "alg");
+    jwt->alg = jwt_str_alg(val.c_str());
+    if (jwt->alg == JWT_ALG_INVAL) {
+        throw Exception("Invalid algorithm");
     }
-    catch (...) {
-        delete jsdoc;
-        throw;
+
+    if (jwt->alg != JWT_ALG_NONE) {
+        /* If alg is not NONE, there may be a typ. */
+        val = get_js_string(js, "typ");
+        if (val != "JWT")
+            throw Exception("Invalid algorithm name");
+
+        if (jwt->key.empty())
+            jwt_scrub_key(jwt);
+    } else {
+        /* If alg is NONE, there should not be a key */
+        if (!jwt->key.empty()) {
+            throw Exception("Unexpected key");
+        }
     }
 }
 
-void sptk::jwt_decode(jwt_t **jwt, const char *token, const unsigned char *key, int key_len)
+void sptk::jwt_decode(jwt_t **jwt, const char *token, const String& key)
 {
     struct {
         const char* data;
@@ -412,8 +389,8 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const unsigned char *key, 
     jwt_new(&newData);
 
     // Copy the key over for verify_head.
-    if (key_len)
-        newData->key = String((const char*)key, key_len);
+    if (!key.empty())
+        newData->key = key;
 
     jwt_verify_head(newData, head);
     jwt_parse_body(newData, body);
@@ -437,7 +414,7 @@ string sptk::jwt_get_grant(jwt_t *jwt, const char *grant)
 
     errno = 0;
 
-    return get_js_string(&jwt->grants->root(), grant);
+    return get_js_string(&jwt->grants.root(), grant);
 }
 
 long sptk::jwt_get_grant_int(jwt_t *jwt, const char *grant)
@@ -449,7 +426,7 @@ long sptk::jwt_get_grant_int(jwt_t *jwt, const char *grant)
 
     errno = 0;
 
-    return get_js_int(&jwt->grants->root(), grant);
+    return get_js_int(&jwt->grants.root(), grant);
 }
 
 int sptk::jwt_get_grant_bool(jwt_t *jwt, const char *grant)
@@ -461,7 +438,7 @@ int sptk::jwt_get_grant_bool(jwt_t *jwt, const char *grant)
 
     errno = 0;
 
-    return get_js_bool(&jwt->grants->root(), grant);
+    return get_js_bool(&jwt->grants.root(), grant);
 }
 
 string jwt_get_grants_json(jwt_t *jwt, const char *grant)
@@ -474,9 +451,9 @@ string jwt_get_grants_json(jwt_t *jwt, const char *grant)
         return nullptr;
 
     if (grant && strlen(grant))
-        js_val = jwt->grants->root().find(grant);
+        js_val = jwt->grants.root().find(grant);
     else
-        js_val = &jwt->grants->root();
+        js_val = &jwt->grants.root();
 
     if (js_val == nullptr)
         return nullptr;
@@ -493,7 +470,7 @@ int sptk::jwt_add_grant(jwt_t *jwt, const char *grant, const char *val)
     if (!jwt || !grant || !strlen(grant) || !val)
         return EINVAL;
 
-    json::Element* grants = &jwt->grants->root();
+    json::Element* grants = &jwt->grants.root();
 
     if (!get_js_string(grants, grant).empty())
         return EEXIST;
@@ -508,7 +485,7 @@ int sptk::jwt_add_grant_int(jwt_t *jwt, const char *grant, long val)
     if (!jwt || !grant || !strlen(grant))
         return EINVAL;
 
-    json::Element* grants = &jwt->grants->root();
+    json::Element* grants = &jwt->grants.root();
 
     if (get_js_int(grants, grant) != -1)
         return EEXIST;
@@ -523,7 +500,7 @@ int sptk::jwt_add_grant_bool(jwt_t *jwt, const char *grant, int val)
     if (!jwt || !grant || !strlen(grant))
         return EINVAL;
 
-    json::Element* grants = &jwt->grants->root();
+    json::Element* grants = &jwt->grants.root();
 
     if (get_js_int(grants, grant) != -1)
         return EEXIST;
@@ -542,10 +519,10 @@ int sptk::jwt_add_grants_json(jwt_t *jwt, const char *json)
     newGrantsDoc.load(json);
     json::ObjectData& newGrantsObject = newGrantsDoc.root().getObject();
     for (auto itor: newGrantsObject) {
-        json::Element* existingGrant = jwt->grants->root().find(itor.first);
+        json::Element* existingGrant = jwt->grants.root().find(itor.first);
         if (existingGrant)
             newGrantsObject.remove(itor.first);
-        jwt->grants->root().add(itor.first, itor.second);
+        jwt->grants.root().add(itor.first, itor.second);
     }
 
     return 0;
@@ -557,9 +534,9 @@ int sptk::jwt_del_grants(jwt_t *jwt, const char *grant)
         return EINVAL;
 
     if (grant == nullptr || !strlen(grant))
-        jwt->grants->clear();
+        jwt->grants.clear();
     else
-        jwt->grants->root().remove(grant);
+        jwt->grants.root().remove(grant);
 
     return 0;
 }
@@ -610,7 +587,7 @@ static void jwt_write_head(jwt_t *jwt, ostream& output, int pretty)
 
 static void jwt_write_body(jwt_t *jwt, ostream& output, int pretty)
 {
-    jwt->grants->exportTo(output, pretty);
+    jwt->grants.exportTo(output, pretty);
 }
 
 static void jwt_dump(jwt_t *jwt, ostream& output, int pretty)

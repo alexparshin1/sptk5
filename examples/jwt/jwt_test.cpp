@@ -130,7 +130,7 @@ void test_jwt_decode()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, nullptr, 0);
+        jwt_decode(&jwt, token);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
@@ -153,7 +153,7 @@ void test_jwt_decode_invalid_final_dot()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, NULL, 0);
+        jwt_decode(&jwt, token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -171,7 +171,7 @@ void test_jwt_decode_invalid_alg()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, NULL, 0);
+        jwt_decode(&jwt, token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -189,7 +189,7 @@ void test_jwt_decode_invalid_typ()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, NULL, 0);
+        jwt_decode(&jwt, token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -207,7 +207,7 @@ void test_jwt_decode_invalid_head()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, NULL, 0);
+        jwt_decode(&jwt, token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -225,7 +225,7 @@ void test_jwt_decode_alg_none_with_key()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, NULL, 0);
+        jwt_decode(&jwt, token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -243,7 +243,7 @@ void test_jwt_decode_invalid_body()
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, NULL, 0);
+        jwt_decode(&jwt, token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
@@ -258,11 +258,11 @@ void test_jwt_decode_hs256()
 	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
 			     "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
 			     "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
-	unsigned char key256[] = "012345678901234567890123456789XY";
+	String key256("012345678901234567890123456789XY");
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, key256, sizeof(key256));
+        jwt_decode(&jwt, token, key256);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
@@ -280,13 +280,13 @@ void test_jwt_decode_hs384()
             "3ViIjoidXNlcjAifQ.xqea3OVgPEMxsCgyikr"
             "R3gGv4H2yqMyXMm7xhOlQWpA-NpT6n2a1d7TD"
             "GgU6LOe4";
-	const unsigned char key384[] =
+	String key384(
             "aaaabbbbccccddddeeeeffffg"
-			"ggghhhhiiiijjjjkkkkllll";
+			"ggghhhhiiiijjjjkkkkllll");
 	jwt_t *jwt;
 
     try {
-        jwt_decode(&jwt, token, key384, sizeof(key384));
+        jwt_decode(&jwt, token, key384);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
@@ -303,13 +303,13 @@ void test_jwt_decode_hs512()
             "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
             "Q.u-4XQB1xlYV8SgAnKBof8fOWOtfyNtc1ytTlc_vHo0U"
             "lh5uGT238te6kSacnVzBbC6qwzVMT1806oa1Y8_8EOg";
-	unsigned char key512[] =
+	String key512(
             "012345678901234567890123456789XY"
-			"012345678901234567890123456789XY";
+			"012345678901234567890123456789XY");
 	jwt_t *jwt;
 
     try {
-	    jwt_decode(&jwt, token, key512, sizeof(key512));
+	    jwt_decode(&jwt, token, key512);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));

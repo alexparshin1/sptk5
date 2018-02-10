@@ -107,8 +107,7 @@ JWT_EXPORT int jwt_new(jwt_t **jwt);
  *     success.
  * @param token Pointer to a valid JWT string, nul terminated.
  * @param key Pointer to the key for validating the JWT signature or for
- *     decrypting the token or NULL if no validation is to be performed.
- * @param key_len The length of the above key.
+ *     decrypting the token or empty string if no validation is to be performed.
  * @return 0 on success, valid errno otherwise.
  *
  * @remark If a key is supplied, the token must pass sig check or decrypt
@@ -117,8 +116,7 @@ JWT_EXPORT int jwt_new(jwt_t **jwt);
  *     signature, however, standard validation of the token is still
  *     performed.
  */
-JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token,
-	                 const unsigned char *key, int key_len);
+JWT_EXPORT void jwt_decode(jwt_t **jwt, const char *token, const String& key="");
 
 /**
  * Free a JWT object and any other resources it is using.
