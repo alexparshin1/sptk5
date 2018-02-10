@@ -280,21 +280,26 @@ void test_jwt_decode_hs512()
 
 int main(int argc, char *argv[])
 {
-/*
-    jwt_t *JWT;
+
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5pbyIsInN1YiI6ImM0Y2ZjODIyLWM5ZjAtNGExMS05ZmFkLTJhNzJlYWVlMzM1NyIsImF1ZCI6Ijc1NzNjMjZiMTY5OTNlZjUzNmRjOTM5N2Y1YzA4OTExYTU1MWM3OWEiLCJpYXQiOjE1MTgxNTQxODIsImV4cCI6MTUxODE1Nzc4Miwic2NvcGUiOlsiRURQOkVkdWxvZzpBZG1pbiJdfQ.6DDnBtXAcYalH0NRnUnSRMNLFmjugId6RI9IyHCOQ_8";
 
-    DateTime dt = DateTime::Now();
-    chrono::seconds sec = chrono::duration_cast<chrono::seconds>(dt.sinceEpoch());
-    cout << "now: " << sec.count() << endl;
+    JWT jwt;
     try {
-        jwt_decode(&JWT, token, nullptr, 0);
-        JWT->grants->exportTo(cout);
+        jwt.decode(token);
+        jwt.grants.exportTo(cout);
+        cout << endl;
+        stringstream temp;
+        jwt.encode(temp);
+        jwt.decode(temp.str().c_str());
+        jwt.grants.exportTo(cout);
+        cout << endl;
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
-*/
+
+    return 0;
+
     try {
         test_jwt_dup();
         test_jwt_dup_signed();

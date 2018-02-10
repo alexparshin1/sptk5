@@ -327,12 +327,12 @@ int JWT::encode(ostream& out)
     jwt_base64uri_encode(encodedHead);
     jwt_base64uri_encode(encodedBody);
 
-    Buffer output(move(encodedHead));
+    Buffer output(encodedHead);
     output.append('.');
     output.append(encodedBody);
 
     if (alg == JWT::JWT_ALG_NONE) {
-        output.append('.');
+        out << output.c_str() << '.';
         return 0;
     }
 
@@ -346,8 +346,7 @@ int JWT::encode(ostream& out)
     Base64::encode(signature, sig, sig_len);
     jwt_base64uri_encode(signature);
 
-    output.append('.');
-    output.append(signature);
+    out << output.c_str() << '.' << signature;
 
     return ret;
 }
@@ -429,17 +428,18 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
         }
     }
 
-    str[t] = '\0';
+    buffer.bytes(t);
 }
 
-static int jwt_verify(JWT *jwt, const Buffer& head, const Buffer& sig)
+void JWT::verify(const Buffer& head, const Buffer& sig)
 {
-    switch (jwt->alg) {
+    switch (alg) {
         /* HMAC */
         case JWT::JWT_ALG_HS256:
         case JWT::JWT_ALG_HS384:
         case JWT::JWT_ALG_HS512:
-            return jwt_verify_sha_hmac(jwt, head.c_str(), sig.c_str());
+            jwt_verify_sha_hmac(this, head.c_str(), sig.c_str());
+            break;
 
             /* RSA */
         case JWT::JWT_ALG_RS256:
@@ -450,11 +450,12 @@ static int jwt_verify(JWT *jwt, const Buffer& head, const Buffer& sig)
         case JWT::JWT_ALG_ES256:
         case JWT::JWT_ALG_ES384:
         case JWT::JWT_ALG_ES512:
-            return jwt_verify_sha_pem(jwt, head.c_str(), sig.c_str());
+            jwt_verify_sha_pem(this, head.c_str(), sig.c_str());
+            break;
 
             /* You wut, mate? */
         default:
-            return EINVAL;
+            throw Exception("Unknown encryption algorithm");
     }
 }
 
@@ -529,6 +530,6 @@ void JWT::decode(const char *token, const String& key)
     if (this->alg != JWT::JWT_ALG_NONE) {
         // Re-add this since it's part of the verified data.
         //body[-1] = '.';
-        jwt_verify(this, head, sig);
+        verify(head, sig);
     }
 }

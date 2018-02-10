@@ -78,6 +78,7 @@ public:
     void write_head(std::ostream& output, int pretty) const;
     void write_body(std::ostream& output, int pretty) const;
 
+    void verify(const Buffer& head, const Buffer& sig);
 };
 
 /* Helper routines. */
