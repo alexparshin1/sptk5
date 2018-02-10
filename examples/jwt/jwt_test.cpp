@@ -83,7 +83,7 @@ void test_jwt_dup()
 
 void test_jwt_dup_signed()
 {
-	unsigned char key256[] = "012345678901234567890123456789XY";
+	String key256("012345678901234567890123456789XY");
 	jwt_t *jwt = NULL, *newJWT = NULL;
 	int ret = 0;
 
@@ -97,7 +97,7 @@ void test_jwt_dup_signed()
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_add_grant_int()");
     }
 
-	ret = jwt_set_alg(jwt, JWT_ALG_HS256, key256, sizeof(key256));
+	ret = jwt_set_alg(jwt, JWT_ALG_HS256, key256);
     if (ret != 0) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_set_alg()");
     }
@@ -321,6 +321,7 @@ void test_jwt_decode_hs512()
 
 int main(int argc, char *argv[])
 {
+/*
     jwt_t *jwt;
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5pbyIsInN1YiI6ImM0Y2ZjODIyLWM5ZjAtNGExMS05ZmFkLTJhNzJlYWVlMzM1NyIsImF1ZCI6Ijc1NzNjMjZiMTY5OTNlZjUzNmRjOTM5N2Y1YzA4OTExYTU1MWM3OWEiLCJpYXQiOjE1MTgxNTQxODIsImV4cCI6MTUxODE1Nzc4Miwic2NvcGUiOlsiRURQOkVkdWxvZzpBZG1pbiJdfQ.6DDnBtXAcYalH0NRnUnSRMNLFmjugId6RI9IyHCOQ_8";
 
@@ -334,7 +335,7 @@ int main(int argc, char *argv[])
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
-
+*/
     try {
         test_jwt_new();
         test_jwt_dup();

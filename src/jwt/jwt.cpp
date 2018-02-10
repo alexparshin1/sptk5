@@ -80,19 +80,11 @@ jwt_alg_t sptk::jwt_str_alg(const char *alg)
 
 static void jwt_scrub_key(jwt_t *jwt)
 {
-    if (jwt->key) {
-        /* Overwrite it so it's gone from memory. */
-        memset(jwt->key, 0, jwt->key_len);
-
-        free(jwt->key);
-        jwt->key = nullptr;
-    }
-
-    jwt->key_len = 0;
+    jwt->key = "";
     jwt->alg = JWT_ALG_NONE;
 }
 
-int sptk::jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const unsigned char *key, int len)
+int sptk::jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const String &key)
 {
     /* No matter what happens here, we do this. */
     jwt_scrub_key(jwt);
@@ -102,23 +94,17 @@ int sptk::jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const unsigned char *key, int l
 
     switch (alg) {
         case JWT_ALG_NONE:
-            if (key || len)
+            if (!key.empty())
                 return EINVAL;
             break;
 
         default:
-            if (!key || len <= 0)
+            if (key.empty())
                 return EINVAL;
-
-            jwt->key = (unsigned char*) malloc(len);
-            if (!jwt->key)
-                return ENOMEM;
-
-            memcpy(jwt->key, key, len);
     }
 
+    jwt->key = key;
     jwt->alg = alg;
-    jwt->key_len = len;
 
     return 0;
 }
@@ -133,11 +119,7 @@ int sptk::jwt_new(jwt_t **jwt)
     if (!jwt)
         return EINVAL;
 
-    *jwt = (jwt_t*) malloc(sizeof(jwt_t));
-    if (!*jwt)
-        return ENOMEM;
-
-    memset(*jwt, 0, sizeof(jwt_t));
+    *jwt = new jwt_t;
 
     (*jwt)->grants = new json::Document(true);
     if (!(*jwt)->grants) {
@@ -172,24 +154,11 @@ jwt_t* sptk::jwt_dup(jwt_t *jwt)
 
     errno = 0;
 
-    newJWT = (jwt_t*) malloc(sizeof(jwt_t));
-    if (!newJWT) {
-        errno = ENOMEM;
-        return nullptr;
-    }
+    newJWT = new jwt_t;
 
-    memset(newJWT, 0, sizeof(jwt_t));
-
-    if (jwt->key_len) {
+    if (!jwt->key.empty()) {
         newJWT->alg = jwt->alg;
-        newJWT->key = (unsigned char*) malloc(jwt->key_len);
-        if (!newJWT->key) {
-            errno = ENOMEM;
-            jwt_free(newJWT);
-            return nullptr;
-        }
-        memcpy(newJWT->key, jwt->key, jwt->key_len);
-        newJWT->key_len = jwt->key_len;
+        newJWT->key = jwt->key;
     }
 
     Buffer tempBuffer;
@@ -395,15 +364,11 @@ static void jwt_verify_head(jwt_t *jwt, const Buffer& head)
             if (val != "JWT")
                 throw Exception("Invalid algorithm name");
 
-            if (jwt->key) {
-                if (jwt->key_len <= 0)
-                    throw Exception("Invalid key length");
-            } else {
+            if (jwt->key.empty())
                 jwt_scrub_key(jwt);
-            }
         } else {
             /* If alg is NONE, there should not be a key */
-            if (jwt->key) {
+            if (!jwt->key.empty()) {
                 throw Exception("Unexpected key");
             }
         }
@@ -447,11 +412,8 @@ void sptk::jwt_decode(jwt_t **jwt, const char *token, const unsigned char *key, 
     jwt_new(&newData);
 
     // Copy the key over for verify_head.
-    if (key_len) {
-        newData->key = (unsigned char*) malloc(key_len);
-        memcpy(newData->key, key, key_len);
-        newData->key_len = key_len;
-    }
+    if (key_len)
+        newData->key = String((const char*)key, key_len);
 
     jwt_verify_head(newData, head);
     jwt_parse_body(newData, body);

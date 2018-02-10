@@ -14,10 +14,13 @@ namespace sptk {
 
 struct jwt
 {
-	jwt_alg_t alg;
-	unsigned char* key;
-	int key_len;
+	jwt_alg_t       alg;
+	String          key;
 	json::Document* grants;
+
+    jwt() : alg(JWT_ALG_NONE), grants(NULL)
+    {
+    }
 };
 
 /* Helper routines. */

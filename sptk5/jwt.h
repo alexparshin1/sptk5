@@ -6,7 +6,8 @@
    file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * @file jwt.h
+ * @file jwt.h, jwt->key_len);
+        newJWT->key_len = jwt->key_len
  * @brief JWT C Library
  */
 
@@ -15,6 +16,7 @@
 
 #include <cstdio>
 #include <fstream>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -408,7 +410,7 @@ JWT_EXPORT std::string jwt_encode_str(jwt_t *jwt);
  * @param len The length of the key data.
  * @return Returns 0 on success, valid errno otherwise.
  */
-JWT_EXPORT int jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const unsigned char *key, int len);
+JWT_EXPORT int jwt_set_alg(jwt_t *jwt, jwt_alg_t alg, const String& key);
 
 /**
  * Get the jwt_alg_t set for this JWT object.

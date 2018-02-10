@@ -77,7 +77,7 @@ int jwt_sign_sha_hmac(jwt_t* jwt, char** out, unsigned int* len,
     if (*out == nullptr)
         return ENOMEM;
 
-    HMAC(alg, jwt->key, jwt->key_len,
+    HMAC(alg, jwt->key.c_str(), jwt->key.length(),
          (const unsigned char*) str, strlen(str), (unsigned char*) *out,
          len);
 
@@ -120,7 +120,7 @@ int jwt_verify_sha_hmac(jwt_t* jwt, const char* head, const char* sig)
     BIO_push(b64, bmem);
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
-    HMAC(alg, jwt->key, jwt->key_len,
+    HMAC(alg, jwt->key.c_str(), jwt->key.length(),
          (const unsigned char*) head, strlen(head), res, &res_len);
 
     BIO_write(b64, res, res_len);
@@ -197,7 +197,7 @@ int jwt_sign_sha_pem(jwt_t* jwt, char** out, unsigned int* len,
             return EINVAL;
     }
 
-    bufkey = BIO_new_mem_buf(jwt->key, jwt->key_len);
+    bufkey = BIO_new_mem_buf(jwt->key.c_str(), jwt->key.length());
     if (bufkey == nullptr) SIGN_ERROR(ENOMEM);
 
     /* This uses OpenSSL's default passphrase callback if needed. The
@@ -340,7 +340,7 @@ int jwt_verify_sha_pem(jwt_t* jwt, const char* head, const char* sig_b64)
     sig = (unsigned char*) jwt_b64_decode(sig_b64, &slen);
     if (sig == nullptr) VERIFY_ERROR(EINVAL);
 
-    bufkey = BIO_new_mem_buf(jwt->key, jwt->key_len);
+    bufkey = BIO_new_mem_buf(jwt->key.c_str(), jwt->key.length());
     if (bufkey == nullptr) VERIFY_ERROR(ENOMEM);
 
     /* This uses OpenSSL's default passphrase callback if needed. The
