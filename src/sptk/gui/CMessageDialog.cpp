@@ -60,7 +60,7 @@ CAskDialog::CAskDialog(const char *label,int w)
    end();
 }
 
-bool CAskDialog::execute(string msg) {
+bool CAskDialog::execute(const String& msg) {
    string htmlMessage(msg);
    if (upperCase(htmlMessage).find("<HTML>") == STRING_NPOS) {
       htmlMessage = "<HTML><BODY>" + replaceAll(htmlMessage,"\n","<BR>") + "</BODY></HTML>";
@@ -70,7 +70,7 @@ bool CAskDialog::execute(string msg) {
    return showModal();
 }	
 
-bool CInputDialog::execute(string msg,string& inputText) {
+bool CInputDialog::execute(const String& msg, String& inputText) {
    m_inputBox->data(inputText.c_str());
    if (CAskDialog::execute(msg)) {
       inputText = m_inputBox->data().asString().c_str();
@@ -79,31 +79,31 @@ bool CInputDialog::execute(string msg,string& inputText) {
    return false;
 }
 
-int sptk::spAsk(string message) {
+int sptk::spAsk(const String& message) {
    CAskDialog ask("Please, confirm");
    ask.icon(CThemes::getIconImage("question",IS_DIALOG_ICON));
    return ask.execute(message);
 }
 
-int sptk::spInformation(string message) {
+int sptk::spInformation(const String& message) {
    CMessageDialog ask("Information");
    ask.icon(CThemes::getIconImage("info",IS_DIALOG_ICON));
    return ask.execute(message);
 }
 
-int sptk::spWarning(string message) {
+int sptk::spWarning(const String& message) {
    CMessageDialog ask("Warning");
    ask.icon(CThemes::getIconImage("warning",IS_DIALOG_ICON));
    return ask.execute(message);
 }
 
-int sptk::spError(string message) {
+int sptk::spError(const String& message) {
    CMessageDialog ask("Error");
    ask.icon(CThemes::getIconImage("error",IS_DIALOG_ICON));
    return ask.execute(message);
 }
 
-int sptk::spInput(string message,string& inputText) {
+int sptk::spInput(const String& message, String& inputText) {
    CInputDialog ask("Please, input");
    ask.icon(CThemes::getIconImage("question",IS_DIALOG_ICON));
    return ask.execute(message,inputText);

@@ -65,7 +65,7 @@ QueryParameter::~QueryParameter()
     delete [] m_timeData;
 }
 
-string QueryParameter::name() const
+String QueryParameter::name() const
 {
     return m_name;
 }

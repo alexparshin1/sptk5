@@ -51,7 +51,7 @@ void CBox::ctor_init(const char* label)
 }
 
 CBox::CBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-    : CInput("", layoutSize, layoutAlignment, false)
+        : CInput("", layoutSize, layoutAlignment, false)
 {
     ctor_init(label);
 }
@@ -92,7 +92,7 @@ Variant CBox::data() const
 
 void CBox::data(const Variant v)
 {
-    std::string text = v.asString();
+    String text = v.asString();
     m_label.resize(text.length());
     if (!m_label.empty()) {
         unsigned i = 0;

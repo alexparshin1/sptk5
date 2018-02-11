@@ -31,7 +31,6 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Input.H>
 #include <FL/fl_draw.H>
-#include <math.h>
 
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
@@ -45,7 +44,7 @@ using namespace sptk;
 // define it as 1 to prevent cursor movement from going to next field:
 #define NORMAL_INPUT_MOVE 0
 
-#define ctrl(x) (x^0x40)
+#define ctrl(x) ((x)^0x40)
 
 static const char phoneMask[] = "(999)-999-9999";
 
@@ -86,8 +85,8 @@ void CInput_::mask(const char *m)
 
    if (!m) return;
 
-   char *bg_mask_ptr = (char *) m_backgroundMask.c_str();
-   char *input_mask_ptr = (char *) m_inputMask.c_str();
+   auto bg_mask_ptr = (char *) m_backgroundMask.c_str();
+   auto input_mask_ptr = (char *) m_inputMask.c_str();
 
    size_t l = m_mask.length();
    size_t j = 0;
@@ -168,12 +167,12 @@ bool CInput_::checkCharacter(int pos,char& key)
          if (checkCharacterAtPos(pos,key)) {
             et[0] = key;
             rc = replace(pos, pos+1, et, 1);
-            return (rc>0);
+            return rc > 0;
          }
-         return 1;
+         return true;
       }
    }
-   return 1;
+   return true;
 }
 
 int CInput_::handle(int event)
@@ -190,7 +189,7 @@ int CInput_::handle(int event)
             break;
 
          case FL_FOCUS: {
-               CControl *control = dynamic_cast<CControl *>(parent());
+               auto control = dynamic_cast<CControl *>(parent());
                if (!control && parent())
                   control = dynamic_cast<CControl *>(parent()->parent());
                if (control)
@@ -307,7 +306,7 @@ void CInput::ctor_init(bool autoCreate)
         m_control->color(FL_BACKGROUND2_COLOR);
         menu(CControl::defaultControlMenu);
     } else {
-        m_control = 0L;
+        m_control = nullptr;
     }
     end();
 }
@@ -332,18 +331,18 @@ CInput::CInput(int x,int y,int w,int h,const char *label,bool autoCreate)
 }
 #endif
 
-CInput::~CInput() {}
+CInput::~CInput() = default;
 
 CLayoutClient* CInput::creator(XMLNode *node)
 {
-    CInput* widget = new CInput("",10,SP_ALIGN_TOP);
+    auto widget = new CInput("",10,SP_ALIGN_TOP);
     widget->load(node,LXM_LAYOUTDATA);
     return widget;
 }
 
 int CInput::maxLength() const
 {
-    CInput_ *input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         return input->maxLength();
     return 0;
@@ -351,14 +350,14 @@ int CInput::maxLength() const
 
 void CInput::maxLength(int ml)
 {
-    CInput_ *input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         input->maxLength(ml);
 }
 
 int CInput::controlType() const
 {
-    CInput_ *input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         return input->type();
     return 0;
@@ -366,7 +365,7 @@ int CInput::controlType() const
 
 void CInput::controlType(int type)
 {
-    CInput_ *input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_ *>(m_control);
     if (input)
         input->type((unsigned char)(type));
 }
@@ -414,7 +413,7 @@ Variant CInput::data() const
 
 void CInput::data(const Variant s)
 {
-    std::string strValue = s.asString();
+    String strValue = s.asString();
     ((CInput_ *)m_control)->value(strValue.c_str());
 }
 

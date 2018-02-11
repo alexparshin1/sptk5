@@ -323,7 +323,7 @@ public:
     /**
      * @brief Shows an alert box
      */
-    void alert(std::string s) const;
+    void alert(const String& s) const;
 
     /**
      * @brief Defines the default button

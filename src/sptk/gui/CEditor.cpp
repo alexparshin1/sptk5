@@ -32,7 +32,7 @@
 using namespace sptk;
 
 void CEditor::ctor_init() {
-   Fl_Text_Buffer *buff = new Fl_Text_Buffer;
+   auto *buff = new Fl_Text_Buffer;
    box(FL_THIN_DOWN_BOX);
    buffer(buff);
    m_lastCursorPosition = -1;
@@ -53,7 +53,7 @@ CEditor::CEditor(int x, int y, int w, int h, const char*l)
 
 CEditor::~CEditor() {
    delete mBuffer;
-   mBuffer = 0L;
+   mBuffer = nullptr;
 }
 
 bool CEditor::preferredSize(int& w,int& h) {

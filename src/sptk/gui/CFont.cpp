@@ -39,8 +39,8 @@ string CFont::id() const {
 }
 
 void CFontsMap::clear() {
-    for (iterator itor = begin(); itor != end(); ++itor)
-        delete itor->second;
+    for (auto itor: *this)
+        delete itor.second;
     map<string,CFont*>::clear();
 }
 
@@ -55,8 +55,8 @@ void CFontsVector::push_back(CFont *font) {
 }
 
 CFont* CFontsVector::find(std::string fontName) const {
-    map<string,CFont*>::const_iterator itor = m_index.find(fontName);
+    auto itor = m_index.find(fontName);
     if (itor == m_index.end())
-        return NULL;
+        return nullptr;
     return itor->second;
 }

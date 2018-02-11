@@ -61,7 +61,7 @@ CDialog::CDialog(int w, int h, const char *label) :
     m_queriesBuilt = false;
     m_controlsScanned = false;
     m_keyValue = -1;
-    m_defaultButton = NULL;
+    m_defaultButton = nullptr;
 
     fl_cursor(FL_CURSOR_WAIT);
     Fl::check();
@@ -100,7 +100,7 @@ int CDialog::handle(int event)
     {
     case FL_KEYBOARD:
         if (Fl::event_key() == FL_Enter) {
-            Fl_Button *btn = dynamic_cast<Fl_Button *>(Fl::focus());
+            auto btn = dynamic_cast<Fl_Button *>(Fl::focus());
             if (btn)
                 btn->do_callback();
             else if (m_defaultButton)
@@ -116,7 +116,7 @@ void CDialog::defaultButton(CButton *newDefaultButton)
 {
     unsigned cnt = m_buttonGroup->children();
     for (unsigned bi = 0; bi < cnt; bi++) {
-        CButton *button = (CButton *) m_buttonGroup->child(bi);
+        auto button = (CButton *) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
     }
     m_defaultButton = newDefaultButton;
@@ -277,7 +277,7 @@ bool CDialog::load()
     if (m_keyValue > 0) {
         m_selectQuery->param("key").setInteger(m_keyValue);
         m_selectQuery->open();
-        CControlList::iterator itor = m_defaultFields.begin();
+        auto itor = m_defaultFields.begin();
         for (; itor != m_defaultFields.end(); ++itor) {
             try {
                 CControl* control = itor->second;
@@ -297,11 +297,11 @@ bool CDialog::save()
     if (!m_controlsScanned)
         scanControls();
 
-    if (!m_defaultFields.size())
+    if (m_defaultFields.empty())
         return true;
 
     // Validating data in controls
-    CControlList::iterator itor = m_defaultFields.begin();
+    auto itor = m_defaultFields.begin();
     for (; itor != m_defaultFields.end(); ++itor) {
         CControl* control = itor->second;
         if (!control->valid()) {
@@ -353,7 +353,7 @@ CControl& CDialog::operator [](string fieldName)
 {
     if (!m_controlsScanned)
         scanControls();
-    CControlList::iterator itor = m_allFields.find(fieldName);
+    auto itor = m_allFields.find(fieldName);
     if (itor != m_allFields.end())
         return *itor->second;
     throw Exception("The dialog window doesn't have a field '" + fieldName + "'");
@@ -362,7 +362,7 @@ CControl& CDialog::operator [](string fieldName)
 CButton *CDialog::addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callbackFunction)
 {
     m_buttonGroup->begin();
-    CButton *extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
+    auto extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
     m_buttonGroup->end();
     if (callbackFunction)
         extraButton->callback(callbackFunction);
@@ -374,9 +374,9 @@ int CDialog::keyValue() const
     return m_keyValue;
 }
 
-void CDialog::alert(const string s) const
+void CDialog::alert(const String& s) const
 {
-    spWarning(s.c_str());
+    spWarning(s);
 }
 
 void CDialog::scanControls()

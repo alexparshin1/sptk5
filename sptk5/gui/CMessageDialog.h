@@ -77,7 +77,7 @@ public:
      * Shows message and waits for the user
      * @param msg const char *, message to show
      */
-    bool execute(std::string msg);
+    bool execute(const String& msg);
 
     /**
      * Sets icon for the window
@@ -126,7 +126,7 @@ public:
      * @param msg std::string, message to show
      * @param inputText std::string&, string to input
      */
-    bool execute(std::string msg,std::string& inputText);
+    bool execute(const String& msg, String& inputText);
 };
 
 /**
@@ -134,28 +134,28 @@ public:
  *
  * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
  */
-int spAsk(std::string message);
+int spAsk(const String& message);
 
 /**
  * @brief A warning information dialog box warning function
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-int spWarning(std::string message);
+int spWarning(const String& message);
 
 /**
  * @brief An error information dialog box function
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-int spError(std::string message);
+int spError(const String& message);
 
 /**
  * @brief An information dialog box function
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-int spInformation(std::string message);
+int spInformation(const String& message);
 
 /**
  * @brief A single input Yes/No dialog box
@@ -163,7 +163,7 @@ int spInformation(std::string message);
  * Creates a dialog with the text or HTML text of question (message),
  * two buttons (Ok/Cancel), and input box
  */
-int spInput(std::string message,std::string& inputText);
+int spInput(const String& message, String& inputText);
 
 /**
  * @}

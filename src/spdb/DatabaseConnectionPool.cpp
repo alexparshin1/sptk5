@@ -73,7 +73,7 @@ void DatabaseConnectionPool::load()
 {
     SYNCHRONIZED_CODE;
 
-    string driverName = lowerCase(m_driverName);
+    String driverName = lowerCase(m_driverName);
     if (driverName == "mssql")
         driverName = "odbc";
 
@@ -92,7 +92,7 @@ void DatabaseConnectionPool::load()
     if (!handle)
         throw DatabaseException("Cannot load library: " + driverFileName);
 #else
-    string driverFileName = "libspdb5_"+driverName+".so";
+    String driverFileName = "libspdb5_" + driverName + ".so";
 
     DriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
     if (handle == nullptr)
@@ -100,8 +100,8 @@ void DatabaseConnectionPool::load()
 #endif
 
     // Creating the driver instance
-    string create_connectionFunctionName(driverName + "_create_connection");
-    string destroy_connectionFunctionName(driverName + "_destroy_connection");
+    String create_connectionFunctionName(driverName + "_create_connection");
+    String destroy_connectionFunctionName(driverName + "_destroy_connection");
 #ifdef WIN32
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
     if (!createConnection)

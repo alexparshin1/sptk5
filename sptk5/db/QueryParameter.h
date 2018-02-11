@@ -52,7 +52,7 @@ protected:
     /**
      * Parameter name
      */
-    std::string         m_name;
+    String              m_name;
 
     /**
      * The list of SQL query parameter numbers with this name
@@ -134,7 +134,7 @@ public:
     /**
      * @brief Returns parameter name
      */
-    std::string name() const;
+    String name() const;
 
     /**
      * @brief Assign operator

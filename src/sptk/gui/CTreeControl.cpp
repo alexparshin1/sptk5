@@ -139,12 +139,12 @@ void CTreeItem::resize(int xx, int yy, int ww, int hh)
 
 void CTreeItem::label(const char* lbl)
 {
-    CBox* abox = dynamic_cast<CBox*> (m_body);
+    auto abox = dynamic_cast<CBox*> (m_body);
 
     if (abox) {
         abox->data(lbl);
     } else {
-        CControl* control = dynamic_cast<CControl*> (m_body);
+        auto control = dynamic_cast<CControl*> (m_body);
 
         if (control)
             control->label(lbl);
@@ -164,7 +164,7 @@ int CTreeItem::handle(int event)
                 unsigned cnt = children();
 
                 for (unsigned i = 1; i < cnt; i++) {
-                    CTreeItem* item = (CTreeItem*) child(i);
+                    auto item = (CTreeItem*) child(i);
 
                     if (item->y() + 12 >= Fl::event_y()) {
                         if (item->opened())
@@ -259,7 +259,7 @@ int CTreeItem::handle(int event)
 
 CTreeItem* CTreeItem::parentItem() const
 {
-    CTreeItem* par = dynamic_cast<CTreeItem*> (parent());
+    auto par = dynamic_cast<CTreeItem*> (parent());
     return par;
 }
 
@@ -270,7 +270,7 @@ CTreeItem* CTreeItem::addItem(const char* label, const Fl_Image* openedImage, co
 
     Fl_Group* saveCurrent = Fl_Group::current();
     begin();
-    CTreeItem* item = new CTreeItem(label, openedImage, closedImage, data);
+    auto item = new CTreeItem(label, openedImage, closedImage, data);
     //insert(*item,children());
 
     if (!m_opened)
@@ -287,9 +287,9 @@ void CTreeItem::draw()
     int xx = x();
     int yy = y();
 
-    bool isRoot = dynamic_cast<CTreeControl*> (parent()) != 0;
+    bool isRoot = dynamic_cast<CTreeControl*> (parent()) != nullptr;
 
-    const Fl_Image* image = 0L;
+    const Fl_Image* image = nullptr;
 
     if (!isRoot) {
         if (m_opened) {
@@ -345,7 +345,7 @@ void CTreeItem::draw()
             fl_line(lx, sly, lx, cly);
 
         for (unsigned j = 1; j < cnt; j++) {
-            CTreeItem* item = (CTreeItem*) child(j);
+            auto item = (CTreeItem*) child(j);
 
             if (item->children() < 2)
                 continue;
@@ -361,7 +361,7 @@ void CTreeItem::draw()
     }
 
     if (!isRoot) {
-        Fl_Image* img = (Fl_Image*) image;
+        auto img = (Fl_Image*) image;
 
         if (img)
             img->draw(xx, yy, image->w(), image->h(), 0, 0);
@@ -377,7 +377,7 @@ CTreeItem* CTreeItem::findItem(const char* label) const
     string slabel = label;
 
     for (unsigned i = 0; i < cnt; i++) {
-        CTreeItem* item = (CTreeItem*) child(i);
+        auto item = (CTreeItem*) child(i);
 
         if (item->m_body->label() == slabel)
             return item;
@@ -390,7 +390,7 @@ CTreeItem* CTreeItem::findItem(const char* label) const
         }
     }
 
-    return 0L;
+    return nullptr;
 }
 
 CTreeItem* CTreeItem::findData(const void* itemData) const
@@ -398,7 +398,7 @@ CTreeItem* CTreeItem::findData(const void* itemData) const
     unsigned cnt = children();
 
     for (unsigned i = 0; i < cnt; i++) {
-        CTreeItem* item = (CTreeItem*) child(i);
+        auto item = (CTreeItem*) child(i);
 
         if (item->user_data() == itemData)
             return item;
@@ -411,14 +411,14 @@ CTreeItem* CTreeItem::findData(const void* itemData) const
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 CTreeItem* CTreeItem::addPathOffset(const vector<string>& pathFolders, unsigned offset, const Fl_Image* openedImage,
                                     const Fl_Image* closedImage, const Fl_Image* itemImage, void* data)
 {
     CTreeItem* node = this;
-    int cnt = (int) pathFolders.size();
+    auto cnt = (int) pathFolders.size();
 
     for (int i = offset; i < cnt - 1; i++) {
         const string& folder = pathFolders[i];
@@ -433,7 +433,7 @@ CTreeItem* CTreeItem::addPathOffset(const vector<string>& pathFolders, unsigned 
     if (cnt - 1 >= 0)
         return node->addItem(pathFolders[cnt - 1].c_str(), itemImage, itemImage, data);
     else
-        return 0L;
+        return nullptr;
 }
 
 CTreeItem*
@@ -462,7 +462,7 @@ void CTreeItem::visibleChildren(bool show)
     unsigned cnt = children();
 
     for (unsigned i = 1; i < cnt; i++) {
-        CTreeItem* item = dynamic_cast<CTreeItem*> (child(i));
+        auto item = dynamic_cast<CTreeItem*> (child(i));
 
         if (!item)
             continue;
@@ -514,7 +514,7 @@ void CTreeItem::removeItem(CTreeItem* item)
     if (itemPosition == children())
         return;
 
-    Fl_Widget* newSelected = 0;
+    Fl_Widget* newSelected = nullptr;
     bool wasFocused = (Fl::focus() == item);
 
     if (item->m_selected || wasFocused) {
@@ -552,7 +552,7 @@ void CTreeItem::select(bool flag)
         return;
 
     m_selected = flag;
-    CGroup* widget = (CGroup*) m_body->widget();
+    auto widget = (CGroup*) m_body->widget();
 
     if (m_selected) {
         m_itemColor[0] = widget->labelcolor();
@@ -571,13 +571,13 @@ CTreeItem* CTreeItem::findFirst() const
     if (opened() && children() > 1)
         return (CTreeItem*) child(1);
 
-    return 0;
+    return nullptr;
 }
 
 CTreeItem* CTreeItem::findLast(bool recursive) const
 {
     if (opened() && children() > 1) {
-        CTreeItem* lastChild = (CTreeItem*) child(children() - 1);
+        auto lastChild = (CTreeItem*) child(children() - 1);
 
         if (recursive) {
             CTreeItem* foundLast = lastChild->findLast(recursive);
@@ -589,7 +589,7 @@ CTreeItem* CTreeItem::findLast(bool recursive) const
         return lastChild;
     }
 
-    return 0;
+    return nullptr;
 }
 
 CTreeItem* CTreeItem::findNext(bool recursive) const
@@ -606,7 +606,7 @@ CTreeItem* CTreeItem::findNext(bool recursive) const
     if (index < parent()->children() - 1)
         return (CTreeItem*) parent()->child(index + 1);
 
-    return 0;
+    return nullptr;
 }
 
 CTreeItem* CTreeItem::findPrior(bool recursive) const
@@ -629,17 +629,17 @@ CTreeItem* CTreeItem::findPrior(bool recursive) const
     }
 
     if (!recursive)
-        return 0;
+        return nullptr;
 
     currentItem = parentItem();
 
     if (!currentItem) // root item?
-        return 0;
+        return nullptr;
 
     if (currentItem->parentItem())
         return currentItem;
 
-    return 0;
+    return nullptr;
 }
 
 bool CTreeItem::selectNext()
@@ -694,7 +694,7 @@ CTreeControl::CTreeControl(const char* label, int layoutSize, CLayoutAlign align
 
 CLayoutClient* CTreeControl::defaultItemCreator(CTreeItem* item)
 {
-    CBox* box = new CBox("", 16, SP_ALIGN_TOP);
+    auto box = new CBox("", 16, SP_ALIGN_TOP);
     box->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
     return box;
 }
@@ -749,8 +749,8 @@ void CTreeControl::selectOnly(CTreeItem* item, bool giveFocus)
         Fl::focus(item);
 
     /// Unselect currently selected items:
-    CTreeItemVector::iterator itor = m_selectedItems.begin();
-    CTreeItemVector::iterator iend = m_selectedItems.end();
+    auto itor = m_selectedItems.begin();
+    auto iend = m_selectedItems.end();
 
     for (; itor != iend; itor++) {
         CTreeItem* treeItem = *itor;
