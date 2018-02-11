@@ -6,8 +6,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
-#include <sptk5/jwt.h>
-#include <iostream>
 #include <sptk5/JWT.h>
 
 using namespace std;
@@ -16,22 +14,22 @@ using namespace sptk;
 void test_jwt_dup()
 {
 	time_t now;
-	long valint;
+	int valint;
 
-	auto jwt = new JWT;
+	JWT jwt;
 
-	jwt->add_grant("iss", "test");
-    String val = jwt->get_grant("iss");
+    jwt["iss"] = "test";
+    String val = jwt["iss"];
     if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
 
-	auto newJWT = jwt->clone();
+	auto newJWT = jwt.clone();
     if (newJWT == nullptr) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't duplicate JWT object");
     }
 
-	val = newJWT->get_grant("iss");
+	val = (*newJWT)["iss"];
 	if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
@@ -40,20 +38,19 @@ void test_jwt_dup()
         throw Exception(string(__PRETTY_FUNCTION__) + " Got incorrect grant");
     }
 
-	if (jwt->get_alg() != JWT::JWT_ALG_NONE) {
+	if (jwt.get_alg() != JWT::JWT_ALG_NONE) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Got incorrect alogorithm");
     }
 
 	now = time(nullptr);
-	jwt->add_grant_int("iat", (long)now);
+	jwt["iat"] = (int) now;
 
-	valint = jwt->get_grant_int("iat");
+	valint = jwt["iat"];
     if (((long)now) != valint) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
 
 	delete newJWT;
-	delete jwt;
 }
 
 
@@ -61,22 +58,21 @@ void test_jwt_dup_signed()
 {
 	String key256("012345678901234567890123456789XY");
 
-	auto jwt = new JWT;
-	jwt->add_grant("iss", "test");
-	jwt->set_alg(JWT::JWT_ALG_HS256, key256);
+	JWT jwt;
+	jwt["iss"] = "test";
+	jwt.set_alg(JWT::JWT_ALG_HS256, key256);
 
-	auto newJWT = jwt->clone();
-	String val = newJWT->get_grant("iss");
+	auto newJWT = jwt.clone();
+	String val = (*newJWT)["iss"];
     if (val != "test") {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
 
-    if (jwt->get_alg() != JWT::JWT_ALG_HS256) {
+    if (jwt.get_alg() != JWT::JWT_ALG_HS256) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_alg()");
     }
 
 	delete newJWT;
-    delete jwt;
 }
 
 
@@ -277,10 +273,35 @@ void test_jwt_decode_hs512()
 	delete jwt;
 }
 
+void test_encode_decode()
+{
+    JWT jwt;
+
+    jwt["iat"] = (int) time(nullptr);
+    jwt["iss"] = "http://test.com";
+    jwt["exp"] = (int) time(nullptr) + 86400;
+
+    auto info = new json::ObjectData;
+    info->add("company", new json::Element("Linotex"));
+    info->add("city", new json::Element("Melbourne"));
+    jwt.grants.root().add("info", info);
+
+    stringstream temp;
+    jwt.encode(temp);
+    jwt.encode(cout);
+    cout << endl;
+
+    JWT jwt2;
+    jwt2.decode(temp.str().c_str());
+    //jwt2.exportTo(cout, true);
+    //cout << endl;
+    jwt2.encode(cout);
+    cout << endl;
+}
 
 int main(int argc, char *argv[])
 {
-
+    /*
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5pbyIsInN1YiI6ImM0Y2ZjODIyLWM5ZjAtNGExMS05ZmFkLTJhNzJlYWVlMzM1NyIsImF1ZCI6Ijc1NzNjMjZiMTY5OTNlZjUzNmRjOTM5N2Y1YzA4OTExYTU1MWM3OWEiLCJpYXQiOjE1MTgxNTQxODIsImV4cCI6MTUxODE1Nzc4Miwic2NvcGUiOlsiRURQOkVkdWxvZzpBZG1pbiJdfQ.6DDnBtXAcYalH0NRnUnSRMNLFmjugId6RI9IyHCOQ_8";
 
     JWT jwt;
@@ -297,8 +318,7 @@ int main(int argc, char *argv[])
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
-
-    return 0;
+    */
 
     try {
         test_jwt_dup();
@@ -313,6 +333,7 @@ int main(int argc, char *argv[])
         test_jwt_decode_hs256();
         test_jwt_decode_hs384();
         test_jwt_decode_hs512();
+        test_encode_decode();
     }
     catch (const exception& e) {
         cerr << "ERROR:" << endl;

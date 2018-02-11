@@ -38,37 +38,37 @@ using namespace sptk::json;
 const Element Element::emptyElement("");
 
 Element::Element(double value)
-: m_parent(nullptr), m_type(JDT_NUMBER)
+        : m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
 Element::Element(int value)
-: m_parent(nullptr), m_type(JDT_NUMBER)
+        : m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
 Element::Element(const std::string& value)
-: m_parent(nullptr), m_type(JDT_STRING)
+        : m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
 Element::Element(const char* value)
-: m_parent(nullptr), m_type(JDT_STRING)
+        : m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
 Element::Element(bool value)
-: m_parent(nullptr), m_type(JDT_BOOLEAN)
+        : m_parent(nullptr), m_type(JDT_BOOLEAN)
 {
     m_data.m_boolean = value;
 }
 
 Element::Element(ArrayData* value)
-: m_parent(nullptr), m_type(JDT_ARRAY)
+        : m_parent(nullptr), m_type(JDT_ARRAY)
 {
     m_data.m_array = value;
     for (Element* jsonElement: *m_data.m_array)
@@ -76,19 +76,21 @@ Element::Element(ArrayData* value)
 }
 
 Element::Element(ObjectData* value)
-: m_parent(nullptr), m_type(JDT_OBJECT)
+        : m_parent(nullptr), m_type(JDT_OBJECT)
 {
     m_data.m_object = value;
     for (auto itor: *m_data.m_object)
         itor.second->m_parent = this;
 }
 
-Element::Element(ArrayData& value) {}
+Element::Element(ArrayData& value)
+{}
 
-Element::Element(ObjectData& value) {}
+Element::Element(ObjectData& value)
+{}
 
 Element::Element()
-: m_parent(nullptr), m_type(JDT_NULL)
+        : m_parent(nullptr), m_type(JDT_NULL)
 {
     m_data.m_boolean = false;
 }
@@ -108,7 +110,7 @@ void Element::moveElement(Element&& other) noexcept
 }
 
 Element::Element(Element&& other) noexcept
-: m_type(JDT_NULL)
+        : m_type(JDT_NULL)
 {
     moveElement(move(other));
 }
@@ -117,27 +119,24 @@ void Element::assign(const Element& other)
 {
     m_type = other.m_type;
     switch (m_type) {
-        case JDT_STRING:
-            m_data.m_string = new string(*other.m_data.m_string);
+        case JDT_STRING:m_data.m_string = new string(*other.m_data.m_string);
             break;
 
         case JDT_ARRAY:
-        case JDT_OBJECT:
-            break;
+        case JDT_OBJECT:break;
 
-        default:
-            memcpy(&m_data, &other.m_data, sizeof(m_data));
+        default:memcpy(&m_data, &other.m_data, sizeof(m_data));
             break;
     }
 }
 
-Element& Element::operator = (const Element& other)
+Element& Element::operator=(const Element& other)
 {
     assign(other);
     return *this;
 }
 
-Element& Element::operator = (Element&& other) noexcept
+Element& Element::operator=(Element&& other) noexcept
 {
     moveElement(move(other));
     return *this;
@@ -146,20 +145,16 @@ Element& Element::operator = (Element&& other) noexcept
 void Element::clear()
 {
     switch (m_type) {
-        case JDT_STRING:
-            delete m_data.m_string;
+        case JDT_STRING:delete m_data.m_string;
             break;
 
-        case JDT_ARRAY:
-            delete m_data.m_array;
+        case JDT_ARRAY:delete m_data.m_array;
             break;
 
-        case JDT_OBJECT:
-            delete m_data.m_object;
+        case JDT_OBJECT:delete m_data.m_object;
             break;
 
-        default:
-            break;
+        default:break;
     }
     m_type = JDT_NULL;
 }
@@ -224,7 +219,7 @@ Element* Element::find(const string& name)
     return m_data.m_object->find(name);
 }
 
-Element& Element::operator[](const std::string& name)
+Element& Element::operator[](const char* name)
 {
     if (m_type != JDT_OBJECT && m_type != JDT_NULL)
         throw Exception("Parent element is not JSON object");
@@ -237,7 +232,31 @@ Element& Element::operator[](const std::string& name)
     return (*m_data.m_object)[name];
 }
 
-const Element& Element::operator[](const std::string& name) const
+const Element& Element::operator[](const char* name) const
+{
+    if (m_type != JDT_OBJECT)
+        return emptyElement;
+
+    const Element* element = find(name);
+    if (!element)
+        return emptyElement;
+    return *element;
+}
+
+Element& Element::operator[](const String& name)
+{
+    if (m_type != JDT_OBJECT && m_type != JDT_NULL)
+        throw Exception("Parent element is not JSON object");
+
+    if (m_type == JDT_NULL || !m_data.m_object) {
+        m_data.m_object = new ObjectData(this);
+        m_type = JDT_OBJECT;
+    }
+
+    return (*m_data.m_object)[name];
+}
+
+const Element& Element::operator[](const String& name) const
 {
     if (m_type != JDT_OBJECT)
         return emptyElement;
@@ -348,7 +367,7 @@ const json::ObjectData& Element::getObject() const
 void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
     string indentSpaces, newLineChar, firstElement(" "), betweenElements(", ");
-    if (formatted && m_type & (JDT_ARRAY|JDT_OBJECT)) {
+    if (formatted && m_type & (JDT_ARRAY | JDT_OBJECT)) {
         if (indent)
             indentSpaces = string(indent, ' ');
         newLineChar = "\n";
@@ -362,14 +381,11 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             else
                 stream << fixed << m_data.m_number;
             break;
-        case JDT_STRING:
-            stream << "\"" << escape(*m_data.m_string) << "\"";
+        case JDT_STRING:stream << "\"" << escape(*m_data.m_string) << "\"";
             break;
-        case JDT_BOOLEAN:
-            stream << (m_data.m_boolean ? "true" : "false");
+        case JDT_BOOLEAN:stream << (m_data.m_boolean ? "true" : "false");
             break;
-        case JDT_ARRAY:
-            stream << "[";
+        case JDT_ARRAY:stream << "[";
             if (m_data.m_array) {
                 bool first = true;
                 for (Element* element: *m_data.m_array) {
@@ -384,8 +400,7 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             }
             stream << "]";
             break;
-        case JDT_OBJECT:
-            stream << "{";
+        case JDT_OBJECT:stream << "{";
             if (m_data.m_object) {
                 bool first = true;
                 for (auto& itor: *m_data.m_object) {
@@ -401,13 +416,12 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             }
             stream << newLineChar << indentSpaces << "}";
             break;
-        case JDT_NULL:
-            stream << "null";
+        case JDT_NULL:stream << "null";
             break;
     }
 }
 
-void Element::exportValueTo(const string& name, XMLElement& parentNode) const
+void Element::exportValueTo(const String& name, XMLElement& parentNode) const
 {
     auto node = new XMLElement(parentNode, name);
     switch (m_type) {
@@ -421,12 +435,10 @@ void Element::exportValueTo(const string& name, XMLElement& parentNode) const
             break;
         }
 
-        case JDT_STRING:
-            node->text(*m_data.m_string);
+        case JDT_STRING:node->text(*m_data.m_string);
             break;
 
-        case JDT_BOOLEAN:
-            node->value(m_data.m_boolean ? "true" : "false");
+        case JDT_BOOLEAN:node->value(m_data.m_boolean ? "true" : "false");
             break;
 
         case JDT_ARRAY:
@@ -443,8 +455,7 @@ void Element::exportValueTo(const string& name, XMLElement& parentNode) const
             }
             break;
 
-        case JDT_NULL:
-            new XMLElement(node, "null");
+        case JDT_NULL:new XMLElement(node, "null");
             break;
     }
 }
@@ -475,16 +486,23 @@ string Element::escape(const string& text)
         }
         result += text.substr(position, pos - position);
         switch (text[pos]) {
-            case '"':   result += "\\\""; break;
-            case '\\':  result += "\\\\"; break;
-            case '/':   result += "\\/"; break;
-            case '\b':  result += "\\b"; break;
-            case '\f':  result += "\\f"; break;
-            case '\n':  result += "\\n"; break;
-            case '\r':  result += "\\r"; break;
-            case '\t':  result += "\\t"; break;
-            default:
-                throw Exception("Unknown escape character");
+            case '"':result += "\\\"";
+                break;
+            case '\\':result += "\\\\";
+                break;
+            case '/':result += "\\/";
+                break;
+            case '\b':result += "\\b";
+                break;
+            case '\f':result += "\\f";
+                break;
+            case '\n':result += "\\n";
+                break;
+            case '\r':result += "\\r";
+                break;
+            case '\t':result += "\\t";
+                break;
+            default:throw Exception("Unknown escape character");
         }
         position = pos + 1;
     }
@@ -494,39 +512,32 @@ string Element::escape(const string& text)
 
 static std::string codePointToUTF8(unsigned cp)
 {
-   std::string result;
+    std::string result;
 
-   // based on description from http://en.wikipedia.org/wiki/UTF-8
+    // based on description from http://en.wikipedia.org/wiki/UTF-8
 
-   if (cp <= 0x7f) 
-   {
-      result.resize(1);
-      result[0] = static_cast<char>(cp);
-   }
-   else if (cp <= 0x7FF) 
-   {
-      result.resize(2);
+    if (cp <= 0x7f) {
+        result.resize(1);
+        result[0] = static_cast<char>(cp);
+    } else if (cp <= 0x7FF) {
+        result.resize(2);
 
-      result[1] = static_cast<char>(0x80 | (0x3f & cp));
-      result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
-   }
-   else if (cp <= 0xFFFF) 
-   {
-      result.resize(3);
-      result[2] = static_cast<char>(0x80 | (0x3f & cp));
-      result[1] = 0x80 | static_cast<char>((0x3f & (cp >> 6)));
-      result[0] = 0xE0 | static_cast<char>((0xf & (cp >> 12)));
-   }
-   else if (cp <= 0x10FFFF) 
-   {
-      result.resize(4);
-      result[3] = static_cast<char>(0x80 | (0x3f & cp));
-      result[2] = static_cast<char>(0x80 | (0x3f & (cp >> 6)));
-      result[1] = static_cast<char>(0x80 | (0x3f & (cp >> 12)));
-      result[0] = static_cast<char>(0xF0 | (0x7 & (cp >> 18)));
-   }
+        result[1] = static_cast<char>(0x80 | (0x3f & cp));
+        result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
+    } else if (cp <= 0xFFFF) {
+        result.resize(3);
+        result[2] = static_cast<char>(0x80 | (0x3f & cp));
+        result[1] = 0x80 | static_cast<char>((0x3f & (cp >> 6)));
+        result[0] = 0xE0 | static_cast<char>((0xf & (cp >> 12)));
+    } else if (cp <= 0x10FFFF) {
+        result.resize(4);
+        result[3] = static_cast<char>(0x80 | (0x3f & cp));
+        result[2] = static_cast<char>(0x80 | (0x3f & (cp >> 6)));
+        result[1] = static_cast<char>(0x80 | (0x3f & (cp >> 12)));
+        result[0] = static_cast<char>(0xF0 | (0x7 & (cp >> 18)));
+    }
 
-   return result;
+    return result;
 }
 
 string Element::decode(const string& text)
@@ -548,16 +559,23 @@ string Element::decode(const string& text)
             result += text.substr(position, pos - position);
         pos++;
         switch (text[pos]) {
-            case '"':  result += '"'; break;
-            case '\\': result += '\\'; break;
-            case '/':  result += '/'; break;
-            case 'b':  result += '\b'; break;
-            case 'f':  result += '\f'; break;
-            case 'n':  result += '\n'; break;
-            case 'r':  result += '\r'; break;
-            case 't':  result += '\t'; break;
-            case 'u':
-            {
+            case '"':result += '"';
+                break;
+            case '\\':result += '\\';
+                break;
+            case '/':result += '/';
+                break;
+            case 'b':result += '\b';
+                break;
+            case 'f':result += '\f';
+                break;
+            case 'n':result += '\n';
+                break;
+            case 'r':result += '\r';
+                break;
+            case 't':result += '\t';
+                break;
+            case 'u': {
                 pos++;
                 string ucharCodeStr = text.substr(pos, 4);
                 unsigned ucharCode = strtol(ucharCodeStr.c_str(), nullptr, 16);
@@ -565,8 +583,7 @@ string Element::decode(const string& text)
                 result += codePointToUTF8(ucharCode);
                 break;
             }
-            default:
-                throw Exception("Unknown escape character");
+            default:throw Exception("Unknown escape character");
         }
         position = pos + 1;
     }
@@ -587,16 +604,14 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
                 xpathPosition = 0; // Start over to match children
             element->selectElements(elements, xpath, xpathPosition, false);
         }
-    }
-    else if (m_type == JDT_OBJECT) {
+    } else if (m_type == JDT_OBJECT) {
         if (!matchAnyElement) {
             Element* element = find(xpathElement);
             if (element) {
                 if (lastPosition) {
                     // Full xpath match
                     elements.insert(element);
-                }
-                else {
+                } else {
                     // Continue to match children
                     element->selectElements(elements, xpath, xpathPosition + 1, false);
                 }
@@ -607,8 +622,7 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
                     // Full xpath match
                     Element* element = itor.second;
                     elements.insert(element);
-                }
-                else {
+                } else {
                     // Continue to match children
                     itor.second->selectElements(elements, xpath, xpathPosition + 1, false);
                 }

@@ -125,7 +125,7 @@ protected:
      * @param name              JSON element name
      * @param element           XML element to export to
      */
-    void exportValueTo(const std::string& name, XMLElement& element) const;
+    void exportValueTo(const String &name, XMLElement &element) const;
 
     /**
      * Empty const Json element
@@ -341,7 +341,7 @@ public:
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    Element& operator[](const std::string& name);
+    Element& operator[](const char* name);
 
     /**
      * Get JSON element in JSON object element by name.
@@ -350,7 +350,25 @@ public:
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    const Element& operator[](const std::string& name) const;
+    const Element& operator[](const char* name) const;
+
+    /**
+     * Get JSON element in JSON object element by name.
+     * If element doesn't exist in JSON object yet, it's created as JSON null element.
+     * If this element is not JSON object, an exception is thrown.
+     * @param name              Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
+    Element& operator[](const String &name);
+
+    /**
+     * Get JSON element in JSON object element by name.
+     * If element doesn't exist in JSON object yet, then reference to static const JSON null element is returned.
+     * If this element is not JSON object, an exception is thrown.
+     * @param name              Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
+    const Element& operator[](const String& name) const;
 
     /**
      * Get JSON element in JSON array element by index.
@@ -466,10 +484,25 @@ public:
     bool isNumber()  const { return m_type == JDT_NUMBER; }
 
     /**
+     * Conversion to integer
+     */
+    operator int () const { return (int) getNumber(); }
+
+    /**
+     * Conversion to double
+     */
+    operator double () const { return getNumber(); }
+
+    /**
      * Element type check
      * @return true if element is a string
      */
     bool isString()  const { return m_type == JDT_STRING; }
+
+    /**
+     * Conversion to double
+     */
+    operator String () const { return getString(); }
 
     /**
      * Element type check

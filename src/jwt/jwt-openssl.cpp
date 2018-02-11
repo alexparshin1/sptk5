@@ -14,7 +14,7 @@
 #include <openssl/hmac.h>
 #include <openssl/pem.h>
 
-#include <sptk5/jwt.h>
+#include <sptk5/JWT.h>
 
 using namespace std;
 using namespace sptk;
@@ -51,8 +51,7 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-int jwt_sign_sha_hmac(JWT* jwt, char** out, unsigned int* len,
-                      const char* str)
+int jwt_sign_sha_hmac(JWT* jwt, char** out, unsigned int* len, const char* str)
 {
     const EVP_MD* alg;
 

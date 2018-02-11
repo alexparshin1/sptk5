@@ -41,17 +41,29 @@ public:
     JWT();
     JWT* clone() const;
 
-    String get_grant(const String& grant) const;
-    long   get_grant_int(const String& grant) const;
-    bool   get_grant_bool(const String& grant) const;
-    String get_grants_json(const String& grant) const;
+	/**
+	 * Get JSON element in JSON object element by name.
+	 * If element doesn't exist in JSON object yet, it's created as JSON null element.
+	 * If this element is not JSON object, an exception is thrown.
+	 * @param name              Name of the element in the object element
+	 * @returns Element for the name, or NULL if not found
+	 */
+	json::Element& operator[](const std::string& name)
+	{
+		return grants.root()[name];
+	}
 
-    void add_grant(const String& grant, const String& val);
-    void add_grant_int(const String& grant, long val);
-    void add_grant_bool(const String& grant, bool val);
-    void add_grants_json(const char *json);
-
-    void del_grant(const String& grant);
+	/**
+	 * Get JSON element in JSON object element by name.
+	 * If element doesn't exist in JSON object yet, then reference to static const JSON null element is returned.
+	 * If this element is not JSON object, an exception is thrown.
+	 * @param name              Name of the element in the object element
+	 * @returns Element for the name, or NULL if not found
+	 */
+	const json::Element& operator[](const std::string& name) const
+	{
+		return grants.root()[name];
+	}
 
     jwt_alg_t get_alg() const;
     void set_alg(jwt_alg_t alg, const String &key);
