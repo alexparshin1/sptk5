@@ -86,7 +86,7 @@ public:
      * The return of the bytes() method will be 0.
      * @param sz size_t, buffer size to be pre-allocated
      */
-    Buffer(size_t sz = 16);
+    explicit Buffer(size_t sz = 16);
 
     /**
      * @brief Constructor
@@ -96,7 +96,7 @@ public:
      * The return of the bytes() method will be the input string length.
      * @param str const char *, input string
      */
-    Buffer(const char* str);
+    explicit Buffer(const char* str);
 
     /**
      * @brief Constructor
@@ -106,7 +106,17 @@ public:
      * The return of the bytes() method will be the input string length.
      * @param str const std::string&, input string
      */
-    Buffer(const std::string& str);
+    explicit Buffer(const std::string& str);
+
+    /**
+     * @brief Constructor
+     *
+     * Creates a buffer from string.
+     * The string is copied inside the buffer.
+     * The return of the bytes() method will be the input string length.
+     * @param str const std::string&, input string
+     */
+    explicit Buffer(const String& str);
 
     /**
      * @brief Constructor

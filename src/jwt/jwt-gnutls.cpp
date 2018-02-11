@@ -16,7 +16,7 @@
 
 #include <jwt.h>
 
-#include "jwt-private.h"
+#include "sptk5/JWT.h"
 #include "base64.h"
 #include "config.h"
 

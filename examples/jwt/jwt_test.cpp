@@ -1,35 +1,37 @@
 /* Public domain, no copyright. Use at your own risk. */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
 #include <sptk5/jwt.h>
 #include <iostream>
-#include <src/jwt/jwt-private.h>
+#include <sptk5/JWT.h>
 
 using namespace std;
 using namespace sptk;
 
 void test_jwt_dup()
 {
-	JWT jwt;
 	time_t now;
 	long valint;
 
-	jwt.jwt_add_grant("iss", "test");
-    string val = jwt.jwt_get_grant("iss");
+	auto jwt = new JWT;
+
+	jwt->add_grant("iss", "test");
+    String val = jwt->get_grant("iss");
     if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
 
-	JWT newJWT(jwt);
+	auto newJWT = jwt->clone();
+    if (newJWT == nullptr) {
+        throw Exception(string(__PRETTY_FUNCTION__) + " Can't duplicate JWT object");
+    }
 
-	val = newJWT.jwt_get_grant("iss");
+	val = newJWT->get_grant("iss");
 	if (val.empty()) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Can't get grant");
     }
@@ -38,39 +40,43 @@ void test_jwt_dup()
         throw Exception(string(__PRETTY_FUNCTION__) + " Got incorrect grant");
     }
 
-	if (newJWT.jwt_get_alg() != JWT::JWT_ALG_NONE) {
+	if (jwt->get_alg() != JWT::JWT_ALG_NONE) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Got incorrect alogorithm");
     }
 
-	now = time(NULL);
-	jwt.jwt_add_grant_int("iat", (long)now);
+	now = time(nullptr);
+	jwt->add_grant_int("iat", (long)now);
 
-	valint = jwt.jwt_get_grant_int("iat");
+	valint = jwt->get_grant_int("iat");
     if (((long)now) != valint) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
+
+	delete newJWT;
+	delete jwt;
 }
+
 
 void test_jwt_dup_signed()
 {
 	String key256("012345678901234567890123456789XY");
 
-	JWT jwt;
+	auto jwt = new JWT;
+	jwt->add_grant("iss", "test");
+	jwt->set_alg(JWT::JWT_ALG_HS256, key256);
 
-	jwt.jwt_add_grant("iss", "test");
-
-	jwt.jwt_set_alg(JWT::JWT_ALG_HS256, key256);
-
-	JWT newJWT(jwt);
-
-	String val = jwt.jwt_get_grant("iss");
+	auto newJWT = jwt->clone();
+	String val = newJWT->get_grant("iss");
     if (val != "test") {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_grant_int()");
     }
 
-    if (newJWT.jwt_get_alg() != JWT::JWT_ALG_HS256) {
+    if (jwt->get_alg() != JWT::JWT_ALG_HS256) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_alg()");
     }
+
+	delete newJWT;
+    delete jwt;
 }
 
 
@@ -81,89 +87,94 @@ void test_jwt_decode()
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
 	JWT::jwt_alg_t alg;
 
-	JWT jwt;
-
+	auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
 
-	alg = jwt.jwt_get_alg();
+	alg = jwt->get_alg();
 	if (alg != JWT::JWT_ALG_NONE) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_get_alg()");
     }
+
+	delete jwt;
 }
+
 
 void test_jwt_decode_invalid_final_dot()
 {
 	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ";
-	JWT jwt;
 
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
     }
+
+	delete jwt;
 }
 
 
 void test_jwt_decode_invalid_alg()
 {
-	const char token[] =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
-			"eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-			"3ViIjoidXNlcjAifQ.";
+	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
+			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+			     "3ViIjoidXNlcjAifQ.";
 
-    JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
     }
+
+	delete jwt;
 }
 
 
 void test_jwt_decode_invalid_typ()
 {
-	const char token[] =
-            "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
-			"eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-			"3ViIjoidXNlcjAifQ.";
+	const char token[] = "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
+			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+			     "3ViIjoidXNlcjAifQ.";
 
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
     }
+
+	delete jwt;
 }
 
 
 void test_jwt_decode_invalid_head()
 {
-	const char token[] =
-            "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
-			"eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-			"3ViIjoidXNlcjAifQ.";
+	const char token[] = "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+			     "3ViIjoidXNlcjAifQ.";
 
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
     }
+
+	delete jwt;
 }
+
 
 void test_jwt_decode_alg_none_with_key()
 {
@@ -171,52 +182,52 @@ void test_jwt_decode_alg_none_with_key()
 			     "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
 			     "3ViIjoidXNlcjAifQ.";
 
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
     }
+
+	delete jwt;
 }
 
 
 void test_jwt_decode_invalid_body()
 {
-	const char token[] =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
-			"eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
-			"3ViIjoidXNlcjAifQ.";
+	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+			     "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
+			     "3ViIjoidXNlcjAifQ.";
 
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token);
+        jwt->decode(token);
         throw Exception(string(__PRETTY_FUNCTION__) + " Not failed jwt_decode()");
     }
     catch (...) {
     }
+
+	delete jwt;
 }
 
 
 void test_jwt_decode_hs256()
 {
-	const char token[] =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
-			"OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
-			"Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
+	const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
+			     "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
+			     "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
+	String key256("012345678901234567890123456789XY");
 
-    String key256("012345678901234567890123456789XY");
-
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token, key256);
+        jwt->decode(token, key256);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
+
+	delete jwt;
 }
 
 
@@ -232,14 +243,15 @@ void test_jwt_decode_hs384()
             "aaaabbbbccccddddeeeeffffg"
 			"ggghhhhiiiijjjjkkkkllll");
 
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-        jwt.jwt_decode(token, key384);
+        jwt->decode(token, key384);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
+
+	delete jwt;
 }
 
 
@@ -254,18 +266,40 @@ void test_jwt_decode_hs512()
             "012345678901234567890123456789XY"
 			"012345678901234567890123456789XY");
 
-	JWT jwt;
-
+    auto jwt = new JWT;
     try {
-	    jwt.jwt_decode(token, key512);
+        jwt->decode(token, key512);
     }
     catch (const exception& e) {
         throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
     }
+
+	delete jwt;
 }
+
 
 int main(int argc, char *argv[])
 {
+
+    const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8va2Fycm9zdGVjaC5pbyIsInN1YiI6ImM0Y2ZjODIyLWM5ZjAtNGExMS05ZmFkLTJhNzJlYWVlMzM1NyIsImF1ZCI6Ijc1NzNjMjZiMTY5OTNlZjUzNmRjOTM5N2Y1YzA4OTExYTU1MWM3OWEiLCJpYXQiOjE1MTgxNTQxODIsImV4cCI6MTUxODE1Nzc4Miwic2NvcGUiOlsiRURQOkVkdWxvZzpBZG1pbiJdfQ.6DDnBtXAcYalH0NRnUnSRMNLFmjugId6RI9IyHCOQ_8";
+
+    JWT jwt;
+    try {
+        jwt.decode(token);
+        jwt.grants.exportTo(cout);
+        cout << endl;
+        stringstream temp;
+        jwt.encode(temp);
+        jwt.decode(temp.str().c_str());
+        jwt.grants.exportTo(cout);
+        cout << endl;
+    }
+    catch (const exception& e) {
+        throw Exception(string(__PRETTY_FUNCTION__) + " Failed jwt_decode(): " + string(e.what()));
+    }
+
+    return 0;
+
     try {
         test_jwt_dup();
         test_jwt_dup_signed();
