@@ -276,14 +276,15 @@ void test_encode_hs256_decode()
     jwt["iat"] = (int) time(nullptr);
     jwt["iss"] = "http://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
-
+/*
     auto info = new json::ObjectData;
     info->add("company", new json::Element("Linotex"));
     info->add("city", new json::Element("Melbourne"));
     jwt.grants.root().add("info", info);
-
+*/
     stringstream originalToken;
     jwt.encode(originalToken);
+    string str = originalToken.str();
 
     stringstream originalJSON;
     jwt.exportTo(originalJSON, false);
