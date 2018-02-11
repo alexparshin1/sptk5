@@ -1,6 +1,5 @@
 #include <sptk5/JWT.h>
 #include <sptk5/Base64.h>
-#include "base64.h"
 
 using namespace std;
 using namespace sptk;
@@ -10,20 +9,12 @@ JWT::JWT()
 {
 }
 
-JWT* JWT::clone() const
+JWT::JWT(const JWT& other)
+: alg(other.alg), key(other.key), grants(true)
 {
-    auto newJWT = new JWT;
-
-    if (!key.empty()) {
-        newJWT->alg = alg;
-        newJWT->key = key;
-    }
-
     Buffer tempBuffer;
-    grants.exportTo(tempBuffer, false);
-    newJWT->grants.load(tempBuffer.c_str());
-
-    return newJWT;
+    other.grants.exportTo(tempBuffer, false);
+    grants.load(tempBuffer.c_str());
 }
 
 JWT::jwt_alg_t JWT::get_alg() const
@@ -148,7 +139,7 @@ bool JWT::get_js_bool(const json::Element *js, const String& key, bool* found)
     if (element != nullptr && element->isBoolean()) {
         if (found)
             *found = true;
-        return element->isBoolean() ? 1 : 0;
+        return element->getBoolean();
     }
     return false;
 }
@@ -197,14 +188,15 @@ void JWT::write_body(std::ostream& output, int pretty) const
     grants.exportTo(output, pretty);
 }
 
-int JWT::sign(char **out, unsigned int *len, const char *str)
+void JWT::sign(char** out, unsigned int* len, const char* str)
 {
     switch (alg) {
         /* HMAC */
         case JWT::JWT_ALG_HS256:
         case JWT::JWT_ALG_HS384:
         case JWT::JWT_ALG_HS512:
-            return jwt_sign_sha_hmac(this, out, len, str);
+            sign_sha_hmac(out, len, str);
+            break;
 
             /* RSA */
         case JWT::JWT_ALG_RS256:
@@ -215,17 +207,17 @@ int JWT::sign(char **out, unsigned int *len, const char *str)
         case JWT::JWT_ALG_ES256:
         case JWT::JWT_ALG_ES384:
         case JWT::JWT_ALG_ES512:
-            return jwt_sign_sha_pem(this, out, len, str);
+            sign_sha_pem(out, len, str);
+            break;
 
             /* You wut, mate? */
         default:
-            return EINVAL;
+            throw Exception("Invalid algorithm");
     }
 }
 
-int JWT::encode(ostream& out)
+void JWT::encode(ostream& out)
 {
-    int ret;
     unsigned int sig_len;
 
     /* First the header. */
@@ -253,22 +245,18 @@ int JWT::encode(ostream& out)
 
     if (alg == JWT::JWT_ALG_NONE) {
         out << output.c_str() << '.';
-        return 0;
+        return;
     }
 
     /* Now the signature. */
     char* sig;
-    ret = sign(&sig, &sig_len, output.data());
-    if (ret)
-        return ret;
+    sign(&sig, &sig_len, output.data());
 
     Buffer signature;
     Base64::encode(signature, sig, sig_len);
     jwt_base64uri_encode(signature);
 
-    out << output.c_str() << '.' << signature;
-
-    return ret;
+    out << output.c_str() << '.' << signature.c_str();
 }
 
 void JWT::exportTo(ostream& output, int pretty) const
@@ -278,17 +266,14 @@ void JWT::exportTo(ostream& output, int pretty) const
     write_body(output, pretty);
 }
 
-void * sptk::jwt_b64_decode(const char *src, int *ret_len)
+void sptk::jwt_b64_decode(Buffer& destination, const char* src, int* ret_len)
 {
-    void *buf;
     char *newData;
     size_t len, i, z;
 
     /* Decode based on RFC-4648 URI safe encoding. */
     len = strlen(src);
     newData = (char*) alloca(len + 4);
-    if (!newData)
-        return nullptr;
 
     for (i = 0; i < len; i++) {
         switch (src[i]) {
@@ -309,13 +294,8 @@ void * sptk::jwt_b64_decode(const char *src, int *ret_len)
     }
     newData[i] = '\0';
 
-    buf = malloc(i);
-    if (buf == nullptr)
-        return nullptr;
-
-    *ret_len = jwt_Base64decode((char *)buf, newData);
-
-    return buf;
+    Base64::decode(destination, newData);
+    *ret_len = destination.bytes();
 }
 
 
@@ -358,7 +338,7 @@ void JWT::verify(const Buffer& head, const Buffer& sig)
         case JWT::JWT_ALG_HS256:
         case JWT::JWT_ALG_HS384:
         case JWT::JWT_ALG_HS512:
-            jwt_verify_sha_hmac(this, head.c_str(), sig.c_str());
+            verify_sha_hmac(head.c_str(), sig.c_str());
             break;
 
             /* RSA */
@@ -370,7 +350,7 @@ void JWT::verify(const Buffer& head, const Buffer& sig)
         case JWT::JWT_ALG_ES256:
         case JWT::JWT_ALG_ES384:
         case JWT::JWT_ALG_ES512:
-            jwt_verify_sha_pem(this, head.c_str(), sig.c_str());
+            verify_sha_pem(head.c_str(), sig.c_str());
             break;
 
             /* You wut, mate? */
@@ -390,7 +370,7 @@ static void jwt_verify_head(JWT *jwt, const Buffer& head)
     jwt_b64_decode_json(jsdoc, head);
     json::Element* js = &jsdoc.root();
 
-    string val = JWT::get_js_string(js, "alg");
+    String val = JWT::get_js_string(js, "alg");
     jwt->alg = JWT::str_alg(val.c_str());
     if (jwt->alg == JWT::JWT_ALG_INVAL) {
         throw Exception("Invalid algorithm");
@@ -425,7 +405,6 @@ void JWT::decode(const char *token, const String& key)
         const char* end = strchr(data, '.');
         if (end == nullptr) {
             parts[index].length = strlen(data);
-            data = nullptr;
             break;
         }
         parts[index].length = end - data;

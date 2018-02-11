@@ -51,11 +51,11 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-int jwt_sign_sha_hmac(JWT* jwt, char** out, unsigned int* len, const char* str)
+int JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
 {
     const EVP_MD* alg;
 
-    switch (jwt->alg) {
+    switch (this->alg) {
         /* HMAC */
         case JWT::JWT_ALG_HS256:
             alg = EVP_sha256();
@@ -74,14 +74,14 @@ int jwt_sign_sha_hmac(JWT* jwt, char** out, unsigned int* len, const char* str)
     if (*out == nullptr)
         return ENOMEM;
 
-    HMAC(alg, jwt->key.c_str(), jwt->key.length(),
+    HMAC(alg, key.c_str(), key.length(),
          (const unsigned char*) str, strlen(str), (unsigned char*) *out,
          len);
 
     return 0;
 }
 
-int jwt_verify_sha_hmac(JWT* jwt, const char* head, const char* sig)
+int JWT::verify_sha_hmac(const char* head, const char* sig)
 {
     unsigned char res[EVP_MAX_MD_SIZE];
     BIO* bmem = nullptr, * b64 = nullptr;
@@ -90,7 +90,7 @@ int jwt_verify_sha_hmac(JWT* jwt, const char* head, const char* sig)
     int len, ret = EINVAL;
     Buffer readBuf;
 
-    switch (jwt->alg) {
+    switch (this->alg) {
         case JWT::JWT_ALG_HS256:
             alg = EVP_sha256();
             break;
@@ -117,7 +117,7 @@ int jwt_verify_sha_hmac(JWT* jwt, const char* head, const char* sig)
     BIO_push(b64, bmem);
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
-    HMAC(alg, jwt->key.c_str(), jwt->key.length(),
+    HMAC(alg, key.c_str(), key.length(),
          (const unsigned char*) head, strlen(head), res, &res_len);
 
     BIO_write(b64, res, res_len);
@@ -143,10 +143,9 @@ int jwt_verify_sha_hmac(JWT* jwt, const char* head, const char* sig)
     return ret;
 }
 
-#define SIGN_ERROR(__err) { ret = __err; goto jwt_sign_sha_pem_done; }
+#define SIGN_ERROR(__err) { if (__err == EINVAL) throw Exception("Invalid value"); else throw Exception("Can't allocate memory"); }
 
-int jwt_sign_sha_pem(JWT* jwt, char** out, unsigned int* len,
-                     const char* str)
+void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
 {
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG* ec_sig = nullptr;
@@ -158,10 +157,9 @@ int jwt_sign_sha_pem(JWT* jwt, char** out, unsigned int* len,
     EVP_PKEY* pkey = nullptr;
     int pkey_type;
     unsigned char* sig;
-    int ret = 0;
     size_t slen;
 
-    switch (jwt->alg) {
+    switch (this->alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
             alg = EVP_sha256();
@@ -191,87 +189,95 @@ int jwt_sign_sha_pem(JWT* jwt, char** out, unsigned int* len,
             break;
 
         default:
-            return EINVAL;
+            throw Exception("Invalid sign algorithm");
     }
 
-    bufkey = BIO_new_mem_buf(jwt->key.c_str(), jwt->key.length());
-    if (bufkey == nullptr) SIGN_ERROR(ENOMEM);
+    Buffer sig_buffer;
+    string error;
 
-    /* This uses OpenSSL's default passphrase callback if needed. The
-     * library caller can override this in many ways, all of which are
-     * outside of the scope of LibJWT and this is documented in jwt.h. */
-    pkey = PEM_read_bio_PrivateKey(bufkey, nullptr, nullptr, nullptr);
-    if (pkey == nullptr) SIGN_ERROR(EINVAL);
+    try {
+        bufkey = BIO_new_mem_buf(key.c_str(), key.length());
+        if (bufkey == nullptr) SIGN_ERROR(ENOMEM);
 
-    pkey_type = EVP_PKEY_id(pkey);
-    if (pkey_type != type) SIGN_ERROR(EINVAL);
+        /* This uses OpenSSL's default passphrase callback if needed. The
+         * library caller can override this in many ways, all of which are
+         * outside of the scope of LibJWT and this is documented in jwt.h. */
+        pkey = PEM_read_bio_PrivateKey(bufkey, nullptr, nullptr, nullptr);
+        if (pkey == nullptr) SIGN_ERROR(EINVAL);
 
-    mdctx = EVP_MD_CTX_create();
-    if (mdctx == nullptr) SIGN_ERROR(ENOMEM);
+        pkey_type = EVP_PKEY_id(pkey);
+        if (pkey_type != type) SIGN_ERROR(EINVAL);
 
-    /* Initialize the DigestSign operation using alg */
-    if (EVP_DigestSignInit(mdctx, nullptr, alg, nullptr, pkey) != 1) SIGN_ERROR(EINVAL);
+        mdctx = EVP_MD_CTX_create();
+        if (mdctx == nullptr) SIGN_ERROR(ENOMEM);
 
-    /* Call update with the message */
-    if (EVP_DigestSignUpdate(mdctx, str, strlen(str)) != 1) SIGN_ERROR(EINVAL);
+        /* Initialize the DigestSign operation using alg */
+        if (EVP_DigestSignInit(mdctx, nullptr, alg, nullptr, pkey) != 1) SIGN_ERROR(EINVAL);
 
-    /* First, call EVP_DigestSignFinal with a nullptr sig parameter to get length
-     * of sig. Length is returned in slen */
-    if (EVP_DigestSignFinal(mdctx, nullptr, &slen) != 1) SIGN_ERROR(EINVAL);
+        /* Call update with the message */
+        if (EVP_DigestSignUpdate(mdctx, str, strlen(str)) != 1) SIGN_ERROR(EINVAL);
 
-    /* Allocate memory for signature based on returned size */
-    sig = (unsigned char*) alloca(slen);
-    if (sig == nullptr) SIGN_ERROR(ENOMEM);
+        /* First, call EVP_DigestSignFinal with a nullptr sig parameter to get length
+         * of sig. Length is returned in slen */
+        if (EVP_DigestSignFinal(mdctx, nullptr, &slen) != 1) SIGN_ERROR(EINVAL);
 
-    /* Get the signature */
-    if (EVP_DigestSignFinal(mdctx, sig, &slen) != 1) SIGN_ERROR(EINVAL);
+        /* Allocate memory for signature based on returned size */
+        sig_buffer.checkSize(slen);
+        sig = (unsigned char*) sig_buffer.data();
 
-    if (pkey_type != EVP_PKEY_EC) {
-        *out = (char*) malloc(slen);
-        if (*out == nullptr) SIGN_ERROR(ENOMEM);
-        memcpy(*out, sig, slen);
-        *len = slen;
-    } else {
-        unsigned int degree, bn_len, r_len, s_len, buf_len;
-        unsigned char* raw_buf;
-        EC_KEY* ec_key;
+        /* Get the signature */
+        if (EVP_DigestSignFinal(mdctx, sig, &slen) != 1) SIGN_ERROR(EINVAL);
 
-        /* For EC we need to convert to a raw format of R/S. */
+        if (pkey_type != EVP_PKEY_EC) {
+            *out = (char*) malloc(slen);
+            if (*out == nullptr) SIGN_ERROR(ENOMEM);
+            memcpy(*out, sig, slen);
+            *len = slen;
+        } else {
+            unsigned int degree, bn_len, r_len, s_len, buf_len;
+            unsigned char* raw_buf;
+            EC_KEY* ec_key;
 
-        /* Get the actual ec_key */
-        ec_key = EVP_PKEY_get1_EC_KEY(pkey);
-        if (ec_key == nullptr) SIGN_ERROR(ENOMEM);
+            /* For EC we need to convert to a raw format of R/S. */
 
-        degree = EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
+            /* Get the actual ec_key */
+            ec_key = EVP_PKEY_get1_EC_KEY(pkey);
+            if (ec_key == nullptr) SIGN_ERROR(ENOMEM);
 
-        EC_KEY_free(ec_key);
+            degree = EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
 
-        /* Get the sig from the DER encoded version. */
-        ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, slen);
-        if (ec_sig == nullptr) SIGN_ERROR(ENOMEM);
+            EC_KEY_free(ec_key);
 
-        ECDSA_SIG_get0(ec_sig, &ec_sig_r, &ec_sig_s);
-        r_len = BN_num_bytes(ec_sig_r);
-        s_len = BN_num_bytes(ec_sig_s);
-        bn_len = (degree + 7) / 8;
-        if ((r_len > bn_len) || (s_len > bn_len)) SIGN_ERROR(EINVAL);
+            /* Get the sig from the DER encoded version. */
+            ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, slen);
+            if (ec_sig == nullptr) SIGN_ERROR(ENOMEM);
 
-        buf_len = 2 * bn_len;
-        raw_buf = (unsigned char*) alloca(buf_len);
-        if (raw_buf == nullptr) SIGN_ERROR(ENOMEM);
+            ECDSA_SIG_get0(ec_sig, &ec_sig_r, &ec_sig_s);
+            r_len = BN_num_bytes(ec_sig_r);
+            s_len = BN_num_bytes(ec_sig_s);
+            bn_len = (degree + 7) / 8;
+            if ((r_len > bn_len) || (s_len > bn_len)) SIGN_ERROR(EINVAL);
 
-        /* Pad the bignums with leading zeroes. */
-        memset(raw_buf, 0, buf_len);
-        BN_bn2bin(ec_sig_r, raw_buf + bn_len - r_len);
-        BN_bn2bin(ec_sig_s, raw_buf + buf_len - s_len);
+            buf_len = 2 * bn_len;
+            Buffer raw_buf_buffer(buf_len);
+            raw_buf = (unsigned char*) raw_buf_buffer.data();
+            if (raw_buf == nullptr) SIGN_ERROR(ENOMEM);
 
-        *out = (char*) malloc(buf_len);
-        if (*out == nullptr) SIGN_ERROR(ENOMEM);
-        memcpy(*out, raw_buf, buf_len);
-        *len = buf_len;
+            /* Pad the bignums with leading zeroes. */
+            memset(raw_buf, 0, buf_len);
+            BN_bn2bin(ec_sig_r, raw_buf + bn_len - r_len);
+            BN_bn2bin(ec_sig_s, raw_buf + buf_len - s_len);
+
+            *out = (char*) malloc(buf_len);
+            if (*out == nullptr) SIGN_ERROR(ENOMEM);
+            memcpy(*out, raw_buf, buf_len);
+            *len = buf_len;
+        }
+    }
+    catch (const exception& e) {
+        error = e.what();
     }
 
-    jwt_sign_sha_pem_done:
     if (bufkey)
         BIO_free(bufkey);
     if (pkey)
@@ -281,12 +287,13 @@ int jwt_sign_sha_pem(JWT* jwt, char** out, unsigned int* len,
     if (ec_sig)
         ECDSA_SIG_free(ec_sig);
 
-    return ret;
+    if (!error.empty())
+        throw Exception("Sign error: " + string(error));
 }
 
 #define VERIFY_ERROR(__err) { ret = __err; goto jwt_verify_sha_pem_done; }
 
-int jwt_verify_sha_pem(JWT* jwt, const char* head, const char* sig_b64)
+int JWT::verify_sha_pem(const char* head, const char* sig_b64)
 {
     unsigned char* sig = nullptr;
     EVP_MD_CTX* mdctx = nullptr;
@@ -301,7 +308,7 @@ int jwt_verify_sha_pem(JWT* jwt, const char* head, const char* sig_b64)
     int ret = 0;
     int slen;
 
-    switch (jwt->alg) {
+    switch (this->alg) {
         /* RSA */
         case JWT::JWT_ALG_RS256:
             alg = EVP_sha256();
@@ -334,10 +341,12 @@ int jwt_verify_sha_pem(JWT* jwt, const char* head, const char* sig_b64)
             return EINVAL;
     }
 
-    sig = (unsigned char*) jwt_b64_decode(sig_b64, &slen);
-    if (sig == nullptr) VERIFY_ERROR(EINVAL);
+    Buffer sig_buffer;
+    jwt_b64_decode(sig_buffer, sig_b64, &slen);
+    sig = (unsigned char*) sig_buffer.data();
+    slen = sig_buffer.bytes();
 
-    bufkey = BIO_new_mem_buf(jwt->key.c_str(), jwt->key.length());
+    bufkey = BIO_new_mem_buf(key.c_str(), key.length());
     if (bufkey == nullptr) VERIFY_ERROR(ENOMEM);
 
     /* This uses OpenSSL's default passphrase callback if needed. The

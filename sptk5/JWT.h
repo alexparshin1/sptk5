@@ -39,7 +39,7 @@ public:
 	json::Document  grants;
 
     JWT();
-    JWT* clone() const;
+    JWT(const JWT& other);
 
 	/**
 	 * Get JSON element in JSON object element by name.
@@ -70,8 +70,8 @@ public:
     static const char * alg_str(jwt_alg_t alg);
     static jwt_alg_t str_alg(const char *alg);
 
-    int sign(char **out, unsigned int *len, const char *str);
-    int encode(std::ostream& out);
+    void sign(char** out, unsigned int* len, const char* str);
+    void encode(std::ostream& out);
 
     void decode(const char *token, const String& key="");
 
@@ -91,18 +91,17 @@ public:
     void write_body(std::ostream& output, int pretty) const;
 
     void verify(const Buffer& head, const Buffer& sig);
+
+    int sign_sha_hmac(char** out, unsigned int* len, const char* str);
+    int verify_sha_hmac(const char* head, const char* sig);
+    void sign_sha_pem(char** out, unsigned int* len, const char* str);
+    int verify_sha_pem(const char* head, const char* sig_b64);
 };
 
 /* Helper routines. */
 void jwt_base64uri_encode(Buffer& buffer);
 
-void * jwt_b64_decode(const char *src, int *ret_len);
-
-/* These routines are implemented by the crypto backend. */
-int jwt_sign_sha_hmac(JWT* jwt, char** out, unsigned int* len, const char* str);
-int jwt_verify_sha_hmac(JWT* jwt, const char* head, const char* sig);
-int jwt_sign_sha_pem(JWT* jwt, char** out, unsigned int* len, const char* str);
-int jwt_verify_sha_pem(JWT* jwt, const char* head, const char* sig_b64);
+void jwt_b64_decode(Buffer& destination, const char* src, int* ret_len);
 
 }
 
