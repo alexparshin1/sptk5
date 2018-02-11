@@ -218,6 +218,7 @@ void JWT::sign(char** out, unsigned int* len, const char* str)
 
 void JWT::encode(ostream& out)
 {
+    int ret;
     unsigned int sig_len;
 
     /* First the header. */
@@ -256,7 +257,7 @@ void JWT::encode(ostream& out)
     Base64::encode(signature, sig, sig_len);
     jwt_base64uri_encode(signature);
 
-    out << output.c_str() << '.' << signature.c_str();
+    out << output.c_str() << '.' << signature.c_str() << endl;
 }
 
 void JWT::exportTo(ostream& output, int pretty) const
