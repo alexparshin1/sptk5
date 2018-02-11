@@ -92,8 +92,8 @@ public:
 
     void verify(const Buffer& head, const Buffer& sig);
 
-    int sign_sha_hmac(char** out, unsigned int* len, const char* str);
-    int verify_sha_hmac(const char* head, const char* sig);
+    void sign_sha_hmac(char** out, unsigned int* len, const char* str);
+    void verify_sha_hmac(const char* head, const char* sig);
     void sign_sha_pem(char** out, unsigned int* len, const char* str);
     void verify_sha_pem(const char* head, const char* sig_b64);
 };

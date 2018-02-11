@@ -51,7 +51,7 @@ static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
 
 namespace sptk {
 
-int JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
+void JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
 {
     const EVP_MD* alg;
 
@@ -67,27 +67,25 @@ int JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
             alg = EVP_sha512();
             break;
         default:
-            return EINVAL;
+            throw Exception("Invalid sign algorithm");
     }
 
     *out = (char*) malloc(EVP_MAX_MD_SIZE);
     if (*out == nullptr)
-        return ENOMEM;
+        throw Exception("Can't allocate memory");
 
     HMAC(alg, key.c_str(), key.length(),
          (const unsigned char*) str, strlen(str), (unsigned char*) *out,
          len);
-
-    return 0;
 }
 
-int JWT::verify_sha_hmac(const char* head, const char* sig)
+void JWT::verify_sha_hmac(const char* head, const char* sig)
 {
     unsigned char res[EVP_MAX_MD_SIZE];
     BIO* bmem = nullptr, * b64 = nullptr;
     unsigned int res_len;
     const EVP_MD* alg;
-    int len, ret = EINVAL;
+    int len;
     Buffer readBuf;
 
     switch (this->alg) {
@@ -101,17 +99,19 @@ int JWT::verify_sha_hmac(const char* head, const char* sig)
             alg = EVP_sha512();
             break;
         default:
-            return EINVAL;
+            throw Exception("Invalid verify algorithm");
     }
+
+    bool matches = false;
 
     b64 = BIO_new(BIO_f_base64());
     if (b64 == nullptr)
-        return ENOMEM;
+        throw Exception("Can't allocate memory");
 
     bmem = BIO_new(BIO_s_mem());
     if (bmem == nullptr) {
         BIO_free(b64);
-        return ENOMEM;
+        throw Exception("Can't allocate memory");
     }
 
     BIO_push(b64, bmem);
@@ -135,12 +135,13 @@ int JWT::verify_sha_hmac(const char* head, const char* sig)
     jwt_base64uri_encode(readBuf);
 
     /* And now... */
-    ret = strcmp(readBuf.c_str(), sig) ? EINVAL : 0;
+    matches = strcmp(readBuf.c_str(), sig) == 0;
 
     jwt_verify_hmac_done:
     BIO_free_all(b64);
 
-    return ret;
+    if (!matches)
+        throw Exception("Signature doesn't match");
 }
 
 #define SIGN_ERROR(__err) { if (__err == EINVAL) throw Exception("Invalid value"); else throw Exception("Can't allocate memory"); }
@@ -305,7 +306,6 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
     int type;
     int pkey_type;
     BIO* bufkey = nullptr;
-    int ret = 0;
     int slen;
 
     switch (this->alg) {

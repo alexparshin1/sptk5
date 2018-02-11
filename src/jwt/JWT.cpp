@@ -218,7 +218,6 @@ void JWT::sign(char** out, unsigned int* len, const char* str)
 
 void JWT::encode(ostream& out)
 {
-    int ret;
     unsigned int sig_len;
 
     /* First the header. */
@@ -257,7 +256,7 @@ void JWT::encode(ostream& out)
     Base64::encode(signature, sig, sig_len);
     jwt_base64uri_encode(signature);
 
-    out << output.c_str() << '.' << signature.c_str() << endl;
+    out << output.c_str() << '.' << signature.c_str();
 }
 
 void JWT::exportTo(ostream& output, int pretty) const
@@ -329,6 +328,7 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
         }
     }
 
+    buffer[t] = char(0);
     buffer.bytes(t);
 }
 
@@ -430,6 +430,8 @@ void JWT::decode(const char *token, const String& key)
     if (this->alg != JWT::JWT_ALG_NONE) {
         // Re-add this since it's part of the verified data.
         //body[-1] = '.';
+        head.append('.');
+        head.append(body);
         verify(head, sig);
     }
 }
