@@ -97,8 +97,8 @@ void JWT::sign_sha_hmac(char** out, unsigned int* len, const char* str)
     if (*out == nullptr)
         throw Exception("Can't allocate memory");
 
-    HMAC(alg, key.c_str(), key.length(),
-         (const unsigned char*) str, strlen(str), (unsigned char*) *out,
+    HMAC(alg, key.c_str(), (int) key.length(),
+         (const unsigned char*) str, (int) strlen(str), (unsigned char*) *out,
          len);
 }
 
@@ -140,8 +140,8 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
     BIO_push(b64, bmem);
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
-    HMAC(alg, key.c_str(), key.length(),
-         (const unsigned char*) head, strlen(head), res, &res_len);
+    HMAC(alg, key.c_str(), (int) key.length(),
+         (const unsigned char*) head, (int) strlen(head), res, &res_len);
 
     BIO_write(b64, res, res_len);
 
@@ -154,6 +154,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig)
     readBuf.checkSize(size_t(len) + 1);
     len = BIO_read(bmem, readBuf.data(), len);
     readBuf.bytes(size_t(len));
+	readBuf[len] = 0;
 
     jwt_base64uri_encode(readBuf);
 
@@ -219,7 +220,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
     string error;
 
     try {
-        bufkey = BIO_new_mem_buf(key.c_str(), key.length());
+        bufkey = BIO_new_mem_buf((void*) key.c_str(), (int) key.length());
         if (bufkey == nullptr) SIGN_ERROR(ENOMEM);
 
         /* This uses OpenSSL's default passphrase callback if needed. The
@@ -255,7 +256,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             *out = (char*) malloc(slen);
             if (*out == nullptr) SIGN_ERROR(ENOMEM);
             memcpy(*out, sig, slen);
-            *len = slen;
+            *len = (unsigned) slen;
         } else {
             unsigned int degree, bn_len, r_len, s_len, buf_len;
             unsigned char* raw_buf;
@@ -272,7 +273,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             EC_KEY_free(ec_key);
 
             /* Get the sig from the DER encoded version. */
-            ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, slen);
+            ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, (long) slen);
             if (ec_sig == nullptr) SIGN_ERROR(ENOMEM);
 
             ECDSA_SIG_get0(ec_sig, &ec_sig_r, &ec_sig_s);
@@ -365,11 +366,11 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
     Buffer sig_buffer;
     jwt_b64_decode(sig_buffer, sig_b64, &slen);
     sig = (unsigned char*) sig_buffer.data();
-    slen = sig_buffer.bytes();
+    slen = (int) sig_buffer.bytes();
 
     string error;
     try {
-        bufkey = BIO_new_mem_buf(key.c_str(), key.length());
+        bufkey = BIO_new_mem_buf((void*) key.c_str(), (int)key.length());
         if (bufkey == nullptr) VERIFY_ERROR(ENOMEM);
 
         /* This uses OpenSSL's default passphrase callback if needed. The
