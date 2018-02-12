@@ -104,25 +104,26 @@ JWT::jwt_alg_t JWT::str_alg(const char *alg)
     if (alg == nullptr)
         return JWT_ALG_INVAL;
 
-    if (!strcasecmp(alg, "none"))
+	String algUC = upperCase(alg);
+    if (algUC == "NONE")
         return JWT_ALG_NONE;
-    else if (!strcasecmp(alg, "HS256"))
+    else if (algUC == "HS256")
         return JWT_ALG_HS256;
-    else if (!strcasecmp(alg, "HS384"))
+    else if (algUC == "HS384")
         return JWT_ALG_HS384;
-    else if (!strcasecmp(alg, "HS512"))
+    else if (algUC == "HS512")
         return JWT_ALG_HS512;
-    else if (!strcasecmp(alg, "RS256"))
+    else if (algUC == "RS256")
         return JWT_ALG_RS256;
-    else if (!strcasecmp(alg, "RS384"))
+    else if (algUC == "RS384")
         return JWT_ALG_RS384;
-    else if (!strcasecmp(alg, "RS512"))
+    else if (algUC == "RS512")
         return JWT_ALG_RS512;
-    else if (!strcasecmp(alg, "ES256"))
+    else if (algUC == "ES256")
         return JWT_ALG_ES256;
-    else if (!strcasecmp(alg, "ES384"))
+    else if (algUC == "ES384")
         return JWT_ALG_ES384;
-    else if (!strcasecmp(alg, "ES512"))
+    else if (algUC == "ES512")
         return JWT_ALG_ES512;
 
     return JWT_ALG_INVAL;
@@ -158,7 +159,7 @@ long JWT::get_js_int(const json::Element *js, const String& key, bool* found)
     if (element != nullptr && element->isNumber()) {
         if (found)
             *found = true;
-        return element->getNumber();
+        return (long) element->getNumber();
     }
     return 0;
 }
@@ -327,7 +328,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src, int* ret_len)
     newData[i] = '\0';
 
     Base64::decode(destination, newData);
-    *ret_len = destination.bytes();
+    *ret_len = (int) destination.bytes();
 }
 
 
@@ -342,8 +343,8 @@ static void jwt_b64_decode_json(json::Document &dest, const Buffer &src)
 void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
     char* str = buffer.data();
-    int len = strlen(str);
-    int i, t;
+    size_t len = strlen(str);
+    size_t i, t;
 
     for (i = t = 0; i < len; i++) {
         switch (str[i]) {
