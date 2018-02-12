@@ -1,12 +1,3 @@
-/* Public domain, no copyright. Use at your own risk. */
-
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-
-#include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
-#include <sptk5/JWT.h>
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
@@ -38,6 +29,14 @@
 │   Please see http://github.com/benmcollins/libjwt for more information.      │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
+
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
+#include <sptk5/JWT.h>
 
 #include <iomanip>
 
@@ -316,7 +315,6 @@ void test_encode_hs256_decode()
 */
     stringstream originalToken;
     jwt.encode(originalToken);
-    string str = originalToken.str();
 
     stringstream originalJSON;
     jwt.exportTo(originalJSON, false);
