@@ -1,9 +1,34 @@
-/* Copyright (C) 2015-2017 Ben Collins <ben@cyphre.com>
-   This file is part of the JWT C Library
-
-   This Source Code Form is subject to the terms of the Mozilla Public
-   License, v. 2.0. If a copy of the MPL was not distributed with this
-   file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       JWT.h - description                                    ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  begin                Monday Feb 12 2017                                     ║
+║  copyright            (C) 1999-2017 by Alexey Parshin.                       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   The code in this module is based JWT C Library, developed by Ben Collins.  │
+│   Please see http://github.com/benmcollins/libjwt for more information.      │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
 
 #ifndef __JWT_H__
 #define __JWT_H__
