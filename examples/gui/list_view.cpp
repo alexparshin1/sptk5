@@ -77,7 +77,6 @@ int main(int argc, char **argv)
    CDBListView listView("List View:", 10, SP_ALIGN_CLIENT);
    lView = &listView;
 
-   std::string operation;
    DateTime start = DateTime::Now();
 
    listView.columns().push_back(CColumn("column 1", VAR_INT, 70));

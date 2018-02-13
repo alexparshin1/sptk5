@@ -39,7 +39,7 @@ int main (int argc, char* argv[])
 
         string data;
 
-        struct sockaddr_in serv;
+        struct sockaddr_in serv {};
         memset (&serv, 0, sizeof (serv));
         serv.sin_family = AF_INET;
         serv.sin_port = htons(client.host().port());

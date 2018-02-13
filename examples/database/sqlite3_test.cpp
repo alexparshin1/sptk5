@@ -39,7 +39,7 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(DatabaseConnection* db, string tableName, bool rollback)
+int testTransactions(DatabaseConnection* db, const String& tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName);
@@ -142,8 +142,8 @@ int main()
             int64_t id = step3Query["id"].asInt64();
 
             // another method - getting data by the column number
-            string name = step3Query[1].asString();
-            string position = step3Query[2].asString();
+            String name = step3Query[1].asString();
+            String position = step3Query[2].asString();
 
             cout << setw(10) << id << setw(20) << name << setw(20) << position << endl;
 

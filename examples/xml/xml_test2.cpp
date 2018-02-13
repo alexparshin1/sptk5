@@ -50,7 +50,6 @@ int main()
 
         DateTime start = DateTime::Now();
         DateTime end;
-        DateTime::duration duration;
         auto *buf = new Buffer;
 
         out << "The XML document generation test started:" << endl;
@@ -79,7 +78,7 @@ int main()
         out.precision(2);
 
         end = DateTime::Now();
-        duration = end - start;
+        DateTime::duration duration = end - start;
         start = end;
 
         out << "The document is ready (" << doc.size() * nodesPerRow << " nodes): " << duration_cast<milliseconds>(duration).count() / 1000.0 << " seconds" << endl;

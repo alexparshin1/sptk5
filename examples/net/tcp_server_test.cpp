@@ -40,7 +40,7 @@ int main( int argc, char* argv[] )
       server.host(Host("localhost", 3000));
 
       SOCKET clientSocketFD;
-      struct sockaddr_in clientInfo;
+      struct sockaddr_in clientInfo {};
 
       server.listen();
       server.accept(clientSocketFD, clientInfo);

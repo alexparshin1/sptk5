@@ -101,8 +101,9 @@ const char * JWT::alg_str(jwt_alg_t alg)
 
 JWT::jwt_alg_t JWT::str_alg(const char *alg)
 {
-    if (alg == nullptr)
+    if (alg == nullptr) {
         return JWT_ALG_INVAL;
+    }
 
 	String algUC = upperCase(alg);
     if (algUC == "NONE")
@@ -306,7 +307,8 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src, int* ret_len)
 
     /* Decode based on RFC-4648 URI safe encoding. */
     len = strlen(src);
-    newData = (char*) alloca(len + 4);
+    Buffer newData_buffer(len + 4);
+    newData = newData_buffer.data();
 
     for (i = 0; i < len; i++) {
         switch (src[i]) {

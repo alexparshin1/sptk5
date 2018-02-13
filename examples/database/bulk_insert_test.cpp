@@ -61,7 +61,7 @@ int main()
         try {
             step1Query.exec();
         } catch (exception& e) {
-            if (strstr(e.what(), "exist") == NULL)
+            if (strstr(e.what(), "exist") == nullptr)
                 throw;
             cout << "Table already exists, ";
         }
@@ -83,7 +83,7 @@ int main()
         while (!step3Query.eof()) {
 
             int id;
-            string name, position_name, hire_date;
+            String name, position_name, hire_date;
 
             int fieldIndex = 0;
             for (Field* field: step3Query.fields()) {

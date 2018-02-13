@@ -278,7 +278,7 @@ int testDatabase(const string& connectionString)
         while (!selectRecordsQuery.eof()) {
 
             int id;
-            string name, position_name, hire_date;
+            String name, position_name, hire_date;
 
             int fieldIndex = 0;
             for (Field* field: selectRecordsQuery.fields()) {

@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     root["string"] = "test";
     root["boolean"] = true;
 
-    json::ArrayData* array1 = new json::ArrayData;
+    auto array1 = new json::ArrayData;
     array1->add(new json::Element(100.0));
     array1->add(new json::Element("101.0"));
     array1->add(new json::Element(102.0));
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 
     // Create JSON array and insert it into JSON element (root)
     // JSON element (root) takes ownership of arrayData
-    json::ArrayData* arrayData = new json::ArrayData;
+    auto arrayData = new json::ArrayData;
     arrayData->add(100.0);
     arrayData->add("101.0");
     arrayData->add(102.0);
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 
     // Create JSON object and insert it into JSON element (root)
     // JSON element (root) takes ownership of objectData
-    json::ObjectData* objectData = new json::ObjectData;
+    auto objectData = new json::ObjectData;
     (*objectData)["colour"] = "black";
     (*objectData)["shape"] = "cube";
     root.add("boxes", objectData);
