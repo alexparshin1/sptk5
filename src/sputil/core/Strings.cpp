@@ -180,15 +180,18 @@ void Strings::loadFromFile(const String& fileName)
 
     clear();
     // Load text
-    string text(buffer.c_str(), buffer.bytes());
+    String text(buffer.c_str(), buffer.bytes());
 
     // Determine delimiter
+    String delimiter = "\n";
     size_t pos1 = text.find_first_of("\n\r");
-    size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
-    string delimiter = text.substr(pos1, 1);
-    if (pos1 + 1 == pos2) {
-        if (text[pos1] != text[pos2]) // Two chars delimiter
-            delimiter = text.substr(pos1, 2);
+    if (pos1 != string::npos) {
+        size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
+        string delimiter = text.substr(pos1, 1);
+        if (pos1 + 1 == pos2) {
+            if (text[pos1] != text[pos2]) // Two chars delimiter
+                delimiter = text.substr(pos1, 2);
+        }
     }
 
     splitByDelimiter(text, delimiter.c_str());
