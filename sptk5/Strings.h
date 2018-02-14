@@ -160,16 +160,6 @@ public:
     }
 
     /**
-     * Assignment operator
-     * @param str				Source string
-     */
-    String &operator+(const char *str)
-    {
-        append(str);
-        return *this;
-    }
-
-    /**
      * @brief Returns string ID
      */
     int32_t ident() const
