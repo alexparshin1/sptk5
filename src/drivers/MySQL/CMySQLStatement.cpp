@@ -45,7 +45,7 @@ public:
     my_bool         m_cbNull;
     my_bool         m_cbError;
     // MySQL time conversion buffer
-    MYSQL_TIME      m_timeBuffer;
+    MYSQL_TIME      m_timeBuffer {};
     char*           m_tempBuffer;
 
 public:
@@ -60,7 +60,7 @@ public:
             m_tempBuffer = nullptr;
     }
 
-    virtual ~CMySQLStatementField()
+    ~CMySQLStatementField() override
     {
         delete [] m_tempBuffer;
     }
@@ -337,11 +337,6 @@ void MySQLStatement::bindResult(FieldList& fields)
     }
 
     if (m_statement != nullptr) {
-        if (m_result != nullptr) {
-            mysql_free_result(m_result);
-            m_result = nullptr;
-        }
-        
         // Bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(m_state.columnCount);
         for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
@@ -449,7 +444,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             break;
 
         case VAR_FLOAT:
-            field->setFloat(atof(data));
+            field->setFloat(string2double(data));
             break;
 
         case VAR_STRING:
@@ -465,7 +460,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             break;
 
         default:
-            throwDatabaseException("Unsupported Variant type: " + int2string(fieldType));
+            throwDatabaseException(String("Unsupported Variant type: ") + int2string(fieldType));
         }
     }
 }
@@ -516,7 +511,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 
         case VAR_FLOAT:
             if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL) {
-                double value = atof((char*)bind.buffer);
+                double value = string2double((char*)bind.buffer);
                 field->setFloat(value);
             } else {
                 if (dataLength == sizeof(float)) {
@@ -538,7 +533,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             } else {
                 if (bind.buffer_length < dataLength) {
                     /// Fetch truncated, enlarge buffer and fetch remaining part
-                    uint32_t remainingBytes = uint32_t(dataLength - bind.buffer_length);
+                    auto remainingBytes = uint32_t(dataLength - bind.buffer_length);
                     auto offset = (uint32_t) bind.buffer_length;
                     field->checkSize(dataLength+1);
                     bind.buffer = (char*) field->getBuffer() + offset;
@@ -559,7 +554,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             break;
 
         default:
-            throwDatabaseException("Unsupported Variant type: " + int2string(fieldType));
+            throwDatabaseException(String("Unsupported Variant type: ") + int2string(fieldType));
         }
     }
     if (fieldSizeChanged && mysql_stmt_bind_result(m_statement, &m_fieldBuffers[0]) != 0)
@@ -569,6 +564,9 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 void MySQLStatement::close()
 {
     if (m_result != nullptr) {
+        // Read all the results until EOF
+        while (!m_state.eof)
+            fetch();
         mysql_free_result(m_result);
         m_result = nullptr;
     }

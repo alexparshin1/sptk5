@@ -129,7 +129,7 @@ bool MySQLConnection::active() const
 String MySQLConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
-    string connectionString = m_connString.hostName();
+    String connectionString = m_connString.hostName();
     if (m_connString.portNumber() != 0)
         connectionString += ":" + int2string(m_connString.portNumber());
     if (!m_connString.databaseName().empty())
@@ -205,7 +205,7 @@ void MySQLConnection::queryCloseStmt(Query *query)
             statement->close();
     }
     catch (exception& e) {
-        query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
+        query->throwError("CMySQLConnection::queryBindParameters", e.what());
     }
 }
 
@@ -221,9 +221,9 @@ void MySQLConnection::queryPrepare(Query *query)
                 statement->enumerateParams(query->params());
             }
             catch (exception& e) {
-                query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
+                query->throwError("CMySQLConnection::queryBindParameters", e.what());
             }
-            querySetPrepared(query, true);
+            //querySetPrepared(query, true);
         }
     }
 }
@@ -243,7 +243,7 @@ int MySQLConnection::queryColCount(Query *query)
         colCount = (int) statement->colCount();
     }
     catch (exception& e) {
-        query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
+        query->throwError("CMySQLConnection::queryBindParameters", e.what());
     }
     return colCount;
 }
@@ -259,7 +259,7 @@ void MySQLConnection::queryBindParameters(Query *query)
         statement->setParameterValues();
     }
     catch (exception& e) {
-        query->logAndThrow("CMySQLConnection::queryBindParameters", e.what());
+        query->throwError("CMySQLConnection::queryBindParameters", e.what());
     }
 }
 
@@ -272,7 +272,7 @@ void MySQLConnection::queryExecute(Query *query)
         statement->execute(m_inTransaction);
     }
     catch (exception& e) {
-        query->logAndThrow("CMySQLConnection::queryExecute", e.what());
+        query->throwError("CMySQLConnection::queryExecute", e.what());
     }
 }
 
@@ -316,7 +316,7 @@ void MySQLConnection::queryOpen(Query *query)
 void MySQLConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        query->logAndThrow("CMySQLConnection::queryFetch", "Dataset isn't open");
+        query->throwError("CMySQLConnection::queryFetch", "Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
@@ -332,7 +332,7 @@ void MySQLConnection::queryFetch(Query *query)
         statement->readResultRow(query->fields());
     }
     catch (exception& e) {
-        query->logAndThrow("CMySQLConnection::queryFetch", e.what());
+        query->throwError("CMySQLConnection::queryFetch", e.what());
     }
 }
 
@@ -346,13 +346,13 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
         objectsSQL =
             "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
               "FROM information_schema.routines "
-             "WHERE rountine_type = 'PROCEDURE'";
+             "WHERE routine_type = 'PROCEDURE'";
         break;
     case sptk::DOT_FUNCTIONS:
         objectsSQL =
             "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
               "FROM information_schema.routines "
-             "WHERE rountine_type = 'FUNCTION'";
+             "WHERE routine_type = 'FUNCTION'";
         break;
     case DOT_TABLES:
         objectsSQL =
@@ -387,7 +387,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 void MySQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
 {
     char    fileName[256];
-    snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%i", getpid(), rand());
+    snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%li", getpid(), (long) time(NULL));
     data.saveToFile(fileName);
     string sql = "LOAD DATA LOCAL INFILE '" + string(fileName) + "' INTO TABLE " + tableName + " (" + columnNames.asString(",") + ") " + format;
 
