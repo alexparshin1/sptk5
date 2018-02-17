@@ -49,6 +49,12 @@ Element::Element(int value)
     m_data.m_number = value;
 }
 
+Element::Element(int64_t value)
+        : m_parent(nullptr), m_type(JDT_NUMBER)
+{
+    m_data.m_number = value;
+}
+
 Element::Element(const std::string& value)
         : m_parent(nullptr), m_type(JDT_STRING)
 {
@@ -164,7 +170,7 @@ Element::~Element()
     clear();
 }
 
-void Element::add(Element* element)
+Element* Element::add(Element* element)
 {
     if (m_type != JDT_ARRAY)
         throw Exception("Parent element is not JSON array");
@@ -172,9 +178,11 @@ void Element::add(Element* element)
         m_data.m_array = new ArrayData(this);
     m_data.m_array->add(element);
     element->m_parent = this;
+
+    return element;
 }
 
-void Element::add(const std::string& name, Element* element)
+Element* Element::add(const std::string& name, Element* element)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is not JSON object");
@@ -186,12 +194,12 @@ void Element::add(const std::string& name, Element* element)
     if (sameNameExistingElement == nullptr) {
         m_data.m_object->add(name, element);
         element->m_parent = this;
-        return;
+        return element;
     }
 
     if (sameNameExistingElement->isArray()) {
         sameNameExistingElement->add(element);
-        return;
+        return element;
     }
 
     m_data.m_object->move(name);
@@ -199,6 +207,8 @@ void Element::add(const std::string& name, Element* element)
     array->add(sameNameExistingElement);
     array->add(element);
     add(name, array);
+
+    return element;
 }
 
 const Element* Element::find(const string& name) const

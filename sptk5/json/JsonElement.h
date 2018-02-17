@@ -186,6 +186,12 @@ public:
 
     /**
      * Constructor
+     * @param value             Integer value
+     */
+    Element(int64_t value);
+
+    /**
+     * Constructor
      * @param value             String value
      */
     Element(const std::string& value);
@@ -259,7 +265,7 @@ public:
      * Element takes ownership of added element.
      * @param element           Element to add
      */
-    void add(Element* element);
+    Element* add(Element* element);
 
     /**
      * Add JSON element to JSON object element.
@@ -268,49 +274,56 @@ public:
      * @param name              Name of the element in the object element
      * @param element           Element to add
      */
-    void add(const std::string& name, Element* element);
+    Element* add(const std::string& name, Element* element);
 
     /**
      * Add integer field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    void add(const std::string& name, int value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, int value) { return add(name, new Element(value)); }
+
+    /**
+     * Add integer field to JSON element
+     * @param name              Field name
+     * @param value             Field value
+     */
+    Element* add(const std::string& name, int64_t value) { return add(name, new Element(value)); }
 
     /**
      * Add double field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    void add(const std::string& name, double value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, double value) { return add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    void add(const std::string& name, const std::string& value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, const std::string& value) { return add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    void add(const std::string& name, const char* value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, const char* value) { return add(name, new Element(value)); }
 
     /**
      * Add boolean field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    void add(const std::string& name, bool value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, bool value) { return add(name, new Element(value)); }
 
     /**
      * Add JSON array field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    void add(const std::string& name, ArrayData* value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, ArrayData* value) { return add(name, new Element(value)); }
 
     /**
      * Add JSON object field to JSON element
@@ -318,7 +331,7 @@ public:
      * @param value             Field value
      *
      */
-    void add(const std::string& name, ObjectData* value) { add(name, new Element(value)); }
+    Element* add(const std::string& name, ObjectData* value) { return add(name, new Element(value)); }
 
     /**
      * Find JSON element in JSON object element
