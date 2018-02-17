@@ -391,7 +391,7 @@ void OracleConnection::queryOpen(Query *query)
 void OracleConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        query->logAndThrow("COracleConnection::queryFetch", "Dataset isn't open");
+        query->throwError("COracleConnection::queryFetch", "Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
@@ -502,8 +502,8 @@ void OracleConnection::queryFetch(Query *query)
             }
 
         } catch (exception& e) {
-            query->logAndThrow("COracleConnection::queryFetch",
-                               "Can't read field " + field->fieldName() + ": " + string(e.what()));
+            query->throwError("COracleConnection::queryFetch",
+                              "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
 }

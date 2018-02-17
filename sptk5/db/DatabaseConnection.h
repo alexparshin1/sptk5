@@ -182,11 +182,6 @@ protected:
     bool                        m_inTransaction;
 
     /**
-     * Log for the database events (optional)
-     */
-    Logger*                     m_log;
-
-    /**
      * Object name for logs and error messages
      */
     std::string                 m_objectName;
@@ -482,21 +477,6 @@ public:
      * @param objects           Object list (output)
      */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) = 0;
-
-    /**
-     * @brief Sets a log file for the database operations.
-     *
-     * If the database log is set, the database would log the events in DatabaseConnection and CQuery objects
-     * into this log. To stop the logging, set the logFile parameter to NULL, or deactivate the log.
-     * @param logFile           The log file object to use.
-     */
-    void logFile(Logger *logFile);
-
-    /**
-     * @brief Returns a log file for the database operations.
-     * @returns current log file ptr, ot NULL if log file isn't set
-     */
-    Logger *logFile();
 
     /**
      * @brief Executes bulk inserts of data from memory buffer

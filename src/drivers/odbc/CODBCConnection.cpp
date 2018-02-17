@@ -241,7 +241,7 @@ void ODBCConnection::queryPrepare(Query* query)
     query->fields().clear();
 
     if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS)))
-        query->logAndThrow("CODBCConnection::queryPrepare", queryError(query));
+        query->throwError("CODBCConnection::queryPrepare", queryError(query));
 }
 
 void ODBCConnection::queryUnprepare(Query* query)
@@ -278,12 +278,12 @@ void ODBCConnection::queryExecute(Query* query)
                     break;
                 errors.push_back(string(removeDriverIdentification((const char*) text)));
             }
-            query->logAndThrow("CODBCConnection::queryExecute", errors.asString("; "));
+            query->throwError("CODBCConnection::queryExecute", errors.asString("; "));
         }
     }
 
     if (!successful(rc))
-        query->logAndThrow("CODBCConnection::queryExecute", queryError(query));
+        query->throwError("CODBCConnection::queryExecute", queryError(query));
 }
 
 int ODBCConnection::queryColCount(Query* query)
@@ -292,7 +292,7 @@ int ODBCConnection::queryColCount(Query* query)
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
-        query->logAndThrow("CODBCConnection::queryColCount", queryError(query));
+        query->throwError("CODBCConnection::queryColCount", queryError(query));
 
     return count;
 }
@@ -303,7 +303,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SQLLEN result;
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr, &result)))
-        query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
+        query->throwError("CODBCConnection::queryColAttributes", queryError(query));
     value = (int32_t) result;
 }
 
@@ -311,12 +311,12 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 {
     int16_t available;
     if (buff == nullptr || len <= 0)
-        query->logAndThrow("CODBCConnection::queryColAttributes", "Invalid buffer or buffer len");
+        query->throwError("CODBCConnection::queryColAttributes", "Invalid buffer or buffer len");
 
     SynchronizedCode lock(m_connect);
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len, &available, nullptr)))
-        query->logAndThrow("CODBCConnection::queryColAttributes", queryError(query));
+        query->throwError("CODBCConnection::queryColAttributes", queryError(query));
 }
 
 void ODBCConnection::queryBindParameters(Query* query)
@@ -375,8 +375,8 @@ void ODBCConnection::queryBindParameters(Query* query)
                                           SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
                     if (rc != 0) {
                         param->m_binding.reset(false);
-                        query->logAndThrow("CODBCConnection::queryBindParameters",
-                                           "Can't bind parameter " + int2string(paramNumber));
+                        query->throwError("CODBCConnection::queryBindParameters",
+                                          "Can't bind parameter " + int2string(paramNumber));
                     }
                     continue;
 
@@ -420,8 +420,8 @@ void ODBCConnection::queryBindParameters(Query* query)
                 }
                     break;
                 default:
-                    query->logAndThrow("CODBCConnection::queryBindParameters",
-                                       "Unknown type of parameter " + int2string(paramNumber));
+                    query->throwError("CODBCConnection::queryBindParameters",
+                                      "Unknown type of parameter " + int2string(paramNumber));
             }
             SQLLEN* cbValue = nullptr;
             if (param->isNull()) {
@@ -433,8 +433,8 @@ void ODBCConnection::queryBindParameters(Query* query)
                                   buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
                 param->m_binding.reset(false);
-                query->logAndThrow("CODBCConnection::queryBindParameters",
-                                   "Can't bind parameter " + int2string(paramNumber));
+                query->throwError("CODBCConnection::queryBindParameters",
+                                  "Can't bind parameter " + int2string(paramNumber));
             }
         }
     }
@@ -517,7 +517,7 @@ void ODBCConnection::queryOpen(Query* query)
         queryBindParameters(query);
     } catch (exception& e) {
         string error = queryError(query);
-        query->logAndThrow("CODBCConnection::queryOpen", string(e.what()) + "\n" + error);
+        query->throwError("CODBCConnection::queryOpen", string(e.what()) + "\n" + error);
     }
 
     if (query->autoPrepare() && !query->prepared()) {
@@ -596,7 +596,7 @@ static uint32_t trimField(char* s, uint32_t sz)
 void ODBCConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        query->logAndThrow("CODBCConnection::queryFetch", "Dataset isn't open");
+        query->throwError("CODBCConnection::queryFetch", "Dataset isn't open");
 
     auto statement = (SQLHSTMT) query->statement();
 
@@ -607,7 +607,6 @@ void ODBCConnection::queryFetch(Query* query)
     if (!successful(rc)) {
         if (rc < 0) {
             string error = queryError(query);
-            query->logText(error);
             throw DatabaseException(error, __FILE__, __LINE__, query->sql());
         } else {
             querySetEof(query, rc == SQL_NO_DATA);
@@ -681,8 +680,8 @@ void ODBCConnection::queryFetch(Query* query)
             else
                 field->dataSize(dataLength);
         } catch (exception& e) {
-            query->logAndThrow("CODBCConnection::queryFetch",
-                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));
+            query->throwError("CODBCConnection::queryFetch",
+                              "Can't read field " + field->fieldName() + "\n" + string(e.what()));
         }
 }
 

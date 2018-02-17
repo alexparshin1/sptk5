@@ -320,7 +320,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
                     string error = "DEALLOCATE command failed: ";
                     error += PQerrorMessage(m_connect);
                     PQclear(res);
-                    query->logAndThrow("CPostgreSQLConnection::queryFreeStmt", error);
+                    query->throwError("CPostgreSQLConnection::queryFreeStmt", error);
                 }
                 PQclear(res);
             }
@@ -365,7 +365,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
         string error = "PREPARE command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(stmt);
-        query->logAndThrow("CPostgreSQLConnection::queryPrepare", error);
+        query->throwError("CPostgreSQLConnection::queryPrepare", error);
     }
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
@@ -441,7 +441,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
-        query->logAndThrow("CPostgreSQLConnection::queryBindParameters", error);
+        query->throwError("CPostgreSQLConnection::queryBindParameters", error);
     }
 }
 
@@ -489,7 +489,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
-        query->logAndThrow("CPostgreSQLConnection::queryBindParameters", error);
+        query->throwError("CPostgreSQLConnection::queryBindParameters", error);
     }
 }
 
@@ -877,7 +877,7 @@ static void decodeArray(const char* data, DatabaseField* field)
 void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        query->logAndThrow("CPostgreSQLConnection::queryFetch", "Dataset isn't open");
+        query->throwError("CPostgreSQLConnection::queryFetch", "Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
@@ -985,8 +985,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
             }
 
         } catch (exception& e) {
-            query->logAndThrow("CPostgreSQLConnection::queryFetch",
-                               "Can't read field " + field->fieldName() + ": " + string(e.what()));
+            query->throwError("CPostgreSQLConnection::queryFetch",
+                              "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
 }

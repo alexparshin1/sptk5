@@ -36,7 +36,6 @@ DatabaseConnection::DatabaseConnection(const string& connectionString)
 :   m_connString(connectionString), m_connType(DCT_UNKNOWN)
 {
     m_inTransaction = false;
-    m_log = nullptr;
 }
 
 DatabaseConnection::~DatabaseConnection()
@@ -74,8 +73,6 @@ void DatabaseConnection::openDatabase(const String& newConnectionString)
 void DatabaseConnection::open(string newConnectionString)
 {
     openDatabase(newConnectionString);
-    if (m_log != nullptr)
-        *m_log << "Opened database: " << m_connString.toString() << endl;
 }
 
 void DatabaseConnection::closeDatabase()
@@ -95,8 +92,6 @@ void DatabaseConnection::close()
             query->closeQuery(true);
 
         closeDatabase();
-        if (m_log != nullptr)
-            *m_log << "Closed database: " << m_connString.toString() << endl;
     }
 }
 
@@ -114,22 +109,16 @@ bool DatabaseConnection::active() const
 
 void DatabaseConnection::beginTransaction()
 {
-    if (m_log != nullptr)
-        *m_log << "Begin transaction" << endl;
     driverBeginTransaction();
 }
 
 void DatabaseConnection::commitTransaction()
 {
-    if (m_log != nullptr)
-        *m_log << "Commit transaction" << endl;
     driverEndTransaction(true);
 }
 
 void DatabaseConnection::rollbackTransaction()
 {
-    if (m_log != nullptr)
-        *m_log << "Rollback transaction" << endl;
     driverEndTransaction(false);
 }
 
@@ -255,21 +244,7 @@ string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
 void DatabaseConnection::logAndThrow(string method, string error)
 {
     string errorText("Exception in " + method + ": " + error);
-    if (m_log != nullptr)
-        *m_log << "errorText" << endl;
     throw DatabaseException(errorText);
-}
-
-void DatabaseConnection::logFile(Logger *logFile)
-{
-    m_log = logFile;
-}
-
-/// @brief Returns a log file for the database operations.
-/// @returns current log file ptr, ot NULL if log file isn't set
-Logger* DatabaseConnection::logFile()
-{
-    return m_log;
 }
 
 void DatabaseConnection::driverBeginTransaction()

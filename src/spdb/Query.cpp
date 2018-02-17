@@ -40,7 +40,6 @@ static const char cantAllocateStmt[] = "Can't allocate statement";
 void Query::allocStmt()
 {
     if (m_db == nullptr) {
-        logText("Error in CQuery::allocStmt(): " + string(cantAllocateStmt));
         throw DatabaseException(cantAllocateStmt, __FILE__, __LINE__, m_sql);
     }
     m_db->queryAllocStmt(this);
@@ -131,9 +130,6 @@ Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, cons
     m_prepared = false;
     m_active = false;
     m_eof = true;
-    m_duration = chrono::microseconds(0);
-    m_totalDuration = chrono::microseconds(0);
-    m_totalCalls = 0;
     m_createdFile = createdFile;
     m_createdLine = createdLine;
     if (_db != nullptr) {
@@ -155,9 +151,6 @@ Query::Query(const Query& srcQuery)
     m_prepared = false;
     m_active = false;
     m_eof = true;
-    m_duration = chrono::microseconds(0);
-    m_totalDuration = chrono::microseconds(0);
-    m_totalCalls = 0;
     m_createdFile = srcQuery.m_createdFile;
     m_createdLine = srcQuery.m_createdLine;
 
@@ -294,24 +287,7 @@ bool Query::open()
     if (m_db == nullptr)
         throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
 
-    if (m_db->logFile() != nullptr)
-        logText("Opening query: " + replaceAll(m_sql, "\n", " "));
-
-    DateTime started = DateTime::Now();
     m_db->queryOpen(this);
-    DateTime finished = DateTime::Now();
-
-    // Execute duration, in seconds
-    m_duration = finished - started;
-    if (m_db->logFile() != nullptr) {
-        stringstream message;
-        message.precision(3);
-        message << "[Q" << m_objectIndex << "] Duration " << fixed << chrono::duration_cast<chrono::milliseconds>(m_duration).count() << " msec";
-        *m_db->logFile() << LP_DEBUG << message.str() << endl;
-    }
-
-    m_totalDuration += m_duration;
-    m_totalCalls++;
 
     return true;
 }
@@ -319,7 +295,6 @@ bool Query::open()
 void Query::fetch()
 {
     if (m_db == nullptr || !m_active) {
-        logText("Error in CQuery::fetch(): Dataset isn't open");
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, m_sql);
     }
 
@@ -333,10 +308,8 @@ void Query::closeQuery(bool releaseStatement)
     if (m_statement != nullptr) {
         if (releaseStatement) {
             freeStmt();
-            logText("Released");
         } else {
             closeStmt();
-            logText("Closed");
         }
     }
     //m_fields.clear();
@@ -376,22 +349,8 @@ void Query::notImplemented(const string& functionName) const
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
-void Query::logText(const string& text, const LogPriority& priority)
-{
-    if (m_db == nullptr)
-        return;
-    Logger* alog = m_db->logFile();
-    if (alog != nullptr) {
-        Logger& blog = *alog;
-        blog << priority;
-        blog << "[Q" << m_objectIndex << "] ";
-        blog << text.c_str() << endl;
-    }
-}
-
-void Query::logAndThrow(const string& method, const string& error)
+void Query::throwError(const string& method, const string& error)
 {
     string errorText("Exception in " + method + ": " + error);
-    logText(errorText, LP_ERROR);
     throw DatabaseException(errorText);
 }

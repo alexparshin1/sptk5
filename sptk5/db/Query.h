@@ -101,51 +101,34 @@ protected:
     FieldList               m_fields;
 
     /**
-     * The duration of last execution, in seconds
-     */
-    DateTime::duration      m_duration;
-
-    /**
-     * The total duration of executions, in seconds
-     */
-    DateTime::duration      m_totalDuration;
-
-    /**
-     * The total number of query executions
-     */
-    unsigned            m_totalCalls;
-
-
-    /**
      * Database connection
      */
-    DatabaseConnection*m_db;
+    DatabaseConnection*     m_db;
 
     /**
      * SQL statement string
      */
-    std::string     m_sql;
+    std::string             m_sql;
 
     /**
      * The source file the query was created in
      */
-    const char*     m_createdFile;
+    const char*             m_createdFile;
 
     /**
      * The source file line the query was created at
      */
-    unsigned        m_createdLine;
-
+    unsigned                m_createdLine;
 
     /**
      * Optional diag messages populated after exec() or open()
      */
-    Strings         m_messages;
+    Strings                 m_messages;
 
     /**
      * Bulk mode flag
      */
-    bool            m_bulkMode;
+    bool                    m_bulkMode;
 
 
     /**
@@ -592,23 +575,13 @@ public:
     virtual void unprepare();
 
     /**
-     * @brief Adds the text to log file
-     *
-     * The log file should be set to active, otherwise no text is added to the log file.
-     * Every successful call of this method adds a new line to the log file.
-     * @param text const std::string&, log text
-     * @param logPriority const LogPriority&, log message priority
-     */
-    void logText(const std::string& text, const LogPriority& logPriority = LP_DEBUG);
-
-    /**
      * @brief Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
      * @param method const std::string&, method name where error has occured
      * @param error const std::string&, error text
      */
-    void logAndThrow(const std::string& method, const std::string& error);
+    void throwError(const std::string& method, const std::string& error);
 
     /**
      * @brief Access to diag messages
