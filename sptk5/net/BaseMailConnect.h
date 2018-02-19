@@ -54,49 +54,47 @@ protected:
     /**
      * Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
      */
-    std::string         m_from;
+    String              m_from;
 
     /**
      * Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
      */
-    std::string         m_to;
+    String              m_to;
 
     /**
      * Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
      */
-    std::string         m_cc;
+    String              m_cc;
 
     /**
      * Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
      */
-    std::string         m_bcc;
+    String              m_bcc;
 
     /**
      * Mail SUBJECT:
      */
-    std::string         m_subject;
+    String              m_subject;
 
     /**
      * Mail text (plain-text and html parts of the message)
      */
-    MailMessageBody    m_body;
+    MailMessageBody     m_body;
 
     /**
      * The list of attachment files separated with ';'
      */
-    std::string         m_attachments;
-
+    String              m_attachments;
 
     /**
      * Internal message buffer
      */
     Buffer             m_messageBuffer;
 
-
     /**
      * Encoding the message into internal message buffer
      */
-    void mimeFile(const std::string& fileName, const std::string& fileAlias, std::stringstream& message);
+    void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
 
 public:
     /**
@@ -110,7 +108,7 @@ public:
      * Method from() returns the current value of 'FROM:' field of e-mail message.
      * @returns a single e-mail address.
      */
-    std::string from() const
+    String from() const
     {
         return m_from;
     }
@@ -121,7 +119,7 @@ public:
      * @param addr should be an e-mail address in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
-    void from(std::string addr)
+    void from(const String& addr)
     {
         m_from = addr;
     }
@@ -130,7 +128,7 @@ public:
      * Method to() returns the current value of 'TO:' field
      * of e-mail message
      */
-    std::string to() const
+    String to() const
     {
         return m_to;
     }
@@ -141,7 +139,7 @@ public:
      * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
-    void to(std::string addr)
+    void to(const String& addr)
     {
         m_to = addr;
     }
@@ -151,7 +149,7 @@ public:
      * of e-mail message
      * @returns a list of e-mail addresses. See method to() description for format
      */
-    std::string cc() const
+    String cc() const
     {
         return m_cc;
     }
@@ -162,7 +160,7 @@ public:
      * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
-    void cc(std::string addr)
+    void cc(const String& addr)
     {
         m_cc = addr;
     }
@@ -172,7 +170,7 @@ public:
      * of e-mail message.
      * @returns a list of e-mail addresses. See method to() description for format
      */
-    std::string bcc() const
+    String bcc() const
     {
         return m_bcc;
     }
@@ -182,7 +180,7 @@ public:
      * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
-    void bcc(std::string addr)
+    void bcc(const String& addr)
     {
         m_bcc = addr;
     }
@@ -191,7 +189,7 @@ public:
      * Method subject() returns the current value of 'SUBJECT:' field of e-mail message.
      * @returns current message subject
      */
-    std::string subject() const
+    String subject() const
     {
         return m_subject;
     }
@@ -200,7 +198,7 @@ public:
      * Method subject() sets the current value of 'BCC:' field of e-mail message.
      * @param subj A message subject
      */
-    void subject(std::string subj)
+    void subject(const String& subj)
     {
         m_subject = subj;
     }
@@ -209,17 +207,17 @@ public:
      * Method subject() returns the current plain text part of e-mail message.
      * @returns current message plain-text part
      */
-    std::string body() const
+    String body() const
     {
         return m_body.text();
     }
 
     /**
      * @brief Sets the current plain text part of e-mail message.
-     * @param body std::string&, message body
-     * @param smtp bool, do we need special pre-processing for SMTP?
+     * @param body              Message body
+     * @param smtp              Do we need special pre-processing for SMTP?
      */
-    void body(const std::string& body, bool smtp)
+    void body(const String& body, bool smtp)
     {
         m_body.text(body, smtp);
     }
@@ -229,7 +227,7 @@ public:
      * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
      * @returns current message list of attachments
      */
-    std::string attachments() const
+    String attachments() const
     {
         return m_attachments;
     }
@@ -239,7 +237,7 @@ public:
      * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
      * @param attachments current message list of attachments
      */
-    void attachments(std::string attachments)
+    void attachments(const String& attachments)
     {
         m_attachments = attachments;
     }

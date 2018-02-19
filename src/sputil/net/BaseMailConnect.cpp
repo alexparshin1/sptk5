@@ -36,7 +36,6 @@
 
 #include <sptk5/Base64.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/Strings.h>
 #include <sptk5/net/BaseMailConnect.h>
 
 #define LINE_CHARS 72
@@ -90,7 +89,7 @@ string ContentTypes::type(const string& fileName)
     return "application/octet-stream";
 }
 
-void BaseMailConnect::mimeFile(const string& fileName, const string& fileAlias, stringstream& message)
+void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, stringstream& message)
 {
     Buffer bufSource;
     string strDest;
