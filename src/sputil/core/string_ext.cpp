@@ -37,9 +37,9 @@
 
 using namespace std;
 
-namespace sptk {
+using namespace sptk;
 
-String upperCase(const String& str)
+String sptk::upperCase(const String& str)
 {
     auto len = (uint32_t) str.length();
     string result;
@@ -51,7 +51,7 @@ String upperCase(const String& str)
     return result;
 }
 
-String lowerCase(const String& str)
+String sptk::lowerCase(const String& str)
 {
     auto len = (uint32_t) str.length();
     string result;
@@ -63,7 +63,7 @@ String lowerCase(const String& str)
     return result;
 }
 
-String trim(const String& str)
+String sptk::trim(const String& str)
 {
     auto len = (uint32_t) str.length();
 
@@ -95,7 +95,7 @@ String trim(const String& str)
     return str.substr(size_t(startpos), size_t(endpos - startpos + 1));
 }
 
-void join(string& dest, const vector<string>& src, const string& separator)
+void sptk::join(string& dest, const vector<string>& src, const string& separator)
 {
     dest = "";
     auto itor = src.begin();
@@ -105,7 +105,7 @@ void join(string& dest, const vector<string>& src, const string& separator)
     }
 }
 
-void split(vector<string>& dest, const string& src, const string& delimitter)
+void sptk::split(vector<string>& dest, const string& src, const string& delimitter)
 {
     dest.clear();
     auto buffer = (char*) src.c_str();
@@ -137,21 +137,21 @@ void split(vector<string>& dest, const string& src, const string& delimitter)
     }
 }
 
-String int2string(int32_t value)
+String sptk::int2string(int32_t value)
 {
     char buff[32];
     snprintf(buff, sizeof(buff), "%i", value);
     return string(buff);
 }
 
-String int2string(uint32_t value)
+String sptk::int2string(uint32_t value)
 {
     char buff[64];
     snprintf(buff, sizeof(buff), "%u", value);
     return string(buff);
 }
 
-String int2string(int64_t value)
+String sptk::int2string(int64_t value)
 {
     char buff[128];
 #ifdef _WIN32
@@ -162,7 +162,7 @@ String int2string(int64_t value)
     return string(buff);
 }
 
-String int2string(uint64_t value)
+String sptk::int2string(uint64_t value)
 {
     char buff[128];
 #ifdef _WIN32
@@ -173,7 +173,7 @@ String int2string(uint64_t value)
     return string(buff);
 }
 
-int string2int(const String& str, int defaultValue)
+int sptk::string2int(const String& str, int defaultValue)
 {
     char* endptr;
     errno = 0;
@@ -185,7 +185,7 @@ int string2int(const String& str, int defaultValue)
     return result;
 }
 
-int64_t string2int64(const String& str, int64_t defaultValue)
+int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 {
     char* endptr;
     errno = 0;
@@ -197,7 +197,7 @@ int64_t string2int64(const String& str, int64_t defaultValue)
     return result;
 }
 
-double string2double(const String& str)
+double sptk::string2double(const String& str)
 {
     char* endptr;
     errno = 0;
@@ -209,7 +209,7 @@ double string2double(const String& str)
     return result;
 }
 
-double string2double(const String& str, double defaultValue)
+double sptk::string2double(const String& str, double defaultValue)
 {
     char* endptr;
     errno = 0;
@@ -221,7 +221,7 @@ double string2double(const String& str, double defaultValue)
     return result;
 }
 
-string capitalizeWords(const String& str)
+string sptk::capitalizeWords(const String& str)
 {
     String s(str);
     auto current = (char*) s.c_str();
@@ -256,7 +256,7 @@ string capitalizeWords(const String& str)
     return s;
 }
 
-string replaceAll(const String& src, const String& pattern, const String& replacement)
+string sptk::replaceAll(const String& src, const String& pattern, const String& replacement)
 {
     string str(src);
 
@@ -274,6 +274,4 @@ string replaceAll(const String& src, const String& pattern, const String& replac
     }
 
     return str;
-}
-
 }

@@ -78,7 +78,18 @@ protected:
     /**
      * Default constructor is protected, to prevent creating of the instance of that class
      */
-    MemoryDS() : DataSource(), m_current(0L), m_currentIndex(0) { }
+    MemoryDS() : DataSource(), m_current(0L), m_currentIndex(0), m_eof(false) { }
+
+    /**
+     * Move constructor is protected, to prevent creating of the instance of that class
+     */
+    MemoryDS(MemoryDS&& other)
+    : m_list(std::move(m_list)), m_current(other.m_current), m_currentIndex(other.m_currentIndex), m_eof(other.m_eof)
+    {
+        other.m_current = 0;
+        other.m_currentIndex = 0;
+        other.m_eof = false;
+    }
 
 public:
 

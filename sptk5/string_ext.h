@@ -43,7 +43,7 @@ class String;
 /**
  * Converts string to upper case
  */
-sptk::String SP_EXPORT upperCase(const sptk::String& str);
+String SP_EXPORT upperCase(const sptk::String& str);
 
 /**
  * Converts string to lower case
