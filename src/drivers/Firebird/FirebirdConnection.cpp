@@ -226,7 +226,7 @@ void FirebirdConnection::queryCloseStmt(Query *query)
             statement->close();
     }
     catch (exception& e) {
-        query->logAndThrow("FirebirdConnection::queryBindParameters", e.what());
+        throwDatabaseException(e.what());
     }
 }
 
@@ -241,7 +241,7 @@ void FirebirdConnection::queryPrepare(Query *query)
             statement->enumerateParams(query->params());
         }
         catch (exception& e) {
-            query->logAndThrow("FirebirdConnection::queryBindParameters", e.what());
+            throwDatabaseException(e.what());
         }
         querySetPrepared(query, true);
     }
@@ -260,7 +260,7 @@ int FirebirdConnection::queryColCount(Query *query)
         colCount = (int) statement->colCount();
     }
     catch (exception& e) {
-        query->logAndThrow("FirebirdConnection::queryColCount", e.what());
+        throwDatabaseException(e.what());
     }
     return colCount;
 }
@@ -276,7 +276,7 @@ void FirebirdConnection::queryBindParameters(Query *query)
         statement->setParameterValues();
     }
     catch (exception& e) {
-        query->logAndThrow("FirebirdConnection::queryBindParameters", e.what());
+        throwDatabaseException(e.what());
     }
 }
 
@@ -289,7 +289,7 @@ void FirebirdConnection::queryExecute(Query *query)
         statement->execute(m_inTransaction);
     }
     catch (exception& e) {
-        query->logAndThrow("FirebirdConnection::queryExecute", e.what());
+        throwDatabaseException(e.what());
     }
 }
 
@@ -332,7 +332,7 @@ void FirebirdConnection::queryOpen(Query *query)
 void FirebirdConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        query->logAndThrow("FirebirdConnection::queryFetch", "Dataset isn't open");
+        throwDatabaseException("Dataset isn't open");
 
     SYNCHRONIZED_CODE;
 
@@ -349,7 +349,7 @@ void FirebirdConnection::queryFetch(Query *query)
         statement->fetchResult(query->fields());
     }
     catch (exception& e) {
-        query->logAndThrow("FirebirdConnection::queryFetch", e.what());
+        throwDatabaseException(e.what());
     }
 }
 
@@ -386,20 +386,15 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
             "ORDER BY 1";
         break;
     default:
-        throw Exception("Not supported");
+        throwDatabaseException("Not supported");
     }
     Query query(this, objectsSQL);
-    try {
-        query.open();
-        while (!query.eof()) {
-            objects.push_back(query[uint32_t(0)].asString());
-            query.next();
-        }
-        query.close();
+    query.open();
+    while (!query.eof()) {
+        objects.push_back(query[uint32_t(0)].asString());
+        query.next();
     }
-    catch (exception& e) {
-        cerr << "Error fetching system info: " << e.what() << endl;
-    }
+    query.close();
 }
 
 String FirebirdConnection::driverDescription() const
