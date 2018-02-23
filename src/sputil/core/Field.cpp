@@ -32,13 +32,24 @@ using namespace std;
 using namespace sptk;
 
 Field::Field(const char* name)
-    : m_name(name), displayName(name)
+: m_name(name), displayName(name)
 {
     view.width = -1;
     view.flags = 4; // FL_ALIGN_LEFT
     view.visible = true;
     view.precision = 3; // default precision, only affects floating point fields
     dataSize(0);
+}
+
+Field::Field(const Field& other)
+: m_name(other.m_name), displayName(other.m_name)
+{
+    view.width = -1;
+    view.flags = 4; // FL_ALIGN_LEFT
+    view.visible = true;
+    view.precision = 3; // default precision, only affects floating point fields
+    dataSize(0);
+    setData(other);
 }
 
 void Field::setNull(VariantType vtype)

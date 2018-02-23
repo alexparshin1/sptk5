@@ -73,9 +73,15 @@ public:
 public:
     /**
      * @brief Constructor
-     * @param name const char *, field name
+     * @param name               Field name
      */
     Field(const char *name);
+
+    /**
+     * @brief Copy constructor
+     * @param other              Other field object
+     */
+    Field(const Field& other);
 
     /**
      * @brief Combination of field view attributes
@@ -116,7 +122,7 @@ public:
      *
      * Useful for the database operations.
      * Retains the data type. Sets the data to zero(s).
-     * @param vtype VariantType, optional variant type to enforce
+     * @param vtype              Optional variant type to enforce
      */
     void setNull(VariantType vtype) override;
 
@@ -260,8 +266,8 @@ public:
      * If the compactXmlMode flag is true, the field is exported as an attribute.
      * Otherwise, the field is exported as subnodes.
      * For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
-     * @param node XMLNode&, a node to export field data into
-     * @param compactXmlMode bool, compact XML mode flag
+     * @param node               Node to export field data into
+     * @param compactXmlMode     Compact XML mode flag
      */
     void toXML(XMLNode& node, bool compactXmlMode) const;
 };
