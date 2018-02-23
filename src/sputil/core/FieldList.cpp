@@ -44,6 +44,22 @@ FieldList::FieldList(bool indexed, bool compactXmlMode)
         m_index = nullptr;
 }
 
+FieldList::FieldList(const FieldList& other)
+: m_userData(other.m_userData)
+{
+    if (other.m_index != nullptr)
+        m_index = new Map;
+    else
+        m_index = nullptr;
+
+    for (auto otherField: other) {
+        auto field = new Field(*otherField);
+        m_list.push_back(field);
+        if (m_index)
+            (*m_index)[field->fieldName()] = field;
+    }
+}
+
 FieldList::~FieldList()
 {
     clear();
@@ -52,15 +68,11 @@ FieldList::~FieldList()
 
 void FieldList::clear()
 {
-    auto cnt = (uint32_t) m_list.size();
-    if (cnt) {
-        for (uint32_t i = 0; i < cnt; i++)
-            delete m_list[i];
-
-        m_list.clear();
-        if (m_index)
-            m_index->clear();
-    }
+    for (auto field: *this)
+        delete field;
+    m_list.clear();
+    if (m_index)
+        m_index->clear();
 }
 
 Field& FieldList::push_back(const char *fname, bool checkDuplicates)
@@ -113,9 +125,7 @@ Field *FieldList::fieldByName(const char *fname) const
             return itor->second;
     }
     else {
-        auto cnt = (uint32_t) m_list.size();
-        for (uint32_t i = 0; i < cnt; i++) {
-            auto field = (Field *) m_list[i];
+        for (auto field: *this) {
             if (strcmp(field->m_name.c_str(), fname) == 0)
                 return field;
         }
@@ -125,11 +135,7 @@ Field *FieldList::fieldByName(const char *fname) const
 
 void FieldList::toXML(XMLNode& node) const
 {
-    auto itor = m_list.begin();
-    auto iend = m_list.end();
-    for (; itor != iend; ++itor) {
-        Field *field = *itor;
+    for (auto field: *this)
         field->toXML(node, m_compactXmlMode);
-    }
 }
 

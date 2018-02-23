@@ -206,9 +206,7 @@ public:
     /**
      * Returns true if there are no more records in the datasource. Implemented in derved class.
      */
-    virtual bool              eof() const {
-        return m_eof;
-    }
+    virtual bool              eof() const { return m_eof; }
 };
 /**
  * @}
