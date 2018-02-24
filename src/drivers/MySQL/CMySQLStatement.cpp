@@ -504,7 +504,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                         field->setDate(dt);
                     else
                         field->setDateTime(dt);
-                    field->setDataSize(sizeof(double));
+                    field->setDataSize(sizeof(int64_t));
                 }
             }
             break;

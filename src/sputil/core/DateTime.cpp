@@ -72,6 +72,7 @@ string   DateTime::weekDayNames[7];
 string   DateTime::monthNames[12];
 string   DateTime::timeZoneName;
 int      DateTime::timeZoneOffset;
+int      DateTime::isDaylightSavingsTime;
 
 static void upperCase(char* dest, const char* src)
 {
@@ -239,6 +240,7 @@ void DateTimeFormat::init() noexcept
     int offset = string2int(buf);
     int minutes = offset % 100;
     int hours = offset / 100;
+    DateTime::isDaylightSavingsTime = ltime->tm_isdst == -1? 0 : ltime->tm_isdst;
     DateTime::timeZoneOffset = hours * 60 + minutes;
 }
 
@@ -289,6 +291,7 @@ void DateTime::encodeDate(time_point& dt, short year, short month, short day)
     time.tm_year = year - 1900;
     time.tm_mon = month - 1;
     time.tm_mday = day;
+    time.tm_isdst = isDaylightSavingsTime;
 
     time_t t = mktime(&time);
     dt = clock::from_time_t(t);

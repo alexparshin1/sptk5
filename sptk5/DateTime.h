@@ -208,6 +208,10 @@ public:
     */
     static int timeZoneOffset;
 
+    /**
+    * Daylight savings time 0 or 1
+    */
+    static int isDaylightSavingsTime;
 
     /**
     * Set timezone for the application
