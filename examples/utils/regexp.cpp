@@ -40,7 +40,7 @@ int main()
 
     cout << "Test: does '" << text << "' contain number? ";
     RegularExpression regexp("\\d+");
-    if (text == regexp) {
+    if (regexp.matches(text)) {
         cout << "yes" << endl;
     }
     else {
@@ -49,7 +49,7 @@ int main()
 
     text = "This text contains number: 12345";
     cout << "Test: does '" << text << "' contain number? ";
-    if (text == regexp)
+    if (regexp.matches(text))
         cout << "yes" << endl;
     else
         cout << "no" << endl;
@@ -57,14 +57,14 @@ int main()
     text = "This text contains phone number: (415)-123-4567";
     cout << "Test: does '" << text << "' contain valid phone number? ";
     RegularExpression phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
-    if (text == phoneRegexp)
+    if (phoneRegexp.matches(text))
         cout << "yes" << endl;
     else
         cout << "no" << endl;
 
     text = "This text contains phone number: 415/123/4567";
     cout << "Test: does '" << text << "' contain valid phone number? ";
-    if (text != RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
+    if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text))
         cout << "no" << endl;
     else
         cout << "yes" << endl;
@@ -90,10 +90,23 @@ int main()
 
     DateTime started = DateTime::Now();
 
+    text = "{one}-{four}{one}{five}-{one}{two}{three}-{one}{two}{two}{one}";
+    map<String,String> substitutions;
+    substitutions["{one}"] = "1";
+    substitutions["{two}"] = "2";
+    substitutions["{three}"] = "3";
+    substitutions["{four}"] = "4";
+    substitutions["{five}"] = "5";
+    RegularExpression phoneTranslate("{[a-z]+}", "g");
+    bool replaced;
+    phoneNumber = phoneTranslate.replaceAll(text, substitutions, replaced);
+    cout << "\nSubstituting text '" << text << "' to digits." << endl;
+    cout << "The result is '" << phoneNumber << "'." << endl;
+
     unsigned counter = 0;
     unsigned tests = 1000000;
     for (unsigned i = 0; i < tests; i++) {
-        if (text == RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}"))
+        if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text))
             counter++;
     }
     DateTime finished = DateTime::Now();
@@ -105,7 +118,7 @@ int main()
     started = DateTime::Now();
     counter = 0;
     for (unsigned i = 0; i < tests; i++) {
-        if (text == phoneRegexp)
+        if (phoneRegexp.matches(text))
             counter++;
     }
     finished = DateTime::Now();

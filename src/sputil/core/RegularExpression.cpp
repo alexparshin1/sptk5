@@ -28,13 +28,14 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/cutils>
 
 #if HAVE_PCRE
 
 using namespace std;
 using namespace sptk;
 
-RegularExpression::RegularExpression(const string& pattern, const string& options) :
+RegularExpression::RegularExpression(const String& pattern, const String& options) :
     m_pattern(pattern), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
 {
     for (auto ch: options) {
@@ -88,7 +89,7 @@ RegularExpression::~RegularExpression()
 
 #define MAX_MATCHES 128
 
-size_t RegularExpression::nextMatch(const string &text, size_t &offset, Match matchOffsets[],
+size_t RegularExpression::nextMatch(const String& text, size_t &offset, Match matchOffsets[],
                           size_t matchOffsetsSize) const
 {
     if (!m_pcre)
@@ -122,21 +123,21 @@ size_t RegularExpression::nextMatch(const string &text, size_t &offset, Match ma
     return (size_t) matchCount;
 }
 
-bool RegularExpression::operator==(const string& text) const
+bool RegularExpression::operator==(const String& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text, offset, matchOffsets, MAX_MATCHES) > 0;
 }
 
-bool RegularExpression::operator!=(const string& text) const
+bool RegularExpression::operator!=(const String& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
     return nextMatch(text, offset, matchOffsets, MAX_MATCHES) == 0;
 }
 
-bool RegularExpression::matches(const string& text) const
+bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
     Match matchOffsets[MAX_MATCHES];
@@ -144,7 +145,7 @@ bool RegularExpression::matches(const string& text) const
     return matchCount > 0;
 }
 
-bool RegularExpression::m(const string& text, Strings& matchedStrings) const
+bool RegularExpression::m(const String& text, Strings& matchedStrings) const
 {
     matchedStrings.clear();
 
@@ -168,7 +169,7 @@ bool RegularExpression::m(const string& text, Strings& matchedStrings) const
     return totalMatches > 0;
 }
 
-bool RegularExpression::split(const string& text, Strings& matchedStrings) const
+bool RegularExpression::split(const String& text, Strings& matchedStrings) const
 {
     matchedStrings.clear();
 
@@ -197,7 +198,7 @@ bool RegularExpression::split(const string& text, Strings& matchedStrings) const
     return totalMatches > 0;
 }
 
-string RegularExpression::replaceAll(const string& text, string outputPattern, bool& replaced) const
+String RegularExpression::replaceAll(const String& text, const String& outputPattern, bool& replaced) const
 {
     size_t offset = 0;
     size_t lastOffset = 0;
@@ -261,20 +262,56 @@ string RegularExpression::replaceAll(const string& text, string outputPattern, b
     return result + text.substr(lastOffset);
 }
 
-string RegularExpression::s(const string& text, const string& outputPattern) const
+String RegularExpression::replaceAll(const String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const
+{
+    size_t offset = 0;
+    size_t lastOffset = 0;
+    Match matchOffsets[MAX_MATCHES];
+    size_t totalMatches = 0;
+    string result;
+
+    replaced = false;
+
+    do {
+        size_t fragmentOffset = offset;
+        size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
+        if (matchCount == 0) // No matches
+            break;
+        //if (matchCount == 1) // String matched but no strings extracted
+        //    break;
+        if (offset)
+            lastOffset = offset;
+        totalMatches += matchCount;
+
+        // Create next replacement
+        size_t pos = 0;
+        string nextReplacement;
+        replaced = true;
+
+        // Append text from fragment start to match start
+        size_t fragmentStartLength = size_t(matchOffsets[0].m_start) - size_t(fragmentOffset);
+        if (fragmentStartLength)
+            result += text.substr(fragmentOffset, fragmentStartLength);
+
+        // Append replacement
+        string currentMatch(text.c_str() + matchOffsets[0].m_start, matchOffsets[0].m_end - matchOffsets[0].m_start);
+        auto itor = substitutions.find(currentMatch);
+        if (itor == substitutions.end())
+            nextReplacement = currentMatch;
+        else
+            nextReplacement = itor->second;
+
+        result += nextReplacement;
+
+    } while (offset);
+
+    return result + text.substr(lastOffset);
+}
+
+String RegularExpression::s(const String& text, const String& outputPattern) const
 {
     bool replaced;
     return replaceAll(text, outputPattern, replaced);
-}
-
-bool sptk::operator==(const string& text, const sptk::RegularExpression& regexp)
-{
-    return regexp == text;
-}
-
-bool sptk::operator!=(const string& text, const sptk::RegularExpression& regexp)
-{
-    return regexp != text;
 }
 
 #endif
