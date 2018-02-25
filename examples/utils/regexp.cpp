@@ -90,18 +90,18 @@ int main()
 
     DateTime started = DateTime::Now();
 
-    text = "{one}-{four}{one}{five}-{one}{two}{three}-{one}{two}{two}{one}";
+    text = "{one}-{four}{one}{five}-{One}{TwO}{Three}-{one}{two}{two}{one}";
     map<String,String> substitutions;
     substitutions["{one}"] = "1";
-    substitutions["{two}"] = "2";
+    substitutions["{Two}"] = "2";
     substitutions["{three}"] = "3";
-    substitutions["{four}"] = "4";
+    substitutions["{Four}"] = "4";
     substitutions["{five}"] = "5";
-    RegularExpression phoneTranslate("{[a-z]+}", "g");
+    RegularExpression phoneTranslate("{[a-z]+}", "gi");
     bool replaced;
     phoneNumber = phoneTranslate.replaceAll(text, substitutions, replaced);
     cout << "\nSubstituting text '" << text << "' to digits." << endl;
-    cout << "The result is '" << phoneNumber << "'." << endl;
+    cout << "The result is '" << phoneNumber << "'." << endl << endl;
 
     unsigned counter = 0;
     unsigned tests = 1000000;

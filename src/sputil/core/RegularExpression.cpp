@@ -262,13 +262,21 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
     return result + text.substr(lastOffset);
 }
 
-String RegularExpression::replaceAll(const String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const
+String RegularExpression::replaceAll(const String& text, const map<String,String>& substitutions, bool& replaced) const
 {
     size_t offset = 0;
     size_t lastOffset = 0;
     Match matchOffsets[MAX_MATCHES];
     size_t totalMatches = 0;
     string result;
+
+    // For "i" option, make lowercase match map
+    map<String,String> substitutionsMap;
+    if (m_pcreOptions & PCRE_CASELESS) {
+        for (auto& itor: substitutions)
+            substitutionsMap[lowerCase(itor.first)] = itor.second;
+    } else
+        substitutionsMap = substitutions;
 
     replaced = false;
 
@@ -283,9 +291,6 @@ String RegularExpression::replaceAll(const String& text, const std::map<sptk::St
             lastOffset = offset;
         totalMatches += matchCount;
 
-        // Create next replacement
-        size_t pos = 0;
-        string nextReplacement;
         replaced = true;
 
         // Append text from fragment start to match start
@@ -295,8 +300,15 @@ String RegularExpression::replaceAll(const String& text, const std::map<sptk::St
 
         // Append replacement
         string currentMatch(text.c_str() + matchOffsets[0].m_start, matchOffsets[0].m_end - matchOffsets[0].m_start);
-        auto itor = substitutions.find(currentMatch);
-        if (itor == substitutions.end())
+
+        map<String,String>::iterator itor;
+        if (m_pcreOptions & PCRE_CASELESS)
+            itor = substitutionsMap.find(lowerCase(currentMatch));
+        else
+            itor = substitutionsMap.find(currentMatch);
+
+        string nextReplacement;
+        if (itor == substitutionsMap.end())
             nextReplacement = currentMatch;
         else
             nextReplacement = itor->second;
