@@ -83,7 +83,7 @@ int main(int argc, const char* argv[])
     else
         connectString = argv[1];
 
-    if (connectString != RegularExpression("^odbc://")) {
+    if (!RegularExpression("^odbc://").matches(connectString)) {
         cout << "Syntax:" << endl << endl; 
         cout << "odbc_test [connection string]" << endl << endl;
         cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;

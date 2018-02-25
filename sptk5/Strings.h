@@ -232,8 +232,7 @@ public:
  * General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
  * Includes several extra methods to construct it from string or load/save from/to file.
  */
-class SP_EXPORT Strings
-: public std::vector<String>
+class SP_EXPORT Strings : public std::vector<String>
 {
     /**
      * User-specified data

@@ -500,7 +500,7 @@ public:
      * @param command std::string, Command to print help for
      * @param screenColumns size_t, Screen width in columns
      */
-    void printHelp(const std::string& command, size_t screenColumns) const;
+    void printHelp(const String& command, size_t screenColumns) const;
 
     /**
      * @brief Prints program version

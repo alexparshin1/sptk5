@@ -39,7 +39,8 @@ using namespace sptk;
 
 bool String::matches(const String& pattern, const String& options) const
 {
-    return *this == RegularExpression(pattern, options);
+    RegularExpression regexp(pattern, options);
+    return regexp.matches(*this);
 }
 
 String String::toUpperCase() const
@@ -207,7 +208,7 @@ Strings Strings::grep(const String& pattern) const
     RegularExpression regularExpression(pattern);
     Strings output;
     for (const String& str : *(this)) {
-        if (str == regularExpression)
+        if (regularExpression.matches(str))
             output.push_back(str);
     }
     return output;

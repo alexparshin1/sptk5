@@ -451,10 +451,10 @@ void CommandLine::printHelp(size_t screenColumns) const
     printHelp("", screenColumns);
 }
 
-void CommandLine::printHelp(const string& onlyForCommand, size_t screenColumns) const
+void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
-        cerr << "Command '" + onlyForCommand + "' is not defined" << endl;
+        cerr << "Command '" << onlyForCommand << "' is not defined" << endl;
         return;
     }
 

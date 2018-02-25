@@ -411,7 +411,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
         for (auto complexType: m_sequence) {
             if ((complexType->multiplicity() & WSM_REQUIRED) != 0)
                 requiredElements.push_back(complexType->name());
-            if (complexType->m_typeName != matchStandardType)
+            if (!matchStandardType.matches(complexType->m_typeName))
                 continue;
             fieldLoadCount++;
             fieldLoads << "   if ((field = input.fieldByName(\"" << complexType->name() << "\")) != nullptr) {" << endl;
