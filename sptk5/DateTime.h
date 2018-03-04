@@ -484,7 +484,7 @@ public:
      */
     bool zero() const
     {
-        return m_dateTime.time_since_epoch() == std::chrono::microseconds(0);
+        return m_dateTime.time_since_epoch().count() == 0;
     }
 
     /**

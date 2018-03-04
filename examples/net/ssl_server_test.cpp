@@ -69,13 +69,7 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    SSLContext sslContext;
-
     try {
-        sslContext.loadKeys("key.pem", "cert.pem", "");
-
-        //int server = OpenListener(atoi(portnum));    /* create server socket */
-
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
@@ -89,7 +83,8 @@ int main(int argc, const char *argv[])
             server.accept(clientSocketFD, clientInfo);
             printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), (unsigned) ntohs(clientInfo.sin_port));
 
-            SSLSocket connection(sslContext);
+            SSLSocket connection;
+            connection.loadKeys("key.pem", "cert.pem", "");
             try {
                 connection.attach(clientSocketFD);
                 readAndReply(connection);         /* service connection */

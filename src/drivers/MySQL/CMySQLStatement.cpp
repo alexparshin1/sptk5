@@ -227,11 +227,12 @@ enum_field_types MySQLStatement::variantTypeToMySQLType(VariantType dataType)
 
 void MySQLStatement::setParameterValues()
 {
-    static my_bool nullValue = 1;
+    static my_bool nullValue = true;
 
     auto paramCount = (unsigned) m_enumeratedParams.size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; paramIndex++) {
         QueryParameter*     param = m_enumeratedParams[paramIndex];
+        bool                setNull = param->isNull();
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
 
         bind.buffer = (void*) param->getBuffer();
@@ -261,7 +262,11 @@ void MySQLStatement::setParameterValues()
         case VAR_DATE_TIME:
             m_paramLengths[paramIndex] = sizeof(MYSQL_TIME);
             bind.buffer = (void*) param->conversionBuffer();
-            dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, param->getDateTime(), param->dataType());
+            setNull = false;
+            if (param->isNull())
+                dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, DateTime(), param->dataType());
+            else
+                dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, param->getDateTime(), param->dataType());
             break;
 
         case VAR_INT64:
@@ -272,7 +277,7 @@ void MySQLStatement::setParameterValues()
         default:
             throw DatabaseException("Unsupported parameter type");
         }
-        if (param->isNull())
+        if (setNull)
             bind.is_null = &nullValue;
         else
             bind.is_null = 0;
@@ -440,7 +445,10 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             break;
             
         case VAR_DATE_TIME:
-            field->setDateTime(data);
+            if (strncmp(data, "0000-00", 7) == 0)
+                field->setNull(VAR_DATE_TIME);
+            else
+                field->setDateTime(data);
             break;
 
         case VAR_FLOAT:
