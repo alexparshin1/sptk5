@@ -41,10 +41,12 @@ namespace sptk {
  */
 
 /**
- * @brief Encrypted TCP Socket
+ * Encrypted TCP Socket
  */
 class SSLSocket: public TCPSocket, public Synchronized
 {
+    SSLContext  m_sslContext;
+
     /**
      * SSL socket
      */
@@ -53,38 +55,38 @@ class SSLSocket: public TCPSocket, public Synchronized
 
 public:
     /**
-     * @brief Returns number of bytes available for read
+     * Returns number of bytes available for read
      */
     virtual size_t socketBytes() override;
 
     /**
-     * @brief Throws SSL error based on SSL function return code
-     * @param rc int, SSL function return code
+     * Throws SSL error based on SSL function return code
+     * @param rc                SSL function return code
      */
     void throwSSLError(int rc);
 
 protected:
 
     /**
-     * @brief Reads data from SSL socket
-     * @param buffer void *, destination buffer
-     * @param size size_t, destination buffer size
+     * Reads data from SSL socket
+     * @param buffer            Destination buffer
+     * @param size              Destination buffer size
      * @return the number of bytes read from the socket
      */
     size_t recv(void* buffer, size_t size) override;
 
     /**
-     * @brief Sends data through SSL socket
-     * @param buffer const void *, the send buffer
-     * @param len uint32_t, the send data length
+     * Sends data through SSL socket
+     * @param buffer            Send buffer
+     * @param len               Send data length
      * @return the number of bytes sent the socket
      */
     size_t send(const void* buffer, size_t len) override;
 
     /**
-     * @brief Get error description for SSL error code
-     * @param function std::string, SSL function
-     * @param SSLError int32_t, error code returned by SSL_get_error() result
+     * Get error description for SSL error code
+     * @param function          SSL function
+     * @param SSLError          Error code returned by SSL_get_error() result
      * @return Error description
      */
     virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
@@ -92,55 +94,72 @@ protected:
 public:
 
     /**
-     * @brief Constructor
-     * @param sslContext CSSLContext&, SSL context that is used as SSL connection template
+     * Constructor
      */
-    SSLSocket(SSLContext& sslContext);
+    SSLSocket();
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~SSLSocket();
 
     /**
-     * @brief opens the socket connection by host and port
+     * Loads private key and certificate(s)
+     *
+     * Key should be loaded once before the connection. There is no need to load keys for any consequent connection
+     * with the same keys.
+     * Private key and certificates must be encoded with PEM format.
+     * A single file containing private key and certificate can be used by supplying it for both,
+     * private key and certificate parameters.
+     * If private key is protected with password, then password can be supplied to auto-answer.
+     * @param keyFileName           Private key file name
+     * @param certificateFileName   Certificate file name
+     * @param password              Key file password
+     * @param caFileName            Optional CA (root certificate) file name
+     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
+     * @param verifyDepth           Connection verify depth
+     */
+    void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
+                  const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+
+    /**
+     * opens the socket connection by host and port
      *
      * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
      * They could be defined by previous calls of  open(), port(), or host() methods.
      * @param host const Host&, the host name
-     * @param openMode CSocketOpenMode, socket open mode
-     * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeout std::chrono::milliseconds, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * @param openMode              Socket open mode
+     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
+     * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
     virtual void open(const Host& host, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
 
     /**
-     * @brief Opens the client socket connection by host and port
-     * @param address const sockaddr_in&, address and port
-     * @param openMode CSocketOpenMode, socket open mode
-     * @param blockingMode bool, socket blocking (true) on non-blocking (false) mode
-     * @param timeout uint32_t, Connection timeout, milliseconds. The default is 0 (wait forever)
+     * Opens the client socket connection by host and port
+     * @param address               Address and port
+     * @param openMode              Socket open mode
+     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
+     * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
     virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
-     * @brief Attaches socket handle
+     * Attaches socket handle
      *
-     * This method is designed to only attach socket handles
-     * obtained with accept().
-     * @param socketHandle SOCKET, existing socket handle
+     * This method is designed to only attach socket handles obtained with accept().
+     * @param socketHandle          External socket handle.
      */
     void attach(SOCKET socketHandle) override;
 
     /**
-     * @brief Closes the socket connection
+     * Closes the socket connection
      *
      * This method is not thread-safe.
      */
     void close() override;
 
     /**
-     * @brief Returns SSL handle
+     * Returns SSL handle
      */
     SSL* handle()
     {

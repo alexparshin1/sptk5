@@ -125,14 +125,20 @@ void SSLSocket::throwSSLError(int rc)
     throw Exception(error, __FILE__, __LINE__);
 }
 
-SSLSocket::SSLSocket(SSLContext& sslContext)
-: m_ssl(SSL_new(sslContext.handle()))
+SSLSocket::SSLSocket()
+: m_ssl(SSL_new(m_sslContext.handle()))
 {
 }
 
 SSLSocket::~SSLSocket()
 {
     SSL_free(m_ssl);
+}
+
+void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFileName, const string& password,
+                         const string& caFileName, int verifyMode, int verifyDepth)
+{
+    m_sslContext.loadKeys(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
 }
 
 void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
