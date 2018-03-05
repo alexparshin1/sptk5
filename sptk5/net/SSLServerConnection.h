@@ -50,12 +50,11 @@ public:
     /**
      * @brief Constructor
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
-     * @param sslContext CSSLContext&, Server SSL context (shared between connections)
      */
-    SSLServerConnection(SOCKET connectionSocket, SSLContext& sslContext)
+    SSLServerConnection(SOCKET connectionSocket)
     : ServerConnection(connectionSocket, "SSLServerConnection")
     {
-        m_socket = new SSLSocket(sslContext);
+        m_socket = new SSLSocket;
         m_socket->attach(connectionSocket);
     }
 
