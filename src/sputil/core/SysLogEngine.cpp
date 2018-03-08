@@ -153,6 +153,7 @@ SysLogEngine::~SysLogEngine()
 
 void SysLogEngine::setupEventSource()
 {
+    SYNCHRONIZED_CODE;
 #ifndef _WIN32
 	m_logOpened = false;
 	closelog();
