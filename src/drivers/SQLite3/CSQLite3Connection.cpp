@@ -186,7 +186,7 @@ string SQLite3Connection::queryError(const Query* query) const
 // the previously allocated stmt is released
 void SQLite3Connection::queryAllocStmt(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex>   lock(*this);
 
     auto stmt = (SQLHSTMT) query->statement();
     if (stmt != nullptr)
@@ -197,7 +197,7 @@ void SQLite3Connection::queryAllocStmt(Query* query)
 
 void SQLite3Connection::queryFreeStmt(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex>   lock(*this);
 
     auto stmt = (SQLHSTMT) query->statement();
 
@@ -210,7 +210,7 @@ void SQLite3Connection::queryFreeStmt(Query* query)
 
 void SQLite3Connection::queryCloseStmt(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto stmt = (SQLHSTMT) query->statement();
     if (stmt != nullptr)
@@ -222,7 +222,7 @@ void SQLite3Connection::queryCloseStmt(Query* query)
 
 void SQLite3Connection::queryPrepare(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);;
 
     SQLHSTMT stmt;
     const char* pzTail;
@@ -245,7 +245,7 @@ void SQLite3Connection::queryUnprepare(Query* query)
 
 void SQLite3Connection::queryExecute(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     if (!query->prepared())
         throw DatabaseException("Query isn't prepared");
@@ -253,7 +253,7 @@ void SQLite3Connection::queryExecute(Query* query)
 
 int SQLite3Connection::queryColCount(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto stmt = (SQLHSTMT) query->statement();
 
@@ -262,7 +262,7 @@ int SQLite3Connection::queryColCount(Query* query)
 
 void SQLite3Connection::queryBindParameters(Query* query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto stmt = (SQLHSTMT) query->statement();
 
@@ -433,7 +433,7 @@ void SQLite3Connection::queryFetch(Query* query)
 
     auto statement = (SQLHSTMT) query->statement();
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     int rc = sqlite3_step(statement);
 

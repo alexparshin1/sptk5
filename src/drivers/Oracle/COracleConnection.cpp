@@ -176,7 +176,7 @@ void OracleConnection::queryAllocStmt(Query *query)
 
 void OracleConnection::queryFreeStmt(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     auto statement = (OracleStatement*) query->statement();
     if (statement) {
         delete statement;
@@ -187,7 +187,7 @@ void OracleConnection::queryFreeStmt(Query *query)
 
 void OracleConnection::queryCloseStmt(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     auto statement = (OracleStatement*) query->statement();
     if (statement)
         statement->close();
@@ -195,7 +195,7 @@ void OracleConnection::queryCloseStmt(Query *query)
 
 void OracleConnection::queryPrepare(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto statement = (OracleStatement*) query->statement();
     if (!statement)
@@ -240,7 +240,7 @@ int OracleConnection::queryColCount(Query *query)
 
 void OracleConnection::queryBindParameters(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto statement = (OracleStatement*) query->statement();
     if (!statement)
@@ -357,7 +357,7 @@ void OracleConnection::queryOpen(Query *query)
     } else {
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
-            SYNCHRONIZED_CODE;
+            lock_guard<mutex> lock(*this);
 
             ResultSet* resultSet = statement->resultSet();
             vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
@@ -393,7 +393,7 @@ void OracleConnection::queryFetch(Query *query)
     if (!query->active())
         query->throwError("COracleConnection::queryFetch", "Dataset isn't open");
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto statement = (OracleStatement*) query->statement();
 

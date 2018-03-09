@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASECONNECTION_H__
-#define __SPTK_DATABASECONNECTION_H__
+#ifndef __SPTK_DATABASE_CONNECTION_H__
+#define __SPTK_DATABASE_CONNECTION_H__
 
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
@@ -111,7 +111,7 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT DatabaseConnection: public Synchronized
+class SP_EXPORT DatabaseConnection : public std::mutex
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;

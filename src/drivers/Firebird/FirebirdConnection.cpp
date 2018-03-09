@@ -208,7 +208,7 @@ void FirebirdConnection::queryAllocStmt(Query *query)
 
 void FirebirdConnection::queryFreeStmt(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     auto statement = (FirebirdStatement*) query->statement();
     if (statement) {
         delete statement;
@@ -219,7 +219,7 @@ void FirebirdConnection::queryFreeStmt(Query *query)
 
 void FirebirdConnection::queryCloseStmt(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     try {
         auto statement = (FirebirdStatement*) query->statement();
         if (statement)
@@ -232,7 +232,7 @@ void FirebirdConnection::queryCloseStmt(Query *query)
 
 void FirebirdConnection::queryPrepare(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     if (!query->prepared()) {
         auto statement = (FirebirdStatement*) query->statement();
@@ -267,7 +267,7 @@ int FirebirdConnection::queryColCount(Query *query)
 
 void FirebirdConnection::queryBindParameters(Query *query)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     auto statement = (FirebirdStatement*) query->statement();
     try {
@@ -319,7 +319,7 @@ void FirebirdConnection::queryOpen(Query *query)
     } else {
         querySetActive(query, true);
         if (query->fieldCount() == 0) {
-            SYNCHRONIZED_CODE;
+            lock_guard<mutex> lock(*this);
             statement->bindResult(query->fields());
         }
     }
@@ -334,7 +334,7 @@ void FirebirdConnection::queryFetch(Query *query)
     if (!query->active())
         throwDatabaseException("Dataset isn't open");
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     try {
         auto statement = (FirebirdStatement*) query->statement();
