@@ -32,6 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
 #include <set>
+#include <unordered_map>
 
 namespace sptk { namespace json {
 
@@ -51,7 +52,7 @@ public:
     /**
      * Type definition: map of element names to elements
      */
-    typedef std::map<std::string, Element*>     Map;
+    typedef std::unordered_map<std::string, Element*>     Map;
 
     /**
      * Type definition: map of element names to elements iterator
