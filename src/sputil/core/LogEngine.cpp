@@ -41,7 +41,7 @@ LogEngine::LogEngine()
 
 void LogEngine::option(Option option, bool flag)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     if (flag)
         m_options |= option;
     else

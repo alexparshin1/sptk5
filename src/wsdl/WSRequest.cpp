@@ -53,7 +53,7 @@ void WSRequest::processRequest(sptk::XMLDocument* request)
         if (node->tagname() == "Envelope") {
             soapEnvelope = node;
             {
-                SYNCHRONIZED_CODE;
+                lock_guard<mutex> lock(*this);
                 String nameSpaceAlias = node->nameSpace();
                 extractNameSpaces(soapEnvelope, allNameSpaces);
                 m_soapNamespace = allNameSpaces[nameSpaceAlias];
@@ -67,7 +67,7 @@ void WSRequest::processRequest(sptk::XMLDocument* request)
 
     XMLElement* soapBody;
     {
-        SYNCHRONIZED_CODE;
+        lock_guard<mutex> lock(*this);
         soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_soapNamespace.getAlias() + ":Body"));
         if (soapBody == nullptr)
             throwException("Can't find SOAP Body node in incoming request");

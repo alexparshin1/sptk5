@@ -38,7 +38,7 @@ Runable::Runable() :
 
 void Runable::execute()
 {
-    SynchronizedCode sc(m_running);
+    lock_guard<mutex> lock(m_running);
     m_terminated = false;
     run();
 }
@@ -52,7 +52,7 @@ bool Runable::terminated()
 {
     return m_terminated;
 }
-
+/*
 bool Runable::completed(chrono::milliseconds timeout)
 {
     try {
@@ -66,3 +66,4 @@ bool Runable::completed(chrono::milliseconds timeout)
         return false;
     }
 }
+*/

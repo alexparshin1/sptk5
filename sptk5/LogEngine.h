@@ -120,7 +120,7 @@ enum LogPriority
  * This class is abstract. Derived classes have to implement
  * at least saveMessage() method.
  */
-class SP_EXPORT LogEngine: public Synchronized
+class SP_EXPORT LogEngine: public std::mutex
 {
 protected:
     /**
@@ -210,7 +210,7 @@ public:
      */
     void options(int ops)
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         m_options = ops;
     }
 
@@ -220,7 +220,7 @@ public:
      */
     int options()
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         return m_options;
     }
 
@@ -235,7 +235,7 @@ public:
      */
     void priority(LogPriority prt)
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         m_minPriority = prt;
     }
 
@@ -248,7 +248,7 @@ public:
      */
     virtual void defaultPriority(LogPriority priority)
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         m_defaultPriority = priority;
     }
 
@@ -260,7 +260,7 @@ public:
      */
     virtual LogPriority defaultPriority()
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         return m_defaultPriority;
     }
 
@@ -272,7 +272,7 @@ public:
      */
     virtual void minPriority(LogPriority prt)
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         m_minPriority = prt;
     }
 
@@ -283,7 +283,7 @@ public:
      */
     virtual LogPriority minPriority()
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         return m_minPriority;
     }
 

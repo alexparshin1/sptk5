@@ -84,7 +84,7 @@ void ODBCEnvironment::allocEnv()
 {
     if (valid())
         return; // Already allocated
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     if (!Successful(SQLAllocEnv(&m_hEnvironment))) {
         m_hEnvironment = SQL_NULL_HENV;
         exception("Can't allocate ODBC environment", __LINE__);
@@ -95,7 +95,7 @@ void ODBCEnvironment::freeEnv()
 {
     if (!valid())
         return; // Never allocated
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     SQLFreeEnv(m_hEnvironment);
     m_hEnvironment = SQL_NULL_HENV;
 }
@@ -135,7 +135,7 @@ void ODBCConnectionBase::allocConnect()
     // Allocate environment if not already done
     m_cEnvironment.allocEnv();
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     // Create connection handle
     if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &m_hConnection))) {
@@ -151,7 +151,7 @@ void ODBCConnectionBase::freeConnect()
     if (isConnected())
         disconnect();
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     SQLFreeConnect(m_hConnection);
     m_hConnection = SQL_NULL_HDBC;
@@ -172,7 +172,7 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
     if (isConnected())
         disconnect();
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     m_connectString = ConnectionString;
 
@@ -216,7 +216,7 @@ void ODBCConnectionBase::disconnect()
     if (!isConnected())
         return; // Not connected
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     SQLDisconnect(m_hConnection);
     m_connected = false;
@@ -228,7 +228,7 @@ void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
     if (!isConnected())
         exception(errorInformation(cantSetConnectOption), __LINE__);
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     if (!Successful(SQLSetConnectOption(m_hConnection, fOption, vParam)))
         exception(errorInformation(cantSetConnectOption), __LINE__);
@@ -239,7 +239,7 @@ void ODBCConnectionBase::transact(UWORD fType)
     if (!isConnected())
         exception(string(cantEndTranscation) + "Not connected to the database", __LINE__);
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     m_Retcode = SQLEndTran(SQL_HANDLE_ENV, m_cEnvironment.handle(), fType);
     if (!Successful(m_Retcode))

@@ -102,7 +102,7 @@ typedef void(*SocketEventCallback)(void *userData, SocketEventType eventType);
  * On Linux it is using epoll, on BSD it is using kqueue,
  * and on Windows WSAAsyncSelect is used.
  */
-class SocketPool : public Synchronized
+class SocketPool : public std::mutex
 {
 private:
 

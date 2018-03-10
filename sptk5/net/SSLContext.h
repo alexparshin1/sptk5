@@ -43,7 +43,7 @@ namespace sptk {
 /**
  * @brief SSL connection context
  */
-class SSLContext : public Synchronized
+class SSLContext : public std::mutex
 {
     /**
      * SSL connection context

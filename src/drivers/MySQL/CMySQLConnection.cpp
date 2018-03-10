@@ -62,7 +62,7 @@ MySQLConnection::~MySQLConnection()
 
 void MySQLConnection::openDatabase(const String& newConnectionString)
 {
-    static Synchronized libraryInitMutex;
+    static std::mutex libraryInitMutex;
 
     if (!active()) {
         m_inTransaction = false;
@@ -70,7 +70,7 @@ void MySQLConnection::openDatabase(const String& newConnectionString)
             m_connString = newConnectionString;
 
         {
-            SynchronizedCode libraryInitCode(libraryInitMutex);
+            lock_guard<mutex> lock(libraryInitMutex);
             m_connection = mysql_init(m_connection);
         }
 

@@ -90,7 +90,7 @@ public:
 /**
  * @brief Parser of WSDL requests
  */
-class WSRequest : public Synchronized
+class WSRequest : public std::mutex
 {
     /**
      * Detected SOAP Envelope namespace
@@ -158,7 +158,7 @@ public:
      */
     virtual const WSNameSpace& soapNameSpace()
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         return m_soapNamespace;
     }
 
@@ -167,7 +167,7 @@ public:
      */
     virtual const WSNameSpace& requestNameSpace()
     {
-        SYNCHRONIZED_CODE;
+        std::lock_guard<std::mutex> lock(*this);
         return m_requestNamespace;
     }
 };

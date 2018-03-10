@@ -95,7 +95,7 @@ struct SP_EXPORT DatabaseDriver
  * Loads and initializes SPTK database driver by request.
  * Already loaded drivers are cached.
  */
-class SP_EXPORT DatabaseConnectionPool : public Synchronized, public DatabaseConnectionString
+class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public std::mutex
 {
     /**
      * Database driver

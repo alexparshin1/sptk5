@@ -46,7 +46,7 @@ void TCPServerListener::threadFunction()
 {
     try {
         while (!terminated()) {
-            SYNCHRONIZED_CODE;
+            lock_guard<mutex> lock(*this);
             if (m_listenerSocket.readyToRead(chrono::milliseconds(1000))) {
                 try {
                     SOCKET connectionFD;
@@ -89,13 +89,13 @@ void TCPServerListener::terminate()
 {
     Thread::terminate();
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     m_listenerSocket.close();
 }
 
 void TCPServer::listen(int port)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
         m_listenerThread->join();
@@ -108,9 +108,9 @@ void TCPServer::listen(int port)
 
 void TCPServer::stop()
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     {
-        SynchronizedCode   m_sync(m_connectionThreadsLock);
+        lock_guard<mutex> m_sync(m_connectionThreadsLock);
 
         set<ServerConnection*>::iterator itor;
 
@@ -120,7 +120,7 @@ void TCPServer::stop()
 
     while (true) {
         this_thread::sleep_for(chrono::milliseconds(100));
-        SynchronizedCode   m_sync(m_connectionThreadsLock);
+        lock_guard<mutex> m_sync(m_connectionThreadsLock);
         if (m_connectionThreads.empty())
             break;
     }
@@ -135,15 +135,13 @@ void TCPServer::stop()
 
 void TCPServer::registerConnection(ServerConnection* connection)
 {
-    SynchronizedCode   m_sync(m_connectionThreadsLock);
+    lock_guard<mutex> m_sync(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
     connection->m_server = this;
-    //cout << "Connection created" << endl;
 }
 
 void TCPServer::unregisterConnection(ServerConnection* connection)
 {
-    SynchronizedCode   m_sync(m_connectionThreadsLock);
+    lock_guard<mutex> m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);
-    //cout << "Connection closed" << endl;
 }

@@ -69,7 +69,7 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 
 void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     if (m_options & LO_ENABLE) {
 #ifndef _WIN32
         if (!m_logOpened)
@@ -153,7 +153,7 @@ SysLogEngine::~SysLogEngine()
 
 void SysLogEngine::setupEventSource()
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 #ifndef _WIN32
 	m_logOpened = false;
 	closelog();

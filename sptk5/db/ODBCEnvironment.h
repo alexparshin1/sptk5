@@ -67,7 +67,7 @@ class QueryParameter;
  *
  * Base class for all ODBC classes
  */
-class SP_DRIVER_EXPORT ODBCBase : public Synchronized
+class SP_DRIVER_EXPORT ODBCBase : public std::mutex
 {
 protected:
     /**

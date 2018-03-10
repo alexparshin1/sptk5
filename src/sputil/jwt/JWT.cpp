@@ -178,7 +178,7 @@ bool JWT::get_js_bool(const json::Element *js, const String& key, bool* found)
     return false;
 }
 
-void JWT::write_head(std::ostream& output, int pretty) const
+void JWT::write_head(std::ostream& output, bool pretty) const
 {
     output << "{";
 
@@ -217,7 +217,7 @@ void JWT::write_head(std::ostream& output, int pretty) const
         output << std::endl;
 }
 
-void JWT::write_body(std::ostream& output, int pretty) const
+void JWT::write_body(std::ostream& output, bool pretty) const
 {
     grants.exportTo(output, pretty);
 }
@@ -293,14 +293,14 @@ void JWT::encode(ostream& out)
     out << output.c_str() << '.' << signature.c_str();
 }
 
-void JWT::exportTo(ostream& output, int pretty) const
+void JWT::exportTo(ostream& output, bool pretty) const
 {
     write_head(output, pretty);
     output << ".";
     write_body(output, pretty);
 }
 
-void sptk::jwt_b64_decode(Buffer& destination, const char* src, int* ret_len)
+void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 {
     char *newData;
     size_t len, i, z;
@@ -330,7 +330,6 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src, int* ret_len)
     newData[i] = '\0';
 
     Base64::decode(destination, newData);
-    *ret_len = (int) destination.bytes();
 }
 
 

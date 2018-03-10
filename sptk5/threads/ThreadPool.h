@@ -51,7 +51,7 @@ namespace sptk {
  * If a thread is idle for the period longer than defined in constructor,
  * it's automatically terminated.
  */
-class SP_EXPORT ThreadPool : public Synchronized, public ThreadEvent, public Thread
+class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mutex
 {
     /**
      * Terminated threads scheduled for delete

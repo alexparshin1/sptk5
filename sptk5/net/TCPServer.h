@@ -47,7 +47,7 @@ class TCPServer;
 /**
  * @brief Internal TCP server listener thread
  */
-class TCPServerListener: public Thread, public Synchronized
+class TCPServerListener: public Thread, public std::mutex
 {
     /**
      * TCP server created connection
@@ -112,7 +112,7 @@ public:
  *
  * For every incoming connection, creates connection thread.
  */
-class TCPServer: public Synchronized
+class TCPServer: public std::mutex
 {
     friend class TCPServerListener;
     friend class ServerConnection;
@@ -134,7 +134,7 @@ class TCPServer: public Synchronized
     /**
      * Lock to protect per-connection thread set manipulations
      */
-    Synchronized                   m_connectionThreadsLock;
+    std::mutex                     m_connectionThreadsLock;
 
 protected:
     /**

@@ -56,7 +56,7 @@ class SP_EXPORT Runable
     /**
      * Synchronized object locked while the task running
      */
-    Synchronized    m_running;
+    std::mutex      m_running;
 
 
 protected:
@@ -102,7 +102,7 @@ public:
      * @brief Returns true, if the task is completed
      * @param timeout std::chrono::milliseconds, Wait timeout
      */
-    bool completed(std::chrono::milliseconds timeout);
+    //bool completed(std::chrono::milliseconds timeout);
 };
 /**
  * @}

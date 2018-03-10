@@ -66,7 +66,7 @@ WorkerThread* ThreadPool::createThread()
 
 void ThreadPool::execute(Runable* task)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     if (m_shutdown)
         throw Exception("Thread manager is stopped");
 
@@ -104,7 +104,7 @@ static bool terminateThread(WorkerThread*& thread, void*)
 void ThreadPool::stop()
 {
     {
-        SYNCHRONIZED_CODE;
+        lock_guard<mutex> lock(*this);
         m_shutdown = true;
     }
     m_threads.each(terminateThread);

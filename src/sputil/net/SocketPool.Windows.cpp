@@ -148,7 +148,7 @@ void SocketPool::close()
         m_pool = NULL;
     }
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     for (auto itor: m_socketData)
         free(itor.second);
     m_socketData.clear();
@@ -159,7 +159,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
     if (!socket.active())
         throw Exception("Socket is closed");
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     int socketFD = socket.handle();
 
@@ -175,7 +175,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
         throw Exception("Socket is closed");
 
     {
-        SYNCHRONIZED_CODE;
+        lock_guard<mutex> lock(*this);
 
         map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
         if (itor == m_socketData.end())

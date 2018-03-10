@@ -364,7 +364,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
     }
 
     Buffer sig_buffer;
-    jwt_b64_decode(sig_buffer, sig_b64, &slen);
+    jwt_b64_decode(sig_buffer, sig_b64);
     sig = (unsigned char*) sig_buffer.data();
     slen = (int) sig_buffer.bytes();
 

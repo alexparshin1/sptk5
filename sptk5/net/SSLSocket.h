@@ -43,7 +43,7 @@ namespace sptk {
 /**
  * Encrypted TCP Socket
  */
-class SSLSocket: public TCPSocket, public Synchronized
+class SSLSocket: public TCPSocket, public std::mutex
 {
     SSLContext  m_sslContext;
 

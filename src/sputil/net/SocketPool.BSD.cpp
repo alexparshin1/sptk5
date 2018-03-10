@@ -65,7 +65,7 @@ void SocketPool::close()
 
     ::close(m_pool);
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
     for (auto itor: m_socketData)
         free(itor.second);
 
@@ -78,7 +78,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
     if (!socket.active())
         throw Exception("Socket is closed");
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     int socketFD = socket.handle();
     struct kevent* event = (struct kevent*) malloc(sizeof(struct kevent));
@@ -99,7 +99,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     struct kevent* event;
 
     {
-        SYNCHRONIZED_CODE;
+        lock_guard<mutex> lock(*this);
 
         map<BaseSocket*,void*>::iterator itor = m_socketData.find(&socket);
         if (itor == m_socketData.end())

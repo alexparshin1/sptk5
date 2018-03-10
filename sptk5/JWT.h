@@ -98,45 +98,164 @@ public:
         return grants.root()[name];
     }
 
+	/*
+	 * Get signature encryption algorithm
+	 */
     jwt_alg_t get_alg() const;
 
+	/**
+	 * Set signature encryption algorithm
+	 * @param alg 			    Signature encryption algorithm
+	 * @param key               Signature encryption key
+	 */
     void set_alg(jwt_alg_t alg, const String &key);
+
+    /**
+     * Get signature encryption algorithm name
+     * @param alg               Signature encryption algorithm
+     * @return
+     */
     static const char * alg_str(jwt_alg_t alg);
+
+    /**
+     * Get signature encryption algorithm from name
+     * @param alg               Signature encryption algorithm name
+     * @return
+     */
     static jwt_alg_t str_alg(const char *alg);
 
+    /**
+     * Sign token
+     * @param out               Output token data
+     * @param len               Output token length
+     * @param str               Data to sign
+     */
     void sign(char** out, unsigned int* len, const char* str);
+
+    /**
+     * Encode token to stream
+     * @param out               Output stream
+     */
     void encode(std::ostream& out);
 
+    /**
+     * Decode token
+     * @param token             Input token data
+     * @param key               Optional signature encryption key
+     */
     void decode(const char *token, const String& key="");
 
-    void exportTo(std::ostream& output, int pretty) const;
+    /**
+     * Export token to stream
+     * @param output            Output stream
+     * @param pretty            If true, produce formatted output
+     */
+    void exportTo(std::ostream& output, bool pretty) const;
 
 private:
 
+    /**
+     * Find grant in token content
+     * @param js                Parent JSON element
+     * @param key               Grant name
+     * @return JSON element, or nullptr if not found
+     */
     static const json::Element* find_grant(const json::Element *js, const String& key);
 
 public:
 
+    /**
+     * Find string grant value by name
+     * @param js                Parent JSON element
+     * @param key               Grant name
+     * @param found             Optional (output) flag, true is found
+     * @return grant value
+     */
     static String get_js_string(const json::Element *js, const String& key, bool* found=nullptr);
+
+    /**
+     * Find integer grant value by name
+     * @param js                Parent JSON element
+     * @param key               Grant name
+     * @param found             Optional (output) flag, true is found
+     * @return grant value
+     */
     static long get_js_int(const json::Element *js, const String& key, bool* found=nullptr);
+
+    /**
+     * Find boolean grant value by name
+     * @param js                Parent JSON element
+     * @param key               Grant name
+     * @param found             Optional (output) flag, true is found
+     * @return grant value
+     */
     static bool get_js_bool(const json::Element *js, const String& key, bool* found=nullptr);
 
-    void write_head(std::ostream& output, int pretty) const;
-    void write_body(std::ostream& output, int pretty) const;
+    /**
+     * Write token head to output stream
+     * @param output            Output stream
+     * @param pretty            If true then produce formatted output
+     */
+    void write_head(std::ostream& output, bool pretty) const;
 
+    /**
+     * Write token body to output stream
+     * @param output            Output stream
+     * @param pretty            If true then produce formatted output
+     */
+    void write_body(std::ostream& output, bool pretty) const;
+
+    /**
+     * Verify token
+     * @param head              Token head
+     * @param sig               Signature
+     */
     void verify(const Buffer& head, const Buffer& sig);
 
+    /**
+     * Sign using SHA algorithm to HMAC format
+     * @param out               Output data
+     * @param len               Output data length
+     * @param str               Input data
+     */
     void sign_sha_hmac(char** out, unsigned int* len, const char* str);
+
+    /**
+     * Verify using SHA algorithm in HMAC format
+     * @param head              Token head
+     * @param sig               Signature
+     */
     void verify_sha_hmac(const char* head, const char* sig);
+
+    /**
+     * Sign using SHA algorithm to PEM format
+     * @param out               Output data
+     * @param len               Output data length
+     * @param str               Input data
+     */
     void sign_sha_pem(char** out, unsigned int* len, const char* str);
+
+    /**
+     * Verify using SHA algorithm in PEM format
+     * @param head              Token head
+     * @param sig               Signature
+     */
     void verify_sha_pem(const char* head, const char* sig_b64);
 };
 
-/* Helper routines. */
+/**
+ * Encode token into Base64 URI format
+ * @param buffer                Token data (input and output)
+ */
 void jwt_base64uri_encode(Buffer& buffer);
 
-void jwt_b64_decode(Buffer& destination, const char* src, int* ret_len);
+/**
+ * Decode token from Base64 URI format
+ * @param destination           Token data (output)
+ * @param src                   Token data (input)
+ */
+void jwt_b64_decode(Buffer& destination, const char* src);
 
-}
+} // namespace sptk
 
-#endif /* JWT_PRIVATE_H */
+#endif

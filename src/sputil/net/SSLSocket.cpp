@@ -160,7 +160,7 @@ void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
 {
     TCPSocket::open(address, openMode, _blockingMode, timeout);
 
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
 
@@ -203,7 +203,7 @@ void SSLSocket::close()
 
 void SSLSocket::attach(SOCKET socketHandle)
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     int rc = 1;
     if (m_sockfd != socketHandle) {

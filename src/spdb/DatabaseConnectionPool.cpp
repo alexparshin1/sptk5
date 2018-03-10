@@ -71,7 +71,7 @@ DatabaseConnectionPool::~DatabaseConnectionPool()
 
 void DatabaseConnectionPool::load()
 {
-    SYNCHRONIZED_CODE;
+    lock_guard<mutex> lock(*this);
 
     String driverName = lowerCase(m_driverName);
     if (driverName == "mssql")
