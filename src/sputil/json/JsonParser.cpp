@@ -36,7 +36,6 @@ using namespace sptk;
 using namespace sptk::json;
 
 namespace sptk { namespace json {
-    void throwError(const string& message, size_t position = 0);
     void skipSpaces(const char* json, const char*& readPosition);
     std::string readJsonString(const char* json, const char*& readPosition);
     std::string readJsonName(const char* json, const char*& readPosition);
@@ -46,6 +45,17 @@ namespace sptk { namespace json {
     void readArrayData(Element* parent, const char* json, const char*& readPosition);
     void readObjectData(Element* parent, const char* json, const char*& readPosition);
 } }
+
+void throwError(const string& message, size_t position)
+{
+    stringstream error;
+    error << message;
+    if (position > 0)
+        error << ", in position " << position;
+    else if (int(position) < 0)
+        error << ", after position " << -int(position);
+    throw Exception(error.str());
+}
 
 void Parser::parse(Element& jsonElement, const string& jsonStr)
 {
@@ -81,17 +91,6 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
 }
 
 namespace sptk { namespace json {
-
-void throwError(const string& message, size_t position)
-{
-    stringstream error;
-    error << message;
-    if (position > 0)
-        error << ", in position " << position;
-    else if (int(position) < 0)
-        error << ", after position " << -int(position);
-    throw runtime_error(error.str());
-}
 
 inline void skipSpaces(const char* json, const char*& readPosition)
 {
