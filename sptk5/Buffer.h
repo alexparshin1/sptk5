@@ -64,17 +64,17 @@ protected:
     /**
      * Allocated size of the buffer
      */
-    size_t    m_size;
+    size_t    m_size {0};
 
     /**
      * Actual size of the data in buffer
      */
-    size_t    m_bytes;
+    size_t    m_bytes {0};
 
     /**
      * The buffer itself
      */
-    char*       m_buffer;
+    char*       m_buffer { nullptr };
 
 
 public:

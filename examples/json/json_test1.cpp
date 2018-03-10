@@ -39,7 +39,8 @@ int main(int argc, char **argv)
 {
     json::Document jsonDocument;
 
-    ifstream file("test.data/test.json");
+    //ifstream file("test.data/test.json");
+    ifstream file("/tmp/test.json");
     jsonDocument.load(file);
     file.close();
 
