@@ -187,7 +187,7 @@ void MySQLConnection::queryAllocStmt(Query *query)
 
 void MySQLConnection::queryFreeStmt(Query *query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     auto statement = (MySQLStatement*) query->statement();
     if (statement != nullptr) {
         delete statement;
@@ -198,7 +198,7 @@ void MySQLConnection::queryFreeStmt(Query *query)
 
 void MySQLConnection::queryCloseStmt(Query *query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     try {
         auto statement = (MySQLStatement*) query->statement();
         if (statement != nullptr)
@@ -211,7 +211,7 @@ void MySQLConnection::queryCloseStmt(Query *query)
 
 void MySQLConnection::queryPrepare(Query *query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     if (!query->prepared()) {
         auto statement = (MySQLStatement*) query->statement();
@@ -250,7 +250,7 @@ int MySQLConnection::queryColCount(Query *query)
 
 void MySQLConnection::queryBindParameters(Query *query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     auto statement = (MySQLStatement*) query->statement();
     try {
@@ -304,7 +304,7 @@ void MySQLConnection::queryOpen(Query *query)
 
     querySetActive(query, true);
     if (query->fieldCount() == 0) {
-        lock_guard<mutex> lock(*this);
+        lock_guard<mutex> lock(m_mutex);
         statement->bindResult(query->fields());
     }
 
@@ -318,7 +318,7 @@ void MySQLConnection::queryFetch(Query *query)
     if (!query->active())
         query->throwError("CMySQLConnection::queryFetch", "Dataset isn't open");
 
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     try {
         auto statement = (MySQLStatement*) query->statement();

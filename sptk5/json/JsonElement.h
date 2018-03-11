@@ -162,13 +162,13 @@ private:
      * Blocked constructor
      * @param value             Array of JSON Elements
      */
-    explicit Element(ArrayData& value);
+    Element(ArrayData& value);
 
     /**
      * Blocked constructor
      * @param value             Map of JSON Elements
      */
-    explicit Element(ObjectData& value);
+    Element(ObjectData& value);
 
 public:
 
@@ -176,37 +176,37 @@ public:
      * Constructor
      * @param value             Floating point value
      */
-    explicit Element(double value) noexcept;
+    Element(double value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    explicit Element(int value) noexcept;
+    Element(int value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    explicit Element(int64_t value) noexcept;
+    Element(int64_t value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    explicit Element(const std::string& value) noexcept;
+    Element(const std::string& value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    explicit Element(const char* value) noexcept;
+    Element(const char* value) noexcept;
 
     /**
      * Constructor
      * @param value             Boolean value
      */
-    explicit Element(bool value) noexcept;
+    Element(bool value) noexcept;
 
     /**
      * Constructor
@@ -214,7 +214,7 @@ public:
      * Elements in value are set their parent pointer to this element.
      * @param value             Array of JSON Elements
      */
-    explicit Element(ArrayData* value) noexcept;
+    Element(ArrayData* value) noexcept;
 
     /**
      * Constructor
@@ -222,7 +222,7 @@ public:
      * Elements in value are set their parent pointer to this element.
      * @param value             Map of names to JSON elements
      */
-    explicit Element(ObjectData* value) noexcept;
+    Element(ObjectData* value) noexcept;
 
     /**
      * Constructor
