@@ -67,13 +67,20 @@ class QueryParameter;
  *
  * Base class for all ODBC classes
  */
-class SP_DRIVER_EXPORT ODBCBase : public std::mutex
+class SP_DRIVER_EXPORT ODBCBase
 {
+	friend class ODBCConnection;
 protected:
+
+	/**
+	 * Mutex that protects access to data memebers
+	 */
+	mutable std::mutex	m_mutex;
+
     /**
      * Last RETCODE returned from ODBC function
      */
-    SQLRETURN m_Retcode;
+    SQLRETURN			m_Retcode;
 
     /**
      * Constructor

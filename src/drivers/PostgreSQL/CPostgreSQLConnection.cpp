@@ -306,7 +306,7 @@ void PostgreSQLConnection::queryAllocStmt(Query* query)
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     auto statement = (CPostgreSQLStatement*) query->statement();
 
@@ -336,7 +336,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
 
 void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     auto statement = (CPostgreSQLStatement*) query->statement();
     statement->clearRows();
@@ -346,7 +346,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 {
     queryFreeStmt(query);
 
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 
@@ -395,7 +395,7 @@ int PostgreSQLConnection::queryColCount(Query* query)
 
 void PostgreSQLConnection::queryBindParameters(Query* query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     auto statement = (CPostgreSQLStatement*) query->statement();
     CPostgreSQLParamValues& paramValues = statement->m_paramValues;
@@ -447,7 +447,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 
 void PostgreSQLConnection::queryExecDirect(Query* query)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     auto statement = (CPostgreSQLStatement*) query->statement();
     CPostgreSQLParamValues& paramValues = statement->m_paramValues;
@@ -606,7 +606,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
     querySetActive(query, true);
 
     if (query->fieldCount() == 0) {
-        lock_guard<mutex> lock(*this);
+        lock_guard<mutex> lock(m_mutex);
         // Reading the column attributes
         const PGresult* stmt = statement->stmt();
 
@@ -879,7 +879,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
     if (!query->active())
         query->throwError("CPostgreSQLConnection::queryFetch", "Dataset isn't open");
 
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 
     auto statement = (CPostgreSQLStatement*) query->statement();
 

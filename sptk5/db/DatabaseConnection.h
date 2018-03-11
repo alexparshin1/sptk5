@@ -111,13 +111,18 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT DatabaseConnection : public std::mutex
+class SP_EXPORT DatabaseConnection 
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;
 
 public:
-    /**
+	/**
+	* Mutex that protects access to data memebers
+	*/
+	mutable std::mutex	m_mutex;
+	
+	/**
      * @brief Database connection type
      */
     enum Type {
