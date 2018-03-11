@@ -29,7 +29,6 @@
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/json/JsonParser.h>
 #include <sstream>
-#include <sptk5/xml/XMLDocument.h>
 
 using namespace std;
 using namespace sptk;
@@ -140,7 +139,7 @@ const Element& Document::root() const
 /**
  * Optimize arrays
  * Walks through the JSON document, and convert objects that contain
- * only single array field, to arrays - by removing unnenecessary name.
+ * only single array field, to arrays - by removing unnecessary name.
  * @param name const std::string&, Optional field name, use any name if empty string
  */
 void optimizeArrays(const std::string& name="item");

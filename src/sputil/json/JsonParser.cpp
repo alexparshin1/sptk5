@@ -28,8 +28,6 @@
 
 #include <sptk5/json/JsonParser.h>
 #include <sstream>
-#include <cstring>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -155,7 +153,6 @@ bool readJsonBoolean(const char* json, const char*& readPosition)
     if (pos == nullptr)
         throwError("Unexpected character", readPosition - json);
     pos++;
-    string value(readPosition, pos - readPosition);
     bool result = false;
     if (strncmp(readPosition, "true", 4) == 0)
         result = true;
