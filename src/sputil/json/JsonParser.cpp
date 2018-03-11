@@ -35,16 +35,18 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-namespace sptk { namespace json {
-    void skipSpaces(const char* json, const char*& readPosition);
-    std::string readJsonString(const char* json, const char*& readPosition);
-    std::string readJsonName(const char* json, const char*& readPosition);
-    void readJsonNull(const char* json, const char*& readPosition);
-    bool readJsonBoolean(const char* json, const char*& readPosition);
-    double readJsonNumber(const char* json, const char*& readPosition);
-    void readArrayData(Element* parent, const char* json, const char*& readPosition);
-    void readObjectData(Element* parent, const char* json, const char*& readPosition);
-} }
+namespace sptk {
+    namespace json {
+        void skipSpaces(const char* json, const char*& readPosition);
+        string readJsonString(const char* json, const char*& readPosition);
+        string readJsonName(const char* json, const char*& readPosition);
+        void readJsonNull(const char* json, const char*& readPosition);
+        bool readJsonBoolean(const char* json, const char*& readPosition);
+        double readJsonNumber(const char* json, const char*& readPosition);
+        void readArrayData(Element* parent, const char* json, const char*& readPosition);
+        void readObjectData(Element* parent, const char* json, const char*& readPosition);
+    }
+}
 
 void throwError(const string& message, size_t position)
 {
