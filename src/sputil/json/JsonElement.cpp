@@ -52,7 +52,7 @@ Element::Element(int value)
 Element::Element(int64_t value)
         : m_parent(nullptr), m_type(JDT_NUMBER)
 {
-    m_data.m_number = value;
+    m_data.m_number = (double) value;
 }
 
 Element::Element(const std::string& value)
