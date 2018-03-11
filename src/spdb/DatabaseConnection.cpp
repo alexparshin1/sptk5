@@ -70,7 +70,7 @@ void DatabaseConnection::openDatabase(const String& newConnectionString)
     notImplemented("openDatabase");
 }
 
-void DatabaseConnection::open(string newConnectionString)
+void DatabaseConnection::open(const String& newConnectionString)
 {
     openDatabase(newConnectionString);
 }

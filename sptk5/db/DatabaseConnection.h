@@ -404,7 +404,7 @@ public:
      * If unsuccessful throws an exception.
      * @param connectionString  The ODBC connection string
      */
-    void open(std::string connectionString = "");
+    void open(const String& connectionString = "");
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
