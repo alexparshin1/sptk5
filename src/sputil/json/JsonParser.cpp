@@ -28,30 +28,39 @@
 
 #include <sptk5/json/JsonParser.h>
 #include <sstream>
-#include <cstring>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-namespace sptk { namespace json {
-    void throwError(const string& message, size_t position = 0);
-    void skipSpaces(const char* json, char*& readPosition);
-    std::string readJsonString(const char* json, char*& readPosition);
-    std::string readJsonName(const char* json, char*& readPosition);
-    void readJsonNull(const char* json, char*& readPosition);
-    bool readJsonBoolean(const char* json, char*& readPosition);
-    double readJsonNumber(const char* json, char*& readPosition);
-    void readArrayData(Element* parent, const char* json, char*& readPosition);
-    void readObjectData(Element* parent, const char* json, char*& readPosition);
-} }
+namespace sptk {
+    namespace json {
+        void skipSpaces(const char* json, const char*& readPosition);
+        string readJsonString(const char* json, const char*& readPosition);
+        string readJsonName(const char* json, const char*& readPosition);
+        void readJsonNull(const char* json, const char*& readPosition);
+        bool readJsonBoolean(const char* json, const char*& readPosition);
+        double readJsonNumber(const char* json, const char*& readPosition);
+        void readArrayData(Element* parent, const char* json, const char*& readPosition);
+        void readObjectData(Element* parent, const char* json, const char*& readPosition);
+    }
+}
+
+void throwError(const string& message, size_t position)
+{
+    stringstream error;
+    error << message;
+    if (position > 0)
+        error << ", in position " << position;
+    else if (int(position) < 0)
+        error << ", after position " << -int(position);
+    throw Exception(error.str());
+}
 
 void Parser::parse(Element& jsonElement, const string& jsonStr)
 {
-    Buffer buffer(jsonStr);
-    const char* json = buffer.c_str();
-    char* pos = buffer.data();
+    const char* json = jsonStr.c_str();
+    const char* pos = json;
     skipSpaces(json, pos);
 
     if (pos == nullptr)
@@ -83,18 +92,7 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
 
 namespace sptk { namespace json {
 
-void throwError(const string& message, size_t position)
-{
-    stringstream error;
-    error << message;
-    if (position > 0)
-        error << ", in position " << position;
-    else if (int(position) < 0)
-        error << ", after position " << -int(position);
-    throw runtime_error(error.str());
-}
-
-void skipSpaces(const char* json, char*& readPosition)
+inline void skipSpaces(const char* json, const char*& readPosition)
 {
     while ((unsigned char) *readPosition <= 32) {
         if (*readPosition == 0)
@@ -103,9 +101,9 @@ void skipSpaces(const char* json, char*& readPosition)
     }
 }
 
-string readJsonString(const char* json, char*& readPosition)
+string readJsonString(const char* json, const char*& readPosition)
 {
-    char* pos = readPosition + 1;
+    const char* pos = readPosition + 1;
     while (true) {
         pos = strpbrk(pos, "\\\"");
         if (pos == nullptr)
@@ -126,7 +124,7 @@ string readJsonString(const char* json, char*& readPosition)
     return str;
 }
 
-string readJsonName(const char* json, char*& readPosition)
+string readJsonName(const char* json, const char*& readPosition)
 {
     if (*readPosition != '"')
         throwError("Unexpected character, expecting '\"'", readPosition - json);
@@ -138,7 +136,7 @@ string readJsonName(const char* json, char*& readPosition)
     return name;
 }
 
-double readJsonNumber(const char* json, char*& readPosition)
+double readJsonNumber(const char* json, const char*& readPosition)
 {
     char* pos;
     double value = strtod(readPosition, &pos);
@@ -149,13 +147,12 @@ double readJsonNumber(const char* json, char*& readPosition)
     return value;
 }
 
-bool readJsonBoolean(const char* json, char*& readPosition)
+bool readJsonBoolean(const char* json, const char*& readPosition)
 {
-    char* pos = strchr(readPosition + 1, 'e');
+    const char* pos = strchr(readPosition + 1, 'e');
     if (pos == nullptr)
         throwError("Unexpected character", readPosition - json);
     pos++;
-    string value(readPosition, pos - readPosition);
     bool result = false;
     if (strncmp(readPosition, "true", 4) == 0)
         result = true;
@@ -168,7 +165,7 @@ bool readJsonBoolean(const char* json, char*& readPosition)
     return result;
 }
 
-void readJsonNull(const char* json, char*& readPosition)
+void readJsonNull(const char* json, const char*& readPosition)
 {
     if (strncmp(readPosition, "null", 4) != 0)
         throwError("Unexpected value", readPosition - json);
@@ -176,7 +173,7 @@ void readJsonNull(const char* json, char*& readPosition)
     skipSpaces(json, readPosition);
 }
 
-void readArrayData(Element* parent, const char* json, char*& readPosition)
+void readArrayData(Element* parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '[')
         throwError("Unexpected character", readPosition - json);
@@ -258,7 +255,7 @@ void readArrayData(Element* parent, const char* json, char*& readPosition)
     readPosition++;
 }
 
-void readObjectData(Element* parent, const char* json, char*& readPosition)
+void readObjectData(Element* parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '{')
         throwError("Unexpected character", readPosition - json);

@@ -28,9 +28,7 @@
 
 #include <sptk5/json/JsonDocument.h>
 
-#include <iostream>
 #include <fstream>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -39,8 +37,7 @@ int main(int argc, char **argv)
 {
     json::Document jsonDocument;
 
-    //ifstream file("test.data/test.json");
-    ifstream file("/tmp/test.json");
+    ifstream file("test.data/test.json");
     jsonDocument.load(file);
     file.close();
 
@@ -52,12 +49,7 @@ int main(int argc, char **argv)
     jsonDocument.exportTo(doc);
     doc.save(buffer,true);
     cout << buffer.c_str() << endl << endl;
-/*
-    XMLDocument doc;
-    Buffer      buffer;
-    buffer.loadFromFile("test.data/test.xml");
-    doc.load(buffer);
-*/
+
     json::Document doc2;
     doc.saveToJSON(doc2);
     doc2.root().exportTo(cout, true);

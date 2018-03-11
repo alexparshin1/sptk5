@@ -162,13 +162,13 @@ private:
      * Blocked constructor
      * @param value             Array of JSON Elements
      */
-    Element(ArrayData& value);
+    explicit Element(ArrayData& value);
 
     /**
      * Blocked constructor
      * @param value             Map of JSON Elements
      */
-    Element(ObjectData& value);
+    explicit Element(ObjectData& value);
 
 public:
 
@@ -176,37 +176,37 @@ public:
      * Constructor
      * @param value             Floating point value
      */
-    Element(double value);
+    explicit Element(double value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    Element(int value);
+    explicit Element(int value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    Element(int64_t value);
+    explicit Element(int64_t value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    Element(const std::string& value);
+    explicit Element(const std::string& value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    Element(const char* value);
+    explicit Element(const char* value) noexcept;
 
     /**
      * Constructor
      * @param value             Boolean value
      */
-    Element(bool value);
+    explicit Element(bool value) noexcept;
 
     /**
      * Constructor
@@ -214,7 +214,7 @@ public:
      * Elements in value are set their parent pointer to this element.
      * @param value             Array of JSON Elements
      */
-    Element(ArrayData* value);
+    explicit Element(ArrayData* value) noexcept;
 
     /**
      * Constructor
@@ -222,13 +222,13 @@ public:
      * Elements in value are set their parent pointer to this element.
      * @param value             Map of names to JSON elements
      */
-    Element(ObjectData* value);
+    explicit Element(ObjectData* value) noexcept;
 
     /**
      * Constructor
      * Element will contain null value
      */
-    Element();
+    Element() noexcept;
 
     /**
      * Copy constructor

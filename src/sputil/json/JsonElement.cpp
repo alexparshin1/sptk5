@@ -37,43 +37,43 @@ using namespace sptk::json;
 
 const Element Element::emptyElement("");
 
-Element::Element(double value)
+Element::Element(double value) noexcept
         : m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
-Element::Element(int value)
+Element::Element(int value) noexcept
         : m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
-Element::Element(int64_t value)
+Element::Element(int64_t value) noexcept
         : m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = (double) value;
 }
 
-Element::Element(const std::string& value)
+Element::Element(const std::string& value) noexcept
         : m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
-Element::Element(const char* value)
+Element::Element(const char* value) noexcept
         : m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
-Element::Element(bool value)
+Element::Element(bool value) noexcept
         : m_parent(nullptr), m_type(JDT_BOOLEAN)
 {
     m_data.m_boolean = value;
 }
 
-Element::Element(ArrayData* value)
+Element::Element(ArrayData* value) noexcept
         : m_parent(nullptr), m_type(JDT_ARRAY)
 {
     m_data.m_array = value;
@@ -81,7 +81,7 @@ Element::Element(ArrayData* value)
         jsonElement->m_parent = this;
 }
 
-Element::Element(ObjectData* value)
+Element::Element(ObjectData* value) noexcept
         : m_parent(nullptr), m_type(JDT_OBJECT)
 {
     m_data.m_object = value;
@@ -95,7 +95,7 @@ Element::Element(ArrayData& value)
 Element::Element(ObjectData& value)
 {}
 
-Element::Element()
+Element::Element() noexcept
         : m_parent(nullptr), m_type(JDT_NULL)
 {
     m_data.m_boolean = false;
