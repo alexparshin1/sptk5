@@ -36,6 +36,7 @@
 #include <stdio.h>
 
 #include <sptk5/db/DatabaseStatement.h>
+#include <sptk5/FieldList.h>
 
 namespace sptk
 {
@@ -84,6 +85,10 @@ private:
      */
     ResultSet*          m_resultSet;
 
+    /*
+     * Index of output parameters
+     */
+    std::vector<unsigned> m_outputParamIndex;
 
     /**
      * @brief Sets character data to a CLOB parameter
@@ -154,6 +159,8 @@ public:
     {
         return m_resultSet;
     }
+
+    void getOutputParameters(FieldList& fields);
 };
 
 }

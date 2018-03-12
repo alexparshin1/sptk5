@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/db/OracleConnection.h>
+#include <sptk5/db/DatabaseField.h>
 
 using namespace std;
 using namespace sptk;
@@ -99,6 +100,8 @@ void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* d
 
 void OracleStatement::setParameterValues()
 {
+    m_outputParamIndex.clear();
+
     auto itor = m_enumeratedParams.begin();
     auto iend = m_enumeratedParams.end();
 
@@ -106,15 +109,25 @@ void OracleStatement::setParameterValues()
     {
         QueryParameter& parameter = *(*itor);
         VariantType& priorDataType = parameter.m_binding.m_dataType;
+
         if (priorDataType == VAR_NONE)
             priorDataType = parameter.dataType();
+
+        if (parameter.isOutput()) {
+            m_statement->registerOutParam(parameterIndex, OCCICHAR);
+            m_outputParamIndex.push_back(parameterIndex);
+            continue;
+        }
+
         if (parameter.isNull()) {
             if (priorDataType == VAR_NONE)
                 priorDataType = VAR_STRING;
             Type nativeType = OracleConnection::VariantTypeToOracleType(parameter.m_binding.m_dataType);
             //Type nativeType = OCCICHAR;
             m_statement->setNull(parameterIndex, nativeType);
-        } else
+            continue;
+        }
+
         switch (priorDataType) {
 
             case VAR_NONE:      ///< Undefined
@@ -235,6 +248,19 @@ void OracleStatement::execute(bool inTransaction)
                 break;
             }
         }
+    }
+}
+
+void OracleStatement::getOutputParameters(FieldList& fields)
+{
+    size_t columnIndex = 0;
+    for (unsigned index: m_outputParamIndex) {
+        QueryParameter* parameter = m_enumeratedParams[index - 1];
+        String value = m_statement->getString(index);
+        DatabaseField* field = new DatabaseField(parameter->name(), columnIndex, OCCICHAR, VAR_STRING, 256);
+        fields.push_back(field);
+        fields[parameter->name()].setString(value);
+        columnIndex++;
     }
 }
 

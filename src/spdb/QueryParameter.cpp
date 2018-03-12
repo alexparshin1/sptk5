@@ -70,6 +70,11 @@ String QueryParameter::name() const
     return m_name;
 }
 
+void QueryParameter::setOutput()
+{
+    m_binding.setOutput();
+}
+
 QueryParameter& QueryParameter::operator = (const Variant& param)
 {
     if (this == &param)

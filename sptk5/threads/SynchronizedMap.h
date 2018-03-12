@@ -60,7 +60,7 @@ protected:
     /**
      * Lock to synchronize map operations
      */
-    mutable Synchronized    m_sync;
+    mutable std::mutex      m_sync;
 
 
 public:
@@ -96,7 +96,7 @@ public:
      */
     virtual void insert(const K& key, const T& data)
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         m_map[key] = data;
     }
 
@@ -109,7 +109,7 @@ public:
      */
     virtual bool get(const K& key, T& item)
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
@@ -125,7 +125,7 @@ public:
      */
     virtual bool remove(const K& key)
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
             return false;
@@ -138,7 +138,7 @@ public:
      */
     bool empty() const
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         return m_map.empty();
     }
 
@@ -147,7 +147,7 @@ public:
      */
     uint32_t size() const
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         return m_map.size();
     }
 
@@ -156,7 +156,7 @@ public:
      */
     void clear()
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         m_map.clear();
     }
 
@@ -168,7 +168,7 @@ public:
      */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        SynchronizedCode sc(m_sync);
+        std::lock_guard<std::mutex> lock(m_sync);
         typename Map::iterator itor;
         for (itor = m_map.begin(); itor != m_map.end(); itor++) {
             if (!callbackFunction(itor->first, itor->second, data))

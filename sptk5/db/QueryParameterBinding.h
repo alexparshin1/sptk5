@@ -44,7 +44,7 @@ namespace sptk
  */
 
 /**
- * @brief Parameter Binding descriptor
+ *  Parameter Binding descriptor
  *
  * Stores the last information on parameter binding
  */
@@ -78,8 +78,8 @@ public:
 
 public:
     /**
-     * @brief Constructor
-     * @param isOutput bool, Output parameter flag
+     * Constructor
+     * @param isOutput          Output parameter flag
      */
     QueryParameterBinding(bool isOutput)
     {
@@ -87,20 +87,28 @@ public:
     }
 
     /**
-     * @brief Resets the binding information
-     * @param isOutput bool, Output parameter flag
+     *  Resets the binding information
+     * @param isOutput          Output parameter flag
      */
     void reset(bool isOutput);
 
     /**
-     * @brief Checks if the parameter binding is matching the cached
+     * Set binding to output
+     */
+    void setOutput()
+    {
+        m_output = true;
+    }
+
+    /**
+     * Checks if the parameter binding is matching the cached
      *
      * Returns true, if the passed parameters are matching last binding parameters.
      * Returns false and stores new parameters into last binding parameters otherwise.
-     * @param stmt void*, statement handle
-     * @param type VariantType, data type
-     * @param size uint32_t, binding buffer size
-     * @param buffer void*, binding buffer
+     * @param stmt              Statement handle
+     * @param type              Data type
+     * @param size              Binding buffer size
+     * @param buffer            Binding buffer
      */
     bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
 };

@@ -137,9 +137,9 @@ public:
     String name() const;
 
     /**
-     * @brief Assign operator
+     * @brief Set parameter type to output
      */
-    QueryParameter& operator = (const QueryParameter& param);
+    void setOutput();
 
     /**
      * @brief Assign operator

@@ -353,6 +353,7 @@ void OracleConnection::queryOpen(Query *query)
     int count = queryColCount(query);
     if (count < 1) {
         //queryCloseStmt(query);
+        statement->getOutputParameters(query->fields());
         return;
     } else {
         querySetActive(query, true);
