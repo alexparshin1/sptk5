@@ -139,6 +139,7 @@ string readJsonName(const char* json, const char*& readPosition)
 double readJsonNumber(const char* json, const char*& readPosition)
 {
     char* pos;
+    errno = 0;
     double value = strtod(readPosition, &pos);
     if (errno != 0)
         throwError("Invalid value", readPosition - json);
