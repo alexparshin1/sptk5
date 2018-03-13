@@ -33,7 +33,7 @@ using namespace sptk;
 
 XMLElement* WSBasicType::addElement(XMLElement* parent) const
 {
-    string text(asString());
+    String text(asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
     auto element = new XMLElement(*parent, m_name);
@@ -61,7 +61,7 @@ void WSString::load(const Field& field)
 
 void WSBool::load(const XMLNode* attr)
 {
-    string text = attr->text();
+    String text = attr->text();
     if (text.empty())
         setNull(VAR_BOOL);
     else
@@ -86,7 +86,7 @@ void WSBool::load(const Field& field)
 
 void WSDate::load(const XMLNode* attr)
 {
-    string text = attr->text();
+    String text = attr->text();
     if (text.empty())
         setNull(VAR_DATE);
     else
@@ -111,7 +111,7 @@ void WSDate::load(const Field& field)
 
 void WSDateTime::load(const XMLNode* attr)
 {
-    string text = attr->text();
+    String text = attr->text();
     if (text.empty())
         setNull(VAR_DATE_TIME);
     else
@@ -163,7 +163,7 @@ void WSDouble::load(const Field& field)
 
 void WSInteger::load(const XMLNode* attr)
 {
-    string text = attr->text();
+    String text = attr->text();
     if (text.empty())
         setNull(VAR_INT64);
     else

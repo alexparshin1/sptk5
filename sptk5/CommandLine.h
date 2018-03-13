@@ -374,7 +374,7 @@ protected:
     std::map<std::string, CommandLineArgument*> m_argumentTemplates;
 
     /**
-     * Recevied option values.
+     * Received option values.
      */
     std::map<std::string, std::string>          m_values;
 

@@ -77,7 +77,7 @@ void WSParser::parseElement(const XMLElement* elementNode)
 
 void WSParser::parseComplexType(const XMLElement* complexTypeElement)
 {
-    string complexTypeName = complexTypeElement->getAttribute("name");
+    String complexTypeName = complexTypeElement->getAttribute("name");
     if (complexTypeName.empty())
         complexTypeName = complexTypeElement->parent()->getAttribute("name").str();
 
@@ -282,7 +282,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         String requestName = strip_namespace(itor.second.m_input->name());
         serviceOperations.push_back(requestName);
     }
-    string operationNames = serviceOperations.asString("|");
+    String operationNames = serviceOperations.asString("|");
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
     serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl << endl;

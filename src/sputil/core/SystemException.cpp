@@ -37,11 +37,6 @@ SystemException::SystemException(string context, std::string file, int line) DOE
 {
 }
 
-SystemException::SystemException(const SystemException& other) DOESNT_THROW
-: Exception(other)
-{
-}
-
 string SystemException::osError()
 {
 #ifdef WIN32

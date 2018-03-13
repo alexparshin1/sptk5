@@ -77,18 +77,8 @@ TimeoutException::TimeoutException(const String& text, const String& file, int l
 {
 }
 
-TimeoutException::TimeoutException(const TimeoutException& other) DOESNT_THROW
-: Exception(other)
-{
-}
-
 ConnectionException::ConnectionException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : Exception(text, file, line, description)
-{
-}
-
-ConnectionException::ConnectionException(const ConnectionException& other) DOESNT_THROW
-: Exception(other)
 {
 }
 
@@ -97,17 +87,7 @@ DatabaseException::DatabaseException(const String& text, const String& file, int
 {
 }
 
-DatabaseException::DatabaseException(const DatabaseException& other) DOESNT_THROW
-: Exception(other)
-{
-}
-
 SOAPException::SOAPException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : Exception(text, file, line, description)
-{
-}
-
-SOAPException::SOAPException(const SOAPException& other) DOESNT_THROW
-: Exception(other)
 {
 }

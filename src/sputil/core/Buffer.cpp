@@ -217,7 +217,7 @@ void Buffer::reset(size_t sz)
     m_bytes = 0;
 }
 
-void Buffer::loadFromFile(const string& fileName)
+void Buffer::loadFromFile(const String& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "rb");
 
@@ -234,7 +234,7 @@ void Buffer::loadFromFile(const string& fileName)
     fclose(f);
 }
 
-void Buffer::saveToFile(string fileName) const
+void Buffer::saveToFile(const String& fileName) const
 {
     FILE* f = fopen(fileName.c_str(), "wb");
 

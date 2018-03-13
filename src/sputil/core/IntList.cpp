@@ -35,7 +35,7 @@ using namespace sptk;
 //---------------------------------------------------------------------------
 string IntList::toString(const char* separator) const
 {
-    string s;
+    String s;
     auto cnt = (uint32_t) size();
 
     if (cnt == 0) return s;

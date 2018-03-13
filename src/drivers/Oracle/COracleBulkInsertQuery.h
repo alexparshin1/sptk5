@@ -59,8 +59,8 @@ protected:
     COracleBulkInsertQuery(DatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
 
     /// @brief Destructor
-    ~COracleBulkInsertQuery();
-    
+    ~COracleBulkInsertQuery() = default;
+
 public:
     /// @brief Executes next iteration of bulk insert
     void execNext();

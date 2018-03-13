@@ -367,13 +367,13 @@ public:
      * @brief Loads the buffer from file fileName.
      * @param fileName std::string, the name of the input file
      */
-    void loadFromFile(const std::string& fileName);
+    void loadFromFile(const String& fileName);
 
     /**
      * @brief Saves the buffer to the file fileName.
      * @param fileName std::string, the name of the output file
      */
-    void saveToFile(std::string fileName) const;
+    void saveToFile(const String& fileName) const;
 
     /**
      * @brief Moves buffer from another buffer

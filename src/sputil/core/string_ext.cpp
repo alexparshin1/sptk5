@@ -221,7 +221,7 @@ double sptk::string2double(const String& str, double defaultValue)
     return result;
 }
 
-string sptk::capitalizeWords(const String& str)
+String sptk::capitalizeWords(const String& str)
 {
     String s(str);
     auto current = (char*) s.c_str();
@@ -256,7 +256,7 @@ string sptk::capitalizeWords(const String& str)
     return s;
 }
 
-string sptk::replaceAll(const String& src, const String& pattern, const String& replacement)
+String sptk::replaceAll(const String& src, const String& pattern, const String& replacement)
 {
     string str(src);
 

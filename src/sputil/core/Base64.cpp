@@ -45,7 +45,7 @@ static char B64Chars[64] = {
 void Base64::encode(Buffer& bufDest, const char* bufSource, size_t len)
 {
     const char* current = bufSource;
-    uint32_t outputLen = uint32_t(len / 3 * 4);
+    auto outputLen = uint32_t(len / 3 * 4);
     if ((len % 3) != 0)
         outputLen += 4;
     bufDest.checkSize(outputLen + 1);

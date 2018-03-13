@@ -95,7 +95,7 @@ private:
     /**
      * Service name, defining service class name and source file names
      */
-    std::string         m_serviceName;
+    String              m_serviceName;
 
     /**
      * Map of all elements

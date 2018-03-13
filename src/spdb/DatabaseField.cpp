@@ -32,8 +32,9 @@
 using namespace std;
 using namespace sptk;
 
-DatabaseField::DatabaseField(const std::string fName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale) :
-        Field(fName.c_str())
+DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType,
+                             VariantType dataType, int fieldLength, int fieldScale)
+: Field(fName.c_str())
 {
     m_fldType = fieldType;
     m_fldColumn = fieldColumn;

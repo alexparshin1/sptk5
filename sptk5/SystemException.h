@@ -58,7 +58,7 @@ public:
      * @brief Copy constructor
      * @param other const SystemException&, the other exception object
      */
-    SystemException(const SystemException& other) DOESNT_THROW;
+    SystemException(const SystemException& other) = default;
 
     /**
      * @brief Destructor

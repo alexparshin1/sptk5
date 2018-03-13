@@ -136,7 +136,7 @@ bool HttpReader::readData(TCPSocket& socket)
         } else {
             if (m_currentChunkSize == 0) {
                 // Starting next chunk
-                string chunkSizeStr;
+                String chunkSizeStr;
                 while (chunkSizeStr.empty()) {
                     if (socket.readLine(chunkSizeStr) == 0) {
                         this_thread::sleep_for(chrono::milliseconds(10));

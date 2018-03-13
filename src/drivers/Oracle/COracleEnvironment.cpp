@@ -56,7 +56,7 @@ std::string OracleEnvironment::clientVersion() const
 
 oracle::occi::Connection* OracleEnvironment::createConnection(DatabaseConnectionString& connectionString)
 {
-    string host = connectionString.hostName();
+    String host = connectionString.hostName();
     if (connectionString.portNumber())
         host += ":" + int2string(connectionString.portNumber());
     if (connectionString.databaseName().length())

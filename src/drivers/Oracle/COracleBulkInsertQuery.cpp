@@ -37,10 +37,6 @@ COracleBulkInsertQuery::COracleBulkInsertQuery(DatabaseConnection *db, const std
     m_bulkMode = true;
 }
 
-COracleBulkInsertQuery::~COracleBulkInsertQuery()
-{
-}
-
 void COracleBulkInsertQuery::execNext()
 {
     m_recordNumber++;

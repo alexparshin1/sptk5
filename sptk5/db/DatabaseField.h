@@ -86,17 +86,19 @@ public:
      * @param fieldLength int, database field length
      * @param fieldScale int, database field scale
      */
-    DatabaseField(const std::string fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength, int fieldScale = 4);
+    DatabaseField(
+            const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
+            int fieldScale = 4);
 
     /**
      * Column display name
      */
-    std::string     displayName;
+    String          displayName;
 
     /**
      * Column display format
      */
-    std::string     displayFormat;
+    String          displayFormat;
 
     /**
      * Column alignment

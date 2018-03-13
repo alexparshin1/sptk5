@@ -145,12 +145,12 @@ protected:
     /**
      * Element name
      */
-    std::string             m_name;
+    String                  m_name;
 
     /**
      * WSDL type name
      */
-    std::string             m_typeName;
+    String                  m_typeName;
 
     /**
      * XML element for that WSDL element

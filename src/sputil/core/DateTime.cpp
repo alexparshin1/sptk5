@@ -514,10 +514,11 @@ void DateTime::decodeTime(const time_point& dt, short &h, short &m, short &s, sh
 	else
 		localtime_s(&time, &tt);
 #else
-	if (gmt)
+	if (gmt) {
         gmtime_r(&tt, &time);
-    else
+    } else {
         localtime_r(&tt, &time);
+    }
 #endif
 
     h = (short) time.tm_hour;

@@ -29,8 +29,7 @@
 #include <sptk5/db/FirebirdConnection.h>
 #include <sptk5/db/FirebirdStatement.h>
 #include <sptk5/FieldList.h>
-#include <sptk5/Buffer.h>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -340,9 +339,9 @@ void FirebirdStatement::bindResult(FieldList& fields)
         if (columnName[0] == 0)
             sprintf(columnName, "column_%02i", columnIndex + 1);
 
-        VariantType fieldType = firebirdTypeToVariantType(sqlvar.sqltype, sqlvar.sqlsubtype);
-        unsigned fieldLength = (unsigned) sqlvar.sqllen;
-        fields.push_back(new FirebirdStatementField(columnName, columnIndex, sqlvar.sqltype, fieldType, (int) fieldLength, sqlvar));
+        VariantType fieldType = firebirdTypeToVariantType(type, sqlvar.sqlsubtype);
+        auto fieldLength = (unsigned) sqlvar.sqllen;
+        fields.push_back(new FirebirdStatementField(columnName, columnIndex, type, fieldType, (int) fieldLength, sqlvar));
     }
 }
 
@@ -418,7 +417,7 @@ size_t FirebirdStatement::fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field)
 
 void FirebirdStatement::fetchResult(FieldList& fields)
 {
-    struct tm       times;
+    struct tm       times{};
     uint32_t        fieldCount = fields.size();
 
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {

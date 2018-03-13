@@ -58,7 +58,7 @@ void WSConnection::threadFunction()
     Buffer data;
 
     // Read request data
-    string      row;
+    String      row;
     Strings     matches;
     String      protocolName, url, requestType;
 

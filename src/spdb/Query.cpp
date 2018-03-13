@@ -28,7 +28,6 @@
 
 #include <sptk5/db/DatabaseConnection.h>
 #include <sptk5/db/Query.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;

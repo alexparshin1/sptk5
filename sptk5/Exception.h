@@ -144,7 +144,7 @@ public:
      * @brief Copy constructor
      * @param other             Other exception object
      */
-    TimeoutException(const TimeoutException& other) DOESNT_THROW;
+    TimeoutException(const TimeoutException& other) = default;
 };
 
 /**
@@ -168,7 +168,7 @@ public:
      * @brief Copy constructor
      * @param other             Other exception object
      */
-    ConnectionException(const ConnectionException& other) DOESNT_THROW;
+    ConnectionException(const ConnectionException& other) = default;
 };
 
 /**
@@ -192,7 +192,7 @@ public:
      * @brief Copy constructor
      * @param other             Other exception object
      */
-    DatabaseException(const DatabaseException& other) DOESNT_THROW;
+    DatabaseException(const DatabaseException& other) = default;
 };
 
 /**
@@ -216,7 +216,7 @@ public:
      * @brief Copy constructor
      * @param other             Other exception object
      */
-    SOAPException(const SOAPException& other) DOESNT_THROW;
+    SOAPException(const SOAPException& other) = default;
 };
 
 /**

@@ -186,7 +186,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     if (!m_sequence.empty()) {
         classDeclaration << "   // Elements" << endl;
         for (auto complexType: m_sequence) {
-            string cxxType = complexType->className();
+            String cxxType = complexType->className();
             if (!complexType->documentation().empty()) {
                 classDeclaration << endl;
                 classDeclaration << "   /**" << endl;

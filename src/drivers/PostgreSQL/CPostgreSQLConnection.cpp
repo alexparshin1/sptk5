@@ -176,7 +176,7 @@ static string csParam(const string& name, const string& value)
 
 String PostgreSQLConnection::nativeConnectionString() const
 {
-    string port;
+    String port;
 
     if (m_connString.portNumber() != 0)
         port = int2string(m_connString.portNumber());
