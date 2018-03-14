@@ -126,23 +126,35 @@ void SSLSocket::throwSSLError(int rc)
 }
 
 SSLSocket::SSLSocket()
-: m_ssl(SSL_new(m_sslContext.handle()))
+: m_ssl(nullptr)
 {
 }
 
 SSLSocket::~SSLSocket()
 {
-    SSL_free(m_ssl);
+    if (m_ssl != nullptr)
+        SSL_free(m_ssl);
 }
 
 void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFileName, const string& password,
                          const string& caFileName, int verifyMode, int verifyDepth)
 {
+    if (m_sockfd > 0)
+        throw Exception("Socket already opened");
+
     m_sslContext.loadKeys(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
+
+    if (m_ssl != nullptr) {
+        SSL_free(m_ssl);
+        m_ssl = nullptr;
+    }
 }
 
 void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
+    if (m_ssl == nullptr)
+        m_ssl = SSL_new(m_sslContext.handle());
+
     if (!host.hostname().empty())
         m_host = host;
     if (m_host.hostname().empty())
