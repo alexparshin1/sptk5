@@ -115,9 +115,9 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 
     case CE_MOUSE_DOUBLE_CLICK: {
             if (directoryClicked) {
-                string fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
+                String fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
                 char doubleSlashStr[] = { slashChar, slashChar, 0 };
-                fileDialog->directory(replaceAll(fullPath, doubleSlashStr, slashStr));
+                fileDialog->directory(fullPath.replace("[\\/\\\\]{2}", slashStr));
                 fileDialog->refreshDirectory();
             } else {
                 fileDialog->m_fileNameInput->data(row[1]);
@@ -231,8 +231,8 @@ void CFileDialog::createFolder()
 
     if (dialog.showModal()) {
         char doubleSlashStr[] = { slashChar, slashChar, 0 };
-        string folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
-        folderName = replaceAll(folderName, doubleSlashStr, slashStr);
+        String folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
+        folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
 #ifdef WIN32
         int rc = mkdir(folderName.c_str());
 #else
@@ -373,12 +373,12 @@ string CFileDialog::fullFileName() const
 {
     char doubleSlash[] = { slashChar, slashChar, 0 };
 
-    string fileNamesStr = m_fileNameInput->data();
+    String fileNamesStr = m_fileNameInput->data();
     Strings fileNames(fileNamesStr, ";");
 
     for (unsigned i = 0; i < fileNames.size(); i++) {
-        string fname = m_directory.directory() + slashStr + fileNames[i];
-        fileNames[i] = trim(replaceAll(fname, doubleSlash, slashStr));
+        String fname = m_directory.directory() + slashStr + fileNames[i];
+        fileNames[i] = trim(fname.replace("[\\/\\\\]{2}", slashStr));
     }
 
     return fileNames.asString(";");
