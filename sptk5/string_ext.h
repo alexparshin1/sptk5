@@ -100,14 +100,9 @@ double SP_EXPORT string2double(const sptk::String& str);
 double SP_EXPORT string2double(const sptk::String& str, double defaultValue);
 
 /**
- * Replaces all the pattern in str with replacement
- */
-    String SP_EXPORT replaceAll(const sptk::String& str, const sptk::String& pattern, const sptk::String& replacement);
-
-/**
  * Capitalizes all the words in string
  */
-    String SP_EXPORT capitalizeWords(const sptk::String& str);
+String SP_EXPORT capitalizeWords(const sptk::String& str);
 
 /**
  * Converts a string vector into CSV string

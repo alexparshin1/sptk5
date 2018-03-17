@@ -224,9 +224,8 @@ void SmtpConnect::sendMessage()
     if (rc > 251)
         throw Exception("Can't send message:\n" + m_response.asString("\n"));
 
-    string rcpts = m_to + ";" + m_cc + ";" + m_bcc;
-    rcpts = replaceAll(rcpts, ",", ";");
-    rcpts = replaceAll(rcpts, " ", ";");
+    String rcpts = m_to + ";" + m_cc + ";" + m_bcc;
+    rcpts = rcpts.replace("[, ]+", ";");
     Strings recepients(rcpts, ";");
     auto cnt = (uint32_t) recepients.size();
     for (uint32_t i = 0; i < cnt; i++) {

@@ -227,16 +227,16 @@ string DirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, 
 
 // dataset navigation
 
-string absolutePath(string path)
+String absolutePath(String path)
 {
     char slashStr[] = {slash, 0};
     char currentDir[256];
     string fullPath;
     if (getcwd(currentDir, 255) == nullptr)
         currentDir[0] = 0;
-#ifdef _WIN32
 
-    path = replaceAll(path, "/", "\\");
+#ifdef _WIN32
+    path = path.replace("\\/", "\\");
     if (path[1] == ':')
         fullPath = path;
     else if (path[0] == '\\') {
@@ -245,7 +245,7 @@ string absolutePath(string path)
         fullPath = string(currentDir) + slashStr + path;
 #else
 
-    path = replaceAll(path, "\\", "/");
+    path = path.replace("\\\\", "/");
     if (path[0] == slash)
         fullPath = path;
     else

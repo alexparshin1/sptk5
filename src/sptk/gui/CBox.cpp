@@ -104,7 +104,7 @@ void CBox::data(const Variant v)
         }
         m_label[i] = 0;
 
-        m_label = replaceAll(m_label, "\x0B", "  ");
+        m_label = m_label.replace("\x0B", "  ");
     }
     m_control->label(m_label.c_str());
 }

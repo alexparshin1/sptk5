@@ -133,11 +133,11 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     else
         message << "From: postmaster" << endl;
 
-    replaceAll(m_to, ";", ", ");
+    m_to = m_to.replace(";", ", ");
     message << "To: " << m_to << endl;
 
     if (!m_cc.empty()) {
-        m_cc = replaceAll(m_cc, ";", ", ");
+        m_cc = m_cc.replace(";", ", ");
         message << "CC: " << m_cc << endl;
     }
 

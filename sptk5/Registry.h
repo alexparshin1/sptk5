@@ -68,7 +68,7 @@ class SP_EXPORT Registry: public XMLDocument
     /**
      * The registry file name
      */
-    std::string m_fileName;
+    String m_fileName;
 
 
     /**
@@ -104,7 +104,7 @@ public:
      * Should be a single phrase without '\\' or '/'
      * @param mode RegistryMode, see RegistryMode for details
      */
-    Registry(const std::string& fileName, std::string programGroupName, RegistryMode mode = USER_REGISTRY);
+    Registry(const String& fileName, const String& programGroupName, RegistryMode mode = USER_REGISTRY);
 
     /**
      * @brief Destructor

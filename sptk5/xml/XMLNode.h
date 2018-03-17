@@ -362,7 +362,7 @@ public:
      * @param nodes             The resulting list of subnodes
      * @param xpath             The xpath for subnodes
      */
-    void select(XMLNodeVector& nodes, std::string xpath);
+    void select(XMLNodeVector& nodes, String xpath);
 
     /**
      * @brief Performs a deep copy of node and all its subnodes

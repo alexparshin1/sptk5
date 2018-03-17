@@ -78,9 +78,10 @@ String Registry::homeDirectory()
     return homeDir;
 }
 
-Registry::Registry(const string& fileName, string programGroupName, RegistryMode mode)
+Registry::Registry(const String& fileName, const String& _programGroupName, RegistryMode mode)
 : XMLDocument("Configuration"), m_fileName(fileName)
 {
+    String programGroupName(_programGroupName);
     if (!m_fileName.empty()) {
         String directory;
         if (mode == USER_REGISTRY)
@@ -89,15 +90,13 @@ Registry::Registry(const string& fileName, string programGroupName, RegistryMode
         if (!programGroupName.empty()) {
             while (programGroupName[0] == '.')
                 programGroupName = programGroupName.substr(1);
-            programGroupName = replaceAll(programGroupName, "\\", "_");
-            programGroupName = replaceAll(programGroupName, "/", "_");
+            programGroupName = programGroupName.replace("[\\/\\\\]+", "_");
         }
         if (!programGroupName.empty())
             directory += "." + programGroupName + "/";
         m_fileName = directory + m_fileName;
     }
-    m_fileName = replaceAll(m_fileName, "\\", "/");
-    m_fileName = replaceAll(m_fileName, "//", "/");
+    m_fileName = m_fileName.replace("[\\/\\\\]+", "/");
 }
 
 Registry::~Registry()

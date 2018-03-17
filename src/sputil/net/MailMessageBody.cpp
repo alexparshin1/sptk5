@@ -50,16 +50,19 @@ string MailMessageBody::stripHtml(const string& origHtml)
         }
     }
 
-    return trim(replaceAll(replaceAll(html.asString(" "), "   ", " "), "  ", " "));
+    return trim(html.asString(" ").replace(" +", " "));
 }
 
 void MailMessageBody::text(const string& messageText, bool smtp)
 {
-    string msg;
-    if (smtp)
-        msg = replaceAll(messageText, "\n.\n", "\n \n");
-    else
-        msg = messageText;
+    string msg(messageText);
+    if (smtp) {
+        size_t pos = 0;
+        while ( (pos = msg.find("\n.\n")) != string::npos) {
+            msg[pos + 1] = ' ';
+            pos += 3;
+        }
+    }
     if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS) {
         m_type = MMT_PLAIN_TEXT_MESSAGE;
         m_plainText = msg;

@@ -465,9 +465,9 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     cout << "\nSyntax:" << endl;
     printLine("─", screenColumns);
 
-    string commandLinePrototype = m_commandLinePrototype;
+    String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
-        commandLinePrototype = replaceAll(m_commandLinePrototype, "<command>", onlyForCommand);
+        commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
     cout << commandLinePrototype << endl;
 
     // Find out space needed for command and option names

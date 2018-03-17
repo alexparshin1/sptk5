@@ -245,12 +245,12 @@ namespace sptk {
             lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
     }
 
-    void XMLNode::select(XMLNodeVector& nodes, string xpath)
+    void XMLNode::select(XMLNodeVector& nodes, String xpath)
     {
         const char* ptr;
         nodes.clear();
 
-        xpath = replaceAll(xpath, "//", "/descendant::");
+        xpath = xpath.replace("\\/\\/", "/descendant::");
 
         if (xpath[0] == '/')
             ptr = xpath.c_str() + 1;

@@ -255,23 +255,3 @@ String sptk::capitalizeWords(const String& str)
 
     return s;
 }
-
-String sptk::replaceAll(const String& src, const String& pattern, const String& replacement)
-{
-    string str(src);
-
-    if (pattern.empty())
-        return src;
-
-    size_t patternLength = pattern.length();
-    size_t replacementLength = replacement.length();
-
-    size_t i = str.find(pattern);
-
-    while (i != STRING_NPOS) { // While not at the end of the string
-        str.replace(i, patternLength, replacement);
-        i = str.find(pattern, i + replacementLength);
-    }
-
-    return str;
-}

@@ -1245,9 +1245,9 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
                 if (f == keyField)
                     continue;
                 Field& field = ds[f];
-                std::string columnName = field.fieldName();
+                String columnName = field.fieldName();
                 bool cvisible = columnName[0] != '_';
-                columnName = replaceAll(columnName, "_", " ");
+                columnName = columnName.replace("_", " ");
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
                 short cwidth = short(field.view.width + 1);
