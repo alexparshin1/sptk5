@@ -175,6 +175,9 @@ void DatabaseConnectionPool::destroyConnection(DatabaseConnection* connection, b
 {
     if (unlink)
         m_connections.remove(connection);
-    connection->close();
+    try {
+        connection->close();
+    }
+    catch (...) {}
     m_destroyConnection(connection);
 }
