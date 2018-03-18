@@ -92,6 +92,7 @@ String ODBCConnection::nativeConnectionString() const
         connectionString += ";PWD=" + m_connString.password();
     if (!m_connString.databaseName().empty())
         connectionString += ";DATABASE=" + m_connString.databaseName();
+    //connectionString += ";ClientCharset=UTF-8;ServerCharset=UCS2";
     return connectionString;
 }
 

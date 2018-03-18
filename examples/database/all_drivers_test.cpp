@@ -152,11 +152,11 @@ int testDatabase(const string& connectionString)
         if (db->driverDescription().find("Microsoft") != string::npos)
             createTempTableQuery.sql(
                 "CREATE TABLE " + tableName + "("
-                    "id             INT, "
-                    "name           NCHAR(80), "
-                    "position_name  NCHAR(80), "
-                    "hire_date      DATETIME, "
-                    "rate           NUMERIC(16,10))");
+                    "id             INT NULL, "
+                    "name           NCHAR(80) NULL, "
+                    "position_name  NCHAR(80) NULL, "
+                    "hire_date      DATETIME NULL, "
+                    "rate           NUMERIC(16,10) NULL)");
         else
             createTempTableQuery.sql(
                 "CREATE TABLE " + tableName + "("
@@ -170,6 +170,11 @@ int testDatabase(const string& connectionString)
         Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false, __FILE__, __LINE__);
         Query dropTempTableQuery(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
+        try {
+            dropTempTableQuery.exec();
+        }
+        catch (...) {}
+
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             createTempTableQuery.exec();
@@ -179,6 +184,8 @@ int testDatabase(const string& connectionString)
             if (strstr(e.what(), " already ") == nullptr)
                 throw;
             cout << "Table already exists, ";
+            Query deleteAll(db, "delete from " + tableName);
+            deleteAll.exec();
         }
 
         cout << "Ok.\nStep 2: Inserting data into the test table.. ";
@@ -323,6 +330,8 @@ int testDatabase(const string& connectionString)
         }
         selectRecordsQuery.close();
 
+        return 1;
+
         cout << "Ok.\n***********************************************\nTesting the transactions.\n";
 
         cout << endl;
@@ -336,7 +345,7 @@ int testDatabase(const string& connectionString)
         testTransactions(db, tableName, false);
         cout << endl;
 
-        dropTempTableQuery.exec();
+        //dropTempTableQuery.exec();
 
         cout << "Ok.\nStep 6: Closing the database.. ";
         db->close();
@@ -357,6 +366,7 @@ int main(int argc, const char* argv[])
         connectionString = argv[1];
     else {
         connectionString = "oracle://protis:wsxedc@oracledb/protis";
+        connectionString = "mssql://protis:wsxedc@Protis/protis";
         //connectionString = "postgresql://localhost/test";
     }
 
