@@ -176,7 +176,7 @@ void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
 
-    if (_blockingMode) {
+    if (timeout == chrono::milliseconds(0)) {
         int rc = SSL_connect(m_ssl);
         if (rc <= 0) {
             close();
@@ -185,26 +185,14 @@ void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
         return;
     }
 
-    time_t started = time(nullptr);
-    for (;;) {
-        int rc = SSL_connect(m_ssl);
-        if (rc >= 0)
-            break;
-        int error = SSL_get_error(m_ssl, rc);
-        switch(error) {
-        case SSL_ERROR_WANT_READ:
-        case SSL_ERROR_WANT_WRITE:
-            break;
-        default:
-            close();
-            throwSSLError(rc);
-            break;
-        }
-        time_t now = time(nullptr);
-        if (now - started > 30)
-            throw Exception("SSL handshake timeout");
-        this_thread::sleep_for(chrono::milliseconds(1));
+    blockingMode(false);
+    SSL_connect(m_ssl);
+    if (!readyToWrite(timeout)) {
+        close();
+        throw Exception("SSL handshake timeout");
     }
+
+    blockingMode(_blockingMode);
 }
 
 void SSLSocket::close()
