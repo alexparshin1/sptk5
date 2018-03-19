@@ -116,7 +116,6 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
     case CE_MOUSE_DOUBLE_CLICK: {
             if (directoryClicked) {
                 String fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
-                char doubleSlashStr[] = { slashChar, slashChar, 0 };
                 fileDialog->directory(fullPath.replace("[\\/\\\\]{2}", slashStr));
                 fileDialog->refreshDirectory();
             } else {
@@ -230,7 +229,6 @@ void CFileDialog::createFolder()
     folderNameInput.labelWidth(90);
 
     if (dialog.showModal()) {
-        char doubleSlashStr[] = { slashChar, slashChar, 0 };
         String folderName = m_directory.directory() + slashStr + folderNameInput.data().asString();
         folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
 #ifdef WIN32
@@ -371,8 +369,6 @@ void CFileDialog::fileName(string fn)
 
 string CFileDialog::fullFileName() const
 {
-    char doubleSlash[] = { slashChar, slashChar, 0 };
-
     String fileNamesStr = m_fileNameInput->data();
     Strings fileNames(fileNamesStr, ";");
 
