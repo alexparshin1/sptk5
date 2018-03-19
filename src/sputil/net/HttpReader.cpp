@@ -106,14 +106,14 @@ bool HttpReader::readHeaders(TCPSocket& socket)
 
 bool HttpReader::readData(TCPSocket& socket)
 {
-    auto bytes = (int) socket.socketBytes();
-    if (bytes == 0) {
+    auto readBytes = (int) socket.socketBytes();
+    if (readBytes == 0) {
         if (m_contentLength != 0)
             throw Exception("Server closed connection");
         return true; // Server closed connection
     }
 
-    while (bytes) {
+    while (readBytes) {
         size_t bytesToRead;
         if (m_contentLength > 0) {
             bytesToRead = m_contentLength - m_contentReceivedLength;
@@ -124,13 +124,13 @@ bool HttpReader::readData(TCPSocket& socket)
         }
 
         if (!m_contentIsChunked) {
-            if (bytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL
-                bytes = (int) bytesToRead;
-            bytes = (int) socket.read(m_read_buffer, (size_t) bytes);
-            if (bytes == 0) // 0 bytes case is a workaround for OpenSSL
-                bytes = (int) socket.read(m_read_buffer, (size_t) bytes);
+            if (readBytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL
+                readBytes = (int) bytesToRead;
+            readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
+            if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
+                readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
             append(m_read_buffer);
-            m_contentReceivedLength += bytes;
+            m_contentReceivedLength += readBytes;
             if (m_contentReceivedLength >= m_contentLength) // No more data
                 return true;
         } else {
@@ -153,16 +153,18 @@ bool HttpReader::readData(TCPSocket& socket)
                     return true; // Last chunk
             }
 
-            bytes = (int) socket.read(m_read_buffer, m_currentChunkSize, nullptr);
-            if (bytes > 0) {
-                m_contentReceivedLength += bytes;
-                m_read_buffer.data()[bytes] = 0;
-                append(m_read_buffer);
+            checkSize(bytes() + m_currentChunkSize + 16384);
+            char* appendPtr = data() + bytes();
+            readBytes = (int) socket.read(appendPtr, m_currentChunkSize, nullptr);
+            if (readBytes > 0) {
+                m_contentReceivedLength += readBytes;
+                appendPtr[readBytes] = 0;
                 m_currentChunkSize = 0;
+                bytes(bytes() + readBytes);
                 return false; // Not the last chunk
             }
         }
-        bytes = (int) socket.socketBytes();
+        readBytes = (int) socket.socketBytes();
     }
     return true;
 }
