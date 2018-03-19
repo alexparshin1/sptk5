@@ -64,6 +64,7 @@
 #endif
 
 #include <chrono>
+#include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/net/Host.h>
 #include <sptk5/Strings.h>
@@ -80,7 +81,7 @@ namespace sptk
 /**
  * @brief Generic socket.
  *
- * Allows to establish a network connection
+ * Allows establishing a network connection
  * to the host by name and port address
  */
 class SP_EXPORT BaseSocket
@@ -129,8 +130,8 @@ protected:
 public:
     /**
      * @brief Get address data from hostname
-     * @param hostname Host name or address
-     * @param address sockaddr_in&, Output address data
+     * @param hostname          Host name or address
+     * @param address           Output address data
      */
     static void getHostAddress(const std::string& hostname, sockaddr_in& address);
 
@@ -158,26 +159,26 @@ public:
 
     /**
      * @brief Throws socket exception with error description retrieved from socket state
-     * @param message       Error message
-     * @param file          Source file name
-     * @param line          Source file line number
+     * @param message           Error message
+     * @param file              Source file name
+     * @param line              Source file line number
      */
     static void throwSocketError(const std::string& message, const char* file, int line);
 
     /**
      * @brief Opens the socket connection by address.
-     * @param openMode      SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
-     * @param addr          Defines socket address/port information
-     * @param timeout       Connection timeout. If 0 the wait forever;
+     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
+     * @param addr              Defines socket address/port information
+     * @param timeout           Connection timeout. If 0 the wait forever;
      */
     void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
 public:
     /**
      * @brief Constructor
-     * @param domain        Socket domain type
-     * @param type          Socket type
-     * @param protocol      Protocol type
+     * @param domain            Socket domain type
+     * @param type              Socket type
+     * @param protocol          Protocol type
      */
     BaseSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
@@ -188,7 +189,7 @@ public:
 
     /**
      * @brief Set blocking mode
-     * @param blocking      Socket blocking mode flag
+     * @param blocking          Socket blocking mode flag
      */
     void blockingMode(bool blocking);
 
@@ -207,13 +208,13 @@ public:
 
     /**
      * @brief Attaches socket handle
-     * @param socketHandle  Existing socket handle
+     * @param socketHandle      Existing socket handle
      */
     virtual void attach(SOCKET socketHandle);
 
     /**
      * @brief Sets the host name
-     * @param host          The host
+     * @param host              The host
      */
     void host(const Host& host);
 
@@ -227,33 +228,33 @@ public:
 
     /**
      * @brief Opens the client socket connection by host and port
-     * @param host          The host
-     * @param openMode      Socket open mode
-     * @param blockingMode  Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS     Connection timeout. The default is 0 (wait forever)
+     * @param host              The host
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
      */
     virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0));
 
     /**
      * @brief Opens the client socket connection by host and port
-     * @param address       Address and port
-     * @param openMode      Socket open mode
-     * @param blockingMode  Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS     Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
+     * @param address           Address and port
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
      */
     virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {}
 
     /**
      * @brief Binds the socket to port
-     * @param address       Local IP address, or NULL if any
-     * @param portNumber    The port number, or 0 if any
+     * @param address           Local IP address, or NULL if any
+     * @param portNumber        The port number, or 0 if any
      */
     void bind(const char* address, uint32_t portNumber);
 
     /**
      * @brief Opens the server socket connection on port (binds/listens)
-     * @param portNumber    The port number
+     * @param portNumber        The port number
      */
     void listen(uint16_t portNumber = 0);
 
@@ -300,25 +301,25 @@ public:
 
     /**
      * @brief Reads data from the socket in regular or TLS mode
-     * @param buffer        The destination buffer
-     * @param size          The destination buffer size
+     * @param buffer            The destination buffer
+     * @param size              The destination buffer size
      * @returns the number of bytes read from the socket
      */
     virtual size_t recv(void* buffer, size_t size);
 
     /**
      * @brief Reads data from the socket in regular or TLS mode
-     * @param buffer        The send buffer
-     * @param size          The send data length
+     * @param buffer            The send buffer
+     * @param size              The send data length
      * @returns the number of bytes sent the socket
      */
     virtual size_t send(const void* buffer, size_t size);
 
     /**
      * @brief Reads data from the socket
-     * @param buffer        The memory buffer
-     * @param size          The number of bytes to read
-     * @param from          An optional structure for source address
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
     virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL);
@@ -327,9 +328,9 @@ public:
      * @brief Reads data from the socket into memory buffer
      *
      * Buffer bytes() is set to number of bytes read
-     * @param buffer        The output buffer
-     * @param size          The number of bytes to read
-     * @param from          An optional structure for source address
+     * @param buffer            The output buffer
+     * @param size              The number of bytes to read
+     * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
     virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL);
@@ -338,9 +339,9 @@ public:
      * @brief Reads data from the socket into memory buffer
      *
      * Buffer bytes() is set to number of bytes read
-     * @param buffer        The memory buffer
-     * @param size          The number of bytes to read
-     * @param from          An optional structure for source address
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
     virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL);
@@ -349,40 +350,52 @@ public:
      * @brief Writes data to the socket
      *
      * If size is omited then buffer is treated as zero-terminated string
-     * @param buffer        The memory buffer
-     * @param size          The memory buffer size
-     * @param peer          Optional peer information
+     * @param buffer            The memory buffer
+     * @param size              The memory buffer size
+     * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
     virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = NULL);
 
     /**
      * @brief Writes data to the socket
-     * @param buffer const CBuffer&, the memory buffer
-     * @param peer const sockaddr_in*, optional peer information
+     * @param buffer            The memory buffer
+     * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
     virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = NULL);
 
     /**
      * @brief Writes data to the socket
-     * @param buffer        The memory buffer
-     * @param peer          Optional peer information
+     * @param buffer            The memory buffer
+     * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
     virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL);
 
     /**
      * @brief Reports true if socket is ready for reading from it
-     * @param timeout       Read timeout
+     * @param timeout           Read timeout
      */
     virtual bool readyToRead(std::chrono::milliseconds timeout);
 
     /**
+     * @brief Reports true if socket is ready for reading from it
+     * @param timeout           Read timeout date and time
+     */
+    virtual bool readyToRead(DateTime timeout);
+
+    /**
      * @brief Reports true if socket is ready for writing to it
-     * @param timeout       Write timeout
+     * @param timeout           Write timeout
      */
     virtual bool readyToWrite(std::chrono::milliseconds timeout);
+
+    /**
+     * @brief Reports true if socket is ready for writing to it
+     * @param timeout           Write timeout
+     */
+    virtual bool readyToWrite(DateTime timeout);
 };
 
 #define THROW_SOCKET_ERROR(msg) BaseSocket::throwSocketError(msg,__FILE__,__LINE__)

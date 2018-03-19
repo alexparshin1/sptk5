@@ -238,9 +238,14 @@ size_t TCPSocket::socketBytes()
     return m_reader.availableBytes() + BaseSocket::socketBytes();
 }
 
-bool TCPSocket::readyToRead(chrono::milliseconds timeoutMS)
+bool TCPSocket::readyToRead(chrono::milliseconds timeout)
 {
-    return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeoutMS);
+    return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeout);
+}
+
+bool TCPSocket::readyToRead(DateTime timeout)
+{
+    return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeout);
 }
 
 size_t TCPSocket::readLine(char *buffer, size_t size, char delimiter)

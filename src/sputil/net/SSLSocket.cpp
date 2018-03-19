@@ -170,6 +170,8 @@ void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
 
 void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
+    DateTime started = DateTime::Now();
+    DateTime timeoutAt(started + timeout);
     TCPSocket::open(address, openMode, _blockingMode, timeout);
 
     lock_guard<mutex> lock(*this);
@@ -186,12 +188,25 @@ void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode
     }
 
     blockingMode(false);
-    SSL_connect(m_ssl);
-    if (!readyToWrite(timeout)) {
-        close();
-        throw Exception("SSL handshake timeout");
+    while (true) {
+        int rc = SSL_connect(m_ssl);
+        if (rc == 1)
+            break;
+        if (rc <= 0) {
+            int errorCode = SSL_get_error(m_ssl, rc);
+            if (errorCode == SSL_ERROR_WANT_READ) {
+                if (!readyToRead(timeoutAt))
+                    throw Exception("SSL handshake read timeout");
+                continue;
+            }
+            else if (errorCode == SSL_ERROR_WANT_WRITE) {
+                if (!readyToWrite(timeoutAt))
+                    throw Exception("SSL handshake write timeout");
+                continue;
+            }
+        }
+        throwSSLError(rc);
     }
-
     blockingMode(_blockingMode);
 }
 

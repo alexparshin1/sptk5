@@ -210,6 +210,12 @@ public:
     virtual bool readyToRead(std::chrono::milliseconds timeout) override;
 
     /**
+     * @brief Reports true if socket is ready for reading from it
+     * @param timeout           Read timeout date and time
+     */
+    virtual bool readyToRead(DateTime timeout) override;
+
+    /**
      * @brief Reads one line from the socket into existing memory buffer
      *
      * The output string should fit the buffer or it will be returned incomplete.
