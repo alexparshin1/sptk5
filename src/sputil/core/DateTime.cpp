@@ -89,6 +89,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     char dt[32];
 
     strncpy(dt, dateOrTime, sizeof(dt));
+	dt[31] = 0;
 
     // Cut-off trailing non-digit characters
     auto len = (int) strlen(dt);

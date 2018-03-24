@@ -115,7 +115,7 @@ th_read(TAR *t)
 	if TH_ISLONGLINK(t)
 	{
 		sz = (size_t) th_get_size(t);
-		j = (int) ( (sz / T_BLOCKSIZE) + (sz % T_BLOCKSIZE ? 1 : 0) );
+		j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
 #ifdef LIBTAR_DEBUG
 		printf("    th_read(): GNU long linkname detected "
 		       "(%ld bytes, %d blocks)\n", sz, j);
@@ -160,7 +160,7 @@ th_read(TAR *t)
 	if TH_ISLONGNAME(t)
 	{
 		sz = (size_t) th_get_size(t);
-		j = (int) ( (sz / T_BLOCKSIZE) + (sz % T_BLOCKSIZE ? 1 : 0) );
+		j = (int) ( (sz / T_BLOCKSIZE) + ((sz % T_BLOCKSIZE) ? 1 : 0) );
 #ifdef LIBTAR_DEBUG
 		printf("    th_read(): GNU long filename detected "
 		       "(%ld bytes, %d blocks)\n", sz, j);

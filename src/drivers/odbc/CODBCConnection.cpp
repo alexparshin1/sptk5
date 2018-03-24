@@ -773,8 +773,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
         }
 
-        SQLCHAR objectSchema[256];
-        SQLCHAR objectName[256];
+		SQLCHAR objectSchema[256] = {};
+		SQLCHAR objectName[256] = {};
         SQLLEN cbObjectSchema;
         SQLLEN cbObjectName;
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)

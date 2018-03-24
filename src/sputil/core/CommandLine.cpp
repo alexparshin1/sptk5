@@ -512,8 +512,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         cout << "\nCommands:" << endl;
         printLine("─", screenColumns);
         for (const String& commandName : sortedCommands) {
-            auto itor = m_argumentTemplates.find(commandName);
-            const CommandLineArgument* commandTemplate = itor->second;
+            auto ator = m_argumentTemplates.find(commandName);
+            const CommandLineArgument* commandTemplate = ator->second;
             if (!onlyForCommand.empty() && commandName != onlyForCommand)
                 continue;
             commandTemplate->printHelp(nameColumns, helpTextColumns, "");

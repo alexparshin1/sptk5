@@ -92,8 +92,8 @@ static string quotes(const string& st)
 string ImapConnect::sendCommand(string cmd)
 {
     char id_str[10];
-    snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
-    string ident(id_str);
+	int len = snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
+    string ident(id_str, len);
     cmd = ident + cmd + "\n";
     if (!active())
         throw Exception("Socket isn't open");
@@ -211,6 +211,8 @@ static DateTime decodeDate(const std::string &dt)
 {
     char temp[40];
     strncpy(temp, dt.c_str() + 5, sizeof(temp));
+	temp[sizeof(temp) - 1] = 0;
+
     // 1. get the day of the month
     char *p1 = temp;
     char *p2 = strchr(p1, ' ');
@@ -218,6 +220,7 @@ static DateTime decodeDate(const std::string &dt)
         return DateTime();
     *p2 = 0;
     int mday = string2int(p1);
+
     // 2. get the month
     p1 = p2 + 1;
     int month = 1;

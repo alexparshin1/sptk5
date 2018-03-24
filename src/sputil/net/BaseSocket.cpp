@@ -411,7 +411,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 
 bool BaseSocket::readyToRead(DateTime timeout)
 {
-    auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - timeout).count();
+    auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -476,7 +476,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 
 bool BaseSocket::readyToWrite(DateTime timeout)
 {
-    auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - timeout).count();
+	auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;

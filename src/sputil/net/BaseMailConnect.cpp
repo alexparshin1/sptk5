@@ -156,7 +156,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     else
         offset = -offset;
 
-    snprintf(dateBuffer, sizeof(dateBuffer),
+	int len = snprintf(dateBuffer, sizeof(dateBuffer),
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,
@@ -168,7 +168,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             DateTime::timeZoneName.c_str()
     );
 
-    message << dateBuffer << endl;
+    message << string(dateBuffer, len) << endl;
 
     message << "MIME-Version: 1.0" << endl;
     message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << endl << endl;

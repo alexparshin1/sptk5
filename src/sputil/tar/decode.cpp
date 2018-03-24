@@ -24,10 +24,9 @@
 #endif
 
 /* determine full path name */
-char *
-th_get_pathname(TAR *t)
+char* th_get_pathname(TAR *t)
 {
-	char filename[MAXPATHLEN];
+	char filename[MAXPATHLEN+1];
 
 	if (t->th_buf.gnu_longname != nullptr)
 		return t->th_buf.gnu_longname;
@@ -36,6 +35,7 @@ th_get_pathname(TAR *t)
 	{
 #ifdef _MSC_VER
 		_snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
+		filename[MAXPATHLEN] = 0;
 #else
 		snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #endif
@@ -47,7 +47,7 @@ th_get_pathname(TAR *t)
 #else
 	int sz = snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
 #endif
-    filename[sz] = 0;
+	filename[MAXPATHLEN] = 0;
 	return strdup(filename);
 }
 

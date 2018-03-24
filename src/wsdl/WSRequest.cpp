@@ -36,9 +36,11 @@ static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces
 {
     for (XMLNode* attributeNode: node->attributes()) {
         auto attribute = dynamic_cast<XMLAttribute*>(attributeNode);
-        if (attribute == nullptr || attribute->nameSpace() != "xmlns")
+        if (attribute == nullptr)
             continue;
-        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
+		if (attribute->nameSpace() != "xmlns")
+			continue;
+		nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
     }
 }
 

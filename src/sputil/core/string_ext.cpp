@@ -140,37 +140,37 @@ void sptk::split(vector<string>& dest, const string& src, const string& delimitt
 String sptk::int2string(int32_t value)
 {
     char buff[32];
-    snprintf(buff, sizeof(buff), "%i", value);
-    return string(buff);
+    int len = snprintf(buff, sizeof(buff), "%i", value);
+    return string(buff, len);
 }
 
 String sptk::int2string(uint32_t value)
 {
     char buff[64];
-    snprintf(buff, sizeof(buff), "%u", value);
-    return string(buff);
+	int len = snprintf(buff, sizeof(buff), "%u", value);
+    return string(buff, len);
 }
 
 String sptk::int2string(int64_t value)
 {
     char buff[128];
 #ifdef _WIN32
-    snprintf(buff, sizeof(buff), "%lli", value);
+	int len = snprintf(buff, sizeof(buff), "%lli", value);
 #else
-    snprintf(buff, sizeof(buff), "%lli", (long long int) value);
+	int len = snprintf(buff, sizeof(buff), "%lli", (long long int) value);
 #endif
-    return string(buff);
+    return string(buff, len);
 }
 
 String sptk::int2string(uint64_t value)
 {
     char buff[128];
 #ifdef _WIN32
-    snprintf(buff, sizeof(buff), "%llu", value);
+	int len = snprintf(buff, sizeof(buff), "%llu", value);
 #else
-    snprintf(buff, sizeof(buff), "%lu", value);
+	int len = snprintf(buff, sizeof(buff), "%lu", value);
 #endif
-    return string(buff);
+    return string(buff, len);
 }
 
 int sptk::string2int(const String& str, int defaultValue)

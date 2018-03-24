@@ -260,6 +260,9 @@ void ODBCConnectionBase::getInfo(UWORD fInfoType, LPSTR str, int size)
 //==============================================================================
 const char* sptk::removeDriverIdentification(const char* error)
 {
+	if (error == nullptr)
+		return "";
+
     auto p = (char*) error;
     const char* p1 = error;
     while (p1 != nullptr) {

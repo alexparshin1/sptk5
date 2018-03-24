@@ -28,10 +28,11 @@
 /* hashing function for pathnames */
 int path_hashfunc(char *key, int numbuckets)
 {
-    char buf[MAXPATHLEN];
+    char buf[MAXPATHLEN+1];
     char *p;
 
     strncpy(buf, key, sizeof(buf));
+	buf[MAXPATHLEN] = 0;
     p = basename(buf);
 
     return (((int) p[0]) % numbuckets);

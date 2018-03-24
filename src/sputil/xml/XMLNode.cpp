@@ -481,15 +481,15 @@ namespace sptk {
                     }
                     if (!done) {
                         // output all subnodes
-                        string text;
+                        string nodeText;
                         for (auto np: *this)
-                            np->save(*object, text);
+                            np->save(*object, nodeText);
                         if (object->isObject() && object->size() == 0) {
-                            if (m_document->m_matchNumber.matches(text)) {
-                                double value = string2double(text);
+                            if (m_document->m_matchNumber.matches(nodeText)) {
+                                double value = string2double(nodeText);
                                 *object = json::Element(value);
                             } else
-                                *object = json::Element(text);
+                                *object = json::Element(nodeText);
                         }
                     }
                 }

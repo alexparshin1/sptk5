@@ -186,7 +186,6 @@ void SysLogEngine::setupEventSource()
 		};
 
 		for (int i = 0; i < 5; i++) {
-			int rc;
 			CONST BYTE * value;
 			DWORD valueSize;
 			DWORD valueType;
