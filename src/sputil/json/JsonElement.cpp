@@ -125,13 +125,16 @@ void Element::assign(const Element& other)
 {
     m_type = other.m_type;
     switch (m_type) {
-        case JDT_STRING:m_data.m_string = new string(*other.m_data.m_string);
+        case JDT_STRING:
+            m_data.m_string = new string(*other.m_data.m_string);
             break;
 
         case JDT_ARRAY:
-        case JDT_OBJECT:break;
+        case JDT_OBJECT:
+            break;
 
-        default:memcpy(&m_data, &other.m_data, sizeof(m_data));
+        default:
+            memcpy(&m_data, &other.m_data, sizeof(m_data));
             break;
     }
 }
@@ -151,16 +154,20 @@ Element& Element::operator=(Element&& other) noexcept
 void Element::clear()
 {
     switch (m_type) {
-        case JDT_STRING:delete m_data.m_string;
+        case JDT_STRING:
+            delete m_data.m_string;
             break;
 
-        case JDT_ARRAY:delete m_data.m_array;
+        case JDT_ARRAY:
+            delete m_data.m_array;
             break;
 
-        case JDT_OBJECT:delete m_data.m_object;
+        case JDT_OBJECT:
+            delete m_data.m_object;
             break;
 
-        default:break;
+        default:
+            break;
     }
     m_type = JDT_NULL;
 }
@@ -182,7 +189,7 @@ Element* Element::add(Element* element)
     return element;
 }
 
-Element* Element::add(const std::string& name, Element* element)
+Element* Element::add(const String& name, Element* element)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is not JSON object");
@@ -211,7 +218,7 @@ Element* Element::add(const std::string& name, Element* element)
     return element;
 }
 
-const Element* Element::find(const string& name) const
+const Element* Element::find(const String& name) const
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is nether JSON array nor JSON object");
@@ -220,7 +227,7 @@ const Element* Element::find(const string& name) const
     return m_data.m_object->find(name);
 }
 
-Element* Element::find(const string& name)
+Element* Element::find(const String& name)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is nether JSON array nor JSON object");
@@ -302,7 +309,7 @@ const Element& Element::operator[](size_t index) const
     return (*m_data.m_array)[index];
 }
 
-void Element::remove(const string& name)
+void Element::remove(const String& name)
 {
     if (m_type != JDT_OBJECT)
         throw Exception("Parent element is not JSON object");
@@ -328,32 +335,34 @@ double Element::getNumber() const
     throw Exception("Not a number");
 }
 
-string Element::getString() const
+String Element::getString() const
 {
     if (m_type == JDT_STRING)
         return *m_data.m_string;
 
-	switch (m_type) {
-	case JDT_NUMBER:
-		{
-			int len;
-			char buffer[64];
-			if (m_data.m_number == (long)m_data.m_number)
-				len = snprintf(buffer, sizeof(buffer) - 1, "%ld", (long) m_data.m_number);
-			else
-				len = snprintf(buffer, sizeof(buffer) - 1, "%f", m_data.m_number);
-			return string(buffer, len);
-		}
+    switch (m_type) {
+        case JDT_NUMBER: {
+            int len;
+            char buffer[64];
+            if (m_data.m_number == (long) m_data.m_number)
+                len = snprintf(buffer, sizeof(buffer) - 1, "%ld", (long) m_data.m_number);
+            else
+                len = snprintf(buffer, sizeof(buffer) - 1, "%f", m_data.m_number);
+            return String(buffer, (size_t) len);
+        }
 
-	case JDT_STRING:
-		return *m_data.m_string;
+        case JDT_STRING:
+            return *m_data.m_string;
 
-	case JDT_BOOLEAN:
-		return m_data.m_boolean ? string("true", 4) : string("false", 5);
+        case JDT_BOOLEAN:
+            return m_data.m_boolean ? string("true", 4) : string("false", 5);
 
-	case JDT_NULL:
-		return string("null", 4);
-	}
+        case JDT_NULL:
+            return string("null", 4);
+
+        default:
+            break;
+    }
 
     stringstream output;
     exportValueTo(output, false, 0);
@@ -415,13 +424,13 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
                 stream << fixed << m_data.m_number;
             break;
         case JDT_STRING:
-			stream << "\"" << escape(*m_data.m_string) << "\"";
+            stream << "\"" << escape(*m_data.m_string) << "\"";
             break;
         case JDT_BOOLEAN:
-			stream << (m_data.m_boolean ? "true" : "false");
+            stream << (m_data.m_boolean ? "true" : "false");
             break;
         case JDT_ARRAY:
-			stream << "[";
+            stream << "[";
             if (m_data.m_array) {
                 bool first = true;
                 for (Element* element: *m_data.m_array) {
@@ -436,7 +445,8 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             }
             stream << "]";
             break;
-        case JDT_OBJECT:stream << "{";
+        case JDT_OBJECT:
+            stream << "{";
             if (m_data.m_object) {
                 bool first = true;
                 for (auto& itor: *m_data.m_object) {
@@ -452,7 +462,8 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             }
             stream << newLineChar << indentSpaces << "}";
             break;
-        case JDT_NULL:stream << "null";
+        case JDT_NULL:
+            stream << "null";
             break;
     }
 }
@@ -461,20 +472,10 @@ void Element::exportValueTo(const String& name, XMLElement& parentNode) const
 {
     auto node = new XMLElement(parentNode, name);
     switch (m_type) {
-        case JDT_NUMBER: {
-            stringstream stream;
-            if (m_data.m_number == (long) m_data.m_number)
-                stream << fixed << (long) m_data.m_number;
-            else
-                stream << fixed << m_data.m_number;
-            node->text(stream.str());
-            break;
-        }
-
-        case JDT_STRING:node->text(*m_data.m_string);
-            break;
-
-        case JDT_BOOLEAN:node->value(m_data.m_boolean ? "true" : "false");
+        case JDT_NUMBER:
+        case JDT_BOOLEAN:
+        case JDT_STRING:
+            node->text(getString());
             break;
 
         case JDT_ARRAY:
@@ -491,7 +492,8 @@ void Element::exportValueTo(const String& name, XMLElement& parentNode) const
             }
             break;
 
-        case JDT_NULL:new XMLElement(node, "null");
+        case JDT_NULL:
+            new XMLElement(node, "null");
             break;
     }
 }
@@ -522,23 +524,32 @@ string Element::escape(const string& text)
         }
         result += text.substr(position, pos - position);
         switch (text[pos]) {
-            case '"':result += "\\\"";
+            case '"':
+                result += "\\\"";
                 break;
-            case '\\':result += "\\\\";
+            case '\\':
+                result += "\\\\";
                 break;
-            case '/':result += "\\/";
+            case '/':
+                result += "\\/";
                 break;
-            case '\b':result += "\\b";
+            case '\b':
+                result += "\\b";
                 break;
-            case '\f':result += "\\f";
+            case '\f':
+                result += "\\f";
                 break;
-            case '\n':result += "\\n";
+            case '\n':
+                result += "\\n";
                 break;
-            case '\r':result += "\\r";
+            case '\r':
+                result += "\\r";
                 break;
-            case '\t':result += "\\t";
+            case '\t':
+                result += "\\t";
                 break;
-            default:throw Exception("Unknown escape character");
+            default:
+                throw Exception("Unknown escape character");
         }
         position = pos + 1;
     }
@@ -595,21 +606,29 @@ string Element::decode(const string& text)
             result += text.substr(position, pos - position);
         pos++;
         switch (text[pos]) {
-            case '"':result += '"';
+            case '"':
+                result += '"';
                 break;
-            case '\\':result += '\\';
+            case '\\':
+                result += '\\';
                 break;
-            case '/':result += '/';
+            case '/':
+                result += '/';
                 break;
-            case 'b':result += '\b';
+            case 'b':
+                result += '\b';
                 break;
-            case 'f':result += '\f';
+            case 'f':
+                result += '\f';
                 break;
-            case 'n':result += '\n';
+            case 'n':
+                result += '\n';
                 break;
-            case 'r':result += '\r';
+            case 'r':
+                result += '\r';
                 break;
-            case 't':result += '\t';
+            case 't':
+                result += '\t';
                 break;
             case 'u': {
                 pos++;
@@ -619,7 +638,8 @@ string Element::decode(const string& text)
                 result += codePointToUTF8(ucharCode);
                 break;
             }
-            default:throw Exception("Unknown escape character");
+            default:
+                throw Exception("Unknown escape character");
         }
         position = pos + 1;
     }
@@ -630,7 +650,7 @@ string Element::decode(const string& text)
 void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly)
 {
     String xpathElement(xpath[xpathPosition]);
-    bool matchAnyElement = xpathElement == "*";
+    bool matchAnyElement = xpathElement == String("*", 1);
     bool lastPosition = xpath.size() == xpathPosition + 1;
 
     if (m_type == JDT_ARRAY) {

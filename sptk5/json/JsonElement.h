@@ -274,56 +274,56 @@ public:
      * @param name              Name of the element in the object element
      * @param element           Element to add
      */
-    Element* add(const std::string& name, Element* element);
+    Element* add(const String& name, Element* element);
 
     /**
      * Add integer field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, int value) { return add(name, new Element(value)); }
+    Element* add(const String& name, int value) { return add(name, new Element(value)); }
 
     /**
      * Add integer field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, int64_t value) { return add(name, new Element(value)); }
+    Element* add(const String& name, int64_t value) { return add(name, new Element(value)); }
 
     /**
      * Add double field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, double value) { return add(name, new Element(value)); }
+    Element* add(const String& name, double value) { return add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, const std::string& value) { return add(name, new Element(value)); }
+    Element* add(const String& name, const std::string& value) { return add(name, new Element(value)); }
 
     /**
      * Add string field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, const char* value) { return add(name, new Element(value)); }
+    Element* add(const String& name, const char* value) { return add(name, new Element(value)); }
 
     /**
      * Add boolean field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, bool value) { return add(name, new Element(value)); }
+    Element* add(const String& name, bool value) { return add(name, new Element(value)); }
 
     /**
      * Add JSON array field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const std::string& name, ArrayData* value) { return add(name, new Element(value)); }
+    Element* add(const String& name, ArrayData* value) { return add(name, new Element(value)); }
 
     /**
      * Add JSON object field to JSON element
@@ -331,21 +331,21 @@ public:
      * @param value             Field value
      *
      */
-    Element* add(const std::string& name, ObjectData* value) { return add(name, new Element(value)); }
+    Element* add(const String& name, ObjectData* value) { return add(name, new Element(value)); }
 
     /**
      * Find JSON element in JSON object element
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    const Element* find(const std::string& name) const;
+    const Element* find(const String& name) const;
 
     /**
      * Find JSON element in JSON object element
      * @param name              Name of the element in the object element
      * @returns Element for the name, or NULL if not found
      */
-    Element* find(const std::string& name);
+    Element* find(const String& name);
 
     /**
      * Get JSON element in JSON object element by name.
@@ -403,7 +403,7 @@ public:
      * Remove JSON element by name from this JSON object element
      * @param name              Name of the element in the object element
      */
-    void remove(const std::string& name);
+    void remove(const String& name);
 
     /**
      * Get parent JSON element
@@ -425,7 +425,7 @@ public:
     /**
      * Get value of JSON element
      */
-    std::string getString() const;
+    String getString() const;
 
     /**
      * Get value of JSON element
