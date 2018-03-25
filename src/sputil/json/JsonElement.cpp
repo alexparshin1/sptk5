@@ -332,6 +332,29 @@ string Element::getString() const
 {
     if (m_type == JDT_STRING)
         return *m_data.m_string;
+
+	switch (m_type) {
+	case JDT_NUMBER:
+		{
+			int len;
+			char buffer[64];
+			if (m_data.m_number == (long)m_data.m_number)
+				len = snprintf(buffer, sizeof(buffer) - 1, "%ld", (long) m_data.m_number);
+			else
+				len = snprintf(buffer, sizeof(buffer) - 1, "%f", m_data.m_number);
+			return string(buffer, len);
+		}
+
+	case JDT_STRING:
+		return *m_data.m_string;
+
+	case JDT_BOOLEAN:
+		return m_data.m_boolean ? string("true", 4) : string("false", 5);
+
+	case JDT_NULL:
+		return string("null", 4);
+	}
+
     stringstream output;
     exportValueTo(output, false, 0);
     return output.str();
@@ -391,11 +414,14 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             else
                 stream << fixed << m_data.m_number;
             break;
-        case JDT_STRING:stream << "\"" << escape(*m_data.m_string) << "\"";
+        case JDT_STRING:
+			stream << "\"" << escape(*m_data.m_string) << "\"";
             break;
-        case JDT_BOOLEAN:stream << (m_data.m_boolean ? "true" : "false");
+        case JDT_BOOLEAN:
+			stream << (m_data.m_boolean ? "true" : "false");
             break;
-        case JDT_ARRAY:stream << "[";
+        case JDT_ARRAY:
+			stream << "[";
             if (m_data.m_array) {
                 bool first = true;
                 for (Element* element: *m_data.m_array) {
