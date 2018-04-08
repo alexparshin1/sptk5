@@ -31,6 +31,7 @@
 
 #include <sptk5/cxml>
 #include <sptk5/cthreads>
+#include <sptk5/net/HttpAuthentication.h>
 
 namespace sptk
 {
@@ -110,9 +111,10 @@ protected:
      * Receives incoming SOAP body of Web Service requests, and returns
      * application response.
      * This method is abstract and overwritten in derived generated classes.
-     * @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element
+     * @param requestNode       Incoming and outgoing SOAP element
+     * @param authentication    Optional HTTP authentication
      */
-    virtual void requestBroker(XMLElement* requestNode) = 0;
+    virtual void requestBroker(XMLElement* requestNode, HttpAuthentication* authentication) = 0;
 
 public:
     /**
@@ -131,7 +133,7 @@ public:
      * The processing results are stored in the same request XML
      * @param request sptk::XMLDocument*, Incoming request and outgoing response
      */
-    void processRequest(sptk::XMLDocument* request);
+    void processRequest(sptk::XMLDocument* request, HttpAuthentication* authentication);
 
     /**
      * @brief Returns service title (for service handshake)

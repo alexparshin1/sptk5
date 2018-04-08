@@ -331,7 +331,7 @@ Type Element::type() const
 Element& Element::getChild(const String& name)
 {
     Element* element = this;
-    if (name.empty()) {
+    if (!name.empty()) {
         element = find(name);
         if (element == nullptr)
             throw Exception("Not a number");
@@ -342,7 +342,7 @@ Element& Element::getChild(const String& name)
 const Element& Element::getChild(const String& name) const
 {
     const Element* element = this;
-    if (name.empty()) {
+    if (!name.empty()) {
         element = find(name);
         if (element == nullptr)
             throw Exception("Not a number");
@@ -352,7 +352,7 @@ const Element& Element::getChild(const String& name) const
 
 double Element::getNumber(const String& name) const
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
     if (element.m_type == JDT_NUMBER)
         return element.m_data.m_number;
     throw Exception("Not a number");
@@ -360,7 +360,7 @@ double Element::getNumber(const String& name) const
 
 String Element::getString(const String& name) const
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
 
     if (element.m_type == JDT_STRING)
         return *element.m_data.m_string;
@@ -396,7 +396,7 @@ String Element::getString(const String& name) const
 
 bool Element::getBoolean(const String& name) const
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
     if (element.m_type == JDT_STRING)
         return *element.m_data.m_string == "true";
     else if (element.m_type == JDT_BOOLEAN)
@@ -406,7 +406,7 @@ bool Element::getBoolean(const String& name) const
 
 json::ArrayData& Element::getArray(const String& name)
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
     if (element.m_type == JDT_ARRAY && element.m_data.m_array)
         return *element.m_data.m_array;
     throw Exception("Not an array");
@@ -414,7 +414,7 @@ json::ArrayData& Element::getArray(const String& name)
 
 const json::ArrayData& Element::getArray(const String& name) const
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
     if (element.m_type == JDT_ARRAY && element.m_data.m_array)
         return *element.m_data.m_array;
     throw Exception("Not an array");
@@ -422,7 +422,7 @@ const json::ArrayData& Element::getArray(const String& name) const
 
 json::ObjectData& Element::getObject(const String& name)
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
     if (element.m_type == JDT_OBJECT && element.m_data.m_object)
         return *element.m_data.m_object;
     throw Exception("Not an object");
@@ -430,7 +430,7 @@ json::ObjectData& Element::getObject(const String& name)
 
 const json::ObjectData& Element::getObject(const String& name) const
 {
-    auto element = getChild(name);
+    auto& element = getChild(name);
     if (element.m_type == JDT_OBJECT && element.m_data.m_object)
         return *element.m_data.m_object;
     throw Exception("Not an object");

@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSRequest.cpp - description                           ║
+║                       HttpAuthentication.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Sunday April 8 2018                                    ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,68 +26,61 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/RegularExpression.h>
-#include <sptk5/wsdl/WSRequest.h>
+#include <sptk5/Base64.h>
+#include "sptk5/net/HttpAuthentication.h"
 
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces)
+sptk::HttpAuthentication::HttpAuthentication(const sptk::String& authenticationHeader)
+: m_authenticationHeader(authenticationHeader)
 {
-    for (XMLNode* attributeNode: node->attributes()) {
-        auto attribute = dynamic_cast<XMLAttribute*>(attributeNode);
-        if (attribute == nullptr)
-            continue;
-        if (attribute->nameSpace() != "xmlns")
-            continue;
-        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
-    }
 }
 
-void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* authentication)
+sptk::HttpAuthentication::~HttpAuthentication()
 {
-    XMLElement*             soapEnvelope = nullptr;
-    map<String,WSNameSpace> allNameSpaces;
-    for (auto anode: *request) {
-        auto node = dynamic_cast<XMLElement*>(anode);
-        if (node == nullptr)
-            continue;
-        if (node->tagname() == "Envelope") {
-            soapEnvelope = node;
-            {
-                lock_guard<mutex> lock(*this);
-                String nameSpaceAlias = node->nameSpace();
-                extractNameSpaces(soapEnvelope, allNameSpaces);
-                m_soapNamespace = allNameSpaces[nameSpaceAlias];
+    delete m_userData;
+    delete m_jwtData;
+}
+
+const sptk::json::Element& sptk::HttpAuthentication::getData()
+{
+    if (m_type == UNDEFINED) {
+        if (m_authenticationHeader.empty()) {
+            m_userData = new json::Document;
+            m_type = EMPTY;
+        }
+        else if (m_authenticationHeader.startsWith("Basic ")) {
+            Buffer encoded(m_authenticationHeader.substr(6));
+            string decoded;
+            Base64::decode(encoded, decoded);
+            Strings usernameAndPassword(decoded,":");
+            if (usernameAndPassword.size() != 2)
+                throw Exception("Invalid or unsupported 'Authentication' header format");
+            auto xuserData = new json::Document;
+            xuserData->root().add("username", usernameAndPassword[0]);
+            xuserData->root().add("password", usernameAndPassword[1]);
+            m_userData = xuserData;
+            m_type = BASIC;
+        }
+        else if (m_authenticationHeader.startsWith("Bearer ")) {
+            auto xjwtData = new JWT;
+            try {
+                xjwtData->decode(m_authenticationHeader.substr(7).c_str());
             }
-            break;
+            catch (...) {
+                delete xjwtData;
+                throw;
+            }
+            m_jwtData = xjwtData;
+            m_type = BEARER;
         }
     }
 
-    if (soapEnvelope == nullptr)
-        throwException("Can't find SOAP Envelope node");
-
-    XMLElement* soapBody;
-    {
-        lock_guard<mutex> lock(*this);
-        soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_soapNamespace.getAlias() + ":Body"));
-        if (soapBody == nullptr)
-            throwException("Can't find SOAP Body node in incoming request");
+    switch (m_type) {
+        case EMPTY:
+        case BASIC:     return m_userData->root();
+        case BEARER:    return m_jwtData->grants.root();
+        default:        throw Exception("Invalid or unsupported 'Authentication' header format");
     }
-
-    XMLElement* requestNode = nullptr;
-    for (auto anode: *soapBody) {
-        auto node = dynamic_cast<XMLElement*>(anode);
-        if (node != nullptr) {
-            requestNode = node;
-            String nameSpaceAlias = requestNode->nameSpace();
-            extractNameSpaces(requestNode, allNameSpaces);
-            m_requestNamespace = allNameSpaces[nameSpaceAlias];
-            break;
-        }
-    }
-    if (requestNode == nullptr)
-        throwException("Can't find request node in SOAP Body");
-
-    requestBroker(requestNode, authentication);
 }
