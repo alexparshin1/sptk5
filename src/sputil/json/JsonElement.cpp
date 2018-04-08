@@ -328,34 +328,59 @@ Type Element::type() const
     return m_type;
 }
 
-double Element::getNumber() const
+Element& Element::getChild(const String& name)
 {
-    if (m_type == JDT_NUMBER)
-        return m_data.m_number;
+    Element* element = this;
+    if (name.empty()) {
+        element = find(name);
+        if (element == nullptr)
+            throw Exception("Not a number");
+    }
+    return *element;
+}
+
+const Element& Element::getChild(const String& name) const
+{
+    const Element* element = this;
+    if (name.empty()) {
+        element = find(name);
+        if (element == nullptr)
+            throw Exception("Not a number");
+    }
+    return *element;
+}
+
+double Element::getNumber(const String& name) const
+{
+    auto element = getChild(name);
+    if (element.m_type == JDT_NUMBER)
+        return element.m_data.m_number;
     throw Exception("Not a number");
 }
 
-String Element::getString() const
+String Element::getString(const String& name) const
 {
-    if (m_type == JDT_STRING)
-        return *m_data.m_string;
+    auto element = getChild(name);
 
-    switch (m_type) {
+    if (element.m_type == JDT_STRING)
+        return *element.m_data.m_string;
+
+    switch (element.m_type) {
         case JDT_NUMBER: {
             int len;
             char buffer[64];
-            if (m_data.m_number == (long) m_data.m_number)
-                len = snprintf(buffer, sizeof(buffer) - 1, "%ld", (long) m_data.m_number);
+            if (element.m_data.m_number == (long) element.m_data.m_number)
+                len = snprintf(buffer, sizeof(buffer) - 1, "%ld", (long) element.m_data.m_number);
             else
-                len = snprintf(buffer, sizeof(buffer) - 1, "%f", m_data.m_number);
+                len = snprintf(buffer, sizeof(buffer) - 1, "%f", element.m_data.m_number);
             return String(buffer, (size_t) len);
         }
 
         case JDT_STRING:
-            return *m_data.m_string;
+            return *element.m_data.m_string;
 
         case JDT_BOOLEAN:
-            return m_data.m_boolean ? string("true", 4) : string("false", 5);
+            return element.m_data.m_boolean ? string("true", 4) : string("false", 5);
 
         case JDT_NULL:
             return string("null", 4);
@@ -369,40 +394,45 @@ String Element::getString() const
     return output.str();
 }
 
-bool Element::getBoolean() const
+bool Element::getBoolean(const String& name) const
 {
-    if (m_type == JDT_STRING)
-        return *m_data.m_string == "true";
-    else if (m_type == JDT_BOOLEAN)
-        return m_data.m_boolean;
+    auto element = getChild(name);
+    if (element.m_type == JDT_STRING)
+        return *element.m_data.m_string == "true";
+    else if (element.m_type == JDT_BOOLEAN)
+        return element.m_data.m_boolean;
     throw Exception("Not a boolean");
 }
 
-json::ArrayData& Element::getArray()
+json::ArrayData& Element::getArray(const String& name)
 {
-    if (m_type == JDT_ARRAY && m_data.m_array)
-        return *m_data.m_array;
+    auto element = getChild(name);
+    if (element.m_type == JDT_ARRAY && element.m_data.m_array)
+        return *element.m_data.m_array;
     throw Exception("Not an array");
 }
 
-const json::ArrayData& Element::getArray() const
+const json::ArrayData& Element::getArray(const String& name) const
 {
-    if (m_type == JDT_ARRAY && m_data.m_array)
-        return *m_data.m_array;
+    auto element = getChild(name);
+    if (element.m_type == JDT_ARRAY && element.m_data.m_array)
+        return *element.m_data.m_array;
     throw Exception("Not an array");
 }
 
-json::ObjectData& Element::getObject()
+json::ObjectData& Element::getObject(const String& name)
 {
-    if (m_type == JDT_OBJECT && m_data.m_object)
-        return *m_data.m_object;
+    auto element = getChild(name);
+    if (element.m_type == JDT_OBJECT && element.m_data.m_object)
+        return *element.m_data.m_object;
     throw Exception("Not an object");
 }
 
-const json::ObjectData& Element::getObject() const
+const json::ObjectData& Element::getObject(const String& name) const
 {
-    if (m_type == JDT_OBJECT && m_data.m_object)
-        return *m_data.m_object;
+    auto element = getChild(name);
+    if (element.m_type == JDT_OBJECT && element.m_data.m_object)
+        return *element.m_data.m_object;
     throw Exception("Not an object");
 }
 
