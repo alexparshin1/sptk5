@@ -33,6 +33,8 @@ using namespace sptk;
 
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     XMLDocument xml;
     auto element = new XMLElement(xml, "temp");
     other.unload(element);
@@ -50,6 +52,6 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
 
 void WSComplexType::addElement(XMLElement* parent) const
 {
-   unload(new XMLElement(parent, m_name.c_str()));
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    unload(new XMLElement(parent, m_name.c_str()));
 }
-

@@ -36,6 +36,8 @@
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/xml/XMLElement.h>
 
+#include <mutex>
+
 namespace sptk {
 
 /**
@@ -48,10 +50,17 @@ namespace sptk {
  */
 class WSComplexType : public WSTypeName
 {
-   /**
+protected:
+    
+    /**
+     * Mutex that protects internal data
+     */
+    mutable std::recursive_mutex m_mutex;
+    
+    /**
     * WSDL element name
     */
-   std::string  m_name;
+    std::string  m_name;
 
 protected:
 
@@ -81,7 +90,11 @@ public:
     /**
      * Return class name
      */
-    String className() const override { return "WSComplexType"; }
+    String className() const override 
+    { 
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        return "WSComplexType"; 
+    }
 
    /**
     * @brief Copy data from other object
@@ -134,6 +147,7 @@ public:
     */
    virtual bool isNull() const
    {
+       std::lock_guard<std::recursive_mutex> lock(m_mutex);
        return !m_loaded;
    }
 
@@ -142,6 +156,7 @@ public:
     */
    std::string complexTypeName() const
    {
+       std::lock_guard<std::recursive_mutex> lock(m_mutex);
        return m_name;
    }
 
@@ -150,6 +165,7 @@ public:
     */
    virtual bool isOptional() const
    {
+       std::lock_guard<std::recursive_mutex> lock(m_mutex);
        return m_optional;
    }
 };
