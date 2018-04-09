@@ -38,6 +38,9 @@
 
 namespace sptk {
 
+/**
+ * Java Web Token encoding and decoding
+ */
 class JWT
 {
 public:
@@ -98,16 +101,16 @@ public:
         return grants.root()[name];
     }
 
-	/*
-	 * Get signature encryption algorithm
-	 */
+    /*
+     * Get signature encryption algorithm
+     */
     jwt_alg_t get_alg() const;
 
-	/**
-	 * Set signature encryption algorithm
-	 * @param alg 			    Signature encryption algorithm
-	 * @param key               Signature encryption key
-	 */
+    /**
+     * Set signature encryption algorithm
+     * @param alg               Signature encryption algorithm
+     * @param key               Signature encryption key
+     */
     void set_alg(jwt_alg_t alg, const String &key);
 
     /**
