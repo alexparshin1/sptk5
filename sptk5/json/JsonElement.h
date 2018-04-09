@@ -170,6 +170,20 @@ private:
      */
     Element(ObjectData& value);
 
+    /**
+     * Get immediate child element, or return this element if the name is empty.
+     * Throws an exception if child is not found.
+     * @param name              Name of the element in the object element
+     */
+    Element& getChild(const String& name);
+
+    /**
+     * Get immediate child element, or return this element if the name is empty.
+     * Throws an exception if child is not found.
+     * @param name              Name of the element in the object element
+     */
+    const Element& getChild(const String& name) const;
+
 public:
 
     /**
@@ -419,50 +433,57 @@ public:
 
     /**
      * Get value of JSON element
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    double getNumber() const;
+    double getNumber(const String& name="") const;
 
     /**
      * Get value of JSON element
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    String getString() const;
+    String getString(const String& name="") const;
 
     /**
      * Get value of JSON element
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    bool getBoolean() const;
+    bool getBoolean(const String& name="") const;
 
     /**
      * Get value of JSON element.
      * If you want to modify elements of the array inside
      * this element, get array element using [name] and then add() or remove() its item(s).
      * Alternatively, create a new ArrayData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    ArrayData& getArray();
+    ArrayData& getArray(const String& name="");
 
     /**
      * Get value of JSON element.
      * If you want to modify elements of the array inside
      * this element, get array element using [name] and then add() or remove() its item(s).
      * Alternatively, create a new ArrayData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    const ArrayData& getArray() const;
+    const ArrayData& getArray(const String& name="") const;
 
     /**
      * Get value of JSON element
      * If you want to modify elements of the object inside
      * this element, get object element using [name] and then add() or remove() its item(s).
      * Alternatively, create a new ObjectData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    ObjectData& getObject();
+    ObjectData& getObject(const String& name="");
 
     /**
      * Get value of JSON element
      * If you want to modify elements of the object inside
      * this element, get object element using [name] and then add() or remove() its item(s).
      * Alternatively, create a new ObjectData object and replace existing one.
+     * @param name              Optional name of the element in the object element. Otherwise, use this element.
      */
-    const ObjectData& getObject() const;
+    const ObjectData& getObject(const String& name="") const;
 
     /**
      * Export JSON element (and all children) to stream

@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CWSRequest.cpp - description                           ║
+║                       HttpAuthentication.h - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Sunday April 8 2018                                    ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,68 +26,50 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/RegularExpression.h>
-#include <sptk5/wsdl/WSRequest.h>
+#ifndef __HTTP_AUTHENTICATION_H__
+#define __HTTP_AUTHENTICATION_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/Strings.h>
+#include <sptk5/JWT.h>
 
-static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces)
+namespace sptk {
+
+/**
+ * HTTP authentication data, that is passed through
+ * Authentication header of HTTP request.
+ * Only Basic and Bearer authentication types are currently supported.
+ * The data is parsed upon first getData() call.
+ */
+class HttpAuthentication
 {
-    for (XMLNode* attributeNode: node->attributes()) {
-        auto attribute = dynamic_cast<XMLAttribute*>(attributeNode);
-        if (attribute == nullptr)
-            continue;
-        if (attribute->nameSpace() != "xmlns")
-            continue;
-        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
-    }
-}
+public:
+    /**
+     * HTTP authentication type
+     */
+    enum Type {
+        UNDEFINED,
+        EMPTY,
+        BASIC,
+        BEARER,
+        DIGEST,
+        HOBA,
+        MUTUAL,
+        AWS4_HMAC_SHA256
+    };
 
-void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* authentication)
-{
-    XMLElement*             soapEnvelope = nullptr;
-    map<String,WSNameSpace> allNameSpaces;
-    for (auto anode: *request) {
-        auto node = dynamic_cast<XMLElement*>(anode);
-        if (node == nullptr)
-            continue;
-        if (node->tagname() == "Envelope") {
-            soapEnvelope = node;
-            {
-                lock_guard<mutex> lock(*this);
-                String nameSpaceAlias = node->nameSpace();
-                extractNameSpaces(soapEnvelope, allNameSpaces);
-                m_soapNamespace = allNameSpaces[nameSpaceAlias];
-            }
-            break;
-        }
-    }
+private:
+    Type                    m_type { UNDEFINED };
+    const String            m_authenticationHeader;
+    const JWT*              m_jwtData = { nullptr };
+    const json::Document*   m_userData = { nullptr };
 
-    if (soapEnvelope == nullptr)
-        throwException("Can't find SOAP Envelope node");
+public:
+    HttpAuthentication(const String& authenticationHeader);
+    ~HttpAuthentication();
+    const json::Element& getData();
+    Type type() const { return m_type; }
+};
 
-    XMLElement* soapBody;
-    {
-        lock_guard<mutex> lock(*this);
-        soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_soapNamespace.getAlias() + ":Body"));
-        if (soapBody == nullptr)
-            throwException("Can't find SOAP Body node in incoming request");
-    }
+} // namespace sptk
 
-    XMLElement* requestNode = nullptr;
-    for (auto anode: *soapBody) {
-        auto node = dynamic_cast<XMLElement*>(anode);
-        if (node != nullptr) {
-            requestNode = node;
-            String nameSpaceAlias = requestNode->nameSpace();
-            extractNameSpaces(requestNode, allNameSpaces);
-            m_requestNamespace = allNameSpaces[nameSpaceAlias];
-            break;
-        }
-    }
-    if (requestNode == nullptr)
-        throwException("Can't find request node in SOAP Body");
-
-    requestBroker(requestNode, authentication);
-}
+#endif

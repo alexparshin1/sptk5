@@ -41,7 +41,7 @@ void Semaphore::post()
     lock_guard<mutex>  lock(m_mutex);
     if (m_maxValue == 0 || m_value < m_maxValue) {
         m_value++;
-        m_condition.notify_all();
+        m_condition.notify_one();
     }
 }
 

@@ -11,7 +11,7 @@ SET (SPUTIL_SOURCES
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp
     net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp
-    net/Host.cpp net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
+    net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
     net/TCPServer.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/ImapDS.cpp
@@ -42,7 +42,7 @@ ENDIF ()
 
 
 IF (PCRE_FLAG)
-    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp net/HttpReader.cpp ../../sptk5/net/HttpReader.h)
+    SET (SPUTIL_SOURCES ${SPUTIL_SOURCES} core/RegularExpression.cpp net/HttpReader.cpp ../../sptk5/net/HttpReader.h net/HttpAuthentication.cpp ../../sptk5/net/HttpAuthentication.h)
 ENDIF (PCRE_FLAG)
 
 ADD_LIBRARY (sputil5 ${LIBRARY_TYPE} ${SPUTIL_SOURCES})

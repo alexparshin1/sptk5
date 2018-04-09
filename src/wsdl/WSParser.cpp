@@ -217,7 +217,8 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "#ifndef " << defineName << endl;
     serviceDefinition << "#define " << defineName << endl << endl;
 
-    serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl << endl;
+    serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl;
+    serviceDefinition << "#include <sptk5/net/HttpAuthentication.h>" << endl << endl;
     serviceDefinition << "// This Web Service types" << endl;
     for (auto& usedClass: usedClasses)
         serviceDefinition << "#include \"" << usedClass << ".h\"" << endl;
@@ -231,43 +232,44 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "{" << endl;
     for (auto itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
-        serviceDefinition << "   /// @brief Internal Web Service " << requestName << " processing" << endl;
-        serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Operation input/output XML data" << endl;
-        serviceDefinition << "   void process_" << requestName << "(sptk::XMLElement* requestNode);" << endl << endl;
+        serviceDefinition << "    /// @brief Internal Web Service " << requestName << " processing" << endl;
+        serviceDefinition << "    /// @param requestNode      Operation input/output XML data" << endl;
+        serviceDefinition << "    /// @param authentication   Optional HTTP authentication" << endl;
+        serviceDefinition << "    void process_" << requestName << "(sptk::XMLElement* requestNode, sptk::HttpAuthentication* authentication);" << endl << endl;
     }
     serviceDefinition << "protected:" << endl;
-    serviceDefinition << "   /// @brief Internal SOAP body processor" << endl;
-    serviceDefinition << "   ///" << endl;
-    serviceDefinition << "   /// Receive incoming SOAP body of Web Service requests, and returns" << endl;
-    serviceDefinition << "   /// application response." << endl;
-    serviceDefinition << "   /// @param requestNode sptk::XMLElement*, Incoming and outgoing SOAP element" << endl;
-    serviceDefinition << "   void requestBroker(sptk::XMLElement* requestNode) override;" << endl << endl;
+    serviceDefinition << "    /// @brief Internal SOAP body processor" << endl;
+    serviceDefinition << "    ///" << endl;
+    serviceDefinition << "    /// Receive incoming SOAP body of Web Service requests, and returns" << endl;
+    serviceDefinition << "    /// application response." << endl;
+    serviceDefinition << "    /// @param requestNode      Incoming and outgoing SOAP element" << endl;
+    serviceDefinition << "    void requestBroker(sptk::XMLElement* requestNode, sptk::HttpAuthentication* authentication) override;" << endl << endl;
     serviceDefinition << "public:" << endl;
-    serviceDefinition << "   /// @brief Constructor" << endl;
-    serviceDefinition << "   " << serviceClassName << "() = default;" << endl << endl;
-    serviceDefinition << "   /// @brief Destructor" << endl;
-    serviceDefinition << "   ~" << serviceClassName << "() override = default;" << endl << endl;
-    serviceDefinition << "   // Abstract methods below correspond to WSDL-defined operations. " << endl;
-    serviceDefinition << "   // Application must overwrite these methods with processing of corresponding" << endl;
-    serviceDefinition << "   // requests, reading data from input and writing data to output structures." << endl;
+    serviceDefinition << "    /// @brief Constructor" << endl;
+    serviceDefinition << "    " << serviceClassName << "() = default;" << endl << endl;
+    serviceDefinition << "    /// @brief Destructor" << endl;
+    serviceDefinition << "    ~" << serviceClassName << "() override = default;" << endl << endl;
+    serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
+    serviceDefinition << "    // Application must overwrite these methods with processing of corresponding" << endl;
+    serviceDefinition << "    // requests, reading data from input and writing data to output structures." << endl;
     for (auto itor: m_operations) {
         WSOperation& operation = itor.second;
         serviceDefinition << endl;
-        serviceDefinition << "   /// @brief Web Service " << itor.first << " operation" << endl;
-        serviceDefinition << "   ///" << endl;
+        serviceDefinition << "    /// @brief Web Service " << itor.first << " operation" << endl;
+        serviceDefinition << "    ///" << endl;
         string documentation = m_documentation[operation.m_input->name()];
         if (!documentation.empty()) {
             Strings documentationRows(documentation, "\n");
             for (unsigned i = 0; i < documentationRows.size(); i++)
-                serviceDefinition << "   /// " << documentationRows[i] << endl;
+                serviceDefinition << "    /// " << trim(documentationRows[i]) << endl;
         }
-        serviceDefinition << "   /// This method is abstract and must be overwritten by derived Web Service implementation class." << endl;
-        serviceDefinition << "   /// @param input " << operation.m_input->className() << "&, Operation input data" << endl;
-        serviceDefinition << "   /// @param output " << operation.m_output->className() << "&, Operation response data" << endl;
+        serviceDefinition << "    /// This method is abstract and must be overwritten by derived Web Service implementation class." << endl;
+        serviceDefinition << "    /// @param input            Operation input data" << endl;
+        serviceDefinition << "    /// @param output           Operation response data" << endl;
         serviceDefinition
-            << "   virtual void " << itor.first
+            << "    virtual void " << itor.first
             << "(const " << operation.m_input->className() << "& input, "
-            << operation.m_output->className() << "& output) = 0;" << endl;
+            << operation.m_output->className() << "& output, sptk::HttpAuthentication* authentication) = 0;" << endl;
     }
     serviceDefinition << "};" << endl << endl;
     serviceDefinition << "#endif" << endl;
@@ -290,36 +292,36 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
-    serviceImplementation << "void " << serviceClassName << "::requestBroker(XMLElement* requestNode)" << endl;
+    serviceImplementation << "void " << serviceClassName << "::requestBroker(XMLElement* requestNode, HttpAuthentication* authentication)" << endl;
     serviceImplementation << "{" << endl;
-    serviceImplementation << "   static const Strings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
-    serviceImplementation << "   string requestName = WSParser::strip_namespace(requestNode->name());" << endl;
-    serviceImplementation << "   int messageIndex = messageNames.indexOf(requestName);" << endl;
-    serviceImplementation << "   try {" << endl;
-    serviceImplementation << "      switch (messageIndex) {" << endl;
+    serviceImplementation << "    static const Strings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
+    serviceImplementation << "    string requestName = WSParser::strip_namespace(requestNode->name());" << endl;
+    serviceImplementation << "    int messageIndex = messageNames.indexOf(requestName);" << endl;
+    serviceImplementation << "    try {" << endl;
+    serviceImplementation << "        switch (messageIndex) {" << endl;
     for (auto itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
         int messageIndex = serviceOperations.indexOf(requestName);
-        serviceImplementation << "      case " << messageIndex << ":" << endl;
-        serviceImplementation << "         process_" << requestName << "(requestNode);" << endl;
-        serviceImplementation << "         break;" << endl;
+        serviceImplementation << "        case " << messageIndex << ":" << endl;
+        serviceImplementation << "            process_" << requestName << "(requestNode, authentication);" << endl;
+        serviceImplementation << "            break;" << endl;
     }
-    serviceImplementation << "      default:" << endl;
-    serviceImplementation << "         throwSOAPException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\");" << endl;
-    serviceImplementation << "      }" << endl;
-    serviceImplementation << "   }" << endl;
-    serviceImplementation << "   catch (const SOAPException& e) {" << endl;
-    serviceImplementation << "      auto soapBody = (XMLElement*) requestNode->parent();" << endl;
-    serviceImplementation << "      soapBody->clearChildren();" << endl;
-    serviceImplementation << "      string soap_namespace = WSParser::get_namespace(soapBody->name());" << endl;
-    serviceImplementation << "      if (!soap_namespace.empty()) soap_namespace += \":\";" << endl;
-    serviceImplementation << "      auto faultNode = new XMLElement(soapBody, (soap_namespace + \"Fault\").c_str());" << endl;
-    serviceImplementation << "      auto faultCodeNode = new XMLElement(faultNode, \"faultcode\");" << endl;
-    serviceImplementation << "      faultCodeNode->text(soap_namespace + \"Client\");" << endl;
-    serviceImplementation << "      auto faultStringNode = new XMLElement(faultNode, \"faultstring\");" << endl;
-    serviceImplementation << "      faultStringNode->text(e.what());" << endl;
-    serviceImplementation << "      new XMLElement(faultNode, \"detail\");" << endl;
-    serviceImplementation << "   }" << endl;
+    serviceImplementation << "        default:" << endl;
+    serviceImplementation << "            throwSOAPException(\"Request node \'\" + requestNode->name() + \"' is not defined in this service\");" << endl;
+    serviceImplementation << "        }" << endl;
+    serviceImplementation << "    }" << endl;
+    serviceImplementation << "    catch (const SOAPException& e) {" << endl;
+    serviceImplementation << "        auto soapBody = (XMLElement*) requestNode->parent();" << endl;
+    serviceImplementation << "        soapBody->clearChildren();" << endl;
+    serviceImplementation << "        string soap_namespace = WSParser::get_namespace(soapBody->name());" << endl;
+    serviceImplementation << "        if (!soap_namespace.empty()) soap_namespace += \":\";" << endl;
+    serviceImplementation << "        auto faultNode = new XMLElement(soapBody, (soap_namespace + \"Fault\").c_str());" << endl;
+    serviceImplementation << "        auto faultCodeNode = new XMLElement(faultNode, \"faultcode\");" << endl;
+    serviceImplementation << "        faultCodeNode->text(soap_namespace + \"Client\");" << endl;
+    serviceImplementation << "        auto faultStringNode = new XMLElement(faultNode, \"faultstring\");" << endl;
+    serviceImplementation << "        faultStringNode->text(e.what());" << endl;
+    serviceImplementation << "        new XMLElement(faultNode, \"detail\");" << endl;
+    serviceImplementation << "    }" << endl;
     serviceImplementation << "}" << endl << endl;
 
     for (auto itor: m_operations) {
@@ -333,18 +335,18 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
             requestName = nameParts[1];
         }
         WSOperation& operation = itor.second;
-        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(XMLElement* requestNode)" << endl;
+        serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(XMLElement* requestNode, HttpAuthentication* authentication)" << endl;
         serviceImplementation << "{" << endl;
-        serviceImplementation << "   String ns(requestNameSpace().getAlias());" << endl;
-        serviceImplementation << "   C" << operation.m_input->name() << " inputData((ns + \":" << operation.m_input->name() << "\").c_str());" << endl;
-        serviceImplementation << "   C" << operation.m_output->name() << " outputData((ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
-        serviceImplementation << "   inputData.load(requestNode);" << endl;
-        serviceImplementation << "   auto soapBody = (XMLElement*) requestNode->parent();" << endl;
-        serviceImplementation << "   soapBody->clearChildren();" << endl;
-        serviceImplementation << "   " << operationName << "(inputData,outputData);" << endl;
-        serviceImplementation << "   auto response = new XMLElement(soapBody, (ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
-        serviceImplementation << "   response->setAttribute(\"xmlns:\" + ns, requestNameSpace().getLocation());" << endl;
-        serviceImplementation << "   outputData.unload(response);" << endl;
+        serviceImplementation << "    String ns(requestNameSpace().getAlias());" << endl;
+        serviceImplementation << "    C" << operation.m_input->name() << " inputData((ns + \":" << operation.m_input->name() << "\").c_str());" << endl;
+        serviceImplementation << "    C" << operation.m_output->name() << " outputData((ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
+        serviceImplementation << "    inputData.load(requestNode);" << endl;
+        serviceImplementation << "    auto soapBody = (XMLElement*) requestNode->parent();" << endl;
+        serviceImplementation << "    soapBody->clearChildren();" << endl;
+        serviceImplementation << "    " << operationName << "(inputData, outputData, authentication);" << endl;
+        serviceImplementation << "    auto response = new XMLElement(soapBody, (ns + \":" << operation.m_output->name() << "\").c_str());" << endl;
+        serviceImplementation << "    response->setAttribute(\"xmlns:\" + ns, requestNameSpace().getLocation());" << endl;
+        serviceImplementation << "    outputData.unload(response);" << endl;
         serviceImplementation << "}" << endl << endl;
     }
 }
