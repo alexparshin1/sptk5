@@ -45,13 +45,15 @@ namespace sptk {
  */
 class SSLSocket: public TCPSocket, public std::mutex
 {
-    SSLContext  m_sslContext;
+    SSLContext* m_sslContext;                       ///< SSL context
+    SSL*        m_ssl;                              ///< SSL socket
 
-    /**
-     * SSL socket
-     */
-    SSL*        m_ssl;
-
+    String      m_keyFileName;                      ///< Private key file name
+    String      m_certificateFileName;              ///< Certificate file name
+    String      m_password;                         ///< Private key password
+    String      m_caFileName;                       ///< CA file name
+    int         m_verifyMode { SSL_VERIFY_NONE };   ///< SSL verify mode
+    int         m_verifyDepth { 0 };                ///< SSL verify depth
 
 public:
     /**

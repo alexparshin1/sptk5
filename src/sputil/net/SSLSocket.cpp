@@ -126,7 +126,7 @@ void SSLSocket::throwSSLError(int rc)
 }
 
 SSLSocket::SSLSocket()
-: m_ssl(nullptr)
+: m_sslContext(nullptr), m_ssl(nullptr)
 {
 }
 
@@ -134,6 +134,7 @@ SSLSocket::~SSLSocket()
 {
     if (m_ssl != nullptr)
         SSL_free(m_ssl);
+    delete m_sslContext;
 }
 
 void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFileName, const string& password,
@@ -142,18 +143,26 @@ void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFil
     if (m_sockfd > 0)
         throw Exception("Socket already opened");
 
-    m_sslContext.loadKeys(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
-
-    if (m_ssl != nullptr) {
-        SSL_free(m_ssl);
-        m_ssl = nullptr;
-    }
+    m_keyFileName = keyFileName;
+    m_certificateFileName = certificateFileName;
+    m_password = password;
+    m_caFileName = caFileName;
+    m_verifyMode = verifyMode;
+    m_verifyDepth = verifyDepth;
 }
 
 void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
-    if (m_ssl == nullptr)
-        m_ssl = SSL_new(m_sslContext.handle());
+    delete m_sslContext;
+
+    m_sslContext = new SSLContext;
+    if (m_verifyMode != SSL_VERIFY_NONE)
+        m_sslContext->loadKeys(m_keyFileName, m_certificateFileName, m_password, m_caFileName, m_verifyMode, m_verifyDepth);
+
+    if (m_ssl != nullptr)
+        SSL_free(m_ssl);
+
+    m_ssl = SSL_new(m_sslContext->handle());
 
     if (!host.hostname().empty())
         m_host = host;
