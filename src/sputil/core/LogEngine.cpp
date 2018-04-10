@@ -41,7 +41,7 @@ LogEngine::LogEngine()
 
 void LogEngine::option(Option option, bool flag)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     if (flag)
         m_options |= option;
     else

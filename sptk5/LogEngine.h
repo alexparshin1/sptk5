@@ -120,32 +120,37 @@ enum LogPriority
  * This class is abstract. Derived classes have to implement
  * at least saveMessage() method.
  */
-class SP_EXPORT LogEngine: public std::mutex
+class SP_EXPORT LogEngine
 {
 protected:
     /**
+     * Mutex that protects internal data access
+     */
+    mutable std::mutex  m_mutex;
+
+    /**
      * The default priority for the new message
      */
-    LogPriority     m_defaultPriority;
+    LogPriority         m_defaultPriority;
 
     /**
      * Min message priority, should be defined for every message
      */
-    LogPriority     m_minPriority;
+    LogPriority         m_minPriority;
 
     /**
      * Log options, a bit combination of Option
      */
-    int             m_options;
+    int                 m_options;
 
 
 public:
     /**
      * @brief Stores or sends log message to actual destination
-     * @param date const DateTime&, message timestamp
-     * @param message const char *, message text
-     * @param sz uint32_t, message size
-     * @param priority LogPriority, message priority. @see LogPriority for more information.
+     * @param date              Message timestamp
+     * @param message           Message text
+     * @param sz                Message size
+     * @param priority          Message priority. @see LogPriority for more information.
      */
     virtual void saveMessage(const DateTime& date, const char *message, uint32_t sz, LogPriority priority) = 0;
 
@@ -210,7 +215,7 @@ public:
      */
     void options(int ops)
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_options = ops;
     }
 
@@ -218,9 +223,9 @@ public:
      * @brief Returns log options
      * @returns a bit combination of Option
      */
-    int options()
+    int options() const
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_options;
     }
 
@@ -235,7 +240,7 @@ public:
      */
     void priority(LogPriority prt)
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_minPriority = prt;
     }
 
@@ -248,7 +253,7 @@ public:
      */
     virtual void defaultPriority(LogPriority priority)
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_defaultPriority = priority;
     }
 
@@ -258,9 +263,9 @@ public:
      * The default priority is used for the new message,
      * if you are not defining priority.
      */
-    virtual LogPriority defaultPriority()
+    virtual LogPriority defaultPriority() const
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_defaultPriority;
     }
 
@@ -272,7 +277,7 @@ public:
      */
     virtual void minPriority(LogPriority prt)
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_minPriority = prt;
     }
 
@@ -281,9 +286,9 @@ public:
      *
      * Messages with priority less than requested are ignored
      */
-    virtual LogPriority minPriority()
+    virtual LogPriority minPriority() const
     {
-        std::lock_guard<std::mutex> lock(*this);
+        std::lock_guard<std::mutex> lock(m_mutex);
         return m_minPriority;
     }
 

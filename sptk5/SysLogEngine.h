@@ -64,7 +64,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
     HANDLE              m_logHandle;
 
 #endif
-    
+
     /**
      * List of facilities allows to define one or more system logs where messages would be sent
      */
@@ -73,7 +73,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
     std::string         m_programName;
 
     void programName(const std::string& progName);
-	void setupEventSource();
+    void setupEventSource();
 public:
     /**
      * @brief Stores or sends log message to actual destination

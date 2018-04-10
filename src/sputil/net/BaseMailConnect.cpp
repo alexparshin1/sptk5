@@ -153,10 +153,11 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     int offset = DateTime::timeZoneOffset;
     if (offset >= 0)
         sign = "";
-    else
+    else {
         offset = -offset;
+    }
 
-	int len = snprintf(dateBuffer, sizeof(dateBuffer),
+    int len = snprintf(dateBuffer, sizeof(dateBuffer),
             "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
             date.dayOfWeekName().substr(0, 3).c_str(),
             dd,

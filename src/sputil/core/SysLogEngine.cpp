@@ -69,7 +69,7 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 
 void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     if (m_options & LO_ENABLE) {
 #ifndef _WIN32
         if (!m_logOpened)
@@ -153,81 +153,81 @@ SysLogEngine::~SysLogEngine()
 
 void SysLogEngine::setupEventSource()
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
 #ifndef _WIN32
-	m_logOpened = false;
-	closelog();
+    m_logOpened = false;
+    closelog();
 #else
-	char *buffer = new char[_MAX_PATH];
-	GetModuleFileName(0, buffer, _MAX_PATH);
-	string moduleFileName = buffer;
+    char *buffer = new char[_MAX_PATH];
+    GetModuleFileName(0, buffer, _MAX_PATH);
+    string moduleFileName = buffer;
 
-	string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + m_programName;
+    string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + m_programName;
 
-	HKEY keyHandle;
-	if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
-		throw runtime_error("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+    HKEY keyHandle;
+    if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
+        throw runtime_error("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
 
-	unsigned long len = _MAX_PATH;
-	unsigned long vtype = REG_EXPAND_SZ;
-	int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*)buffer, &len);
-	if (rc != ERROR_SUCCESS) {
+    unsigned long len = _MAX_PATH;
+    unsigned long vtype = REG_EXPAND_SZ;
+    int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, (BYTE*)buffer, &len);
+    if (rc != ERROR_SUCCESS) {
 
-		struct ValueData {
-			const char* name;
-			const char* strValue;
-			DWORD       intValue;
-		} valueData[5] = {
-			{ "CategoryCount", NULL, 3 },
-			{ "CategoryMessageFile", moduleFileName.c_str(), 0 },
-			{ "EventMessageFile", moduleFileName.c_str(), 0 },
-			{ "ParameterMessageFile", moduleFileName.c_str(), 0 },
-			{ "TypesSupported", NULL, 7 }
-		};
+        struct ValueData {
+            const char* name;
+            const char* strValue;
+            DWORD       intValue;
+        } valueData[5] = {
+            { "CategoryCount", NULL, 3 },
+            { "CategoryMessageFile", moduleFileName.c_str(), 0 },
+            { "EventMessageFile", moduleFileName.c_str(), 0 },
+            { "ParameterMessageFile", moduleFileName.c_str(), 0 },
+            { "TypesSupported", NULL, 7 }
+        };
 
-		for (int i = 0; i < 5; i++) {
-			CONST BYTE * value;
-			DWORD valueSize;
-			DWORD valueType;
-			if (valueData[i].strValue == NULL) {
-				// DWORD value
-				value = (CONST BYTE *) &(valueData[i].intValue);
-				valueSize = sizeof(valueData[i].intValue);
-				valueType = REG_DWORD;
-			}
-			else {
-				// String value
-				value = (CONST BYTE *) valueData[i].strValue;
-				valueSize = (DWORD)strlen(valueData[i].strValue) + 1;
-				valueType = REG_EXPAND_SZ;
-			}
-			rc = RegSetValueEx(
-				keyHandle,						// handle to key to set value for
-				valueData[i].name,				// name of the value to set
-				0,								// reserved
-				valueType,						// flag for value type
-				value,							// address of value data
-				valueSize						// size of value data
-			);
+        for (int i = 0; i < 5; i++) {
+            CONST BYTE * value;
+            DWORD valueSize;
+            DWORD valueType;
+            if (valueData[i].strValue == NULL) {
+                // DWORD value
+                value = (CONST BYTE *) &(valueData[i].intValue);
+                valueSize = sizeof(valueData[i].intValue);
+                valueType = REG_DWORD;
+            }
+            else {
+                // String value
+                value = (CONST BYTE *) valueData[i].strValue;
+                valueSize = (DWORD)strlen(valueData[i].strValue) + 1;
+                valueType = REG_EXPAND_SZ;
+            }
+            rc = RegSetValueEx(
+                keyHandle,          // handle to key to set value for
+                valueData[i].name,  // name of the value to set
+                0,                  // reserved
+                valueType,          // flag for value type
+                value,              // address of value data
+                valueSize           // size of value data
+            );
 
-			if (rc != ERROR_SUCCESS) {
-				stringstream error;
-				error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
-				error << "value '" << valueData[i].name << "' to ";
-				if (valueData[i].strValue == NULL)
-					error << "REG_DWORD " << valueData[i].intValue;
-				else
-					error << "REG_SZ " << valueData[i].strValue;
-				throw runtime_error(error.str());
-			}
-		}
-	}
-	RegCloseKey(keyHandle);
+            if (rc != ERROR_SUCCESS) {
+                stringstream error;
+                error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
+                error << "value '" << valueData[i].name << "' to ";
+                if (valueData[i].strValue == NULL)
+                    error << "REG_DWORD " << valueData[i].intValue;
+                else
+                    error << "REG_SZ " << valueData[i].strValue;
+                throw runtime_error(error.str());
+            }
+        }
+    }
+    RegCloseKey(keyHandle);
 #endif
 }
 
 void SysLogEngine::programName(const string& progName)
 {
     m_programName = progName;
-	setupEventSource();
+    setupEventSource();
 }

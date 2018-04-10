@@ -26,28 +26,28 @@
 /* determine full path name */
 char* th_get_pathname(TAR *t)
 {
-	char filename[MAXPATHLEN+1];
+    char filename[MAXPATHLEN+1];
 
-	if (t->th_buf.gnu_longname != nullptr)
-		return t->th_buf.gnu_longname;
+    if (t->th_buf.gnu_longname != nullptr)
+        return t->th_buf.gnu_longname;
 
-	if (t->th_buf.prefix[0] != '\0')
-	{
+    if (t->th_buf.prefix[0] != '\0')
+    {
 #ifdef _MSC_VER
-		_snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
-		filename[MAXPATHLEN] = 0;
+        _snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
+        filename[MAXPATHLEN] = 0;
 #else
-		snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
+        snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #endif
-		return strdup(filename);
-	}
+        return strdup(filename);
+    }
 
 #ifdef _MSC_VER
-	int sz = _snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
+    int sz = _snprintf(filename, sizeof(filename) - 1, "%.100s", t->th_buf.name);
 #else
-	int sz = snprintf(filename, sizeof(filename), "%.100s", t->th_buf.name);
+    int sz = snprintf(filename, sizeof(filename) - 1, "%.100s", t->th_buf.name);
 #endif
-	filename[MAXPATHLEN] = 0;
-	return strdup(filename);
+    filename[sz] = 0;
+    return strdup(filename);
 }
 

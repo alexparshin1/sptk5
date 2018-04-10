@@ -33,7 +33,7 @@ using namespace sptk;
 
 void FileLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     if ((m_options & LO_ENABLE) == LO_ENABLE) {
         if (!m_fileStream.is_open()) {
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
@@ -78,7 +78,7 @@ FileLogEngine::~FileLogEngine()
 
 void FileLogEngine::reset()
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     if (m_fileStream.is_open())
         m_fileStream.close();
     if (m_fileName.empty())
