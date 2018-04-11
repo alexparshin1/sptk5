@@ -45,15 +45,15 @@ namespace sptk {
  */
 class SSLSocket: public TCPSocket, public std::mutex
 {
-    SSLContext* m_sslContext;                       ///< SSL context
-    SSL*        m_ssl;                              ///< SSL socket
+    std::unique_ptr<SSLContext>     m_sslContext;                       ///< SSL context
+    SSL*                            m_ssl;                              ///< SSL socket
 
-    String      m_keyFileName;                      ///< Private key file name
-    String      m_certificateFileName;              ///< Certificate file name
-    String      m_password;                         ///< Private key password
-    String      m_caFileName;                       ///< CA file name
-    int         m_verifyMode { SSL_VERIFY_NONE };   ///< SSL verify mode
-    int         m_verifyDepth { 0 };                ///< SSL verify depth
+    String      m_keyFileName;                                          ///< Private key file name
+    String      m_certificateFileName;                                  ///< Certificate file name
+    String      m_password;                                             ///< Private key password
+    String      m_caFileName;                                           ///< CA file name
+    int         m_verifyMode { SSL_VERIFY_NONE };                       ///< SSL verify mode
+    int         m_verifyDepth { 0 };                                    ///< SSL verify depth
 
 public:
     /**
@@ -83,6 +83,7 @@ protected:
      * @param len               Send data length
      * @return the number of bytes sent the socket
      */
+
     size_t send(const void* buffer, size_t len) override;
 
     /**

@@ -126,7 +126,7 @@ void SSLSocket::throwSSLError(int rc)
 }
 
 SSLSocket::SSLSocket()
-: m_sslContext(nullptr), m_ssl(nullptr)
+: m_ssl(nullptr)
 {
 }
 
@@ -134,7 +134,6 @@ SSLSocket::~SSLSocket()
 {
     if (m_ssl != nullptr)
         SSL_free(m_ssl);
-    delete m_sslContext;
 }
 
 void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFileName, const string& password,
@@ -153,9 +152,7 @@ void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFil
 
 void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
-    delete m_sslContext;
-
-    m_sslContext = new SSLContext;
+    m_sslContext = unique_ptr<SSLContext>(new SSLContext);
     if (m_verifyMode != SSL_VERIFY_NONE)
         m_sslContext->loadKeys(m_keyFileName, m_certificateFileName, m_password, m_caFileName, m_verifyMode, m_verifyDepth);
 
