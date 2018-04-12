@@ -32,6 +32,7 @@
 using namespace std;
 using namespace sptk;
 
+static mutex syslogMutex;
 #ifndef _WIN32
     static int      m_objectCounter(0);
     static bool     m_logOpened(false);
@@ -69,10 +70,16 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 
 void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
+    bool isOpened;
+    {
+        lock_guard<mutex> lock(syslogMutex);
+        isOpened = m_logOpened;
+    }
+
     lock_guard<mutex> lock(m_mutex);
     if (m_options & LO_ENABLE) {
 #ifndef _WIN32
-        if (!m_logOpened)
+        if (!isOpened)
             openlog(m_programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
         syslog(int(m_facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
 #else
@@ -153,7 +160,7 @@ SysLogEngine::~SysLogEngine()
 
 void SysLogEngine::setupEventSource()
 {
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> lock(syslogMutex);
 #ifndef _WIN32
     m_logOpened = false;
     closelog();

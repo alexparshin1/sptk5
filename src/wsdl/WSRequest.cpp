@@ -46,20 +46,18 @@ static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces
 
 void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* authentication)
 {
+    WSNameSpace             soapNamespace, requestNameSpace;
     XMLElement*             soapEnvelope = nullptr;
-    map<String,WSNameSpace> allNameSpaces;
+    map<String,WSNameSpace> allNamespaces;
     for (auto anode: *request) {
         auto node = dynamic_cast<XMLElement*>(anode);
         if (node == nullptr)
             continue;
         if (node->tagname() == "Envelope") {
             soapEnvelope = node;
-            {
-                lock_guard<mutex> lock(*this);
-                String nameSpaceAlias = node->nameSpace();
-                extractNameSpaces(soapEnvelope, allNameSpaces);
-                m_soapNamespace = allNameSpaces[nameSpaceAlias];
-            }
+            String nameSpaceAlias = node->nameSpace();
+            extractNameSpaces(soapEnvelope, allNamespaces);
+            soapNamespace = allNamespaces[nameSpaceAlias];
             break;
         }
     }
@@ -70,7 +68,7 @@ void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* a
     XMLElement* soapBody;
     {
         lock_guard<mutex> lock(*this);
-        soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(m_soapNamespace.getAlias() + ":Body"));
+        soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
         if (soapBody == nullptr)
             throwException("Can't find SOAP Body node in incoming request");
     }
@@ -79,15 +77,16 @@ void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* a
     for (auto anode: *soapBody) {
         auto node = dynamic_cast<XMLElement*>(anode);
         if (node != nullptr) {
+            std::lock_guard<std::mutex> lock(*this);
             requestNode = node;
             String nameSpaceAlias = requestNode->nameSpace();
-            extractNameSpaces(requestNode, allNameSpaces);
-            m_requestNamespace = allNameSpaces[nameSpaceAlias];
+            extractNameSpaces(requestNode, allNamespaces);
+            requestNameSpace = allNamespaces[nameSpaceAlias];
             break;
         }
     }
     if (requestNode == nullptr)
         throwException("Can't find request node in SOAP Body");
 
-    requestBroker(requestNode, authentication);
+    requestBroker(requestNode, authentication, requestNameSpace);
 }

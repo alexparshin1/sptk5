@@ -46,27 +46,21 @@ namespace sptk
  */
 class WSNameSpace
 {
-    /**
-     * Namespace alias
-     */
-    String  m_alias;
-
-    /**
-     * Namespace location
-     */
-    String  m_location;
+    mutable std::mutex  m_mutex;        ///< Mutex to protect internal data
+    String              m_alias;        ///< Namespace alias
+    String              m_location;     ///< Namespace location
 
 public:
-    
+
     /**
      * @brief Constructor
      * @param alias String, Namespace alias
      * @param location String, Namespace location
      */
-    WSNameSpace(String alias="", String location="")
+    WSNameSpace(const String& alias="", const String& location="")
     : m_alias(alias), m_location(location)
     {}
-    
+
     /**
      * @brief Constructor
      * @param other const WSNameSpace&, Other namespace
@@ -74,36 +68,41 @@ public:
     WSNameSpace(const WSNameSpace& other)
     : m_alias(other.m_alias), m_location(other.m_location)
     {}
-    
+
+    WSNameSpace& operator = (const WSNameSpace& other)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_alias = other.m_alias;
+        m_location = other.m_location;
+        return *this;
+    }
+
     /**
      * @brief Get namespace alias
      * @return Namespace alias
      */
-    const String& getAlias() const { return m_alias; }
-    
+    const String& getAlias() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_alias;
+    }
+
     /**
      * @brief Get namespace location
      * @return Namespace location
      */
-    const String& getLocation() const { return m_location; }
+    const String& getLocation() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_location; 
+    }
 };
-    
+
 /**
  * @brief Parser of WSDL requests
  */
 class WSRequest : public std::mutex
 {
-    /**
-     * Detected SOAP Envelope namespace
-     */
-    WSNameSpace   m_soapNamespace;
-
-    /**
-     * Detected request namespace
-     */
-    WSNameSpace   m_requestNamespace;
-
-
 protected:
     /**
      * @brief Internal SOAP body processor
@@ -113,8 +112,9 @@ protected:
      * This method is abstract and overwritten in derived generated classes.
      * @param requestNode       Incoming and outgoing SOAP element
      * @param authentication    Optional HTTP authentication
+     * @param requestNameSpace  Request SOAP element namespace
      */
-    virtual void requestBroker(XMLElement* requestNode, HttpAuthentication* authentication) = 0;
+    virtual void requestBroker(XMLElement* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
 
 public:
     /**
@@ -153,24 +153,6 @@ public:
     virtual std::string defaultPage() const
     {
         return "index.html";
-    }
-
-    /**
-     * @brief Returns SOAP envelope namespace
-     */
-    virtual const WSNameSpace& soapNameSpace()
-    {
-        std::lock_guard<std::mutex> lock(*this);
-        return m_soapNamespace;
-    }
-
-    /**
-     * @brief Returns request namespace
-     */
-    virtual const WSNameSpace& requestNameSpace()
-    {
-        std::lock_guard<std::mutex> lock(*this);
-        return m_requestNamespace;
     }
 };
 
