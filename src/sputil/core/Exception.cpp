@@ -91,3 +91,115 @@ SOAPException::SOAPException(const String& text, const String& file, int line, c
 : Exception(text, file, line, description)
 {
 }
+
+HTTPException::HTTPException(size_t statusCode, const String& text, const String& file, int line, const String& description) DOESNT_THROW
+: Exception(text, file, line, description), m_statusCode(statusCode)
+{
+    switch (statusCode) {
+        case 400:
+            m_statusText = "Bad Request";
+            break;
+        case 401:
+            m_statusText = "Unauthorized";
+            break;
+        case 402:
+            m_statusText = "Payment Required";
+            break;
+        case 403:
+            m_statusText = "Forbidden";
+            break;
+        case 404:
+            m_statusText = "Not Found";
+            break;
+        case 405:
+            m_statusText = "Method Not Allowed";
+            break;
+        case 406:
+            m_statusText = "Not Acceptable";
+            break;
+        case 407:
+            m_statusText = "Proxy Authentication Required";
+            break;
+        case 408:
+            m_statusText = "Request Timeout";
+            break;
+        case 409:
+            m_statusText = "Conflict";
+            break;
+        case 410:
+            m_statusText = "Gone";
+            break;
+        case 411:
+            m_statusText = "Length Required";
+            break;
+        case 412:
+            m_statusText = "Precondition Failed";
+            break;
+        case 413:
+            m_statusText = "Payload Too Large";
+            break;
+        case 414:
+            m_statusText = "URI Too Long";
+            break;
+        case 415:
+            m_statusText = "Unsupported Media Type";
+            break;
+        case 416:
+            m_statusText = "Range Not Satisfiable";
+            break;
+        case 417:
+            m_statusText = "Expectation Failed";
+            break;
+        case 418:
+            m_statusText = "I'm a teapot";
+            break;
+        case 421:
+            m_statusText = "Misdirected Request";
+            break;
+        case 424:
+            m_statusText = "Failed Dependency";
+            break;
+        case 426:
+            m_statusText = "Upgrade Required";
+            break;
+        case 428:
+            m_statusText = "Precondition Required";
+            break;
+        case 429:
+            m_statusText = "Too Many Requests";
+            break;
+        case 431:
+            m_statusText = "Request Header Fields Too Large";
+            break;
+        case 451:
+            m_statusText = "Unavailable For Legal Reasons";
+            break;
+        case 500:
+            m_statusText = "Internal Server Error";
+            break;
+        case 501:
+            m_statusText = "Not Implemented";
+            break;
+        case 502:
+            m_statusText = "Bad Gateway";
+            break;
+        case 503:
+            m_statusText = "Service Unavailable";
+            break;
+        case 504:
+            m_statusText = "Gateway Timeout";
+            break;
+        case 505:
+            m_statusText = "HTTP Version Not Supported";
+            break;
+        case 510:
+            m_statusText = "Not Extended";
+            break;
+        case 511:
+            m_statusText = "Network Authentication Required";
+            break;
+        default:
+            m_statusText = "Status undefined";
+            break;
+    }
+}

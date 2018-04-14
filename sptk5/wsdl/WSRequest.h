@@ -81,7 +81,7 @@ public:
      * @brief Get namespace alias
      * @return Namespace alias
      */
-    const String& getAlias() const
+    String getAlias() const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_alias;
@@ -91,7 +91,7 @@ public:
      * @brief Get namespace location
      * @return Namespace location
      */
-    const String& getLocation() const
+    String getLocation() const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_location; 

@@ -220,6 +220,45 @@ public:
 };
 
 /**
+ * @brief SOAP exception
+ *
+ * Thrown every time when SOAP fault occurs.
+ */
+class SP_EXPORT HTTPException: public Exception
+{
+    size_t      m_statusCode;   ///< HTTP status code
+    String      m_statusText;   ///< HTTP status text
+public:
+    /**
+     * Constructor
+     * @param statusCode        The HTTP status
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
+     */
+    HTTPException(size_t statusCode, const String& text, const String& file = "", int line = 0, const String& description = "") DOESNT_THROW;
+
+    /**
+     * @brief Copy constructor
+     * @param other             Other exception object
+     */
+    HTTPException(const HTTPException& other) = default;
+
+    /**
+     * Get HTTP status code
+     * @return HTTP status code
+     */
+    size_t statusCode() const { return m_statusCode; }
+
+    /**
+     * Get HTTP status text
+     * @return HTTP status text
+     */
+    String statusText() const { return m_statusText; }
+};
+
+/**
  * Defines a handy macros that automatically registers filename and line number
  * for the place an exception is thrown from
  */
