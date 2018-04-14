@@ -34,7 +34,7 @@ using namespace sptk;
 ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const string& threadName)
 : Thread(threadName),
   m_threadLimit(threadLimit),
-      m_threadIdleTime(threadIdleSeconds),
+  m_threadIdleTime(threadIdleSeconds),
   m_shutdown(false)
 {
     run();
