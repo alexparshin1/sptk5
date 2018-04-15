@@ -31,13 +31,14 @@
 using namespace std;
 using namespace sptk;
 
-ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const string& threadName)
+ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const string& threadName, bool autoStart)
 : Thread(threadName),
   m_threadLimit(threadLimit),
   m_threadIdleTime(threadIdleSeconds),
   m_shutdown(false)
 {
-    run();
+    if (autoStart)
+        run();
 }
 
 ThreadPool::~ThreadPool()
