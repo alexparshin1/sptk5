@@ -30,7 +30,10 @@
 #define __HOST_H__
 
 #include <sptk5/Strings.h>
+#include <cstring>
+#include <mutex>
 #include <sstream>
+#include <netinet/in.h>
 
 namespace sptk {
 
@@ -44,25 +47,28 @@ namespace sptk {
  */
 class Host
 {
-    sptk::String m_hostname;    ///< Host name or IP address
-    uint16_t    m_port;         ///< Port number
+    mutable std::mutex  m_mutex;    ///< Mutex to protect internal class data
+    sptk::String        m_hostname; ///< Host name or IP address
+    uint16_t            m_port;     ///< Port number
+    sockaddr_in         m_address;  ///< Host address
 
+    /**
+     * Get host address
+     */
+    void getHostAddress();
 public:
 
     /**
      * Default constructor
      */
-    Host() : m_port(0)
-    {}
+    Host();
 
     /**
      * Constructor
      * @param hostname Host name or IP address
      * @param port Port number
      */
-    Host(const std::string& hostname, uint16_t port)
-    : m_hostname(hostname), m_port(port)
-    {}
+    Host(const std::string& hostname, uint16_t port);
 
     /**
      * Constructor
@@ -75,19 +81,13 @@ public:
      * Copy constructor
      * @param other The other object
      */
-    explicit Host(const Host& other)
-    : m_hostname(other.m_hostname), m_port(other.m_port)
-    {}
+    explicit Host(const Host& other);
 
     /**
      * Move constructor
      * @param other The other object
      */
-    explicit Host(Host&& other)
-    : m_hostname(move(other.m_hostname)), m_port(other.m_port)
-    {
-        other.m_port = 0;
-    }
+    explicit Host(Host&& other);
 
     /**
      * Destructor
@@ -98,59 +98,56 @@ public:
      * Assign from another host
      * @param other The other object
      */
-    Host& operator = (const Host& other)
-    {
-        m_hostname = other.m_hostname;
-        m_port = other.m_port;
-        return *this;
-    }
+    Host& operator = (const Host& other);
 
     /**
      * Move assignment from another host
      * @param other The other object
      */
-    Host& operator = (Host&& other)
-    {
-        m_hostname = std::move(other.m_hostname);
-        m_port = other.m_port;
-        return *this;
-    }
+    Host& operator = (Host&& other);
 
     /**
      * Compare to another host
      * @param other The other object
      */
-    bool operator == (const Host& other) const
-    {
-        return m_hostname == other.m_hostname && m_port == other.m_port;
-    }
+    bool operator == (const Host& other) const;
 
     /**
      * Compare to another host
      * @param other The other object
      */
-    bool operator != (const Host& other) const
-    {
-        return m_hostname != other.m_hostname || m_port != other.m_port;
-    }
+    bool operator != (const Host& other) const;
 
     /**
      * Get host name
      * @return host name
      */
-    const std::string& hostname() const { return m_hostname; }
+    const std::string& hostname() const 
+    { 
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_hostname; 
+    }
 
     /**
      * Set port number
      * @param p Port number
      */
-    void port(uint16_t p) { m_port = p; }
+    void port(uint16_t p)
+    { 
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_port = p;
+        m_address.sin_port = htons(uint16_t(m_port));
+    }
 
     /**
      * Get port number
      * @return port number
      */
-    uint16_t port() const { return m_port; }
+    uint16_t port() const
+    { 
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_port;
+    }
 
     /**
      * Get host name and port as a string.
@@ -159,14 +156,20 @@ public:
      */
     std::string toString() const
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         std::stringstream str;
-        if (hostname().find(':') != std::string::npos)
+        if (m_hostname.find(':') != std::string::npos)
             str << "[" << m_hostname << "]:" << m_port;
         else
             str << m_hostname << ":" << m_port;
         return str.str();
     }
 
+    void getAddress(sockaddr_in& address) const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        memcpy(&address, &m_address, sizeof(address));
+    }
 };
 
 /**

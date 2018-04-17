@@ -39,8 +39,8 @@ int main(int argc, const char* argv[])
     signal(SIGPIPE, SIG_IGN);
 #endif
 
-    Loop<Destination> destinations;
-    destinations.add(Destination("localhost", 1883));
+    Loop<Host> destinations;
+    destinations.add(Host("localhost", 1883));
 
     Loop<String> interfaces;
     interfaces.add(String("127.0.0.1"));

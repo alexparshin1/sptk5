@@ -31,7 +31,6 @@
 
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/net/SocketEvents.h>
-#include "Destination.h"
 
 namespace sptk {
 
@@ -58,7 +57,7 @@ public:
         close();
     }
 
-    void open(SOCKET sourceFD, const String& interfaceAddess, const Destination& destination);
+    void open(SOCKET sourceFD, const String& interfaceAddess, const Host& destination);
     int  copyData(TCPSocket& source, TCPSocket& destination);
     void close();
 

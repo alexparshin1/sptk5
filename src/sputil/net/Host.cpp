@@ -27,12 +27,25 @@
 */
 
 #include <sptk5/RegularExpression.h>
-#include <sptk5/net/Host.h>
+#include <sptk5/net/BaseSocket.h>
 
 using namespace std;
 using namespace sptk;
 
-Host::Host(const std::string& hostAndPort)
+Host::Host() 
+: m_port(0)
+{
+    memset(&m_address, 0, sizeof(m_address));
+}
+
+Host::Host(const string& hostname, uint16_t port)
+: m_hostname(hostname), m_port(port)
+{
+    getHostAddress();
+    m_address.sin_port = htons(uint16_t(m_port));
+}
+
+Host::Host(const string& hostAndPort)
 : m_port(0)
 {
     RegularExpression matchHost("^(\\[.*\\]|[^\\[].*)(:\\d+)?");
@@ -41,5 +54,83 @@ Host::Host(const std::string& hostAndPort)
         m_hostname = matches[0];
         if (matches.size() > 1)
             m_port = (uint16_t) string2int(matches[1]);
+        getHostAddress();
+        m_address.sin_port = htons(uint16_t(m_port));
+    } else {
+        memset(&m_address, 0, sizeof(m_address));
     }
+}
+
+Host::Host(const Host& other)
+: m_hostname(other.m_hostname), m_port(other.m_port)
+{
+    lock_guard<mutex> lock(other.m_mutex);
+    memcpy(&m_address, &other.m_address, sizeof(m_address));
+}
+
+Host::Host(Host&& other)
+: m_hostname(move(other.m_hostname)), m_port(other.m_port)
+{
+    lock_guard<mutex> lock(other.m_mutex);
+    memcpy(&m_address, &other.m_address, sizeof(m_address));
+}
+
+Host& Host::operator = (const Host& other)
+{
+    lock_guard<mutex> lock1(other.m_mutex);
+    lock_guard<mutex> lock2(m_mutex);
+    m_hostname = other.m_hostname;
+    m_port = other.m_port;
+    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    return *this;
+}
+
+Host& Host::operator = (Host&& other)
+{
+    lock_guard<mutex> lock1(other.m_mutex);
+    lock_guard<mutex> lock2(m_mutex);
+    m_hostname = move(other.m_hostname);
+    m_port = other.m_port;
+    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    return *this;
+}
+
+bool Host::operator == (const Host& other) const
+{
+    lock_guard<mutex> lock1(other.m_mutex);
+    lock_guard<mutex> lock2(m_mutex);
+    return m_hostname == other.m_hostname && m_port == other.m_port;
+}
+
+bool Host::operator != (const Host& other) const
+{
+    lock_guard<mutex> lock1(other.m_mutex);
+    lock_guard<mutex> lock2(m_mutex);
+    return m_hostname != other.m_hostname || m_port != other.m_port;
+}
+
+void Host::getHostAddress()
+{
+    memset(&m_address, 0, sizeof(m_address));
+
+#ifdef _WIN32
+    struct hostent* host_info = gethostbyname(m_hostname.c_str());
+    memcpy(&m_address.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+#else
+    struct addrinfo hints = {};
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;          // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM;    // Socket type
+    //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
+    hints.ai_protocol = 0;
+
+    struct addrinfo* result;
+    int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
+    if (rc != 0)
+        throw Exception(gai_strerror(rc));
+
+    memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
+
+    freeaddrinfo(result);
+#endif
 }

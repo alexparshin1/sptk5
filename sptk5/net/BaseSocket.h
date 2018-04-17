@@ -133,7 +133,7 @@ public:
      * @param hostname          Host name or address
      * @param address           Output address data
      */
-    static void getHostAddress(const std::string& hostname, sockaddr_in& address);
+    //static void getHostAddress(const std::string& hostname, sockaddr_in& address);
 
     /**
      * @brief A mode to open a socket, one of

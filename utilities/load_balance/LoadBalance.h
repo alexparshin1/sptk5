@@ -30,7 +30,6 @@
 #define __SPTK_LOADBALANCE_H__
 
 #include <vector>
-#include "Destination.h"
 #include "Loop.h"
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/TCPSocket.h>
@@ -40,7 +39,7 @@ namespace sptk {
 class LoadBalance : public Thread
 {
     int                   m_listenerPort;
-    Loop<Destination>&    m_destinations;
+    Loop<Host>&           m_destinations;
     Loop<String>&         m_interfaces;
     SocketEvents          m_sourceEvents;
     SocketEvents          m_destinationEvents;
@@ -52,7 +51,7 @@ class LoadBalance : public Thread
     static void sourceEventCallback(void *userData, SocketEventType eventType);
     static void destinationEventCallback(void *userData, SocketEventType eventType);
 public:
-    LoadBalance(int listenerPort, Loop<Destination>& destinations, Loop<String>& interfaces);
+    LoadBalance(int listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);
     ~LoadBalance();
 };
 

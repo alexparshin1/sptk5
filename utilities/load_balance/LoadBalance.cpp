@@ -60,7 +60,7 @@ void LoadBalance::destinationEventCallback(void *userData, SocketEventType event
     channel->copyData(channel->destination(), channel->source());
 }
 
-LoadBalance::LoadBalance(int listenerPort, Loop<Destination>& destinations, Loop<String>& interfaces)
+LoadBalance::LoadBalance(int listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
 : Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces),
   m_sourceEvents(sourceEventCallback), m_destinationEvents(destinationEventCallback)
 {
@@ -82,7 +82,7 @@ void LoadBalance::threadFunction()
         SOCKET sourceFD;
         m_listener.accept(sourceFD, addr);
         Channel* channel = new Channel(m_sourceEvents, m_destinationEvents);
-        const Destination& destination = m_destinations.loop();
+        const Host& destination = m_destinations.loop();
         const String& interfaceAddress = m_interfaces.loop();
         try {
             channel->open(sourceFD, interfaceAddress, destination);

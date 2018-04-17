@@ -100,7 +100,7 @@ BaseSocket::~BaseSocket()
         cleanup();
 #endif
 }
-
+/*
 void BaseSocket::getHostAddress(const string& hostname, sockaddr_in& addr)
 {
     memset(&addr, 0, sizeof(addr));
@@ -113,7 +113,7 @@ void BaseSocket::getHostAddress(const string& hostname, sockaddr_in& addr)
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;          // IPv4 or IPv6
     hints.ai_socktype = SOCK_STREAM;    // Socket type
-    //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
+    //hints.ai_flags = AI_PASSIVE;      // For wildcard IP address
     hints.ai_protocol = 0;
 
     struct addrinfo* result;
@@ -126,7 +126,7 @@ void BaseSocket::getHostAddress(const string& hostname, sockaddr_in& addr)
     freeaddrinfo(result);
 #endif
 }
-
+*/
 void BaseSocket::blockingMode(bool blocking)
 {
 #ifdef _WIN32

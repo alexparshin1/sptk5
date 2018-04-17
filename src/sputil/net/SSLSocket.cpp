@@ -167,9 +167,7 @@ void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
         throw Exception("Please, define the host name", __FILE__, __LINE__);
 
     sockaddr_in addr = {};
-    getHostAddress(m_host.hostname(), addr);
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(m_host.port());
+    host.getAddress(addr);
 
     open(addr, openMode, _blockingMode, timeout);
 }
