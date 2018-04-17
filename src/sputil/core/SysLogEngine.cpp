@@ -32,10 +32,10 @@
 using namespace std;
 using namespace sptk;
 
-static mutex syslogMutex;
+static mutex	syslogMutex;
+static bool     m_logOpened(false);
 #ifndef _WIN32
     static int      m_objectCounter(0);
-    static bool     m_logOpened(false);
 #else
     #include <events.w32/event_provider.h>
     static string   m_moduleFileName;
