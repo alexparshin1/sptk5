@@ -115,6 +115,7 @@ void Host::getHostAddress()
 
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
+	m_address.sin_family = host_info->h_addrtype;
     memcpy(&m_address.sin_addr, host_info->h_addr, size_t(host_info->h_length));
 #else
     struct addrinfo hints = {};
