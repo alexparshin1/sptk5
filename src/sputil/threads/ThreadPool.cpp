@@ -59,7 +59,7 @@ void ThreadPool::threadFunction()
 
 WorkerThread* ThreadPool::createThread()
 {
-    auto workerThread = new WorkerThread(&m_taskQueue, this, m_threadIdleTime);
+    auto workerThread = new WorkerThread(m_taskQueue, this, m_threadIdleTime);
     m_threads.push_back(workerThread);
     workerThread->run();
     return workerThread;

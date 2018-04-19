@@ -32,6 +32,8 @@
 #include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/Strings.h>
 
+#include <atomic>
+
 namespace sptk
 {
 
@@ -51,12 +53,12 @@ class SP_EXPORT Runable
     /**
      * Flag: is the task sent terminate request?
      */
-    bool            m_terminated;
+    std::atomic_bool    m_terminated;
 
     /**
      * Synchronized object locked while the task running
      */
-    std::mutex      m_running;
+    std::mutex          m_running;
 
 
 protected:

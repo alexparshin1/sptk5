@@ -32,16 +32,18 @@
 using namespace std;
 using namespace sptk;
 
+SynchronizedQueue<int>  intQueue;
+
 class CMyTask : public Runable
 {
-    string          m_name; /// Task name, for distinguishing different tasks output
+    string       m_name; /// Task name, for distinguishing different tasks output
     Logger       m_log;  /// Task proxy log
 
     static uint32_t taskCount;
 public:
 
     // Constructor
-    explicit CMyTask(FileLogEngine& sharedLog);
+    explicit CMyTask(SysLogEngine& sharedLog);
 
     // The thread function.
     void run() override;
@@ -54,7 +56,7 @@ public:
 
 uint32_t CMyTask::taskCount;
 
-CMyTask::CMyTask(FileLogEngine& sharedLog)
+CMyTask::CMyTask(SysLogEngine& sharedLog)
         :
         m_name("Task " + int2string(++taskCount)),
         m_log(sharedLog)
@@ -66,11 +68,11 @@ void CMyTask::run()
 {
     m_log << name() << " started" << endl;
 
-    unsigned counter = 0;
     while (!terminated()) {
-        m_log << "Output " << counter << " from " << name() << endl;
-        counter++;
-        this_thread::sleep_for(chrono::milliseconds(100));
+        int item;
+        if (intQueue.pop(item, chrono::milliseconds(100))) {
+            m_log << "Output " << item << " from " << name() << endl;
+        }
     }
 
     m_log << name() << " is terminated" << endl;
@@ -84,61 +86,58 @@ int main(int, char* [])
     /// Thread manager controls tasks execution.
     ThreadPool threadPool;
 
-    /// The log file would get messages from all the tasks.
     /// Threads send messages through their own Logger objects.
     /// Multiple Logger objects can share same log object thread-safely.
-    FileLogEngine sharedLog("task_test.log");
+    SysLogEngine    logEngine("thread_pool_test");
+    logEngine.options(logEngine.options() | LogEngine::LO_STDOUT);
 
-    /// Trancate the log file
-    sharedLog.reset();
-
-    /// Adding 'duplicate messages to stdout' option to log options
-    sharedLog.options(sharedLog.options() | LogEngine::LO_STDOUT);
+    Logger          sharedLog(logEngine);
 
     // Creating several tasks
     for (i = 0; i < 5; i++)
-        tasks.push_back(new CMyTask(sharedLog));
+        tasks.push_back(new CMyTask(logEngine));
 
-    cout << tasks.size() << " tasks are created." << endl;
-    this_thread::sleep_for(chrono::milliseconds(100));
-
-    cout << "Thread pool has " << threadPool.size() << " threads" << endl;
+    sharedLog << LP_NOTICE << "Thread pool has " << threadPool.size() << " threads" << endl;
 
     cout << "Starting all tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         threadPool.execute(tasks[i]);
 
-    cout << tasks.size() << " tasks are created." << endl;
+    sharedLog << LP_NOTICE << tasks.size() << " tasks are running." << endl;
+
+    // Let the tasks start and print start message
     this_thread::sleep_for(chrono::milliseconds(100));
 
-    cout << "Waiting 1 seconds while tasks are running.." << endl;
+    for (int i = 0; i < 100; i++)
+        intQueue.push(i);
+
+    sharedLog << LP_NOTICE << "Waiting 1 seconds while tasks are running.." << endl;
     this_thread::sleep_for(chrono::milliseconds(1000));
 
-    cout << "Thread pool has " << threadPool.size() << " threads" << endl;
-    cout << "Sending 'terminate' signal to all the tasks." << endl;
+    sharedLog << LP_NOTICE << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
     this_thread::sleep_for(chrono::seconds(1));
 
-    cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
-
-    cout << "Starting tasks again." << endl;
+    sharedLog << LP_NOTICE << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
+/*
+    sharedLog << LP_NOTICE << "Starting tasks again." << endl;
     for (i = 0; i < tasks.size(); i++)
         threadPool.execute(tasks[i]);
 
-    cout << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
+    sharedLog << LP_NOTICE << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
 
     this_thread::sleep_for(chrono::seconds(1));
 
-    cout << "Sending 'terminate' signal to all the tasks." << endl;
+    sharedLog << LP_NOTICE << "Sending 'terminate' signal to all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         tasks[i]->terminate();
     this_thread::sleep_for(chrono::seconds(1));
-
-    cout << "Stopping thread pool..." << endl;
+*/
+    sharedLog << LP_NOTICE << "Stopping thread pool..." << endl;
     threadPool.stop();
 
-    cout << "Deleting all the tasks." << endl;
+    sharedLog << LP_NOTICE << "Deleting all the tasks." << endl;
     for (i = 0; i < tasks.size(); i++)
         delete tasks[i];
 

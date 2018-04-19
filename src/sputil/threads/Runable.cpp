@@ -31,26 +31,26 @@
 using namespace std;
 using namespace sptk;
 
-Runable::Runable() :
-    m_terminated(false)
+Runable::Runable() 
+: m_terminated(false)
 {
 }
 
 void Runable::execute()
 {
+    m_terminated.store(false);
     lock_guard<mutex> lock(m_running);
-    m_terminated = false;
     run();
 }
 
 void Runable::terminate()
 {
-    m_terminated = true;
+    m_terminated.store(true);
 }
 
 bool Runable::terminated()
 {
-    return m_terminated;
+    return m_terminated.load();
 }
 /*
 bool Runable::completed(chrono::milliseconds timeout)

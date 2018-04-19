@@ -72,7 +72,7 @@ protected:
     /**
      * Flag: is the thread terminated?
      */
-    bool                m_terminated;
+    std::atomic_bool    m_terminated;
 
 
 public:

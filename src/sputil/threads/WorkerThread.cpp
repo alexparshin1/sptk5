@@ -32,6 +32,13 @@
 using namespace std;
 using namespace sptk;
 
+WorkerThread::WorkerThread(SynchronizedQueue<Runable*>& queue, ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
+: Thread("worker"),
+  m_queue(queue),
+  m_threadEvent(threadEvent),
+  m_maxIdleSeconds(maxIdleTime)
+{}
+
 void WorkerThread::threadFunction()
 {
     if (m_threadEvent != nullptr)
@@ -44,7 +51,7 @@ void WorkerThread::threadFunction()
             break;
 
         Runable* runable = nullptr;
-        if (m_queue->pop(runable, chrono::milliseconds(1000))) {
+        if (m_queue.pop(runable, chrono::milliseconds(1000))) {
             idleSeconds = chrono::milliseconds(0);
             if (m_threadEvent != nullptr)
                 m_threadEvent->threadEvent(this, ThreadEvent::RUNABLE_STARTED, runable);
@@ -66,25 +73,7 @@ void WorkerThread::threadFunction()
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED, nullptr);
 }
 
-WorkerThread::WorkerThread(SynchronizedQueue<Runable*>* queue, ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
-: Thread("worker"),
-  m_threadEvent(threadEvent),
-  m_maxIdleSeconds(maxIdleTime)
-{
-    if (queue != nullptr)
-        m_queue = queue;
-    else
-        m_queue = new SynchronizedQueue<Runable*>;
-    m_queueOwner = (queue == nullptr);
-}
-
-WorkerThread::~WorkerThread()
-{
-    if (m_queueOwner)
-        delete m_queue;
-}
-
 void WorkerThread::execute(Runable* task)
 {
-    m_queue->push(task);
+    m_queue.push(task);
 }

@@ -55,14 +55,9 @@ namespace sptk {
 class SP_EXPORT WorkerThread : public Thread
 {
     /**
-     * If true then worker thread owns task queue
-     */
-    bool                            m_queueOwner;
-
-    /**
      * Task queue
      */
-    SynchronizedQueue<Runable*>*    m_queue;
+    SynchronizedQueue<Runable*>&    m_queue;
 
     /**
      * Optional thread event interface
@@ -95,14 +90,14 @@ public:
      * @param threadEvent       Optional thread event interface
      * @param maxIdleTime       Maximum time the thread is idle, seconds
      */
-    WorkerThread(SynchronizedQueue<Runable*>* queue = NULL,
+    WorkerThread(SynchronizedQueue<Runable*>& queue,
                  ThreadEvent* threadEvent = nullptr,
                  std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
 
     /**
      * @brief Destructor
      */
-    ~WorkerThread();
+    ~WorkerThread() = default;
 
     /**
      * @brief Execute runable task
