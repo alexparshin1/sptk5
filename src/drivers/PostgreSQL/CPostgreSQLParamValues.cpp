@@ -41,10 +41,11 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
         VariantType ptype = param->dataType();
         PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i]);
 
-        if ((ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) != 0) {
+        if ((ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) != 0)
             m_formats[i] = 1; // Binary format
-        } else
+        else
             m_formats[i] = 0; // Text format
+            
         m_values[i] = param->conversionBuffer(); // This is a default. For VAR_STRING, VAR_TEXT, VAR_BUFFER and it would be replaced later
 
         switch (ptype) {
@@ -68,6 +69,7 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
              case VAR_INT64:
                 m_lengths[i] = sizeof(int64_t);
                 break;
+                
             default:
                 m_lengths[i] = 0;
                 break;
