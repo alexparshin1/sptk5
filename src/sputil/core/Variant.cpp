@@ -732,14 +732,14 @@ const char* Variant::getText() const
 //---------------------------------------------------------------------------
 DateTime Variant::getDateTime() const
 {
-    return DateTime::time_point(chrono::microseconds(m_data.timeData));
+    return DateTime(DateTime::time_point(chrono::microseconds(m_data.timeData)));
 }
 
 //---------------------------------------------------------------------------
 DateTime Variant::getDate() const
 {
     int64_t days = m_data.timeData / 1000000 / 86400;
-    return DateTime::time_point(chrono::hours(days * 24));
+    return DateTime(DateTime::time_point(chrono::hours(days * 24)));
 }
 
 //---------------------------------------------------------------------------
@@ -1243,7 +1243,7 @@ VariantType Variant::nameType(const char* name)
     static std::map<string, VariantType> nameToTypeMap;
 
     if (nameToTypeMap.empty()) {
-        for (int type = VAR_INT; type <= VAR_BOOL; type *= 2) {
+        for (unsigned type = VAR_INT; type <= VAR_BOOL; type *= 2) {
             auto vtype = (VariantType) type;
             nameToTypeMap[typeName(vtype)] = vtype;
         }

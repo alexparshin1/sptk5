@@ -100,7 +100,7 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
 
     XMLNode::iterator itor = n->begin();
     XMLNode::iterator iend = n->end();
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         XMLElement* node = dynamic_cast<XMLElement*>(*itor);
         if (node)
             build_tree(node, tree, newItem);

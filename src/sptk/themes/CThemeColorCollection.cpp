@@ -192,7 +192,7 @@ void CThemeColorCollection::loadColor(XMLNode* colorNode,CThemeColorIndex colorI
 {
     static const Strings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
     XMLAttributes::iterator itor = colorNode->attributes().begin();
-    for (; itor != colorNode->attributes().end(); itor++) {
+    for (; itor != colorNode->attributes().end(); ++itor) {
         XMLNode* colorStateNode = *itor;
         CThemeColorState colorState = (CThemeColorState) colorStateNames.indexOf(colorStateNode->name());
         if (colorState == THM_COLOR_UNDEFINED)
@@ -227,7 +227,7 @@ void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
     XMLNodeVector styleNodes;
     gtkTheme.select(styleNodes,stylesXPath);
     XMLNode* defaultStyleNode = *styleNodes.begin();
-    for (XMLNode::iterator itor = styleNodes.begin(); itor != styleNodes.end(); itor++) {
+    for (XMLNode::iterator itor = styleNodes.begin(); itor != styleNodes.end(); ++itor) {
         XMLNode* styleNode = *itor;
         string styleName(styleNode->getAttribute("name"));
         if (styleName == "default" || styleName.find("-default") != STRING_NPOS) {

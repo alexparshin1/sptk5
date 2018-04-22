@@ -243,7 +243,7 @@ public:
      * @brief Constructor
      * @param dateStr const char *, date string
      */
-    DateTime(const char* dateStr) noexcept;
+    explicit DateTime(const char* dateStr) noexcept;
 
     /**
      * @brief Copy constructor
@@ -254,19 +254,19 @@ public:
      * @brief Constructor
      * @param dt const time_point&, Time point
      */
-    DateTime(const time_point& dt) noexcept;
+    explicit DateTime(const time_point& dt) noexcept;
 
     /**
      * @brief Constructor
      * @param dt const duration&, Duration since epoch
      */
-    DateTime(const duration& dt) noexcept;
+    explicit DateTime(const duration& dt) noexcept;
 
     /**
      * @brief Constructor
      * @param sinceEpochMS int64_t, Time since epoch, milliseconds
      */
-    DateTime(int64_t sinceEpochMS) noexcept;
+    explicit DateTime(int64_t sinceEpochMS) noexcept;
 
     /**
      * Returns time_point presentation of the date and time

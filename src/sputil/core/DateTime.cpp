@@ -714,12 +714,12 @@ bool operator!=(const DateTime& dt1, const DateTime& dt2)
 
 DateTime operator+(const DateTime &dt, const sptk::DateTime::duration &duration)
 {
-    return dt.timePoint() + duration;
+    return DateTime(dt.timePoint() + duration);
 }
 
 DateTime operator-(const DateTime &dt, const sptk::DateTime::duration &duration)
 {
-    return dt.timePoint() - duration;
+    return DateTime(dt.timePoint() - duration);
 }
 
 DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
@@ -801,10 +801,10 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
         str << appendix;
 
     if ((printFlags & PF_TIMEZONE) != 0) {
-        int minutes;
         if (timeZoneOffset == 0 || (printFlags & PF_GMT) != 0)
             str << "Z";
         else {
+            int minutes;
             if (timeZoneOffset > 0) {
                 str << '+';
                 minutes = timeZoneOffset;
@@ -833,13 +833,13 @@ short DateTime::dayOfYear() const
 // Get the current system time
 DateTime DateTime::System()
 {
-    return clock::now();
+    return DateTime(clock::now());
 }
 
 // Get the current system time with optional synchronization offset
 DateTime DateTime::Now()
 {
-    return clock::now() + ::dateTimeOffset;
+    return DateTime(clock::now() + ::dateTimeOffset);
 }
 
 // Set the synchronization offset
@@ -857,7 +857,7 @@ DateTime DateTime::Time()
 {
     duration sinceEpoch = clock::now().time_since_epoch();
     duration thisDay = sinceEpoch - hours(duration_cast<hours>(sinceEpoch).count() / 24 * 24);
-    return time_point() + thisDay;
+    return DateTime(time_point() + thisDay);
 }
 
 short DateTime::daysInMonth() const
@@ -871,7 +871,7 @@ DateTime DateTime::date() const
 {
     duration sinceEpoch = m_dateTime.time_since_epoch();
     long days = duration_cast<hours>(sinceEpoch).count() / 24;
-    DateTime dt = time_point() + hours(days * 24);  // Sets the current date
+    DateTime dt(time_point() + hours(days * 24));  // Sets the current date
     return dt;
 }
 
@@ -938,7 +938,7 @@ std::string DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) c
 
 DateTime DateTime::convertCTime(const time_t tt)
 {
-    return clock::from_time_t(tt);
+    return DateTime(clock::from_time_t(tt));
 }
 
 bool DateTime::time24Mode()

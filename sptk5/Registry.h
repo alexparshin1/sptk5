@@ -114,7 +114,7 @@ public:
     /**
      * @brief Sets the registry file name
      */
-    void fileName(std::string fname)
+    void fileName(const String& fname)
     {
         m_fileName = fname;
     }

@@ -56,16 +56,16 @@ class SP_EXPORT FileLogEngine: public LogEngine
     /**
      * Log file name
      */
-    std::string     m_fileName;
+    String          m_fileName;
 
 
 public:
     /**
      * @brief Stores or sends log message to actual destination
-     * @param date DateTime, message timestamp
-     * @param message const char *, message text
-     * @param sz uint32_t, message size
-     * @param priority LogPriority, message priority. @see LogPriority for more information.
+     * @param date              Message timestamp
+     * @param message           Message text
+     * @param sz                Message size
+     * @param priority          Message priority. @see LogPriority for more information.
      */
     virtual void saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) override;
 
@@ -75,9 +75,9 @@ public:
      *
      * Creates a new log object based on the file name.
      * If this file doesn't exist - it will be created.
-     * @param fileName string, log file name
+     * @param fileName          Log file name
      */
-    FileLogEngine(std::string fileName) : m_fileName(fileName) {}
+    FileLogEngine(const String& fileName) : m_fileName(fileName) {}
 
     /**
      * @brief Destructor

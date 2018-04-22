@@ -92,7 +92,7 @@ public:
      * @param connection Connection*, DB connection
      */
     DatabaseStatement(Connection* connection)
-    : m_connection(connection)
+    : m_connection(connection), m_statement(nullptr), m_state({})
     {}
 
     /**

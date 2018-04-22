@@ -190,7 +190,7 @@ void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, XML
     currentRow++;
     while (gtkrc[currentRow] != "}") {
         const string& str = gtkrc[currentRow];
-        if (str.find("engine ") == 0)
+        if (str.compare(0, 7, "engine ") == 0)
             parseEngine(gtkrc, currentRow, styleNode);
         else
             parseParameter(str, styleNode);
@@ -208,7 +208,7 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
     //XMLNode* paramsNode = new XMLElement(&m_xml,"styles");
     for (unsigned row = 0; row < gtkrc.size(); row++) {
         const string& str = gtkrc[row];
-        if (str.find("style ") == 0)
+        if (str.compare(0, 6, "style ") == 0)
             parseStyle(gtkrc, row, stylesNode);
         else
             parseParameter(str, &m_xml);

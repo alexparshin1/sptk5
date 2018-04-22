@@ -107,7 +107,7 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme,std::string i
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
-    for (XMLNode::iterator itor = images.begin(); itor != images.end(); itor++) {
+    for (XMLNode::iterator itor = images.begin(); itor != images.end(); ++itor) {
         XMLNode* imageNode = *itor;
 
         if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)

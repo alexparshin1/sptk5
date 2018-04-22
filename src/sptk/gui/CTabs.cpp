@@ -271,7 +271,7 @@ void CTabGroup::draw()
 {
     draw_box();
     auto itor = m_rows.begin();
-    for (; itor != m_rows.end(); itor++) {
+    for (; itor != m_rows.end(); ++itor) {
         CTabButtons* row = *itor;
         auto btor = row->begin();
         for (; btor != row->end(); btor++) {
@@ -297,7 +297,7 @@ void CTabGroup::add(Fl_Group* group)
 void CTabGroup::remove(Fl_Group* group)
 {
     auto itor = m_buttons.begin();
-    for (; itor != m_buttons.end(); itor++) {
+    for (; itor != m_buttons.end(); ++itor) {
         CTabButton* button = *itor;
         if (button->page() == group) {
             if (button == m_activeTabButton)
@@ -363,7 +363,7 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
     int rowHeight = 0;
     auto itor = m_buttons.begin();
     auto iend = m_buttons.end();
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         CTabButton* button = *itor;
         if (!button)
             continue;

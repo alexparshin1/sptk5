@@ -369,7 +369,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode,CLayoutXMLmode xmlMode)
         clear();
         m_group->begin();
         XMLNode::const_iterator itor = groupNode->begin();
-        for (; itor != groupNode->end(); itor++) {
+        for (; itor != groupNode->end(); ++itor) {
             XMLNode* widgetNode = *itor;
             if (!widgetNode->isElement())
                 continue;
@@ -407,7 +407,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode,CLayoutXMLmode xmlMode)
         map<string,XMLNode *> xmlControls;
         map<string,XMLNode *> xmlGroups;
         XMLNode::const_iterator itor = groupNode->begin();
-        for (; itor != groupNode->end(); itor++) {
+        for (; itor != groupNode->end(); ++itor) {
             XMLNode* node = *itor;
             string label = node->getAttribute("label");
             if (label.empty())

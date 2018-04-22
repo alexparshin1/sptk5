@@ -74,7 +74,7 @@ void CThemes::loadGtkButtonFileNames(XMLDocument& xml,string XPath,map<CThemeIma
     
     buttonFileNames.clear();
     xml.select(buttonImages,XPath);
-    for (XMLNode::iterator itor = buttonImages.begin(); itor != buttonImages.end(); itor++) {
+    for (XMLNode::iterator itor = buttonImages.begin(); itor != buttonImages.end(); ++itor) {
         XMLNode* imageNode = *itor;
         if (!orientation.empty() && imageNode->getAttribute("arrow_direction").str() != orientation)
             continue;

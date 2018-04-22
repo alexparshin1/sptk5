@@ -752,7 +752,7 @@ void CTreeControl::selectOnly(CTreeItem* item, bool giveFocus)
     auto itor = m_selectedItems.begin();
     auto iend = m_selectedItems.end();
 
-    for (; itor != iend; itor++) {
+    for (; itor != iend; ++itor) {
         CTreeItem* treeItem = *itor;
 
         if (treeItem != item)

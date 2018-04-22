@@ -60,7 +60,7 @@ public:
      * Automatically locks the lock object. That is needed for thread safety.
      * @param object Synchronization object to lock.
      */
-    SynchronizedCode(Synchronized& object)
+    explicit SynchronizedCode(Synchronized& object)
     : m_object(&object)
     {
         m_object->lock();
@@ -72,7 +72,7 @@ public:
      * Automatically locks the lock object. That is needed for thread safety.
      * @param object            Synchronization object to lock.
      */
-    SynchronizedCode(Synchronized* object)
+    explicit SynchronizedCode(Synchronized* object)
     : m_object(object)
     {
         m_object->lock();

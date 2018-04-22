@@ -87,7 +87,7 @@ public:
      * Constructor
      * @param parent Element*, Parent JSON element
      */
-    ArrayData(Element* parent = NULL);
+    explicit ArrayData(Element* parent = NULL);
 
     /**
      * Destructor

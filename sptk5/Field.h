@@ -75,7 +75,7 @@ public:
      * @brief Constructor
      * @param name               Field name
      */
-    Field(const char *name);
+    explicit Field(const char *name);
 
     /**
      * @brief Copy constructor

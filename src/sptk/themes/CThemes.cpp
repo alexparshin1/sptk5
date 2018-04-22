@@ -273,7 +273,7 @@ void CThemes::set(string theThemeName)
 
         try {
             XMLNode::iterator itor = m_registry->begin();
-            for (; itor != m_registry->end(); itor++) {
+            for (; itor != m_registry->end(); ++itor) {
                 XMLNode* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                     continue;
@@ -306,7 +306,7 @@ void CThemes::set(string theThemeName)
 
             XMLNode* fontsTopic = m_registry->findOrCreate("fonts", false);
             m_fonts.clear();
-            for (itor = fontsTopic->begin(); itor != fontsTopic->end(); itor++) {
+            for (itor = fontsTopic->begin(); itor != fontsTopic->end(); ++itor) {
                 XMLNode* fontInfo = *itor;
                 string fontName = fontInfo->getAttribute("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);

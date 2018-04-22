@@ -1962,7 +1962,7 @@ void CListView::loadList(const XMLNode* node)
     clear();
     XMLNode::const_iterator itor = node->begin();
 
-    for (; itor != node->end(); itor++) {
+    for (; itor != node->end(); ++itor) {
         XMLNode* anode = *itor;
 
         if (anode->name() == "columns") {
@@ -1975,7 +1975,7 @@ void CListView::loadList(const XMLNode* node)
             size_t colCount = m_columnList.size();
             if (colCount > 0) {
                 cpchar *strings = new cpchar[colCount];
-                for (; itor != anode->end(); itor++) {
+                for (; itor != anode->end(); ++itor) {
                     XMLNode* rowNode = *itor;
                     int rowID = rowNode->getAttribute("id");
                     XMLNode::iterator rtor = rowNode->begin();

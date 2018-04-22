@@ -57,7 +57,7 @@ void CIcon::load(const Buffer& imageData)
 
 void CIconMap::clear()
 {
-    for (iterator itor = begin(); itor != end(); itor++) {
+    for (iterator itor = begin(); itor != end(); ++itor) {
         CIcon* icon = itor->second;
         if (m_shared)
             delete icon;
@@ -81,7 +81,7 @@ void CIconMap::insert(CIcon* icon)
 
 void CIconMap::load(Tar& tar, XMLNode* iconsNode)
 {
-    for (XMLNode::iterator itor = iconsNode->begin(); itor != iconsNode->end(); itor++) {
+    for (XMLNode::iterator itor = iconsNode->begin(); itor != iconsNode->end(); ++itor) {
         XMLNode* node = *itor;
         if (node->name() != "icon")
             continue;

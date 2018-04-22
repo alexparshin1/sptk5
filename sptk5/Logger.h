@@ -186,7 +186,7 @@ public:
      * @brief Constructor
      * @param destination LogEngine&, destination logger
      */
-    Logger(LogEngine& destination);
+    explicit Logger(LogEngine& destination);
 
     /**
      * @brief Destructor

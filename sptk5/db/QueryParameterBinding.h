@@ -81,7 +81,7 @@ public:
      * Constructor
      * @param isOutput          Output parameter flag
      */
-    QueryParameterBinding(bool isOutput)
+    explicit QueryParameterBinding(bool isOutput)
     {
         reset(isOutput);
     }

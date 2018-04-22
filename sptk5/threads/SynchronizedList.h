@@ -222,7 +222,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(m_sync);
         typename std::list<T>::iterator itor;
-        for (itor = m_list->begin(); itor != m_list->end(); itor++) {
+        for (itor = m_list->begin(); itor != m_list->end(); ++itor) {
             if (!callbackFunction(*itor, data))
                 return false;
         }

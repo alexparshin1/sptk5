@@ -441,14 +441,14 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             break;
 
         case VAR_DATE:
-            field->setDate(data);
+            field->setDate(DateTime(data));
             break;
             
         case VAR_DATE_TIME:
             if (strncmp(data, "0000-00", 7) == 0)
                 field->setNull(VAR_DATE_TIME);
             else
-                field->setDateTime(data);
+                field->setDateTime(DateTime(data));
             break;
 
         case VAR_FLOAT:

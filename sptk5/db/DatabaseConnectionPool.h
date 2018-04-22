@@ -195,7 +195,7 @@ public:
      * Automatically gets connection from connection pool
      * @param connectionPool DatabaseConnectionPool&, Database connection pool
      */
-    AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
+    explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
     : m_connectionPool(connectionPool)
     {
         m_connection = m_connectionPool.createConnection();

@@ -45,7 +45,7 @@ namespace sptk {
 /**
  * Variant types
  */
-enum VariantType {
+enum VariantType : uint32_t {
     /**
      * Undefined
      */
