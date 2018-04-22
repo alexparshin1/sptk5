@@ -1,8 +1,0 @@
-  The ebuilds in this directory are designed to install SPTK from
-SVN repository on Gentoo Linux. Please remember that SVN repository
-contains the files that are being developed. There is no guarantee
-that you even would be able to compile it even that it usually
-compiles.
-
-SPTK development team,
-www.sptk.net

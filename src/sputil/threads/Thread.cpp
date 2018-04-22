@@ -58,19 +58,20 @@ Thread::Thread(const string& name) :
 
 Thread::~Thread()
 {
-    m_terminated.store(true);
     if (m_thread.joinable())
         m_thread.detach();
 }
 
 void Thread::terminate()
 {
-    m_terminated.store(true);
+    lock_guard<std::mutex> lock(m_mutex);
+    m_terminated = true;
 }
 
 bool Thread::terminated()
 {
-    return m_terminated.load();
+    lock_guard<std::mutex> lock(m_mutex);
+    return m_terminated;
 }
 
 Thread::Id Thread::id()
@@ -86,7 +87,7 @@ void Thread::join()
 
 void Thread::run()
 {
-    std::lock_guard<std::mutex> lk(m_mutex);
-    m_terminated.store(false);
+    lock_guard<std::mutex> lock(m_mutex);
+    m_terminated = false;
     m_thread = thread(threadStart, (void *) this);
 }
