@@ -16,7 +16,7 @@ sed -r "s|@SPTK_VERSION@|$SPTKVER|g" sptk5.doxygen.in > sptk5.doxygen
 
 echo Starting in $SPTKDIR
 echo Generating HTML documentation
-doxygen sptk5.doxygen
+doxygen sptk5.doxygen 2>&1 | grep -E -v '(macro definition|warning: include file map not found|warning: include file)'
 if [ $? != 0 ]; then
   echo Errors during HTML docs generation.
   echo Exiting..
