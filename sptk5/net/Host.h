@@ -170,6 +170,9 @@ public:
         return str.str();
     }
 
+    /**
+     * Get host address
+     */
     void getAddress(sockaddr_in& address) const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
