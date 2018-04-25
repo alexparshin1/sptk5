@@ -705,8 +705,8 @@ void ODBCConnection::listDataSources(Strings& dsns)
     SQLHENV hEnv = ODBCConnectionBase::getEnvironment().handle();
     bool offline = hEnv == nullptr;
     if (offline) {
-        ret = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv);
-        ret = SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER);
+        SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv);
+        SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER);
     }
 
     SQLUSMALLINT direction =
@@ -773,8 +773,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 break;
         }
 
-		SQLCHAR objectSchema[256] = {};
-		SQLCHAR objectName[256] = {};
+        SQLCHAR objectSchema[256] = {};
+        SQLCHAR objectName[256] = {};
         SQLLEN cbObjectSchema;
         SQLLEN cbObjectName;
         if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema, sizeof(objectSchema), &cbObjectSchema) != SQL_SUCCESS)

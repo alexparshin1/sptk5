@@ -291,7 +291,7 @@ void PostgreSQLConnection::driverEndTransaction(bool commit)
 
 //-----------------------------------------------------------------------------------------------
 
-string PostgreSQLConnection::queryError(const Query* query) const
+string PostgreSQLConnection::queryError(const Query*) const
 {
     return PQerrorMessage(m_connect);
 }

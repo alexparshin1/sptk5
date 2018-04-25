@@ -423,7 +423,7 @@ void OracleConnection::queryFetch(Query *query)
             }
 
             int         year;
-            unsigned    month, day, hour, min, sec, ms;
+            unsigned    month, day, hour, min, sec;
 
             switch ((Type)field->fieldType())
             {
@@ -459,6 +459,7 @@ void OracleConnection::queryFetch(Query *query)
                 case SQLT_TIMESTAMP_TZ:
                     {
                         Timestamp timestamp = resultSet->getTimestamp(columnIndex);
+                        unsigned ms;
                         timestamp.getDate(year, month, day);
                         timestamp.getTime(hour, min, sec, ms);
                         field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));

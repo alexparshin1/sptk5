@@ -177,7 +177,7 @@ void SQLite3Connection::driverEndTransaction(bool commit)
 
 //-----------------------------------------------------------------------------------------------
 
-string SQLite3Connection::queryError(const Query* query) const
+string SQLite3Connection::queryError(const Query*) const
 {
     return sqlite3_errmsg(m_connect);
 }

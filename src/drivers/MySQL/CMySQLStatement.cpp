@@ -298,7 +298,7 @@ void MySQLStatement::execute(bool x)
 {
     m_state.eof = false;
     if (m_result != nullptr) {
-    	mysql_free_result(m_result);
+        mysql_free_result(m_result);
         m_result = nullptr;
     }
     if (m_statement != nullptr) {
@@ -308,7 +308,7 @@ void MySQLStatement::execute(bool x)
         if (m_state.columnCount != 0)
             m_result = mysql_stmt_result_metadata(m_statement);
     } else {
-    	MYSQL* conn = m_connection->m_connection;
+        MYSQL* conn = m_connection->m_connection;
         if (mysql_query(conn, m_sql.c_str()) != 0) {
             string error = mysql_error(conn);
             throw DatabaseException(error);

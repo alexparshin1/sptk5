@@ -98,25 +98,25 @@ public:
 
     /**
      * @brief Internal decode date operation into year, month, and day
-     * @param dt Clock::time_point, Date to decode
-     * @param year short&, Year (output)
-     * @param month short&, Month (output)
-     * @param day short&, Day (output)
-     * @param dayOfWeek short&, Day of week, 0..6 (output)
-     * @param dayOfYear short&, Day of year (output)
-     * @param gmt bool, Use GMT timezone for output
+     * @param dt                Date to decode
+     * @param year              Year (output)
+     * @param month             Month (output)
+     * @param day               Day (output)
+     * @param dayOfWeek         Day of week, 0..6 (output)
+     * @param dayOfYear         Day of year (output)
+     * @param gmt               Use GMT timezone for output
     */
     static void decodeDate(const time_point& dt, short& year, short& month, short& day, short& dayOfWeek, short& dayOfYear,
                            bool gmt = false);
 
     /**
      * @brief Internal decode time operation into hour, minute, second, and millisecond
-     * @param dt Clock::time_point, Date to decode
-     * @param hour short&, Hour (output)
-     * @param minute short&, Minute (output)
-     * @param second short&, Second (output)
-     * @param millisecond short&, Millisecond (output)
-     * @param gmt bool, Use GMT timezone for output
+     * @param dt                Date to decode
+     * @param hour              Hour (output)
+     * @param minute            Minute (output)
+     * @param second            Second (output)
+     * @param millisecond       Millisecond (output)
+     * @param gmt               Use GMT timezone for output
     */
     static void decodeTime(const time_point& dt, short& hour, short& minute, short& second, short& millisecond,
                            bool gmt = false);
@@ -215,7 +215,7 @@ public:
 
     /**
     * Set timezone for the application
-    * @param tzname const std::string&, Time zone name, such as "UTC", ":US/Pacific", etc
+    * @param tzname             Time zone name, such as "UTC", ":US/Pacific", etc
     */
     static void setTimeZone(const std::string& tzname);
 
@@ -230,18 +230,19 @@ public:
 
     /**
     * @brief Constructor
-    * @param y short, year
-    * @param m short, month
-    * @param d short, day
-    * @param h short, hour
-    * @param mm short, minute
-    * @param s short, second
+    * @param y                  Year
+    * @param m                  Month
+    * @param d                  Day
+    * @param h                  Hour
+    * @param mm                 Minute
+    * @param s                  Second
+    * @param ms                 Millisecond
     */
-    DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0) noexcept;
+    DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0) noexcept;
 
     /**
      * @brief Constructor
-     * @param dateStr const char *, date string
+     * @param dateStr           Date string
      */
     explicit DateTime(const char* dateStr) noexcept;
 
@@ -252,19 +253,19 @@ public:
 
     /**
      * @brief Constructor
-     * @param dt const time_point&, Time point
+     * @param dt                Time point
      */
     explicit DateTime(const time_point& dt) noexcept;
 
     /**
      * @brief Constructor
-     * @param dt const duration&, Duration since epoch
+     * @param dt                Duration since epoch
      */
     explicit DateTime(const duration& dt) noexcept;
 
     /**
      * @brief Constructor
-     * @param sinceEpochMS int64_t, Time since epoch, milliseconds
+     * @param sinceEpochMS      Time since epoch, milliseconds
      */
     explicit DateTime(int64_t sinceEpochMS) noexcept;
 
@@ -336,16 +337,16 @@ public:
 
     /**
      * @brief Print the date into stream
-     * @param str std::ostream&,            Output stream
-     * @param printFlags int,               Print flags, recognised { PF_GMT, PF_RFC_DATE }
+     * @param str               Output stream
+     * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
     void formatDate(std::ostream& str, int printFlags=0) const;
 
     /**
      * Print date into string
-     * @param str std::ostream&,            Output stream
-     * @param printFlags int,               Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
-     * @param printAccuracy PrintAccuracy,  Print accuracy, @see PrintAccuracy
+     * @param str               Output stream
+     * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
+     * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
     void formatTime(std::ostream& str, int printFlags=0, PrintAccuracy printAccuracy=PA_SECONDS) const;
 
@@ -387,6 +388,7 @@ public:
 
     /**
      * @brief Converts C time into DateTime
+     * @param tt                C time to convert
      */
     static DateTime convertCTime(const time_t tt);
 
@@ -398,7 +400,7 @@ public:
     /**
      * @brief Reports the day of the week in this date (1..7)
      */
-    int16_t dayOfWeek(void) const;
+    int16_t dayOfWeek() const;
 
     /**
      * @brief Reports the day since the beginning of the year in this date
@@ -408,7 +410,7 @@ public:
     /**
      * @brief Reports the day of the week name in this date ('Sunday'..'Saturday')
      */
-    std::string dayOfWeekName(void) const;
+    std::string dayOfWeekName() const;
 
     /**
      * @brief Reports the month name in this date ('Sunday'..'Saturday')
@@ -437,21 +439,21 @@ public:
 
     /**
      * @brief Returns date as a string
-     * @param printFlags int,               Print flags, recognised { PF_GMT, PF_RFC_DATE }
+     * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
     std::string dateString(int printFlags=0) const;
 
     /**
      * @brief Returns time as a string
-     * @param printFlags int,               Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
-     * @param printAccuracy PrintAccuracy,  Print accuracy, @see PrintAccuracy
+     * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
+     * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
     std::string timeString(int printFlags=0, PrintAccuracy printAccuracy=PA_SECONDS) const;
 
     /**
      * @brief Returns time as a ISO date and time string
-     * @param printAccuracy PrintAccuracy,  Print accuracy, @see PrintAccuracy
-     * @param gmt bool,                     If true print GMT time
+     * @param printAccuracy     Print accuracy, @see PrintAccuracy
+     * @param gmt               If true print GMT time
      */
     std::string isoDateTimeString(PrintAccuracy printAccuracy=PA_SECONDS, bool gmt=false) const;
 

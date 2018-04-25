@@ -288,7 +288,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
             parameter = m_enumeratedParams[index - 1];
 
             int         year;
-            unsigned    month, day, hour, min, sec, ms;
+            unsigned    month, day, hour, min, sec;
 
             DatabaseField* field = new DatabaseField(parameter->name(), columnIndex, OCCIANYDATA, parameter->dataType(), 256);
             fields.push_back(field);
@@ -314,6 +314,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
                 case VAR_DATE_TIME:
                     {
                         Timestamp timestamp = m_statement->getTimestamp(index);
+                        unsigned ms;
                         timestamp.getDate(year, month, day);
                         timestamp.getTime(hour, min, sec, ms);
                         field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));

@@ -131,9 +131,9 @@ String MySQLConnection::nativeConnectionString() const
     // Connection string in format: host[:port][/instance]
     String connectionString = m_connString.hostName();
     if (m_connString.portNumber() != 0)
-        connectionString += ":" + int2string(m_connString.portNumber());
+        connectionString += String(":", 1) + int2string(m_connString.portNumber());
     if (!m_connString.databaseName().empty())
-        connectionString += "/" + m_connString.databaseName();
+        connectionString += String("/", 1) + m_connString.databaseName();
     return connectionString;
 }
 

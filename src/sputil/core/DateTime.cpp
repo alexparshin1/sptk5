@@ -560,11 +560,11 @@ void DateTime::decodeDate(const time_point &dt, short &year, short &month, short
 //----------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------
-DateTime::DateTime(short year, short month, short day, short hour, short minute, short second) noexcept
+DateTime::DateTime(short year, short month, short day, short hour, short minute, short second, short millisecond) noexcept
 {
     try {
         encodeDate(m_dateTime, year, month, day);
-        encodeTime(m_dateTime, hour, minute, second);
+        encodeTime(m_dateTime, hour, minute, second, millisecond);
     }
     catch (...) {
         m_dateTime = time_point();
