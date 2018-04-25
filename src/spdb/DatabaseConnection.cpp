@@ -124,7 +124,7 @@ void DatabaseConnection::rollbackTransaction()
 
 //-----------------------------------------------------------------------------------------------
 
-string DatabaseConnection::queryError(const Query *q) const
+string DatabaseConnection::queryError(const Query*) const
 {
     notImplemented("queryError");
     return "";
@@ -160,22 +160,22 @@ void DatabaseConnection::querySetEof(Query *q, bool eof)
     q->m_eof = eof;
 }
 
-void DatabaseConnection::queryAllocStmt(Query *query)
+void DatabaseConnection::queryAllocStmt(Query*)
 {
     notImplemented("queryAllocStmt");
 }
 
-void DatabaseConnection::queryFreeStmt(Query *query)
+void DatabaseConnection::queryFreeStmt(Query*)
 {
     notImplemented("queryFreeStmt");
 }
 
-void DatabaseConnection::queryCloseStmt(Query *query)
+void DatabaseConnection::queryCloseStmt(Query*)
 {
     notImplemented("queryCloseStmt");
 }
 
-void DatabaseConnection::queryPrepare(Query *query)
+void DatabaseConnection::queryPrepare(Query*)
 {
     notImplemented("queryPrepare");
 }
@@ -185,38 +185,38 @@ void DatabaseConnection::queryUnprepare(Query *query)
     queryFreeStmt(query);
 }
 
-void DatabaseConnection::queryExecute(Query *query)
+void DatabaseConnection::queryExecute(Query*)
 {
     notImplemented("queryExecute");
 }
 
-int DatabaseConnection::queryColCount(Query *query)
+int DatabaseConnection::queryColCount(Query*)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void DatabaseConnection::queryColAttributes(Query *query, int16_t, int16_t, int32_t&)
+void DatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void DatabaseConnection::queryColAttributes(Query *query, int16_t, int16_t, char *, int32_t)
+void DatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void DatabaseConnection::queryBindParameters(Query *query)
+void DatabaseConnection::queryBindParameters(Query*)
 {
     notImplemented("queryBindParameters");
 }
 
-void DatabaseConnection::queryOpen(Query *query)
+void DatabaseConnection::queryOpen(Query*)
 {
     notImplemented("queryOpen");
 }
 
-void DatabaseConnection::queryFetch(Query *query)
+void DatabaseConnection::queryFetch(Query*)
 {
     notImplemented("queryFetch");
 }

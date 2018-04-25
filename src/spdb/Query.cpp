@@ -331,13 +331,13 @@ void Query::disconnect()
     m_db = nullptr;
 }
 
-bool Query::readField(const char* name, Variant& fvalue)
+bool Query::readField(const char*, Variant&)
 {
     //fvalue = m_fields[fname];
     return true;
 }
 
-bool Query::writeField(const char* name, const Variant& fvalue)
+bool Query::writeField(const char*, const Variant&)
 {
     //m_fields[fname] = fvalue;
     return true;
