@@ -115,9 +115,13 @@ void Host::getHostAddress()
 
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
-	m_address.sin_family = host_info->h_addrtype;
+    m_address.sin_family = host_info->h_addrtype;
     memcpy(&m_address.sin_addr, host_info->h_addr, size_t(host_info->h_length));
 #else
+    // Valgrind complans that getaddrinfo is not thread safe
+    static mutex amutex;
+    lock_guard<mutex> lock(amutex);
+
     struct addrinfo hints = {};
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;          // IPv4 or IPv6

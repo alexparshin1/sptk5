@@ -176,7 +176,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
 {
     DateTime started = DateTime::Now();
     DateTime timeoutAt(started + timeout);
-    TCPSocket::open(address, openMode, _blockingMode, timeout);
+    TCPSocket::_open(address, openMode, _blockingMode, timeout);
 
     lock_guard<mutex> lock(*this);
 
