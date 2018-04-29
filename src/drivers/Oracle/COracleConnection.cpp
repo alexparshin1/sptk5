@@ -119,12 +119,13 @@ bool OracleConnection::active() const
 String OracleConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
-    String connectionString = m_connString.hostName();
+    stringstream connectionString;
+    connectionString << m_connString.hostName();
     if (m_connString.portNumber())
-        connectionString += ":" + int2string(m_connString.portNumber());
+        connectionString << ":" << m_connString.portNumber();
     if (!m_connString.databaseName().empty())
-        connectionString += "/" + m_connString.databaseName();
-    return connectionString;
+        connectionString << "/" << m_connString.databaseName();
+    return connectionString.str();
 }
 
 void OracleConnection::driverBeginTransaction()
@@ -257,26 +258,26 @@ VariantType OracleConnection::OracleTypeToVariantType(Type oracleType)
 {
     switch (oracleType)
     {
-        case SQLT_NUM:
+        case Type(SQLT_NUM):
             return VAR_FLOAT;
-        case SQLT_INT:
-        case SQLT_FLT:
-        case SQLT_UIN:
+        case Type(SQLT_INT):
+        case Type(SQLT_FLT):
+        case Type(SQLT_UIN):
             return VAR_INT64;
-        case SQLT_DAT:
-        case SQLT_DATE:
+        case Type(SQLT_DAT):
+        case Type(SQLT_DATE):
             return VAR_DATE;
-        case SQLT_BFLOAT:
-        case SQLT_BDOUBLE:
+        case Type(SQLT_BFLOAT):
+        case Type(SQLT_BDOUBLE):
             return VAR_FLOAT;
-        case SQLT_BLOB:
+        case Type(SQLT_BLOB):
             return VAR_BUFFER;
-        case SQLT_CLOB:
+        case Type(SQLT_CLOB):
             return VAR_TEXT;
-        case SQLT_TIME:
-        case SQLT_TIME_TZ:
-        case SQLT_TIMESTAMP:
-        case SQLT_TIMESTAMP_TZ:
+        case Type(SQLT_TIME):
+        case Type(SQLT_TIME_TZ):
+        case Type(SQLT_TIMESTAMP):
+        case Type(SQLT_TIMESTAMP_TZ):
             return VAR_DATE_TIME;
         default:
             return VAR_STRING;
@@ -308,7 +309,7 @@ Type OracleConnection::VariantTypeToOracleType(VariantType dataType)
         case VAR_BOOL:
             return (Type) OCCIINT;
         default:
-            throwException("Unsupported SPTK data type: " + int2string(dataType));
+            throwException("Unsupported SPTK data type: " << dataType);
     }
 }
 
@@ -392,7 +393,7 @@ void OracleConnection::queryOpen(Query *query)
 void OracleConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        query->throwError("COracleConnection::queryFetch", "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     lock_guard<mutex> lock(m_mutex);
 
@@ -427,36 +428,36 @@ void OracleConnection::queryFetch(Query *query)
 
             switch ((Type)field->fieldType())
             {
-                case SQLT_INT:
-                case SQLT_UIN:
+                case Type(SQLT_INT):
+                case Type(SQLT_UIN):
                     field->setInteger(resultSet->getInt(columnIndex));
                     break;
 
-                case SQLT_NUM:
+                case Type(SQLT_NUM):
                     field->setFloat(resultSet->getNumber(columnIndex));
                     break;
 
-                case SQLT_FLT:
-                case SQLT_BFLOAT:
+                case Type(SQLT_FLT):
+                case Type(SQLT_BFLOAT):
                     field->setFloat(resultSet->getFloat(columnIndex));
                     break;
 
-                case SQLT_BDOUBLE:
+                case Type(SQLT_BDOUBLE):
                     field->setFloat(resultSet->getDouble(columnIndex));
                     break;
 
-                case SQLT_DAT:
-                case SQLT_DATE:
+                case Type(SQLT_DAT):
+                case Type(SQLT_DATE):
                     {
                         resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
                         field->setDate(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)));
                     }
                     break;
 
-                case SQLT_TIME:
-                case SQLT_TIME_TZ:
-                case SQLT_TIMESTAMP:
-                case SQLT_TIMESTAMP_TZ:
+                case Type(SQLT_TIME):
+                case Type(SQLT_TIME_TZ):
+                case Type(SQLT_TIMESTAMP):
+                case Type(SQLT_TIMESTAMP_TZ):
                     {
                         Timestamp timestamp = resultSet->getTimestamp(columnIndex);
                         unsigned ms;
@@ -466,7 +467,7 @@ void OracleConnection::queryFetch(Query *query)
                     }
                     break;
 
-                case SQLT_BLOB:
+                case Type(SQLT_BLOB):
                     {
                         Blob blob = resultSet->getBlob(columnIndex);
                         blob.open(OCCI_LOB_READONLY);
@@ -481,7 +482,7 @@ void OracleConnection::queryFetch(Query *query)
                     }
                     break;
 
-                case SQLT_CLOB:
+                case Type(SQLT_CLOB):
                     {
                         Clob clob = resultSet->getClob(columnIndex);
                         clob.open(OCCI_LOB_READONLY);
@@ -504,8 +505,7 @@ void OracleConnection::queryFetch(Query *query)
             }
 
         } catch (exception& e) {
-            query->throwError("COracleConnection::queryFetch",
-                              "Can't read field " + field->fieldName() + ": " + string(e.what()));
+            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what());
         }
     }
 }
@@ -575,7 +575,7 @@ void OracleConnection::bulkInsert(const String& tableName, const Strings& column
     for (auto& columnName: columnNames) {
         auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end())
-            throwDatabaseException("Column '" + columnName + "' doesn't belong to table " + tableName);
+            throwDatabaseException("Column '" << columnName << "' doesn't belong to table " << tableName);
         columnTypeSizeVector.push_back(column->second);
     }
 

@@ -38,6 +38,9 @@ namespace sptk
 class AsyncTcpSocket : public TCPSocket
 {
     static SocketEvents socketEvents;
+    void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
 public:
     /**
      * Constructor
@@ -51,11 +54,6 @@ public:
      * Destructor
      */
     virtual ~AsyncTcpSocket() = default;
-
-    void open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
-
-    void
-    open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo) override;
 

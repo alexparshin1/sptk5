@@ -101,10 +101,10 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
             const CSelection& selection = fileDialog->m_directoryView->selection();
 
             for (unsigned i = 0; i < selection.size(); i++) {
-                CPackedStrings& row = selection[i];
+                CPackedStrings& srow = selection[i];
 
                 if (strncmp(row[3], "Directory", 9) != 0) {
-                    fileNames.push_back(row[1]);
+                    fileNames.push_back(srow[1]);
                 }
             }
 

@@ -31,7 +31,6 @@
 #include <iomanip>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -320,7 +319,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
                     string error = "DEALLOCATE command failed: ";
                     error += PQerrorMessage(m_connect);
                     PQclear(res);
-                    query->throwError("CPostgreSQLConnection::queryFreeStmt", error);
+                    THROW_QUERY_ERROR(query, error);
                 }
                 PQclear(res);
             }
@@ -365,7 +364,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
         string error = "PREPARE command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(stmt);
-        query->throwError("CPostgreSQLConnection::queryPrepare", error);
+        THROW_QUERY_ERROR(query, error);
     }
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
@@ -441,7 +440,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
-        query->throwError("CPostgreSQLConnection::queryBindParameters", error);
+        THROW_QUERY_ERROR(query, error);
     }
 }
 
@@ -489,7 +488,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
     if (!error.empty()) {
         PQclear(stmt);
         statement->clear();
-        query->throwError("CPostgreSQLConnection::queryBindParameters", error);
+        THROW_QUERY_ERROR(query, error);
     }
 }
 
@@ -573,7 +572,7 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgre
             return;           ///< Boolean
 
         default:
-            throwException("Unsupported SPTK data type: " + int2string(dataType));
+            throwException("Unsupported SPTK data type: " << dataType);
     }
 }
 
@@ -743,7 +742,7 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
 
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; i++, v += 2, digitWeight--) {
-        auto digit = (int16_t) ntohs(*(int16_t*) v);
+        auto digit = (int16_t) ntohs(*(uint16_t*) v);
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
@@ -877,7 +876,7 @@ static void decodeArray(const char* data, DatabaseField* field)
 void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        query->throwError("CPostgreSQLConnection::queryFetch", "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     lock_guard<mutex> lock(m_mutex);
 
@@ -955,7 +954,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case PG_BYTEA:
-                        field->setExternalBuffer(data, dataLength);
+                        field->setExternalBuffer(data, (size_t) dataLength);
                         break;
 
                     case PG_DATE:
@@ -985,8 +984,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
             }
 
         } catch (exception& e) {
-            query->throwError("CPostgreSQLConnection::queryFetch",
-                              "Can't read field " + field->fieldName() + ": " + string(e.what()));
+            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what());
         }
     }
 }
@@ -1056,8 +1054,9 @@ std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
 void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                                       const String& format)
 {
-    string sql = "COPY " + tableName + "(" + columnNames.asString(",") + ") FROM STDIN " + format;
-    PGresult* res = PQexec(m_connect, sql.c_str());
+    stringstream sql("COPY ");
+    sql << tableName << "(" << columnNames.asString(",") << ") FROM STDIN " << format;
+    PGresult* res = PQexec(m_connect, sql.str().c_str());
 
     ExecStatusType rc = PQresultStatus(res);
     if (rc < 0) {
@@ -1071,7 +1070,7 @@ void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& co
     Buffer buffer;
     for (auto& row: data) {
         buffer.append(row);
-        buffer.append('\n');
+        buffer.append(char('\n'));
     }
 
     if (PQputCopyData(m_connect, buffer.c_str(), (int) buffer.bytes()) != 1) {
@@ -1095,7 +1094,9 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
     RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements, matches;
-    String statement, delimiter;
+    String delimiter;
+    stringstream statement;
+
     bool functionHeader = false;
     bool functionBody = false;
     for (auto row : sqlBatch) {
@@ -1107,7 +1108,7 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
         if (!functionHeader) {
             if (matchFunction.m(row, matches)) {
                 functionHeader = true;
-                statement += row + "\n";
+                statement << row << "\n";
                 continue;
             }
         }
@@ -1116,7 +1117,7 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
             functionBody = true;
             functionHeader = false;
             delimiter = matches[0];
-            statement += row + "\n";
+            statement << row << "\n";
             continue;
         }
 
@@ -1127,18 +1128,18 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
 
         if (!functionBody) {
             if (matchStatementEnd.m(row, matches)) {
-                statement += row;
-                statements.push_back(statement);
-                statement = "";
+                statement << row;
+                statements.push_back(statement.str());
+                statement.str("");
                 continue;
             }
         }
 
-        statement += row + "\n";
+        statement << row << "\n";
     }
 
-    if (!trim(statement).empty())
-        statements.push_back(statement);
+    if (!trim(statement.str()).empty())
+        statements.push_back(statement.str());
 
     for (auto& stmt : statements) {
         try {

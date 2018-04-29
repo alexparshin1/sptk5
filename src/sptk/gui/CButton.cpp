@@ -302,8 +302,8 @@ void CBaseButton::draw()
         draw_label();
     else {
         int pressedOffset = value() ? 1 : 0;
-        int xx = X + 4 + pressedOffset;
-        int yy = Y + (H - m_image->h()) / 2 + pressedOffset;
+        xx = X + 4 + pressedOffset;
+        yy = Y + (H - m_image->h()) / 2 + pressedOffset;
         int ww = W - 6;
         int hh = H - 6;
         int tx = xx + m_image->w() + 2;

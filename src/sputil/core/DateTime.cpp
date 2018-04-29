@@ -31,7 +31,6 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <iomanip>
-#include <sptk5/Strings.h>
 #include <sstream>
 
 using namespace std;
@@ -659,7 +658,7 @@ DateTime& DateTime::operator++()
     return *this;
 }
 
-DateTime& DateTime::operator++(int)
+const DateTime DateTime::operator++(int)
 {
     m_dateTime += hours(24);
     return *this;
@@ -671,7 +670,7 @@ DateTime& DateTime::operator--()
     return *this;
 }
 
-DateTime& DateTime::operator--(int)
+const DateTime DateTime::operator--(int)
 {
     m_dateTime -= hours(24);
     return *this;

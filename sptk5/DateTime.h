@@ -323,7 +323,7 @@ public:
     /**
      * @brief Increment by day, postfix
      */
-    DateTime& operator++(int);
+    const DateTime operator++(int);
 
     /**
      * @brief Decrement by day, prefix
@@ -333,7 +333,7 @@ public:
     /**
      * @brief Decrement by day, postfix
      */
-    DateTime& operator--(int);
+    const DateTime operator--(int);
 
     /**
      * @brief Print the date into stream

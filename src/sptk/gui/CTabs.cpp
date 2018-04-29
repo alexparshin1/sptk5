@@ -411,16 +411,16 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
         auto rend = m_rows.end();
         unsigned yPosition = y();
         for (; rtor != rend; rtor++) {
-            CTabButtons* row = *rtor;
-            auto btor = row->begin();
-            auto bend = row->end();
+            CTabButtons* brow = *rtor;
+            auto btor = brow->begin();
+            auto bend = brow->end();
             unsigned xPosition = x();
             for (; btor != bend; btor++) {
                 CTabButton* button = *btor;
                 button->position(xPosition, yPosition);
                 xPosition += button->w() + 2;
             }
-            yPosition += row->height();
+            yPosition += brow->height();
         }
     }
     return false;

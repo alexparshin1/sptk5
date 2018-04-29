@@ -94,6 +94,27 @@ protected:
      */
     virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
 
+    /**
+     * opens the socket connection by host and port
+     *
+     * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
+     * They could be defined by previous calls of  open(), port(), or host() methods.
+     * @param host const Host&, the host name
+     * @param openMode              Socket open mode
+     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
+     * @param timeout               Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
+    /**
+     * Opens the client socket connection by host and port
+     * @param address               Address and port
+     * @param openMode              Socket open mode
+     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
+     * @param timeout               Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
 public:
 
     /**
@@ -124,27 +145,6 @@ public:
      */
     void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
                   const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
-
-    /**
-     * opens the socket connection by host and port
-     *
-     * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
-     * They could be defined by previous calls of  open(), port(), or host() methods.
-     * @param host const Host&, the host name
-     * @param openMode              Socket open mode
-     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
-     * @param timeout               Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void open(const Host& host, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param address               Address and port
-     * @param openMode              Socket open mode
-     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
-     * @param timeout               Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Attaches socket handle

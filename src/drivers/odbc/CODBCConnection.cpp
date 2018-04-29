@@ -85,15 +85,16 @@ ODBCConnection::~ODBCConnection()
 
 String ODBCConnection::nativeConnectionString() const
 {
-    string connectionString = "DSN=" + m_connString.hostName();
+    stringstream connectionString;
+    connectionString << "DSN=" << m_connString.hostName();
     if (!m_connString.userName().empty())
-        connectionString += ";UID=" + m_connString.userName();
+        connectionString << ";UID=" << m_connString.userName();
     if (!m_connString.password().empty())
-        connectionString += ";PWD=" + m_connString.password();
+        connectionString << ";PWD=" << m_connString.password();
     if (!m_connString.databaseName().empty())
-        connectionString += ";DATABASE=" + m_connString.databaseName();
+        connectionString << ";DATABASE=" << m_connString.databaseName();
     //connectionString += ";ClientCharset=UTF-8;ServerCharset=UCS2";
-    return connectionString;
+    return connectionString.str();
 }
 
 void ODBCConnection::openDatabase(const String& newConnectionString)
@@ -242,7 +243,7 @@ void ODBCConnection::queryPrepare(Query* query)
     query->fields().clear();
 
     if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS)))
-        query->throwError("CODBCConnection::queryPrepare", queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query));
 }
 
 void ODBCConnection::queryUnprepare(Query* query)
@@ -279,12 +280,12 @@ void ODBCConnection::queryExecute(Query* query)
                     break;
                 errors.push_back(string(removeDriverIdentification((const char*) text)));
             }
-            query->throwError("CODBCConnection::queryExecute", errors.asString("; "));
+            THROW_QUERY_ERROR(query, errors.asString("; "));
         }
     }
 
     if (!successful(rc))
-        query->throwError("CODBCConnection::queryExecute", queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query));
 }
 
 int ODBCConnection::queryColCount(Query* query)
@@ -293,7 +294,7 @@ int ODBCConnection::queryColCount(Query* query)
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
-        query->throwError("CODBCConnection::queryColCount", queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query));
 
     return count;
 }
@@ -304,7 +305,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SQLLEN result;
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr, &result)))
-        query->throwError("CODBCConnection::queryColAttributes", queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query));
     value = (int32_t) result;
 }
 
@@ -312,12 +313,12 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 {
     int16_t available;
     if (buff == nullptr || len <= 0)
-        query->throwError("CODBCConnection::queryColAttributes", "Invalid buffer or buffer len");
+        THROW_QUERY_ERROR(query, "Invalid buffer or buffer len");
 
     lock_guard<mutex> lock(m_connect->m_mutex);
 
     if (!successful(SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len, &available, nullptr)))
-        query->throwError("CODBCConnection::queryColAttributes", queryError(query));
+        THROW_QUERY_ERROR(query, queryError(query));
 }
 
 void ODBCConnection::queryBindParameters(Query* query)
@@ -376,8 +377,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                                           SQL_LONGVARBINARY, (SQLULEN) len, scale, buff, SQLINTEGER(len), &cblen);
                     if (rc != 0) {
                         param->m_binding.reset(false);
-                        query->throwError("CODBCConnection::queryBindParameters",
-                                          "Can't bind parameter " + int2string(paramNumber));
+                        THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber);
                     }
                     continue;
 
@@ -421,8 +421,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                 }
                     break;
                 default:
-                    query->throwError("CODBCConnection::queryBindParameters",
-                                      "Unknown type of parameter " + int2string(paramNumber));
+                    THROW_QUERY_ERROR(query, "Unknown type of parameter " << paramNumber);
             }
             SQLLEN* cbValue = nullptr;
             if (param->isNull()) {
@@ -434,8 +433,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                                   buff, SQLINTEGER(len), cbValue);
             if (rc != 0) {
                 param->m_binding.reset(false);
-                query->throwError("CODBCConnection::queryBindParameters",
-                                  "Can't bind parameter " + int2string(paramNumber));
+                THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber);
             }
         }
     }
@@ -517,8 +515,7 @@ void ODBCConnection::queryOpen(Query* query)
     try {
         queryBindParameters(query);
     } catch (exception& e) {
-        string error = queryError(query);
-        query->throwError("CODBCConnection::queryOpen", string(e.what()) + "\n" + error);
+        THROW_QUERY_ERROR(query, queryError(query));
     }
 
     if (query->autoPrepare() && !query->prepared()) {
@@ -597,7 +594,7 @@ static uint32_t trimField(char* s, uint32_t sz)
 void ODBCConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        query->throwError("CODBCConnection::queryFetch", "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     auto statement = (SQLHSTMT) query->statement();
 
@@ -607,8 +604,7 @@ void ODBCConnection::queryFetch(Query* query)
 
     if (!successful(rc)) {
         if (rc < 0) {
-            string error = queryError(query);
-            throw DatabaseException(error, __FILE__, __LINE__, query->sql());
+            THROW_QUERY_ERROR(query, queryError(query));
         } else {
             querySetEof(query, rc == SQL_NO_DATA);
             return;

@@ -239,7 +239,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 
             nextReplacement += outputPattern.substr(pos, placeHolderStart - pos);
             placeHolderStart++;
-            auto placeHolderIndex = (size_t) atoi(outputPattern.c_str() + placeHolderStart);
+            auto placeHolderIndex = (size_t) string2int(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
                 Match &match = matchOffsets[placeHolderIndex];
@@ -299,7 +299,7 @@ String RegularExpression::replaceAll(const String& text, const map<String,String
             result += text.substr(fragmentOffset, fragmentStartLength);
 
         // Append replacement
-        string currentMatch(text.c_str() + matchOffsets[0].m_start, matchOffsets[0].m_end - matchOffsets[0].m_start);
+        string currentMatch(text.c_str() + matchOffsets[0].m_start, int(matchOffsets[0].m_end - matchOffsets[0].m_start));
 
         map<String,String>::iterator itor;
         if (m_pcreOptions & PCRE_CASELESS)
@@ -307,7 +307,7 @@ String RegularExpression::replaceAll(const String& text, const map<String,String
         else
             itor = substitutionsMap.find(currentMatch);
 
-        string nextReplacement;
+        String nextReplacement;
         if (itor == substitutionsMap.end())
             nextReplacement = currentMatch;
         else

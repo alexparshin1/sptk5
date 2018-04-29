@@ -150,7 +150,7 @@ void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFil
     m_verifyDepth = verifyDepth;
 }
 
-void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     m_sslContext = unique_ptr<SSLContext>(new SSLContext);
     if (m_verifyMode != SSL_VERIFY_NONE)
@@ -172,7 +172,7 @@ void SSLSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
     open(addr, openMode, _blockingMode, timeout);
 }
 
-void SSLSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     DateTime started = DateTime::Now();
     DateTime timeoutAt(started + timeout);

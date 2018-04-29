@@ -68,7 +68,7 @@ public:
     /**
      * Optional display field name
      */
-    std::string displayName;
+    String displayName;
 
 public:
     /**

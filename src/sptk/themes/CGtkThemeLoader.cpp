@@ -95,7 +95,7 @@ XMLNode* CGtkThemeParser::parseParameter(const String& row, XMLNode* parentNode,
         int maxValueSize = 16384;
         if (row[pos] == '\"') {
             pos++;
-            size_t pos2 = row.find_first_of("\"", pos);
+            pos2 = row.find_first_of("\"", pos);
             if (pos2 == STRING_NPOS)
                 throw runtime_error("Error parsing value for " + name + " in row " + row);
             maxValueSize = int(pos2 - pos);

@@ -36,14 +36,31 @@
 using namespace std;
 using namespace sptk;
 
-class DriverLoaders : public map<string, DatabaseDriver*, CaseInsensitiveCompare>
+class DriverLoaders
 {
+    map<string, DatabaseDriver*, CaseInsensitiveCompare> drivers;
 public:
     DriverLoaders() = default;
     ~DriverLoaders()
     {
-        for (auto itor: *this)
+        for (auto itor: drivers)
             delete itor.second;
+    }
+
+    DatabaseDriver* get(const String& driverName)
+    {
+        auto itor = drivers.find(driverName);
+        if (itor == drivers.end())
+            return nullptr;
+        return itor->second;
+    }
+
+    void add(const String& driverName, DatabaseDriver* driver)
+    {
+        auto itor = drivers.find(driverName);
+        if (itor != drivers.end())
+            delete itor->second;
+        drivers[driverName] = driver;
     }
 };
 
@@ -77,7 +94,7 @@ void DatabaseConnectionPool::load()
     if (driverName == "mssql")
         driverName = "odbc";
 
-    DatabaseDriver* loadedDriver = m_loadedDrivers[driverName];
+    DatabaseDriver* loadedDriver = m_loadedDrivers.get(driverName);
     if (loadedDriver != nullptr) {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
@@ -92,7 +109,7 @@ void DatabaseConnectionPool::load()
     if (!handle)
         throw DatabaseException("Cannot load library: " + driverFileName);
 #else
-    String driverFileName = "libspdb5_" + driverName + ".so";
+    String driverFileName = String("libspdb5_") + driverName + String(".so");
 
     DriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
     if (handle == nullptr)
@@ -100,8 +117,8 @@ void DatabaseConnectionPool::load()
 #endif
 
     // Creating the driver instance
-    String create_connectionFunctionName(driverName + "_create_connection");
-    String destroy_connectionFunctionName(driverName + "_destroy_connection");
+    String create_connectionFunctionName(driverName + String("_create_connection"));
+    String destroy_connectionFunctionName(driverName + String("_destroy_connection"));
 #ifdef WIN32
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
     if (!createConnection)
@@ -136,7 +153,7 @@ void DatabaseConnectionPool::load()
     if (dlsym_error != nullptr) {
         m_createConnection = nullptr;
         dlclose(handle);
-        throw DatabaseException("Cannot load driver " + driverName + ": " + string(dlsym_error));
+        throw DatabaseException(String("Cannot load driver ") + driverName + String(": ") + string(dlsym_error));
     }
 
 #endif
@@ -149,7 +166,7 @@ void DatabaseConnectionPool::load()
     m_destroyConnection = destroyConnection;
 
     // Registering loaded driver in the map
-    m_loadedDrivers[driverName] = driver;
+    m_loadedDrivers.add(driverName, driver);
 }
 
 DatabaseConnection* DatabaseConnectionPool::createConnection()

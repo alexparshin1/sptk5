@@ -93,7 +93,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
                 len = cr - readPosition + 1;
             else {
                 if (m_readOffset != 0) {
-                    memmove(m_buffer, m_buffer + m_readOffset, (int) availableBytes);
+                    memmove(m_buffer, m_buffer + m_readOffset, availableBytes);
                     m_readOffset = 0;
                     m_bytes = (size_t) availableBytes;
                 } else {
@@ -201,7 +201,7 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
-void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!host.hostname().empty())
         m_host = host;
@@ -214,7 +214,7 @@ void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
     open(address, openMode, _blockingMode, timeout);
 }
 
-void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeoutMS)
+void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeoutMS)
 {
     open_addr(openMode, &address, timeoutMS);
     m_reader.open();
@@ -266,13 +266,13 @@ size_t TCPSocket::readLine(std::string& s, char delimiter)
     return m_stringBuffer.bytes();
 }
 
-size_t TCPSocket::read(char *buffer, size_t size, sockaddr_in* from)
+size_t TCPSocket::_read(char *buffer, size_t size, sockaddr_in* from)
 {
     m_reader.read(buffer, size, 0, false, from);
     return size;
 }
 
-size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
+size_t TCPSocket::_read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
     size_t rc = m_reader.read(buffer.data(), size, 0, false, from);
@@ -280,7 +280,7 @@ size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
     return rc;
 }
 
-size_t TCPSocket::read(string& buffer, size_t size, sockaddr_in* from)
+size_t TCPSocket::_read(string& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
     size_t rc = m_reader.read((char*)buffer.c_str(), size, 0, false, from);

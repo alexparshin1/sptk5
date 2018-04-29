@@ -32,6 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <stdexcept>
+#include <sstream>
 
 namespace sptk {
 
@@ -266,27 +267,27 @@ public:
 /**
  * @brief Throws exception with file name and line number
  */
-#define throwException(msg) throw sptk::Exception(msg,__FILE__,__LINE__)
+#define throwException(msg) { std::stringstream err; err << msg; throw sptk::Exception(err.str(),__FILE__,__LINE__); }
 
 /**
  * @brief Throws timeout exception with file name and line number
  */
-#define throwTimeoutException(msg) throw sptk::TimeoutException(msg,__FILE__,__LINE__)
+#define throwTimeoutException(msg) { std::stringstream err; err << msg; throw sptk::TimeoutException(err.str(),__FILE__,__LINE__); }
 
 /**
  * @brief Throws connection exception with file name and line number
  */
-#define throwConnectionException(msg) throw sptk::ConnectionException(msg,__FILE__,__LINE__)
+#define throwConnectionException(msg) { std::stringstream err; err << msg; throw sptk::ConnectionException(err.str(),__FILE__,__LINE__); }
 
 /**
  * @brief Throws database exception with file name and line number
  */
-#define throwDatabaseException(msg) throw sptk::DatabaseException(msg,__FILE__,__LINE__)
+#define throwDatabaseException(msg) { std::stringstream err; err << msg; throw sptk::DatabaseException(err.str(),__FILE__,__LINE__); }
 
 /**
  * @brief Throws SOAP exception with file name and line number
  */
-#define throwSOAPException(msg) throw sptk::SOAPException(msg,__FILE__,__LINE__)
+#define throwSOAPException(msg) { std::stringstream err; err << msg; throw sptk::SOAPException(err.str(),__FILE__,__LINE__); }
 
 /**
  * @}

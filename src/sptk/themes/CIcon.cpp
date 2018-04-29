@@ -92,13 +92,13 @@ void CIconMap::load(Tar& tar, XMLNode* iconsNode)
         try {
             const Buffer& imageData = tar.file(fileName);
             CIcon* icon = NULL;
-            iterator itor = find(iconName);
-            if (itor == end()) {
+            iterator ftor = find(iconName);
+            if (ftor == end()) {
                 // Icon not found, adding new one
                 icon = new CIcon(iconName);
                 insert(icon);
             } else
-                icon = itor->second;
+                icon = ftor->second;
             icon->load(imageData);
             if (!icon->image())
                 throw runtime_error("Can't load " + fileName);

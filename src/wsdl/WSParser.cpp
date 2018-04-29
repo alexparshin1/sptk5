@@ -87,7 +87,7 @@ void WSParser::parseComplexType(const XMLElement* complexTypeElement)
     }
 
     if (m_complexTypes.find(complexTypeName) != m_complexTypes.end())
-        throwException("Duplicate complexType definition: " + complexTypeName);
+        throwException("Duplicate complexType definition: " << complexTypeName);
 
     WSParserComplexType* complexType = new WSParserComplexType(complexTypeElement, complexTypeName);
     m_complexTypes[complexTypeName] = complexType;

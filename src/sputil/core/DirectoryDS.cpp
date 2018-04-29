@@ -122,6 +122,8 @@ bool fl_file_match(const char *s, const char *p)
                                 goto NEXTCASE;
                         case 0:
                             return false;
+                        default:
+                            break;
                     }
                 }
             case '|': // skip rest of |pattern|pattern} when called recursively
@@ -137,6 +139,8 @@ bool fl_file_match(const char *s, const char *p)
                             break;
                         case '}':
                             nesting--;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -231,7 +235,7 @@ String absolutePath(String path)
 {
     char slashStr[] = {slash, 0};
     char currentDir[256];
-    string fullPath;
+    String fullPath;
     if (getcwd(currentDir, 255) == nullptr)
         currentDir[0] = 0;
 

@@ -603,6 +603,9 @@ public:
 /**
  * @}
  */
+
+#define THROW_QUERY_ERROR(query, error) { std::stringstream err; err << error; throw sptk::DatabaseException(err.str(),__FILE__,__LINE__, query->sql()); }
+
 }
 #define FETCH_BUFFER_SIZE 1024
 

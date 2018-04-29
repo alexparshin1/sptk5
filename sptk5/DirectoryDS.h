@@ -97,7 +97,7 @@ private:
     /**
      * Current directory
      */
-    std::string     m_directory;
+    String          m_directory;
 
     /**
      * Current file pattern

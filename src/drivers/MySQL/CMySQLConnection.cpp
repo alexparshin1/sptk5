@@ -129,12 +129,12 @@ bool MySQLConnection::active() const
 String MySQLConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
-    String connectionString = m_connString.hostName();
+    stringstream connectionString(m_connString.hostName());
     if (m_connString.portNumber() != 0)
-        connectionString += String(":", 1) + int2string(m_connString.portNumber());
+        connectionString << ":" << int2string(m_connString.portNumber());
     if (!m_connString.databaseName().empty())
-        connectionString += String("/", 1) + m_connString.databaseName();
-    return connectionString;
+        connectionString << "/" << m_connString.databaseName();
+    return connectionString.str();
 }
 
 void MySQLConnection::driverBeginTransaction()
@@ -205,7 +205,7 @@ void MySQLConnection::queryCloseStmt(Query *query)
             statement->close();
     }
     catch (exception& e) {
-        query->throwError("CMySQLConnection::queryBindParameters", e.what());
+        THROW_QUERY_ERROR(query, e.what());
     }
 }
 
@@ -221,7 +221,7 @@ void MySQLConnection::queryPrepare(Query *query)
                 statement->enumerateParams(query->params());
             }
             catch (exception& e) {
-                query->throwError("CMySQLConnection::queryBindParameters", e.what());
+                THROW_QUERY_ERROR(query, e.what());
             }
             //querySetPrepared(query, true);
         }
@@ -243,7 +243,7 @@ int MySQLConnection::queryColCount(Query *query)
         colCount = (int) statement->colCount();
     }
     catch (exception& e) {
-        query->throwError("CMySQLConnection::queryBindParameters", e.what());
+        THROW_QUERY_ERROR(query, e.what());
     }
     return colCount;
 }
@@ -259,7 +259,7 @@ void MySQLConnection::queryBindParameters(Query *query)
         statement->setParameterValues();
     }
     catch (exception& e) {
-        query->throwError("CMySQLConnection::queryBindParameters", e.what());
+        THROW_QUERY_ERROR(query, e.what());
     }
 }
 
@@ -272,7 +272,7 @@ void MySQLConnection::queryExecute(Query *query)
         statement->execute(m_inTransaction);
     }
     catch (exception& e) {
-        query->throwError("CMySQLConnection::queryExecute", e.what());
+        THROW_QUERY_ERROR(query, e.what());
     }
 }
 
@@ -316,7 +316,7 @@ void MySQLConnection::queryOpen(Query *query)
 void MySQLConnection::queryFetch(Query *query)
 {
     if (!query->active())
-        query->throwError("CMySQLConnection::queryFetch", "Dataset isn't open");
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     lock_guard<mutex> lock(m_mutex);
 
