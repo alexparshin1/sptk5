@@ -43,11 +43,9 @@ CLogStreamBuf::CLogStreamBuf()
 
 streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
 {
-    //SYNCHRONIZED_CODE;
-    
     bool bufferOverflow = m_bytes > m_size - 2;
     bool lineBreak = c <= 13;
-    
+
     if (lineBreak || bufferOverflow) {
         if (m_bytes != 0) {
             m_buffer[m_bytes] = 0;
