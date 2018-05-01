@@ -232,6 +232,8 @@ namespace sptk {
                 case 1:
                     m_doctype.m_public_id = start;
                     break;
+                default:
+                    break;
                 }
                 break;
             default:

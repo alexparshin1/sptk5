@@ -37,7 +37,7 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY domain)
     m_sockfd = socket (m_domain, m_type, m_protocol);
 }
 
-size_t UDPSocket::read(char *buffer, size_t size, sockaddr_in* from)
+size_t UDPSocket::_read(char *buffer, size_t size, sockaddr_in* from)
 {
     socklen_t addrLength = sizeof(sockaddr_in);
     auto bytes = recvfrom(m_sockfd, buffer, (int) size, 0, (sockaddr*) from, &addrLength);

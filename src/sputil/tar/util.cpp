@@ -22,7 +22,7 @@
 #define MAXPATHLEN 255
 #endif
 
-#define basename2(s) (strrchr(s,'/')==NULL?(char*)s:(strrchr(s,'/')+1))
+#define basename2(s) (strrchr(s,'/')==NULL?(char*)(s):(strrchr(s,'/')+1))
 #define basename(s) (strrchr(s,'\\')==NULL?(basename2(s)):(strrchr(s,'\\')+1))
 
 /* hashing function for pathnames */

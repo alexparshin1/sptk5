@@ -76,6 +76,6 @@ LogPriority LogEngine::priorityFromName(const String& prt)
         case 5: return LP_CRITICAL;
         case 6: return LP_ALERT;
         case 7: return LP_PANIC;
+        default: return LP_DEBUG;
     }
-    return LP_DEBUG;
 }

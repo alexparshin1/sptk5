@@ -134,6 +134,8 @@ void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
                 case Z_MEM_ERROR:
                     (void)inflateEnd(&strm);
                     throw Exception("premature compressed data error");
+                default:
+                    break;
             }
             have = CHUNK - strm.avail_out;
             dest.append((char*) out, have);

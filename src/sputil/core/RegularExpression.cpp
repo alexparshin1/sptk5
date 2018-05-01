@@ -299,7 +299,7 @@ String RegularExpression::replaceAll(const String& text, const map<String,String
             result += text.substr(fragmentOffset, fragmentStartLength);
 
         // Append replacement
-        string currentMatch(text.c_str() + matchOffsets[0].m_start, int(matchOffsets[0].m_end - matchOffsets[0].m_start));
+        string currentMatch(text.c_str() + matchOffsets[0].m_start, matchOffsets[0].m_end - matchOffsets[0].m_start);
 
         map<String,String>::iterator itor;
         if (m_pcreOptions & PCRE_CASELESS)
