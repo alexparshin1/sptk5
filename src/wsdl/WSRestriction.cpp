@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/wsdl/WSRestriction.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;

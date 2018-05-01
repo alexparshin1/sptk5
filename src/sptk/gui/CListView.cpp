@@ -411,9 +411,6 @@ int CListView::item_compute_height(CPackedStrings *l)
     // For blank lines set the height to exactly 1 line!
     unsigned hmax = m_textSize;
     unsigned borderWidth = cellBorderWidth();
-    int ch;
-    int cw;
-    const char *str;
 
     if (cells.size()) {
         short colmax = cells.size();
@@ -422,9 +419,9 @@ int CListView::item_compute_height(CPackedStrings *l)
         for (short c = 0; c < colmax; c++) {
             CColumn& column = m_columnList[c];
             if (column.visible()) {
-                str = cells[c];
-                ch = 0;
-                cw = column.width() - borderWidth;
+                const char *str = cells[c];
+                int ch = 0;
+                int cw = column.width() - borderWidth;
 
                 if (column.autoWidth())
                     cw = 400; // max width for auto-width column
@@ -919,7 +916,6 @@ void CListView::data(const Variant vv)
     unsigned cnt = m_rows.size();
     void *dataValue = 0;
     int intValue = vv;
-    unsigned line = 0;
     unsigned oldSelectedCount = m_selection.size();
     CPackedStrings *oldSelectedRow = 0L;
     CPackedStrings *newSelectedRow = 0L;
@@ -933,7 +929,7 @@ void CListView::data(const Variant vv)
             break;
         case LV_DATA_INDEX:
         {
-            line = intValue;
+            unsigned line = intValue;
             if (line < cnt) {
                 newSelectedRow = m_rows[line];
             }
@@ -1313,13 +1309,13 @@ void CListView::fill(DataSource &ds, std::string keyFieldName, unsigned recordsL
             m_selection.clear();
 
             unsigned recordCount = 0;
-            unsigned lastProgression = 0;
             if (fieldCount > 0) {
                 fireEvent(CE_PROGRESS, 0);
 
                 Strings rowStrings;
                 rowStrings.resize(fieldCount);
 
+                unsigned lastProgression = 0;
                 while (!ds.eof()) {
 
                     unsigned listSize = m_rows.size();
@@ -1580,7 +1576,6 @@ int CListView::handle(int event)
     int my;
     unsigned l;
     static char change;
-    static char whichway;
     static int py;
     switch (event) {
         case FL_MOVE:
@@ -1614,7 +1609,7 @@ int CListView::handle(int event)
             if (m_multipleSelection && (Fl::event_state()&(FL_CTRL | FL_SHIFT)) != 0) {
                 if (Fl::event_state() & FL_CTRL) { // Ctrl pressed
                     if (l < unsigned(-1)) {
-                        whichway = !item_selected(l);
+                        char whichway = !item_selected(l);
                         change = select(l, whichway != 0, when() & FL_WHEN_CHANGED);
                         m_activeRow = l;
                     }
@@ -1981,7 +1976,7 @@ void CListView::loadList(const XMLNode* node)
                     XMLNode::iterator rtor = rowNode->begin();
                     unsigned c = 0;
                     memset(strings, 0, sizeof (pchar) * colCount);
-                    for (; rtor != rowNode->end(); rtor++, c++) {
+                    for (; rtor != rowNode->end(); ++rtor, ++c) {
                         XMLNode* cellNode = *rtor;
                         unsigned index = cellNode->getAttribute("index");
                         if (index)

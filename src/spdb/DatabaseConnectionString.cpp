@@ -28,7 +28,6 @@
 
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/Exception.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
