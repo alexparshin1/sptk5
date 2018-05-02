@@ -35,25 +35,31 @@ using namespace sptk;
 
 int main(int argc, char **argv)
 {
-    json::Document jsonDocument;
+    try {
+        json::Document jsonDocument;
 
-    ifstream file("test.data/test.json");
-    jsonDocument.load(file);
-    file.close();
+        ifstream file("test.data/test.json");
+        jsonDocument.load(file);
+        file.close();
 
-    jsonDocument.root().exportTo(cout, true);
-    cout << endl << endl;
+        jsonDocument.root().exportTo(cout, true);
+        cout << endl << endl;
 
-    sptk::XMLDocument doc;
-    Buffer      buffer;
-    jsonDocument.exportTo(doc);
-    doc.save(buffer,true);
-    cout << buffer.c_str() << endl << endl;
+        sptk::XMLDocument doc;
+        Buffer buffer;
+        jsonDocument.exportTo(doc);
+        doc.save(buffer, true);
+        cout << buffer.c_str() << endl << endl;
 
-    json::Document doc2;
-    doc.saveToJSON(doc2);
-    doc2.root().exportTo(cout, true);
-    cout << endl << endl;
+        json::Document doc2;
+        doc.saveToJSON(doc2);
+        doc2.root().exportTo(cout, true);
+        cout << endl << endl;
 
-    return 0;
+        return 0;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

@@ -462,6 +462,7 @@ void DateTime::encodeTime(time_point& dt, const char* tim)
         switch (*p) {
             case 'P':
                 afternoon = true;
+                break;
             case 'A':
                 p1 = strpbrk(bdat, "Z+-");
                 if (p1 != nullptr)

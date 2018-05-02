@@ -68,31 +68,31 @@ int main( int argc, char *argv[] )
             password = (string) hostNode->getAttribute("password");
         }
         IMAP.host(Host(server,143));
-    }
-    catch (...) {}
 
-	if (!user.length()) {
-		printf("IMAP server name: ");
-		scanf("%s",buffer);
-		server = buffer;
-		IMAP.host(Host(server,143));
+		if (!user.length()) {
+			printf("IMAP server name: ");
+			if (scanf("%s",buffer) < 0)
+				throw SystemException("Can't read password");
+			server = buffer;
+			IMAP.host(Host(server,143));
 
-		printf("IMAP user name: ");
-		scanf("%s",buffer);
-		user = buffer;
+			printf("IMAP user name: ");
+			if (scanf("%s",buffer) < 0)
+				throw SystemException("Can't read password");
+			user = buffer;
 
-		printf("IMAP user password: ");
-		scanf("%s",buffer);
-		password = buffer;
-	}
+			printf("IMAP user password: ");
+			if (scanf("%s",buffer) < 0)
+				throw SystemException("Can't read password");
+			password = buffer;
+		}
 
-	puts("\nTrying to connect to IMAP server..");
+		puts("\nTrying to connect to IMAP server..");
 
-	try {
 		IMAP.cmd_login(user,password);
 		printResponse(IMAP.response());
 
-      // Connected? Save the logon parameters..
+      	// Connected? Save the logon parameters..
 		try {
 			XMLNode* hostNode = registry.findFirst("host");
 			if (!hostNode)

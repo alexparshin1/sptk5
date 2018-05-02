@@ -342,13 +342,13 @@ bool DirectoryDS::open()
         bool is_dir = false;
 
         string fullName = m_directory + file;
-        lstat(fullName.c_str(), &st);
+        if (lstat(fullName.c_str(), &st) != 0)
+            throw SystemException("Can't access file '" + fullName + "'");
 
 #ifndef _WIN32
         if ((st.st_mode & S_IFLNK) == S_IFLNK) {
             is_link = true;
-            int rc = stat(fullName.c_str(), &st);
-            if (rc != 0)
+            if (stat(fullName.c_str(), &st) != 0)
                 throw SystemException("Can't get directory info");
         }
 #endif

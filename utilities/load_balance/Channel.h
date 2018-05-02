@@ -54,7 +54,10 @@ public:
 
     ~Channel()
     {
-        close();
+        try {
+            close();
+        }
+        catch (...) {}
     }
 
     void open(SOCKET sourceFD, const String& interfaceAddess, const Host& destination);

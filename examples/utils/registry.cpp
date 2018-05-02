@@ -41,86 +41,94 @@ using namespace sptk;
 
 void printRegistry(RegistryMode mode)
 {
-   // Open user settings, file is located in user home directory
-   Registry   mySettings("mySettings.ini", "sptk_test", mode);
-   try {
-      mySettings.load();
-      cout << "---> Reading " << mySettings.fileName() << endl;
+    // Open user settings, file is located in user home directory
+    Registry mySettings("mySettings.ini", "sptk_test", mode);
+    try {
+        mySettings.load();
+        cout << "---> Reading " << mySettings.fileName() << endl;
 
-      XMLNode* windowNode = mySettings.findFirst("window");
-      if (windowNode != nullptr) {
-         // Processing the subnodes of <window> node
-         for (auto node: *windowNode) {
-            if (node->name() == "position")
-               cout << "Window position: "
-               << (int) node->getAttribute("x") << ":"
-               << (int) node->getAttribute("y") << endl;
-            else if (node->name() == "colors") {
-               // Processing the subnodes of <colors>
-               cout << "Window colors:" << endl;
-               for (auto colorNode: *node) {
-                  cout << "  " << (string) colorNode->getAttribute("name")
-                  << ": fg " << (string) colorNode->getAttribute("foreground")
-                  << ", bg " << (string) colorNode->getAttribute("background")
-                  << endl;
-               }
+        XMLNode* windowNode = mySettings.findFirst("window");
+        if (windowNode != nullptr) {
+            // Processing the subnodes of <window> node
+            for (auto node: *windowNode) {
+                if (node->name() == "position")
+                    cout << "Window position: "
+                         << (int) node->getAttribute("x") << ":"
+                         << (int) node->getAttribute("y") << endl;
+                else if (node->name() == "colors") {
+                    // Processing the subnodes of <colors>
+                    cout << "Window colors:" << endl;
+                    for (auto colorNode: *node) {
+                        cout << "  " << (string) colorNode->getAttribute("name")
+                             << ": fg " << (string) colorNode->getAttribute("foreground")
+                             << ", bg " << (string) colorNode->getAttribute("background")
+                             << endl;
+                    }
+                }
             }
-         }
-      } else {
-         cout << "The registry doesn't contain window information" << endl;
-      }
-   }
-   catch (exception& e) {
-       cerr << e.what() << endl;
+        } else {
+            cout << "The registry doesn't contain window information" << endl;
+        }
+    }
+    catch (exception& e) {
+        cerr << e.what() << endl;
     }
 }
 
-void updateRegistry(RegistryMode mode) {
-   // Open user settings, file is located in user home directory
-   Registry   mySettings("mySettings.ini", "sptk_test", mode);
-   try {
-      cout << "<--- Updating " << mySettings.fileName() << endl;
+void updateRegistry(RegistryMode mode)
+{
+    // Open user settings, file is located in user home directory
+    Registry mySettings("mySettings.ini", "sptk_test", mode);
+    try {
+        cout << "<--- Updating " << mySettings.fileName() << endl;
 
-      XMLNode* windowNode = mySettings.findOrCreate("window");
-      windowNode->clear();
+        XMLNode* windowNode = mySettings.findOrCreate("window");
+        windowNode->clear();
 
-      XMLNode* positionNode = new XMLElement(*windowNode, "position");
-      positionNode->setAttribute("x", 100);
-      positionNode->setAttribute("y", 150);
+        XMLNode* positionNode = new XMLElement(*windowNode, "position");
+        positionNode->setAttribute("x", 100);
+        positionNode->setAttribute("y", 150);
 
-      XMLNode* colorsNode = new XMLElement(*windowNode, "colors");
-      XMLNode* colorNode;
+        XMLNode* colorsNode = new XMLElement(*windowNode, "colors");
+        XMLNode* colorNode;
 
-      colorNode = new XMLElement(*colorsNode, "color");
-      colorNode->setAttribute("name", "Header");
-      colorNode->setAttribute("foreground", "WHITE");
-      colorNode->setAttribute("background", "BLUE");
+        colorNode = new XMLElement(*colorsNode, "color");
+        colorNode->setAttribute("name", "Header");
+        colorNode->setAttribute("foreground", "WHITE");
+        colorNode->setAttribute("background", "BLUE");
 
-      colorNode = new XMLElement(*colorsNode, "color");
-      colorNode->setAttribute("name", "Text");
-      colorNode->setAttribute("foreground", "0x000000");
-      colorNode->setAttribute("background", "0xFF80FF");
+        colorNode = new XMLElement(*colorsNode, "color");
+        colorNode->setAttribute("name", "Text");
+        colorNode->setAttribute("foreground", "0x000000");
+        colorNode->setAttribute("background", "0xFF80FF");
 
-      mySettings.save();
-   }
-   catch (exception& e) {
-      cerr << e.what() << endl;
-   }
+        mySettings.save();
+    }
+    catch (exception& e) {
+        cerr << e.what() << endl;
+    }
 }
 
-int main() {
-   cout << "-------- Test for the USER (stored in homedir)  registry. -----------" << endl;
+int main()
+{
+    try {
+        cout << "-------- Test for the USER (stored in homedir)  registry. -----------" << endl;
 
-   // Print the original registry
-   // The registry file is located in the user home directory
-   printRegistry(USER_REGISTRY);
+        // Print the original registry
+        // The registry file is located in the user home directory
+        printRegistry(USER_REGISTRY);
 
-   // Define the registry values and save the registry
-   updateRegistry(USER_REGISTRY);
+        // Define the registry values and save the registry
+        updateRegistry(USER_REGISTRY);
 
-   // Print the changed registry
-   printRegistry(USER_REGISTRY);
+        // Print the changed registry
+        printRegistry(USER_REGISTRY);
 
-   return 0;
+        return 0;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }
 //---------------------------------------------------------------------------

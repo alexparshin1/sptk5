@@ -699,7 +699,7 @@ class SP_EXPORT XMLNamedItem: public XMLNode
     /**
      * Node name, stored in the parent document SST
      */
-    const std::string*  m_name;
+    const std::string*  m_name { nullptr };
 
 
 protected:

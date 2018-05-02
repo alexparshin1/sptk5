@@ -323,6 +323,8 @@ void OracleConnection::queryExecute(Query *query)
             throw Exception("Query is not prepared");
         if (query->bulkMode()) {
             auto bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+            if (bulkInsertQuery == nullptr)
+                throw Exception("Query is not COracleBulkInsertQuery");
             statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());
         }
         else

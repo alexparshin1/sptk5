@@ -35,7 +35,10 @@ using namespace sptk;
 
 WSParser::~WSParser()
 {
-    clear();
+    try {
+        clear();
+    }
+    catch (...) {}
 }
 
 void WSParser::clear()
@@ -104,6 +107,8 @@ void WSParser::parseOperation(XMLElement* operationNode)
     map<string, string> messageToElementMap;
     for (auto node: messageNodes) {
         auto message = dynamic_cast<XMLElement*>(node);
+        if (message == nullptr)
+            throw Exception("The node " + node->name() + " is not an XML element");
         XMLNode* part = message->findFirst("wsdl:part");
         string messageName = message->getAttribute("name").c_str();
         string elementName = strip_namespace(part->getAttribute("element"));

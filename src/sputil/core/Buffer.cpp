@@ -225,7 +225,11 @@ void Buffer::loadFromFile(const String& fileName)
         throw SystemException("Can't open file " + fileName + " for reading");
 
     struct stat st = {};
-    fstat(fileno(f), &st);
+    if (fstat(fileno(f), &st) != 0) {
+        fclose(f);
+        throw Exception("Can't get file size for '" + fileName + "'");
+    }
+
     auto size = (size_t) st.st_size;
 
     reset(size + 1);

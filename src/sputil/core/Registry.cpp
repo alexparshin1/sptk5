@@ -52,7 +52,10 @@ using namespace sptk;
 String Registry::homeDirectory()
 {
 #ifndef _WIN32
-    String homeDir = trim(getenv("HOME"));
+    const char* hdir = getenv("HOME");
+    if (hdir == nullptr)
+        hdir = ".";
+    String homeDir = trim(hdir);
     if (homeDir.empty())
         homeDir = ".";
     homeDir += "/";
@@ -60,8 +63,12 @@ String Registry::homeDirectory()
 
     char *hdrive = getenv("HOMEDRIVE");
     char *hdir   = getenv("HOMEPATH");
-    if (!hdir && !hdrive)
-        return getenv("WINDIR") + string("\\");
+    if (!hdir && !hdrive) {
+        const char* wdir = getenv("WINDIR");
+        if (wdir == nullptr)
+            return "C:\\";
+        return String(wdir) + String("\\");
+    }
 
     string homeDrive;
     string homeDir;

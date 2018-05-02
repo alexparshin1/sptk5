@@ -36,25 +36,31 @@ using namespace sptk;
 
 int main(int argc, char **argv)
 {
-    json::Document jsonDocument;
+    try {
+        json::Document jsonDocument;
 
-    ifstream file("test.data/test2.json");
-    jsonDocument.load(file);
-    file.close();
+        ifstream file("test.data/test2.json");
+        jsonDocument.load(file);
+        file.close();
 
-    json::ElementSet selected;
-    jsonDocument.root().exportTo(cout);
-    jsonDocument.root().select(selected, "//firstName");
+        json::ElementSet selected;
+        jsonDocument.root().exportTo(cout);
+        jsonDocument.root().select(selected, "//firstName");
 
-    cout << endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl;
+        cout << endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl;
 
-    int elementIndex = 1;
-    for (json::Element* element: selected) {
-        cout << "Element " << elementIndex << ":" << endl;
-        element->exportTo(cout);
-        cout << endl << endl;
-        elementIndex++;
+        int elementIndex = 1;
+        for (json::Element* element: selected) {
+            cout << "Element " << elementIndex << ":" << endl;
+            element->exportTo(cout);
+            cout << endl << endl;
+            elementIndex++;
+        }
+
+        return 0;
     }
-    
-    return 0;
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

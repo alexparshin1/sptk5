@@ -38,18 +38,23 @@ int main(int argc, const char* argv[])
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN);
 #endif
+    try {
+        Loop<Host> destinations;
+        destinations.add(Host("localhost", 1883));
 
-    Loop<Host> destinations;
-    destinations.add(Host("localhost", 1883));
+        Loop<String> interfaces;
+        interfaces.add(String("127.0.0.1"));
 
-    Loop<String> interfaces;
-    interfaces.add(String("127.0.0.1"));
+        LoadBalance loadBalance(1100, destinations, interfaces);
 
-    LoadBalance loadBalance(1100, destinations, interfaces);
+        loadBalance.run();
+        while (true)
+            this_thread::sleep_for(chrono::milliseconds(100));
 
-    loadBalance.run();
-    while (true)
-        this_thread::sleep_for(chrono::milliseconds(100));
-
-    return 0;
+        return 0;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

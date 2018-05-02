@@ -40,30 +40,36 @@ void help()
 
 int main(int argc, const char* argv[])
 {
-    WSParser   wsParser;
-    if (argc < 2) {
-        help();
+    try {
+        WSParser   wsParser;
+        if (argc < 2) {
+            help();
+            return 1;
+        }
+
+        string outputDirectory;
+        if (argc > 2)
+            outputDirectory = argv[2];
+        else
+            outputDirectory = ".";
+
+        string headerFile;
+        if (argc > 3)
+            headerFile = argv[3];
+
+        int rc = system(("mkdir -p " + outputDirectory).c_str());
+        if (rc != 0) {
+            cerr << "Can't open or create output directory '" << outputDirectory << "'." << endl;
+            return 1;
+        }
+
+        wsParser.parse(argv[1]);
+        wsParser.generate(outputDirectory, headerFile);
+
+        return 0;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
         return 1;
     }
-
-    string outputDirectory;
-    if (argc > 2)
-        outputDirectory = argv[2];
-    else
-        outputDirectory = ".";
-
-    string headerFile;
-    if (argc > 3)
-        headerFile = argv[3];
-
-    int rc = system(("mkdir -p " + outputDirectory).c_str());
-    if (rc != 0) {
-        cerr << "Can't open or create output directory '" << outputDirectory << "'." << endl;
-        return 1;
-    }
-
-    wsParser.parse(argv[1]);
-    wsParser.generate(outputDirectory, headerFile);
-
-    return 0;
 }

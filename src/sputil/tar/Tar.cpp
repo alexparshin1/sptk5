@@ -98,6 +98,7 @@ int Tar::mem_write(int x, const void* buf, size_t len)
 }
 
 Tar::Tar()
+: m_memoryRead(false)
 {
     m_tar = nullptr;
     if (tarHandleMap == nullptr) {

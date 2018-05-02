@@ -143,13 +143,19 @@ int main(int argc, char **argv)
     if (argc == 2) {
         fileName = argv[1];
     } else {
-        CFileOpenDialog dialog;
-        dialog.directory(".");
-        dialog.addPattern("XML Files", "*.xml");
-        dialog.addPattern("All Files", "*.*");
-        dialog.setPattern("XML Files");
-        dialog.execute();
-        fileName = dialog.fullFileName();
+        try {
+            CFileOpenDialog dialog;
+            dialog.directory(".");
+            dialog.addPattern("XML Files", "*.xml");
+            dialog.addPattern("All Files", "*.*");
+            dialog.setPattern("XML Files");
+            dialog.execute();
+            fileName = dialog.fullFileName();
+        }
+        catch (const exception& e) {
+            cerr << e.what() << endl;
+            return 1;
+        }
     }
 
     if (fileName.empty())

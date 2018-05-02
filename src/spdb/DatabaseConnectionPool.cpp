@@ -69,6 +69,8 @@ static DriverLoaders m_loadedDrivers;
 DatabaseConnectionPool::DatabaseConnectionPool(const string& connectionString, unsigned maxConnections) :
     DatabaseConnectionString(connectionString),
     m_driver(nullptr),
+    m_createConnection(nullptr),
+    m_destroyConnection(nullptr),
     m_maxConnections(maxConnections)
 {
 }

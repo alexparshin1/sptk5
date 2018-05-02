@@ -63,9 +63,6 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
     const char* pos = json;
     skipSpaces(json, pos);
 
-    if (pos == nullptr)
-        throwError("Can't find JSON", 0);
-
     if (jsonElement.m_type != JDT_NULL)
         throwError("Can't execute on non-null JSON element", 0);
 

@@ -246,17 +246,6 @@ void ODBCConnectionBase::transact(UWORD fType)
         exception(errorInformation(cantEndTranscation), __LINE__);
 }
 
-void ODBCConnectionBase::getInfo(UWORD fInfoType, LPSTR str, int size)
-{
-    if (str == nullptr || size < 1 || !isConnected())
-        exception(errorInformation(cantGetInformation), __LINE__);
-
-    m_Retcode = SQLGetInfo(m_hConnection, fInfoType, str, (short) size, nullptr);
-
-    if (!Successful(m_Retcode))
-        exception(errorInformation(cantGetInformation), __LINE__);
-}
-
 //==============================================================================
 const char* sptk::removeDriverIdentification(const char* error)
 {

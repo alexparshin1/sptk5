@@ -114,6 +114,8 @@ void WSParserComplexType::parseSequence(XMLElement* sequence)
 {
     for (auto node: *sequence) {
         auto element = dynamic_cast<XMLElement*>(node);
+        if (element == nullptr)
+            throw Exception("The node " + node->name() + " is not an XML element");
         string elementName = element->name();
         if (elementName == "xsd:element")
             m_sequence.push_back(new WSParserComplexType(element));
@@ -127,6 +129,8 @@ void WSParserComplexType::parse()
         return;
     for (auto node: *m_element) {
         auto element = dynamic_cast<XMLElement*>(node);
+        if (element == nullptr)
+            throw Exception("The node " + node->name() + " is not an XML element");
         if (element->name() == "xsd:attribute") {
             string attrName = element->getAttribute("name");
             m_attributes[attrName] = new WSParserAttribute(attrName, element->getAttribute("type"));

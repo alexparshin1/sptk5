@@ -39,56 +39,56 @@ using namespace sptk;
 
 int main(int argc, char *argv[])
 {
-    FileLogEngine logEngine("smtp.log");
-    logEngine.option(LogEngine::LO_STDOUT, true);
-
-    Logger logger(logEngine);
-
-    SmtpConnect SMTP(&logger);
-    String      user, password, email, host, portStr;
-
-    cout << "Testing SMTP connectivity." << endl;
-
-    if (argc == 3) {
-        RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
-        Strings matches;
-        if (parser.m(argv[1], matches)) {
-            user = matches[1];
-            password = matches[2];
-            host = matches[3];
-            portStr = matches[4];
-            if (!portStr.empty())
-                portStr.erase(0, 1);
-            else
-                portStr = "25";
-        }
-        email = argv[2];
-    } else {
-        cout << "Please provide server hostname/port, user credentials, ad destination email address." << endl;
-        cout << "You can also use command line arguments:" << endl;
-        cout << "  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl;
-
-        cout << "SMTP server name: ";
-        cin >> host;
-        cout << "SMTP server port[25]: ";
-        cin >> portStr;
-        cout << "SMTP user name (or N/A if not required): ";
-        cin >> user;
-        if (trim(lowerCase(user)) != "n/a") {
-            cout << "SMTP user password: ";
-            cin >> password;
-        } else
-            user = "";
-        cout << "E-mail address to test: ";
-        cin >> email;
-    }
-
-    int port = atoi(portStr.c_str());
-    if (port < 1) port = 25;
-
-    cout << "\nTrying to connect to SMTP server.." << endl;
-
     try {
+        FileLogEngine logEngine("smtp.log");
+        logEngine.option(LogEngine::LO_STDOUT, true);
+
+        Logger logger(logEngine);
+
+        SmtpConnect SMTP(&logger);
+        String user, password, email, host, portStr;
+
+        cout << "Testing SMTP connectivity." << endl;
+
+        if (argc == 3) {
+            RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
+            Strings matches;
+            if (parser.m(argv[1], matches)) {
+                user = matches[1];
+                password = matches[2];
+                host = matches[3];
+                portStr = matches[4];
+                if (!portStr.empty())
+                    portStr.erase(0, 1);
+                else
+                    portStr = "25";
+            }
+            email = argv[2];
+        } else {
+            cout << "Please provide server hostname/port, user credentials, ad destination email address." << endl;
+            cout << "You can also use command line arguments:" << endl;
+            cout << "  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl;
+
+            cout << "SMTP server name: ";
+            cin >> host;
+            cout << "SMTP server port[25]: ";
+            cin >> portStr;
+            cout << "SMTP user name (or N/A if not required): ";
+            cin >> user;
+            if (trim(lowerCase(user)) != "n/a") {
+                cout << "SMTP user password: ";
+                cin >> password;
+            } else
+                user = "";
+            cout << "E-mail address to test: ";
+            cin >> email;
+        }
+
+        int port = atoi(portStr.c_str());
+        if (port < 1) port = 25;
+
+        cout << "\nTrying to connect to SMTP server.." << endl;
+
         SMTP.host(Host(host, port));
         if (!user.empty() && !password.empty())
             SMTP.cmd_auth(user, password);  // Supported methods are login and plain
@@ -96,9 +96,11 @@ int main(int argc, char *argv[])
         cout << SMTP.response().asString("\n") << endl;
 
         SMTP.subject("Test e-mail");
-        SMTP.from("Me <"+email+">");
+        SMTP.from("Me <" + email + ">");
         SMTP.to(email);
-        SMTP.body("<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>", true);
+        SMTP.body(
+                "<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>",
+                true);
         //SMTP.attachments("test.html");
 
         cout << "\nSending test message.." << endl;
@@ -109,10 +111,12 @@ int main(int argc, char *argv[])
         SMTP.cmd_quit();
         cout << SMTP.response().asString("\n") << endl;
 
-        cout << endl << "Message send. Please, check your mail in " << email << endl;
+        cout << endl << "Message sent. Please, check your mail in " << email << endl;
+
+        return 0;
     }
-    catch (std::exception& e) {
+    catch (const exception& e) {
         cerr << e.what() << endl;
+        return 1;
     }
-    return 0;
 }

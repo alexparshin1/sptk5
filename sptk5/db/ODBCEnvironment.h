@@ -285,27 +285,6 @@ public:
     void setConnectOption(UWORD fOption, UDWORD vParam);
 
     /**
-     * Gets the connection information
-     */
-    void getInfo(uint16_t fInfoType, LPSTR str, int size);
-
-    /**
-     * Gets the connection information
-     */
-    void getInfo(uint16_t fInfoType, int16_t* num)
-    {
-        getInfo(fInfoType, (LPSTR) num, sizeof(num));
-    }
-
-    /**
-     * Gets the connection information
-     */
-    void getInfo(uint16_t fInfoType, DWORD* num)
-    {
-        getInfo(fInfoType, (LPSTR) num, sizeof(num));
-    }
-
-    /**
      * Returns the ODBC connection string for the active connection
      */
     std::string connectString() const
