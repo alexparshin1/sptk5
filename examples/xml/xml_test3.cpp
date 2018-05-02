@@ -78,14 +78,12 @@ int main(int argc, char *argv[])
     try {
         cout << "The XPath selection test started." << endl << endl;
 
-        const char* endOfPath = strrchr(argv[0],'/');
-        if (endOfPath == nullptr)
-            endOfPath = strrchr(argv[0],'\\');
-        string workDirectory;
-        if (endOfPath == nullptr)
-            workDirectory.assign(argv[0], size_t(endOfPath - argv[0]));
-        else
-            workDirectory = "/";
+        Strings path(argv[0], "[\\\\\\/]+", Strings::SM_REGEXP);
+        String workDirectory(path[0]);
+        if (path.size() > 1 && workDirectory.endsWith(":")) {
+            workDirectory += "/";
+            workDirectory += path[1];
+        }
 
         if (chdir(workDirectory.c_str()) != 0)
             throw Exception("Can't change directory to " + workDirectory);
