@@ -74,13 +74,15 @@ int main()
     RegularExpression connectionParser("(user|password|host)='([\\S]+)'", "g");
     RegularExpression parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
     Strings matches;
-    connectionParser.m(text, matches);
-    for (unsigned i = 0; i < matches.size(); i++) {
-        cout << matches[i] << " : ";
-        i++;
-        cout << matches[i] << endl;
-    }
-    cout << endl;
+    if (connectionParser.m(text, matches)) {
+        for (unsigned i = 0; i < matches.size(); i++) {
+            cout << matches[i] << " : ";
+            i++;
+            cout << matches[i] << endl;
+        }
+        cout << endl;
+    } else
+        cerr << "ERROR: Didn't match connectionParser" << endl;
 
     text = "Area code: 415 Phone: 123-4567";
     cout << "\nParsing the text: " << text << endl;

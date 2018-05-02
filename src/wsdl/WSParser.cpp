@@ -117,6 +117,8 @@ void WSParser::parseOperation(XMLElement* operationNode)
     bool found = false;
     for (auto node: *operationNode) {
         auto element = dynamic_cast<const XMLElement*>(node);
+        if (element == nullptr)
+            throw Exception("The node " + node->name() + " is not an XML element");
         string message = element->getAttribute("message");
         size_t pos = message.find(':');
         if (pos != string::npos)

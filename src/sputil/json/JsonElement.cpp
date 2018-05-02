@@ -38,43 +38,43 @@ using namespace sptk::json;
 const Element Element::emptyElement("");
 
 Element::Element(double value) noexcept
-        : m_parent(nullptr), m_type(JDT_NUMBER)
+: m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
 Element::Element(int value) noexcept
-        : m_parent(nullptr), m_type(JDT_NUMBER)
+: m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
 Element::Element(int64_t value) noexcept
-        : m_parent(nullptr), m_type(JDT_NUMBER)
+: m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = (double) value;
 }
 
 Element::Element(const std::string& value) noexcept
-        : m_parent(nullptr), m_type(JDT_STRING)
+: m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
 Element::Element(const char* value) noexcept
-        : m_parent(nullptr), m_type(JDT_STRING)
+: m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = new string(value);
 }
 
 Element::Element(bool value) noexcept
-        : m_parent(nullptr), m_type(JDT_BOOLEAN)
+: m_parent(nullptr), m_type(JDT_BOOLEAN)
 {
     m_data.m_boolean = value;
 }
 
 Element::Element(ArrayData* value) noexcept
-        : m_parent(nullptr), m_type(JDT_ARRAY)
+: m_parent(nullptr), m_type(JDT_ARRAY)
 {
     m_data.m_array = value;
     for (Element* jsonElement: *m_data.m_array)
@@ -82,7 +82,7 @@ Element::Element(ArrayData* value) noexcept
 }
 
 Element::Element(ObjectData* value) noexcept
-        : m_parent(nullptr), m_type(JDT_OBJECT)
+: m_parent(nullptr), m_type(JDT_OBJECT)
 {
     m_data.m_object = value;
     for (auto itor: *m_data.m_object)
@@ -90,18 +90,21 @@ Element::Element(ObjectData* value) noexcept
 }
 
 Element::Element(ArrayData& value)
+: m_parent(nullptr), m_type(JDT_NULL)
 {}
 
 Element::Element(ObjectData& value)
+: m_parent(nullptr), m_type(JDT_NULL)
 {}
 
 Element::Element() noexcept
-        : m_parent(nullptr), m_type(JDT_NULL)
+: m_parent(nullptr), m_type(JDT_NULL)
 {
     m_data.m_boolean = false;
 }
 
 Element::Element(const Element& other)
+: m_parent(nullptr), m_type(JDT_NULL)
 {
     assign(other);
 }
@@ -446,6 +449,9 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
         firstElement = "\n    " + indentSpaces;
         betweenElements = ",\n    " + indentSpaces;
     }
+
+    auto saveFlags = stream.flags();
+
     switch (m_type) {
         case JDT_NUMBER:
             if (m_data.m_number == (long) m_data.m_number)
@@ -496,6 +502,7 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             stream << "null";
             break;
     }
+    stream.flags(saveFlags);
 }
 
 void Element::exportValueTo(const String& name, XMLElement& parentNode) const

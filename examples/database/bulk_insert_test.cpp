@@ -82,7 +82,7 @@ int main()
 
         while (!step3Query.eof()) {
 
-            int id;
+            int id = 0;
             String name, position_name, hire_date;
 
             int fieldIndex = 0;

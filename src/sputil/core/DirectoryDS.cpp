@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 
 #include <sptk5/DirectoryDS.h>
+#include <sptk5/SystemException.h>
 
 #include <sptk5/filedefs.h>
 
@@ -346,7 +347,9 @@ bool DirectoryDS::open()
 #ifndef _WIN32
         if ((st.st_mode & S_IFLNK) == S_IFLNK) {
             is_link = true;
-            stat(fullName.c_str(), &st);
+            int rc = stat(fullName.c_str(), &st);
+            if (rc != 0)
+                throw SystemException("Can't get directory info");
         }
 #endif
         if (!S_ISDIR(st.st_mode)) {

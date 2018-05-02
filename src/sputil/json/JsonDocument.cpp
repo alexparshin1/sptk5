@@ -36,14 +36,16 @@ using namespace sptk::json;
 
 void Document::clear()
 {
-    json::Type elementType = m_root->type();
-    if (m_root) {
+    json::Type elementType = JDT_NULL;
+    if (m_root != nullptr) {
+        elementType = m_root->type();
         delete m_root;
-        if (elementType == JDT_ARRAY)
-            m_root = new Element((ArrayData*)nullptr);
-        else
-            m_root = new Element((ObjectData*)nullptr);
     }
+
+    if (elementType == JDT_ARRAY)
+        m_root = new Element((ArrayData*)nullptr);
+    else
+        m_root = new Element((ObjectData*)nullptr);
 }
 
 void Document::parse(const string& json)

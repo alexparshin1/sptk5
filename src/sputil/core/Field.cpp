@@ -76,7 +76,7 @@ void Field::setNull(VariantType vtype)
 
 String Field::asString() const
 {
-    char print_buffer[32];
+    char print_buffer[64];
     int len;
 
     if ((m_dataType & VAR_NULL) == VAR_NULL) return "";
@@ -108,7 +108,7 @@ String Field::asString() const
         }
 
         case VAR_MONEY: {
-            char format[16];
+            char    format[32];
             int64_t absValue;
             char* formatPtr = format;
 
@@ -119,10 +119,10 @@ String Field::asString() const
             } else
                 absValue = m_data.moneyData.quantity;
 
-            snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
+            snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
             int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
             int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-            len = snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
+            len = snprintf(print_buffer, sizeof(print_buffer) - 1, format, intValue, fraction);
             return String(print_buffer, len);
         }
 

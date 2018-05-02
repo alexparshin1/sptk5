@@ -14,17 +14,16 @@
 #include <sptk5/sptk.h>
 
 #if defined(__GNUC__) || defined(__SUNPRO_C)
-	#include <sys/param.h>
+    #include <sys/param.h>
 #endif
 #include <cstring>
-
 
 #ifndef MAXPATHLEN
 #define MAXPATHLEN 255
 #endif
 
 /* determine full path name */
-char* th_get_pathname(TAR *t)
+std::string th_get_pathname(TAR *t)
 {
     char filename[MAXPATHLEN+1];
 
@@ -39,7 +38,7 @@ char* th_get_pathname(TAR *t)
 #else
         snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #endif
-        return strdup(filename);
+        return std::string(filename);
     }
 
 #ifdef _MSC_VER
@@ -48,6 +47,6 @@ char* th_get_pathname(TAR *t)
     int sz = snprintf(filename, sizeof(filename) - 1, "%.100s", t->th_buf.name);
 #endif
     filename[sz] = 0;
-    return strdup(filename);
+    return std::string(filename);
 }
 

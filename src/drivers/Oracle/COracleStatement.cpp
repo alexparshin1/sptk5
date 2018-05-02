@@ -49,13 +49,14 @@ OracleStatement::OracleStatement(OracleConnection* connection, const string& sql
 
 OracleStatement::~OracleStatement()
 {
-    Connection* connection = m_statement->getConnection();
-    if (m_createClobStatement)
-        connection->terminateStatement(m_createClobStatement);
-    if (m_createBlobStatement)
-        connection->terminateStatement(m_createBlobStatement);
-    if (m_statement)
+    if (m_statement != nullptr) {
+        Connection* connection = m_statement->getConnection();
+        if (m_createClobStatement)
+            connection->terminateStatement(m_createClobStatement);
+        if (m_createBlobStatement)
+            connection->terminateStatement(m_createBlobStatement);
         connection->terminateStatement(m_statement);
+    }
 }
 
 void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize)

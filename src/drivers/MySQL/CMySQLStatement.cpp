@@ -85,7 +85,7 @@ public:
 
 
 MySQLStatement::MySQLStatement(MySQLConnection* connection, const string& sql, bool autoPrepare)
-: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(nullptr)
+: DatabaseStatement<MySQLConnection,MYSQL_STMT>(connection), m_sql(sql), m_result(nullptr), m_row{}
 {
     if (autoPrepare)
         m_statement = mysql_stmt_init((MYSQL*)connection->handle());
@@ -435,7 +435,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
         case VAR_BOOL:
             field->setBool(strchr("YyTt1", data[0]) != nullptr);
             break;
-            
+
         case VAR_INT:
             field->setInteger(string2int(data));
             break;
@@ -443,7 +443,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
         case VAR_DATE:
             field->setDate(DateTime(data));
             break;
-            
+
         case VAR_DATE_TIME:
             if (strncmp(data, "0000-00", 7) == 0)
                 field->setNull(VAR_DATE_TIME);

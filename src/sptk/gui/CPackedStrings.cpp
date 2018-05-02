@@ -111,7 +111,7 @@ CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
             l = uint16_t(field.dataSize() + 1);
             buffers[j] = field.asString().c_str();
          } else {
-            const char *s = field.asString().c_str();
+            const char *s = field.getString();
             buffers[j] = s;
             l = uint16_t(strlen(s) + 1);
          }

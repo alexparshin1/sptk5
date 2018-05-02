@@ -85,7 +85,7 @@ public:
     /**
      * Scrollbar parts
      */
-    CThemeImageCollection m_parts[2];
+    CThemeImageCollection m_parts[3];
 
     /**
      * Stepper buttons, 0/1 - (left or upper)normal/pressed, 2/3 - (right or buttom)normal/pressed
@@ -98,6 +98,7 @@ public:
      * @brief Default constructor
      */
     CScrollBarImages()
+    : m_orientation(SLIDER)
     {
     }
 

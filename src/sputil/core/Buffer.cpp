@@ -299,6 +299,7 @@ Buffer& Buffer::operator = (const char* str)
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 {
     char fillChar = stream.fill('0');
+    auto old_settings = stream.flags();
 
     size_t offset = 0;
 
@@ -338,6 +339,8 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
     }
 
     stream.fill(fillChar);
+    stream.flags(old_settings);
+
     return stream;
 }
 

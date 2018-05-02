@@ -207,6 +207,8 @@ void OracleConnection::queryPrepare(Query *query)
         unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
         auto bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+        if (bulkInsertQuery == nullptr)
+            throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
         for (auto itor = enumeratedParams.begin(); itor != enumeratedParams.end(); ++itor, paramIndex++) {
             QueryParameter* param = *itor;

@@ -262,12 +262,12 @@ protected:
     /**
      * Data size
      */
-    size_t   m_dataSize;
+    size_t                  m_dataSize {0};
 
     /**
      * Data type
      */
-    uint16_t m_dataType;
+    uint16_t                m_dataType;
 
 
     /**

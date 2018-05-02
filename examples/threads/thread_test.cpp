@@ -77,40 +77,47 @@ int main()
     /// Multiple Logger objects can share same log object thread-safely.
     FileLogEngine sharedLog("thread_test.log");
     Logger  log(sharedLog);
-    
-    /// Trancate the log file
-    sharedLog.reset();
 
-    /// Adding 'duplicate messages to stdout' option to log options
-    sharedLog.options(sharedLog.options() | LogEngine::LO_STDOUT);
+    try {
 
-    // Creating several threads
-    for (i = 0; i < 5; i++) {
-        string threadName = "Thread" + int2string(i);
-        threads.push_back(new CMyThread(threadName, sharedLog));
+        /// Trancate the log file
+        sharedLog.reset();
+
+        /// Adding 'duplicate messages to stdout' option to log options
+        sharedLog.options(sharedLog.options() | LogEngine::LO_STDOUT);
+
+        // Creating several threads
+        for (i = 0; i < 5; i++) {
+            string threadName = "Thread" + int2string(i);
+            threads.push_back(new CMyThread(threadName, sharedLog));
+        }
+
+        // Starting all the threads
+        for (i = 0; i < threads.size(); i++)
+            threads[i]->run();
+
+        puts("Waiting 1 second while threads are running..");
+        this_thread::sleep_for(chrono::seconds(1));
+
+        log << "Sending 'terminate' signal to all the threads." << endl;
+        // That signal suggests thread to terminate and exits ASAP.
+        for (i = 0; i < threads.size(); i++)
+            threads[i]->terminate();
+
+        log << "Joining all the threads." << endl;
+        for (i = 0; i < threads.size(); i++)
+            threads[i]->join();
+
+        log << "Deleting all the threads." << endl;
+        // Since threads are created in polite mode (see CMyThread class definition),
+        // the delete operation would wait for actual thread termination.
+        for (i = 0; i < threads.size(); i++)
+            delete threads[i];
+
+        return 0;
     }
-
-    // Starting all the threads
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->run();
-
-    puts("Waiting 1 second while threads are running..");
-    this_thread::sleep_for(chrono::seconds(1));
-
-    log << "Sending 'terminate' signal to all the threads." << endl;
-    // That signal suggests thread to terminate and exits ASAP.
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->terminate();
-
-    log << "Joining all the threads." << endl;
-    for (i = 0; i < threads.size(); i++)
-        threads[i]->join();
-
-    log << "Deleting all the threads." << endl;
-    // Since threads are created in polite mode (see CMyThread class definition),
-    // the delete operation would wait for actual thread termination.
-    for (i = 0; i < threads.size(); i++)
-        delete threads[i];
-
-    return 0;
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

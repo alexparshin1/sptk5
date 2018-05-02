@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include "tar.h"
 #include <stddef.h>
+#include <string>
 
 #include "libtar_listhash.h"
 
@@ -143,7 +144,7 @@ int th_read(TAR *t);
 /* decode tar header info */
 #define th_get_crc(t) oct_to_int((t)->th_buf.chksum)
 #define th_get_size(t) oct_to_int((t)->th_buf.size)
-char *th_get_pathname(TAR *t);
+std::string th_get_pathname(TAR *t);
 
 
 /***** util.c *************************************************************/

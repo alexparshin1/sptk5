@@ -205,7 +205,9 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             currentOperation = "connect";
             if (timeoutMS != 0) {
                 blockingMode(false);
-                connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                int rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                if (rc != EINPROGRESS && rc != EALREADY)
+                    break;
                 if (!readyToWrite(timeout)) {
                     close();
                     throw Exception("Connection timeout");

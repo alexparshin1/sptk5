@@ -1030,7 +1030,7 @@ String Variant::asString() const
             return int2string(m_data.int64Data);
 
         case VAR_MONEY: {
-            char format[16];
+            char    format[64];
             int64_t absValue;
             char* formatPtr = format;
 
@@ -1042,7 +1042,7 @@ String Variant::asString() const
             else
                 absValue = m_data.moneyData.quantity;
 
-            snprintf(formatPtr, sizeof(format), "%%Ld.%%0%dLd", m_data.moneyData.scale);
+            snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
             int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
             int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
             len = snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);

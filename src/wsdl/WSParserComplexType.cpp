@@ -98,6 +98,7 @@ WSParserComplexType::~WSParserComplexType()
             delete element;
         for (auto itor: m_attributes)
             delete itor.second;
+        delete m_restriction;
     }
 }
 

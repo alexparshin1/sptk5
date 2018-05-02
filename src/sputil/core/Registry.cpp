@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/Registry.h>
+#include <sptk5/SystemException.h>
 #include <sys/stat.h>
 
 using namespace std;
@@ -113,14 +114,14 @@ void Registry::prepareDirectory()
     string directory = m_fileName.substr(0, pos);
     if (stat(directory.c_str(), &st) == 0) {
         if (!S_ISDIR(st.st_mode))
-            throw Exception("Can't open directory '" + directory + "'");
+            throw SystemException("Can't open directory '" + directory + "'");
     } else {
 #ifdef _WIN32
-        if (mkdir(directory.c_str()))
-            throw Exception("Can't create directory '"+directory+"'");
+        if (mkdir(directory.c_str()) != 0)
+            throw SystemException("Can't create directory '"+directory+"'");
 #else
-        mkdir(directory.c_str(), 0770);
-        throw Exception("Can't create directory '" + directory + "'");
+        if (mkdir(directory.c_str(), 0770) != 0)
+            throw SystemException("Can't create directory '" + directory + "'");
 #endif
 
     }

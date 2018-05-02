@@ -128,8 +128,8 @@ public:
 
     /**
      * Assignment operator
-	 * @param si 				Source string
-	 */
+     * @param si 				Source string
+     */
     String &operator=(const std::string& si)
     {
         assign(si);
@@ -139,8 +139,8 @@ public:
 
     /**
      * Assignment operator
-	 * @param si 				Source string
-	 */
+     * @param si 				Source string
+     */
     String &operator=(const String& si)
     {
         assign(si);
@@ -339,7 +339,12 @@ public:
     Strings(const String& src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
     : m_userData(0)
     {
-        fromString(src.c_str(), delimiter, mode);
+        try {
+            fromString(src.c_str(), delimiter, mode);
+        }
+        catch (const std::exception& e) {
+            push_back("# ERROR: " + String(e.what()));
+        }
     }
 
     /**
@@ -352,7 +357,12 @@ public:
     : m_userData(0)
     {
         clear();
-        fromString(src, delimiter, mode);
+        try {
+            fromString(src, delimiter, mode);
+        }
+        catch (const std::exception& e) {
+            push_back("# ERROR: " + String(e.what()));
+        }
     }
 
     /**

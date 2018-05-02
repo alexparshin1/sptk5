@@ -222,6 +222,11 @@ protected:
 
 public:
     /**
+     * @brief Default constructor
+     */
+    Query() noexcept;
+
+    /**
      * @brief Constructor
      *
      * You can optionally provide the name of the file and line number where
@@ -234,7 +239,7 @@ public:
      * @param createdFile const char*, the name of the file this query was created in (optional)
      * @param createdLine unsigned, the line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection *db = 0L, const std::string& sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
+    Query(DatabaseConnection *db, const std::string& sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
 
     /**
      * @brief Copy constructor

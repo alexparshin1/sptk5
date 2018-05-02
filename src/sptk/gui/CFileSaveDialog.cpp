@@ -36,6 +36,7 @@
 
 #include <sptk5/gui/CFileSaveDialog.h>
 #include <sptk5/gui/CMessageDialog.h>
+#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
@@ -56,13 +57,13 @@ bool CFileSaveDialog::okPressed() {
          }
          fh = open(fname.c_str(),O_RDWR);
          close(fh);
-         if (fh < 0) 
-            throw Exception("File is write-protected.");
+         if (fh < 0)
+            throw SystemException("File is write-protected.");
       } else {
          fh = creat(fname.c_str(),S_IWRITE);
+         if (fh < 0)
+            throw SystemException("Can't create the file.");
          close(fh);
-         if (fh < 0) 
-            throw Exception("Can't be create the file.");
          ::remove(fname.c_str());
       }
       return true;
