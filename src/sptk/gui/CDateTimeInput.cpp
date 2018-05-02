@@ -36,8 +36,9 @@
 
 using namespace sptk;
 
-void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget *btn,void *data) {
-    CDateTimeBaseInput *dateInput = (CDateTimeBaseInput *)btn->parent()->parent();
+void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void* data)
+{
+    CDateTimeBaseInput* dateInput = (CDateTimeBaseInput*) btn->parent()->parent();
     if (!dateInput)
         return;
     DateTime dt = dateInput->dateTimeValue();
@@ -46,17 +47,19 @@ void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget *btn,void *data) {
         dateInput->m_dateInput->do_callback();
 }
 
-void CDateTimeBaseInput::ctor_init() {
+void CDateTimeBaseInput::ctor_init()
+{
     m_dateInput = 0L;
     m_timeInput = 0L;
-    m_minValue = double(0);
-    m_maxValue = double(0);
+    m_minValue = DateTime();
+    m_maxValue = DateTime();
     m_calendarWindow = 0L;
-    m_timeInput = (CInput_ *)m_control;
+    m_timeInput = (CInput_*) m_control;
 }
 
-CDateTimeBaseInput::CDateTimeBaseInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment,bool autoCreate)
-        : CInput(label,layoutSize,layoutAlignment,autoCreate) {
+CDateTimeBaseInput::CDateTimeBaseInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment, bool autoCreate)
+        : CInput(label, layoutSize, layoutAlignment, autoCreate)
+{
     ctor_init();
 }
 
@@ -67,13 +70,15 @@ CDateTimeBaseInput::CDateTimeBaseInput(int x,int y,int w,int h,const char * labe
 }
 #endif
 
-void CDateTimeBaseInput::setLimits(bool limited,DateTime min,DateTime max) {
+void CDateTimeBaseInput::setLimits(bool limited, DateTime min, DateTime max)
+{
     m_limited = limited;
     m_minValue = min;
     m_maxValue = max;
 }
 
-void CDateTimeBaseInput::load(Query *loadQuery) {
+void CDateTimeBaseInput::load(Query* loadQuery)
+{
     if (!m_fieldName.length())
         return; // no field name - no data loaded
     if (!m_fieldName.length())
@@ -82,23 +87,27 @@ void CDateTimeBaseInput::load(Query *loadQuery) {
     dateTimeValue(fld.asDateTime());
 }
 
-void CDateTimeBaseInput::save(Query *updateQuery) {
+void CDateTimeBaseInput::save(Query* updateQuery)
+{
     if (!m_fieldName.length())
         return; // no field name - no data saved
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     DateTime dt = dateTimeValue();
-    param.setDateTime( dt );
+    param.setDateTime(dt);
 }
 
-void CDateTimeBaseInput::load(const XMLNode *node,CLayoutXMLmode xmlMode) {
-    CControl::load(node,xmlMode);
+void CDateTimeBaseInput::load(const XMLNode* node, CLayoutXMLmode xmlMode)
+{
+    CControl::load(node, xmlMode);
 }
 
-void CDateTimeBaseInput::save(XMLNode *node,CLayoutXMLmode xmlMode) const {
-    CControl::save(node,xmlMode);
+void CDateTimeBaseInput::save(XMLNode* node, CLayoutXMLmode xmlMode) const
+{
+    CControl::save(node, xmlMode);
 }
 
-bool CDateTimeBaseInput::valid() const {
+bool CDateTimeBaseInput::valid() const
+{
     try {
         DateTime val = dateTimeValue();
         if (m_limited)
@@ -109,18 +118,21 @@ bool CDateTimeBaseInput::valid() const {
     return false;
 }
 
-DateTime CDateTimeBaseInput::dateTimeValue() const {
+DateTime CDateTimeBaseInput::dateTimeValue() const
+{
     return data();
 }
 
-void CDateTimeBaseInput::dateTimeValue(DateTime dt) {
+void CDateTimeBaseInput::dateTimeValue(DateTime dt)
+{
     if (kind() == DCV_DATE)
         data(dt.dateString());
     else
         data(dt.timeString());
 }
 
-bool CDateTimeBaseInput::showCalendar(Fl_Widget *btn) {
+bool CDateTimeBaseInput::showCalendar(Fl_Widget* btn)
+{
     if (!m_calendarWindow)
         return false;
     m_calendarWindow->attachTo(btn->parent());
@@ -134,10 +146,12 @@ bool CDateTimeBaseInput::showCalendar(Fl_Widget *btn) {
     }
     return rc;
 }
+
 //===========================================================================
-void CDateInput::ctor_init() {
+void CDateInput::ctor_init()
+{
     begin();
-    m_dateInput = new CDateControl(0,0,10,10);
+    m_dateInput = new CDateControl(0, 0, 10, 10);
     m_control = m_dateInput->input();
     m_dateInput->callback(CControl::internalCallback);
     m_dateInput->when(FL_WHEN_CHANGED);
@@ -147,8 +161,9 @@ void CDateInput::ctor_init() {
     m_control->color(FL_LIGHT3);
 }
 
-CDateInput::CDateInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CDateTimeBaseInput(label,layoutSize,layoutAlignment,false) {
+CDateInput::CDateInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CDateTimeBaseInput(label, layoutSize, layoutAlignment, false)
+{
     ctor_init();
 }
 
@@ -159,41 +174,49 @@ CDateInput::CDateInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CDateInput::~CDateInput() {
+CDateInput::~CDateInput()
+{
     delete m_calendarWindow;
 }
 
-CLayoutClient* CDateInput::creator(XMLNode *node) {
-    CDateInput* widget = new CDateInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CDateInput::creator(XMLNode* node)
+{
+    CDateInput* widget = new CDateInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CDateInput::resize(int xx,int yy,int ww,int hh) {
-    CControl::resize(xx,yy,ww,hh);
-    m_dateInput->resize(xx+m_labelWidth,yy,ww-m_labelWidth,hh);
+void CDateInput::resize(int xx, int yy, int ww, int hh)
+{
+    CControl::resize(xx, yy, ww, hh);
+    m_dateInput->resize(xx + m_labelWidth, yy, ww - m_labelWidth, hh);
 }
 
-Variant CDateInput::data() const {
-    DateTime   dt(m_dateInput->input()->value());
-    Variant    rc;
+Variant CDateInput::data() const
+{
+    DateTime dt(m_dateInput->input()->value());
+    Variant rc;
     rc.setDate(dt);
     return rc;
 }
 
-void CDateInput::data(const Variant s) {
+void CDateInput::data(const Variant s)
+{
     DateTime dt = s;
     m_dateInput->input()->value(dt.dateString().c_str());
 }
 
-void CDateInput::preferredHeight(int& h) const {
+void CDateInput::preferredHeight(int& h) const
+{
     CDateTimeBaseInput::preferredHeight(h);
     m_dateInput->preferredHeight(h);
 }
+
 //===========================================================================
-CTimeInput::CTimeInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CDateTimeBaseInput(label,layoutSize,layoutAlignment,true) {
-    m_timeInput = (CInput_ *)m_control;
+CTimeInput::CTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CDateTimeBaseInput(label, layoutSize, layoutAlignment, true)
+{
+    m_timeInput = (CInput_*) m_control;
     m_timeInput->mask(DateTime::shortTimeFormat);
 }
 
@@ -205,19 +228,23 @@ CTimeInput::CTimeInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CTimeInput::creator(XMLNode *node) {
-    CTimeInput* widget = new CTimeInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CTimeInput::creator(XMLNode* node)
+{
+    CTimeInput* widget = new CTimeInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CTimeInput::preferredWidth(int& w) const {
+void CTimeInput::preferredWidth(int& w) const
+{
     w = int(7 * fl_width('W')) + m_labelWidth + 6;
 }
+
 //===========================================================================
-void CDateTimeInput::ctor_init() {
+void CDateTimeInput::ctor_init()
+{
     begin();
-    m_dateInput = new CDateControl(0,0,10,10);
+    m_dateInput = new CDateControl(0, 0, 10, 10);
     m_dateInput->callback(CControl::internalCallback);
     m_dateInput->when(FL_WHEN_CHANGED);
     m_dateInput->button()->callback(calendarButtonPressed);
@@ -234,8 +261,9 @@ void CDateTimeInput::ctor_init() {
     end();
 }
 
-CDateTimeInput::CDateTimeInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CDateTimeBaseInput(label,layoutSize,layoutAlignment,false) {
+CDateTimeInput::CDateTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CDateTimeBaseInput(label, layoutSize, layoutAlignment, false)
+{
     ctor_init();
 }
 
@@ -246,45 +274,51 @@ CDateTimeInput::CDateTimeInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CDateTimeInput::creator(XMLNode *node) {
-    CDateTimeInput* widget = new CDateTimeInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CDateTimeInput::creator(XMLNode* node)
+{
+    CDateTimeInput* widget = new CDateTimeInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CDateTimeInput::resize(int x,int y,int w,int h) {
-    CControl::resize(x,y,w,h);
+void CDateTimeInput::resize(int x, int y, int w, int h)
+{
+    CControl::resize(x, y, w, h);
     w -= m_labelWidth;
     x += m_labelWidth;
 
     int hh = textSize() + 6;
 
     if (m_menuButton)
-        m_menuButton->resize(x,y,w,hh);
+        m_menuButton->resize(x, y, w, hh);
 
-    m_dateInput->resize(x,y,w/2-2,hh);
+    m_dateInput->resize(x, y, w / 2 - 2, hh);
     x += m_dateInput->w() + 4;
 
-    fl_font(textFont(),textSize());
+    fl_font(textFont(), textSize());
     int timeWidth = (int) fl_width("00:00AM") + 6;
-    m_timeInput->resize(x,y,timeWidth,m_dateInput->h());
+    m_timeInput->resize(x, y, timeWidth, m_dateInput->h());
 }
 
-void CDateTimeInput::dateTimeValue(DateTime dt) {
+void CDateTimeInput::dateTimeValue(DateTime dt)
+{
     m_dateInput->input()->value(dt.dateString().c_str());
     m_timeInput->value(dt.timeString().c_str());
 }
 
-DateTime CDateTimeInput::dateTimeValue() const {
-    DateTime   dt = DateTime( m_dateInput->input()->value() );
-    DateTime::duration tm = DateTime( m_timeInput->value() ).sinceEpoch();
+DateTime CDateTimeInput::dateTimeValue() const
+{
+    DateTime dt = DateTime(m_dateInput->input()->value());
+    DateTime::duration tm = DateTime(m_timeInput->value()).sinceEpoch();
     return dt + tm;
 }
 
-Variant CDateTimeInput::data() const {
+Variant CDateTimeInput::data() const
+{
     return std::string(m_dateInput->input()->value()) + " " + std::string(m_timeInput->value());
 }
 
-void CDateTimeInput::data(const Variant s) {
+void CDateTimeInput::data(const Variant s)
+{
     dateTimeValue(s.asDateTime());
 }

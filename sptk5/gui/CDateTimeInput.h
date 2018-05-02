@@ -160,7 +160,7 @@ public:
      * @param min DateTime, minimum value
      * @param max DateTime, maximum value
      */
-    void setLimits(bool limited,DateTime min=double(0),DateTime max=double(0));
+    void setLimits(bool limited,DateTime min=DateTime(),DateTime max=DateTime());
 
     /**
      * @brief Returns widget date or time  value

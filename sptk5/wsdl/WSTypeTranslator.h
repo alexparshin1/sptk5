@@ -30,6 +30,7 @@
 #define __SPTK_WSTYPETRANSLATOR_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/Strings.h>
 
 namespace sptk
 {
@@ -57,10 +58,10 @@ public:
 
     /**
      * @brief Translates WSDL type names to C++ type names
-     * @param wsType std::string, WSDL type name
-     * @param defaultType std::type, C++ type name returned when match is not found
+     * @param wsType            WSDL type name
+     * @param defaultType       C++ type name returned when match is not found
      */
-    std::string toCxxType(std::string wsType,std::string defaultType="std::string") const;
+    String toCxxType(const String& wsType, const String& defaultType = "std::string") const;
 };
 
 /**

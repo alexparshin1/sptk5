@@ -45,7 +45,7 @@ WSTypeTranslator::WSTypeTranslator() noexcept
     wsTypeToCxxTypeMap["xsd:time"]      = "sptk::WSTime";
 }
 
-std::string WSTypeTranslator::toCxxType(std::string wsType,std::string defaultType) const
+String WSTypeTranslator::toCxxType(const String& wsType, const String& defaultType) const
 {
     auto itor = wsTypeToCxxTypeMap.find(wsType);
     if (itor == wsTypeToCxxTypeMap.end())

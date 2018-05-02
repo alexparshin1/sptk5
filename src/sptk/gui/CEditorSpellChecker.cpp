@@ -30,7 +30,7 @@
 
 #include <FL/fl_ask.H>
 #include <sptk5/gui/CEditorSpellChecker.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 #include <sptk5/string_ext.h>
 #include <aspell.h>
 #include <ctype.h>

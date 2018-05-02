@@ -55,32 +55,38 @@ void button_cb(Fl_Widget *b, void *)
 
 int main(int argc, char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    CWindow w(400, 250);
+        CWindow w(400, 250);
 
-    CCheckButtons cbl("Check Boxes: ");
-    cbl.buttons(Strings("first,second,third,a very long choice text meant to occupy two rows,*", ","));
-    cb = &cbl;
+        CCheckButtons cbl("Check Boxes: ");
+        cbl.buttons(Strings("first,second,third,a very long choice text meant to occupy two rows,*", ","));
+        cb = &cbl;
 
-    CInput input("Test");
-    i = &input;
+        CInput input("Test");
+        i = &input;
 
-    CGroup g("", 10, SP_ALIGN_BOTTOM);
-    CButton btn1("Set Choices", SP_ALIGN_RIGHT);
-    btn1.callback(button_cb);
+        CGroup g("", 10, SP_ALIGN_BOTTOM);
+        CButton btn1("Set Choices", SP_ALIGN_RIGHT);
+        btn1.callback(button_cb);
 
-    CButton btn2("Get Choices", SP_ALIGN_RIGHT);
-    btn2.callback(button_cb);
+        CButton btn2("Get Choices", SP_ALIGN_RIGHT);
+        btn2.callback(button_cb);
 
-    w.end();
-    w.show(argc, argv);
+        w.end();
+        w.show(argc, argv);
 
-    CThemes::set("Keramic");
-    w.relayout();
+        CThemes::set("Keramic");
+        w.relayout();
 
-    Fl::run();
+        Fl::run();
 
-    return EXIT_SUCCESS;
+        return EXIT_SUCCESS;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

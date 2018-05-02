@@ -69,27 +69,27 @@ public:
     /**
      * @brief Map of element names to element objects
      */
-    typedef std::map<std::string, WSParserElement*>     ElementMap;
+    typedef std::map<String, WSParserElement*>     ElementMap;
 
     /**
      * @brief Map of complex type names to complex type objects
      */
-    typedef std::map<std::string,WSParserComplexType*>  ComplexTypeMap;
+    typedef std::map<String,WSParserComplexType*>  ComplexTypeMap;
 
     /**
      * @brief Map of element names to corresponding WSDL (XML) elements
      */
-    typedef std::map<std::string,const XMLElement*>     XmlTypeMap;
+    typedef std::map<String,const XMLElement*>     XmlTypeMap;
 
     /**
      * @brief Map of operation names to operation objects
      */
-    typedef std::map<std::string,WSOperation>          OperationMap;
+    typedef std::map<String,WSOperation>          OperationMap;
 
     /**
      * @brief Map of operation names to operation objects
      */
-    typedef std::map<std::string,std::string>           DocumentationMap;
+    typedef std::map<String,String>           DocumentationMap;
 
 private:
     /**

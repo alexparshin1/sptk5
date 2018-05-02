@@ -62,42 +62,48 @@ void go_cb(Fl_Widget* w, void*)
 
 int main(int argc, char* argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    CWindow mainWindow(600, 400, "CImapDS Test");
+        CWindow mainWindow(600, 400, "CImapDS Test");
 
-    CGroup agroup1;
-    imapServer = new CInput("Host:", 100, SP_ALIGN_LEFT);
-    imapServer->labelWidth(40);
-    imapUser = new CInput("User:", 100, SP_ALIGN_LEFT);
-    imapUser->labelWidth(40);
-    imapPassword = new CPasswordInput("Password:", 120, SP_ALIGN_LEFT);
-    imapPassword->labelWidth(70);
-    imapMailBox = new CInput("Mail Box:", 130, SP_ALIGN_LEFT);
-    imapMailBox->labelWidth(70);
-    imapMailBox->data("Inbox");
-    CButton goButton(SP_EXEC_BUTTON, SP_ALIGN_RIGHT, "Messages");
-    goButton.callback(go_cb);
-    agroup1.end();
+        CGroup agroup1;
+        imapServer = new CInput("Host:", 100, SP_ALIGN_LEFT);
+        imapServer->labelWidth(40);
+        imapUser = new CInput("User:", 100, SP_ALIGN_LEFT);
+        imapUser->labelWidth(40);
+        imapPassword = new CPasswordInput("Password:", 120, SP_ALIGN_LEFT);
+        imapPassword->labelWidth(70);
+        imapMailBox = new CInput("Mail Box:", 130, SP_ALIGN_LEFT);
+        imapMailBox->labelWidth(70);
+        imapMailBox->data("Inbox");
+        CButton goButton(SP_EXEC_BUTTON, SP_ALIGN_RIGHT, "Messages");
+        goButton.callback(go_cb);
+        agroup1.end();
 
-    CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
-    CButton exitButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
-    exitButton.callback(exit_cb);
-    agroup2.end();
+        CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
+        CButton exitButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        exitButton.callback(exit_cb);
+        agroup2.end();
 
-    filesListView = new CListView("", 10, SP_ALIGN_CLIENT);
-    imapDS = new ImapDS();
+        filesListView = new CListView("", 10, SP_ALIGN_CLIENT);
+        imapDS = new ImapDS();
 
-    mainWindow.end();
-    mainWindow.resizable(mainWindow);
-    mainWindow.show(argc, argv);
+        mainWindow.end();
+        mainWindow.resizable(mainWindow);
+        mainWindow.show(argc, argv);
 
-    //goButton.do_callback();
+        //goButton.do_callback();
 
-    int rc = Fl::run();
+        int rc = Fl::run();
 
-    delete imapDS;
+        delete imapDS;
 
-    return rc;
+        return rc;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

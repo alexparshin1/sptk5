@@ -98,7 +98,7 @@ public:
      * @brief Default constructor
      */
     CScrollBarImages()
-    : m_orientation(SLIDER)
+    : m_orientation(THM_SCROLLBAR_VERTICAL)
     {
     }
 

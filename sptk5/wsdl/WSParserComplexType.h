@@ -78,41 +78,41 @@ class WSParserAttribute
     /**
      * Attribute name
      */
-    std::string     m_name;
+    String          m_name;
 
     /**
      * Attribute type name
      */
-    std::string     m_wsTypeName;
+    String          m_wsTypeName;
 
     /**
      * C++ type name
      */
-    std::string     m_cxxTypeName;
+    String          m_cxxTypeName;
 
 public:
     /**
      * Constructor
-     * @param name std::string, Attribute name
-     * @param typeName std::string, Attribute WSDL type name
+     * @param name              Attribute name
+     * @param typeName          Attribute WSDL type name
      */
-    WSParserAttribute(const std::string& name = "", const std::string& typeName = "");
+    WSParserAttribute(const String& name = "", const String& typeName = "");
 
     /**
      * Copy constructor
-     * @param attr const CWSParserAttribute&, Attribute to copy from
+     * @param attr              Attribute to copy from
      */
     WSParserAttribute(const WSParserAttribute& attr) = default;
 
     /**
      * Returns attribute name
      */
-    std::string name() const { return m_name; }
+    String name() const { return m_name; }
 
     /**
      * Generates attribute presentation in C++ skeleton
      */
-    std::string generate() const;
+    String generate() const;
 
     /**
      * Returns attribute C++ type name
@@ -204,7 +204,7 @@ public:
     /**
      * WSDL class name
      */
-    static std::string wsClassName(std::string);
+    static String wsClassName(const String&);
 
 public:
     /**
@@ -250,7 +250,7 @@ public:
     /**
      * WSDL element name
      */
-    std::string name() const
+    String name() const
     {
         return m_name;
     }
@@ -258,7 +258,7 @@ public:
     /**
      * Generated C++ class name
      */
-    std::string className() const;
+    String className() const;
 
     /**
      * Multiplicity flag
@@ -279,7 +279,7 @@ public:
     /**
      * Documentation
      */
-    const sptk::String& documentation() const
+    String documentation() const
     {
         return m_documentation;
     }
@@ -297,7 +297,7 @@ public:
     /**
      * Generates C++ class declaration and implementation
      */
-    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, std::string externalHeader);
+    void generate(std::ostream& classDeclaration, std::ostream& classImplementation, const String& externalHeader);
 };
 
 /**

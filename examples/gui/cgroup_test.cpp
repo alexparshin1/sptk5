@@ -71,10 +71,10 @@ void maximize_cb(Fl_Widget *w, void *)
 
 int main(int argc, char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
-
     try {
+        // Initialize themes
+        CThemes themes;
+
         CWindow w(500, 400, "CGroup test");
         w.resizable(w);
         w.layoutSpacing(4);
@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
         exitButton.callback(exit_cb);
 
         CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
-        Strings themes = CThemes::availableThemes();
-        themes.push_back("GTK");
-        themesCombo.addRows("Theme", themes);
+        Strings themesList = CThemes::availableThemes();
+        themesList.push_back("GTK");
+        themesCombo.addRows("Theme", themesList);
         themesCombo.callback(theme_cb);
         themesCombo.data("GTK");
 

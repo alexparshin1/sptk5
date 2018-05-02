@@ -31,6 +31,7 @@
 #include <sptk5/cgui>
 #include <sptk5/DirectoryDS.h>
 
+using namespace std;
 using namespace sptk;
 
 CListView      *filesListView;
@@ -64,41 +65,47 @@ void list_view_cb(Fl_Widget *w,void *)
 
 int main(int argc,char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    CWindow mainWindow(500, 400, "CDirectoryDS Test");
+        CWindow mainWindow(500, 400, "CDirectoryDS Test");
 
-    CGroup agroup;
-    directoryInput = new CInput("Local directory:",10,SP_ALIGN_CLIENT);
-    directoryInput->labelWidth(120);
-    #ifdef _WIN32
-    directoryInput->data("C:\\");
-    #else
-    directoryInput->data("/");
-    #endif   
-    CButton goButton(SP_EXEC_BUTTON,SP_ALIGN_RIGHT,"Chdir");
-    goButton.callback(go_cb);
-    agroup.end();
+        CGroup agroup;
+        directoryInput = new CInput("Local directory:", 10, SP_ALIGN_CLIENT);
+        directoryInput->labelWidth(120);
+#ifdef _WIN32
+        directoryInput->data("C:\\");
+#else
+        directoryInput->data("/");
+#endif
+        CButton goButton(SP_EXEC_BUTTON, SP_ALIGN_RIGHT, "Chdir");
+        goButton.callback(go_cb);
+        agroup.end();
 
-    CGroup agroup2("",10,SP_ALIGN_BOTTOM);
-    CButton exitButton(SP_EXIT_BUTTON,SP_ALIGN_RIGHT);
-    exitButton.callback(exit_cb);
-    agroup2.end();
+        CGroup agroup2("", 10, SP_ALIGN_BOTTOM);
+        CButton exitButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        exitButton.callback(exit_cb);
+        agroup2.end();
 
-    filesListView = new CListView("",10,SP_ALIGN_CLIENT);
-    filesListView->callback(list_view_cb);
-    directoryDS = new DirectoryDS();
+        filesListView = new CListView("", 10, SP_ALIGN_CLIENT);
+        filesListView->callback(list_view_cb);
+        directoryDS = new DirectoryDS();
 
-    mainWindow.end();
-    mainWindow.resizable(mainWindow);
-    mainWindow.show(argc,argv);
+        mainWindow.end();
+        mainWindow.resizable(mainWindow);
+        mainWindow.show(argc, argv);
 
-    goButton.do_callback();
+        goButton.do_callback();
 
-    int rc = Fl::run();
+        int rc = Fl::run();
 
-    delete directoryDS;
+        delete directoryDS;
 
-    return rc;
+        return rc;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

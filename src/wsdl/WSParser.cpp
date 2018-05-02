@@ -185,7 +185,7 @@ void WSParser::parse(std::string wsdlFile)
     }
 }
 
-string capitalize(const string& name)
+String capitalize(const String& name)
 {
     Strings parts(lowerCase(name),"_");
     for (unsigned i = 0; i < parts.size(); i++) {
@@ -333,7 +333,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "}" << endl << endl;
 
     for (auto itor: m_operations) {
-        string operationName = itor.first;
+        String operationName = itor.first;
         Strings nameParts(itor.second.m_input->name(), ":");
         String requestName;
         if (nameParts.size() == 1)

@@ -427,7 +427,7 @@ public:
     CButton *replace_next;
     CButton *replace_cancel;
 
-    CBox *cursor_position;
+    CBox *cursor_position {nullptr};
 
     CEditor *editor;
     string search;
@@ -452,7 +452,7 @@ EditorWindow::EditorWindow(int w, int h, const char* t) : CWindow(w, h, t)
 
     replace_dlg->end();
     replace_dlg->set_non_modal();
-    editor = 0;
+    editor = nullptr;
     search = "";
 }
 
@@ -491,7 +491,8 @@ void load_file(const char *newfile, int ipos)
     if (r)
         fl_alert("Error reading from file \'%s\':\n%s.", newfile, strerror(errno));
     else
-        if (!insert) strncpy(filename, newfile, sizeof(filename));
+        if (!insert)
+            strncpy(filename, newfile, sizeof(filename) - 1);
     loading = 0;
     textbuf->call_modify_callbacks();
 }
@@ -501,7 +502,7 @@ void save_file(const char *newfile)
     if (textbuf->savefile(newfile))
         fl_alert("Error writing to file \'%s\':\n%s.", newfile, strerror(errno));
     else
-        strncpy(filename, newfile, sizeof(filename));
+        strncpy(filename, newfile, sizeof(filename) - 1);
     changed = 0;
     textbuf->call_modify_callbacks();
 }
@@ -574,11 +575,14 @@ void set_title(Fl_Window* w)
 #ifdef WIN32
         if (slash == NULL) slash = strrchr(filename, '\\');
 #endif
-        if (slash != NULL) strncpy(title, slash + 1, sizeof(title));
-        else strncpy(title, filename, sizeof(title));
+        if (slash != NULL)
+            strncpy(title, slash + 1, sizeof(title) - 1);
+        else
+            strncpy(title, filename, sizeof(title) - 1);
     }
 
-    if (changed) strncat(title, " (modified)", sizeof(title) - 1);
+    if (changed)
+        strncat(title, " (modified)", sizeof(title) - 1);
 
     w->label(title);
 }
@@ -826,36 +830,42 @@ CWindow* new_view()
 
 int main(int argc, char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    int fontCount;
+        int fontCount;
 #ifdef _WIN32
-    fontCount = Fl::set_fonts("*");
+        fontCount = Fl::set_fonts("*");
 #elif __APPLE__
-    fontCount = Fl::set_fonts("*");
+        fontCount = Fl::set_fonts("*");
 #else
-    // Load the systems available fonts - ask for everything that claims to be iso10646 compatible
-    fontCount = Fl::set_fonts("-*-*-*-*-*-*-*-*-*-*-*-*-iso10646-1");
+        // Load the systems available fonts - ask for everything that claims to be iso10646 compatible
+        fontCount = Fl::set_fonts("-*-*-*-*-*-*-*-*-*-*-*-*-iso10646-1");
 #endif
 
-    // If any unicode font found, set the first found for two default fonts.
-    // This is only good for the simple example.
-    if (fontCount) {
-        Fl::set_font(FL_HELVETICA, FL_FREE_FONT);
-        Fl::set_font(FL_COURIER, FL_FREE_FONT);
+        // If any unicode font found, set the first found for two default fonts.
+        // This is only good for the simple example.
+        if (fontCount) {
+            Fl::set_font(FL_HELVETICA, FL_FREE_FONT);
+            Fl::set_font(FL_COURIER, FL_FREE_FONT);
+        }
+
+        textbuf = new Fl_Text_Buffer;
+        style_init();
+
+        CWindow* window = new_view();
+
+        window->show(1, argv);
+
+        if (argc > 1) load_file(argv[1], -1);
+
+        CThemes::set("Keramic");
+
+        return Fl::run();
     }
-
-    textbuf = new Fl_Text_Buffer;
-    style_init();
-
-    CWindow* window = new_view();
-
-    window->show(1, argv);
-
-    if (argc > 1) load_file(argv[1], -1);
-
-    CThemes::set("Keramic");
-
-    return Fl::run();
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

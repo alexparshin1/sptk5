@@ -38,8 +38,8 @@ using namespace sptk;
 
 int main()
 {
-    DatabaseConnectionPool connectionPool("postgresql://theater/protis");
     try {
+        DatabaseConnectionPool connectionPool("postgresql://theater/protis");
         DatabaseConnection* connection = connectionPool.createConnection();
         cout << connection->nativeConnectionString() << endl;
     }

@@ -43,23 +43,29 @@ void cb_clicked(Fl_Widget *w, void *)
 
 int main(int argc, char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    // Main window
-    CWindow w(200, 240, "Calendar Demo");
+        // Main window
+        CWindow w(200, 240, "Calendar Demo");
 
-    w.layoutSpacing(10);
+        w.layoutSpacing(10);
 
-    CCalendar calendar("", 10, SP_ALIGN_CLIENT);
-    CBox box1("", 20, SP_ALIGN_BOTTOM);
-    dateBox = &box1;
+        CCalendar calendar("", 10, SP_ALIGN_CLIENT);
+        CBox box1("", 20, SP_ALIGN_BOTTOM);
+        dateBox = &box1;
 
-    calendar.callback(cb_clicked);
+        calendar.callback(cb_clicked);
 
-    w.end();
-    w.show(argc, argv);
-    Fl::run();
+        w.end();
+        w.show(argc, argv);
+        Fl::run();
 
-    return EXIT_SUCCESS;
+        return EXIT_SUCCESS;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

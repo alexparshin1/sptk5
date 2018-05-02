@@ -31,7 +31,7 @@
 #include <FL/fl_ask.H>
 #include <sptk5/cgui>
 #include <sptk5/gui/CEditorSpellChecker.h>
-#include <sptk5/CException.h>
+#include <sptk5/Exception.h>
 
 using namespace std;
 using namespace sptk;

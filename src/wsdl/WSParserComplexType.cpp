@@ -29,20 +29,19 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
-#include <sstream>
 #include <iomanip>
 
 using namespace std;
 using namespace sptk;
 
-WSParserAttribute::WSParserAttribute(const string& name, const string& typeName)
+WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
 : m_name(name),
-m_wsTypeName(typeName)
+  m_wsTypeName(typeName)
 {
     m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
 }
 
-string WSParserAttribute::generate() const
+String WSParserAttribute::generate() const
 {
     stringstream str;
     str << left << setw(20) << m_cxxTypeName << " m_" << m_name;
@@ -102,9 +101,9 @@ WSParserComplexType::~WSParserComplexType()
     }
 }
 
-string WSParserComplexType::className() const
+String WSParserComplexType::className() const
 {
-    string cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
+    String cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
     if (!cxxType.empty())
         return cxxType;
     size_t pos = m_typeName.find(':');
@@ -140,23 +139,23 @@ void WSParserComplexType::parse()
     }
 }
 
-std::string WSParserComplexType::wsClassName(std::string name)
+String WSParserComplexType::wsClassName(const String& name)
 {
     return name;
 }
 
 void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 {
-    string className = "C" + wsClassName(m_name);
-    set<string> usedClasses;
+    String className = "C" + wsClassName(m_name);
+    set<String> usedClasses;
 
-    string defineName = "__" + upperCase(className) + "__";
+    String defineName = "__" + className.toUpperCase() + "__";
     classDeclaration << "#ifndef " << defineName << endl;
     classDeclaration << "#define " << defineName << endl;
 
     // determine the list of used classes
     for (auto complexType: m_sequence) {
-        string cxxType = complexType->className();
+        String cxxType = complexType->className();
         if (cxxType[0] == 'C')
             usedClasses.insert(cxxType);
     }
@@ -212,9 +211,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
                 copyInitializer.push_back("m_" + complexType->name() + "(\"" + complexType->name() + "\"" + optional + ")");
             }
 
-            stringstream str;
-            str << left << setw(20) << cxxType << " m_" << complexType->name();
-            classDeclaration << "   " << str.str() << ";" << endl;
+            classDeclaration << "   " << left << setw(20) << cxxType << " m_" << complexType->name() << ";" << endl;
         }
     }
     if (!m_attributes.empty()) {
@@ -304,7 +301,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
 
 void WSParserComplexType::generateImplementation(std::ostream& classImplementation)
 {
-    string className = "C" + wsClassName(m_name);
+    String className = "C" + wsClassName(m_name);
 
     classImplementation << "#include \"" << className << ".h\"" << endl << endl;
     classImplementation << "using namespace std;" << endl;
@@ -519,7 +516,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl;
 }
 
-void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation, string externalHeader)
+void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation,
+                                   const String& externalHeader)
 {
     if (!externalHeader.empty()) {
         classDeclaration << externalHeader << endl;
