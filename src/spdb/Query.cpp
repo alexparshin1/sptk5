@@ -119,6 +119,15 @@ string Query::getError() const
 }
 
 //==============================================================================
+Query::Query() noexcept
+: m_autoPrepare(true), m_statement(nullptr), m_connection(nullptr), m_prepared(false),
+  m_active(false), m_eof(true), m_fields(true),
+  m_db(nullptr), m_createdFile(nullptr), m_createdLine(0), m_bulkMode(false)
+{
+    m_objectIndex = nextObjectIndex;
+    nextObjectIndex++; 
+}
+
 Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
     : m_fields(true), m_bulkMode(false)
 {
