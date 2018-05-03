@@ -40,26 +40,34 @@
 using namespace std;
 using namespace sptk;
 
-void printResponse(const Strings& response) {
-    for (unsigned i = 0; i < response.size(); i++) {
-        puts(response[i].c_str());
-    }
-    puts("---------------------------------");
+void printResponse(const Strings& response)
+{
+    cout << response.asString("\n") << endl;
+    cout << "---------------------------------" << endl;
+}
+
+String getString()
+{
+    char    buffer[128];
+
+    cin.getline(buffer, sizeof(buffer) - 2);
+
+    return trim(buffer);
 }
 
 int main( int argc, char *argv[] )
 {
-    // Initialize themes
-    CThemes themes;
-
-    char           buffer[128];
-    ImapConnect    IMAP;
-    String    	   user, password, server;
-    Registry       registry("imap_connect.ini","");
-
-    puts("Testing IMAP connectivity.\n");
-
     try {
+        // Initialize themes
+        CThemes themes;
+
+        //char           buffer[128];
+        ImapConnect    IMAP;
+        String         user, password, server;
+        Registry       registry("imap_connect.ini","");
+
+        cout << "Testing IMAP connectivity." << endl << endl;
+
         registry.load();
         XMLNode* hostNode = registry.findFirst("host");
         if (hostNode) {
@@ -69,62 +77,58 @@ int main( int argc, char *argv[] )
         }
         IMAP.host(Host(server,143));
 
-		if (!user.length()) {
-			printf("IMAP server name: ");
-			if (scanf("%s",buffer) < 0)
-				throw SystemException("Can't read password");
-			server = buffer;
-			IMAP.host(Host(server,143));
+        if (!user.length()) {
+            cout << "IMAP server name: ";
+            server = getString();
+            IMAP.host(Host(server,143));
 
-			printf("IMAP user name: ");
-			if (scanf("%s",buffer) < 0)
-				throw SystemException("Can't read password");
-			user = buffer;
+            cout << "IMAP user name: ";
+            user = getString();
 
-			printf("IMAP user password: ");
-			if (scanf("%s",buffer) < 0)
-				throw SystemException("Can't read password");
-			password = buffer;
-		}
+            cout << "IMAP user password: ";
+            password = getString();
+        }
 
-		puts("\nTrying to connect to IMAP server..");
+        cout << "\nTrying to connect to IMAP server.." << endl;
 
-		IMAP.cmd_login(user,password);
-		printResponse(IMAP.response());
+        IMAP.cmd_login(user,password);
+        printResponse(IMAP.response());
 
-      	// Connected? Save the logon parameters..
-		try {
-			XMLNode* hostNode = registry.findFirst("host");
-			if (!hostNode)
-				hostNode = new XMLElement(registry,"host");
-			hostNode->setAttribute("hostname",server);
-			hostNode->setAttribute("user",user);
-			hostNode->setAttribute("password",password);
-			registry.save();
-		}
-		catch (...) {
-		}
+          // Connected? Save the logon parameters..
+        try {
+            XMLNode* hostNode = registry.findFirst("host");
+            if (!hostNode)
+                hostNode = new XMLElement(registry,"host");
+            hostNode->setAttribute("hostname",server);
+            hostNode->setAttribute("user",user);
+            hostNode->setAttribute("password",password);
+            registry.save();
+        }
+        catch (...) {
+        }
 
-      // RFC 2060 test message :)
-		Buffer msgBuffer(
-				"Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)\n\r"
-				"From: Fred Foobar <foobar@Blurdybloop.COM\n\r"
-				"Subject: afternoon meeting\n\r"
-				"To: mooch@owatagu.siam.edu\n\r"
-				"Message-Id: <B27397-0100000@Blurdybloop.COM>\n\r"
-				"MIME-Version: 1.0\n\r"
-				"Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
-				"Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
+        // RFC 2060 test message :)
+        Buffer msgBuffer(
+                "Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)\n\r"
+                "From: Fred Foobar <foobar@Blurdybloop.COM\n\r"
+                "Subject: afternoon meeting\n\r"
+                "To: mooch@owatagu.siam.edu\n\r"
+                "Message-Id: <B27397-0100000@Blurdybloop.COM>\n\r"
+                "MIME-Version: 1.0\n\r"
+                "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
+                "Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
 
-		IMAP.cmd_append("Sent",msgBuffer);
-		printResponse(IMAP.response());
+        IMAP.cmd_append("Sent",msgBuffer);
+        printResponse(IMAP.response());
 
-		puts("\nClosing IMAP connection..");
-		IMAP.cmd_logout();
-		printResponse(IMAP.response());
-	}
-	catch (exception& e) {
-		puts(e.what());
-	}
-	return 0;
+        cout << endl << "Closing IMAP connection.." << endl;
+        IMAP.cmd_logout();
+        printResponse(IMAP.response());
+    }
+    catch (exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
+
+    return 0;
 }

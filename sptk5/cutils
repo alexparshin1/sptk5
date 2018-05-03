@@ -36,6 +36,7 @@
 #include <sptk5/Registry.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SysLogEngine.h>
+#include <sptk5/SystemException.h>
 #include <sptk5/UniqueInstance.h>
 #include <sptk5/string_ext.h>
 

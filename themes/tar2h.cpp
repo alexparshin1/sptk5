@@ -1,4 +1,3 @@
-// vim:set ts=4:
 #include <stdlib.h>
 #include <stdio.h>
 #include <sptk5/sptk.h>
@@ -41,7 +40,7 @@ int main(int argc, char **argv)
 
         auto x = (unsigned char *)data.data();
 
-        for (int i = 0; i < dataSize; i++) {
+        for (unsigned i = 0; i < dataSize; i++) {
             printf("0x%02x, ", (unsigned) x[i]);
             if (!(i & 0xf)) printf("\n");
         }

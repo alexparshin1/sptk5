@@ -701,8 +701,10 @@ void ODBCConnection::listDataSources(Strings& dsns)
     SQLHENV hEnv = ODBCConnectionBase::getEnvironment().handle();
     bool offline = hEnv == nullptr;
     if (offline) {
-        SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv);
-        SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER);
+        if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv) != SQL_SUCCESS)
+            throw DatabaseException("CODBCConnection::SQLAllocHandle");
+        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER))
+            throw DatabaseException("CODBCConnection::SQLSetEnvAttr");
     }
 
     SQLUSMALLINT direction =
@@ -741,7 +743,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         SQLRETURN rc;
         auto hdb = (SQLHDBC) handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
-            throw DatabaseException("CODBCConnection::queryAllocStmt");
+            throw DatabaseException("CODBCConnection::SQLAllocStmt");
 
         switch (objectType) {
             case DOT_TABLES:
