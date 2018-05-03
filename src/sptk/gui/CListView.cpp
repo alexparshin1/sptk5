@@ -943,10 +943,11 @@ void CListView::data(const Variant vv)
     m_selection.deselectAll();
     m_selection.select(newSelectedRow);
     bool dataWasChanged = false;
-    if ((newSelectedRow && newSelectedRow != oldSelectedRow) || oldSelectedCount > 1) {
+    if ((newSelectedRow != nullptr && newSelectedRow != oldSelectedRow) || oldSelectedCount > 1) {
         dataWasChanged = true;
         displayRow(selectedIndex());
-        dataValue = newSelectedRow->user_data();
+        if (newSelectedRow)
+            dataValue = newSelectedRow->user_data();
     }
     if (dataWasChanged)
         fireEvent(CE_DATA_CHANGED, (long) dataValue);

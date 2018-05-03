@@ -229,15 +229,18 @@ bool CTabButton::selected() const
 
 bool CTabButton::preferredSize(int& w, int& h)
 {
-    if (m_page)
-        fl_font(m_page->labelfont(), m_page->labelsize());
-    int frame_dw = Fl::box_dw(parent()->box());
-    int frame_dh = Fl::box_dh(parent()->box());
     w = 0;
     h = 0;
-    fl_measure(m_page->label(), w, h);
-    w += frame_dw + 10;
-    h += frame_dh + 6;
+
+    if (m_page != nullptr) {
+        fl_font(m_page->labelfont(), m_page->labelsize());
+        int frame_dw = Fl::box_dw(parent()->box());
+        int frame_dh = Fl::box_dh(parent()->box());
+        fl_measure(m_page->label(), w, h);
+        w += frame_dw + 10;
+        h += frame_dh + 6;
+    }
+
     return true;
 }
 
@@ -386,7 +389,7 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
         }
         if (rowHeight < bh)
             rowHeight = bh;
-        if (buildRows) {
+        if (buildRows && row) {
             row->push_back(button);
             button->ownerRow(row);
             button->size(bw, bh);
@@ -446,7 +449,7 @@ const Fl_Color CTabs::AutoColorTable[16] = {
 };
 
 CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
-        : CGroup(label, layoutSize, layoutAlign)
+        : CGroup(label, layoutSize, layoutAlign), m_autoColorIndex(0)
 {
     box(FL_THIN_UP_BOX);
     layoutSpacing(0);
@@ -454,8 +457,9 @@ CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CTabs::CTabs(int x,int y,int w,int h,const char *label)
-        : CGroup(x,y,w,h,label) {
+CTabs::CTabs(int x, int y, int w, int h, const char *label)
+        : CGroup(x, y, w, h, label), m_autoColorIndex(0)
+{
     box(FL_UP_BOX);
     layoutSpacing(0);
     m_tabs = new CTabGroup;

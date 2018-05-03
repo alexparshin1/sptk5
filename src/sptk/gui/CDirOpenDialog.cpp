@@ -56,7 +56,8 @@ bool CDirOpenDialog::okPressed() {
       dname = removeTrailingSlash(dname) + slashStr;
 
       memset(&st, 0, sizeof(struct stat));
-      lstat((dname + string(".")).c_str(), &st);
+      if (lstat((dname + string(".")).c_str(), &st) != 0)
+         throw Exception("Can't access directory '" + dname + "'");
       if (!S_ISDIR(st.st_mode))
          dname = directory();
 

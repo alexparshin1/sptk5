@@ -92,7 +92,7 @@ static string quotes(const string& st)
 string ImapConnect::sendCommand(string cmd)
 {
     char id_str[10];
-	int len = snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
+    int len = snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
     string ident(id_str, len);
     cmd = ident + cmd + "\n";
     if (!active())
@@ -349,10 +349,11 @@ void ImapConnect::cmd_fetch_message(int32_t msg_id, FieldList &result)
 
 string ImapConnect::cmd_fetch_flags(int32_t msg_id)
 {
-    string result;
+    //string result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
-    size_t count = m_response.size() - 1;
-    for (size_t i = 0; i < count; i++) {
+    //size_t count = m_response.size() - 1;
+    size_t i = 0;
+    //for (i = 0; i < count; i++) {
         std::string &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
@@ -362,8 +363,8 @@ string ImapConnect::cmd_fetch_flags(int32_t msg_id)
         if (pos != STRING_NPOS)
             flags[pos] = 0;
         return flags;
-    }
-    return result;
+    //}
+    //return result;
 }
 
 void ImapConnect::cmd_store_flags(int32_t msg_id, const char *flags)

@@ -34,45 +34,50 @@ using namespace sptk;
 
 int main(int argc, const char* argv[])
 {
-    CommandLine commandLine(
-    		"Command Line Arguments demo v.1.00",
-			"Demonstrates basic command line support.",
-			"command_line <command> [options]");
-
-    commandLine.defineOption("help", "h", CommandLine::Visibility(""), "Prints this help.");
-    commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
-    commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
-    commandLine.defineArgument("archive", "Archive data (does nothing)");
-    commandLine.defineArgument("restore", "Restore data (does nothing)");
     try {
-        commandLine.init(argc, argv);
-    }
-    catch (const exception& e) {
-        cerr << "Error in command line arguments:" << endl;
-        cerr << e.what() << endl;
-        cout << endl;
-        commandLine.printHelp(80);
-        return 1;
-    }
+        CommandLine commandLine(
+                "Command Line Arguments demo v.1.00",
+                "Demonstrates basic command line support.",
+                "command_line <command> [options]");
 
-    String command;
-    if (!commandLine.arguments().empty())
-        command = commandLine.arguments()[0];
+        commandLine.defineOption("help", "h", CommandLine::Visibility(""), "Prints this help.");
+        commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
+        commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
+        commandLine.defineArgument("archive", "Archive data (does nothing)");
+        commandLine.defineArgument("restore", "Restore data (does nothing)");
+        try {
+            commandLine.init(argc, argv);
+        }
+        catch (const exception& e) {
+            cerr << "Error in command line arguments:" << endl;
+            cerr << e.what() << endl;
+            cout << endl;
+            commandLine.printHelp(80);
+            return 1;
+        }
 
-    if (command == "help") {
-    	// Print full help
-        commandLine.printHelp(80);
+        String command;
+        if (!commandLine.arguments().empty())
+            command = commandLine.arguments()[0];
+
+        if (command == "help") {
+            // Print full help
+            commandLine.printHelp(80);
+            return 0;
+        }
+
+        if (commandLine.hasOption("help")) {
+            // Print help on command (if any) or full help
+            commandLine.printHelp(command, 80);
+        } else {
+            cout << "Archive mode: " << commandLine.getOptionValue("archive-mode") << endl;
+            cout << "Archive date: " << commandLine.getOptionValue("archive-date") << endl;
+        }
+
         return 0;
     }
-
-    if (commandLine.hasOption("help")) {
-    	// Print help on command (if any) or full help
-        commandLine.printHelp(command, 80);
-    } else {
-        cout << "Archive mode: " << commandLine.getOptionValue("archive-mode") << endl;
-        cout << "Archive date: " << commandLine.getOptionValue("archive-date") << endl;
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
     }
-
-    return 0;
 }
-

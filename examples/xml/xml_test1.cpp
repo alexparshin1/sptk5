@@ -149,8 +149,8 @@ int main(int argc, char **argv)
             dialog.addPattern("XML Files", "*.xml");
             dialog.addPattern("All Files", "*.*");
             dialog.setPattern("XML Files");
-            dialog.execute();
-            fileName = dialog.fullFileName();
+            if (dialog.execute())
+                fileName = dialog.fullFileName();
         }
         catch (const exception& e) {
             cerr << e.what() << endl;

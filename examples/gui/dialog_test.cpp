@@ -155,7 +155,7 @@ void dialog_cb(Fl_Widget *, void *)
    /// This loads the last known state of the dialog,
    /// stored in the XML file
    dialog.loadState();
-   
+
    if (dialog.showModal()) {
       cout <<
               (string) dialog["company_name"] << ", has " <<
@@ -163,7 +163,7 @@ void dialog_cb(Fl_Widget *, void *)
               (string) dialog["business_type"] << "), established " <<
               (string) dialog["established"] << endl;
    }
-   
+
    /// This saves the last known state of the dialog
    /// to the XML file
    dialog.saveState();
@@ -171,29 +171,35 @@ void dialog_cb(Fl_Widget *, void *)
 
 int main(int argc, char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    CWindow w(300, 170);
-   
-    CHtmlBox textBox;
-    textBox.data("<p>This test shows how simple it is"
-    "to create a <i>modal dialog</i> window in <b>SPTK.</b></p>"
-    "<p>The dialog window may have several <i>tabs</i> and every"
-    "widget may have a <i>field name</i> attached to it.</p>");
-    textBox.color(FL_GRAY);
-   
-    CButton b2(SP_EXIT_BUTTON);
-    b2.callback(exit_cb);
-   
-    CButton b1(SP_EDIT_BUTTON, SP_ALIGN_RIGHT, "Show Dialog");
-    b1.callback(dialog_cb);
-   
-    w.end();
-    w.show();
-   
-    if (argc > 1)
-        CThemes::set(argv[1]);
-   
-    return Fl::run();
+        CWindow w(300, 170);
+
+        CHtmlBox textBox;
+        textBox.data("<p>This test shows how simple it is"
+                     "to create a <i>modal dialog</i> window in <b>SPTK.</b></p>"
+                     "<p>The dialog window may have several <i>tabs</i> and every"
+                     "widget may have a <i>field name</i> attached to it.</p>");
+        textBox.color(FL_GRAY);
+
+        CButton b2(SP_EXIT_BUTTON);
+        b2.callback(exit_cb);
+
+        CButton b1(SP_EDIT_BUTTON, SP_ALIGN_RIGHT, "Show Dialog");
+        b1.callback(dialog_cb);
+
+        w.end();
+        w.show();
+
+        if (argc > 1)
+            CThemes::set(argv[1]);
+
+        return Fl::run();
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

@@ -113,6 +113,8 @@ void CLayoutManager::relayout() {
         CLayoutClient *ca;
         try {
             ca = dynamic_cast<CLayoutClient *>(widget);
+            if (ca == nullptr)
+                continue;
         } catch (...) {
             continue;
         }
@@ -173,6 +175,8 @@ bool CLayoutManager::autoLayout(int x,int y,int& w,int& h,bool resizeWidgets) co
                 continue;
             try {
                 ca = dynamic_cast<CLayoutClient *>(widget);
+                if (ca == nullptr)
+                    continue;
             } catch (...) {
                 continue;
             }
@@ -234,8 +238,9 @@ bool CLayoutManager::autoLayout(int x,int y,int& w,int& h,bool resizeWidgets) co
                 break;
 
             case SP_ALIGN_LEFT:
-                xx += preferred_w + m_layoutSpacing;
             case SP_ALIGN_RIGHT:
+                if (ca->layoutAlign() == SP_ALIGN_LEFT)
+                    xx += preferred_w + m_layoutSpacing;
                 ww -= preferred_w + m_layoutSpacing;
                 if (preferred_h > hh) {
                     if (!(m_layoutGrowMode & LGM_VERTICAL_GROW))

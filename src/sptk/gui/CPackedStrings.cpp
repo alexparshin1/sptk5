@@ -79,7 +79,8 @@ CPackedStrings::CPackedStrings(const Strings& strings) {
    operator = (strings);
 }
 
-CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
+CPackedStrings::CPackedStrings(FieldList& fields,int keyField)
+{
    int cnt = fields.size();
    int rcnt = cnt;
    if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
@@ -91,7 +92,6 @@ CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
 
    uint16_t      *offset = (uint16_t *)alloca(offsetsSpace*2);
    uint16_t      *len = offset + rcnt;
-   cpchar      *buffers = (cpchar *)alloca(sizeof(cpchar)*rcnt);
 
    flags = 0;
    height = 0;
@@ -99,6 +99,7 @@ CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
 
    int j = 0;
    long keyValue = 0;
+   Strings strings;
    {
       for (int i = 0; i < cnt; i++) {
          Field& field = fields[i];
@@ -109,11 +110,11 @@ CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
          uint16_t l;
          if (field.dataType() == VAR_STRING) { // conversion isn't required
             l = uint16_t(field.dataSize() + 1);
-            buffers[j] = field.asString().c_str();
+            strings.push_back(field.getString());
          } else {
-            const char *s = field.getString();
-            buffers[j] = s;
-            l = uint16_t(strlen(s) + 1);
+            String str = field.asString();
+            strings.push_back(str);
+            l = uint16_t(str.length() + 1);
          }
          offset[j] = uint16_t(sz);
          len[j] = l;
@@ -125,12 +126,12 @@ CPackedStrings::CPackedStrings(FieldList& fields,int keyField) {
    m_buffer = malloc(m_size);
 
    *(uint16_t *)m_buffer = uint16_t(cnt);
-   memcpy((uint16_t *)m_buffer + 1,offset,offsetsSpace);
+   memcpy((uint16_t *)m_buffer + 1, offset, offsetsSpace);
    j = 0;
    {/*alex*/
       for (int i = 0; i < cnt; i++) {
          if (i == keyField) continue;
-         memcpy(pchar(m_buffer)+offset[j],buffers[j],len[j]);
+         memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
          j++;
       }
    }

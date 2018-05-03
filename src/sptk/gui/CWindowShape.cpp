@@ -43,7 +43,8 @@ using namespace sptk;
 #define LEFT_EDGE   4
 #define RIGHT_EDGE  8
 
-CWindowShape::CWindowShape(CWindow* window) {
+CWindowShape::CWindowShape(CWindow* window)
+{
     m_window = window;
     m_shapeChanged = true;
     m_lastW = m_lastH = 0;
@@ -51,6 +52,8 @@ CWindowShape::CWindowShape(CWindow* window) {
     m_borderWidth = 6;
     m_borderCleared = false;
     m_shapeExtension = false;
+    m_pushedX = 0;
+    m_pushedY = 0;
 }
 
 void CWindowShape::initShapeExtension() {

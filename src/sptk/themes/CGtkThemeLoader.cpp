@@ -244,6 +244,8 @@ void CGtkThemeParser::load(const string& themeName)
             pos = -1;
             for (;;) {
                 pos = s.find_first_of("#\"", pos + 1);
+                if (pos == string::npos)
+                    break;
                 if (s[pos] == '\"') { // Find a matching double quote
                     pos = s.find_first_of("\"", pos + 1);
                     if (pos == STRING_NPOS)

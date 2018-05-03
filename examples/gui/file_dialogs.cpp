@@ -27,11 +27,10 @@
 */
 
 #include <stdio.h>
-
 #include <locale.h>
-
 #include <sptk5/cgui>
 
+using namespace std;
 using namespace sptk;
 
 void exit_cb(Fl_Widget *w,void *)
@@ -72,27 +71,33 @@ void dir_open_dialog_cb(Fl_Widget *,void *)
 
 int main(int argc,char *argv[])
 {
-    // Initialize themes
-    CThemes themes;
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    CWindow w(200, 150);
+        CWindow w(200, 150);
 
-    CButton b1(SP_OPEN_BUTTON,SP_ALIGN_TOP,"Open File Dialog");
-    b1.callback(file_open_dialog_cb);
+        CButton b1(SP_OPEN_BUTTON,SP_ALIGN_TOP,"Open File Dialog");
+        b1.callback(file_open_dialog_cb);
 
-    CButton b2(SP_SAVE_BUTTON,SP_ALIGN_TOP,"Save File Dialog");
-    b2.callback(file_save_dialog_cb);
+        CButton b2(SP_SAVE_BUTTON,SP_ALIGN_TOP,"Save File Dialog");
+        b2.callback(file_save_dialog_cb);
 
-    CButton b3(SP_BROWSE_BUTTON,SP_ALIGN_TOP,"Open Directory Dialog");
-    b3.callback(dir_open_dialog_cb);
+        CButton b3(SP_BROWSE_BUTTON,SP_ALIGN_TOP,"Open Directory Dialog");
+        b3.callback(dir_open_dialog_cb);
 
-    CButton b4(SP_EXIT_BUTTON,SP_ALIGN_BOTTOM);
-    b4.callback(exit_cb);
+        CButton b4(SP_EXIT_BUTTON,SP_ALIGN_BOTTOM);
+        b4.callback(exit_cb);
 
-    w.end();
-    w.show(argc,argv);
+        w.end();
+        w.show(argc,argv);
 
-    //CThemes::set("GTK");
+        //CThemes::set("GTK");
 
-    return Fl::run();
+        return Fl::run();
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

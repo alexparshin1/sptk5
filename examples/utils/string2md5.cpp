@@ -46,8 +46,9 @@ int main(int argc, const char* argv[])
         cerr << "Please provide a phrase to md5 as a single parameter!" << endl;
         return 1;
     }
-    
-    cout << md5(argv[1]) << endl;
-   
+
+    if (argv[1] != nullptr)
+        cout << md5(argv[1]) << endl;
+
     return 0;
 }

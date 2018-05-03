@@ -45,7 +45,7 @@ const Fl_Image* CTreeItem::folderOpened;
 const Fl_Image* CTreeItem::document;
 
 CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Image* closedImage, void* data)
-    : CGroup("", 10, SP_ALIGN_TOP)
+: CGroup("", 10, SP_ALIGN_TOP), m_labelWidth(0), m_labelHeight(0), m_body(nullptr)
 {
     m_drawClipped = false;
     m_selected = false;

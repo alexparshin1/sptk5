@@ -103,57 +103,61 @@ void combo_cb(Fl_Widget *w, void *data)
 
 int main(int argc, char *argv[])
 {
-    // Initialize themes
-    CThemes allThemes;
+    try {
+        // Initialize themes
+        CThemes allThemes;
 
-    CWindow w(450, 200, "ComboBox Test");
+        CWindow w(450, 200, "ComboBox Test");
 
-    CComboBox cb("Test Combo Box:");
+        CComboBox cb("Test Combo Box:");
 
-    CColumnList columns;
-    columns.push_back(CColumn("name", VAR_STRING, 45));
-    columns.push_back(CColumn("phone", VAR_STRING, 140));
-    columns.push_back(CColumn("city", VAR_STRING, 120));
-    cb.columns(columns);
+        CColumnList columns;
+        columns.push_back(CColumn("name", VAR_STRING, 45));
+        columns.push_back(CColumn("phone", VAR_STRING, 140));
+        columns.push_back(CColumn("city", VAR_STRING, 120));
+        cb.columns(columns);
 
-    Strings sl1("Alex|(415)-123-45678|SF", "|");
-    Strings sl2("Eric|(510)-123-45678|Oakland", "|");
-    Strings sl3("Gordon|(650)-123-45678|Los Angeles", "|");
-    Strings sl4("Mark|(408)-123-45678|San Mateo", "|");
-    Strings sl5("Алекс|(408)-123-45678|Сан Франциско", "|");
+        Strings sl1("Alex|(415)-123-45678|SF", "|");
+        Strings sl2("Eric|(510)-123-45678|Oakland", "|");
+        Strings sl3("Gordon|(650)-123-45678|Los Angeles", "|");
+        Strings sl4("Mark|(408)-123-45678|San Mateo", "|");
+        Strings sl5("Алекс|(408)-123-45678|Сан Франциско", "|");
 
-    cb.addRow(sl1);
-    cb.addRow(sl2);
-    cb.addRow(sl3);
-    cb.addRow(sl4);
-    cb.addRow(sl5);
+        cb.addRow(sl1);
+        cb.addRow(sl2);
+        cb.addRow(sl3);
+        cb.addRow(sl4);
+        cb.addRow(sl5);
 
-    cb.buttons(SP_BROWSE_BUTTON | SP_ADD_BUTTON | SP_EDIT_BUTTON | SP_DELETE_BUTTON);
-    cb.callback(combo_cb);
+        cb.buttons(SP_BROWSE_BUTTON | SP_ADD_BUTTON | SP_EDIT_BUTTON | SP_DELETE_BUTTON);
+        cb.callback(combo_cb);
 
-    // That group keeps togeteher the buttons. These
-    // buttons use the default alignment for buttons -
-    // SP_ALIGN_RIGHT, and the text/icon defined by the
-    // button kind.
-    CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
-    buttonGroup.color(FL_LIGHT1);
+        // That group keeps togeteher the buttons. These
+        // buttons use the default alignment for buttons -
+        // SP_ALIGN_RIGHT, and the text/icon defined by the
+        // button kind.
+        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
+        buttonGroup.color(FL_LIGHT1);
 
-    CButton exitButton(SP_EXIT_BUTTON);
-    exitButton.callback(exit_cb);
+        CButton exitButton(SP_EXIT_BUTTON);
+        exitButton.callback(exit_cb);
 
-    CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
-    Strings themes = CThemes::availableThemes();
-    themesCombo.addRows("Theme", themes);
-    themesCombo.callback(theme_cb);
-    themesCombo.data("Default");
+        CComboBox themesCombo("Theme", 200, SP_ALIGN_LEFT);
+        Strings themes = CThemes::availableThemes();
+        themesCombo.addRows("Theme", themes);
+        themesCombo.callback(theme_cb);
+        themesCombo.data("Default");
 
-    buttonGroup.end();
+        buttonGroup.end();
 
-    w.resizable(w);
-    w.end();
-    w.show(argc, argv);
+        w.resizable(w);
+        w.end();
+        w.show(argc, argv);
 
-    Fl::run();
-
-    return 0;
+        return Fl::run();
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

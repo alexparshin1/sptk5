@@ -46,25 +46,27 @@ class CShapedWindow : public CWindow {
    CButton*  m_maximizeButton;
    CButton*  m_minimizeButton;
    bool      m_maximized;
-   int       m_restoreX;
-   int       m_restoreY;
-   int       m_restoreW;
-   int       m_restoreH;
+   int       m_restoreX {0};
+   int       m_restoreY {0};
+   int       m_restoreW {0};
+   int       m_restoreH {0};
    void  appendSector(int x, int y, int r, int a1, int a2, int da);
 public:
    CShapedWindow(int x, int y, int w, int h, const char* label="");
    virtual void shapeResize(int ww, int hh); // This method should define points for the window shape
-   
+
    void minimize();
    void maximize();
    void restore();
 };
 
-void exit_cb(Fl_Widget *w, void *) {
+void exit_cb(Fl_Widget *w, void *)
+{
    w->window()->hide();
 }
 
-void theme_cb(Fl_Widget *w, void *) {
+void theme_cb(Fl_Widget *w, void *)
+{
    try {
       CComboBox *themesCombo = (CComboBox *)w;
       std::string themeName = themesCombo->data();
@@ -80,21 +82,25 @@ void theme_cb(Fl_Widget *w, void *) {
    }
 }
 
-void close_cb(Fl_Widget *w, void *) {
+void close_cb(Fl_Widget *w, void *)
+{
    w->window()->hide();
 }
 
-void maximize_cb(Fl_Widget *w, void *) {
+void maximize_cb(Fl_Widget *w, void *)
+{
    CShapedWindow* shapedWindow = (CShapedWindow*) w->window();
    shapedWindow->maximize();
 }
 
-void minimize_cb(Fl_Widget *w, void *) {
+void minimize_cb(Fl_Widget *w, void *)
+{
    CShapedWindow* shapedWindow = (CShapedWindow*) w->window();
    shapedWindow->minimize();
 }
 
-CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label) : CWindow(x, y, w, h, label) {
+CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label) : CWindow(x, y, w, h, label) 
+{
    m_maximized = false;
 
    box(FL_FLAT_BOX);
@@ -153,7 +159,8 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label) : CW
    relayout();
 }
 
-void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da) {
+void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da)
+{
    for (int angle = a1; angle != a2; angle += da) {
       double angle_r = angle / 180.0 * 3.1415926;
       int dx = int(r * cos(angle_r) + 0.5);
@@ -162,7 +169,8 @@ void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da) 
    }
 }
 
-void CShapedWindow::shapeResize(int ww, int hh) {
+void CShapedWindow::shapeResize(int ww, int hh)
+{
    m_shapePoints.clear();
    int dx = 15;
    appendSector(dx, dx, dx, 180, 90, -15);
@@ -171,7 +179,8 @@ void CShapedWindow::shapeResize(int ww, int hh) {
    appendSector(dx, hh-dx, dx, -90, -180, -15);
 }
 
-void CShapedWindow::maximize() {
+void CShapedWindow::maximize()
+{
    if (!m_maximized) {
       m_maximized = true;
       m_maximizeButton->label("@-6menu");
@@ -184,7 +193,8 @@ void CShapedWindow::maximize() {
       restore();
 }
 
-void CShapedWindow::minimize() {
+void CShapedWindow::minimize()
+{
    m_restoreX = x();
    m_restoreY = y();
    m_restoreW = w();
@@ -192,7 +202,8 @@ void CShapedWindow::minimize() {
    iconize();
 }
 
-void CShapedWindow::restore() {
+void CShapedWindow::restore()
+{
    m_maximized = false;
    m_maximizeButton->label("@-4square");
    resize(m_restoreX, m_restoreY, m_restoreW, m_restoreH);
@@ -200,21 +211,22 @@ void CShapedWindow::restore() {
    redraw();
 }
 
-int main(int argc, char *argv[]) {
-    // Initialize themes
-    CThemes themes;
-
+int main(int argc, char *argv[])
+{
     try {
+        // Initialize themes
+        CThemes themes;
+
         CShapedWindow* w = new CShapedWindow(100, 100, 300, 300);
-      
+
         w->show(argc, argv);
-      
-        Fl::run();
-    } catch (exception& e) {
-        spError(e.what());
-    } catch (...) {
-        spError("Unknown Error");
+
+        return Fl::run();
     }
-   
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
+
     return 0;
 }

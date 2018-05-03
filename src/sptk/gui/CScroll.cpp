@@ -173,7 +173,7 @@ void CScroll::bbox(int& X, int& Y, int& W, int& H)
     }
     if (hscrollbar.visible()) {
         H -= hscrollbar.h();
-        if (scrollbar.align() & FL_ALIGN_TOP)
+        if (hscrollbar.align() & FL_ALIGN_TOP)
             Y += hscrollbar.h();
     }
 }

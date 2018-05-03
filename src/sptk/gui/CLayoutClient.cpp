@@ -173,7 +173,7 @@ void CLayoutClient::save(XMLNode* node,CLayoutXMLmode xmlMode) const {
     }
     if (xmlMode & (int) LXM_DATA) {
         CControl* control = dynamic_cast<CControl*>(m_widget);
-        if (control)
+        if (control != nullptr)
             control->save(node,LXM_DATA);
     }
 }

@@ -37,8 +37,7 @@ using namespace sptk;
 CAskDialog::CAskDialog(const char* label, int w)
         : CDialog(w, 100, label)
 {
-
-    int textSize = int(Fl::h() / 64 + 0.5);
+    int textSize = int(Fl::h() / 64.0 + 0.5);
     if (textSize < 14) textSize = 14;
 
     CGroup* grp = new CGroup("", 65, SP_ALIGN_LEFT);

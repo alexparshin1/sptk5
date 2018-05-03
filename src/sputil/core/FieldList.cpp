@@ -45,7 +45,7 @@ FieldList::FieldList(bool indexed, bool compactXmlMode)
 }
 
 FieldList::FieldList(const FieldList& other)
-: m_userData(other.m_userData)
+: m_userData(other.m_userData), m_compactXmlMode(false)
 {
     if (other.m_index != nullptr)
         m_index = new Map;

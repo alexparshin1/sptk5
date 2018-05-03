@@ -38,20 +38,23 @@ using namespace std;
 using namespace sptk;
 
 CSplitter::CSplitter( const char * label, int layoutSize, CLayoutAlign layoutAlign )
-: CBox( label, layoutSize, layoutAlign ) {
-   m_chainedWidget = 0L;
+: CBox( label, layoutSize, layoutAlign )
+{
+   m_chainedWidget = nullptr;
+   m_chainedWidgetLayout = nullptr;
    m_dragging = false;
    box(FL_THIN_UP_BOX);
 }
 
-CLayoutClient* CSplitter::creator(XMLNode *node) {
+CLayoutClient* CSplitter::creator(XMLNode *node) 
+{
   CSplitter* widget = new CSplitter("",10,SP_ALIGN_TOP);
   widget->load(node,LXM_LAYOUTDATA);
   return widget;
 }
 
-int CSplitter::handle( int event ) {
-
+int CSplitter::handle( int event )
+{
    switch ( event ) {
       case FL_ENTER:
          switch (m_layoutAlign) {
@@ -165,7 +168,7 @@ void CSplitter::findChainedControl() {
          }
          catch (...) {}
       }
-      if (priorWidget && priorWidgetLayout->layoutAlign() != SP_ALIGN_CLIENT) {
+      if (priorWidget && priorWidgetLayout && priorWidgetLayout->layoutAlign() != SP_ALIGN_CLIENT) {
          m_chainedWidget = priorWidget;
          m_chainedWidgetLayout = priorWidgetLayout;
       } else {
@@ -173,7 +176,7 @@ void CSplitter::findChainedControl() {
          m_chainedWidgetLayout = nextWidgetLayout;
       }
 
-      if (m_chainedWidget) {
+      if (m_chainedWidget && m_chainedWidgetLayout) {
          if (m_chainedWidgetLayout->layoutAlign() == SP_ALIGN_NONE) {
             m_chainedWidget = 0;
             return;

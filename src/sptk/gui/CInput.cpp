@@ -79,11 +79,16 @@ static string reformatPhoneNumber(const char *st)
 
 void CInput_::mask(const char *m)
 {
+   m_mask = "";
+   m_inputMask = "";
+   m_backgroundMask = "";
+
+   if (m == nullptr)
+      return;
+
    m_mask = m;
    m_inputMask = m;
    m_backgroundMask = m;
-
-   if (!m) return;
 
    auto bg_mask_ptr = (char *) m_backgroundMask.c_str();
    auto input_mask_ptr = (char *) m_inputMask.c_str();

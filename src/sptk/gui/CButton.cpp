@@ -46,7 +46,7 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* 
     switch (buttonKind) {
         default:
             name = nullptr;
-            l = nullptr;
+            l = "??";
             break;
         case SP_ADD_BUTTON:
             name = "add";

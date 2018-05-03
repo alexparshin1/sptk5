@@ -52,19 +52,19 @@ bool CFileSaveDialog::okPressed() {
       int fh = open(fname.c_str(),O_RDONLY);
       close(fh);
       if (fh > 0) {
-         if (!spAsk("File exists, overwrite it?")) {
+         if (!spAsk("File exists, overwrite it?"))
             return false;
-         }
          fh = open(fname.c_str(),O_RDWR);
-         close(fh);
          if (fh < 0)
             throw SystemException("File is write-protected.");
+         close(fh);
       } else {
          fh = creat(fname.c_str(),S_IWRITE);
          if (fh < 0)
             throw SystemException("Can't create the file.");
          close(fh);
-         ::remove(fname.c_str());
+         if (::remove(fname.c_str()) != 0)
+            throw SystemException("Can't create temporary file file.");
       }
       return true;
    }

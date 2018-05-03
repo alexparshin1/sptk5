@@ -78,6 +78,8 @@ static void splitArguments(const string& expression, Strings& arguments)
             subExpressionLevel++;
             while (subExpressionLevel) {
                 ptr2 = strpbrk(ptr, "()");
+                if (ptr2 == nullptr)
+                    break;
                 if (*ptr2 == '(')
                     subExpressionLevel++;
                 else
