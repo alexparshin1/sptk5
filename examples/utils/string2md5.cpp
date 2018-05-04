@@ -36,6 +36,7 @@
 
 #include <iostream>
 #include <sptk5/md5.h>
+#include <cstring>
 
 using namespace std;
 using namespace sptk;
@@ -47,8 +48,12 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    if (argv[1] != nullptr)
-        cout << md5(argv[1]) << endl;
+    if (argv[1] != nullptr) {
+        char buffer[16384];
+        memset(buffer, 0, sizeof(buffer));
+        strncpy(buffer, argv[1], sizeof(buffer) - 1);
+        cout << md5(buffer) << endl;
+    }
 
     return 0;
 }

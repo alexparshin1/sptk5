@@ -299,31 +299,33 @@ bool CLayoutManager::autoLayout(int x,int y,int& w,int& h,bool resizeWidgets) co
 
         if (clientWidget) { // One widget has the client alignment
             CLayoutClient *ca = dynamic_cast<CLayoutClient *>(clientWidget);
+            if (ca != nullptr) {
 
-            layoutWidgets++;
+                layoutWidgets++;
 
-            preferred_w = ww; // - m_layoutSpacing;
-            preferred_h = hh; // - m_layoutSpacing;
-            if (preferred_w < 0)
-                preferred_w = 20;
-            if (preferred_h < 0)
-                preferred_h = 20;
+                preferred_w = ww; // - m_layoutSpacing;
+                preferred_h = hh; // - m_layoutSpacing;
+                if (preferred_w < 0)
+                    preferred_w = 20;
+                if (preferred_h < 0)
+                    preferred_h = 20;
 
-            if (preferred_w != ca->m_lastPreferredW || preferred_h != ca->m_lastPreferredH)
-                ca->computeSize(preferred_w,preferred_h);
+                if (preferred_w != ca->m_lastPreferredW || preferred_h != ca->m_lastPreferredH)
+                    ca->computeSize(preferred_w, preferred_h);
 
-            if (resizeWidgets && !dynamic_cast<CScroll *>(m_group)) {
-                if (preferred_w > ww && !(m_layoutGrowMode & LGM_HORIZONTAL_GROW))
-                    preferred_w = ww;
-                if (preferred_h > hh && !(m_layoutGrowMode & LGM_VERTICAL_GROW))
-                    preferred_h = hh;
+                if (resizeWidgets && !dynamic_cast<CScroll*>(m_group)) {
+                    if (preferred_w > ww && !(m_layoutGrowMode & LGM_HORIZONTAL_GROW))
+                        preferred_w = ww;
+                    if (preferred_h > hh && !(m_layoutGrowMode & LGM_VERTICAL_GROW))
+                        preferred_h = hh;
+                }
+
+                ww -= preferred_w; // + m_layoutSpacing;
+                hh -= preferred_h; // + m_layoutSpacing;
+
+                if (resizeWidgets)
+                    clientWidget->resize(xx, yy, preferred_w, preferred_h);
             }
-
-            ww -= preferred_w; // + m_layoutSpacing;
-            hh -= preferred_h; // + m_layoutSpacing;
-
-            if (resizeWidgets)
-                clientWidget->resize(xx,yy,preferred_w,preferred_h);
         }
 
         // Final adjustment

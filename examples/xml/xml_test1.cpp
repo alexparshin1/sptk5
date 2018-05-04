@@ -136,64 +136,64 @@ double diffSeconds(DateTime start, DateTime end)
 
 int main(int argc, char **argv)
 {
-    // Initialize themes
-    CThemes themes;
+    auto precision = cout.precision();
+    try {
+        // Initialize themes
+        CThemes themes;
 
-    string fileName;
-    if (argc == 2) {
-        fileName = argv[1];
-    } else {
+        string fileName;
+        if (argc == 2) {
+            fileName = argv[1];
+        } else {
+            try {
+                CFileOpenDialog dialog;
+                dialog.directory(".");
+                dialog.addPattern("XML Files", "*.xml");
+                dialog.addPattern("All Files", "*.*");
+                dialog.setPattern("XML Files");
+                if (dialog.execute())
+                    fileName = dialog.fullFileName();
+            }
+            catch (const exception& e) {
+                cerr << e.what() << endl;
+                return 1;
+            }
+        }
+
+        if (fileName.empty())
+            return -1;
+
+        Buffer buffer;
         try {
-            CFileOpenDialog dialog;
-            dialog.directory(".");
-            dialog.addPattern("XML Files", "*.xml");
-            dialog.addPattern("All Files", "*.*");
-            dialog.setPattern("XML Files");
-            if (dialog.execute())
-                fileName = dialog.fullFileName();
+            buffer.loadFromFile(fileName.c_str());
         }
-        catch (const exception& e) {
-            cerr << e.what() << endl;
-            return 1;
+        catch (exception& e) {
+            puts(e.what());
+            return 12;
         }
-    }
 
-    if (fileName.empty())
-        return -1;
+        CWindow* window = new CWindow(700, 200, 300, 300);
+        window->resizable(window);
+        window->begin();
 
-    Buffer buffer;
-    try {
-        buffer.loadFromFile(fileName.c_str());
-    }
-    catch (exception& e) {
-        puts(e.what());
-        return 12;
-    }
-
-    CWindow *window = new CWindow(700, 200, 300, 300);
-    window->resizable(window);
-    window->begin();
-
-    CTreeControl *tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
-    window->end();
-
-    try {
+        CTreeControl* tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
+        window->end();
 
         DateTime start = DateTime::Now();
-        XMLDocument *doc = new XMLDocument;
+        unique_ptr<XMLDocument> doc(new XMLDocument);
         doc->load(buffer);
         DateTime end = DateTime::Now();
 
-        char message[128];
-        snprintf(message, sizeof(message), "XML Test - loaded file in %0.2f sec", diffSeconds(start, end));
-        window->label(message);
-        puts(message);
+        stringstream message;
+        message << "XML Test - loaded file in " << diffSeconds(start, end) << " sec";
+        window->label(message.str());
+        cout << message.str() << endl;
 
-        build_tree(doc, tree, 0L);
+        build_tree(doc.get(), tree, 0L);
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();
-        printf("XML Test - relayouted tree in %0.2f sec\n", diffSeconds(start, end));
+        cout << "XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl;
 
         try {
             DateTime start = DateTime::Now();
@@ -201,34 +201,22 @@ int main(int argc, char **argv)
             doc->save(savebuffer, true);
             savebuffer.saveToFile("MyXML.xml");
             end = DateTime::Now();
-            printf("XML Test - saved for %0.2f sec\n", diffSeconds(start, end));
+            cout << "XML Test - saved for " << diffSeconds(start, end) << " sec";
         }
         catch (...) {
             Fl::warning("Error!");
         }
-        delete doc;
+
+        window->show();
+
+        Fl::run();
+
+        cout << "--------------------------------" << endl;
+        cout << "There were " << autoLayoutCounter << " calls to autoLayout()" << endl;
     }
-    catch (std::exception &e) {
-        puts("");
-        puts("------------------------");
-        puts(e.what());
-        puts("------------------------");
+    catch (const exception& e) {
+        cerr << e.what() << endl;
     }
-    catch (...) {
-        puts("");
-        puts("------------------------");
-        puts("Unknown error");
-        puts("------------------------");
-    }
-
-    //window->relayout();
-
-    window->show();
-
-    Fl::run();
-
-    cout << "--------------------------------" << endl;
-    cout << "There were " << autoLayoutCounter << " calls to autoLayout()" << endl;
-
+    cout.precision(precision);
     return 0;
 }

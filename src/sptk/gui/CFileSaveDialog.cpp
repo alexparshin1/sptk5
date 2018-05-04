@@ -50,8 +50,8 @@ bool CFileSaveDialog::okPressed() {
       fname = removeTrailingSlash(directory()) + CFileDialog::slashStr + fname;
 
       int fh = open(fname.c_str(),O_RDONLY);
-      close(fh);
       if (fh > 0) {
+         close(fh);
          if (!spAsk("File exists, overwrite it?"))
             return false;
          fh = open(fname.c_str(),O_RDWR);
