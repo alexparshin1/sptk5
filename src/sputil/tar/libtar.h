@@ -144,7 +144,7 @@ int th_read(TAR *t);
 /* decode tar header info */
 #define th_get_crc(t) oct_to_int((t)->th_buf.chksum)
 #define th_get_size(t) oct_to_int((t)->th_buf.size)
-std::string th_get_pathname(TAR *t);
+void th_get_pathname(TAR *t, char* path, size_t sz);
 
 
 /***** util.c *************************************************************/

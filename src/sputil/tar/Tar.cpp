@@ -118,7 +118,9 @@ bool Tar::loadFile()
     if (rc > 0) return false; // End of archive
     if (rc < 0) throwError(m_fileName);
 
-    string fileName = th_get_pathname(tar);
+	char path[1024];
+    th_get_pathname(tar, path, sizeof(path));
+	string fileName(path);
     auto fileSize = (uint32_t) th_get_size(tar);
 
     if (fileSize != 0) {

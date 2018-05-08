@@ -23,30 +23,29 @@
 #endif
 
 /* determine full path name */
-std::string th_get_pathname(TAR *t)
+void th_get_pathname(TAR *t, char* path, size_t sz)
 {
-    char filename[MAXPATHLEN+1];
-
-    if (t->th_buf.gnu_longname != nullptr)
-        return t->th_buf.gnu_longname;
+	if (t->th_buf.gnu_longname != nullptr) {
+		strncpy(path, t->th_buf.gnu_longname, sz - 1);
+		return;
+	}
 
     if (t->th_buf.prefix[0] != '\0')
     {
 #ifdef _MSC_VER
-        _snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
-        filename[MAXPATHLEN] = 0;
+		int len = _snprintf(path, sz - 1, "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #else
-        snprintf(filename, sizeof(filename), "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
+		int len = snprintf(path, sz - 1, "%.155s/%.100s",t->th_buf.prefix, t->th_buf.name);
 #endif
-        return std::string(filename);
+		path[len] = 0;
+		return;
     }
 
 #ifdef _MSC_VER
-    int sz = _snprintf(filename, sizeof(filename) - 1, "%.100s", t->th_buf.name);
+    int len = _snprintf(path, sz - 1, "%.100s", t->th_buf.name);
 #else
-    int sz = snprintf(filename, sizeof(filename) - 1, "%.100s", t->th_buf.name);
+    int len = snprintf(path, sz - 1, "%.100s", t->th_buf.name);
 #endif
-    filename[sz] = 0;
-    return std::string(filename);
+    path[len] = 0;
 }
 
