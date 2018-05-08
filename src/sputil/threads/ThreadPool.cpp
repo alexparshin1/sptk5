@@ -48,9 +48,10 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::threadFunction()
 {
+    chrono::milliseconds timeout(100);
     while (!terminated()) {
         WorkerThread* workerThread = nullptr;
-        if (m_terminatedThreads.pop_front(workerThread, std::chrono::milliseconds(1000))) {
+        if (m_terminatedThreads.pop(workerThread, timeout)) {
             m_threads.remove(workerThread);
             delete workerThread;
         }
@@ -67,9 +68,11 @@ WorkerThread* ThreadPool::createThread()
 
 void ThreadPool::execute(Runable* task)
 {
-    lock_guard<mutex> lock(*this);
-    if (m_shutdown)
-        throw Exception("Thread manager is stopped");
+    {
+        lock_guard<mutex> lock(*this);
+        if (m_shutdown)
+            throw Exception("Thread manager is stopped");
+    }
 
     if (!m_availableThreads.wait(std::chrono::milliseconds(10))) {
         if (m_threads.size() < m_threadLimit)
@@ -88,7 +91,7 @@ void ThreadPool::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runabl
         m_availableThreads.post();
         break;
     case ThreadEvent::THREAD_FINISHED:
-        m_terminatedThreads.push_back((WorkerThread*)thread);
+        m_terminatedThreads.push((WorkerThread*)thread);
         break;
     case ThreadEvent::THREAD_STARTED:
     case ThreadEvent::IDLE_TIMEOUT:

@@ -136,7 +136,7 @@ double diffSeconds(DateTime start, DateTime end)
 
 int main(int argc, char **argv)
 {
-    auto precision = cout.precision();
+    auto precision = cout.precision(2);
     try {
         // Initialize themes
         CThemes themes;

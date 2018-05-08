@@ -56,7 +56,7 @@ class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mute
     /**
      * Terminated threads scheduled for delete
      */
-    SynchronizedList<WorkerThread*>     m_terminatedThreads;
+    SynchronizedQueue<WorkerThread*>    m_terminatedThreads;
 
     /**
      * All threads created by this pool
