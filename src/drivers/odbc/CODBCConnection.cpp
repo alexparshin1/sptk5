@@ -514,7 +514,7 @@ void ODBCConnection::queryOpen(Query* query)
 
     try {
         queryBindParameters(query);
-    } catch (exception& e) {
+    } catch (...) {
         THROW_QUERY_ERROR(query, queryError(query));
     }
 
