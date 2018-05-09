@@ -47,15 +47,6 @@ namespace sptk {
  */
 class UDPSocket : public BaseSocket
 {
-protected:
-    /**
-     * @brief Reads data from the socket
-     * @param buffer char *, the memory buffer
-     * @param size size_t, the number of bytes to read
-     * @param from sockaddr_in*, an optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    virtual size_t _read(char *buffer,size_t size,sockaddr_in* from);
 public:
     /**
      * @brief Constructor
@@ -67,6 +58,15 @@ public:
      * @brief Destructor
      */
     virtual ~UDPSocket() {}
+
+    /**
+     * @brief Reads data from the socket
+     * @param buffer char *, the memory buffer
+     * @param size size_t, the number of bytes to read
+     * @param from sockaddr_in*, an optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    virtual size_t read(char *buffer,size_t size,sockaddr_in* from=NULL);
 };
 
 /**

@@ -39,7 +39,7 @@ namespace sptk {
 /**
  * @brief A map of HTTP headers and their values (string to string)
  */
-typedef std::map<String, String> HttpHeaders;
+typedef std::map<std::string, std::string> HttpHeaders;
 
 /**
  * HTTP response reader

@@ -59,7 +59,7 @@ protected:
     /**
      * Parent server object
      */
-    TCPServer*     m_server { nullptr };
+    TCPServer*     m_server;
 
 public:
     /**

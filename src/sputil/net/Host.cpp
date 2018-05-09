@@ -68,7 +68,7 @@ Host::Host(const Host& other)
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
-Host::Host(Host&& other) noexcept
+Host::Host(Host&& other)
 : m_hostname(move(other.m_hostname)), m_port(other.m_port)
 {
     lock_guard<mutex> lock(other.m_mutex);
@@ -85,11 +85,11 @@ Host& Host::operator = (const Host& other)
     return *this;
 }
 
-Host& Host::operator = (Host&& other) noexcept
+Host& Host::operator = (Host&& other)
 {
     lock_guard<mutex> lock1(other.m_mutex);
     lock_guard<mutex> lock2(m_mutex);
-    m_hostname = other.m_hostname;
+    m_hostname = move(other.m_hostname);
     m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
     return *this;
@@ -115,13 +115,9 @@ void Host::getHostAddress()
 
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
-    m_address.sin_family = host_info->h_addrtype;
+	m_address.sin_family = host_info->h_addrtype;
     memcpy(&m_address.sin_addr, host_info->h_addr, size_t(host_info->h_length));
 #else
-    // Valgrind complans that getaddrinfo is not thread safe
-    static mutex amutex;
-    lock_guard<mutex> lock(amutex);
-
     struct addrinfo hints = {};
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;          // IPv4 or IPv6

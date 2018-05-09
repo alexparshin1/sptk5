@@ -50,7 +50,7 @@ void SocketPool::open()
         return;
     m_pool = epoll_create1(0);
     if (m_pool == -1)
-        throw SystemException("epoll_create1");
+        new SystemException("epoll_create1");
 }
 
 void SocketPool::close()

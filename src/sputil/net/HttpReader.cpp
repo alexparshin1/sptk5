@@ -178,11 +178,8 @@ void HttpReader::read(TCPSocket& socket)
         m_responseHeaders.clear();
         m_statusCode = 0;
         m_statusText = "";
-        if (!readStatus(socket)) {
-            // No response in signaled socket - connection closed
-            m_readerState = COMPLETED;
+        if (!readStatus(socket))
             return;
-        }
         m_readerState = READING_HEADERS;
         m_contentReceivedLength = 0;
     }

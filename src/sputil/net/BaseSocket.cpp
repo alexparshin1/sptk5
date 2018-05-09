@@ -205,9 +205,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             currentOperation = "connect";
             if (timeoutMS != 0) {
                 blockingMode(false);
-                int rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
-                if (rc != EINPROGRESS && rc != EALREADY)
-                    break;
+                connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
                 if (!readyToWrite(timeout)) {
                     close();
                     throw Exception("Connection timeout");
@@ -245,10 +243,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
     }
 }
 
-void BaseSocket::_open(const Host&, CSocketOpenMode, bool, std::chrono::milliseconds)
-{}
-
-void BaseSocket::_open(const struct sockaddr_in&, CSocketOpenMode, bool, std::chrono::milliseconds)
+void BaseSocket::open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
 {}
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
@@ -272,7 +267,7 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
     addr.sin_port = htons(uint16_t(portNumber));
 
     if (::bind(m_sockfd, (sockaddr*) &addr, sizeof(addr)) != 0)
-        THROW_SOCKET_ERROR("Can't bind socket to port " << portNumber);
+        THROW_SOCKET_ERROR("Can't bind socket to port " + int2string(portNumber));
 }
 
 void BaseSocket::listen(uint16_t portNumber)
@@ -309,7 +304,7 @@ void BaseSocket::attach(SOCKET socketHandle)
     m_sockfd = socketHandle;
 }
 
-size_t BaseSocket::_read(char* buffer, size_t size, sockaddr_in* from)
+size_t BaseSocket::read(char* buffer, size_t size, sockaddr_in* from)
 {
     int bytes;
     if (from != nullptr) {
@@ -324,16 +319,16 @@ size_t BaseSocket::_read(char* buffer, size_t size, sockaddr_in* from)
     return (size_t) bytes;
 }
 
-size_t BaseSocket::_read(Buffer& buffer, size_t size, sockaddr_in* from)
+size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
-    size_t bytes = _read(buffer.data(), size, from);
+    size_t bytes = read(buffer.data(), size, from);
     if (bytes != size)
         buffer.bytes(bytes);
     return bytes;
 }
 
-size_t BaseSocket::_read(std::string& buffer, size_t size, sockaddr_in* from)
+size_t BaseSocket::read(std::string& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
     size_t bytes = read((char*) buffer.data(), size, from);
@@ -342,7 +337,7 @@ size_t BaseSocket::_read(std::string& buffer, size_t size, sockaddr_in* from)
     return bytes;
 }
 
-size_t BaseSocket::_write(const char* buffer, size_t size, const sockaddr_in* peer)
+size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* peer)
 {
     int bytes;
     const char* p = buffer;
@@ -365,12 +360,12 @@ size_t BaseSocket::_write(const char* buffer, size_t size, const sockaddr_in* pe
     return total;
 }
 
-size_t BaseSocket::_write(const Buffer& buffer, const sockaddr_in* peer)
+size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
 {
-    return _write(buffer.data(), buffer.bytes(), peer);
+    return write(buffer.data(), buffer.bytes(), peer);
 }
 
-size_t BaseSocket::_write(const std::string& buffer, const sockaddr_in* peer)
+size_t BaseSocket::write(const std::string& buffer, const sockaddr_in* peer)
 {
     return write(buffer.c_str(), buffer.length(), peer);
 }
@@ -416,7 +411,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 
 bool BaseSocket::readyToRead(DateTime timeout)
 {
-    auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
+    auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -481,7 +476,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 
 bool BaseSocket::readyToWrite(DateTime timeout)
 {
-	auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
+	auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;

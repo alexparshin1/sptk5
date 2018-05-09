@@ -92,7 +92,7 @@ public:
      * Move constructor
      * @param other The other object
      */
-    explicit Host(Host&& other) noexcept;
+    explicit Host(Host&& other);
 
     /**
      * Destructor
@@ -109,7 +109,7 @@ public:
      * Move assignment from another host
      * @param other The other object
      */
-    Host& operator = (Host&& other) noexcept;
+    Host& operator = (Host&& other);
 
     /**
      * Compare to another host

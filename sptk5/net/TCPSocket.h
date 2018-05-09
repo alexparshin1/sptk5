@@ -157,55 +157,6 @@ protected:
      */
     Buffer              m_stringBuffer;
 
-    /**
-     * @brief Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeout           Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void _open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
-
-    /**
-     * @brief Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeout           Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
-
-    /**
-     * @brief Reads data from the socket
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    size_t _read(char *buffer, size_t size, sockaddr_in* from = NULL) override;
-
-    /**
-     * @brief Reads data from the socket into memory buffer
-     *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The memory buffer
-     * @param size              Number of bytes to read from socket
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    size_t _read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) override;
-
-    /**
-     * @brief Reads data from the socket into memory buffer
-     *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The memory buffer
-     * @param size              Number of bytes to read from socket
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    size_t _read(std::string& buffer, size_t size, sockaddr_in* from = NULL) override;
-
 public:
     /**
      * @brief Constructor
@@ -219,6 +170,24 @@ public:
      * @brief Destructor
      */
     virtual ~TCPSocket() = default;
+
+    /**
+     * @brief Opens the client socket connection by host and port
+     * @param host              The host
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeout           Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
+
+    /**
+     * @brief Opens the client socket connection by host and port
+     * @param address           Address and port
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeout           Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
 
     /**
      * @brief In server mode, waits for the incoming connection.
@@ -275,6 +244,36 @@ public:
      */
     size_t readLine(std::string& s, char delimiter='\n');
 
+    /**
+     * @brief Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              An optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) override;
+
+    /**
+     * @brief Reads data from the socket into memory buffer
+     *
+     * Buffer bytes() is set to number of bytes read
+     * @param buffer            The memory buffer
+     * @param size              Number of bytes to read from socket
+     * @param from              An optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL) override;
+
+    /**
+     * @brief Reads data from the socket into memory buffer
+     *
+     * Buffer bytes() is set to number of bytes read
+     * @param buffer            The memory buffer
+     * @param size              Number of bytes to read from socket
+     * @param from              An optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) override;
 };
 
 /**
