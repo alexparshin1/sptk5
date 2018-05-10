@@ -68,7 +68,7 @@ public:
      * @param threadName std::string, Already accepted by accept() function incoming connection socket
      */
     ServerConnection(SOCKET connectionSocket, std::string threadName)
-    : Thread(threadName), m_socket(NULL)
+    : Thread(threadName), m_socket(nullptr), m_server(nullptr)
     {
     }
 

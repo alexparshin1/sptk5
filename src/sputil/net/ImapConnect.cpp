@@ -352,7 +352,9 @@ string ImapConnect::cmd_fetch_flags(int32_t msg_id)
     string result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
     size_t count = m_response.size() - 1;
-    for (size_t i = 0; i < count; i++) {
+    size_t i = 0;
+    //for (; i < count; i++) {
+    if (count > 0) {
         std::string &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
