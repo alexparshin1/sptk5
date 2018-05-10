@@ -29,7 +29,6 @@
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/ZLib.h>
 #include <thread>
-#include <mutex>
 #include "sptk5/net/HttpReader.h"
 
 using namespace std;

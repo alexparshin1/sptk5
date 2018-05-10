@@ -93,7 +93,7 @@ void TCPServerListener::terminate()
     m_listenerSocket.close();
 }
 
-void TCPServer::listen(int port)
+void TCPServer::listen(uint16_t port)
 {
     lock_guard<mutex> lock(*this);
     if (m_listenerThread != nullptr) {

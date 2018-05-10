@@ -76,6 +76,8 @@ bool ImapConnect::getResponse(string ident)
                     throw Exception(longLine.c_str() + 8);
                 case 'B': // BAD
                     throw Exception(longLine.c_str() + 9);
+                default:
+                    break;
             }
         }
     }
@@ -93,7 +95,7 @@ string ImapConnect::sendCommand(string cmd)
 {
     char id_str[10];
 	int len = snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
-    string ident(id_str, len);
+    string ident(id_str, (size_t) len);
     cmd = ident + cmd + "\n";
     if (!active())
         throw Exception("Socket isn't open");
@@ -264,6 +266,8 @@ static DateTime decodeDate(const std::string &dt)
             break;
         case 'S':
             month = 9; // Sep
+            break;
+        default:
             break;
     }
     // 2. get the year

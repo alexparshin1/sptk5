@@ -169,7 +169,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
             DateTime::timeZoneName.c_str()
     );
 
-    message << string(dateBuffer, len) << endl;
+    message << string(dateBuffer, (size_t) len) << endl;
 
     message << "MIME-Version: 1.0" << endl;
     message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << endl << endl;

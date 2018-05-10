@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-string MailMessageBody::stripHtml(const string& origHtml)
+String MailMessageBody::stripHtml(const string& origHtml)
 {
     Strings html(origHtml, "<");
     unsigned i = 0;

@@ -117,7 +117,7 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
     epoll_event events[MAXEVENTS];
 
-    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, timeout.count());
+    int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
         throw SystemException("Error waiting for socket activity");
 

@@ -201,7 +201,7 @@ public:
      * @brief Starts listener
      * @param port int, Listener port number
      */
-    void listen(int port);
+    void listen(uint16_t port);
 
     /**
      * @brief Stops listener

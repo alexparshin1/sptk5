@@ -206,12 +206,17 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             if (timeoutMS != 0) {
                 blockingMode(false);
                 rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                switch (rc) {
+                    case ENETUNREACH:
+                        throw Exception("Network unreachable");
+                    case ECONNREFUSED:
+                        throw Exception("Connection refused");
+                }
                 if (!readyToWrite(timeout)) {
                     close();
                     throw Exception("Connection timeout");
                 }
-                else
-                    rc = 0;
+                rc = 0;
                 blockingMode(true);
             } else
                 rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
@@ -412,7 +417,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 
 bool BaseSocket::readyToRead(DateTime timeout)
 {
-    auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
+    auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -477,7 +482,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 
 bool BaseSocket::readyToWrite(DateTime timeout)
 {
-	auto timeoutMS = chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
+	auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;

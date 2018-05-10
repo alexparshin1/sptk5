@@ -65,7 +65,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
 #else
 			socklen_t flen = sizeof(sockaddr_in);
 #endif
-            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, (int) m_size - 2, 0, (sockaddr*) from, &flen);
+            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_size - 2, 0, (sockaddr*) from, &flen);
         } else {
             m_bytes = m_socket.recv(m_buffer, m_size - 2);
         }
@@ -93,7 +93,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
                 len = cr - readPosition + 1;
             else {
                 if (m_readOffset != 0) {
-                    memmove(m_buffer, m_buffer + m_readOffset, (int) availableBytes);
+                    memmove(m_buffer, m_buffer + m_readOffset, availableBytes);
                     m_readOffset = 0;
                     m_bytes = (size_t) availableBytes;
                 } else {

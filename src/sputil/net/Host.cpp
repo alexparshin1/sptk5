@@ -68,7 +68,7 @@ Host::Host(const Host& other)
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
-Host::Host(Host&& other)
+Host::Host(Host&& other) noexcept
 : m_hostname(move(other.m_hostname)), m_port(other.m_port)
 {
     lock_guard<mutex> lock(other.m_mutex);
@@ -85,7 +85,7 @@ Host& Host::operator = (const Host& other)
     return *this;
 }
 
-Host& Host::operator = (Host&& other)
+Host& Host::operator = (Host&& other) noexcept
 {
     lock_guard<mutex> lock1(other.m_mutex);
     lock_guard<mutex> lock2(m_mutex);
