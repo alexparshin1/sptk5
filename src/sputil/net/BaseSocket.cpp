@@ -205,12 +205,13 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             currentOperation = "connect";
             if (timeoutMS != 0) {
                 blockingMode(false);
-                connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
+                rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
                 if (!readyToWrite(timeout)) {
                     close();
                     throw Exception("Connection timeout");
                 }
-                rc = 0;
+                else
+                    rc = 0;
                 blockingMode(true);
             } else
                 rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
