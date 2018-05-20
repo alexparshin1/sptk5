@@ -3,24 +3,45 @@
 
 #include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Semaphore.h>
+#include <set>
 
 namespace sptk {
 
     class Timer
     {
     public:
+
         class Event
         {
-            const DateTime  m_timestamp;
-            void*           m_data;
         public:
-            Event(const DateTime& timestamp, void* m_data)
-            : m_timestamp(timestamp), m_data(m_data)
-            {}
+            typedef void (*Callback) (void* eventData);
+            typedef std::multimap<uint64_t, Event*> Map;
+            typedef Map::iterator                   Bookmark;
+        private:
+            DateTime                    m_timestamp;
+            void*                       m_data;
+            std::chrono::milliseconds   m_repeatEvery;
+            Callback                    m_callback;
+            Timer&                      m_timer;
 
-            const DateTime& timestamp() const
+            Event(const Event& other)
+            : m_timer(other.m_timer) {}
+
+            Event& operator = (const Event&) { return *this; }
+
+        public:
+            Event(Timer& timer, const DateTime& timestamp, void* eventData, Callback eventCallback, std::chrono::milliseconds repeatEvery);
+
+            ~Event();
+
+            const DateTime& when() const
             {
                 return m_timestamp;
+            }
+
+            void when(const DateTime& timestamp)
+            {
+                m_timestamp = timestamp;
             }
 
             void* data() const
@@ -28,26 +49,33 @@ namespace sptk {
                 return m_data;
             }
 
-            virtual void callback(void* data) {}
+            void fire()
+            {
+                m_callback(m_data);
+            }
+
+            Timer& timer() const
+            {
+                return m_timer;
+            }
+
+            const std::chrono::milliseconds& interval() const
+            {
+                return m_repeatEvery;
+            }
         };
 
     protected:
-        class TimerThread : public Thread
-        {
-            std::mutex                      m_scheduledMutex;
-            std::multimap<uint64_t, Event*> m_scheduledEvents;
-            Semaphore                       m_semaphore;
-        protected:
-            void threadFunction() override;
 
-        public:
-            void terminate() override;
+        std::mutex                  m_mutex;
+        std::set<Event*>            m_events;
 
-        public:
-            TimerThread();
-            void schedule(Event* event);
-            bool waitForEvent(Event*& event);
-        };
+        void unlink(Event* event);
+
+    public:
+        Timer() {}
+        void fireAt(const DateTime& timestamp, void* eventData, Event::Callback callback);
+        void repeat(std::chrono::milliseconds interval, void* eventData, Event::Callback callback);
     };
 
 } // namespace sptk
