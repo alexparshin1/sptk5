@@ -7,6 +7,9 @@
 
 namespace sptk {
 
+    /**
+     * Generic timer class
+     */
     class Timer
     {
     public:
@@ -23,6 +26,13 @@ namespace sptk {
             std::chrono::milliseconds   m_repeatEvery;
             Callback                    m_callback;
             Timer&                      m_timer;
+            Bookmark                    m_bookmark;
+        public:
+            const Bookmark& getBookmark() const;
+
+            void setBookmark(const Bookmark& bookmark);
+
+        private:
 
             Event(const Event& other)
             : m_timer(other.m_timer) {}
@@ -34,17 +44,17 @@ namespace sptk {
 
             ~Event();
 
-            const DateTime& when() const
+            const DateTime& getWhen() const
             {
                 return m_timestamp;
             }
 
-            void when(const DateTime& timestamp)
+            void shift(std::chrono::milliseconds interval)
             {
-                m_timestamp = timestamp;
+                m_timestamp = m_timestamp + interval;
             }
 
-            void* data() const
+            void* getData() const
             {
                 return m_data;
             }
@@ -54,12 +64,12 @@ namespace sptk {
                 m_callback(m_data);
             }
 
-            Timer& timer() const
+            Timer& getTimer() const
             {
                 return m_timer;
             }
 
-            const std::chrono::milliseconds& interval() const
+            const std::chrono::milliseconds& getInterval() const
             {
                 return m_repeatEvery;
             }

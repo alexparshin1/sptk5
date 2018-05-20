@@ -21,10 +21,11 @@ public:
 
     void schedule(Timer::Event* event)
     {
-        chrono::milliseconds timepointMS = chrono::duration_cast<chrono::milliseconds>(event->when().sinceEpoch());
+        chrono::milliseconds timepointMS = chrono::duration_cast<chrono::milliseconds>(event->getWhen().sinceEpoch());
 
         lock_guard<mutex> lock(m_scheduledMutex);
-        m_scheduledEvents.insert(pair<uint64_t,Timer::Event*>(timepointMS.count(), event));
+        Timer::Event::Bookmark bookmark = m_scheduledEvents.insert(pair<uint64_t,Timer::Event*>(timepointMS.count(), event));
+        event->setBookmark(bookmark);
         m_semaphore.post();
     }
 
@@ -54,15 +55,20 @@ public:
                 auto itor = m_scheduledEvents.begin();
                 event = itor->second;
                 m_scheduledEvents.erase(itor);
-                if (event->interval().count() != 0) {
-                    event->when(event->when() + event->interval());
-                    chrono::milliseconds timepointMS = chrono::duration_cast<chrono::milliseconds>(event->when().sinceEpoch());
-                    m_scheduledEvents.insert(pair<uint64_t,Timer::Event*>(timepointMS.count(), event));
-                }
             }
         }
 
         return true;
+    }
+
+    void clear()
+    {
+        lock_guard<mutex> lock(m_scheduledMutex);
+        while (!m_scheduledEvents.empty()) {
+            auto itor = m_scheduledEvents.begin();
+            delete itor->second;
+            m_scheduledEvents.erase(itor);
+        }
     }
 
     void unlink(set<Timer::Event*>& events)
@@ -83,16 +89,31 @@ Timer::Event::~Event()
     m_timer.unlink(this);
 }
 
+const Timer::Event::Bookmark& Timer::Event::getBookmark() const
+{
+    return m_bookmark;
+}
+
+void Timer::Event::setBookmark(const Timer::Event::Bookmark& bookmark)
+{
+    m_bookmark = bookmark;
+}
+
 void TimerThread::threadFunction()
 {
     while (!terminated()) {
         Timer::Event* event(nullptr);
         if (waitForEvent(event)) {
             event->fire();
-            if (event->interval().count() == 0)
+            if (event->getInterval().count() == 0)
                 delete event;
+            else {
+                event->shift(event->getInterval());
+                schedule(event);
+            }
         }
     }
+    clear();
 }
 
 void TimerThread::terminate()
