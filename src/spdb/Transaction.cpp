@@ -50,7 +50,16 @@ void Transaction::begin()
 {
     if (m_active)
         throw DatabaseException("This transaction is already active");
-    m_db->beginTransaction();
+    try {
+        m_db->beginTransaction();
+    }
+    catch (const DatabaseException& e) {
+        if (strstr(e.what(), "connection") == nullptr)
+            throw;
+        m_db->close();
+        m_db->open();
+        m_db->beginTransaction();
+    }
     m_active = true;
 }
 
