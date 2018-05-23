@@ -295,7 +295,16 @@ bool Query::open()
     if (m_db == nullptr)
         throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, m_sql);
 
-    m_db->queryOpen(this);
+    try {
+        m_db->queryOpen(this);
+    }
+    catch (const DatabaseException& e) {
+        if (strstr(e.what(), "connection") == nullptr)
+            throw;
+        m_db->close();
+        m_db->open();
+        m_db->queryOpen(this);
+    }
 
     return true;
 }
