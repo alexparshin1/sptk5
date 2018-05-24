@@ -46,69 +46,146 @@ namespace sptk {
             DateTime                    m_timestamp;    ///< Event timestamp - when the event has to fire next time.
             void*                       m_data;         ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
             std::chrono::milliseconds   m_repeatEvery;  ///< Event repeat interval.
-            Callback                    m_callback;     ///< Event callback function.
-            Timer*                      m_timer;
-            Bookmark                    m_bookmark;
+            Timer*                      m_timer;        ///< Parent timer
+            Bookmark                    m_bookmark;     ///< Bookmark of event entry in events map.
 
         public:
+            /**
+             * @return Bookmark of event entry in events map.
+             */
             const Bookmark& getBookmark() const;
+
+            /**
+             * Set bookmark of event entry in events map.
+             * @param bookmark              Bookmark of event entry in events map.
+             */
             void setBookmark(const Bookmark& bookmark);
 
         private:
 
+            /**
+             * Disabled event copy constructor
+             * @param other                 Other event
+             */
             Event(const Event& other)
             : m_timer(other.m_timer) {}
 
+            /**
+             * Disabled event assignment
+             * @param other                 Other event
+             */
             Event& operator = (const Event&) { return *this; }
 
         public:
-            Event(Timer& timer, const DateTime& timestamp, void* eventData, Callback eventCallback, std::chrono::milliseconds repeatEvery);
+            /**
+             * Constructor
+             * @param timer                 Parent timer
+             * @param timestamp             Fire at timestamp
+             * @param eventData             Event data that will be passed to timer callback
+             * @param repeatEvery           Event repeate interval
+             */
+            Event(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery);
 
+            /**
+             * Destructor
+             */
             ~Event();
 
+            /**
+             * @return event fire at timestamp
+             */
             const DateTime& getWhen() const
             {
                 return m_timestamp;
             }
 
+            /**
+             * Add interval to event fire at timestamp
+             * @param interval              Shift interval
+             */
             void shift(std::chrono::milliseconds interval)
             {
                 m_timestamp = m_timestamp + interval;
             }
 
+            /**
+             * @return event data
+             */
             void* getData() const
             {
                 return m_data;
             }
 
-            void fire()
-            {
-                m_callback(m_data);
-            }
-
+            /**
+             * @return parent timer
+             */
             Timer& getTimer() const
             {
                 return *m_timer;
             }
 
+            /**
+             * @return event repeat interval
+             */
             const std::chrono::milliseconds& getInterval() const
             {
                 return m_repeatEvery;
+            }
+
+            /**
+             * Execute parent timer callback function with event data
+             */
+            void fire()
+            {
+                m_timer->fire(this);
             }
         };
 
     protected:
 
-        std::mutex                  m_mutex;
-        std::set<Event*>            m_events;
+        std::mutex                  m_mutex;        ///< Mutex protecting events set
+        std::set<Event*>            m_events;       ///< Events scheduled by this timer
+        Event::Callback             m_callback;     ///< Event callback function.
 
-        void unlink(Event* event);
+        void unlink(Event* event);                  ///< Remove event from this timer
+        void fire(Event* event);                    ///< Fire event
 
     public:
-        Timer() {}
+        /**
+         * Constructor
+         * @param callback                  Timer callback function, called when event is up
+         */
+        Timer(Event::Callback callback)
+        : m_callback(callback)
+        {}
+
+        /**
+         * Destructor.
+         * Cancel all events scheduled by this timer.
+         */
         virtual ~Timer();
-        void* fireAt(const DateTime& timestamp, void* eventData, Event::Callback callback);
-        void* repeat(std::chrono::milliseconds interval, void* eventData, Event::Callback callback);
+
+        /**
+         * Schedule single event.
+         * @param timestamp                 Fire at timestamp
+         * @param eventData                 User data that will be passed to timer callback function.
+         * @return event handle, that may be used to cancel this event.
+         */
+        void* fireAt(const DateTime& timestamp, void* eventData);
+
+        /**
+         * Schedule repeatable event.
+         * The first event is scheduled at current time + interval.
+         * @param interval                  Event repeat interval.
+         * @param eventData                 User data that will be passed to timer callback function.
+         * @return event handle, that may be used to cancel this event.
+         */
+        void* repeat(std::chrono::milliseconds interval, void* eventData);
+
+        /**
+         * Cancel event
+         * @param handle                    Event handle, returned by event scheduling method.
+         */
         void  cancel(void* handle);
     };
 

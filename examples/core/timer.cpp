@@ -41,14 +41,28 @@ void timerCallback(void* eventData)
 int main()
 {
     {
-        Timer timer;
+        // Timer in local scope
+        Timer timer(timerCallback);
 
         cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " scheduled." << endl;
-        void* every1second = timer.repeat(chrono::seconds(1), (void*) "every second", timerCallback);
-        void* every3seconds = timer.repeat(chrono::seconds(3), (void*) "every 3 seconds", timerCallback);
+
+        // Schedule single event
+        timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), (void*) "single");
+
+        // Schedule repeatable event
+        timer.repeat(chrono::seconds(1), (void*) "every second");
+
+        // Schedule repeatable event, using event handle to cancel it later
+        void* every3seconds = timer.repeat(chrono::seconds(3), (void*) "every 3 seconds");
+
         this_thread::sleep_for(chrono::seconds(5));
+
+        // Cancelling event
         timer.cancel(every3seconds);
+
         this_thread::sleep_for(chrono::seconds(5));
+
+        // All events, scheduled by timer should stop here
     }
     cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " Done" << endl;
     this_thread::sleep_for(chrono::seconds(5));

@@ -88,8 +88,8 @@ public:
 static mutex                timerThreadMutex;
 static TimerThread*         timerThread;
 
-Timer::Event::Event(Timer& timer, const DateTime& timestamp, void* eventData, Callback eventCallback, std::chrono::milliseconds repeatEvery)
-: m_timestamp(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_callback(eventCallback), m_timer(&timer)
+Timer::Event::Event(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery)
+: m_timestamp(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_timer(&timer)
 {}
 
 Timer::Event::~Event()
@@ -149,7 +149,7 @@ void Timer::unlink(Timer::Event* event)
     event->m_timer = nullptr;
 }
 
-void* Timer::fireAt(const DateTime& timestamp, void* eventData, Timer::Event::Callback callback)
+void* Timer::fireAt(const DateTime& timestamp, void* eventData)
 {
     {
         lock_guard<mutex> lock(timerThreadMutex);
@@ -159,7 +159,7 @@ void* Timer::fireAt(const DateTime& timestamp, void* eventData, Timer::Event::Ca
         }
     }
 
-    Event* event = new Event(*this, timestamp, eventData, callback, chrono::milliseconds());
+    Event* event = new Event(*this, timestamp, eventData, chrono::milliseconds());
     timerThread->schedule(event);
 
     lock_guard<mutex> lock(m_mutex);
@@ -168,7 +168,7 @@ void* Timer::fireAt(const DateTime& timestamp, void* eventData, Timer::Event::Ca
     return event;
 }
 
-void* Timer::repeat(std::chrono::milliseconds interval, void* eventData, sptk::Timer::Event::Callback callback)
+void* Timer::repeat(std::chrono::milliseconds interval, void* eventData)
 {
     {
         lock_guard<mutex> lock(timerThreadMutex);
@@ -178,13 +178,18 @@ void* Timer::repeat(std::chrono::milliseconds interval, void* eventData, sptk::T
         }
     }
 
-    Event* event = new Event(*this, DateTime::Now() + interval, eventData, callback, interval);
+    Event* event = new Event(*this, DateTime::Now() + interval, eventData, interval);
     timerThread->schedule(event);
 
     lock_guard<mutex> lock(m_mutex);
     m_events.insert(event);
 
     return event;
+}
+
+void Timer::fire(Timer::Event* event)
+{
+    m_callback(event->getData());
 }
 
 void Timer::cancel(void* handle)
