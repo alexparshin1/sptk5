@@ -1,4 +1,4 @@
-#include "Timer.h"
+#include "sptk5/threads/Timer.h"
 
 using namespace std;
 using namespace sptk;
@@ -71,9 +71,17 @@ public:
         }
     }
 
-    void unlink(set<Timer::Event*>& events)
+    void forget(Timer::Event* event)
     {
         lock_guard<mutex> lock(m_scheduledMutex);
+        m_scheduledEvents.erase(event->getBookmark());
+    }
+
+    void forget(set<Timer::Event*>& events)
+    {
+        lock_guard<mutex> lock(m_scheduledMutex);
+        for (auto event: events)
+            m_scheduledEvents.erase(event->getBookmark());
     }
 };
 
@@ -81,12 +89,13 @@ static mutex                timerThreadMutex;
 static TimerThread*         timerThread;
 
 Timer::Event::Event(Timer& timer, const DateTime& timestamp, void* eventData, Callback eventCallback, std::chrono::milliseconds repeatEvery)
-: m_timestamp(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_timer(timer)
+: m_timestamp(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_callback(eventCallback), m_timer(&timer)
 {}
 
 Timer::Event::~Event()
 {
-    m_timer.unlink(this);
+    if (m_timer != nullptr)
+        m_timer->unlink(this);
 }
 
 const Timer::Event::Bookmark& Timer::Event::getBookmark() const
@@ -122,13 +131,25 @@ void TimerThread::terminate()
     Thread::terminate();
 }
 
+Timer::~Timer()
+{
+    // Cancel all events in this timer
+    lock_guard<mutex> lock(m_mutex);
+    for (auto event: m_events) {
+        timerThread->forget(event);
+        event->m_timer = nullptr;
+        delete event;
+    }
+}
+
 void Timer::unlink(Timer::Event* event)
 {
     lock_guard<mutex> lock(m_mutex);
     m_events.erase(event);
+    event->m_timer = nullptr;
 }
 
-void Timer::fireAt(const DateTime& timestamp, void* eventData, Timer::Event::Callback callback)
+void* Timer::fireAt(const DateTime& timestamp, void* eventData, Timer::Event::Callback callback)
 {
     {
         lock_guard<mutex> lock(timerThreadMutex);
@@ -143,5 +164,38 @@ void Timer::fireAt(const DateTime& timestamp, void* eventData, Timer::Event::Cal
 
     lock_guard<mutex> lock(m_mutex);
     m_events.insert(event);
+
+    return event;
 }
 
+void* Timer::repeat(std::chrono::milliseconds interval, void* eventData, sptk::Timer::Event::Callback callback)
+{
+    {
+        lock_guard<mutex> lock(timerThreadMutex);
+        if (timerThread == nullptr) {
+            timerThread = new TimerThread();
+            timerThread->run();
+        }
+    }
+
+    Event* event = new Event(*this, DateTime::Now() + interval, eventData, callback, interval);
+    timerThread->schedule(event);
+
+    lock_guard<mutex> lock(m_mutex);
+    m_events.insert(event);
+
+    return event;
+}
+
+void Timer::cancel(void* handle)
+{
+    lock_guard<mutex> lock(m_mutex);
+    auto itor = m_events.find((Event*)handle);
+    if (itor == m_events.end())
+        return;
+    Event* event = *itor;
+    timerThread->forget(event);
+    m_events.erase(event);
+    event->m_timer = nullptr;
+    delete event;
+}
