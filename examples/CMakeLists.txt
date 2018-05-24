@@ -11,7 +11,7 @@ ELSE (NO_EXAMPLES)
     ADD_SUBDIRECTORY (jwt)
     ADD_SUBDIRECTORY (database)
     ADD_SUBDIRECTORY (threads)
-    ADD_SUBDIRECTORY (utils)
+    ADD_SUBDIRECTORY (core)
 
     ADD_SUBDIRECTORY (datasources)
     ADD_SUBDIRECTORY (net)

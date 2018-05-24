@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       logfile_test.cpp - description                         ║
+║                       unique_instance.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,38 +26,45 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
+#ifdef __BORLANDC__
+#include <vcl.h>
+#pragma hdrstop
+#endif
+
+// This example shows how to create "unique instance" application.
+// Such application may only have one process running simultaneously on the same computer.
+
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+
+#include <sptk5/UniqueInstance.h>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-   try {
-      cout << "Creating a log file ./logfile_test.log: " << endl;
-      FileLogEngine fileLog("logfile_test.log");
-      Logger  log(fileLog);
+   char buffer[1024];
+   memset(buffer, 0, sizeof(buffer));
 
-      /// Cleaning log file before test.
-      fileLog.reset();
-	  fileLog.option(LogEngine::LO_STDOUT, true);
+   // Define the unique-instance name
+   UniqueInstance instance("mytest");
 
-      /// Set the minimal priority for the messages.
-      /// Any messages with the less priority are ignored.
-      /// This means, in this example, that no messages with CLP_DEBUG priority
-      /// would make it to the log.
-      fileLog.minPriority(LP_INFO);
-      
-      cout << "Sending 'Hello, World!' to this file.." << endl;
-      log << "Hello, World!" << endl;
-      log << "Welcome to SPTK." << endl;
-      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
-      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
-      log << LP_INFO << "This is the end of the log." << endl;
-   }
-   catch (exception& e) {
-      puts(e.what());
-   }
+   if (instance.isUnique()) {
+      cout << "-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl;
+      cout << "To test it, try to start another copy of application while" << endl;
+      cout << "the first copy is still running. Type 'end' to exit test." << endl;
+
+      // Unique instance, wait here
+      char buffer[128];
+      do {
+         cin.getline(buffer, sizeof(buffer) - 2);
+         if (strstr(buffer, "end") != nullptr)
+            break;
+      } while (strstr(buffer, "end") == nullptr);
+   } else
+      cout << "Another instance of the program is running. Exiting." << endl;
 
    return 0;
 }

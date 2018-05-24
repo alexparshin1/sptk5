@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       unique_instance.cpp - description                      ║
+║                       command_line.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,45 +26,58 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-// This example shows how to create "unique instance" application.
-// Such application may only have one process running simultaneously on the same computer.
-
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-
-#include <sptk5/UniqueInstance.h>
+#include <sptk5/CommandLine.h>
 
 using namespace std;
 using namespace sptk;
 
-int main()
+int main(int argc, const char* argv[])
 {
-   char buffer[1024];
-   memset(buffer, 0, sizeof(buffer));
+    try {
+        CommandLine commandLine(
+                "Command Line Arguments demo v.1.00",
+                "Demonstrates basic command line support.",
+                "command_line <command> [options]");
 
-   // Define the unique-instance name
-   UniqueInstance instance("mytest");
+        commandLine.defineOption("help", "h", CommandLine::Visibility(""), "Prints this help.");
+        commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
+        commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
+        commandLine.defineArgument("archive", "Archive data (does nothing)");
+        commandLine.defineArgument("restore", "Restore data (does nothing)");
+        try {
+            commandLine.init(argc, argv);
+        }
+        catch (const exception& e) {
+            cerr << "Error in command line arguments:" << endl;
+            cerr << e.what() << endl;
+            cout << endl;
+            commandLine.printHelp(80);
+            return 1;
+        }
 
-   if (instance.isUnique()) {
-      cout << "-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl;
-      cout << "To test it, try to start another copy of application while" << endl;
-      cout << "the first copy is still running. Type 'end' to exit test." << endl;
+        String command;
+        if (!commandLine.arguments().empty())
+            command = commandLine.arguments()[0];
 
-      // Unique instance, wait here
-      char buffer[128];
-      do {
-         cin.getline(buffer, sizeof(buffer) - 2);
-         if (strstr(buffer, "end") != nullptr)
-            break;
-      } while (strstr(buffer, "end") == nullptr);
-   } else
-      cout << "Another instance of the program is running. Exiting." << endl;
+        if (command == "help") {
+            // Print full help
+            commandLine.printHelp(80);
+            return 0;
+        }
 
-   return 0;
+        if (commandLine.hasOption("help")) {
+            // Print help on command (if any) or full help
+            commandLine.printHelp(command, 80);
+        } else {
+            cout << "Archive mode: " << commandLine.getOptionValue("archive-mode") << endl;
+            cout << "Archive date: " << commandLine.getOptionValue("archive-date") << endl;
+        }
+
+        return 0;
+    }
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 }

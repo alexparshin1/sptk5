@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       exceptions.cpp - description                           ║
+║                       syslog_test.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,32 +26,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
-#include <sptk5/Exception.h>
-#include <sptk5/Buffer.h>
+#include <sptk5/cutils>
+#include <sptk5/cthreads>
 
 using namespace std;
 using namespace sptk;
 
-int main()
+int main(int argc, char* argv[])
 {
-    cout << "Let's try to throw the exception and catch it:" << endl;
+#ifdef _WIN32
+   cout << "Attention: This example project must include file events.rc." << endl;
+   cout << "You should also have enough access rights to write into HKEY_LOCAL_MACHINE" << endl;
+   cout << "in Windows registry." << endl << endl;
+#endif
+   try {
+      cout << "Defining a log attributes: " << endl;
+      SysLogEngine   logger1("syslog_test", LOG_USER);
+      Logger sysLog(logger1);
 
-    try {
-        // If something goes wrong, we can throw an exception here
-        throw Exception("Error in something", __FILE__, __LINE__, "The full description is here.");
-    } catch (exception& e) {
-        cerr << "Caught exception: " << e.what() << endl;
-    }
+      SysLogEngine   logger2("syslog_test", LOG_AUTH);
+      Logger authLog(logger2);
 
-    cout << endl << "Now let's try to load non-existing file and catch the exception:" << endl;
+      cout << "Sending 'Hello, World!' to the log.." << endl;
+      sysLog  << "Hello, World!" << endl;
+      sysLog  << "Welcome to SPTK." << endl;
+      authLog << LP_ALERT << "This is SPTK test message" << endl;
+      sysLog  << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+   }
+   catch (exception& e) {
+      puts(e.what());
+      this_thread::sleep_for(chrono::seconds(5));
+   }
 
-    try {
-        Buffer buffer;
-        buffer.loadFromFile("/this/file/does/not/exist");
-    } catch (exception& e) {
-        cerr << "Caught exception: " << e.what() << endl;
-    }
-
-    return 0;
+   return 0;
 }

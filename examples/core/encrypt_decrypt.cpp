@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       string2md5.cpp - description                           ║
+║                     encrypt_decrypt.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Tuesday July 18 2017                                   ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,33 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-// This example shows how to create "unique instance" application.
-// Such application may only have one process running simultaneously on the same computer.
-
-#include <iostream>
-#include <sptk5/md5.h>
-#include <cstring>
+#include <sptk5/cutils>
+#include <sptk5/Crypt.h>
 
 using namespace std;
 using namespace sptk;
 
-int main(int argc, const char* argv[])
+int main()
 {
-    if (argc != 2) {
-        cerr << "Please provide a phrase to md5 as a single parameter!" << endl;
-        return 1;
-    }
+    string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    string key("01234567890123456789012345678901");
+    string iv("0123456789012345");
 
-    if (argv[1] != nullptr) {
-        char buffer[16384];
-        memset(buffer, 0, sizeof(buffer));
-        strncpy(buffer, argv[1], sizeof(buffer) - 1);
-        cout << md5(buffer) << endl;
+    Buffer intext(text), outtext;
+    cout << "Encrypt text (" << text.length() << " bytes)." << endl;
+    try {
+        Crypt::encrypt(outtext, intext, key, iv);
+        cout << outtext << endl;
+        Crypt::decrypt(intext, outtext, key, iv);
+        cout << intext << endl;
+    }
+    catch (exception& e) {
+        puts(e.what());
     }
 
     return 0;

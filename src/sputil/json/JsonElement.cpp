@@ -4,7 +4,7 @@
 ║                       JsonElement.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 16 2013                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐

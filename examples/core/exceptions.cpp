@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                     encrypt_decrypt.cpp - description                        ║
+║                       exceptions.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Tuesday July 18 2017                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Thursday May 25 2000                                   ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,28 +26,31 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/Crypt.h>
+#include <iostream>
+#include <sptk5/Exception.h>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    string key("01234567890123456789012345678901");
-    string iv("0123456789012345");
+    cout << "Let's try to throw the exception and catch it:" << endl;
 
-    Buffer intext(text), outtext;
-    cout << "Encrypt text (" << text.length() << " bytes)." << endl;
     try {
-        Crypt::encrypt(outtext, intext, key, iv);
-        cout << outtext << endl;
-        Crypt::decrypt(intext, outtext, key, iv);
-        cout << intext << endl;
+        // If something goes wrong, we can throw an exception here
+        throw Exception("Error in something", __FILE__, __LINE__, "The full description is here.");
+    } catch (exception& e) {
+        cerr << "Caught exception: " << e.what() << endl;
     }
-    catch (exception& e) {
-        puts(e.what());
+
+    cout << endl << "Now let's try to load non-existing file and catch the exception:" << endl;
+
+    try {
+        Buffer buffer;
+        buffer.loadFromFile("/this/file/does/not/exist");
+    } catch (exception& e) {
+        cerr << "Caught exception: " << e.what() << endl;
     }
 
     return 0;

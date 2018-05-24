@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       command_line.cpp - description                         ║
+║                       logfile_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,58 +26,38 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
-#include <sptk5/CommandLine.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-int main(int argc, const char* argv[])
+int main()
 {
-    try {
-        CommandLine commandLine(
-                "Command Line Arguments demo v.1.00",
-                "Demonstrates basic command line support.",
-                "command_line <command> [options]");
+   try {
+      cout << "Creating a log file ./logfile_test.log: " << endl;
+      FileLogEngine fileLog("logfile_test.log");
+      Logger  log(fileLog);
 
-        commandLine.defineOption("help", "h", CommandLine::Visibility(""), "Prints this help.");
-        commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
-        commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
-        commandLine.defineArgument("archive", "Archive data (does nothing)");
-        commandLine.defineArgument("restore", "Restore data (does nothing)");
-        try {
-            commandLine.init(argc, argv);
-        }
-        catch (const exception& e) {
-            cerr << "Error in command line arguments:" << endl;
-            cerr << e.what() << endl;
-            cout << endl;
-            commandLine.printHelp(80);
-            return 1;
-        }
+      /// Cleaning log file before test.
+      fileLog.reset();
+	  fileLog.option(LogEngine::LO_STDOUT, true);
 
-        String command;
-        if (!commandLine.arguments().empty())
-            command = commandLine.arguments()[0];
+      /// Set the minimal priority for the messages.
+      /// Any messages with the less priority are ignored.
+      /// This means, in this example, that no messages with CLP_DEBUG priority
+      /// would make it to the log.
+      fileLog.minPriority(LP_INFO);
+      
+      cout << "Sending 'Hello, World!' to this file.." << endl;
+      log << "Hello, World!" << endl;
+      log << "Welcome to SPTK." << endl;
+      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
+      log << LP_INFO << "This is the end of the log." << endl;
+   }
+   catch (exception& e) {
+      puts(e.what());
+   }
 
-        if (command == "help") {
-            // Print full help
-            commandLine.printHelp(80);
-            return 0;
-        }
-
-        if (commandLine.hasOption("help")) {
-            // Print help on command (if any) or full help
-            commandLine.printHelp(command, 80);
-        } else {
-            cout << "Archive mode: " << commandLine.getOptionValue("archive-mode") << endl;
-            cout << "Archive date: " << commandLine.getOptionValue("archive-date") << endl;
-        }
-
-        return 0;
-    }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
-        return 1;
-    }
+   return 0;
 }
