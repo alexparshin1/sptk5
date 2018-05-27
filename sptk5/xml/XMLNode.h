@@ -509,7 +509,8 @@ public:
 
     /**
      * @brief Returns true, if given attribute is found
-     */
+	 * @param attr              Name of attribute
+	 */
     virtual bool hasAttribute(const char* attr) const
     {
         return false;

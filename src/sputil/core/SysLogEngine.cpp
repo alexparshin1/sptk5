@@ -95,7 +95,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
         if (!m_logHandle)
             throw Exception("Can't open Application Event Log");
 
-        unsigned eventType;
+        WORD eventType;
         switch (priority) {
             case LOG_EMERG:
             case LOG_ALERT:
