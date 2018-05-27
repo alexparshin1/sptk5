@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                     encrypt_decrypt.cpp - description                        ║
+║                       logfile_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Tuesday July 18 2017                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Thursday May 25 2000                                   ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,28 +27,37 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/Crypt.h>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    string key("01234567890123456789012345678901");
-    string iv("0123456789012345");
+   try {
+      cout << "Creating a log file ./logfile_test.log: " << endl;
+      FileLogEngine fileLog("logfile_test.log");
+      Logger  log(fileLog);
 
-    Buffer intext(text), outtext;
-    cout << "Encrypt text (" << text.length() << " bytes)." << endl;
-    try {
-        Crypt::encrypt(outtext, intext, key, iv);
-        cout << outtext << endl;
-        Crypt::decrypt(intext, outtext, key, iv);
-        cout << intext << endl;
-    }
-    catch (exception& e) {
-        puts(e.what());
-    }
+      /// Cleaning log file before test.
+      fileLog.reset();
+	  fileLog.option(LogEngine::LO_STDOUT, true);
 
-    return 0;
+      /// Set the minimal priority for the messages.
+      /// Any messages with the less priority are ignored.
+      /// This means, in this example, that no messages with CLP_DEBUG priority
+      /// would make it to the log.
+      fileLog.minPriority(LP_INFO);
+      
+      cout << "Sending 'Hello, World!' to this file.." << endl;
+      log << "Hello, World!" << endl;
+      log << "Welcome to SPTK." << endl;
+      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
+      log << LP_INFO << "This is the end of the log." << endl;
+   }
+   catch (exception& e) {
+      puts(e.what());
+   }
+
+   return 0;
 }

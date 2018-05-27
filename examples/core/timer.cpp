@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       logfile_test.cpp - description                         ║
+║                       datetime.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,38 +26,45 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
+#include <iostream>
+#include <sptk5/DateTime.h>
+#include "sptk5/threads/Timer.h"
 
 using namespace std;
 using namespace sptk;
 
+void timerCallback(void* eventData)
+{
+    cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " " << (const char*) eventData << "." << endl;
+}
+
 int main()
 {
-   try {
-      cout << "Creating a log file ./logfile_test.log: " << endl;
-      FileLogEngine fileLog("logfile_test.log");
-      Logger  log(fileLog);
+    {
+        // Timer in local scope
+        Timer timer(timerCallback);
 
-      /// Cleaning log file before test.
-      fileLog.reset();
-	  fileLog.option(LogEngine::LO_STDOUT, true);
+        cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " scheduled." << endl;
 
-      /// Set the minimal priority for the messages.
-      /// Any messages with the less priority are ignored.
-      /// This means, in this example, that no messages with CLP_DEBUG priority
-      /// would make it to the log.
-      fileLog.minPriority(LP_INFO);
-      
-      cout << "Sending 'Hello, World!' to this file.." << endl;
-      log << "Hello, World!" << endl;
-      log << "Welcome to SPTK." << endl;
-      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
-      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
-      log << LP_INFO << "This is the end of the log." << endl;
-   }
-   catch (exception& e) {
-      puts(e.what());
-   }
+        // Schedule single event
+        timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), (void*) "single");
 
-   return 0;
+        // Schedule repeatable event
+        timer.repeat(chrono::seconds(1), (void*) "every second");
+
+        // Schedule repeatable event, using event handle to cancel it later
+        void* every3seconds = timer.repeat(chrono::seconds(3), (void*) "every 3 seconds");
+
+        this_thread::sleep_for(chrono::seconds(5));
+
+        // Cancelling event
+        timer.cancel(every3seconds);
+
+        this_thread::sleep_for(chrono::seconds(5));
+
+        // All events, scheduled by timer should stop here
+    }
+    cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " Done" << endl;
+    this_thread::sleep_for(chrono::seconds(5));
+    return 0;
 }

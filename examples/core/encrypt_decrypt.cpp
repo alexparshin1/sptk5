@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       unique_instance.cpp - description                      ║
+║                     encrypt_decrypt.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2017 by Alexey Parshin. All rights reserved.  ║
+║  begin                Tuesday July 18 2017                                   ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,45 +26,29 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-// This example shows how to create "unique instance" application.
-// Such application may only have one process running simultaneously on the same computer.
-
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-
-#include <sptk5/UniqueInstance.h>
+#include <sptk5/cutils>
+#include <sptk5/Crypt.h>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-   char buffer[1024];
-   memset(buffer, 0, sizeof(buffer));
+    string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    string key("01234567890123456789012345678901");
+    string iv("0123456789012345");
 
-   // Define the unique-instance name
-   UniqueInstance instance("mytest");
+    Buffer intext(text), outtext;
+    cout << "Encrypt text (" << text.length() << " bytes)." << endl;
+    try {
+        Crypt::encrypt(outtext, intext, key, iv);
+        cout << outtext << endl;
+        Crypt::decrypt(intext, outtext, key, iv);
+        cout << intext << endl;
+    }
+    catch (exception& e) {
+        puts(e.what());
+    }
 
-   if (instance.isUnique()) {
-      cout << "-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl;
-      cout << "To test it, try to start another copy of application while" << endl;
-      cout << "the first copy is still running. Type 'end' to exit test." << endl;
-
-      // Unique instance, wait here
-      char buffer[128];
-      do {
-         cin.getline(buffer, sizeof(buffer) - 2);
-         if (strstr(buffer, "end") != nullptr)
-            break;
-      } while (strstr(buffer, "end") == nullptr);
-   } else
-      cout << "Another instance of the program is running. Exiting." << endl;
-
-   return 0;
+    return 0;
 }
