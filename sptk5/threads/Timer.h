@@ -3,7 +3,7 @@
 
 #include "Thread.h"
 #include "Semaphore.h"
-#include "../../../../../../usr/include/c++/7/set"
+#include <set>
 
 namespace sptk {
 

@@ -58,7 +58,7 @@ void throwError(const string& message, const char* json, size_t position)
         const char* contextStart = json + position - ERROR_CONTEXT_CHARS / 2;
         if (contextStart < json)
             contextStart = json;
-        int pretextLen = json + position - contextStart;
+        size_t pretextLen = json + position - contextStart;
         strncpy(context, contextStart, pretextLen);
         context[pretextLen] = 0;
         error << " in context: '" << context << ">" << json[position] << "<";
