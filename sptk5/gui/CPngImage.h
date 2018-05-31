@@ -38,18 +38,23 @@ namespace sptk {
 /**
  * @brief For the borders, border size indices
  */
-enum CBorderIndex { BORDER_LEFT, BORDER_RIGHT, BORDER_TOP, BORDER_BOTTOM };
+enum CBorderIndex
+{
+    BORDER_LEFT, BORDER_RIGHT, BORDER_TOP, BORDER_BOTTOM
+};
 
 /**
  * @brief PNG image that is initialized from the memory buffer
  *
  * This class is used by SPTK themes
  */
-class CPngImage : public Fl_RGB_Image {
+class CPngImage : public Fl_RGB_Image
+{
 
     friend class CIcon;
 
-    typedef void (*resized_draw_function)(CPngImage* image,int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH);
+    typedef void (* resized_draw_function)(CPngImage* image, int srcX, int srcY, int srcW, int srcH, int destX,
+                                           int destY, int destW, int destH);
 
 protected:
 
@@ -71,7 +76,8 @@ protected:
      * @param destW int, width of the destination fragment
      * @param destH int, height of the destination fragment
      */
-    static void cutTileDraw(CPngImage* image,int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH);
+    static void cutTileDraw(CPngImage* image, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW,
+                            int destH);
 
     /**
      * @brief Draws a part of the image by cutting a corresponding source and stretching it in required area
@@ -85,7 +91,8 @@ protected:
      * @param destW int, width of the destination fragment
      * @param destH int, height of the destination fragment
      */
-    static void cutStretchDraw(CPngImage* image,int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH);
+    static void cutStretchDraw(CPngImage* image, int srcX, int srcY, int srcW, int srcH, int destX, int destY,
+                               int destW, int destH);
 
 public:
     /**
@@ -94,21 +101,22 @@ public:
      * By resized parts I mean everything besides four corners.
      * Corners are rectangles with the side of corner zone
      */
-    enum CPatternDrawMode {
+    enum CPatternDrawMode
+    {
         /**
          * Undefined and not drawn, should be defined later.
          */
-        PDM_UNDEFINED,
+                PDM_UNDEFINED,
 
         /**
          * The resized parts are tiled
          */
-        PDM_TILE,
+                PDM_TILE,
 
         /**
          * The resized parts are stretched
          */
-        PDM_STRETCH
+                PDM_STRETCH
 
     };
 
@@ -123,8 +131,9 @@ public:
      * @param destW int, width of the destination fragment
      * @param destH int, height of the destination fragment
      */
-    void cutTileDraw(int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH) {
-        cutTileDraw(this,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
+    void cutTileDraw(int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
+    {
+        cutTileDraw(this, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
     }
 
     /**
@@ -138,8 +147,9 @@ public:
      * @param destW int, width of the destination fragment
      * @param destH int, height of the destination fragment
      */
-    void cutStretchDraw(int srcX,int srcY,int srcW,int srcH,int destX,int destY,int destW,int destH) {
-        cutStretchDraw(this,srcX,srcY,srcW,srcH,destX,destY,destW,destH);
+    void cutStretchDraw(int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
+    {
+        cutStretchDraw(this, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
     }
 
 public:
@@ -178,7 +188,7 @@ public:
      * @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
      * @param drawBackground bool, if true then the internal area of the image is used for background
      */
-    void drawResized(int x,int y,int w,int h,int cornerZone,CPatternDrawMode drawMode,bool drawBackground);
+    void drawResized(int x, int y, int w, int h, int cornerZone, CPatternDrawMode drawMode, bool drawBackground);
 
     /**
      * @brief Draws resized image
@@ -191,7 +201,7 @@ public:
      * @param drawMode CPatternDrawMode, the mode to draw the resized parts of image
      * @param drawBackground bool, if true then the internal area of the image is used for background
      */
-    void drawResized(int x,int y,int w,int h,int border[],CPatternDrawMode drawMode,bool drawBackground);
+    void drawResized(int x, int y, int w, int h, int border[], CPatternDrawMode drawMode, bool drawBackground);
 };
 
 }

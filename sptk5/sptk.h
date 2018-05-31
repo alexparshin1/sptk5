@@ -80,7 +80,6 @@
     #endif
 #else
     #include <unistd.h>
-    #include <pthread.h>
     #include <errno.h>
 #endif
 

@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 {
     try {
         if (argc != 3) {
-            fprintf(stderr, "Usage: tar2h filename valuename.\n");
+            fprintf(stderr, "Usage: tar2h <input file> valuename.\n");
             return 1;
         }
 
