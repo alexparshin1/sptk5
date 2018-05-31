@@ -141,6 +141,7 @@ Timer::~Timer()
         events = move(m_events);
     }
 
+    // Unregister and destroy events
     for (auto event: events) {
         timerThread->forget(event);
         event->m_timer = nullptr;
