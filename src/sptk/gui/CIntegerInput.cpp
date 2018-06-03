@@ -34,8 +34,9 @@
 
 using namespace sptk;
 
-CIntegerInput::CIntegerInput(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CInput(label,layoutSize,layoutAlignment) {
+CIntegerInput::CIntegerInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CInput(label, layoutSize, layoutAlignment)
+{
     controlType(FL_INT_INPUT);
     m_minValue = m_maxValue = 0;
     maxLength(10);
@@ -49,20 +50,23 @@ CIntegerInput::CIntegerInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CIntegerInput::creator(XMLNode *node) {
-    CIntegerInput* widget = new CIntegerInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CIntegerInput::creator(XMLNode* node)
+{
+    auto widget = new CIntegerInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CIntegerInput::save(Query *updateQuery) {
+void CIntegerInput::save(Query* updateQuery)
+{
     if (!m_fieldName.length())
         return;
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setInteger( data() );
+    param.setInteger(data());
 }
 
-bool CIntegerInput::valid() const {
+bool CIntegerInput::valid() const
+{
     if (m_limited) {
         int val = data();
         return val >= m_minValue && val <= m_maxValue;
@@ -70,7 +74,8 @@ bool CIntegerInput::valid() const {
     return true;
 }
 
-void CIntegerInput::setLimits(bool limited,int min,int max) {
+void CIntegerInput::setLimits(bool limited, int min, int max)
+{
     m_limited = limited;
     m_minValue = min;
     m_maxValue = max;

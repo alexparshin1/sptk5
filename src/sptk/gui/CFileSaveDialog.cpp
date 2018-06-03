@@ -74,7 +74,7 @@ bool CFileSaveDialog::okPressed() {
    return false;
 }
 
-CFileSaveDialog::CFileSaveDialog(string caption) 
+CFileSaveDialog::CFileSaveDialog(const string& caption)
 : CFileDialog(caption,true)
 {
    m_okButton->label("Save");

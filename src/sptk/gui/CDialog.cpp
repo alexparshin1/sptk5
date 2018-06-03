@@ -41,7 +41,7 @@ using namespace std;
 using namespace sptk;
 
 //==============================================================================
-void CDialogTabs::prepareNewPage(Fl_Group *page, bool autoColor)
+void CDialogTabs::prepareNewPage(Fl_Group* page, bool autoColor)
 {
     CTabs::prepareNewPage(page, autoColor);
     if (pageCount() == 1) {
@@ -54,8 +54,10 @@ void CDialogTabs::prepareNewPage(Fl_Group *page, bool autoColor)
         page->box(FL_FLAT_BOX);
     }
 }
+
 //==============================================================================
-CDialog::CDialog(int w, int h, const char *label) :
+CDialog::CDialog(int w, int h, const char* label)
+        :
         CWindow(w, h, label)
 {
     m_queriesBuilt = false;
@@ -96,27 +98,28 @@ int CDialog::handle(int event)
     int rc = CWindow::handle(event);
     if (rc)
         return rc;
-    switch (event)
-    {
-    case FL_KEYBOARD:
-        if (Fl::event_key() == FL_Enter) {
-            auto btn = dynamic_cast<Fl_Button *>(Fl::focus());
-            if (btn)
-                btn->do_callback();
-            else if (m_defaultButton)
-                m_defaultButton->do_callback();
-            return 1;
-        }
-        break;
+    switch (event) {
+        case FL_KEYBOARD:
+            if (Fl::event_key() == FL_Enter) {
+                auto btn = dynamic_cast<Fl_Button*>(Fl::focus());
+                if (btn)
+                    btn->do_callback();
+                else if (m_defaultButton)
+                    m_defaultButton->do_callback();
+                return 1;
+            }
+            break;
+        default:
+            break;
     }
     return 0;
 }
 
-void CDialog::defaultButton(CButton *newDefaultButton)
+void CDialog::defaultButton(CButton* newDefaultButton)
 {
     unsigned cnt = m_buttonGroup->children();
     for (unsigned bi = 0; bi < cnt; bi++) {
-        auto button = (CButton *) m_buttonGroup->child(bi);
+        auto button = (CButton*) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
     }
     m_defaultButton = newDefaultButton;
@@ -152,7 +155,7 @@ bool CDialog::showModal()
     m_modalResult = DMR_NONE;
 
     while (m_modalResult == DMR_NONE) {
-        Fl_Widget *pressed = Fl::readqueue();
+        Fl_Widget* pressed = Fl::readqueue();
 
         if (!pressed)
             Fl::wait(0.1);
@@ -192,7 +195,7 @@ void CDialog::database(DatabaseConnection* db)
     m_insertQuery->database(db);
 }
 
-DatabaseConnection * CDialog::database() const
+DatabaseConnection* CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -320,7 +323,7 @@ bool CDialog::save()
     if (!database())
         return true;
     buildQueries();
-    Query *query = m_insertQuery;
+    Query* query = m_insertQuery;
 
     if (m_keyValue > 0) {
         query = m_updateQuery;
@@ -349,7 +352,7 @@ void CDialog::save(XMLNode* node) const
     savePosition(node);
 }
 
-CControl& CDialog::operator [](string fieldName)
+CControl& CDialog::operator[](string fieldName)
 {
     if (!m_controlsScanned)
         scanControls();
@@ -359,7 +362,7 @@ CControl& CDialog::operator [](string fieldName)
     throw Exception("The dialog window doesn't have a field '" + fieldName + "'");
 }
 
-CButton *CDialog::addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callbackFunction)
+CButton* CDialog::addExtraButton(CButtonKind buttonKind, const char* label, Fl_Callback_p callbackFunction)
 {
     m_buttonGroup->begin();
     auto extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
@@ -390,12 +393,12 @@ void CDialog::scanControls()
     m_queriesBuilt = false;
 }
 
-Fl_Group* CDialog::newPage(const char *label, bool autoColor)
+Fl_Group* CDialog::newPage(const char* label, bool autoColor)
 {
     return m_pages->newPage(label, autoColor);
 }
 
-Fl_Group* CDialog::newScroll(const char *label, bool autoColor)
+Fl_Group* CDialog::newScroll(const char* label, bool autoColor)
 {
     return m_pages->newScroll(label, autoColor);
 }

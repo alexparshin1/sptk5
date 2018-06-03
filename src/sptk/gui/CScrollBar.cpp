@@ -110,6 +110,8 @@ int CScrollBar::handle(int event)
             if (area != 8)
                 m_pushed = area;
             break;
+        default:
+            break;
     }
     return Fl_Scrollbar::handle(event);
 }

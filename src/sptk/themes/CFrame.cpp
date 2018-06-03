@@ -33,24 +33,26 @@
 using namespace std;
 using namespace sptk;
 
-void CFrames::clear() {
-    for (CFrameMap::iterator itor = m_frames.begin(); itor != m_frames.end(); ++itor) {
-        CFrame* frame = itor->second;
+void CFrames::clear()
+{
+    for (auto itor: m_frames) {
+        CFrame* frame = itor.second;
         delete frame;
     }
     m_frames.clear();
     m_fltkFrames.clear();
 }
 
-const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame","|");
+const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
 const Fl_Boxtype  CFrames::frameTypes[] = {
-            FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
-        };
+        FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
+};
 
-void CFrames::load(Tar& tar,XMLNode* framesNode) {
+void CFrames::load(Tar& tar, XMLNode* framesNode)
+{
     clear();
-    XMLNode::iterator itor = framesNode->begin();
-    XMLNode::iterator iend = framesNode->end();
+    auto itor = framesNode->begin();
+    auto iend = framesNode->end();
     for (; itor != iend; ++itor) {
         XMLNode* frameNode = *itor;
         if (frameNode->name() != "frame")
@@ -59,12 +61,12 @@ void CFrames::load(Tar& tar,XMLNode* framesNode) {
         if (fileName.empty())
             continue;
         string frameTypeStr = frameNode->getAttribute("type");
-        string frameName    = frameNode->getAttribute("name",frameTypeStr.c_str());
+        string frameName = frameNode->getAttribute("name", frameTypeStr.c_str());
         if (frameTypeStr.empty())
             frameTypeStr = frameName;
         unsigned frameTypeInt = frameTypeNames.indexOf(frameTypeStr);
-        unsigned frameWidth = frameNode->getAttribute("width","1");
-        unsigned cornerZone = frameNode->getAttribute("corner","1");
+        unsigned frameWidth = frameNode->getAttribute("width", "1");
+        unsigned cornerZone = frameNode->getAttribute("corner", "1");
         Fl_Boxtype frameType = FL_NO_BOX;
         CFrame::CFrameKind kind = CFrame::USER_EXTENDED;
         if (frameTypeInt < 4) {
@@ -75,36 +77,38 @@ void CFrames::load(Tar& tar,XMLNode* framesNode) {
         if (frameNode->getAttribute("mode").str() == "tile")
             drawMode = CPngImage::PDM_TILE;
         const Buffer& imageData = tar.file(fileName);
-        registerFrame(frameName,new CFrame(imageData,frameWidth,cornerZone,drawMode,kind),frameType);
+        registerFrame(frameName, new CFrame(imageData, frameWidth, cornerZone, drawMode, kind), frameType);
     }
 }
 
-void CFrames::registerFrame(std::string frameName,CFrame* frame,Fl_Boxtype frameType) {
+void CFrames::registerFrame(std::string frameName, CFrame* frame, Fl_Boxtype frameType)
+{
     CFrame* oldFrame = find(frameName);
-    if (oldFrame)
-        delete oldFrame;
+    delete oldFrame;
     if (frameType != FL_NO_BOX) {
         m_fltkFrames[frameType] = frame;
     }
     m_frames[frameName] = frame;
 }
 
-CFrame* CFrames::find(Fl_Boxtype frameType) const {
+CFrame* CFrames::find(Fl_Boxtype frameType) const
+{
     try {
         if (m_fltkFrames.empty())
-            return NULL;
-        CFltkFrameMap::const_iterator itor = m_fltkFrames.find(frameType);
+            return nullptr;
+        auto itor = m_fltkFrames.find(frameType);
         if (itor == m_fltkFrames.end())
-            return NULL;
+            return nullptr;
         return itor->second;
     } catch (...) {
-        return NULL;
+        return nullptr;
     }
 }
 
-CFrame* CFrames::find(std::string frameName) const {
-    CFrameMap::const_iterator itor = m_frames.find(frameName);
+CFrame* CFrames::find(std::string frameName) const
+{
+    auto itor = m_frames.find(frameName);
     if (itor == m_frames.end())
-        return NULL;
+        return nullptr;
     return itor->second;
 }

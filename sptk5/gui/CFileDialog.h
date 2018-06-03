@@ -135,7 +135,7 @@ protected:
      * @param label std::string, window caption
      * @param saveMode bool, true for File Save Dialog and false for File Open Dialog.
      */
-    CFileDialog(std::string label,bool saveMode);
+    CFileDialog(const std::string& label, bool saveMode);
 
 public:
 

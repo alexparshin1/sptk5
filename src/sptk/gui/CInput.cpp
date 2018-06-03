@@ -50,213 +50,221 @@ static const char phoneMask[] = "(999)-999-9999";
 
 static const char maskControlCharacters[] = "@0123456789AaLlZz#Tt";
 
-static string reformatPhoneNumber(const char *st)
+static string reformatPhoneNumber(const char* st)
 {
-   string result(st);
+    string result(st);
 
-   // Leave only digits!
-   size_t len = strlen(st);
-   size_t j = 0;
-   for (size_t i = 0; i < len; i++) {
-      if (isdigit(st[i])) {
-         result[j] = st[i];
-         j++;
-      }
-   }
-   result[j] = 0;
-   if (result.length() == 11 && result[0] == '1')
-      result = result.substr(1,10); // US long distance starts from 1
-   switch (result.length()) {
-      case 7:
-         result = "(   )-"+result.substr(0,3)+"-"+result.substr(3,4);
-         break;
-      default:
-         result = "("+result.substr(0,3)+")-"+result.substr(3,3)+"-"+result.substr(6,4);
-         break;
-   }
-   return result;
+    // Leave only digits!
+    size_t len = strlen(st);
+    size_t j = 0;
+    for (size_t i = 0; i < len; i++) {
+        if (isdigit(st[i])) {
+            result[j] = st[i];
+            j++;
+        }
+    }
+    result[j] = 0;
+    if (result.length() == 11 && result[0] == '1')
+        result = result.substr(1, 10); // US long distance starts from 1
+    switch (result.length()) {
+        case 7:
+            result = "(   )-" + result.substr(0, 3) + "-" + result.substr(3, 4);
+            break;
+        default:
+            result = "(" + result.substr(0, 3) + ")-" + result.substr(3, 3) + "-" + result.substr(6, 4);
+            break;
+    }
+    return result;
 }
 
-void CInput_::mask(const char *m)
+void CInput_::mask(const char* m)
 {
-   m_mask = "";
-   m_inputMask = "";
-   m_backgroundMask = "";
+    m_mask = "";
+    m_inputMask = "";
+    m_backgroundMask = "";
 
-   if (m == nullptr)
-      return;
+    if (m == nullptr)
+        return;
 
-   m_mask = m;
-   m_inputMask = m;
-   m_backgroundMask = m;
+    m_mask = m;
+    m_inputMask = m;
+    m_backgroundMask = m;
 
-   auto bg_mask_ptr = (char *) m_backgroundMask.c_str();
-   auto input_mask_ptr = (char *) m_inputMask.c_str();
+    auto bg_mask_ptr = (char*) m_backgroundMask.c_str();
+    auto input_mask_ptr = (char*) m_inputMask.c_str();
 
-   size_t l = m_mask.length();
-   size_t j = 0;
-   for (size_t i = 0; i < l; i++,j++) {
-      if (m[i] == '\\' || !strchr(maskControlCharacters,m[i])) {   // background char
-         if (m[i] == '\\') i++;
-         bg_mask_ptr[j] = m[i];
-         input_mask_ptr[j] = ' ';
-      } else {
-         bg_mask_ptr[j] = ' ';
-         input_mask_ptr[j] = m[i];
-      }
-   }
-   bg_mask_ptr[j] = 0;
-   input_mask_ptr[j] = 0;
+    size_t l = m_mask.length();
+    size_t j = 0;
+    for (size_t i = 0; i < l; i++, j++) {
+        if (m[i] == '\\' || !strchr(maskControlCharacters, m[i])) {   // background char
+            if (m[i] == '\\') i++;
+            bg_mask_ptr[j] = m[i];
+            input_mask_ptr[j] = ' ';
+        } else {
+            bg_mask_ptr[j] = ' ';
+            input_mask_ptr[j] = m[i];
+        }
+    }
+    bg_mask_ptr[j] = 0;
+    input_mask_ptr[j] = 0;
 }
 
-bool CInput_::checkCharacterAtPos(int pos,char key)
+bool CInput_::checkCharacterAtPos(int pos, char key)
 {
-   bool rc;
-   if (pos >= (int)m_inputMask.length()) return false;
-   switch (m_inputMask[pos]) {
-      case '@':   // optional character - digit,letter
-         rc = true;
-         break;
-      case 'L':    // capital character, must
-         rc = isalpha(key) && key == toupper(key);
-         break;
-      case 'l':   // small character, must
-         rc = isalpha(key) && key != toupper(key);
-         break;
-      case 'Z':    // capital character, optional
-         rc = (isalpha(key) && key == toupper(key)) || key == ' ';
-         break;
-      case 'z':   // small character, optional
-         rc = (isalpha(key) && key != toupper(key)) || key == ' ';
-         break;
-      case '#':   rc = isdigit(key) || key == ' ';    // optional digit
-         break;
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':   // Digit, must
-      case '9':   rc = isdigit(key) && key <= m_inputMask[pos];
-         break;
-      case 'T':   // A/P for AM/PM, must
-         rc = key == 'A' || key == 'P';
-         break;
-      case 't':   // a/p for am/pm, must
-         rc = key == 'a' || key == 'p';
-         break;
-      default :   // background mask char?
-         rc = m_backgroundMask[pos] == key;
-         break;
-   }
-   return rc;
+    bool rc;
+    if (pos >= (int) m_inputMask.length()) return false;
+    switch (m_inputMask[pos]) {
+        case '@':   // optional character - digit,letter
+            rc = true;
+            break;
+        case 'L':    // capital character, must
+            rc = isalpha(key) && key == toupper(key);
+            break;
+        case 'l':   // small character, must
+            rc = isalpha(key) && key != toupper(key);
+            break;
+        case 'Z':    // capital character, optional
+            rc = (isalpha(key) && key == toupper(key)) || key == ' ';
+            break;
+        case 'z':   // small character, optional
+            rc = (isalpha(key) && key != toupper(key)) || key == ' ';
+            break;
+        case '#':
+            rc = isdigit(key) || key == ' ';    // optional digit
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':   // Digit, must
+        case '9':
+            rc = isdigit(key) && key <= m_inputMask[pos];
+            break;
+        case 'T':   // A/P for AM/PM, must
+            rc = key == 'A' || key == 'P';
+            break;
+        case 't':   // a/p for am/pm, must
+            rc = key == 'a' || key == 'p';
+            break;
+        default :   // background mask char?
+            rc = m_backgroundMask[pos] == key;
+            break;
+    }
+    return rc;
 }
 
-bool CInput_::checkCharacter(int pos,char& key)
+bool CInput_::checkCharacter(int pos, char& key)
 {
-   if (!m_inputMask[0]) return true;
-   char et[] = { 0, 0 };
-   int rc = 1;
-   size_t maxPos = m_inputMask.length();
-   while (pos < (int) maxPos) {
-      if (m_inputMask[pos] == ' ') {
+    if (!m_inputMask[0]) return true;
+    char et[] = {0, 0};
+    int rc = 1;
+    size_t maxPos = m_inputMask.length();
+    while (pos < (int) maxPos) {
+        if (m_inputMask[pos] == ' ') {
             // use background mask
-         et[0] = m_backgroundMask[pos];
-         replace(pos, pos+1, et, 1);
-         pos++;
-         position(pos, Fl::event_state(FL_SHIFT) ? mark() : pos);
-      } else {
-         if (checkCharacterAtPos(pos,key)) {
-            et[0] = key;
-            rc = replace(pos, pos+1, et, 1);
-            return rc > 0;
-         }
-         return true;
-      }
-   }
-   return true;
+            et[0] = m_backgroundMask[pos];
+            replace(pos, pos + 1, et, 1);
+            pos++;
+            position(pos, Fl::event_state(FL_SHIFT) ? mark() : pos);
+        } else {
+            if (checkCharacterAtPos(pos, key)) {
+                et[0] = key;
+                rc = replace(pos, pos + 1, et, 1);
+                return rc > 0;
+            }
+            return true;
+        }
+    }
+    return true;
 }
 
 int CInput_::handle(int event)
 {
-   if (event != FL_KEYBOARD) {
-      switch (event) {
+    if (event != FL_KEYBOARD) {
+        switch (event) {
 
-         case FL_ENTER:
-            fl_cursor(FL_CURSOR_INSERT,FL_BLACK,FL_WHITE);
-            break;
+            case FL_ENTER:
+                fl_cursor(FL_CURSOR_INSERT, FL_BLACK, FL_WHITE);
+                break;
 
-         case FL_LEAVE:
-            fl_cursor(FL_CURSOR_DEFAULT,FL_BLACK,FL_WHITE);
-            break;
+            case FL_LEAVE:
+                fl_cursor(FL_CURSOR_DEFAULT, FL_BLACK, FL_WHITE);
+                break;
 
-         case FL_FOCUS: {
-               auto control = dynamic_cast<CControl *>(parent());
-               if (!control && parent())
-                  control = dynamic_cast<CControl *>(parent()->parent());
-               if (control)
-                  control->notifyFocus();
+            case FL_FOCUS: {
+                auto control = dynamic_cast<CControl*>(parent());
+                if (!control && parent())
+                    control = dynamic_cast<CControl*>(parent()->parent());
+                if (control)
+                    control->notifyFocus();
             }
-            break;
-      }
+                break;
 
-      int rc = Fl_Input::handle(event);
+            default:
+                break;
+        }
 
-      if (event == FL_PASTE) 
-         maskValue();
+        int rc = Fl_Input::handle(event);
 
-      return rc;
-   }
+        if (event == FL_PASTE)
+            maskValue();
 
-   char ascii = Fl::event_text()[0];
+        return rc;
+    }
 
-   int del;
-   if (Fl::compose(del)) {
-      int pos = position();
-      char& key = ascii;
-      if (m_maxLength && pos >= m_maxLength) return 0;
-      if (m_inputMask[0])
-         return checkCharacter(pos,key);
-      else
-         switch (type()) {
-         case FL_FLOAT_INPUT:
-                // allow only certain characters
-            if (!strchr("0123456789.eE+-", key)) return 0;
-                // for certain characters allow only one
-            if (strchr(".eE",key)) {
-               if (strchr(value(),key)) return 0;
+    char ascii = Fl::event_text()[0];
+
+    int del;
+    if (Fl::compose(del)) {
+        int pos = position();
+        char& key = ascii;
+        if (m_maxLength && pos >= m_maxLength) return 0;
+        if (m_inputMask[0])
+            return checkCharacter(pos, key);
+        else
+            switch (type()) {
+                case FL_FLOAT_INPUT:
+                    // allow only certain characters
+                    if (!strchr("0123456789.eE+-", key)) return 0;
+                    // for certain characters allow only one
+                    if (strchr(".eE", key)) {
+                        if (strchr(value(), key)) return 0;
+                    }
+                    break;
+                case FL_INT_INPUT:
+                    key = toupper(key);
+                    if (!strchr("0123456789XABCDEF+-", key)) return 0;
+                    if (!pos && (key == '+' || key == '-')) return 0;
+                    if (key > '9') {
+                        // we allow 0xabc style hex numbers to be typed:
+                        if (pos == 1 && index(0) == '0' && key == 'X');
+                        else if (pos > 1 && index(0) == '0' && index(1) == 'X'
+                                 && (key >= 'A' && key <= 'F'));
+                        else return 0;
+                    }
+                    break;
+
+                default:
+                    break;
             }
-            break;
-         case FL_INT_INPUT:
-            key = toupper(key);
-            if (!strchr("0123456789XABCDEF+-", key)) return 0;
-            if (!pos && (key == '+' || key == '-')) return 0;
-            if (key > '9') {
-                    // we allow 0xabc style hex numbers to be typed:
-               if (pos==1 && index(0)=='0' && key == 'X');
-               else if (pos>1 && index(0)=='0' && index(1)=='X'
-                  && (key>='A'&& key<='F'));
-               else return 0;
-            }
-            break;
-      }
 
-      return replace(position(), mark(), Fl::event_text(), Fl::event_length());
-   }
+        return replace(position(), mark(), Fl::event_text(), Fl::event_length());
+    }
 
-   return Fl_Input::handle(event);
+    return Fl_Input::handle(event);
 }
 
-CInput_::CInput_(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-: Fl_Input(0, 0, layoutSize, layoutSize, label), CLayoutClient(this,layoutSize,layoutAlignment)
+CInput_::CInput_(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : Fl_Input(0, 0, layoutSize, layoutSize, label), CLayoutClient(this, layoutSize, layoutAlignment)
 {
-   m_maxLength = 0;
+    m_maxLength = 0;
 }
 
-#ifdef __COMPATIBILITY_MODE__    
+#ifdef __COMPATIBILITY_MODE__
 CInput_::CInput_(int x, int y, int w, int h, const char *l)
 : Fl_Input(x, y, w, h, l), CLayoutClient(this,w,SP_ALIGN_NONE)
 {
@@ -264,42 +272,42 @@ CInput_::CInput_(int x, int y, int w, int h, const char *l)
 }
 #endif
 
-bool CInput_::preferredSize(int& w,int& h)
+bool CInput_::preferredSize(int& w, int& h)
 {
-   h = textSize() + 6 + Fl::box_dh(box());
+    h = textSize() + 6 + Fl::box_dh(box());
 
-   int ml = maxLength();
-   if (ml > 0 && ml < 40) {
-      fl_font(textFont(),textSize());
-      int maxWidth = (int) (ml * fl_width('W')) + 4 + Fl::box_dw(box());
-      if (w > maxWidth) w = maxWidth;
-   } else
-      if (w < 16) w = 16;
+    int ml = maxLength();
+    if (ml > 0 && ml < 40) {
+        fl_font(textFont(), textSize());
+        int maxWidth = (int) (ml * fl_width('W')) + 4 + Fl::box_dw(box());
+        if (w > maxWidth) w = maxWidth;
+    } else if (w < 16) w = 16;
 
-   return false;
+    return false;
 }
 
 void CInput_::maskValue()
 {
-   if (!m_inputMask[0])
-      return;
+    if (!m_inputMask[0])
+        return;
 
-   string val = (char *)value();
+    string val = (char*) value();
 
-   if (strcmp(m_mask.c_str(),phoneMask)==0) 
-      val = reformatPhoneNumber(val.c_str());
+    if (strcmp(m_mask.c_str(), phoneMask) == 0)
+        val = reformatPhoneNumber(val.c_str());
 
-   size_t cnt = val.length();
-   if (cnt > m_inputMask.length())
-      cnt = m_inputMask.length();
+    size_t cnt = val.length();
+    if (cnt > m_inputMask.length())
+        cnt = m_inputMask.length();
 
-   for (size_t pos = 0; pos < cnt; pos++) {
-      if (!checkCharacterAtPos((int) pos, val[pos]))
-         val[pos] = m_backgroundMask[pos];
-   }
-   val[cnt] = 0;
-   value(val.c_str());
+    for (size_t pos = 0; pos < cnt; pos++) {
+        if (!checkCharacterAtPos((int) pos, val[pos]))
+            val[pos] = m_backgroundMask[pos];
+    }
+    val[cnt] = 0;
+    value(val.c_str());
 }
+
 //=========================================================================================
 void CInput::ctor_init(bool autoCreate)
 {
@@ -316,14 +324,14 @@ void CInput::ctor_init(bool autoCreate)
     end();
 }
 
-CInput::CInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CControl(label,layoutSize,layoutAlignment)
+CInput::CInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CControl(label, layoutSize, layoutAlignment)
 {
     ctor_init(true);
 }
 
-CInput::CInput(const char * label,int layoutSize,CLayoutAlign layoutAlignment,bool autoCreate)
-        : CControl(label,layoutSize,layoutAlignment)
+CInput::CInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment, bool autoCreate)
+        : CControl(label, layoutSize, layoutAlignment)
 {
     ctor_init(autoCreate);
 }
@@ -338,16 +346,16 @@ CInput::CInput(int x,int y,int w,int h,const char *label,bool autoCreate)
 
 CInput::~CInput() = default;
 
-CLayoutClient* CInput::creator(XMLNode *node)
+CLayoutClient* CInput::creator(XMLNode* node)
 {
-    auto widget = new CInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+    auto widget = new CInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
 int CInput::maxLength() const
 {
-    auto input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_*>(m_control);
     if (input)
         return input->maxLength();
     return 0;
@@ -355,14 +363,14 @@ int CInput::maxLength() const
 
 void CInput::maxLength(int ml)
 {
-    auto input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_*>(m_control);
     if (input)
         input->maxLength(ml);
 }
 
 int CInput::controlType() const
 {
-    auto input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_*>(m_control);
     if (input)
         return input->type();
     return 0;
@@ -370,40 +378,40 @@ int CInput::controlType() const
 
 void CInput::controlType(int type)
 {
-    auto input = dynamic_cast<CInput_ *>(m_control);
+    auto input = dynamic_cast<CInput_*>(m_control);
     if (input)
-        input->type((unsigned char)(type));
+        input->type((unsigned char) (type));
 }
 
 Fl_Font CInput::textFont() const
 {
-    return ((CInput_ *)m_control)->textfont();
+    return ((CInput_*) m_control)->textfont();
 }
 
 void CInput::textFont(Fl_Font f)
 {
-    ((CInput_ *)m_control)->textfont(f);
+    ((CInput_*) m_control)->textfont(f);
 }
 
 uchar CInput::textSize() const
 {
-    return ((CInput_ *)m_control)->textsize();
+    return ((CInput_*) m_control)->textsize();
 }
 
 void CInput::textSize(uchar s)
 {
-    ((CInput_ *)m_control)->textsize(s);
+    ((CInput_*) m_control)->textsize(s);
 }
 
-void CInput::load(Query *loadQuery)
+void CInput::load(Query* loadQuery)
 {
     if (!m_fieldName.length())
         return;
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
-    data( fld );
+    data(fld);
 }
 
-void CInput::save(Query *updateQuery)
+void CInput::save(Query* updateQuery)
 {
     if (!m_fieldName.length())
         return;
@@ -413,13 +421,13 @@ void CInput::save(Query *updateQuery)
 
 Variant CInput::data() const
 {
-    return ((CInput_ *)m_control)->value();
+    return ((CInput_*) m_control)->value();
 }
 
 void CInput::data(const Variant s)
 {
     String strValue = s.asString();
-    ((CInput_ *)m_control)->value(strValue.c_str());
+    ((CInput_*) m_control)->value(strValue.c_str());
 }
 
 void CInput::preferredWidth(int& w) const
@@ -428,7 +436,7 @@ void CInput::preferredWidth(int& w) const
     if (ml > 0 && ml <= 80) {
         w = (int) (ml * fl_width('W')) + m_labelWidth + 4 + Fl::box_dw(box());
     } else {
-        if (w < (int)m_labelWidth + 16)
+        if (w < (int) m_labelWidth + 16)
             w = m_labelWidth + 16;
     }
 }
@@ -436,7 +444,7 @@ void CInput::preferredWidth(int& w) const
 void CInput::preferredHeight(int& h) const
 {
     int hh = textSize() + 6 + Fl::box_dh(box());
-    if (hh < (int)labelHeight())
+    if (hh < (int) labelHeight())
         hh = labelHeight();
     if (m_controlFlags & FGE_MULTILINEENTRY) {
         if (h < hh)
@@ -446,9 +454,9 @@ void CInput::preferredHeight(int& h) const
     }
 }
 
-bool CInput::preferredSize(int& w,int& h)
+bool CInput::preferredSize(int& w, int& h)
 {
-    fl_font(textFont(),textSize());
+    fl_font(textFont(), textSize());
     preferredWidth(w);
     preferredHeight(h);
     return false;

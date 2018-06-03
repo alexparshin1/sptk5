@@ -50,15 +50,15 @@ void CIcon::load(const Buffer& imageData)
         m_image = new CPngImage(imageData);
         if (!m_image->data()) {
             delete m_image;
-            m_image = 0L;
+            m_image = nullptr;
         }
     }
 }
 
 void CIconMap::clear()
 {
-    for (iterator itor = begin(); itor != end(); ++itor) {
-        CIcon* icon = itor->second;
+    for (auto itor: *this) {
+        CIcon* icon = itor.second;
         if (m_shared)
             delete icon;
         else if (!icon->m_shared)
@@ -69,7 +69,7 @@ void CIconMap::clear()
 
 void CIconMap::insert(CIcon* icon)
 {
-    iterator it = find(icon->name());
+    auto it = find(icon->name());
     if (it != end()) {
         CIcon* oldIcon = it->second;
         delete oldIcon;
@@ -81,8 +81,7 @@ void CIconMap::insert(CIcon* icon)
 
 void CIconMap::load(Tar& tar, XMLNode* iconsNode)
 {
-    for (XMLNode::iterator itor = iconsNode->begin(); itor != iconsNode->end(); ++itor) {
-        XMLNode* node = *itor;
+    for (auto node: *iconsNode) {
         if (node->name() != "icon")
             continue;
         string iconName = node->getAttribute("name");
@@ -91,8 +90,8 @@ void CIconMap::load(Tar& tar, XMLNode* iconsNode)
             continue;
         try {
             const Buffer& imageData = tar.file(fileName);
-            CIcon* icon = NULL;
-            iterator ftor = find(iconName);
+            CIcon* icon = nullptr;
+            auto ftor = find(iconName);
             if (ftor == end()) {
                 // Icon not found, adding new one
                 icon = new CIcon(iconName);

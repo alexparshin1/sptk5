@@ -208,6 +208,8 @@ int CBox::handle(int event)
             return 0;
         case FL_RELEASE:
             return 1;
+        default:
+            break;
     }
     return Fl_Widget::handle(event);
 }

@@ -35,9 +35,10 @@
 using namespace sptk;
 
 //===========================================================================
-void CHtmlBox::ctor_init(const char *label) {
+void CHtmlBox::ctor_init(const char* label)
+{
     m_controlFlags = FGE_MULTILINEENTRY;
-    m_control = new Fl_Help_View(x(),y(),w(),h(),"");
+    m_control = new Fl_Help_View(x(), y(), w(), h(), "");
     add(m_control);
     m_control->box(FL_FLAT_BOX);
     m_control->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
@@ -48,8 +49,9 @@ void CHtmlBox::ctor_init(const char *label) {
         data(label);
 }
 
-CHtmlBox::CHtmlBox(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CInput("",layoutSize,layoutAlignment,false) {
+CHtmlBox::CHtmlBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CInput("", layoutSize, layoutAlignment, false)
+{
     ctor_init(label);
 }
 
@@ -60,51 +62,60 @@ CHtmlBox::CHtmlBox(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CHtmlBox::creator(XMLNode *node) {
-    CHtmlBox* widget = new CHtmlBox("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CHtmlBox::creator(XMLNode* node)
+{
+    auto widget = new CHtmlBox("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-Variant CHtmlBox::data() const {
-    return ((Fl_Help_View *)m_control)->value();
+Variant CHtmlBox::data() const
+{
+    return ((Fl_Help_View*) m_control)->value();
 }
 
-void CHtmlBox::data(const Variant v) {
-    ((Fl_Help_View *)m_control)->value(v.getString());
+void CHtmlBox::data(const Variant v)
+{
+    ((Fl_Help_View*) m_control)->value(v.getString());
 }
 
-Fl_Font CHtmlBox::textFont() const {
-    return Fl_Font(((Fl_Help_View *)m_control)->textfont());
+Fl_Font CHtmlBox::textFont() const
+{
+    return Fl_Font(((Fl_Help_View*) m_control)->textfont());
 }
 
-void  CHtmlBox::textFont(Fl_Font f) {
-    ((Fl_Help_View *)m_control)->textfont(f);
+void CHtmlBox::textFont(Fl_Font f)
+{
+    ((Fl_Help_View*) m_control)->textfont(f);
 }
 
-uchar CHtmlBox::textSize() const {
-    return ((Fl_Help_View *)m_control)->textsize();
+uchar CHtmlBox::textSize() const
+{
+    return ((Fl_Help_View*) m_control)->textsize();
 }
 
-void  CHtmlBox::textSize(uchar s) {
-    ((Fl_Help_View *)m_control)->textsize(s);
+void CHtmlBox::textSize(uchar s)
+{
+    ((Fl_Help_View*) m_control)->textsize(s);
 }
 
-int CHtmlBox::totalHeight() const {
-    return ((Fl_Help_View *)m_control)->size();
+int CHtmlBox::totalHeight() const
+{
+    return ((Fl_Help_View*) m_control)->size();
 }
 
-bool CHtmlBox::preferredSize(int& w,int& h) {
-    Fl_Help_View *hv = (Fl_Help_View *)m_control;
-    hv->resize(hv->x(),hv->y(),w,h);
+bool CHtmlBox::preferredSize(int& w, int& h)
+{
+    Fl_Help_View* hv = (Fl_Help_View*) m_control;
+    hv->resize(hv->x(), hv->y(), w, h);
     int totalHeight = hv->size();
 
     int hh = totalHeight + 10;
-    if (hh < (int)labelHeight())
+    if (hh < (int) labelHeight())
         hh = labelHeight();
     if (h < hh)
         h = hh;
-    if (w < (int)m_labelWidth + 16)
+    if (w < (int) m_labelWidth + 16)
         w = m_labelWidth + 16;
 
     return false;

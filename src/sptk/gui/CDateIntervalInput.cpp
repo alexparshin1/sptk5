@@ -38,25 +38,27 @@
 using namespace std;
 using namespace sptk;
 
-void CDateIntervalInput::intervalCalendarButtonPressed(Fl_Widget *btn,void *data) {
-    CDateIntervalInput *intervalInput = (CDateIntervalInput *)btn->parent()->parent();
+void CDateIntervalInput::intervalCalendarButtonPressed(Fl_Widget* btn, void* data)
+{
+    auto intervalInput = (CDateIntervalInput*) btn->parent()->parent();
     intervalInput->showCalendar(btn);
 }
 
-void CDateIntervalInput::ctor_init() {
+void CDateIntervalInput::ctor_init()
+{
     m_calendarWindow = new CPopupCalendar(0L);
     m_separator = "..";
 
     begin();
 
-    m_firstDateInput = new CDateControl(0,0,10,10);
+    m_firstDateInput = new CDateControl(0, 0, 10, 10);
     m_firstDateInput->callback(CControl::internalCallback);
     m_firstDateInput->when(FL_WHEN_CHANGED);
     m_firstDateInput->button()->callback(intervalCalendarButtonPressed);
 
     m_control = m_firstDateInput->input();
 
-    m_secondDateInput = new CDateControl(0,0,10,10,"to");
+    m_secondDateInput = new CDateControl(0, 0, 10, 10, "to");
     m_secondDateInput->align(FL_ALIGN_LEFT);
     m_secondDateInput->callback(CControl::internalCallback);
     m_secondDateInput->when(FL_WHEN_CHANGED);
@@ -65,8 +67,9 @@ void CDateIntervalInput::ctor_init() {
     end();
 }
 
-CDateIntervalInput::CDateIntervalInput(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CInput(label,layoutSize,layoutAlignment,false) {
+CDateIntervalInput::CDateIntervalInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CInput(label, layoutSize, layoutAlignment, false)
+{
     ctor_init();
 }
 
@@ -77,15 +80,17 @@ CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * labe
 }
 #endif
 
-CLayoutClient* CDateIntervalInput::creator(XMLNode *node) {
-    CDateIntervalInput* widget = new CDateIntervalInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CDateIntervalInput::creator(XMLNode* node)
+{
+    auto widget = new CDateIntervalInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CDateIntervalInput::showCalendar(Fl_Widget *btn) {
+void CDateIntervalInput::showCalendar(Fl_Widget* btn)
+{
     DateTime originalDate;
-    CDateControl *dateControl;
+    CDateControl* dateControl;
     if (btn == m_firstDateInput->button()) {
         originalDate = beginOfInterval();
         dateControl = m_firstDateInput;
@@ -106,35 +111,38 @@ void CDateIntervalInput::showCalendar(Fl_Widget *btn) {
     }
 }
 
-void CDateIntervalInput::separator(std::string s) {
+void CDateIntervalInput::separator(std::string s)
+{
     m_separator = s;
 }
 
-void CDateIntervalInput::resize(int x,int y,int w,int h) {
+void CDateIntervalInput::resize(int x, int y, int w, int h)
+{
     int twidth = 16;
-    fl_font(textFont(),textSize());
+    fl_font(textFont(), textSize());
     int editorWidth = (int) fl_width("00/00/00000") + h;
     int maxWidth = 2 * editorWidth + twidth + m_labelWidth;
 
     if (w > maxWidth)
         w = maxWidth;
 
-    CControl::resize(x,y,w,h);
+    CControl::resize(x, y, w, h);
     h = this->h();
 
     w -= m_labelWidth;
     x += m_labelWidth;
     if (m_menuButton)
-        m_menuButton->resize(x,y,w,h);
+        m_menuButton->resize(x, y, w, h);
 
-    m_firstDateInput->resize(x,y,editorWidth,h);
+    m_firstDateInput->resize(x, y, editorWidth, h);
     x += editorWidth + twidth;
-    m_secondDateInput->resize(x,y,editorWidth,h);
+    m_secondDateInput->resize(x, y, editorWidth, h);
 }
 
-Variant CDateIntervalInput::data() const {
-    DateTime   dt1 = beginOfInterval();
-    DateTime   dt2 = endOfInterval();
+Variant CDateIntervalInput::data() const
+{
+    DateTime dt1 = beginOfInterval();
+    DateTime dt2 = endOfInterval();
 
     if (dt1.zero() && dt2.zero())
         return "";
@@ -145,11 +153,12 @@ Variant CDateIntervalInput::data() const {
     return result;
 }
 
-void CDateIntervalInput::data(const Variant s) {
-    string     firstStringData(s.asString().c_str());
-    string     secondStringData;
+void CDateIntervalInput::data(const Variant s)
+{
+    string firstStringData(s.asString().c_str());
+    string secondStringData;
 
-    size_t pos = firstStringData.find(m_separator.c_str());
+    size_t pos = firstStringData.find(m_separator);
     size_t separatorLength = m_separator.length();
 
     if (!separatorLength)
@@ -157,15 +166,16 @@ void CDateIntervalInput::data(const Variant s) {
 
     if (pos != STRING_NPOS && pos > 0) {
         firstStringData[pos] = 0;
-        secondStringData = firstStringData.substr(pos+separatorLength,20);
+        secondStringData = firstStringData.substr(pos + separatorLength, 20);
     }
     m_firstDateInput->input()->value(firstStringData.c_str());
     m_secondDateInput->input()->value(secondStringData.c_str());
 }
 
-bool CDateIntervalInput::valid() const {
-    DateTime   dt1 = beginOfInterval();
-    DateTime   dt2 = endOfInterval();
+bool CDateIntervalInput::valid() const
+{
+    DateTime dt1 = beginOfInterval();
+    DateTime dt2 = endOfInterval();
 
     if (!dt1.zero() && !dt2.zero() && dt1 > dt2)
         return false;
@@ -173,18 +183,22 @@ bool CDateIntervalInput::valid() const {
     return true;
 }
 
-DateTime CDateIntervalInput::beginOfInterval() const {
+DateTime CDateIntervalInput::beginOfInterval() const
+{
     return DateTime(m_firstDateInput->input()->value());
 }
 
-void CDateIntervalInput::beginOfInterval(const DateTime bi) {
+void CDateIntervalInput::beginOfInterval(const DateTime bi)
+{
     m_firstDateInput->input()->value(bi.dateString().c_str());
 }
 
-DateTime CDateIntervalInput::endOfInterval() const {
+DateTime CDateIntervalInput::endOfInterval() const
+{
     return DateTime(m_secondDateInput->input()->value());
 }
 
-void CDateIntervalInput::endOfInterval(const DateTime ei) {
+void CDateIntervalInput::endOfInterval(const DateTime ei)
+{
     m_secondDateInput->input()->value(ei.dateString().c_str());
 }

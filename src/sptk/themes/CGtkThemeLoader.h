@@ -72,8 +72,8 @@ namespace sptk {
     public:
 
         /// @brief Default constructor
-        CGtkThemeParser() {}
-        
+        CGtkThemeParser() = default;
+
         /// @brief Loads GTK theme configuration
         void load(const std::string& themeName);
         

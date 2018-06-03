@@ -35,45 +35,52 @@
 using namespace sptk;
 
 //===========================================================================
-void CDBDropDownListView::item_clicked(int /*mouse_btn*/) {
-   CDBDropDownList *parentWindow = (CDBDropDownList *)window();
-   parentWindow->m_clicked = 1;
-   parentWindow->hide();
+void CDBDropDownListView::item_clicked(int /*mouse_btn*/)
+{
+    auto parentWindow = (CDBDropDownList*) window();
+    parentWindow->m_clicked = 1;
+    parentWindow->hide();
 }
 
-void CDBDropDownListView::onExit() {
-   CDBDropDownList *wnd = (CDBDropDownList *)window();
-   wnd->m_clicked = -1;
-   wnd->hide();
+void CDBDropDownListView::onExit()
+{
+    CDBDropDownList* wnd = (CDBDropDownList*) window();
+    wnd->m_clicked = -1;
+    wnd->hide();
 }
+
 //===========================================================================
-CDBDropDownList::CDBDropDownList(int w, int h, const char *label)
-: CPopupWindow(w,h,label) {
-   layoutSpacing(0);
-   begin();
-   listView = new CDBDropDownListView("",10,SP_ALIGN_NONE);
-   end();
-   listView->showGrid(false);
-   listView->box(FL_FLAT_BOX);
-   listView->headerHeight(0);
+CDBDropDownList::CDBDropDownList(int w, int h, const char* label)
+        : CPopupWindow(w, h, label)
+{
+    layoutSpacing(0);
+    begin();
+    listView = new CDBDropDownListView("", 10, SP_ALIGN_NONE);
+    end();
+    listView->showGrid(false);
+    listView->box(FL_FLAT_BOX);
+    listView->headerHeight(0);
 }
 
-void CDBDropDownList::resize(int newX,int newY,int newW,int newH) {
-   listView->resize(Fl::box_dx(box()),Fl::box_dy(box()),newW-Fl::box_dw(box()),newH-Fl::box_dh(box()));
-   CWindow::resize(newX,newY,newW,newH);
+void CDBDropDownList::resize(int newX, int newY, int newW, int newH)
+{
+    listView->resize(Fl::box_dx(box()), Fl::box_dy(box()), newW - Fl::box_dw(box()), newH - Fl::box_dh(box()));
+    CWindow::resize(newX, newY, newW, newH);
 }
 
-bool CDBDropDownList::preferredSize(int& w,int& h) {
-   // required height of the drop-down box
-   h = listView->fullHeight() + CListView::m_scrollbarWidth + Fl::box_dh(box());
-   w = listView->fullWidth() + CListView::m_scrollbarWidth + Fl::box_dw(box());
-   return true;
+bool CDBDropDownList::preferredSize(int& w, int& h)
+{
+    // required height of the drop-down box
+    h = listView->fullHeight() + CListView::m_scrollbarWidth + Fl::box_dh(box());
+    w = listView->fullWidth() + CListView::m_scrollbarWidth + Fl::box_dw(box());
+    return true;
 }
 
-int CDBDropDownList::handle(int event) {
-   int rc = CPopupWindow::handle(event);
+int CDBDropDownList::handle(int event)
+{
+    int rc = CPopupWindow::handle(event);
 
-   if (rc) return rc;
+    if (rc) return rc;
 
-   return listView->handle(event);
+    return listView->handle(event);
 }

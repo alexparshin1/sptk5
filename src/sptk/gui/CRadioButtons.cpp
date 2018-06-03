@@ -42,47 +42,55 @@ using namespace sptk;
 
 namespace sptk {
 
-class CRadioButton : public Fl_Round_Button, public CLayoutClient {
-protected:
-    virtual void draw();
-public:
-    CRadioButton(const char * label,int layoutSize,CLayoutAlign layoutAlignment);
-    int handle(int);
-    virtual bool preferredSize(int& w,int& h);
-};
+    class CRadioButton : public Fl_Round_Button, public CLayoutClient
+    {
+    protected:
+        virtual void draw();
+
+    public:
+        CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment);
+
+        int handle(int);
+
+        virtual bool preferredSize(int& w, int& h);
+    };
 
 }
 
-CRadioButton::CRadioButton(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : Fl_Round_Button(0,0,layoutSize,layoutSize,label), CLayoutClient(this,layoutSize,layoutAlignment) {}
+CRadioButton::CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : Fl_Round_Button(0, 0, layoutSize, layoutSize, label), CLayoutClient(this, layoutSize, layoutAlignment)
+{}
 
-void CRadioButton::draw() {
+void CRadioButton::draw()
+{
     int bh = 0;
     int bw = 0;
-    CThemes::sizeButton(THM_BUTTON_RADIO,bw,bh);
+    CThemes::sizeButton(THM_BUTTON_RADIO, bw, bh);
     bool checked = value() != 0;
     bool highlited = (Fl::belowmouse() == this) && active_r();
     int dy = (h() - bh) / 2;
-    if (CThemes::drawRadioButton(x(),y()+dy,checked,highlited)) {
+    if (CThemes::drawRadioButton(x(), y() + dy, checked, highlited)) {
         if (!m_label.empty()) {
             fl_color(labelcolor());
-            fl_font(labelfont(),labelsize());
-            fl_draw(m_label.c_str(),x()+bw+4,y()+2,w()-bw-6,h()-4,Fl_Align(FL_ALIGN_LEFT|FL_ALIGN_WRAP));
+            fl_font(labelfont(), labelsize());
+            fl_draw(m_label.c_str(), x() + bw + 4, y() + 2, w() - bw - 6, h() - 4,
+                    Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_WRAP));
             if (Fl::focus() == this)
-                draw_focus(FL_FLAT_BOX, x()+bw+2,y()+1,w()-bw-2,h()-1);
+                draw_focus(FL_FLAT_BOX, x() + bw + 2, y() + 1, w() - bw - 2, h() - 1);
         }
     } else
         Fl_Round_Button::draw();
 }
 
-bool CRadioButton::preferredSize(int& w,int& h) {
+bool CRadioButton::preferredSize(int& w, int& h)
+{
     int bh = 12;
     int bw = 12;
-    CThemes::sizeButton(THM_BUTTON_RADIO,bw,bh);
+    CThemes::sizeButton(THM_BUTTON_RADIO, bw, bh);
 
-    fl_font(labelfont(),labelsize());
+    fl_font(labelfont(), labelsize());
     w -= bw + 6;
-    fl_measure(m_label.c_str(),w,h);
+    fl_measure(m_label.c_str(), w, h);
     w += bw + 6;
     if (h < labelsize())
         h = labelsize();
@@ -91,13 +99,14 @@ bool CRadioButton::preferredSize(int& w,int& h) {
     return false;
 }
 
-int CRadioButton::handle(int event) {
-    CControl *control;
+int CRadioButton::handle(int event)
+{
+    CControl* control;
     switch (event) {
         case FL_FOCUS:
-            control = dynamic_cast<CControl *> (parent());
+            control = dynamic_cast<CControl*> (parent());
             if (!control && parent())
-                control = dynamic_cast<CControl *> (parent()->parent());
+                control = dynamic_cast<CControl*> (parent()->parent());
             if (control)
                 control->notifyFocus();
             break;
@@ -105,60 +114,68 @@ int CRadioButton::handle(int event) {
         case FL_LEAVE:
             redraw();
             break;
+        default:
+            break;
     }
     return Fl_Button::handle(event);
 }
 
-void CRadioButtons::radioButtonsCallback(Fl_Widget *w,void *) {
-    Fl_Button      *b = (Fl_Button *) w;
-    Fl_Group       *g = b->parent();
-    CRadioButtons  *r = (CRadioButtons *)g->parent();
+void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
+{
+    Fl_Button* b = (Fl_Button*) w;
+    Fl_Group* g = b->parent();
+    CRadioButtons* r = (CRadioButtons*) g->parent();
     r->deselectAllButtons();
     b->value(1);
     g->redraw();
     r->controlDataChanged();
 }
 
-CRadioButtons::CRadioButtons(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CButtonGroup (label,layoutSize,layoutAlignment) {}
+CRadioButtons::CRadioButtons(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CButtonGroup(label, layoutSize, layoutAlignment)
+{}
 
 #ifdef __COMPATIBILITY_MODE__
 CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
         : CButtonGroup (x,y,w,h,l) {}
 #endif
 
-CLayoutClient* CRadioButtons::creator(XMLNode *node) {
-    CRadioButtons* widget = new CRadioButtons("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CRadioButtons::creator(XMLNode* node)
+{
+    CRadioButtons* widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-Fl_Button *CRadioButtons::createButton(const char *label,int sz,CLayoutAlign layoutAlignment) {
-    Fl_Button *btn = new CRadioButton(label,sz,layoutAlignment);
+Fl_Button* CRadioButtons::createButton(const char* label, int sz, CLayoutAlign layoutAlignment)
+{
+    Fl_Button* btn = new CRadioButton(label, sz, layoutAlignment);
     btn->callback(CRadioButtons::radioButtonsCallback);
     btn->when(FL_WHEN_CHANGED);
     return btn;
 }
 
-int32_t CRadioButtons::intValue() const {
-    CScroll *group = (CScroll *)m_control;
-    uint32_t    cnt = group->children();
+int32_t CRadioButtons::intValue() const
+{
+    CScroll* group = (CScroll*) m_control;
+    uint32_t cnt = group->children();
     for (uint32_t i = 0; i < cnt; i++) {
-        Fl_Button *b = dynamic_cast<Fl_Button *>(group->child(i));
+        Fl_Button* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
             continue;
         if (b->value())
-            return (int32_t)(long) b->user_data();
+            return (int32_t) (long) b->user_data();
     }
     return 0;
 }
 
-void CRadioButtons::intValue(int32_t v) {
+void CRadioButtons::intValue(int32_t v)
+{
     deselectAllButtons();
-    CScroll *group = (CScroll *)m_control;
-    unsigned    cnt = group->children();
+    CScroll* group = (CScroll*) m_control;
+    unsigned cnt = group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button *b = dynamic_cast<Fl_Button *>(group->child(i));
+        Fl_Button* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
             continue;
         if (long(b->user_data()) == v) {

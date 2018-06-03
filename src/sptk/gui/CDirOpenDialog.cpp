@@ -31,6 +31,7 @@
 #ifdef _WIN32
 #include <io.h>
 #endif
+
 #include <sys/stat.h>
 
 #include <sptk5/gui/CDirOpenDialog.h>
@@ -39,44 +40,45 @@
 using namespace std;
 using namespace sptk;
 
-bool CDirOpenDialog::okPressed() {
-   struct stat st;
-   string dname;
-   try {
-      dname = fileName();
-      if (dname.empty()) {
-         dname = directory();
-         const CSelection& selection = m_directoryView->selection();
-         if (selection.size()) {
-            CPackedStrings& row = selection[0];
-            string fname(row[1]);
-            dname += fname;
-         }
-      }
-      dname = removeTrailingSlash(dname) + slashStr;
+bool CDirOpenDialog::okPressed()
+{
+    struct stat st = {};
+    string dname;
+    try {
+        dname = fileName();
+        if (dname.empty()) {
+            dname = directory();
+            const CSelection& selection = m_directoryView->selection();
+            if (selection.size()) {
+                CPackedStrings& row = selection[0];
+                string fname(row[1]);
+                dname += fname;
+            }
+        }
+        dname = removeTrailingSlash(dname) + slashStr;
 
-      memset(&st, 0, sizeof(struct stat));
-      if (lstat((dname + string(".")).c_str(), &st) != 0)
-         throw Exception("Can't access directory '" + dname + "'");
-      if (!S_ISDIR(st.st_mode))
-         dname = directory();
+        memset(&st, 0, sizeof(struct stat));
+        if (lstat((dname + string(".")).c_str(), &st) != 0)
+            throw Exception("Can't access directory '" + dname + "'");
+        if (!S_ISDIR(st.st_mode))
+            dname = directory();
 
-      directory(dname);
+        directory(dname);
 
-      return true;
-   }
-   catch(exception& e) {
-      spError(e.what());
-      return false;
-   }
+        return true;
+    }
+    catch (exception& e) {
+        spError(e.what());
+        return false;
+    }
 }
 
-CDirOpenDialog::CDirOpenDialog(string caption) 
-: CFileDialog(caption,true)
+CDirOpenDialog::CDirOpenDialog(const string& caption)
+        : CFileDialog(caption, true)
 {
-   m_okButton->label("Use");
-   m_okButton->buttonImage(SP_SAVE_BUTTON);
-   m_directoryView->multiSelect(false);
-   m_patternCombo->hide();
-   m_fileNameInput->label("Directory:");
+    m_okButton->label("Use");
+    m_okButton->buttonImage(SP_SAVE_BUTTON);
+    m_directoryView->multiSelect(false);
+    m_patternCombo->hide();
+    m_fileNameInput->label("Directory:");
 }

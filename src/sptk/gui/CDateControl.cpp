@@ -37,61 +37,66 @@
 using namespace std;
 using namespace sptk;
 
-void CDateControl::date_cb(Fl_Widget *w,void *data) {
-   CDateControl *dateControl = (CDateControl *)w->parent();
-   dateControl->do_callback(dateControl,dateControl->user_data());
+void CDateControl::date_cb(Fl_Widget* w, void* data)
+{
+    auto* dateControl = (CDateControl*) w->parent();
+    dateControl->do_callback(dateControl, dateControl->user_data());
 }
 
-CDateControl::CDateControl(int x,int y,int w,int h,const char *label) 
-: Fl_Group(x,y,w,h,label) {
-   box(FL_DOWN_BOX);
-   m_input = new CInput_;
-   m_input->mask(DateTime::dateFormat);
-   m_input->box(FL_FLAT_BOX);
-   m_input->callback(date_cb);
-   m_input->when(FL_WHEN_CHANGED);
-   m_button = new CSmallButton(SP_CALENDAR_BUTTON);
-   m_button->visible_focus(false);
-   end();
+CDateControl::CDateControl(int x, int y, int w, int h, const char* label)
+        : Fl_Group(x, y, w, h, label)
+{
+    box(FL_DOWN_BOX);
+    m_input = new CInput_;
+    m_input->mask(DateTime::dateFormat);
+    m_input->box(FL_FLAT_BOX);
+    m_input->callback(date_cb);
+    m_input->when(FL_WHEN_CHANGED);
+    m_button = new CSmallButton(SP_CALENDAR_BUTTON);
+    m_button->visible_focus(false);
+    end();
 }
 
-void CDateControl::resize(int x,int y,int w,int h) {
-   int editorWidth;
-   int buttonWidth;
-   preferredSize(w,h,editorWidth,buttonWidth);
-   Fl_Group::resize(x,y,w,h);
-   int dx = Fl::box_dx(box());
-   int dy = Fl::box_dy(box());
-   int dh = Fl::box_dh(box());
-   m_input->resize(x+dx,y+dy,editorWidth,h-dh);
-   m_button->resize(x+editorWidth+dx,y+dy,buttonWidth,h-dh);
+void CDateControl::resize(int x, int y, int w, int h)
+{
+    int editorWidth;
+    int buttonWidth;
+    preferredSize(w, h, editorWidth, buttonWidth);
+    Fl_Group::resize(x, y, w, h);
+    int dx = Fl::box_dx(box());
+    int dy = Fl::box_dy(box());
+    int dh = Fl::box_dh(box());
+    m_input->resize(x + dx, y + dy, editorWidth, h - dh);
+    m_button->resize(x + editorWidth + dx, y + dy, buttonWidth, h - dh);
 }
 
-void CDateControl::preferredHeight(int& hh) {
-   CControl *parentControl = dynamic_cast<CControl *>(parent());
-   int bw = 18;
-   int bh = 18;
-   int dh = Fl::box_dh(box());
-   CThemes::sizeButton(THM_BUTTON_COMBO,bw,bh);
-   if (parentControl) {
-      hh = parentControl->textSize() + 8;
-      if (hh < bh) hh = bh;
-   }
-   hh += dh;
+void CDateControl::preferredHeight(int& hh)
+{
+    auto parentControl = dynamic_cast<CControl*>(parent());
+    int bw = 18;
+    int bh = 18;
+    int dh = Fl::box_dh(box());
+    CThemes::sizeButton(THM_BUTTON_COMBO, bw, bh);
+    if (parentControl) {
+        hh = parentControl->textSize() + 8;
+        if (hh < bh) hh = bh;
+    }
+    hh += dh;
 }
 
-void CDateControl::preferredSize(int& ww,int& hh,int& editorWidth,int& buttonWidth) {
-   CControl *parentControl = dynamic_cast<CControl *>(parent());
-   editorWidth = 70;
-   int bw = 18;
-   int bh = 18;
-   CThemes::sizeButton(THM_BUTTON_COMBO,bw,bh);
-   int dw = Fl::box_dw(box());
-   if (parentControl) {
-      fl_font(parentControl->textFont(),parentControl->textSize());
-      editorWidth = (int) fl_width("00/00/00000");
-   }
-   buttonWidth = bw;
-   ww = editorWidth+bw+dw;
-   preferredHeight(hh);
+void CDateControl::preferredSize(int& ww, int& hh, int& editorWidth, int& buttonWidth)
+{
+    auto parentControl = dynamic_cast<CControl*>(parent());
+    editorWidth = 70;
+    int bw = 18;
+    int bh = 18;
+    CThemes::sizeButton(THM_BUTTON_COMBO, bw, bh);
+    int dw = Fl::box_dw(box());
+    if (parentControl) {
+        fl_font(parentControl->textFont(), parentControl->textSize());
+        editorWidth = (int) fl_width("00/00/00000");
+    }
+    buttonWidth = bw;
+    ww = editorWidth + bw + dw;
+    preferredHeight(hh);
 }

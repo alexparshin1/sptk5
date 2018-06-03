@@ -60,7 +60,7 @@ bool CFileOpenDialog::okPressed() {
    }
 }
 
-CFileOpenDialog::CFileOpenDialog(string caption)
+CFileOpenDialog::CFileOpenDialog(const string& caption)
 : CFileDialog(caption,false)
 {
    m_okButton->label("Open");
