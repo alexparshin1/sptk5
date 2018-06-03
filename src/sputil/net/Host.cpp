@@ -115,6 +115,8 @@ void Host::getHostAddress()
 
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
+	if (host_info == nullptr)
+		BaseSocket::throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
 	m_address.sin_family = host_info->h_addrtype;
     memcpy(&m_address.sin_addr, host_info->h_addr, size_t(host_info->h_length));
 #else
