@@ -36,66 +36,72 @@
 using namespace std;
 using namespace sptk;
 
-CPopupWindow::CPopupWindow(int w, int h, const char *label)
-: CWindow(w,h,label) {
-   m_clicked = 0;
-   end();
-   clear_border();
-   parent(0L);
-   box(FL_THIN_UP_BOX);
+CPopupWindow::CPopupWindow(int w, int h, const char* label)
+        : CWindow(w, h, label)
+{
+    m_clicked = 0;
+    end();
+    clear_border();
+    parent(0L);
+    box(FL_THIN_UP_BOX);
 }
 
-bool CPopupWindow::showModal() {
-   set_modal();
-   m_clicked = 0;
-   fl_cursor(FL_CURSOR_DEFAULT);
+bool CPopupWindow::showModal()
+{
+    set_modal();
+    m_clicked = 0;
+    fl_cursor(FL_CURSOR_DEFAULT);
 
-   Fl::grab(this);
-   show();
-   while ( shown() )
-      Fl::wait();
-   Fl::release();
-   take_focus();
+    Fl::grab(this);
+    show();
+    while (shown())
+        Fl::wait();
+    Fl::release();
+    take_focus();
 
-   return m_clicked == 1;
+    return m_clicked == 1;
 }
 
-int CPopupWindow::handle(int event) {
-   int ex = Fl::event_x();
-   int ey = Fl::event_y();
-   int key;
+int CPopupWindow::handle(int event)
+{
+    int ex = Fl::event_x();
+    int ey = Fl::event_y();
+    int key;
 
-   switch( event ) {
+    switch (event) {
 
-      case FL_PUSH:
-         if ( ex<0 || ex>w() || ey<0 || ey>h() ) {
-            m_clicked = -1;
-            hide();
-            return 1;
-         }
-         break;
+        case FL_PUSH:
+            if (ex < 0 || ex > w() || ey < 0 || ey > h()) {
+                m_clicked = -1;
+                hide();
+                return 1;
+            }
+            break;
 
-      case FL_KEYBOARD:
-         key = Fl::event_key();
-         switch(key) {
-            case FL_Escape:
-            case FL_Tab:
-               m_clicked = -1;
-               hide();
-               return 1;
-            case FL_Enter:
-         //combo->item.index(drop_list->row());
-               m_clicked = 1;
-               hide();
-               return 1;
-         }
-         break;
-   }
+        case FL_KEYBOARD:
+            key = Fl::event_key();
+            switch (key) {
+                case FL_Escape:
+                case FL_Tab:
+                    m_clicked = -1;
+                    hide();
+                    return 1;
+                case FL_Enter:
+                    //combo->item.index(drop_list->row());
+                    m_clicked = 1;
+                    hide();
+                    return 1;
+            }
+            break;
 
-   if (m_clicked) {
-      hide();
-      return 1;
-   }
+        default:
+            break;
+    }
 
-   return 0;
+    if (m_clicked) {
+        hide();
+        return 1;
+    }
+
+    return 0;
 }

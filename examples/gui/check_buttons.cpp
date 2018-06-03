@@ -33,12 +33,6 @@
 
 #include <sptk5/cgui>
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <FL/Fl.H>
-
 using namespace std;
 using namespace sptk;
 

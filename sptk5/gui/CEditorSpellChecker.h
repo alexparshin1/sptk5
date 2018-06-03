@@ -65,7 +65,7 @@ public:
     /**
      * Constructor
      */
-    CSpellOption(std::string name,std::string value);
+    CSpellOption(const std::string& name, const std::string& value);
 
     /**
      * Copy constructor
@@ -83,7 +83,7 @@ public:
     /**
      * Assigns a new value to the option
      */
-    CSpellOption& operator = (std::string value);
+    CSpellOption& operator =(const std::string& value);
 };
 
 /**

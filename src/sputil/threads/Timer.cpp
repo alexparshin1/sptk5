@@ -133,9 +133,16 @@ void TimerThread::terminate()
 
 Timer::~Timer()
 {
+    set<Timer::Event*> events;
+
     // Cancel all events in this timer
-    lock_guard<mutex> lock(m_mutex);
-    for (auto event: m_events) {
+    {
+        lock_guard<mutex> lock(m_mutex);
+        events = move(m_events);
+    }
+
+    // Unregister and destroy events
+    for (auto event: events) {
         timerThread->forget(event);
         event->m_timer = nullptr;
         delete event;

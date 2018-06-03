@@ -37,153 +37,157 @@
 using namespace std;
 using namespace sptk;
 
-CSplitter::CSplitter( const char * label, int layoutSize, CLayoutAlign layoutAlign )
-: CBox( label, layoutSize, layoutAlign )
+CSplitter::CSplitter(const char* label, int layoutSize, CLayoutAlign layoutAlign)
+        : CBox(label, layoutSize, layoutAlign)
 {
-   m_chainedWidget = nullptr;
-   m_chainedWidgetLayout = nullptr;
-   m_dragging = false;
-   box(FL_THIN_UP_BOX);
+    m_chainedWidget = nullptr;
+    m_chainedWidgetLayout = nullptr;
+    m_dragging = false;
+    box(FL_THIN_UP_BOX);
 }
 
-CLayoutClient* CSplitter::creator(XMLNode *node) 
+CLayoutClient* CSplitter::creator(XMLNode* node)
 {
-  CSplitter* widget = new CSplitter("",10,SP_ALIGN_TOP);
-  widget->load(node,LXM_LAYOUTDATA);
-  return widget;
+    CSplitter* widget = new CSplitter("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
+    return widget;
 }
 
-int CSplitter::handle( int event )
+int CSplitter::handle(int event)
 {
-   switch ( event ) {
-      case FL_ENTER:
-         switch (m_layoutAlign) {
-            case SP_ALIGN_TOP:
-            case SP_ALIGN_BOTTOM:
-               fl_cursor( FL_CURSOR_NS );
-               break;
-            case SP_ALIGN_RIGHT:
-            case SP_ALIGN_LEFT:
-               fl_cursor( FL_CURSOR_WE );
-               break;
-            default:
-               break;
-         }
-         break;
+    switch (event) {
+        case FL_ENTER:
+            switch (m_layoutAlign) {
+                case SP_ALIGN_TOP:
+                case SP_ALIGN_BOTTOM:
+                    fl_cursor(FL_CURSOR_NS);
+                    break;
+                case SP_ALIGN_RIGHT:
+                case SP_ALIGN_LEFT:
+                    fl_cursor(FL_CURSOR_WE);
+                    break;
+                default:
+                    break;
+            }
+            break;
 
-      case FL_LEAVE:
-         fl_cursor( FL_CURSOR_ARROW ); 
-         break;
+        case FL_LEAVE:
+            fl_cursor(FL_CURSOR_ARROW);
+            break;
 
-      case FL_PUSH:
-         m_lastDragX = Fl::event_x();
-         m_lastDragY = Fl::event_y();
-         m_dragging = true;
-         findChainedControl();
-         return true;
-
-      case FL_RELEASE:
-         m_dragging = false;
-         return true;
-
-      case FL_DRAG:
-         if (m_chainedWidget) {
-            //puts("DRAGGING");
-            int dx = Fl::event_x() - m_lastDragX;
-            int dy = Fl::event_y() - m_lastDragY;
+        case FL_PUSH:
             m_lastDragX = Fl::event_x();
             m_lastDragY = Fl::event_y();
-            int newW = m_chainedWidget->w();
-            int newH = m_chainedWidget->h();
-            switch (m_layoutAlign) {
-               case SP_ALIGN_TOP:
-                  newH += dy;
-                  m_chainedWidgetLayout->preferredSize(newW,newH);
-                  m_chainedWidgetLayout->layoutSize(newH);
-                  break;
-               case SP_ALIGN_BOTTOM:
-                  newH -= dy;
-                  m_chainedWidgetLayout->preferredSize(newW,newH);
-                  m_chainedWidgetLayout->layoutSize(newH);
-                  break;
-               case SP_ALIGN_LEFT:
-                  newW += dx;
-                  m_chainedWidgetLayout->preferredSize(newW,newH);
-                  m_chainedWidgetLayout->layoutSize(newW);
-                  break;
-               case SP_ALIGN_RIGHT:
-                  newW -= dx;
-                  m_chainedWidgetLayout->preferredSize(newW,newH);
-                  m_chainedWidgetLayout->layoutSize(newW);
-                  break;
-               default:
-                  break;
-            }
-            CLayoutManager *parentManager = dynamic_cast<CLayoutManager *>(parent());
-            if (parentManager) {
-               parentManager->relayout();
-               CGroup *parentGroup = dynamic_cast<CGroup *>(parent());
-               if (parentGroup) {
-                  //puts("Group");
-                  parentGroup->redraw();
-               } else {
-                  //puts("Window");
-                  window()->redraw();
-               }
-            }
-         }
-         return true;
-   }
+            m_dragging = true;
+            findChainedControl();
+            return true;
 
-   return CBox::handle( event );
+        case FL_RELEASE:
+            m_dragging = false;
+            return true;
+
+        case FL_DRAG:
+            if (m_chainedWidget) {
+                //puts("DRAGGING");
+                int dx = Fl::event_x() - m_lastDragX;
+                int dy = Fl::event_y() - m_lastDragY;
+                m_lastDragX = Fl::event_x();
+                m_lastDragY = Fl::event_y();
+                int newW = m_chainedWidget->w();
+                int newH = m_chainedWidget->h();
+                switch (m_layoutAlign) {
+                    case SP_ALIGN_TOP:
+                        newH += dy;
+                        m_chainedWidgetLayout->preferredSize(newW, newH);
+                        m_chainedWidgetLayout->layoutSize(newH);
+                        break;
+                    case SP_ALIGN_BOTTOM:
+                        newH -= dy;
+                        m_chainedWidgetLayout->preferredSize(newW, newH);
+                        m_chainedWidgetLayout->layoutSize(newH);
+                        break;
+                    case SP_ALIGN_LEFT:
+                        newW += dx;
+                        m_chainedWidgetLayout->preferredSize(newW, newH);
+                        m_chainedWidgetLayout->layoutSize(newW);
+                        break;
+                    case SP_ALIGN_RIGHT:
+                        newW -= dx;
+                        m_chainedWidgetLayout->preferredSize(newW, newH);
+                        m_chainedWidgetLayout->layoutSize(newW);
+                        break;
+                    default:
+                        break;
+                }
+                CLayoutManager* parentManager = dynamic_cast<CLayoutManager*>(parent());
+                if (parentManager) {
+                    parentManager->relayout();
+                    CGroup* parentGroup = dynamic_cast<CGroup*>(parent());
+                    if (parentGroup) {
+                        //puts("Group");
+                        parentGroup->redraw();
+                    } else {
+                        //puts("Window");
+                        window()->redraw();
+                    }
+                }
+            }
+            return true;
+
+        default:
+            break;
+    }
+
+    return CBox::handle(event);
 }
 
-void CSplitter::findChainedControl() {
-   m_chainedWidget = 0;
-   try {
-      if (!dynamic_cast<CLayoutManager *>(parent()))
-         return;
-      Fl_Group *group = parent();
-      unsigned cnt = group->children();
-      Fl_Widget *priorWidget = 0;
-      Fl_Widget *nextWidget = 0;
-      CLayoutClient *priorWidgetLayout = 0;
-      CLayoutClient *nextWidgetLayout = 0;
-      unsigned index = (unsigned)-1;
-      for (unsigned i = 1; i < cnt; i++) {
-         if (group->child(i) == this) {
-            index = i;
-            break;
-         }
-      }
-      if (index < cnt - 1) {
-         try {
-            priorWidget = group->child(index-1);
-            priorWidgetLayout = dynamic_cast<CLayoutClient *>(group->child(index-1));
-         }
-         catch (...) {}
-         try {
-            nextWidget = group->child(index+1);
-            nextWidgetLayout = dynamic_cast<CLayoutClient *>(group->child(index+1));
-         }
-         catch (...) {}
-      }
-      if (priorWidget && priorWidgetLayout && priorWidgetLayout->layoutAlign() != SP_ALIGN_CLIENT) {
-         m_chainedWidget = priorWidget;
-         m_chainedWidgetLayout = priorWidgetLayout;
-      } else {
-         m_chainedWidget = nextWidget;
-         m_chainedWidgetLayout = nextWidgetLayout;
-      }
-
-      if (m_chainedWidget && m_chainedWidgetLayout) {
-         if (m_chainedWidgetLayout->layoutAlign() == SP_ALIGN_NONE) {
-            m_chainedWidget = 0;
+void CSplitter::findChainedControl()
+{
+    m_chainedWidget = 0;
+    try {
+        if (!dynamic_cast<CLayoutManager*>(parent()))
             return;
-         }
-         layoutAlign(m_chainedWidgetLayout->layoutAlign());
-      }
-   } catch (...) {
-      return;
-   }
+        Fl_Group* group = parent();
+        unsigned cnt = group->children();
+        Fl_Widget* priorWidget = 0;
+        Fl_Widget* nextWidget = 0;
+        CLayoutClient* priorWidgetLayout = 0;
+        CLayoutClient* nextWidgetLayout = 0;
+        unsigned index = (unsigned) -1;
+        for (unsigned i = 1; i < cnt; i++) {
+            if (group->child(i) == this) {
+                index = i;
+                break;
+            }
+        }
+        if (index < cnt - 1) {
+            try {
+                priorWidget = group->child(index - 1);
+                priorWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index - 1));
+            }
+            catch (...) {}
+            try {
+                nextWidget = group->child(index + 1);
+                nextWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index + 1));
+            }
+            catch (...) {}
+        }
+        if (priorWidget && priorWidgetLayout && priorWidgetLayout->layoutAlign() != SP_ALIGN_CLIENT) {
+            m_chainedWidget = priorWidget;
+            m_chainedWidgetLayout = priorWidgetLayout;
+        } else {
+            m_chainedWidget = nextWidget;
+            m_chainedWidgetLayout = nextWidgetLayout;
+        }
+
+        if (m_chainedWidget && m_chainedWidgetLayout) {
+            if (m_chainedWidgetLayout->layoutAlign() == SP_ALIGN_NONE) {
+                m_chainedWidget = 0;
+                return;
+            }
+            layoutAlign(m_chainedWidgetLayout->layoutAlign());
+        }
+    } catch (...) {
+        return;
+    }
 }

@@ -130,7 +130,7 @@ public:
      * @param recordCountSql std::string, the SQL query for obtaining record count
      * @param fastRefreshSQL std::string, the SQL query for retrieving only records changed since last refresh
      */
-    void sql(std::string sql,std::string recordCountSql="",std::string fastRefreshSQL="");
+    void sql(const std::string& sql, const std::string& recordCountSql = "", const std::string& fastRefreshSQL = "");
 
     /**
      * Return the SQL query text

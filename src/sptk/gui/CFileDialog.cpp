@@ -162,7 +162,7 @@ void CFileDialog::pattern_cb(Fl_Widget* w, void*)
         fileDialog->refreshDirectory();
 }
 
-CFileDialog::CFileDialog(string label, bool saveMode)
+CFileDialog::CFileDialog(const string& label, bool saveMode)
     : CDialog(450, 400, label.c_str())
 {
     CButton* btn;

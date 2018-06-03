@@ -210,11 +210,12 @@ int CTabButton::handle(int event)
             tabGroup->activate(this);
             break;
         case FL_KEYBOARD:
-            switch (Fl::event_key()) {
-                case FL_Down:
-                    redraw();
-                    return m_page->handle(FL_FOCUS);
+            if (Fl::event_key() == FL_Down) {
+                redraw();
+                return m_page->handle(FL_FOCUS);
             }
+        default:
+            break;
     }
     return Fl_Button::handle(event);
 }
@@ -243,8 +244,6 @@ bool CTabButton::preferredSize(int& w, int& h)
 
     return true;
 }
-
-#define TABSLOPE 5
 
 void CTabButton::draw()
 {

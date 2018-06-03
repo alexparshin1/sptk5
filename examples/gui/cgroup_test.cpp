@@ -48,7 +48,7 @@ void exit_cb(Fl_Widget *w, void *)
 void theme_cb(Fl_Widget *w, void *)
 {
     try {
-        CComboBox *themesCombo = (CComboBox *) w;
+        auto themesCombo = (CComboBox *) w;
         std::string themeName = themesCombo->data();
 
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
             sprintf(buffer1, "%i", a);
             sprintf(buffer2, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            CPackedStrings *ps = new CPackedStrings(4, rowData);
+            auto ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 

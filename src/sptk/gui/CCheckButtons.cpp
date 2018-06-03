@@ -40,18 +40,20 @@
 using namespace std;
 using namespace sptk;
 
-void CCheckButton::draw() {
+void CCheckButton::draw()
+{
     int bh = 0;
     int bw = 0;
     CThemes::sizeButton(THM_BUTTON_CHECK, bw, bh);
     bool checked = value() != 0;
     bool highlited = (Fl::belowmouse() == this) && active_r();
     int dy = (h() - bh) / 2;
-    if (CThemes::drawCheckButton(x(), y()+dy, checked, highlited)) {
+    if (CThemes::drawCheckButton(x(), y() + dy, checked, highlited)) {
         if (!m_label.empty()) {
             fl_color(labelcolor());
             fl_font(labelfont(), labelsize());
-            fl_draw(m_label.c_str(), x() + bw + 4, y() + 2, w() - bw - 6, h() - 4, Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_WRAP));
+            fl_draw(m_label.c_str(), x() + bw + 4, y() + 2, w() - bw - 6, h() - 4,
+                    Fl_Align(FL_ALIGN_LEFT | FL_ALIGN_WRAP));
             if (Fl::focus() == this)
                 draw_focus(FL_FLAT_BOX, x() + bw + 2, y() + 1, w() - bw - 2, h() - 1);
         }
@@ -59,7 +61,8 @@ void CCheckButton::draw() {
         Fl_Check_Button::draw();
 }
 
-bool CCheckButton::preferredSize(int& w, int& h) {
+bool CCheckButton::preferredSize(int& w, int& h)
+{
     int bh = 12;
     int bw = 12;
     CThemes::sizeButton(THM_BUTTON_CHECK, bw, bh);
@@ -74,13 +77,14 @@ bool CCheckButton::preferredSize(int& w, int& h) {
     return false;
 }
 
-int CCheckButton::handle(int event) {
-    CControl *control;
+int CCheckButton::handle(int event)
+{
+    CControl* control;
     switch (event) {
         case FL_FOCUS:
-            control = dynamic_cast<CControl *> (parent());
+            control = dynamic_cast<CControl*> (parent());
             if (!control && parent())
-                control = dynamic_cast<CControl *> (parent()->parent());
+                control = dynamic_cast<CControl*> (parent()->parent());
             if (control)
                 control->notifyFocus();
             break;
@@ -92,16 +96,18 @@ int CCheckButton::handle(int event) {
     return Fl_Button::handle(event);
 }
 
-void CCheckButtons::checkButtonsCallback(Fl_Widget *w, void *) {
-    Fl_Button *b = (Fl_Button *) w;
-    Fl_Group *g = b->parent();
-    CCheckButtons *c = (CCheckButtons *) g->parent();
+void CCheckButtons::checkButtonsCallback(Fl_Widget* w, void*)
+{
+    auto b = (Fl_Button*) w;
+    Fl_Group* g = b->parent();
+    CCheckButtons* c = (CCheckButtons*) g->parent();
     c->controlDataChanged();
     g->redraw();
 }
 
-CCheckButtons::CCheckButtons(const char * label, int layoutSize, CLayoutAlign layoutAlignment)
-: CRadioButtons(label, layoutSize, layoutAlignment) {
+CCheckButtons::CCheckButtons(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CRadioButtons(label, layoutSize, layoutAlignment)
+{
 }
 
 #ifdef __COMPATIBILITY_MODE__
@@ -111,18 +117,20 @@ CCheckButtons::CCheckButtons(int x, int y, int w, int h, const char *l)
 }
 #endif
 
-Fl_Button *CCheckButtons::createButton(const char *label, int sz, CLayoutAlign layoutAlignment) {
-    Fl_Button *btn = new CCheckButton(label, sz, layoutAlignment);
+Fl_Button* CCheckButtons::createButton(const char* label, int sz, CLayoutAlign layoutAlignment)
+{
+    Fl_Button* btn = new CCheckButton(label, sz, layoutAlignment);
     btn->callback(CCheckButtons::checkButtonsCallback);
     return btn;
 }
 
-Variant CCheckButtons::data() const {
+Variant CCheckButtons::data() const
+{
     string result;
-    CScroll *group = (CScroll *) m_control;
+    auto group = (CScroll*) m_control;
     unsigned cnt = group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button *b = dynamic_cast<Fl_Button *> (group->child(i));
+        Fl_Button* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         if (b->value()) {
@@ -141,18 +149,19 @@ Variant CCheckButtons::data() const {
     return result;
 }
 
-void CCheckButtons::data(const Variant s) {
+void CCheckButtons::data(const Variant s)
+{
     deselectAllButtons();
     if (m_otherButton)
         m_otherInput->value("");
     string st = s;
     Strings sl(st, "|");
     size_t cnt = sl.size();
-    CScroll *g = (CScroll *) m_control;
+    auto g = (CScroll*) m_control;
     for (unsigned i = 0; i < cnt; i++) {
         int ndx = buttonIndex(sl[i].c_str());
         if (ndx > -1) {
-            Fl_Button *b = (Fl_Button *) g->child(ndx);
+            Fl_Button* b = (Fl_Button*) g->child(ndx);
             b->value(1);
         } else {
             if (m_otherButton) {
@@ -163,37 +172,40 @@ void CCheckButtons::data(const Variant s) {
     }
 }
 
-void CCheckButtons::getSelections(IntList& selection) const {
+void CCheckButtons::getSelections(IntList& selection) const
+{
     selection.clear();
-    CScroll *group = (CScroll *) m_control;
+    auto group = (CScroll*) m_control;
     unsigned cnt = group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button *b = dynamic_cast<Fl_Button *> (group->child(i));
+        Fl_Button* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         if (b->value()) {
-            uint32_t id = (uint32_t) (long) b->user_data();
+            auto id = (uint32_t) (long) b->user_data();
             selection.push_back(id);
         }
     }
 }
 
-void CCheckButtons::setSelections(const IntList& selection) {
+void CCheckButtons::setSelections(const IntList& selection)
+{
     deselectAllButtons();
-    CScroll *group = (CScroll *) m_control;
+    CScroll* group = (CScroll*) m_control;
     unsigned cnt = group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button *b = dynamic_cast<Fl_Button *> (group->child(i));
+        auto b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         uint32_t id = (uint32_t) (long) b->user_data();
-        IntList::const_iterator itor = std::find(selection.begin(), selection.end(), id);
+        auto itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
             b->value(1);
     }
 }
 
-CLayoutClient* CCheckButtons::creator(XMLNode *node) {
+CLayoutClient* CCheckButtons::creator(XMLNode* node)
+{
     CCheckButtons* widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;

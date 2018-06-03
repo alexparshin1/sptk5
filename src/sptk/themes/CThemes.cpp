@@ -38,9 +38,6 @@
 
 #include <sptk5/gui/default_icons.h>
 
-#include <iostream>
-#include <sstream>
-
 #include "ThemeUtils.h"
 
 #ifdef _WIN32

@@ -47,17 +47,20 @@ enum CChangeType
 
 namespace sptk {
 
-class SP_EXPORT CInternalComboBoxPanel: public Fl_Box
-{
-    void draw();
-public:
-    CInternalComboBoxPanel(int x, int y, int w, int h, const char * label = 0);
-    int handle(int);
-};
+    class SP_EXPORT CInternalComboBoxPanel : public Fl_Box
+    {
+        void draw();
+
+    public:
+        CInternalComboBoxPanel(int x, int y, int w, int h, const char* label = nullptr);
+
+        int handle(int);
+    };
 
 }
 
-CInternalComboBoxPanel::CInternalComboBoxPanel(int x, int y, int w, int h, const char * label) :
+CInternalComboBoxPanel::CInternalComboBoxPanel(int x, int y, int w, int h, const char* label)
+        :
         Fl_Box(x, y, w, h, label)
 {
     align(FL_ALIGN_LEFT);
@@ -69,19 +72,19 @@ void CInternalComboBoxPanel::draw()
     if (Fl::focus() == this || Fl::focus() == parent())
         focused = 1;
 
-    CBaseListBox *combo = (CBaseListBox *) parent();
+    auto combo = (CBaseListBox*) parent();
     if (!combo)
         return;
-    CDBDropDownList *ddl = combo->m_dropDownWindow;
+    CDBDropDownList* ddl = combo->m_dropDownWindow;
     if (!ddl)
         return;
-    CDBDropDownListView *listView = ddl->listView;
+    CDBDropDownListView* listView = ddl->listView;
     if (!listView)
         return;
 
     draw_box(FL_DOWN_FRAME, x(), y(), w(), h(), FL_LIGHT3);
     listView->color(FL_LIGHT3);
-    CPackedStrings *row = listView->selectedRow();
+    CPackedStrings* row = listView->selectedRow();
 
     fl_clip(x() + 2, y() + 2, w() - 4 - combo->m_buttonSpace, h() - 4);
     draw_box(FL_FLAT_BOX, x(), y(), w(), h(), FL_LIGHT3);
@@ -94,46 +97,47 @@ void CInternalComboBoxPanel::draw()
 
 int CInternalComboBoxPanel::handle(int event)
 {
-    CControl *control = (CControl *) parent();
+    CControl* control = (CControl*) parent();
     color(control->color());
-    switch (event)
-    {
-    case FL_FOCUS:
-        redraw();
-        control->notifyFocus();
-        return 1;
-    case FL_UNFOCUS:
-        redraw();
-        control->notifyFocus(false);
-        return 1;
-    case FL_PUSH:
-        if (contains(Fl::focus()))
+    switch (event) {
+        case FL_FOCUS:
+            redraw();
+            control->notifyFocus();
             return 1;
-        Fl::focus(this);
-        control->notifyFocus();
-        return 1;
-    case FL_KEYBOARD: {
-        unsigned ch = Fl::event_key();
-        if (ch == FL_Tab || ch == FL_Enter)
-            break;
-        CBaseListBox *combo = (CBaseListBox *) parent();
-        if (!combo)
-            return 0;
-        CDBDropDownList *ddl = combo->m_dropDownWindow;
-        if (!ddl)
-            return 0;
-        CDBDropDownListView *listView = ddl->listView;
-        if (!listView)
-            return 0;
-        int oldIntValue = listView->data();
-        int rc = listView->handle(event);
-        redraw();
-        int newIntValue = listView->data();
-        if (oldIntValue != newIntValue) {
-            combo->fireEvent(CE_DATA_CHANGED, newIntValue);
+        case FL_UNFOCUS:
+            redraw();
+            control->notifyFocus(false);
+            return 1;
+        case FL_PUSH:
+            if (contains(Fl::focus()))
+                return 1;
+            Fl::focus(this);
+            control->notifyFocus();
+            return 1;
+        case FL_KEYBOARD: {
+            unsigned ch = Fl::event_key();
+            if (ch == FL_Tab || ch == FL_Enter)
+                break;
+            auto combo = (CBaseListBox*) parent();
+            if (!combo)
+                return 0;
+            CDBDropDownList* ddl = combo->m_dropDownWindow;
+            if (!ddl)
+                return 0;
+            CDBDropDownListView* listView = ddl->listView;
+            if (!listView)
+                return 0;
+            int oldIntValue = listView->data();
+            int rc = listView->handle(event);
+            redraw();
+            int newIntValue = listView->data();
+            if (oldIntValue != newIntValue) {
+                combo->fireEvent(CE_DATA_CHANGED, newIntValue);
+            }
+            return rc;
         }
-        return rc;
-    }
+        default:
+            break;
     }
     if (Fl_Box::handle(event))
         return 1;
@@ -142,20 +146,21 @@ int CInternalComboBoxPanel::handle(int event)
 }
 
 //===========================================================================
-const static CButtonKind buttonKind[] = { SP_BROWSE_BUTTON, SP_ADD_BUTTON, SP_EDIT_BUTTON, SP_DELETE_BUTTON, SP_REFRESH_BUTTON };
+const static CButtonKind buttonKind[] = {SP_BROWSE_BUTTON, SP_ADD_BUTTON, SP_EDIT_BUTTON, SP_DELETE_BUTTON,
+                                         SP_REFRESH_BUTTON};
 
-void CBaseListBox::comboButtonPressed(Fl_Widget *btn, void *data)
+void CBaseListBox::comboButtonPressed(Fl_Widget* btn, void* data)
 {
-    CBaseListBox *combo = (CBaseListBox *) btn->parent();
+    CBaseListBox* combo = (CBaseListBox*) btn->parent();
     if (!combo)
         return;
     combo->button_handle((long) data);
 }
 
-void CBaseListBox::ctor_init(const char *label, int _mode)
+void CBaseListBox::ctor_init(const char* label, int _mode)
 {
     m_mode = _mode;
-    m_buttonClicked = 0;
+    m_buttonClicked = nullptr;
     if (m_mode == IS_COMBO_BOX) {
         m_buttonSet = SP_BROWSE_BUTTON;
         m_control = new CInternalComboBoxPanel(0, 0, 10, 10);
@@ -168,30 +173,31 @@ void CBaseListBox::ctor_init(const char *label, int _mode)
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++) {
         long kind = buttonKind[i];
-        CSmallButton *btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
+        CSmallButton* btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
         btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
-        btn->user_data((void *) kind);
+        btn->user_data((void*) kind);
         btn->visible_focus(false);
         m_buttons[i] = btn;
     }
     if (m_mode == IS_COMBO_BOX)
         m_dropDownWindow = new CDBDropDownList(w(), 200, label);
     else
-        m_dropDownWindow = NULL;
+        m_dropDownWindow = nullptr;
 
     m_droppedDown = false;
     end();
     resize(x(), y(), w(), h());
 }
 
-CBaseListBox::CBaseListBox(const char *label, int layoutSize, CLayoutAlign layoutAlignment, int _mode) :
+CBaseListBox::CBaseListBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment, int _mode)
+        :
         CControl(label, layoutSize, layoutAlignment)
 {
     ctor_init(label, _mode);
 }
 
-#ifdef __COMPATIBILITY_MODE__    
+#ifdef __COMPATIBILITY_MODE__
 CBaseListBox::CBaseListBox(int x,int y,int w,int h,const char * label,int _mode)
 : CControl(x,y,w,h,label) {
     ctor_init(label,_mode);
@@ -235,7 +241,7 @@ void CBaseListBox::resize(int x, int y, int w, int h)
     int ytop = y + 2;
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++) {
-        Fl_Button *btn = m_buttons[i];
+        Fl_Button* btn = m_buttons[i];
         if (!btn)
             break;
         if (m_buttonSet & buttonKind[i]) {
@@ -297,7 +303,7 @@ bool CBaseListBox::preferredSize(int& w, int& h)
     return false;
 }
 
-void CBaseListBox::load(Query *loadQuery)
+void CBaseListBox::load(Query* loadQuery)
 {
     Query& query = *loadQuery;
     if (!fieldName().length())
@@ -306,7 +312,7 @@ void CBaseListBox::load(Query *loadQuery)
     data(fld);
 }
 
-void CBaseListBox::save(Query *updateQuery)
+void CBaseListBox::save(Query* updateQuery)
 {
     if (!fieldName().length())
         return;
@@ -314,36 +320,37 @@ void CBaseListBox::save(Query *updateQuery)
     param = data();
 }
 
-void CBaseListBox::load(const XMLNode *node, CLayoutXMLmode xmlMode)
+void CBaseListBox::load(const XMLNode* node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
 }
 
-void CBaseListBox::save(XMLNode *node, CLayoutXMLmode xmlMode) const
+void CBaseListBox::save(XMLNode* node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
 }
 
 void CBaseListBox::changeControlData(int changeType, int intData, string stringData)
 {
-    CPackedStrings *oldSelection = m_list->selectedRow();
-    switch (changeType)
-    {
-    case CT_REFRESH_DATA:
-        m_list->refreshData();
-        break;
-    case CT_SET_KEY:
-        m_list->data(intData);
-        break;
-    case CT_SET_TEXT:
-        m_list->textValue(stringData);
-        break;
-    case CT_CHOOSE_ITEM:
-        m_dropDownWindow->showModal();
-        damage(FL_DAMAGE_ALL);
-        redraw();
-        m_droppedDown = false;
-        break;
+    CPackedStrings* oldSelection = m_list->selectedRow();
+    switch (changeType) {
+        case CT_REFRESH_DATA:
+            m_list->refreshData();
+            break;
+        case CT_SET_KEY:
+            m_list->data(intData);
+            break;
+        case CT_SET_TEXT:
+            m_list->textValue(stringData);
+            break;
+        case CT_CHOOSE_ITEM:
+            m_dropDownWindow->showModal();
+            damage(FL_DAMAGE_ALL);
+            redraw();
+            m_droppedDown = false;
+            break;
+        default:
+            break;
     }
     CPackedStrings* newSelection = m_list->selectedRow();
 
@@ -362,27 +369,28 @@ void CBaseListBox::buttons(uint32_t buttonSet)
 void CBaseListBox::button_handle(uint32_t buttonKind)
 {
     Fl::focus(m_control);
-    switch (buttonKind)
-    {
-    case SP_BROWSE_BUTTON:
-        if (m_mode == IS_COMBO_BOX)
-            dropDownList();
-        break;
-    case SP_REFRESH_BUTTON:
-        refreshData();
-        break;
-    case SP_ADD_BUTTON:
-        m_event = UC_ADD_ITEM;
-        do_callback();
-        break;
-    case SP_EDIT_BUTTON:
-        m_event = UC_EDIT_ITEM;
-        do_callback();
-        break;
-    case SP_DELETE_BUTTON:
-        m_event = UC_DELETE_ITEM;
-        do_callback();
-        break;
+    switch (buttonKind) {
+        case SP_BROWSE_BUTTON:
+            if (m_mode == IS_COMBO_BOX)
+                dropDownList();
+            break;
+        case SP_REFRESH_BUTTON:
+            refreshData();
+            break;
+        case SP_ADD_BUTTON:
+            m_event = UC_ADD_ITEM;
+            do_callback();
+            break;
+        case SP_EDIT_BUTTON:
+            m_event = UC_EDIT_ITEM;
+            do_callback();
+            break;
+        case SP_DELETE_BUTTON:
+            m_event = UC_DELETE_ITEM;
+            do_callback();
+            break;
+        default:
+            break;
     }
 }
 
@@ -391,7 +399,7 @@ void CBaseListBox::dropDownList()
     if (m_droppedDown)
         return;
     m_droppedDown = true;
-    Fl_Window *parentWindow = window();
+    Fl_Window* parentWindow = window();
     int xx = parentWindow->x() + x() + m_labelWidth;
     int yy = parentWindow->y() + y() + m_control->h();
 
@@ -427,12 +435,12 @@ CPackedStrings* CBaseListBox::selectedRow() const
     return m_list->selectedRow();
 }
 
-DatabaseConnection * CBaseListBox::database() const
+DatabaseConnection* CBaseListBox::database() const
 {
     return m_list->database();
 }
 
-void CBaseListBox::database(DatabaseConnection *db)
+void CBaseListBox::database(DatabaseConnection* db)
 {
     m_list->database(db);
 }
@@ -447,7 +455,7 @@ void CBaseListBox::sql(string s)
     m_list->sql(s);
 }
 
-QueryParameter& CBaseListBox::param(const char *p)
+QueryParameter& CBaseListBox::param(const char* p)
 {
     return m_list->param(p);
 }
@@ -464,7 +472,7 @@ Variant CBaseListBox::data() const
 
 void CBaseListBox::data(const Variant newData)
 {
-    CPackedStrings *oldSelection = m_list->selectedRow();
+    CPackedStrings* oldSelection = m_list->selectedRow();
 
     m_list->data(newData);
 
@@ -484,7 +492,7 @@ void CBaseListBox::keyField(string kf)
     m_list->keyField(kf);
 }
 
-void CBaseListBox::setup(DatabaseConnection *db, string sql, string keyField)
+void CBaseListBox::setup(DatabaseConnection* db, string sql, string keyField)
 {
     m_list->setup(db, sql, keyField);
 }
@@ -504,7 +512,7 @@ void CBaseListBox::addColumn(string cname, VariantType type, short cwidth, bool 
     m_list->columns().push_back(CColumn(cname, type, cwidth, cvisible));
 }
 
-void CBaseListBox::addRow(CPackedStrings *psl)
+void CBaseListBox::addRow(CPackedStrings* psl)
 {
     m_list->addRow(psl);
 }
@@ -514,7 +522,7 @@ void CBaseListBox::addRow(const Strings& ss, int rowId)
     m_list->addRow(ss, rowId);
 }
 
-void CBaseListBox::addRow(int rowId, const char *s1, const char *s2, const char *s3, const char *s4, const char *s5)
+void CBaseListBox::addRow(int rowId, const char* s1, const char* s2, const char* s3, const char* s4, const char* s5)
 {
     m_list->addRow(rowId, s1, s2, s3, s4, s5);
 }
@@ -530,8 +538,8 @@ void CBaseListBox::addRows(string columnName, Strings strings)
 
     for (size_t i = 0; i < cnt; i++) {
         String& str = strings[i];
-        cpchar strs[2] = { str.c_str(), 0 };
-        CPackedStrings *psl = new CPackedStrings(1, strs);
+        cpchar strs[2] = {str.c_str(), nullptr};
+        CPackedStrings* psl = new CPackedStrings(1, strs);
         int id = str.ident();
         psl->argument(id);
         m_list->addRow(psl);
@@ -553,7 +561,7 @@ unsigned CBaseListBox::size() const
     return m_list->size();
 }
 
-int CBaseListBox::findString(string str, bool select, unsigned startRow, unsigned endRow)
+int CBaseListBox::findString(const string& str, bool select, unsigned startRow, unsigned endRow)
 {
     return m_list->findString(str, select, startRow, endRow);
 }
@@ -574,14 +582,15 @@ void CBaseListBox::selectRow(unsigned rowNumber)
 }
 
 //===========================================================================
-CComboBox::CComboBox(const char *label, int layoutSize, CLayoutAlign layoutAlignment) :
+CComboBox::CComboBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        :
         CBaseListBox(label, layoutSize, layoutAlignment, IS_COMBO_BOX)
 {
     m_list = m_dropDownWindow->listView;
     m_list->multiSelect(false);
 }
 
-#ifdef __COMPATIBILITY_MODE__    
+#ifdef __COMPATIBILITY_MODE__
 CComboBox::CComboBox(int x,int y,int w,int h,const char *l)
 : CBaseListBox (x,y,w,h,l,IS_COMBO_BOX) {
     m_list = m_dropDownWindow->listView;
@@ -589,28 +598,28 @@ CComboBox::CComboBox(int x,int y,int w,int h,const char *l)
 }
 #endif
 
-CComboBox::~CComboBox()
-{
-}
+CComboBox::~CComboBox() = default;
 
 CControlKind CComboBox::kind() const
 {
     return DCV_INTVALUECOMBO;
 }
 
-CLayoutClient* CComboBox::creator(XMLNode *node)
+CLayoutClient* CComboBox::creator(XMLNode* node)
 {
-    CComboBox* widget = new CComboBox("", 10, SP_ALIGN_TOP);
+    auto widget = new CComboBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
+
 //===========================================================================
-CListBox::CListBox(const char *label, int layoutSize, CLayoutAlign layoutAlignment) :
+CListBox::CListBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        :
         CBaseListBox(label, layoutSize, layoutAlignment, IS_LIST_BOX)
 {
 }
 
-#ifdef __COMPATIBILITY_MODE__    
+#ifdef __COMPATIBILITY_MODE__
 CListBox::CListBox(int x,int y,int w,int h,const char *l)
 : CBaseListBox (x,y,w,h,l,IS_LIST_BOX) {}
 #endif

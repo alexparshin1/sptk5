@@ -28,10 +28,6 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl.H>
-#include <FL/Fl_Round_Button.H>
-#include <FL/fl_draw.H>
-
 #include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
 
@@ -41,62 +37,63 @@
 
 using namespace sptk;
 
-CControl *sptk::createControl(int controlKind,std::string label,std::string fieldName,int size) {
-    CControl   *control = NULL;
+CControl* sptk::createControl(int controlKind, std::string label, std::string fieldName, int size)
+{
+    CControl* control = nullptr;
 
-    const char *lbl = label.c_str();
+    const char* lbl = label.c_str();
 
     switch (controlKind) {
-    case DCV_BOX:
-        control = new CBox(lbl,size);
-        break;
-    case DCV_HTMLBOX:
-        control = new CHtmlBox(lbl,size);
-        break;
-    case DCV_RADIOBUTTONS:
-        control = new CRadioButtons(lbl,size);
-        break;
-    case DCV_STRING:
-        control = new CInput(lbl,size);
-        break;
-    case DCV_MEMO:
-        control = new CMemoInput(lbl,size);
-        break;
-    case DCV_INTEGER:
-        control = new CIntegerInput(lbl);
-        break;
-    case DCV_FLOAT:
-        control = new CFloatInput(lbl);
-        break;
-    case DCV_DATETIME:
-        control = new CDateTimeInput(lbl);
-        break;
-    case DCV_DATEINTERVAL:
-        control = new CDateIntervalInput(lbl);
-        break;
-    case DCV_DATE:
-        control = new CDateInput(lbl);
-        break;
-    case DCV_TIME:
-        control = new CTimeInput(lbl);
-        break;
-    case DCV_PHONE:
-        control = new CPhoneNumberInput(lbl);
-        break;
-    case DCV_LISTBOX:
-        control = new CListBox(lbl,size);
-        break;
-    case DCV_CHECKBUTTONS:
-        control = new CCheckButtons(lbl);
-        break;
-    case DCV_COMBO:
-        control = new CComboBox(lbl,size);
-        break;
-    case DCV_INTVALUECOMBO:
-        control = new CComboBox(lbl,size);
-        break;
-    default:
-        throw Exception("Unsupported control type, field name '"+fieldName+"'.");
+        case DCV_BOX:
+            control = new CBox(lbl, size);
+            break;
+        case DCV_HTMLBOX:
+            control = new CHtmlBox(lbl, size);
+            break;
+        case DCV_RADIOBUTTONS:
+            control = new CRadioButtons(lbl, size);
+            break;
+        case DCV_STRING:
+            control = new CInput(lbl, size);
+            break;
+        case DCV_MEMO:
+            control = new CMemoInput(lbl, size);
+            break;
+        case DCV_INTEGER:
+            control = new CIntegerInput(lbl);
+            break;
+        case DCV_FLOAT:
+            control = new CFloatInput(lbl);
+            break;
+        case DCV_DATETIME:
+            control = new CDateTimeInput(lbl);
+            break;
+        case DCV_DATEINTERVAL:
+            control = new CDateIntervalInput(lbl);
+            break;
+        case DCV_DATE:
+            control = new CDateInput(lbl);
+            break;
+        case DCV_TIME:
+            control = new CTimeInput(lbl);
+            break;
+        case DCV_PHONE:
+            control = new CPhoneNumberInput(lbl);
+            break;
+        case DCV_LISTBOX:
+            control = new CListBox(lbl, size);
+            break;
+        case DCV_CHECKBUTTONS:
+            control = new CCheckButtons(lbl);
+            break;
+        case DCV_COMBO:
+            control = new CComboBox(lbl, size);
+            break;
+        case DCV_INTVALUECOMBO:
+            control = new CComboBox(lbl, size);
+            break;
+        default:
+            throw Exception("Unsupported control type, field name '" + fieldName + "'.");
     }
 
     control->fieldName(fieldName.c_str());

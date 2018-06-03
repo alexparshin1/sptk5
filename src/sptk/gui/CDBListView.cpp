@@ -81,7 +81,7 @@ DatabaseConnection* CDBListView::database() const
     return m_fullRefreshQuery.database();
 }
 
-void CDBListView::sql(string _sql, string _recordCountSql, string _fastRefreshSQL)
+void CDBListView::sql(const string& _sql, const string& _recordCountSql, const string& _fastRefreshSQL)
 {
     m_fullRefreshQuery.sql(_sql);
     m_fastRefreshQuery.sql(_fastRefreshSQL);

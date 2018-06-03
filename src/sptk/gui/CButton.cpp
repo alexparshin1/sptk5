@@ -202,7 +202,7 @@ CBaseButton::CBaseButton(CButtonKind kind,int x,int y,int w,const char *l,CTheme
 #endif
 
 CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_small, const char* l, CThemeButtonType tbt)
-        : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign)
+: Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign)
 {
     m_default = false;
     m_type = tbt;
@@ -213,7 +213,9 @@ CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_sma
 }
 
 CBaseButton::CBaseButton(const char* l, CLayoutAlign layoutAlign, CThemeButtonType tbt)
-        : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign), m_kind(SP_UNDEFINED_BUTTON)
+: Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign),
+  m_kind(SP_UNDEFINED_BUTTON),
+  m_iconSize(IS_SMALL_ICON)
 {
     m_default = false;
     m_type = tbt;
@@ -353,6 +355,9 @@ int CBaseButton::handle(int event)
         case FL_ENTER:
         case FL_LEAVE:
             redraw();
+            break;
+
+        default:
             break;
     }
     return Fl_Button::handle(event);

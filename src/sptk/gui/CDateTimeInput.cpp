@@ -38,7 +38,7 @@ using namespace sptk;
 
 void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void* data)
 {
-    CDateTimeBaseInput* dateInput = (CDateTimeBaseInput*) btn->parent()->parent();
+    auto dateInput = (CDateTimeBaseInput*) btn->parent()->parent();
     if (!dateInput)
         return;
     DateTime dt = dateInput->dateTimeValue();
@@ -49,8 +49,8 @@ void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void* data)
 
 void CDateTimeBaseInput::ctor_init()
 {
-    m_dateInput = 0L;
-    m_timeInput = 0L;
+    m_dateInput = nullptr;
+    m_timeInput = nullptr;
     m_minValue = DateTime();
     m_maxValue = DateTime();
     m_calendarWindow = 0L;
@@ -181,7 +181,7 @@ CDateInput::~CDateInput()
 
 CLayoutClient* CDateInput::creator(XMLNode* node)
 {
-    CDateInput* widget = new CDateInput("", 10, SP_ALIGN_TOP);
+    auto widget = new CDateInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -276,7 +276,7 @@ CDateTimeInput::CDateTimeInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CDateTimeInput::creator(XMLNode* node)
 {
-    CDateTimeInput* widget = new CDateTimeInput("", 10, SP_ALIGN_TOP);
+    auto widget = new CDateTimeInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

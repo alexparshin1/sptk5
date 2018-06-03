@@ -34,8 +34,9 @@
 
 using namespace sptk;
 
-CFloatInput::CFloatInput(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CInput(label,layoutSize,layoutAlignment) {
+CFloatInput::CFloatInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CInput(label, layoutSize, layoutAlignment)
+{
     controlType(FL_FLOAT_INPUT);
     m_minValue = m_maxValue = 0;
     m_decimalPlaces = 4;
@@ -50,20 +51,23 @@ CFloatInput::CFloatInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CFloatInput::creator(XMLNode *node) {
-    CFloatInput* widget = new CFloatInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CFloatInput::creator(XMLNode* node)
+{
+    auto widget = new CFloatInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CFloatInput::save(Query *updateQuery) {
+void CFloatInput::save(Query* updateQuery)
+{
     if (!m_fieldName.length())
         return;
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setFloat( data() );
+    param.setFloat(data());
 }
 
-bool CFloatInput::valid() const {
+bool CFloatInput::valid() const
+{
     if (m_limited) {
         double val = data();
         return val >= m_minValue && val <= m_maxValue;
@@ -71,7 +75,8 @@ bool CFloatInput::valid() const {
     return true;
 }
 
-void CFloatInput::setLimits(bool limited,double min,double max) {
+void CFloatInput::setLimits(bool limited, double min, double max)
+{
     m_limited = limited;
 
     m_minValue = min;

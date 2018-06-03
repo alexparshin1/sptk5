@@ -713,7 +713,7 @@ public:
      * Selects the row where cell in the sort column is tv
      * @param text CString, text to find and select
      */
-    void textValue(std::string text);
+    void textValue(const std::string& text);
 
     /**
      * Sets data mode for the data() methods as LV_DATA_KEY, LV_DATA_INDEX, LV_DATA_CAPTION.
@@ -1156,7 +1156,7 @@ public:
      * @param endRow uint32_t, the row number to finish
      * @returns the row number, or -1 if not found
      */
-    virtual int findString(std::string str, bool select = true, uint32_t startRow = 0, uint32_t endRow = 0);
+    virtual int findString(const std::string& str, bool select = true, uint32_t startRow = 0, uint32_t endRow = 0);
 
     /**
      * @brief Returns sort column name
