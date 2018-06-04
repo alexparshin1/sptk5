@@ -34,7 +34,7 @@ namespace sptk {
              * Events map definition.
              * Events map stores events ordered by their timestamps.
              */
-            typedef std::multimap<uint64_t, Event*> Map;
+            typedef std::multimap<long, Event*> Map;
 
             /**
              * Event bookmark definition.

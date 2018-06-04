@@ -233,7 +233,7 @@ class CThemes :
      * @param ndx int, image index
      * @param fileName std::string, pixmap file name
      */
-    static void replaceImage(CPngImage *images[],int ndx,std::string fileName);
+    static void replaceImage(CPngImage** images, int ndx, const std::string& fileName);
 
     /**
      * Paints the rectangle with the background image.
@@ -357,7 +357,7 @@ public:
      * @param iconSize CIconSize, the size of the icon
      * @returns pointer to the icon, or NULL if not found
      */
-    static CIcon* getIcon(std::string iconName,CIconSize iconSize);
+    static CIcon* getIcon(const std::string& iconName, CIconSize iconSize);
 
     /**
      * @brief Returns a button icon image by symbolic name
@@ -365,7 +365,7 @@ public:
      * @param iconSize CIconSize, the size of the icon
      * @returns pointer to the image, or NULL if not found
      */
-    static CPngImage* getIconImage(std::string iconName,CIconSize iconSize);
+    static CPngImage* getIconImage(const std::string& iconName, CIconSize iconSize);
 
     /**
      * @brief Registers a new button icon

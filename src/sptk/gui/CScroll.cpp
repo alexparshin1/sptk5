@@ -326,7 +326,7 @@ void CScroll::position(int X, int Y)
 void CScroll::hscrollbar_cb(Fl_Widget* o, void*)
 {
     auto s = (CScroll*) (o->parent());
-    s->position(int(((CScrollBar*) o)->value()), s->yposition());
+    s->position(((CScrollBar*) o)->value(), s->yposition());
 }
 
 void CScroll::scrollbar_cb(Fl_Widget* o, void*)

@@ -101,7 +101,7 @@ namespace sptk {
                 maxValueSize = int(pos2 - pos);
             }
             XMLNode* node = nullptr;
-            String value = trim(row.substr(pos, maxValueSize));
+            String value = trim(row.substr(pos, (unsigned) maxValueSize));
             bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
             if (!attemptGrouping)
                 valueMode = false;
@@ -241,7 +241,6 @@ namespace sptk {
 
             // Remove comments (if any)
             if (s.find_first_of('#') != STRING_NPOS) {
-                pos = -1;
                 for (;;) {
                     pos = s.find_first_of("#\"", pos + 1);
                     if (pos == string::npos)

@@ -117,7 +117,7 @@ int CDialog::handle(int event)
 
 void CDialog::defaultButton(CButton* newDefaultButton)
 {
-    unsigned cnt = m_buttonGroup->children();
+    unsigned cnt = (unsigned) m_buttonGroup->children();
     for (unsigned bi = 0; bi < cnt; bi++) {
         auto button = (CButton*) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);

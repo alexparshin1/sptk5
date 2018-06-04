@@ -34,17 +34,18 @@
 using namespace std;
 using namespace sptk;
 
-void CWindow::resize(int xx,int yy,int ww,int hh) {
-    Fl_Double_Window::resize(xx,yy,ww,hh);
+void CWindow::resize(int xx, int yy, int ww, int hh)
+{
+    Fl_Double_Window::resize(xx, yy, ww, hh);
     int www = ww, hhh = hh;
     // For a window, layout is always located at 0,0 coordinates
-    autoLayout(0,0,www,hhh,true);
+    autoLayout(0, 0, www, hhh, true);
     bool limited = false;
-    if (www > Fl::w())      {
+    if (www > Fl::w()) {
         www = Fl::w();
         limited = true;
     }
-    if (hhh > Fl::h())      {
+    if (hhh > Fl::h()) {
         hhh = Fl::h();
         limited = true;
     }
@@ -58,25 +59,28 @@ void CWindow::resize(int xx,int yy,int ww,int hh) {
     }
 
     if (limited || ww != www || hh != hhh)
-        Fl_Double_Window::resize(xx,yy,www,hhh);
+        Fl_Double_Window::resize(xx, yy, www, hhh);
 
     if (m_shapeExtension)
-        resizingShape(ww,hh);
+        resizingShape(ww, hh);
 }
 
-bool CWindow::preferredSize(int& ww,int& hh) {
-    return autoLayout(0,0,ww,hh,false);
+bool CWindow::preferredSize(int& ww, int& hh)
+{
+    return autoLayout(0, 0, ww, hh, false);
 }
 
-void CWindow::hide() {
+void CWindow::hide()
+{
     m_borderCleared = false;
     m_shapeChanged = true;
     Fl_Double_Window::hide();
 }
 
-void CWindow::draw() {
+void CWindow::draw()
+{
     if (m_shapeExtension && m_shapeChanged) {
-        resizingShape(w(),h());
+        resizingShape(w(), h());
         shapeApply();
     }
 
@@ -99,17 +103,20 @@ void CWindow::draw() {
     x(savex);
 }
 
-void CWindow::load(const XMLNode* node,CLayoutXMLmode xmlMode) {
-    CLayoutManager::loadLayout(node,xmlMode);
+void CWindow::load(const XMLNode* node, CLayoutXMLmode xmlMode)
+{
+    CLayoutManager::loadLayout(node, xmlMode);
     loadPosition(node);
 }
 
-void CWindow::save(XMLNode* node,CLayoutXMLmode xmlMode) const {
-    CLayoutManager::saveLayout(node,xmlMode);
+void CWindow::save(XMLNode* node, CLayoutXMLmode xmlMode) const
+{
+    CLayoutManager::saveLayout(node, xmlMode);
     savePosition(node);
 }
 
-void CWindow::loadPosition(const XMLNode* node) {
+void CWindow::loadPosition(const XMLNode* node)
+{
     int hh = node->getAttribute("height");
     if (!hh)
         hh = node->getAttribute("h");
@@ -117,44 +124,49 @@ void CWindow::loadPosition(const XMLNode* node) {
     if (!ww)
         ww = node->getAttribute("w");
     if (hh > 0 && ww > 0)
-        resize(node->getAttribute("x","0"),node->getAttribute("y","0"),ww,hh);
+        resize(node->getAttribute("x", "0"), node->getAttribute("y", "0"), ww, hh);
 }
 
-void CWindow::savePosition(XMLNode* node) const {
-    node->setAttribute("x",x());
-    node->setAttribute("y",y());
-    node->setAttribute("width",w());
-    node->setAttribute("height",h());
-    node->setAttribute("label",label());
+void CWindow::savePosition(XMLNode* node) const
+{
+    node->setAttribute("x", x());
+    node->setAttribute("y", y());
+    node->setAttribute("width", w());
+    node->setAttribute("height", h());
+    node->setAttribute("label", label());
     node->name(className());
 }
 
-int CWindow::handle(int event) {
+int CWindow::handle(int event)
+{
     int rc = Fl_Window::handle(event);
 
     if (!m_shapeExtension)
         return rc;
 
-    switch ( event ) {
+    switch (event) {
 
-    case FL_PUSH:
-        m_pushedX = Fl::event_x();
-        m_pushedY = Fl::event_y();
-        m_resizingZone = mouseZone(m_pushedX,m_pushedY);
-        break;
+        case FL_PUSH:
+            m_pushedX = Fl::event_x();
+            m_pushedY = Fl::event_y();
+            m_resizingZone = mouseZone(m_pushedX, m_pushedY);
+            break;
 
-    case FL_DRAG:
-        if (m_resizingZone) {
-            int x,y;
-            Fl::get_mouse(x,y);
-            changeSize(x,y);
-        } else {
-            int new_x, new_y;
-            new_x = Fl::event_x() + x() - m_pushedX;
-            new_y = Fl::event_y() + y() - m_pushedY;
-            position(new_x,new_y);
-        }
-        return 1;
+        case FL_DRAG:
+            if (m_resizingZone) {
+                int x, y;
+                Fl::get_mouse(x, y);
+                changeSize(x, y);
+            } else {
+                int new_x, new_y;
+                new_x = Fl::event_x() + x() - m_pushedX;
+                new_y = Fl::event_y() + y() - m_pushedY;
+                position(new_x, new_y);
+            }
+            return 1;
+
+        default:
+            break;
     }
 
     if (shapeCursorHandle(event))

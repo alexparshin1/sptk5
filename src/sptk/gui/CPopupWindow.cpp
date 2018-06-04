@@ -91,6 +91,8 @@ int CPopupWindow::handle(int event)
                     m_clicked = 1;
                     hide();
                     return 1;
+                default:
+                    break;
             }
             break;
 

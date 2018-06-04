@@ -36,155 +36,163 @@ using namespace sptk;
 #  ifdef __APPLE__
 #    include <stdlib.h>
 #  else
+
 #    include <alloca.h>
+
 #  endif
 
 #else
 #  include <malloc.h>
 #endif
 
-CPackedStrings::CPackedStrings(int cnt,const char *strings[]) {
-   // compute buffer size and offsets
-   int offsetsSpace = cnt * sizeof(uint16_t);
-   int sz = offsetsSpace + sizeof(uint16_t);
-
-   uint16_t *offset = (uint16_t *)alloca(offsetsSpace*2);
-   uint16_t *len = offset + cnt;
-
-   flags = 0;
-   height = 0;
-   m_data  = NULL;
-
-   const char *s;
-   for (int i = 0; i < cnt; i++) {
-      s = strings[i];
-      uint16_t l = uint16_t(strlen(s) + 1);
-      offset[i] = uint16_t(sz);
-      len[i] = l;
-      sz += l;
-   }
-
-   m_size = uint16_t(sz);
-   m_buffer = malloc(m_size);
-
-   *(uint16_t *)m_buffer = uint16_t(cnt);
-   memcpy((uint16_t *)m_buffer + 1,offset,offsetsSpace);
-
-   for (int j = 0; j < cnt; j++)
-      memcpy(pchar(m_buffer)+offset[j],strings[j],len[j]);
-}
-
-CPackedStrings::CPackedStrings(const Strings& strings) {
-   m_buffer = 0;
-   operator = (strings);
-}
-
-CPackedStrings::CPackedStrings(FieldList& fields,int keyField)
+CPackedStrings::CPackedStrings(int cnt, const char* strings[])
 {
-   int cnt = fields.size();
-   int rcnt = cnt;
-   if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
-      rcnt -= 1;
+    // compute buffer size and offsets
+    int offsetsSpace = cnt * sizeof(uint16_t);
+    int sz = offsetsSpace + sizeof(uint16_t);
 
-   // compute buffer size and offsets
-   int          offsetsSpace = rcnt * sizeof(uint16_t);
-   int          sz = offsetsSpace + sizeof(uint16_t);
+    uint16_t* offset = (uint16_t*) alloca(offsetsSpace * 2);
+    uint16_t* len = offset + cnt;
 
-   uint16_t      *offset = (uint16_t *)alloca(offsetsSpace*2);
-   uint16_t      *len = offset + rcnt;
+    flags = 0;
+    height = 0;
+    m_data = NULL;
 
-   flags = 0;
-   height = 0;
-   m_data  = NULL;
+    const char* s;
+    for (int i = 0; i < cnt; i++) {
+        s = strings[i];
+        uint16_t l = uint16_t(strlen(s) + 1);
+        offset[i] = uint16_t(sz);
+        len[i] = l;
+        sz += l;
+    }
 
-   int j = 0;
-   long keyValue = 0;
-   Strings strings;
-   {
-      for (int i = 0; i < cnt; i++) {
-         Field& field = fields[i];
-         if (i == keyField) {
-            keyValue = field.asInteger();
-            continue;
-         }
-         uint16_t l;
-         if (field.dataType() == VAR_STRING) { // conversion isn't required
-            l = uint16_t(field.dataSize() + 1);
-            strings.push_back(field.getString());
-         } else {
-            String str = field.asString();
-            strings.push_back(str);
-            l = uint16_t(str.length() + 1);
-         }
-         offset[j] = uint16_t(sz);
-         len[j] = l;
-         sz += l;
-         j++;
-      }
-   }
-   m_size = uint16_t(sz);
-   m_buffer = malloc(m_size);
+    m_size = uint16_t(sz);
+    m_buffer = malloc(m_size);
 
-   *(uint16_t *)m_buffer = uint16_t(cnt);
-   memcpy((uint16_t *)m_buffer + 1, offset, offsetsSpace);
-   j = 0;
-   {/*alex*/
-      for (int i = 0; i < cnt; i++) {
-         if (i == keyField) continue;
-         memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
-         j++;
-      }
-   }
-   m_data = (void *)keyValue;
+    *(uint16_t*) m_buffer = uint16_t(cnt);
+    memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
+
+    for (int j = 0; j < cnt; j++)
+        memcpy(pchar(m_buffer) + offset[j], strings[j], len[j]);
 }
 
-CPackedStrings::~CPackedStrings() {
-   free(m_buffer);
+CPackedStrings::CPackedStrings(const Strings& strings)
+{
+    m_buffer = 0;
+    operator=(strings);
 }
 
-const char * CPackedStrings::operator[] (uint16_t index) const {
-   uint16_t *offsets  = (uint16_t *)m_buffer + 1;
-   return pchar(m_buffer) + offsets[index];
+CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
+{
+    int cnt = fields.size();
+    int rcnt = cnt;
+    if (keyField >= 0 && keyField < cnt) // if keyField is used - do not store it as string
+        rcnt -= 1;
+
+    // compute buffer size and offsets
+    int offsetsSpace = rcnt * sizeof(uint16_t);
+    int sz = offsetsSpace + sizeof(uint16_t);
+
+    uint16_t* offset = (uint16_t*) alloca(offsetsSpace * 2);
+    uint16_t* len = offset + rcnt;
+
+    flags = 0;
+    height = 0;
+    m_data = NULL;
+
+    int j = 0;
+    long keyValue = 0;
+    Strings strings;
+    {
+        for (int i = 0; i < cnt; i++) {
+            Field& field = fields[i];
+            if (i == keyField) {
+                keyValue = field.asInteger();
+                continue;
+            }
+            uint16_t l;
+            if (field.dataType() == VAR_STRING) { // conversion isn't required
+                l = uint16_t(field.dataSize() + 1);
+                strings.push_back(field.getString());
+            } else {
+                String str = field.asString();
+                strings.push_back(str);
+                l = uint16_t(str.length() + 1);
+            }
+            offset[j] = uint16_t(sz);
+            len[j] = l;
+            sz += l;
+            j++;
+        }
+    }
+    m_size = uint16_t(sz);
+    m_buffer = malloc(m_size);
+
+    *(uint16_t*) m_buffer = uint16_t(cnt);
+    memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
+    j = 0;
+    {/*alex*/
+        for (int i = 0; i < cnt; i++) {
+            if (i == keyField) continue;
+            memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
+            j++;
+        }
+    }
+    m_data = (void*) keyValue;
 }
 
-CPackedStrings& CPackedStrings::operator=(const CPackedStrings& newData) {
-   m_data  = newData.m_data;
-   if (m_size != newData.m_size) {
-      m_size = newData.m_size;
-      m_buffer = realloc(m_buffer,m_size);
-   }
-   memcpy(m_buffer,newData.m_buffer,m_size);
-   return *this;
+CPackedStrings::~CPackedStrings()
+{
+    free(m_buffer);
 }
 
-CPackedStrings& CPackedStrings::operator=(const Strings& strings) {
-   size_t    cnt = strings.size();
-   int       offsetsSpace = int(cnt * sizeof(uint16_t));
-   uint16_t* offset = (uint16_t *)alloca(offsetsSpace*2);
-   uint16_t* len = offset + cnt;
+const char* CPackedStrings::operator[](uint16_t index) const
+{
+    uint16_t* offsets = (uint16_t*) m_buffer + 1;
+    return pchar(m_buffer) + offsets[index];
+}
 
-   flags = 0;
-   height = 0;
-   m_data  = (void *)(long) strings.argument();
+CPackedStrings& CPackedStrings::operator=(const CPackedStrings& newData)
+{
+    m_data = newData.m_data;
+    if (m_size != newData.m_size) {
+        m_size = newData.m_size;
+        m_buffer = realloc(m_buffer, m_size);
+    }
+    memcpy(m_buffer, newData.m_buffer, m_size);
+    return *this;
+}
 
-   int sz = offsetsSpace + sizeof(uint16_t);
+CPackedStrings& CPackedStrings::operator=(const Strings& strings)
+{
+    size_t cnt = strings.size();
+    int offsetsSpace = int(cnt * sizeof(uint16_t));
+    uint16_t* offset = (uint16_t*) alloca(offsetsSpace * 2);
+    uint16_t* len = offset + cnt;
 
-   // compute buffer size and offsets
-   for (size_t i = 0; i < cnt; i++) {
-      uint16_t l = uint16_t(strings[i].length() + 1);
-      offset[i] = uint16_t(sz);
-      len[i] = l;
-      sz += l;
-   }
+    flags = 0;
+    height = 0;
+    m_data = (void*) (long) strings.argument();
 
-   // create buffer
-   m_size = uint16_t(sz);
-   m_buffer = realloc(m_buffer,m_size);
+    int sz = offsetsSpace + sizeof(uint16_t);
 
-   *(uint16_t *)m_buffer = uint16_t(cnt);
-   memcpy((uint16_t *)m_buffer + 1,offset,offsetsSpace);
-   for (size_t j = 0; j < cnt; j++)
-      memcpy(pchar(m_buffer)+offset[j],strings[j].c_str(),len[j]);
+    // compute buffer size and offsets
+    for (size_t i = 0; i < cnt; i++) {
+        uint16_t l = uint16_t(strings[i].length() + 1);
+        offset[i] = uint16_t(sz);
+        len[i] = l;
+        sz += l;
+    }
 
-   return *this;
+    // create buffer
+    m_size = uint16_t(sz);
+    m_buffer = realloc(m_buffer, m_size);
+
+    *(uint16_t*) m_buffer = uint16_t(cnt);
+    memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
+    for (size_t j = 0; j < cnt; j++)
+        memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
+
+    return *this;
 }

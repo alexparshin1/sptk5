@@ -111,6 +111,8 @@ bool Host::operator != (const Host& other) const
 
 void Host::getHostAddress()
 {
+    static mutex getaddrinfoMutex;
+
     memset(&m_address, 0, sizeof(m_address));
 
 #ifdef _WIN32
@@ -124,6 +126,8 @@ void Host::getHostAddress()
     hints.ai_socktype = SOCK_STREAM;    // Socket type
     //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
     hints.ai_protocol = 0;
+
+    lock_guard<mutex> lock(getaddrinfoMutex);
 
     struct addrinfo* result;
     int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);

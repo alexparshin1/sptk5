@@ -123,7 +123,7 @@ void CDBListView::refreshData(CRefreshKind refreshKind)
     unsigned recordsEstimated = 0;
     if (!m_recordCountQuery.sql().empty()) {
         m_recordCountQuery.open();
-        recordsEstimated = m_recordCountQuery[uint32_t(0)].asInteger();
+        recordsEstimated = (unsigned) m_recordCountQuery[uint32_t(0)].asInteger();
         m_recordCountQuery.close();
     }
 

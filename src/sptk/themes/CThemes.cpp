@@ -105,14 +105,14 @@ CThemes::CThemes()
     m_buttonFocusRadius = 0;
 
     for (unsigned i = 0; i < 7; i++)
-        m_background[i] = 0L;
+        m_background[i] = nullptr;
 
     if (!screenFonts.size()) {
-        int k = Fl::set_fonts("*");
-        for (int i = 0; i < k; i++) {
+        unsigned k = (unsigned) Fl::set_fonts("*");
+        for (unsigned i = 0; i < k; i++) {
             int attributes = 0;
             string fontName = Fl::get_font_name((Fl_Font) i, &attributes);
-            CFont* font = new CFont(fontName, 10, 0, i, attributes);
+            CFont* font = new CFont(fontName, 10, 0, i, (unsigned) attributes);
             screenFonts.push_back(font);
         }
     }
@@ -122,13 +122,12 @@ CThemes::CThemes()
 
 CThemes::~CThemes()
 {
-    if (m_registry)
-        delete m_registry;
+    delete m_registry;
 }
 
-CIcon* CThemes::getIcon(std::string iconName, CIconSize iconSize)
+CIcon* CThemes::getIcon(const string& iconName, CIconSize iconSize)
 {
-    CIconMap::iterator itor = m_icons[iconSize].find(iconName);
+    auto itor = m_icons[iconSize].find(iconName);
     if (itor == m_icons[iconSize].end()) {
         //cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
         return 0L;
@@ -136,12 +135,12 @@ CIcon* CThemes::getIcon(std::string iconName, CIconSize iconSize)
     return itor->second;
 }
 
-CPngImage* CThemes::getIconImage(std::string iconName, CIconSize iconSize)
+CPngImage* CThemes::getIconImage(const string& iconName, CIconSize iconSize)
 {
     CIcon* icon = getIcon(iconName, iconSize);
     if (icon)
         return icon->image();
-    return 0;
+    return nullptr;
 }
 
 void CThemes::registerIcon(CIcon* icon, CIconSize iconSize)
@@ -152,7 +151,7 @@ void CThemes::registerIcon(CIcon* icon, CIconSize iconSize)
 const Strings& CThemes::searchDirectories()
 {
     static Strings sd;
-    if (sd.size())
+    if (!sd.empty())
         return sd;
 #ifdef _WIN32
     char windir[256];
@@ -221,14 +220,14 @@ CThemeImageCollection& CThemes::sizeToButtonImages(CThemeButtonType sz)
     return m_normalButtons;
 }
 
-void CThemes::replaceImage(CPngImage *images[], int ndx, string fileName)
+void CThemes::replaceImage(CPngImage** images, int ndx, const string& fileName)
 {
     if (images[ndx])
         delete images[ndx];
     try {
         images[ndx] = loadValidatePNGImage(fileName);
     } catch (...) {
-        images[ndx] = 0;
+        images[ndx] = nullptr;
     }
 }
 
@@ -269,7 +268,7 @@ void CThemes::set(string theThemeName)
         }
 
         try {
-            XMLNode::iterator itor = m_registry->begin();
+            auto itor = m_registry->begin();
             for (; itor != m_registry->end(); ++itor) {
                 XMLNode* iconsNode = *itor;
                 if (iconsNode->name() != "icons")
@@ -318,7 +317,7 @@ void CThemes::set(string theThemeName)
                         );
                 m_fonts[object] = font;
             }
-            CFontsMap::iterator ftor = m_fonts.find("default");
+            auto ftor = m_fonts.find("default");
             if (ftor == m_fonts.end()) {
                 CFont* font = screenFonts[0];
                 m_fonts["default"] = new CFont(font->name(), 10, 0, font->index(), font->attributes());
@@ -416,11 +415,11 @@ CPngImage *CThemes::imageForColor(Fl_Color clr)
                 ndx = 6;
                 break;
             default:
-                return 0;
+                return nullptr;
         }
         return m_background[ndx];
     }
-    return 0L;
+    return nullptr;
 }
 
 void CThemes::paintBackground(int xx, int yy, int ww, int hh, CPngImage *image)

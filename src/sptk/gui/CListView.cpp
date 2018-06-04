@@ -45,7 +45,7 @@ using namespace sptk;
 
 void CListView::scrollbar_callback(Fl_Widget* s, void*)
 {
-    ((CListView*) (s->parent()))->top(int(((CScrollBar*) s)->value()));
+    ((CListView*) (s->parent()))->top(((CScrollBar*) s)->value());
 }
 
 void CListView::hscrollbar_callback(Fl_Widget* s, void*)
@@ -185,7 +185,7 @@ void CListView::displayRow(unsigned index)
             int rh = m_rows[i]->height;
             hh += rh;
             if (hh > H) {
-                m_top = i;
+                m_top = unsigned(i);
                 break;
             }
         }
@@ -197,7 +197,7 @@ void CListView::displayRow(unsigned index)
             int rh = m_rows[i]->height;
             hh += rh;
             if (hh > H) {
-                m_top = i;
+                m_top = unsigned(i);
                 break;
             }
         }
@@ -376,7 +376,7 @@ int CListView::item_height(unsigned index) const
         CPackedStrings* l = m_rows[index];
         if (l->flags & CLV_NOTDISPLAYED)
             return 0;
-        int h = (unsigned char) l->height;
+        int h = l->height;
         if (h < 6)
             h = 6;
         return h;
@@ -564,7 +564,7 @@ Fl_Color CListView::item_color(int, const CPackedStrings&) const
 
 unsigned CListView::cellBorderWidth() const
 {
-    int bwidth = 2;
+    unsigned bwidth = 2;
     if (m_showGrid)
         bwidth = 4;
     return bwidth;
@@ -930,7 +930,7 @@ void CListView::data(const Variant vv)
             newSelectedRow = findKey(vv);
             break;
         case LV_DATA_INDEX: {
-            unsigned line = intValue;
+            unsigned line = (unsigned) intValue;
             if (line < cnt) {
                 newSelectedRow = m_rows[line];
             }
@@ -1824,8 +1824,8 @@ int CListView::find_item(int my)
     int X, Y, W, H;
     bbox(X, Y, W, H);
     int yy = Y;
-    int maxl = size();
-    for (int l = m_top; l < maxl; l++) {
+    unsigned maxl = size();
+    for (unsigned l = m_top; l < maxl; l++) {
         int hh = item_height(l);
         if (hh <= 0)
             continue;

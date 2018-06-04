@@ -100,8 +100,10 @@ void printMessage(string label, string className, string event)
         sl.push_back(event);
         eventsListView->addRow(sl);
         int cnt = eventsListView->size();
-        eventsListView->displayRow(cnt - 1);
-        eventsListView->redrawRow(cnt - 1);
+        if (cnt > 0) {
+            eventsListView->displayRow(unsigned(cnt - 1));
+            eventsListView->redrawRow(unsigned(cnt - 1));
+        }
     }
 }
 

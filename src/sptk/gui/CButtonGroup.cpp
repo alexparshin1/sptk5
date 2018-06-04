@@ -111,7 +111,7 @@ void CButtonGroup::buttons(const Strings& sl)
 Variant CButtonGroup::data() const
 {
     auto group = (CGroup*) m_control;
-    unsigned cnt = group->children();
+    unsigned cnt = unsigned(group->children());
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Widget* w = group->child(i);
         auto b = dynamic_cast<Fl_Button*>(w);
@@ -143,7 +143,7 @@ int CButtonGroup::buttonIndex(const char* buttonLabel)
 void CButtonGroup::deselectAllButtons()
 {
     auto group = (CGroup*) m_control;
-    unsigned cnt = group->children();
+    unsigned cnt = unsigned(group->children());
     for (unsigned i = 0; i < cnt; i++) {
         auto b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b) continue;

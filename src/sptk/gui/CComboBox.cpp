@@ -115,7 +115,7 @@ int CInternalComboBoxPanel::handle(int event)
             control->notifyFocus();
             return 1;
         case FL_KEYBOARD: {
-            unsigned ch = Fl::event_key();
+            int ch = Fl::event_key();
             if (ch == FL_Tab || ch == FL_Enter)
                 break;
             auto combo = (CBaseListBox*) parent();
@@ -154,7 +154,7 @@ void CBaseListBox::comboButtonPressed(Fl_Widget* btn, void* data)
     CBaseListBox* combo = (CBaseListBox*) btn->parent();
     if (!combo)
         return;
-    combo->button_handle((long) data);
+    combo->button_handle((uint32_t)(long) data);
 }
 
 void CBaseListBox::ctor_init(const char* label, int _mode)

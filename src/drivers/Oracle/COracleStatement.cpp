@@ -175,7 +175,7 @@ void OracleStatement::setParameterValues()
                 } else {
                     int16_t year, month, day, wday, yday;
                     parameter.asDate().decodeDate(&year, &month, &day, &wday, &yday);
-                    Date dateValue(m_connection->environment(), year, month, day);
+                    Date dateValue(m_connection->environment(), year, (unsigned) month, (unsigned) day);
                     m_statement->setDate(parameterIndex, dateValue);
                 }
                 break;
@@ -190,7 +190,7 @@ void OracleStatement::setParameterValues()
                     int16_t hour, minute, second, msecond;
                     parameter.getDateTime().decodeTime(&hour, &minute, &second, &msecond);
                     Timestamp timestampValue(m_connection->environment(),
-                                             year, month, day, hour, minute, second);
+                                             year, (unsigned) month, (unsigned) day, (unsigned) hour, (unsigned) minute, (unsigned) second);
                     m_statement->setTimestamp(parameterIndex, timestampValue);
                 }
                 break;

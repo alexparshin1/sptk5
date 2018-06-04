@@ -93,7 +93,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
                 len = cr - readPosition + 1;
             else {
                 if (m_readOffset != 0) {
-                    memmove(m_buffer, m_buffer + m_readOffset, availableBytes);
+                    memmove(m_buffer, m_buffer + m_readOffset, (size_t) availableBytes);
                     m_readOffset = 0;
                     m_bytes = (size_t) availableBytes;
                 } else {

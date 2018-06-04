@@ -314,7 +314,7 @@ void CFileDialog::directory(string p)
     if (estimatedColumnWidth < minColWidth)
         estimatedColumnWidth = minColWidth;
 
-    m_lookInCombo->columns() [0].width(estimatedColumnWidth);
+    m_lookInCombo->columns() [0].width((int16_t) estimatedColumnWidth);
 
     m_lookInCombo->sortColumn(0);
 
