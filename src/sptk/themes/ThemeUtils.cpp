@@ -51,10 +51,10 @@ namespace sptk {
             if (img->data())
                 return img;
             delete img;
-            img = 0L;
+            img = nullptr;
             return img;
         } catch (...) {}
-        return 0;
+        return nullptr;
     }
 
 }

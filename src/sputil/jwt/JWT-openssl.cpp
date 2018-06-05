@@ -268,7 +268,7 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             ec_key = EVP_PKEY_get1_EC_KEY(pkey);
             if (ec_key == nullptr) SIGN_ERROR(ENOMEM);
 
-            degree = EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
+            degree = (unsigned) EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
 
             EC_KEY_free(ec_key);
 
@@ -277,8 +277,8 @@ void JWT::sign_sha_pem(char** out, unsigned int* len, const char* str)
             if (ec_sig == nullptr) SIGN_ERROR(ENOMEM);
 
             ECDSA_SIG_get0(ec_sig, &ec_sig_r, &ec_sig_s);
-            r_len = BN_num_bytes(ec_sig_r);
-            s_len = BN_num_bytes(ec_sig_s);
+            r_len = (unsigned) BN_num_bytes(ec_sig_r);
+            s_len = (unsigned) BN_num_bytes(ec_sig_s);
             bn_len = (degree + 7) / 8;
             if ((r_len > bn_len) || (s_len > bn_len)) SIGN_ERROR(EINVAL);
 
@@ -395,7 +395,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
             ec_key = EVP_PKEY_get1_EC_KEY(pkey);
             if (ec_key == nullptr) VERIFY_ERROR(ENOMEM);
 
-            degree = EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
+            degree = (unsigned) EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
 
             EC_KEY_free(ec_key);
 
@@ -410,7 +410,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
             free(sig);
 
             slen = i2d_ECDSA_SIG(ec_sig, nullptr);
-            sig = (unsigned char*) malloc(slen);
+            sig = (unsigned char*) malloc((unsigned) slen);
             if (sig == nullptr) VERIFY_ERROR(ENOMEM);
 
             p = sig;
@@ -429,7 +429,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64)
         if (EVP_DigestVerifyUpdate(mdctx, head, strlen(head)) != 1) VERIFY_ERROR(EINVAL);
 
         /* Now check the sig for validity. */
-        if (EVP_DigestVerifyFinal(mdctx, sig, slen) != 1) VERIFY_ERROR(EINVAL);
+        if (EVP_DigestVerifyFinal(mdctx, sig, (unsigned) slen) != 1) VERIFY_ERROR(EINVAL);
     }
     catch (const exception& e) {
         error = e.what();

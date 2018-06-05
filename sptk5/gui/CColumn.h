@@ -81,7 +81,7 @@ public:
      * @param cwidth int16_t, column width
      * @param cvisible bool, column visibility
      */
-    CColumn(const std::string& cname = "", VariantType type = VAR_STRING, int16_t cwidth = 100, bool cvisible = true);
+    CColumn(const std::string& cname = "", VariantType type = VAR_STRING, uint32_t cwidth = 100, bool cvisible = true);
 
     /**
      * @brief Copy constructor

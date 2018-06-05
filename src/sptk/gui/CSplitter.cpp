@@ -148,7 +148,7 @@ void CSplitter::findChainedControl()
         if (!dynamic_cast<CLayoutManager*>(parent()))
             return;
         Fl_Group* group = parent();
-        unsigned cnt = group->children();
+        unsigned cnt = (unsigned) group->children();
         Fl_Widget* priorWidget = 0;
         Fl_Widget* nextWidget = 0;
         CLayoutClient* priorWidgetLayout = 0;

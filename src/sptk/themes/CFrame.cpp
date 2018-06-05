@@ -64,7 +64,7 @@ void CFrames::load(Tar& tar, XMLNode* framesNode)
         string frameName = frameNode->getAttribute("name", frameTypeStr.c_str());
         if (frameTypeStr.empty())
             frameTypeStr = frameName;
-        unsigned frameTypeInt = frameTypeNames.indexOf(frameTypeStr);
+        unsigned frameTypeInt = (unsigned) frameTypeNames.indexOf(frameTypeStr);
         unsigned frameWidth = frameNode->getAttribute("width", "1");
         unsigned cornerZone = frameNode->getAttribute("corner", "1");
         Fl_Boxtype frameType = FL_NO_BOX;

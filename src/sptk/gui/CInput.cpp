@@ -395,7 +395,7 @@ void CInput::textFont(Fl_Font f)
 
 uchar CInput::textSize() const
 {
-    return ((CInput_*) m_control)->textsize();
+    return (uchar) ((CInput_*) m_control)->textsize();
 }
 
 void CInput::textSize(uchar s)

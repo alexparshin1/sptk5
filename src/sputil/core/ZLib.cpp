@@ -57,7 +57,7 @@ void sptk::ZLib::compress(sptk::Buffer& dest, const sptk::Buffer& src)
     size_t readPosition = 0;
     /* compress until end of file */
     do {
-        size_t bytesToRead = src.bytes() - readPosition;
+        auto bytesToRead = uInt(src.bytes() - readPosition);
         if (bytesToRead > CHUNK)
             bytesToRead = CHUNK;
         else
@@ -107,10 +107,10 @@ void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
     if (ret != Z_OK)
         throw Exception("inflateInit() error");
 
-    size_t readPosition = 0;
+    uInt readPosition = 0;
     /* decompress until deflate stream ends or end of file */
     do {
-        size_t bytesToRead = src.bytes() - readPosition;
+        auto bytesToRead = uInt(src.bytes() - readPosition);
         if (bytesToRead > CHUNK)
             bytesToRead = CHUNK;
         memcpy(in, src.c_str() + readPosition, bytesToRead);
@@ -129,7 +129,6 @@ void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
                 throw Exception("compressed data error");
             switch (ret) {
                 case Z_NEED_DICT:
-                    ret = Z_DATA_ERROR;     /* and fall through */
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:
                     (void)inflateEnd(&strm);

@@ -158,7 +158,7 @@ Fl_Button* CRadioButtons::createButton(const char* label, int sz, CLayoutAlign l
 int32_t CRadioButtons::intValue() const
 {
     CScroll* group = (CScroll*) m_control;
-    uint32_t cnt = group->children();
+    uint32_t cnt = (unsigned) group->children();
     for (uint32_t i = 0; i < cnt; i++) {
         Fl_Button* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
@@ -173,7 +173,7 @@ void CRadioButtons::intValue(int32_t v)
 {
     deselectAllButtons();
     CScroll* group = (CScroll*) m_control;
-    unsigned cnt = group->children();
+    unsigned cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Button* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)

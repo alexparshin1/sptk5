@@ -56,7 +56,7 @@ void CListViewRows::truncate(unsigned cnt)
         for (size_t i = cnt; i < rowCount; i++) {
             auto row = (CPackedStrings*) m_rows[i];
             m_fullHeight -= row->height;
-            delete (CPackedStrings*) row;
+            delete row;
         }
         m_rows.resize(cnt);
     }
@@ -67,7 +67,7 @@ unsigned CListViewRows::add(CPackedStrings* ss)
     int lineNumber = size();
     m_rows.push_back(ss);
     m_fullHeight += ss->height;
-    return lineNumber;
+    return (unsigned) lineNumber;
 }
 
 unsigned CListViewRows::insert(unsigned position, CPackedStrings* ss)

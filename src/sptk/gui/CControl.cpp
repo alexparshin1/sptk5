@@ -347,9 +347,7 @@ bool sptk::checkFieldName(std::string fieldName)
             if (fieldName[i] != '_')
                 return false;
     }
-    if (isalpha(fieldName[0]) == 0)
-        return false;
-    return true;
+    return isalpha(fieldName[0]) != 0;
 }
 
 bool CControl::containsFocus() const

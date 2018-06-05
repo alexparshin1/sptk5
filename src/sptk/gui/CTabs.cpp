@@ -349,7 +349,7 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
 {
     unsigned offset = 0;
     unsigned rowCount = 1;
-    unsigned buttonCount = children();
+    unsigned buttonCount = (unsigned) children();
     int maxWidth = 0;
 
     CTabButtons* row = nullptr;
@@ -371,9 +371,9 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
             continue;
         int bw = 0, bh = 0;
         button->preferredSize(bw, bh);
-        int newOffset = offset + bw + 2;
-        if (newOffset <= width) {
-            if (newOffset > maxWidth)
+        unsigned newOffset = offset + bw + 2;
+        if (newOffset <= (unsigned) width) {
+            if (newOffset > (unsigned) maxWidth)
                 maxWidth = newOffset;
         } else {
             if (buildRows) {
@@ -411,12 +411,12 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
         }
         auto rtor = m_rows.begin();
         auto rend = m_rows.end();
-        unsigned yPosition = y();
+        unsigned yPosition = (unsigned) y();
         for (; rtor != rend; rtor++) {
             CTabButtons* brow = *rtor;
             auto btor = brow->begin();
             auto bend = brow->end();
-            unsigned xPosition = x();
+            unsigned xPosition = (unsigned) x();
             for (; btor != bend; btor++) {
                 CTabButton* button = *btor;
                 button->position(xPosition, yPosition);
@@ -560,7 +560,7 @@ uint32_t CTabs::pageCount() const
 
 uint32_t CTabs::pageNumber() const
 {
-    return m_tabs->pageNumber();
+    return (unsigned) m_tabs->pageNumber();
 }
 
 void CTabs::pageNumber(uint32_t pgNumber)

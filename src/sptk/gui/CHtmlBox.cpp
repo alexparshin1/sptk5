@@ -91,7 +91,7 @@ void CHtmlBox::textFont(Fl_Font f)
 
 uchar CHtmlBox::textSize() const
 {
-    return ((Fl_Help_View*) m_control)->textsize();
+    return (uchar) ((Fl_Help_View*) m_control)->textsize();
 }
 
 void CHtmlBox::textSize(uchar s)

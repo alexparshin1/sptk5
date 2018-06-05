@@ -92,6 +92,8 @@ int CCheckButton::handle(int event)
         case FL_LEAVE:
             redraw();
             break;
+        default:
+            break;
     }
     return Fl_Button::handle(event);
 }
@@ -128,7 +130,7 @@ Variant CCheckButtons::data() const
 {
     string result;
     auto group = (CScroll*) m_control;
-    unsigned cnt = group->children();
+    auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Button* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
@@ -176,7 +178,7 @@ void CCheckButtons::getSelections(IntList& selection) const
 {
     selection.clear();
     auto group = (CScroll*) m_control;
-    unsigned cnt = group->children();
+    auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Button* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
@@ -191,8 +193,8 @@ void CCheckButtons::getSelections(IntList& selection) const
 void CCheckButtons::setSelections(const IntList& selection)
 {
     deselectAllButtons();
-    CScroll* group = (CScroll*) m_control;
-    unsigned cnt = group->children();
+    auto group = (CScroll*) m_control;
+    auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         auto b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)

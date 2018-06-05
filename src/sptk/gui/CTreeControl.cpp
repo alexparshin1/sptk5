@@ -161,7 +161,7 @@ int CTreeItem::handle(int event)
             tree()->m_tabPressed = false;
 
             if (opened() && Fl::event_inside(x(), y() + m_itemHeight, m_indent, h() - m_itemHeight)) {
-                unsigned cnt = children();
+                unsigned cnt = (unsigned) children();
 
                 for (unsigned i = 1; i < cnt; i++) {
                     auto item = (CTreeItem*) child(i);
@@ -326,7 +326,7 @@ void CTreeItem::draw()
     // draw the lines
     int lx = x() + m_indent / 2;
     int sly = y() + m_itemHeight / 2;
-    unsigned cnt = children();
+    unsigned cnt = (unsigned) children();
     int cly = sly;
     fl_color(0x40404000);
 
@@ -373,7 +373,7 @@ void CTreeItem::draw()
 
 CTreeItem* CTreeItem::findItem(const char* label) const
 {
-    unsigned cnt = children();
+    unsigned cnt = (unsigned) children();
     string slabel = label;
 
     for (unsigned i = 0; i < cnt; i++) {
@@ -395,7 +395,7 @@ CTreeItem* CTreeItem::findItem(const char* label) const
 
 CTreeItem* CTreeItem::findData(const void* itemData) const
 {
-    unsigned cnt = children();
+    unsigned cnt = (unsigned) children();
 
     for (unsigned i = 0; i < cnt; i++) {
         auto item = (CTreeItem*) child(i);
@@ -459,7 +459,7 @@ CTreeItem* CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image*
 void CTreeItem::visibleChildren(bool show)
 {
     m_opened = show;
-    unsigned cnt = children();
+    unsigned cnt = (unsigned) children();
 
     for (unsigned i = 1; i < cnt; i++) {
         auto item = dynamic_cast<CTreeItem*> (child(i));

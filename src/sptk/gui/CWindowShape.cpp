@@ -35,7 +35,9 @@ using namespace std;
 using namespace sptk;
 
 #ifndef _WIN32
+
 #include <X11/extensions/shape.h>
+
 #endif
 
 #define TOP_EDGE    1
@@ -56,7 +58,8 @@ CWindowShape::CWindowShape(CWindow* window)
     m_pushedY = 0;
 }
 
-void CWindowShape::initShapeExtension() {
+void CWindowShape::initShapeExtension()
+{
     m_shapeExtension = true;
 #ifdef _WIN32
     if (m_window)
@@ -64,7 +67,8 @@ void CWindowShape::initShapeExtension() {
 #endif
 }
 
-void CWindowShape::shapeApply() {
+void CWindowShape::shapeApply()
+{
     if (!m_shapeExtension)
         return;
     if (m_shapePoints.size()) {
@@ -81,7 +85,7 @@ void CWindowShape::shapeApply() {
             //ShowWindow(fl_xid(m_window),SW_SHOW);
         }
 #else
-        Region region = XPolygonRegion((XPoint*)array, m_shapePoints.size(), WindingRule);
+        Region region = XPolygonRegion((XPoint*) array, m_shapePoints.size(), WindingRule);
         //XUnmapWindow(fl_display, fl_xid(m_window));
         XShapeCombineRegion(fl_display, fl_xid(m_window), ShapeBounding, 0, 0, region, ShapeSet);
 
@@ -89,13 +93,13 @@ void CWindowShape::shapeApply() {
             int xpos = m_window->x();
             int ypos = m_window->y();
             // Defining window with no caption
-            long prop[5] = { 3,1,0,0,0 };
+            long prop[5] = {3, 1, 0, 0, 0};
             Atom motif_wm_hints = XInternAtom(fl_display, "_MOTIF_WM_HINTS", 0);
-            XChangeProperty (fl_display, fl_xid(m_window), motif_wm_hints, motif_wm_hints, 32,
-                             PropModeReplace, (unsigned char*) prop, 5);
+            XChangeProperty(fl_display, fl_xid(m_window), motif_wm_hints, motif_wm_hints, 32,
+                            PropModeReplace, (unsigned char*) prop, 5);
             m_borderCleared = true;
             //XDeleteProperty (fl_display, fl_xid(m_window),net_wm_state);
-            XMoveWindow(fl_display,fl_xid(m_window),xpos,ypos);
+            XMoveWindow(fl_display, fl_xid(m_window), xpos, ypos);
         }
 
         XMapWindow(fl_display, fl_xid(m_window));
@@ -107,93 +111,95 @@ void CWindowShape::shapeApply() {
     m_shapeChanged = false;
 }
 
-int CWindowShape::mouseZone(int mouseX,int mouseY) const {
+int CWindowShape::mouseZone(int mouseX, int mouseY) const
+{
     int zone = 0;
     int zoneWidth = m_borderWidth * 2;
 
     for (unsigned i = 0; i < 2; i++) {
         if (mouseX < zoneWidth) {
             zone = LEFT_EDGE;
-        } else
-            if (mouseX > m_window->w() - zoneWidth)
-                zone = RIGHT_EDGE;
+        } else if (mouseX > m_window->w() - zoneWidth)
+            zone = RIGHT_EDGE;
         if (mouseY < m_borderWidth)
             zone |= TOP_EDGE;
-        else
-            if (mouseY > m_window->h() - zoneWidth)
-                zone |= BOTTOM_EDGE;
-        if ( zone & (LEFT_EDGE|RIGHT_EDGE) && zone & (TOP_EDGE|BOTTOM_EDGE) )
+        else if (mouseY > m_window->h() - zoneWidth)
+            zone |= BOTTOM_EDGE;
+        if (zone & (LEFT_EDGE | RIGHT_EDGE) && zone & (TOP_EDGE | BOTTOM_EDGE))
             return zone; // Mouse is on the corner
         zoneWidth = m_borderWidth;
     }
     return zone;
 }
 
-void CWindowShape::changeSize(int mouseX,int mouseY) {
+void CWindowShape::changeSize(int mouseX, int mouseY)
+{
     if (!m_shapeExtension)
         return;
     if (!m_resizingZone)
         return;
-    int oldX=m_window->x(), oldY=m_window->y(), oldW=m_window->w(), oldH=m_window->h();
-    int newX=oldX, newY=oldY, newW=oldW, newH=oldH;
+    int oldX = m_window->x(), oldY = m_window->y(), oldW = m_window->w(), oldH = m_window->h();
+    int newX = oldX, newY = oldY, newW = oldW, newH = oldH;
 
     if (m_resizingZone & TOP_EDGE) {
         if (oldY != mouseY) {
-            newH = oldY + oldH- mouseY;
+            newH = oldY + oldH - mouseY;
             newY = mouseY;
         }
-    } else
-        if (m_resizingZone & BOTTOM_EDGE) {
-            if (oldY + oldH != mouseY)
-                newH = mouseY - oldY;
-        }
+    } else if (m_resizingZone & BOTTOM_EDGE) {
+        if (oldY + oldH != mouseY)
+            newH = mouseY - oldY;
+    }
 
     if (m_resizingZone & LEFT_EDGE) {
         if (oldX != mouseX) {
             newX = mouseX;
             newW = oldX + oldW - mouseX;
         }
-    } else
-        if (m_resizingZone & RIGHT_EDGE) {
-            if (oldX + oldW != mouseX)
-                newW = mouseX - oldX;
-        }
+    } else if (m_resizingZone & RIGHT_EDGE) {
+        if (oldX + oldW != mouseX)
+            newW = mouseX - oldX;
+    }
 
     if (newX != oldX || newY != oldY)
-        m_window->resize(newX,newY,newW,newH);
-    else
-        if (newW != oldW || newH != oldH)
-            m_window->size(newW,newH);
+        m_window->resize(newX, newY, newW, newH);
+    else if (newW != oldW || newH != oldH)
+        m_window->size(newW, newH);
 }
 
-int CWindowShape::shapeCursorHandle(int event) {
+int CWindowShape::shapeCursorHandle(int event)
+{
     if (!m_shapeExtension)
         return 0;
     switch (event) {
-    case FL_ENTER:
-    case FL_LEAVE:
-        return 1;
-    case FL_MOVE:
-        switch (mouseZone(Fl::event_x(),Fl::event_y())) {
-        case LEFT_EDGE|TOP_EDGE:
-        case RIGHT_EDGE|BOTTOM_EDGE:
-            m_window->cursor(FL_CURSOR_NWSE);
+        case FL_ENTER:
+        case FL_LEAVE:
             return 1;
-        case TOP_EDGE:
-        case BOTTOM_EDGE:
-            m_window->cursor(FL_CURSOR_NS);
+        case FL_MOVE:
+            switch (mouseZone(Fl::event_x(), Fl::event_y())) {
+                case LEFT_EDGE | TOP_EDGE:
+                case RIGHT_EDGE | BOTTOM_EDGE:
+                    m_window->cursor(FL_CURSOR_NWSE);
+                    return 1;
+                case TOP_EDGE:
+                case BOTTOM_EDGE:
+                    m_window->cursor(FL_CURSOR_NS);
+                    return 1;
+                case LEFT_EDGE:
+                case RIGHT_EDGE:
+                    m_window->cursor(FL_CURSOR_WE);
+                    return 1;
+                case LEFT_EDGE | BOTTOM_EDGE:
+                case RIGHT_EDGE | TOP_EDGE:
+                    m_window->cursor(FL_CURSOR_NESW);
+                    return 1;
+                default:
+                    break;
+            }
+            m_window->cursor(FL_CURSOR_DEFAULT);
             return 1;
-        case LEFT_EDGE:
-        case RIGHT_EDGE:
-            m_window->cursor(FL_CURSOR_WE);
-            return 1;
-        case LEFT_EDGE|BOTTOM_EDGE:
-        case RIGHT_EDGE|TOP_EDGE:
-            m_window->cursor(FL_CURSOR_NESW);
-            return 1;
-        }
-        m_window->cursor(FL_CURSOR_DEFAULT);
-        return 1;
+        default:
+            break;
     }
     return 0;
 }

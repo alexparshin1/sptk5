@@ -141,14 +141,14 @@ String sptk::int2string(int32_t value)
 {
     char buff[32];
     int len = snprintf(buff, sizeof(buff), "%i", value);
-    return string(buff, len);
+    return string(buff, (unsigned) len);
 }
 
 String sptk::int2string(uint32_t value)
 {
     char buff[64];
 	int len = snprintf(buff, sizeof(buff), "%u", value);
-    return string(buff, len);
+    return string(buff, (unsigned) len);
 }
 
 String sptk::int2string(int64_t value)
@@ -159,7 +159,7 @@ String sptk::int2string(int64_t value)
 #else
 	int len = snprintf(buff, sizeof(buff), "%lli", (long long int) value);
 #endif
-    return string(buff, len);
+    return string(buff, (unsigned) len);
 }
 
 String sptk::int2string(uint64_t value)
@@ -170,7 +170,7 @@ String sptk::int2string(uint64_t value)
 #else
 	int len = snprintf(buff, sizeof(buff), "%lu", value);
 #endif
-    return string(buff, len);
+    return string(buff, (unsigned) len);
 }
 
 int sptk::string2int(const String& str, int defaultValue)

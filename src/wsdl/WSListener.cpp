@@ -39,10 +39,10 @@ class WSConnection : public TCPServerConnection
 protected:
     WSRequest&      m_service;
     Logger&         m_logger;
-    string          m_staticFilesDirectory;
+    String          m_staticFilesDirectory;
 
 public:
-    WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger, const string& staticFilesDirectory)
+    WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger, const String& staticFilesDirectory)
     : TCPServerConnection(connectionSocket), m_service(service), m_logger(logger), m_staticFilesDirectory(staticFilesDirectory)
     {
     }

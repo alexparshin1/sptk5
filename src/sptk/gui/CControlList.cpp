@@ -35,7 +35,7 @@ using namespace sptk;
 
 void CControlList::scanControls(const Fl_Group *group)
 {
-    unsigned cnt = group->children();
+    auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Widget *widget = group->child(i);
 

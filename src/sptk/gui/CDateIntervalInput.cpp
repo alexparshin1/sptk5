@@ -177,10 +177,7 @@ bool CDateIntervalInput::valid() const
     DateTime dt1 = beginOfInterval();
     DateTime dt2 = endOfInterval();
 
-    if (!dt1.zero() && !dt2.zero() && dt1 > dt2)
-        return false;
-
-    return true;
+    return !(!dt1.zero() && !dt2.zero() && dt1 > dt2);
 }
 
 DateTime CDateIntervalInput::beginOfInterval() const

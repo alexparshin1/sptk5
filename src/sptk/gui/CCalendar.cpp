@@ -57,7 +57,7 @@ void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
     Fl_Group* buttonBox = button->parent();
     auto calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
     if (!calendar) return;
-    calendar->dayButtonClicked((unsigned long) param);
+    calendar->dayButtonClicked((uint32_t)(unsigned long) param);
 }
 
 // Callback function for switch buttons
@@ -65,7 +65,7 @@ void CCalendar::cbSwitchButtonClicked(Fl_Widget* button, void* param)
 {
     CCalendar* calendar = dynamic_cast<CCalendar*>(button->parent());
     if (!calendar) return;
-    calendar->switchButtonClicked((long) param);
+    calendar->switchButtonClicked((uint32_t)(long) param);
 }
 
 void CCalendar::dayButtonClicked(uint32_t day)
