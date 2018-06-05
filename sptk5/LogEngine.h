@@ -32,6 +32,7 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/threads/SynchronizedCode.h>
 
+#include <atomic>
 #include <iostream>
 
 #ifndef _WIN32
@@ -126,22 +127,22 @@ protected:
     /**
      * Mutex that protects internal data access
      */
-    mutable std::mutex  m_mutex;
+    mutable std::mutex			m_mutex;
 
     /**
      * The default priority for the new message
      */
-    LogPriority         m_defaultPriority;
+    std::atomic<LogPriority>	m_defaultPriority;
 
     /**
      * Min message priority, should be defined for every message
      */
-    LogPriority         m_minPriority;
+	std::atomic<LogPriority>    m_minPriority;
 
     /**
      * Log options, a bit combination of Option
      */
-    int                 m_options;
+	std::atomic_int32_t         m_options;
 
 
 public:
@@ -215,7 +216,6 @@ public:
      */
     void options(int ops)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         m_options = ops;
     }
 
@@ -225,7 +225,6 @@ public:
      */
     int options() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         return m_options;
     }
 
@@ -240,7 +239,6 @@ public:
      */
     void priority(LogPriority prt)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         m_minPriority = prt;
     }
 
@@ -253,7 +251,6 @@ public:
      */
     virtual void defaultPriority(LogPriority priority)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         m_defaultPriority = priority;
     }
 
@@ -265,7 +262,6 @@ public:
      */
     virtual LogPriority defaultPriority() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         return m_defaultPriority;
     }
 
@@ -277,7 +273,6 @@ public:
      */
     virtual void minPriority(LogPriority prt)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         m_minPriority = prt;
     }
 
@@ -288,7 +283,6 @@ public:
      */
     virtual LogPriority minPriority() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         return m_minPriority;
     }
 

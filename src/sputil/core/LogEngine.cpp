@@ -33,15 +33,14 @@ using namespace std;
 using namespace sptk;
 
 LogEngine::LogEngine()
+: m_defaultPriority(LP_INFO),
+  m_minPriority(LP_INFO),
+  m_options(LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY)
 {
-    m_defaultPriority = LP_INFO;
-    m_minPriority = LP_INFO;
-    m_options = LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY;
 }
 
 void LogEngine::option(Option option, bool flag)
 {
-    lock_guard<mutex> lock(m_mutex);
     if (flag)
         m_options |= option;
     else
