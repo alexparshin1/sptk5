@@ -33,7 +33,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/cgui>
-#include <sptk5/cdatabase>
 
 using namespace std;
 using namespace sptk;
@@ -130,7 +129,7 @@ Variant CButtonGroup::data() const
 int CButtonGroup::buttonIndex(const char* buttonLabel)
 {
     auto group = (CGroup*) m_control;
-    unsigned cnt = group->children();
+    unsigned cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         auto b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b) continue;

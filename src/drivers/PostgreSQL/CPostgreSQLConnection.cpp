@@ -1051,8 +1051,8 @@ std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                      const String& format)
+void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                                       const String& format)
 {
     stringstream sql("COPY ");
     sql << tableName << "(" << columnNames.asString(",") << ") FROM STDIN " << format;

@@ -161,7 +161,6 @@ bool CInput_::checkCharacter(int pos, char& key)
 {
     if (!m_inputMask[0]) return true;
     char et[] = {0, 0};
-    int rc = 1;
     size_t maxPos = m_inputMask.length();
     while (pos < (int) maxPos) {
         if (m_inputMask[pos] == ' ') {
@@ -173,7 +172,7 @@ bool CInput_::checkCharacter(int pos, char& key)
         } else {
             if (checkCharacterAtPos(pos, key)) {
                 et[0] = key;
-                rc = replace(pos, pos + 1, et, 1);
+                int rc = replace(pos, pos + 1, et, 1);
                 return rc > 0;
             }
             return true;
@@ -236,7 +235,7 @@ int CInput_::handle(int event)
                     }
                     break;
                 case FL_INT_INPUT:
-                    key = toupper(key);
+                    key = (char) toupper(key);
                     if (!strchr("0123456789XABCDEF+-", key)) return 0;
                     if (!pos && (key == '+' || key == '-')) return 0;
                     if (key > '9') {

@@ -244,17 +244,19 @@ void CPngImage::drawResized(int xx,int yy,int ww,int hh,int cornerWidth,CPattern
 void CPngImage::drawResized(int xx,int yy,int ww,int hh,int border[],CPatternDrawMode drawMode,bool drawBackground) {
     int xBorderSpace = border[BORDER_LEFT] + border[BORDER_RIGHT];
     int xSideSpace = w() - xBorderSpace;
-    int cornerSizeX = border[BORDER_LEFT];
 
     int yBorderSpace = border[BORDER_TOP] + border[BORDER_BOTTOM];
     int ySideSpace = h() - yBorderSpace;
-    int cornerSizeY = border[BORDER_TOP];
 
+    /*
+    int cornerSizeX = border[BORDER_LEFT];
     if (cornerSizeX > ww/2)
         cornerSizeX = ww/2;
+    int cornerSizeY = border[BORDER_TOP];
     if (cornerSizeY > hh/2)
         cornerSizeY = hh/2;
-    
+    */
+
     /// Draw corners
     int imageHeight = h(), imageWidth = w();
     draw(xx,yy,border[BORDER_LEFT],border[BORDER_TOP],0,0);

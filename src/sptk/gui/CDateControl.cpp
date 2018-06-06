@@ -37,7 +37,7 @@
 using namespace std;
 using namespace sptk;
 
-void CDateControl::date_cb(Fl_Widget* w, void* data)
+void CDateControl::date_cb(Fl_Widget* w, void*)
 {
     auto* dateControl = (CDateControl*) w->parent();
     dateControl->do_callback(dateControl, dateControl->user_data());

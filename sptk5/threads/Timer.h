@@ -40,7 +40,7 @@ namespace sptk {
              * Event bookmark definition.
              * It's just an iterator to event entry in events map.
              */
-            typedef Map::iterator                   Bookmark;
+            typedef Map::iterator               Bookmark;
 
         protected:
             DateTime                    m_timestamp;    ///< Event timestamp - when the event has to fire next time.
@@ -138,6 +138,11 @@ namespace sptk {
             void fire()
             {
                 m_timer->fire(this);
+            }
+
+            void unlinkFromTimer()
+            {
+                m_timer = nullptr;
             }
         };
 

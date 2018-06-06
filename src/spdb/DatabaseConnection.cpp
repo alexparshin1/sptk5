@@ -257,7 +257,8 @@ void DatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
-void DatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
+void DatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                                     const String& format)
 {
     Query insertQuery(this,
                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") +

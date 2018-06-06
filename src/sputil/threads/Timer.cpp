@@ -66,7 +66,9 @@ public:
         lock_guard<mutex> lock(m_scheduledMutex);
         while (!m_scheduledEvents.empty()) {
             auto itor = m_scheduledEvents.begin();
-            delete itor->second;
+            Timer::Event* event = itor->second;
+            event->unlinkFromTimer();
+            delete event;
             m_scheduledEvents.erase(itor);
         }
     }

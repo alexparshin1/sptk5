@@ -31,7 +31,6 @@
 #include <FL/Fl.H>
 
 #include <sptk5/gui/CThemeColorCollection.h>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -53,7 +52,7 @@ CThemeColorCollection::CThemeColorCollection()
 static Fl_Color colorFromHexString(string colorStr)
 {
     char* eptr;
-    uint32_t rgbColor = strtol(colorStr.c_str(),&eptr,16);
+    uint32_t rgbColor = (uint32_t) strtol(colorStr.c_str(),&eptr,16);
     uint32_t blue, green, red;
 
     if (colorStr.length() == 3) {

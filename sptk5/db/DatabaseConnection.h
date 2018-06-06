@@ -389,6 +389,20 @@ protected:
      */
     void logAndThrow(std::string method, std::string error);
 
+    /**
+     * @brief Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     * @param format            Data format (may be database-specific). The default is TAB-delimited data.
+     */
+    virtual void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                             const String& format);
+
 public:
     /**
      * @brief Destructor
@@ -494,7 +508,10 @@ public:
      * @param data              Data for bulk insert
      * @param format            Data format (may be database-specific). The default is TAB-delimited data.
      */
-    virtual void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "");
+    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "")
+    {
+        _bulkInsert(tableName, columnNames, data, format);
+    }
 
     /**
      * @brief Executes SQL batch file

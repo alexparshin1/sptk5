@@ -85,7 +85,7 @@ void CWindowShape::shapeApply()
             //ShowWindow(fl_xid(m_window),SW_SHOW);
         }
 #else
-        Region region = XPolygonRegion((XPoint*) array, m_shapePoints.size(), WindingRule);
+        Region region = XPolygonRegion((XPoint*) array, (int) m_shapePoints.size(), WindingRule);
         //XUnmapWindow(fl_display, fl_xid(m_window));
         XShapeCombineRegion(fl_display, fl_xid(m_window), ShapeBounding, 0, 0, region, ShapeSet);
 

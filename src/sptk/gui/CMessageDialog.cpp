@@ -47,12 +47,12 @@ CAskDialog::CAskDialog(const char* label, int w)
 
     m_textBox = new CHtmlBox("", 30, SP_ALIGN_CLIENT);
     m_textBox->labelWidth(0);
-    m_textBox->textSize(textSize);
+    m_textBox->textSize((uchar) textSize);
     m_textBox->color(FL_GRAY);
 
     m_inputBox = new CInput("", 10, SP_ALIGN_BOTTOM);
     m_inputBox->labelWidth(0);
-    m_inputBox->textSize(textSize);
+    m_inputBox->textSize((uchar) textSize);
     m_inputBox->hide();
 
     layoutGrowMode(LGM_AUTO_GROW);

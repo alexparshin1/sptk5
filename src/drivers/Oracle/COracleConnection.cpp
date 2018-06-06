@@ -544,7 +544,8 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
+void OracleConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                                   const String& format)
 {
     Query tableColumnsQuery(this,
                             "SELECT column_name, data_type, data_length "

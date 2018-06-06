@@ -50,7 +50,7 @@ void CListView::scrollbar_callback(Fl_Widget* s, void*)
 
 void CListView::hscrollbar_callback(Fl_Widget* s, void*)
 {
-    ((CListView*) (s->parent()))->hposition(int(((CScrollBar*) s)->value()));
+    ((CListView*) (s->parent()))->hposition(((CScrollBar*) s)->value());
 }
 
 int CListView::m_scrollbarWidth = 16;
@@ -113,7 +113,7 @@ void CListView::ctor_init()
     m_showSelection = true;
     m_autoRowHeight = false;
     m_textFont = FL_HELVETICA;
-    m_textSize = FL_NORMAL_SIZE;
+    m_textSize = (uchar) FL_NORMAL_SIZE;
     m_textColor = FL_FOREGROUND_COLOR;
     m_currentTextFont = m_textFont;
     m_currentTextSize = m_textSize;
@@ -346,7 +346,7 @@ void CListView::draw()
 
 bool CListView::item_selected(unsigned index) const
 {
-    return m_rows[index]->flags & CLV_SELECTED;
+    return (m_rows[index]->flags & CLV_SELECTED) != 0;
 }
 
 void CListView::item_select(unsigned index, bool v)
@@ -437,7 +437,7 @@ int CListView::item_compute_height(CPackedStrings* l)
                         column.width(cw); // adjust column width for auto-width column
                 }
                 if (ch > (int) hmax)
-                    hmax = ch;
+                    hmax = (unsigned) ch;
             }
         }
     }
@@ -582,7 +582,7 @@ void CListView::item_draw(
             item = m_rows[index];
     }
     if (item)
-        selected = item->flags & CLV_SELECTED;
+        selected = (item->flags & CLV_SELECTED) != 0;
     Fl_Color lcol = FL_FOREGROUND_COLOR;
     Fl_Color boxcol = FL_BACKGROUND2_COLOR;
     if (m_showStripes && (index & 0x1))
@@ -876,7 +876,7 @@ void CListView::textValue(const string& tv)
     if (column >= -1)
         for (unsigned line = 0; line < cnt; line++) {
             CPackedStrings* t = m_rows[line];
-            bool wasSelected = t->flags & CLV_SELECTED;
+            bool wasSelected = (t->flags & CLV_SELECTED) != 0;
             if ((*t)[column] == tv) {
                 activate_row(line);
                 dataWasChanged = true;
@@ -1554,7 +1554,7 @@ int CListView::handle(int event)
                         break;
                 }
             } else {
-                unsigned ch = Fl::event_key();
+                unsigned ch = (unsigned) Fl::event_key();
                 if (m_multipleSelection) {
                     if (ch == ' ')
                         select(m_activeRow, !item_selected(m_activeRow), 1);
@@ -1622,7 +1622,7 @@ int CListView::handle(int event)
                 m_selection.deselectAll();
             my = py = Fl::event_y();
             change = 0;
-            l = find_item(my);
+            l = (unsigned) find_item(my);
             if (m_multipleSelection && (Fl::event_state() & (FL_CTRL | FL_SHIFT)) != 0) {
                 if (Fl::event_state() & FL_CTRL) { // Ctrl pressed
                     if (l < unsigned(-1)) {
@@ -1808,7 +1808,7 @@ bool CListView::select_prior_page()
         hh += item_height(row);
         if (hh >= H)
             break;
-        newActiveRow = row;
+        newActiveRow = (unsigned) row;
     }
 
     if (newActiveRow == m_activeRow)

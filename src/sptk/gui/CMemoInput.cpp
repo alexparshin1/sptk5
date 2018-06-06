@@ -91,7 +91,7 @@ void CMemoInput::textFont(Fl_Font f)
 
 uchar CMemoInput::textSize() const
 {
-    return ((CEditor*) m_control)->textsize();
+    return (uchar) ((CEditor*) m_control)->textsize();
 }
 
 void CMemoInput::textSize(uchar s)

@@ -37,7 +37,7 @@ using namespace std;
 
 namespace sptk {
 
-    CPngImage *loadValidatePNGImage(string fileName,bool externalFile) {
+    CPngImage *loadValidatePNGImage(const string& fileName, bool externalFile) {
         try {
             CPngImage *img;
             if (externalFile) {

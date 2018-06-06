@@ -377,9 +377,9 @@ void CThemes::set(string theThemeName)
             CFrame* frame = m_frames.find(frameType);
             if (frame) {
                 frameWidth = frame->frameWidth();
-                Fl::set_boxtype(frameType, frameFuncs[i], frameWidth, frameWidth, frameWidth * 2, frameWidth * 2);
+                Fl::set_boxtype(frameType, frameFuncs[i], (uchar) frameWidth, (uchar) frameWidth, (uchar) (frameWidth * 2), (uchar) (frameWidth * 2));
             }
-            Fl::set_boxtype(stdBoxes[i], boxFuncs[i], frameWidth, frameWidth, frameWidth * 2, frameWidth * 2);
+            Fl::set_boxtype(stdBoxes[i], boxFuncs[i], (uchar) frameWidth, (uchar) frameWidth, (uchar) (frameWidth * 2), (uchar) (frameWidth * 2));
         }
 
         break;
@@ -489,22 +489,22 @@ void CThemes::drawThemeFrame(int x, int y, int w, int h, Fl_Boxtype frameType)
         fl_draw_box(frameType, x, y, w, h, FL_BLACK);
 }
 
-void CThemes::drawThinUpFrame(int x, int y, int w, int h, Fl_Color clr)
+void CThemes::drawThinUpFrame(int x, int y, int w, int h, Fl_Color)
 {
     drawThemeFrame(x, y, w, h, FL_THIN_UP_FRAME);
 }
 
-void CThemes::drawUpFrame(int x, int y, int w, int h, Fl_Color clr)
+void CThemes::drawUpFrame(int x, int y, int w, int h, Fl_Color)
 {
     drawThemeFrame(x, y, w, h, FL_UP_FRAME);
 }
 
-void CThemes::drawThinDownFrame(int x, int y, int w, int h, Fl_Color clr)
+void CThemes::drawThinDownFrame(int x, int y, int w, int h, Fl_Color)
 {
     drawThemeFrame(x, y, w, h, FL_THIN_DOWN_FRAME);
 }
 
-void CThemes::drawDownFrame(int x, int y, int w, int h, Fl_Color clr)
+void CThemes::drawDownFrame(int x, int y, int w, int h, Fl_Color)
 {
     drawThemeFrame(x, y, w, h, FL_DOWN_FRAME);
 }
@@ -721,7 +721,7 @@ bool CThemes::drawTab(int x, int y, int w, int h, bool active)
     return true;
 }
 
-bool CThemes::drawTabFrame(int x, int y, int w, int h)
+bool CThemes::drawTabFrame(int, int, int, int)
 {
     return false;
 }

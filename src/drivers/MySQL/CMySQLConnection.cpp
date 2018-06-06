@@ -384,7 +384,8 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
 }
 
-void MySQLConnection::bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
+void MySQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                                  const String& format)
 {
     char    fileName[256];
     snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%li", getpid(), (long) time(nullptr));

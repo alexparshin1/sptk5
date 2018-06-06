@@ -36,16 +36,9 @@
 #include <sptk5/gui/CTabs.h>
 #include <sptk5/gui/CThemes.h>
 
-#define BORDER 10
-#define TABSLOPE 5
-#define EXTRASPACE 2
-#define TAB_ROW_HEIGHT 20
-
 using namespace std;
 
 namespace sptk {
-
-class CTabButton;
 
 class CTabButtons;
 
@@ -137,7 +130,6 @@ public:
 class CTabGroup : public CGroup
 {
     friend class CTabButton;
-
     friend class CTabs;
 
     CTabButtons m_buttons;
@@ -345,7 +337,7 @@ bool CTabGroup::preferredSize(int& width, int& height)
     return preferredSize(0, 0, width, height, false);
 }
 
-bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buildRows)
+bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
 {
     unsigned offset = 0;
     unsigned rowCount = 1;
@@ -383,7 +375,7 @@ bool CTabGroup::preferredSize(int xx, int yy, int& width, int& height, bool buil
             height += rowHeight;
             rowHeight = 0;
             //offset = 0;
-            newOffset = bw;
+            newOffset = (unsigned) bw;
             rowCount++;
         }
         if (rowHeight < bh)

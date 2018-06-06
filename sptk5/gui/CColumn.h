@@ -76,16 +76,16 @@ public:
 
     /**
      * @brief Constructor
-     * @param cname std::string, column name
-     * @param type VariantType, column data type
-     * @param cwidth int16_t, column width
-     * @param cvisible bool, column visibility
+     * @param cname             Column name
+     * @param type              Column data type
+     * @param cwidth            Column width, or -1 for auto-width
+     * @param cvisible          Column visibility
      */
-    CColumn(const std::string& cname = "", VariantType type = VAR_STRING, uint32_t cwidth = 100, bool cvisible = true);
+    CColumn(const std::string& cname = "", VariantType type = VAR_STRING, int32_t cwidth = 100, bool cvisible = true);
 
     /**
      * @brief Copy constructor
-     * @param col const CColumn&, source column object
+     * @param col               Source column object
      */
     CColumn(const CColumn& col);
 
@@ -107,6 +107,7 @@ public:
 
     /**
      * @brief Sets column width in pixels
+     * @param                   Column width in pixels
      */
     void width(int16_t w)
     {
@@ -123,6 +124,7 @@ public:
 
     /**
      * @brief Sets column visibility
+     * @param v                 Visibility flag
      */
     void visible(bool v)
     {
@@ -139,6 +141,7 @@ public:
 
     /**
      * @brief Sets column auto width flag
+     * @param v                 Auto-width flag
      */
     void autoWidth(bool v)
     {
@@ -156,9 +159,8 @@ public:
     /**
      * @brief Loads column information
      *
-     * Loads information about column
-     * from the registry.
-     * @param node const XMLNode&, an XML node to load column information from
+     * Loads information about column from the registry.
+     * @param node              XML node to load column information from
      */
     void load(const XMLNode& node);
 
@@ -167,7 +169,7 @@ public:
      *
      * Loads information about column
      * from the registry.
-     * @param node const XMLNode*, an XML node to load column information from
+     * @param node              XML node to load column information from
      */
     void load(const XMLNode* node)
     {
@@ -179,7 +181,7 @@ public:
      *
      * Saves information about column
      * from the registry.
-     * @param node XMLNode&, an XML node to unload column information to
+     * @param node              XML node to unload column information to
      */
     void save(XMLNode& node) const;
 
@@ -188,7 +190,7 @@ public:
      *
      * Saves information about column
      * from the registry.
-     * @param node XMLNode*, an XML node to unload column information to
+     * @param node              XML node to unload column information to
      */
     void save(XMLNode* node) const
     {
@@ -212,25 +214,23 @@ public:
 
     /**
      * @brief Finds the column index by column name
-     * @param columnName const char *, column name
+     * @param columnName        Column name
      */
     int indexOf(const char *columnName) const;
 
     /**
      * @brief Loads columns information
      *
-     * Loads information about columns
-     * from the registry.
-     * @param node const XMLNode&, an XML node to load columns information from
+     * Loads information about columns from the registry.
+     * @param node              XML node to load columns information from
      */
     void load(const XMLNode& node);
 
     /**
      * @brief Loads columns information
      *
-     * Loads information about columns
-     * from the registry.
-     * @param node const XMLNode*, an XML node to load columns information from
+     * Loads information about columns from the registry.
+     * @param node              XML node to load columns information from
      */
     void load(const XMLNode* node)
     {
@@ -240,18 +240,16 @@ public:
     /**
      * @brief Saves columns information
      *
-     * Saves information about columns
-     * from the registry.
-     * @param node XMLNode&, an XML node to unload columns information to
+     * Saves information about columns from the registry.
+     * @param node              XML node to unload columns information to
      */
     void save(XMLNode& node) const;
 
     /**
      * @brief Saves columns information
      *
-     * Saves information about columns
-     * from the registry.
-     * @param node XMLNode*, an XML node to unload columns information to
+     * Saves information about columns from the registry.
+     * @param node              XML node to unload columns information to
      */
     void save(XMLNode* node) const
     {

@@ -31,7 +31,6 @@
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;

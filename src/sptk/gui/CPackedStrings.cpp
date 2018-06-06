@@ -37,8 +37,6 @@ using namespace sptk;
 #    include <stdlib.h>
 #  else
 
-#    include <alloca.h>
-
 #  endif
 
 #else

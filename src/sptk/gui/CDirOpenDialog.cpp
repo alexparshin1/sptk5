@@ -74,7 +74,7 @@ bool CDirOpenDialog::okPressed()
 }
 
 CDirOpenDialog::CDirOpenDialog(const string& caption)
-        : CFileDialog(caption, true)
+: CFileDialog(caption, true)
 {
     m_okButton->label("Use");
     m_okButton->buttonImage(SP_SAVE_BUTTON);

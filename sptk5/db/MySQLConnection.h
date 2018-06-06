@@ -153,6 +153,20 @@ public:
 
     MYSQL_STMT* createStatement();
 
+    /**
+     * @brief Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     * @param format            MySQL-specific data format options
+     */
+    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                     const String& format) override;
+
 public:
 
     /**
@@ -208,18 +222,6 @@ public:
      * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
-
-    /**
-     * @brief Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data, const String& format = "") override;
 
     /**
      * @brief Executes SQL batch file

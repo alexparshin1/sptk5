@@ -33,7 +33,7 @@
 
 namespace sptk {
 
-CPngImage *loadValidatePNGImage(std::string fileName,bool externalFile=false);
+CPngImage *loadValidatePNGImage(const std::string& fileName, bool externalFile = false);
 
 }
 

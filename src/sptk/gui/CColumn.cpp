@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-CColumn::CColumn(const string& cname, VariantType type, uint32_t cwidth, bool cvisible)
+CColumn::CColumn(const string& cname, VariantType type, int32_t cwidth, bool cvisible)
 {
     m_name = cname;
     m_type = type;

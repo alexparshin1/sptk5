@@ -36,7 +36,7 @@
 
 using namespace sptk;
 
-void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void* data)
+void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void*)
 {
     auto dateInput = (CDateTimeBaseInput*) btn->parent()->parent();
     if (!dateInput)

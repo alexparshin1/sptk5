@@ -30,7 +30,6 @@
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CThemeScrollBar.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -187,6 +186,8 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
         case 2:
             secondButtonSrc = scrollbar->m_steppers[1].image(THM_IMAGE_ACTIVE);
             secondButtonOvl = scrollbar->m_steppers[1].overlayImage(THM_IMAGE_NORMAL);
+            break;
+        default:
             break;
     }
 
