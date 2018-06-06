@@ -61,7 +61,7 @@ class SP_EXPORT SysLogEngine: public LogEngine
     /**
      * (Windows) The handle of the log file
      */
-    HANDLE              m_logHandle;
+    std::atomic<HANDLE> m_logHandle;
 
 #endif
 

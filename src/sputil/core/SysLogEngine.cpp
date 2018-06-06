@@ -70,29 +70,36 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 
 void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
-    bool isOpened;
+    bool		isOpened;
+	uint32_t	options;
+	string		programName;
+	uint32_t    facilities;
+
     {
         lock_guard<mutex> lock(syslogMutex);
         isOpened = m_logOpened;
-    }
+		options = m_options;
+		programName = m_programName;
+		facilities = m_facilities;
+	}
 
-    lock_guard<mutex> lock(m_mutex);
-    if (m_options & LO_ENABLE) {
+    if (options & LO_ENABLE) {
 #ifndef _WIN32
-        if (!isOpened)
-            openlog(m_programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
-        syslog(int(m_facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
+		lock_guard<mutex> lock(m_mutex);
+		if (!isOpened)
+            openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
+        syslog(int(facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
 #else
-        if (!m_logHandle) {
+        if (m_logHandle.load() == nullptr) {
             OSVERSIONINFO version;
             version.dwOSVersionInfoSize = sizeof(version);
             if (!GetVersionEx(&version))
                 throw Exception("Can't determine Windows version");
             if (version.dwPlatformId != VER_PLATFORM_WIN32_NT)
                 throw Exception("EventLog is only implemented on NT-based Windows");
-            m_logHandle = RegisterEventSource(NULL, m_programName.c_str());
+            m_logHandle = RegisterEventSource(NULL, programName.c_str());
         }
-        if (!m_logHandle)
+        if (m_logHandle.load() == nullptr)
             throw Exception("Can't open Application Event Log");
 
         WORD eventType;
@@ -131,15 +138,15 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
 #endif
     }
 
-    if (m_options & LO_STDOUT) {
+    if (options & LO_STDOUT) {
         string messagePrefix;
-        if (m_options & LO_DATE)
+        if (options & LO_DATE)
             messagePrefix += date.dateString() + " ";
 
-        if (m_options & LO_TIME)
+        if (options & LO_TIME)
             messagePrefix += date.timeString(true) + " ";
 
-        if (m_options & LO_PRIORITY)
+        if (options & LO_PRIORITY)
             messagePrefix += "[" + priorityName(priority) + "] ";
 
         cout << messagePrefix + message + "\n";
@@ -149,8 +156,15 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
 SysLogEngine::~SysLogEngine()
 {
 #ifndef _WIN32
-    m_objectCounter--;
-    if (m_logOpened && m_objectCounter < 1)
+	bool needToClose = false;
+	{
+		lock_guard<mutex> lock(syslogMutex);
+		m_objectCounter--;
+		if (m_logOpened && m_objectCounter < 1)
+			needToClose = true;
+	}
+
+	if (needToClose)
         closelog();
 #else
     if (m_logHandle)

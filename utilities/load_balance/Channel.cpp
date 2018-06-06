@@ -70,12 +70,12 @@ int Channel::copyData(TCPSocket& source, TCPSocket& destination)
     char        buffer[1024];
     uint32_t    totalBytes = 0;
     size_t      fragmentSize = sizeof(buffer);
-    ssize_t     readBytes = fragmentSize;
+    int         readBytes = (int) fragmentSize;
 
     while ((size_t) readBytes == fragmentSize) {
 
 #ifdef _WIN32
-        readBytes = _read(source.handle(), buffer, fragmentSize);
+        readBytes = _read(source.handle(), buffer, (unsigned) fragmentSize);
         if (readBytes < 0)
             throw SystemException("Can't read from socket");
 
