@@ -53,6 +53,9 @@ int SmtpConnect::getResponse(bool decode)
     bool readCompleted = false;
     int rc = 0;
 
+    if (!readyToRead(chrono::seconds(30)))
+        throw TimeoutException("SMTP server response timeout");
+
     while (!readCompleted) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
@@ -139,11 +142,11 @@ string SmtpConnect::unmime(const string& s)
 void SmtpConnect::cmd_auth(const string& user, const string& password)
 {
     close();
-    open();
+    open(Host(), SOM_CONNECT, true, chrono::seconds(30));
 
     m_response.clear();
     getResponse();
-    
+
     int rc = command("EHLO localhost");
     if (rc > 251)
         throw Exception(m_response.asString("\n"));
@@ -162,7 +165,7 @@ void SmtpConnect::cmd_auth(const string& user, const string& password)
             throw Exception("This SMTP module only supports LOGIN and PLAIN authentication.");
         method = "PLAIN";
     }
-    
+
     if (!trim(user).empty()) {
         if (method == "LOGIN") {
             rc = command("AUTH LOGIN", false, true);

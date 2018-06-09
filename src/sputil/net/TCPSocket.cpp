@@ -209,7 +209,7 @@ void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
         throw Exception("Please, define the host name", __FILE__, __LINE__);
 
     sockaddr_in address = {};
-    host.getAddress(address);
+    m_host.getAddress(address);
 
     open(address, openMode, _blockingMode, timeout);
 }
