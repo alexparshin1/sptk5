@@ -261,7 +261,7 @@ void ODBCConnection::queryExecute(Query* query)
     else
         rc = SQLExecDirect(query->statement(), (SQLCHAR*) query->sql().c_str(), SQL_NTS);
 
-    if (rc != SQL_SUCCESS) {
+    if (!successful(rc)) {
         SQLCHAR state[16];
         SQLCHAR text[1024];
         SQLINTEGER nativeError = 0;
