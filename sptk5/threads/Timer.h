@@ -140,6 +140,9 @@ namespace sptk {
                 m_timer->fire(this);
             }
 
+            /**
+             * Disconnect event from timer (internal)
+             */
             void unlinkFromTimer()
             {
                 m_timer = nullptr;
