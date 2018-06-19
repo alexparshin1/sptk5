@@ -6,7 +6,7 @@ using namespace sptk;
 class TimerThread : public Thread
 {
     std::mutex                              m_scheduledMutex;
-    std::multimap<long, Timer::Event*>      m_scheduledEvents;
+    std::multimap<int64_t, Timer::Event*>   m_scheduledEvents;
     Semaphore                               m_semaphore;
 protected:
     void threadFunction() override;
@@ -24,7 +24,7 @@ public:
         chrono::milliseconds timepointMS = chrono::duration_cast<chrono::milliseconds>(event->getWhen().sinceEpoch());
 
         lock_guard<mutex> lock(m_scheduledMutex);
-        auto bookmark = m_scheduledEvents.insert(pair<long,Timer::Event*>(timepointMS.count(), event));
+        auto bookmark = m_scheduledEvents.insert(pair<int64_t,Timer::Event*>(timepointMS.count(), event));
         event->setBookmark(bookmark);
         m_semaphore.post();
     }
