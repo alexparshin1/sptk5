@@ -70,21 +70,21 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
 
 void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
 {
-	uint32_t	options;
-	string		programName;
-	uint32_t    facilities;
+    uint32_t    options;
+    string      programName;
+    uint32_t    facilities;
 
     {
         lock_guard<mutex> lock(syslogMutex);
-		options = m_options;
-		programName = m_programName;
-		facilities = m_facilities;
-	}
+        options = m_options;
+        programName = m_programName;
+        facilities = m_facilities;
+    }
 
     if (options & LO_ENABLE) {
 #ifndef _WIN32
-		lock_guard<mutex> lock(m_mutex);
-		if (!m_logOpened)
+        lock_guard<mutex> lock(m_mutex);
+        if (!m_logOpened)
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
         syslog(int(facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
 #else
