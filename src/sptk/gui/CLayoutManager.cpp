@@ -109,7 +109,7 @@ void CLayoutManager::relayout()
 {
     if (!m_group)
         return;
-    unsigned cnt = (unsigned) m_group->children();
+    auto cnt = (unsigned) m_group->children();
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Widget* widget = m_group->child(i);
         if (!widget->visible())
@@ -171,7 +171,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
         int hh = h - frame_dh;
         int preferred_w, preferred_h;
         Fl_Widget* clientWidget = nullptr;
-        unsigned cnt = (unsigned) m_group->children();
+        auto cnt = (unsigned) m_group->children();
         bool extended = false;
         CLayoutClient* ca;
         unsigned layoutWidgets = 0;
@@ -390,7 +390,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
                 continue;
             string widgetType = widgetNode->name();
             //cout << "Creating " << widgetType << ": ";
-            createControlCallbackMap::iterator cctor = controlCreator.find(widgetType);
+            auto cctor = controlCreator.find(widgetType);
             if (cctor == controlCreator.end()) {
                 //cout << " not supported" << endl;
                 continue; // the widget type isn't supported
@@ -420,7 +420,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
     } else {
         map<string, XMLNode*> xmlControls;
         map<string, XMLNode*> xmlGroups;
-        XMLNode::const_iterator itor = groupNode->begin();
+        auto itor = groupNode->begin();
         for (; itor != groupNode->end(); ++itor) {
             XMLNode* node = *itor;
             string label = node->getAttribute("label");
@@ -475,7 +475,7 @@ void CLayoutManager::saveLayout(XMLNode* groupNode, CLayoutXMLmode xmlMode) cons
     auto layoutClient = dynamic_cast<CLayoutClient*>(m_group);
     if (layoutClient)
         layoutClient->save(groupNode, xmlMode);
-    unsigned childCount = (unsigned) m_group->children();
+    auto childCount = (unsigned) m_group->children();
     auto scroll = dynamic_cast<CScroll*>(m_group);
     if (scroll)
         childCount -= 2; // Skipping scrollbars

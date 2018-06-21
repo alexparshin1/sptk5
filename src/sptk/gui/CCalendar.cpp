@@ -63,7 +63,7 @@ void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
 // Callback function for switch buttons
 void CCalendar::cbSwitchButtonClicked(Fl_Widget* button, void* param)
 {
-    CCalendar* calendar = dynamic_cast<CCalendar*>(button->parent());
+    auto calendar = dynamic_cast<CCalendar*>(button->parent());
     if (!calendar) return;
     calendar->switchButtonClicked((uint32_t)(long) param);
 }
@@ -152,7 +152,7 @@ void CCalendar::ctor_init()
     m_buttonBox->box(FL_FLAT_BOX);
     m_buttonBox->color(fl_darker(FL_GRAY));
     for (i = 0; i < 31; i++) {
-        Fl_Button* btn = new Fl_Button(xx, yy, 16, 16, monthDayLabels[i]);
+        auto btn = new Fl_Button(xx, yy, 16, 16, monthDayLabels[i]);
         m_dayButtons[i] = btn;
         btn->callback(cbDayButtonClicked, (void*) (i + 1));
         btn->color(fl_lighter(fl_lighter(color())));

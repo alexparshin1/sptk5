@@ -235,7 +235,7 @@ namespace sptk {
         Strings gtkrc;
 
         for (unsigned i = 0; i < gtkrcSource.size(); i++) {
-            string s = trim(gtkrcSource[i]);
+            String s = trim(gtkrcSource[i]);
 
             size_t pos = 0;
 
