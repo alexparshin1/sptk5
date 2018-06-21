@@ -192,7 +192,6 @@ void HttpReader::read(TCPSocket& socket)
     if (m_readerState == READING_DATA) {
         if (!readData(socket))
             return;
-        m_readerState = READING_DATA;
     }
 
     auto itor = m_responseHeaders.find("content-encoding");
