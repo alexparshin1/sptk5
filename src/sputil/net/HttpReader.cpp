@@ -178,7 +178,7 @@ void HttpReader::read(TCPSocket& socket)
         m_statusCode = 0;
         m_statusText = "";
         if (!readStatus(socket))
-            return;
+            throw Exception("Can't read server response");
         m_readerState = READING_HEADERS;
         m_contentReceivedLength = 0;
     }
