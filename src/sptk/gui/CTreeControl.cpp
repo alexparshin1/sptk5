@@ -161,7 +161,7 @@ int CTreeItem::handle(int event)
             tree()->m_tabPressed = false;
 
             if (opened() && Fl::event_inside(x(), y() + m_itemHeight, m_indent, h() - m_itemHeight)) {
-                unsigned cnt = (unsigned) children();
+                auto cnt = (unsigned) children();
 
                 for (unsigned i = 1; i < cnt; i++) {
                     auto item = (CTreeItem*) child(i);
@@ -326,7 +326,7 @@ void CTreeItem::draw()
     // draw the lines
     int lx = x() + m_indent / 2;
     int sly = y() + m_itemHeight / 2;
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
     int cly = sly;
     fl_color(0x40404000);
 
@@ -373,7 +373,7 @@ void CTreeItem::draw()
 
 CTreeItem* CTreeItem::findItem(const char* label) const
 {
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
     string slabel = label;
 
     for (unsigned i = 0; i < cnt; i++) {
@@ -395,7 +395,7 @@ CTreeItem* CTreeItem::findItem(const char* label) const
 
 CTreeItem* CTreeItem::findData(const void* itemData) const
 {
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
 
     for (unsigned i = 0; i < cnt; i++) {
         auto item = (CTreeItem*) child(i);
@@ -459,7 +459,7 @@ CTreeItem* CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image*
 void CTreeItem::visibleChildren(bool show)
 {
     m_opened = show;
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
 
     for (unsigned i = 1; i < cnt; i++) {
         auto item = dynamic_cast<CTreeItem*> (child(i));
@@ -692,7 +692,7 @@ CTreeControl::CTreeControl(const char* label, int layoutSize, CLayoutAlign align
     end();
 }
 
-CLayoutClient* CTreeControl::defaultItemCreator(CTreeItem* item)
+CLayoutClient* CTreeControl::defaultItemCreator(CTreeItem*)
 {
     auto box = new CBox("", 16, SP_ALIGN_TOP);
     box->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
@@ -804,14 +804,12 @@ void CTreeControl::makeVisible(CTreeItem* item)
 
 int CTreeControl::handle(int event)
 {
-    CTreeItem* old_selection;
-
     if (event == FL_PUSH)
         return CScroll::handle(event);
 
     if (event == FL_FOCUS) {
         m_tabPressed = false;
-        old_selection = selected();
+        CTreeItem* old_selection = selected();
 
         if (old_selection) {
             Fl::focus(old_selection);
@@ -823,7 +821,7 @@ int CTreeControl::handle(int event)
     return CScroll::handle(event);
 }
 
-void CTreeControl::load(const XMLNode& groupNode, bool autoCreate)
+void CTreeControl::load(const XMLNode& groupNode, bool /*autoCreate*/)
 {
     if (m_noXml)
         return;

@@ -133,7 +133,7 @@ public:
      * Finds an item with a particular caption. Returns NULL if not found.
      * @param caption CString, item caption (a string in the first column)
      */
-    CPackedStrings *findCaption(std::string caption) const;
+    CPackedStrings *findCaption(const String& caption) const;
 };
 /**
  * @}

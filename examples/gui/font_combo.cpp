@@ -33,9 +33,9 @@ using namespace sptk;
 
 CMemoInput *memoInput;
 
-void font_cb(Fl_Widget *fc, void *data)
+void font_cb(Fl_Widget *fc, void *)
 {
-    CFontComboBox *fontCombo = dynamic_cast<CFontComboBox *>(fc);
+    auto fontCombo = dynamic_cast<CFontComboBox *>(fc);
     if (!fontCombo)
         return;
     if (fontCombo->eventType() == CE_DATA_CHANGED) {

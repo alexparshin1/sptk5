@@ -45,14 +45,14 @@ namespace sptk {
     class CRadioButton : public Fl_Round_Button, public CLayoutClient
     {
     protected:
-        virtual void draw();
+        void draw() override;
 
     public:
         CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment);
 
-        int handle(int);
+        int handle(int) override;
 
-        virtual bool preferredSize(int& w, int& h);
+        bool preferredSize(int& w, int& h) override;
     };
 
 }
@@ -122,9 +122,9 @@ int CRadioButton::handle(int event)
 
 void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
 {
-    Fl_Button* b = (Fl_Button*) w;
+    auto b = (Fl_Button*) w;
     Fl_Group* g = b->parent();
-    CRadioButtons* r = (CRadioButtons*) g->parent();
+    auto r = (CRadioButtons*) g->parent();
     r->deselectAllButtons();
     b->value(1);
     g->redraw();
@@ -142,7 +142,7 @@ CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
 
 CLayoutClient* CRadioButtons::creator(XMLNode* node)
 {
-    CRadioButtons* widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
+    auto widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -157,10 +157,10 @@ Fl_Button* CRadioButtons::createButton(const char* label, int sz, CLayoutAlign l
 
 int32_t CRadioButtons::intValue() const
 {
-    CScroll* group = (CScroll*) m_control;
-    uint32_t cnt = (unsigned) group->children();
+    auto group = (CScroll*) m_control;
+    auto cnt = (unsigned) group->children();
     for (uint32_t i = 0; i < cnt; i++) {
-        Fl_Button* b = dynamic_cast<Fl_Button*>(group->child(i));
+        auto b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
             continue;
         if (b->value())
@@ -172,10 +172,10 @@ int32_t CRadioButtons::intValue() const
 void CRadioButtons::intValue(int32_t v)
 {
     deselectAllButtons();
-    CScroll* group = (CScroll*) m_control;
-    unsigned cnt = (unsigned) group->children();
+    auto group = (CScroll*) m_control;
+    auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button* b = dynamic_cast<Fl_Button*>(group->child(i));
+        auto b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
             continue;
         if (long(b->user_data()) == v) {

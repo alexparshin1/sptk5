@@ -87,7 +87,7 @@ int main()
         text = "Area code: 415 Phone: 123-4567";
         cout << "\nParsing the text: " << text << endl;
         RegularExpression phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
-        string phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
+        String phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
         cout << "Reformatted phone number: " << phoneNumber << endl << endl;
 
         DateTime started = DateTime::Now();

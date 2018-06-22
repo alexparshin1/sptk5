@@ -245,7 +245,7 @@ const String& HttpReader::getStatusText() const
     return m_statusText;
 }
 
-string HttpReader::responseHeader(const string& headerName) const
+String HttpReader::responseHeader(const String& headerName) const
 {
     lock_guard<mutex> lock(m_mutex);
 

@@ -30,6 +30,7 @@
 #define __SPTK_INTLIST_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/String.h>
 #include <vector>
 #include <algorithm>
 
@@ -70,7 +71,7 @@ public:
      * Converts to string as a list of values, separated with user-defined character
      * (comma, by default)
      */
-    std::string toString(const char * separator=",") const;
+    String toString(const char* separator = ",") const;
 
     /**
      * Converts from string of a list of values, separated with user-defined character

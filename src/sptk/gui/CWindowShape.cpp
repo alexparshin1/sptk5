@@ -71,7 +71,7 @@ void CWindowShape::shapeApply()
 {
     if (!m_shapeExtension)
         return;
-    if (m_shapePoints.size()) {
+    if (!m_shapePoints.empty()) {
         CShapePoint* array = &m_shapePoints[0];
 #ifdef _WIN32
         HRGN region = CreatePolygonRgn((CONST POINT*)array, (int) m_shapePoints.size(), WINDING);

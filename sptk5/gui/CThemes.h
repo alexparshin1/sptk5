@@ -332,7 +332,7 @@ protected:
      * The GTK theme name is read from .gconf directory.
      * @param gtkThemeName std::string, GTK2 theme name
      */
-    static void loadGtkTheme(std::string gtkThemeName);
+    static void loadGtkTheme(const String& gtkThemeName);
 
 public:
 

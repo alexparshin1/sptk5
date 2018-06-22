@@ -36,54 +36,54 @@
 #include "CGtkThemeLoader.h"
 
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <windows.h>
+#include <winsock2.h>
+#include <windows.h>
 #endif
 
 using namespace std;
 using namespace sptk;
 
-void CThemes::loadGtkButton(XMLNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames)
+void CThemes::loadGtkButton(XMLNode* imageNode, std::map<CThemeImageState, std::string>& buttonFileNames)
 {
-    static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT","|"); /// DFRAME is a stub
+    static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT", "|"); /// DFRAME is a stub
 
-    bool defaultFrame = imageNode->getAttribute("detail","").str() == "buttondefault";
+    bool defaultFrame = imageNode->getAttribute("detail", "").str() == "buttondefault";
 
-    string fileName = imageNode->getAttribute("file");
+    String fileName = imageNode->getAttribute("file");
     if (fileName.empty())
         fileName = imageNode->getAttribute("overlay_file").str();
 
-    string state = upperCase(imageNode->getAttribute("state","NORMAL"));
+    String state = upperCase(imageNode->getAttribute("state", "NORMAL"));
     //string border = imageNode->getAttribute("border");
-    string shadow = upperCase(imageNode->getAttribute("shadow","OUT"));
+    String shadow = upperCase(imageNode->getAttribute("shadow", "OUT"));
     if (shadow == "ETCHED_IN")
         return;
-    if (fileName[0] == '/') fileName = fileName.substr(1,255);
+    if (fileName[0] == '/') fileName = fileName.substr(1, 255);
     int buttonState = buttonStates.indexOf(state);
     if (defaultFrame)
         buttonState = THM_DEFAULT_FRAME;
     else if (buttonState > -1 && shadow == "IN")
-            buttonState++;
+        buttonState++;
     if (buttonState > -1 && fileName.find(".png") != STRING_NPOS)
         buttonFileNames[CThemeImageState(buttonState)] = m_themeFolder + fileName;
 }
 
-void CThemes::loadGtkButtonFileNames(XMLDocument& xml,string XPath,map<CThemeImageState,string>& buttonFileNames,string orientation)
+void CThemes::loadGtkButtonFileNames(
+        XMLDocument& xml, string XPath, map<CThemeImageState, string>& buttonFileNames, string orientation)
 {
     XMLNodeVector buttonImages;
-    
+
     buttonFileNames.clear();
-    xml.select(buttonImages,XPath);
-    for (XMLNode::iterator itor = buttonImages.begin(); itor != buttonImages.end(); ++itor) {
-        XMLNode* imageNode = *itor;
+    xml.select(buttonImages, XPath);
+    for (auto imageNode : buttonImages) {
         if (!orientation.empty() && imageNode->getAttribute("arrow_direction").str() != orientation)
             continue;
-        loadGtkButton(imageNode,buttonFileNames);
+        loadGtkButton(imageNode, buttonFileNames);
     }
 
     if (buttonFileNames[THM_IMAGE_ACTIVE].empty())
         buttonFileNames[THM_IMAGE_ACTIVE] = buttonFileNames[THM_IMAGE_NORMAL];
-    
+
     if (buttonFileNames[THM_IMAGE_NORMAL_HIGHLITED].empty())
         buttonFileNames[THM_IMAGE_NORMAL_HIGHLITED] = buttonFileNames[THM_IMAGE_NORMAL];
 
@@ -91,14 +91,16 @@ void CThemes::loadGtkButtonFileNames(XMLDocument& xml,string XPath,map<CThemeIma
         buttonFileNames[THM_IMAGE_ACTIVE_HIGHLITED] = buttonFileNames[THM_IMAGE_ACTIVE];
 }
 
-void CThemes::loadGtkButtons(XMLDocument& xml,string styleName,CThemeImageCollection& buttons,string function) {
+void CThemes::loadGtkButtons(XMLDocument& xml, string styleName, CThemeImageCollection& buttons, string function)
+{
     string XPath("/styles/style[@name='" + styleName + "']/engine[@name='pixmap']/image");
-    buttons.loadFromGtkTheme(xml,XPath,"function",function);
+    buttons.loadFromGtkTheme(xml, XPath, "function", function);
 }
 
-void CThemes::loadGtkTheme(string gtkThemeName) {
+void CThemes::loadGtkTheme(const String& gtkThemeName)
+{
     CGtkThemeParser gtkThemeLoader;
-    string          testThemeName(gtkThemeName);
+    const String& testThemeName(gtkThemeName);
 
     try {
         gtkThemeLoader.load(testThemeName);
@@ -124,20 +126,24 @@ void CThemes::loadGtkTheme(string gtkThemeName) {
     /// Load theme colors
     m_colors.loadFromGtkTheme(xml);
 
-    loadGtkButtons(xml,"button",m_normalButtons,"BOX");
-    loadGtkButtons(xml,"checkbutton",m_checkButtons,"CHECK");
-    loadGtkButtons(xml,"radiobutton",m_radioButtons,"OPTION");
-    loadGtkButtons(xml,"combobutton",m_comboButtons,"BOX");
+    loadGtkButtons(xml, "button", m_normalButtons, "BOX");
+    loadGtkButtons(xml, "checkbutton", m_checkButtons, "CHECK");
+    loadGtkButtons(xml, "radiobutton", m_radioButtons, "OPTION");
+    loadGtkButtons(xml, "combobutton", m_comboButtons, "BOX");
 
     loadGtkScrollbars(xml);
-    
-    m_progressBar[0].loadFromGtkTheme(xml,"/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='trough']","orientation","HORIZONTAL");
-    m_progressBar[1].loadFromGtkTheme(xml,"/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='bar']","orientation","HORIZONTAL");
+
+    m_progressBar[0].loadFromGtkTheme(xml,
+                                      "/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='trough']",
+                                      "orientation", "HORIZONTAL");
+    m_progressBar[1].loadFromGtkTheme(xml,
+                                      "/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='bar']",
+                                      "orientation", "HORIZONTAL");
 
     XMLNodeVector bgImageNodes;
-    xml.select(bgImageNodes,"/styles/style/bg_pixmap");
-    if (bgImageNodes.size()) {
+    xml.select(bgImageNodes, "/styles/style/bg_pixmap");
+    if (!bgImageNodes.empty()) {
         string fileName = CThemeImageCollection::gtkFullFileName(bgImageNodes[0]->getAttribute("NORMAL"));
-        m_background[3] = loadValidatePNGImage(fileName,true);
+        m_background[3] = loadValidatePNGImage(fileName, true);
     }
 }

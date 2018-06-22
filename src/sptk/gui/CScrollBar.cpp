@@ -74,7 +74,7 @@ int CScrollBar::handle(int event)
     else if (relx >= ww)
         area = 2;
     else {
-        int S = int(slider_size() * ww + .5);
+        auto S = int(slider_size() * ww + .5);
         int T = (horizontal() ? H : W) / 2 + 1;
         if (S < T)
             S = T;
@@ -118,7 +118,8 @@ int CScrollBar::handle(int event)
 
 void CScrollBar::draw()
 {
-    CThemes::drawScrollBar(x(), y(), w(), h(), (float) minimum(), (float) maximum(), (float) value(), slider_size(), m_pushed, active_r() != 0);
+    CThemes::drawScrollBar(x(), y(), w(), h(), (float) minimum(), (float) maximum(), (float) value(), slider_size(),
+                           m_pushed, active_r() != 0);
 }
 
 bool CScrollBar::preferredSize(int& w, int& h)

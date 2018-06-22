@@ -150,7 +150,8 @@ public:
      * @param orientation std::string, scrollbar button orientation ("UP","DOWN","LEFT","RIGHT")
      * @param buttonImages CThemeImageCollection&, output button images
      */
-    static void loadGtkScrollbarButtons(XMLDocument& xml, std::string orientation, CThemeImageCollection& buttonImages);
+    static void loadGtkScrollbarButtons(
+            XMLDocument& xml, const String& orientation, CThemeImageCollection& buttonImages);
 
     /**
      * @brief Loads GTK theme scrollbar troughs

@@ -47,7 +47,7 @@ class CTabButton : public Fl_Button
     Fl_Group* m_page;
     CTabButtons* m_ownerRow;
 public:
-    CTabButton(Fl_Group* page)
+    explicit CTabButton(Fl_Group* page)
             : Fl_Button(0, 0, 10, 10, "")
     {
         m_page = page;
@@ -75,9 +75,9 @@ public:
         return m_page;
     }
 
-    virtual void draw();
+    void draw() override;
 
-    virtual int handle(int event);
+    int handle(int event) override;
 };
 
 class CTabButtons : public vector<CTabButton*>
@@ -156,11 +156,11 @@ public:
 
     virtual bool preferredSize(int x, int y, int& w, int& h, bool buildRows);
 
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 
-    virtual void resize(int x, int y, int w, int h);
+    void resize(int x, int y, int w, int h) override;
 
-    virtual void draw();
+    void draw() override;
 
     /// @brief Returns currently selected tab
     Fl_Group* page()
@@ -341,7 +341,7 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
 {
     unsigned offset = 0;
     unsigned rowCount = 1;
-    unsigned buttonCount = (unsigned) children();
+    auto buttonCount = (unsigned) children();
     int maxWidth = 0;
 
     CTabButtons* row = nullptr;
@@ -403,12 +403,12 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
         }
         auto rtor = m_rows.begin();
         auto rend = m_rows.end();
-        unsigned yPosition = (unsigned) y();
+        auto yPosition = (unsigned) y();
         for (; rtor != rend; rtor++) {
             CTabButtons* brow = *rtor;
             auto btor = brow->begin();
             auto bend = brow->end();
-            unsigned xPosition = (unsigned) x();
+            auto xPosition = (unsigned) x();
             for (; btor != bend; btor++) {
                 CTabButton* button = *btor;
                 button->position(xPosition, yPosition);

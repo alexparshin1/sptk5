@@ -35,13 +35,13 @@
 using namespace std;
 using namespace sptk;
 
-std::map<std::string,gtk_color_function>*    CThemeColorCollection::m_gtkColorFunctionMap;
-std::map<std::string,Fl_Color>               CThemeColorCollection::m_colorMap;
+std::map<std::string, gtk_color_function>* CThemeColorCollection::m_gtkColorFunctionMap;
+std::map<std::string, Fl_Color>               CThemeColorCollection::m_colorMap;
 
 CThemeColorCollection::CThemeColorCollection()
 {
     if (!m_gtkColorFunctionMap) {
-        m_gtkColorFunctionMap = new std::map<std::string,gtk_color_function>;
+        m_gtkColorFunctionMap = new std::map<std::string, gtk_color_function>;
         (*m_gtkColorFunctionMap)["darker"] = darker;
         (*m_gtkColorFunctionMap)["lighter"] = lighter;
         (*m_gtkColorFunctionMap)["shade"] = shade;
@@ -49,16 +49,18 @@ CThemeColorCollection::CThemeColorCollection()
     }
 }
 
-static Fl_Color colorFromHexString(string colorStr)
+static Fl_Color colorFromHexString(const String& colorStr)
 {
     char* eptr;
-    uint32_t rgbColor = (uint32_t) strtol(colorStr.c_str(),&eptr,16);
+    auto rgbColor = (uint32_t) strtol(colorStr.c_str(), &eptr, 16);
     uint32_t blue, green, red;
 
     if (colorStr.length() == 3) {
-        blue  = rgbColor % 16 * 16; rgbColor /= 16;
-        green = rgbColor % 16 * 16; rgbColor /= 16;
-        red   = rgbColor % 16 * 16;
+        blue = rgbColor % 16 * 16;
+        rgbColor /= 16;
+        green = rgbColor % 16 * 16;
+        rgbColor /= 16;
+        red = rgbColor % 16 * 16;
         rgbColor = (red * 256 + green) * 256 + blue;
     }
 
@@ -70,7 +72,7 @@ static void splitArguments(const string& expression, Strings& arguments)
     int subExpressionLevel = 0;
 
     const char* ptr1 = expression.c_str();
-    const char* ptr2 = NULL;
+    const char* ptr2 = nullptr;
     while ((ptr2 = strpbrk(ptr1, "(,"))) {
         if (*ptr2 == '(') {
             const char* ptr = ptr2 + 1;
@@ -102,13 +104,13 @@ static void splitArguments(const string& expression, Strings& arguments)
     arguments.push_back(ptr1);
 }
 
-static void splitExpression(const string& colorValue,string& function,string& arguments)
+static void splitExpression(const string& colorValue, string& function, string& arguments)
 {
     size_t pos1 = colorValue.find("(");
     size_t pos2 = colorValue.rfind(")");
-    if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
-        function = trim(colorValue.substr(0,pos1-1));
-        arguments = trim(colorValue.substr(pos1+1,pos2-pos1-1));
+    if (pos1 != STRING_NPOS && pos2 != STRING_NPOS) {
+        function = trim(colorValue.substr(0, pos1 - 1));
+        arguments = trim(colorValue.substr(pos1 + 1, pos2 - pos1 - 1));
     }
 }
 
@@ -130,11 +132,11 @@ Fl_Color CThemeColorCollection::darker(std::string expression)
 Fl_Color CThemeColorCollection::mix(std::string expression)
 {
     Strings args;
-    splitArguments(expression,args);
+    splitArguments(expression, args);
     double weight = atof(args[0].c_str());
     Fl_Color color1 = gtkColorFunction(args[1]);
     Fl_Color color2 = gtkColorFunction(args[2]);
-    return fl_color_average(color1,color2,float(weight));
+    return fl_color_average(color1, color2, float(weight));
 }
 
 static unsigned char shadeColorComponent(unsigned colorComponent, double multiplier)
@@ -148,7 +150,7 @@ static unsigned char shadeColorComponent(unsigned colorComponent, double multipl
 Fl_Color CThemeColorCollection::shade(std::string expression)
 {
     Strings args;
-    splitArguments(expression,args);
+    splitArguments(expression, args);
     if (args.size() < 2)
         return fl_darker(gtkColorFunction(expression));
     double multiplier = atof(args[0].c_str());
@@ -156,11 +158,11 @@ Fl_Color CThemeColorCollection::shade(std::string expression)
         multiplier = 1;
 
     Fl_Color color = gtkColorFunction(args[1]);
-    unsigned char r = shadeColorComponent((unsigned char)(color >> 24),multiplier);
-    unsigned char g = shadeColorComponent((unsigned char)(color >> 16),multiplier);
-    unsigned char b = shadeColorComponent((unsigned char)(color >> 8),multiplier);
+    unsigned char r = shadeColorComponent((unsigned char) (color >> 24), multiplier);
+    unsigned char g = shadeColorComponent((unsigned char) (color >> 16), multiplier);
+    unsigned char b = shadeColorComponent((unsigned char) (color >> 8), multiplier);
 
-    return fl_rgb_color(r,g,b);
+    return fl_rgb_color(r, g, b);
 }
 
 Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
@@ -169,16 +171,16 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
     string colorValue(trim(expression));
     switch (colorValue[0]) {
         case '#': // Direct color value
-            return colorFromHexString(colorValue.c_str()+1);
+            return colorFromHexString(colorValue.c_str() + 1);
         case '@': // Color from color map
-            return m_colorMap[colorValue.c_str()+1];
+            return m_colorMap[colorValue.c_str() + 1];
         default:  // Color function
-            splitExpression(colorValue,function,arguments);
+            splitExpression(colorValue, function, arguments);
             if (function.empty()) {
                 cerr << "Color expression '" << expression << "' isn't understood" << endl;
                 return FL_BLACK;
             }
-            std::map<std::string,gtk_color_function>::iterator itor = m_gtkColorFunctionMap->find(function);
+            std::map<std::string, gtk_color_function>::iterator itor = m_gtkColorFunctionMap->find(function);
             if (itor == m_gtkColorFunctionMap->end()) {
                 cerr << "Color function '" << function << "' isn't supported" << endl;
                 return passby(arguments);
@@ -189,9 +191,9 @@ Fl_Color CThemeColorCollection::gtkColorFunction(std::string expression)
     }
 }
 
-void CThemeColorCollection::loadColor(XMLNode* colorNode,CThemeColorIndex colorIndex)
+void CThemeColorCollection::loadColor(XMLNode* colorNode, CThemeColorIndex colorIndex)
 {
-    static const Strings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE",",");
+    static const Strings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE", ",");
     XMLAttributes::iterator itor = colorNode->attributes().begin();
     for (; itor != colorNode->attributes().end(); ++itor) {
         XMLNode* colorStateNode = *itor;
@@ -204,29 +206,29 @@ void CThemeColorCollection::loadColor(XMLNode* colorNode,CThemeColorIndex colorI
     }
 }
 
-static const char* colorNames[THM_MAX_COLOR_INDEX] = { "fg", "bg", "base", "text" };
+static const char* colorNames[THM_MAX_COLOR_INDEX] = {"fg", "bg", "base", "text"};
 
 void CThemeColorCollection::loadFromSptkTheme(XMLDocument& sptkTheme)
 {
-    loadColorMap(sptkTheme,"/color_scheme");
+    loadColorMap(sptkTheme, "/color_scheme");
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath = string("/color_scheme/") + colorNames[colorIndex];
         XMLNodeVector colorNodes;
-        sptkTheme.select(colorNodes,colorXPath);
+        sptkTheme.select(colorNodes, colorXPath);
         if (colorNodes.size() == 1) {
             XMLNode* colorNode = *(colorNodes.begin());
-            loadColor(colorNode,CThemeColorIndex(colorIndex));
+            loadColor(colorNode, CThemeColorIndex(colorIndex));
         }
     }
 }
 
 void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
 {
-    loadColorMap(gtkTheme,"/gtk_color_scheme");
+    loadColorMap(gtkTheme, "/gtk_color_scheme");
 
     string stylesXPath = "/styles/style";
     XMLNodeVector styleNodes;
-    gtkTheme.select(styleNodes,stylesXPath);
+    gtkTheme.select(styleNodes, stylesXPath);
     XMLNode* defaultStyleNode = *styleNodes.begin();
     for (XMLNode::iterator itor = styleNodes.begin(); itor != styleNodes.end(); ++itor) {
         XMLNode* styleNode = *itor;
@@ -240,36 +242,36 @@ void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath(colorNames[colorIndex]);
         XMLNodeVector colorNodes;
-        defaultStyleNode->select(colorNodes,colorXPath);
+        defaultStyleNode->select(colorNodes, colorXPath);
         size_t elements = colorNodes.size();
         if (elements == 1) {
             XMLNode* colorNode = *(colorNodes.begin());
-            loadColor(colorNode,CThemeColorIndex(colorIndex));
+            loadColor(colorNode, CThemeColorIndex(colorIndex));
         }
     }
 
-    Fl::set_color(FL_FOREGROUND_COLOR,fgColor(THM_COLOR_NORMAL));
-    Fl::set_color(FL_BACKGROUND_COLOR,bgColor(THM_COLOR_NORMAL));
-    Fl::set_color(FL_BACKGROUND2_COLOR,baseColor(THM_COLOR_NORMAL));
-    Fl::set_color(FL_INACTIVE_COLOR,fgColor(THM_COLOR_INSENSITIVE));
-    Fl::set_color(FL_SELECTION_COLOR,bgColor(THM_COLOR_SELECTED));
+    Fl::set_color(FL_FOREGROUND_COLOR, fgColor(THM_COLOR_NORMAL));
+    Fl::set_color(FL_BACKGROUND_COLOR, bgColor(THM_COLOR_NORMAL));
+    Fl::set_color(FL_BACKGROUND2_COLOR, baseColor(THM_COLOR_NORMAL));
+    Fl::set_color(FL_INACTIVE_COLOR, fgColor(THM_COLOR_INSENSITIVE));
+    Fl::set_color(FL_SELECTION_COLOR, bgColor(THM_COLOR_SELECTED));
 }
 
-void CThemeColorCollection::loadColorMap(XMLDocument& gtkTheme,string colorMapXPath)
+void CThemeColorCollection::loadColorMap(XMLDocument& gtkTheme, string colorMapXPath)
 {
     m_colorMap.clear();
 
     XMLNodeVector colorMapNodes;
-    gtkTheme.select(colorMapNodes,colorMapXPath);
+    gtkTheme.select(colorMapNodes, colorMapXPath);
     if (!colorMapNodes.size())
         return;
 
     XMLNode* colorMapNode = *(colorMapNodes.begin());
 
-    Strings colorMapStrings(colorMapNode->getAttribute("colors"),"\\n");
+    Strings colorMapStrings(colorMapNode->getAttribute("colors"), "\\n");
 
     for (unsigned i = 0; i < colorMapStrings.size(); i++) {
-        Strings colorInfo(colorMapStrings[i],":#");
+        Strings colorInfo(colorMapStrings[i], ":#");
         if (colorInfo.size() != 2)
             continue;
         m_colorMap[colorInfo[0]] = colorFromHexString(colorInfo[1]);

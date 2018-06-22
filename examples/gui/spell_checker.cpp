@@ -26,49 +26,48 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <FL/fl_ask.H>
 #include <sptk5/cgui>
 #include <sptk5/gui/CEditorSpellChecker.h>
-#include <sptk5/Exception.h>
 
 using namespace std;
 using namespace sptk;
 
-CEditor  *editor;
+CEditor* editor;
 
-void cb_spellCheck(Fl_Widget *,void *)
+void cb_spellCheck(Fl_Widget*, void*)
 {
-   CEditorSpellChecker sc(editor);
-   try {
-      sc.spellCheck();
-   }
-   catch (exception& e) {
-      fl_alert("%s",e.what());
-   }
+    CEditorSpellChecker sc(editor);
+    try {
+        sc.spellCheck();
+    }
+    catch (exception& e) {
+        fl_alert("%s", e.what());
+    }
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
-   CThemes  themes;
-   CWindow  window(400,300,"CSpellChecker test");
-   
-   editor = new CEditor(10,SP_ALIGN_CLIENT);
+    CThemes themes;
+    CWindow window(400, 300, "CSpellChecker test");
 
-   editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");
+    editor = new CEditor(10, SP_ALIGN_CLIENT);
 
-   CToolBar toolBar;
-   CButton  spellCheckButton("Spell Check",SP_ALIGN_LEFT);
-   spellCheckButton.callback(cb_spellCheck);
+    editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");
 
-   window.show();
+    CToolBar toolBar;
+    CButton spellCheckButton("Spell Check", SP_ALIGN_LEFT);
+    spellCheckButton.callback(cb_spellCheck);
 
-   CThemes::set("OSX");
+    window.show();
 
-   window.relayout();
+    CThemes::set("OSX");
 
-   Fl::run();
+    window.relayout();
 
-   return 0;
+    Fl::run();
+
+    return 0;
 }
