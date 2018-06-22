@@ -44,7 +44,7 @@ void CDBDropDownListView::item_clicked(int /*mouse_btn*/)
 
 void CDBDropDownListView::onExit()
 {
-    CDBDropDownList* wnd = (CDBDropDownList*) window();
+    auto wnd = (CDBDropDownList*) window();
     wnd->m_clicked = -1;
     wnd->hide();
 }

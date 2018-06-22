@@ -102,7 +102,7 @@ void CCheckButtons::checkButtonsCallback(Fl_Widget* w, void*)
 {
     auto b = (Fl_Button*) w;
     Fl_Group* g = b->parent();
-    CCheckButtons* c = (CCheckButtons*) g->parent();
+    auto c = (CCheckButtons*) g->parent();
     c->controlDataChanged();
     g->redraw();
 }
@@ -132,7 +132,7 @@ Variant CCheckButtons::data() const
     auto group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button* b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         if (b->value()) {
@@ -163,7 +163,7 @@ void CCheckButtons::data(const Variant s)
     for (unsigned i = 0; i < cnt; i++) {
         int ndx = buttonIndex(sl[i].c_str());
         if (ndx > -1) {
-            Fl_Button* b = (Fl_Button*) g->child(ndx);
+            auto b = (Fl_Button*) g->child(ndx);
             b->value(1);
         } else {
             if (m_otherButton) {
@@ -180,7 +180,7 @@ void CCheckButtons::getSelections(IntList& selection) const
     auto group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        Fl_Button* b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         if (b->value()) {
@@ -199,7 +199,7 @@ void CCheckButtons::setSelections(const IntList& selection)
         auto b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
-        uint32_t id = (uint32_t) (long) b->user_data();
+        auto id = (uint32_t) (long) b->user_data();
         auto itor = std::find(selection.begin(), selection.end(), id);
         if (itor != selection.end())
             b->value(1);
@@ -208,7 +208,7 @@ void CCheckButtons::setSelections(const IntList& selection)
 
 CLayoutClient* CCheckButtons::creator(XMLNode* node)
 {
-    CCheckButtons* widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
+    auto widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

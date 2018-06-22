@@ -148,7 +148,7 @@ public:
     /**
      * Returns current directory
      */
-    void directory(const std::string& d);
+    void directory(const String& d);
 
     /**
      * Sets current directory

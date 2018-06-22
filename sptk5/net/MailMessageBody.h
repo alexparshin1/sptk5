@@ -72,18 +72,18 @@ class SP_EXPORT MailMessageBody
     /**
      * Plain text part of the message
      */
-    std::string         m_plainText;
+    String              m_plainText;
 
     /**
      * Optional HTML part of the message
      */
-    std::string         m_htmlText;
+    String              m_htmlText;
 
 
     /**
      * Builds a plain text string from HTML text
      */
-    String stripHtml(const std::string& origHtml);
+    String stripHtml(const String& origHtml);
 
 public:
     /**

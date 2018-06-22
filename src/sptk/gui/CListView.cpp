@@ -30,7 +30,7 @@
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include <math.h>
+#include <cmath>
 
 #include <sptk5/db/Query.h>
 #include <sptk5/CSmallPixmapIDs.h>
@@ -288,7 +288,7 @@ void CListView::draw()
             int textAlign = FL_ALIGN_TOP;
             if (m_autoRowHeight)
                 textAlign |= FL_ALIGN_WRAP;
-            item_draw(l, 0L, X - m_horizPosition, yy + Y, W + m_horizPosition, hh, Fl::focus() == this, textAlign,
+            item_draw(l, nullptr, X - m_horizPosition, yy + Y, W + m_horizPosition, hh, Fl::focus() == this, textAlign,
                       false);
             fl_pop_clip();
         }
@@ -467,7 +467,7 @@ void CListView::sortColumn(int column, bool sortNow)
         return;
     CColumn& columnInfo = m_columnList[column];
     VariantType ctype = columnInfo.type();
-    CPackedStrings* row = 0L;
+    CPackedStrings* row = nullptr;
     if (m_activeRow < size())
         row = m_rows[m_activeRow];
     m_rows.sortColumn(column, ctype, sortNow);
@@ -495,7 +495,7 @@ std::string CListView::sortColumnName() const
 
 void CListView::sortAscending(bool ascending, bool sortNow)
 {
-    CPackedStrings* row = 0L;
+    CPackedStrings* row = nullptr;
     if (m_activeRow < size())
         row = m_rows[m_activeRow];
     m_rows.sortAscending(ascending, sortNow);
@@ -577,7 +577,7 @@ void CListView::item_draw(
     bool selected = false;
     if (!item) {
         if ((int) index < 0)
-            item = NULL;
+            item = nullptr;
         else
             item = m_rows[index];
     }
@@ -610,7 +610,7 @@ void CListView::item_draw(
     size_t cnt = m_columnList.size();
     if (item && (size_t) item->size() < cnt)
         cnt = item->size();
-    Fl_Align align = Fl_Align(FL_ALIGN_LEFT | verticalAlign);
+    auto align = Fl_Align(FL_ALIGN_LEFT | verticalAlign);
     int borderWidth = cellBorderWidth();
     int x = xx;
     int xf = xx + borderWidth - 1;
@@ -674,11 +674,11 @@ void CListView::item_draw(
                     fl_push_clip(xt, yy, wt, hh);
                     if (column.type() & (VAR_IMAGE_PTR | VAR_IMAGE_NDX)) {
                         char* endptr;
-                        Fl_Image* image = 0;
+                        Fl_Image* image = nullptr;
 #ifdef _WIN32
                         uint64_t value = strtol(str, &endptr, 16);
 #else
-                        uint64_t value = (uint64_t) strtoll(str, &endptr, 16);
+                        auto value = (uint64_t) strtoll(str, &endptr, 16);
 #endif
                         if (column.type() == VAR_IMAGE_PTR)
                             image = (Fl_Image*) value;
@@ -696,7 +696,7 @@ void CListView::item_draw(
                             fl_color(lcol);
                         else
                             fl_color(item_color(i, *item));
-                        fl_draw(str, xt, yy, wt, hh, align, 0, 0);
+                        fl_draw(str, xt, yy, wt, hh, align, nullptr, 0);
                     }
                     fl_pop_clip();
                 }
@@ -757,7 +757,7 @@ void CListView::addRow(int rowId, const char* s1, const char* s2, const char* s3
 
 void CListView::addRow(int count, const char* ptr[], int rowId)
 {
-    CPackedStrings* ps = new CPackedStrings(count, ptr);
+    auto ps = new CPackedStrings(count, ptr);
     ps->argument(rowId);
     item_compute_height(ps);
     m_rows.add(ps);
@@ -771,7 +771,7 @@ void CListView::addRow(CPackedStrings* ptr)
 
 void CListView::addRow(const Strings& ss, int ident)
 {
-    CPackedStrings* packedStrings = new CPackedStrings(ss);
+    auto packedStrings = new CPackedStrings(ss);
     if (ident)
         packedStrings->argument(ident);
     addRow(packedStrings);
@@ -785,7 +785,7 @@ void CListView::insertRow(unsigned position, CPackedStrings* ptr)
 
 void CListView::insertRow(unsigned position, const Strings& ss, int ident)
 {
-    CPackedStrings* packedStrings = new CPackedStrings(ss);
+    auto packedStrings = new CPackedStrings(ss);
     if (ident)
         packedStrings->argument(ident);
     insertRow(position, packedStrings);
@@ -871,7 +871,7 @@ void CListView::textValue(const string& tv)
 {
     unsigned cnt = m_rows.size();
     bool dataWasChanged = false;
-    void* dataValue = 0;
+    void* dataValue = nullptr;
     int column = m_rows.sortColumn();
     if (column >= -1)
         for (unsigned line = 0; line < cnt; line++) {
@@ -916,11 +916,11 @@ Variant CListView::data() const
 void CListView::data(const Variant vv)
 {
     unsigned cnt = m_rows.size();
-    void* dataValue = 0;
+    void* dataValue = nullptr;
     int intValue = vv;
     unsigned oldSelectedCount = m_selection.size();
-    CPackedStrings* oldSelectedRow = 0L;
-    CPackedStrings* newSelectedRow = 0L;
+    CPackedStrings* oldSelectedRow = nullptr;
+    CPackedStrings* newSelectedRow = nullptr;
 
     if (oldSelectedCount > 0)
         oldSelectedRow = &m_selection[0];
@@ -930,7 +930,7 @@ void CListView::data(const Variant vv)
             newSelectedRow = findKey(vv);
             break;
         case LV_DATA_INDEX: {
-            unsigned line = (unsigned) intValue;
+            auto line = (unsigned) intValue;
             if (line < cnt) {
                 newSelectedRow = m_rows[line];
             }
@@ -1167,7 +1167,7 @@ int CListView::findString(const string& str, bool findAndSelect, unsigned startR
     int col = m_rows.sortColumn();
     if (col < 0)
         col = 0;
-    std::string searchStr = lowerCase(str);
+    String searchStr = lowerCase(str);
     for (int i = startRow; i <= (int) endRow; i++) {
         CPackedStrings* row = m_rows[i];
         std::string currentStr((*row)[col]);
@@ -1251,7 +1251,7 @@ void CListView::fill(
                 columnName = columnName.replace("_", " ");
                 if (m_capitalizeColumnNames)
                     columnName = capitalizeWords(columnName);
-                short cwidth = short(field.view.width + 1);
+                auto cwidth = short(field.view.width + 1);
                 VariantType ctype = field.dataType();
                 switch (ctype) {
                     case VAR_BOOL:
@@ -1281,7 +1281,7 @@ void CListView::fill(
                     default:
                         break;
                 }
-                short maxcw = short(columnName.length() + 1);
+                auto maxcw = short(columnName.length() + 1);
                 if (cwidth < maxcw)
                     cwidth = maxcw;
                 if (cwidth > 50)
@@ -1303,7 +1303,7 @@ void CListView::fill(
 
             // Memorizing selected records IDs, if the keyField is defined
             unsigned selectedCount = 0;
-            int* selectedIDs = 0L;
+            int* selectedIDs = nullptr;
             if (keyField < 9999) {
                 selectedCount = m_selection.size();
 
@@ -1400,12 +1400,11 @@ void CListView::fill(
                     m_selection.select(m_rows[rowNumber]);
             }
 
-            if (selectedIDs)
-                delete[] selectedIDs;
+            delete[] selectedIDs;
 
             // check if we have any selection in SELECT_BROWSER
             if (!m_multipleSelection && !m_selection.size()) {
-                select(0, 1);
+                select(0, true);
             }
 
             if (unsigned(m_rows.sortColumn()) < columns().size())
@@ -1439,9 +1438,9 @@ bool CListView::select_only(unsigned index, bool docallbacks)
     CPackedStrings* row = m_rows[index];
     bool change = false;
     if (row) {
-        bool change = (row->flags & CLV_SELECTED) == 0;
+        change = (row->flags & CLV_SELECTED) == 0;
         m_selection.deselectAll();
-        if (select(index, 1, docallbacks))
+        if (select(index, true, docallbacks))
             change = true;
         m_activeRow = index;
         displayRow(index);
@@ -1452,7 +1451,7 @@ bool CListView::select_only(unsigned index, bool docallbacks)
 }
 
 // translate the current keystroke into up/down/left/right for navigation:
-#define ctrl(x) (x^0x40)
+#define ctrl(x) ((x)^0x40)
 
 static int navkey()
 {
@@ -1554,7 +1553,7 @@ int CListView::handle(int event)
                         break;
                 }
             } else {
-                unsigned ch = (unsigned) Fl::event_key();
+                auto ch = (unsigned) Fl::event_key();
                 if (m_multipleSelection) {
                     if (ch == ' ')
                         select(m_activeRow, !item_selected(m_activeRow), 1);
@@ -1849,7 +1848,7 @@ bool CListView::displayed(unsigned index) const
         if (l == index)
             return yy >= 0;
     }
-    return 0;
+    return false;
 }
 
 unsigned CListView::fullHeight()
@@ -1870,7 +1869,7 @@ unsigned CListView::fullWidth() const
 bool CListView::select(unsigned index, bool i, int docallbacks)
 {
     if (index >= size())
-        return 0;
+        return false;
     bool sel = item_selected(index);
     if (m_multipleSelection) {
         item_select(index, i);
@@ -1916,7 +1915,7 @@ bool CListView::activate_row(unsigned newActiveRow)
 {
     if (newActiveRow < size()) {
         if (m_activeRow != newActiveRow) {
-            select_only(newActiveRow, 1);
+            select_only(newActiveRow, true);
             return true;
         }
     }
@@ -1929,7 +1928,7 @@ CPackedStrings* CListView::selectedRow() const
         CPackedStrings& ps = m_selection[0];
         return &ps;
     }
-    return NULL;
+    return nullptr;
 }
 
 CColumn& CListView::column(const char* colname)
@@ -1948,11 +1947,11 @@ CPackedStrings* CListView::findCaption(std::string caption)
 
     unsigned cnt = m_rows.size();
     for (unsigned i = 0; i < cnt; i++) {
-        CPackedStrings* row = m_rows[i];
+        row = m_rows[i];
         if (strcmp((*row)[0], caption.c_str()) == 0)
             return row;
     }
-    return 0L;
+    return nullptr;
 }
 
 CPackedStrings* CListView::findKey(int keyValue)
@@ -1963,20 +1962,20 @@ CPackedStrings* CListView::findKey(int keyValue)
 
     unsigned cnt = m_rows.size();
     for (unsigned i = 0; i < cnt; i++) {
-        CPackedStrings* row = m_rows[i];
+        row = m_rows[i];
         if (row->argument() == keyValue)
             return row;
     }
-    return 0L;
+    return nullptr;
 }
 
 void CListView::loadList(const XMLNode* node)
 {
     clear();
-    XMLNode::const_iterator itor = node->begin();
+    auto ntor = node->begin();
 
-    for (; itor != node->end(); ++itor) {
-        XMLNode* anode = *itor;
+    for (; ntor != node->end(); ++ntor) {
+        XMLNode* anode = *ntor;
 
         if (anode->name() == "columns") {
             m_columnList.load(*anode);
@@ -1984,14 +1983,14 @@ void CListView::loadList(const XMLNode* node)
         }
 
         if (anode->name() == "rows") {
-            XMLNode::const_iterator itor = anode->begin();
+            auto itor = anode->begin();
             size_t colCount = m_columnList.size();
             if (colCount > 0) {
-                cpchar* strings = new cpchar[colCount];
+                auto strings = new cpchar[colCount];
                 for (; itor != anode->end(); ++itor) {
                     XMLNode* rowNode = *itor;
                     int rowID = rowNode->getAttribute("id");
-                    XMLNode::iterator rtor = rowNode->begin();
+                    auto rtor = rowNode->begin();
                     unsigned c = 0;
                     memset(strings, 0, sizeof(pchar) * colCount);
                     for (; rtor != rowNode->end(); ++rtor, ++c) {
@@ -2001,14 +2000,14 @@ void CListView::loadList(const XMLNode* node)
                             c = index;
                         if (c >= colCount)
                             break;
-                        XMLNode::iterator ctor = cellNode->begin();
+                        auto ctor = cellNode->begin();
                         if (ctor != cellNode->end()) {
                             XMLNode* cdata = *ctor;
                             strings[c] = (char*) cdata->value().c_str();
                         }
                     }
                     for (c = 0; c < colCount; c++)
-                        if (strings[c] == 0)
+                        if (strings[c] == nullptr)
                             strings[c] = "";
                     addRow((int) colCount, strings, rowID);
                 }
