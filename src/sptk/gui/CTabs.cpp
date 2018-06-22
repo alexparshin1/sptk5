@@ -54,7 +54,7 @@ public:
         m_ownerRow = nullptr;
     }
 
-    virtual ~CTabButton() = default;
+    ~CTabButton() override = default;
 
     virtual bool preferredSize(int& w, int& h);
 
@@ -143,7 +143,7 @@ protected:
 
 public:
     CTabGroup()
-            : CGroup("", 16, SP_ALIGN_TOP)
+    : CGroup("", 16, SP_ALIGN_TOP)
     {
         m_activeTabButton = nullptr;
         layoutSpacing(0);
@@ -154,11 +154,11 @@ public:
 
     void remove(Fl_Group* group);
 
-    virtual bool preferredSize(int x, int y, int& w, int& h, bool buildRows);
+    virtual bool preferredSize(int x, int y, int& width, int& height, bool buildRows);
 
-    bool preferredSize(int& w, int& h) override;
+    bool preferredSize(int& width, int& height) override;
 
-    void resize(int x, int y, int w, int h) override;
+    void resize(int xx, int yy, int width, int height) override;
 
     void draw() override;
 

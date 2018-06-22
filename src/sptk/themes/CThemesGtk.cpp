@@ -91,7 +91,8 @@ void CThemes::loadGtkButtonFileNames(
         buttonFileNames[THM_IMAGE_ACTIVE_HIGHLITED] = buttonFileNames[THM_IMAGE_ACTIVE];
 }
 
-void CThemes::loadGtkButtons(XMLDocument& xml, string styleName, CThemeImageCollection& buttons, string function)
+void CThemes::loadGtkButtons(XMLDocument& xml, const String& styleName, CThemeImageCollection& buttons,
+                             const String& function)
 {
     string XPath("/styles/style[@name='" + styleName + "']/engine[@name='pixmap']/image");
     buttons.loadFromGtkTheme(xml, XPath, "function", function);

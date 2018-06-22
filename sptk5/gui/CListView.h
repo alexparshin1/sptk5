@@ -430,7 +430,7 @@ protected:
      * @param paintBackground bool, true if the item should paint the background
      * @returns item width
      */
-    virtual void item_draw(uint32_t index, const CPackedStrings *rowData, int x, int y, int w, int h, int focusMode, int verticalAlign, bool paintBackground = true) const;
+    virtual void item_draw(uint32_t index, const CPackedStrings *rowData, int x, int y, int w, int h, int focusMode, int verticalAlign, bool paintBackground) const;
 
     /**
      * Internal mouse callback

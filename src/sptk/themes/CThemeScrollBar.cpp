@@ -30,6 +30,7 @@
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CThemeScrollBar.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +40,7 @@ int CThemeScrollBar::m_scrollBarTroughBorder = 1;
 int CThemeScrollBar::m_scrollBarSliderWidth = 14;
 int CThemeScrollBar::m_scrollBarStepperSize = 14;
 
-void CScrollBarImages::load(CThemeScrollBarType atype, bool desaturateInactiveButtons, bool externalFile)
+void CScrollBarImages::load(CThemeScrollBarType atype, bool /*desaturateInactiveButtons*/, bool /*externalFile*/)
 {
     static const char* scrollbarParts[] = {"-trough", "-slider", "-grip"};
 
@@ -269,10 +270,10 @@ bool CThemeScrollBar::drawScrollBar(
     }
 
     int ww = (vertical ? h : w) - bsize * 2;
-    auto S = int(sliderSize * ww + .5);
+    auto S = int(std::round(sliderSize * ww));
     if (S < 10)
         S = 10;
-    int xx = int(val * (ww - S) + .5) + bsize;
+    int xx = (int)std::round(val * (ww - S)) + bsize;
 
     int xsl, ysl, wsl, hsl;
     CPngImage* sliderImage = scrollbar->m_parts[CScrollBarImages::SLIDER].image(THM_IMAGE_NORMAL);

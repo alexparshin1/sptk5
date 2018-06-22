@@ -42,13 +42,13 @@ namespace sptk {
     class CLayoutManagerInitializer
     {
     public:
-        CLayoutManagerInitializer();
+        CLayoutManagerInitializer() noexcept;
     };
 }
 
 const CLayoutManagerInitializer staticData;
 
-CLayoutManagerInitializer::CLayoutManagerInitializer()
+CLayoutManagerInitializer::CLayoutManagerInitializer() noexcept
 {
     CLayoutManager::registerControl("button", CButton::creator);
     CLayoutManager::registerControl("check_buttons", CCheckButtons::creator);
@@ -304,8 +304,8 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
         }
 
         if (clientWidget) { // One widget has the client alignment
-            auto ca = dynamic_cast<CLayoutClient*>(clientWidget);
-            if (ca != nullptr) {
+            auto caw = dynamic_cast<CLayoutClient*>(clientWidget);
+            if (caw != nullptr) {
 
                 layoutWidgets++;
 
@@ -316,8 +316,8 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                 if (preferred_h < 0)
                     preferred_h = 20;
 
-                if (preferred_w != ca->m_lastPreferredW || preferred_h != ca->m_lastPreferredH)
-                    ca->computeSize(preferred_w, preferred_h);
+                if (preferred_w != caw->m_lastPreferredW || preferred_h != caw->m_lastPreferredH)
+                    caw->computeSize(preferred_w, preferred_h);
 
                 if (resizeWidgets && !dynamic_cast<CScroll*>(m_group)) {
                     if (preferred_w > ww && !(m_layoutGrowMode & LGM_HORIZONTAL_GROW))
@@ -373,12 +373,9 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
     if (m_noXml)
         return;
 
-    //string className = "group";
-    auto layoutClient = dynamic_cast<CLayoutClient*>(m_group);
-    if (layoutClient) {
-        //className = layoutClient->name() + "(" + layoutClient->className() + ")";
-        layoutClient->load(groupNode, xmlMode);
-    }
+    auto groupLayoutClient = dynamic_cast<CLayoutClient*>(m_group);
+    if (groupLayoutClient)
+        groupLayoutClient->load(groupNode, xmlMode);
 
     if (xmlMode & (int) LXM_LAYOUT) {
         clear();
@@ -440,9 +437,9 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
                     string glabel = widget->label();
                     if (glabel.empty())
                         glabel = "noName:" + int2string(i);
-                    auto itor = xmlGroups.find(glabel);
-                    if (itor != xmlGroups.end()) {
-                        XMLNode* node = itor->second;
+                    auto gtor = xmlGroups.find(glabel);
+                    if (gtor != xmlGroups.end()) {
+                        XMLNode* node = gtor->second;
                         group->loadLayout(node, xmlMode);
                     }
                     continue;
@@ -454,9 +451,9 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
                     string clabel = control->label();
                     if (clabel.empty())
                         clabel = "noName:" + int2string(i);
-                    auto itor = xmlControls.find(clabel);
-                    if (itor != xmlControls.end()) {
-                        XMLNode* node = itor->second;
+                    auto ctor = xmlControls.find(clabel);
+                    if (ctor != xmlControls.end()) {
+                        XMLNode* node = ctor->second;
                         control->load(node, xmlMode);
                     }
                     continue;
@@ -472,9 +469,9 @@ void CLayoutManager::saveLayout(XMLNode* groupNode, CLayoutXMLmode xmlMode) cons
     groupNode->clear();
     if (m_noXml)
         return;
-    auto layoutClient = dynamic_cast<CLayoutClient*>(m_group);
-    if (layoutClient)
-        layoutClient->save(groupNode, xmlMode);
+    auto groupLayoutClient = dynamic_cast<CLayoutClient*>(m_group);
+    if (groupLayoutClient)
+        groupLayoutClient->save(groupNode, xmlMode);
     auto childCount = (unsigned) m_group->children();
     auto scroll = dynamic_cast<CScroll*>(m_group);
     if (scroll)

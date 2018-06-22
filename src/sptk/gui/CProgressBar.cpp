@@ -33,6 +33,7 @@
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/gui/CProgressBar.h>
 #include <sptk5/gui/CThemes.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -77,7 +78,7 @@ void CProgressBox::draw()
 
     if (!CThemes::drawProgressBar(x(), y(), w(), percent)) {
         fl_draw_box(box(), x(), y(), w(), h(), parent()->color());
-        auto width = int((w() - Fl::box_dw(box())) * percent / 100 + 0.5);
+        auto width = (int) std::round((w() - Fl::box_dw(box())) * percent / 100.0);
         fl_draw_box(FL_THIN_UP_BOX, x() + Fl::box_dx(box()), y() + Fl::box_dy(box()), width, h() - Fl::box_dh(box()),
                     FL_BLUE);
     }

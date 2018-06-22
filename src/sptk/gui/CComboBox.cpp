@@ -91,7 +91,7 @@ void CInternalComboBoxPanel::draw()
     listView->textFont(combo->textFont());
     listView->textSize(combo->textSize());
     fl_color(FL_FOREGROUND_COLOR);
-    listView->item_draw((unsigned) -1, row, x() + 2, y(), w() - 2, h() - 2, focused, FL_ALIGN_CENTER);
+    listView->item_draw((unsigned) -1, row, x() + 2, y(), w() - 2, h() - 2, focused, FL_ALIGN_CENTER, true);
     fl_pop_clip();
 }
 

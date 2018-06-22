@@ -117,8 +117,8 @@ void CListView::ctor_init()
     m_textColor = FL_FOREGROUND_COLOR;
     m_currentTextFont = m_textFont;
     m_currentTextSize = m_textSize;
-    for (unsigned i = 0; i < 7; i++)
-        m_iconNames.push_back(smallPixmapIDs[i]);
+    for (auto& smallPixmapID : smallPixmapIDs)
+        m_iconNames.push_back(smallPixmapID);
 }
 
 CListView::CListView(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
@@ -274,13 +274,13 @@ void CListView::draw()
     int l = top();
 
     int yy = 0;
-    m_maxWidth = item_width(l);
+    m_maxWidth = item_width(uint32_t(l));
 
     draw_box(FL_FLAT_BOX, X, Y, W, H, bgColor);
 
     int maxl = size();
     for (; l < maxl && yy < H; l++) {
-        int hh = item_height(l);
+        int hh = item_height(uint32_t(l));
         if (hh <= 0)
             continue;
         if ((damage() & (FL_DAMAGE_SCROLL | FL_DAMAGE_ALL)) || l == m_redraw1 || l == m_redraw2) {
@@ -288,7 +288,7 @@ void CListView::draw()
             int textAlign = FL_ALIGN_TOP;
             if (m_autoRowHeight)
                 textAlign |= FL_ALIGN_WRAP;
-            item_draw(l, nullptr, X - m_horizPosition, yy + Y, W + m_horizPosition, hh, Fl::focus() == this, textAlign,
+            item_draw(uint32_t(l), nullptr, X - m_horizPosition, yy + Y, W + m_horizPosition, hh, Fl::focus() == this, textAlign,
                       false);
             fl_pop_clip();
         }
@@ -434,7 +434,7 @@ int CListView::item_compute_height(CPackedStrings* l)
                     if ((kind() & (DCV_CHECKBUTTONS | DCV_RADIOBUTTONS)) && c == 0)
                         cw += (m_textSize - 2) / 3 * 3 + 3;
                     if (cw > column.width())
-                        column.width(cw); // adjust column width for auto-width column
+                        column.width(int16_t(cw)); // adjust column width for auto-width column
                 }
                 if (ch > (int) hmax)
                     hmax = (unsigned) ch;
@@ -472,7 +472,7 @@ void CListView::sortColumn(int column, bool sortNow)
         row = m_rows[m_activeRow];
     m_rows.sortColumn(column, ctype, sortNow);
     if (row && sortNow) {
-        m_activeRow = m_rows.indexOf(row);
+        m_activeRow = (uint32_t) m_rows.indexOf(row);
         if (!displayed(m_activeRow))
             displayRow(m_activeRow);
         else
@@ -500,7 +500,7 @@ void CListView::sortAscending(bool ascending, bool sortNow)
         row = m_rows[m_activeRow];
     m_rows.sortAscending(ascending, sortNow);
     if (row && sortNow) {
-        m_activeRow = m_rows.indexOf(row);
+        m_activeRow = (uint32_t) m_rows.indexOf(row);
         if (!displayed(m_activeRow))
             displayRow(m_activeRow);
         else
@@ -833,7 +833,7 @@ void CListView::show(int line)
     if (t->flags & CLV_NOTDISPLAYED) {
         t->flags &= ~CLV_NOTDISPLAYED;
         m_rows.m_fullHeight += item_compute_height(t);
-        if (displayed(line))
+        if (displayed(uint32_t(line)))
             redraw_lines();
     }
 }
@@ -844,9 +844,9 @@ void CListView::hide(int line)
     if (!t)
         return;
     if (!(t->flags & CLV_NOTDISPLAYED)) {
-        m_rows.m_fullHeight -= item_height(line);
+        m_rows.m_fullHeight -= item_height(uint32_t(line));
         t->flags |= CLV_NOTDISPLAYED;
-        if (displayed(line))
+        if (displayed((unsigned)line))
             redraw_lines();
     }
 }
@@ -887,7 +887,7 @@ void CListView::textValue(const string& tv)
             }
         }
     if (dataWasChanged)
-        fireEvent(CE_DATA_CHANGED, (long) dataValue);
+        fireEvent(CE_DATA_CHANGED, (int32_t) (long) dataValue);
     redraw();
 }
 
@@ -946,12 +946,12 @@ void CListView::data(const Variant vv)
     bool dataWasChanged = false;
     if ((newSelectedRow != nullptr && newSelectedRow != oldSelectedRow) || oldSelectedCount > 1) {
         dataWasChanged = true;
-        displayRow(selectedIndex());
+        displayRow((unsigned)selectedIndex());
         if (newSelectedRow)
             dataValue = newSelectedRow->user_data();
     }
     if (dataWasChanged)
-        fireEvent(CE_DATA_CHANGED, (long) dataValue);
+        fireEvent(CE_DATA_CHANGED, (int32_t) (long) dataValue);
     redraw();
 }
 
@@ -1112,13 +1112,13 @@ void CListView::getSelections(IntList& sel) const
 {
     sel.clear();
     if (!m_multipleSelection) {
-        sel.push_back(data().asInteger());
+        sel.push_back(unsigned(data().asInteger()));
     } else {
         unsigned cnt = m_rows.size();
         for (unsigned i = 0; i < cnt; i++) {
             CPackedStrings* r = m_rows[i];
             if (r->flags & CLV_SELECTED)
-                sel.push_back(r->argument());
+                sel.push_back(unsigned(r->argument()));
         }
     }
 }
@@ -1168,7 +1168,7 @@ int CListView::findString(const string& str, bool findAndSelect, unsigned startR
     if (col < 0)
         col = 0;
     String searchStr = lowerCase(str);
-    for (int i = startRow; i <= (int) endRow; i++) {
+    for (uint32_t i = startRow; i <= (uint32_t) endRow; i++) {
         CPackedStrings* row = m_rows[i];
         std::string currentStr((*row)[col]);
         size_t pos = lowerCase(currentStr).find(searchStr.c_str());
@@ -1185,7 +1185,7 @@ int CListView::findString(const string& str, bool findAndSelect, unsigned startR
 
 void CListView::top(int t)
 {
-    m_top = t;
+    m_top = uint32_t(t);
     redraw();
 }
 
@@ -1355,7 +1355,7 @@ void CListView::fill(
                         if (rowNumber < 0) {
                             addRow(new CPackedStrings(rowStrings));
                         } else {
-                            updateRow(rowNumber, rowStrings, keyValue);
+                            updateRow(uint32_t(rowNumber), rowStrings, keyValue);
                         }
                     }
 
@@ -1572,13 +1572,13 @@ int CListView::handle(int event)
                     default:
                         break;
                 }
-                char chr = charkey(ch);
+                char chr = (char) charkey(ch);
                 if (chr) {
                     std::string newSearchString = m_searchPhrase + chr;
                     int found = findString(newSearchString);
                     if (found != -1) {
                         m_searchPhrase = newSearchString;
-                        m_activeRow = found;
+                        m_activeRow = uint32_t(found);
                     }
                 }
                 return 1;
@@ -1725,7 +1725,7 @@ bool CListView::select_next()
     // find next row to activate
     int newActiveRow = -1;
     while ((++l) < (int) size()) {
-        if (item_height(l) > 0) {
+        if (item_height(uint32_t(l)) > 0) {
             newActiveRow = l;
             break;
         }
@@ -1736,10 +1736,10 @@ bool CListView::select_next()
     for (; m_top < cnt; m_top++) {
         if (!item_height(m_top))
             continue;
-        if (displayed(newActiveRow))
+        if (displayed(uint32_t(newActiveRow)))
             break;
     }
-    return activate_row(newActiveRow);
+    return activate_row(uint32_t(newActiveRow));
 }
 
 bool CListView::select_prior()
@@ -1748,7 +1748,7 @@ bool CListView::select_prior()
     // find next row to activate
     int newActiveRow = -1;
     while ((--l) >= 0) {
-        if (item_height(l) > 0) {
+        if (item_height(uint32_t(l)) > 0) {
             newActiveRow = l;
             break;
         }
@@ -1756,13 +1756,13 @@ bool CListView::select_prior()
     if (newActiveRow < 0)
         return false;
     for (int newTop = m_top; newTop >= 0; newTop--) {
-        m_top = newTop;
+        m_top = (uint32_t) newTop;
         if (!item_height(m_top))
             continue;
-        if (displayed(newActiveRow))
+        if (displayed(uint32_t(newActiveRow)))
             break;
     }
-    return activate_row(newActiveRow);
+    return activate_row(uint32_t(newActiveRow));
 }
 
 bool CListView::select_next_page()
@@ -1775,10 +1775,10 @@ bool CListView::select_next_page()
     // find the new active row
     unsigned newActiveRow = m_activeRow;
     for (row = m_activeRow; row < (int) cnt; row++) {
-        hh += item_height(row);
+        hh += item_height(uint32_t(row));
         if (hh >= H)
             break;
-        newActiveRow = row;
+        newActiveRow = (unsigned) row;
     }
     if (newActiveRow == m_activeRow)
         return false;
@@ -1786,12 +1786,12 @@ bool CListView::select_next_page()
     hh = 0;
     int newTop = 0;
     for (row = newActiveRow; row >= 0; row--) {
-        hh += item_height(row);
+        hh += item_height(uint32_t(row));
         if (hh >= H)
             break;
         newTop = row;
     }
-    m_top = newTop;
+    m_top = (uint32_t) newTop;
     return activate_row(newActiveRow);
 }
 
@@ -1804,7 +1804,7 @@ bool CListView::select_prior_page()
     // find the new active row
     unsigned newActiveRow = m_activeRow;
     for (row = m_activeRow; row >= 0; row--) {
-        hh += item_height(row);
+        hh += item_height(uint32_t(row));
         if (hh >= H)
             break;
         newActiveRow = (unsigned) row;

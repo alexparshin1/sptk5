@@ -38,6 +38,8 @@
 #include <sptk5/gui/CScrollBar.h>
 #include <sptk5/gui/CThemes.h>
 
+#include <cmath>
+
 using namespace std;
 using namespace sptk;
 
@@ -74,7 +76,7 @@ int CScrollBar::handle(int event)
     else if (relx >= ww)
         area = 2;
     else {
-        auto S = int(slider_size() * ww + .5);
+        auto S = (int) std::round(slider_size() * ww);
         int T = (horizontal() ? H : W) / 2 + 1;
         if (S < T)
             S = T;
@@ -82,11 +84,11 @@ int CScrollBar::handle(int event)
                 (maximum() - minimum()) ? (value() - minimum()) / (maximum() - minimum()) : 0.5;
         int sliderx;
         if (val >= 1.0)
-            sliderx = ww - S;
+            sliderx = int(ww - S);
         else if (val <= 0.0)
             sliderx = 0;
         else
-            sliderx = int(val * (ww - S) + .5);
+            sliderx = (int) std::round(val * (ww - S));
         if (Fl::event_button() == FL_MIDDLE_MOUSE)
             area = 8;
         else if (relx < sliderx)

@@ -31,13 +31,15 @@
 #include <FL/Fl.H>
 #include <sptk5/gui/CMessageDialog.h>
 
+#include <cmath>
+
 using namespace std;
 using namespace sptk;
 
 CAskDialog::CAskDialog(const char* label, int w)
         : CDialog(w, 100, label)
 {
-    auto textSize = int(Fl::h() / 64.0 + 0.5);
+    auto textSize = std::round(Fl::h() / 64.0);
     if (textSize < 14) textSize = 14;
 
     auto* grp = new CGroup("", 65, SP_ALIGN_LEFT);
