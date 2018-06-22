@@ -1129,7 +1129,7 @@ public:
      * @param caption std::string, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings *findCaption(std::string caption);
+    CPackedStrings *findCaption(const String& caption);
 
     /**
      * @brief Finds an item with the key (an integer associated with the item - argument()).

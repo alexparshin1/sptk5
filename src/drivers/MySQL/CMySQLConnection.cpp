@@ -400,7 +400,7 @@ void MySQLConnection::_bulkInsert(const String& tableName, const Strings& column
     }
 }
 
-void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     unique_ptr<RegularExpression> matchStatementEnd(new RegularExpression("(;\\s*)$"));
 

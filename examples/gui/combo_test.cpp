@@ -31,7 +31,7 @@
 #    pragma hdrstop
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <sptk5/cgui>
 
@@ -41,14 +41,14 @@ using namespace sptk;
 void theme_cb(Fl_Widget *w, void *)
 {
     try {
-        CComboBox *themesCombo = (CComboBox *) w;
+        auto themesCombo = (CComboBox *) w;
         std::string themeName = themesCombo->data();
 
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
             CThemes::set
                 (themeName);
 
-            CWindow *window = (CWindow *) w->window();
+            auto window = (CWindow *) w->window();
             window->relayout();
             window->redraw();
         }
@@ -65,7 +65,7 @@ void exit_cb(Fl_Widget *w, void *)
 
 void combo_cb(Fl_Widget *w, void *data)
 {
-    CControl *control = dynamic_cast<CControl *> (w);
+    auto control = dynamic_cast<CControl *> (w);
     if (!control)
         return;
     switch (control->eventType()) {

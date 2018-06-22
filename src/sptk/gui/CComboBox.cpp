@@ -49,12 +49,12 @@ namespace sptk {
 
     class SP_EXPORT CInternalComboBoxPanel : public Fl_Box
     {
-        void draw();
+        void draw() override;
 
     public:
         CInternalComboBoxPanel(int x, int y, int w, int h, const char* label = nullptr);
 
-        int handle(int);
+        int handle(int) override;
     };
 
 }
@@ -308,7 +308,7 @@ void CBaseListBox::load(Query* loadQuery)
     if (!fieldName().length())
         return;
     Field& fld = query[fieldName().c_str()];
-    data(fld);
+    data(*(Variant*)&fld);
 }
 
 void CBaseListBox::save(Query* updateQuery)

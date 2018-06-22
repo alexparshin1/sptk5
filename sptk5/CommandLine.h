@@ -60,27 +60,27 @@ public:
         /**
          * If true then expression shoul not match
          */
-        bool        m_inverted;
+        bool                m_inverted;
 
         /**
          * Regular expression for matching an argument(s)
          */
-        RegularExpression*    m_regexp;
+        RegularExpression*  m_regexp;
 
         /**
          * Regular expression pattern
          */
-        std::string m_pattern;
+        String              m_pattern;
 
 
     public:
 
         /**
          * @brief Constructor
-         * @param pattern std::string, Regular expression to match or do not match command line argument. If empty then it matches any argument.
-         * @param mustMatch bool, If true then regular expression should match, otherwiseit shouldn't match.
+         * @param pattern       Regular expression to match or do not match command line argument. If empty then it matches any argument.
+         * @param mustMatch     If true then regular expression should match, otherwiseit shouldn't match.
          */
-        Visibility(const std::string& pattern, bool mustMatch = true);
+        Visibility(const String& pattern, bool mustMatch = true);
 
         /**
          * @brief Copy constructor
@@ -101,7 +101,7 @@ public:
         /**
          * @brief Returns true if matches given argument or command.
          */
-        bool matches(const std::string& command) const;
+        bool matches(const String& command) const;
     };
 
 protected:
@@ -142,17 +142,17 @@ protected:
         /**
          * Element name
          */
-        std::string m_name;
+        String      m_name;
 
         /**
          * Short element name (single character, options only)
          */
-        std::string m_shortName;
+        String      m_shortName;
 
         /**
          * Help (description) for the element
          */
-        std::string m_help;
+        String m_help;
 
 
         /**
@@ -164,12 +164,13 @@ protected:
 
         /**
          * @brief Constructor
-         * @param name std::string name, Element name
-         * @param shortName std::string, Short element name (single character, options only)
-         * @param help std::string, Help (description) for the element
-         * @param useWithCommands const Visibility&, Element visibility for a command (options only)
+         * @param name              Element name
+         * @param shortName         Short element name (single character, options only)
+         * @param help              Help (description) for the element
+         * @param useWithCommands   Element visibility for a command (options only)
          */
-        CommandLineElement(const std::string& name, const std::string& shortName, const std::string& help, const Visibility& useWithCommands);
+        CommandLineElement(const String& name, const String& shortName, const String& help,
+                           const Visibility& useWithCommands);
 
         /**
          * @brief Destructor
@@ -184,7 +185,7 @@ protected:
         /**
          * @brief Returns element name
          */
-        virtual std::string name() const;
+        virtual String name() const;
 
         /**
          * @brief Returns true if element expects value
@@ -195,34 +196,34 @@ protected:
          * @brief Validates given value (for elements that provide validation)
          *
          * Throws an exception if the value is invalid
-         * @param value std::string, Value to validate
+         * @param value             Value to validate
          */
-        virtual void validate(const std::string& value) const;
+        virtual void validate(const String& value) const;
 
         /**
          * @brief Returns element name in help print format
          */
-        virtual std::string printableName() const;
+        virtual String printableName() const;
 
         /**
          * @brief Returns true if element may be used with command (options only)
          */
-        bool useWithCommand(const std::string& command) const;
+        bool useWithCommand(const String& command) const;
 
         /**
          * @brief Formats element help for printout
-         * @param textWidth size_t, Help text width
-         * @param formattedText Strings&, Formatted help text
+         * @param textWidth         Help text width
+         * @param formattedText     Formatted help text
          */
         void formatHelp(size_t textWidth, Strings& formattedText) const;
 
         /**
          * @brief Prints element help
-         * @param nameWidth size_t, Option name width
-         * @param textWidth size_t, Help text width
-         * @param optionDefaultValue std::string, Option default value (if any)
+         * @param nameWidth         Option name width
+         * @param textWidth         Help text width
+         * @param optionDefaultValue Option default value (if any)
          */
-        void printHelp(size_t nameWidth, size_t textWidth, const std::string& optionDefaultValue) const;
+        void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const;
     };
 
     /**
@@ -236,10 +237,10 @@ protected:
     public:
         /**
          * @brief Constructor
-         * @param name std::string name, Element name
-         * @param help std::string, Help (description) for the element
+         * @param name          Element name
+         * @param help          Help (description) for the element
          */
-        CommandLineArgument(const std::string& name, const std::string& help);
+        CommandLineArgument(const String& name, const String& help);
 
         /**
          * @brief Destructor
@@ -258,12 +259,13 @@ protected:
     public:
         /**
          * @brief Constructor
-         * @param name std::string name, Element name
-         * @param shortName std::string, Short element name (single character, options only)
-         * @param useWithCommands const Visibility&, Element visibility for a command (options only)
-         * @param help std::string, Help (description) for the element
+         * @param name              Element name
+         * @param shortName         Short element name (single character, options only)
+         * @param useWithCommands   Element visibility for a command (options only)
+         * @param help              Help (description) for the element
          */
-        CommandLineOption(const std::string& name, const std::string& shortName, const Visibility& useWithCommands, const std::string& help);
+        CommandLineOption(const String& name, const String& shortName, const Visibility& useWithCommands,
+                          const String& help);
 
         /**
          * @brief Destructor
@@ -283,7 +285,7 @@ protected:
         /**
          * @brief Returns element name in help print format
          */
-        virtual std::string printableName() const;
+        virtual String printableName() const;
     };
 
     /**
@@ -299,27 +301,28 @@ protected:
         /**
          * Value name, for using in help
          */
-        std::string     m_valueInfo;
+        String                  m_valueInfo;
 
         /**
          * Value validation regular expression
          */
-        RegularExpression*        m_validateValue;
+        RegularExpression*      m_validateValue;
 
 
     public:
 
         /**
          * @brief Constructor
-         * @param name std::string name, Element name
-         * @param shortName std::string, Short element name (single character, options only)
-         * @param valueName std::string, Value name
-         * @param validateValue std::string, Value validation regular expression
-         * @param useWithCommands const Visibility&, Element visibility for a command (options only)
-         * @param help std::string, Help (description) for the element
+         * @param name          Element name
+         * @param shortName     Short element name (single character, options only)
+         * @param valueName     Value name
+         * @param validateValue Value validation regular expression
+         * @param useWithCommands Element visibility for a command (options only)
+         * @param help          Help (description) for the element
          */
-        CommandLineParameter(const std::string& name, const std::string& shortName, const std::string& valueName, const std::string& validateValue,
-                             const Visibility& useWithCommands, const std::string& help);
+        CommandLineParameter(const String& name, const String& shortName, const String& valueName,
+                             const String& validateValue,
+                             const Visibility& useWithCommands, const String& help);
 
         /**
          * @brief Destructor
@@ -329,13 +332,13 @@ protected:
         /**
          * @brief Returns element name in help print format
          */
-        virtual std::string printableName() const;
+        virtual String printableName() const;
 
         /**
          * @brief Validates parameter value
-         * @param value std::string, Value to validate
+         * @param value         Value to validate
          */
-        virtual void validate(const std::string& value) const;
+        virtual void validate(const String& value) const;
 
         /**
          * @brief Returns true if element expects value
@@ -351,32 +354,32 @@ protected:
     /**
      * Program version and copyright message (forhelp only).
      */
-    std::string                                 m_programVersion;
+    String                                      m_programVersion;
 
     /**
      * Program description (forhelp only).
      */
-    std::string                                 m_description;
+    String                                      m_description;
 
     /**
      * Command line prototype (forhelp only).
      */
-    std::string                                 m_commandLinePrototype;
+    String                                      m_commandLinePrototype;
 
     /**
      * All the defined options.
      */
-    std::map<std::string, CommandLineElement*>  m_optionTemplates;
+    std::map<String, CommandLineElement*>       m_optionTemplates;
 
     /**
      * All the defined arguments.
      */
-    std::map<std::string, CommandLineArgument*> m_argumentTemplates;
+    std::map<String, CommandLineArgument*>      m_argumentTemplates;
 
     /**
      * Received option values.
      */
-    std::map<std::string, std::string>          m_values;
+    std::map<String, String>                    m_values;
 
     /**
      * Received arguments.
@@ -391,33 +394,33 @@ protected:
 
     /**
      * @brief Returns true if string start matches the pattern
-     * @param subject std::string, String to check
-     * @param pattern std::string, String fragment to match
+     * @param subject           String to check
+     * @param pattern           String fragment to match
      */
-    bool startsWith(const std::string& subject, const std::string& pattern);
+    bool startsWith(const String& subject, const String& pattern);
 
     /**
      * @brief Returns true if string end matches the pattern
-     * @param subject std::string, String to check
-     * @param pattern std::string, String fragment to match
+     * @param subject           String to check
+     * @param pattern           String fragment to match
      */
-    bool endsWith(const std::string& subject, const std::string& pattern);
+    bool endsWith(const String& subject, const String& pattern);
 
     /**
      * @brief prints a line of characters
-     * @param ch std::string, Character to print
-     * @param count size_t, Number of characters to print
+     * @param ch                Character to print
+     * @param count             Number of characters to print
      */
-    static void printLine(const std::string& ch, size_t count);
+    static void printLine(const String& ch, size_t count);
 
 public:
     /**
      * @brief Constructor
-     * @param programVersion std::string, Program version and copyright message (forhelp only).
-     * @param description std::string, Program description (forhelp only).
-     * @param commandLinePrototype std::string, Command line prototype (forhelp only).
+     * @param programVersion        Program version and copyright message (forhelp only).
+     * @param description           Program description (forhelp only).
+     * @param commandLinePrototype  Command line prototype (forhelp only).
      */
-    CommandLine(const std::string& programVersion, const std::string& description, const std::string& commandLinePrototype);
+    CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype);
 
     /**
      * @brief destructor
@@ -429,60 +432,61 @@ public:
      *
      * An option doesn't expect a value. If it is present in command line, it assumes value 'yes'.
      * Otherwise it has value 'no'.
-     * @param fullName std::string name, Element name
-     * @param shortName std::string, Short element name (single character, options only)
-     * @param useForCommands const Visibility&, Element visibility for a command (options only)
-     * @param help std::string, Help (description) for the element
+     * @param fullName          Element name
+     * @param shortName         Short element name (single character, options only)
+     * @param useForCommands    Element visibility for a command (options only)
+     * @param help              Help (description) for the element
      */
-    void defineOption(const std::string& fullName, const std::string& shortName, Visibility useForCommands, const std::string& help);
+    void defineOption(const String& fullName, const String& shortName, Visibility useForCommands, const String& help);
 
     /**
      * @brief Defines command line parameter
-     * @param fullName std::string name, Element name
-     * @param shortName std::string, Short element name (single character, options only)
-     * @param valueName std::string, Value name
-     * @param validateValue std::string, Value validation regular expression
-     * @param useForCommands const Visibility&, Element visibility for a command (options only)
-     * @param defaultValue std::string, Option default value
-     * @param help std::string, Help (description) for the element
+     * @param fullName          Element name
+     * @param shortName         Short element name (single character, options only)
+     * @param valueName         Value name
+     * @param validateValue     Value validation regular expression
+     * @param useForCommands    Element visibility for a command (options only)
+     * @param defaultValue      Option default value
+     * @param help              Help (description) for the element
      */
-    void defineParameter(const std::string& fullName, const std::string& shortName, const std::string& valueName, const std::string& validateValue,
-                         Visibility useForCommands, const std::string& defaultValue, const std::string& help);
+    void defineParameter(const String& fullName, const String& shortName, const String& valueName,
+                         const String& validateValue,
+                         Visibility useForCommands, const String& defaultValue, const String& help);
 
     /**
      * @brief Defines command line argument/command.
-     * @param fullName std::string, Argument/command name
-     * @param helpText std::string, Help (description) for the element
+     * @param fullName          Argument/command name
+     * @param helpText          Help (description) for the element
      */
-    void defineArgument(const std::string& fullName, const std::string& helpText);
+    void defineArgument(const String& fullName, const String& helpText);
 
     /**
      * @brief Parses actual command line arguments.
      *
      * Should be executed after any define* methods of this class.
-     * @param argc int, Number of command line arguments (from main(argc,argv)).
-     * @param argv const char*[], Command line arguments (from main(argc,argv)).
+     * @param argc              Number of command line arguments (from main(argc,argv)).
+     * @param argv              Command line arguments (from main(argc,argv)).
      */
     void init(int argc, const char* argv[]);
 
     /**
      * @brief Returns actual option value
-     * @param name std::string, Option name
+     * @param name              Option name
      */
-    std::string getOptionValue(std::string name) const;
+    String getOptionValue(const String& name) const;
 
     /**
      * @brief Returns true if actual command line contains option
-     * @param name std::string, Option name
+     * @param name              Option name
      */
-    bool hasOption(std::string name) const;
+    bool hasOption(const String& name) const;
 
     /**
      * @brief Re-defines actual option value
-     * @param name std::string, Option name
-     * @param value std::string, Option value
+     * @param name              Option name
+     * @param value             Option value
      */
-    void setOptionValue(const std::string& name, const std::string& value = "yes");
+    void setOptionValue(const String& name, const String& value = "yes");
 
     /**
      * @brief Returns list of command line arguments
@@ -491,14 +495,14 @@ public:
 
     /**
      * @brief Prints full help
-     * @param screenColumns size_t, Screen width in columns
+     * @param screenColumns     Screen width in columns
      */
     void printHelp(size_t screenColumns) const;
 
     /**
      * @brief Prints help for a given command/argument
-     * @param command std::string, Command to print help for
-     * @param screenColumns size_t, Screen width in columns
+     * @param command           Command to print help for
+     * @param screenColumns     Screen width in columns
      */
     void printHelp(const String& command, size_t screenColumns) const;
 

@@ -1081,7 +1081,7 @@ void CListView::load(Query* loadQuery)
     if (!m_fieldName.length())
         return;
     Field& fld = query[m_fieldName.c_str()];
-    data(fld);
+    data(*(Variant*)&fld);
 }
 
 // storing the key value in data entry dialog
@@ -1939,7 +1939,7 @@ CColumn& CListView::column(const char* colname)
     throw Exception("Column '" + std::string(colname) + "' is not found.");
 }
 
-CPackedStrings* CListView::findCaption(std::string caption)
+CPackedStrings* CListView::findCaption(const String& caption)
 {
     CPackedStrings* row = m_selection.findCaption(caption);
     if (row)
@@ -1951,6 +1951,7 @@ CPackedStrings* CListView::findCaption(std::string caption)
         if (strcmp((*row)[0], caption.c_str()) == 0)
             return row;
     }
+
     return nullptr;
 }
 

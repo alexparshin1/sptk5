@@ -804,7 +804,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression   matchStatementEnd("(;\\s*)$");
     RegularExpression   matchRoutineStart("^CREATE\\s+FUNCTION", "i");

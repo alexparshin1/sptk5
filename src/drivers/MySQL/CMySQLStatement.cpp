@@ -280,7 +280,7 @@ void MySQLStatement::setParameterValues()
         if (setNull)
             bind.is_null = &nullValue;
         else
-            bind.is_null = 0;
+            bind.is_null = nullptr;
         bind.error = nullptr;
     }
         /// Bind the buffers

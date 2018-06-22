@@ -403,7 +403,28 @@ protected:
     virtual void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                              const String& format);
 
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchFileName     SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
+
+    /**
+     * @brief Executes SQL batch queries
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
+
 public:
+
     /**
      * @brief Destructor
      *
@@ -521,7 +542,10 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchFile(const String& batchFileName, Strings* errors = NULL);
+    void executeBatchFile(const String& batchFileName, Strings* errors = NULL)
+    {
+        _executeBatchFile(batchFileName, errors);
+    }
 
     /**
      * @brief Executes SQL batch queries
@@ -531,7 +555,10 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL);
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL)
+    {
+        _executeBatchSQL(batchSQL, errors);
+    }
 };
 /**
  * @}

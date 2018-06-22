@@ -32,8 +32,6 @@
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CIcon.h>
 
-#include <iostream>
-
 #ifdef _WIN32
     #include <winsock2.h>
     #include <windows.h>
@@ -100,7 +98,7 @@ void CIconMap::load(Tar& tar, XMLNode* iconsNode)
                 icon = ftor->second;
             icon->load(imageData);
             if (!icon->image())
-                throw runtime_error("Can't load " + fileName);
+                throw Exception("Can't load " + fileName);
         }
         catch (exception& e) {
             cerr << "ERROR: " << e.what() << endl;

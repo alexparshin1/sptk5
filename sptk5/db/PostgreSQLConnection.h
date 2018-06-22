@@ -247,7 +247,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL) override;
 };
 
 /**

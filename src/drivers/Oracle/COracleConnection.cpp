@@ -613,7 +613,7 @@ std::string OracleConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression  matchStatementEnd("(;\\s*)$");
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");
