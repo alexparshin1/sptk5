@@ -106,7 +106,7 @@ int CHtmlBox::totalHeight() const
 
 bool CHtmlBox::preferredSize(int& w, int& h)
 {
-    Fl_Help_View* hv = (Fl_Help_View*) m_control;
+    auto hv = (Fl_Help_View*) m_control;
     hv->resize(hv->x(), hv->y(), w, h);
     int totalHeight = hv->size();
 

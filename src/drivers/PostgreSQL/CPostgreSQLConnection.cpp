@@ -1086,7 +1086,7 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
     }
 }
 
-void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");

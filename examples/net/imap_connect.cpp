@@ -31,7 +31,7 @@
 #pragma hdrstop
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <sptk5/cnet>
 #include <sptk5/cutils>

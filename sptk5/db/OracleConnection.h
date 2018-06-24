@@ -276,7 +276,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL) override;
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }

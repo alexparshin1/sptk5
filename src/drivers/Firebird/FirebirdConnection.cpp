@@ -29,7 +29,6 @@
 #include <sptk5/db/FirebirdConnection.h>
 #include <sptk5/db/FirebirdStatement.h>
 #include <sptk5/db/Query.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -402,7 +401,7 @@ String FirebirdConnection::driverDescription() const
     return "Firebird";
 }
 
-std::string FirebirdConnection::paramMark(unsigned paramIndex)
+std::string FirebirdConnection::paramMark(unsigned)
 {
     return "?";
 }

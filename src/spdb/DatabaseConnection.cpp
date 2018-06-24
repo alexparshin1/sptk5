@@ -271,14 +271,14 @@ void DatabaseConnection::_bulkInsert(const String& tableName, const Strings& col
     }
 }
 
-void DatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors)
+void DatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName);
-    executeBatchSQL(batchFileContent, errors);
+    _executeBatchSQL(batchFileContent, errors);
 }
 
-void DatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
+void DatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

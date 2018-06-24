@@ -110,7 +110,7 @@ void CButtonGroup::buttons(const Strings& sl)
 Variant CButtonGroup::data() const
 {
     auto group = (CGroup*) m_control;
-    unsigned cnt = unsigned(group->children());
+    auto cnt = unsigned(group->children());
     for (unsigned i = 0; i < cnt; i++) {
         Fl_Widget* w = group->child(i);
         auto b = dynamic_cast<Fl_Button*>(w);
@@ -129,7 +129,7 @@ Variant CButtonGroup::data() const
 int CButtonGroup::buttonIndex(const char* buttonLabel)
 {
     auto group = (CGroup*) m_control;
-    unsigned cnt = (unsigned) group->children();
+    auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
         auto b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b) continue;
@@ -142,7 +142,7 @@ int CButtonGroup::buttonIndex(const char* buttonLabel)
 void CButtonGroup::deselectAllButtons()
 {
     auto group = (CGroup*) m_control;
-    unsigned cnt = unsigned(group->children());
+    auto cnt = unsigned(group->children());
     for (unsigned i = 0; i < cnt; i++) {
         auto b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b) continue;
@@ -155,7 +155,7 @@ void CButtonGroup::data(const Variant d)
     deselectAllButtons();
     int ndx = buttonIndex(d.getString());
     if (ndx > -1) {
-        CGroup* g = (CGroup*) m_control;
+        auto g = (CGroup*) m_control;
         auto b = (Fl_Button*) g->child(ndx);
         b->value(1);
     } else {
@@ -169,7 +169,7 @@ void CButtonGroup::data(const Variant d)
 
 bool CButtonGroup::preferredSize(int& w, int& h)
 {
-    CGroup* g = (CGroup*) m_control;
+    auto g = (CGroup*) m_control;
     w -= labelWidth();
     bool rc = g->preferredSize(w, h);
     w += labelWidth();

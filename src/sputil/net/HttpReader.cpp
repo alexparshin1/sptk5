@@ -192,7 +192,6 @@ void HttpReader::read(TCPSocket& socket)
     if (m_readerState == READING_DATA) {
         if (!readData(socket))
             return;
-        m_readerState = READING_DATA;
     }
 
     auto itor = m_responseHeaders.find("content-encoding");
@@ -246,7 +245,7 @@ const String& HttpReader::getStatusText() const
     return m_statusText;
 }
 
-string HttpReader::responseHeader(const string& headerName) const
+String HttpReader::responseHeader(const String& headerName) const
 {
     lock_guard<mutex> lock(m_mutex);
 

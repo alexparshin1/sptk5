@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-string HttpParams::encodeString(const string& str)
+String HttpParams::encodeString(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
@@ -75,7 +75,7 @@ int hexCharToInt(unsigned char ch)
     return ch - '0';
 }
 
-string HttpParams::decodeString(const string& str)
+sptk::String HttpParams::decodeString(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
@@ -135,7 +135,7 @@ void HttpParams::encode(Buffer& result) const
     }
 }
 
-string HttpParams::get(const string& paramName) const
+String HttpParams::get(const String& paramName) const
 {
     auto itor = find(paramName);
     if (itor == end())

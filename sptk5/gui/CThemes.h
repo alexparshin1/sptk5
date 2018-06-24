@@ -324,7 +324,8 @@ protected:
      * @param buttons CThemeImageCollection&, set of images for the button type
      * @param function std::string, function ("BOX", CHECK", "OPTION", etc)
      */
-    static void loadGtkButtons(XMLDocument& xml,std::string styleName,CThemeImageCollection& buttons,std::string function);
+    static void loadGtkButtons(XMLDocument& xml, const String& styleName, CThemeImageCollection& buttons,
+                               const String& function);
 
     /**
      * @brief Loads current Gnome GTK theme
@@ -332,7 +333,7 @@ protected:
      * The GTK theme name is read from .gconf directory.
      * @param gtkThemeName std::string, GTK2 theme name
      */
-    static void loadGtkTheme(std::string gtkThemeName);
+    static void loadGtkTheme(const String& gtkThemeName);
 
 public:
 

@@ -332,7 +332,7 @@ void CScroll::hscrollbar_cb(Fl_Widget* o, void*)
 void CScroll::scrollbar_cb(Fl_Widget* o, void*)
 {
     auto s = (CScroll*) (o->parent());
-    s->position(s->xposition(), int(((CScrollBar*) o)->value()));
+    s->position(s->xposition(), ((CScrollBar*) o)->value());
 }
 
 int CScroll::handle(int event)

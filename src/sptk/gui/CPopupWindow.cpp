@@ -42,7 +42,7 @@ CPopupWindow::CPopupWindow(int w, int h, const char* label)
     m_clicked = 0;
     end();
     clear_border();
-    parent(0L);
+    parent(nullptr);
     box(FL_THIN_UP_BOX);
 }
 

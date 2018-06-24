@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-CommandLine::Visibility::Visibility(const string& pattern, bool _mustMatch)
+CommandLine::Visibility::Visibility(const String& pattern, bool _mustMatch)
 : m_inverted(!_mustMatch), m_pattern(pattern)
 {
     if (m_pattern.empty())
@@ -59,7 +59,7 @@ bool CommandLine::Visibility::any() const
     return m_regexp == nullptr;
 }
 
-bool CommandLine::Visibility::matches(const string& command) const
+bool CommandLine::Visibility::matches(const String& command) const
 {
     Strings matches;
     if (m_inverted)
@@ -68,7 +68,7 @@ bool CommandLine::Visibility::matches(const string& command) const
 }
 //=============================================================================
 
-CommandLine::CommandLineElement::CommandLineElement(const string& name, const string& shortName, const string& help,
+CommandLine::CommandLineElement::CommandLineElement(const String& name, const String& shortName, const String& help,
                                                     const Visibility& useWithCommands)
 : m_name(name), m_shortName(shortName), m_help(help), m_useWithCommands(useWithCommands)
 {
@@ -81,7 +81,7 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineElement::type() co
     return IS_UNKNOWN;
 }
 
-string CommandLine::CommandLineElement::name() const
+String CommandLine::CommandLineElement::name() const
 {
     return m_name;
 }
@@ -91,14 +91,14 @@ bool CommandLine::CommandLineElement::hasValue() const
     return false;
 }
 
-void CommandLine::CommandLineElement::validate(const string& value) const { }
+void CommandLine::CommandLineElement::validate(const String& value) const { }
 
-string CommandLine::CommandLineElement::printableName() const
+String CommandLine::CommandLineElement::printableName() const
 {
     return m_name;
 }
 
-bool CommandLine::CommandLineElement::useWithCommand(const string& command) const
+bool CommandLine::CommandLineElement::useWithCommand(const String& command) const
 {
     if (command.empty())
         return true;
@@ -128,7 +128,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
         formattedText.push_back(row);
 }
 
-void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const string& optionDefaultValue) const
+void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const
 {
     static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
 
@@ -151,7 +151,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
 
     if (!optionDefaultValue.empty()) {
         Strings matches;
-        string printDefaultValue = optionDefaultValue;
+        String printDefaultValue = optionDefaultValue;
         if (!doesntNeedQuotes.m(printDefaultValue, matches))
             printDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + printDefaultValue + ".";
@@ -161,13 +161,13 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
 }
 //=============================================================================
 
-CommandLine::CommandLineArgument::CommandLineArgument(const string& name, const string& help)
+CommandLine::CommandLineArgument::CommandLineArgument(const String& name, const String& help)
 : CommandLineElement(name, "", help, Visibility("")) { }
 
 //=============================================================================
 
-CommandLine::CommandLineOption::CommandLineOption(const string& name, const string& shortName,
-                                                  const Visibility& useWithCommands, const string& help)
+CommandLine::CommandLineOption::CommandLineOption(const String& name, const String& shortName,
+                                                  const Visibility& useWithCommands, const String& help)
 : CommandLineElement(name, shortName, help, useWithCommands) { }
 
 bool CommandLine::CommandLineOption::hasValue() const
@@ -180,9 +180,9 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineOption::type() con
     return CommandLineElement::IS_OPTION;
 }
 
-string CommandLine::CommandLineOption::printableName() const
+String CommandLine::CommandLineOption::printableName() const
 {
-    string result;
+    String result;
 
     result += "--" + m_name;
 
@@ -196,8 +196,10 @@ string CommandLine::CommandLineOption::printableName() const
 }
 //=============================================================================
 
-CommandLine::CommandLineParameter::CommandLineParameter(const string& name, const string& shortName, const string& valueInfo,
-                                                        const string& validateValue, const Visibility& useWithCommands, const string& help)
+CommandLine::CommandLineParameter::CommandLineParameter(const String& name, const String& shortName,
+                                                        const String& valueInfo,
+                                                        const String& validateValue, const Visibility& useWithCommands,
+                                                        const String& help)
 : CommandLineElement(name, shortName, help, useWithCommands), m_valueInfo(valueInfo)
 {
     if (validateValue.empty())
@@ -213,7 +215,7 @@ CommandLine::CommandLineParameter::~CommandLineParameter()
     delete m_validateValue;
 }
 
-string CommandLine::CommandLineParameter::printableName() const
+String CommandLine::CommandLineParameter::printableName() const
 {
     string result;
 
@@ -230,7 +232,7 @@ string CommandLine::CommandLineParameter::printableName() const
     return result;
 }
 
-void CommandLine::CommandLineParameter::validate(const string& value) const
+void CommandLine::CommandLineParameter::validate(const String& value) const
 {
     if (m_validateValue == nullptr)
         return;
@@ -250,18 +252,17 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 }
 //=============================================================================
 
-bool CommandLine::startsWith(const string& str, const string& pattern)
+bool CommandLine::startsWith(const String& str, const String& pattern)
 {
-    return str.substr(0, pattern.length()) == pattern;
+    return str.startsWith(pattern);
 }
 
-bool CommandLine::endsWith(const string& str, const string& pattern)
+bool CommandLine::endsWith(const String& str, const String& pattern)
 {
-    size_t pos = str.length() - pattern.length() - 1;
-    return int(pos) >= 0 && str.substr(pos) == pattern;
+    return str.endsWith(pattern);
 }
 
-CommandLine::CommandLine(const string& programVersion, const string& description, const string& commandLinePrototype)
+CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
 : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype) { }
 
 CommandLine::~CommandLine()
@@ -270,7 +271,8 @@ CommandLine::~CommandLine()
         delete element;
 }
 
-void CommandLine::defineOption(const string& fullName, const string& shortName, Visibility useForCommands, const string& help)
+void CommandLine::defineOption(const String& fullName, const String& shortName, Visibility useForCommands,
+                               const String& help)
 {
     if (fullName.empty() && shortName.empty())
         return;
@@ -283,8 +285,9 @@ void CommandLine::defineOption(const string& fullName, const string& shortName, 
         m_optionTemplates[shortName] = optionTemplate;
 }
 
-void CommandLine::defineParameter(const string& fullName, const string& shortName, const string& valueName,
-                                  const string& validateValue, Visibility useForCommands, const string& defaultValue, const string& help)
+void CommandLine::defineParameter(const String& fullName, const String& shortName, const String& valueName,
+                                  const String& validateValue, Visibility useForCommands, const String& defaultValue,
+                                  const String& help)
 {
     if (fullName.empty() && shortName.empty())
         return;
@@ -293,7 +296,7 @@ void CommandLine::defineParameter(const string& fullName, const string& shortNam
         useForCommands, help);
     m_allElements.push_back(argumentTemplate);
 
-    string name;
+    String name;
     if (!shortName.empty()) {
         m_optionTemplates[shortName] = argumentTemplate;
         name = shortName;
@@ -310,7 +313,7 @@ void CommandLine::defineParameter(const string& fullName, const string& shortNam
     }
 }
 
-void CommandLine::defineArgument(const string& fullName, const string& helpText)
+void CommandLine::defineArgument(const String& fullName, const String& helpText)
 {
     if (!fullName.empty()) {
         auto argumentTemplate = new CommandLineArgument(fullName, helpText);
@@ -412,7 +415,7 @@ void CommandLine::init(int argc, const char* argv[])
     }
 }
 
-string CommandLine::getOptionValue(string name) const
+String CommandLine::getOptionValue(const String& name) const
 {
     auto itor = m_values.find(name);
     if (itor == m_values.end())
@@ -420,12 +423,12 @@ string CommandLine::getOptionValue(string name) const
     return itor->second;
 }
 
-bool CommandLine::hasOption(string name) const
+bool CommandLine::hasOption(const String& name) const
 {
     return m_values.find(name) != m_values.end();
 }
 
-void CommandLine::setOptionValue(const string& name, const string& value)
+void CommandLine::setOptionValue(const String& name, const String& value)
 {
     CommandLineElement* element = m_optionTemplates[name];
     if (element == nullptr)
@@ -439,7 +442,7 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const string& ch, size_t count)
+void CommandLine::printLine(const String& ch, size_t count)
 {
     for (size_t i = 0; i < count; i++)
         cout << ch;
@@ -485,15 +488,13 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     Strings sortedOptions;
     for (auto& itor : m_optionTemplates) {
-        string optionName = itor.first;
+        String optionName = itor.first;
         if (optionName.length() > 1)
             sortedOptions.push_back(optionName);
     }
 
-    map<string,CommandLineElement*>::const_iterator itor;
-
     for (const String& optionName : sortedOptions) {
-        itor = m_optionTemplates.find(optionName);
+        auto itor = m_optionTemplates.find(optionName);
         const CommandLineElement* optionTemplate = itor->second;
         if (!optionTemplate->useWithCommand(onlyForCommand))
             continue;
@@ -524,11 +525,11 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         cout << "\nOptions:" << endl;
         printLine("─", screenColumns);
         for (const String& optionName : sortedOptions) {
-            itor = m_optionTemplates.find(optionName);
+            auto itor = m_optionTemplates.find(optionName);
             const CommandLineElement* optionTemplate = itor->second;
             if (!optionTemplate->useWithCommand(onlyForCommand))
                 continue;
-            string defaultValue;
+            String defaultValue;
             auto vtor = m_values.find(optionTemplate->name());
             if (vtor != m_values.end())
                 defaultValue = vtor->second;

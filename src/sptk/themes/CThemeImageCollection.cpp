@@ -98,7 +98,8 @@ string CThemeImageCollection::gtkFullFileName(string fileName) {
     return CThemes::themeFolder() + fileName;
 }
 
-void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute,std::string attributeValue) {
+void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String& imagesXPath, const String& attribute,
+                                             const String& attributeValue) {
     static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT","|");
 
     XMLNodeVector images;

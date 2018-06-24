@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-String MailMessageBody::stripHtml(const string& origHtml)
+String MailMessageBody::stripHtml(const String& origHtml)
 {
     Strings html(origHtml, "<");
     unsigned i = 0;
@@ -58,7 +58,7 @@ void MailMessageBody::text(const string& messageText, bool smtp)
     string msg(messageText);
     if (smtp) {
         size_t pos = 0;
-        while ( (pos = msg.find("\n.\n")) != string::npos) {
+        while ( (pos = msg.find("\n.\n", pos)) != string::npos) {
             msg[pos + 1] = ' ';
             pos += 3;
         }

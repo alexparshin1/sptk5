@@ -90,7 +90,8 @@ public:
     /**
      * @brief Loads the collection from GTK theme
      */
-    void loadFromGtkTheme(XMLDocument& gtkTheme,std::string imagesXPath,std::string attribute="",std::string attributeValue="");
+    void loadFromGtkTheme(XMLDocument& gtkTheme, const String& imagesXPath, const String& attribute = "",
+                          const String& attributeValue = "");
 
     /**
      * @brief Returns border for a paticular index (0..3)

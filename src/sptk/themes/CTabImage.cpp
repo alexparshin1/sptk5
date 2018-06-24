@@ -34,52 +34,65 @@
 using namespace std;
 using namespace sptk;
 
-CTabImage::CTabImage(const Tar& tar,const XMLNode* tabImageNode) {
+CTabImage::CTabImage(const Tar& tar, const XMLNode* tabImageNode)
+{
     m_name = tabImageNode->getAttribute("name").str();
     string fileName = tabImageNode->getAttribute("image");
     m_image = new CPngImage(tar.file(fileName));
-    m_leftFrameWidth = tabImageNode->getAttribute("left_frame","0");
-    m_rightFrameWidth = tabImageNode->getAttribute("right_frame","0");
-    m_topFrameHeight = tabImageNode->getAttribute("top_frame","0");
-    m_bottomFrameHeight = tabImageNode->getAttribute("bottom_frame","0");
+    m_leftFrameWidth = tabImageNode->getAttribute("left_frame", "0");
+    m_rightFrameWidth = tabImageNode->getAttribute("right_frame", "0");
+    m_topFrameHeight = tabImageNode->getAttribute("top_frame", "0");
+    m_bottomFrameHeight = tabImageNode->getAttribute("bottom_frame", "0");
     if (tabImageNode->getAttribute("fill").str() == "stretch")
         m_backgroundDrawMode = CPngImage::PDM_STRETCH;
     else
         m_backgroundDrawMode = CPngImage::PDM_TILE;
 }
 
-void CTabImage::draw(int x,int y,int w,int h) {
+void CTabImage::draw(int x, int y, int w, int h)
+{
     /// Top left corner
-    m_image->draw(x,y,m_leftFrameWidth,m_topFrameHeight,0,0);
+    m_image->draw(x, y, m_leftFrameWidth, m_topFrameHeight, 0, 0);
 
     /// Bottom left corner
-    m_image->draw(x,y+h-m_bottomFrameHeight,m_leftFrameWidth,m_bottomFrameHeight,0,m_image->h()-m_bottomFrameHeight);
+    m_image->draw(x, y + h - m_bottomFrameHeight, m_leftFrameWidth, m_bottomFrameHeight, 0,
+                  m_image->h() - m_bottomFrameHeight);
 
     /// Top right corner
-    m_image->draw(x+w-m_rightFrameWidth,y,m_rightFrameWidth,m_topFrameHeight,m_image->w()-m_rightFrameWidth,0);
+    m_image->draw(x + w - m_rightFrameWidth, y, m_rightFrameWidth, m_topFrameHeight, m_image->w() - m_rightFrameWidth,
+                  0);
 
     /// Bottom right corner
-    m_image->draw(x+w-m_rightFrameWidth,y+h-m_bottomFrameHeight,m_rightFrameWidth,m_bottomFrameHeight,m_image->w()-m_rightFrameWidth,m_image->h()-m_bottomFrameHeight);
+    m_image->draw(x + w - m_rightFrameWidth, y + h - m_bottomFrameHeight, m_rightFrameWidth, m_bottomFrameHeight,
+                  m_image->w() - m_rightFrameWidth, m_image->h() - m_bottomFrameHeight);
 
     /// Left side
-    m_image->cutStretchDraw(0,m_topFrameHeight,m_leftFrameWidth,m_image->h()-(m_topFrameHeight+m_bottomFrameHeight),
-                            x,y+m_topFrameHeight,m_leftFrameWidth,h-(m_topFrameHeight+m_bottomFrameHeight));
+    m_image->cutStretchDraw(0, m_topFrameHeight, m_leftFrameWidth,
+                            m_image->h() - (m_topFrameHeight + m_bottomFrameHeight),
+                            x, y + m_topFrameHeight, m_leftFrameWidth, h - (m_topFrameHeight + m_bottomFrameHeight));
 
     /// Top side
-    m_image->cutStretchDraw(m_leftFrameWidth,0,m_image->w()-(m_leftFrameWidth+m_rightFrameWidth),m_topFrameHeight,
-                            x+m_leftFrameWidth,y,w-(m_leftFrameWidth+m_rightFrameWidth),m_topFrameHeight);
+    m_image->cutStretchDraw(m_leftFrameWidth, 0, m_image->w() - (m_leftFrameWidth + m_rightFrameWidth),
+                            m_topFrameHeight,
+                            x + m_leftFrameWidth, y, w - (m_leftFrameWidth + m_rightFrameWidth), m_topFrameHeight);
 
     /// Right side
-    m_image->cutStretchDraw(m_image->w()-m_leftFrameWidth,m_topFrameHeight,m_leftFrameWidth,m_image->h()-(m_topFrameHeight+m_bottomFrameHeight),
-                            x+w-m_leftFrameWidth,y+m_topFrameHeight,m_leftFrameWidth,h-(m_topFrameHeight+m_bottomFrameHeight));
+    m_image->cutStretchDraw(m_image->w() - m_leftFrameWidth, m_topFrameHeight, m_leftFrameWidth,
+                            m_image->h() - (m_topFrameHeight + m_bottomFrameHeight),
+                            x + w - m_leftFrameWidth, y + m_topFrameHeight, m_leftFrameWidth,
+                            h - (m_topFrameHeight + m_bottomFrameHeight));
 
     /// Bottom side
-    m_image->cutStretchDraw(m_leftFrameWidth,m_image->h()-m_topFrameHeight,m_image->w()-(m_leftFrameWidth+m_rightFrameWidth),m_topFrameHeight,
-                            x+m_leftFrameWidth,y+h-m_topFrameHeight,w-(m_leftFrameWidth+m_rightFrameWidth),m_topFrameHeight);
+    m_image->cutStretchDraw(m_leftFrameWidth, m_image->h() - m_topFrameHeight,
+                            m_image->w() - (m_leftFrameWidth + m_rightFrameWidth), m_topFrameHeight,
+                            x + m_leftFrameWidth, y + h - m_topFrameHeight, w - (m_leftFrameWidth + m_rightFrameWidth),
+                            m_topFrameHeight);
 
     /// Background
-    m_image->cutStretchDraw(m_leftFrameWidth,m_topFrameHeight,m_image->w()-(m_leftFrameWidth+m_rightFrameWidth),m_image->h()-(m_topFrameHeight+m_bottomFrameHeight),
-                            x+m_leftFrameWidth,y+m_topFrameHeight,w-(m_leftFrameWidth+m_rightFrameWidth),h-(m_topFrameHeight+m_bottomFrameHeight));
+    m_image->cutStretchDraw(m_leftFrameWidth, m_topFrameHeight, m_image->w() - (m_leftFrameWidth + m_rightFrameWidth),
+                            m_image->h() - (m_topFrameHeight + m_bottomFrameHeight),
+                            x + m_leftFrameWidth, y + m_topFrameHeight, w - (m_leftFrameWidth + m_rightFrameWidth),
+                            h - (m_topFrameHeight + m_bottomFrameHeight));
 /*
     if (drawMode == PDM_STRETCH) {
         cutStretchDraw(cornerSizeX,0,w()-cornerSizeX*2,cornerSizeY,xx+cornerSizeX,yy,ww-cornerSizeX*2,cornerSizeY);
@@ -99,21 +112,24 @@ void CTabImage::draw(int x,int y,int w,int h) {
     */
 }
 
-void CTabImages::load(const Tar& tar,const XMLNode* tabImagesNode) {
+void CTabImages::load(const Tar& tar, const XMLNode* tabImagesNode)
+{
     clear();
     for (auto tabNode: *tabImagesNode) {
-        auto tabImage = new CTabImage(tar,tabNode);
+        auto tabImage = new CTabImage(tar, tabNode);
         (*this)[tabImage->name()] = tabImage;
     }
 }
 
-void CTabImages::clear() {
+void CTabImages::clear()
+{
     for (auto itor: *this)
         delete itor.second;
-    map<std::string,CTabImage*>::clear();
+    map<String, CTabImage*>::clear();
 }
 
-CTabImage* CTabImages::tabImage(const char* imageName) {
+CTabImage* CTabImages::tabImage(const char* imageName)
+{
     auto itor = find(imageName);
     if (itor == end())
         return nullptr;

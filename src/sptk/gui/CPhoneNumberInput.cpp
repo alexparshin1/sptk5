@@ -34,13 +34,15 @@
 
 using namespace sptk;
 
-void CPhoneNumberInput::ctor_init() {
-    ((CInput_ *)m_control)->mask("(999)-999-9999");
+void CPhoneNumberInput::ctor_init()
+{
+    ((CInput_*) m_control)->mask("(999)-999-9999");
     maxLength(14);
 }
 
-CPhoneNumberInput::CPhoneNumberInput(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CInput(label,layoutSize,layoutAlignment,true) {
+CPhoneNumberInput::CPhoneNumberInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CInput(label, layoutSize, layoutAlignment, true)
+{
     ctor_init();
 }
 
@@ -51,60 +53,65 @@ CPhoneNumberInput::CPhoneNumberInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CPhoneNumberInput::creator(XMLNode *node) {
-    CPhoneNumberInput* widget = new CPhoneNumberInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CPhoneNumberInput::creator(XMLNode* node)
+{
+    auto widget = new CPhoneNumberInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
-void CPhoneNumberInput::preferredWidth(int& w) const {
+void CPhoneNumberInput::preferredWidth(int& w) const
+{
     w = (int) fl_width("(000)-000-00000") + labelWidth();
 }
 
-Variant CPhoneNumberInput::data() const {
+Variant CPhoneNumberInput::data() const
+{
     return CInput::data();
 }
 
-void CPhoneNumberInput::data(const Variant ss) {
-    char *s1 = strdup(ss.asString().c_str());
-    char *p1 = new char[15];
+void CPhoneNumberInput::data(const Variant ss)
+{
+    char* s1 = strdup(ss.asString().c_str());
+    auto p1 = new char[15];
 
     int pos = 0;
-    char *s2 = s1;
-    char *p2 = p1;
+    char* s2 = s1;
+    char* p2 = p1;
     while (*s2 && pos < 14) {
         switch (pos) {
-        case 0:
-            *p2 = '(';
-            p2++;
-            break;
-        case 4:
-            *p2 = ')';
-            p2++;
-            break;
-        case 5:
-        case 9:
-            *p2 = '-';
-            p2++;
-            break;
-        default:
-            while (*s2 && !isdigit(*s2))
-                s2++;
-            if (isdigit(*s2)) {
-                *p2 = *s2;
+            case 0:
+                *p2 = '(';
                 p2++;
-                s2++;
-            }
-            break;
+                break;
+            case 4:
+                *p2 = ')';
+                p2++;
+                break;
+            case 5:
+            case 9:
+                *p2 = '-';
+                p2++;
+                break;
+            default:
+                while (*s2 && !isdigit(*s2))
+                    s2++;
+                if (isdigit(*s2)) {
+                    *p2 = *s2;
+                    p2++;
+                    s2++;
+                }
+                break;
         }
         pos++;
     }
     *p2 = 0;
     CInput::data(p1);
-    delete [] p1;
+    delete[] p1;
     free(s1);
 }
 
-bool CPhoneNumberInput::valid() const {
+bool CPhoneNumberInput::valid() const
+{
     return true;
 }

@@ -33,8 +33,9 @@
 
 using namespace sptk;
 
-CPasswordInput::CPasswordInput(const char *label,int layoutSize,CLayoutAlign layoutAlignment)
-        : CInput(label,layoutSize,layoutAlignment) {
+CPasswordInput::CPasswordInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CInput(label, layoutSize, layoutAlignment)
+{
     controlType(FL_SECRET_INPUT);
 }
 
@@ -45,8 +46,9 @@ CPasswordInput::CPasswordInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CPasswordInput::creator(XMLNode *node) {
-    CPasswordInput* widget = new CPasswordInput("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CPasswordInput::creator(XMLNode* node)
+{
+    auto widget = new CPasswordInput("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

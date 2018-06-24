@@ -46,7 +46,7 @@ namespace sptk {
 /**
  * HTTP fields are implemented as case-insensitive map
  */
-typedef std::map<std::string, std::string, CaseInsensitiveCompare> StringHttpFieldMap;
+typedef std::map<sptk::String, sptk::String, CaseInsensitiveCompare> StringHttpFieldMap;
 
 /**
  * @brief HTTP params map
@@ -60,40 +60,40 @@ class HttpParams: public StringHttpFieldMap
     /**
      * @brief Encodes a string into HTML parameters
      */
-    static std::string encodeString(const std::string& str);
+    static String encodeString(const String& str);
 
     /**
      * @brief Decodes a string from HTML parameters
      */
-    static std::string decodeString(const std::string& str);
+    static sptk::String decodeString(const String& str);
 public:
     /**
      * @brief Default constructor.
      */
-    HttpParams() :
-        StringHttpFieldMap()
+    HttpParams()
+    : StringHttpFieldMap()
     {
     }
 
     /**
      * @brief Encodes HTTP parameters for sending to the server.
-     * @param result CBuffer&, output - encoded parameters string (if any) as the buffer.
+     * @param result            Output - encoded parameters string (if any) as the buffer.
      */
     void encode(Buffer& result) const;
 
     /**
      * @brief Decodes HTTP parameters that came from the server as a string into parameters map.
-     * @param paramString CBuffer, parameters string from HTTP server
-     * @param lowerCaseNames bool, true if you want to lower-case the parameter names
+     * @param paramString       Parameters string from HTTP server
+     * @param lowerCaseNames    True if you want to lower-case the parameter names
      */
     void decode(const Buffer& paramString, bool lowerCaseNames = false);
     
     /**
      * @brief Returns parameter value, or empty string if not found
-     * @param paramName const std::string&, parameter name
+     * @param paramName         Parameter name
      * @return parameter value
      */
-    std::string get(const std::string& paramName) const;
+    String get(const String& paramName) const;
 };
 /**
  * @}

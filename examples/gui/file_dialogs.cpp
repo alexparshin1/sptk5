@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
-#include <locale.h>
+#include <cstdio>
 #include <sptk5/cgui>
 
 using namespace std;

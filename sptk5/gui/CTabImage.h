@@ -61,7 +61,7 @@ class CTabImage {
     /**
      * Logical name
      */
-    std::string m_name;
+    String      m_name;
 
     /**
      * Left frame width
@@ -111,13 +111,13 @@ public:
     /**
      * @brief Tab name
      */
-    std::string name() const { return m_name; }
+    String name() const { return m_name; }
 };
 
 /**
  * Tab theme images collection
  */
-class CTabImages : protected std::map<std::string,CTabImage*> {
+class CTabImages : protected std::map<String,CTabImage*> {
 public:
     /**
      * @brief Constructor

@@ -96,7 +96,7 @@ CControl* sptk::createControl(int controlKind, std::string label, std::string fi
             throw Exception("Unsupported control type, field name '" + fieldName + "'.");
     }
 
-    control->fieldName(fieldName.c_str());
+    control->fieldName(fieldName);
 
     return control;
 }

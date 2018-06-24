@@ -34,28 +34,27 @@
 #include <FL/Fl.H>
 
 #include <sptk5/cgui>
-#include <stdio.h>
 
 using namespace std;
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w,void *)
+void exit_cb(Fl_Widget* w, void*)
 {
-   w->window()->hide();
+    w->window()->hide();
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
     try {
         // Initialize themes
         CThemes themes;
 
         // CWindow supports auto-layout
-        CWindow w(600,400,"CSplitter test");
+        CWindow w(600, 400, "CSplitter test");
         w.resizable(w);
         w.layoutSpacing(4);
 
-        CScroll * sb = new CScroll("", 100, SP_ALIGN_RIGHT);
+        auto sb = new CScroll("", 100, SP_ALIGN_RIGHT);
         new CBox("This is a box", 100, SP_ALIGN_CLIENT);
         sb->end();
         /*
@@ -65,22 +64,22 @@ int main(int argc,char *argv[])
         listView.columns().push_back(CColumn("column 3",VAR_STRING,200));
         listView.columns().push_back(CColumn("column 4",VAR_STRING));
         */
-        CSplitter splitter("",3,SP_ALIGN_RIGHT);
+        CSplitter splitter("", 3, SP_ALIGN_RIGHT);
 
-        CListView listView2("List View 2:",10,SP_ALIGN_CLIENT);
-        listView2.columns().push_back(CColumn("column 1",VAR_INT,70));
-        listView2.columns().push_back(CColumn("column 2",VAR_INT,70));
-        listView2.columns().push_back(CColumn("column 3",VAR_STRING,200));
-        listView2.columns().push_back(CColumn("column 4",VAR_STRING));
+        CListView listView2("List View 2:", 10, SP_ALIGN_CLIENT);
+        listView2.columns().push_back(CColumn("column 1", VAR_INT, 70));
+        listView2.columns().push_back(CColumn("column 2", VAR_INT, 70));
+        listView2.columns().push_back(CColumn("column 3", VAR_STRING, 200));
+        listView2.columns().push_back(CColumn("column 4", VAR_STRING));
 
         // Add 10 items
         char buffer1[10];
         char buffer2[10];
-        for (int a=0; a<10; a++) {
-            sprintf(buffer1,"%i",a);
-            sprintf(buffer2,"%i",100000-a);
-            cpchar rowData[] = {buffer1,buffer2, "Column 2", "-----------Long column-----------"};
-            CPackedStrings *ps = new CPackedStrings(4,rowData);
+        for (int a = 0; a < 10; a++) {
+            sprintf(buffer1, "%i", a);
+            sprintf(buffer2, "%i", 100000 - a);
+            cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
+            auto ps = new CPackedStrings(4, rowData);
             listView2.addRow(ps);
         }
 
@@ -88,7 +87,7 @@ int main(int argc,char *argv[])
         // buttons use the default alignment for buttons - 
         // SP_ALIGN_RIGHT, and the text/icon defined by the 
         // button kind.
-        CGroup buttonGroup("",10,SP_ALIGN_BOTTOM);
+        CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
         buttonGroup.color(FL_LIGHT1);
 
         CButton okButton(SP_EXIT_BUTTON);
@@ -97,7 +96,7 @@ int main(int argc,char *argv[])
         buttonGroup.end();
 
         w.end();
-        w.show(argc,argv);
+        w.show(argc, argv);
 
         return Fl::run();
     }

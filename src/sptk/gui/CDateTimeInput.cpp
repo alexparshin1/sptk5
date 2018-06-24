@@ -53,7 +53,7 @@ void CDateTimeBaseInput::ctor_init()
     m_timeInput = nullptr;
     m_minValue = DateTime();
     m_maxValue = DateTime();
-    m_calendarWindow = 0L;
+    m_calendarWindow = nullptr;
     m_timeInput = (CInput_*) m_control;
 }
 
@@ -230,7 +230,7 @@ CTimeInput::CTimeInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CTimeInput::creator(XMLNode* node)
 {
-    CTimeInput* widget = new CTimeInput("", 10, SP_ALIGN_TOP);
+    auto widget = new CTimeInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

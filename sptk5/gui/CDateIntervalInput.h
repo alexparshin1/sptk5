@@ -118,7 +118,7 @@ public:
      * @brief Sets the separator to display between date inputs
      * @param s std::string, separator value
      */
-    void separator(std::string s);
+    void separator(const std::string& s);
 
     /**
      * @brief Returns the separator between date inputs

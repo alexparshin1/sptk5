@@ -211,6 +211,8 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                         throw Exception("Network unreachable");
                     case ECONNREFUSED:
                         throw Exception("Connection refused");
+                    default:
+                        break;
                 }
                 if (!readyToWrite(timeout)) {
                     close();

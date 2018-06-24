@@ -46,16 +46,16 @@ namespace sptk {
             String subName;
             pos = row.find_first_not_of(" \t", pos);
             if (pos == STRING_NPOS)
-                throw runtime_error("value not found");
+                throw Exception("value not found");
 
             switch (row[pos]) {
                 case ':': {
                     if (row[pos + 1] != ':')
-                        throw runtime_error("single ':' found");
+                        throw Exception("single ':' found");
                     pos += 2;
                     size_t pos2 = row.find_first_of(" \t=", pos);
                     if (pos2 == STRING_NPOS)
-                        throw runtime_error("value not found");
+                        throw Exception("value not found");
                     subName = row.substr(pos, pos2 - pos);
                     pos = pos2 + 1;
                     break;
@@ -64,7 +64,7 @@ namespace sptk {
                     pos++;
                     size_t pos2 = row.find_first_of("]", pos);
                     if (pos2 == STRING_NPOS)
-                        throw runtime_error("matching ']' not found");
+                        throw Exception("matching ']' not found");
                     subName = row.substr(pos, pos2 - pos);
                     pos = pos2 + 1;
                     break;
@@ -73,7 +73,7 @@ namespace sptk {
                     pos++;
                     size_t pos2 = row.find_first_of("\"", pos);
                     if (pos2 == STRING_NPOS)
-                        throw runtime_error("matching '\"' not found");
+                        throw Exception("matching '\"' not found");
                     subName = row.substr(pos, pos2 - pos);
                     pos = pos2 + 1;
                     break;
@@ -89,7 +89,7 @@ namespace sptk {
                 pos = pos2 + 1;
                 pos2 = row.find_first_not_of(" \t", pos);
                 if (pos2 == STRING_NPOS)
-                    throw runtime_error("error parsing value");
+                    throw Exception("error parsing value");
                 pos = pos2;
             }
             int maxValueSize = 16384;
@@ -97,7 +97,7 @@ namespace sptk {
                 pos++;
                 pos2 = row.find_first_of("\"", pos);
                 if (pos2 == STRING_NPOS)
-                    throw runtime_error("Error parsing value for " + name + " in row " + row);
+                    throw Exception("Error parsing value for " + name + " in row " + row);
                 maxValueSize = int(pos2 - pos);
             }
             XMLNode* node = nullptr;
@@ -131,7 +131,7 @@ namespace sptk {
             return node;
         }
         catch (exception& e) {
-            throw runtime_error("Error parsing row '" + row + "'\n" + string(e.what()));
+            throw Exception("Error parsing row '" + row + "'\n" + string(e.what()));
         }
         return nullptr;
     }
@@ -139,28 +139,28 @@ namespace sptk {
     void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
     {
         if (gtkrc[currentRow] != "image")
-            throw runtime_error("Expecting 'image' in row " + gtkrc[currentRow]);
+            throw Exception("Expecting 'image' in row " + gtkrc[currentRow]);
         currentRow++;
         if (gtkrc[currentRow] != "{")
-            throw runtime_error("Expecting '{' in row '" + gtkrc[currentRow]);
+            throw Exception("Expecting '{' in row '" + gtkrc[currentRow]);
         currentRow++;
         XMLNode* imageNode = new XMLElement(parentNode, "image");
         while (gtkrc[currentRow] != "}") {
             parseParameter(gtkrc[currentRow], imageNode, true);
             currentRow++;
             if (currentRow == gtkrc.size())
-                throw runtime_error("Expecting '}' after row '" + gtkrc[currentRow - 1]);
+                throw Exception("Expecting '}' after row '" + gtkrc[currentRow - 1]);
         }
     }
 
     void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
     {
         if (gtkrc[currentRow].find("engine") != 0)
-            throw runtime_error("Expecting 'engine' in row " + gtkrc[currentRow]);
+            throw Exception("Expecting 'engine' in row " + gtkrc[currentRow]);
         XMLNode* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
         try {
             if (gtkrc[currentRow] != "{")
-                throw runtime_error("Expecting '{' in row '" + gtkrc[currentRow] + "'");
+                throw Exception("Expecting '{' in row '" + gtkrc[currentRow] + "'");
             currentRow++;
             while (gtkrc[currentRow] != "}") {
                 if (gtkrc[currentRow] == "image")
@@ -169,7 +169,7 @@ namespace sptk {
                     parseParameter(gtkrc[currentRow], engineNode);
                 currentRow++;
                 if (currentRow == gtkrc.size())
-                    throw runtime_error("Expecting '}' after row '" + gtkrc[currentRow - 1] + "'");
+                    throw Exception("Expecting '}' after row '" + gtkrc[currentRow - 1] + "'");
             }
         }
         catch (exception& e) {
@@ -181,12 +181,12 @@ namespace sptk {
     {
         //const string& styleRow = gtkrc[currentRow];
         if (gtkrc[currentRow].find("style") != 0)
-            throw runtime_error("Expecting 'style' in row " + gtkrc[currentRow]);
+            throw Exception("Expecting 'style' in row " + gtkrc[currentRow]);
         XMLNode* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
         if (styleNode->getAttribute("name").str() == "scrollbar")
             styleNode->setAttribute("name", "scrollbars");
         if (gtkrc[currentRow] != "{")
-            throw runtime_error("Expecting '{' in row '" + gtkrc[currentRow] + "'");
+            throw Exception("Expecting '{' in row '" + gtkrc[currentRow] + "'");
         currentRow++;
         while (gtkrc[currentRow] != "}") {
             const string& str = gtkrc[currentRow];
@@ -196,7 +196,7 @@ namespace sptk {
                 parseParameter(str, styleNode);
             currentRow++;
             if (currentRow == gtkrc.size())
-                throw runtime_error("Expecting '}' after row '" + gtkrc[currentRow - 1] + "'");
+                throw Exception("Expecting '}' after row '" + gtkrc[currentRow - 1] + "'");
         }
     }
 
@@ -235,7 +235,7 @@ namespace sptk {
         Strings gtkrc;
 
         for (unsigned i = 0; i < gtkrcSource.size(); i++) {
-            string s = trim(gtkrcSource[i]);
+            String s = trim(gtkrcSource[i]);
 
             size_t pos = 0;
 
@@ -248,7 +248,7 @@ namespace sptk {
                     if (s[pos] == '\"') { // Find a matching double quote
                         pos = s.find_first_of('\"', pos + 1);
                         if (pos == STRING_NPOS)
-                            throw runtime_error("Unmatched {\"} found in row " + int2string(i));
+                            throw Exception("Unmatched {\"} found in row " + int2string(i));
                     } else {
                         if (pos)
                             s = trim(s.substr(0, pos - 1));

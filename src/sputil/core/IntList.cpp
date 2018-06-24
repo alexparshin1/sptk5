@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 //---------------------------------------------------------------------------
-string IntList::toString(const char* separator) const
+String IntList::toString(const char* separator) const
 {
     String s;
     auto cnt = (uint32_t) size();
@@ -56,5 +56,5 @@ void IntList::fromString(const char* s, const char* separator)
     auto cnt = (uint32_t) sl.size();
 
     for (uint32_t i = 0; i < cnt; i++)
-        push_back((uint32_t) atol(sl[i].c_str()));
+        push_back((uint32_t) string2int(sl[i]));
 }

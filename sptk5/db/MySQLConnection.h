@@ -231,7 +231,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL) override;
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL) override;
 };
 
 #define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection)))

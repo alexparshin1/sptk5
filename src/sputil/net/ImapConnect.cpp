@@ -195,7 +195,7 @@ static const char *required_headers[] = {
     nullptr
 };
 
-static void parse_header(const string &header, string &header_name, string &header_value)
+static void parse_header(const String& header, String& header_name, String& header_value)
 {
     if (header[0] == ' ')
         return;
