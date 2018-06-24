@@ -50,8 +50,8 @@ void CDBDropDownListView::onExit()
 }
 
 //===========================================================================
-CDBDropDownList::CDBDropDownList(int w, int h, const char* label)
-        : CPopupWindow(w, h, label)
+CDBDropDownList::CDBDropDownList(int width, int height, const char* label)
+: CPopupWindow(width, height, label)
 {
     layoutSpacing(0);
     begin();

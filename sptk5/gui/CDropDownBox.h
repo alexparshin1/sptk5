@@ -28,6 +28,7 @@
 
 #ifndef __CDROPDOWNBOX_H__
 #define __CDROPDOWNBOX_H__
+
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Box.H>
 #include <sptk5/gui/CPopupWindow.h>
@@ -48,7 +49,8 @@ class QueryParameter;
  *
  * A special derivation of CDBListView to support CDBDropDownList class.
  */
-class SP_EXPORT CDBDropDownListView : public CDBListView {
+class SP_EXPORT CDBDropDownListView : public CDBListView
+{
 
 protected:
 
@@ -66,11 +68,13 @@ public:
 
     /**
      * Constructor in SPTK style
-     * @param label const char *, label
-     * @param layoutSize int, widget align in layout
-     * @param layoutAlign CLayoutAlign, widget align in layout
+     * @param label             Label
+     * @param layoutSize        Widget size in layout
+     * @param layoutAlign       Widget align in layout
      */
-    CDBDropDownListView(const char *label,int layoutSize,CLayoutAlign layoutAlign) : CDBListView(label,layoutSize,layoutAlign) {}
+    CDBDropDownListView(const char* label, int layoutSize, CLayoutAlign layoutAlign)
+            : CDBListView(label, layoutSize, layoutAlign)
+    {}
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -83,52 +87,54 @@ public:
     CDBDropDownListView(int x,int y,int w,int h) : CDBListView(x,y,w,h) {}
 #endif
 
-}
-;
+};
 
 /**
  * @brief Drop-down window with CListView widget inside.
  *
  * Designed specifically for CComboBox.
  */
-class SP_EXPORT CDBDropDownList : public CPopupWindow {
+class SP_EXPORT CDBDropDownList : public CPopupWindow
+{
     friend class CBaseListBox;
     friend class CDBDropDownListView;
+
 protected:
     /**
      * Special version of handle() function
      */
-    int  handle(int);
+    int handle(int) override;
+
 public:
     /**
      * Modified list view widget
      */
-    CDBDropDownListView *listView;
+    CDBDropDownListView* listView;
 
     /**
      * Constructor
-     * @param w int, window width
-     * @param h int, window height
-     * @param label const char *, window caption
+     * @param width         Window width
+     * @param height        Window height
+     * @param label         Window caption
      */
-    CDBDropDownList(int w, int h, const char *label = 0);
+    CDBDropDownList(int width, int height, const char* label = 0);
 
     /**
      * Resizes window and internal widgets
-     * @param x int, x-position
-     * @param y int, y-position
-     * @param w int, width
-     * @param h int, height
+     * @param x             X-position
+     * @param y             Y-position
+     * @param w             Hidth
+     * @param h             Height
      */
-    virtual void resize(int x,int y,int w,int h);
+    virtual void resize(int x, int y, int w, int h);
 
     /**
      * Computes the preferred size of the popup window
-     * @param w int&, input - width offered by the program, output - width required by widget
-     * @param h int&, input - height offered by the program, output - height required by widget
+     * @param w             Input - width offered by the program, output - width required by widget
+     * @param h             Input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    virtual bool preferredSize(int& w, int& h);
 };
 /**
  * @}
