@@ -33,7 +33,6 @@ OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
 
 OPTION (USE_PCRE       "Use PCRE library" ON)
-OPTION (USE_ZLIB       "Use ZLib library" ON)
 
 OPTION (BUILD_EXAMPLES "Build usage examples" ON)
 OPTION (BUILD_UTILS    "Build utitlity programs" ON)
