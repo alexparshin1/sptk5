@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
       TCPSocket client;
       client.host(Host("localhost",3000));
 
-      client.open();
+       client.open();
 
       std::cout << "Connected\n";
 

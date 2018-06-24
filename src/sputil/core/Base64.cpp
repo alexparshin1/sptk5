@@ -106,10 +106,10 @@ void Base64::encode(string& strDest, const Buffer& bufSource)
     strDest = string(bufOut.c_str(), bufOut.bytes());
 }
 
-static const std::string base64_chars = 
+static const String base64_chars(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
-    "0123456789+/";
+    "0123456789+/");
 
 static inline bool is_base64(uint8_t c)
 {
@@ -125,8 +125,8 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
     dest.reset();
 
-  while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-    char_array_4[i++] = encoded_string[in_]; in_++;
+  while (in_len-- && ( encoded_string[in_] != '=') && is_base64((uint8_t) encoded_string[in_])) {
+    char_array_4[i++] = (uint8_t) encoded_string[in_]; in_++;
     if (i ==4) {
       for (i = 0; i <4; i++)
         char_array_4[i] = (uint8_t) base64_chars.find(char_array_4[i]);

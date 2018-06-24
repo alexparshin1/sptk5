@@ -36,7 +36,6 @@
 #include <iostream>
 #include <sptk5/Buffer.h>
 #include <sptk5/ZLib.h>
-#include <cstring>
 
 using namespace std;
 using namespace sptk;
