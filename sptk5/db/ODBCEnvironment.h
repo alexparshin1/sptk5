@@ -346,7 +346,7 @@ public:
 /**
  * Removes excessive driver information from error message
  */
-const char* removeDriverIdentification(const char* error);
+String removeDriverIdentification(const char* error);
 
 /**
  * @}

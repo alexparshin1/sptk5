@@ -109,8 +109,8 @@ int main(int, char* [])
         // Let the tasks start and print start message
         this_thread::sleep_for(chrono::milliseconds(100));
 
-        for (int i = 0; i < 100; i++)
-            intQueue.push(i);
+        for (int value = 0; value < 100; value++)
+            intQueue.push(value);
 
         sharedLog << LP_NOTICE << "Waiting 1 seconds while tasks are running.." << endl;
         this_thread::sleep_for(chrono::milliseconds(1000));

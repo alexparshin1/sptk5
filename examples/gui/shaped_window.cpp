@@ -51,7 +51,7 @@ class CShapedWindow : public CWindow
     int m_restoreW{0};
     int m_restoreH{0};
 
-    void appendSector(int x, int y, int r, int a1, int a2, int da);
+    void appendSector(int xc, int yc, int r, int a1, int a2, int da);
 
 public:
     CShapedWindow(int x, int y, int w, int h, const char* label = "");
@@ -169,9 +169,9 @@ void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da)
 {
     for (int angle = a1; angle != a2; angle += da) {
         double angle_r = angle / 180.0 * 3.1415926;
-        auto dx = int(r * cos(angle_r) + 0.5);
-        auto dy = int(r * sin(angle_r) + 0.5);
-        m_shapePoints.push_back(CShapePoint(xc + dx, yc - dy));
+        auto dx = (int) std::round(r * cos(angle_r));
+        auto dy = (int) std::round(r * sin(angle_r));
+        m_shapePoints.emplace_back(xc + dx, yc - dy);
     }
 }
 

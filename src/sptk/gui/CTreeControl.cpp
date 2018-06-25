@@ -414,7 +414,7 @@ CTreeItem* CTreeItem::findData(const void* itemData) const
     return nullptr;
 }
 
-CTreeItem* CTreeItem::addPathOffset(const vector<string>& pathFolders, unsigned offset, const Fl_Image* openedImage,
+CTreeItem* CTreeItem::addPathOffset(const vector<String>& pathFolders, unsigned offset, const Fl_Image* openedImage,
                                     const Fl_Image* closedImage, const Fl_Image* itemImage, void* data)
 {
     CTreeItem* node = this;
@@ -436,9 +436,8 @@ CTreeItem* CTreeItem::addPathOffset(const vector<string>& pathFolders, unsigned 
         return nullptr;
 }
 
-CTreeItem*
-CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image* openedImage, const Fl_Image* closedImage,
-                   const Fl_Image* itemImage, void* data)
+CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* openedImage, const Fl_Image* closedImage,
+                              const Fl_Image* itemImage, void* data)
 {
     return addPathOffset(pathFolders, 0, openedImage, closedImage, itemImage, data);
 }
@@ -448,7 +447,7 @@ static Fl_Image* getIconImage(const char* iconName)
     return CThemes::getIconImage(iconName, IS_SMALL_ICON);
 }
 
-CTreeItem* CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image* itemImage, void* data)
+CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* itemImage, void* data)
 {
     if (!itemImage)
         itemImage = getIconImage("document");
@@ -705,13 +704,13 @@ CTreeControl::addItem(const char* label, const Fl_Image* openedImage, const Fl_I
     return m_root->addItem(label, openedImage, closedImage, data);
 }
 
-CTreeItem* CTreeControl::addPath(const vector<string>& path, const Fl_Image* openedImage, const Fl_Image* closedImage,
+CTreeItem* CTreeControl::addPath(const vector<String>& path, const Fl_Image* openedImage, const Fl_Image* closedImage,
                                  const Fl_Image* itemImage, void* data)
 {
     return m_root->addPath(path, openedImage, closedImage, itemImage, data);
 }
 
-CTreeItem* CTreeControl::addPath(const vector<string>& path, const Fl_Image* itemImage, void* data)
+CTreeItem* CTreeControl::addPath(const vector<String>& path, const Fl_Image* itemImage, void* data)
 {
     return addPath(path, getIconImage("folder_opened"), getIconImage("folder_closed"), itemImage, data);
 }

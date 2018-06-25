@@ -39,7 +39,7 @@ AsyncTcpSocket::AsyncTcpSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32
 void AsyncTcpSocket::_open(const Host& host, BaseSocket::CSocketOpenMode openMode, bool blockingMode,
                            chrono::milliseconds timeout)
 {
-    TCPSocket::open(host, openMode, blockingMode, timeout);
+    TCPSocket::_open(host, openMode, blockingMode, timeout);
 }
 
 void AsyncTcpSocket::_open(const struct sockaddr_in& address, BaseSocket::CSocketOpenMode openMode, bool blockingMode,

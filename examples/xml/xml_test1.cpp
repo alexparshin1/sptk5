@@ -36,7 +36,6 @@
 
 #include <sptk5/DateTime.h>
 #include <sptk5/cgui>
-#include <sptk5/cxml>
 
 using namespace std;
 using namespace sptk;
@@ -46,28 +45,28 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
     if (!n)
         return;
 
-    CTreeItem *w = 0;
-    CTreeItem *newItem = 0;
-    if (n->size() || n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
+    CTreeItem *w = nullptr;
+    CTreeItem *newItem = nullptr;
+    if (!n->empty() || n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
         // Create a new item group
         if (item)
-            newItem = item->addItem("", 0L, 0L, n);
+            newItem = item->addItem("", nullptr, nullptr, n);
         else
-            newItem = tree->addItem("", 0L, 0L, n);
+            newItem = tree->addItem("", nullptr, nullptr, n);
         w = newItem;
         if (n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
             w->label(n->name().c_str());
-            w = newItem->addItem("", 0L, 0L, n);
+            w = newItem->addItem("", nullptr, nullptr, n);
         }
     } else {
         if (item)
-            newItem = item->addItem("", 0L, 0L, n);
+            newItem = item->addItem("", nullptr, nullptr, n);
         else
-            newItem = tree->addItem("", 0L, 0L, n);
+            newItem = tree->addItem("", nullptr, nullptr, n);
         w = newItem;
     }
 
-    string label;
+    String label;
     const XMLAttributes &attr_map = n->attributes();
 
     switch (n->type())
@@ -75,7 +74,7 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
     case XMLNode::DOM_ELEMENT:
         label = n->name();
         if (n->hasAttributes()) {
-            XMLAttributes::const_iterator it = attr_map.begin();
+            auto it = attr_map.begin();
             for (; it != attr_map.end(); it++)
                 label += string(" ") + (*it)->name() + string("=*") + (*it)->value() + "*";
         }
@@ -98,10 +97,10 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
 
     w->label(label.c_str());
 
-    XMLNode::iterator itor = n->begin();
-    XMLNode::iterator iend = n->end();
+    auto itor = n->begin();
+    auto iend = n->end();
     for (; itor != iend; ++itor) {
-        XMLElement* node = dynamic_cast<XMLElement*>(*itor);
+        auto node = dynamic_cast<XMLElement*>(*itor);
         if (node)
             build_tree(node, tree, newItem);
     }
@@ -109,7 +108,7 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
 
 XMLDocument *build_doc()
 {
-    XMLDocument *doc = new XMLDocument();
+    auto doc = new XMLDocument();
 
     XMLNode *rootNode = new XMLElement(*doc, "MyDocument");
     XMLNode *hello = new XMLElement(*rootNode, "HelloTag");
@@ -141,7 +140,7 @@ int main(int argc, char **argv)
         // Initialize themes
         CThemes themes;
 
-        string fileName;
+        String fileName;
         if (argc == 2) {
             fileName = argv[1];
         } else {
@@ -172,11 +171,11 @@ int main(int argc, char **argv)
             return 12;
         }
 
-        CWindow* window = new CWindow(700, 200, 300, 300);
+        auto window = new CWindow(700, 200, 300, 300);
         window->resizable(window);
         window->begin();
 
-        CTreeControl* tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
+        auto tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
         window->end();
 
         DateTime start = DateTime::Now();
@@ -189,14 +188,14 @@ int main(int argc, char **argv)
         window->label(message.str());
         cout << message.str() << endl;
 
-        build_tree(doc.get(), tree, 0L);
+        build_tree(doc.get(), tree, nullptr);
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();
         cout << "XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl;
 
         try {
-            DateTime start = DateTime::Now();
+            start = DateTime::Now();
             Buffer savebuffer;
             doc->save(savebuffer, true);
             savebuffer.saveToFile("MyXML.xml");

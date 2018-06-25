@@ -33,7 +33,6 @@
 
 #include <sptk5/sptk.h>
 #include <sptk5/cxml>
-#include <iostream>
 #include <fstream>
 
 using namespace std;

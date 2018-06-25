@@ -29,14 +29,13 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/db/MySQLConnection.h>
 #include <sptk5/db/Query.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-MySQLConnection::MySQLConnection(const string& connectionString) :
-    DatabaseConnection(connectionString),
-    m_connection(nullptr)
+MySQLConnection::MySQLConnection(const string& connectionString)
+: DatabaseConnection(connectionString),
+  m_connection(nullptr)
 {
     m_connType = DCT_MYSQL;
 }
@@ -49,7 +48,7 @@ MySQLConnection::~MySQLConnection()
         close();
         while (!m_queryList.empty()) {
             try {
-                auto query = (Query *) m_queryList[0];
+                auto query = (Query*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -60,7 +59,7 @@ MySQLConnection::~MySQLConnection()
 }
 
 
-void MySQLConnection::openDatabase(const String& newConnectionString)
+void MySQLConnection::_openDatabase(const String& newConnectionString)
 {
     static std::mutex libraryInitMutex;
 
@@ -88,8 +87,7 @@ void MySQLConnection::openDatabase(const String& newConnectionString)
                                    m_connString.databaseName().c_str(),
                                    m_connString.portNumber(),
                                    nullptr,
-                                   CLIENT_MULTI_RESULTS) == nullptr)
-            {
+                                   CLIENT_MULTI_RESULTS) == nullptr) {
                 connectionError = mysql_error(m_connection);
                 mysql_close(m_connection);
                 m_connection = nullptr;
@@ -150,7 +148,7 @@ void MySQLConnection::driverBeginTransaction()
     if (mysql_query(m_connection, "BEGIN WORK") != 0)
         throwMySQLException("Can't start transaction");
 
-    MYSQL_RES *result = mysql_store_result(m_connection);
+    MYSQL_RES* result = mysql_store_result(m_connection);
     if (result != nullptr)
         mysql_free_result(result);
 
@@ -159,14 +157,14 @@ void MySQLConnection::driverBeginTransaction()
 
 void MySQLConnection::driverEndTransaction(bool commit)
 {
-    if (!m_inTransaction)
-        throwDatabaseException("Transaction isn't started.");
+    if (!m_inTransaction) throwDatabaseException("Transaction isn't started.");
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
     if (mysql_query(m_connection, action) != 0)
-        throwMySQLException(string(action) + " failed");
+        throwMySQLException(string(action)
+                                    +" failed");
 
-    MYSQL_RES *result = mysql_store_result(m_connection);
+    MYSQL_RES* result = mysql_store_result(m_connection);
     if (result != nullptr)
         mysql_free_result(result);
 
@@ -174,18 +172,18 @@ void MySQLConnection::driverEndTransaction(bool commit)
 }
 
 //-----------------------------------------------------------------------------------------------
-string MySQLConnection::queryError(const Query *query) const
+String MySQLConnection::queryError(const Query*) const
 {
     return mysql_error(m_connection);
 }
 
-void MySQLConnection::queryAllocStmt(Query *query)
+void MySQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
     querySetStmt(query, new MySQLStatement(this, query->sql(), query->autoPrepare()));
 }
 
-void MySQLConnection::queryFreeStmt(Query *query)
+void MySQLConnection::queryFreeStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
     auto statement = (MySQLStatement*) query->statement();
@@ -196,7 +194,7 @@ void MySQLConnection::queryFreeStmt(Query *query)
     }
 }
 
-void MySQLConnection::queryCloseStmt(Query *query)
+void MySQLConnection::queryCloseStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
     try {
@@ -209,7 +207,7 @@ void MySQLConnection::queryCloseStmt(Query *query)
     }
 }
 
-void MySQLConnection::queryPrepare(Query *query)
+void MySQLConnection::queryPrepare(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
@@ -228,18 +226,17 @@ void MySQLConnection::queryPrepare(Query *query)
     }
 }
 
-void MySQLConnection::queryUnprepare(Query *query)
+void MySQLConnection::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
 }
 
-int MySQLConnection::queryColCount(Query *query)
+int MySQLConnection::queryColCount(Query* query)
 {
     int colCount = 0;
     auto statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr)
-            throwDatabaseException("Query not opened");
+        if (statement == nullptr) throwDatabaseException("Query not opened");
         colCount = (int) statement->colCount();
     }
     catch (exception& e) {
@@ -248,14 +245,13 @@ int MySQLConnection::queryColCount(Query *query)
     return colCount;
 }
 
-void MySQLConnection::queryBindParameters(Query *query)
+void MySQLConnection::queryBindParameters(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
     auto statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr)
-            throwDatabaseException("Query not prepared");
+        if (statement == nullptr) throwDatabaseException("Query not prepared");
         statement->setParameterValues();
     }
     catch (exception& e) {
@@ -263,12 +259,11 @@ void MySQLConnection::queryBindParameters(Query *query)
     }
 }
 
-void MySQLConnection::queryExecute(Query *query)
+void MySQLConnection::queryExecute(Query* query)
 {
     auto statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr)
-            throwDatabaseException("Query is not prepared");
+        if (statement == nullptr) throwDatabaseException("Query is not prepared");
         statement->execute(m_inTransaction);
     }
     catch (exception& e) {
@@ -276,7 +271,7 @@ void MySQLConnection::queryExecute(Query *query)
     }
 }
 
-void MySQLConnection::queryOpen(Query *query)
+void MySQLConnection::queryOpen(Query* query)
 {
     if (!active())
         open();
@@ -313,10 +308,9 @@ void MySQLConnection::queryOpen(Query *query)
     queryFetch(query);
 }
 
-void MySQLConnection::queryFetch(Query *query)
+void MySQLConnection::queryFetch(Query* query)
 {
-    if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open");
+    if (!query->active()) THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     lock_guard<mutex> lock(m_mutex);
 
@@ -340,35 +334,34 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 {
     string objectsSQL;
     objects.clear();
-    switch (objectType)
-    {
-    case DOT_PROCEDURES:
-        objectsSQL =
-            "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
-              "FROM information_schema.routines "
-             "WHERE routine_type = 'PROCEDURE'";
-        break;
-    case sptk::DOT_FUNCTIONS:
-        objectsSQL =
-            "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
-              "FROM information_schema.routines "
-             "WHERE routine_type = 'FUNCTION'";
-        break;
-    case DOT_TABLES:
-        objectsSQL =
-            "SELECT CONCAT(table_schema, '.', table_name) object_name "
-            "FROM information_schema.tables "
-            "WHERE NOT table_schema IN ('mysql','information_schema')";
-        break;
-    case DOT_VIEWS:
-        objectsSQL =
-            "SELECT CONCAT(table_schema, '.', table_name) object_name "
-            "FROM information_schema.views";
-        break;
-    case DOT_DATABASES:
-        objectsSQL =
-            "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
-        break;
+    switch (objectType) {
+        case DOT_PROCEDURES:
+            objectsSQL =
+                    "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
+                    "FROM information_schema.routines "
+                    "WHERE routine_type = 'PROCEDURE'";
+            break;
+        case sptk::DOT_FUNCTIONS:
+            objectsSQL =
+                    "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
+                    "FROM information_schema.routines "
+                    "WHERE routine_type = 'FUNCTION'";
+            break;
+        case DOT_TABLES:
+            objectsSQL =
+                    "SELECT CONCAT(table_schema, '.', table_name) object_name "
+                    "FROM information_schema.tables "
+                    "WHERE NOT table_schema IN ('mysql','information_schema')";
+            break;
+        case DOT_VIEWS:
+            objectsSQL =
+                    "SELECT CONCAT(table_schema, '.', table_name) object_name "
+                    "FROM information_schema.views";
+            break;
+        case DOT_DATABASES:
+            objectsSQL =
+                    "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
+            break;
     }
     Query query(this, objectsSQL);
     try {
@@ -387,10 +380,11 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 void MySQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                                   const String& format)
 {
-    char    fileName[256];
+    char fileName[256];
     snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%li", getpid(), (long) time(nullptr));
     data.saveToFile(fileName);
-    string sql = "LOAD DATA LOCAL INFILE '" + string(fileName) + "' INTO TABLE " + tableName + " (" + columnNames.asString(",") + ") " + format;
+    string sql = "LOAD DATA LOCAL INFILE '" + string(fileName) + "' INTO TABLE " + tableName + " (" +
+                 columnNames.asString(",") + ") " + format;
 
     int rc = mysql_query(m_connection, sql.c_str());
     unlink(fileName);
@@ -404,9 +398,9 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     unique_ptr<RegularExpression> matchStatementEnd(new RegularExpression("(;\\s*)$"));
 
-    RegularExpression  matchDelimiterChange("^DELIMITER\\s+(\\S+)");
-    RegularExpression  matchEscapeChars("([$.])", "g");
-    RegularExpression  matchCommentRow("^\\s*--");
+    RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
+    RegularExpression matchEscapeChars("([$.])", "g");
+    RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements, matches;
     String statement, delimiter = ";";
@@ -417,7 +411,8 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
         if (matchDelimiterChange.m(row, matches)) {
             delimiter = matches[0];
             delimiter = matchEscapeChars.s(delimiter, "\\\\1");
-            matchStatementEnd = unique_ptr<RegularExpression>(new RegularExpression("(" + delimiter + ")(\\s*|-- .*)$"));
+            matchStatementEnd = unique_ptr<RegularExpression>(
+                    new RegularExpression("(" + delimiter + ")(\\s*|-- .*)$"));
             statement = "";
             continue;
         }
@@ -457,7 +452,7 @@ String MySQLConnection::driverDescription() const
     return "MySQL";
 }
 
-std::string MySQLConnection::paramMark(unsigned paramIndex)
+std::string MySQLConnection::paramMark(unsigned)
 {
     return "?";
 }
@@ -468,7 +463,7 @@ void* mysql_create_connection(const char* connectionString)
     return connection;
 }
 
-void  mysql_destroy_connection(void* connection)
+void mysql_destroy_connection(void* connection)
 {
     delete (MySQLConnection*) connection;
 }

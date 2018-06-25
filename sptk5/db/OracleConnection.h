@@ -116,7 +116,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    std::string queryError(const Query *query) const override;
+    String queryError(const Query *query) const override;
 
     /**
      * Allocates an Oracle statement
@@ -204,6 +204,35 @@ public:
         return m_connection->createStatement();
     }
 
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The Oracle connection string
+     */
+    void _openDatabase(const String& connectionString) override;
+
+    /**
+     * @brief Executes bulk inserts of data from memory buffer
+     *
+     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
+     * about data. If format is empty than default server-specific data format is used.
+     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * @param tableName         Table name to insert into
+     * @param columnNames       List of table columns to populate
+     * @param data              Data for bulk insert
+     */
+    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+                     const String& format) override;
+
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+
 public:
 
     /**
@@ -216,12 +245,6 @@ public:
      * @brief Destructor
      */
     virtual ~OracleConnection();
-
-    /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The Oracle connection string
-     */
-    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -254,29 +277,6 @@ public:
      * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
-
-    /**
-     * @brief Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                     const String& format = "") override;
-
-    /**
-     * @brief Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL) override;
 };
 
 #define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }

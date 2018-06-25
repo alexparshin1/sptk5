@@ -63,7 +63,7 @@ void exit_cb(Fl_Widget *w, void *)
     w->window()->hide();
 }
 
-void combo_cb(Fl_Widget *w, void *data)
+void combo_cb(Fl_Widget *w, void *)
 {
     auto control = dynamic_cast<CControl *> (w);
     if (!control)

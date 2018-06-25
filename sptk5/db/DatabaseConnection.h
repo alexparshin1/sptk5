@@ -239,7 +239,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual std::string queryError(const Query *query) const;
+    virtual String queryError(const Query *query) const;
 
     /**
      * Allocates an ODBC statement
@@ -356,7 +356,7 @@ protected:
      * This method should be overwritten in derived classes
      * @param connectionString  The ODBC connection string
      */
-    virtual void openDatabase(const String& connectionString);
+    virtual void _openDatabase(const String& connectionString);
 
     /**
      * @brief Closes the database connection.
@@ -387,7 +387,7 @@ protected:
      * @param method            Method name where error has occured
      * @param error             Error text
      */
-    void logAndThrow(std::string method, std::string error);
+    void logAndThrow(const String& method, const String& error);
 
     /**
      * @brief Executes bulk inserts of data from memory buffer

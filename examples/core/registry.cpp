@@ -34,8 +34,6 @@
 #include <sptk5/Variant.h>
 #include <sptk5/Registry.h>
 
-#include <iostream>
-
 using namespace std;
 using namespace sptk;
 

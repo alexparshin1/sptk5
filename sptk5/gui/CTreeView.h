@@ -45,33 +45,35 @@ namespace sptk {
  *
  * Shows tree items with icons. Can use different icons for opened/closed folders.
  */
-class SP_EXPORT CTreeView : public CControl {
+class SP_EXPORT CTreeView : public CControl
+{
 
     /**
      * @brief The actual tree control
      */
-    CTreeControl *m_treeControl;
+    CTreeControl* m_treeControl;
 
     /**
      * @brief Constructor initializer
      */
     void ctor_init();
+
 protected:
 
     /**
      * @brief Internal tree control callback
      */
-    static void internal_callback(Fl_Widget *,void *);
+    static void internal_callback(Fl_Widget*, void*);
 
 public:
 
     /**
      * @brief Constructor in SPTK style
-     * @param label const char *, label
-     * @param layoutSize int, widget align in layout
-     * @param layoutAlign CLayoutAlign, widget align in layout
+     * @param label             Label
+     * @param layoutSize        Widget align in layout
+     * @param layoutAlign       Widget align in layout
      */
-    CTreeView(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CTreeView(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -93,144 +95,156 @@ public:
     /**
      * @brief Returns controls' kind (internal SPTK RTTI).
      */
-    virtual CControlKind kind() const {
+    virtual CControlKind kind() const
+    {
         return DCV_TREEVIEW;
     }
 
     /**
      * @brief Returns controls' class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    virtual String className() const
+    {
         return "CTreeView";
     }
 
     /**
      * @brief Adds a child item to the item. If the closedImage parameter is omitted the openedImage is used instead.
-     * @param label std::string, the item label
-     * @param openedImage const Fl_Image *, the image for the opened state
-     * @param closedImage const Fl_Image *, the image for the closed state
-     * @param data void *, the user data or ID attached to the item
+     * @param label             The item label
+     * @param openedImage       The image for the opened state
+     * @param closedImage       The image for the closed state
+     * @param data void         The user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addItem(std::string label,const Fl_Image *openedImage,const Fl_Image *closedImage=0L,void *data=0L) {
-        return m_treeControl->addItem(label.c_str(),openedImage,closedImage,data);
+    CTreeItem* addItem(const String& label, const Fl_Image* openedImage, const Fl_Image* closedImage = nullptr,
+                       void* data = nullptr)
+    {
+        return m_treeControl->addItem(label.c_str(), openedImage, closedImage, data);
     }
 
     /**
      * @brief Adds a child item to the item using the path. The required path items are created automatically.
-     * @param path const Strings&, the path to the new child item relatively to the item
-     * @param openedImage const Fl_Image *, the image for the opened folder
-     * @param closedImage const Fl_Image *, the image for the closed folder
-     * @param itemImage const Fl_Image *, the image for the child item
-     * @param data void *, the user data or ID attached to the item
+     * @param path              The path to the new child item relatively to the item
+     * @param openedImage       The image for the opened folder
+     * @param closedImage       The image for the closed folder
+     * @param itemImage         The image for the child item
+     * @param data              The user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPath(const std::vector<std::string>& path,const Fl_Image *openedImage,const Fl_Image *closedImage,const Fl_Image *itemImage=0L,void *data=0L) {
+    CTreeItem* addPath(const std::vector<String>& path, const Fl_Image* openedImage, const Fl_Image* closedImage,
+                       const Fl_Image* itemImage = nullptr, void* data = nullptr)
+    {
         return m_treeControl->addPath(path, openedImage, closedImage, itemImage, data);
     }
 
     /**
      * @brief Adds a child item to the item using the default folder images.
-     * @param path const Strings&, the item full path in the tree starting with '/'
-     * @param itemImage const Fl_Image *, the image for the child item
-     * @param data void *, the user data or ID attached to the item
+     * @param path              The item full path in the tree starting with '/'
+     * @param itemImage         The image for the child item
+     * @param data              The user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem *addPath(const std::vector<std::string>& path, const Fl_Image *itemImage=0L, void *data=0L) {
+    CTreeItem* addPath(const std::vector<String>& path, const Fl_Image* itemImage = 0L, void* data = 0L)
+    {
         return m_treeControl->addPath(path, itemImage, itemImage, itemImage, data);
     }
 
     /**
      * @brief Removes an item from the parent tree item
      */
-    void removeItem(CTreeItem *item) {
+    void removeItem(CTreeItem* item)
+    {
         m_treeControl->removeItem(item);
     }
 
     /**
      * @brief Returns currently selected item
      */
-    CTreeItem *selected() const {
+    CTreeItem* selected() const
+    {
         return m_treeControl->selected();
     }
 
     /**
      * @brief Returns currently selected item path in the tree
      */
-    std::string selectedPath() const;
+    String selectedPath() const;
 
     /**
      * @brief Removes all the tree items
      */
-    virtual void clear() {
+    virtual void clear()
+    {
         m_treeControl->clear();
     }
 
     /**
      * @brief Relayouts the tree. May be necessary after you've changed items data a lot
      */
-    void relayout() {
+    void relayout()
+    {
         m_treeControl->relayout();
         redraw();
     }
 
     /**
      * @brief Resizes the control and inside widgets.
-     * @param x int, x-position
-     * @param y int, y-position
-     * @param w int, width
-     * @param h int, height
+     * @param x                 X-position
+     * @param y                 Y-position
+     * @param w i               Width
+     * @param h                 Height
      */
-    virtual void     resize(int x,int y,int w,int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Returns the currently selected item ID (or user_data)
      */
-    virtual Variant data() const;
+    Variant data() const override;
 
     /**
      * @brief Selects the item with matching ID (or user_data)
      */
-    virtual void     data(const Variant v);
+    void data(const Variant v) override;
 
     /**
      * @brief Data connection isn't implemented yet
      */
-    virtual void load(Query *);
+    void load(Query*) override;
 
     /**
      * @brief Data connection isn't implemented yet
      */
-    virtual void save(Query *);
+    void save(Query*) override;
 
     /**
      * @brief Loads the the widget from XML node
      *
      * The widget information may include widget attributes
      * and widget data
-     * @param node XMLNode*, XML node
+     * @param node              XML node
      */
-    virtual void load(const XMLNode *node);
+    void load(const XMLNode* node) override;
 
     /**
      * @brief Saves the the widget to XML node
      *
      * The widget information may include widget attributes
      * and widget data
-     * @param node XMLNode*, XML node
+     * @param node              XML node
      */
-    virtual void save(XMLNode *node) const;
+    void save(XMLNode* node) const override;
 
     /**
-     * @brief Returns tru if data is valid
+     * @brief Returns true if data is valid
      */
-    virtual bool valid() const {
+    bool valid() const override
+    {
         return true;
     }
 
     /**
      * @brief Creates a widget based on the XML node information
-     * @param node XMLNode*, an XML node with widget information
+     * @param node              XML node with widget information
      */
     static CLayoutClient* creator(XMLNode* node);
 };

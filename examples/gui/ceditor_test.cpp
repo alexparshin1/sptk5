@@ -415,7 +415,7 @@ class EditorWindow : public CWindow
 {
 public:
     EditorWindow(int w, int h, const char* t);
-    ~EditorWindow();
+    ~EditorWindow() override;
 
     CWindow *replace_dlg;
     CInput *replace_find;
@@ -609,7 +609,7 @@ void open_cb(Fl_Widget*, void*)
 
     CFileOpenDialog dialog;
     if (dialog.execute()) {
-        string newfile = dialog.fullFileName();
+        String newfile = dialog.fullFileName();
         if (newfile.length()) load_file(newfile.c_str(), -1);
     }
 }
@@ -620,7 +620,7 @@ void insert_cb(Fl_Widget*, void *v)
 
     CFileOpenDialog dialog("Insert File");
     if (dialog.execute()) {
-        string newfile = dialog.fullFileName();
+        String newfile = dialog.fullFileName();
         if (newfile.length()) load_file(newfile.c_str(), w->editor->insert_position());
     }
 }
@@ -747,7 +747,7 @@ void saveas_cb()
 {
     CFileSaveDialog dialog;
     if (dialog.execute()) {
-        string newfile = dialog.fullFileName();
+        String newfile = dialog.fullFileName();
         if (newfile.length()) save_file(newfile.c_str());
     }
 }

@@ -73,7 +73,7 @@ CLayoutClient* CTreeView::creator(XMLNode* node)
     return widget;
 }
 
-std::string CTreeView::selectedPath() const
+String CTreeView::selectedPath() const
 {
     std::string result;
     CTreeItem* node = m_treeControl->selected();

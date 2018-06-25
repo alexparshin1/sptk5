@@ -35,7 +35,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/cgui>
-#include <sptk5/gui/CPngImage.h>
 
 using namespace std;
 using namespace sptk;
@@ -54,7 +53,7 @@ void theme_cb(Fl_Widget *w, void *)
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
             CThemes::set(themeName);
 
-            CWindow *window = (CWindow *) w->window();
+            auto window = (CWindow *) w->window();
             window->relayout();
             window->redraw();
         }

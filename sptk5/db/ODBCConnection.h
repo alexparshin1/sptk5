@@ -67,7 +67,7 @@ private:
      * @brief Retrieves an error (if any) after statement was executed
      * @param stmt SQLHSTMT, the statement that had an error
      */
-    std::string queryError(SQLHSTMT stmt) const;
+    String queryError(SQLHSTMT stmt) const;
 
 protected:
 
@@ -86,7 +86,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    std::string queryError(const Query *query) const override;
+    String queryError(const Query* query) const override;
 
     /**
      * Allocates an ODBC statement
@@ -169,13 +169,29 @@ protected:
      */
     void listDataSources(Strings& dsns);
 
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The ODBC connection string
+     */
+    void _openDatabase(const String& connectionString) override;
+
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            If not nullptr, store errors here instead of exceptions
+     */
+    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+
 public:
 
     /**
      * @brief Constructor
      * @param connectionString  The ODBC connection string
      */
-    ODBCConnection(const std::string& connectionString = "");
+    ODBCConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor
@@ -186,12 +202,6 @@ public:
      * @brief Returns driver-specific connection string
      */
     String nativeConnectionString() const override;
-
-    /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The ODBC connection string
-     */
-    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -211,7 +221,7 @@ public:
     /**
      * @brief Returns the ODBC connection string for the active connection
      */
-    virtual std::string connectString() const;
+    virtual String connectString() const;
 
     /**
      * @brief Returns the ODBC driver description for the active connection
@@ -225,15 +235,6 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-    /**
-     * @brief Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Instead of exceptions
-     */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL) override;
 };
 
 

@@ -157,22 +157,6 @@ protected:
      */
     Buffer              m_stringBuffer;
 
-public:
-    /**
-     * @brief Constructor
-     * @param domain            Socket domain type
-     * @param type              Socket type
-     * @param protocol          Protocol type
-     */
-    TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~TCPSocket() = default;
-
-protected:
-
     /**
      * @brief Opens the client socket connection by host and port
      * @param host              The host
@@ -194,6 +178,18 @@ protected:
                bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
 
 public:
+    /**
+    * @brief Constructor
+    * @param domain            Socket domain type
+    * @param type              Socket type
+    * @param protocol          Protocol type
+    */
+    TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+
+    /**
+    * @brief Destructor
+    */
+    virtual ~TCPSocket() = default;
 
     /**
      * @brief In server mode, waits for the incoming connection.

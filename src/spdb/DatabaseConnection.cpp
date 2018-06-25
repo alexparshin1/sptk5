@@ -65,14 +65,14 @@ bool DatabaseConnection::unlinkQuery(Query *q)
     return true;
 }
 
-void DatabaseConnection::openDatabase(const String& newConnectionString)
+void DatabaseConnection::_openDatabase(const String& newConnectionString)
 {
     notImplemented("openDatabase");
 }
 
 void DatabaseConnection::open(const String& newConnectionString)
 {
-    openDatabase(newConnectionString);
+    _openDatabase(newConnectionString);
 }
 
 void DatabaseConnection::closeDatabase()
@@ -124,7 +124,7 @@ void DatabaseConnection::rollbackTransaction()
 
 //-----------------------------------------------------------------------------------------------
 
-string DatabaseConnection::queryError(const Query*) const
+String DatabaseConnection::queryError(const Query*) const
 {
     notImplemented("queryError");
     return "";
@@ -241,9 +241,9 @@ string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
     return "?";
 }
 
-void DatabaseConnection::logAndThrow(string method, string error)
+void DatabaseConnection::logAndThrow(const String& method, const String& error)
 {
-    string errorText("Exception in " + method + ": " + error);
+    String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
 

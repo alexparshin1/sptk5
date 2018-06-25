@@ -60,7 +60,7 @@ OracleConnection::~OracleConnection()
     }
 }
 
-void OracleConnection::openDatabase(const String& newConnectionString)
+void OracleConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -162,7 +162,7 @@ void OracleConnection::driverEndTransaction(bool commit)
 }
 
 //-----------------------------------------------------------------------------------------------
-string OracleConnection::queryError(const Query *) const
+String OracleConnection::queryError(const Query *) const
 {
     return m_lastError;
 }

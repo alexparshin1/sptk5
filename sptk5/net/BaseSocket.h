@@ -86,6 +86,29 @@ namespace sptk
  */
 class SP_EXPORT BaseSocket
 {
+public:
+    /**
+    * @brief A mode to open a socket, one of
+    */
+    enum CSocketOpenMode : uint8_t
+    {
+        /**
+        * Only create (Typical UDP connectionless socket)
+        */
+        SOM_CREATE,
+
+        /**
+        * Connect
+        */
+        SOM_CONNECT,
+
+        /**
+        * Bind (listen)
+        */
+        SOM_BIND
+
+    };
+
 protected:
     /**
      * Socket internal (OS) handle
@@ -112,8 +135,6 @@ protected:
      */
     Host        m_host;
 
-protected:
-
 #ifdef _WIN32
     /**
      * WinSock initialization
@@ -126,54 +147,6 @@ protected:
     static void cleanup();
 
 #endif
-
-public:
-    /**
-     * @brief Get address data from hostname
-     * @param hostname          Host name or address
-     * @param address           Output address data
-     */
-    //static void getHostAddress(const std::string& hostname, sockaddr_in& address);
-
-    /**
-     * @brief A mode to open a socket, one of
-     */
-    enum CSocketOpenMode
-    {
-        /**
-         * Only create (Typical UDP connectionless socket)
-         */
-        SOM_CREATE,
-
-        /**
-         * Connect
-         */
-        SOM_CONNECT,
-
-        /**
-         * Bind (listen)
-         */
-        SOM_BIND
-
-    };
-
-    /**
-     * @brief Throws socket exception with error description retrieved from socket state
-     * @param message           Error message
-     * @param file              Source file name
-     * @param line              Source file line number
-     */
-    static void throwSocketError(const std::string& message, const char* file, int line);
-
-    /**
-     * @brief Opens the socket connection by address.
-     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
-     * @param addr              Defines socket address/port information
-     * @param timeout           Connection timeout. If 0 the wait forever;
-     */
-    void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
-
-protected:
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -193,6 +166,24 @@ protected:
      */
     virtual void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
     {}
+
+public:
+
+    /**
+    * @brief Throws socket exception with error description retrieved from socket state
+    * @param message           Error message
+    * @param file              Source file name
+    * @param line              Source file line number
+    */
+    static void throwSocketError(const std::string& message, const char* file, int line);
+
+    /**
+    * @brief Opens the socket connection by address.
+    * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
+    * @param addr              Defines socket address/port information
+    * @param timeout           Connection timeout. If 0 the wait forever;
+    */
+    void open_addr(CSocketOpenMode openMode = SOM_CREATE, const sockaddr_in* addr = nullptr, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
 public:
     /**

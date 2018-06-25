@@ -63,9 +63,8 @@ void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* d
 {
     if (m_connection) {
         if (!m_createClobStatement) {
-            auto oracleConnection = (OracleConnection*)m_connection;
             m_createClobStatement =
-                oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
+                    m_connection->createStatement("INSERT INTO sptk_lobs(sptk_clob) VALUES (empty_clob()) RETURNING sptk_clob INTO :1");
             m_createClobStatement->registerOutParam(1, OCCICLOB);
         }
 
@@ -83,9 +82,8 @@ void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* d
 {
     if (m_connection) {
         if (!m_createBlobStatement) {
-            auto oracleConnection = (OracleConnection*)m_connection;
             m_createBlobStatement =
-                oracleConnection->createStatement("INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
+                    m_connection->createStatement("INSERT INTO sptk_lobs(sptk_blob) VALUES (empty_blob()) RETURNING sptk_blob INTO :1");
             m_createBlobStatement->registerOutParam(1, OCCIBLOB);
         }
 
@@ -291,7 +289,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
             int         year;
             unsigned    month, day, hour, min, sec;
 
-            DatabaseField* field = new DatabaseField(parameter->name(), columnIndex, OCCIANYDATA, parameter->dataType(), 256);
+            DatabaseField* field = new DatabaseField(parameter->name(), (int) columnIndex, OCCIANYDATA, parameter->dataType(), 256);
             fields.push_back(field);
 
             switch (parameter->dataType())
