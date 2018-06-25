@@ -11,7 +11,7 @@
 */
 
 #include "libtar.h"
-
+#include <cerrno> // BSD
 #include <cstring>
 
 

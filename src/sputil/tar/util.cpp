@@ -71,7 +71,7 @@ int oct_to_int(char *oct)
  *
  * If *stringp is NULL, strsep returns NULL.
  */
-char* libtar_strsep(register char **stringp, register const char *delim)
+char* libtar_strsep(char **stringp, const char *delim)
 {
     char *s;
     int sc;

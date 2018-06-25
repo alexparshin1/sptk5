@@ -315,7 +315,7 @@ int libtar_str_match(char* check, char* data)
 }
 
 
-char* libtar_strsep(register char** stringp, register const char* delim);
+char* libtar_strsep(char** stringp, const char* delim);
 
 /*
 ** libtar_list_add_str() - splits string str into delim-delimited
