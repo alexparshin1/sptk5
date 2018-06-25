@@ -251,8 +251,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
     }
 }
 
-void BaseSocket::_open(const Host& host, CSocketOpenMode openMode, bool blockingMode,
-                       std::chrono::milliseconds timeoutMS)
+void BaseSocket::_open(const Host&, CSocketOpenMode, bool, std::chrono::milliseconds)
 {}
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)

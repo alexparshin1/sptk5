@@ -91,7 +91,7 @@ int UniqueInstance::read_pid()
     char *p = strchr(buffer,'\n');
     if (p != nullptr)
         *p = 0;
-    int pid = atoi(buffer);
+    int pid = string2int(buffer);
     if (pid == 0)
         return 0;
 

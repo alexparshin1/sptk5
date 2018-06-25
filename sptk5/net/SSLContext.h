@@ -53,7 +53,7 @@ class SSLContext : public std::mutex
     /**
      * Password for auto-answer in callback function
      */
-    std::string     m_password;
+    String          m_password;
 
 
     /**
@@ -61,7 +61,7 @@ class SSLContext : public std::mutex
      */
     static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);
 
-    void throwError(std::string humanDescription);
+    void throwError(const String& humanDescription);
 
 public:
     /**
@@ -81,15 +81,15 @@ public:
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keyFileName std::string, Private key file name
-     * @param certificateFileName std::string, Certificate file name
-     * @param password std::string, Key file password
-     * @param caFileName std::string, optional CA (root certificate) file name
-     * @param verifyMode int, ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth int, Connection verify depth
+     * @param keyFileName           Private key file name
+     * @param certificateFileName   Certificate file name
+     * @param password              Key file password
+     * @param caFileName            Optional CA (root certificate) file name
+     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
+     * @param verifyDepth           Connection verify depth
      */
-    void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
-                  const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+    void loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
+                  const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 
     /**
      * @brief Returns SSL context handle

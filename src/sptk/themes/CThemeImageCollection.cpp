@@ -31,16 +31,14 @@
 #include "ThemeUtils.h"
 #include <sptk5/gui/CThemes.h>
 
-#include <iostream>
-
 using namespace std;
 using namespace sptk;
    
 CThemeImageCollection::CThemeImageCollection() {
     m_stretch = true;
     for (unsigned i = 0; i < MAX_IMAGE_STATES; i++) {
-        m_images[i] = 0;
-        m_overlayImages[i] = 0;
+        m_images[i] = nullptr;
+        m_overlayImages[i] = nullptr;
     }
 }
 
@@ -48,11 +46,11 @@ void CThemeImageCollection::clear() {
     for (unsigned i = 0; i < MAX_IMAGE_STATES; i++) {
         if (m_images[i]) {
             delete m_images[i];
-            m_images[i] = 0;
+            m_images[i] = nullptr;
         }
         if (m_overlayImages[i]) {
             delete m_overlayImages[i];
-            m_overlayImages[i] = 0;
+            m_overlayImages[i] = nullptr;
         }
     }
     m_border[0] = 8;
@@ -108,9 +106,7 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
-    for (XMLNode::iterator itor = images.begin(); itor != images.end(); ++itor) {
-        XMLNode* imageNode = *itor;
-
+    for (auto imageNode : images) {
         if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)
             continue;
 
@@ -119,7 +115,7 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
         string fileName = gtkFullFileName(imageNode->getAttribute("file"));
         string overlayFileName = gtkFullFileName(imageNode->getAttribute("overlay_file"));
 
-        string state = upperCase(imageNode->getAttribute("state","NORMAL"));
+        String state = upperCase(imageNode->getAttribute("state","NORMAL"));
         int buttonState = buttonStates.indexOf(state);
 
         if (normalImageFileName.empty() && (state == "NORMAL" || state == "ACTIVE"))
@@ -131,8 +127,8 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
         if (!borderInitted) {
             m_stretch = imageNode->getAttribute("stretch").str() == "TRUE";
             string border = imageNode->getAttribute("border","{ 0, 0, 0, 0 }");
-            size_t pos1 = border.find("{");
-            size_t pos2 = border.find("}");
+            size_t pos1 = border.find('{');
+            size_t pos2 = border.find('}');
             if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
                 pos1++;
                 border = border.substr(pos1,pos2-pos1);
@@ -143,7 +139,7 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
             borderInitted = true;
         }
 
-        string shadow = upperCase(imageNode->getAttribute("shadow","OUT"));
+        String shadow = upperCase(imageNode->getAttribute("shadow","OUT"));
         if (shadow == "ETCHED_IN")
             continue;
 
@@ -153,8 +149,8 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
             buttonState |= THMF_ACTIVE;
         
         if (buttonState > -1) {
-            m_images[CThemeImageState(buttonState)] = NULL;
-            m_overlayImages[CThemeImageState(buttonState)] = NULL;
+            m_images[CThemeImageState(buttonState)] = nullptr;
+            m_overlayImages[CThemeImageState(buttonState)] = nullptr;
             if (!fileName.empty() && fileName.find(".png") != STRING_NPOS)
                 m_images[CThemeImageState(buttonState)] = loadValidatePNGImage(fileName,true);
             if (!overlayFileName.empty() && overlayFileName.find(".png") != STRING_NPOS)

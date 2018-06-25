@@ -84,7 +84,7 @@ int CScrollBar::handle(int event)
                 (maximum() - minimum()) ? (value() - minimum()) / (maximum() - minimum()) : 0.5;
         int sliderx;
         if (val >= 1.0)
-            sliderx = int(ww - S);
+            sliderx = ww - S;
         else if (val <= 0.0)
             sliderx = 0;
         else

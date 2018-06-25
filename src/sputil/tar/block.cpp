@@ -12,10 +12,7 @@
 
 #include "libtar.h"
 
-#include <cerrno>
-
 #include <cstring>
-#include <cstdlib>
 
 
 #define BIT_ISSET(bitmask, bit) ((bitmask) & (bit))

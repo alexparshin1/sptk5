@@ -1572,7 +1572,7 @@ int CListView::handle(int event)
                     default:
                         break;
                 }
-                char chr = (char) charkey(ch);
+                auto chr = (char) charkey(ch);
                 if (chr) {
                     std::string newSearchString = m_searchPhrase + chr;
                     int found = findString(newSearchString);
