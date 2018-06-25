@@ -11,7 +11,6 @@
 */
 
 #include "libtar.h"
-#include <sptk5/sptk.h>
 
 #if defined(__GNUC__) || defined(__SUNPRO_C)
     #include <sys/param.h>

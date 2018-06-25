@@ -108,7 +108,7 @@ protected:
     /**
      * SQL statement string
      */
-    std::string             m_sql;
+    String                  m_sql;
 
     /**
      * The source file the query was created in
@@ -169,7 +169,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing an ODBC statement
      */
-    std::string getError() const;
+    String getError() const;
 
 
     /**
@@ -186,7 +186,7 @@ protected:
     /**
      * Internal function to throw 'Not implemented' exception
      */
-    void notImplemented(const std::string& functionName) const;
+    void notImplemented(const String& functionName) const;
 
 
 protected:
@@ -194,7 +194,7 @@ protected:
      * @brief Closes query by closing the statement.
      *
      * If the statement isn't released it may be re-used later.
-     * @param releaseStatement bool, true if we need to release the query's ODBC statement
+     * @param releaseStatement  True if we need to release the query's ODBC statement
      */
     void closeQuery(bool releaseStatement = false);
 
@@ -233,13 +233,13 @@ public:
      * this query is created. This is used to collect statistical information
      * for the query calls. If file and line information is provided, then
      * calls statistics is stored to the database object during the query dtor.
-     * @param db DatabaseConnection, the database to connect to, optional
-     * @param sql const std::string&, the SQL query text to use, optional
-     * @param autoPrepare bool, if true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
-     * @param createdFile const char*, the name of the file this query was created in (optional)
-     * @param createdLine unsigned, the line of the file this query was created at (optional)
+     * @param db                The database to connect to, optional
+     * @param sql               The SQL query text to use, optional
+     * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
+     * @param createdFile       The name of the file this query was created in (optional)
+     * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection *db, const std::string& sql = "", bool autoPrepare = true, const char* createdFile = 0, unsigned createdLine = 0);
+    Query(DatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
 
     /**
      * @brief Copy constructor
@@ -302,7 +302,7 @@ public:
     /**
      * @brief Field access by field name, const version
      */
-    virtual const Field& operator [](const std::string& fieldName) const
+    virtual const Field& operator [](const String& fieldName) const
     {
         return m_fields[fieldName.c_str()];
     }
@@ -310,7 +310,7 @@ public:
     /**
      * @brief Field access by field name.
      */
-    virtual Field& operator [](const std::string& fieldName)
+    virtual Field& operator [](const String& fieldName)
     {
         return m_fields[fieldName.c_str()];
     }
@@ -337,9 +337,9 @@ public:
     }
 
     /**
-     * @brief Returns the text of current SQL query as std::string
+     * @brief Returns the text of current SQL query as String
      */
-    std::string sql()
+    String sql()
     {
         return m_sql;
     }
@@ -422,9 +422,9 @@ public:
      * @brief Executes the query and closes the statement.
      *
      * Query SQL would be set to the new SQL statement
-     * @param newSQL const std::string&, an SQL statement to execute
+     * @param newSQL            SQL statement to execute
      */
-    virtual void exec(const std::string& newSQL)
+    virtual void exec(const String& newSQL)
     {
         sql(newSQL);
         open();
@@ -475,11 +475,11 @@ public:
      * @brief Returns the parameter by the name.
      *
      * If the parameter name isn't found, throws an exception
-     * @param paramName std::string, parameter name
+     * @param paramName         Parameter name
      * @returns parameter
      * @see CParamList
      */
-    QueryParameter& param(const std::string& paramName) const
+    QueryParameter& param(const String& paramName) const
     {
         return m_params[paramName.c_str()];
     }
@@ -505,7 +505,7 @@ public:
     /**
      * @brief Returns SQL Query text
      */
-    std::string sql() const
+    String sql() const
     {
         return m_sql;
     }
@@ -515,7 +515,7 @@ public:
      * If the Query text is not the same and the db statement was prepared earlier
      * then the db statement is released and new one is created.
      */
-    virtual void sql(const std::string& _sql);
+    virtual void sql(const String& _sql);
 
     /**
      * @brief Returns the database the query is connected to
@@ -583,10 +583,10 @@ public:
      * @brief Throws an exception
      *
      * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
-     * @param method const std::string&, method name where error has occured
-     * @param error const std::string&, error text
+     * @param method            Method name where error has occured
+     * @param error             Error text
      */
-    void throwError(const std::string& method, const std::string& error);
+    void throwError(const String& method, const String& error);
 
     /**
      * @brief Access to diag messages

@@ -90,7 +90,7 @@ String sptk::trim(const String& str)
         }
     }
 
-    return str.substr(size_t(startpos), size_t(endpos - startpos + 1));
+    return str.substr(size_t(startpos), size_t(long(endpos - startpos + 1)));
 }
 
 void sptk::join(string& dest, const vector<string>& src, const string& separator)

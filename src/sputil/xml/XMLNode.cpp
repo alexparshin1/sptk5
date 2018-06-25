@@ -37,7 +37,7 @@ namespace sptk {
 
     /// An empty string to use as a stub for value()
     static const String emptyString;
-    static const string indentsString(1024, ' ');
+    static const String indentsString(1024, ' ');
 
     /// An empty nodes set to emulate a set of stub iterators
     static XMLNodeList emptyNodes;

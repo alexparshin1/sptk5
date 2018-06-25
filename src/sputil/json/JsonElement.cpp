@@ -28,7 +28,6 @@
 
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
-#include <sstream>
 #include <cstring>
 
 using namespace std;
@@ -611,8 +610,8 @@ static std::string codePointToUTF8(unsigned cp)
     } else if (cp <= 0xFFFF) {
         result.resize(3);
         result[2] = static_cast<char>(0x80 | (0x3f & cp));
-        result[1] = 0x80 | static_cast<char>((0x3f & (cp >> 6)));
-        result[0] = 0xE0 | static_cast<char>((0xf & (cp >> 12)));
+        result[1] = char( 0x80 | static_cast<char>((0x3f & (cp >> 6))) );
+        result[0] = char( 0xE0 | static_cast<char>((0xf & (cp >> 12))) );
     } else if (cp <= 0x10FFFF) {
         result.resize(4);
         result[3] = static_cast<char>(0x80 | (0x3f & cp));
@@ -670,7 +669,7 @@ string Element::decode(const string& text)
             case 'u': {
                 pos++;
                 string ucharCodeStr = text.substr(pos, 4);
-                unsigned ucharCode = strtol(ucharCodeStr.c_str(), nullptr, 16);
+                auto ucharCode = (unsigned) strtol(ucharCodeStr.c_str(), nullptr, 16);
                 pos += 3;
                 result += codePointToUTF8(ucharCode);
                 break;

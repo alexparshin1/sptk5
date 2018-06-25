@@ -66,7 +66,7 @@ public:
      * @brief Default constructor
      */
     String() noexcept
-            : m_id(0)
+    : m_id(0)
     {
     }
 
@@ -75,7 +75,7 @@ public:
      * @param str				Source string
      */
     String(const String& str) noexcept
-            : std_string(str), m_id(str.m_id)
+    : std_string(str), m_id(str.m_id)
     {
     }
 
@@ -84,7 +84,7 @@ public:
      * @param src				Other object
      */
     String(String&& src) noexcept
-            : std_string(std::move(src)), m_id(src.m_id)
+    : std_string(std::move(src)), m_id(src.m_id)
     {
     }
 
@@ -93,7 +93,7 @@ public:
      * @param src				Other object
      */
     String(std::string&& src) noexcept
-            : std_string(std::move(src)), m_id(0)
+    : std_string(std::move(src)), m_id(0)
     {
     }
 
@@ -103,7 +103,7 @@ public:
      * @param id				Optional string id
      */
     String(const std::string& str, int32_t id = 0) noexcept
-            : std_string(str), m_id(id)
+    : std_string(str), m_id(id)
     {
     }
 
@@ -113,7 +113,7 @@ public:
      * @param id				Optional string id
      */
     String(const char* str, int32_t id = 0) noexcept
-            : std_string(str), m_id(id)
+    : std_string(str), m_id(id)
     {
     }
 
@@ -124,7 +124,18 @@ public:
      * @param id				Optional string id
      */
     String(const char* str, size_t len, int32_t id = 0) noexcept
-            : std_string(str, len), m_id(id)
+    : std_string(str, len), m_id(id)
+    {
+    }
+
+    /**
+     * Constructor
+     * @param len				String length
+     * @param ch				Fill character
+     * @param id				Optional string id
+     */
+    String(size_t len, char ch, int32_t id = 0) noexcept
+    : std_string(len, ch), m_id(id)
     {
     }
 

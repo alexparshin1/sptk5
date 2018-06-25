@@ -76,7 +76,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
 
     {
         lock_guard<mutex> lock(syslogMutex);
-        options = m_options;
+        options = (uint32_t) m_options;
         programName = m_programName;
         facilities = m_facilities;
     }

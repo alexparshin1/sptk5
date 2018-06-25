@@ -31,7 +31,6 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <iomanip>
-#include <sstream>
 
 using namespace std;
 using namespace std::chrono;

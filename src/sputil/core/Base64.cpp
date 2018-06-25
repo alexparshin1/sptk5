@@ -131,9 +131,9 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
       for (i = 0; i <4; i++)
         char_array_4[i] = (uint8_t) base64_chars.find(char_array_4[i]);
 
-      char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-      char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-      char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+      char_array_3[0] = uint8_t( (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4) );
+      char_array_3[1] = uint8_t( ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2) );
+      char_array_3[2] = uint8_t( ((char_array_4[2] & 0x3) << 6) + char_array_4[3] );
 
       dest.append((char*)char_array_3, 3);
       i = 0;
@@ -148,9 +148,9 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     for (j = 0; j <4; j++)
       char_array_4[j] = (uint8_t) base64_chars.find(char_array_4[j]);
 
-    char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-    char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-    char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+    char_array_3[0] = uint8_t( (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4) );
+    char_array_3[1] = uint8_t( ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2) );
+    char_array_3[2] = uint8_t( ((char_array_4[2] & 0x3) << 6) + char_array_4[3] );
 
     for (j = 0; (j < i - 1); j++)
         dest.append((char)char_array_3[j]);

@@ -66,7 +66,7 @@ public:
 
 static DriverLoaders m_loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(const string& connectionString, unsigned maxConnections) :
+DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections) :
     DatabaseConnectionString(connectionString),
     m_driver(nullptr),
     m_createConnection(nullptr),
