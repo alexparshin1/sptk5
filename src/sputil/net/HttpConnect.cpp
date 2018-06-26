@@ -117,7 +117,10 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
                           bool gzipContent, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("POST", pageName, parameters);
+
+#if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
+#endif
 
     const Buffer* data = &postData;
     Buffer compressedData;
@@ -144,7 +147,10 @@ int HttpConnect::cmd_put(const String& pageName, const HttpParams& requestParame
                          chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters);
+
+#if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
+#endif
 
     if (!putData.empty())
         headers.push_back("Content-Length: " + int2string((uint32_t) putData.bytes()));

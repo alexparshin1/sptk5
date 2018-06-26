@@ -297,7 +297,7 @@ IF (ZLIB_FOUND)
   LINK_LIBRARIES(${ZLIB_LIBRARY})
   SET (ZLIB_FLAG "1")
 ELSE (ZLIB_FOUND)
-  MESSAGE(FATAL_ERROR "ZLIB library not found")
+  MESSAGE("ZLIB support:       don't compile")
   SET (ZLIB_FLAG "0")
 ENDIF (ZLIB_FOUND)
 
