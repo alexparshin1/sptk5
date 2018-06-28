@@ -71,6 +71,11 @@ protected:
      */
     std::string     m_lastStatus;
 
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The Firebird connection string
+     */
+    void _openDatabase(const String& connectionString) override;
 
     void checkStatus(const ISC_STATUS* status_vector, const char* file, int line);
 
@@ -84,12 +89,12 @@ protected:
      * @param commit            Commit if true, rollback if false
      */
     void driverEndTransaction(bool commit) override;
-
     // These methods implement the actions requested by Query
+
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    std::string queryError(const Query *query) const override;
+    String queryError(const Query *query) const override;
 
     /**
      * Allocates an Firebird statement
@@ -136,11 +141,11 @@ protected:
      */
     void queryOpen(Query *query) override;
 
+
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query *query) override;
-
 
     /**
      * @brief Returns parameter mark
@@ -149,8 +154,8 @@ protected:
      * @param paramIndex        Parameter index in SQL starting from 0
      */
     std::string paramMark(unsigned paramIndex) override;
-
 public:
+
     /**
      * @brief Returns the Firebird connection object
      */
@@ -180,12 +185,6 @@ public:
      * @brief Destructor
      */
     ~FirebirdConnection() override;
-
-    /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The Firebird connection string
-     */
-    void openDatabase(const String& connectionString = "") override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

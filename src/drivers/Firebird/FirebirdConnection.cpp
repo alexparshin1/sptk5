@@ -73,7 +73,7 @@ void FirebirdConnection::checkStatus(const ISC_STATUS* status_vector, const char
         m_lastStatus.clear();
 }
 
-void FirebirdConnection::openDatabase(const String& newConnectionString)
+void FirebirdConnection::_openDatabase(const String& newConnectionString)
 {
     ISC_STATUS status_vector[20];
 
@@ -194,7 +194,7 @@ void FirebirdConnection::driverEndTransaction(bool commit)
 }
 
 //-----------------------------------------------------------------------------------------------
-string FirebirdConnection::queryError(const Query *) const
+String FirebirdConnection::queryError(const Query *) const
 {
     return m_lastStatus;
 }
