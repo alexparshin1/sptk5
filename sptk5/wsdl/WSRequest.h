@@ -54,8 +54,8 @@ public:
 
     /**
      * @brief Constructor
-     * @param alias String, Namespace alias
-     * @param location String, Namespace location
+     * @param alias             Namespace alias
+     * @param location          Namespace location
      */
     WSNameSpace(const String& alias="", const String& location="")
     : m_alias(alias), m_location(location)
@@ -63,12 +63,17 @@ public:
 
     /**
      * @brief Constructor
-     * @param other const WSNameSpace&, Other namespace
+     * @param other             Other namespace
      */
     WSNameSpace(const WSNameSpace& other)
     : m_alias(other.m_alias), m_location(other.m_location)
     {}
 
+    /**
+     * @brief Assignment
+     * @param other             Other namespace
+     * @return
+     */
     WSNameSpace& operator = (const WSNameSpace& other)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
