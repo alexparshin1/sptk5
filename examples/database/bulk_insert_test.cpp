@@ -53,8 +53,11 @@ int main()
         // Defining the queries
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        Query step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true, __FILE__, __LINE__);
-        Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", true, __FILE__, __LINE__);
+        Query step1Query(db, "CREATE TABLE " + tableName +
+                             "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true, __FILE__,
+                         __LINE__);
+        Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", true, __FILE__,
+                         __LINE__);
         Query step4Query(db, "DROP TABLE " + tableName, true, __FILE__, __LINE__);
 
         cout << "Ok.\nStep 1: Creating the test table.. ";
@@ -88,10 +91,20 @@ int main()
             int fieldIndex = 0;
             for (Field* field: step3Query.fields()) {
                 switch (fieldIndex) {
-                    case 0: id = field->asInteger(); break;
-                    case 1: name = field->asString(); break;
-                    case 2: position_name = field->asString(); break;
-                    case 3: hire_date = field->asString(); break;
+                    case 0:
+                        id = field->asInteger();
+                        break;
+                    case 1:
+                        name = field->asString();
+                        break;
+                    case 2:
+                        position_name = field->asString();
+                        break;
+                    case 3:
+                        hire_date = field->asString();
+                        break;
+                    default:
+                        break;
                 }
                 fieldIndex++;
             }

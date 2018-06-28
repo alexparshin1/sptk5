@@ -117,7 +117,7 @@ int CDialog::handle(int event)
 
 void CDialog::defaultButton(CButton* newDefaultButton)
 {
-    unsigned cnt = (unsigned) m_buttonGroup->children();
+    auto cnt = (unsigned) m_buttonGroup->children();
     for (unsigned bi = 0; bi < cnt; bi++) {
         auto button = (CButton*) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
@@ -237,9 +237,9 @@ void CDialog::keyValue(int val)
 
 bool CDialog::buildQueries()
 {
-    string columnNames;
-    string paramNames;
-    string updateNames;
+    stringstream columnNames;
+    stringstream paramNames;
+    stringstream updateNames;
 
     if (!m_controlsScanned)
         scanControls();
@@ -247,26 +247,27 @@ bool CDialog::buildQueries()
     if (m_queriesBuilt)
         return true;
 
-    CControlList::const_iterator itor = m_defaultFields.begin();
     bool first = true;
-    for (; itor != m_defaultFields.end(); ++itor) {
-        const CControl* control = itor->second;
+    for (auto itor: m_defaultFields) {
+        const CControl* control = itor.second;
         const string& fieldName = control->fieldName();
-        if (!first) {
-            columnNames += "," + fieldName;
-            paramNames += ",:" + fieldName;
-            updateNames += "," + fieldName + "=:" + fieldName;
-        } else {
-            columnNames = fieldName;
-            paramNames = ":" + fieldName;
-            updateNames = fieldName + "=:" + fieldName;
+
+        if (first)
+            first = false;
+        else {
+            columnNames << ",";
+            paramNames  << ",";
+            updateNames << ",";
         }
-        first = false;
+
+        columnNames << fieldName;
+        paramNames  << ":" << fieldName;
+        updateNames << fieldName << "=:" << fieldName;
     }
 
-    m_selectQuery->sql("SELECT " + columnNames + " FROM " + m_tableName + " WHERE " + m_keyField + "=:key");
-    m_insertQuery->sql("INSERT INTO " + m_tableName + "(" + columnNames + ") VALUES (" + paramNames + ")");
-    m_updateQuery->sql("UPDATE " + m_tableName + " SET " + updateNames + " WHERE " + m_keyField + "=:key");
+    m_selectQuery->sql("SELECT " + columnNames.str() + " FROM " + m_tableName + " WHERE " + m_keyField + "=:key");
+    m_insertQuery->sql("INSERT INTO " + m_tableName + "(" + columnNames.str() + ") VALUES (" + paramNames.str() + ")");
+    m_updateQuery->sql("UPDATE " + m_tableName + " SET " + updateNames.str() + " WHERE " + m_keyField + "=:key");
 
     m_queriesBuilt = true;
 

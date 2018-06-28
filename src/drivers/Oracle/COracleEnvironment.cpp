@@ -47,7 +47,7 @@ OracleEnvironment::~OracleEnvironment()
 std::string OracleEnvironment::clientVersion() const
 {
     int major, minor, update, patch, portUpdate;
-    m_handle->getClientVersion(major, minor, update, patch, portUpdate);
+    Environment::getClientVersion(major, minor, update, patch, portUpdate);
     string version = "Oracle " + int2string(major) + "." + int2string(minor);
     if (update)
         version += " update " + int2string(update);

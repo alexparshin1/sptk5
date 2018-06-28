@@ -44,14 +44,14 @@ void CDBDropDownListView::item_clicked(int /*mouse_btn*/)
 
 void CDBDropDownListView::onExit()
 {
-    CDBDropDownList* wnd = (CDBDropDownList*) window();
+    auto wnd = (CDBDropDownList*) window();
     wnd->m_clicked = -1;
     wnd->hide();
 }
 
 //===========================================================================
-CDBDropDownList::CDBDropDownList(int w, int h, const char* label)
-        : CPopupWindow(w, h, label)
+CDBDropDownList::CDBDropDownList(int width, int height, const char* label)
+: CPopupWindow(width, height, label)
 {
     layoutSpacing(0);
     begin();

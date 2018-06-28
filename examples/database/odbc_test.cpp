@@ -35,7 +35,6 @@
 #include <iomanip>
 
 #include <sptk5/cdatabase>
-#include <sptk5/cutils>
 #include <sptk5/cthreads>
 
 using namespace std;

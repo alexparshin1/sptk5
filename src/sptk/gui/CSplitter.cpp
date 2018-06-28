@@ -48,7 +48,7 @@ CSplitter::CSplitter(const char* label, int layoutSize, CLayoutAlign layoutAlign
 
 CLayoutClient* CSplitter::creator(XMLNode* node)
 {
-    CSplitter* widget = new CSplitter("", 10, SP_ALIGN_TOP);
+    auto widget = new CSplitter("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -119,10 +119,10 @@ int CSplitter::handle(int event)
                     default:
                         break;
                 }
-                CLayoutManager* parentManager = dynamic_cast<CLayoutManager*>(parent());
+                auto parentManager = dynamic_cast<CLayoutManager*>(parent());
                 if (parentManager) {
                     parentManager->relayout();
-                    CGroup* parentGroup = dynamic_cast<CGroup*>(parent());
+                    auto parentGroup = dynamic_cast<CGroup*>(parent());
                     if (parentGroup) {
                         //puts("Group");
                         parentGroup->redraw();
@@ -143,17 +143,17 @@ int CSplitter::handle(int event)
 
 void CSplitter::findChainedControl()
 {
-    m_chainedWidget = 0;
+    m_chainedWidget = nullptr;
     try {
         if (!dynamic_cast<CLayoutManager*>(parent()))
             return;
         Fl_Group* group = parent();
-        unsigned cnt = (unsigned) group->children();
-        Fl_Widget* priorWidget = 0;
-        Fl_Widget* nextWidget = 0;
-        CLayoutClient* priorWidgetLayout = 0;
-        CLayoutClient* nextWidgetLayout = 0;
-        unsigned index = (unsigned) -1;
+        auto cnt = (unsigned) group->children();
+        Fl_Widget* priorWidget = nullptr;
+        Fl_Widget* nextWidget = nullptr;
+        CLayoutClient* priorWidgetLayout = nullptr;
+        CLayoutClient* nextWidgetLayout = nullptr;
+        auto index = (unsigned) -1;
         for (unsigned i = 1; i < cnt; i++) {
             if (group->child(i) == this) {
                 index = i;
@@ -182,7 +182,7 @@ void CSplitter::findChainedControl()
 
         if (m_chainedWidget && m_chainedWidgetLayout) {
             if (m_chainedWidgetLayout->layoutAlign() == SP_ALIGN_NONE) {
-                m_chainedWidget = 0;
+                m_chainedWidget = nullptr;
                 return;
             }
             layoutAlign(m_chainedWidgetLayout->layoutAlign());

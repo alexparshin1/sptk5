@@ -190,7 +190,7 @@ String PostgreSQLConnection::nativeConnectionString() const
     return result;
 }
 
-void PostgreSQLConnection::openDatabase(const String& newConnectionString)
+void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -290,7 +290,7 @@ void PostgreSQLConnection::driverEndTransaction(bool commit)
 
 //-----------------------------------------------------------------------------------------------
 
-string PostgreSQLConnection::queryError(const Query*) const
+String PostgreSQLConnection::queryError(const Query*) const
 {
     return PQerrorMessage(m_connect);
 }
@@ -1086,7 +1086,7 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
     }
 }
 
-void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");

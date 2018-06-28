@@ -82,7 +82,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual std::string queryError(const Query *query) const override;
+    virtual String queryError(const Query *query) const override;
 
     /**
      * Allocates an SQLite3 statement
@@ -148,6 +148,12 @@ protected:
      */
     void SQLITEtypeToCType(int sqliteType, VariantType& dataType);
 
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The SQLite3 connection string
+     */
+    void _openDatabase(const String& connectionString = "") override;
+
 public:
 
     /**
@@ -167,20 +173,14 @@ public:
     String nativeConnectionString() const override;
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The SQLite3 connection string
-     */
-    virtual void openDatabase(const String& connectionString = "") override;
-
-    /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
-    virtual void closeDatabase() override;
+    void closeDatabase() override;
 
     /**
      * @brief Returns true if database is opened
      */
-    virtual bool active() const override;
+    bool active() const override;
 
     /**
      * @brief Returns the database connection handle

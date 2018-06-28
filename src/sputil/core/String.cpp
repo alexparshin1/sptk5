@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       spell_checker.cpp - description                        ║
+║                       String.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,48 +26,57 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
-
-#include <FL/fl_ask.H>
-#include <sptk5/cgui>
-#include <sptk5/gui/CEditorSpellChecker.h>
+#include <fstream>
+#include <sptk5/Strings.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
 
-CEditor* editor;
-
-void cb_spellCheck(Fl_Widget*, void*)
+bool String::matches(const String& pattern, const String& options) const
 {
-    CEditorSpellChecker sc(editor);
-    try {
-        sc.spellCheck();
-    }
-    catch (exception& e) {
-        fl_alert("%s", e.what());
-    }
+    RegularExpression regexp(pattern, options);
+    return regexp.matches(*this);
 }
 
-int main(int argc, char* argv[])
+String String::toUpperCase() const
 {
-    CThemes themes;
-    CWindow window(400, 300, "CSpellChecker test");
+    return upperCase(*this);
+}
 
-    editor = new CEditor(10, SP_ALIGN_CLIENT);
+String String::toLowerCase() const
+{
+    return lowerCase(*this);
+}
 
-    editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");
+Strings String::split(const String& pattern) const
+{
+    return Strings(*this, pattern.c_str(), Strings::SM_REGEXP);
+}
 
-    CToolBar toolBar;
-    CButton spellCheckButton("Spell Check", SP_ALIGN_LEFT);
-    spellCheckButton.callback(cb_spellCheck);
+bool String::startsWith(const String& subject) const
+{
+    return find(subject) == 0;
+}
 
-    window.show();
+String String::replace(const String& pattern, const String& replacement) const
+{
+    RegularExpression regexp(pattern);
+    bool replaced = false;
+    return regexp.replaceAll(*this, replacement, replaced);
+}
 
-    CThemes::set("OSX");
+bool String::endsWith(const String& subject) const
+{
+    size_t pos = rfind(subject);
+    return pos != string::npos && pos == length() - subject.length();
+}
 
-    window.relayout();
-
-    Fl::run();
-
-    return 0;
+String String::trim() const
+{
+    auto startPos = find_first_not_of(" \n\r\t\b");
+    if (startPos == string::npos)
+        return String("");
+    size_t endPos = find_last_not_of(" \n\r\t\b");
+    return substr(startPos, endPos - startPos + 1);
 }

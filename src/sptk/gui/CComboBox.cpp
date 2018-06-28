@@ -49,12 +49,12 @@ namespace sptk {
 
     class SP_EXPORT CInternalComboBoxPanel : public Fl_Box
     {
-        void draw();
+        void draw() override;
 
     public:
         CInternalComboBoxPanel(int x, int y, int w, int h, const char* label = nullptr);
 
-        int handle(int);
+        int handle(int) override;
     };
 
 }
@@ -91,13 +91,13 @@ void CInternalComboBoxPanel::draw()
     listView->textFont(combo->textFont());
     listView->textSize(combo->textSize());
     fl_color(FL_FOREGROUND_COLOR);
-    listView->item_draw((unsigned) -1, row, x() + 2, y(), w() - 2, h() - 2, focused, FL_ALIGN_CENTER);
+    listView->item_draw((unsigned) -1, row, x() + 2, y(), w() - 2, h() - 2, focused, FL_ALIGN_CENTER, true);
     fl_pop_clip();
 }
 
 int CInternalComboBoxPanel::handle(int event)
 {
-    CControl* control = (CControl*) parent();
+    auto control = (CControl*) parent();
     color(control->color());
     switch (event) {
         case FL_FOCUS:
@@ -151,7 +151,7 @@ const static CButtonKind buttonKind[] = {SP_BROWSE_BUTTON, SP_ADD_BUTTON, SP_EDI
 
 void CBaseListBox::comboButtonPressed(Fl_Widget* btn, void* data)
 {
-    CBaseListBox* combo = (CBaseListBox*) btn->parent();
+    auto combo = (CBaseListBox*) btn->parent();
     if (!combo)
         return;
     combo->button_handle((uint32_t)(long) data);
@@ -173,7 +173,7 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++) {
         long kind = buttonKind[i];
-        CSmallButton* btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
+        auto btn = new CSmallButton(SP_UNDEFINED_BUTTON, SP_ALIGN_NONE);
         btn->buttonImage(buttonKind[i], IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
         btn->user_data((void*) kind);
@@ -206,8 +206,7 @@ CBaseListBox::CBaseListBox(int x,int y,int w,int h,const char * label,int _mode)
 
 CBaseListBox::~CBaseListBox()
 {
-    if (m_dropDownWindow)
-        delete m_dropDownWindow;
+    delete m_dropDownWindow;
 }
 
 void CBaseListBox::clear()
@@ -309,7 +308,7 @@ void CBaseListBox::load(Query* loadQuery)
     if (!fieldName().length())
         return;
     Field& fld = query[fieldName().c_str()];
-    data(fld);
+    data(*(Variant*)&fld);
 }
 
 void CBaseListBox::save(Query* updateQuery)
@@ -539,7 +538,7 @@ void CBaseListBox::addRows(string columnName, Strings strings)
     for (size_t i = 0; i < cnt; i++) {
         String& str = strings[i];
         cpchar strs[2] = {str.c_str(), nullptr};
-        CPackedStrings* psl = new CPackedStrings(1, strs);
+        auto psl = new CPackedStrings(1, strs);
         int id = str.ident();
         psl->argument(id);
         m_list->addRow(psl);

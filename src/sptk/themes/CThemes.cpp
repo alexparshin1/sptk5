@@ -37,6 +37,7 @@
 #include <sptk5/Registry.h>
 
 #include <sptk5/gui/default_icons.h>
+#include <cmath>
 
 #include "ThemeUtils.h"
 
@@ -104,11 +105,11 @@ CThemes::CThemes()
     m_desaturateInactiveButtons = false;
     m_buttonFocusRadius = 0;
 
-    for (unsigned i = 0; i < 7; i++)
-        m_background[i] = nullptr;
+    for (auto& i : m_background)
+        i = nullptr;
 
     if (!screenFonts.size()) {
-        unsigned k = (unsigned) Fl::set_fonts("*");
+        auto k = (unsigned) Fl::set_fonts("*");
         for (unsigned i = 0; i < k; i++) {
             int attributes = 0;
             string fontName = Fl::get_font_name((Fl_Font) i, &attributes);
@@ -130,7 +131,7 @@ CIcon* CThemes::getIcon(const string& iconName, CIconSize iconSize)
     auto itor = m_icons[iconSize].find(iconName);
     if (itor == m_icons[iconSize].end()) {
         //cerr << "Can't find icon '" << iconName << "' for size " << iconSize << endl;
-        return 0L;
+        return nullptr;
     }
     return itor->second;
 }
@@ -234,7 +235,7 @@ void CThemes::replaceImage(CPngImage** images, int ndx, const string& fileName)
 void CThemes::set(string theThemeName)
 {
     string themeName(theThemeName);
-    if (themeName == "" || themeName.find("GTK:") == 0)
+    if (themeName.empty() || themeName.find("GTK:") == 0)
         themeName = "Default";
 
     if (theThemeName == m_name)
@@ -639,7 +640,7 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
         int barWidth = partImage[1]->w();
         int xspace = (frameWidth - barWidth) / 2;
         int yspace = (frameHeight - barHeight) / 2;
-        int psize = int((w - xspace * 2) * percent / 100 + 0.5);
+        auto psize = (int) std::round((w - xspace * 2) * percent / 100);
         partImage[0]->drawResized(x, y, w, frameHeight, border[0], drawMode[0], true);
         partImage[1]->drawResized(x + xspace, y + yspace, psize, barHeight, border[1], drawMode[1], true);
         return true;

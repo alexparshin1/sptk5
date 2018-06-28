@@ -39,7 +39,7 @@ namespace sptk {
 /**
  * @brief A map of HTTP headers and their values (string to string)
  */
-typedef std::map<std::string, std::string> HttpHeaders;
+typedef std::map<String, String> HttpHeaders;
 
 /**
  * HTTP response reader
@@ -52,7 +52,7 @@ public:
     /**
      * State of the response reader
      */
-    enum ReaderState {
+    enum ReaderState : unsigned {
         READY = 0,              ///< Reader is ready to start
         READING_HEADERS = 1,    ///< Reader is reading headers
         READING_DATA = 2,       ///< Reader is reading data
@@ -125,7 +125,7 @@ public:
 
     const HttpHeaders& getResponseHeaders() const;
 
-    std::string responseHeader(const std::string& headerName) const;
+    String responseHeader(const String& headerName) const;
 
 private:
 

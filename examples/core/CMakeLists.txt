@@ -8,7 +8,11 @@ IF (UNIX)
     LINK_LIBRARIES (pthread rt)
 ENDIF (UNIX)
 
-SET (CONSOLE_TESTS command_line datetime exceptions logfile_test syslog_test unique_instance registry string2md5 encrypt_decrypt timer)
+SET (CONSOLE_TESTS
+     command_line datetime exceptions logfile_test syslog_test
+     unique_instance registry string2md5 encrypt_decrypt timer
+     zlib_test
+    )
 
 IF (WIN32)
     SET (CONSOLE_TESTS ${CONSOLE_TESTS} eventlog_test)
@@ -22,7 +26,7 @@ FOREACH (CONSOLE_TEST ${CONSOLE_TESTS})
     IF (UNIX)
         ADD_EXECUTABLE (${CONSOLE_TEST} ${CONSOLE_TEST}.cpp)
     ELSE (UNIX)
-        ADD_EXECUTABLE (${CONSOLE_TEST} ${CONSOLE_TEST}.cpp ${CMAKE_SOURCE_DIR}/events.w32/event_provider.rc timer.cpp)
+        ADD_EXECUTABLE (${CONSOLE_TEST} ${CONSOLE_TEST}.cpp ${CMAKE_SOURCE_DIR}/events.w32/event_provider.rc)
     ENDIF (UNIX)
 
 ENDFOREACH (CONSOLE_TEST)

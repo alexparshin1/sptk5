@@ -282,12 +282,6 @@ protected:
 
 protected:
     /**
-     * @brief Sets the data size
-     * @param ds size_t, data size (in bytes).
-     */
-    void dataSize(size_t ds);
-
-    /**
      * @brief Sets the data type
      */
     void dataType(uint32_t dt);
@@ -613,6 +607,12 @@ public:
      * @brief Returns the data size
      */
     size_t dataSize() const;
+
+    /**
+     * @brief Sets the data size
+     * @param ds size_t, data size (in bytes).
+     */
+    void dataSize(size_t ds);
 
     /**
      * @brief Returns the allocated buffer size

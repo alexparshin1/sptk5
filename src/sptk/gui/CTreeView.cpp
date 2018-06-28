@@ -73,7 +73,7 @@ CLayoutClient* CTreeView::creator(XMLNode* node)
     return widget;
 }
 
-std::string CTreeView::selectedPath() const
+String CTreeView::selectedPath() const
 {
     std::string result;
     CTreeItem* node = m_treeControl->selected();
@@ -103,7 +103,7 @@ void CTreeView::load(Query* loadQuery)
 {
     if (m_fieldName.empty()) return;
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
-    data(fld);
+    data(*(Variant*)&fld);
 }
 
 void CTreeView::save(Query* updateQuery)

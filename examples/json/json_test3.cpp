@@ -28,7 +28,6 @@
 
 #include <sptk5/json/JsonDocument.h>
 
-#include <iostream>
 #include <fstream>
 
 using namespace std;

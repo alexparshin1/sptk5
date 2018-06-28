@@ -157,20 +157,6 @@ protected:
      */
     Buffer              m_stringBuffer;
 
-public:
-    /**
-     * @brief Constructor
-     * @param domain            Socket domain type
-     * @param type              Socket type
-     * @param protocol          Protocol type
-     */
-    TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~TCPSocket() = default;
-
     /**
      * @brief Opens the client socket connection by host and port
      * @param host              The host
@@ -178,7 +164,7 @@ public:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
      */
-    virtual void open(const Host& host = Host(), CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
+    void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -187,7 +173,21 @@ public:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
      */
-    virtual void open(const struct sockaddr_in& address, CSocketOpenMode openMode = SOM_CONNECT, bool blockingMode = true, std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) override;
+    void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
+public:
+    /**
+    * @brief Constructor
+    * @param domain            Socket domain type
+    * @param type              Socket type
+    * @param protocol          Protocol type
+    */
+    TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+
+    /**
+    * @brief Destructor
+    */
+    virtual ~TCPSocket() = default;
 
     /**
      * @brief In server mode, waits for the incoming connection.
@@ -196,24 +196,24 @@ public:
      * @param clientSocketFD    Connected client socket FD
      * @param clientInfo        Connected client info
      */
-    virtual void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
+    void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo) override;
 
     /**
      * @brief Returns number of bytes available in socket
      */
-    virtual size_t socketBytes() override;
+    size_t socketBytes() override;
 
     /**
      * @brief Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    virtual bool readyToRead(std::chrono::milliseconds timeout) override;
+    bool readyToRead(std::chrono::milliseconds timeout) override;
 
     /**
      * @brief Reports true if socket is ready for reading from it
      * @param timeout           Read timeout date and time
      */
-    virtual bool readyToRead(DateTime timeout) override;
+    bool readyToRead(DateTime timeout) override;
 
     /**
      * @brief Reads one line from the socket into existing memory buffer
@@ -251,7 +251,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) override;
+    size_t read(char *buffer, size_t size, sockaddr_in* from = NULL) override;
 
     /**
      * @brief Reads data from the socket into memory buffer

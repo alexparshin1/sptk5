@@ -247,7 +247,7 @@ void ODBCConnectionBase::transact(UWORD fType)
 }
 
 //==============================================================================
-const char* sptk::removeDriverIdentification(const char* error)
+String sptk::removeDriverIdentification(const char* error)
 {
     if (error == nullptr)
         return "";
@@ -338,5 +338,5 @@ string ODBCConnectionBase::errorInformation(const char* function)
     if (rc != SQL_SUCCESS)
         exception(cantGetInformation, __LINE__);
 
-    return removeDriverIdentification(errorDescription);
+    return String(function) + ": " + removeDriverIdentification(errorDescription);
 }

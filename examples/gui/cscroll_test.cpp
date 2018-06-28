@@ -32,15 +32,13 @@
 #endif
 
 #include <sptk5/cgui>
-#include <FL/Fl.H>
-#include <stdio.h>
 
 using namespace std;
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w, void *)
+void exit_cb(Fl_Widget* w, void*)
 {
-   w->window()->hide();
+    w->window()->hide();
 }
 
 int main()
@@ -83,11 +81,11 @@ int main()
         // Add 10 items
         char buffer1[10];
         char buffer2[10];
-        for(int a=0; a<10; a++) {
+        for (int a = 0; a < 10; a++) {
             sprintf(buffer1, "%i", a);
-            sprintf(buffer2, "%i", 100000-a);
+            sprintf(buffer2, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            CPackedStrings *ps = new CPackedStrings(4, rowData);
+            auto ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 

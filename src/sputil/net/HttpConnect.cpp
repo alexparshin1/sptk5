@@ -42,7 +42,7 @@ HttpConnect::HttpConnect(TCPSocket& socket)
 
 #define RSP_BLOCK_SIZE (1024*64)
 
-string HttpConnect::responseHeader(const string& headerName) const
+String HttpConnect::responseHeader(const String& headerName) const
 {
     return m_reader.responseHeader(headerName);
 }
@@ -63,10 +63,13 @@ int HttpConnect::getResponse(chrono::milliseconds readTimeout)
     return m_reader.getStatusCode();
 }
 
-void HttpConnect::sendCommand(const string& cmd)
+void HttpConnect::sendCommand(const String& cmd)
 {
     if (!m_socket.active())
         throw Exception("Socket isn't open");
+
+    if (!m_socket.readyToWrite(chrono::seconds(30)))
+        throw Exception("Server is busy");
 
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }
@@ -79,7 +82,7 @@ void HttpConnect::sendCommand(const Buffer& cmd)
     m_socket.write(cmd.c_str(), (uint32_t) cmd.bytes());
 }
 
-Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageName, const HttpParams& requestParameters)
+Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters)
 {
     Strings headers;
 
@@ -101,7 +104,7 @@ Strings HttpConnect::makeHeaders(const string& httpCommand, const string& pageNa
     return headers;
 }
 
-int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
+int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("GET", pageName, requestParameters);
     //command += "Accept: */*\n";
@@ -113,11 +116,14 @@ int HttpConnect::cmd_get(const string& pageName, const HttpParams& requestParame
     return getResponse(timeout);
 }
 
-int HttpConnect::cmd_post(const string& pageName, const HttpParams& parameters, const Buffer& postData,
+int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData,
                           bool gzipContent, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("POST", pageName, parameters);
+
+#if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
+#endif
 
     const Buffer* data = &postData;
     Buffer compressedData;
@@ -140,11 +146,14 @@ int HttpConnect::cmd_post(const string& pageName, const HttpParams& parameters, 
     return getResponse(timeout);
 }
 
-int HttpConnect::cmd_put(const string& pageName, const HttpParams& requestParameters, const Buffer& putData,
+int HttpConnect::cmd_put(const String& pageName, const HttpParams& requestParameters, const Buffer& putData,
                          chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters);
+
+#if HAVE_ZLIB
     headers.push_back("Accept-Encoding: gzip");
+#endif
 
     if (!putData.empty())
         headers.push_back("Content-Length: " + int2string((uint32_t) putData.bytes()));
@@ -159,7 +168,7 @@ int HttpConnect::cmd_put(const string& pageName, const HttpParams& requestParame
     return getResponse(timeout);
 }
 
-int HttpConnect::cmd_delete(const string& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
+int HttpConnect::cmd_delete(const String& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters);
     string  command = headers.asString("\r\n") + "\r\n\r\n";

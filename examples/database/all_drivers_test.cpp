@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-bool testTransactions(DatabaseConnection *db, const string &tableName, bool rollback)
+bool testTransactions(DatabaseConnection* db, const string& tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
@@ -105,8 +105,8 @@ void testBLOBs(DatabaseConnection* db)
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
         cout << selectBlobsQuery["id"].asInteger()
-        << ": "
-        << selectBlobsQuery["data"].asString() << endl;
+             << ": "
+             << selectBlobsQuery["data"].asString() << endl;
         selectBlobsQuery.fetch();
     }
     selectBlobsQuery.close();
@@ -151,23 +151,25 @@ int testDatabase(const string& connectionString)
         Query createTempTableQuery(db);
         if (db->driverDescription().find("Microsoft") != string::npos)
             createTempTableQuery.sql(
-                "CREATE TABLE " + tableName + "("
-                    "id             INT NULL, "
-                    "name           NCHAR(80) NULL, "
-                    "position_name  NCHAR(80) NULL, "
-                    "hire_date      DATETIME NULL, "
-                    "rate           NUMERIC(16,10) NULL)");
+                    "CREATE TABLE " + tableName + "("
+                                                  "id             INT NULL, "
+                                                  "name           NCHAR(80) NULL, "
+                                                  "position_name  NCHAR(80) NULL, "
+                                                  "hire_date      DATETIME NULL, "
+                                                  "rate           NUMERIC(16,10) NULL)");
         else
             createTempTableQuery.sql(
-                "CREATE TABLE " + tableName + "("
-                    "id             INT, "
-                    "name           CHAR(80), "
-                    "position_name  CHAR(80), "
-                    "hire_date      TIMESTAMP, "
-                    "rate           NUMERIC(16,10))");
+                    "CREATE TABLE " + tableName + "("
+                                                  "id             INT, "
+                                                  "name           CHAR(80), "
+                                                  "position_name  CHAR(80), "
+                                                  "hire_date      TIMESTAMP, "
+                                                  "rate           NUMERIC(16,10))");
         Query insertRecordQuery(db, "INSERT INTO " + tableName +
-                              " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__, __LINE__);
-        Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false, __FILE__, __LINE__);
+                                    " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__,
+                                __LINE__);
+        Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false, __FILE__,
+                                 __LINE__);
         Query dropTempTableQuery(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
         try {
@@ -272,7 +274,7 @@ int testDatabase(const string& connectionString)
             string rate = fieldToString(selectRecordsQuery[4]);
 
             cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
-            endl;
+                 endl;
 
             selectRecordsQuery.fetch();
         }
@@ -284,17 +286,26 @@ int testDatabase(const string& connectionString)
 
         while (!selectRecordsQuery.eof()) {
 
-            int id;
+            int id = 0;
             String name, position_name, hire_date;
 
             int fieldIndex = 0;
             for (Field* field: selectRecordsQuery.fields()) {
                 switch (fieldIndex) {
-                    case 0: id = field->asInteger(); break;
-                    case 1: name = field->asString(); break;
-                    case 2: position_name = field->asString(); break;
-                    case 3: hire_date = field->asString(); break;
-                    default: break;
+                    case 0:
+                        id = field->asInteger();
+                        break;
+                    case 1:
+                        name = field->asString();
+                        break;
+                    case 2:
+                        position_name = field->asString();
+                        break;
+                    case 3:
+                        hire_date = field->asString();
+                        break;
+                    default:
+                        break;
                 }
                 fieldIndex++;
             }
@@ -324,7 +335,7 @@ int testDatabase(const string& connectionString)
             string rate = rateField;
 
             cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
-            hire_date << " | " << rate << endl;
+                 hire_date << " | " << rate << endl;
 
             selectRecordsQuery.fetch();
         }

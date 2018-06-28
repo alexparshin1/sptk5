@@ -26,44 +26,43 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <sptk5/cgui>
-#include <sptk5/DirectoryDS.h>
 
 using namespace std;
 using namespace sptk;
 
-CListView      *filesListView;
-DirectoryDS   *directoryDS;
-CInput         *directoryInput;
+CListView* filesListView;
+DirectoryDS* directoryDS;
+CInput* directoryInput;
 
-void exit_cb(Fl_Widget *w,void *)
+void exit_cb(Fl_Widget* w, void*)
 {
-   w->window()->hide();
+    w->window()->hide();
 }
 
-void go_cb(Fl_Widget *w,void *)
+void go_cb(Fl_Widget*, void*)
 {
-   directoryDS->directory(directoryInput->data().asString());
-   filesListView->fill(*directoryDS);
+    directoryDS->directory(directoryInput->data().asString());
+    filesListView->fill(*directoryDS);
 }
 
-void list_view_cb(Fl_Widget *w,void *)
+void list_view_cb(Fl_Widget* w, void*)
 {
-   CListView *listView = (CListView *)w;
-   if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK) {
-      CPackedStrings& row = *listView->selectedRow(); 
-      if (strncmp(row[3],"Directory",9) == 0) {
-         std::string fullPath = directoryDS->directory() + row[1];
-         directoryDS->directory(fullPath);
-         directoryInput->data(fullPath);
-         listView->fill(*directoryDS);
-      }
-   }
+    auto listView = (CListView*) w;
+    if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK) {
+        CPackedStrings& row = *listView->selectedRow();
+        if (strncmp(row[3], "Directory", 9) == 0) {
+            std::string fullPath = directoryDS->directory() + row[1];
+            directoryDS->directory(fullPath);
+            directoryInput->data(fullPath);
+            listView->fill(*directoryDS);
+        }
+    }
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
     try {
         // Initialize themes

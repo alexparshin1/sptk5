@@ -110,22 +110,22 @@ enum CThemeColorState
 
 #define THM_MAX_COLOR_STATE 5
 
-typedef Fl_Color (*gtk_color_function)(std::string expression);
+typedef Fl_Color (*gtk_color_function)(const String& expression);
 
 class CThemeColorCollection 
 {
-    static std::map<std::string,gtk_color_function>* m_gtkColorFunctionMap;
-    static std::map<std::string,Fl_Color> m_colorMap;
+    static std::map<String,gtk_color_function>* m_gtkColorFunctionMap;
+    static std::map<String,Fl_Color> m_colorMap;
     Fl_Color    m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
-    static Fl_Color gtkColorFunction(std::string expression);
+    static Fl_Color gtkColorFunction(const String& expression);
     void loadColor(XMLNode* colorNode,CThemeColorIndex colorIndex);
-    void loadColorMap(XMLDocument& gtkTheme,std::string colorMapXPath);
+    void loadColorMap(XMLDocument& gtkTheme, const String& colorMapXPath);
 
-    static Fl_Color passby(std::string expression);
-    static Fl_Color lighter(std::string expression);
-    static Fl_Color darker(std::string expression);
-    static Fl_Color shade(std::string expression);
-    static Fl_Color mix(std::string expression);
+    static Fl_Color passby(const String& expression);
+    static Fl_Color lighter(const String& expression);
+    static Fl_Color darker(const String& expression);
+    static Fl_Color shade(const String& expression);
+    static Fl_Color mix(const String& expression);
 
 public:
     /**

@@ -26,7 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <cstring>
@@ -36,54 +35,6 @@
 
 using namespace std;
 using namespace sptk;
-
-bool String::matches(const String& pattern, const String& options) const
-{
-    RegularExpression regexp(pattern, options);
-    return regexp.matches(*this);
-}
-
-String String::toUpperCase() const
-{
-    return upperCase(*this);
-}
-
-String String::toLowerCase() const
-{
-    return lowerCase(*this);
-}
-
-Strings String::split(const String& pattern) const
-{
-    return Strings(*this, pattern.c_str(), Strings::SM_REGEXP);
-}
-
-bool String::startsWith(const String& subject) const
-{
-    return find(subject) == 0;
-}
-
-String String::replace(const String& pattern, const String& replacement) const
-{
-    RegularExpression regexp(pattern);
-    bool replaced = false;
-    return regexp.replaceAll(*this, replacement, replaced);
-}
-
-bool String::endsWith(const String& subject) const
-{
-    size_t pos = rfind(subject);
-    return pos != string::npos && pos == length() - subject.length();
-}
-
-String String::trim() const
-{
-    auto startPos = find_first_not_of(" \n\r\t\b");
-    if (startPos == string::npos)
-        return String("");
-    size_t endPos = find_last_not_of(" \n\r\t\b");
-    return substr(startPos, endPos - startPos + 1);
-}
 
 void Strings::splitByDelimiter(const String& src, const char *delimitter)
 {

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       spell_checker.cpp - description                        ║
+║                       zlib_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Sunday June 24 2018                                    ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,48 +26,40 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
+#ifdef __BORLANDC__
+#include <vcl.h>
+#pragma hdrstop
+#endif
 
-#include <FL/fl_ask.H>
-#include <sptk5/cgui>
-#include <sptk5/gui/CEditorSpellChecker.h>
+// This example shows how to compress and uncompress data using ZLib library.
+
+#include <iostream>
+#include <sptk5/Buffer.h>
+#include <sptk5/ZLib.h>
 
 using namespace std;
 using namespace sptk;
 
-CEditor* editor;
-
-void cb_spellCheck(Fl_Widget*, void*)
+int main(int argc, const char* argv[])
 {
-    CEditorSpellChecker sc(editor);
     try {
-        sc.spellCheck();
+        Buffer testData("============================ 1234567890 1234567890 test data 1234567890 1234567890 ============================");
+        cout << "Test data:              " << testData.bytes() << " bytes." << endl;
+
+        Buffer compressedData;
+        ZLib::compress(compressedData, testData);
+
+        testData.reset(); // Decompressed data will be appended to destination
+        ZLib::decompress(testData, compressedData);
+
+        cout << "Compressed test data:   " << compressedData.bytes() << " bytes." << endl;
+        cout << "Decompressed test data: " << testData.bytes() << " bytes." << endl;
+
+        cout << testData << endl;
     }
-    catch (exception& e) {
-        fl_alert("%s", e.what());
+    catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
     }
-}
-
-int main(int argc, char* argv[])
-{
-    CThemes themes;
-    CWindow window(400, 300, "CSpellChecker test");
-
-    editor = new CEditor(10, SP_ALIGN_CLIENT);
-
-    editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");
-
-    CToolBar toolBar;
-    CButton spellCheckButton("Spell Check", SP_ALIGN_LEFT);
-    spellCheckButton.callback(cb_spellCheck);
-
-    window.show();
-
-    CThemes::set("OSX");
-
-    window.relayout();
-
-    Fl::run();
-
     return 0;
 }

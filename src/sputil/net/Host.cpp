@@ -38,14 +38,14 @@ Host::Host()
     memset(&m_address, 0, sizeof(m_address));
 }
 
-Host::Host(const string& hostname, uint16_t port)
+Host::Host(const String& hostname, uint16_t port)
 : m_hostname(hostname), m_port(port)
 {
     getHostAddress();
     m_address.sin_port = htons(uint16_t(m_port));
 }
 
-Host::Host(const string& hostAndPort)
+Host::Host(const String& hostAndPort)
 : m_port(0)
 {
     RegularExpression matchHost("^(\\[.*\\]|[^\\[].*)(:\\d+)?");

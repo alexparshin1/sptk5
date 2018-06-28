@@ -81,7 +81,7 @@ DatabaseConnection* CDBListView::database() const
     return m_fullRefreshQuery.database();
 }
 
-void CDBListView::sql(const string& _sql, const string& _recordCountSql, const string& _fastRefreshSQL)
+void CDBListView::sql(const String& _sql, const String& _recordCountSql, const String& _fastRefreshSQL)
 {
     m_fullRefreshQuery.sql(_sql);
     m_fastRefreshQuery.sql(_fastRefreshSQL);
@@ -89,7 +89,7 @@ void CDBListView::sql(const string& _sql, const string& _recordCountSql, const s
     m_fastRefreshEnabed = _fastRefreshSQL.length() > 0;
 }
 
-string CDBListView::sql()
+String CDBListView::sql()
 {
     return m_fullRefreshQuery.sql();
 }
@@ -101,14 +101,14 @@ QueryParameter& CDBListView::param(const char* paramName, CRefreshKind refreshKi
     return m_fullRefreshQuery.param(paramName);
 }
 
-void CDBListView::setup(DatabaseConnection* db, const string& _sql, const string& _keyField)
+void CDBListView::setup(DatabaseConnection* db, const String& _sql, const String& _keyField)
 {
     database(db);
     sql(_sql);
     keyField(_keyField);
 }
 
-void CDBListView::keyField(const string& keyField)
+void CDBListView::keyField(const String& keyField)
 {
     m_keyField = keyField;
 }

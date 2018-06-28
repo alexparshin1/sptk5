@@ -75,7 +75,7 @@ Variant CMemoInput::data() const
 
 void CMemoInput::data(const Variant s)
 {
-    std::string strValue = s.asString().replace("\\r", "");
+    String strValue = s.asString().replace("\\r", "");
     ((CEditor*) m_control)->textBuffer()->text(strValue.c_str());
 }
 

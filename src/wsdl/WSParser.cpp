@@ -300,14 +300,39 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     String operationNames = serviceOperations.asString("|");
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
-    serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl << endl;
+    serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl;
+    serviceImplementation << "#include <set>" << endl << endl;
 
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
+    serviceImplementation << "class MessageIndex" << endl;
+    serviceImplementation << "{" << endl;
+    serviceImplementation << "    mutable mutex  m_mutex;" << endl;
+    serviceImplementation << "    set<String>    m_messageIndex;" << endl;
+    serviceImplementation << "public:" << endl;
+    serviceImplementation << "    MessageIndex(const Strings& messages)" << endl;
+    serviceImplementation << "    {" << endl;
+    serviceImplementation << "        int index = 0;" << endl;
+    serviceImplementation << "        for (auto& message: messages) {" << endl;
+    serviceImplementation << "            String msg(message, index);" << endl;
+    serviceImplementation << "            m_messageIndex.insert(msg);" << endl;
+    serviceImplementation << "            index++;" << endl;
+    serviceImplementation << "        }" << endl;
+    serviceImplementation << "    }" << endl << endl;
+    serviceImplementation << "    int indexOf(const String& message) const" << endl;
+    serviceImplementation << "    {" << endl;
+    serviceImplementation << "        lock_guard<mutex> lock(m_mutex);" << endl;
+    serviceImplementation << "        auto itor = m_messageIndex.find(message);" << endl;
+    serviceImplementation << "        if (itor == m_messageIndex.end())" << endl;
+    serviceImplementation << "            return -1;" << endl;
+    serviceImplementation << "        return (*itor).ident();" << endl;
+    serviceImplementation << "    }" << endl << endl;
+    serviceImplementation << "};" << endl << endl;
+
     serviceImplementation << "void " << serviceClassName << "::requestBroker(XMLElement* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
     serviceImplementation << "{" << endl;
-    serviceImplementation << "    static const Strings messageNames(\"" << operationNames << "\", \"|\");" << endl << endl;
+    serviceImplementation << "    static const MessageIndex messageNames(Strings(\"" << operationNames << "\", \"|\"));" << endl << endl;
     serviceImplementation << "    string requestName = WSParser::strip_namespace(requestNode->name());" << endl;
     serviceImplementation << "    int messageIndex = messageNames.indexOf(requestName);" << endl;
     serviceImplementation << "    try {" << endl;

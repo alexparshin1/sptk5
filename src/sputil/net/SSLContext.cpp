@@ -31,14 +31,13 @@
 
 // These two includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
-#include <openssl/ssl.h>
 
 using namespace std;
 using namespace sptk;
 
 static int s_server_session_id_context = 1;
 
-void SSLContext::throwError(string humanDescription)
+void SSLContext::throwError(const String& humanDescription)
 {
     unsigned long error = ERR_get_error();
     string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
@@ -72,8 +71,8 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwf
     return (int) strlen(replyBuffer);
 }
 
-void SSLContext::loadKeys(const string& privateKeyFileName, const string& certificateFileName, const string& password,
-                          const string& caFileName, int verifyMode, int verifyDepth)
+void SSLContext::loadKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password,
+                          const String& caFileName, int verifyMode, int verifyDepth)
 {
     lock_guard<mutex> lock(*this);
 

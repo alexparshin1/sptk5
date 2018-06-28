@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/cgui>
-#include <FL/Fl.H>
 
 using namespace std;
 using namespace sptk;
@@ -36,7 +35,7 @@ CBox *dateBox;
 
 void cb_clicked(Fl_Widget *w, void *)
 {
-    CCalendar *calendar = (CCalendar *) w;
+    auto calendar = (CCalendar *) w;
     string dateString = calendar->date().dateString();
     dateBox->data(dateString);
 }

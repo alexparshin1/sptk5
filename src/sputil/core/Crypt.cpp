@@ -30,7 +30,6 @@
 #include <sptk5/Crypt.h>
 #include <openssl/conf.h>
 #include <openssl/evp.h>
-#include <openssl/err.h>
 
 using namespace std;
 using namespace sptk;

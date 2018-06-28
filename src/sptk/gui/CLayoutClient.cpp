@@ -51,7 +51,7 @@ void CLayoutClient::load(const XMLNode* node, CLayoutXMLmode xmlMode)
 {
     if (xmlMode & (int) LXM_LAYOUT) {
         CLayoutAlign layoutAlign;
-        string alignName(lowerCase(node->getAttribute("layout_align")));
+        String alignName(lowerCase(node->getAttribute("layout_align")));
         switch (alignName[0]) {
             case 'b':
                 layoutAlign = SP_ALIGN_BOTTOM;
@@ -111,7 +111,7 @@ void CLayoutClient::load(const XMLNode* node, CLayoutXMLmode xmlMode)
             m_widget->activate();
     }
     if (xmlMode & (int) LXM_DATA) {
-        CControl* control = dynamic_cast<CControl*>(m_widget);
+        auto control = dynamic_cast<CControl*>(m_widget);
         if (control)
             control->load(node, LXM_DATA);
     }
@@ -120,8 +120,8 @@ void CLayoutClient::load(const XMLNode* node, CLayoutXMLmode xmlMode)
 void CLayoutClient::save(XMLNode* node, CLayoutXMLmode xmlMode) const
 {
     if (!node->isElement())
-        throw runtime_error("Node must be an element");
-    string className = "widget";
+        throw Exception("Node must be an element");
+    String className = "widget";
     auto layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
     if (layoutClient)
         className = layoutClient->className();

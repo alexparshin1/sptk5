@@ -26,12 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <ctime>
 #include <cmath>
 #include <cstring>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <iomanip>
-#include <sstream>
 
 using namespace std;
 using namespace std::chrono;
@@ -735,7 +735,7 @@ DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
 //----------------------------------------------------------------
 void DateTime::formatDate(ostream& str, int printFlags) const
 {
-    short month, day, year, wday, yday;
+    short month = 0, day = 0, year = 0, wday = 0, yday = 0;
 
     if (zero())
         return;
@@ -768,7 +768,7 @@ void DateTime::formatDate(ostream& str, int printFlags) const
 
 void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccuracy) const
 {
-    short h, m, s, ms;
+    short h = 0, m = 0, s = 0, ms = 0;
 
     decodeTime(m_dateTime, h, m, s, ms, (printFlags & PF_GMT) != 0);
     const char* appendix = nullptr;
@@ -824,7 +824,8 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
 //----------------------------------------------------------------
 short DateTime::dayOfYear() const
 {
-    short y, m, d, wd, yd;
+    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
+
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
 
     return d;
@@ -862,7 +863,7 @@ DateTime DateTime::Time()
 
 short DateTime::daysInMonth() const
 {
-    short y, m, d, wd, yd;
+    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return _monthDays[isLeapYear(y)][m - 1];
 }
@@ -877,28 +878,28 @@ DateTime DateTime::date() const
 
 short DateTime::day() const
 {
-    short y, m, d, wd, yd;
+    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return d;
 }
 
 short DateTime::month() const
 {
-    short y, m, d, wd, yd;
+    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return m;
 }
 
 short DateTime::year() const
 {
-    short y, m, d, wd, yd;
+    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return y;
 }
 
 short DateTime::dayOfWeek() const
 {
-    short y, m, d, wd, yd;
+    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
     return short(wd + 1);
 }

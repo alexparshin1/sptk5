@@ -60,7 +60,7 @@ OracleConnection::~OracleConnection()
     }
 }
 
-void OracleConnection::openDatabase(const String& newConnectionString)
+void OracleConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -162,7 +162,7 @@ void OracleConnection::driverEndTransaction(bool commit)
 }
 
 //-----------------------------------------------------------------------------------------------
-string OracleConnection::queryError(const Query *) const
+String OracleConnection::queryError(const Query *) const
 {
     return m_lastError;
 }
@@ -613,7 +613,7 @@ std::string OracleConnection::paramMark(unsigned paramIndex)
     return string(mark);
 }
 
-void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression  matchStatementEnd("(;\\s*)$");
     RegularExpression  matchRoutineStart("^CREATE (OR REPLACE )?FUNCTION", "i");

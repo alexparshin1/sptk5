@@ -31,7 +31,7 @@
 #pragma hdrstop
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <sptk5/cnet>
 #include <sptk5/cutils>
@@ -96,7 +96,7 @@ int main( int argc, char *argv[] )
 
           // Connected? Save the logon parameters..
         try {
-            XMLNode* hostNode = registry.findFirst("host");
+            hostNode = registry.findFirst("host");
             if (!hostNode)
                 hostNode = new XMLElement(registry,"host");
             hostNode->setAttribute("hostname",server);

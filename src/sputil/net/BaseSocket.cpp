@@ -211,6 +211,8 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                         throw Exception("Network unreachable");
                     case ECONNREFUSED:
                         throw Exception("Connection refused");
+                    default:
+                        break;
                 }
                 if (!readyToWrite(timeout)) {
                     close();
@@ -249,7 +251,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
     }
 }
 
-void BaseSocket::open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+void BaseSocket::_open(const Host&, CSocketOpenMode, bool, std::chrono::milliseconds)
 {}
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)

@@ -111,7 +111,7 @@ void Query::colAttributes(int16_t column, int16_t descType, char* buff, int32_t 
         m_db->queryColAttributes(this, column, descType, buff, len);
 }
 
-string Query::getError() const
+String Query::getError() const
 {
     if (m_db != nullptr && m_statement != nullptr)
         return m_db->queryError(this);
@@ -128,7 +128,7 @@ Query::Query() noexcept
     nextObjectIndex++; 
 }
 
-Query::Query(DatabaseConnection* _db, const string& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(DatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
     : m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
@@ -182,7 +182,7 @@ Query::~Query()
         m_db->unlinkQuery(this);
 }
 
-void Query::sql(const string& _sql)
+void Query::sql(const String& _sql)
 {
     // Looking up for SQL parameters
     char delimitters[] = "':-/";
@@ -361,13 +361,13 @@ bool Query::writeField(const char*, const Variant&)
     return true;
 }
 
-void Query::notImplemented(const string& functionName) const
+void Query::notImplemented(const String& functionName) const
 {
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, m_sql);
 }
 
-void Query::throwError(const string& method, const string& error)
+void Query::throwError(const String& method, const String& error)
 {
-    string errorText("Exception in " + method + ": " + error);
+    String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }

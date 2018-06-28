@@ -161,7 +161,7 @@ int CTreeItem::handle(int event)
             tree()->m_tabPressed = false;
 
             if (opened() && Fl::event_inside(x(), y() + m_itemHeight, m_indent, h() - m_itemHeight)) {
-                unsigned cnt = (unsigned) children();
+                auto cnt = (unsigned) children();
 
                 for (unsigned i = 1; i < cnt; i++) {
                     auto item = (CTreeItem*) child(i);
@@ -326,7 +326,7 @@ void CTreeItem::draw()
     // draw the lines
     int lx = x() + m_indent / 2;
     int sly = y() + m_itemHeight / 2;
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
     int cly = sly;
     fl_color(0x40404000);
 
@@ -373,7 +373,7 @@ void CTreeItem::draw()
 
 CTreeItem* CTreeItem::findItem(const char* label) const
 {
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
     string slabel = label;
 
     for (unsigned i = 0; i < cnt; i++) {
@@ -395,7 +395,7 @@ CTreeItem* CTreeItem::findItem(const char* label) const
 
 CTreeItem* CTreeItem::findData(const void* itemData) const
 {
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
 
     for (unsigned i = 0; i < cnt; i++) {
         auto item = (CTreeItem*) child(i);
@@ -414,7 +414,7 @@ CTreeItem* CTreeItem::findData(const void* itemData) const
     return nullptr;
 }
 
-CTreeItem* CTreeItem::addPathOffset(const vector<string>& pathFolders, unsigned offset, const Fl_Image* openedImage,
+CTreeItem* CTreeItem::addPathOffset(const vector<String>& pathFolders, unsigned offset, const Fl_Image* openedImage,
                                     const Fl_Image* closedImage, const Fl_Image* itemImage, void* data)
 {
     CTreeItem* node = this;
@@ -436,9 +436,8 @@ CTreeItem* CTreeItem::addPathOffset(const vector<string>& pathFolders, unsigned 
         return nullptr;
 }
 
-CTreeItem*
-CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image* openedImage, const Fl_Image* closedImage,
-                   const Fl_Image* itemImage, void* data)
+CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* openedImage, const Fl_Image* closedImage,
+                              const Fl_Image* itemImage, void* data)
 {
     return addPathOffset(pathFolders, 0, openedImage, closedImage, itemImage, data);
 }
@@ -448,7 +447,7 @@ static Fl_Image* getIconImage(const char* iconName)
     return CThemes::getIconImage(iconName, IS_SMALL_ICON);
 }
 
-CTreeItem* CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image* itemImage, void* data)
+CTreeItem* CTreeItem::addPath(const vector<String>& pathFolders, const Fl_Image* itemImage, void* data)
 {
     if (!itemImage)
         itemImage = getIconImage("document");
@@ -459,7 +458,7 @@ CTreeItem* CTreeItem::addPath(const vector<string>& pathFolders, const Fl_Image*
 void CTreeItem::visibleChildren(bool show)
 {
     m_opened = show;
-    unsigned cnt = (unsigned) children();
+    auto cnt = (unsigned) children();
 
     for (unsigned i = 1; i < cnt; i++) {
         auto item = dynamic_cast<CTreeItem*> (child(i));
@@ -692,7 +691,7 @@ CTreeControl::CTreeControl(const char* label, int layoutSize, CLayoutAlign align
     end();
 }
 
-CLayoutClient* CTreeControl::defaultItemCreator(CTreeItem* item)
+CLayoutClient* CTreeControl::defaultItemCreator(CTreeItem*)
 {
     auto box = new CBox("", 16, SP_ALIGN_TOP);
     box->align(FL_ALIGN_INSIDE | FL_ALIGN_LEFT);
@@ -705,13 +704,13 @@ CTreeControl::addItem(const char* label, const Fl_Image* openedImage, const Fl_I
     return m_root->addItem(label, openedImage, closedImage, data);
 }
 
-CTreeItem* CTreeControl::addPath(const vector<string>& path, const Fl_Image* openedImage, const Fl_Image* closedImage,
+CTreeItem* CTreeControl::addPath(const vector<String>& path, const Fl_Image* openedImage, const Fl_Image* closedImage,
                                  const Fl_Image* itemImage, void* data)
 {
     return m_root->addPath(path, openedImage, closedImage, itemImage, data);
 }
 
-CTreeItem* CTreeControl::addPath(const vector<string>& path, const Fl_Image* itemImage, void* data)
+CTreeItem* CTreeControl::addPath(const vector<String>& path, const Fl_Image* itemImage, void* data)
 {
     return addPath(path, getIconImage("folder_opened"), getIconImage("folder_closed"), itemImage, data);
 }
@@ -804,14 +803,12 @@ void CTreeControl::makeVisible(CTreeItem* item)
 
 int CTreeControl::handle(int event)
 {
-    CTreeItem* old_selection;
-
     if (event == FL_PUSH)
         return CScroll::handle(event);
 
     if (event == FL_FOCUS) {
         m_tabPressed = false;
-        old_selection = selected();
+        CTreeItem* old_selection = selected();
 
         if (old_selection) {
             Fl::focus(old_selection);
@@ -823,7 +820,7 @@ int CTreeControl::handle(int event)
     return CScroll::handle(event);
 }
 
-void CTreeControl::load(const XMLNode& groupNode, bool autoCreate)
+void CTreeControl::load(const XMLNode& groupNode, bool /*autoCreate*/)
 {
     if (m_noXml)
         return;

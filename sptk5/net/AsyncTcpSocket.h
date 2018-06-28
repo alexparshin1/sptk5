@@ -52,10 +52,14 @@ public:
      */
     virtual ~AsyncTcpSocket() = default;
 
-    void open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+protected:
 
-    void
-    open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void _open(const Host& host, CSocketOpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+
+    void _open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool blockingMode,
+               std::chrono::milliseconds timeout) override;
+
+public:
 
     void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo) override;
 

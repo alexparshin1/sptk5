@@ -282,7 +282,7 @@ String absolutePath(String path)
     return path;
 }
 
-void DirectoryDS::directory(const string& d)
+void DirectoryDS::directory(const String& d)
 {
     m_directory = absolutePath(d);
 }

@@ -201,7 +201,7 @@ TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protoco
 {
 }
 
-void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!host.hostname().empty())
         m_host = host;
@@ -211,10 +211,11 @@ void TCPSocket::open(const Host& host, CSocketOpenMode openMode, bool _blockingM
     sockaddr_in address = {};
     m_host.getAddress(address);
 
-    open(address, openMode, _blockingMode, timeout);
+    _open(address, openMode, _blockingMode, timeout);
 }
 
-void TCPSocket::open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeoutMS)
+void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode,
+                      chrono::milliseconds timeoutMS)
 {
     open_addr(openMode, &address, timeoutMS);
     m_reader.open();

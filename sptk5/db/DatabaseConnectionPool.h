@@ -142,10 +142,10 @@ public:
      *
      * Database connection string is the same for all connections,
      * created with this object.
-     * @param connectionString std::string, Database connection string
-     * @param maxConnections unsigned, Maximum number of connections in the pool
+     * @param connectionString  Database connection string
+     * @param maxConnections    Maximum number of connections in the pool
      */
-    DatabaseConnectionPool(const std::string& connectionString, unsigned maxConnections = 100);
+    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
 
     /**
      * @brief Destructor
@@ -161,14 +161,14 @@ public:
 
     /**
      * @brief Returns used database connection back to the pool
-     * @param connection DatabaseConnection*, Database that is no longer in use and may be returned to the pool
+     * @param connection        Database that is no longer in use and may be returned to the pool
      */
     void releaseConnection(DatabaseConnection* connection);
 
     /**
      * @brief Destroys connection
      * @param connection DatabaseConnection*, destroys the driver instance
-     * @param unlink bool, should always be true for any external use
+     * @param unlink            Should always be true for any external use
      */
     void destroyConnection(DatabaseConnection* connection, bool unlink=true);
 };
@@ -193,7 +193,7 @@ public:
     /**
      * @brief Constructor
      * Automatically gets connection from connection pool
-     * @param connectionPool DatabaseConnectionPool&, Database connection pool
+     * @param connectionPool    DatabaseConnectionPool&, Database connection pool
      */
     explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
     : m_connectionPool(connectionPool)

@@ -297,7 +297,7 @@ public:
      * @param typeName std::string, the type of the (control) widget
      * @param creator createControlCallback, a callback that creates the required widget
      */
-    static void registerControl(std::string typeName,createControlCallback creator) {
+    static void registerControl(std::string typeName,createControlCallback creator) noexcept {
         controlCreator[typeName] = creator;
     }
 

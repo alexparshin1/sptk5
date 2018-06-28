@@ -29,6 +29,8 @@
 #ifndef __SPTK_ZLIB_H__
 #define __SPTK_ZLIB_H__
 
+#include <sptk5/sptk.h>
+
 #if HAVE_ZLIB
 
 #include <sptk5/Buffer.h>

@@ -29,11 +29,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
 #include <sptk5/Exception.h>
-#include <sptk5/Strings.h>
 
 using namespace std;
 
@@ -92,7 +90,7 @@ String sptk::trim(const String& str)
         }
     }
 
-    return str.substr(size_t(startpos), size_t(endpos - startpos + 1));
+    return str.substr(size_t(startpos), size_t(long(endpos - startpos + 1)));
 }
 
 void sptk::join(string& dest, const vector<string>& src, const string& separator)
@@ -147,7 +145,7 @@ String sptk::int2string(int32_t value)
 String sptk::int2string(uint32_t value)
 {
     char buff[64];
-	int len = snprintf(buff, sizeof(buff), "%u", value);
+    int len = snprintf(buff, sizeof(buff), "%u", value);
     return string(buff, (unsigned) len);
 }
 
@@ -155,9 +153,9 @@ String sptk::int2string(int64_t value)
 {
     char buff[128];
 #ifdef _WIN32
-	int len = snprintf(buff, sizeof(buff), "%lli", value);
+    int len = snprintf(buff, sizeof(buff), "%lli", value);
 #else
-	int len = snprintf(buff, sizeof(buff), "%lli", (long long int) value);
+    int len = snprintf(buff, sizeof(buff), "%lli", (long long int) value);
 #endif
     return string(buff, (unsigned) len);
 }
@@ -166,9 +164,9 @@ String sptk::int2string(uint64_t value)
 {
     char buff[128];
 #ifdef _WIN32
-	int len = snprintf(buff, sizeof(buff), "%llu", value);
+    int len = snprintf(buff, sizeof(buff), "%llu", value);
 #else
-	int len = snprintf(buff, sizeof(buff), "%lu", value);
+    int len = snprintf(buff, sizeof(buff), "%lu", value);
 #endif
     return string(buff, (unsigned) len);
 }

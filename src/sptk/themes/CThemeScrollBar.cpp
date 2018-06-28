@@ -30,6 +30,7 @@
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CThemeScrollBar.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +40,8 @@ int CThemeScrollBar::m_scrollBarTroughBorder = 1;
 int CThemeScrollBar::m_scrollBarSliderWidth = 14;
 int CThemeScrollBar::m_scrollBarStepperSize = 14;
 
-void CScrollBarImages::load(CThemeScrollBarType atype, bool desaturateInactiveButtons, bool externalFile) {
+void CScrollBarImages::load(CThemeScrollBarType atype, bool /*desaturateInactiveButtons*/, bool /*externalFile*/)
+{
     static const char* scrollbarParts[] = {"-trough", "-slider", "-grip"};
 
     m_orientation = atype;
@@ -52,7 +54,7 @@ void CScrollBarImages::load(CThemeScrollBarType atype, bool desaturateInactiveBu
     unsigned i;
     /// Load scrollbar images
     for (i = 0; i < 3; i++)
-        m_parts[i].loadFromSptkTheme(Strings(scrollBarDir + scrollbarParts[i],"|"));
+        m_parts[i].loadFromSptkTheme(Strings(scrollBarDir + scrollbarParts[i], "|"));
 
     CThemeImageCollection& trough = m_parts[0];
     CPngImage* troughImage = trough.image(THM_IMAGE_NORMAL);
@@ -75,25 +77,29 @@ void CScrollBarImages::load(CThemeScrollBarType atype, bool desaturateInactiveBu
                 CThemeScrollBar::m_scrollBarStepperSize = button0->h();
                 CThemeScrollBar::m_scrollBarSliderWidth = button0->w();
                 if (troughImage)
-                    CThemeScrollBar::m_scrollBarTroughBorder = (troughImage->w() - CThemeScrollBar::m_scrollBarSliderWidth) / 2;
+                    CThemeScrollBar::m_scrollBarTroughBorder =
+                            (troughImage->w() - CThemeScrollBar::m_scrollBarSliderWidth) / 2;
             } else {
                 CThemeScrollBar::m_scrollBarStepperSize = button0->w();
                 CThemeScrollBar::m_scrollBarSliderWidth = button0->h();
                 if (troughImage)
-                    CThemeScrollBar::m_scrollBarTroughBorder = (troughImage->h() - CThemeScrollBar::m_scrollBarSliderWidth) / 2;
+                    CThemeScrollBar::m_scrollBarTroughBorder =
+                            (troughImage->h() - CThemeScrollBar::m_scrollBarSliderWidth) / 2;
             }
         }
     }
 }
 
-void CScrollBarImages::clear() {
+void CScrollBarImages::clear()
+{
     for (unsigned i = 0; i < 2; i++) {
         m_parts[i].clear();
         m_steppers[i].clear();
     }
 }
 
-bool CThemeScrollBar::sizeScrollBar(int& w, int& h) {
+bool CThemeScrollBar::sizeScrollBar(int& w, int& h)
+{
     bool vertical = w < h;
     int troughWidth = m_scrollBarSliderWidth + m_scrollBarTroughBorder * 2;
     int minLength = m_scrollBarStepperSize * 2 + 10;
@@ -109,47 +115,56 @@ bool CThemeScrollBar::sizeScrollBar(int& w, int& h) {
     return true;
 }
 
-void CThemeScrollBar::loadGtkScrollbarButtons(XMLDocument& xml,string orientation,CThemeImageCollection& buttonImages) {
-    string XPath("/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='STEPPER']");
-    buttonImages.loadFromGtkTheme(xml,XPath,"arrow_direction",orientation);
+void CThemeScrollBar::loadGtkScrollbarButtons(
+        XMLDocument& xml, const String& orientation, CThemeImageCollection& buttonImages)
+{
+    String XPath("/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='STEPPER']");
+    buttonImages.loadFromGtkTheme(xml, XPath, "arrow_direction", orientation);
 }
 
-void CThemeScrollBar::loadGtkScrollbarTroughs(XMLDocument& xml) {
-    static const char* orientation[2] = { "VERTICAL", "HORIZONTAL" };
+void CThemeScrollBar::loadGtkScrollbarTroughs(XMLDocument& xml)
+{
+    static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
     for (unsigned i = 0; i < 2; i++) {
         CThemeImageCollection* images = &m_scrollBar[i].m_parts[CScrollBarImages::TROUGH];
-        images->loadFromGtkTheme(xml,"/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@detail='trough']","orientation",orientation[i]);
+        images->loadFromGtkTheme(xml,
+                                 "/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@detail='trough']",
+                                 "orientation", orientation[i]);
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbarSliders(XMLDocument& xml) {
-    static const char* orientation[2] = { "VERTICAL", "HORIZONTAL" };
+void CThemeScrollBar::loadGtkScrollbarSliders(XMLDocument& xml)
+{
+    static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
 
-    CThemeImageCollection* images;
     for (unsigned i = 0; i < 2; i++) {
-        images = &m_scrollBar[i].m_parts[CScrollBarImages::SLIDER];
-        images->loadFromGtkTheme(xml,"/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='SLIDER']","orientation",orientation[i]);
+        CThemeImageCollection* images = &m_scrollBar[i].m_parts[CScrollBarImages::SLIDER];
+        images->loadFromGtkTheme(xml,
+                                 "/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='SLIDER']",
+                                 "orientation", orientation[i]);
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbars(XMLDocument& xml) {
+void CThemeScrollBar::loadGtkScrollbars(XMLDocument& xml)
+{
     XMLNodeVector scrollBarDefaults;
-    xml.select(scrollBarDefaults,"/styles/style/GtkRange");
-    if (scrollBarDefaults.size()) {
+    xml.select(scrollBarDefaults, "/styles/style/GtkRange");
+    if (!scrollBarDefaults.empty()) {
         XMLNode* node = scrollBarDefaults[0];
-        m_scrollBarTroughBorder = node->getAttribute("trough_border","1");
-        m_scrollBarSliderWidth = node->getAttribute("slider_width","14");
-        m_scrollBarStepperSize = node->getAttribute("stepper_size","14");
+        m_scrollBarTroughBorder = node->getAttribute("trough_border", "1");
+        m_scrollBarSliderWidth = node->getAttribute("slider_width", "14");
+        m_scrollBarStepperSize = node->getAttribute("stepper_size", "14");
     }
-    loadGtkScrollbarButtons(xml,"UP",m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[0]);
-    loadGtkScrollbarButtons(xml,"DOWN",m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[1]);
-    loadGtkScrollbarButtons(xml,"LEFT",m_scrollBar[THM_SCROLLBAR_HORIZONTAL].m_steppers[0]);
-    loadGtkScrollbarButtons(xml,"RIGHT",m_scrollBar[THM_SCROLLBAR_HORIZONTAL].m_steppers[1]);
+    loadGtkScrollbarButtons(xml, "UP", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[0]);
+    loadGtkScrollbarButtons(xml, "DOWN", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[1]);
+    loadGtkScrollbarButtons(xml, "LEFT", m_scrollBar[THM_SCROLLBAR_HORIZONTAL].m_steppers[0]);
+    loadGtkScrollbarButtons(xml, "RIGHT", m_scrollBar[THM_SCROLLBAR_HORIZONTAL].m_steppers[1]);
     loadGtkScrollbarTroughs(xml);
     loadGtkScrollbarSliders(xml);
 }
 
-static void drawImageWithOverlay(int x,int y,CPngImage* image,CPngImage* overlay) {
+static void drawImageWithOverlay(int x, int y, CPngImage* image, CPngImage* overlay)
+{
     if (image) {
         image->draw(x, y);
         if (overlay)
@@ -157,11 +172,14 @@ static void drawImageWithOverlay(int x,int y,CPngImage* image,CPngImage* overlay
     }
 }
 
-bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, float maximum, float value, float sliderSize, int activeZone, bool active) {
+bool CThemeScrollBar::drawScrollBar(
+        int x, int y, int w, int h, float minimum, float maximum, float value, float sliderSize, int activeZone,
+        bool active)
+{
     bool vertical = w < h;
 
     // Selecting the group of images
-    CScrollBarImages *scrollbar = &m_scrollBar[THM_SCROLLBAR_HORIZONTAL];
+    CScrollBarImages* scrollbar = &m_scrollBar[THM_SCROLLBAR_HORIZONTAL];
     if (vertical)
         scrollbar = &m_scrollBar[THM_SCROLLBAR_VERTICAL];
 
@@ -174,10 +192,10 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
         fl_draw_box(FL_THIN_DOWN_BOX, x, y, w, h, FL_BACKGROUND2_COLOR);
 
     // Painting the buttons
-    CPngImage *firstButtonSrc = scrollbar->m_steppers[0].image(THM_IMAGE_NORMAL);
-    CPngImage *firstButtonOvl = scrollbar->m_steppers[0].overlayImage(THM_IMAGE_NORMAL);
-    CPngImage *secondButtonSrc = scrollbar->m_steppers[1].image(THM_IMAGE_NORMAL);
-    CPngImage *secondButtonOvl = scrollbar->m_steppers[1].overlayImage(THM_IMAGE_NORMAL);
+    CPngImage* firstButtonSrc = scrollbar->m_steppers[0].image(THM_IMAGE_NORMAL);
+    CPngImage* firstButtonOvl = scrollbar->m_steppers[0].overlayImage(THM_IMAGE_NORMAL);
+    CPngImage* secondButtonSrc = scrollbar->m_steppers[1].image(THM_IMAGE_NORMAL);
+    CPngImage* secondButtonOvl = scrollbar->m_steppers[1].overlayImage(THM_IMAGE_NORMAL);
     switch (activeZone) {
         case 1:
             firstButtonSrc = scrollbar->m_steppers[0].image(THM_IMAGE_ACTIVE);
@@ -192,7 +210,7 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
     }
 
     int bsize = vertical ? w - 2 : h - 2;
-    
+
     if (firstButtonSrc && secondButtonSrc) {
         // Images available
         drawImageWithOverlay(x, y, firstButtonSrc, firstButtonOvl);
@@ -203,8 +221,10 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
     } else {
         // Images not available
         if (vertical) {
-            fl_draw_box(activeZone == 1 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + 1, y + 1, bsize, bsize, FL_BACKGROUND_COLOR);
-            fl_draw_box(activeZone == 2 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + 1, y + h - bsize - 1, bsize, bsize, FL_BACKGROUND_COLOR);
+            fl_draw_box(activeZone == 1 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + 1, y + 1, bsize, bsize,
+                        FL_BACKGROUND_COLOR);
+            fl_draw_box(activeZone == 2 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + 1, y + h - bsize - 1, bsize, bsize,
+                        FL_BACKGROUND_COLOR);
             if (active)
                 fl_color(FL_FOREGROUND_COLOR);
             else
@@ -218,8 +238,10 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
             yy1 += h - w;
             fl_polygon(x1, yy1, x1 + w1, yy1 + w1, x1 + 2 * w1, yy1);
         } else {
-            fl_draw_box(activeZone == 1 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + 1, y + 1, bsize, bsize, FL_BACKGROUND_COLOR);
-            fl_draw_box(activeZone == 2 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + w - bsize - 1, y + 1, bsize, bsize, FL_BACKGROUND_COLOR);
+            fl_draw_box(activeZone == 1 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + 1, y + 1, bsize, bsize,
+                        FL_BACKGROUND_COLOR);
+            fl_draw_box(activeZone == 2 ? FL_FLAT_BOX : FL_THIN_UP_BOX, x + w - bsize - 1, y + 1, bsize, bsize,
+                        FL_BACKGROUND_COLOR);
             if (active)
                 fl_color(FL_FOREGROUND_COLOR);
             else
@@ -248,14 +270,14 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
     }
 
     int ww = (vertical ? h : w) - bsize * 2;
-    int S = int(sliderSize * ww + .5);
+    auto S = int(std::round(sliderSize * ww));
     if (S < 10)
         S = 10;
-    int xx = int(val * (ww - S) + .5) + bsize;
+    int xx = (int)std::round(val * (ww - S)) + bsize;
 
     int xsl, ysl, wsl, hsl;
-    CPngImage *sliderImage = scrollbar->m_parts[CScrollBarImages::SLIDER].image(THM_IMAGE_NORMAL);
-    CPngImage *gripImage = scrollbar->m_parts[CScrollBarImages::SLIDER].overlayImage(THM_IMAGE_NORMAL);
+    CPngImage* sliderImage = scrollbar->m_parts[CScrollBarImages::SLIDER].image(THM_IMAGE_NORMAL);
+    CPngImage* gripImage = scrollbar->m_parts[CScrollBarImages::SLIDER].overlayImage(THM_IMAGE_NORMAL);
     if (vertical) {
         ysl = y + xx;
         hsl = S;
@@ -265,7 +287,7 @@ bool CThemeScrollBar::drawScrollBar(int x, int y, int w, int h, float minimum, f
             sliderImage->drawResized(xsl, ysl, wsl, hsl, bsize, CPngImage::PDM_STRETCH, true);
             if (gripImage && gripImage->h() <= hsl + bsize * 3 / 2)
                 gripImage->draw(xsl + (wsl - gripImage->w()) / 2, ysl + (hsl - gripImage->h()) / 2);
-        } else 
+        } else
             fl_draw_box(FL_THIN_UP_BOX, x + 1, ysl + 1, bsize, hsl - 2, FL_BACKGROUND_COLOR);
     } else {
         xsl = x + xx;

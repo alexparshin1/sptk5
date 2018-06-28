@@ -46,7 +46,7 @@ void CDateIntervalInput::intervalCalendarButtonPressed(Fl_Widget* btn, void* dat
 
 void CDateIntervalInput::ctor_init()
 {
-    m_calendarWindow = new CPopupCalendar(0L);
+    m_calendarWindow = new CPopupCalendar(nullptr);
     m_separator = "..";
 
     begin();
@@ -111,7 +111,7 @@ void CDateIntervalInput::showCalendar(Fl_Widget* btn)
     }
 }
 
-void CDateIntervalInput::separator(std::string s)
+void CDateIntervalInput::separator(const string& s)
 {
     m_separator = s;
 }

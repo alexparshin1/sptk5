@@ -50,7 +50,7 @@ class Query;
 /**
  * @brief Types of the objects for DatabaseConnection::listObjects method
  */
-enum DatabaseObjectType
+enum DatabaseObjectType : uint8_t
 {
     /**
      * Tables
@@ -111,21 +111,21 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT DatabaseConnection 
+class SP_EXPORT DatabaseConnection
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;
 
 public:
-	/**
-	* Mutex that protects access to data memebers
-	*/
-	mutable std::mutex	m_mutex;
-	
-	/**
+    /**
+    * Mutex that protects access to data memebers
+    */
+    mutable std::mutex    m_mutex;
+
+    /**
      * @brief Database connection type
      */
-    enum Type {
+    enum Type : uint16_t {
         /**
          * Unknown
          */
@@ -239,7 +239,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual std::string queryError(const Query *query) const;
+    virtual String queryError(const Query *query) const;
 
     /**
      * Allocates an ODBC statement
@@ -356,7 +356,7 @@ protected:
      * This method should be overwritten in derived classes
      * @param connectionString  The ODBC connection string
      */
-    virtual void openDatabase(const String& connectionString);
+    virtual void _openDatabase(const String& connectionString);
 
     /**
      * @brief Closes the database connection.
@@ -387,7 +387,7 @@ protected:
      * @param method            Method name where error has occured
      * @param error             Error text
      */
-    void logAndThrow(std::string method, std::string error);
+    void logAndThrow(const String& method, const String& error);
 
     /**
      * @brief Executes bulk inserts of data from memory buffer
@@ -403,7 +403,28 @@ protected:
     virtual void _bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                              const String& format);
 
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchFileName     SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
+
+    /**
+     * @brief Executes SQL batch queries
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     */
+    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
+
 public:
+
     /**
      * @brief Destructor
      *
@@ -521,7 +542,10 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchFile(const String& batchFileName, Strings* errors = NULL);
+    void executeBatchFile(const String& batchFileName, Strings* errors = NULL)
+    {
+        _executeBatchFile(batchFileName, errors);
+    }
 
     /**
      * @brief Executes SQL batch queries
@@ -531,7 +555,10 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors=NULL);
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = NULL)
+    {
+        _executeBatchSQL(batchSQL, errors);
+    }
 };
 /**
  * @}

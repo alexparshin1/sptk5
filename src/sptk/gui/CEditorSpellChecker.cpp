@@ -61,14 +61,14 @@ void CSpellChecker::cb_learn(Fl_Widget* w, void*)
 
 void CSpellChecker::cb_ignore(Fl_Widget* w, void*)
 {
-    CSpellChecker* spellChecker = (CSpellChecker*) w->window();
+    auto spellChecker = (CSpellChecker*) w->window();
     spellChecker->ignoreAndClose();
 }
 
 void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 {
     auto spellChecker = (CSpellChecker*) w->window();
-    string word = trim(spellChecker->m_replaceToInput->data());
+    String word = trim(spellChecker->m_replaceToInput->data());
     if (word.length())
         spellChecker->m_okButton->activate();
     else spellChecker->m_okButton->deactivate();
@@ -78,9 +78,9 @@ void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
 {
     auto listView = (CListView*) lv;
     if (listView->eventType() == CE_DATA_CHANGED) {
-        CSpellChecker* spellChecker = (CSpellChecker*) listView->window();
+        auto spellChecker = (CSpellChecker*) listView->window();
         spellChecker->m_replaceToInput->data(listView->data());
-        string word = trim(spellChecker->m_replaceToInput->data());
+        String word = trim(spellChecker->m_replaceToInput->data());
         if (word.length())
             spellChecker->m_okButton->activate();
         else spellChecker->m_okButton->deactivate();

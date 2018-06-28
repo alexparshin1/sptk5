@@ -280,7 +280,7 @@ void MySQLStatement::setParameterValues()
         if (setNull)
             bind.is_null = &nullValue;
         else
-            bind.is_null = 0;
+            bind.is_null = nullptr;
         bind.error = nullptr;
     }
         /// Bind the buffers
@@ -294,7 +294,7 @@ void MySQLStatement::MySQLStatement::prepare(const string& sql)
         throwMySQLError;
 }
 
-void MySQLStatement::execute(bool x)
+void MySQLStatement::execute(bool)
 {
     m_state.eof = false;
     if (m_result != nullptr) {
@@ -468,7 +468,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
             break;
 
         default:
-            throwDatabaseException(String("Unsupported Variant type: ") + int2string(fieldType));
+            throwDatabaseException("Unsupported Variant type: " + int2string(fieldType));
         }
     }
 }
@@ -562,7 +562,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             break;
 
         default:
-            throwDatabaseException(String("Unsupported Variant type: ") + int2string(fieldType));
+            throwDatabaseException("Unsupported Variant type: " + int2string(fieldType));
         }
     }
     if (fieldSizeChanged && mysql_stmt_bind_result(m_statement, &m_fieldBuffers[0]) != 0)

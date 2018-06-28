@@ -45,9 +45,6 @@ using namespace sptk;
 
 int main()
 {
-   char buffer[1024];
-   memset(buffer, 0, sizeof(buffer));
-
    // Define the unique-instance name
    UniqueInstance instance("mytest");
 

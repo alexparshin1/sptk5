@@ -31,55 +31,62 @@
 
 using namespace sptk;
 
-void CSelection::select(CPackedStrings *row) {
-   if (row) {
-      row->flags |= CLV_SELECTED;
-      m_selectedRows.push_back(row);
-   }
+void CSelection::select(CPackedStrings* row)
+{
+    if (row) {
+        row->flags |= CLV_SELECTED;
+        m_selectedRows.push_back(row);
+    }
 }
 
-void CSelection::deselect(CPackedStrings *row) {
-   if (row) {
-      row->flags &= ~CLV_SELECTED;
-      remove(row);
-   }
+void CSelection::deselect(CPackedStrings* row)
+{
+    if (row) {
+        row->flags &= ~CLV_SELECTED;
+        remove(row);
+    }
 }
 
-void CSelection::deselectAll() {
-   size_t cnt = m_selectedRows.size();
-   for (size_t i=0; i < cnt; i++) {
-      CPackedStrings *row = (CPackedStrings *)m_selectedRows[i];
-      row->flags &= ~CLV_SELECTED;
-   }
-   m_selectedRows.clear();
+void CSelection::deselectAll()
+{
+    size_t cnt = m_selectedRows.size();
+    for (size_t i = 0; i < cnt; i++) {
+        auto row = (CPackedStrings*) m_selectedRows[i];
+        row->flags &= ~CLV_SELECTED;
+    }
+    m_selectedRows.clear();
 }
 
-void CSelection::remove(CPackedStrings *row) { 
-   CPSVector::iterator itor = std::find(m_selectedRows.begin(),m_selectedRows.end(),row);
-   if (itor != m_selectedRows.end())
-      m_selectedRows.erase(itor); 
+void CSelection::remove(CPackedStrings* row)
+{
+    auto itor = std::find(m_selectedRows.begin(), m_selectedRows.end(), row);
+    if (itor != m_selectedRows.end())
+        m_selectedRows.erase(itor);
 }
 
-void CSelection::clear() {
-   m_selectedRows.clear();
+void CSelection::clear()
+{
+    m_selectedRows.clear();
 }
 
-CPackedStrings *CSelection::findKey(int keyValue) const {
-   size_t cnt = m_selectedRows.size();
-   for (size_t i=0; i < cnt; i++) {
-      CPackedStrings *row = (CPackedStrings *)m_selectedRows[i];
-      if (row->argument() == keyValue)
-         return row;
-   }
-   return 0L;
+CPackedStrings* CSelection::findKey(int keyValue) const
+{
+    size_t cnt = m_selectedRows.size();
+    for (size_t i = 0; i < cnt; i++) {
+        auto row = (CPackedStrings*) m_selectedRows[i];
+        if (row->argument() == keyValue)
+            return row;
+    }
+    return nullptr;
 }
 
-CPackedStrings *CSelection::findCaption(std::string caption) const {
-   size_t cnt = m_selectedRows.size();
-   for (size_t i=0; i < cnt; i++) {
-      CPackedStrings *row = (CPackedStrings *)m_selectedRows[i];
-      if ((*row)[0] == caption)
-         return row;
-   }
-   return 0L;
+CPackedStrings* CSelection::findCaption(const String& caption) const
+{
+    size_t cnt = m_selectedRows.size();
+    for (size_t i = 0; i < cnt; i++) {
+        auto row = (CPackedStrings*) m_selectedRows[i];
+        if ((*row)[0] == caption)
+            return row;
+    }
+    return nullptr;
 }

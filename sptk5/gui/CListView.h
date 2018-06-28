@@ -430,7 +430,7 @@ protected:
      * @param paintBackground bool, true if the item should paint the background
      * @returns item width
      */
-    virtual void item_draw(uint32_t index, const CPackedStrings *rowData, int x, int y, int w, int h, int focusMode, int verticalAlign, bool paintBackground = true) const;
+    virtual void item_draw(uint32_t index, const CPackedStrings *rowData, int x, int y, int w, int h, int focusMode, int verticalAlign, bool paintBackground) const;
 
     /**
      * Internal mouse callback
@@ -1129,7 +1129,7 @@ public:
      * @param caption std::string, the caption to find and select.
      * @returns an item, or NULL if item caption is not found
      */
-    CPackedStrings *findCaption(std::string caption);
+    CPackedStrings *findCaption(const String& caption);
 
     /**
      * @brief Finds an item with the key (an integer associated with the item - argument()).

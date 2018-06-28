@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-bool TCPServer::allowConnection(sockaddr_in* connectionRequest)
+bool TCPServer::allowConnection(sockaddr_in*)
 {
     return true;
 }

@@ -33,15 +33,9 @@
 
 #include <FL/Fl.H>
 #include <FL/Fl_XPM_Image.H>
-#include <FL/Fl_PNG_Image.H>
-#include <FL/Fl_Tiled_Image.H>
 #include <FL/Fl_Group.H>
 
 #include <sptk5/cgui>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -53,12 +47,12 @@ void exit_cb(Fl_Widget *w, void *)
 
 void theme_cb(Fl_Widget *w, void *)
 {
-   CComboBox *themesCombo = (CComboBox *)w;
+    auto themesCombo = (CComboBox *)w;
    std::string themeName = themesCombo->data();
 
    CThemes::set(themeName);
 
-   CWindow *window = (CWindow *)w->window();
+    auto window = (CWindow *)w->window();
    window->relayout();
    window->redraw();
 }
@@ -109,7 +103,7 @@ int main(int argc, char **argv)
             sprintf(buffer1, "%i", a);
             sprintf(buffer2, "%i", maxItems-a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            CPackedStrings *ps = new CPackedStrings(4, rowData);
+            auto ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -125,7 +119,7 @@ int main(int argc, char **argv)
         themesCombo.callback(theme_cb);
         themesCombo.labelWidth(70);
 
-        CButton* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
+        auto exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
         exitButton->callback((Fl_Callback*)exit_cb);
         exitButton->defaultButton(true);
 

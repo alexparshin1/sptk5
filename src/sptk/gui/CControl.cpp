@@ -41,7 +41,7 @@ const Fl_Menu_Item CControl::defaultControlMenu[] = {
         {"Copy",  FL_CTRL + FL_Insert,  CControl::defaultControlMenuCopy, nullptr, 0, 0, 0, 12, 0},
         {"Cut",   FL_SHIFT + FL_Delete, CControl::defaultControlMenuCut, nullptr, 0, 0, 0, 12, 0},
         {"Paste", FL_SHIFT + FL_Insert, CControl::defaultControlMenuPaste, nullptr, 0, 0, 0, 12, 0},
-        {"Clear", 0, CControl::defaultControlMenuClear, 0, 0, 0, 0, 12, 0},
+        {"Clear", 0, CControl::defaultControlMenuClear, nullptr, 0, 0, 0, 12, 0},
         {nullptr, 0, nullptr, nullptr, 0, 0, 0, 0,  0}
 };
 
@@ -141,7 +141,7 @@ void CControl::defaultControlMenuCopy(Fl_Widget* w, void*)
 {
     auto control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr) {
-        std::string text = control->data().asString();
+        String text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
     }
 }
@@ -150,7 +150,7 @@ void CControl::defaultControlMenuCut(Fl_Widget* w, void*)
 {
     auto control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr) {
-        std::string text = control->data().asString();
+        String text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
         control->data("");
     }
@@ -401,7 +401,7 @@ void CControl::fieldName(const std::string& s)
 CControlKind CControl::controlNameToType(std::string typeName, int& maxLength, std::string values)
 {
     CControlKind controlType = DCV_UNKNOWN;
-    char c1 = (char) toupper(typeName[1]);
+    auto c1 = (char) toupper(typeName[1]);
     maxLength = 0;
     switch (toupper(typeName[0])) {
         case 'A':   // AREA CODE

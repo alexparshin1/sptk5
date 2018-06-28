@@ -84,7 +84,7 @@ public:
     /**
      * @brief Default constructor
      */
-    SynchronizedQueue() :
+    SynchronizedQueue() noexcept :
         m_queue(new std::queue<T>)
     {}
 

@@ -65,14 +65,14 @@ bool DatabaseConnection::unlinkQuery(Query *q)
     return true;
 }
 
-void DatabaseConnection::openDatabase(const String& newConnectionString)
+void DatabaseConnection::_openDatabase(const String& newConnectionString)
 {
     notImplemented("openDatabase");
 }
 
 void DatabaseConnection::open(const String& newConnectionString)
 {
-    openDatabase(newConnectionString);
+    _openDatabase(newConnectionString);
 }
 
 void DatabaseConnection::closeDatabase()
@@ -124,7 +124,7 @@ void DatabaseConnection::rollbackTransaction()
 
 //-----------------------------------------------------------------------------------------------
 
-string DatabaseConnection::queryError(const Query*) const
+String DatabaseConnection::queryError(const Query*) const
 {
     notImplemented("queryError");
     return "";
@@ -241,9 +241,9 @@ string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
     return "?";
 }
 
-void DatabaseConnection::logAndThrow(string method, string error)
+void DatabaseConnection::logAndThrow(const String& method, const String& error)
 {
-    string errorText("Exception in " + method + ": " + error);
+    String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
 
@@ -271,14 +271,14 @@ void DatabaseConnection::_bulkInsert(const String& tableName, const Strings& col
     }
 }
 
-void DatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors)
+void DatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName);
-    executeBatchSQL(batchFileContent, errors);
+    _executeBatchSQL(batchFileContent, errors);
 }
 
-void DatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
+void DatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

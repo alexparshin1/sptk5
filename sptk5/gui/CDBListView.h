@@ -126,21 +126,21 @@ public:
     /**
      * Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
      * The record count query should return only number of record.
-     * @param sql std::string, the SQL query for full data refresh
-     * @param recordCountSql std::string, the SQL query for obtaining record count
-     * @param fastRefreshSQL std::string, the SQL query for retrieving only records changed since last refresh
+     * @param sql               The SQL query for full data refresh
+     * @param recordCountSql    The SQL query for obtaining record count
+     * @param fastRefreshSQL    The SQL query for retrieving only records changed since last refresh
      */
-    void sql(const std::string& sql, const std::string& recordCountSql = "", const std::string& fastRefreshSQL = "");
+    void sql(const String& sql, const String& recordCountSql = "", const String& fastRefreshSQL = "");
 
     /**
      * Return the SQL query text
      */
-    std::string sql();
+    String sql();
 
     /**
      * Sets the query parameter
-     * @param paramName const char *, the parameter Name
-     * @param refreshKind CRefreshKind, the query it belongs to (full or fast refresh)
+     * @param paramName         The parameter Name
+     * @param refreshKind       The query it belongs to (full or fast refresh)
      */
     QueryParameter& param(const char *paramName,CRefreshKind refreshKind = LV_REFRESH_FULL);
 
@@ -149,7 +149,7 @@ public:
      * and contain the unique integer values so the row could be identified by that value.
      * @param fieldName std::string, the name of the field
      */
-    void keyField(const std::string& fieldName);
+    void keyField(const String& fieldName);
 
     /**
      * Returns key field name
@@ -165,7 +165,7 @@ public:
      * @param sql std::string,  the full refresh SQL query text
      * @param keyField std::string, the name of the key field
      */
-    void setup(DatabaseConnection* db, const std::string& sql, const std::string& keyField);
+    void setup(DatabaseConnection* db, const String& sql, const String& keyField);
 
     /**
      * Refreshes the data with full or fast method

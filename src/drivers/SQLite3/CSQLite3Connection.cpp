@@ -99,7 +99,7 @@ String SQLite3Connection::nativeConnectionString() const
     return m_connString.databaseName();
 }
 
-void SQLite3Connection::openDatabase(const String& newConnectionString)
+void SQLite3Connection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -177,7 +177,7 @@ void SQLite3Connection::driverEndTransaction(bool commit)
 
 //-----------------------------------------------------------------------------------------------
 
-string SQLite3Connection::queryError(const Query*) const
+String SQLite3Connection::queryError(const Query*) const
 {
     return sqlite3_errmsg(m_connect);
 }

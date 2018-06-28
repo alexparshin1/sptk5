@@ -114,15 +114,15 @@ bool CListViewRows::compare_strings(const PPackedStrings& a, const PPackedString
 
 bool CListViewRows::compare_integers(const PPackedStrings& a, const PPackedStrings& b)
 {
-    int i1 = atoi((*a)[currentSortColumn]);
-    int i2 = atoi((*b)[currentSortColumn]);
+    int i1 = string2int((*a)[currentSortColumn]);
+    int i2 = string2int((*b)[currentSortColumn]);
     return i1 < i2;
 }
 
 bool CListViewRows::compare_floats(const PPackedStrings& a, const PPackedStrings& b)
 {
-    double d1 = atof((*a)[currentSortColumn]);
-    double d2 = atof((*b)[currentSortColumn]);
+    double d1 = string2double((*a)[currentSortColumn]);
+    double d2 = string2double((*b)[currentSortColumn]);
     return d1 < d2;
 }
 
@@ -197,7 +197,7 @@ void CListViewRows::sortAscending(bool ascending, bool sortNow)
 
 int CListViewRows::indexOf(CPackedStrings* ss) const
 {
-    CPSVector::const_iterator itor = find(m_rows.begin(), m_rows.end(), ss);
+    auto itor = find(m_rows.begin(), m_rows.end(), ss);
     if (itor == m_rows.end()) return -1;
     return (int) distance(m_rows.begin(), itor);
 }

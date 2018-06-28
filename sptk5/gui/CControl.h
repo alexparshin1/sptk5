@@ -333,7 +333,7 @@ protected:
     /**
      * @brief Special handle() method
      */
-    int handle(int);
+    int handle(int) override;
 
     /**
      * @brief Internal callback function
@@ -371,12 +371,12 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x, int y, int w, int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Draws the control
      */
-    virtual void draw();
+    void draw() override;
 
     /**
      * @brief Returns the control's user data tag
@@ -593,7 +593,7 @@ public:
     /**
      * @brief Returns control's class name (internal SPTK RTTI).
      */
-    virtual String className() const
+    String className() const override
     {
         return "control";
     }

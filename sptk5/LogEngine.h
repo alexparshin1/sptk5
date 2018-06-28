@@ -71,7 +71,7 @@ namespace sptk {
 /**
  * @brief Log message priority
  */
-enum LogPriority
+enum LogPriority : unsigned
 {
     /**
      * Debug message priority
@@ -127,12 +127,12 @@ protected:
     /**
      * Mutex that protects internal data access
      */
-    mutable std::mutex			m_mutex;
+    mutable std::mutex          m_mutex;
 
     /**
      * The default priority for the new message
      */
-    std::atomic<LogPriority>	m_defaultPriority;
+    std::atomic<LogPriority>    m_defaultPriority;
 
     /**
      * Min message priority, should be defined for every message
@@ -158,7 +158,7 @@ public:
     /**
      * @brief Log options
      */
-    enum Option
+    enum Option : unsigned
     {
         /**
          * Duplicate messages to stdout

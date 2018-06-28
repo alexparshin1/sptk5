@@ -120,9 +120,9 @@ void SocketPool::forgetSocket(BaseSocket& socket)
 
 #define MAXEVENTS 16
 
-void SocketPool::waitForEvents(size_t timeoutMS)
+void SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
 {
-    static const struct timespec timeout = { time_t(timeoutMS / 1000), long((timeoutMS % 1000) * 1000000) };
+    static const struct timespec timeout = { time_t(timeoutMS.count() / 1000), long((timeoutMS.count() % 1000) * 1000000) };
     struct kevent events[MAXEVENTS];
 
     int eventCount = kevent(m_pool, NULL, 0, events, MAXEVENTS, &timeout);

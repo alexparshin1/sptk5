@@ -149,7 +149,7 @@ public:
     /**
      * Sets the dialog's current directory
      */
-    void directory(std::string p);
+    void directory(const String& p);
 
     /**
      * Removes all the defined file name paterns
@@ -192,7 +192,7 @@ public:
      * Returns the list of currently selected files with the full path, as a simicolon-separated string
      * @returns The list of the selected full file names.
      */
-    std::string fullFileName() const;
+    String fullFileName() const;
 
     /**
      * Set the currently selected file name in edit entry

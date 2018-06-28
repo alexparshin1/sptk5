@@ -13,7 +13,6 @@
 #include <sptk5/sptk.h>
 #include "libtar.h"
 
-#include <cstdlib>
 #include <fcntl.h>
 
 #ifdef _WIN32

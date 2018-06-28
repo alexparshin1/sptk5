@@ -407,7 +407,7 @@ void CInput::load(Query* loadQuery)
     if (!m_fieldName.length())
         return;
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
-    data(fld);
+    data(*(Variant*)&fld);
 }
 
 void CInput::save(Query* updateQuery)

@@ -56,7 +56,7 @@ public:
 };
 } // namespace sptk
 
-ODBCConnection::ODBCConnection(const string& connectionString)
+ODBCConnection::ODBCConnection(const String& connectionString)
 : DatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnectionBase;
@@ -96,7 +96,7 @@ String ODBCConnection::nativeConnectionString() const
     return connectionString.str();
 }
 
-void ODBCConnection::openDatabase(const String& newConnectionString)
+void ODBCConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active()) {
         m_inTransaction = false;
@@ -167,12 +167,12 @@ static inline bool successful(int ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-string ODBCConnection::connectString() const
+String ODBCConnection::connectString() const
 {
     return m_connect->connectString();
 }
 
-string ODBCConnection::queryError(SQLHSTMT stmt) const
+String ODBCConnection::queryError(SQLHSTMT stmt) const
 {
     SQLCHAR errorDescription[SQL_MAX_MESSAGE_LENGTH];
     SQLCHAR errorState[SQL_MAX_MESSAGE_LENGTH];
@@ -191,10 +191,10 @@ string ODBCConnection::queryError(SQLHSTMT stmt) const
             strncpy((char*) errorDescription, "Unknown error", sizeof(errorDescription));
     }
 
-    return string(removeDriverIdentification((char*) errorDescription));
+    return removeDriverIdentification((char*) errorDescription);
 }
 
-string ODBCConnection::queryError(const Query* query) const
+String ODBCConnection::queryError(const Query* query) const
 {
     return queryError(query->statement());
 }
@@ -211,7 +211,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
     int rc = SQLAllocStmt(hdb, &stmt);
 
     if (rc != SQL_SUCCESS) {
-        string error = queryError(query);
+        String error = queryError(query);
         querySetStmt(query, SQL_NULL_HSTMT);
         logAndThrow("CODBCConnection::queryAllocStmt", error);
     }
@@ -277,7 +277,7 @@ void ODBCConnection::queryExecute(Query* query)
                                    &textLength);
                 if (!successful(rc))
                     break;
-                errors.push_back(string(removeDriverIdentification((const char*) text)));
+                errors.push_back(removeDriverIdentification((const char*) text));
             }
             THROW_QUERY_ERROR(query, errors.asString("; "));
         }
@@ -793,7 +793,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 
         SQLFreeStmt(stmt, SQL_DROP);
     } catch (exception& e) {
-        string error;
+        String error;
         if (stmt != nullptr) {
             error = queryError(stmt);
             SQLFreeStmt(stmt, SQL_DROP);
@@ -804,7 +804,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     RegularExpression   matchStatementEnd("(;\\s*)$");
     RegularExpression   matchRoutineStart("^CREATE\\s+FUNCTION", "i");

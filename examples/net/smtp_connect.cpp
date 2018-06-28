@@ -37,7 +37,7 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     try {
         FileLogEngine logEngine("smtp.log");
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
             cin >> email;
         }
 
-        int port = atoi(portStr.c_str());
+        auto port = (uint16_t) string2int(portStr);
         if (port < 1) port = 25;
 
         cout << "\nTrying to connect to SMTP server.." << endl;

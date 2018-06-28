@@ -31,11 +31,10 @@
 #pragma hdrstop
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 #include <FL/Fl.H>
 
 #include <sptk5/cgui>
-#include <sptk5/CSmallPixmapIDs.h>
 
 using namespace std;
 using namespace sptk;
@@ -47,7 +46,7 @@ void exit_cb(Fl_Widget* w, void*)
     w->window()->hide();
 }
 
-void changed_cb(Fl_Widget* w, void*)
+void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     if (item) {
@@ -55,7 +54,7 @@ void changed_cb(Fl_Widget* w, void*)
     }
 }
 
-void add_item_cb(Fl_Widget* w, void*)
+void add_item_cb(Fl_Widget*, void*)
 {
     CTreeItem* selectedItem = tree->selected();
 
@@ -103,6 +102,8 @@ void add_item_cb(Fl_Widget* w, void*)
                 if (selectedItem)
                     node = selectedItem->addItem(inp.data().asString().c_str(), CTreeItem::document);
                 break;
+            default:
+                break;
         }
         if (node)
             Fl::focus(node);
@@ -110,7 +111,7 @@ void add_item_cb(Fl_Widget* w, void*)
     }
 }
 
-void remove_item_cb(Fl_Widget* w, void*)
+void remove_item_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     tree->removeItem(item);
