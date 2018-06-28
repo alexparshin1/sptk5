@@ -103,6 +103,7 @@ public:
 
     /*
      * Get signature encryption algorithm
+     * @return signature encryption algorithm
      */
     jwt_alg_t get_alg() const;
 
@@ -241,7 +242,7 @@ public:
     /**
      * Verify using SHA algorithm in PEM format
      * @param head              Token head
-     * @param sig               Signature
+     * @param sig_b64           Signature
      */
     void verify_sha_pem(const char* head, const char* sig_b64);
 };
