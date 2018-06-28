@@ -47,19 +47,20 @@ namespace sptk {
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class CGroup : public Fl_Group, public CLayoutManager {
+class CGroup : public Fl_Group, public CLayoutManager
+{
 protected:
     /**
      * Draw the contens of the group clipped inside the group
      */
-    bool        m_drawClipped;
+    bool m_drawClipped;
 
 
     /**
      * Constructor initializer
      * @param label const char *, label
      */
-    void ctor_init(const char *label);
+    void ctor_init(const char* label);
 
 public:
 
@@ -69,7 +70,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CGroup(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CGroup(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -86,7 +87,7 @@ public:
     /**
      * Draws the group
      */
-    virtual void draw();
+    void draw() override;
 
     /**
      * Resizes the group and inside widgets.
@@ -95,7 +96,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x,int y,int w,int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * Computes the optimal group size
@@ -103,19 +104,21 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * @brief Removes all the widgets inside the group
      */
-    virtual void clear() {
+    void clear() override
+    {
         Fl_Group::clear();
     }
 
     /**
      * @brief Returns the current label
      */
-    std::string label() const {
+    std::string label() const
+    {
         return m_label;
     }
 
@@ -124,7 +127,8 @@ public:
      *
      * @param lbl const char*, new label
      */
-    void label(const char* lbl) {
+    void label(const char* lbl)
+    {
         CLayoutClient::label(lbl);
     }
 
@@ -132,7 +136,8 @@ public:
      * Sets label for the group, makes an internal copy of the string
      * @param lbl const string&, new label
      */
-    void label(const std::string& lbl) {
+    void label(const std::string& lbl)
+    {
         CLayoutClient::label(lbl);
     }
 
@@ -145,7 +150,8 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "group";
     }
 };

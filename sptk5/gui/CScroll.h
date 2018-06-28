@@ -45,7 +45,8 @@ namespace sptk {
 /**
  * @brief Different modes for scrollbars
  */
-enum CScrollbarMode { // values for type()
+enum CScrollbarMode
+{ // values for type()
     HORIZONTAL = 1,
     VERTICAL = 2,
     BOTH = 3,
@@ -61,7 +62,8 @@ enum CScrollbarMode { // values for type()
  * Extended version of FLTK Fl_Group that can be a layout manager and layout client
  * at the same time.
  */
-class CScroll : public ::Fl_Group, public CLayoutManager {
+class CScroll : public ::Fl_Group, public CLayoutManager
+{
 
     /**
      * Current x-position of the scrolled area
@@ -107,7 +109,7 @@ class CScroll : public ::Fl_Group, public CLayoutManager {
     /**
      * @brief Draw the visible area. This is also the callback for fl_scroll.
      */
-    static void draw_clip(void* v,int X, int Y, int W, int H);
+    static void draw_clip(void* v, int X, int Y, int W, int H);
 
     /**
      * @brief Computed area for widgets
@@ -122,7 +124,7 @@ public:
      * @param layoutSize int, widget align in layout
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CScroll(const char * label=0,int layoutSize=10,CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    CScroll(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -154,12 +156,12 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x,int y,int w,int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Custom draw() method
      */
-    virtual void draw();
+    void draw() override;
 
     /**
      * @brief Computes the optimal group size
@@ -167,12 +169,12 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * @brief Removes all the child widgets
      */
-    virtual void clear();
+    void clear() override;
 
     /**
      * @brief Sets the position of the scrolled area
@@ -182,26 +184,29 @@ public:
     /**
      * @brief Returns the x-position of the scrolled area
      */
-    int xposition() const {
+    int xposition() const
+    {
         return m_xposition;
     }
 
     /**
      * @brief Returns the y-position of the scrolled area
      */
-    int yposition() const {
+    int yposition() const
+    {
         return m_yposition;
     }
 
     /**
      * @brief Custom handle method
      */
-    int handle(int);
+    int handle(int) override;
 
     /**
      * @brief Returns the current label
      */
-    std::string label() const {
+    std::string label() const
+    {
         return m_label;
     }
 
@@ -210,7 +215,8 @@ public:
      *
      * @param lbl const char*, new label
      */
-    void label(const char* lbl) {
+    void label(const char* lbl)
+    {
         CLayoutClient::label(lbl);
     }
 
@@ -218,7 +224,8 @@ public:
      * Sets label for the group, makes an internal copy of the string
      * @param lbl const string&, new label
      */
-    void label(const std::string& lbl) {
+    void label(const std::string& lbl)
+    {
         CLayoutClient::label(lbl);
     }
 
@@ -231,7 +238,8 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    virtual String className() const override
+    {
         return "scroll";
     }
 };

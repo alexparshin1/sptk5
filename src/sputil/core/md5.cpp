@@ -272,7 +272,7 @@ void MD5::update(const unsigned char input[], size_type length)
 
     // transform chunks of blocksize (64 bytes)
     for (i = firstpart; i + blocksize <= length; i += blocksize)
-      transform(&input[i]);
+      transform((const uint1*)&input[i]);
 
     index = 0;
   }
@@ -307,7 +307,7 @@ MD5& MD5::finalize()
 
     // Save number of bits
     unsigned char bits[8];
-    encode(bits, count, 8);
+    encode((uint1*)bits, count, 8);
 
     // pad out to 56 mod 64.
     size_type index = count[0] / 8 % 64;

@@ -211,7 +211,7 @@ void TCPSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blocking
     sockaddr_in address = {};
     m_host.getAddress(address);
 
-    open(address, openMode, _blockingMode, timeout);
+    _open(address, openMode, _blockingMode, timeout);
 }
 
 void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode,

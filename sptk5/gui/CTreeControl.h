@@ -354,7 +354,7 @@ public:
     /**
      * @brief Resizes item and sub items
      */
-    void resize(int xx, int yy, int ww, int hh);
+    void resize(int xx, int yy, int ww, int hh) override;
 
     /**
      * @brief Selects or unselects item
@@ -416,7 +416,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const
+    String className() const override
     {
         return "treeitem";
     }
@@ -529,7 +529,7 @@ public:
     /**
      * @brief Removes all the items in the tree.
      */
-    virtual void clear()
+    void clear() override
     {
         m_selectedItems.clear();
         m_root->clear();
@@ -585,7 +585,7 @@ public:
      * @param event             An FLTK event
      * @returns true, if event was processed
      */
-    int handle(int event);
+    int handle(int event) override;
 
     /**
      * @brief The tree item creator creates a tree item' body, @see CTreeItemCreator

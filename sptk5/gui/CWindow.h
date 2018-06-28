@@ -47,7 +47,8 @@ namespace sptk {
  * Extended version of FLTK's standard Fl_Double_Window, with added
  * CLayoutManager capabilities
  */
-class CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape {
+class CWindow : public Fl_Double_Window, public CLayoutManager, public CWindowShape
+{
 public:
 
     /**
@@ -56,8 +57,9 @@ public:
      * @param h int, window height
      * @param label int, window label
      */
-    CWindow(int w,int h,const char * label=0L)
-    : Fl_Double_Window(w,h,label), CLayoutManager(this,10,SP_ALIGN_NONE), CWindowShape(this) {}
+    CWindow(int w, int h, const char* label = 0L)
+            : Fl_Double_Window(w, h, label), CLayoutManager(this, 10, SP_ALIGN_NONE), CWindowShape(this)
+    {}
 
     /**
      * @brief Constructor
@@ -67,18 +69,20 @@ public:
      * @param h int, window height
      * @param label int, window label
      */
-    CWindow(int x,int y,int w,int h,const char *label=0L)
-    : Fl_Double_Window(x,y,w,h), CLayoutManager(this,10,SP_ALIGN_NONE), CWindowShape(this) {}
+    CWindow(int x, int y, int w, int h, const char* label = 0L)
+            : Fl_Double_Window(x, y, w, h), CLayoutManager(this, 10, SP_ALIGN_NONE), CWindowShape(this)
+    {}
 
     /**
      * @brief Draws a window, including an optional background image
      */
-    virtual void draw();
+    void draw() override;
 
     /**
      * @brief Custom show method
      */
-    virtual void show() {
+    void show() override
+    {
         Fl_Double_Window::show();
     }
 
@@ -87,26 +91,29 @@ public:
      * @param argc int, number of parameters in argv[]
      * @param argv char*[], an array of program command line arguments
      */
-    virtual void show(int argc,char* argv[]) {
-        Fl_Double_Window::show(argc,argv);
+    void show(int argc, char* argv[])
+    {
+        Fl_Double_Window::show(argc, argv);
     }
 
     /**
      * @brief Custom hide method
      */
-    virtual void hide();
+    void hide() override;
 
     /**
      * @brief Relayouts window's widgets that have CLayoutClient interface
      */
-    virtual void relayout() {
-        resize(x(),y(),w(),h());
+    virtual void relayout()
+    {
+        resize(x(), y(), w(), h());
     }
 
     /**
      * @brief Removes all the widgets inside the window
      */
-    virtual void clear() {
+    void clear() override
+    {
         Fl_Double_Window::clear();
     }
 
@@ -117,7 +124,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    virtual void resize(int x,int y,int w,int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * @brief Computes the optimal window size
@@ -125,14 +132,14 @@ public:
      * @param h int&, input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h);
+    bool preferredSize(int& w, int& h) override;
 
     /**
      * @brief Custom window events handle
      *
      * Mostly used for supporting non-rectangular shape windows.
      */
-    virtual int handle(int event);
+    int handle(int event) override;
 
     /**
      * @brief Loads window coordinates and widgets from XML node
@@ -187,7 +194,8 @@ public:
     /**
      * @brief Returns the current label
      */
-    String label() const {
+    String label() const
+    {
         return m_label;
     }
 
@@ -196,7 +204,8 @@ public:
      *
      * @param lbl const char*, new label
      */
-    void label(const char* lbl) {
+    void label(const char* lbl)
+    {
         CLayoutClient::label(lbl);
     }
 
@@ -204,14 +213,16 @@ public:
      * Sets label for the group, makes an internal copy of the string
      * @param lbl const string&, new label
      */
-    void label(const std::string& lbl) {
+    void label(const std::string& lbl)
+    {
         CLayoutClient::label(lbl);
     }
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const {
+    String className() const override
+    {
         return "window";
     }
 };

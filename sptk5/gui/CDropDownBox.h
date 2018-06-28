@@ -126,7 +126,7 @@ public:
      * @param w             Hidth
      * @param h             Height
      */
-    virtual void resize(int x, int y, int w, int h);
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * Computes the preferred size of the popup window
@@ -134,7 +134,7 @@ public:
      * @param h             Input - height offered by the program, output - height required by widget
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w, int& h);
+    bool preferredSize(int& w, int& h) override;
 };
 /**
  * @}

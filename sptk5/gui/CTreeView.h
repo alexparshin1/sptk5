@@ -95,7 +95,7 @@ public:
     /**
      * @brief Returns controls' kind (internal SPTK RTTI).
      */
-    virtual CControlKind kind() const
+    CControlKind kind() const override
     {
         return DCV_TREEVIEW;
     }
@@ -103,7 +103,7 @@ public:
     /**
      * @brief Returns controls' class name (internal SPTK RTTI).
      */
-    virtual String className() const
+    virtual String className() const override
     {
         return "CTreeView";
     }

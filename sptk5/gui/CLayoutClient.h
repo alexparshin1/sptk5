@@ -43,7 +43,8 @@ namespace sptk {
 /**
  * Possible values for the widget layout aligns
  */
-enum CLayoutAlign {
+enum CLayoutAlign
+{
     SP_ALIGN_NONE,        /// Do not use allignment
     SP_ALIGN_LEFT,        /// Align to the left
     SP_ALIGN_RIGHT,       /// Align to the right
@@ -55,21 +56,22 @@ enum CLayoutAlign {
 /**
  * @brief Layout load and save mode
  */
-enum CLayoutXMLmode {
+enum CLayoutXMLmode
+{
     /**
      * Load and save only controls data
      */
-    LXM_DATA=1,
+            LXM_DATA = 1,
 
     /**
      * Load and save only controls layout
      */
-    LXM_LAYOUT=2,
+            LXM_LAYOUT = 2,
 
     /**
      * Load and save controls data and layout
      */
-    LXM_LAYOUTDATA=3
+            LXM_LAYOUTDATA = 3
 };
 
 /**
@@ -79,8 +81,10 @@ enum CLayoutXMLmode {
  * the CLayoutClient objects in accordancy with they preferredSize() and
  * layout alignment.
  */
-class CLayoutClient {
+class CLayoutClient
+{
     friend class CLayoutManager;
+
 protected:
     /**
      * @brief The preferred layout size
@@ -92,33 +96,33 @@ protected:
      * If the widget isn't in CLayoutManager group - it is ignored.
      * If it doesn't contradict with preferred widget size it will define the final size of the widget.
      */
-    int             m_layoutSize;
+    int m_layoutSize;
 
     /**
      * The width as a result of the last call of preferredSize()
      */
-    int             m_lastPreferredW;
+    int m_lastPreferredW;
 
     /**
      * The width as a result of the last call of preferredSize()
      */
-    int             m_lastPreferredH;
+    int m_lastPreferredH;
 
 
     /**
      * Widget to manage
      */
-    Fl_Widget*      m_widget;
+    Fl_Widget* m_widget;
 
     /**
      * Widget name (widget id)
      */
-    String          m_name;
+    String m_name;
 
     /**
      * Widget caption storage
      */
-    String          m_label;
+    String m_label;
 
     /**
      * The layout align for the widget in CLayoutManager group
@@ -132,18 +136,20 @@ public:
      * @param layoutSize int, the size of the widget in layout. See m_layoutSize for more information.
      * @param ca CLayoutAlign, widget align in layout
      */
-    CLayoutClient(Fl_Widget* widget,int layoutSize,CLayoutAlign ca);
+    CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca);
 
     /**
      * @brief Destructor
      */
-    virtual ~CLayoutClient() {}
+    virtual ~CLayoutClient()
+    {}
 
     /**
      * @brief Returns widget's layout align
      * @see CLayoutAlign
      */
-    CLayoutAlign layoutAlign() const  {
+    CLayoutAlign layoutAlign() const
+    {
         return m_layoutAlign;
     }
 
@@ -151,21 +157,24 @@ public:
      * @brief Sets widget's layout align
      * @see CLayoutAlign
      */
-    void layoutAlign(CLayoutAlign al) {
+    void layoutAlign(CLayoutAlign al)
+    {
         m_layoutAlign = al;
     }
 
     /**
      * @brief Returns widget's layout size
      */
-    int  layoutSize() const {
+    int layoutSize() const
+    {
         return m_layoutSize;
     }
 
     /**
      * @brief Sets widget's layout size
      */
-    void layoutSize(int ls) {
+    void layoutSize(int ls)
+    {
         m_layoutSize = ls;
     }
 
@@ -174,7 +183,8 @@ public:
      *
      * @param lbl const char*, new label
      */
-    void label(const char* lbl) {
+    void label(const char* lbl)
+    {
         m_label = lbl;
         m_widget->label(m_label.c_str());
     }
@@ -183,7 +193,8 @@ public:
      * @brief Sets label, makes an internal copy of the string
      * @param l const string&, new label
      */
-    void label(const std::string& l) {
+    void label(const std::string& l)
+    {
         m_label = l;
         m_widget->label(m_label.c_str());
     }
@@ -191,7 +202,8 @@ public:
     /**
      * @brief Returns the current label
      */
-    const String& label() const {
+    const String& label() const
+    {
         return m_label;
     }
 
@@ -200,7 +212,8 @@ public:
      *
      * @param aname const char*, new widget name
      */
-    void name(const char* aname) {
+    void name(const char* aname)
+    {
         m_name = aname;
     }
 
@@ -209,14 +222,16 @@ public:
      *
      * @param aname std::string&, new widget name
      */
-    void name(const String& aname) {
+    void name(const String& aname)
+    {
         m_name = aname;
     }
 
     /**
      * @brief Returns the current name
      */
-    const String& name() const {
+    const String& name() const
+    {
         return m_name;
     }
 
@@ -230,7 +245,8 @@ public:
      * @param h int&, input/output widget preferred height
      * @returns true if the size is stable (doesn't depend on input sizes)
      */
-    virtual bool preferredSize(int& w,int& h) { return false; }
+    virtual bool preferredSize(int& w, int& h)
+    { return false; }
 
     /**
      * @brief Computes widget's preferred size, and stores size values internally as cache
@@ -239,9 +255,9 @@ public:
      * @param w int&, input/output widget preferred width
      * @param h int&, input/output widget preferred height
      */
-    virtual bool computeSize(int& w,int& h)
+    virtual bool computeSize(int& w, int& h)
     {
-        bool rc = preferredSize(w,h);
+        bool rc = preferredSize(w, h);
         m_lastPreferredW = w;
         m_lastPreferredH = h;
         return rc;
@@ -258,7 +274,8 @@ public:
     /**
      * @brief Returns widget handled by that object
      */
-    Fl_Widget* widget() const {
+    Fl_Widget* widget() const
+    {
         return m_widget;
     }
 
@@ -270,7 +287,7 @@ public:
      * @param node XMLNode*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const XMLNode* node,CLayoutXMLmode xmlMode);
+    void load(const XMLNode* node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves layout client information from XML node
@@ -280,7 +297,7 @@ public:
      * @param node XMLNode*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
+    void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
 };
 /**
  * @}

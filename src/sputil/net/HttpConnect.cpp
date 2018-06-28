@@ -68,6 +68,9 @@ void HttpConnect::sendCommand(const String& cmd)
     if (!m_socket.active())
         throw Exception("Socket isn't open");
 
+    if (!m_socket.readyToWrite(chrono::seconds(30)))
+        throw Exception("Server is busy");
+
     m_socket.write(cmd.c_str(), (uint32_t) cmd.length());
 }
 
