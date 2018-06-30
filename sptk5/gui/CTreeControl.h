@@ -599,9 +599,9 @@ public:
      * @brief Loads group controls data from XML node
      *
      * @param node              Node to load data from
-     * @param autoCreate        Create widgets if they are not found
+     * @param autoCreate        Ignored
      */
-    virtual void load(const XMLNode& node, bool autoCreate = false);
+    virtual void load(const XMLNode& node, bool autoCreate);
 
     /**
      * @brief Loads group controls data from XML node

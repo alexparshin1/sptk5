@@ -93,7 +93,7 @@ void printMessage(const String& label, const String& className, const String& ev
         sl.push_back(label);
         sl.push_back(className);
         sl.push_back(event);
-        eventsListView->addRow(sl);
+        eventsListView->addRow(0, sl);
         int cnt = eventsListView->size();
         if (cnt > 0) {
             eventsListView->displayRow(unsigned(cnt - 1));
@@ -303,12 +303,12 @@ int main(int argc, char** argv)
 
                 comboBox1->callback(general_cb);
 
-                comboBox1->addRow(sl1);
-                comboBox1->addRow(sl2);
-                comboBox1->addRow(sl3);
-                comboBox1->addRow(sl4);
-                comboBox1->addRow(sl5);
-                comboBox1->addRow(sl6);
+                comboBox1->addRow(0, sl1);
+                comboBox1->addRow(0, sl2);
+                comboBox1->addRow(0, sl3);
+                comboBox1->addRow(0, sl4);
+                comboBox1->addRow(0, sl5);
+                comboBox1->addRow(0, sl6);
 
                 // The example of filling in the combo box from the database.
                 // Please, notice (1): It only works if you have ODBC support in SPDB/
@@ -318,26 +318,25 @@ int main(int argc, char** argv)
 
                 comboBox2->addColumn("company", VAR_STRING, 70);
                 comboBox2->addColumn("comp_employees", VAR_INT, 70);
-                comboBox2->addRow(1, "Joy Inc.", "123");
-                comboBox2->addRow(2, "Red Cap Inc.", "1234");
+                comboBox2->addRow(1, Strings("Joy Inc.|123", "|"));
+                comboBox2->addRow(2, Strings("Red Cap Inc.|1234", "|"));
 
                 auto listView1 = new CListView("List View 1:", 150);
                 listView1->columns(columns);
-                listView1->addRow(sl1);
-                listView1->addRow(sl2);
-                listView1->addRow(sl3);
-                listView1->addRow(sl4);
-                listView1->addRow(sl5);
-                listView1->addRow(sl6);
+                listView1->addRow(0, sl1);
+                listView1->addRow(0, sl2);
+                listView1->addRow(0, sl3);
+                listView1->addRow(0, sl4);
+                listView1->addRow(0, sl5);
+                listView1->addRow(0, sl6);
                 listView1->callback(general_cb);
 
                 auto listView2 = new CDBListView("List View 2:", 150);
                 listView2->callback(general_cb);
-
             }
 
             {
-                auto group = (CGroup*) tabs->newPage(" CMemoInput class ");
+                auto group = (CGroup*) tabs->newPage(" CMemoInput class ", false);
                 group->box(FL_THIN_DOWN_BOX);
 
                 auto memoInput = new CMemoInput("Text Editor:", 10, SP_ALIGN_CLIENT);
@@ -347,7 +346,7 @@ int main(int argc, char** argv)
             }
 
             {
-                auto group = (CGroup*) tabs->newPage(" Nested Tabs ");
+                auto group = (CGroup*) tabs->newPage(" Nested Tabs ", false);
                 group->box(FL_THIN_DOWN_BOX);
 
                 auto nestedTabs = new CTabs("", 10, SP_ALIGN_CLIENT);

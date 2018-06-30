@@ -135,7 +135,7 @@ void CCalendar::ctor_init()
     m_monthNameBox->labelfont(1);
 
     // Weekday headers
-    unsigned long i;
+    unsigned i;
     for (i = 0; i < 7; i++) {
         char* label = m_weekDayLabels + (i * 2);
         label[0] = DateTime::weekDayNames[i].c_str()[0];
@@ -154,7 +154,7 @@ void CCalendar::ctor_init()
     for (i = 0; i < 31; i++) {
         auto btn = new Fl_Button(xx, yy, 16, 16, monthDayLabels[i]);
         m_dayButtons[i] = btn;
-        btn->callback(cbDayButtonClicked, (void*) (i + 1));
+        btn->callback(cbDayButtonClicked, (void*)long(i + 1));
         btn->color(fl_lighter(fl_lighter(color())));
         btn->box(FL_THIN_UP_BOX);
     }

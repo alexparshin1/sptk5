@@ -185,7 +185,7 @@ public:
      * @brief Constructor
      */
 
-    CFrames()
+    CFrames() noexcept
     {
     }
 

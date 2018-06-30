@@ -33,8 +33,9 @@
 
 using namespace std;
 using namespace sptk;
-   
-CThemeImageCollection::CThemeImageCollection() {
+
+CThemeImageCollection::CThemeImageCollection() noexcept
+{
     m_stretch = true;
     for (unsigned i = 0; i < MAX_IMAGE_STATES; i++) {
         m_images[i] = nullptr;
@@ -42,7 +43,8 @@ CThemeImageCollection::CThemeImageCollection() {
     }
 }
 
-void CThemeImageCollection::clear() {
+void CThemeImageCollection::clear()
+{
     for (unsigned i = 0; i < MAX_IMAGE_STATES; i++) {
         if (m_images[i]) {
             delete m_images[i];
@@ -59,7 +61,8 @@ void CThemeImageCollection::clear() {
     m_border[3] = 8;
 }
 
-CPngImage* CThemeImageCollection::image(CThemeImageState state) const {
+CPngImage* CThemeImageCollection::image(CThemeImageState state) const
+{
     if (m_images[state])
         return m_images[state];
     int bstate = state;
@@ -70,7 +73,8 @@ CPngImage* CThemeImageCollection::image(CThemeImageState state) const {
     return m_images[0];
 }
 
-CPngImage* CThemeImageCollection::overlayImage(CThemeImageState state) const { 
+CPngImage* CThemeImageCollection::overlayImage(CThemeImageState state) const
+{
     if (m_overlayImages[state])
         return m_overlayImages[state];
     int bstate = state;
@@ -81,28 +85,32 @@ CPngImage* CThemeImageCollection::overlayImage(CThemeImageState state) const {
     return m_overlayImages[0];
 }
 
-void CThemeImageCollection::loadFromSptkTheme(const Strings& objectNames) {
+void CThemeImageCollection::loadFromSptkTheme(const Strings& objectNames)
+{
     clear();
     for (unsigned i = 0; i < objectNames.size() && i < MAX_IMAGE_STATES; i++) {
         if (!objectNames[i].empty())
-            m_images[i] = loadValidatePNGImage(objectNames[i] + ".png",false);
+            m_images[i] = loadValidatePNGImage(objectNames[i] + ".png", false);
     }
 }
 
-string CThemeImageCollection::gtkFullFileName(string fileName) {
+string CThemeImageCollection::gtkFullFileName(string fileName)
+{
     if (fileName.empty())
         return fileName;
-    if (fileName[0] == '/') fileName = fileName.substr(1,255);
+    if (fileName[0] == '/') fileName = fileName.substr(1, 255);
     return CThemes::themeFolder() + fileName;
 }
 
-void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String& imagesXPath, const String& attribute,
-                                             const String& attributeValue) {
-    static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT","|");
+void CThemeImageCollection::loadFromGtkTheme(
+        XMLDocument& gtkTheme, const String& imagesXPath, const String& attribute,
+        const String& attributeValue)
+{
+    static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT", "|");
 
     XMLNodeVector images;
-    
-    gtkTheme.select(images,imagesXPath);
+
+    gtkTheme.select(images, imagesXPath);
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
@@ -110,12 +118,12 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
         if (!attribute.empty() && imageNode->getAttribute(attribute).str() != attributeValue)
             continue;
 
-        bool defaultFrame = imageNode->getAttribute("detail","").str() == "buttondefault";
+        bool defaultFrame = imageNode->getAttribute("detail", "").str() == "buttondefault";
 
         string fileName = gtkFullFileName(imageNode->getAttribute("file"));
         string overlayFileName = gtkFullFileName(imageNode->getAttribute("overlay_file"));
 
-        String state = upperCase(imageNode->getAttribute("state","NORMAL"));
+        String state = upperCase(imageNode->getAttribute("state", "NORMAL"));
         int buttonState = buttonStates.indexOf(state);
 
         if (normalImageFileName.empty() && (state == "NORMAL" || state == "ACTIVE"))
@@ -126,20 +134,20 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
 
         if (!borderInitted) {
             m_stretch = imageNode->getAttribute("stretch").str() == "TRUE";
-            string border = imageNode->getAttribute("border","{ 0, 0, 0, 0 }");
+            string border = imageNode->getAttribute("border", "{ 0, 0, 0, 0 }");
             size_t pos1 = border.find('{');
             size_t pos2 = border.find('}');
-            if (pos1 != STRING_NPOS && pos2 != STRING_NPOS ) {
+            if (pos1 != STRING_NPOS && pos2 != STRING_NPOS) {
                 pos1++;
-                border = border.substr(pos1,pos2-pos1);
-                Strings borderStrs(border,",");
+                border = border.substr(pos1, pos2 - pos1);
+                Strings borderStrs(border, ",");
                 for (unsigned i = 0; i < 4 && i < borderStrs.size(); i++)
                     m_border[i] = string2int(borderStrs[i]);
             }
             borderInitted = true;
         }
 
-        String shadow = upperCase(imageNode->getAttribute("shadow","OUT"));
+        String shadow = upperCase(imageNode->getAttribute("shadow", "OUT"));
         if (shadow == "ETCHED_IN")
             continue;
 
@@ -147,20 +155,20 @@ void CThemeImageCollection::loadFromGtkTheme(XMLDocument& gtkTheme, const String
             buttonState = THM_DEFAULT_FRAME;
         else if (buttonState > -1 && shadow == "IN")
             buttonState |= THMF_ACTIVE;
-        
+
         if (buttonState > -1) {
             m_images[CThemeImageState(buttonState)] = nullptr;
             m_overlayImages[CThemeImageState(buttonState)] = nullptr;
             if (!fileName.empty() && fileName.find(".png") != STRING_NPOS)
-                m_images[CThemeImageState(buttonState)] = loadValidatePNGImage(fileName,true);
+                m_images[CThemeImageState(buttonState)] = loadValidatePNGImage(fileName, true);
             if (!overlayFileName.empty() && overlayFileName.find(".png") != STRING_NPOS)
-                m_overlayImages[CThemeImageState(buttonState)] = loadValidatePNGImage(overlayFileName,true);
+                m_overlayImages[CThemeImageState(buttonState)] = loadValidatePNGImage(overlayFileName, true);
         }
     }
 
     if (!m_images[THM_IMAGE_NORMAL] && !normalImageFileName.empty())
-        m_images[THM_IMAGE_NORMAL] = loadValidatePNGImage(normalImageFileName,true);
+        m_images[THM_IMAGE_NORMAL] = loadValidatePNGImage(normalImageFileName, true);
 
     if (!m_overlayImages[THM_IMAGE_NORMAL] && !normalOverlayFileName.empty())
-        m_overlayImages[THM_IMAGE_NORMAL] = loadValidatePNGImage(normalOverlayFileName,true);
+        m_overlayImages[THM_IMAGE_NORMAL] = loadValidatePNGImage(normalOverlayFileName, true);
 }

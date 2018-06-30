@@ -102,17 +102,17 @@ public:
 
     /**
      * @brief Creates a new CGroup page
-     * @param label const char*, tab and page label
-     * @param autoColor bool, auto-color assignment on/off
+     * @param label             Tab and page label
+     * @param autoColor         Auto-color assignment on/off
      */
-    virtual Fl_Group* newPage(const char* label,bool autoColor=false);
+    virtual Fl_Group* newPage(const char* label,bool autoColor);
 
     /**
      * @brief Creates a new CScroll page
-     * @param label const char*, tab and page label
-     * @param autoColor bool, auto-color assignment on/off
+     * @param label             Tab and page label
+     * @param autoColor         Auto-color assignment on/off
      */
-    virtual Fl_Group* newScroll(const char* label,bool autoColor=false);
+    virtual Fl_Group* newScroll(const char* label,bool autoColor);
 
     /**
      * @brief Custom draw method

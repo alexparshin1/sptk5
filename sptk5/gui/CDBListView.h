@@ -64,7 +64,7 @@ protected:
     /**
      * Key field name
      */
-    std::string m_keyField;
+    String      m_keyField;
 
     /**
      * True if fast refresh is defined properly

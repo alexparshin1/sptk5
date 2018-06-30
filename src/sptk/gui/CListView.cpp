@@ -726,50 +726,13 @@ void CListView::clear()
     redraw_lines();
 }
 
-void CListView::addRow(int rowId, const char* s1, const char* s2, const char* s3, const char* s4, const char* s5)
-{
-    int count = 1;
-    const char* strings[5];
-
-    strings[0] = s1;
-
-    if (s2) {
-        strings[1] = s2;
-        if (s3) {
-            strings[2] = s3;
-            if (s4) {
-                strings[3] = s4;
-                if (s5) {
-                    strings[4] = s5;
-                    count = 5;
-                } else {
-                    count = 4;
-                }
-            } else {
-                count = 3;
-            }
-        } else {
-            count = 2;
-        }
-    }
-    addRow(count, strings, rowId);
-}
-
-void CListView::addRow(int count, const char* ptr[], int rowId)
-{
-    auto ps = new CPackedStrings(count, ptr);
-    ps->argument(rowId);
-    item_compute_height(ps);
-    m_rows.add(ps);
-}
-
 void CListView::addRow(CPackedStrings* ptr)
 {
     item_compute_height(ptr);
     m_rows.add(ptr);
 }
 
-void CListView::addRow(const Strings& ss, int ident)
+void CListView::addRow(int ident, const Strings& ss)
 {
     auto packedStrings = new CPackedStrings(ss);
     if (ident)
@@ -777,18 +740,13 @@ void CListView::addRow(const Strings& ss, int ident)
     addRow(packedStrings);
 }
 
-void CListView::insertRow(unsigned position, CPackedStrings* ptr)
-{
-    item_compute_height(ptr);
-    m_rows.insert(position, ptr);
-}
-
 void CListView::insertRow(unsigned position, const Strings& ss, int ident)
 {
     auto packedStrings = new CPackedStrings(ss);
     if (ident)
         packedStrings->argument(ident);
-    insertRow(position, packedStrings);
+    item_compute_height(packedStrings);
+    m_rows.insert(position, packedStrings);
 }
 
 void CListView::updateRow(unsigned position, CPackedStrings* ptr)
@@ -1987,13 +1945,13 @@ void CListView::loadList(const XMLNode* node)
             auto itor = anode->begin();
             size_t colCount = m_columnList.size();
             if (colCount > 0) {
-                auto strings = new cpchar[colCount];
+                Strings strings;
+                strings.resize(colCount);
                 for (; itor != anode->end(); ++itor) {
                     XMLNode* rowNode = *itor;
                     int rowID = rowNode->getAttribute("id");
                     auto rtor = rowNode->begin();
                     unsigned c = 0;
-                    memset(strings, 0, sizeof(pchar) * colCount);
                     for (; rtor != rowNode->end(); ++rtor, ++c) {
                         XMLNode* cellNode = *rtor;
                         unsigned index = cellNode->getAttribute("index");
@@ -2007,12 +1965,8 @@ void CListView::loadList(const XMLNode* node)
                             strings[c] = (char*) cdata->value().c_str();
                         }
                     }
-                    for (c = 0; c < colCount; c++)
-                        if (strings[c] == nullptr)
-                            strings[c] = "";
-                    addRow((int) colCount, strings, rowID);
+                    addRow(rowID, strings);
                 }
-                delete[] strings;
             }
         }
     }

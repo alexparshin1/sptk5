@@ -81,7 +81,7 @@ CDialog::CDialog(int w, int h, const char* label)
 
     defaultButton(m_okButton);
 
-    newPage("");
+    newPage("", false);
 
     m_modalResult = DMR_NONE;
 }

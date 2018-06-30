@@ -444,7 +444,7 @@ void CBaseListBox::database(DatabaseConnection* db)
     m_list->database(db);
 }
 
-string CBaseListBox::sql() const
+String CBaseListBox::sql() const
 {
     return m_list->sql();
 }
@@ -516,14 +516,9 @@ void CBaseListBox::addRow(CPackedStrings* psl)
     m_list->addRow(psl);
 }
 
-void CBaseListBox::addRow(const Strings& ss, int rowId)
+void CBaseListBox::addRow(int rowId, const Strings& ss)
 {
-    m_list->addRow(ss, rowId);
-}
-
-void CBaseListBox::addRow(int rowId, const char* s1, const char* s2, const char* s3, const char* s4, const char* s5)
-{
-    m_list->addRow(rowId, s1, s2, s3, s4, s5);
+    m_list->addRow(rowId, ss);
 }
 
 void CBaseListBox::addRows(string columnName, Strings strings)

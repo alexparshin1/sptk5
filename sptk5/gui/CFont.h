@@ -197,7 +197,7 @@ public:
     /**
      * @brief Constructor
      */
-    CFontsVector() {}
+    CFontsVector() noexcept {}
 
     /**
      * @brief Destructor

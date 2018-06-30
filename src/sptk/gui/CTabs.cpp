@@ -340,7 +340,6 @@ bool CTabGroup::preferredSize(int& width, int& height)
 bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
 {
     unsigned offset = 0;
-    unsigned rowCount = 1;
     auto buttonCount = (unsigned) children();
     int maxWidth = 0;
 
@@ -376,7 +375,6 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
             rowHeight = 0;
             //offset = 0;
             newOffset = (unsigned) bw;
-            rowCount++;
         }
         if (rowHeight < bh)
             rowHeight = bh;

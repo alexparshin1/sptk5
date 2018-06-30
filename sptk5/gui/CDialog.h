@@ -396,7 +396,7 @@ public:
      * @param autoColor bool, if true the page color is assigned automatically
      * @returns created group
      */
-    virtual Fl_Group* newPage(const char *label, bool autoColor = false);
+    virtual Fl_Group* newPage(const char *label, bool autoColor);
 
     /**
      * @brief Creates a new page as CScroll
@@ -404,7 +404,7 @@ public:
      * @param autoColor bool, if true the page color is assigned automatically
      * @returns created group
      */
-    virtual Fl_Group* newScroll(const char *label, bool autoColor = false);
+    virtual Fl_Group* newScroll(const char *label, bool autoColor);
 
     /**
      * @brief Adds a user-defined button to the dialog.

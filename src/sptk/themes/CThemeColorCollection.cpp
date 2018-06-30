@@ -38,15 +38,17 @@ using namespace sptk;
 std::map<String, gtk_color_function>*   CThemeColorCollection::m_gtkColorFunctionMap;
 std::map<String, Fl_Color>              CThemeColorCollection::m_colorMap;
 
-CThemeColorCollection::CThemeColorCollection()
+CThemeColorCollection::CThemeColorCollection() noexcept
 {
-    if (!m_gtkColorFunctionMap) {
+    if (!m_gtkColorFunctionMap)
+    try {
         m_gtkColorFunctionMap = new std::map<String, gtk_color_function>;
         (*m_gtkColorFunctionMap)["darker"] = darker;
         (*m_gtkColorFunctionMap)["lighter"] = lighter;
         (*m_gtkColorFunctionMap)["shade"] = shade;
         (*m_gtkColorFunctionMap)["mix"] = mix;
     }
+    catch (...) {}
 }
 
 static Fl_Color colorFromHexString(const String& colorStr)

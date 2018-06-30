@@ -74,10 +74,10 @@ public:
         auto cb = new CComboBox("Business Type:");
         cb->fieldName("business_type");
         cb->addColumn("business type", VAR_STRING, 120);
-        cb->addRow(1, "Agriculture");
-        cb->addRow(2, "Education");
-        cb->addRow(3, "Hardware");
-        cb->addRow(4, "Software");
+        cb->addRow(1, Strings("Agriculture", "|"));
+        cb->addRow(2, Strings("Education", "|"));
+        cb->addRow(3, Strings("Hardware", "|"));
+        cb->addRow(4, Strings("Software", "|"));
 
         auto dateInput = new CDateInput("Established");
         dateInput->fieldName("established");

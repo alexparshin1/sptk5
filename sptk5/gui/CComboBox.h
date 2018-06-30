@@ -261,22 +261,10 @@ public:
     /**
      * Adds a new row to the internal list view. Makes a copy of data in rowStrings.
      * The row ID may be defined inside Strings object, or with rowID parameter.
-     * @param rowStrings const Strings&, new row
-     * @param rowId int, optional row ID
+     * @param rowId             Row argument (key value)
+     * @param row               Row data
      */
-    void addRow(const Strings& rowStrings, int rowId = 0);
-
-    /**
-     * Adds new row to the internal list view.
-     * @param rowId int, row argument (key value)
-     * @param s1 const char *, text data for the column 1
-     * @param s2 const char *, text data for the column 2
-     * @param s3 const char *, text data for the column 3
-     * @param s4 const char *, text data for the column 4
-     * @param s5 const char *, text data for the column 5
-     */
-    void addRow(int rowId, const char *s1, const char *s2 = NULL, const char *s3 = NULL, const char *s4 = NULL, const char *s5 =
-            NULL);
+    void addRow(int rowId, const Strings& strings);
 
     /**
      * Creates the column as columnName and adds rows to the internal list view. If the column with such name
@@ -358,7 +346,7 @@ public:
     /**
      * Returns SQL query text
      */
-    std::string sql() const;
+    String sql() const;
 
     /**
      * Defines SQL query text

@@ -43,7 +43,7 @@ CColumn::CColumn(const string& cname, VariantType type, int32_t cwidth, bool cvi
         m_width = 0;
     } else {
         m_autoWidth = false;
-        m_width = cwidth;
+        m_width = (uint32_t) cwidth;
     }
 }
 

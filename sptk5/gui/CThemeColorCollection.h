@@ -131,7 +131,7 @@ public:
     /**
      * @brief Constructor
      */
-    CThemeColorCollection();
+    CThemeColorCollection() noexcept;
 
     /**
      * @brief Loads them from SPTK theme definition

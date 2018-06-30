@@ -91,7 +91,7 @@ void CSpellChecker::learnAndClose()
 {
     string word = m_wordInput->data();
     if (m_spellChecker) {
-        aspell_speller_add_to_personal(m_spellChecker, word.c_str(), word.length());
+        aspell_speller_add_to_personal(m_spellChecker, word.c_str(), (int) word.length());
     }
     m_modalResult = DMR_USER;
 }
@@ -100,7 +100,7 @@ void CSpellChecker::ignoreAndClose()
 {
     string word = m_wordInput->data();
     if (m_spellChecker)
-        aspell_speller_add_to_session(m_spellChecker, word.c_str(), word.length());
+        aspell_speller_add_to_session(m_spellChecker, word.c_str(), (int) word.length());
     m_modalResult = DMR_USER;
 }
 
@@ -245,22 +245,21 @@ bool CSpellChecker::spellCheck()
     int wordStart, wordEnd;
     while (getNextWord(word, wordStart, wordEnd)) {
         if (strpbrk(word.c_str(), "0123456789")) continue;
-        int result = aspell_speller_check(m_spellChecker, word.c_str(), word.length());
+        int result = aspell_speller_check(m_spellChecker, word.c_str(), (int) word.length());
         if (result != 1) {
             m_wordInput->data(word);
             m_suggestionListView->clear();
-            const AspellWordList* suggestions = aspell_speller_suggest(m_spellChecker, word.c_str(), word.length());
+            const AspellWordList* suggestions = aspell_speller_suggest(m_spellChecker, word.c_str(), (int) word.length());
             AspellStringEnumeration* elements = aspell_word_list_elements(suggestions);
-            const char* word;
             string best;
             bool bestAssigned = false;
             while (!aspell_string_enumeration_at_end(elements)) {
-                word = aspell_string_enumeration_next(elements);
-                if (word)
-                    m_suggestionListView->addRow(0, word);
+                const char* nextWord = aspell_string_enumeration_next(elements);
+                if (nextWord)
+                    m_suggestionListView->addRow(0, Strings(nextWord, "|"));
                 else break;
                 if (!bestAssigned) {
-                    best = word;
+                    best = nextWord;
                     bestAssigned = true;
                 }
             }
@@ -292,14 +291,14 @@ bool CEditorSpellChecker::getNextWord(string& w, int& wordStart, int& wordEnd)
 {
     Fl_Text_Buffer* buffer = m_editor->textBuffer();
     for (;;) {
-        char ch = buffer->char_at(m_bufferPosition);
+        auto ch = (char) buffer->char_at(m_bufferPosition);
         if (ch == 0)
             return false;
         if (isalnum(ch)) {
             wordStart = m_bufferPosition;
             wordEnd = buffer->word_end(m_bufferPosition);
             w = buffer->text_range(m_bufferPosition, wordEnd);
-            m_bufferPosition = wordEnd + 1;
+            m_bufferPosition = uint32_t(wordEnd + 1);
             return true;
         }
         m_bufferPosition++;

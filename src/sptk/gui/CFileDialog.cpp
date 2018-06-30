@@ -195,7 +195,7 @@ CFileDialog::CFileDialog(const string& label, bool saveMode)
     m_patternCombo = new CComboBox("Files of type:", 10, SP_ALIGN_BOTTOM);
     m_patternCombo->addColumn("file type", VAR_STRING, 150);
     m_patternCombo->addColumn("pattern", VAR_STRING, 100);
-    m_patternCombo->addRow(Strings("All Files|*.*", "|"), 1);
+    m_patternCombo->addRow(1, Strings("All Files|*.*", "|"));
     m_patternCombo->data(1);
     m_patternCombo->callback(pattern_cb);
 
@@ -297,7 +297,7 @@ void CFileDialog::directory(const String& p)
 #endif
         {
             pseudoID++;
-            m_lookInCombo->addRow(Strings(incrementalPath, "|"), pseudoID);
+            m_lookInCombo->addRow(pseudoID, Strings(incrementalPath, "|"));
         }
 
         if (i != 0)
@@ -325,7 +325,7 @@ void CFileDialog::clearPatterns()
 {
     m_patternCombo->callback((Fl_Callback*) nullptr);
     m_patternCombo->clear();
-    m_patternCombo->addRow(Strings("All Files|*.*", "|"), 1);
+    m_patternCombo->addRow(1, Strings("All Files|*.*", "|"));
     m_patternCombo->callback((Fl_Callback*) pattern_cb);
     m_patternCombo->data(1);
     refreshDirectory();
@@ -339,7 +339,7 @@ void CFileDialog::setPattern(string patternName)
 
 void CFileDialog::addPattern(string patternName, string pattern)
 {
-    m_patternCombo->addRow(Strings(patternName + "|" + pattern, "|"), 0);
+    m_patternCombo->addRow(0, Strings(patternName + "|" + pattern, "|"));
 }
 
 string CFileDialog::pattern() const

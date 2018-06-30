@@ -123,11 +123,11 @@ int main(int argc, char *argv[])
         Strings sl4("Mark|(408)-123-45678|San Mateo", "|");
         Strings sl5("Алекс|(408)-123-45678|Сан Франциско", "|");
 
-        cb.addRow(sl1);
-        cb.addRow(sl2);
-        cb.addRow(sl3);
-        cb.addRow(sl4);
-        cb.addRow(sl5);
+        cb.addRow(0, sl1);
+        cb.addRow(0, sl2);
+        cb.addRow(0, sl3);
+        cb.addRow(0, sl4);
+        cb.addRow(0, sl5);
 
         cb.buttons(SP_BROWSE_BUTTON | SP_ADD_BUTTON | SP_EDIT_BUTTON | SP_DELETE_BUTTON);
         cb.callback(combo_cb);

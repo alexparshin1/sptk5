@@ -548,34 +548,15 @@ public:
 
     /**
      * @brief Removes row
-     * @param index uint32_t, row number
+     * @param index             Row number
      */
     virtual void removeRow(uint32_t index);
 
     /**
      * @brief Adds new row
-     * @param ident int, row argument (key value)
-     * @param s1 const char *, text data for the column 1
-     * @param s2 const char *, text data for the column 2
-     * @param s3 const char *, text data for the column 3
-     * @param s4 const char *, text data for the column 4
-     * @param s5 const char *, text data for the column 5
-     */
-    virtual void addRow(int ident, const char *s1, const char *s2 = NULL, const char *s3 = NULL, const char *s4 = NULL, const char *s5 = NULL);
-
-    /**
-     * @brief Adds new row
-     * @param count int, number of items in strings
-     * @param strings char * [], row data
-     * @param ident int, row argument (key value)
-     */
-    virtual void addRow(int count, const char *strings[], int ident = 0);
-
-    /**
-     * @brief Adds new row
      *
      * Optional row ID may be defined inside row parameter.
-     * @param row CPackedStrings *, row data
+     * @param row               Row data
      */
     virtual void addRow(CPackedStrings *row);
 
@@ -584,19 +565,10 @@ public:
      *
      * Optional row ID may be defined inside row parameter,
      * or through ident parameter.
-     * @param row const Strings&, row data
      * @param ident int, row argument (key value)
+     * @param row const Strings&, row data
      */
-    virtual void addRow(const Strings& row, int ident = 0);
-
-    /**
-     * @brief Inserts new row
-     *
-     * Optional row ID may be defined inside row parameter.
-     * @param position uint32_t, insert position
-     * @param row CPackedStrings *, row data
-     */
-    virtual void insertRow(uint32_t position, CPackedStrings *row);
+    virtual void addRow(int ident, const Strings& row);
 
     /**
      * @brief Inserts new row
@@ -607,7 +579,7 @@ public:
      * @param row const Strings&, row data
      * @param ident int, row argument (key value)
      */
-    virtual void insertRow(uint32_t position, const Strings& row, int ident = 0);
+    virtual void insertRow(uint32_t position, const Strings& row, int ident);
 
     /**
      * @brief Updates a row
