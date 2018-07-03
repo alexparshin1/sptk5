@@ -42,12 +42,12 @@ void WSWebServiceProtocol::process()
     auto itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
         contentLength = (size_t) string2int(itor->second);
-
+/*
     cout << endl;
     for (auto itor: m_headers)
         cout << itor.first << ": " << itor.second << endl;
     cout << endl;
-
+*/
     unique_ptr<HttpAuthentication> authentication;
     itor = m_headers.find("authorization");
     if (itor != m_headers.end()) {
