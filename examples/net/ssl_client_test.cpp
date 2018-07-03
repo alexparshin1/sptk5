@@ -36,10 +36,8 @@ using namespace sptk;
 int main(int, const char**)
 {
     try {
-        SSLContext sslContext;
-        sslContext.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
-
         SSLSocket client;
+        client.loadKeys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
         Buffer buffer;
 
         for (unsigned i = 0; i < 10; i++) {

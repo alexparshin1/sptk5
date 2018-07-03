@@ -49,7 +49,11 @@ int main( int argc, char* argv[] )
     Logger          logger(log);
     try {
         // Create the socket
-        WSListener server(request, logger, "/var/lib/pgman/webapp");
+        char hostname[128];
+        int rc = gethostname(hostname, sizeof(hostname));
+        if (rc != 0)
+            throw SystemException("Can't get hostname");
+        WSListener server(request, log, "/var/lib/pgman/webapp", "index.html", "request", hostname, false);
         server.listen(8000);
         while (true)
             this_thread::sleep_for(chrono::milliseconds(1000));

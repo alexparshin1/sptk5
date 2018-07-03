@@ -127,6 +127,8 @@ public:
 
 protected:
 
+    void initContextAndSocket();
+
     /**
      * opens the socket connection by host and port
      *

@@ -150,9 +150,9 @@ void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFil
     m_verifyDepth = verifyDepth;
 }
 
-void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = unique_ptr<SSLContext>(new SSLContext);
+    m_sslContext = unique_ptr<SSLContext>(new SSLContext());
     if (m_verifyMode != SSL_VERIFY_NONE)
         m_sslContext->loadKeys(m_keyFileName, m_certificateFileName, m_password, m_caFileName, m_verifyMode, m_verifyDepth);
 
@@ -160,6 +160,11 @@ void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blocking
         SSL_free(m_ssl);
 
     m_ssl = SSL_new(m_sslContext->handle());
+}
+
+void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+{
+    initContextAndSocket();
 
     if (!host.hostname().empty())
         m_host = host;
@@ -172,8 +177,7 @@ void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blocking
     _open(addr, openMode, _blockingMode, timeout);
 }
 
-void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode,
-                      chrono::milliseconds timeout)
+void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     DateTime started = DateTime::Now();
     DateTime timeoutAt(started + timeout);
@@ -224,6 +228,8 @@ void SSLSocket::close()
 void SSLSocket::attach(SOCKET socketHandle)
 {
     lock_guard<mutex> lock(*this);
+
+    initContextAndSocket();
 
     int rc = 1;
     if (m_sockfd != socketHandle) {
