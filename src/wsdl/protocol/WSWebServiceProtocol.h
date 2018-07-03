@@ -47,9 +47,9 @@ class WSWebServiceProtocol : public WSProtocol
 public:
 
     /// @brief Constructor
-    /// @param socket TCPSocket*, Connection socket
-    /// @param headers const std::map<String,String>&, Connection HTTP headers
-    WSWebServiceProtocol(TCPSocket *socket, const std::map<String,String>& headers, WSRequest& service);
+    /// @param socket           Connection socket
+    /// @param headers          Connection HTTP headers
+    WSWebServiceProtocol(TCPSocket *socket, const HttpHeaders& headers, WSRequest& service);
 
     /// @brief Process method
     ///

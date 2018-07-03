@@ -55,37 +55,59 @@ protected:
     /**
      * Web Service request processor
      */
-    sptk::WSRequest&    m_service;
+    WSRequest&      m_service;
 
     /**
      * Logger object
      */
-    sptk::Logger&       m_logger;
+    Logger          m_logger;
 
     /**
      * Web Service static files directory
      */
-    const std::string   m_staticFilesDirectory;
+    const String    m_staticFilesDirectory;
 
+    /**
+     * Default index page. If empty then it's index.html.
+     */
+    const String    m_indexPage;
+
+    /**
+     * Page name that is used for WS requests
+     */
+    const String    m_wsRequestPage;
+
+    /**
+     * Connection protocol is encrypted flag
+     */
+    const bool      m_encrypted;
+
+    /**
+     * This service hostname
+     */
+    const String    m_hostname;
 
     /**
      * @brief Creates connection thread derived from CTCPServerConnection
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
-     * @param connectionSocket SOCKET, Already accepted incoming connection socket
-     * @param peer sockaddr_in*, Incoming connection information
+     * @param connectionSocket      Already accepted incoming connection socket
+     * @param peer                  Incoming connection information
      */
-    virtual sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
+    virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer);
 
 public:
     /**
      * @brief Constructor
-     * @param service sptk::CWSRequest&, Web Service request processor
-     * @param logger sptk::Logger&, Logger
-     * @param staticFilesDirectory const std::string&, Web Service static files directory
+     * @param service               Web Service request processor
+     * @param logger                Logger
+     * @param staticFilesDirectory  Web Service static files directory
+     * @param hostname              This service hostname
      */
-    WSListener(sptk::WSRequest& service, sptk::Logger& logger, const std::string& staticFilesDirectory);
+    WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
+               const String& indexPage, const String& wsRequestPage, const String& hostname,
+               bool encrypted);
  };
 
 /**

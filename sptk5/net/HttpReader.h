@@ -36,10 +36,17 @@
 
 namespace sptk {
 
+struct caseInsensitiveCompare : public std::binary_function<String, String, bool>
+{
+    bool operator()(const String &lhs, const String &rhs) const
+    {
+        return strcasecmp(lhs.c_str(), rhs.c_str()) < 0 ;
+    }
+};
 /**
  * @brief A map of HTTP headers and their values (string to string)
  */
-typedef std::map<String, String> HttpHeaders;
+typedef std::map<String, String, caseInsensitiveCompare> HttpHeaders;
 
 /**
  * HTTP response reader

@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const std::map<String,String>& headers, WSRequest& service)
+WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const HttpHeaders& headers, WSRequest& service)
 : WSProtocol(socket, headers), m_service(service)
 {
 }
@@ -39,11 +39,21 @@ WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const std::map<Str
 void WSWebServiceProtocol::process()
 {
     size_t contentLength = 0;
-    map<String,String>::const_iterator itor = m_headers.find("Content-Length");
+    auto itor = m_headers.find("Content-Length");
     if (itor != m_headers.end())
         contentLength = (size_t) string2int(itor->second);
 
-    m_socket.write("<?xml version='1.0' encoding='UTF-8'?><server name='" + m_service.title() + "' version='1.0'/>\n");
+    cout << endl;
+    for (auto itor: m_headers)
+        cout << itor.first << ": " << itor.second << endl;
+    cout << endl;
+
+    unique_ptr<HttpAuthentication> authentication;
+    itor = m_headers.find("authorization");
+    if (itor != m_headers.end()) {
+        String value(itor->second);
+        authentication = unique_ptr<HttpAuthentication>(new HttpAuthentication(value));
+    }
 
     const char* startOfMessage = nullptr;
     const char* endOfMessage = nullptr;
@@ -100,10 +110,30 @@ void WSWebServiceProtocol::process()
     //cout << startOfMessage << endl << endl;
 
     Buffer output;
-    m_service.processRequest(&message, nullptr);
-    message.save(output, true);
+    size_t httpStatusCode = 200;
+    String httpStatusText = "OK";
+    String contentType = "text/xml; charset=utf-8";
+    try {
+        m_service.processRequest(&message, authentication.get());
+        message.save(output, 2);
+    }
+    catch (const HTTPException& e) {
+        httpStatusCode = e.statusCode();
+        httpStatusText = e.statusText();
+        contentType = "application/json";
+
+        json::Document error;
+        error.root().add("error", e.what());
+        error.root().add("status_code", (int) e.statusCode());
+        error.root().add("status_text", e.statusText());
+        error.exportTo(output, true);
+    }
+
+    stringstream response;
+    response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\n"
+             << "Content-Type: " << contentType << "\n"
+             << "Content-Length: " + int2string(output.bytes()) + "\n\n";
+    m_socket.write(output);
 
     //cout << output.c_str() << endl;
-
-    m_socket.write(output);
 }

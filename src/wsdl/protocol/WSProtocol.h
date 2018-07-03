@@ -42,15 +42,15 @@ class WSProtocol
 {
 protected:
 
-    TCPSocket&                  m_socket;   ///< Connection socket
-    std::map<String,String>     m_headers;  ///< Connection HTTP headers
+    TCPSocket&      m_socket;   ///< Connection socket
+    HttpHeaders     m_headers;  ///< Connection HTTP headers
 
 public:
 
     /// @brief Constructor
-    /// @param socket TCPSocket*, Connection socket
-    /// @param headers const std::map<String,String>&, Connection HTTP headers
-    WSProtocol(TCPSocket* socket, const std::map<String,String>& headers)
+    /// @param socket           Connection socket
+    /// @param headers          Connection HTTP headers
+    WSProtocol(TCPSocket* socket, const HttpHeaders& headers)
     : m_socket(*socket), m_headers(headers)
     {
     }

@@ -86,7 +86,7 @@ public:
     /// @brief Constructor
     /// @param socket TCPSocket*, Connection socket
     /// @param headers const std::map<String,String>&, Connection HTTP headers
-    WSWebSocketsProtocol(TCPSocket *socket, const std::map<String,String>& headers);
+    WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers);
 
     /// @brief Process method
     ///

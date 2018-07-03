@@ -116,7 +116,7 @@ void WSWebSocketsMessage::encode(String payload, OpCode opcode, bool final, Buff
     output.append(payload);
 }
 
-WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket *socket, const std::map<String,String>& headers)
+WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers)
 : WSProtocol(socket, headers)
 {
 

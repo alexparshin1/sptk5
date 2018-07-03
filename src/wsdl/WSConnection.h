@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       WSStaticHttpProtocol.h - description                   ║
+║                       WSConnection.h - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Saturday Jul 30 2016                                   ║
+║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,41 +26,52 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __WSHTTPPROTOCOL_H__
-#define __WSHTTPPROTOCOL_H__
+#ifndef __WS_CONNECTION_H__
+#define __WS_CONNECTION_H__
 
-#include "WSProtocol.h"
-#include <sptk5/cnet>
+#include "protocol/WSStaticHttpProtocol.h"
+#include "protocol/WSWebServiceProtocol.h"
+#include "protocol/WSWebSocketsProtocol.h"
+#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
-
-/// @brief Handler for static files (.html, .js, .png, etc)
-///
-/// Session disconnects as soon as file is served.
-class WSStaticHttpProtocol : public WSProtocol
+class WSConnection : public ServerConnection
 {
-    String  m_url;                      ///< File URL
-    String  m_staticFilesDirectory;     ///< Directory where static files reside on the server
+protected:
+    WSRequest&  m_service;
+    Logger&     m_logger;
+    String      m_staticFilesDirectory;
+    String      m_htmlIndexPage;
+    String      m_wsRequestPage;
+
 public:
+    WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
+                 const String& staticFilesDirectory, const String& htmlIndexPage, const String& wsRequestPage);
 
-    /// @brief Constructor
-    /// @param socket           Connection socket
-    /// @param url              File URL
-    /// @param headers          Connection HTTP headers
-    /// @param staticFilesDirectory String, Directory where static files reside on the server
-    WSStaticHttpProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, const String& staticFilesDirectory);
-
-    /// @brief Process method
-    ///
-    /// Writes HTTP response and file content to the connection
-    void process() override;
+    void threadFunction() override;
 };
 
-/// @}
+/**
+ * @brief WS server connection
+ */
+class WSSSLConnection : public WSConnection
+{
+public:
+    /**
+     * @brief Constructor
+     * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
+     */
+    WSSSLConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
+                    const String& staticFilesDirectory, const String& htmlIndexPage,
+                    const String& wsRequestPage, bool encrypted);
 
-} // namespace sptk
+    /**
+     * @brief Destructor
+     */
+    virtual ~WSSSLConnection();
+};
+
+}
 
 #endif

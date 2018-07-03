@@ -5,6 +5,7 @@ ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     WSBasicTypes.cpp
     WSComplexType.cpp
+    WSConnection.cpp
     WSListener.cpp
     WSParser.cpp
     WSParserComplexType.cpp

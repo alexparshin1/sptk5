@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const String& url, const std::map<String, String>& headers, const String& staticFilesDirectory)
+WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, const String& staticFilesDirectory)
 : WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
 {
 }
@@ -47,7 +47,7 @@ void WSStaticHttpProtocol::process()
         m_socket.write(page);
     }
     catch (...) {
-        string text("<html><head><title>Not Found</title></head><body>Sorry, the page you requested was not found.</body></html>\n");
+        string text("<html><head><title>Not Found</title></head><body>Sorry, the page " + m_staticFilesDirectory + m_url + " was not found.</body></html>\n");
         m_socket.write("HTTP/1.1 404 Not Found\n");
         m_socket.write("Content-Type: text/html; charset=utf-8\n");
         m_socket.write("Content-length: " + int2string(text.length()) + "\n\n");
