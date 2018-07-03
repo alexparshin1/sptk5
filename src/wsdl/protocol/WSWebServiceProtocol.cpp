@@ -133,6 +133,7 @@ void WSWebServiceProtocol::process()
     response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\n"
              << "Content-Type: " << contentType << "\n"
              << "Content-Length: " + int2string(output.bytes()) + "\n\n";
+    m_socket.write(response.str());
     m_socket.write(output);
 
     //cout << output.c_str() << endl;
