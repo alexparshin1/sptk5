@@ -31,8 +31,8 @@
 using namespace std;
 using namespace sptk;
 
-WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket *socket, const HttpHeaders& headers, WSRequest& service)
-: WSProtocol(socket, headers), m_service(service)
+WSWebServiceProtocol::WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, WSRequest& service)
+: WSProtocol(socket, headers), m_service(service), m_url(url)
 {
 }
 
@@ -44,9 +44,9 @@ void WSWebServiceProtocol::process()
         contentLength = (size_t) string2int(itor->second);
 /*
     cout << endl;
-    for (auto itor: m_headers)
-        cout << itor.first << ": " << itor.second << endl;
-    cout << endl;
+    for (auto htor: m_headers)
+        cout << htor.first << ": " << htor.second << endl;
+    cout << endl << endl;
 */
     unique_ptr<HttpAuthentication> authentication;
     itor = m_headers.find("authorization");
@@ -102,11 +102,44 @@ void WSWebServiceProtocol::process()
         endOfMessage += strlen(endOfMessageMark);
     }
 
-    sptk::XMLDocument message;
-    if (endOfMessage != nullptr)
-        *(char *) endOfMessage = 0;
-    message.load(startOfMessage);
+    while ((unsigned char)*startOfMessage < 33)
+        startOfMessage++;
 
+    sptk::XMLDocument message;
+    json::Document jsonContent;
+
+    bool requestIsJSON = false;
+    if (*startOfMessage == '<') {
+        if (endOfMessage != nullptr)
+            *(char*) endOfMessage = 0;
+        message.load(startOfMessage);
+        auto jsonEnvelope = new json::Element(new json::ObjectData);
+        sptk::XMLNode* xmlEnvelope = message.findFirst("soap:Envelope", true);
+        sptk::XMLNode* xmlBody = xmlEnvelope->findFirst("soap:Body", true);
+        sptk::XMLNode* xmlRequest = *xmlBody->begin();
+        jsonContent.root().add(xmlRequest->name(), jsonEnvelope);
+        xmlRequest->exportTo(*jsonEnvelope);
+        jsonContent.exportTo(cout, true);
+        cout << endl;
+    }
+    else if (*startOfMessage == '{' || *startOfMessage == '[') {
+        requestIsJSON = true;
+        Strings url(m_url, "/");
+        if (url.size() < 2)
+            throw Exception("Invalid url");
+        // Converting JSON request to XML request
+        String method(*url.rbegin());
+        sptk::XMLElement* xmlEnvelope = new sptk::XMLElement(message, "soap:Envelope");
+        xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+        sptk::XMLElement* xmlBody = new sptk::XMLElement(xmlEnvelope, "soap:Body");
+        jsonContent.load(startOfMessage);
+        jsonContent.root().exportTo("ns1:" + method, *xmlBody);
+        Buffer buffer;
+        message.save(buffer, true);
+        //cout << string(buffer.c_str(), buffer.bytes()) << endl;
+    }
+    else
+        throw Exception("Request content isn't XML or JSON");
     //cout << startOfMessage << endl << endl;
 
     Buffer output;
@@ -115,7 +148,21 @@ void WSWebServiceProtocol::process()
     String contentType = "text/xml; charset=utf-8";
     try {
         m_service.processRequest(&message, authentication.get());
-        message.save(output, 2);
+        if (requestIsJSON) {
+            // Converting XML response to JSON response
+            sptk::XMLNode* bodyElement = message.findFirst("soap:Body");
+            if (bodyElement == nullptr)
+                throw Exception("Can't find soap:Body in service response");
+            sptk::XMLNode* methodElement = *bodyElement->begin();
+            json::Document jsonOutput;
+            auto jsonResponse = new json::Element(new json::ObjectData);
+            jsonOutput.root().add("response", jsonResponse);
+            methodElement->exportTo(*jsonResponse);
+            jsonOutput.exportTo(output, false);
+            contentType = "application/json";
+        }
+        else
+            message.save(output, 2);
     }
     catch (const HTTPException& e) {
         httpStatusCode = e.statusCode();
@@ -132,7 +179,7 @@ void WSWebServiceProtocol::process()
     stringstream response;
     response << "HTTP/1.1 " << httpStatusCode << " " << httpStatusText << "\n"
              << "Content-Type: " << contentType << "\n"
-             << "Content-Length: " + int2string(output.bytes()) + "\n\n";
+             << "Content-Length: " << output.bytes() << "\n\n";
     m_socket.write(response.str());
     m_socket.write(output);
 

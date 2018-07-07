@@ -501,11 +501,11 @@ namespace sptk {
         }
     }
 
-    void XMLNode::save(json::Document& json) const
+    void XMLNode::exportTo(json::Element& element) const
     {
         string text;
         for (auto np: *this)
-            np->save(json.root(), text);
+            np->save(element, text);
     }
 
     XMLNode *XMLNode::findFirst(const std::string& aname, bool recursively) const

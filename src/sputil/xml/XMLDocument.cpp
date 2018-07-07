@@ -450,10 +450,10 @@ namespace sptk {
         return nodeNameString;
     }
 
-    void XMLDocument::saveToJSON(json::Document &json) const
+    void XMLDocument::exportTo(json::Element& json) const
     {
         XMLNode* rootNode = *begin();
-        rootNode->save(json);
-        json.root().optimizeArrays("item");
+        rootNode->exportTo(json);
+        json.optimizeArrays("item");
     }
 } // namespace sptk

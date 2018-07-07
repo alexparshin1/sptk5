@@ -43,13 +43,18 @@ namespace sptk {
 /// reply, then closes connection.
 class WSWebServiceProtocol : public WSProtocol
 {
-    WSRequest&     m_service;
+    WSRequest&          m_service;
+    const sptk::String  m_url;
 public:
 
-    /// @brief Constructor
-    /// @param socket           Connection socket
-    /// @param headers          Connection HTTP headers
-    WSWebServiceProtocol(TCPSocket *socket, const HttpHeaders& headers, WSRequest& service);
+    /**
+     * @brief Constructor
+     * @param socket            Connection socket
+     * @param url               Method URL
+     * @param headers           Connection HTTP headers
+     * @param service           Web service that handles request
+     */
+    WSWebServiceProtocol(TCPSocket* socket, const String& url, const HttpHeaders& headers, WSRequest& service);
 
     /// @brief Process method
     ///

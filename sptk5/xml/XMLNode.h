@@ -564,7 +564,7 @@ public:
      * @brief Save node to JSON document
      * @param json              JSON element
      */
-    virtual void save(json::Document& json) const;
+    virtual void exportTo(json::Element& json) const;
 
     /**
      * @brief Returns the first subnode iterator

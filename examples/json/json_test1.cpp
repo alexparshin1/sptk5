@@ -52,7 +52,7 @@ int main(int argc, char **argv)
         cout << buffer.c_str() << endl << endl;
 
         json::Document doc2;
-        doc.saveToJSON(doc2);
+        doc.exportTo(doc2.root());
         doc2.root().exportTo(cout, true);
         cout << endl << endl;
 

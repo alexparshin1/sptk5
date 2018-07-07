@@ -257,7 +257,7 @@ public:
      * @brief Save document to JSON element.
      * @param json              JSON element
      */
-    virtual void saveToJSON(json::Document& json) const;
+    void exportTo(json::Element& json) const override;
 };
 /**
  * @}

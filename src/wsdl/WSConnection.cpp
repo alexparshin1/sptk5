@@ -63,6 +63,8 @@ void WSConnection::threadFunction()
 
         HttpHeaders headers;
 
+        String request;
+
         try {
             while (!terminated()) {
                 if (m_socket->readLine(data) == 0)
@@ -74,6 +76,7 @@ void WSConnection::threadFunction()
                         break;
                     }
                     if (parseProtocol.m(row, matches)) {
+                        request = row;
                         protocolName = "http";
                         requestType = matches[0];
                         url = matches[1];
@@ -102,19 +105,26 @@ void WSConnection::threadFunction()
         }
 
         if (protocolName == "http") {
-            if (headers["Upgrade"] == "websocket") {
-                WSWebSocketsProtocol protocol(m_socket, headers);
-                protocol.process();
-                return;
-            }
 
-            if (url != m_wsRequestPage) {
-                if (url == "/")
-                    url = m_htmlIndexPage;
+            String contentType = headers["Content-Type"];
+            if (contentType.find("/json") != string::npos)
+                protocolName = "rest";
+            else {
 
-                WSStaticHttpProtocol protocol(m_socket, url, headers, m_staticFilesDirectory);
-                protocol.process();
-                return;
+                if (headers["Upgrade"] == "websocket") {
+                    WSWebSocketsProtocol protocol(m_socket, headers);
+                    protocol.process();
+                    return;
+                }
+
+                if (url != m_wsRequestPage) {
+                    if (url == "/")
+                        url = m_htmlIndexPage;
+
+                    WSStaticHttpProtocol protocol(m_socket, url, headers, m_staticFilesDirectory);
+                    protocol.process();
+                    return;
+                }
             }
         }
 
@@ -124,7 +134,7 @@ void WSConnection::threadFunction()
             return;
         }
 
-        WSWebServiceProtocol protocol(m_socket, headers, m_service);
+        WSWebServiceProtocol protocol(m_socket, url, headers, m_service);
         protocol.process();
     }
     catch (exception& e) {
