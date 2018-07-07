@@ -40,17 +40,40 @@ namespace sptk
  */
 
 /**
- * @brief List of strings with ids
+ * List of strings with ids
  *
  * General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
  * Includes several extra methods to construct it from string or load/save from/to file.
  */
-class SP_EXPORT Strings : public std::vector<String>
+class SP_EXPORT Strings
 {
+public:
+    enum SortOrder {
+        UNSORTED,
+        ASCENDING,
+        DESCENDING
+    };
+
+    typedef std::vector<String>::iterator               iterator;
+    typedef std::vector<String>::const_iterator         const_iterator;
+    typedef std::vector<String>::reverse_iterator       reverse_iterator;
+    typedef std::vector<String>::const_reverse_iterator const_reverse_iterator;
+
+private:
+    /**
+     * Actual strings
+     */
+    std::vector<String> m_strings;
+
     /**
      * User-specified data
      */
-    int32_t m_userData;
+    int32_t             m_userData {0};
+
+    /**
+     * Is sorted flag
+     */
+    SortOrder           m_sorted {UNSORTED};
 
     /**
      * Ascending sort compare function, used in sort()
@@ -65,9 +88,9 @@ class SP_EXPORT Strings : public std::vector<String>
      * @param second            Second compared string
      */
     static bool sortDescending(const String& first, const String& second);
-
+    
     /**
-     * @brief Splits source string on substrings using exact delimiter
+     * Splits source string on substrings using exact delimiter
      *
      * Consequent delimiters create empty strings.
      * @param src               Source string
@@ -76,7 +99,7 @@ class SP_EXPORT Strings : public std::vector<String>
     void splitByDelimiter(const String& src, const char *delimiter);
 
     /**
-     * @brief Splits source string on substrings using any char in delimiter
+     * Splits source string on substrings using any char in delimiter
      *
      * Consequent delimiters are treated as a single one.
      * @param src               Source string
@@ -85,7 +108,7 @@ class SP_EXPORT Strings : public std::vector<String>
     void splitByAnyChar(const String& src, const char *delimiter);
 
     /**
-     * @brief Splits source string on substrings using regular expression
+     * Splits source string on substrings using regular expression
      *
      * Consequent delimiters are treated as a single one.
      * @param src               Source string
@@ -96,7 +119,7 @@ class SP_EXPORT Strings : public std::vector<String>
 public:
 
     /**
-     * @brief String split mode
+     * String split mode
      */
     enum SplitMode
     {
@@ -118,7 +141,7 @@ public:
     };
 
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     Strings() noexcept
     {
@@ -126,25 +149,25 @@ public:
     }
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param src               Other object
      */
     Strings(const Strings &src) noexcept
-    : std::vector<String>(src), m_userData(src.m_userData)
+    : m_strings(src.m_strings), m_userData(src.m_userData)
     {
     }
 
     /**
-     * @brief Move constructor
+     * Move constructor
      * @param src               Other object
      */
     Strings(Strings&& src) noexcept
-    : std::vector<String>(std::move(src)), m_userData(src.m_userData)
+    : m_strings(std::move(src.m_strings)), m_userData(src.m_userData)
     {
     }
 
     /**
-     * @brief Constructor from a string with elements separated by a delimiter string
+     * Constructor from a string with elements separated by a delimiter string
      * @param src               Source string
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
@@ -161,7 +184,7 @@ public:
     }
 
     /**
-     * @brief Constructor from a string with elements separated by a delimiter string
+     * Constructor from a string with elements separated by a delimiter string
      * @param src               Source string
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
@@ -179,18 +202,18 @@ public:
     }
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      * @param other             Other object
      */
     Strings &operator=(const Strings &other)
     {
         m_userData = other.m_userData;
-        assign(other.begin(), other.end());
+        m_strings.assign(other.m_strings.begin(), other.m_strings.end());
         return *this;
     }
 
     /**
-     * @brief Assigns strings from a string with elements separated by a delimiter string
+     * Assigns strings from a string with elements separated by a delimiter string
      * @param src               Source string
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
@@ -198,32 +221,34 @@ public:
     void fromString(const String& src, const char *delimiter, SplitMode mode);
 
     /**
-     * @brief Makes string from own strings separated by a delimiter string
+     * Makes string from own strings separated by a delimiter string
      * @param delimiter         Delimiter string
      */
     String asString(const char* delimiter) const;
 
     /**
-     * @brief Returns an index of the string in strings, or -1 if not found
+     * Returns an index of the string in strings, or -1 if not found.
+     * If strings were sorted prior to calling this method, and not modified
+     * since that, then binary search is used.
      * @param s                 String to find
      * @returns                 String index, or -1
      */
     int indexOf(const String& s) const;
 
     /**
-     * @brief Saves strings to file. String ids are discarded.
+     * Saves strings to file. String ids are discarded.
      * @param fileName          The name of the file
      */
     void saveToFile(const String& fileName) const;
 
     /**
-     * @brief Loads strings from file. String ids are not loaded.
+     * Loads strings from file. String ids are not loaded.
      * @param fileName          The name of the file
      */
     void loadFromFile(const String& fileName);
 
     /**
-     * @brief Returns user data as integer
+     * Returns user data as integer
      */
     int32_t argument() const
     {
@@ -231,7 +256,7 @@ public:
     }
 
     /**
-     * @brief Sets user data as integer
+     * Sets user data as integer
      * @param d                 New value for user data
      */
     void argument(int32_t d)
@@ -240,30 +265,146 @@ public:
     }
 
     /**
-     * @brief Removes a string from this object
+     * Removes a string from this object
      * @param i                 String index in the string vector
      */
     void remove(uint32_t i)
     {
-        erase(begin() + i);
+        m_strings.erase(m_strings.begin() + i);
     }
 
     /**
-     * @brief Returns concatenated string
+     * Returns concatenated string
      * @param delimiter         Delimiter
      */
     String join(const String& delimiter) const;
 
     /**
-     * @brief Returns strings matching regex pattern
+     * Returns strings matching regex pattern
      * @param pattern           Regex pattern
      */
     Strings grep(const String& pattern) const;
 
     /**
-     * @brief Sort strings inside this object
+     * Sort strings inside this object
      */
     void sort(bool ascending=true);
+
+    /**
+     * Clear strings
+     */
+    void clear()
+    {
+        m_sorted = ASCENDING;
+        m_strings.clear();
+        m_userData = 0;
+    }
+
+    size_t size() const noexcept
+    {
+        return m_strings.size();
+    }
+
+    bool empty() const noexcept
+    {
+        return m_strings.empty();
+    }
+
+    void resize(size_t size)
+    {
+        if (size > m_strings.size())
+            m_sorted = UNSORTED;
+        m_strings.resize(size);
+    }
+
+    void reserve(size_t size)
+    {
+        m_strings.reserve(size);
+    }
+
+    /**
+     * Push back a string
+     */
+    void push_back(const String& str)
+    {
+        m_sorted = UNSORTED;
+        m_strings.push_back(str);
+    }
+
+    /**
+     * Push back a string
+     */
+    void push_back(String&& str)
+    {
+        m_sorted = UNSORTED;
+        m_strings.push_back(str);
+    }
+
+    template<typename... Args>
+    void emplace_back(Args&&... args)
+    {
+        m_strings.emplace_back(args...);
+    }
+
+    iterator begin() noexcept
+    {
+        return m_strings.begin();
+    }
+
+    const_iterator begin() const noexcept
+    {
+        return m_strings.begin();
+    }
+
+    iterator end() noexcept
+    {
+        return m_strings.end();
+    }
+
+    const_iterator end() const noexcept
+    {
+        return m_strings.end();
+    }
+
+    reverse_iterator rbegin() noexcept
+    {
+        return m_strings.rbegin();
+    }
+
+    const_reverse_iterator rbegin() const noexcept
+    {
+        return m_strings.rbegin();
+    }
+
+    reverse_iterator rend() noexcept
+    {
+        return m_strings.rend();
+    }
+
+    const_reverse_iterator rend() const noexcept
+    {
+        return m_strings.rend();
+    }
+
+    String& operator[] (size_t index)
+    {
+        return m_strings[index];
+    }
+
+    const String& operator[] (size_t index) const
+    {
+        return m_strings[index];
+    }
+
+    void erase(iterator itor)
+    {
+        m_strings.erase(itor);
+    }
+
+    void erase(iterator from, iterator to)
+    {
+        m_strings.erase(from, to);
+    }
 };
 
 /**

@@ -309,24 +309,17 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
     serviceImplementation << "class MessageIndex" << endl;
     serviceImplementation << "{" << endl;
     serviceImplementation << "    mutable mutex  m_mutex;" << endl;
-    serviceImplementation << "    set<String>    m_messageIndex;" << endl;
+    serviceImplementation << "    sptk::Strings  m_messageIndex;" << endl;
     serviceImplementation << "public:" << endl;
     serviceImplementation << "    MessageIndex(const Strings& messages)" << endl;
+    serviceImplementation << "    : m_messageIndex(messages)" << endl;
     serviceImplementation << "    {" << endl;
-    serviceImplementation << "        int index = 0;" << endl;
-    serviceImplementation << "        for (auto& message: messages) {" << endl;
-    serviceImplementation << "            String msg(message, index);" << endl;
-    serviceImplementation << "            m_messageIndex.insert(msg);" << endl;
-    serviceImplementation << "            index++;" << endl;
-    serviceImplementation << "        }" << endl;
+    serviceImplementation << "        m_messageIndex.sort(true);" << endl;
     serviceImplementation << "    }" << endl << endl;
     serviceImplementation << "    int indexOf(const String& message) const" << endl;
     serviceImplementation << "    {" << endl;
     serviceImplementation << "        lock_guard<mutex> lock(m_mutex);" << endl;
-    serviceImplementation << "        auto itor = m_messageIndex.find(message);" << endl;
-    serviceImplementation << "        if (itor == m_messageIndex.end())" << endl;
-    serviceImplementation << "            return -1;" << endl;
-    serviceImplementation << "        return (*itor).ident();" << endl;
+    serviceImplementation << "        return m_messageIndex.indexOf(message);" << endl;
     serviceImplementation << "    }" << endl << endl;
     serviceImplementation << "};" << endl << endl;
 

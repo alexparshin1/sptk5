@@ -36,48 +36,48 @@
 using namespace std;
 using namespace sptk;
 
-void Strings::splitByDelimiter(const String& src, const char *delimitter)
+void Strings::splitByDelimiter(const String& src, const char* delimitter)
 {
     size_t pos = 0;
     size_t delimitterLength = strlen(delimitter);
     while (true) {
         size_t end = src.find(delimitter, pos);
         if (end != string::npos) {
-            push_back(src.substr(pos, end - pos));
+            m_strings.emplace_back(src.substr(pos, end - pos));
             pos = end + delimitterLength;
-        }
-        else {
+        } else {
             if (pos + 1 <= src.length())
-                push_back(src.substr(pos));
+                m_strings.emplace_back(src.substr(pos));
             break;
         }
     }
+    m_sorted = UNSORTED;
 }
 
-void Strings::splitByAnyChar(const String& src, const char *delimitter)
+void Strings::splitByAnyChar(const String& src, const char* delimitter)
 {
     size_t pos = 0;
     while (pos != string::npos) {
         size_t end = src.find_first_of(delimitter, pos);
         if (end != string::npos) {
-            push_back(src.substr(pos, end - pos));
+            m_strings.emplace_back(src.substr(pos, end - pos));
             pos = src.find_first_not_of(delimitter, end + 1);
-        }
-        else {
+        } else {
             if (pos + 1 < src.length())
-                push_back(src.substr(pos));
+                m_strings.emplace_back(src.substr(pos));
             break;
         }
     }
+    m_sorted = UNSORTED;
 }
 
-void Strings::splitByRegExp(const String& src, const char *pattern)
+void Strings::splitByRegExp(const String& src, const char* pattern)
 {
     RegularExpression regularExpression(pattern);
     regularExpression.split(src, *this);
 }
 
-void Strings::fromString(const String& src, const char *delimitter, SplitMode mode)
+void Strings::fromString(const String& src, const char* delimitter, SplitMode mode)
 {
     clear();
     switch (mode) {
@@ -109,9 +109,24 @@ String Strings::asString(const char* delimitter) const
 
 int Strings::indexOf(const String& s) const
 {
-    auto itor = find(begin(), end(), s.c_str());
-    if (itor == end())
-        return -1;
+    const_iterator itor;
+    switch (m_sorted) {
+        case UNSORTED:
+            itor = find(begin(), end(), s);
+            if (itor == end())
+                return -1;
+            break;
+        case DESCENDING:
+            itor = upper_bound(begin(), end(), s);
+            if (itor == end())
+                return -1;
+            break;
+        case ASCENDING:
+            itor = lower_bound(begin(), end(), s);
+            if (itor == end())
+                return -1;
+            break;
+    }
     return (int) distance(begin(), itor);
 }
 
@@ -177,8 +192,11 @@ bool Strings::sortDescending(const String& first, const String& second)
 
 void Strings::sort(bool ascending)
 {
-    if (ascending)
-        ::sort(begin(),end(), sortAscending);
-    else
-        ::sort(begin(),end(), sortDescending);
+    if (ascending) {
+        ::sort(begin(), end(), sortAscending);
+        m_sorted = ASCENDING;
+    } else {
+        ::sort(begin(), end(), sortDescending);
+        m_sorted = DESCENDING;
+    }
 }
