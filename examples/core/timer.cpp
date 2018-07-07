@@ -40,31 +40,37 @@ void timerCallback(void* eventData)
 
 int main()
 {
-    {
-        // Timer in local scope
-        Timer timer(timerCallback);
+    try {
+        {
+            // Timer in local scope
+            Timer timer(timerCallback);
 
-        cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " scheduled." << endl;
+            cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " scheduled." << endl;
 
-        // Schedule single event
-        timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), (void*) "single");
+            // Schedule single event
+            timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), (void*) "single");
 
-        // Schedule repeatable event
-        timer.repeat(chrono::seconds(1), (void*) "every second");
+            // Schedule repeatable event
+            timer.repeat(chrono::seconds(1), (void*) "every second");
 
-        // Schedule repeatable event, using event handle to cancel it later
-        void* every3seconds = timer.repeat(chrono::seconds(3), (void*) "every 3 seconds");
+            // Schedule repeatable event, using event handle to cancel it later
+            void* every3seconds = timer.repeat(chrono::seconds(3), (void*) "every 3 seconds");
 
+            this_thread::sleep_for(chrono::seconds(5));
+
+            // Cancelling event
+            timer.cancel(every3seconds);
+
+            this_thread::sleep_for(chrono::seconds(5));
+
+            // All events, scheduled by timer should stop here
+        }
+        cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " Done" << endl;
         this_thread::sleep_for(chrono::seconds(5));
-
-        // Cancelling event
-        timer.cancel(every3seconds);
-
-        this_thread::sleep_for(chrono::seconds(5));
-
-        // All events, scheduled by timer should stop here
+    } catch (const exception& e) {
+        cerr << e.what() << endl;
+        return 1;
     }
-    cout << DateTime::Now().timeString(0, DateTime::PA_MILLISECONDS) << " Done" << endl;
-    this_thread::sleep_for(chrono::seconds(5));
+
     return 0;
 }
