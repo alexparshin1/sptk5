@@ -40,7 +40,11 @@ struct caseInsensitiveCompare : public std::binary_function<String, String, bool
 {
     bool operator()(const String &lhs, const String &rhs) const
     {
-        return strcasecmp(lhs.c_str(), rhs.c_str()) < 0 ;
+#ifdef _WIN32
+		return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
+#else
+		return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
+#endif
     }
 };
 /**
