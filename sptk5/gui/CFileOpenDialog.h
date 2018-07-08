@@ -59,7 +59,7 @@ public:
      * @brief Default constructor
      * @param caption window caption
      */
-    CFileOpenDialog(const std::string& caption = "Open File");
+    explicit CFileOpenDialog(const std::string& caption = "Open File");
 
     /**
      * @brief Destructor

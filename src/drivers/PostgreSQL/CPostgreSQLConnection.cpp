@@ -196,7 +196,7 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
         m_inTransaction = false;
 
         if (!newConnectionString.empty())
-            m_connString = newConnectionString;
+            m_connString = DatabaseConnectionString(newConnectionString);
 
         m_connect = PQconnectdb(nativeConnectionString().c_str());
 

@@ -116,7 +116,7 @@ public:
      * @brief Constructor
      * @param connectionString  Database connection string
      */
-    DatabaseConnectionString(const String& connectionString) :
+    explicit DatabaseConnectionString(const String& connectionString) :
         m_connectionString(connectionString),
         m_portNumber(0)
     {

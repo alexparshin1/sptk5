@@ -62,9 +62,7 @@ bool CommandLine::Visibility::any() const
 bool CommandLine::Visibility::matches(const String& command) const
 {
     Strings matches;
-    if (m_inverted)
-        return !m_regexp->m(command, matches);
-    return m_regexp->m(command, matches);
+    return m_inverted == !m_regexp->m(command, matches);
 }
 //=============================================================================
 

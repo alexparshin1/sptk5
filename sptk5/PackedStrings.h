@@ -94,7 +94,7 @@ namespace sptk {
              * Constructor
              * @param strings const Strings&, source strings
              */
-            CPackedStrings(const Strings& strings);
+            explicit CPackedStrings(const Strings& strings);
 
             /**
              * Destructor

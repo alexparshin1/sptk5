@@ -38,7 +38,7 @@
 using namespace std;
 using namespace sptk;
 
-void CDateIntervalInput::intervalCalendarButtonPressed(Fl_Widget* btn, void* data)
+void CDateIntervalInput::intervalCalendarButtonPressed(Fl_Widget* btn, void*)
 {
     auto intervalInput = (CDateIntervalInput*) btn->parent()->parent();
     intervalInput->showCalendar(btn);

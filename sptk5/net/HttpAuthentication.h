@@ -64,7 +64,7 @@ private:
     const json::Document*   m_userData = { nullptr };
 
 public:
-    HttpAuthentication(const String& authenticationHeader);
+    explicit HttpAuthentication(const String& authenticationHeader);
     ~HttpAuthentication();
     const json::Element& getData();
     Type type() const { return m_type; }

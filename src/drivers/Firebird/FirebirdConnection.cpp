@@ -80,7 +80,7 @@ void FirebirdConnection::_openDatabase(const String& newConnectionString)
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
-            m_connString = newConnectionString;
+            m_connString = DatabaseConnectionString(newConnectionString);
 
         char dpb_buffer[256], *dpb;
         short dpb_length;

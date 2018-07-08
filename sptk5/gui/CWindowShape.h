@@ -134,7 +134,7 @@ public:
      * @brief Constructor
      * @param window sptk::CWindow*, window to change shape
      */
-    CWindowShape(sptk::CWindow* window);
+    explicit CWindowShape(sptk::CWindow* window);
 
     /**
      * @brief Destructor

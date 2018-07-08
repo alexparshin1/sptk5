@@ -37,7 +37,7 @@
 
 using namespace sptk;
 
-CControl* sptk::createControl(int controlKind, std::string label, std::string fieldName, int size)
+CControl* sptk::createControl(int controlKind, const String& label, const String& fieldName, int size)
 {
     CControl* control = nullptr;
 

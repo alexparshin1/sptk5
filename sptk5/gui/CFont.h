@@ -30,7 +30,7 @@
 #define __CFONT_H__
 
 #include <sptk5/sptk.h>
-#include <string>
+#include <sptk5/String.h>
 #include <map>
 
 namespace sptk {
@@ -79,7 +79,7 @@ public:
      * @param index uint32_t, font index in the fonts collection
      * @param attributes uint32_t, optional font attributes
      */
-    CFont(std::string name="arial",uint32_t size=10,uint32_t color=0,uint32_t index=0,uint32_t attributes=0)
+    CFont(const String& name="arial",uint32_t size=10,uint32_t color=0,uint32_t index=0,uint32_t attributes=0)
     {
         m_name = name;
         m_size = size;

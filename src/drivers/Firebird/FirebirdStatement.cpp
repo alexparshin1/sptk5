@@ -65,6 +65,7 @@ public:
             case SQL_TEXT:
             case SQL_BLOB:
             case SQL_VARYING:
+            default:
                 setBuffer(nullptr, (size_t) fieldSize + 1);
                 m_sqlvar.sqldata = (ISC_SCHAR*) getBuffer();
                 break;

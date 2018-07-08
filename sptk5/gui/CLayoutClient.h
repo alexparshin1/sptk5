@@ -193,7 +193,7 @@ public:
      * @brief Sets label, makes an internal copy of the string
      * @param l const string&, new label
      */
-    void label(const std::string& l)
+    void label(const String& l)
     {
         m_label = l;
         m_widget->label(m_label.c_str());
@@ -220,7 +220,7 @@ public:
     /**
      * @brief Sets the new widget name
      *
-     * @param aname std::string&, new widget name
+     * @param aname             New widget name
      */
     void name(const String& aname)
     {

@@ -93,7 +93,7 @@ public:
     /**
      * @brief Constructor
      */
-    CIcon(std::string name = "", CPngImage* image = 0L, bool shared = true) :
+    CIcon(const String& name = "", CPngImage* image = 0L, bool shared = true) :
         m_image(image),
         m_name(name),
         m_shared(shared)
@@ -156,7 +156,7 @@ public:
      * @brief Default constructor
      * @param shared bool, if true then memory, allocated for the icons, isn't managed
      */
-    CIconMap(bool shared = false)
+    explicit CIconMap(bool shared = false)
     {
         m_shared = shared;
     }

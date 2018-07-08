@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-CSpellOption::CSpellOption(const string& name, const string& value)
+CSpellOption::CSpellOption(const String& name, const String& value)
 {
     m_name = name;
     m_value = value;
@@ -47,7 +47,7 @@ CSpellOption& CSpellOption::operator=(const char* value)
     return *this;
 }
 
-CSpellOption& CSpellOption::operator=(const string& value)
+CSpellOption& CSpellOption::operator=(const String& value)
 {
     m_value = value;
     return *this;
@@ -146,7 +146,7 @@ CSpellChecker::CSpellChecker()
 #endif
 }
 
-CSpellOption& CSpellChecker::operator[](string optionName)
+CSpellOption& CSpellChecker::operator[](const String& optionName)
 {
     auto itor = CSpellOptions::find(optionName);
     if (itor == CSpellOptions::end()) {
@@ -239,7 +239,7 @@ bool CSpellChecker::spellCheck()
     delete_aspell_config(aconfig);
 
     textStart();
-    string word;
+    String word;
 
     bool rc = true;
     int wordStart, wordEnd;
@@ -287,7 +287,7 @@ void CEditorSpellChecker::textStart()
     m_bufferPosition = 0;
 }
 
-bool CEditorSpellChecker::getNextWord(string& w, int& wordStart, int& wordEnd)
+bool CEditorSpellChecker::getNextWord(String& w, int& wordStart, int& wordEnd)
 {
     Fl_Text_Buffer* buffer = m_editor->textBuffer();
     for (;;) {
@@ -305,7 +305,7 @@ bool CEditorSpellChecker::getNextWord(string& w, int& wordStart, int& wordEnd)
     }
 }
 
-bool CEditorSpellChecker::replaceWord(const string& word, int wordStart, int wordEnd)
+bool CEditorSpellChecker::replaceWord(const String& word, int wordStart, int wordEnd)
 {
     Fl_Text_Buffer* buffer = m_editor->textBuffer();
     buffer->replace(wordStart, wordEnd, word.c_str());

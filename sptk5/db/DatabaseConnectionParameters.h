@@ -54,7 +54,7 @@ public:
      * @brief Constructor
      * @param connectionString std::string, the connection string
      */
-    DatabaseConnectionParameters(std::string connectionString);
+    explicit DatabaseConnectionParameters(std::string connectionString);
 
     /**
      * @brief Returns connection string in format of name=value pairs

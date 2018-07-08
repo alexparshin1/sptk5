@@ -77,7 +77,7 @@ public:
      * If this file doesn't exist - it will be created.
      * @param fileName          Log file name
      */
-    FileLogEngine(const String& fileName) : m_fileName(fileName) {}
+    explicit FileLogEngine(const String& fileName) : m_fileName(fileName) {}
 
     /**
      * @brief Destructor

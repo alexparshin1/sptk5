@@ -239,7 +239,7 @@ public:
      * @brief Constructor
      * @param connectionString  The Oracle connection string
      */
-    OracleConnection(const std::string& connectionString = "");
+    explicit OracleConnection(const std::string& connectionString = "");
 
     /**
      * @brief Destructor

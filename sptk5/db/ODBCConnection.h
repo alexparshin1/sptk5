@@ -191,7 +191,7 @@ public:
      * @brief Constructor
      * @param connectionString  The ODBC connection string
      */
-    ODBCConnection(const String& connectionString = "");
+    explicit ODBCConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor

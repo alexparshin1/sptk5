@@ -194,7 +194,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The MySQL connection string
      */
-    MySQLConnection(const std::string& connectionString = "");
+    explicit MySQLConnection(const std::string& connectionString = "");
 
     /**
      * @brief Destructor

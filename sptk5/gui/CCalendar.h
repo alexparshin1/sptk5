@@ -168,7 +168,7 @@ public:
      * @brief Constructor
      * @param dateControl Fl_Widget, the widget the shows the popup calendar
      */
-    CPopupCalendar(Fl_Widget *dateControl);
+    explicit CPopupCalendar(Fl_Widget *dateControl);
 
     /**
      * @brief Attaches the calendar to another widget

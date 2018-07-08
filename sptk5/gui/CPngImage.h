@@ -159,7 +159,7 @@ public:
      * An object of the class contains it's own copy of the image data
      * @param imagedata const CBuffer&, PNG image data in memory buffer
      */
-    CPngImage(const Buffer& imagedata);
+    explicit CPngImage(const Buffer& imagedata);
 
     /**
      * @brief Constructor
@@ -167,7 +167,7 @@ public:
      * An object of the class contains it's own copy of the image data
      * @param image Fl_RGB_Image*, RGB image data in memory buffer
      */
-    CPngImage(const Fl_RGB_Image* image);
+    explicit CPngImage(const Fl_RGB_Image* image);
 
     /**
      * @brief Constructor
@@ -175,7 +175,7 @@ public:
      * An object of the class contains it's own copy of the image data
      * @param fileName std::string, image file (.png)
      */
-    CPngImage(std::string fileName);
+    explicit CPngImage(const String& fileName);
 
     /**
      * @brief Draws resized image

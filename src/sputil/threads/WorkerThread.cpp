@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/threads/WorkerThread.h>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;

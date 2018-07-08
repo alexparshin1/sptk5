@@ -938,7 +938,7 @@ public:
      * @param cvisible bool, is the column visible?
      */
 
-    void addColumn(const std::string colname, VariantType type, uint32_t cwidth = 100, bool cvisible = true)
+    void addColumn(const String& colname, VariantType type, uint32_t cwidth = 100, bool cvisible = true)
     {
         m_columnList.push_back(CColumn(colname, type, (short) cwidth, cvisible));
     }

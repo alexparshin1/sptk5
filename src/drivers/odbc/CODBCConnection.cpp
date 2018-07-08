@@ -101,7 +101,7 @@ void ODBCConnection::_openDatabase(const String& newConnectionString)
     if (!active()) {
         m_inTransaction = false;
         if (!newConnectionString.empty())
-            m_connString = newConnectionString;
+            m_connString = DatabaseConnectionString(newConnectionString);
 
         string finalConnectionString;
         m_connect->connect(nativeConnectionString(), finalConnectionString, false);

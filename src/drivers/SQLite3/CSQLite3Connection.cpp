@@ -105,7 +105,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
         m_inTransaction = false;
 
         if (!newConnectionString.empty())
-            m_connString = newConnectionString;
+            m_connString = DatabaseConnectionString(newConnectionString);
 
         if (sqlite3_open(nativeConnectionString().c_str(), &m_connect) != 0) {
             string error = sqlite3_errmsg(m_connect);

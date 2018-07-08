@@ -55,9 +55,9 @@ static Fl_Color colorFromHexString(const String& colorStr)
 {
     char* eptr;
     auto rgbColor = (uint32_t) strtol(colorStr.c_str(), &eptr, 16);
-    uint32_t blue, green, red;
 
     if (colorStr.length() == 3) {
+        uint32_t blue, green, red;
         blue = rgbColor % 16 * 16;
         rgbColor /= 16;
         green = rgbColor % 16 * 16;

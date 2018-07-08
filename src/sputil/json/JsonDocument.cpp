@@ -28,7 +28,6 @@
 
 #include <sptk5/json/JsonDocument.h>
 #include <sptk5/json/JsonParser.h>
-#include <sstream>
 
 using namespace std;
 using namespace sptk;

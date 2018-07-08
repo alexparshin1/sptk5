@@ -2,18 +2,11 @@
 #include <stdio.h>
 #include <sptk5/sptk.h>
 
-#ifndef _WIN32
-    #include <unistd.h>
-#else
+#ifdef _WIN32
     #include <io.h>
 #endif
 
 #include <sptk5/cutils>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
 
 #ifndef O_BINARY
 # define O_BINARY 0

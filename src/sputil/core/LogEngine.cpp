@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/LogEngine.h>
-#include <sptk5/Strings.h>
 
 using namespace std;
 using namespace sptk;

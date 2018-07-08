@@ -155,8 +155,8 @@ CPngImage::CPngImage(const Fl_RGB_Image* image)
     ld(image->ld());
 }
 
-CPngImage::CPngImage(string fileName)
-        : Fl_RGB_Image(nullptr, 0, 0)
+CPngImage::CPngImage(const String& fileName)
+: Fl_RGB_Image(nullptr, 0, 0)
 {
     try {
         Buffer imageData;

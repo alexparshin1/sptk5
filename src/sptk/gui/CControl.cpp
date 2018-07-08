@@ -259,7 +259,7 @@ void CControl::draw()
     }
 }
 
-void CControl::label(const std::string label)
+void CControl::label(const String& label)
 {
     if (m_label != label) {
         m_label = label;
@@ -334,7 +334,7 @@ void CControl::onExit()
 {
 }
 
-bool sptk::checkFieldName(std::string fieldName)
+bool sptk::checkFieldName(const String& fieldName)
 {
     size_t len = fieldName.length();
     if (len > 80)
@@ -393,12 +393,12 @@ int CControl::handle(int event)
     return rc;
 }
 
-void CControl::fieldName(const std::string& s)
+void CControl::fieldName(const String& s)
 {
     m_fieldName = s;
 }
 
-CControlKind CControl::controlNameToType(std::string typeName, int& maxLength, std::string values)
+CControlKind CControl::controlNameToType(const String& typeName, int& maxLength, const String& values)
 {
     CControlKind controlType = DCV_UNKNOWN;
     auto c1 = (char) toupper(typeName[1]);

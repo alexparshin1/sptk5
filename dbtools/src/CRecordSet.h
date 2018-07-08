@@ -47,7 +47,7 @@ public:
    /// @brief Constructor
    ///
    /// @param query CQuery&, query object 
-   CRecordSet(CQuery& query) : m_query(query) {}
+   explicit CRecordSet(CQuery& query) : m_query(query) {}
 
    /// @brief Copy constructor
    ///

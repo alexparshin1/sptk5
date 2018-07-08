@@ -57,7 +57,7 @@ public:
      * @brief Constructor in SPTK style
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
-    CToolBar(CLayoutAlign layoutAlign=SP_ALIGN_TOP);
+    explicit CToolBar(CLayoutAlign layoutAlign=SP_ALIGN_TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**

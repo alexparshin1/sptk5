@@ -119,8 +119,8 @@ void WSWebServiceProtocol::process()
         sptk::XMLNode* xmlRequest = *xmlBody->begin();
         jsonContent.root().add(xmlRequest->name(), jsonEnvelope);
         xmlRequest->exportTo(*jsonEnvelope);
-        jsonContent.exportTo(cout, true);
-        cout << endl;
+        //jsonContent.exportTo(cout, true);
+        //cout << endl;
     }
     else if (*startOfMessage == '{' || *startOfMessage == '[') {
         requestIsJSON = true;

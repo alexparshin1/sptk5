@@ -208,7 +208,7 @@ class Strings;
 /**
  * @brief Internal field name validation
  */
-SP_EXPORT bool checkFieldName(std::string fldName);
+SP_EXPORT bool checkFieldName(const String& fldName);
 
 /**
  * @brief Base class for most of SPTK widgets.
@@ -265,12 +265,12 @@ protected:
     /**
      * Field name for the universal data connection
      */
-    std::string       m_fieldName;
+    String            m_fieldName;
 
     /**
      * The text of the hint
      */
-    std::string       m_hint;
+    String            m_hint;
 
     /**
      * The main widget inside the control.
@@ -478,7 +478,7 @@ public:
     /**
      * @brief Returns control's label
      */
-    const std::string& label() const
+    const String& label() const
     {
         return m_label;
     }
@@ -486,7 +486,7 @@ public:
     /**
      * @brief Sets control's label
      */
-    void label(const std::string);
+    void label(const String&);
 
     /**
      * @brief Returns control's menu
@@ -539,9 +539,9 @@ public:
 
     /**
      * @brief Sets control's hint (tooltip)
-     * @param str std::string, tooltip text
+     * @param str               Tooltip text
      */
-    void hint(std::string str)
+    void hint(const String& str)
     {
         if (m_control) {
             m_hint = str;
@@ -552,7 +552,7 @@ public:
     /**
      * @brief Returns control's hint (tooltip)
      */
-    std::string hint() const
+    String hint() const
     {
         return m_hint;
     }
@@ -575,7 +575,7 @@ public:
     /**
      * @brief Returns control's field name for universal data connection
      */
-    virtual const std::string& fieldName() const
+    virtual const String& fieldName() const
     {
         return m_fieldName;
     }
@@ -583,7 +583,7 @@ public:
     /**
      * @brief Sets control's field name for universal data connection
      */
-    virtual void fieldName(const std::string&);
+    virtual void fieldName(const String&);
 
     /**
      * @brief Returns control's kind (internal SPTK RTTI).
@@ -720,12 +720,12 @@ public:
     /**
      * @brief Converts control name to control kind
      */
-    static CControlKind controlNameToType(std::string typeName, int& maxLength, std::string values = "");
+    static CControlKind controlNameToType(const String& typeName, int& maxLength, const String& values = "");
 
     /**
      * @brief Control data assignment
      */
-    CControl& operator =(const std::string& str)
+    CControl& operator =(const String& str)
     {
         data(str);
         return *this;
@@ -815,7 +815,7 @@ public:
     /**
      * @brief Control data conversion
      */
-    operator std::string() const
+    operator String() const
     {
         return data();
     }
@@ -912,7 +912,7 @@ public:
  * @param fieldName std::string, a control field name
  * @param layoutSize int, a control layout size
  */
-CControl *createControl(int controlKind, std::string label, std::string fieldName, int layoutSize);
+CControl *createControl(int controlKind, const String& label, const String& fieldName, int layoutSize);
 
 /**
  * @brief Create a control or a group of controls

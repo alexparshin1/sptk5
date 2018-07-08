@@ -110,7 +110,7 @@ public:
      * In order to use HTTPS protocol, use COpenSSLSocket.
      * @param socket            external socket
      */
-    HttpConnect(TCPSocket& socket);
+    explicit HttpConnect(TCPSocket& socket);
 
     /**
      * @brief Returns the internal read buffer

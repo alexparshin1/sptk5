@@ -73,7 +73,7 @@ bool CDirOpenDialog::okPressed()
     }
 }
 
-CDirOpenDialog::CDirOpenDialog(const string& caption)
+CDirOpenDialog::CDirOpenDialog(const String& caption)
 : CFileDialog(caption, true)
 {
     m_okButton->label("Use");

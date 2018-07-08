@@ -61,7 +61,7 @@ public:
 
 int CInsertThread::threadIndex = 0;
 
-CInsertThread::CInsertThread(std::string connectString, int rowsToInsert) :
+CInsertThread::CInsertThread(const String& connectString, int rowsToInsert) :
     Thread("Thread " + int2string(threadIndex)),
     m_db(connectString),
     m_query(&m_db, ""),
@@ -188,7 +188,6 @@ void CInsertThread::threadFunction()
 
 int main()
 {
-    unsigned threadNumber;
     unsigned maxThreads;
 
     cout << "Number of threads: ";
@@ -249,7 +248,7 @@ int main()
 
         int recordsTotal = (10000 / maxThreads) * maxThreads;
         int recordsPerThread = recordsTotal / maxThreads;
-        for (threadNumber = 0; threadNumber < maxThreads; threadNumber++) {
+        for (unsigned threadNumber = 0; threadNumber < maxThreads; threadNumber++) {
             CInsertThread *thread = new CInsertThread(db1.connectionString(),
                     recordsPerThread);
             threads.push_back(thread);

@@ -65,7 +65,7 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
     if (!active()) {
         m_inTransaction = false;
         if (newConnectionString.length())
-            m_connString = newConnectionString;
+            m_connString = DatabaseConnectionString(newConnectionString);
 
         Statement* createLOBtable = nullptr;
         try {

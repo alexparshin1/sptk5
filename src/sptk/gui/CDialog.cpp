@@ -200,7 +200,7 @@ DatabaseConnection* CDialog::database() const
     return m_selectQuery->database();
 }
 
-void CDialog::table(const string tableName)
+void CDialog::table(const String& tableName)
 {
     if (m_tableName != tableName) {
         m_tableName = tableName;
@@ -208,14 +208,14 @@ void CDialog::table(const string tableName)
     }
 }
 
-void CDialog::table(DatabaseConnection* db, const string tb, const string key)
+void CDialog::table(DatabaseConnection* db, const String& tb, const String& key)
 {
     database(db);
     table(tb);
     keyField(key);
 }
 
-void CDialog::keyField(const string fldName)
+void CDialog::keyField(const String& fldName)
 {
     if (m_keyField != fldName) {
         m_keyValue = -1;
@@ -353,7 +353,7 @@ void CDialog::save(XMLNode* node) const
     savePosition(node);
 }
 
-CControl& CDialog::operator[](string fieldName)
+CControl& CDialog::operator[](const String& fieldName)
 {
     if (!m_controlsScanned)
         scanControls();

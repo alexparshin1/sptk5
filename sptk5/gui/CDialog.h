@@ -56,7 +56,7 @@ class CDlgControls;
  */
 
 /**
- * @brief The closing dialog result value.
+ * The closing dialog result value.
  *
  * You can check it after the dialog exits the modal state, using modalResult() method.
  * If the Ok button was pressed, it would return DMR_OK.
@@ -87,7 +87,7 @@ enum CDialogModalResult
 };
 
 /**
- * @brief Extended CTabs for dialog.
+ * Extended CTabs for dialog.
  *
  * The main difference is - it hides the tab label
  * and the border when there is only one tab.
@@ -96,7 +96,7 @@ class CDialogTabs: public CTabs
 {
     /**
      * @brief Sets the proper box type for the widget and for the group depending on the number of tabs
-     * @param page Fl_Group *, newly added tab page
+     * @param page              Newly added tab page
      * @returns same page
      */
     Fl_Group *adjustPage(Fl_Group *page);
@@ -120,7 +120,7 @@ public:
 };
 
 /**
- * @brief Dialog window.
+ * Dialog window.
  *
  * Shows a modal window on the screen.
  * CDialog has support for the database data exchange to edit a database record.
@@ -133,8 +133,8 @@ class SP_EXPORT CDialog: public CWindow
     /**
      * @brief Loads window coordinates and widgets from XML node
      *
-     * @param node const XMLNode*, node to load data from
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
+     * @param node              Node to load data from
+     * @param xmlMode           Mode defining how the layout and/or data should be loaded
      */
     void load(const XMLNode* node, CLayoutXMLmode xmlMode) override
     {
@@ -142,10 +142,10 @@ class SP_EXPORT CDialog: public CWindow
     }
 
     /**
-     * @brief Saves window coordinates and widgets into XML node
+     * Saves window coordinates and widgets into XML node
      *
-     * @param node XMLNode*, node to save data into
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
+     * @param node              Node to save data into
+     * @param xmlMode           Mode defining how the layout and/or data should be loaded
      */
     void save(XMLNode* node, CLayoutXMLmode xmlMode) const override
     {
@@ -171,12 +171,12 @@ protected:
     /**
      * Database interface: table name
      */
-    std::string     m_tableName;
+    String          m_tableName;
 
     /**
      * Database interface: table key field name
      */
-    std::string     m_keyField;
+    String          m_keyField;
 
     /**
      * Database interface: table key field value for the record to edit
@@ -240,7 +240,7 @@ protected:
 
 
     /**
-     * @brief Ok button callback
+     * Ok button callback
      *
      * If it returns true the dialog closes.
      * False indicates an error and dialog stays open.
@@ -248,7 +248,7 @@ protected:
     virtual bool okPressed();
 
     /**
-     * @brief Ok button callback
+     * Ok button callback
      *
      * If it returns true the dialog closes.
      * False indicates an error and dialog stays open.
@@ -256,21 +256,21 @@ protected:
     virtual bool cancelPressed();
 
     /**
-     * @brief Scans dialog controls
+     * Scans dialog controls
      *
      * If m_controlsScanned is already true, does nothing.
      */
     virtual void scanControls();
 
     /**
-     * @brief Builds database interface queries using table(), keyField(), and control field names
+     * Builds database interface queries using table(), keyField(), and control field names
      *
      * If m_queriesBuilt is already true, does nothing.
      */
     virtual bool buildQueries();
 
     /**
-     * @brief Loads data into dialog
+     * Loads data into dialog
      *
      * Returns true upon success.
      * If you're overwriting this method make sure you're calling
@@ -279,7 +279,7 @@ protected:
     virtual bool load();
 
     /**
-     * @brief Saves data from dialog
+     * Saves data from dialog
      *
      * Returns true upon success.
      * If you're overwriting this method make sure you're calling
@@ -290,124 +290,124 @@ protected:
 public:
 
     /**
-     * @brief Constructor
-     * @param w int, dialog width
-     * @param h int, dialog height
-     * @param label const char *, dialog caption
+     * Constructor
+     * @param w                 Dialog width
+     * @param h                 Dialog height
+     * @param label             Dialog caption
      */
     CDialog(int w, int h, const char *label = 0);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     ~CDialog();
 
     /**
-     * @brief Resets all the controls inside the dialog tabs by calling reset() for every control
+     * Resets all the controls inside the dialog tabs by calling reset() for every control
      */
     virtual bool reset();
 
     /**
-     * @brief Own handle() method to process dialog events the special way
-     * @param event int, an FLTK event
+     * Own handle() method to process dialog events the special way
+     * @param event             FLTK event
      * @returns true if event was processed
      */
     int handle(int event) override;
 
     /**
-     * @brief Shows modal dialog
+     * Shows modal dialog
      * @returns true if Ok button was used to close the dialog
      */
     bool showModal();
 
     /**
-     * @brief Shows an alert box
+     * Shows an alert box
      */
     void alert(const String& s) const;
 
     /**
-     * @brief Defines the default button
-     * @param btn CButton *, button in dialog to become the default button
+     * Defines the default button
+     * @param btn               Button in dialog to become the default button
      */
     void defaultButton(CButton *btn);
 
     /**
-     * @brief Sets the database connection
-     * @param db DatabaseConnection *, the database connection
+     * Sets the database connection
+     * @param db                Database connection
      */
     virtual void database(DatabaseConnection *db);
 
     /**
-     * @brief Returns current database connection
+     * Returns current database connection
      */
     DatabaseConnection *database() const;
 
     /**
-     * @brief Defines database table to use
-     * @param tableName std::string, the name of the database table
+     * Defines database table to use
+     * @param tableName         Name of the database table
      */
-    void table(std::string tableName);
+    void table(const String& tableName);
 
     /**
-     * @brief Returnes used database table
+     * Returnes used database table
      */
-    std::string table() const
+    String table() const
     {
         return m_tableName;
     }
 
     /**
      * @brief Fast setup of the database connection
-     * @param db DatabaseConnection*, the database connection
-     * @param tableName std::string, the name of the database table
-     * @param keyFieldName std::string, the name of the key field in the database table
+     * @param db                Database connection
+     * @param tableName         Name of the database table
+     * @param keyFieldName      Name of the key field in the database table
      */
-    void table(DatabaseConnection*db, std::string tableName, const std::string keyFieldName);
+    void table(DatabaseConnection* db, const String& tableName, const String& keyFieldName);
 
     /**
-     * @brief Sets the key field name for the database table.
+     * Sets the key field name for the database table.
      *
      * The key field contains the unique value to find the database record.
-     * @param keyFieldName std::string, the name of the key field in the database table
+     * @param keyFieldName      Name of the key field in the database table
      */
-    void keyField(std::string keyFieldName);
+    void keyField(const String& keyFieldName);
 
     /**
-     * @brief Returns the key field name for the database table.
+     * Returns the key field name for the database table.
      */
-    std::string keyField() const
+    String keyField() const
     {
         return m_keyField;
     }
 
     /**
-     * @brief Finds the database record by the value in previously defined key field.
+     * Finds the database record by the value in previously defined key field.
      */
     void keyValue(int val);
 
     /**
-     * @brief Returns the current database record key value.
+     * Returns the current database record key value.
      */
     int keyValue() const;
 
     /**
-     * @brief Creates a new page as CGroup
-     * @param label const char *, page label
-     * @param autoColor bool, if true the page color is assigned automatically
+     * Creates a new page as CGroup
+     * @param                   Page label
+     * @param autoColor         If true the page color is assigned automatically
      * @returns created group
      */
     virtual Fl_Group* newPage(const char *label, bool autoColor);
 
     /**
-     * @brief Creates a new page as CScroll
-     * @param label const char *, page label
-     * @param autoColor bool, if true the page color is assigned automatically
+     * Creates a new page as CScroll
+     * @param label             Page label
+     * @param autoColor         If true the page color is assigned automatically
      * @returns created group
      */
     virtual Fl_Group* newScroll(const char *label, bool autoColor);
 
     /**
-     * @brief Adds a user-defined button to the dialog.
+     * Adds a user-defined button to the dialog.
      *
      * User-defined buttons usually do something in the dialog
      * without closing the dialog.
@@ -418,7 +418,7 @@ public:
     CButton* addExtraButton(CButtonKind buttonKind, const char *label, Fl_Callback_p callback);
 
     /**
-     * @brief Returns the number of controls inside the dialog with defined field names
+     * Returns the number of controls inside the dialog with defined field names
      */
     uint32_t fieldCount() const
     {
@@ -428,9 +428,9 @@ public:
     /**
      * @brief Index operator to access controls with defined field name
      *
-     * @param fieldName std::string, the control field name
+     * @param fieldName         The control field name
      */
-    CControl& operator [](std::string fieldName);
+    CControl& operator [](const String& fieldName);
 
     /**
      * @brief Makes dialog to scan the widgets inside
@@ -442,24 +442,21 @@ public:
     }
 
     /**
-     * @brief Loads the dialog controls data from XML
-     *
-     * @param node const XMLNode*, the XML node to load data from
+     * Loads the dialog controls data from XML
+     * @param node              XML node to load data from
      * @see XMLNode
      */
     void load(const XMLNode* node) override;
 
     /**
-     * @brief Saves the dialog controls into XML
-     *
-     * @param node XMLNode&, the XML node to save data into
+     * Saves the dialog controls into XML
+     * @param node              XML node to save data into
      * @see XMLNode* node
      */
     void save(XMLNode* node) const override;
 
     /**
-     * @brief Returns the modal result of the dialog.
-     *
+     * Returns the modal result of the dialog.
      * @see CDialogModalResult for more information.
      * @returns modal result
      */

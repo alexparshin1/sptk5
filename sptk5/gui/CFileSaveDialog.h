@@ -63,7 +63,7 @@ public:
      *
      * @param caption window caption
      */
-    CFileSaveDialog(const std::string& caption = "Save File");
+    explicit CFileSaveDialog(const std::string& caption = "Save File");
 
     /**
      * @brief Destructor

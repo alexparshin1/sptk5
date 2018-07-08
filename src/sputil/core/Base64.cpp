@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/Base64.h>
-#include <cstdint>
 
 using namespace std;
 using namespace sptk;

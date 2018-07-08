@@ -63,7 +63,7 @@ public:
      *
      * @param caption window caption
      */
-    CDirOpenDialog(const std::string& caption = "Open Directory");
+    explicit CDirOpenDialog(const String& caption = "Open Directory");
 
     /**
      * @brief Destructor
