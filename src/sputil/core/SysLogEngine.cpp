@@ -147,7 +147,10 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
         if (options & LO_PRIORITY)
             messagePrefix += "[" + priorityName(priority) + "] ";
 
-        cout << messagePrefix + message + "\n";
+        if (priority > LP_ERROR)
+            cout << messagePrefix + message + "\n";
+        else
+            cerr << messagePrefix + message + "\n";
     }
 }
 

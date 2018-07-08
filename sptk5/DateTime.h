@@ -33,7 +33,7 @@
 #include <ctime>
 #include <iostream>
 #include <sptk5/sptk.h>
-#include <string>
+#include <sptk5/String.h>
 
 namespace sptk {
 
@@ -191,17 +191,17 @@ public:
     /**
      * The locale-defined weekday names
      */
-    static std::string weekDayNames[7];
+    static String weekDayNames[7];
 
     /**
      * The locale-defined weekday names
      */
-    static std::string monthNames[12];
+    static String monthNames[12];
 
     /**
      * Time zone abbbreviastion
      */
-    static std::string timeZoneName;
+    static String timeZoneName;
 
     /**
     * Time zone offset from GMT in minutes
@@ -217,7 +217,7 @@ public:
     * Set timezone for the application
     * @param tzname             Time zone name, such as "UTC", ":US/Pacific", etc
     */
-    static void setTimeZone(const std::string& tzname);
+    static void setTimeZone(const sptk::String& tzname);
 
 
 public:
@@ -410,12 +410,12 @@ public:
     /**
      * @brief Reports the day of the week name in this date ('Sunday'..'Saturday')
      */
-    std::string dayOfWeekName() const;
+    String dayOfWeekName() const;
 
     /**
      * @brief Reports the month name in this date ('Sunday'..'Saturday')
      */
-    std::string monthName() const;
+    String monthName() const;
 
     /**
      * @brief Reports the date part only
@@ -441,26 +441,26 @@ public:
      * @brief Returns date as a string
      * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
-    std::string dateString(int printFlags=0) const;
+    String dateString(int printFlags = 0) const;
 
     /**
      * @brief Returns time as a string
      * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
-    std::string timeString(int printFlags=0, PrintAccuracy printAccuracy=PA_SECONDS) const;
+    String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PA_SECONDS) const;
 
     /**
      * @brief Returns time as a ISO date and time string
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      * @param gmt               If true print GMT time
      */
-    std::string isoDateTimeString(PrintAccuracy printAccuracy=PA_SECONDS, bool gmt=false) const;
+    String isoDateTimeString(PrintAccuracy printAccuracy = PA_SECONDS, bool gmt = false) const;
 
     /**
      * @brief Returns date and time as a string
      */
-    operator std::string() const
+    operator String() const
     {
         return dateString() + " " + timeString();
     }

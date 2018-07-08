@@ -67,9 +67,9 @@ char     DateTime::fullTimeFormat[32];
 char     DateTime::shortTimeFormat[32];
 char     DateTime::dateSeparator;
 char     DateTime::timeSeparator;
-string   DateTime::weekDayNames[7];
-string   DateTime::monthNames[12];
-string   DateTime::timeZoneName;
+String   DateTime::weekDayNames[7];
+String   DateTime::monthNames[12];
+String   DateTime::timeZoneName;
 int      DateTime::timeZoneOffset;
 int      DateTime::isDaylightSavingsTime;
 
@@ -246,7 +246,7 @@ void DateTimeFormat::init() noexcept
 
 static DateTimeFormat dateTimeFormatInitializer;
 
-void sptk::DateTime::setTimeZone(const string& tzname)
+void sptk::DateTime::setTimeZone(const String& tzname)
 {
 #ifdef _WIN32
 	_putenv_s("TZ", tzname.c_str());
@@ -904,31 +904,31 @@ short DateTime::dayOfWeek() const
     return short(wd + 1);
 }
 
-string DateTime::dayOfWeekName() const
+String DateTime::dayOfWeekName() const
 {
     return DateTime::weekDayNames[dayOfWeek() - 1];
 }
 
-string DateTime::monthName() const
+String DateTime::monthName() const
 {
     return DateTime::monthNames[month() - 1];
 }
 
-string DateTime::dateString(int printFlags) const
+String DateTime::dateString(int printFlags) const
 {
     stringstream str;
     formatDate(str, printFlags);
     return str.str();
 }
 
-string DateTime::timeString(int printFlags, PrintAccuracy printAccuracy) const
+String DateTime::timeString(int printFlags, PrintAccuracy printAccuracy) const
 {
     stringstream str;
     formatTime(str, printFlags, printAccuracy);
     return str.str();
 }
 
-std::string DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) const
+String DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) const
 {
     int printFlags = PF_TIMEZONE | PF_RFC_DATE;
     if (gmt)

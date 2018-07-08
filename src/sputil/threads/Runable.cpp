@@ -38,7 +38,7 @@ Runable::Runable()
 
 void Runable::execute()
 {
-    m_terminated.store(false);
+    m_terminated = false;
     lock_guard<mutex> lock(m_running);
     run();
 }
