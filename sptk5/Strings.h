@@ -48,15 +48,33 @@ namespace sptk
 class SP_EXPORT Strings
 {
 public:
+    /**
+     * Sort order enumeration
+     */
     enum SortOrder {
         UNSORTED,
         ASCENDING,
         DESCENDING
     };
 
+    /**
+     * Regular forward iterator type
+     */
     typedef std::vector<String>::iterator               iterator;
+
+    /**
+     * Const forward iterator type
+     */
     typedef std::vector<String>::const_iterator         const_iterator;
+
+    /**
+     * Regular reverse iterator type
+     */
     typedef std::vector<String>::reverse_iterator       reverse_iterator;
+
+    /**
+     * Const reverse iterator type
+     */
     typedef std::vector<String>::const_reverse_iterator const_reverse_iterator;
 
 private:
@@ -88,7 +106,7 @@ private:
      * @param second            Second compared string
      */
     static bool sortDescending(const String& first, const String& second);
-    
+
     /**
      * Splits source string on substrings using exact delimiter
      *
@@ -300,16 +318,28 @@ public:
         m_userData = 0;
     }
 
+    /**
+     * Get size of the collection
+     * @return number of strings in the collection
+     */
     size_t size() const noexcept
     {
         return m_strings.size();
     }
 
+    /**
+     * Is the collection empty?
+     * @return true if the collection is empty
+     */
     bool empty() const noexcept
     {
         return m_strings.empty();
     }
 
+    /**
+     * Change size of the collection
+     * @param size              New number of strings in the collection
+     */
     void resize(size_t size)
     {
         if (size > m_strings.size())
@@ -317,6 +347,10 @@ public:
         m_strings.resize(size);
     }
 
+    /**
+     * Pre-allocate size of the collection
+     * @param size              New number of strings in the collection
+     */
     void reserve(size_t size)
     {
         m_strings.reserve(size);
@@ -340,67 +374,121 @@ public:
         m_strings.push_back(str);
     }
 
+    /**
+     * Emplace back a string
+     */
     template<typename... Args>
     void emplace_back(Args&&... args)
     {
         m_strings.emplace_back(args...);
     }
 
+    /**
+     * Get the collection start
+     * @return begin iterator
+     */
     iterator begin() noexcept
     {
         return m_strings.begin();
     }
 
+    /**
+     * Get the collection start
+     * @return begin iterator
+     */
     const_iterator begin() const noexcept
     {
         return m_strings.begin();
     }
 
+    /**
+     * Get the collection end
+     * @return end iterator
+     */
     iterator end() noexcept
     {
         return m_strings.end();
     }
 
+    /**
+     * Get the collection end
+     * @return end iterator
+     */
     const_iterator end() const noexcept
     {
         return m_strings.end();
     }
 
+    /**
+     * Get the collection reverse start
+     * @return rbegin iterator
+     */
     reverse_iterator rbegin() noexcept
     {
         return m_strings.rbegin();
     }
 
+    /**
+     * Get the collection reverse start
+     * @return rbegin iterator
+     */
     const_reverse_iterator rbegin() const noexcept
     {
         return m_strings.rbegin();
     }
 
+    /**
+     * Get the collection reverse end
+     * @return rend iterator
+     */
     reverse_iterator rend() noexcept
     {
         return m_strings.rend();
     }
 
+    /**
+     * Get the collection reverse end
+     * @return rend iterator
+     */
     const_reverse_iterator rend() const noexcept
     {
         return m_strings.rend();
     }
 
+    /**
+     * Index operator
+     * @param index             String index
+     * @return string by the index
+     */
     String& operator[] (size_t index)
     {
         return m_strings[index];
     }
 
+    /**
+     * Index operator
+     * @param index             String index
+     * @return string by the index
+     */
     const String& operator[] (size_t index) const
     {
         return m_strings[index];
     }
 
+    /**
+     * Erase string at the iterator position
+     * @param itor              Iterator of the position
+     */
     void erase(iterator itor)
     {
         m_strings.erase(itor);
     }
 
+    /**
+     * Erase strings between the iterator positions
+     * @param from              Iterator of the from position
+     * @param to                Iterator of the to position
+     */
     void erase(iterator from, iterator to)
     {
         m_strings.erase(from, to);
