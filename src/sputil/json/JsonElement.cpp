@@ -440,7 +440,7 @@ const json::ObjectData& Element::getObject(const String& name) const
 
 void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
-    string indentSpaces, newLineChar, firstElement(" "), betweenElements(", ");
+    string indentSpaces, newLineChar, firstElement(""), betweenElements(",");
     if (formatted && m_type & (JDT_ARRAY | JDT_OBJECT)) {
         if (indent)
             indentSpaces = string(indent, ' ');
@@ -490,10 +490,12 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
                         stream << firstElement;
                     } else
                         stream << betweenElements;
-                    stream << "\"" << itor.first << "\": ";
+                    stream << "\"" << itor.first << "\":";
+                    if (formatted)
+                        stream << " ";
                     itor.second->exportValueTo(stream, formatted, indent + 4);
                 }
-                stream << " ";
+                //stream << " ";
             }
             stream << newLineChar << indentSpaces << "}";
             break;
@@ -723,7 +725,7 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
 
         if (!rootOnly) {
             for (auto& itor: *m_data.m_object) {
-                if (itor.second->m_type == JDT_OBJECT)
+                if (itor.second->m_type == JDT_OBJECT || itor.second->m_type == JDT_ARRAY)
                     itor.second->selectElements(elements, xpath, 0, false);
             }
         }

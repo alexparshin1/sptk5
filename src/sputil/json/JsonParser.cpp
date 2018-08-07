@@ -184,7 +184,9 @@ void readJsonNull(const char* json, const char*& readPosition)
 {
     if (strncmp(readPosition, "null", 4) != 0)
         throwError("Unexpected value, expecting 'null'", json, readPosition - json);
-    readPosition += 5;
+    readPosition += 4;
+    if (*readPosition == ',')
+        readPosition++;
     skipSpaces(json, readPosition);
 }
 
