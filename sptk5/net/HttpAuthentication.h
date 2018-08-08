@@ -58,15 +58,32 @@ public:
     };
 
 private:
-    Type                    m_type { UNDEFINED };
-    const String            m_authenticationHeader;
-    const JWT*              m_jwtData = { nullptr };
-    const json::Document*   m_userData = { nullptr };
+    Type                    m_type { UNDEFINED };       ///< Authentication data type
+    const String            m_authenticationHeader;     ///< Authentication data
+    const JWT*              m_jwtData = { nullptr };    ///< JWT token, if type is BEARER
+    const json::Document*   m_userData = { nullptr };   ///< Decoded user data
 
 public:
+    /**
+     * Constructor
+     * @param authenticationHeader  Authentication HTTP header content
+     */
     explicit HttpAuthentication(const String& authenticationHeader);
+
+    /**
+     * Destructor
+     */
     ~HttpAuthentication();
+
+    /**
+     * Get decoded authentication data (username and password, or JWT)
+     * @return authentication data
+     */
     const json::Element& getData();
+
+    /**
+     * Get authentication data type
+     */
     Type type() const { return m_type; }
 };
 

@@ -87,7 +87,7 @@ public:
      * @param lowerCaseNames    True if you want to lower-case the parameter names
      */
     void decode(const Buffer& paramString, bool lowerCaseNames = false);
-    
+
     /**
      * @brief Returns parameter value, or empty string if not found
      * @param paramName         Parameter name

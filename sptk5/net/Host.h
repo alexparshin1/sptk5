@@ -81,7 +81,7 @@ public:
     /**
      * Constructor
      * In order to work with IPv6 address, enclose address part in square brackets.
-     * @param hostAndPort       The host and port definition, in the format <ipv4addr>:<port>.
+     * @param hostAndPort       The host and port definition, in the format ipv4addr:port.
      */
     explicit Host(const String& hostAndPort);
 
