@@ -372,9 +372,9 @@ String CFileDialog::fullFileName() const
     String fileNamesStr = m_fileNameInput->data();
     Strings fileNames(fileNamesStr, ";");
 
-    for (unsigned i = 0; i < fileNames.size(); i++) {
-        String fname = m_directory.directory() + slashStr + fileNames[i];
-        fileNames[i] = trim(fname.replace("[\\/\\\\]{2}", slashStr));
+    for (auto& fileName : fileNames) {
+        String fname = m_directory.directory() + slashStr + fileName;
+        fileName = trim(fname.replace("[\\/\\\\]{2}", slashStr));
     }
 
     return fileNames.asString(";");

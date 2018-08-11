@@ -193,8 +193,8 @@ void WSParser::parse(std::string wsdlFile)
 String capitalize(const String& name)
 {
     Strings parts(lowerCase(name),"_");
-    for (unsigned i = 0; i < parts.size(); i++) {
-        parts[i][0] = (char) toupper(parts[i][0]);
+    for (auto& part : parts) {
+        part[0] = (char) toupper(part[0]);
     }
     return parts.asString("");
 }

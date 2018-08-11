@@ -270,8 +270,8 @@ void CThemeColorCollection::loadColorMap(XMLDocument& gtkTheme, const String& co
 
     Strings colorMapStrings(colorMapNode->getAttribute("colors"), "\\n");
 
-    for (unsigned i = 0; i < colorMapStrings.size(); i++) {
-        Strings colorInfo(colorMapStrings[i], ":#");
+    for (const auto& colorMapString : colorMapStrings) {
+        Strings colorInfo(colorMapString, ":#");
         if (colorInfo.size() != 2)
             continue;
         m_colorMap[colorInfo[0]] = colorFromHexString(colorInfo[1]);

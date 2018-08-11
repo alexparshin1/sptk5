@@ -45,13 +45,13 @@ void Semaphore::post()
     }
 }
 
-bool Semaphore::wait(chrono::milliseconds timeout)
+bool Semaphore::sleep_for(chrono::milliseconds timeout)
 {
     auto timeoutAt = DateTime::Now() + timeout;
-    return wait(timeoutAt);
+    return sleep_until(timeoutAt);
 }
 
-bool Semaphore::wait(DateTime timeoutAt)
+bool Semaphore::sleep_until(DateTime timeoutAt)
 {
     unique_lock<mutex>  lock(m_mutex);
     // Wait until semaphore value is greater than 0

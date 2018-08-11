@@ -145,7 +145,7 @@ CPngImage::CPngImage(const Buffer& imagedata)
 CPngImage::CPngImage(const Fl_RGB_Image* image)
         : Fl_RGB_Image(nullptr, 0, 0)
 {
-    unsigned arraySize = image->w() * image->h() * image->d();
+    unsigned arraySize = unsigned(image->w() * image->h() * image->d());
     array = new uchar[arraySize];
     alloc_array = 1;
     memcpy((void*) array, image->array, arraySize);
@@ -169,9 +169,9 @@ static Fl_RGB_Image*
 subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned width, unsigned height)
 {
     if (offsetX > (unsigned) image->w())
-        offsetX = image->w();
+        offsetX = (unsigned) image->w();
     if (offsetY > (unsigned) image->h())
-        offsetY = image->h();
+        offsetY = (unsigned) image->h();
     if (offsetX + width > (unsigned) image->w())
         width = (unsigned) image->w() - offsetX;
     if (offsetY + height > (unsigned) image->h())

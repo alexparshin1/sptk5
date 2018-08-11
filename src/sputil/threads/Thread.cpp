@@ -64,13 +64,12 @@ Thread::~Thread()
 
 void Thread::terminate()
 {
-    lock_guard<std::mutex> lock(m_mutex);
+    m_pause.post();
     m_terminated = true;
 }
 
 bool Thread::terminated()
 {
-    lock_guard<std::mutex> lock(m_mutex);
     return m_terminated;
 }
 
@@ -90,4 +89,14 @@ void Thread::run()
     lock_guard<std::mutex> lock(m_mutex);
     m_terminated = false;
     m_thread = thread(threadStart, (void *) this);
+}
+
+void Thread::sleep_for(std::chrono::milliseconds interval)
+{
+    m_pause.sleep_for(interval);
+}
+
+void Thread::sleep_until(DateTime timestamp)
+{
+    m_pause.sleep_until(timestamp);
 }

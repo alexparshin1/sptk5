@@ -74,7 +74,7 @@ void ThreadPool::execute(Runable* task)
             throw Exception("Thread manager is stopped");
     }
 
-    if (!m_availableThreads.wait(std::chrono::milliseconds(10))) {
+    if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10))) {
         if (m_threads.size() < m_threadLimit)
             createThread();
     }
@@ -113,7 +113,7 @@ void ThreadPool::stop()
     }
     m_threads.each(terminateThread);
     while (!m_threads.empty())
-        this_thread::sleep_for(chrono::seconds(1));
+        sleep_for(chrono::seconds(1));
 }
 
 size_t ThreadPool::size() const

@@ -1156,9 +1156,8 @@ bool CListView::preferredSize(int& w, int& h)
     return false;
 }
 
-void CListView::fill(
-        DataSource& ds, std::string keyFieldName, unsigned recordsLimit, unsigned recordsEstimated,
-        CRefreshKind refreshKind)
+void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned recordsLimit, unsigned recordsEstimated,
+                     CRefreshKind refreshKind)
 {
 
     m_fillTerminated = false;

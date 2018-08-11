@@ -655,10 +655,10 @@ Strings CThemes::availableThemes()
     themes.push_back("Default");
     //themes.push_back("GTK");
     const Strings& dirs = searchDirectories();
-    for (unsigned i = 0; i < dirs.size(); i++) {
+    for (const auto& adir : dirs) {
         try {
             DirectoryDS dir;
-            dir.directory(dirs[i]);
+            dir.directory(adir);
 
             dir.showPolicy(DDS_HIDE_DIRECTORIES | DDS_HIDE_DOT_FILES);
             dir.pattern("*.tar");

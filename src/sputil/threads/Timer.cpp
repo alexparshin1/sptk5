@@ -42,7 +42,7 @@ public:
             }
         }
 
-        if (m_semaphore.wait(when)) {
+        if (m_semaphore.sleep_until(when)) {
             // Wait interrupted
             return false;
         }

@@ -1185,7 +1185,8 @@ public:
      * @see CRefreshKind
      * @see CDataSource
      */
-    void fill(DataSource& ds, std::string keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0, CRefreshKind refreshKind = LV_REFRESH_FULL);
+    void fill(DataSource& ds, const String& keyFieldName = "", uint32_t recordsLimit = 0, uint32_t recordsEstimated = 0,
+              CRefreshKind refreshKind = LV_REFRESH_FULL);
 
     /**
      * @brief Fills the list with the data from XML node

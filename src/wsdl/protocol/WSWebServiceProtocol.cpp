@@ -129,9 +129,9 @@ void WSWebServiceProtocol::process()
             throw Exception("Invalid url");
         // Converting JSON request to XML request
         String method(*url.rbegin());
-        sptk::XMLElement* xmlEnvelope = new sptk::XMLElement(message, "soap:Envelope");
+        auto xmlEnvelope = new sptk::XMLElement(message, "soap:Envelope");
         xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-        sptk::XMLElement* xmlBody = new sptk::XMLElement(xmlEnvelope, "soap:Body");
+        auto xmlBody = new sptk::XMLElement(xmlEnvelope, "soap:Body");
         jsonContent.load(startOfMessage);
         jsonContent.root().exportTo("ns1:" + method, *xmlBody);
         Buffer buffer;

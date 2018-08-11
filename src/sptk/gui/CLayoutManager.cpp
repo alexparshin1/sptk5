@@ -448,7 +448,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
             try {
                 auto control = dynamic_cast<CControl*>(widget);
                 if (control) {
-                    string clabel = control->label();
+                    String clabel = control->label();
                     if (clabel.empty())
                         clabel = "noName:" + int2string(i);
                     auto ctor = xmlControls.find(clabel);

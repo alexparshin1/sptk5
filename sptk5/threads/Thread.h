@@ -34,6 +34,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include "Semaphore.h"
 
 namespace sptk
 {
@@ -72,8 +73,12 @@ protected:
     /**
      * Flag: is the thread terminated?
      */
-    bool                m_terminated;
+    std::atomic_bool    m_terminated;
 
+    /**
+     * Pause object
+     */
+    Semaphore           m_pause;
 
 public:
 
@@ -136,6 +141,20 @@ public:
     {
         return m_name;
     }
+
+    /**
+     * Sleep for interval of time
+     * The sleep is automatically interrupted when terminate() is called.
+     * @param interval          Interval of time
+     */
+    virtual void sleep_for(std::chrono::milliseconds interval);
+
+    /**
+     * Sleep until moment of time
+     * The pause is automatically interrupted when terminate() is called.
+     * @param timestamp         Moment of time
+     */
+    virtual void sleep_until(DateTime timestamp);
 };
 /**
  * @}

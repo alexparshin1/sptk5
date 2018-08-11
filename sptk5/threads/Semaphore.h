@@ -97,7 +97,7 @@ public:
      * @param timeout           Wait timeout
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool wait(std::chrono::milliseconds timeout);
+    bool sleep_for(std::chrono::milliseconds timeout);
 
     /**
      * @brief Waits until semaphore value is greater than zero, or until timeoutAt occurs
@@ -106,7 +106,7 @@ public:
      * @param timeout           Timeout moment
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool wait(DateTime timeout);
+    bool sleep_until(DateTime timeout);
 };
 /**
  * @}

@@ -120,7 +120,7 @@ public:
      */
     virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.wait(timeout)) {
+        if (m_semaphore.sleep_for(timeout)) {
             std::lock_guard<std::mutex> lock(m_sync);
             if (!m_list->empty()) {
                 item = m_list->front();
@@ -155,7 +155,7 @@ public:
      */
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.wait(timeout)) {
+        if (m_semaphore.sleep_for(timeout)) {
             std::lock_guard<std::mutex> lock(m_sync);
             if (!m_list->empty()) {
                 item = m_list->back();

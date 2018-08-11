@@ -135,7 +135,7 @@ public:
      */
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.wait(timeout)) {
+        if (m_semaphore.sleep_for(timeout)) {
             SynchronizedCode sc(m_sync);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());
