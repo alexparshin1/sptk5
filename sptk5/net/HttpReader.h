@@ -41,9 +41,9 @@ struct caseInsensitiveCompare : public std::binary_function<String, String, bool
     bool operator()(const String &lhs, const String &rhs) const
     {
 #ifdef _WIN32
-		return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
+        return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
 #else
-		return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
+        return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
 #endif
     }
 };
@@ -77,7 +77,12 @@ private:
      * State of the response reader
      */
     ReaderState         m_readerState;
+
 public:
+
+    /**
+     * Returns current reader state
+     */
     ReaderState getReaderState() const;
 
 private:
@@ -134,8 +139,15 @@ private:
 
 public:
 
+    /**
+     * Read-only access to response headers
+     */
     const HttpHeaders& getResponseHeaders() const;
 
+    /**
+     * Read-only access to response headers by name
+     * @param headerName        Header name
+     */
     String responseHeader(const String& headerName) const;
 
 private:
