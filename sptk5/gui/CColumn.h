@@ -107,7 +107,7 @@ public:
 
     /**
      * @brief Sets column width in pixels
-     * @param                   Column width in pixels
+     * @param w                 Column width in pixels
      */
     void width(int16_t w)
     {
