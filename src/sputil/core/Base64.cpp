@@ -169,3 +169,25 @@ size_t Base64::decode(Buffer &bufDest, const string& strSource)
 {
     return internal_decode(bufDest, strSource);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* testPhrase = "This is a test";
+static const char* testPhraseBase64 = "VGhpcyBpcyBhIHRlc3Q=";
+
+TEST(Base64, decode)
+{
+    Buffer decoded;
+    Base64::decode(decoded, testPhraseBase64);
+    EXPECT_STREQ(testPhrase, decoded.c_str());
+}
+
+TEST(Base64, encode)
+{
+    string encoded;
+    Base64::encode(encoded, Buffer(testPhrase));
+    EXPECT_STREQ(testPhraseBase64, encoded.c_str());
+}
+
+#endif

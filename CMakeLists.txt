@@ -31,6 +31,7 @@ OPTION (USE_OPENSSL    "Build OpenSSL support library" ON)
 OPTION (USE_ORACLE     "Build Oracle support library" ON)
 OPTION (USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION (USE_SQLITE3    "Build SQLite3 support library" ON)
+OPTION (USE_GTEST      "Build Google Test unit tests" ON)
 
 OPTION (USE_PCRE       "Use PCRE library" ON)
 
@@ -207,6 +208,22 @@ IF (SQLITE3_FLAG)
 ELSE (SQLITE3_FLAG)
   MESSAGE("SQLITE3 support:    don't compile")
 ENDIF (SQLITE3_FLAG)
+
+
+SET (GTEST_FLAG "0")
+SET (GTEST_STATE "not enabled")
+IF (USE_GTEST)
+  FIND_PACKAGE (GTest QUIET)
+  IF (GTest_FOUND)
+    SET (GTEST_FLAG "1")
+    LINK_LIBRARIES(gtest)
+    SET (GTEST_STATE "enabled")
+  ELSE ()
+    SET (GTEST_STATE "not found")
+  ENDIF ()
+ENDIF ()
+MESSAGE("GTest support:      ${GTEST_STATE}")
+
 
 # Detect FLTK and Aspell
 SET (FLTK_FLAG "0")

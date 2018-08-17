@@ -1,10 +1,10 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       sptk-config.h - description                            ║
+║                       CBase64.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            (C) 1999-2016 by Alexey Parshin. All rights reserved.  ║
+║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,35 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_CONFIG_H__
-#define __SPTK_CONFIG_H__
+#include <gtest/gtest.h>
 
-#define VERSION          "@VERSION@"
-#define THEMES_PREFIX    "@THEMES_PREFIX@"
-
-/// @addtogroup utility Utility Classes
-/// @{
-
-#define HAVE_FLTK        @FLTK_FLAG@        ///< Flag indicating if FLTK library is installed
-#define HAVE_ODBC        @ODBC_FLAG@        ///< Flag indicating if ODBC library is installed
-#define HAVE_SQLITE3     @SQLITE3_FLAG@     ///< Flag indicating if SQLite3 library is installed
-#define HAVE_POSTGRESQL  @POSTGRESQL_FLAG@  ///< Flag indicating if LibPQ (PostgreSQL client) library is installed
-#define HAVE_FIREBIRD    @FIREBIRD_FLAG@    ///< Flag indicating if Firebird client library is installed
-#define HAVE_MYSQL       @MYSQL_FLAG@       ///< Flag indicating if MySQL client library is installed
-#define HAVE_ORACLE      @ORACLE_FLAG@      ///< Flag indicating if Oracle client library is installed
-#define HAVE_ASPELL      @ASPELL_FLAG@      ///< Flag indicating if ASpell library is installed
-#define HAVE_PCRE        @PCRE_FLAG@        ///< Flag indicating if PCRE library is installed
-#define HAVE_OPENSSL     @OPENSSL_FLAG@     ///< Flag indicating if OpenSSL library is installed
-#define HAVE_ZLIB        @ZLIB_FLAG@        ///< Flag indicating if ZLib library is installed
-#define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@  ///< Flag indicating if byte order for mashine is big endian
-#define BITNESS          @BITNESS@          ///< Number of machine bits
-
-#define USE_GTEST        @GTEST_FLAG@       ///< Flag indicating if GTest library is installed and used
-
-#define HAVE_PTHREAD_MUTEX_TIMEDLOCK    @HAVE_PTHREAD_MUTEX_TIMEDLOCK@      ///< Flag indicating if pthreads library has pthread_mutex_timelock() function
-#define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK @HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@   ///< Flag indicating if pthreads library has pthread_rdlock_timedrdlock() function
-#define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK @HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@   ///< Flag indicating if pthreads library has pthread_wrlock_timedrdlock() function
-
-/// @}
-
-#endif
+int main(int argc, char* argv[])
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
