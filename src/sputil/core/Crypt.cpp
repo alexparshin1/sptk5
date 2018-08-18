@@ -108,7 +108,36 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
     if (EVP_DecryptFinal_ex(ctx, (unsigned char*) dest.data() + dest.bytes(), &len) != 1)
         throw Exception("Error calling EVP_DecryptFinal_ex()");
     dest.bytes(dest.bytes() + len);
+    dest[dest.bytes()] = 0;
 
     // Clean up
     EVP_CIPHER_CTX_free(ctx);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+
+static const char* testText = "The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char* testKey = "01234567890123456789012345678901";
+static const char* testIV = "0123456789012345";
+static const char* encryptedB64 = "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=";
+
+TEST(Crypt, encrypt)
+{
+    Buffer encrypted;
+    string encryptedStr;
+    Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
+    Base64::encode(encryptedStr, encrypted);
+    EXPECT_STREQ(encryptedB64, encryptedStr.c_str());
+}
+
+TEST(Crypt, decrypt)
+{
+    Buffer encrypted, decrypted;
+    Base64::decode(encrypted, encryptedB64);
+    Crypt::decrypt(decrypted, encrypted, testKey, testIV);
+    EXPECT_STREQ(testText, decrypted.c_str());
+}
+
+#endif
