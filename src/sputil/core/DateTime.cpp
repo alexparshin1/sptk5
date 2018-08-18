@@ -735,35 +735,23 @@ DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
 //----------------------------------------------------------------
 void DateTime::formatDate(ostream& str, int printFlags) const
 {
-    short month = 0, day = 0, year = 0, wday = 0, yday = 0;
-
     if (zero())
         return;
 
-    decodeDate(m_dateTime, year, month, day, wday, yday, (printFlags & PF_GMT) != 0);
-    char savedFill = str.fill('0');
+    time_t t = clock::to_time_t(m_dateTime);
+    tm     tt;
+    if ((printFlags & PF_GMT) != 0)
+        gmtime_r(&t, &tt);
+    else
+        localtime_r(&t, &tt);
+
+    char buffer[128];
+    size_t len;
     if ((printFlags & PF_RFC_DATE) != 0)
-        str << setw(4) << year << "-" << setw(2) << month << "-" << setw(2) << day;
-    else {
-        for (int i = 0; i < 3; i++) {
-            if (i != 0)
-                str << dateSeparator;
-            switch (datePartsOrder[i]) {
-                case 'M':
-                    str << setw(2) << month;
-                    break;
-                case 'D':
-                    str << setw(2) << day;
-                    break;
-                case 'Y':
-                    str << setw(4) << year;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    str.fill(savedFill);
+        len = strftime(buffer, sizeof(buffer) - 1, "%F", &tt);
+    else
+        len = strftime(buffer, sizeof(buffer) - 1, "%x", &tt);
+    str << string(buffer, len);
 }
 
 void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccuracy) const
@@ -987,6 +975,59 @@ TEST(DateTime, add)
     DateTime dateTime2 = dateTime1 + chrono::milliseconds(111);
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(1514769753555, msSinceEpoch2.count());
+}
+
+TEST(DateTime, extractDate)
+{
+    short year, month, day, wday, yday;
+    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    dateTime.decodeDate(&year, &month, &day, &wday, &yday, true);
+    EXPECT_EQ(2018, year);
+    EXPECT_EQ(8, month);
+    EXPECT_EQ(7, day);
+    EXPECT_EQ(2, wday);
+    EXPECT_EQ(218, yday);
+}
+
+TEST(DateTime, extractTime)
+{
+    short hour, minute, second, ms;
+    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    dateTime.decodeTime(&hour, &minute, &second, &ms, true);
+    EXPECT_EQ(11, hour);
+    EXPECT_EQ(22, minute);
+    EXPECT_EQ(33, second);
+    EXPECT_EQ(444, ms);
+}
+
+TEST(DateTime, formatDate)
+{
+    DateTime dateTime("2018-08-07 11:22:33.444Z");
+
+    time_t t = (time_t) dateTime;
+    tm tt;
+    localtime_r(&t, &tt);
+
+    char buffer[128];
+    strftime(buffer, sizeof(buffer) - 1, "%x", &tt);
+
+    EXPECT_STREQ("2018-08-07", dateTime.dateString(DateTime::PF_GMT|DateTime::PF_RFC_DATE).c_str());
+    EXPECT_STREQ(buffer, dateTime.dateString(DateTime::PF_GMT).c_str());
+}
+
+TEST(DateTime, formatTime)
+{
+    DateTime dateTime("2018-08-07 11:22:33.444Z");
+
+    time_t t = (time_t) dateTime;
+    tm tt;
+    gmtime_r(&t, &tt);
+
+    char buffer[128];
+    strftime(buffer, sizeof(buffer) - 1, "%X", &tt);
+
+    EXPECT_STREQ("11:22:33.444Z", dateTime.timeString(DateTime::PF_GMT|DateTime::PF_TIMEZONE, DateTime::PA_MILLISECONDS).c_str());
+    EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
 }
 
 #endif

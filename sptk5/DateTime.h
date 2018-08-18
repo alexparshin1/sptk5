@@ -466,6 +466,14 @@ public:
     }
 
     /**
+     * @brief Returns time_t presentation
+     */
+    operator time_t() const
+    {
+        return clock::to_time_t(m_dateTime);
+    }
+
+    /**
      * @brief Decodes date into y,m,d
      */
     void decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt = false) const
