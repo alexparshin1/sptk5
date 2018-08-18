@@ -36,12 +36,12 @@ using namespace sptk;
 
 Buffer::Buffer(size_t sz)
 {
-    m_buffer = (char*)calloc(1, sz);
+    m_buffer = (char*)calloc(1, sz + 1);
 
     if (m_buffer != nullptr)
-        m_size = sz;
+        m_capacity = sz;
     else
-        m_size = 0;
+        m_capacity = 0;
 
     m_bytes = 0;
 }
@@ -53,25 +53,25 @@ Buffer::Buffer(const void* data, size_t sz)
     if (m_buffer != nullptr)
     {
         memcpy(m_buffer, data, sz);
-        m_size = sz;
+        m_capacity = sz;
         m_bytes = sz;
         m_buffer[sz] = 0;
     }
     else
-        m_size = m_bytes = 0;
+        m_capacity = m_bytes = 0;
 }
 
 Buffer::Buffer(const char* str)
 {
     size_t sz = (size_t) strlen(str) + 1;
-    m_buffer = (char*)malloc(sz);
+    m_buffer = (char*)malloc(sz );
 
     if (m_buffer != nullptr) {
         memcpy(m_buffer, str, sz);
-        m_size = sz;
+        m_capacity = sz;
         m_bytes = sz - 1;
     } else {
-        m_size = 0;
+        m_capacity = 0;
         m_bytes = 0;
     }
 }
@@ -86,10 +86,10 @@ Buffer::Buffer(const string& str)
             memcpy(m_buffer, str.c_str(), sz);
         else m_buffer[0] = 0;
 
-        m_size = sz;
+        m_capacity = sz;
         m_bytes = sz - 1;
     } else {
-        m_size = 0;
+        m_capacity = 0;
         m_bytes = 0;
     }
 }
@@ -104,10 +104,10 @@ Buffer::Buffer(const String& str)
             memcpy(m_buffer, str.c_str(), sz);
         else m_buffer[0] = 0;
 
-        m_size = sz;
+        m_capacity = sz;
         m_bytes = sz - 1;
     } else {
-        m_size = 0;
+        m_capacity = 0;
         m_bytes = 0;
     }
 }
@@ -119,10 +119,10 @@ Buffer::Buffer(const Buffer& buffer)
 
     if (m_buffer != nullptr) {
         memcpy(m_buffer, buffer.data(), sz);
-        m_size = sz;
+        m_capacity = sz;
         m_bytes = sz - 1;
     } else {
-        m_size = 0;
+        m_capacity = 0;
         m_bytes = 0;
     }
 }
@@ -133,11 +133,11 @@ Buffer::Buffer(Buffer&& other) noexcept
         free(m_buffer);
 
     m_bytes = other.m_bytes;
-    m_size = other.m_size;
+    m_capacity = other.m_capacity;
     m_buffer = other.m_buffer;
 
     other.m_bytes = 0;
-    other.m_size = 0;
+    other.m_capacity = 0;
     other.m_buffer = nullptr;
 }
 
@@ -150,7 +150,7 @@ void Buffer::adjustSize(size_t sz)
         throw Exception("Can't reallocate a buffer");
 
     m_buffer = p;
-    m_size = newSize;
+    m_capacity = newSize;
 }
 
 void Buffer::set(const char* data, size_t sz)
@@ -197,9 +197,12 @@ void Buffer::append(const char* data, size_t sz)
     m_buffer[m_bytes] = 0;
 }
 
-void Buffer::fill(char c)
+void Buffer::fill(char c, size_t count)
 {
-    memset(m_buffer, c, m_size);
+    checkSize(count + 1);
+    memset(m_buffer, c, count);
+    m_bytes = count;
+    m_buffer[m_bytes] = 0;
 }
 
 void Buffer::reset(size_t sz)
@@ -211,9 +214,10 @@ void Buffer::reset(size_t sz)
             throw Exception("Can't reallocate a buffer");
 
         m_buffer = p;
-        m_size = sz;
+        m_capacity = sz;
     }
 
+    m_buffer[0] = 0;
     m_bytes = 0;
 }
 
@@ -255,11 +259,11 @@ Buffer& Buffer::operator = (Buffer&& b) DOESNT_THROW
         free(m_buffer);
 
     m_bytes = b.m_bytes;
-    m_size = b.m_size;
+    m_capacity = b.m_capacity;
     m_buffer = b.m_buffer;
 
     b.m_bytes = 0;
-    b.m_size = 0;
+    b.m_capacity = 0;
     b.m_buffer = nullptr;
     return *this;
 }
@@ -348,3 +352,75 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
     return stream;
 }
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* testPhrase = "This is a test";
+static const char* tempFileName = "/tmp/gtest_sptk5_buffer.tmp";
+
+TEST(Buffer, create)
+{
+    Buffer  buffer1(testPhrase);
+    EXPECT_STREQ(testPhrase, buffer1.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
+    EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+}
+
+TEST(Buffer, assign)
+{
+    Buffer  buffer1(testPhrase);
+    Buffer  buffer2;
+
+    buffer2 = buffer1;
+
+    EXPECT_STREQ(testPhrase, buffer2.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
+    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+}
+
+TEST(Buffer, append)
+{
+    Buffer  buffer1;
+
+    buffer1.append(testPhrase);
+
+    EXPECT_STREQ(testPhrase, buffer1.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer1.bytes());
+    EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
+}
+
+TEST(Buffer, saveLoadFile)
+{
+    Buffer  buffer1(testPhrase);
+    Buffer  buffer2;
+
+    buffer1.saveToFile(tempFileName);
+    buffer2.loadFromFile(tempFileName);
+
+    EXPECT_STREQ(testPhrase, buffer2.c_str());
+    EXPECT_EQ(strlen(testPhrase), buffer2.bytes());
+    EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
+}
+
+TEST(Buffer, fill)
+{
+    Buffer  buffer1;
+
+    buffer1.fill('#', 12);
+
+    EXPECT_STREQ("############", buffer1.c_str());
+    EXPECT_EQ(12, buffer1.bytes());
+}
+
+TEST(Buffer, reset)
+{
+    Buffer  buffer1(testPhrase);
+
+    buffer1.reset();
+
+    EXPECT_STREQ("", buffer1.c_str());
+    EXPECT_EQ(0, buffer1.bytes());
+    EXPECT_TRUE(buffer1.capacity() > 0);
+}
+
+#endif

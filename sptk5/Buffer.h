@@ -64,7 +64,7 @@ protected:
     /**
      * Allocated size of the buffer
      */
-    size_t    m_size {0};
+    size_t    m_capacity {0};
 
     /**
      * Actual size of the data in buffer
@@ -186,7 +186,7 @@ public:
      */
     void checkSize(size_t sz)
     {
-        if (sz > m_size)
+        if (sz > m_capacity)
             adjustSize(sz);
     }
 
@@ -303,17 +303,18 @@ public:
 
     /**
      * @brief Fills the bytes() characters in buffer with character ch.
-     * @param ch the character to fill the buffer
+     * @param ch                The character to fill the buffer
+     * @param count             How many characters are to be filled. If counter is greater than capacity, then buffer is extended.
      */
-    void fill(char ch);
+    void fill(char ch, size_t count);
 
     /**
      * @brief Returns the size of memory allocated for the data buffer
      * @returns buffer size
      */
-    size_t size()  const
+    size_t capacity()  const
     {
-        return m_size;
+        return m_capacity;
     }
 
     /**

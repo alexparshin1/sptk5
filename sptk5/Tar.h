@@ -66,7 +66,7 @@ public:
         position = 0;
         if (buffer) {
             sourceBuffer = buffer->data();
-            sourceBufferLen = buffer->size();
+            sourceBufferLen = buffer->bytes();
         } else {
             sourceBuffer = 0;
             sourceBufferLen = 0;

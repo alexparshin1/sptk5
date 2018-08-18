@@ -49,11 +49,8 @@
 #define WORDS_BIG_ENDIAN @BIG_ENDIAN_INIT@  ///< Flag indicating if byte order for mashine is big endian
 #define BITNESS          @BITNESS@          ///< Number of machine bits
 
-#define USE_GTEST        @GTEST_FLAG@       ///< Flag indicating if GTest library is installed and used
-
-#define HAVE_PTHREAD_MUTEX_TIMEDLOCK    @HAVE_PTHREAD_MUTEX_TIMEDLOCK@      ///< Flag indicating if pthreads library has pthread_mutex_timelock() function
-#define HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK @HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@   ///< Flag indicating if pthreads library has pthread_rdlock_timedrdlock() function
-#define HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK @HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@   ///< Flag indicating if pthreads library has pthread_wrlock_timedrdlock() function
+#define USE_NEW_ABI      @NEW_ABI_FLAG@     ///< Flag if new ABI is used
+  #define USE_GTEST      @GTEST_FLAG@       ///< Flag indicating if GTest library is installed and used
 
 /// @}
 

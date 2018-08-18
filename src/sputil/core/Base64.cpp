@@ -156,7 +156,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
         dest.append((char)char_array_3[j]);
   }
 
-  return dest.size();
+  return dest.bytes();
 }
 
 size_t Base64::decode(Buffer& bufDest, const Buffer& bufSource)
