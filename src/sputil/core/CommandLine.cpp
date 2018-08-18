@@ -540,3 +540,57 @@ void CommandLine::printVersion() const
 {
     cout << m_programVersion << endl;
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* testCommandLineArgs[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbose",
+                                             nullptr };
+
+static const char* testCommandLineArgs2[] = { "testapp", "connect", "--host", "host name", "-p", "12345", "--verbose",
+                                             nullptr };
+
+static const char* testCommandLineArgs3[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbotten",
+                                              nullptr };
+
+CommandLine* createTestCommandLine()
+{
+    CommandLine* commandLine = new CommandLine("test 1.00", "", "testapp <action> [options]");
+    commandLine->defineArgument("action", "Action to perform");
+    commandLine->defineParameter("host", "h", "hostname", "^[\\S]+$", CommandLine::Visibility(""), "", "Hostname to connect");
+    commandLine->defineParameter("port", "p", "port #", "^\\d{2,5}$", CommandLine::Visibility(""), "", "Port to connect");
+    commandLine->defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
+    return commandLine;
+}
+
+TEST(CommandLine, ctor)
+{
+    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+    commandLine->init(7, testCommandLineArgs);
+
+    EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
+    EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
+    EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
+}
+
+TEST(CommandLine, wrongArgumentValue)
+{
+    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+
+    EXPECT_THROW(
+        commandLine->init(7, testCommandLineArgs2),
+        Exception
+    );
+}
+
+TEST(CommandLine, wrongOption)
+{
+    unique_ptr<CommandLine> commandLine(createTestCommandLine());
+
+    EXPECT_THROW(
+            commandLine->init(7, testCommandLineArgs3),
+            Exception
+    );
+}
+
+#endif
