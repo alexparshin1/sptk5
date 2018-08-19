@@ -100,7 +100,7 @@ TEST(String, caseOps)
 TEST(String, split)
 {
     Strings words(testString.split("[\\s]+"));
-    EXPECT_EQ(4, words.size());
+    EXPECT_EQ(size_t(4), words.size());
     EXPECT_STREQ("This", words[0].c_str());
     EXPECT_STREQ("test", words[3].c_str());
 }

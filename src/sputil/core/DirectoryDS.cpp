@@ -487,7 +487,7 @@ TEST (DirectoryDS, open)
     }
     directoryDS.close();
 
-    EXPECT_EQ(5, files.size());
+    EXPECT_EQ(size_t(5), files.size());
     EXPECT_EQ(10, files["file1"]);
 }
 
@@ -504,7 +504,7 @@ TEST (DirectoryDS, patterns)
     }
     directoryDS.close();
 
-    EXPECT_EQ(2, files.size());
+    EXPECT_EQ(size_t(2), files.size());
     EXPECT_EQ(10, files["file1"]);
 }
 

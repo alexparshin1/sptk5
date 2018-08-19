@@ -211,11 +211,11 @@ static const String testString("This is a test\ntext that contains several\nexam
 TEST(Strings, ctor)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
-    EXPECT_EQ(3, strings.size());
+    EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
 
     strings.fromString(testString, "\n", Strings::SM_DELIMITER);
-    EXPECT_EQ(3, strings.size());
+    EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
 }
 

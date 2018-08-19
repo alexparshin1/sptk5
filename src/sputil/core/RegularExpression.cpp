@@ -359,7 +359,7 @@ TEST(RegularExpression, extract)
     RegularExpression match1("^(.*)(text).*(verify)(.*)");
     Strings matchedStrings;
     match1.m(testPhrase, matchedStrings);
-    EXPECT_EQ(4, matchedStrings.size());
+    EXPECT_EQ(size_t(4), matchedStrings.size());
     EXPECT_STREQ("This is a test ", matchedStrings[0].c_str());
     EXPECT_STREQ(" MD5 algorithm", matchedStrings[3].c_str());
 }
@@ -369,7 +369,7 @@ TEST(RegularExpression, split)
     RegularExpression match("[\\s]+");
     Strings matchedStrings;
     match.split(testPhrase, matchedStrings);
-    EXPECT_EQ(9, matchedStrings.size());
+    EXPECT_EQ(size_t(9), matchedStrings.size());
     EXPECT_STREQ("This", matchedStrings[0].c_str());
     EXPECT_STREQ("algorithm", matchedStrings[8].c_str());
 }
