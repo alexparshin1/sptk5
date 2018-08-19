@@ -730,6 +730,11 @@ DateTime::duration operator-(const DateTime &dt, const sptk::DateTime &dt2)
 
 }
 
+#if _WIN32
+#define gmtime_r(a,b)		gmtime_s(b,a)
+#define localtime_r(a,b)	localtime_s(b,a)
+#endif
+
 //----------------------------------------------------------------
 // Format routine
 //----------------------------------------------------------------
