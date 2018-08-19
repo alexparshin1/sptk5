@@ -1050,16 +1050,9 @@ String Variant::asString() const
         }
 
         case VAR_FLOAT: {
-            const char* formatString = "%0.4f";
-
-            if (floor(m_data.floatData) == m_data.floatData)
-                formatString = "%0.0f";
-
-            if (fabs(m_data.floatData) > 1e16)
-                formatString = "%0.4e";
-
-            len = snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
-            return String(print_buffer, len);
+            stringstream str;
+            str << m_data.floatData;
+            return str.str();
         }
 
         case VAR_STRING:
@@ -1328,3 +1321,58 @@ void Variant::save(XMLNode* node) const
 {
     save(*node);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(Variant, ctors)
+{
+    DateTime testDate("2018-02-01 09:11:14.345Z");
+
+    Variant v1(1);
+    Variant v2(2.22);
+    Variant v3("Test");
+    Variant v4(testDate);
+
+    EXPECT_EQ(1, v1.asInteger());
+    EXPECT_FLOAT_EQ(2.22, v2.asFloat());
+    EXPECT_STREQ("Test", v3.asString().c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+}
+
+TEST(Variant, assigns)
+{
+    DateTime testDate("2018-02-01 09:11:14.345Z");
+
+    Variant v;
+
+    v = 1;
+    EXPECT_EQ(1, v.asInteger());
+
+    v = 2.22;
+    EXPECT_FLOAT_EQ(2.22, v.asFloat());
+
+    v = "Test";
+    EXPECT_STREQ("Test", v.asString().c_str());
+
+    v = testDate;
+
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+}
+
+TEST(Variant, toString)
+{
+    DateTime testDate("2018-02-01 09:11:14.345Z");
+
+    Variant v1(1);
+    Variant v2(2.22);
+    Variant v3("Test");
+    Variant v4(testDate);
+
+    EXPECT_STREQ("1", v1.asString().c_str());
+    EXPECT_STREQ("2.22", v2.asString().c_str());
+    EXPECT_STREQ("Test", v3.asString().c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+}
+
+#endif

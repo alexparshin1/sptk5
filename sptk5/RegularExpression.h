@@ -129,6 +129,12 @@ public:
     RegularExpression(const sptk::String& pattern, const sptk::String& options = "");
 
     /**
+     * Copy constructor
+     * @param other             Other regular expression
+     */
+    RegularExpression(const RegularExpression& other);
+
+    /**
      * @brief Destructor
      */
     virtual ~RegularExpression();
@@ -195,6 +201,8 @@ public:
      * @return processed text
      */
     sptk::String replaceAll(const sptk::String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const;
+
+    void initPCRE();
 };
 
 /**
