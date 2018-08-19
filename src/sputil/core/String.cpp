@@ -59,17 +59,17 @@ bool String::startsWith(const String& subject) const
     return find(subject) == 0;
 }
 
+bool String::endsWith(const String& subject) const
+{
+    size_t pos = rfind(subject);
+    return pos != string::npos && pos == length() - subject.length();
+}
+
 String String::replace(const String& pattern, const String& replacement) const
 {
     RegularExpression regexp(pattern);
     bool replaced = false;
     return regexp.replaceAll(*this, replacement, replaced);
-}
-
-bool String::endsWith(const String& subject) const
-{
-    size_t pos = rfind(subject);
-    return pos != string::npos && pos == length() - subject.length();
 }
 
 String String::trim() const
@@ -80,3 +80,48 @@ String String::trim() const
     size_t endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const String testString("This is a test");
+
+TEST(String, matches)
+{
+    EXPECT_TRUE(testString.matches("is a "));
+}
+
+TEST(String, caseOps)
+{
+    EXPECT_STREQ("THIS IS A TEST", testString.toUpperCase().c_str());
+    EXPECT_STREQ("this is a test", testString.toLowerCase().c_str());
+}
+
+TEST(String, split)
+{
+    Strings words(testString.split("[\\s]+"));
+    EXPECT_EQ(4, words.size());
+    EXPECT_STREQ("This", words[0].c_str());
+    EXPECT_STREQ("test", words[3].c_str());
+}
+
+TEST(String, startsEnds)
+{
+    EXPECT_TRUE(testString.startsWith("This "));
+    EXPECT_FALSE(testString.startsWith("this "));
+    EXPECT_TRUE(testString.endsWith(" test"));
+    EXPECT_FALSE(testString.endsWith(" tesT"));
+}
+
+TEST(String, replace)
+{
+    EXPECT_STREQ("This is a Test", testString.replace(" t", " T").c_str());
+}
+
+TEST(String, trim)
+{
+    String testString2(" \n\r\t" + testString + "\n\r\t ");
+    EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());
+}
+
+#endif
