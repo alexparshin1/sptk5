@@ -27,9 +27,16 @@
 */
 
 #include <gtest/gtest.h>
+#include <sptk5/DateTime.h>
+#include <iostream>
+
+using namespace std;
+using namespace sptk;
 
 int main(int argc, char* argv[])
 {
+	DateTime dt;
+	cout << DateTime::Now().isoDateTimeString() << endl;
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

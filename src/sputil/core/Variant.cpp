@@ -1335,7 +1335,7 @@ TEST(Variant, ctors)
     Variant v4(testDate);
 
     EXPECT_EQ(1, v1.asInteger());
-    EXPECT_FLOAT_EQ(2.22, v2.asFloat());
+    EXPECT_DOUBLE_EQ(2.22, v2.asFloat());
     EXPECT_STREQ("Test", v3.asString().c_str());
     EXPECT_STREQ("2018-02-01T09:11:14.345Z", v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
@@ -1350,7 +1350,7 @@ TEST(Variant, assigns)
     EXPECT_EQ(1, v.asInteger());
 
     v = 2.22;
-    EXPECT_FLOAT_EQ(2.22, v.asFloat());
+    EXPECT_DOUBLE_EQ(2.22, v.asFloat());
 
     v = "Test";
     EXPECT_STREQ("Test", v.asString().c_str());
