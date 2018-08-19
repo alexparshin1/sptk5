@@ -102,6 +102,10 @@ class SP_EXPORT RegularExpression
      */
     int32_t         m_pcreOptions;
 
+    /**
+     * Initialize PCRE expression
+     */
+    void initPCRE();
 
     /**
      * @brief Computes match positions and lengths
@@ -201,8 +205,6 @@ public:
      * @return processed text
      */
     sptk::String replaceAll(const sptk::String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const;
-
-    void initPCRE();
 };
 
 /**

@@ -333,4 +333,47 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
     return replaceAll(text, outputPattern, replaced);
 }
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* testPhrase = "This is a test text to verify MD5 algorithm";
+
+TEST(RegularExpression, match)
+{
+    RegularExpression match1("test.*verify");
+    RegularExpression match2("test  .*verify");
+    EXPECT_TRUE(match1.matches(testPhrase));
+    EXPECT_FALSE(match2.matches(testPhrase));
+    EXPECT_TRUE(match1 == String(testPhrase));
+    EXPECT_FALSE(match1 != String(testPhrase));
+}
+
+TEST(RegularExpression, replase)
+{
+    RegularExpression match1("^(.*)(text).*(verify)(.*)");
+    EXPECT_STREQ("This is a test expression to test MD5 algorithm", match1.s(testPhrase, "\\1expression to test\\4").c_str());
+}
+
+TEST(RegularExpression, extract)
+{
+    RegularExpression match1("^(.*)(text).*(verify)(.*)");
+    Strings matchedStrings;
+    match1.m(testPhrase, matchedStrings);
+    EXPECT_EQ(4, matchedStrings.size());
+    EXPECT_STREQ("This is a test ", matchedStrings[0].c_str());
+    EXPECT_STREQ(" MD5 algorithm", matchedStrings[3].c_str());
+}
+
+TEST(RegularExpression, split)
+{
+    RegularExpression match("[\\s]+");
+    Strings matchedStrings;
+    match.split(testPhrase, matchedStrings);
+    EXPECT_EQ(9, matchedStrings.size());
+    EXPECT_STREQ("This", matchedStrings[0].c_str());
+    EXPECT_STREQ("algorithm", matchedStrings[8].c_str());
+}
+
+#endif
+
 #endif
