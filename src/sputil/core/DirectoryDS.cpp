@@ -486,7 +486,7 @@ TEST (DirectoryDS, open1)
     }
     directoryDS.close();
 
-    EXPECT_EQ(4, files.size());
+    EXPECT_EQ(size_t(4), files.size());
     EXPECT_EQ(10, files["file1"]);
 }
 

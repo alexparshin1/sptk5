@@ -409,7 +409,7 @@ TEST(Buffer, fill)
     buffer1.fill('#', 12);
 
     EXPECT_STREQ("############", buffer1.c_str());
-    EXPECT_EQ(12, buffer1.bytes());
+    EXPECT_EQ(size_t(12), buffer1.bytes());
 }
 
 TEST(Buffer, reset)
@@ -419,7 +419,7 @@ TEST(Buffer, reset)
     buffer1.reset();
 
     EXPECT_STREQ("", buffer1.c_str());
-    EXPECT_EQ(0, buffer1.bytes());
+    EXPECT_EQ(size_t(0), buffer1.bytes());
     EXPECT_TRUE(buffer1.capacity() > 0);
 }
 

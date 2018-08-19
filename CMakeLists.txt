@@ -79,7 +79,7 @@ ELSE ()
         -Wno-unused-parameter
     )
   ELSE()
-    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long)
+    ADD_DEFINITIONS (-Wall -pedantic -Wno-long-long -fPIC)
   ENDIF()
 
   IF (USE_NEW_ABI)
@@ -212,21 +212,6 @@ ELSE (SQLITE3_FLAG)
 ENDIF (SQLITE3_FLAG)
 
 
-SET (GTEST_FLAG "0")
-SET (GTEST_STATE "disabled")
-IF (USE_NEW_ABI AND USE_GTEST)
-  FIND_PACKAGE (GTest QUIET)
-  IF (GTest_FOUND)
-    SET (GTEST_FLAG "1")
-    LINK_LIBRARIES(gtest)
-    SET (GTEST_STATE "enabled")
-  ELSE ()
-    SET (GTEST_STATE "not found")
-  ENDIF ()
-ENDIF ()
-MESSAGE("GTest support:      ${GTEST_STATE}")
-
-
 # Detect FLTK and Aspell
 SET (FLTK_FLAG "0")
 SET (ASPELL_FLAG "0")
@@ -347,7 +332,18 @@ SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
 
+IF (USE_GTEST)
+  SET (GTEST_FLAG "1")
+ELSE ()
+  SET (GTEST_FLAG "0")
+ENDIF ()
+
 CONFIGURE_FILE ("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
+
+IF (GTEST_FLAG)
+  ADD_SUBDIRECTORY (googletest)
+  LINK_LIBRARIES (gtest)
+ENDIF ()
 
 IF (FLTK_FLAG)
   ADD_SUBDIRECTORY (themes)
