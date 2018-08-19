@@ -102,6 +102,10 @@ class SP_EXPORT RegularExpression
      */
     int32_t         m_pcreOptions;
 
+    /**
+     * Initialize PCRE expression
+     */
+    void initPCRE();
 
     /**
      * @brief Computes match positions and lengths
@@ -127,6 +131,12 @@ public:
      * @param options           Pattern options
      */
     RegularExpression(const sptk::String& pattern, const sptk::String& options = "");
+
+    /**
+     * Copy constructor
+     * @param other             Other regular expression
+     */
+    RegularExpression(const RegularExpression& other);
 
     /**
      * @brief Destructor

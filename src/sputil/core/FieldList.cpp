@@ -139,3 +139,35 @@ void FieldList::toXML(XMLNode& node) const
         field->toXML(node, m_compactXmlMode);
 }
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(FieldList, copy)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 12345;
+
+    FieldList fieldList2(fieldList);
+
+    EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
+    EXPECT_EQ(12345, fieldList2["value"].asInteger());
+}
+
+TEST(FieldList, push_back)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("name", true);
+    fieldList.push_back("value", true);
+    fieldList["name"] = "id";
+    fieldList["value"] = 1234;
+    fieldList["value"] = 12345;
+
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+    EXPECT_EQ(12345, fieldList["value"].asInteger());
+}
+#endif

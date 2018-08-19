@@ -30,9 +30,12 @@
 #include <sptk5/ZLib.h>
 #include "zlib.h"
 
+using namespace std;
+using namespace sptk;
+
 #define CHUNK 16384
 
-void sptk::ZLib::compress(sptk::Buffer& dest, const sptk::Buffer& src)
+void ZLib::compress(Buffer& dest, const Buffer& src)
 {
     int ret, flush;
     unsigned have;
@@ -89,7 +92,7 @@ void sptk::ZLib::compress(sptk::Buffer& dest, const sptk::Buffer& src)
     (void)deflateEnd(&strm);
 }
 
-void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
+void ZLib::decompress(Buffer& dest, const Buffer& src)
 {
     int ret;
     unsigned have;
@@ -147,3 +150,31 @@ void sptk::ZLib::decompress(sptk::Buffer& dest, const sptk::Buffer& src)
     (void)inflateEnd(&strm);
     //return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+
+static const char* originalTestString = "This is a test of compression using GZip algorithm";
+static const char* originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+
+TEST(ZLib, compress)
+{
+    Buffer compressed;
+    String compressedBase64;
+    ZLib::compress(compressed, Buffer(originalTestString, strlen(originalTestString)));
+    Base64::encode(compressedBase64, compressed);
+    
+    EXPECT_STREQ(originalTestStringBase64, compressedBase64.c_str());
+}
+
+TEST(ZLib, decompress)
+{
+    Buffer compressed, decompressed;
+    Base64::decode(compressed, originalTestStringBase64);
+    ZLib::decompress(decompressed, compressed);
+
+    EXPECT_STREQ(originalTestString, decompressed.c_str());
+}
+
+#endif

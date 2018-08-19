@@ -117,13 +117,15 @@ int Strings::indexOf(const String& s) const
                 return -1;
             break;
         case DESCENDING:
-            itor = upper_bound(begin(), end(), s);
-            if (itor == end())
-                return -1;
-            break;
+            {
+                auto itor = lower_bound(rbegin(), rend(), s);
+                if (itor == rend() || *itor != s)
+                    return -1;
+                return (int) distance(rbegin(), itor);
+            }
         case ASCENDING:
             itor = lower_bound(begin(), end(), s);
-            if (itor == end())
+            if (itor == end() || *itor != s)
                 return -1;
             break;
     }
@@ -200,3 +202,43 @@ void Strings::sort(bool ascending)
         m_sorted = DESCENDING;
     }
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const String testString("This is a test\ntext that contains several\nexample rows");
+
+TEST(Strings, ctor)
+{
+    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    EXPECT_EQ(3, strings.size());
+    EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
+
+    strings.fromString(testString, "\n", Strings::SM_DELIMITER);
+    EXPECT_EQ(3, strings.size());
+    EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
+}
+
+TEST(Strings, sort)
+{
+    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    strings.sort();
+    EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
+}
+
+TEST(Strings, indexOf)
+{
+    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+    EXPECT_EQ(1, strings.indexOf("text that contains several"));
+    EXPECT_EQ(-1, strings.indexOf("text that contains"));
+
+    strings.sort();
+    EXPECT_EQ(2, strings.indexOf("text that contains several"));
+    EXPECT_EQ(-1, strings.indexOf("text that Contains"));
+
+    strings.sort(false);
+    EXPECT_EQ(2, strings.indexOf("text that contains several"));
+    EXPECT_EQ(-1, strings.indexOf("text that Contains"));
+}
+
+#endif

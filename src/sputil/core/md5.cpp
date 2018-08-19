@@ -368,3 +368,16 @@ String sptk::md5(const String& str)
 
     return md5.hexdigest();
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* testPhrase = "This is a test text to verify MD5 algorithm";
+
+TEST(MD5, md5)
+{
+    String testMD5 = md5(testPhrase);
+    EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
+}
+
+#endif

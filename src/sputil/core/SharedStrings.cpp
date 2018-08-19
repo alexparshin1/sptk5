@@ -62,3 +62,20 @@ void SharedStrings::clear()
     m_strings.clear();
     shareString("");
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(SharedStrings, match)
+{
+    SharedStrings strings;
+    strings.shareString("This");
+    strings.shareString("is");
+    strings.shareString("a");
+    strings.shareString("test");
+
+    EXPECT_STREQ("This", strings.findString("This")->c_str());
+    EXPECT_STREQ("test", strings.findString("test")->c_str());
+}
+
+#endif

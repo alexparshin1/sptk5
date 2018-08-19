@@ -465,6 +465,7 @@ struct TempDirectory
         Buffer buffer;
         buffer.fill('X',10);
         buffer.saveToFile(m_path + "/file1");
+        buffer.saveToFile(m_path + "/file2");
     }
 
     ~TempDirectory()
@@ -473,7 +474,7 @@ struct TempDirectory
     }
 };
 
-TEST (DirectoryDS, open1)
+TEST (DirectoryDS, open)
 {
     TempDirectory dir(testTempDirectory);
 
@@ -486,7 +487,24 @@ TEST (DirectoryDS, open1)
     }
     directoryDS.close();
 
-    EXPECT_EQ(size_t(4), files.size());
+    EXPECT_EQ(5, files.size());
+    EXPECT_EQ(10, files["file1"]);
+}
+
+TEST (DirectoryDS, patterns)
+{
+    TempDirectory dir(testTempDirectory);
+
+    DirectoryDS directoryDS(testTempDirectory, "file1;dir*", DDS_HIDE_DOT_FILES);
+    directoryDS.open();
+    map<String,int> files;
+    while (!directoryDS.eof()) {
+        files[ directoryDS["Name"].asString() ] =  directoryDS["Size"].asInteger();
+        directoryDS.next();
+    }
+    directoryDS.close();
+
+    EXPECT_EQ(2, files.size());
     EXPECT_EQ(10, files["file1"]);
 }
 

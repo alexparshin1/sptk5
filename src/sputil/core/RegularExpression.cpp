@@ -36,8 +36,27 @@
 using namespace std;
 using namespace sptk;
 
-RegularExpression::RegularExpression(const String& pattern, const String& options) :
-    m_pattern(pattern), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
+void RegularExpression::initPCRE()
+{
+    const char* error;
+    int errorOffset;
+    m_pcre = pcre_compile(m_pattern.c_str(), m_pcreOptions, &error, &errorOffset, nullptr);
+    if (!m_pcre)
+        m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
+#if PCRE_MAJOR > 7
+    else {
+        m_pcreExtra = pcre_study(m_pcre, 0, &error);
+        if (!m_pcreExtra && error) {
+            pcre_free(m_pcre);
+            m_pcre = nullptr;
+            m_error = "PCRE pattern study error : " + string(error);
+        }
+    }
+#endif
+}
+
+RegularExpression::RegularExpression(const String& pattern, const String& options)
+: m_pattern(pattern), m_global(false), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions()
 {
     for (auto ch: options) {
         switch (ch) {
@@ -61,21 +80,13 @@ RegularExpression::RegularExpression(const String& pattern, const String& option
         }
     }
 
-    const char *error;
-    int errorOffset;
-    m_pcre = pcre_compile(m_pattern.c_str(), m_pcreOptions, &error, &errorOffset, nullptr);
-    if (!m_pcre)
-        m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
-#if PCRE_MAJOR > 7
-    else {
-        m_pcreExtra = pcre_study(m_pcre, 0, &error);
-        if (!m_pcreExtra && error) {
-            pcre_free(m_pcre);
-            m_pcre = nullptr;
-            m_error = "PCRE pattern study error : " + string(error);
-        }
-    }
-#endif
+    initPCRE();
+}
+
+RegularExpression::RegularExpression(const RegularExpression& other)
+: m_pattern(other.m_pattern), m_global(other.m_global), m_pcre(nullptr), m_pcreExtra(nullptr), m_pcreOptions(other.m_pcreOptions)
+{
+    initPCRE();
 }
 
 RegularExpression::~RegularExpression()
@@ -90,30 +101,24 @@ RegularExpression::~RegularExpression()
 
 #define MAX_MATCHES 128
 
-size_t RegularExpression::nextMatch(const String& text, size_t &offset, Match matchOffsets[],
-                          size_t matchOffsetsSize) const
+size_t RegularExpression::nextMatch(const String& text, size_t& offset, Match matchOffsets[],
+                                    size_t matchOffsetsSize) const
 {
-    if (!m_pcre)
-        throwException(m_error);
+    if (!m_pcre) throwException(m_error);
 
-    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int *) matchOffsets,
+    int rc = pcre_exec(m_pcre, m_pcreExtra, text.c_str(), (int) text.length(), (int) offset, 0, (int*) matchOffsets,
                        (int) matchOffsetsSize * 2);
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
     if (rc < 0) {
         switch (rc) {
-            case PCRE_ERROR_NULL         :
-                throwException("Null argument");
-            case PCRE_ERROR_BADOPTION    :
-                throwException("Invalid regular expression option");
+            case PCRE_ERROR_NULL         : throwException("Null argument");
+            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option");
             case PCRE_ERROR_BADMAGIC     :
-            case PCRE_ERROR_UNKNOWN_NODE :
-                throwException("Invalid compiled regular expression\n");
-            case PCRE_ERROR_NOMEMORY     :
-                throwException("Out of memory");
-            default                      :
-                throwException("Unknown error");
+            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n");
+            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory");
+            default                      : throwException("Unknown error");
         }
     }
 
@@ -161,7 +166,7 @@ bool RegularExpression::m(const String& text, Strings& matchedStrings) const
         totalMatches += matchCount;
 
         for (size_t matchIndex = 1; matchIndex < matchCount; matchIndex++) {
-            Match &match = matchOffsets[matchIndex];
+            Match& match = matchOffsets[matchIndex];
             matchedStrings.push_back(string(text.c_str() + match.m_start, size_t(match.m_end - match.m_start)));
         }
 
@@ -187,7 +192,7 @@ bool RegularExpression::split(const String& text, Strings& matchedStrings) const
         totalMatches += matchCount;
 
         for (size_t matchIndex = 0; matchIndex < matchCount; matchIndex++) {
-            Match &match = matchOffsets[matchIndex];
+            Match& match = matchOffsets[matchIndex];
             matchedStrings.push_back(string(text.c_str() + lastMatchEnd, size_t(match.m_start - lastMatchEnd)));
             lastMatchEnd = match.m_end;
         }
@@ -226,7 +231,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         replaced = true;
         while (pos != string::npos) {
             size_t placeHolderStart = pos;
-            for (; ; placeHolderStart++) {
+            for (;; placeHolderStart++) {
                 placeHolderStart = outputPattern.find('\\', placeHolderStart);
                 if (placeHolderStart == string::npos)
                     break;
@@ -243,8 +248,8 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
             auto placeHolderIndex = (size_t) string2int(outputPattern.c_str() + placeHolderStart);
             size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount) {
-                Match &match = matchOffsets[placeHolderIndex];
-                const char *matchPtr = text.c_str() + match.m_start;
+                Match& match = matchOffsets[placeHolderIndex];
+                const char* matchPtr = text.c_str() + match.m_start;
                 nextReplacement += string(matchPtr, size_t(match.m_end) - size_t(match.m_start));
             }
             pos = placeHolderEnd;
@@ -263,7 +268,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
     return result + text.substr(lastOffset);
 }
 
-String RegularExpression::replaceAll(const String& text, const map<String,String>& substitutions, bool& replaced) const
+String RegularExpression::replaceAll(const String& text, const map<String, String>& substitutions, bool& replaced) const
 {
     size_t offset = 0;
     size_t lastOffset = 0;
@@ -272,7 +277,7 @@ String RegularExpression::replaceAll(const String& text, const map<String,String
     string result;
 
     // For "i" option, make lowercase match map
-    map<String,String> substitutionsMap;
+    map<String, String> substitutionsMap;
     if (m_pcreOptions & PCRE_CASELESS) {
         for (auto& itor: substitutions)
             substitutionsMap[lowerCase(itor.first)] = itor.second;
@@ -300,9 +305,10 @@ String RegularExpression::replaceAll(const String& text, const map<String,String
             result += text.substr(fragmentOffset, fragmentStartLength);
 
         // Append replacement
-        string currentMatch(text.c_str() + matchOffsets[0].m_start, (unsigned) matchOffsets[0].m_end - (unsigned) matchOffsets[0].m_start);
+        string currentMatch(text.c_str() + matchOffsets[0].m_start,
+                            (unsigned) matchOffsets[0].m_end - (unsigned) matchOffsets[0].m_start);
 
-        map<String,String>::iterator itor;
+        map<String, String>::iterator itor;
         if (m_pcreOptions & PCRE_CASELESS)
             itor = substitutionsMap.find(lowerCase(currentMatch));
         else
@@ -326,5 +332,48 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
     bool replaced;
     return replaceAll(text, outputPattern, replaced);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* testPhrase = "This is a test text to verify MD5 algorithm";
+
+TEST(RegularExpression, match)
+{
+    RegularExpression match1("test.*verify");
+    RegularExpression match2("test  .*verify");
+    EXPECT_TRUE(match1.matches(testPhrase));
+    EXPECT_FALSE(match2.matches(testPhrase));
+    EXPECT_TRUE(match1 == String(testPhrase));
+    EXPECT_FALSE(match1 != String(testPhrase));
+}
+
+TEST(RegularExpression, replase)
+{
+    RegularExpression match1("^(.*)(text).*(verify)(.*)");
+    EXPECT_STREQ("This is a test expression to test MD5 algorithm", match1.s(testPhrase, "\\1expression to test\\4").c_str());
+}
+
+TEST(RegularExpression, extract)
+{
+    RegularExpression match1("^(.*)(text).*(verify)(.*)");
+    Strings matchedStrings;
+    match1.m(testPhrase, matchedStrings);
+    EXPECT_EQ(4, matchedStrings.size());
+    EXPECT_STREQ("This is a test ", matchedStrings[0].c_str());
+    EXPECT_STREQ(" MD5 algorithm", matchedStrings[3].c_str());
+}
+
+TEST(RegularExpression, split)
+{
+    RegularExpression match("[\\s]+");
+    Strings matchedStrings;
+    match.split(testPhrase, matchedStrings);
+    EXPECT_EQ(9, matchedStrings.size());
+    EXPECT_STREQ("This", matchedStrings[0].c_str());
+    EXPECT_STREQ("algorithm", matchedStrings[8].c_str());
+}
+
+#endif
 
 #endif
