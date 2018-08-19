@@ -232,8 +232,9 @@ string DirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, 
 
 // dataset navigation
 
-String absolutePath(String path)
+String DirectoryDS::absolutePath(const String& _path) const
 {
+    String path(_path);
     char slashStr[] = {slash, 0};
     char currentDir[256];
     String fullPath;
@@ -445,3 +446,48 @@ bool DirectoryDS::open()
 
     return !m_list.empty();
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+const String testTempDirectory = "gtest_temp_dir";
+
+struct TempDirectory
+{
+    String  m_path;
+    TempDirectory(const String& path)
+    : m_path(path)
+    {
+        int rc = system(("mkdir -p " + m_path + "/dir1").c_str());
+        if (rc < 0)
+            throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
+
+        Buffer buffer;
+        buffer.fill('X',10);
+        buffer.saveToFile(m_path + "/file1");
+    }
+
+    ~TempDirectory()
+    {
+        system(("rm -rf " + m_path).c_str());
+    }
+};
+
+TEST (DirectoryDS, open1)
+{
+    TempDirectory dir(testTempDirectory);
+
+    DirectoryDS directoryDS(testTempDirectory);
+    directoryDS.open();
+    map<String,int> files;
+    while (!directoryDS.eof()) {
+        files[ directoryDS["Name"].asString() ] =  directoryDS["Size"].asInteger();
+        directoryDS.next();
+    }
+    directoryDS.close();
+
+    EXPECT_EQ(4, files.size());
+    EXPECT_EQ(10, files["file1"]);
+}
+
+#endif

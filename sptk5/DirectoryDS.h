@@ -86,9 +86,9 @@ class DirectoryDS: public MemoryDS
 protected:
     /**
      * Sets up an appropriate image and a name for the file type
-     * @param st const struct stat &, the file type information
-     * @param image CSmallPixmapType&, the image type
-     * @param fname const char *, file name
+     * @param st                The file type information
+     * @param image             The image type
+     * @param fname             The file name
      * @returns the file type name
      */
     std::string getFileType(const struct stat& st, CSmallPixmapType& image, const char *fname) const;
@@ -109,15 +109,29 @@ private:
      */
     int             m_showPolicy;
 
+    /**
+     * Returns absolute path to directory or file
+     * @param path              Relative path
+     * @return absolute path
+     */
+    String absolutePath(const String& path) const;
 
 public:
     /**
      * Default Constructor
+     * @param _directory        Directory path
+     * @param _pattern          OS pattern(s) to match, separated by ';'
+     * @param _showPolicy       Bit combination of show policies
+     *
      */
-    DirectoryDS() :
-            MemoryDS(),
-            m_showPolicy(0)
+    DirectoryDS(const String& _directory="", const String& _pattern="", int _showPolicy=0)
+    : MemoryDS(),
+      m_showPolicy(_showPolicy)
     {
+        if (!_directory.empty())
+            directory(_directory);
+        if (!_pattern.empty())
+            pattern(_pattern);
     }
 
     /**
@@ -146,22 +160,23 @@ public:
     }
 
     /**
-     * Returns current directory
+     * Sets current directory
      */
     void directory(const String& d);
 
     /**
-     * Sets current directory
+     * Returns current directory
      */
-    const std::string &directory() const
+    String directory() const
     {
         return m_directory;
     }
 
     /**
      * Sets pattern in format like: "*.txt;*.csv;*.xls"
+     * @param pattern           Patterns to match, separated with ';'
      */
-    void pattern(std::string pattern)
+    void pattern(const String& pattern)
     {
         m_pattern.fromString(pattern, ";", Strings::SM_DELIMITER);
     }
@@ -169,7 +184,7 @@ public:
     /**
      * Returns pattern in format like: "*.txt;*.csv;*.xls"
      */
-    const std::string pattern() const
+    String pattern() const
     {
         return m_pattern.asString(";");
     }
@@ -177,8 +192,7 @@ public:
     /**
      * Opens the directory and fills in the dataset
      */
-    virtual bool open()
-   ;
+    virtual bool open();
 };
 /**
  * @}
