@@ -469,3 +469,235 @@ void JWT::decode(const char *token, const String& key)
         verify(head, sig);
     }
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(JWT, dup)
+{
+    time_t now;
+    int valint;
+
+    JWT jwt;
+
+    jwt["iss"] = "test";
+    String val = jwt["iss"];
+    EXPECT_FALSE(val.empty()) << "Can't get grant for first JWT";
+
+    JWT newJWT(jwt);
+    val = newJWT["iss"];
+    EXPECT_FALSE(val.empty()) << "Can't get grant for second JWT";
+
+    EXPECT_STREQ("test", val.c_str()) << "Got incorrect grant";
+    EXPECT_EQ(JWT::JWT_ALG_NONE, jwt.get_alg()) << "Got incorrect alogorithm";
+
+    now = time(nullptr);
+    jwt["iat"] = (int) now;
+
+    valint = jwt["iat"];
+    EXPECT_EQ((long)now, valint) << "Failed jwt_get_grant_int()";
+}
+
+TEST(JWT, dup_signed)
+{
+    String key256("012345678901234567890123456789XY");
+
+    JWT jwt;
+    jwt["iss"] = "test";
+    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+
+    JWT newJWT(jwt);
+    String val = newJWT["iss"];
+    EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
+    EXPECT_EQ(JWT::JWT_ALG_HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
+}
+
+
+TEST(JWT, decode)
+{
+    const char token[] =
+            "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
+            "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
+    JWT::jwt_alg_t alg;
+
+    auto jwt = new JWT;
+
+    EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
+    alg = jwt->get_alg();
+    EXPECT_EQ(JWT::JWT_ALG_NONE, alg) << "Failed jwt_get_alg()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_invalid_final_dot)
+{
+    const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+                         "3ViIjoidXNlcjAifQ";
+
+    auto jwt = new JWT;
+    EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_invalid_alg)
+{
+    const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+                         "3ViIjoidXNlcjAifQ.";
+
+    auto jwt = new JWT;
+    EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_invalid_typ)
+{
+    const char token[] = "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+                         "3ViIjoidXNlcjAifQ.";
+
+    auto jwt = new JWT;
+    EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_invalid_head)
+{
+    const char token[] =
+            "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+            "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+            "3ViIjoidXNlcjAifQ.";
+
+    auto jwt = new JWT;
+    EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_alg_none_with_key)
+{
+    const char token[] =
+            "eyJhbGciOiJub25lIn0."
+            "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+            "3ViIjoidXNlcjAifQ.";
+
+    auto jwt = new JWT;
+    EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_invalid_body)
+{
+    const char token[] =
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+            "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
+            "3ViIjoidXNlcjAifQ.";
+
+    auto jwt = new JWT;
+    EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_hs256)
+{
+    const char token[] =
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
+            "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
+            "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
+    String key256("012345678901234567890123456789XY");
+
+    auto jwt = new JWT;
+    EXPECT_NO_THROW(jwt->decode(token, key256)) << "Failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_hs384)
+{
+    const char token[] =
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+            "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+            "3ViIjoidXNlcjAifQ.xqea3OVgPEMxsCgyikr"
+            "R3gGv4H2yqMyXMm7xhOlQWpA-NpT6n2a1d7TD"
+            "GgU6LOe4";
+    String key384(
+            "aaaabbbbccccddddeeeeffffg"
+            "ggghhhhiiiijjjjkkkkllll");
+
+    auto jwt = new JWT;
+    EXPECT_NO_THROW(jwt->decode(token, key384)) << "Failed jwt_decode()";
+
+    delete jwt;
+}
+
+
+TEST(JWT, decode_hs512)
+{
+    const char token[] =
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3Mi"
+            "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
+            "Q.u-4XQB1xlYV8SgAnKBof8fOWOtfyNtc1ytTlc_vHo0U"
+            "lh5uGT238te6kSacnVzBbC6qwzVMT1806oa1Y8_8EOg";
+    String key512(
+            "012345678901234567890123456789XY"
+            "012345678901234567890123456789XY");
+
+    auto jwt = new JWT;
+    EXPECT_NO_THROW(jwt->decode(token, key512)) << "Failed jwt_decode()";
+
+    delete jwt;
+}
+
+TEST(JWT, encode_hs256_decode)
+{
+    String key256("012345678901234567890123456789XY");
+
+    JWT jwt;
+    jwt.set_alg(JWT::JWT_ALG_HS256, key256);
+
+    jwt["iat"] = (int) time(nullptr);
+    jwt["iss"] = "http://test.com";
+    jwt["exp"] = (int) time(nullptr) + 86400;
+
+    auto info = new json::ObjectData;
+    info->add("company", new json::Element("Linotex"));
+    info->add("city", new json::Element("Melbourne"));
+    jwt.grants.root().add("info", info);
+
+    stringstream originalToken;
+    jwt.encode(originalToken);
+
+    stringstream originalJSON;
+    jwt.exportTo(originalJSON, false);
+
+    JWT jwt2;
+    jwt2.decode(originalToken.str().c_str(), key256);
+
+    stringstream copiedJSON;
+    jwt2.exportTo(copiedJSON, false);
+
+    json::Document original, copied;
+    Buffer originalBuffer, copiedBuffer;
+
+    original.load(originalJSON.str());
+    original.exportTo(originalBuffer);
+    copied.load(copiedJSON.str());
+    copied.exportTo(copiedBuffer);
+    EXPECT_STREQ(originalBuffer.c_str(), copiedBuffer.c_str()) << "Decoded JSON payload doesn't match the original";
+}
+
+#endif
