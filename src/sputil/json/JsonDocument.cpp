@@ -137,10 +137,113 @@ const Element& Document::root() const
     return *m_root;
 }
 
-/**
- * Optimize arrays
- * Walks through the JSON document, and convert objects that contain
- * only single array field, to arrays - by removing unnecessary name.
- * @param name const std::string&, Optional field name, use any name if empty string
- */
-void optimizeArrays(const std::string& name="item");
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/json/JsonDocument.h>
+
+const char* testJSON =
+        R"({ "name": "John", "age": 33, "temperature": 33.6, )"
+        R"("skills": [ "C++", "Java", "Motorbike" ],)"
+        R"("address": { "married": true, "employed": false } })";
+
+void verifyDocument(json::Document& document)
+{
+    json::Element& root = document.root();
+    EXPECT_STREQ("John", root.getString("name").c_str());
+    EXPECT_EQ(33, (int) root.getNumber("age"));
+    EXPECT_DOUBLE_EQ(33.6, root.getNumber("temperature"));
+
+    json::ArrayData& arrayData = root.getArray("skills");
+    Strings skills;
+    for (auto& skill: arrayData) {
+        skills.push_back(skill->getString());
+    }
+    EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
+
+    json::Element* ptr = root.find("address");
+    EXPECT_TRUE(ptr != nullptr);
+
+    json::Element& address = *ptr;
+    EXPECT_TRUE(address.getBoolean("married"));
+    EXPECT_FALSE(address.getBoolean("employed"));
+}
+
+TEST(JsonDocument, load)
+{
+    json::Document document;
+    document.load(testJSON);
+    verifyDocument(document);
+}
+
+TEST(JsonDocument, add)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    json::Element& root = document.root();
+
+    root.add("int", 1);
+    root.add("double", 2.5);
+    root.add("string", "Test");
+    root.add("bool1", true);
+    root.add("bool2", false);
+
+    json::ArrayData* arrayData = new json::ArrayData();
+    arrayData->add(new json::Element("C++"));
+    arrayData->add(new json::Element("Java"));
+    arrayData->add(new json::Element("Python"));
+    root.add("array", arrayData);
+
+    json::ObjectData* objectData = new json::ObjectData();
+    objectData->add("height", new json::Element(178));
+    objectData->add("weight", new json::Element(85.5));
+    root.add("object", objectData);
+
+    EXPECT_EQ(1, (int) root.getNumber("int"));
+    EXPECT_DOUBLE_EQ(2.5, root.getNumber("double"));
+    EXPECT_STREQ("Test", root.getString("string").c_str());
+    EXPECT_TRUE(root.getBoolean("bool1"));
+    EXPECT_FALSE(root.getBoolean("bool2"));
+
+    json::ArrayData& array = root.getArray("array");
+    Strings skills;
+    for (auto& skill: array)
+        skills.push_back(skill->getString());
+    EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
+
+    json::Element* object = root.find("object");
+    EXPECT_TRUE(object != nullptr);
+    EXPECT_EQ(178, object->getNumber("height"));
+    EXPECT_DOUBLE_EQ(85.5, object->getNumber("weight"));
+}
+
+TEST(JsonDocument, remove)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    json::Element& root = document.root();
+    root.remove("name");
+    root.remove("age");
+    root.remove("skills");
+    root.remove("address");
+    EXPECT_FALSE(root.find("name"));
+    EXPECT_FALSE(root.find("age"));
+    EXPECT_TRUE(root.find("temperature"));
+    EXPECT_FALSE(root.find("skills"));
+    EXPECT_FALSE(root.find("address"));
+}
+
+TEST(JsonDocument, save)
+{
+    json::Document document;
+    document.load(testJSON);
+
+    Buffer buffer;
+    document.exportTo(buffer, false);
+
+    document.load(testJSON);
+    verifyDocument(document);
+}
+
+#endif
