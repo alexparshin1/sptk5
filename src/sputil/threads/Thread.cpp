@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/threads/Thread.h>
-#include <iostream>
 
 using namespace std;
 using namespace sptk;
@@ -91,12 +90,12 @@ void Thread::run()
     m_thread = thread(threadStart, (void *) this);
 }
 
-void Thread::sleep_for(std::chrono::milliseconds interval)
+bool Thread::sleep_for(std::chrono::milliseconds interval)
 {
-    m_pause.sleep_for(interval);
+    return m_pause.sleep_for(interval);
 }
 
-void Thread::sleep_until(DateTime timestamp)
+bool Thread::sleep_until(DateTime timestamp)
 {
-    m_pause.sleep_until(timestamp);
+    return m_pause.sleep_until(timestamp);
 }

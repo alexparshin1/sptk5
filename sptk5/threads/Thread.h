@@ -147,14 +147,14 @@ public:
      * The sleep is automatically interrupted when terminate() is called.
      * @param interval          Interval of time
      */
-    virtual void sleep_for(std::chrono::milliseconds interval);
+    virtual bool sleep_for(std::chrono::milliseconds interval);
 
     /**
      * Sleep until moment of time
      * The pause is automatically interrupted when terminate() is called.
      * @param timestamp         Moment of time
      */
-    virtual void sleep_until(DateTime timestamp);
+    virtual bool sleep_until(DateTime timestamp);
 };
 /**
  * @}
