@@ -127,6 +127,9 @@ public:
 
 protected:
 
+    /**
+     * Initialize SSL context and socket structures
+     */
     void initContextAndSocket();
 
     /**
