@@ -28,6 +28,7 @@
 
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
@@ -48,12 +49,12 @@ Host::Host(const String& hostname, uint16_t port)
 Host::Host(const String& hostAndPort)
 : m_port(0)
 {
-    RegularExpression matchHost("^(\\[.*\\]|[^\\[].*)(:\\d+)?");
+    RegularExpression matchHost("^(\\[.*\\]|[^\\[\\]:]*)(:\\d+)?");
     Strings matches;
     if (matchHost.m(hostAndPort, matches)) {
         m_hostname = matches[0];
         if (matches.size() > 1)
-            m_port = (uint16_t) string2int(matches[1]);
+            m_port = (uint16_t) string2int(matches[1].substr(1));
         getHostAddress();
         m_address.sin_port = htons(uint16_t(m_port));
     } else {
@@ -97,16 +98,12 @@ Host& Host::operator = (Host&& other) noexcept
 
 bool Host::operator == (const Host& other) const
 {
-    lock_guard<mutex> lock1(other.m_mutex);
-    lock_guard<mutex> lock2(m_mutex);
-    return m_hostname == other.m_hostname && m_port == other.m_port;
+    return toString(true) == other.toString(true);
 }
 
 bool Host::operator != (const Host& other) const
 {
-    lock_guard<mutex> lock1(other.m_mutex);
-    lock_guard<mutex> lock2(m_mutex);
-    return m_hostname != other.m_hostname || m_port != other.m_port;
+    return toString(true) != other.toString(true);
 }
 
 void Host::getHostAddress()
@@ -141,3 +138,45 @@ void Host::getHostAddress()
     freeaddrinfo(result);
 #endif
 }
+
+String Host::toString(bool forceAddress) const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    std::stringstream str;
+
+    string address;
+    if (forceAddress) {
+        char buffer[128];
+        if (inet_ntop(m_address.sin_family, &m_address, buffer, sizeof(buffer) - 1) == nullptr)
+            throw SystemException("Can't print IP address");
+        address = buffer;
+    } else {
+        address = m_hostname;
+    }
+
+    if (m_address.sin_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
+        str << "[" << address << "]:" << m_port;
+    else
+        str << address << ":" << m_port;
+
+    return str.str();
+}
+
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+const char* testHost = "www.google.com:80";
+
+TEST(Host, ctor)
+{
+    Host google1(testHost);
+    EXPECT_STREQ(testHost, google1.toString(false).c_str());
+    EXPECT_STREQ("www.google.com", google1.hostname().c_str());
+    EXPECT_EQ(80, google1.port());
+
+    Host google(google1.toString(true));
+    EXPECT_TRUE(google1 == google);
+}
+
+#endif

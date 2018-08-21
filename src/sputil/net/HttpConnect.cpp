@@ -95,7 +95,7 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     }
 
     headers.push_back(command + " HTTP/1.1");
-    headers.push_back("HOST: " + m_socket.host().toString());
+    headers.push_back("HOST: " + m_socket.host().toString(false));
     headers.push_back("User-Agent: SPTK Connect 5.x");
 
     for (auto& itor: m_requestHeaders)

@@ -244,7 +244,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
 
     if (rc != 0) {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host.toString() << ". " << SystemException::osError()
+        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
               << ".";
         close();
         throw Exception(error.str());

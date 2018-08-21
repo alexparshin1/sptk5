@@ -165,16 +165,7 @@ public:
      * IPv6 addresses are enclosed in square brackets.
      * @return host name and port string
      */
-    String toString() const
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        std::stringstream str;
-        if (m_hostname.find(':') != std::string::npos)
-            str << "[" << m_hostname << "]:" << m_port;
-        else
-            str << m_hostname << ":" << m_port;
-        return str.str();
-    }
+    String toString(bool forceAddress) const;
 
     /**
      * Get host address
