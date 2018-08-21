@@ -145,3 +145,99 @@ void TCPServer::unregisterConnection(ServerConnection* connection)
     lock_guard<mutex> m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/net/TCPServerConnection.h>
+
+/**
+ * Not encrypted connection to control service
+ */
+class EchoConnection : public TCPServerConnection
+{
+public:
+    EchoConnection(SOCKET connectionSocket, sockaddr_in* addr)
+    : TCPServerConnection(connectionSocket)
+    {
+    }
+
+    /**
+     * Terminate connection thread
+     */
+    void terminate() override
+    {
+        m_socket->close();
+        TCPServerConnection::terminate();
+    }
+
+    /**
+     * Connection thread function
+     */
+    void threadFunction() override
+    {
+        Buffer data;
+        while (!terminated()) {
+            try {
+                if (m_socket->readyToRead(chrono::seconds(30))) {
+                    if (m_socket->readLine(data) == 0)
+                        return;
+                    string str(data.c_str());
+                    str += "\n";
+                    m_socket->write(str);
+                } else
+                    break;
+            }
+            catch (exception& e) {
+                cerr << e.what() << endl;
+            }
+        }
+        m_socket->close();
+    }
+};
+
+class EchoServer : public sptk::TCPServer
+{
+protected:
+
+    sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
+    {
+        return new EchoConnection(connectionSocket, peer);
+    }
+
+public:
+
+    EchoServer() {}
+
+};
+
+
+TEST(TCPServer, minimal)
+{
+    Buffer buffer;
+
+    EchoServer echoServer;
+    ASSERT_NO_THROW(echoServer.listen(3000));
+
+    TCPSocket socket;
+    ASSERT_NO_THROW(socket.open(Host("localhost:3000")));
+
+    Strings words("Hello, World!\n"
+                  "This is a test of TCPServer class.\n"
+                  "Using simple echo server to verify data flow.\n"
+                  "The session is terminated by sending empty line\n"
+                  "\n", "\n");
+
+    for (auto& word: words) {
+        socket.write(word + "\n");
+        buffer.bytes(0);
+        while (buffer.empty()) {
+            if (socket.readyToRead(chrono::seconds(30)))
+                socket.readLine(buffer);
+        }
+        EXPECT_STREQ(word.c_str(), buffer.c_str());
+    }
+
+    socket.close();
+}
+
+#endif

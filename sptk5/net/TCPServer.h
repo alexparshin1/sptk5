@@ -142,7 +142,7 @@ protected:
      *
      * Method is called right after connection request is accepted,
      * and allows ignoring unwanted connections. By default simply returns true (allow).
-     * @param connectionRequest sockaddr_in*, Incoming connection information
+     * @param connectionRequest Incoming connection information
      */
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
@@ -151,14 +151,14 @@ protected:
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
-     * @param connectionSocket SOCKET, Already accepted incoming connection socket
-     * @param peer sockaddr_in*, Incoming connection information
+     * @param connectionSocket  Already accepted incoming connection socket
+     * @param peer              Incoming connection information
      */
     virtual ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
 
     /**
      * @brief Receives notification on connection thread created
-     * @param connection CServerConnection*, Newly created connection thread
+     * @param connection        Newly created connection thread
      */
     void registerConnection(ServerConnection* connection);
 
@@ -166,7 +166,7 @@ protected:
      * @brief Receives notification on connection thread exited
      *
      * Connection thread is self-destructing immediately after exiting this method
-     * @param connection CServerConnection*, Exited connection thread
+     * @param connection        Exited connection thread
      */
     void unregisterConnection(ServerConnection* connection);
 
@@ -199,7 +199,7 @@ public:
 
     /**
      * @brief Starts listener
-     * @param port int, Listener port number
+     * @param port              Listener port number
      */
     void listen(uint16_t port);
 
