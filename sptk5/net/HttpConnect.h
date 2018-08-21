@@ -157,7 +157,8 @@ public:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_get(const sptk::String& pageName, const HttpParams& parameters, std::chrono::milliseconds timeout);
+    int cmd_get(const sptk::String& pageName, const HttpParams& parameters,
+                std::chrono::milliseconds timeout=std::chrono::seconds(60));
 
     /**
      * @brief Sends the POST command to the server
@@ -171,7 +172,7 @@ public:
      * @return HTTP result code
      */
     int cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
-                 std::chrono::milliseconds timeout);
+                 std::chrono::milliseconds timeout=std::chrono::seconds(60));
 
     /**
      * @brief Sends the PUT command to the server
@@ -184,7 +185,7 @@ public:
      * @return HTTP result code
      */
     int cmd_put(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content,
-                std::chrono::milliseconds timeout);
+                std::chrono::milliseconds timeout=std::chrono::seconds(60));
 
    /**
      * @brief Sends the DELETE command to the server
@@ -195,7 +196,8 @@ public:
      * @param timeout           Request timeout
      * @return HTTP result code
      */
-    int cmd_delete(const sptk::String& pageName, const HttpParams& parameters, std::chrono::milliseconds timeout);
+    int cmd_delete(const sptk::String& pageName, const HttpParams& parameters,
+                   std::chrono::milliseconds timeout=std::chrono::seconds(60));
 
     /**
      * @brief Get value of response header

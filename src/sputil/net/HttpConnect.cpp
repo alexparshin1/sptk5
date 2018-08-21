@@ -188,3 +188,26 @@ String HttpConnect::statusText() const
     return m_reader.getStatusText();
 }
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(HttpConnect, get)
+{
+    Host google("www.google.com:80");
+
+    TCPSocket socket;
+
+    ASSERT_NO_THROW(socket.open(google));
+    ASSERT_TRUE(socket.active());
+
+    HttpConnect http(socket);
+
+    EXPECT_NO_THROW(http.cmd_get("/", HttpParams()));
+    EXPECT_EQ(200, http.statusCode());
+    EXPECT_STREQ("OK", http.statusText().c_str());
+
+    String data(http.htmlData().c_str(),http.htmlData().bytes());
+    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
+}
+
+#endif
