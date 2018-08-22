@@ -99,3 +99,37 @@ bool Thread::sleep_until(DateTime timestamp)
 {
     return m_pause.sleep_until(timestamp);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+class TestThread: public Thread
+{
+    atomic_int  m_counter;
+public:
+    TestThread(const String& threadName)
+    : Thread(threadName), m_counter(0)
+    {}
+
+    void threadFunction() override
+    {
+        while (!terminated()) {
+            m_counter++;
+            sleep_for(chrono::milliseconds(50));
+        }
+    }
+
+    int counter() const { return m_counter; }
+};
+
+TEST(Thread, run)
+{
+    TestThread testThread("Test Thread");
+    testThread.run();
+    this_thread::sleep_for(chrono::milliseconds(250));
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(5, testThread.counter());
+}
+
+#endif
