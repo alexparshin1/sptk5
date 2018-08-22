@@ -211,3 +211,47 @@ const Buffer& Tar::file(std::string fileName) const
         throw Exception("File '" + fileName + "' isn't found", __FILE__, __LINE__);
     return *(itor->second);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <fstream>
+#include <sptk5/SystemException.h>
+#include <sptk5/md5.h>
+
+static const string gtestTempDirectory("gtest_temp_directory");
+static const string file1_md5("2934e1a7ae11b11b88c9b0e520efd978");
+static const string file2_md5("adb45e22bba7108bb4ad1b772ecf6b40");
+
+TEST(Tar, read)
+{
+    Tar tar;
+
+    ASSERT_EQ(0, system(("mkdir -p " + gtestTempDirectory).c_str()));
+
+    Buffer file1;
+    for (int i = 0; i < 1000; i++) {
+        file1.append((const char*)&i, sizeof(i));
+    }
+    file1.saveToFile(gtestTempDirectory + "/file1.txt");
+    EXPECT_STREQ(file1_md5.c_str(), md5(file1).c_str());
+
+    Buffer file2;
+    for (int i = 0; i < 1000; i++) {
+        file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
+    }
+    file2.saveToFile(gtestTempDirectory + "/file2.txt");
+    EXPECT_STREQ(file2_md5.c_str(), md5(file2).c_str());
+
+    ASSERT_EQ(0, system(("tar cf gtest_temp.tar " + gtestTempDirectory).c_str()));
+    EXPECT_NO_THROW(tar.read("gtest_temp.tar"));
+
+    Buffer outfile1, outfile2;
+    EXPECT_NO_THROW(outfile1 = tar.file(gtestTempDirectory + "/file1.txt"));
+    EXPECT_NO_THROW(outfile2 = tar.file(gtestTempDirectory + "/file2.txt"));
+    EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
+    EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
+
+    EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
+}
+
+#endif
