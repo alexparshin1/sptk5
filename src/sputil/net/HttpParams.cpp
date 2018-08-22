@@ -142,3 +142,35 @@ String HttpParams::get(const String& paramName) const
         return "";
     return itor->second;
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static const char* gtestURLencoded = "name=John+Doe&items=%5B%22book%22%2C%22pen%22%5D&id=1234";
+
+TEST(HttpParams, encode)
+{
+    HttpParams httpParams;
+    httpParams["id"] = "1234";
+    httpParams["name"] = "John Doe";
+    httpParams["items"] = R"(["book","pen"])";
+
+    Buffer encoded;
+    httpParams.encode(encoded);
+    EXPECT_STREQ(gtestURLencoded, encoded.c_str());
+}
+
+TEST(HttpParams, decode)
+{
+    HttpParams httpParams;
+    httpParams["noise"] = "noise";
+
+    Buffer encoded(gtestURLencoded);
+    httpParams.decode(encoded);
+    EXPECT_STREQ("1234", httpParams["id"].c_str());
+    EXPECT_STREQ("John Doe", httpParams["name"].c_str());
+    EXPECT_STREQ(R"(["book","pen"])", httpParams["items"].c_str());
+    EXPECT_EQ(size_t(3), httpParams.size());
+}
+
+#endif
