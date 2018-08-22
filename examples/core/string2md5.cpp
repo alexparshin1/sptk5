@@ -49,9 +49,7 @@ int main(int argc, const char* argv[])
     }
 
     if (argv[1] != nullptr) {
-        char buffer[16384];
-        memset(buffer, 0, sizeof(buffer));
-        strncpy(buffer, argv[1], sizeof(buffer) - 1);
+        Buffer buffer(argv[1]);
         cout << md5(buffer) << endl;
     }
 

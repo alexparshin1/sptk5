@@ -33,6 +33,7 @@ documentation and/or software.
 /* interface header */
 #include <sptk5/md5.h>
 #include <cstring>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -117,10 +118,10 @@ MD5::MD5()
 //////////////////////////////////////////////
 
 // nifty shortcut ctor, compute MD5 for string and finalize it right away
-MD5::MD5(const String& text)
+MD5::MD5(const Buffer& data)
 {
     init();
-    update(text.c_str(), (size_type) text.length());
+    update(data.c_str(), data.bytes());
     finalize();
 }
 
@@ -362,9 +363,9 @@ std::ostream& operator<<(std::ostream& out, MD5 md5)
 
 //////////////////////////////
 
-String sptk::md5(const String& str)
+String sptk::md5(const Buffer& data)
 {
-    MD5 md5 = MD5(str);
+    MD5 md5 = MD5(data);
 
     return md5.hexdigest();
 }
@@ -376,7 +377,7 @@ static const char* testPhrase = "This is a test text to verify MD5 algorithm";
 
 TEST(MD5, md5)
 {
-    String testMD5 = md5(testPhrase);
+    String testMD5 = md5(Buffer(testPhrase));
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
 }
 

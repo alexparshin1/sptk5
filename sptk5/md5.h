@@ -36,6 +36,7 @@ documentation and/or software.
 #include <sptk5/sptk.h>
 #include <sptk5/String.h>
 #include <iostream>
+#include "Buffer.h"
 
 namespace sptk {
 
@@ -68,9 +69,9 @@ namespace sptk {
          *
          * Immediately processes text.
          * The result can be read with hexdigest().
-         * @param text          Text to MD5
+         * @param data          Text to MD5
          */
-        explicit MD5(const String& text);
+        explicit MD5(const Buffer& data);
 
         /**
          * Adds data portion to MD5
@@ -191,7 +192,7 @@ namespace sptk {
     /**
      * Single data-to-MD5 function
      */
-    String md5(const String& str);
+    String md5(const Buffer& data);
 
 }
 
