@@ -213,3 +213,40 @@ void Timer::cancel(void* handle)
     event->m_timer = nullptr;
     delete event;
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static void gtestTimerCallback(void* eventData)
+{
+    int& eventSet = *(int *) eventData;
+    eventSet++;
+}
+
+TEST(Timer, fireAt)
+{
+    Timer       timer(gtestTimerCallback);
+    DateTime    when = DateTime::Now() + chrono::milliseconds(50);
+
+    int         eventSet(0);
+
+    timer.fireAt(when, &eventSet);
+    this_thread::sleep_until((when + chrono::milliseconds(10)).timePoint());
+
+    EXPECT_EQ(1, eventSet);
+}
+
+TEST(Timer, repeat)
+{
+    Timer       timer(gtestTimerCallback);
+
+    int         eventSet(0);
+
+    void *handle = timer.repeat(chrono::milliseconds(20), &eventSet);
+    this_thread::sleep_for(chrono::milliseconds(110));
+    timer.cancel(handle);
+
+    EXPECT_EQ(5, eventSet);
+}
+
+#endif
