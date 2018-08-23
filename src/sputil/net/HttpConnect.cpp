@@ -107,10 +107,8 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
 int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("GET", pageName, requestParameters);
-    //command += "Accept: */*\n";
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
-    //cout << command;
     sendCommand(command);
 
     return getResponse(timeout);
@@ -208,6 +206,7 @@ TEST(HttpConnect, get)
 
     String data(http.htmlData().c_str(),http.htmlData().bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
+    //cout << data.c_str() << endl;
 }
 
 #endif

@@ -130,7 +130,7 @@ bool HttpReader::readData(TCPSocket& socket)
                 readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
             append(m_read_buffer);
             m_contentReceivedLength += readBytes;
-            if (m_contentReceivedLength >= m_contentLength) // No more data
+            if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
                 return true;
         } else {
             if (m_currentChunkSize == 0) {
@@ -164,6 +164,13 @@ bool HttpReader::readData(TCPSocket& socket)
             }
         }
         readBytes = (int) socket.socketBytes();
+        if (readBytes == 0) {
+            if (strcasestr(m_buffer, "</html>") != nullptr)
+                break;
+            if (socket.readyToRead(chrono::seconds(30)))
+                throw Exception("Read timeout");
+            readBytes = (int) socket.socketBytes();
+        }
     }
     return true;
 }
