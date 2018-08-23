@@ -164,7 +164,7 @@ TEST(ThreadPool, run)
 
     EXPECT_EQ(size_t(5), tasks.size());
     for (auto task: tasks)
-        EXPECT_NEAR(20, task->count(), 2);
+        EXPECT_NEAR(20, task->count(), 4);
 
     for (auto task: tasks)
         task->terminate();
