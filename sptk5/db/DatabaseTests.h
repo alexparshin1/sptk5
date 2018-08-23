@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       CBase64.cpp - description                              ║
+║                       DatabaseTests.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,19 +26,24 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/DateTime.h>
-#include <iostream>
-#include <sptk5/db/DatabaseTests.h>
+#ifndef __SPTK_DATABASE_TESTS_H__
+#define __SPTK_DATABASE_TESTS_H__
 
-using namespace std;
-using namespace sptk;
+#include "DatabaseConnectionString.h"
 
-int main(int argc, char* argv[])
+namespace sptk {
+
+class DatabaseTests
 {
-	DateTime dt;
-	cout << DateTime::Now().isoDateTimeString() << endl;
-	databaseTests.addConnection(DatabaseConnectionString("postgresql://localhost:5432/gtest"));
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    std::vector<DatabaseConnectionString> m_connectionStrings;
+public:
+    DatabaseTests();
+    void addConnection(const DatabaseConnectionString& connectionString);
+    const std::vector<DatabaseConnectionString>& connectionStrings() const;
+};
+
+extern DatabaseTests databaseTests;
+
 }
+
+#endif
