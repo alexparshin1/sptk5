@@ -68,10 +68,8 @@ void WorkerThread::threadFunction()
         } else
             idleSeconds++;
     }
-    cout << name() << " TERMINATED" << endl;
     if (m_threadEvent != nullptr)
         m_threadEvent->threadEvent(this, ThreadEvent::THREAD_FINISHED, nullptr);
-    cout << name() << " EXITED" << endl;
 }
 
 void WorkerThread::execute(Runable* task)
