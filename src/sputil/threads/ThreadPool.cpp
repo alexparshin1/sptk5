@@ -157,14 +157,14 @@ TEST(ThreadPool, run)
     for (i = 0; i < tasks.size(); i++)
         threadPool.execute(tasks[i]);
 
-    for (int value = 0; value < 1000; value++)
+    for (int value = 0; value < 100; value++)
         intQueue.push(value);
 
-    this_thread::sleep_for(chrono::milliseconds(500));
+    this_thread::sleep_for(chrono::milliseconds(50));
 
     EXPECT_EQ(size_t(5), tasks.size());
     for (auto task: tasks)
-        EXPECT_NEAR(200, task->count(), 20);
+        EXPECT_NEAR(20, task->count(), 2);
 
     for (auto task: tasks)
         task->terminate();
