@@ -194,6 +194,11 @@ namespace sptk {
      */
     String md5(const Buffer& data);
 
+    /**
+     * Single data-to-MD5 function
+     */
+    String md5(const String& data);
+
 }
 
 #endif

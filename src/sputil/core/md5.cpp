@@ -370,6 +370,14 @@ String sptk::md5(const Buffer& data)
     return md5.hexdigest();
 }
 
+String sptk::md5(const String& data)
+{
+    Buffer buffer(data);
+    MD5 md5 = MD5(buffer);
+
+    return md5.hexdigest();
+}
+
 #if USE_GTEST
 #include <gtest/gtest.h>
 
