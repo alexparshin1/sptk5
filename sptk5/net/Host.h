@@ -163,9 +163,10 @@ public:
     /**
      * Get host name and port as a string.
      * IPv6 addresses are enclosed in square brackets.
+     * @param forceAddress      If true then use IP address instead of hostname
      * @return host name and port string
      */
-    String toString(bool forceAddress) const;
+    String toString(bool forceAddress=false) const;
 
     /**
      * Get host address
