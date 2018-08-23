@@ -121,3 +121,59 @@ size_t ThreadPool::size() const
     return m_threads.size();
 }
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+static SynchronizedQueue<int>  intQueue;
+
+class MyTask : public Runable
+{
+    atomic_int m_count {0};
+public:
+    void run() override
+    {
+        while (!terminated()) {
+            int item;
+            if (intQueue.pop(item, chrono::milliseconds(10)))
+                m_count++;
+            this_thread::sleep_for(chrono::milliseconds(1));
+        }
+    }
+    int count() const { return m_count; }
+};
+
+TEST(ThreadPool, run)
+{
+    unsigned i;
+    vector<MyTask*> tasks;
+
+    /// Thread manager controls tasks execution.
+    ThreadPool threadPool;
+
+    // Creating several tasks
+    for (i = 0; i < 5; i++)
+        tasks.push_back(new MyTask);
+
+    for (i = 0; i < tasks.size(); i++)
+        threadPool.execute(tasks[i]);
+
+    for (int value = 0; value < 1000; value++)
+        intQueue.push(value);
+
+    this_thread::sleep_for(chrono::milliseconds(500));
+
+    EXPECT_EQ(size_t(5), tasks.size());
+    for (auto task: tasks)
+        EXPECT_NEAR(200, task->count(), 20);
+
+    for (auto task: tasks)
+        task->terminate();
+
+    EXPECT_EQ(size_t(5), threadPool.size());
+
+    threadPool.stop();
+    EXPECT_EQ(size_t(0), threadPool.size());
+}
+
+#endif
+
