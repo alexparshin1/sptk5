@@ -7,3 +7,5 @@ for file in Makefile CMakeFiles install_manifest.txt cmake_install.cmake cmake_u
 do
   find -name $file -exec rm -rf {} \;
 done
+
+rm lib/*
