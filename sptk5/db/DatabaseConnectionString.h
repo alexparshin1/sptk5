@@ -42,7 +42,7 @@ namespace sptk
 
 
 /**
- * @brief Database Connection String
+ * Database Connection String
  *
  * Database connection string includes driver name ('odbc', 'sqlite3', etc) as a protocol name,
  * and username, password, server name in a traditional form. Database name is optionally defined
@@ -60,13 +60,13 @@ class SP_EXPORT DatabaseConnectionString
 {
 public:
     /**
-     * @brief Connection string parameters
+     * Connection string parameters
      */
     typedef std::map<String,String> Parameters;
 
 protected:
     /**
-     * @brief Parses connection string
+     * Parses connection string
      */
     void parse();
 
@@ -113,7 +113,7 @@ protected:
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      * @param connectionString  Database connection string
      */
     explicit DatabaseConnectionString(const String& connectionString) :
@@ -124,7 +124,7 @@ public:
     }
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      * @param cs                Database connection string object to copy from
      */
     DatabaseConnectionString(const DatabaseConnectionString& cs) :
@@ -135,7 +135,7 @@ public:
     }
 
     /**
-     * @brief Assignment
+     * Assignment
      * @param cs                Database connection string object to copy from
      */
     DatabaseConnectionString& operator = (const DatabaseConnectionString& cs)
@@ -153,12 +153,12 @@ public:
     }
 
     /**
-     * @brief Returns connection string
+     * Returns connection string
      */
     String toString() const;
 
     /**
-     * @brief Returns driver name
+     * Returns driver name
      */
     const String& driverName() const
     {
@@ -166,7 +166,7 @@ public:
     }
 
     /**
-     * @brief Returns host name
+     * Returns host name
      */
     const String& hostName() const
     {
@@ -174,7 +174,7 @@ public:
     }
 
     /**
-     * @brief Returns user name
+     * Returns user name
      */
     const String& userName() const
     {
@@ -182,7 +182,7 @@ public:
     }
 
     /**
-     * @brief Returns user password
+     * Returns user password
      */
     const String& password() const
     {
@@ -190,7 +190,7 @@ public:
     }
 
     /**
-     * @brief Returns database name
+     * Returns database name
      */
     const String& databaseName() const
     {
@@ -198,7 +198,7 @@ public:
     }
 
     /**
-     * @brief Returns server port number
+     * Returns server port number
      */
     uint16_t portNumber() const
     {
@@ -206,15 +206,7 @@ public:
     }
 
     /**
-     * @brief Returns optional database parameters
-     */
-    const Parameters& parameters() const
-    {
-        return m_parameters;
-    }
-
-    /**
-     * @brief Set new user name
+     * Set new user name
      * @param user              New user name
      */
     void userName(const String& user)
@@ -223,13 +215,20 @@ public:
     }
 
     /**
-     * @brief Set new password
+     * Set new password
      * @param pass              New password
      */
     void password(const String& pass)
     {
         m_password = pass;
     }
+    
+    /**
+     * Return optional parameter value
+     * @param name              Parameter name
+     * @return parameter value
+     */
+    String parameter(const String& name) const;
 };
 /**
  * @}

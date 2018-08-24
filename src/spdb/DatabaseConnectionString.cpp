@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DatabaseConnectionString.cpp - description            ║
+║                       DatabaseConnectionString.cpp - description             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -113,3 +113,36 @@ String DatabaseConnectionString::toString() const
 
     return result.str();
 }
+
+String DatabaseConnectionString::parameter(const String& name) const
+{
+    auto itor = m_parameters.find(name);
+    if (itor == m_parameters.end())
+        return "";
+    return itor->second;
+}
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(DatabaseConnectionString, ctorSimple)
+{
+    DatabaseConnectionString simple("postgres://localhost/dbname");
+    EXPECT_STREQ("postgres", simple.driverName().c_str());
+    EXPECT_STREQ("localhost", simple.hostName().c_str());
+    EXPECT_STREQ("dbname", simple.databaseName().c_str());
+}
+
+TEST(DatabaseConnectionString, ctorFull)
+{
+    DatabaseConnectionString simple("postgres://auser:apassword@localhost:5432/dbname?encoding=UTF8&schema=main");
+    EXPECT_STREQ("auser", simple.userName().c_str());
+    EXPECT_STREQ("apassword", simple.password().c_str());
+    EXPECT_STREQ("localhost", simple.hostName().c_str());
+    EXPECT_EQ(5432, simple.portNumber());
+
+    EXPECT_STREQ("UTF8", simple.parameter("encoding").c_str());
+    EXPECT_STREQ("main", simple.parameter("schema").c_str());
+}
+
+#endif
