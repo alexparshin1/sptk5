@@ -40,6 +40,11 @@ public:
     DatabaseTests();
     void addConnection(const DatabaseConnectionString& connectionString);
     const std::vector<DatabaseConnectionString>& connectionStrings() const;
+
+    void testConnect(const DatabaseConnectionString& connectionString);
+    void testDDL(const DatabaseConnectionString& connectionString);
+    void testQueryParameters(const DatabaseConnectionString& connectionString);
+    void testTransaction(const DatabaseConnectionString& connectionString);
 };
 
 extern DatabaseTests databaseTests;

@@ -37,7 +37,6 @@ DatabaseTests sptk::databaseTests;
 
 DatabaseTests::DatabaseTests()
 {
-    DatabaseConnectionPool connectionPool("postgresql://localhost/postgres");
 }
 
 const std::vector<DatabaseConnectionString>& DatabaseTests::connectionStrings() const
@@ -50,45 +49,31 @@ void DatabaseTests::addConnection(const DatabaseConnectionString& connectionStri
     m_connectionStrings.push_back(connectionString);
 }
 
-#if USE_GTEST
-#include <gtest/gtest.h>
-
-TEST(Database, open)
+void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString)
 {
-    for (auto& connectionString: databaseTests.connectionStrings()) {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
-        DatabaseConnection* db = connectionPool.createConnection();
-        try {
-            db->open();
-        }
-        catch (const DatabaseException& e) {
-            FAIL() << e.what();
-        }
-        if (db->active()) {
-            Strings objects;
-            EXPECT_NO_THROW(db->objectList(DOT_TABLES, objects));
-            EXPECT_NO_THROW(db->close());
-        }
-        connectionPool.destroyConnection(db);
-    }
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection* db = connectionPool.createConnection();
+
+    db->open();
+
+    Strings objects;
+    db->objectList(DOT_TABLES, objects);
+    db->close();
+
+    connectionPool.destroyConnection(db);
 }
 
-TEST(Database, execDDL)
+void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
 {
-    for (auto& connectionString: databaseTests.connectionStrings()) {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
-        DatabaseConnection* db = connectionPool.createConnection();
-        try {
-            db->open();
-            Query createTable(db, "CREATE TEMP TABLE gtest_temp_table(id INT, name VARCHAR(20))");
-            createTable.exec();
-            db->close();
-        }
-        catch (const DatabaseException& e) {
-            FAIL() << e.what();
-        }
-        connectionPool.destroyConnection(db);
-    }
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection* db = connectionPool.createConnection();
+
+    db->open();
+    Query createTable(db, "CREATE TEMP TABLE gtest_temp_table(id INT, name VARCHAR(20))");
+    createTable.exec();
+    db->close();
+
+    connectionPool.destroyConnection(db);
 }
 
 struct Row {
@@ -105,84 +90,77 @@ static vector<Row> rows = {
     { 5, "lemon", 5.5 }
 };
 
-TEST(Database, queryParameters)
+void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
 {
-    for (auto& connectionString: databaseTests.connectionStrings()) {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
-        DatabaseConnection* db = connectionPool.createConnection();
-        try {
-            db->open();
-            Query createTable(db, "CREATE TEMP TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2))");
-            createTable.exec();
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection* db = connectionPool.createConnection();
 
-            Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price)");
-            for (auto& row: rows) {
-                insert.param("id") = row.id;
-                insert.param("name") = row.name;
-                insert.param("price") = row.price;
-                insert.exec();
-            }
+    db->open();
+    Query createTable(db, "CREATE TEMP TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2))");
+    createTable.exec();
 
-            Query select(db, "SELECT * FROM gtest_temp_table");
-            select.open();
-            for (auto& row: rows) {
-                if (select.eof())
-                    break;
-                EXPECT_EQ(row.id, select["id"].asInteger());
-                EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
-                EXPECT_DOUBLE_EQ(row.price, select["price"].asFloat());
-                select.next();
-            }
-            select.close();
-
-            db->close();
-        }
-        catch (const DatabaseException& e) {
-            FAIL() << e.what();
-        }
-        connectionPool.destroyConnection(db);
+    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price)");
+    for (auto& row: rows) {
+        insert.param("id") = row.id;
+        insert.param("name") = row.name;
+        insert.param("price") = row.price;
+        insert.exec();
     }
+
+    Query select(db, "SELECT * FROM gtest_temp_table");
+    select.open();
+    for (auto& row: rows) {
+        if (select.eof())
+            break;
+        if (row.id != select["id"].asInteger())
+            throw Exception("row.id != table data");
+        if (row.name != select["name"].asString())
+            throw Exception("row.name != table data");
+        if (row.price != select["price"].asFloat())
+            throw Exception("row.price != table data");
+        select.next();
+    }
+    select.close();
+
+    db->close();
+
+    connectionPool.destroyConnection(db);
 }
 
-TEST(Database, transaction)
+void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
 {
-    for (auto& connectionString: databaseTests.connectionStrings()) {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
-        DatabaseConnection* db = connectionPool.createConnection();
-        try {
-            db->open();
-            Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
-            createTable.exec();
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection* db = connectionPool.createConnection();
 
-            db->beginTransaction();
-            Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
+    db->open();
+    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
+    createTable.exec();
 
-            EXPECT_NO_THROW(insert.exec());
-            EXPECT_NO_THROW(insert.exec());
+    db->beginTransaction();
+    Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
 
-            Query select(db, "SELECT count(*) cnt FROM gtest_temp_table");
-            EXPECT_NO_THROW(select.open());
-            size_t count = select["cnt"];
-            EXPECT_EQ(size_t(2), count);
-            select.close();
+    insert.exec();
+    insert.exec();
 
-            db->rollbackTransaction();
+    Query select(db, "SELECT count(*) cnt FROM gtest_temp_table");
+    select.open();
+    size_t count = select["cnt"];
+    if (count != 2)
+        throw Exception("count != 2");
+    select.close();
 
-            EXPECT_NO_THROW(select.open());
-            count = select["cnt"];
-            EXPECT_EQ(size_t(0), count);
-            select.close();
+    db->rollbackTransaction();
 
-            Query dropTable(db, "DROP TABLE gtest_temp_table");
-            dropTable.exec();
+    select.open();
+    count = select["cnt"];
+    if (count != 0)
+        throw Exception("count != 0");
+    select.close();
 
-            db->close();
-        }
-        catch (const DatabaseException& e) {
-            FAIL() << e.what();
-        }
-        connectionPool.destroyConnection(db);
-    }
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+    dropTable.exec();
+
+    db->close();
+
+    connectionPool.destroyConnection(db);
 }
-
-#endif
