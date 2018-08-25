@@ -473,7 +473,7 @@ struct TempDirectory
 		int rc = mkdir(m_path.c_str(), 0777);
 		if (rc < 0)
 			throw SystemException(("Can't create temp directory " + m_path).c_str());
-		rc = mkdir((m_path + "\\dir1", 0777).c_str());
+		rc = mkdir((m_path + "/dir1").c_str(), 0777);
 		if (rc < 0)
 			throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
 #endif
@@ -494,7 +494,7 @@ struct TempDirectory
     }
 };
 
-TEST (DirectoryDS, open)
+TEST (SPTK_DirectoryDS, open)
 {
     TempDirectory dir(testTempDirectory + "1");
 
@@ -511,7 +511,7 @@ TEST (DirectoryDS, open)
     EXPECT_EQ(10, files["file1"]);
 }
 
-TEST (DirectoryDS, patterns)
+TEST (SPTK_DirectoryDS, patterns)
 {
     TempDirectory dir(testTempDirectory + "2");
 

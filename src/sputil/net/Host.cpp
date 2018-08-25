@@ -182,7 +182,7 @@ String Host::toString(bool forceAddress) const
 		}
 		if (inet_ntop(m_address.any.sa_family, addr, buffer, sizeof(buffer) - 1) == nullptr)
 #else
-		if (inet_ntop(m_address.sin_family, &m_address, buffer, sizeof(buffer) - 1) == nullptr)
+		if (inet_ntop(m_address.any.sa_family, &m_address, buffer, sizeof(buffer) - 1) == nullptr)
 #endif
             throw SystemException("Can't print IP address");
         address = buffer;

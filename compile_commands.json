@@ -1,0 +1,1162 @@
+[
+{
+  "directory": "/home/alexeyp/workspace/sptk5/googletest",
+  "command": "/usr/bin/c++  -DGTEST_CREATE_SHARED_LIBRARY=1 -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -Dgtest_main_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include -I/home/alexeyp/workspace/sptk5/googletest   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC  -std=c++0x -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/alexeyp/workspace/sptk5/googletest/src/gtest_main.cc",
+  "file": "/home/alexeyp/workspace/sptk5/googletest/src/gtest_main.cc"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/googletest",
+  "command": "/usr/bin/c++  -DGTEST_CREATE_SHARED_LIBRARY=1 -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -Dgtest_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include -I/home/alexeyp/workspace/sptk5/googletest   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC  -std=c++0x -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/alexeyp/workspace/sptk5/googletest/src/gtest-all.cc",
+  "file": "/home/alexeyp/workspace/sptk5/googletest/src/gtest-all.cc"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/themes",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/tar2h.dir/tar2h.cpp.o -c /home/alexeyp/workspace/sptk5/themes/tar2h.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/themes/tar2h.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Base64.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Base64.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Base64.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Crypt.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Crypt.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Crypt.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/LogEngine.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/LogEngine.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/LogEngine.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Buffer.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Buffer.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Buffer.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/DataSource.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/DataSource.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/DataSource.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/DateTime.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/DateTime.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/DateTime.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Exception.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Exception.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Exception.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/CommandLine.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/CommandLine.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/CommandLine.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Field.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Field.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Field.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/FieldList.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/FieldList.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/FieldList.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/FileLogEngine.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/FileLogEngine.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/FileLogEngine.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/IntList.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/IntList.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/IntList.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Registry.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Registry.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Registry.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/SharedStrings.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/SharedStrings.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/SharedStrings.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/String.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/String.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/String.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Strings.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Strings.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Strings.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/SysLogEngine.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/SysLogEngine.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/SysLogEngine.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/UniqueInstance.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/UniqueInstance.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/UniqueInstance.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Variant.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Variant.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Variant.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/string_ext.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/string_ext.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/string_ext.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/DirectoryDS.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/DirectoryDS.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/DirectoryDS.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/MemoryDS.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/MemoryDS.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/MemoryDS.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/Logger.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/Logger.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/Logger.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/SystemException.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/SystemException.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/SystemException.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/md5.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/md5.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/md5.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/json/JsonArrayData.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/json/JsonArrayData.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/json/JsonArrayData.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/json/JsonObjectData.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/json/JsonObjectData.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/json/JsonObjectData.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/json/JsonDocument.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/json/JsonDocument.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/json/JsonDocument.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/json/JsonElement.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/json/JsonElement.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/json/JsonElement.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/json/JsonParser.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/json/JsonParser.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/json/JsonParser.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/jwt/JWT.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/jwt/JWT.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/jwt/JWT.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/jwt/JWT-openssl.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/jwt/JWT-openssl.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/jwt/JWT-openssl.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/AsyncTcpSocket.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/AsyncTcpSocket.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/AsyncTcpSocket.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/BaseMailConnect.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/BaseMailConnect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/BaseMailConnect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/BaseSocket.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/BaseSocket.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/BaseSocket.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/Host.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/Host.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/Host.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/HttpAuthentication.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/HttpAuthentication.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/HttpAuthentication.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/HttpConnect.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/HttpConnect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/HttpConnect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/HttpParams.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/HttpParams.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/HttpParams.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/ImapConnect.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/ImapConnect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/ImapConnect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/MailMessageBody.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/MailMessageBody.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/MailMessageBody.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/SmtpConnect.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/SmtpConnect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/SmtpConnect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/SSLContext.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/SSLContext.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/SSLContext.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/SSLSocket.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/SSLSocket.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/SSLSocket.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/SocketEvents.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/SocketEvents.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/SocketEvents.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/TCPServer.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/TCPServer.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/TCPServer.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/TCPSocket.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/TCPSocket.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/TCPSocket.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/ServerConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/ServerConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/ServerConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/UDPSocket.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/UDPSocket.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/UDPSocket.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/ImapDS.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/ImapDS.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/ImapDS.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLAttributes.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLAttributes.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLAttributes.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLDocument.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocument.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocument.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLDocType.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocType.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocType.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLNode.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNode.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNode.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLNodeList.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNodeList.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNodeList.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLValue.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLValue.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLValue.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/block.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/block.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/block.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/Tar.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/Tar.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/Tar.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/decode.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/decode.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/decode.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/handle.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/handle.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/handle.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/libtar_hash.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/libtar_hash.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/libtar_hash.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/libtar_list.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/libtar_list.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/libtar_list.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/tar/util.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/tar/util.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/tar/util.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/RWLock.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/RWLock.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/RWLock.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/Synchronized.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/Synchronized.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/Synchronized.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/Thread.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/Thread.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/Thread.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/ThreadPool.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/ThreadPool.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/ThreadPool.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/Semaphore.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/Semaphore.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/Semaphore.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/Runable.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/Runable.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/Runable.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/WorkerThread.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/WorkerThread.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/WorkerThread.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/threads/Timer.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/threads/Timer.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/threads/Timer.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/ZLib.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/ZLib.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/ZLib.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/SocketPool.Linux.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/SocketPool.Linux.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/SocketPool.Linux.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/core/RegularExpression.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/core/RegularExpression.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/core/RegularExpression.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/net/HttpReader.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/net/HttpReader.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/net/HttpReader.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CFontComboBox.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CFontComboBox.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CFontComboBox.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CPhoneNumberInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CPhoneNumberInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CPhoneNumberInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CPngImage.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CPngImage.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CPngImage.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CFileSaveDialog.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CFileSaveDialog.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CFileSaveDialog.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CSmallPixmaps.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CSmallPixmaps.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CSmallPixmaps.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDateControl.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDateControl.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDateControl.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDialog.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDialog.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDialog.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CHtmlBox.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CHtmlBox.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CHtmlBox.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CRadioButtons.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CRadioButtons.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CRadioButtons.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CScrollBar.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CScrollBar.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CScrollBar.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CColumn.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CColumn.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CColumn.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CButton.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CButton.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CButton.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CScroll.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CScroll.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CScroll.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CTreeControl.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CTreeControl.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CTreeControl.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CProgressBar.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CProgressBar.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CProgressBar.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CFileDialog.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CFileDialog.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CFileDialog.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CFileOpenDialog.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CFileOpenDialog.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CFileOpenDialog.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CLayoutClient.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CLayoutClient.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CLayoutClient.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CTreeView.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CTreeView.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CTreeView.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CGroup.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CGroup.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CGroup.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDropDownBox.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDropDownBox.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDropDownBox.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CCheckButtons.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CCheckButtons.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CCheckButtons.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CFont.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CFont.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CFont.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDateIntervalInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDateIntervalInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDateIntervalInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CLayoutManager.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CLayoutManager.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CLayoutManager.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDateTimeInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDateTimeInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDateTimeInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CWindowShape.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CWindowShape.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CWindowShape.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CSplitter.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CSplitter.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CSplitter.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CIntegerInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CIntegerInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CIntegerInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CToolBar.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CToolBar.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CToolBar.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CEditor.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CEditor.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CEditor.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CPackedStrings.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CPackedStrings.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CPackedStrings.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CMemoInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CMemoInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CMemoInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CControl.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CControl.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CControl.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CListViewRows.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CListViewRows.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CListViewRows.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CWindow.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CWindow.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CWindow.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CPasswordInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CPasswordInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CPasswordInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CBox.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CBox.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CBox.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CButtonGroup.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CButtonGroup.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CButtonGroup.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CComboBox.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CComboBox.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CComboBox.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CFloatInput.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CFloatInput.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CFloatInput.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CPopupWindow.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CPopupWindow.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CPopupWindow.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CListView.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CListView.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CListView.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CTabs.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CTabs.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CTabs.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDataControl.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDataControl.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDataControl.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDBListView.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDBListView.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDBListView.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CListViewSelection.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CListViewSelection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CListViewSelection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CControlList.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CControlList.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CControlList.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CMessageDialog.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CMessageDialog.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CMessageDialog.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CDirOpenDialog.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CDirOpenDialog.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CDirOpenDialog.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/gui/CCalendar.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/gui/CCalendar.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/gui/CCalendar.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CColorSchema.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CColorSchema.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CColorSchema.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CGtkThemeLoader.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CGtkThemeLoader.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CGtkThemeLoader.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CThemes.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CThemes.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CThemes.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CThemesGtk.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CThemesGtk.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CThemesGtk.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CIcon.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CIcon.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CIcon.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CFrame.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CFrame.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CFrame.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CTabImage.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CTabImage.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CTabImage.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/ThemeUtils.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/ThemeUtils.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/ThemeUtils.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CThemeImageCollection.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CThemeImageCollection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CThemeImageCollection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CThemeColorCollection.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CThemeColorCollection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CThemeColorCollection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/sptk",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dsptk5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sptk5.dir/themes/CThemeScrollBar.cpp.o -c /home/alexeyp/workspace/sptk5/src/sptk/themes/CThemeScrollBar.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sptk/themes/CThemeScrollBar.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/DatabaseField.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/DatabaseField.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/DatabaseField.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/QueryParameterBinding.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/QueryParameterBinding.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/QueryParameterBinding.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/QueryParameter.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/QueryParameter.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/QueryParameter.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/QueryParameterList.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/QueryParameterList.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/QueryParameterList.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/Query.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/Query.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/Query.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/Transaction.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/Transaction.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/Transaction.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/DatabaseConnectionString.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/DatabaseConnectionString.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/DatabaseConnectionString.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/DatabaseConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/DatabaseConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/DatabaseConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/DatabaseConnectionPool.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/DatabaseConnectionPool.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/DatabaseConnectionPool.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/spdb",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5.dir/DatabaseTests.cpp.o -c /home/alexeyp/workspace/sptk5/src/spdb/DatabaseTests.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/spdb/DatabaseTests.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_odbc_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_odbc.dir/odbc/CODBC.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/odbc/CODBC.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/odbc/CODBC.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_odbc_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_odbc.dir/odbc/CODBCConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/odbc/CODBCConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/odbc/CODBCConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_postgresql_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_postgresql.dir/PostgreSQL/CPostgreSQLConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/PostgreSQL/CPostgreSQLConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/PostgreSQL/CPostgreSQLConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_postgresql_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_postgresql.dir/PostgreSQL/CPostgreSQLParamValues.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/PostgreSQL/CPostgreSQLParamValues.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/PostgreSQL/CPostgreSQLParamValues.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_postgresql_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_postgresql.dir/PostgreSQL/htonq.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/PostgreSQL/htonq.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/PostgreSQL/htonq.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_oracle_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_oracle.dir/Oracle/COracleEnvironment.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleEnvironment.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleEnvironment.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_oracle_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_oracle.dir/Oracle/COracleStatement.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleStatement.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleStatement.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_oracle_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_oracle.dir/Oracle/COracleConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_oracle_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_oracle.dir/Oracle/COracleBulkInsertQuery.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleBulkInsertQuery.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/Oracle/COracleBulkInsertQuery.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_mysql_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_mysql.dir/MySQL/CMySQLStatement.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/MySQL/CMySQLStatement.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/MySQL/CMySQLStatement.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/drivers",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_DRIVER_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspdb5_mysql_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/include/postgresql -I/usr/include/mysql -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spdb5_mysql.dir/MySQL/CMySQLConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/drivers/MySQL/CMySQLConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/drivers/MySQL/CMySQLConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSBasicTypes.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSBasicTypes.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSBasicTypes.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSComplexType.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSComplexType.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSComplexType.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSConnection.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSConnection.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSConnection.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSListener.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSListener.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSListener.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSParser.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSParser.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSParser.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSParserComplexType.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSParserComplexType.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSParserComplexType.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSRequest.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSRequest.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSRequest.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSRestriction.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSRestriction.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSRestriction.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/WSTypeTranslator.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/WSTypeTranslator.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/WSTypeTranslator.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/protocol/WSStaticHttpProtocol.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/protocol/WSStaticHttpProtocol.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/protocol/WSStaticHttpProtocol.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/protocol/WSWebServiceProtocol.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/protocol/WSWebServiceProtocol.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/protocol/WSWebServiceProtocol.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/src/wsdl",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=1 -Dspwsdl5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/spwsdl5.dir/protocol/WSWebSocketsProtocol.cpp.o -c /home/alexeyp/workspace/sptk5/src/wsdl/protocol/WSWebSocketsProtocol.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/wsdl/protocol/WSWebSocketsProtocol.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/unit_tests",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/unit_tests.dir/unit_tests.cpp.o -c /home/alexeyp/workspace/sptk5/unit_tests/unit_tests.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/unit_tests/unit_tests.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/json",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/json_test1.dir/json_test1.cpp.o -c /home/alexeyp/workspace/sptk5/examples/json/json_test1.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/json/json_test1.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/json",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/json_test2.dir/json_test2.cpp.o -c /home/alexeyp/workspace/sptk5/examples/json/json_test2.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/json/json_test2.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/json",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/json_test3.dir/json_test3.cpp.o -c /home/alexeyp/workspace/sptk5/examples/json/json_test3.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/json/json_test3.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/xml",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/xml_test1.dir/xml_test1.cpp.o -c /home/alexeyp/workspace/sptk5/examples/xml/xml_test1.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/xml/xml_test1.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/xml",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/xml_test2.dir/xml_test2.cpp.o -c /home/alexeyp/workspace/sptk5/examples/xml/xml_test2.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/xml/xml_test2.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/xml",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/xml_test3.dir/xml_test3.cpp.o -c /home/alexeyp/workspace/sptk5/examples/xml/xml_test3.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/xml/xml_test3.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/jwt",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/jwt_test.dir/jwt_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/jwt/jwt_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/jwt/jwt_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/database",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/bulk_insert_test.dir/bulk_insert_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/database/bulk_insert_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/database/bulk_insert_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/database",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/odbc_test.dir/odbc_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/database/odbc_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/database/odbc_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/database",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/driver_load_test.dir/driver_load_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/database/driver_load_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/database/driver_load_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/database",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/all_drivers_test.dir/all_drivers_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/database/all_drivers_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/database/all_drivers_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/threads",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/semaphore.dir/semaphore.cpp.o -c /home/alexeyp/workspace/sptk5/examples/threads/semaphore.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/threads/semaphore.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/threads",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/thread_test.dir/thread_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/threads/thread_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/threads/thread_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/threads",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/thread_rwlock.dir/thread_rwlock.cpp.o -c /home/alexeyp/workspace/sptk5/examples/threads/thread_rwlock.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/threads/thread_rwlock.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/threads",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/thread_pool_test.dir/thread_pool_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/threads/thread_pool_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/threads/thread_pool_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/zlib_test.dir/zlib_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/zlib_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/zlib_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/logfile_test.dir/logfile_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/logfile_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/logfile_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/datetime.dir/datetime.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/datetime.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/datetime.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/command_line.dir/command_line.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/command_line.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/command_line.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/string2md5.dir/string2md5.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/string2md5.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/string2md5.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/syslog_test.dir/syslog_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/syslog_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/syslog_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/unique_instance.dir/unique_instance.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/unique_instance.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/unique_instance.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/regexp.dir/regexp.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/regexp.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/regexp.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/registry.dir/registry.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/registry.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/registry.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/encrypt_decrypt.dir/encrypt_decrypt.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/encrypt_decrypt.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/encrypt_decrypt.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/exceptions.dir/exceptions.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/exceptions.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/exceptions.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/core",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/timer.dir/timer.cpp.o -c /home/alexeyp/workspace/sptk5/examples/core/timer.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/core/timer.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/datasources",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/directory_ds.dir/directory_ds.cpp.o -c /home/alexeyp/workspace/sptk5/examples/datasources/directory_ds.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/datasources/directory_ds.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/datasources",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/imap_ds.dir/imap_ds.cpp.o -c /home/alexeyp/workspace/sptk5/examples/datasources/imap_ds.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/datasources/imap_ds.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/smtp_connect.dir/smtp_connect.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/smtp_connect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/smtp_connect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/tcp_server_test.dir/tcp_server_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/tcp_server_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/tcp_server_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/udp_client_test.dir/udp_client_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/udp_client_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/udp_client_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/udp_server_test.dir/udp_server_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/udp_server_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/udp_server_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/tcp_client_test.dir/tcp_client_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/tcp_client_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/tcp_client_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/ssl_server_test.dir/ssl_server_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/ssl_server_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/ssl_server_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/imap_connect.dir/imap_connect.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/imap_connect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/imap_connect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/ws_server_test.dir/ws_server_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/ws_server_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/ws_server_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/ssl_client_test.dir/ssl_client_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/ssl_client_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/ssl_client_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/net",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/http_connect.dir/http_connect.cpp.o -c /home/alexeyp/workspace/sptk5/examples/net/http_connect.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/net/http_connect.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/themes_test.dir/themes_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/themes_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/themes_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/tabs_test.dir/tabs_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/tabs_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/tabs_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/check_buttons.dir/check_buttons.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/check_buttons.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/check_buttons.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/cgroup_test.dir/cgroup_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/cgroup_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/cgroup_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/splitter.dir/splitter.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/splitter.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/splitter.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/ceditor_test.dir/ceditor_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/ceditor_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/ceditor_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/tree_view.dir/tree_view.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/tree_view.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/tree_view.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/calendar_test.dir/calendar_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/calendar_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/calendar_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/combo_test.dir/combo_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/combo_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/combo_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/cscroll_test.dir/cscroll_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/cscroll_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/cscroll_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/file_dialogs.dir/file_dialogs.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/file_dialogs.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/file_dialogs.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/dialog_test.dir/dialog_test.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/dialog_test.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/dialog_test.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/font_combo.dir/font_combo.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/font_combo.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/font_combo.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/examples/gui",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/usr/include/pgsql -I/usr/include/pgsql/libpq -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/shaped_window.dir/shaped_window.cpp.o -c /home/alexeyp/workspace/sptk5/examples/gui/shaped_window.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/examples/gui/shaped_window.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/utilities",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/wsdl2cxx.dir/wsdl2cxx.cpp.o -c /home/alexeyp/workspace/sptk5/utilities/wsdl2cxx.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/utilities/wsdl2cxx.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/utilities/load_balance",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/load_balance.dir/load_balance.cpp.o -c /home/alexeyp/workspace/sptk5/utilities/load_balance/load_balance.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/utilities/load_balance/load_balance.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/utilities/load_balance",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/load_balance.dir/LoadBalance.cpp.o -c /home/alexeyp/workspace/sptk5/utilities/load_balance/LoadBalance.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/utilities/load_balance/LoadBalance.cpp"
+},
+{
+  "directory": "/home/alexeyp/workspace/sptk5/utilities/load_balance",
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/usr/local/include -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/load_balance.dir/Channel.cpp.o -c /home/alexeyp/workspace/sptk5/utilities/load_balance/Channel.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/utilities/load_balance/Channel.cpp"
+}
+]
