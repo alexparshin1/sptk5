@@ -948,14 +948,14 @@ double sptk::duration2seconds(const DateTime::duration& duration)
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(DateTime, ctor1)
+TEST(SPTK_DateTime, ctor1)
 {
     DateTime dateTime("2018-01-01 11:22:33.444+10");
     chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
     EXPECT_EQ(1514769753444, msSinceEpoch.count());
 }
 
-TEST(DateTime, ctor2)
+TEST(SPTK_DateTime, ctor2)
 {
     DateTime dateTime1("2018-01-01 11:22:33");
     DateTime dateTime2(2018, 1, 1, 11, 22, 33);
@@ -964,7 +964,7 @@ TEST(DateTime, ctor2)
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
 }
 
-TEST(DateTime, timeZones)
+TEST(SPTK_DateTime, timeZones)
 {
     DateTime dateTime1("2018-01-01 11:22:33.444+10");
     DateTime dateTime2("2018-01-01 10:22:33.444+09");
@@ -974,7 +974,7 @@ TEST(DateTime, timeZones)
     EXPECT_EQ(1514769753444, msSinceEpoch2.count());
 }
 
-TEST(DateTime, add)
+TEST(SPTK_DateTime, add)
 {
     DateTime dateTime1("2018-01-01 11:22:33.444+10");
     DateTime dateTime2 = dateTime1 + chrono::milliseconds(111);
@@ -982,7 +982,7 @@ TEST(DateTime, add)
     EXPECT_EQ(1514769753555, msSinceEpoch2.count());
 }
 
-TEST(DateTime, extractDate)
+TEST(SPTK_DateTime, extractDate)
 {
     short year, month, day, wday, yday;
     DateTime dateTime("2018-08-07 11:22:33.444Z");
@@ -994,7 +994,7 @@ TEST(DateTime, extractDate)
     EXPECT_EQ(218, yday);
 }
 
-TEST(DateTime, extractTime)
+TEST(SPTK_DateTime, extractTime)
 {
     short hour, minute, second, ms;
     DateTime dateTime("2018-08-07 11:22:33.444Z");
@@ -1005,7 +1005,7 @@ TEST(DateTime, extractTime)
     EXPECT_EQ(444, ms);
 }
 
-TEST(DateTime, formatDate)
+TEST(SPTK_DateTime, formatDate)
 {
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 
@@ -1020,7 +1020,7 @@ TEST(DateTime, formatDate)
     EXPECT_STREQ(buffer, dateTime.dateString(DateTime::PF_GMT).c_str());
 }
 
-TEST(DateTime, formatTime)
+TEST(SPTK_DateTime, formatTime)
 {
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 

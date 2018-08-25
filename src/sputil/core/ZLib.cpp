@@ -158,7 +158,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
 static const char* originalTestString = "This is a test of compression using GZip algorithm";
 static const char* originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
 
-TEST(ZLib, compress)
+TEST(SPTK_ZLib, compress)
 {
     Buffer compressed;
     String compressedBase64;
@@ -168,7 +168,7 @@ TEST(ZLib, compress)
     EXPECT_STREQ(originalTestStringBase64, compressedBase64.c_str());
 }
 
-TEST(ZLib, decompress)
+TEST(SPTK_ZLib, decompress)
 {
     Buffer compressed, decompressed;
     Base64::decode(compressed, originalTestStringBase64);

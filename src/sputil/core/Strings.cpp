@@ -208,7 +208,7 @@ void Strings::sort(bool ascending)
 
 static const String testString("This is a test\ntext that contains several\nexample rows");
 
-TEST(Strings, ctor)
+TEST(SPTK_Strings, ctor)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
     EXPECT_EQ(size_t(3), strings.size());
@@ -219,14 +219,14 @@ TEST(Strings, ctor)
     EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
 }
 
-TEST(Strings, sort)
+TEST(SPTK_Strings, sort)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
     strings.sort();
     EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
 }
 
-TEST(Strings, indexOf)
+TEST(SPTK_Strings, indexOf)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
     EXPECT_EQ(1, strings.indexOf("text that contains several"));

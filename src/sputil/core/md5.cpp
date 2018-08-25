@@ -383,7 +383,7 @@ String sptk::md5(const String& data)
 
 static const char* testPhrase = "This is a test text to verify MD5 algorithm";
 
-TEST(MD5, md5)
+TEST(SPTK_MD5, md5)
 {
     String testMD5 = md5(Buffer(testPhrase));
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());

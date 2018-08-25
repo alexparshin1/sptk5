@@ -123,7 +123,7 @@ static const char* testKey = "01234567890123456789012345678901";
 static const char* testIV = "0123456789012345";
 static const char* encryptedB64 = "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=";
 
-TEST(Crypt, encrypt)
+TEST(SPTK_Crypt, encrypt)
 {
     Buffer encrypted;
     string encryptedStr;
@@ -132,7 +132,7 @@ TEST(Crypt, encrypt)
     EXPECT_STREQ(encryptedB64, encryptedStr.c_str());
 }
 
-TEST(Crypt, decrypt)
+TEST(SPTK_Crypt, decrypt)
 {
     Buffer encrypted, decrypted;
     Base64::decode(encrypted, encryptedB64);

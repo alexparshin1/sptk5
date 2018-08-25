@@ -142,7 +142,7 @@ void FieldList::toXML(XMLNode& node) const
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(FieldList, copy)
+TEST(SPTK_FieldList, copy)
 {
     FieldList fieldList(true);
 
@@ -157,7 +157,7 @@ TEST(FieldList, copy)
     EXPECT_EQ(12345, fieldList2["value"].asInteger());
 }
 
-TEST(FieldList, push_back)
+TEST(SPTK_FieldList, push_back)
 {
     FieldList fieldList(true);
 

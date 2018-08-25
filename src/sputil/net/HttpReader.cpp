@@ -168,7 +168,7 @@ bool HttpReader::readData(TCPSocket& socket)
             int tailOffset = bytes() - 13;
             if (strcasestr(m_buffer + tailOffset, "</html>") != nullptr)
                 break;
-            if (socket.readyToRead(chrono::seconds(30)))
+            if (!socket.readyToRead(chrono::seconds(30)))
                 throw Exception("Read timeout");
             readBytes = (int) socket.socketBytes();
         }

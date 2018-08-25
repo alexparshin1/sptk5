@@ -168,7 +168,7 @@ String Host::toString(bool forceAddress) const
 
 const char* testHost = "www.google.com:80";
 
-TEST(Host, ctor)
+TEST(SPTK_Host, ctor)
 {
     Host google1(testHost);
     EXPECT_STREQ(testHost, google1.toString(false).c_str());

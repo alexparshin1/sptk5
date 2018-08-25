@@ -223,7 +223,7 @@ static void gtestTimerCallback(void* eventData)
     eventSet++;
 }
 
-TEST(Timer, fireAt)
+TEST(SPTK_Timer, fireAt)
 {
     Timer       timer(gtestTimerCallback);
     DateTime    when = DateTime::Now() + chrono::milliseconds(50);
@@ -236,7 +236,7 @@ TEST(Timer, fireAt)
     EXPECT_EQ(1, eventSet);
 }
 
-TEST(Timer, repeat)
+TEST(SPTK_Timer, repeat)
 {
     Timer       timer(gtestTimerCallback);
 

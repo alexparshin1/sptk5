@@ -122,7 +122,7 @@ public:
     int counter() const { return m_counter; }
 };
 
-TEST(Thread, run)
+TEST(SPTK_Thread, run)
 {
     TestThread testThread("Test Thread");
     testThread.run();

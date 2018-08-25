@@ -168,14 +168,14 @@ void verifyDocument(json::Document& document)
     EXPECT_FALSE(address.getBoolean("employed"));
 }
 
-TEST(JsonDocument, load)
+TEST(SPTK_JsonDocument, load)
 {
     json::Document document;
     document.load(testJSON);
     verifyDocument(document);
 }
 
-TEST(JsonDocument, add)
+TEST(SPTK_JsonDocument, add)
 {
     json::Document document;
     document.load(testJSON);
@@ -217,7 +217,7 @@ TEST(JsonDocument, add)
     EXPECT_DOUBLE_EQ(85.5, object->getNumber("weight"));
 }
 
-TEST(JsonDocument, remove)
+TEST(SPTK_JsonDocument, remove)
 {
     json::Document document;
     document.load(testJSON);
@@ -234,7 +234,7 @@ TEST(JsonDocument, remove)
     EXPECT_FALSE(root.find("address"));
 }
 
-TEST(JsonDocument, save)
+TEST(SPTK_JsonDocument, save)
 {
     json::Document document;
     document.load(testJSON);

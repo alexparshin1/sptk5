@@ -66,7 +66,7 @@ void SharedStrings::clear()
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(SharedStrings, match)
+TEST(SPTK_SharedStrings, match)
 {
     SharedStrings strings;
     strings.shareString("This");

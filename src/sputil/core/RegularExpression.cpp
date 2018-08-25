@@ -338,7 +338,7 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
 
 static const char* testPhrase = "This is a test text to verify MD5 algorithm";
 
-TEST(RegularExpression, match)
+TEST(SPTK_RegularExpression, match)
 {
     RegularExpression match1("test.*verify");
     RegularExpression match2("test  .*verify");
@@ -348,13 +348,13 @@ TEST(RegularExpression, match)
     EXPECT_FALSE(match1 != String(testPhrase));
 }
 
-TEST(RegularExpression, replase)
+TEST(SPTK_RegularExpression, replase)
 {
     RegularExpression match1("^(.*)(text).*(verify)(.*)");
     EXPECT_STREQ("This is a test expression to test MD5 algorithm", match1.s(testPhrase, "\\1expression to test\\4").c_str());
 }
 
-TEST(RegularExpression, extract)
+TEST(SPTK_RegularExpression, extract)
 {
     RegularExpression match1("^(.*)(text).*(verify)(.*)");
     Strings matchedStrings;
@@ -364,7 +364,7 @@ TEST(RegularExpression, extract)
     EXPECT_STREQ(" MD5 algorithm", matchedStrings[3].c_str());
 }
 
-TEST(RegularExpression, split)
+TEST(SPTK_RegularExpression, split)
 {
     RegularExpression match("[\\s]+");
     Strings matchedStrings;

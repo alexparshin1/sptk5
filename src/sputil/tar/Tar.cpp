@@ -222,7 +222,7 @@ static const string gtestTempDirectory("gtest_temp_directory");
 static const string file1_md5("2934e1a7ae11b11b88c9b0e520efd978");
 static const string file2_md5("adb45e22bba7108bb4ad1b772ecf6b40");
 
-TEST(Tar, read)
+TEST(SPTK_Tar, read)
 {
     Tar tar;
 

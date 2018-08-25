@@ -86,18 +86,18 @@ String String::trim() const
 
 static const String testString("This is a test");
 
-TEST(String, matches)
+TEST(SPTK_String, matches)
 {
     EXPECT_TRUE(testString.matches("is a "));
 }
 
-TEST(String, caseOps)
+TEST(SPTK_String, caseOps)
 {
     EXPECT_STREQ("THIS IS A TEST", testString.toUpperCase().c_str());
     EXPECT_STREQ("this is a test", testString.toLowerCase().c_str());
 }
 
-TEST(String, split)
+TEST(SPTK_String, split)
 {
     Strings words(testString.split("[\\s]+"));
     EXPECT_EQ(size_t(4), words.size());
@@ -105,7 +105,7 @@ TEST(String, split)
     EXPECT_STREQ("test", words[3].c_str());
 }
 
-TEST(String, startsEnds)
+TEST(SPTK_String, startsEnds)
 {
     EXPECT_TRUE(testString.startsWith("This "));
     EXPECT_FALSE(testString.startsWith("this "));
@@ -113,12 +113,12 @@ TEST(String, startsEnds)
     EXPECT_FALSE(testString.endsWith(" tesT"));
 }
 
-TEST(String, replace)
+TEST(SPTK_String, replace)
 {
     EXPECT_STREQ("This is a Test", testString.replace(" t", " T").c_str());
 }
 
-TEST(String, trim)
+TEST(SPTK_String, trim)
 {
     String testString2(" \n\r\t" + testString + "\n\r\t ");
     EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());

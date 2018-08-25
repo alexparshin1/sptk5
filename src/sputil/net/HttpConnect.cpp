@@ -189,7 +189,7 @@ String HttpConnect::statusText() const
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(HttpConnect, get)
+TEST(SPTK_HttpConnect, get)
 {
     Host google("www.google.com:80");
 
@@ -200,7 +200,12 @@ TEST(HttpConnect, get)
 
     HttpConnect http(socket);
 
-    EXPECT_NO_THROW(http.cmd_get("/", HttpParams()));
+    try {
+        http.cmd_get("/", HttpParams());
+    }
+    catch (const exception& e) {
+        FAIL() << e.what();
+    }
     EXPECT_EQ(200, http.statusCode());
     EXPECT_STREQ("OK", http.statusText().c_str());
 

@@ -358,7 +358,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 static const char* testPhrase = "This is a test";
 static const char* tempFileName = "/tmp/gtest_sptk5_buffer.tmp";
 
-TEST(Buffer, create)
+TEST(SPTK_Buffer, create)
 {
     Buffer  buffer1(testPhrase);
     EXPECT_STREQ(testPhrase, buffer1.c_str());
@@ -366,7 +366,7 @@ TEST(Buffer, create)
     EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
 }
 
-TEST(Buffer, assign)
+TEST(SPTK_Buffer, assign)
 {
     Buffer  buffer1(testPhrase);
     Buffer  buffer2;
@@ -378,7 +378,7 @@ TEST(Buffer, assign)
     EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
 }
 
-TEST(Buffer, append)
+TEST(SPTK_Buffer, append)
 {
     Buffer  buffer1;
 
@@ -389,7 +389,7 @@ TEST(Buffer, append)
     EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
 }
 
-TEST(Buffer, saveLoadFile)
+TEST(SPTK_Buffer, saveLoadFile)
 {
     Buffer  buffer1(testPhrase);
     Buffer  buffer2;
@@ -402,7 +402,7 @@ TEST(Buffer, saveLoadFile)
     EXPECT_TRUE(strlen(testPhrase) < buffer2.capacity());
 }
 
-TEST(Buffer, fill)
+TEST(SPTK_Buffer, fill)
 {
     Buffer  buffer1;
 
@@ -412,7 +412,7 @@ TEST(Buffer, fill)
     EXPECT_EQ(size_t(12), buffer1.bytes());
 }
 
-TEST(Buffer, reset)
+TEST(SPTK_Buffer, reset)
 {
     Buffer  buffer1(testPhrase);
 

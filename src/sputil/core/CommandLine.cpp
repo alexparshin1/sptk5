@@ -563,7 +563,7 @@ CommandLine* createTestCommandLine()
     return commandLine;
 }
 
-TEST(CommandLine, ctor)
+TEST(SPTK_CommandLine, ctor)
 {
     unique_ptr<CommandLine> commandLine(createTestCommandLine());
     commandLine->init(7, testCommandLineArgs);
@@ -573,7 +573,7 @@ TEST(CommandLine, ctor)
     EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
 }
 
-TEST(CommandLine, wrongArgumentValue)
+TEST(SPTK_CommandLine, wrongArgumentValue)
 {
     unique_ptr<CommandLine> commandLine(createTestCommandLine());
 
@@ -583,7 +583,7 @@ TEST(CommandLine, wrongArgumentValue)
     );
 }
 
-TEST(CommandLine, wrongOption)
+TEST(SPTK_CommandLine, wrongOption)
 {
     unique_ptr<CommandLine> commandLine(createTestCommandLine());
 

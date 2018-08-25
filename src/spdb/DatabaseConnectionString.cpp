@@ -125,7 +125,7 @@ String DatabaseConnectionString::parameter(const String& name) const
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(DatabaseConnectionString, ctorSimple)
+TEST(SPTK_DatabaseConnectionString, ctorSimple)
 {
     DatabaseConnectionString simple("postgres://localhost/dbname");
     EXPECT_STREQ("postgres", simple.driverName().c_str());
@@ -133,7 +133,7 @@ TEST(DatabaseConnectionString, ctorSimple)
     EXPECT_STREQ("dbname", simple.databaseName().c_str());
 }
 
-TEST(DatabaseConnectionString, ctorFull)
+TEST(SPTK_DatabaseConnectionString, ctorFull)
 {
     DatabaseConnectionString simple("postgres://auser:apassword@localhost:5432/dbname?encoding=UTF8&schema=main");
     EXPECT_STREQ("auser", simple.userName().c_str());

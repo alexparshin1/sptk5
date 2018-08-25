@@ -1325,7 +1325,7 @@ void Variant::save(XMLNode* node) const
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(Variant, ctors)
+TEST(SPTK_Variant, ctors)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -1340,7 +1340,7 @@ TEST(Variant, ctors)
     EXPECT_STREQ("2018-02-01T09:11:14.345Z", v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
-TEST(Variant, assigns)
+TEST(SPTK_Variant, assigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -1360,7 +1360,7 @@ TEST(Variant, assigns)
     EXPECT_STREQ("2018-02-01T09:11:14.345Z", v.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
-TEST(Variant, toString)
+TEST(SPTK_Variant, toString)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 

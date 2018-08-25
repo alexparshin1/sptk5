@@ -473,7 +473,7 @@ void JWT::decode(const char *token, const String& key)
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(JWT, dup)
+TEST(SPTK_JWT, dup)
 {
     time_t now;
     int valint;
@@ -498,7 +498,7 @@ TEST(JWT, dup)
     EXPECT_EQ((long)now, valint) << "Failed jwt_get_grant_int()";
 }
 
-TEST(JWT, dup_signed)
+TEST(SPTK_JWT, dup_signed)
 {
     String key256("012345678901234567890123456789XY");
 
@@ -513,7 +513,7 @@ TEST(JWT, dup_signed)
 }
 
 
-TEST(JWT, decode)
+TEST(SPTK_JWT, decode)
 {
     const char token[] =
             "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
@@ -530,7 +530,7 @@ TEST(JWT, decode)
 }
 
 
-TEST(JWT, decode_invalid_final_dot)
+TEST(SPTK_JWT, decode_invalid_final_dot)
 {
     const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
@@ -543,7 +543,7 @@ TEST(JWT, decode_invalid_final_dot)
 }
 
 
-TEST(JWT, decode_invalid_alg)
+TEST(SPTK_JWT, decode_invalid_alg)
 {
     const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
@@ -556,7 +556,7 @@ TEST(JWT, decode_invalid_alg)
 }
 
 
-TEST(JWT, decode_invalid_typ)
+TEST(SPTK_JWT, decode_invalid_typ)
 {
     const char token[] = "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
                          "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
@@ -569,7 +569,7 @@ TEST(JWT, decode_invalid_typ)
 }
 
 
-TEST(JWT, decode_invalid_head)
+TEST(SPTK_JWT, decode_invalid_head)
 {
     const char token[] =
             "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
@@ -583,7 +583,7 @@ TEST(JWT, decode_invalid_head)
 }
 
 
-TEST(JWT, decode_alg_none_with_key)
+TEST(SPTK_JWT, decode_alg_none_with_key)
 {
     const char token[] =
             "eyJhbGciOiJub25lIn0."
@@ -597,7 +597,7 @@ TEST(JWT, decode_alg_none_with_key)
 }
 
 
-TEST(JWT, decode_invalid_body)
+TEST(SPTK_JWT, decode_invalid_body)
 {
     const char token[] =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
@@ -611,7 +611,7 @@ TEST(JWT, decode_invalid_body)
 }
 
 
-TEST(JWT, decode_hs256)
+TEST(SPTK_JWT, decode_hs256)
 {
     const char token[] =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
@@ -626,7 +626,7 @@ TEST(JWT, decode_hs256)
 }
 
 
-TEST(JWT, decode_hs384)
+TEST(SPTK_JWT, decode_hs384)
 {
     const char token[] =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
@@ -645,7 +645,7 @@ TEST(JWT, decode_hs384)
 }
 
 
-TEST(JWT, decode_hs512)
+TEST(SPTK_JWT, decode_hs512)
 {
     const char token[] =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3Mi"
@@ -662,7 +662,7 @@ TEST(JWT, decode_hs512)
     delete jwt;
 }
 
-TEST(JWT, encode_hs256_decode)
+TEST(SPTK_JWT, encode_hs256_decode)
 {
     String key256("012345678901234567890123456789XY");
 

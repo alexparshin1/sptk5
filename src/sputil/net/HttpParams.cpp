@@ -148,7 +148,7 @@ String HttpParams::get(const String& paramName) const
 
 static const char* gtestURLencoded = "name=John+Doe&items=%5B%22book%22%2C%22pen%22%5D&id=1234";
 
-TEST(HttpParams, encode)
+TEST(SPTK_HttpParams, encode)
 {
     HttpParams httpParams;
     httpParams["id"] = "1234";
@@ -160,7 +160,7 @@ TEST(HttpParams, encode)
     EXPECT_STREQ(gtestURLencoded, encoded.c_str());
 }
 
-TEST(HttpParams, decode)
+TEST(SPTK_HttpParams, decode)
 {
     HttpParams httpParams;
     httpParams["noise"] = "noise";
