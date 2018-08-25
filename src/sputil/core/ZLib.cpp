@@ -155,17 +155,24 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
 #include <gtest/gtest.h>
 #include <sptk5/Base64.h>
 
-static const char* originalTestString = "This is a test of compression using GZip algorithm";
-static const char* originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+static const String originalTestString = "This is a test of compression using GZip algorithm";
+
+// Note: ZLib under Windows produces slightly different result,
+// due old Windows port version.
+#ifdef _WIN32
+	static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+#else
+	static const String originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+#endif
 
 TEST(SPTK_ZLib, compress)
 {
     Buffer compressed;
     String compressedBase64;
-    ZLib::compress(compressed, Buffer(originalTestString, strlen(originalTestString)));
+    ZLib::compress(compressed, Buffer(originalTestString));
     Base64::encode(compressedBase64, compressed);
     
-    EXPECT_STREQ(originalTestStringBase64, compressedBase64.c_str());
+    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
 }
 
 TEST(SPTK_ZLib, decompress)
@@ -174,7 +181,7 @@ TEST(SPTK_ZLib, decompress)
     Base64::decode(compressed, originalTestStringBase64);
     ZLib::decompress(decompressed, compressed);
 
-    EXPECT_STREQ(originalTestString, decompressed.c_str());
+    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
 #endif

@@ -121,11 +121,17 @@ namespace sptk {
         #include <stdint.h>
         #include <inttypes.h>
     #endif
-    
 #else
     #include <stdint.h>
     #include <inttypes.h>
 
+#endif
+
+#ifdef _WIN32 
+	#define snprintf _snprintf
+	#define vsnprintf _vsnprintf
+	#define strcasecmp _stricmp
+	#define strncasecmp _strnicmp
 #endif
 
 #endif

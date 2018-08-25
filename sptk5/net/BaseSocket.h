@@ -58,7 +58,8 @@
 
 #else
     #include <winsock2.h>
-    #include <windows.h>
+	#include <ws2tcpip.h>
+	#include <windows.h>
     typedef int socklen_t;
     typedef unsigned short SOCKET_ADDRESS_FAMILY;
 #endif

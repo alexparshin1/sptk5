@@ -27,17 +27,75 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/DateTime.h>
 #include <iostream>
 #include <sptk5/db/DatabaseTests.h>
+
+#include <sptk5/cutils>
+#include <sptk5/cthreads>
+#include <sptk5/cnet>
+#include <sptk5/JWT.h>
+#include <sptk5/Crypt.h>
+#include <sptk5/CommandLine.h>
+#include <sptk5/DirectoryDS.h>
+#include <sptk5/threads/Timer.h>
+#include <sptk5/Tar.h>
+#include <sptk5/Base64.h>
 
 using namespace std;
 using namespace sptk;
 
+void acallback(void*) {}
+
+class StubServer : public TCPServer
+{
+protected:
+	ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
+	{
+		return nullptr;
+	}
+public:
+};
+
+// Hints to linker that we need other modules.
+// Otherwise, Visual Studio doesn't include any tests
+void stub()
+{
+	DateTime			dt;
+	JWT					jwt;
+	RegularExpression	regexp(".*");
+	CommandLine			cmd("", "", "");
+	DirectoryDS			dir("");
+	ThreadPool			threads;
+	Timer				timer(acallback);
+	MD5					md5;
+	StubServer			tcpServer;
+	Tar					tar;
+	FieldList			fieldList(false);
+	SharedStrings		sharedStrings;
+	Variant				v;
+
+	TCPSocket			socket;
+	HttpConnect			connect(socket);
+
+	string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	string key("01234567890123456789012345678901");
+	string iv("0123456789012345");
+
+	Buffer intext(text), outtext;
+	cout << "Encrypt text (" << text.length() << " bytes)." << endl;
+	Crypt::encrypt(outtext, intext, key, iv);
+
+	Buffer b1, b2("xxx");
+	Base64::encode(b1, b2);
+}
+
 int main(int argc, char* argv[])
 {
-	DateTime dt;
-	cout << DateTime::Now().isoDateTimeString() << endl;
+#ifdef _WIN32
+	// Make sure Winsock is initialized
+	TCPSocket socket;
+#endif
+
 	databaseTests.addConnection(DatabaseConnectionString("postgresql://localhost:5432/gtest"));
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

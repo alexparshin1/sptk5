@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/sptk.h>
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/ZLib.h>
 #include <thread>
@@ -170,8 +171,9 @@ bool HttpReader::readData(TCPSocket& socket)
         readBytes = (int) socket.socketBytes();
         if (readBytes == 0) {
             int tailOffset = bytes() - 13;
-            if (strcasestr(m_buffer + tailOffset, "</html>") != nullptr)
-                break;
+			String tail(m_buffer + tailOffset);
+            if (tail.toLowerCase().find("</html>") != string::npos)
+				break;
             if (!socket.readyToRead(chrono::seconds(30)))
                 throw TimeoutException("Read timeout");
             readBytes = (int) socket.socketBytes();
