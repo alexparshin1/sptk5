@@ -86,7 +86,7 @@ class SP_EXPORT ThreadPool : public ThreadEvent, public Thread, public std::mute
     /**
      * Flag: true during pool shutdown
      */
-    bool                                m_shutdown;
+    std::atomic_bool                    m_shutdown;
 
 
     /**

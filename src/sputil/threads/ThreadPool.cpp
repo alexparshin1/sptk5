@@ -68,11 +68,8 @@ WorkerThread* ThreadPool::createThread()
 
 void ThreadPool::execute(Runable* task)
 {
-    {
-        lock_guard<mutex> lock(*this);
-        if (m_shutdown)
-            throw Exception("Thread manager is stopped");
-    }
+    if (m_shutdown)
+        throw Exception("Thread manager is stopped");
 
     if (!m_availableThreads.sleep_for(std::chrono::milliseconds(10))) {
         if (m_threads.size() < m_threadLimit)
@@ -113,7 +110,11 @@ void ThreadPool::stop()
     }
     m_threads.each(terminateThread);
     while (!m_threads.empty())
-        sleep_for(chrono::seconds(1));
+        sleep_for(chrono::milliseconds(100));
+    while (!m_terminatedThreads.empty())
+        sleep_for(chrono::milliseconds(100));
+    terminate();
+    join();
 }
 
 size_t ThreadPool::size() const
@@ -142,7 +143,7 @@ public:
     int count() const { return m_count; }
 };
 
-TEST(ThreadPool, run)
+TEST(SPTK_ThreadPool, run)
 {
     unsigned i;
     vector<MyTask*> tasks;
