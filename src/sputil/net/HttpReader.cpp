@@ -125,6 +125,8 @@ bool HttpReader::readData(TCPSocket& socket)
         if (!m_contentIsChunked) {
             if (readBytes > (int) bytesToRead) // 0 bytes case is a workaround for OpenSSL
                 readBytes = (int) bytesToRead;
+            if (!socket.readyToRead(chrono::seconds(30)))
+                throw TimeoutException("Read timeout");
             readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
             if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
                 readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
@@ -154,6 +156,8 @@ bool HttpReader::readData(TCPSocket& socket)
 
             checkSize(bytes() + m_currentChunkSize + 16384);
             char* appendPtr = data() + bytes();
+            if (!socket.readyToRead(chrono::seconds(30)))
+                throw TimeoutException("Read timeout");
             readBytes = (int) socket.read(appendPtr, m_currentChunkSize, nullptr);
             if (readBytes > 0) {
                 m_contentReceivedLength += readBytes;
@@ -169,7 +173,7 @@ bool HttpReader::readData(TCPSocket& socket)
             if (strcasestr(m_buffer + tailOffset, "</html>") != nullptr)
                 break;
             if (!socket.readyToRead(chrono::seconds(30)))
-                throw Exception("Read timeout");
+                throw TimeoutException("Read timeout");
             readBytes = (int) socket.socketBytes();
         }
     }
