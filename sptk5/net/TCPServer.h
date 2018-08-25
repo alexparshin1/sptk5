@@ -33,6 +33,7 @@
 #include <sptk5/Logger.h>
 #include <set>
 #include <iostream>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk
 {
@@ -112,29 +113,40 @@ public:
  *
  * For every incoming connection, creates connection thread.
  */
-class TCPServer: public std::mutex
+class TCPServer : protected Thread
 {
     friend class TCPServerListener;
     friend class ServerConnection;
+
+    /**
+     * Mutex protecting internal data
+     */
+    std::mutex                              m_mutex;
+
     /**
      * Server listener object
      */
-    TCPServerListener*             m_listenerThread;
+    TCPServerListener*                      m_listenerThread;
 
     /**
      * Optional logger
      */
-    Logger*                        m_logger;
+    Logger*                                 m_logger;
 
     /**
      * Per-connection thread set
      */
-    std::set<ServerConnection*>    m_connectionThreads;
+    std::set<ServerConnection*>             m_connectionThreads;
+
+    /**
+     * Per-connection thread set
+     */
+    SynchronizedQueue<ServerConnection*>    m_completedConnectionThreads;
 
     /**
      * Lock to protect per-connection thread set manipulations
      */
-    std::mutex                     m_connectionThreadsLock;
+    std::mutex                              m_connectionThreadsLock;
 
 protected:
     /**
@@ -170,12 +182,23 @@ protected:
      */
     void unregisterConnection(ServerConnection* connection);
 
+    /**
+     * Server thread function.
+     * Cleans up completed connections.
+     */
+    void threadFunction() override;
+
+    /*
+     * Custom terminate function.
+     */
+    void terminate() override;
+
 public:
     /**
      * @brief Constructor
      */
     TCPServer(Logger* logger=NULL)
-    : m_listenerThread(NULL), m_logger(logger)
+    : Thread("TCPServer"), m_listenerThread(NULL), m_logger(logger)
     {
     }
 

@@ -95,7 +95,7 @@ void TCPServerListener::terminate()
 
 void TCPServer::listen(uint16_t port)
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
         m_listenerThread->join();
@@ -108,21 +108,24 @@ void TCPServer::listen(uint16_t port)
 
 void TCPServer::stop()
 {
-    lock_guard<mutex> lock(*this);
+    lock_guard<mutex> lock(m_mutex);
     {
-        lock_guard<mutex> m_sync(m_connectionThreadsLock);
-
-        set<ServerConnection*>::iterator itor;
-
-        for (itor = m_connectionThreads.begin(); itor != m_connectionThreads.end(); ++itor)
-            (*itor)->terminate();
+        lock_guard<mutex> lock(m_connectionThreadsLock);
+        for (auto connectionThread: m_connectionThreads)
+            connectionThread->terminate();
     }
 
     while (true) {
         this_thread::sleep_for(chrono::milliseconds(100));
-        lock_guard<mutex> m_sync(m_connectionThreadsLock);
+        lock_guard<mutex> lock(m_connectionThreadsLock);
         if (m_connectionThreads.empty())
             break;
+    }
+
+    while (!m_completedConnectionThreads.empty()) {
+        ServerConnection* connection;
+        if (m_completedConnectionThreads.pop(connection, chrono::milliseconds(100)))
+            delete connection;
     }
 
     if (m_listenerThread != nullptr) {
@@ -144,6 +147,23 @@ void TCPServer::unregisterConnection(ServerConnection* connection)
 {
     lock_guard<mutex> m_sync(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);
+    m_completedConnectionThreads.push(connection);
+}
+
+void TCPServer::threadFunction()
+{
+    chrono::seconds timeout(30);
+    while (!terminated()) {
+        ServerConnection* connection;
+        if (m_completedConnectionThreads.pop(connection, timeout))
+            delete connection;
+    }
+}
+
+void TCPServer::terminate()
+{
+    m_completedConnectionThreads.wakeup();
+    Thread::terminate();
 }
 
 #if USE_GTEST
@@ -211,7 +231,7 @@ public:
 };
 
 
-TEST(TCPServer, minimal)
+TEST(SPTK_TCPServer, minimal)
 {
     Buffer buffer;
 

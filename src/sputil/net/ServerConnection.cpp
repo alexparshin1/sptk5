@@ -35,7 +35,6 @@ void ServerConnection::onThreadExit()
 {
     try {
         m_server->unregisterConnection(this);
-        delete this;
     }
     catch (...) {}
 }
