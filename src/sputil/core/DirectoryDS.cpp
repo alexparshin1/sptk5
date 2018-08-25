@@ -450,7 +450,11 @@ bool DirectoryDS::open()
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-const String testTempDirectory = "gtest_temp_dir";
+#ifdef _WIN32
+	const String testTempDirectory = "C:\\gtest_temp_dir";
+#else
+	const String testTempDirectory = "/tmp/gtest_temp_dir";
+#endif
 
 struct TempDirectory
 {
@@ -458,9 +462,21 @@ struct TempDirectory
     TempDirectory(const String& path)
     : m_path(path)
     {
-        int rc = system(("mkdir -p " + m_path + "/dir1").c_str());
-        if (rc < 0)
-            throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
+#ifdef _WIN32
+		int rc = system(("mkdir " + m_path).c_str());
+		if (rc < 0)
+			throw SystemException(("Can't create temp directory " + m_path).c_str());
+		rc = system(("mkdir " + m_path + "\\dir1").c_str());
+		if (rc < 0)
+			throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
+#else
+		int rc = mkdir(m_path.c_str(), 0777);
+		if (rc < 0)
+			throw SystemException(("Can't create temp directory " + m_path).c_str());
+		rc = mkdir((m_path + "\\dir1", 0777).c_str());
+		if (rc < 0)
+			throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
+#endif
 
         Buffer buffer;
         buffer.fill('X',10);
@@ -470,15 +486,19 @@ struct TempDirectory
 
     ~TempDirectory()
     {
-        system(("rm -rf " + m_path).c_str());
+#ifdef _WIN32
+		system(("rmdir /s /q " + m_path).c_str());
+#else
+		system(("rm -rf " + m_path).c_str());
+#endif
     }
 };
 
 TEST (DirectoryDS, open)
 {
-    TempDirectory dir(testTempDirectory);
+    TempDirectory dir(testTempDirectory + "1");
 
-    DirectoryDS directoryDS(testTempDirectory);
+    DirectoryDS directoryDS(testTempDirectory + "1");
     directoryDS.open();
     map<String,int> files;
     while (!directoryDS.eof()) {
@@ -493,9 +513,9 @@ TEST (DirectoryDS, open)
 
 TEST (DirectoryDS, patterns)
 {
-    TempDirectory dir(testTempDirectory);
+    TempDirectory dir(testTempDirectory + "2");
 
-    DirectoryDS directoryDS(testTempDirectory, "file1;dir*", DDS_HIDE_DOT_FILES);
+    DirectoryDS directoryDS(testTempDirectory + "2", "file1;dir*", DDS_HIDE_DOT_FILES);
     directoryDS.open();
     map<String,int> files;
     while (!directoryDS.eof()) {

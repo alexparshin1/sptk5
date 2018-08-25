@@ -193,12 +193,12 @@ TEST(SPTK_HttpConnect, get)
 {
     Host google("www.google.com:80");
 
-    TCPSocket socket;
+    TCPSocket* socket = new TCPSocket;
 
-    ASSERT_NO_THROW(socket.open(google));
-    ASSERT_TRUE(socket.active());
+    ASSERT_NO_THROW(socket->open(google));
+    ASSERT_TRUE(socket->active());
 
-    HttpConnect http(socket);
+    HttpConnect http(*socket);
 
     try {
         http.cmd_get("/", HttpParams());
@@ -212,6 +212,7 @@ TEST(SPTK_HttpConnect, get)
     String data(http.htmlData().c_str(),http.htmlData().bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
     //cout << data.c_str() << endl;
+	delete socket;
 }
 
 #endif

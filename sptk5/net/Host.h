@@ -40,6 +40,7 @@
 
 #else
 #include <winsock2.h>
+#include <WS2tcpip.h>
 #endif
 
 namespace sptk {
@@ -57,12 +58,22 @@ class Host
     mutable std::mutex  m_mutex;        ///< Mutex to protect internal class data
     String              m_hostname;     ///< Host name or IP address
     uint16_t            m_port;         ///< Port number
-    sockaddr_in         m_address;      ///< Host address
+	union {
+		struct sockaddr	 any;
+		struct sockaddr_in  ip_v4;
+		struct sockaddr_in6 ip_v6;
+	}					m_address;      ///< Host address
 
     /**
      * Get host address
      */
     void getHostAddress();
+
+	/**
+	 * Set port number
+	 * @param p                 Port number
+	 */
+	void setPort(uint16_t p);
 
 public:
 
@@ -146,8 +157,7 @@ public:
     void port(uint16_t p)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_port = p;
-        m_address.sin_port = htons(uint16_t(m_port));
+		setPort(p);
     }
 
     /**

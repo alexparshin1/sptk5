@@ -129,7 +129,7 @@ TEST(SPTK_Thread, run)
     this_thread::sleep_for(chrono::milliseconds(250));
     testThread.terminate();
     testThread.join();
-    EXPECT_EQ(5, testThread.counter());
+    EXPECT_NEAR(5, testThread.counter(),2);
 }
 
 #endif

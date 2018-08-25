@@ -43,7 +43,7 @@ Host::Host(const String& hostname, uint16_t port)
 : m_hostname(hostname), m_port(port)
 {
     getHostAddress();
-    m_address.sin_port = htons(uint16_t(m_port));
+	setPort(m_port);
 }
 
 Host::Host(const String& hostAndPort)
@@ -56,8 +56,8 @@ Host::Host(const String& hostAndPort)
         if (matches.size() > 1)
             m_port = (uint16_t) string2int(matches[1].substr(1));
         getHostAddress();
-        m_address.sin_port = htons(uint16_t(m_port));
-    } else {
+		setPort(m_port);
+	} else {
         memset(&m_address, 0, sizeof(m_address));
     }
 }
@@ -106,6 +106,19 @@ bool Host::operator != (const Host& other) const
     return toString(true) != other.toString(true);
 }
 
+void Host::setPort(uint16_t p)
+{
+	m_port = p;
+	switch (m_address.any.sa_family) {
+	case AF_INET:
+		m_address.ip_v4.sin_port = htons(uint16_t(m_port));
+		break;
+	case AF_INET6:
+		m_address.ip_v6.sin6_port = htons(uint16_t(m_port));
+		break;
+	}
+}
+
 void Host::getHostAddress()
 {
     static mutex getaddrinfoMutex;
@@ -116,8 +129,18 @@ void Host::getHostAddress()
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
 	if (host_info == nullptr)
 		BaseSocket::throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
-	m_address.sin_family = host_info->h_addrtype;
-    memcpy(&m_address.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+
+	m_address.any.sa_family = host_info->h_addrtype;
+
+	switch (m_address.any.sa_family) {
+	case AF_INET:
+		memcpy(&m_address.ip_v4.sin_addr, host_info->h_addr, size_t(host_info->h_length));
+		break;
+	case AF_INET6:
+		memcpy(&m_address.ip_v6.sin6_addr, host_info->h_addr, size_t(host_info->h_length));
+		break;
+	}
+
 #else
     struct addrinfo hints = {};
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -147,14 +170,27 @@ String Host::toString(bool forceAddress) const
     string address;
     if (forceAddress) {
         char buffer[128];
-        if (inet_ntop(m_address.sin_family, &m_address, buffer, sizeof(buffer) - 1) == nullptr)
+#ifdef _WIN32
+		void *addr;
+		// Get the pointer to the address itself, different fields in IPv4 and IPv6
+		if (m_address.any.sa_family == AF_INET) {
+			struct sockaddr_in *ipv4 = (struct sockaddr_in *) &m_address;
+			addr = &(ipv4->sin_addr);
+		} else {
+			struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *) &m_address;
+			addr = &(ipv6->sin6_addr);
+		}
+		if (inet_ntop(m_address.any.sa_family, addr, buffer, sizeof(buffer) - 1) == nullptr)
+#else
+		if (inet_ntop(m_address.sin_family, &m_address, buffer, sizeof(buffer) - 1) == nullptr)
+#endif
             throw SystemException("Can't print IP address");
         address = buffer;
     } else {
         address = m_hostname;
     }
 
-    if (m_address.sin_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
+    if (m_address.any.sa_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
         str << "[" << address << "]:" << m_port;
     else
         str << address << ":" << m_port;

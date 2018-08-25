@@ -53,6 +53,7 @@ void ThreadPool::threadFunction()
         WorkerThread* workerThread = nullptr;
         if (m_terminatedThreads.pop(workerThread, timeout)) {
             m_threads.remove(workerThread);
+			workerThread->join();
             delete workerThread;
         }
     }
@@ -102,14 +103,18 @@ static bool terminateThread(WorkerThread*& thread, void*)
     return true;
 }
 
+static bool terminateAndJoinThread(WorkerThread*& thread, void*)
+{
+	thread->terminate();
+	thread->join();
+	return true;
+}
+
 void ThreadPool::stop()
 {
-    {
-        lock_guard<mutex> lock(*this);
-        m_shutdown = true;
-    }
+    m_shutdown = true;
     m_threads.each(terminateThread);
-    while (!m_threads.empty())
+	while (!m_threads.empty())
         sleep_for(chrono::milliseconds(100));
     while (!m_terminatedThreads.empty())
         sleep_for(chrono::milliseconds(100));
@@ -161,11 +166,11 @@ TEST(SPTK_ThreadPool, run)
     for (int value = 0; value < 100; value++)
         intQueue.push(value);
 
-    this_thread::sleep_for(chrono::milliseconds(50));
+    this_thread::sleep_for(chrono::milliseconds(200));
 
     EXPECT_EQ(size_t(5), tasks.size());
     for (auto task: tasks)
-        EXPECT_NEAR(20, task->count(), 4);
+        EXPECT_NEAR(20, task->count(), 10);
 
     for (auto task: tasks)
         task->terminate();

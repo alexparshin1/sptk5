@@ -218,7 +218,7 @@ const Buffer& Tar::file(std::string fileName) const
 #include <sptk5/SystemException.h>
 #include <sptk5/md5.h>
 
-static const string gtestTempDirectory("gtest_temp_directory");
+static const string gtestTempDirectory("gtest_temp_directory3");
 static const string file1_md5("2934e1a7ae11b11b88c9b0e520efd978");
 static const string file2_md5("adb45e22bba7108bb4ad1b772ecf6b40");
 
@@ -226,7 +226,7 @@ TEST(SPTK_Tar, read)
 {
     Tar tar;
 
-    ASSERT_EQ(0, system(("mkdir -p " + gtestTempDirectory).c_str()));
+    ASSERT_EQ(0, system(("mkdir " + gtestTempDirectory).c_str()));
 
     Buffer file1;
     for (int i = 0; i < 1000; i++) {
@@ -251,7 +251,11 @@ TEST(SPTK_Tar, read)
     EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 
-    EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
+#ifdef _WIN32
+	EXPECT_EQ(0, system(("rmdir /s /q " + gtestTempDirectory).c_str()));
+#else
+	EXPECT_EQ(0, system(("rm -rf " + gtestTempDirectory).c_str()));
+#endif
 }
 
 #endif

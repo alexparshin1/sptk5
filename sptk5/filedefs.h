@@ -33,8 +33,6 @@
 
 #ifdef _WIN32
 
-# define strcasecmp stricmp
-
 # include <windows.h>
 # include <winsock2.h>
 # include <io.h>
