@@ -103,13 +103,6 @@ static bool terminateThread(WorkerThread*& thread, void*)
     return true;
 }
 
-static bool terminateAndJoinThread(WorkerThread*& thread, void*)
-{
-	thread->terminate();
-	thread->join();
-	return true;
-}
-
 void ThreadPool::stop()
 {
     m_shutdown = true;
