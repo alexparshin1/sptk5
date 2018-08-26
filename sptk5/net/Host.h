@@ -184,7 +184,16 @@ public:
     void getAddress(sockaddr_in& address) const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        memcpy(&address, &m_address, sizeof(address));
+        memcpy(&address, &m_address.ip_v4, sizeof(address));
+    }
+
+    /**
+     * Get host address
+     */
+    void getAddress(sockaddr_in6& address) const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        memcpy(&address, &m_address.ip_v6, sizeof(address));
     }
 };
 

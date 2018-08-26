@@ -29,6 +29,7 @@
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
+#include <sptk5/db/Transaction.h>
 
 using namespace std;
 using namespace sptk;
@@ -155,7 +156,9 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
 
     createTable.exec();
 
-    db->beginTransaction();
+    Transaction transaction(*db);
+    transaction.begin();
+
     Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
 
     insert.exec();
@@ -168,7 +171,7 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
         throw Exception("count != 2");
     select.close();
 
-    db->rollbackTransaction();
+    transaction.rollback();
 
     select.open();
     count = select["cnt"];

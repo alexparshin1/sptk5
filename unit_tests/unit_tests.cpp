@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 	// All database connections below assume the database is loacted on host 'dbhost',
 	// and user 'test' has password 'test#123'.
 
-	//databaseTests.addConnection(DatabaseConnectionString("postgresql://localhost:5432/gtest"));
+	databaseTests.addConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost:5432/gtest"));
     databaseTests.addConnection(DatabaseConnectionString("mysql://test:test#123@dbhost/gtest"));
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

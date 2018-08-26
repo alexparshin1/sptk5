@@ -81,3 +81,40 @@ void RWLock::unlock()
         if (m_readerCount > 0)
             m_readerCount--;
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(RWLock, readLock)
+{
+    RWLock                  lock;
+    chrono::milliseconds    timeout(10);
+
+    lock.lockR(timeout);
+    EXPECT_TRUE(lock.lockR(timeout));
+    EXPECT_FALSE(lock.lockRW(timeout));
+}
+
+TEST(RWLock, readWriteLock)
+{
+    RWLock                  lock;
+    chrono::milliseconds    timeout(10);
+
+    lock.lockRW(timeout);
+    EXPECT_FALSE(lock.lockRW(timeout));
+    EXPECT_FALSE(lock.lockRW(timeout));
+}
+
+TEST(RWLock, unlock)
+{
+    RWLock                  lock;
+    chrono::milliseconds    timeout(10);
+
+    lock.lockRW(timeout);
+    EXPECT_FALSE(lock.lockRW(timeout));
+
+    lock.unlock();
+    EXPECT_TRUE(lock.lockRW(timeout));
+}
+
+#endif
