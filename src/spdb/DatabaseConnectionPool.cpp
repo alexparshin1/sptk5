@@ -200,3 +200,21 @@ void DatabaseConnectionPool::destroyConnection(DatabaseConnection* connection, b
     catch (...) {}
     m_destroyConnection(connection);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/db/DatabaseTests.h>
+
+TEST(SPTK_DatabaseConnectionPool, connect)
+{
+    for (auto connectionString: databaseTests.connectionStrings()) {
+        try {
+            databaseTests.testConnect(connectionString);
+        }
+        catch (const exception& e) {
+            FAIL() << connectionString.toString() << ": " << e.what();
+        }
+    }
+}
+
+#endif
