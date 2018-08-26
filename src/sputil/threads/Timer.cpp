@@ -231,7 +231,7 @@ TEST(SPTK_Timer, fireAt)
     int         eventSet(0);
 
     timer.fireAt(when, &eventSet);
-    this_thread::sleep_until((when + chrono::milliseconds(10)).timePoint());
+    this_thread::sleep_until((when + chrono::milliseconds(20)).timePoint());
 
     EXPECT_EQ(1, eventSet);
 }
@@ -246,7 +246,7 @@ TEST(SPTK_Timer, repeat)
     this_thread::sleep_for(chrono::milliseconds(110));
     timer.cancel(handle);
 
-    EXPECT_EQ(5, eventSet);
+    EXPECT_NEAR(5, eventSet, 1);
 }
 
 #endif

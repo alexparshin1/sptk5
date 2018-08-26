@@ -159,7 +159,7 @@ TEST(SPTK_ThreadPool, run)
     for (int value = 0; value < 100; value++)
         intQueue.push(value);
 
-    this_thread::sleep_for(chrono::milliseconds(200));
+    this_thread::sleep_for(chrono::milliseconds(300));
 
     EXPECT_EQ(size_t(5), tasks.size());
     for (auto task: tasks)
