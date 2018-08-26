@@ -204,7 +204,7 @@ String Host::toString(bool forceAddress) const
 
 const char* testHost = "www.google.com:80";
 
-TEST(SPTK_Host, ctor)
+TEST(SPTK_Host, ctorHostname)
 {
     Host google1(testHost);
     EXPECT_STREQ(testHost, google1.toString(false).c_str());
@@ -213,6 +213,13 @@ TEST(SPTK_Host, ctor)
 
     Host google(google1.toString(true));
     EXPECT_TRUE(google1 == google);
+}
+
+TEST(SPTK_Host, ctorAddress)
+{
+    Host host("11.22.33.44", 22);
+    EXPECT_STREQ("11.22.33.44", host.hostname().c_str());
+    EXPECT_EQ(22, host.port());
 }
 
 #endif
