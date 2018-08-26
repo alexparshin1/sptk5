@@ -27,70 +27,27 @@
 */
 
 #include <sptk5/net/TCPServer.h>
+#include <sptk5/net/TCPServerListener.h>
 
 using namespace std;
 using namespace sptk;
 
-bool TCPServer::allowConnection(sockaddr_in*)
+TCPServer::TCPServer(Logger* logger)
+: Thread("TCPServer"), m_listenerThread(NULL), m_logger(logger)
 {
-    return true;
+    run();
 }
 
-TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
-: Thread("CTCPServer::Listener"), m_server(server)
+TCPServer::~TCPServer()
 {
-    m_listenerSocket.host(Host("localhost", port));
+    stop();
 }
 
-void TCPServerListener::threadFunction()
+uint16_t TCPServer::port() const
 {
-    try {
-        while (!terminated()) {
-            lock_guard<mutex> lock(*this);
-            if (m_listenerSocket.readyToRead(chrono::milliseconds(1000))) {
-                try {
-                    SOCKET connectionFD;
-                    sockaddr_in connectionInfo = {};
-                    m_listenerSocket.accept(connectionFD, connectionInfo);
-                    if (int(connectionFD) == -1)
-                        continue;
-                    if (m_server->allowConnection(&connectionInfo)) {
-                        ServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);
-                        m_server->registerConnection(connection);
-                        connection->run();
-                    }
-                    else {
-#ifndef _WIN32
-                        shutdown(connectionFD,SHUT_RDWR);
-                        ::close (connectionFD);
-#else
-                        closesocket(connectionFD);
-#endif
-                    }
-                }
-                catch (exception& e) {
-                    m_server->log(LP_ERROR, e.what());
-                }
-                catch (...) {
-                    m_server->log(LP_ERROR, "Unknown exception");
-                }
-            }
-        }
-    }
-    catch (exception& e) {
-        m_server->log(LP_ERROR, e.what());
-    }
-    catch (...) {
-        m_server->log(LP_ERROR, "Unknown exception");
-    }
-}
-
-void TCPServerListener::terminate()
-{
-    Thread::terminate();
-
-    lock_guard<mutex> lock(*this);
-    m_listenerSocket.close();
+    if (!m_listenerThread)
+        return 0;
+    return m_listenerThread->port();
 }
 
 void TCPServer::listen(uint16_t port)
@@ -104,6 +61,11 @@ void TCPServer::listen(uint16_t port)
     m_listenerThread = new TCPServerListener(this, port);
     m_listenerThread->listen();
     m_listenerThread->run();
+}
+
+bool TCPServer::allowConnection(sockaddr_in*)
+{
+    return true;
 }
 
 void TCPServer::stop()
@@ -134,6 +96,8 @@ void TCPServer::stop()
         delete m_listenerThread;
         m_listenerThread = nullptr;
     }
+    terminate();
+    join();
 }
 
 void TCPServer::registerConnection(ServerConnection* connection)
@@ -152,7 +116,7 @@ void TCPServer::unregisterConnection(ServerConnection* connection)
 
 void TCPServer::threadFunction()
 {
-    chrono::seconds timeout(30);
+    chrono::seconds timeout(1);
     while (!terminated()) {
         ServerConnection* connection;
         if (m_completedConnectionThreads.pop(connection, timeout))
@@ -230,7 +194,6 @@ public:
 
 };
 
-
 TEST(SPTK_TCPServer, minimal)
 {
     Buffer buffer;
@@ -244,16 +207,13 @@ TEST(SPTK_TCPServer, minimal)
     Strings words("Hello, World!\n"
                   "This is a test of TCPServer class.\n"
                   "Using simple echo server to verify data flow.\n"
-                  "The session is terminated by sending empty line\n"
-                  "\n", "\n");
+                  "The session is terminated when this row is received", "\n");
 
     for (auto& word: words) {
         socket.write(word + "\n");
         buffer.bytes(0);
-        while (buffer.empty()) {
-            if (socket.readyToRead(chrono::seconds(30)))
-                socket.readLine(buffer);
-        }
+        if (socket.readyToRead(chrono::seconds(3)))
+            socket.readLine(buffer);
         EXPECT_STREQ(word.c_str(), buffer.c_str());
     }
 
