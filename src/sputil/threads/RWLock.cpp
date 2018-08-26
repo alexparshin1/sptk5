@@ -85,7 +85,7 @@ void RWLock::unlock()
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(RWLock, readLock)
+TEST(SPTK_RWLock, readLock)
 {
     RWLock                  lock;
     chrono::milliseconds    timeout(10);
@@ -95,7 +95,7 @@ TEST(RWLock, readLock)
     EXPECT_FALSE(lock.lockRW(timeout));
 }
 
-TEST(RWLock, readWriteLock)
+TEST(SPTK_RWLock, readWriteLock)
 {
     RWLock                  lock;
     chrono::milliseconds    timeout(10);
@@ -105,7 +105,7 @@ TEST(RWLock, readWriteLock)
     EXPECT_FALSE(lock.lockRW(timeout));
 }
 
-TEST(RWLock, unlock)
+TEST(SPTK_RWLock, unlock)
 {
     RWLock                  lock;
     chrono::milliseconds    timeout(10);

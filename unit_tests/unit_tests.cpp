@@ -74,6 +74,7 @@ void stub()
 	FieldList			fieldList(false);
 	SharedStrings		sharedStrings;
 	Variant				v;
+	RWLock				lock;
 
 	TCPSocket			socket;
 	HttpConnect			connect(socket);
