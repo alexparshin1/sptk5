@@ -371,3 +371,33 @@ void Query::throwError(const String& method, const String& error)
     String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/db/DatabaseTests.h>
+
+TEST(SPTK_DatabaseQuery, parameters)
+{
+    for (auto connectionString: databaseTests.connectionStrings()) {
+        try {
+            databaseTests.testQueryParameters(connectionString);
+        }
+        catch (const exception& e) {
+            FAIL() << connectionString.toString() << ": " << e.what();
+        }
+    }
+}
+
+TEST(SPTK_DatabaseQuery, transaction)
+{
+    for (auto connectionString: databaseTests.connectionStrings()) {
+        try {
+            databaseTests.testQueryParameters(connectionString);
+        }
+        catch (const exception& e) {
+            FAIL() << connectionString.toString() << ": " << e.what();
+        }
+    }
+}
+
+#endif

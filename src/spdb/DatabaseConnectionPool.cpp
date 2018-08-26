@@ -217,4 +217,16 @@ TEST(SPTK_DatabaseConnectionPool, connect)
     }
 }
 
+TEST(SPTK_DatabaseConnectionPool, DDL)
+{
+    for (auto connectionString: databaseTests.connectionStrings()) {
+        try {
+            databaseTests.testDDL(connectionString);
+        }
+        catch (const exception& e) {
+            FAIL() << connectionString.toString() << ": " << e.what();
+        }
+    }
+}
+
 #endif

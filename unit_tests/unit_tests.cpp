@@ -40,6 +40,7 @@
 #include <sptk5/threads/Timer.h>
 #include <sptk5/Tar.h>
 #include <sptk5/Base64.h>
+#include <sptk5/db/DatabaseConnectionPool.h>
 
 using namespace std;
 using namespace sptk;
@@ -87,6 +88,9 @@ void stub()
 
 	Buffer b1, b2("xxx");
 	Base64::encode(b1, b2);
+
+	DatabaseConnectionString	connectionString("");
+	DatabaseConnectionPool 		connectionPool("");
 }
 
 int main(int argc, char* argv[])
@@ -97,6 +101,7 @@ int main(int argc, char* argv[])
 #endif
 
 	databaseTests.addConnection(DatabaseConnectionString("postgresql://localhost:5432/gtest"));
+    databaseTests.addConnection(DatabaseConnectionString("mysql://test:test@localhost/gtest"));
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

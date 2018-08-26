@@ -69,10 +69,19 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     DatabaseConnection* db = connectionPool.createConnection();
 
     db->open();
-    Query createTable(db, "CREATE TEMP TABLE gtest_temp_table(id INT, name VARCHAR(20))");
-    createTable.exec();
-    db->close();
 
+    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+
+    try {
+        dropTable.exec();
+    }
+    catch (...) {}
+
+    createTable.exec();
+    dropTable.exec();
+
+    db->close();
     connectionPool.destroyConnection(db);
 }
 
@@ -96,7 +105,11 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     DatabaseConnection* db = connectionPool.createConnection();
 
     db->open();
-    Query createTable(db, "CREATE TEMP TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2))");
+    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2))");
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+
+    try { dropTable.exec(); } catch (...) {}
+
     createTable.exec();
 
     Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price)");
@@ -122,6 +135,8 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     }
     select.close();
 
+    dropTable.exec();
+
     db->close();
 
     connectionPool.destroyConnection(db);
@@ -134,6 +149,10 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
 
     db->open();
     Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+
+    try { dropTable.exec(); } catch (...) {}
+
     createTable.exec();
 
     db->beginTransaction();
@@ -157,7 +176,6 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
         throw Exception("count != 0");
     select.close();
 
-    Query dropTable(db, "DROP TABLE gtest_temp_table");
     dropTable.exec();
 
     db->close();
