@@ -66,3 +66,22 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
 
     return true;
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(Semaphore, waitAndPost)
+{
+    Semaphore semaphore;
+
+    DateTime started = DateTime::Now();
+    semaphore.sleep_for(chrono::milliseconds(100));
+    DateTime ended = DateTime::Now();
+    EXPECT_NEAR(100, chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+    semaphore.post();
+    started = ended;
+    ended = DateTime::Now();
+    EXPECT_NEAR(0, chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+}
+
+#endif
