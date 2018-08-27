@@ -690,26 +690,49 @@ string Element::decode(const string& text)
     return result;
 }
 
-void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly)
+void Element::appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, json::Element* element)
 {
-    String xpathElement(xpath[xpathPosition]);
-    bool matchAnyElement = xpathElement == String("*", 1);
+    if (element->type() == JDT_ARRAY) {
+        ArrayData& arrayData = element->getArray();
+        if (!arrayData.empty()) {
+            switch (xpathElement.index) {
+                case 0:
+                    for (auto item: arrayData)
+                        elements.push_back(item);
+                    break;
+                case -1:
+                    elements.push_back(&arrayData[arrayData.size() - 1]);
+                    break;
+                default:
+                    elements.push_back(&arrayData[xpathElement.index - 1]);
+                    break;
+            }
+        }
+    }
+    else
+        elements.push_back(element);
+}
+
+void Element::selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly)
+{
+    const XPathElement& xpathElement(xpath[xpathPosition]);
+    bool matchAnyElement = xpathElement.name == String("*", 1);
     bool lastPosition = xpath.size() == xpathPosition + 1;
 
     if (m_type == JDT_ARRAY) {
         for (Element* element: *m_data.m_array) {
             // Continue to match children
-            if (!matchAnyElement)
-                xpathPosition = 0; // Start over to match children
+            //if (!matchAnyElement)
+            //    xpathPosition = 0; // Start over to match children
             element->selectElements(elements, xpath, xpathPosition, false);
         }
     } else if (m_type == JDT_OBJECT) {
         if (!matchAnyElement) {
-            Element* element = find(xpathElement);
+            Element* element = find(xpathElement.name);
             if (element) {
                 if (lastPosition) {
                     // Full xpath match
-                    elements.insert(element);
+                    appendMatchedElement(elements, xpathElement, element);
                 } else {
                     // Continue to match children
                     element->selectElements(elements, xpath, xpathPosition + 1, false);
@@ -720,7 +743,7 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
                 if (lastPosition) {
                     // Full xpath match
                     Element* element = itor.second;
-                    elements.insert(element);
+                    appendMatchedElement(elements, xpathElement, element);
                 } else {
                     // Continue to match children
                     itor.second->selectElements(elements, xpath, xpathPosition + 1, false);
@@ -737,9 +760,9 @@ void Element::selectElements(ElementSet& elements, const Strings& xpath, size_t 
     }
 }
 
-void Element::select(ElementSet& elements, std::string xpath)
+Element::XPath::XPath(const sptk::String& _xpath)
 {
-    bool rootOnly = false;
+    String xpath(_xpath);
     if (xpath[0] == '/') {
         xpath = xpath.substr(1);
         if (xpath[0] == '/')
@@ -748,12 +771,28 @@ void Element::select(ElementSet& elements, std::string xpath)
             rootOnly = true;
     }
     Strings pathElements(xpath, "/");
+    RegularExpression parsePathElement(R"(([^\[]+)(\[(\d+|last\(\))\])?)");
+    for (auto& pathElement: pathElements) {
+        Strings matches;
+        if (!parsePathElement.m(pathElement, matches))
+            throw Exception("Unsupported XPath element");
+        int index = 0;
+        if (matches.size() > 2)
+            index = matches[2] == "last()" ? -1 : string2int(matches[2]);
+        emplace_back(matches[0], index);
+    }
+}
+
+void Element::select(ElementSet& elements, const String& xPath)
+{
+    XPath xpath(xPath);
     elements.clear();
-    if (pathElements.empty()) {
-        elements.insert(this);
+    if (xpath.empty()) {
+        elements.push_back(this);
         return;
     }
-    selectElements(elements, pathElements, 0, rootOnly);
+
+    selectElements(elements, xpath, 0, xpath.rootOnly);
 }
 
 size_t Element::size() const
@@ -791,3 +830,75 @@ void Element::optimizeArrays(const std::string& name)
         return;
     }
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/json/JsonDocument.h>
+
+static const String testJSON1(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": "" } })");
+static const String testJSON2(R"({ "AAA": { "BBB": "", "CCC": "", "BBB": "", "DDD": { "BBB": "" }, "CCC": { "DDD": { "BBB": "", "BBB": "" } } } })");
+static const String testJSON3(R"({ "AAA": { "XXX": { "DDD": { "BBB": "", "BBB": "", "EEE": null, "FFF": null } }, "CCC": { "DDD": { "BBB": null, "BBB": null, "EEE": null, "FFF": null } }, "CCC": { "BBB": { "BBB": { "BBB": null } } } } })");
+static const String testJSON4(R"({ "AAA": {"BBB": "1", "BBB": "2", "BBB": "3", "BBB": "4" } })");
+
+TEST(SPTK_JsonElement, select)
+{
+    json::ElementSet elementSet;
+    json::Document   document;
+
+    document.load(testJSON1);
+
+    document.root().select(elementSet, "/AAA");
+    EXPECT_EQ(size_t(1), elementSet.size());
+
+    document.root().select(elementSet, "/AAA/CCC");
+    EXPECT_EQ(size_t(2), elementSet.size());
+
+    document.root().select(elementSet, "/AAA/DDD/BBB");
+    EXPECT_EQ(size_t(1), elementSet.size());
+}
+
+TEST(SPTK_JsonElement, select2)
+{
+    json::ElementSet elementSet;
+    json::Document   document;
+
+    document.load(testJSON2);
+
+    document.root().select(elementSet, "//BBB");
+    EXPECT_EQ(size_t(5), elementSet.size());
+
+    document.root().select(elementSet, "//DDD/BBB");
+    EXPECT_EQ(size_t(3), elementSet.size());
+}
+
+TEST(SPTK_JsonElement, select3)
+{
+    json::ElementSet elementSet;
+    json::Document   document;
+
+    document.load(testJSON3);
+
+    document.root().select(elementSet, "/AAA/CCC/DDD/*");
+    EXPECT_EQ(size_t(4), elementSet.size());
+
+    document.root().select(elementSet, "//*");
+    EXPECT_EQ(size_t(17), elementSet.size());
+}
+
+TEST(SPTK_JsonElement, select4)
+{
+    json::ElementSet elementSet;
+    json::Document   document;
+
+    document.load(testJSON4);
+
+    document.root().select(elementSet, "/AAA/BBB[1]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("1", elementSet[0]->getString().c_str());
+
+    document.root().select(elementSet, "/AAA/BBB[last()]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("4", elementSet[0]->getString().c_str());
+}
+
+#endif

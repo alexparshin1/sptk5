@@ -153,6 +153,11 @@ public:
      * Get array size
      */
     size_t size() const { return m_items.size(); }
+
+    /**
+     * Is array empty?
+     */
+    bool empty() const { return m_items.empty(); }
 };
 
 }}

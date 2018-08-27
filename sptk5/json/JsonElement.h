@@ -44,7 +44,7 @@ namespace sptk { namespace json {
  * JSON Element object pointers.
  * Used in select() method.
  */
-typedef std::set<Element*>              ElementSet;
+typedef std::vector<Element*> ElementSet;
 
 /**
  * JSON Element type
@@ -92,6 +92,27 @@ protected:
         ArrayData*      m_array;
         ObjectData*     m_object;
     } m_data;
+
+    /**
+     * XPath element
+     */
+    struct XPathElement {
+        String          name;
+        int             index {0}; // 1..N - element index, -1 - last element, 0 - don't use
+        XPathElement(const String& name, int index) : name(name), index(index) {}
+        XPathElement(const XPathElement& other) = default;
+    };
+
+    /**
+     * XPath
+     */
+    struct XPath : public std::vector<XPathElement>
+    {
+        bool rootOnly {false};
+        XPath(const String& xpath);
+    };
+
+    void appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, Element* element);
 
     /**
      * Clear JSON element.
@@ -154,7 +175,7 @@ public:
      * @param xpathPosition     Position in xpath currently being checked
      * @param rootOnly          Flag indicating that only root level elements are checked
      */
-    void selectElements(ElementSet& elements, const Strings& xpath, size_t xpathPosition, bool rootOnly);
+    void selectElements(ElementSet& elements, const XPath& xpath, size_t xpathPosition, bool rootOnly);
 
 private:
 
@@ -509,7 +530,7 @@ public:
      * @param elements          The resulting list of elements
      * @param xpath             The xpath for elements
      */
-    void select(ElementSet& elements, std::string xpath);
+    void select(ElementSet& elements, const String& xpath);
 
     /**
      * Element type check
