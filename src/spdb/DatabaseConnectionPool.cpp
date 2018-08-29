@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/SystemException.h>
 #ifndef WIN32
     /// *nix only
     #include <dlfcn.h>
@@ -109,7 +110,7 @@ void DatabaseConnectionPool::load()
     string driverFileName = "spdb5_"+driverName+".dll";
     DriverHandle handle = LoadLibrary(driverFileName.c_str());
     if (!handle)
-        throw DatabaseException("Cannot load library: " + driverFileName);
+        throw SystemException("Cannot load library " + driverFileName);
 #else
     String driverFileName = String("libspdb5_") + driverName + String(".so");
 

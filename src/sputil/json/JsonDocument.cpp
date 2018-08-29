@@ -142,7 +142,7 @@ const Element& Document::root() const
 #include <sptk5/json/JsonDocument.h>
 
 const char* testJSON =
-        R"({ "name": "John", "age": 33, "temperature": 33.6, )"
+        R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"
         R"("skills": [ "C++", "Java", "Motorbike" ],)"
         R"("address": { "married": true, "employed": false } })";
 
@@ -152,6 +152,8 @@ void verifyDocument(json::Document& document)
     EXPECT_STREQ("John", root.getString("name").c_str());
     EXPECT_EQ(33, (int) root.getNumber("age"));
     EXPECT_DOUBLE_EQ(33.6, root.getNumber("temperature"));
+	EXPECT_DOUBLE_EQ(1519005758000, root.getNumber("timestamp"));
+	EXPECT_STREQ("1519005758000", root.getString("timestamp").c_str());
 
     json::ArrayData& arrayData = root.getArray("skills");
     Strings skills;

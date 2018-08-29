@@ -371,14 +371,14 @@ String Element::getString(const String& name) const
         case JDT_NUMBER: {
             int len;
             char buffer[64];
-            if (element.m_data.m_number == (long) element.m_data.m_number)
-                len = snprintf(buffer, sizeof(buffer) - 1, "%ld", (long) element.m_data.m_number);
+            if (element.m_data.m_number == (int64_t) element.m_data.m_number)
+                len = snprintf(buffer, sizeof(buffer) - 1, "%lld", (int64_t) element.m_data.m_number);
             else {
                 len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", element.m_data.m_number);
                 const char* ptr = buffer + len - 1;
                 while (*ptr == '0')
                     ptr--;
-                len = ptr - buffer + 1;
+				len = ptr - buffer + 1;
             }
             return String(buffer, (size_t) len);
         }
