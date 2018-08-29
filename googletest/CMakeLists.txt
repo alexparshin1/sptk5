@@ -106,7 +106,7 @@ endif()
 #
 # Install rules
 install(TARGETS gtest gtest_main
-  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(DIRECTORY ${gtest_SOURCE_DIR}/include/gtest
   DESTINATION include)
 

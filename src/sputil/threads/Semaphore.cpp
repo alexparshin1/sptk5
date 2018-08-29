@@ -77,11 +77,11 @@ TEST(Semaphore, waitAndPost)
     DateTime started = DateTime::Now();
     semaphore.sleep_for(chrono::milliseconds(100));
     DateTime ended = DateTime::Now();
-    EXPECT_NEAR(100, chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+    EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
     semaphore.post();
     started = ended;
     ended = DateTime::Now();
-    EXPECT_NEAR(0, chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+    EXPECT_NEAR(0, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
 }
 
 #endif
