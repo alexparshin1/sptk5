@@ -360,6 +360,12 @@ double Element::getNumber(const String& name) const
     throw Exception("Not a number");
 }
 
+#ifdef _WIN32
+#define INT64_FORMAT "%lld"
+#else
+#define INT64_FORMAT "%ld"
+#endif
+
 String Element::getString(const String& name) const
 {
     auto& element = getChild(name);
@@ -372,7 +378,7 @@ String Element::getString(const String& name) const
             int len;
             char buffer[64];
             if (element.m_data.m_number == (int64_t) element.m_data.m_number)
-                len = snprintf(buffer, sizeof(buffer) - 1, "%lld", (int64_t) element.m_data.m_number);
+                len = snprintf(buffer, sizeof(buffer) - 1, INT64_FORMAT, (int64_t) element.m_data.m_number);
             else {
                 len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", element.m_data.m_number);
                 const char* ptr = buffer + len - 1;
