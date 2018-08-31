@@ -493,7 +493,11 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     for (const String& optionName : sortedOptions) {
         auto itor = m_optionTemplates.find(optionName);
+        if (itor == m_optionTemplates.end())
+            continue;
         const CommandLineElement* optionTemplate = itor->second;
+        if (optionTemplate == nullptr)
+            continue;
         if (!optionTemplate->useWithCommand(onlyForCommand))
             continue;
         size_t width = optionTemplate->printableName().length();
@@ -525,6 +529,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
             const CommandLineElement* optionTemplate = itor->second;
+            if (optionTemplate == nullptr)
+                continue;
             if (!optionTemplate->useWithCommand(onlyForCommand))
                 continue;
             String defaultValue;
