@@ -568,4 +568,4 @@ TEST(SPTK_XmlDocument, save)
     verifyDocument(document);
 }
 
- #endif
+#endif
