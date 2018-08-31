@@ -496,47 +496,27 @@ TEST(SPTK_XmlDocument, load)
     document.load(testXML);
     verifyDocument(document);
 }
-/*
+
 TEST(SPTK_XmlDocument, add)
 {
     xml::Document document;
     document.load(testXML);
 
-    xml::Element& root = document.root();
+    (new xml::Element(&document, "name"))->text("John");
+    (new xml::Element(&document, "age"))->text("33");
+    (new xml::Element(&document, "temperature"))->text("33.6");
+    (new xml::Element(&document, "timestamp"))->text("1519005758000");
 
-    root.add("int", 1);
-    root.add("double", 2.5);
-    root.add("string", "Test");
-    root.add("bool1", true);
-    root.add("bool2", false);
+    auto skills = new xml::Element(&document, "skills");
+    (new xml::Element(skills, "skill"))->text("C++");
+    (new xml::Element(skills, "skill"))->text("Java");
+    (new xml::Element(skills, "skill"))->text("Motorbike");
 
-    xml::ArrayData* arrayData = new xml::ArrayData();
-    arrayData->add(new xml::Element("C++"));
-    arrayData->add(new xml::Element("Java"));
-    arrayData->add(new xml::Element("Python"));
-    root.add("array", arrayData);
+    auto address = new xml::Element(&document, "address");
+    (new xml::Element(address, "married"))->text("true");
+    (new xml::Element(address, "employed"))->text("false");
 
-    xml::ObjectData* objectData = new xml::ObjectData();
-    objectData->add("height", new xml::Element(178));
-    objectData->add("weight", new xml::Element(85.5));
-    root.add("object", objectData);
-
-    EXPECT_EQ(1, (int) root.getNumber("int"));
-    EXPECT_DOUBLE_EQ(2.5, root.getNumber("double"));
-    EXPECT_STREQ("Test", root.getString("string").c_str());
-    EXPECT_TRUE(root.getBoolean("bool1"));
-    EXPECT_FALSE(root.getBoolean("bool2"));
-
-    xml::ArrayData& array = root.getArray("array");
-    Strings skills;
-    for (auto& skill: array)
-        skills.push_back(skill->getString());
-    EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
-
-    xml::Element* object = root.find("object");
-    EXPECT_TRUE(object != nullptr);
-    EXPECT_EQ(178, object->getNumber("height"));
-    EXPECT_DOUBLE_EQ(85.5, object->getNumber("weight"));
+    verifyDocument(document);
 }
 
 TEST(SPTK_XmlDocument, remove)
@@ -544,18 +524,17 @@ TEST(SPTK_XmlDocument, remove)
     xml::Document document;
     document.load(testXML);
 
-    xml::Element& root = document.root();
-    root.remove("name");
-    root.remove("age");
-    root.remove("skills");
-    root.remove("address");
-    EXPECT_FALSE(root.find("name"));
-    EXPECT_FALSE(root.find("age"));
-    EXPECT_TRUE(root.find("temperature"));
-    EXPECT_FALSE(root.find("skills"));
-    EXPECT_FALSE(root.find("address"));
+    document.remove(document.findOrCreate("name"));
+    document.remove(document.findOrCreate("age"));
+    document.remove(document.findOrCreate("skills"));
+    document.remove(document.findOrCreate("address"));
+    EXPECT_TRUE(document.findFirst("name") == nullptr);
+    EXPECT_TRUE(document.findFirst("age") == nullptr);
+    EXPECT_TRUE(document.findFirst("temperature") != nullptr);
+    EXPECT_TRUE(document.findFirst("skills") == nullptr);
+    EXPECT_TRUE(document.findFirst("address") == nullptr);
 }
-*/
+
 TEST(SPTK_XmlDocument, save)
 {
     xml::Document document;

@@ -51,7 +51,7 @@ namespace json { class Document; }
 
 namespace xml {
 /**
- * @brief XML document.
+ * XML document.
  *
  * Represents the entire XML document.
  * It provides access to document root node, which includes all nodes in XML document tree.
@@ -76,17 +76,17 @@ class SP_EXPORT Document : public SharedStrings, public Element
     Buffer m_encodeBuffer;
 
     /**
-     * @brief Internal entities parser
+     * Internal entities parser
      */
     void parseEntities(char* entitiesSection);
 
     /**
-     * @brief Internal doctype parser
+     * Internal doctype parser
      */
     void parseDocType(char* docTypeSection);
 
     /**
-     * @brief Internal attributes parser
+     * Internal attributes parser
      */
     void processAttributes(Node* node, const char* ptr);
 
@@ -114,18 +114,18 @@ protected:
 public:
 
     /**
-     * @brief Constructs an empty document, without doctype.
+     * Constructs an empty document, without doctype.
      */
     Document();
 
     /**
-     * @brief Constructs a document from XML string
+     * Constructs a document from XML string
      * @param xml               XML string
      */
     Document(std::string xml);
 
     /**
-     * @brief Constructs an empty document, with doctype.
+     * Constructs an empty document, with doctype.
      * @param name              Name of the document.
      * @param public_id         Public id of the document, placed on DOCTYPE declaration
      * @param system_id         System id of the document, placed on DOCTYPE declaration
@@ -133,7 +133,7 @@ public:
     Document(const char* name, const char* public_id, const char* system_id);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~Document()
     {
@@ -141,7 +141,7 @@ public:
     }
 
     /**
-     * @brief Returns node type
+     * Returns node type
      */
     virtual NodeType type() const override
     {
@@ -149,17 +149,17 @@ public:
     }
 
     /**
-     * @brief Destroys all nodes in document
+     * Destroys all nodes in document
      */
     virtual void clear() override;
 
     /**
-     * @brief Returns the node name.
+     * Returns the node name.
      */
     virtual const std::string& name() const override;
 
     /**
-     * @brief Sets the new name for the node
+     * Sets the new name for the node
      * @param name              New node name
      */
     virtual void name(const std::string& name) override
@@ -167,7 +167,7 @@ public:
     }
 
     /**
-     * @brief Sets new name for node
+     * Sets new name for node
      * @param name              New node name
      */
     virtual void name(const char* name) override
@@ -175,7 +175,7 @@ public:
     }
 
     /**
-     * @brief Returns doctype of document.
+     * Returns doctype of document.
      *
      * You can use it to add e.g. custom entities.
      * <pre>
@@ -188,7 +188,7 @@ public:
     }
 
     /**
-     * @brief Return doctype of document.
+     * Return doctype of document.
      *
      * You can use it to add e.g. custom entities.
      * <pre>
@@ -201,7 +201,7 @@ public:
     }
 
     /**
-     * @brief Returns pointer to root element of document
+     * Returns pointer to root element of document
      */
     Node* rootNode();
 
@@ -214,7 +214,7 @@ public:
     }
 
     /**
-     * @brief Set indentation in save, defaults to 2
+     * Set indentation in save, defaults to 2
      *
      * @param i                 New indent spaces
      */
@@ -224,13 +224,13 @@ public:
     }
 
     /**
-     * @brief Load document from buffer.
+     * Load document from buffer.
      * @param buffer            Source buffer
      */
     virtual void load(const char* buffer);
 
     /**
-     * @brief Load document from std::string.
+     * Load document from std::string.
      * @param str               Source string
      */
     virtual void load(const std::string& str)
@@ -239,7 +239,7 @@ public:
     }
 
     /**
-     * @brief Load document from buffer.
+     * Load document from buffer.
      * @param buffer            Source buffer
      */
     virtual void load(const Buffer& buffer)
@@ -248,14 +248,14 @@ public:
     }
 
     /**
-     * @brief Save document to buffer.
+     * Save document to buffer.
      * @param buffer            Buffer to save document
      * @param indent            Current indent, ignored (always 0)
      */
     void save(Buffer& buffer, int indent) const override;
 
     /**
-     * @brief Save document to JSON element.
+     * Save document to JSON element.
      * @param json              JSON element
      */
     void exportTo(json::Element& json) const override;

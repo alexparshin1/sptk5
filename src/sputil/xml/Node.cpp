@@ -32,9 +32,8 @@
 #include <sptk5/json/JsonDocument.h>
 
 using namespace std;
-
-namespace sptk {
-namespace xml {
+using namespace sptk;
+using namespace sptk::xml;
 
 /// An empty string to use as a stub for value()
 static const String emptyString;
@@ -122,8 +121,10 @@ static void parsePathElement(Document* document, const string& pathElementStr, X
     if (!criteria.empty()) {
         int& nodePosition = pathElement.nodePosition;
         nodePosition = string2int(pathElement.criteria);
-        if (nodePosition == 0 && criteria == "last()")
-            nodePosition = -1;
+        if (nodePosition == 0) {
+            if (criteria == "last()")
+                nodePosition = -1;
+        }
 
         if (nodePosition == 0) {
             if (criteria[0] == '@') {
@@ -189,6 +190,7 @@ void Node::scanDescendents(NodeVector& nodes, const std::vector<XPathElement>& p
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
     Node* lastNode = nullptr;
     int currentPosition = 1;
+    NodeVector matchedNodes;
     for (auto node: *this) {
         bool nameMatches = false;
         bool positionMatches = false;
@@ -608,5 +610,74 @@ const std::string& CDataSection::nodeName() const
     return nodeNameString;
 }
 
+#if USE_GTEST
+#include <gtest/gtest.h>
+#include <sptk5/json/JsonDocument.h>
+
+static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
+static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");
+static const String testXML3("<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
+static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</BBB></AAA>");
+
+TEST(SPTK_XmlElement, select)
+{
+    xml::NodeVector elementSet;
+    xml::Document   document;
+
+    document.load(testXML1);
+
+    document.select(elementSet, "/AAA");
+    EXPECT_EQ(size_t(1), elementSet.size());
+
+    document.select(elementSet, "/AAA/CCC");
+    EXPECT_EQ(size_t(2), elementSet.size());
+
+    document.select(elementSet, "/AAA/DDD/BBB");
+    EXPECT_EQ(size_t(1), elementSet.size());
 }
+
+TEST(SPTK_XmlElement, select2)
+{
+    xml::NodeVector elementSet;
+    xml::Document   document;
+
+    document.load(testXML2);
+
+    document.select(elementSet, "//BBB");
+    EXPECT_EQ(size_t(5), elementSet.size());
+
+    document.select(elementSet, "//DDD/BBB");
+    EXPECT_EQ(size_t(3), elementSet.size());
 }
+
+TEST(SPTK_XmlElement, select3)
+{
+    xml::NodeVector elementSet;
+    xml::Document   document;
+
+    document.load(testXML3);
+
+    document.select(elementSet, "/AAA/CCC/DDD/*");
+    EXPECT_EQ(size_t(4), elementSet.size());
+
+    document.select(elementSet, "//*");
+    EXPECT_EQ(size_t(17), elementSet.size());
+}
+
+TEST(SPTK_XmlElement, select4)
+{
+    xml::NodeVector elementSet;
+    xml::Document   document;
+
+    document.load(testXML4);
+
+    document.select(elementSet, "/AAA/BBB[1]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("1", elementSet[0]->text().c_str());
+
+    //document.select(elementSet, "/AAA/BBB[last()]");
+    //EXPECT_EQ(size_t(1), elementSet.size());
+    //EXPECT_STREQ("4", elementSet[0]->text().c_str());
+}
+
+#endif
