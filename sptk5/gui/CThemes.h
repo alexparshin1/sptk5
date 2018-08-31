@@ -196,7 +196,7 @@ class CThemes :
     /**
      * Theme registry. Contains several importang theme settings.
      */
-    static XMLDocument       *m_registry;
+    static xml::Document       *m_registry;
 
     /**
      * Restores the original FLTK theme
@@ -303,28 +303,28 @@ protected:
 
     /**
      * @brief Loads GTK theme button file name from 'image' node, and stores it into the map
-     * @param imageNode XMLNode*, an image node from GTK theme description
+     * @param imageNode xml::Node*, an image node from GTK theme description
      * @param buttonFileNames std::map<CThemeImageState,std::string>&, file names for buttons
      */
-    static void loadGtkButton(XMLNode* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames);
+    static void loadGtkButton(xml::Node* imageNode,std::map<CThemeImageState,std::string>& buttonFileNames);
 
     /**
      * @brief Loads GTK theme button file names from XPath
-     * @param xml XMLDocument&, GTK theme converted to XML
+     * @param xml xml::Document&, GTK theme converted to XML
      * @param XPath std::string, XPath to button images
      * @param fileNames std::map<CThemeImageState,std::string>&, file names for buttons
      * @param orientation std::string, optional orientation (used for scrollbar elements)
      */
-    static void loadGtkButtonFileNames(XMLDocument& xml,std::string XPath,std::map<CThemeImageState,std::string>& fileNames,std::string orientation="");
+    static void loadGtkButtonFileNames(xml::Document& xml,std::string XPath,std::map<CThemeImageState,std::string>& fileNames,std::string orientation="");
 
     /**
      * @brief Loads GTK theme button images from 'style' node
-     * @param xml XMLDocument&, GTK theme converted to XML
+     * @param xml xml::Document&, GTK theme converted to XML
      * @param styleName std::string, image style name ("button", "checkbutton", etc)
      * @param buttons CThemeImageCollection&, set of images for the button type
      * @param function std::string, function ("BOX", CHECK", "OPTION", etc)
      */
-    static void loadGtkButtons(XMLDocument& xml, const String& styleName, CThemeImageCollection& buttons,
+    static void loadGtkButtons(xml::Document& xml, const String& styleName, CThemeImageCollection& buttons,
                                const String& function);
 
     /**

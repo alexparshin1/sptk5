@@ -517,9 +517,9 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
     stream.flags(saveFlags);
 }
 
-void Element::exportValueTo(const String& name, XMLElement& parentNode) const
+void Element::exportValueTo(const String& name, xml::Element& parentNode) const
 {
-    auto node = new XMLElement(parentNode, name);
+    auto node = new xml::Element(parentNode, name);
     switch (m_type) {
         case JDT_NUMBER:
         case JDT_BOOLEAN:
@@ -542,7 +542,7 @@ void Element::exportValueTo(const String& name, XMLElement& parentNode) const
             break;
 
         case JDT_NULL:
-            new XMLElement(node, "null");
+            new xml::Element(node, "null");
             break;
     }
 }
@@ -552,7 +552,7 @@ void Element::exportTo(ostream& stream, bool formatted) const
     exportValueTo(stream, formatted, 0);
 }
 
-void Element::exportTo(const string& name, XMLElement& parentNode) const
+void Element::exportTo(const string& name, xml::Element& parentNode) const
 {
     exportValueTo(name, parentNode);
 }

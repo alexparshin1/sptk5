@@ -155,21 +155,21 @@ String Field::asString() const
     }
 }
 
-void Field::toXML(XMLNode& node, bool compactXmlMode) const
+void Field::toXML(xml::Node& node, bool compactXmlMode) const
 {
     String value = asString();
 
     if (!value.empty()) {
-        XMLElement* element = nullptr;
+        xml::Element* element = nullptr;
 
         if (dataType() == VAR_TEXT) {
-            element = new XMLElement(node, fieldName());
-            new XMLCDataSection(*element, value);
+            element = new xml::Element(node, fieldName());
+            new xml::CDataSection(*element, value);
         } else {
             if (compactXmlMode)
                 node.setAttribute(fieldName(), value);
             else {
-                element = new XMLElement(node, "field");
+                element = new xml::Element(node, "field");
                 element->value(value);
             }
         }

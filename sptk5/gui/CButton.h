@@ -458,25 +458,25 @@ public:
     /**
      * @brief Creates a button based on the XML node information
      */
-    static CLayoutClient* creator(XMLNode *node);
+    static CLayoutClient* creator(xml::Node *node);
 
     /**
      * @brief Loads the the widget from XML node
      *
      * The widget information may include widget attributes
      * and widget data
-     * @param node XMLNode*, XML node
+     * @param node xml::Node*, XML node
      */
-    virtual void load(const XMLNode *node);
+    virtual void load(const xml::Node *node);
 
     /**
      * @brief Saves the the widget to XML node
      *
      * The widget information may include widget attributes
      * and widget data
-     * @param node XMLNode*, XML node
+     * @param node xml::Node*, XML node
      */
-    virtual void save(XMLNode *node) const;
+    virtual void save(xml::Node *node) const;
 };
 
 /**

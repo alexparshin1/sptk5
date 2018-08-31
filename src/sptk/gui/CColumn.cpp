@@ -56,7 +56,7 @@ CColumn::CColumn(const CColumn& col)
     m_autoWidth = col.m_autoWidth;
 }
 
-void CColumn::load(const XMLNode& node)
+void CColumn::load(const xml::Node& node)
 {
     m_name = (string) node.getAttribute("caption");
     m_type = (VariantType) (unsigned) node.getAttribute("type");
@@ -65,7 +65,7 @@ void CColumn::load(const XMLNode& node)
     m_autoWidth = node.getAttribute("auto_width");
 }
 
-void CColumn::save(XMLNode& node) const
+void CColumn::save(xml::Node& node) const
 {
     node.clear();
     node.name("column");
@@ -87,14 +87,14 @@ int CColumnList::indexOf(const char *colname) const
     return -1;
 }
 
-void CColumnList::load(const XMLNode& node)
+void CColumnList::load(const xml::Node& node)
 {
     auto itor = node.begin();
     auto iend = node.end();
     resize(node.size());
     for (; itor != iend; ++itor) {
         try {
-            XMLNode& columnNode = *(*itor);
+            xml::Node& columnNode = *(*itor);
             unsigned columnIndex = columnNode.getAttribute("index");
             if (columnIndex >= size())
                 continue;
@@ -105,7 +105,7 @@ void CColumnList::load(const XMLNode& node)
     }
 }
 
-void CColumnList::save(XMLNode& node) const
+void CColumnList::save(xml::Node& node) const
 {
     node.clear();
     node.name("columns");
@@ -113,7 +113,7 @@ void CColumnList::save(XMLNode& node) const
     for (size_t i = 0; i < counter; i++) {
         try {
             const CColumn& column = (*this)[i];
-            XMLNode& columnNode = *(new XMLElement(node, "column"));
+            xml::Node& columnNode = *(new xml::Element(node, "column"));
             column.save(columnNode);
             columnNode.setAttribute("index", i);
         } catch (...) {

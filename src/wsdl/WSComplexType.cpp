@@ -33,8 +33,8 @@ using namespace sptk;
 
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
-    XMLDocument xml;
-    auto element = new XMLElement(xml, "temp");
+    xml::Document xml;
+    auto element = new xml::Element(xml, "temp");
     other.unload(element);
     load(element);
 }
@@ -48,7 +48,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         *param = *elementOrAttribute;
 }
 
-void WSComplexType::addElement(XMLElement* parent) const
+void WSComplexType::addElement(xml::Element* parent) const
 {
-    unload(new XMLElement(parent, m_name.c_str()));
+    unload(new xml::Element(parent, m_name.c_str()));
 }

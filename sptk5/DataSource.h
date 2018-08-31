@@ -43,7 +43,7 @@ namespace sptk {
  */
 
 /**
- * @brief Universal data source for many SPTK widgets.
+ * Universal data source for many SPTK widgets.
  *
  * It's designed as a base class for multiple datasources available in SPTK.
  * The main idea is to provide the simple interface that allows to open the datasource
@@ -55,7 +55,7 @@ class SP_EXPORT DataSource
 
 protected:
     /**
-     * @brief Loads datasource data. Should be implemented in derived class
+     * Loads datasource data. Should be implemented in derived class
      */
     virtual bool loadData()
     {
@@ -63,7 +63,7 @@ protected:
     }
 
     /**
-     * @brief Saves data from datasource. Should be implemented in derived class
+     * Saves data from datasource. Should be implemented in derived class
      */
     virtual bool saveData()
     {
@@ -72,56 +72,56 @@ protected:
 
 public:
     /**
-     * @brief Default constructor
+     * Default constructor
      */
     DataSource()
     {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~DataSource()
     {}
 
 public:
     /**
-     * @brief Field access by the field index, const version.
+     * Field access by the field index, const version.
      *
      * Purely virtual. Should be implemented in derived class
-     * @param fieldIndex uint32_t, field index
+     * @param fieldIndex        Field index
      * @returns field reference
      */
     virtual const Field& operator [] (uint32_t fieldIndex) const = 0;
 
     /**
-     * @brief Field access by the field index, non-const version
+     * Field access by the field index, non-const version
      *
      * Purely virtual. Should be implemented in derived class
-     * @param fieldIndex uint32_t, field index
+     * @param fieldIndex        Field index
      * @returns field reference
      */
     virtual Field&       operator [] (uint32_t fieldIndex) = 0;
 
     /**
-     * @brief Field access by the field name, const version.
+     * Field access by the field name, const version.
      *
      * Purely virtual. Should be implemented in derived class
-     * @param fieldName const char *, field name
+     * @param fieldName         Field name
      * @returns field reference
      */
     virtual const Field& operator [] (const char *fieldName) const = 0;
 
     /**
-     * @brief Field access by the field name, const version.
+     * Field access by the field name, const version.
      *
      * Purely virtual. Should be implemented in derived class
-     * @param fieldName const char *, field name
+     * @param fieldName         Field name
      * @returns field reference
      */
     virtual Field&       operator [] (const char *fieldName) = 0;
 
     /**
-     * @brief Returns field count in the datasource.
+     * Returns field count in the datasource.
      *
      * Purely virtual. Should be implemented in derived class
      * @returns field count
@@ -130,7 +130,7 @@ public:
 public:
 
     /**
-     * @brief Returns record count in the datasource.
+     * Returns record count in the datasource.
      *
      * Purely virtual. Should be implemented in derived class
      * @returns record count
@@ -138,7 +138,7 @@ public:
     virtual uint32_t recordCount() const = 0;
 
     /**
-     * @brief Returns user_data associated with the datasource.
+     * Returns user_data associated with the datasource.
      */
     virtual void* user_data() const 
     {
@@ -146,26 +146,26 @@ public:
     }
 public:
     /**
-     * @brief Reads the field by name from the datasource.
+     * Reads the field by name from the datasource.
      *
      * Purely virtual. Should be implemented in derived class
-     * @param fieldName const char *, field name
-     * @param fieldValue CVariant, field value
+     * @param fieldName         Field name
+     * @param fieldValue        Field value
      */
     virtual bool readField(const char *fieldName, Variant& fieldValue) = 0;
 
     /**
-     * @brief Writes the field by name from the datasource.
+     * Writes the field by name from the datasource.
      *
      * Purely virtual. Should be implemented in derived class
-     * @param fieldName const char *, field name
-     * @param fieldValue CVariant, field value
+     * @param fieldName         Field name
+     * @param fieldValue        Field value
      */
     virtual bool writeField(const char *fieldName, const Variant& fieldValue) = 0;
 public:
 
     /**
-     * @brief Opens the datasource. Implemented in derved class.
+     * Opens the datasource. Implemented in derved class.
      */
     virtual bool open()
     {
@@ -173,7 +173,7 @@ public:
     }
 
     /**
-     * @brief Closes the datasource. Implemented in derved class.
+     * Closes the datasource. Implemented in derved class.
      */
     virtual bool close()
     {
@@ -181,7 +181,7 @@ public:
     }
 
     /**
-     * @brief Moves to the first record of the datasource. Implemented in derved class.
+     * Moves to the first record of the datasource. Implemented in derved class.
      */
     virtual bool first()
     {
@@ -189,7 +189,7 @@ public:
     }
 
     /**
-     * @brief Moves to the next record of the datasource. Implemented in derved class.
+     * Moves to the next record of the datasource. Implemented in derved class.
      */
     virtual bool next()
     {
@@ -197,7 +197,7 @@ public:
     }
 
     /**
-     * @brief Moves to the prior record of the datasource. Implemented in derved class.
+     * Moves to the prior record of the datasource. Implemented in derved class.
      */
     virtual bool prior()
     {
@@ -205,7 +205,7 @@ public:
     }
 
     /**
-     * @brief Moves to the last record of the datasource. Implemented in derved class.
+     * Moves to the last record of the datasource. Implemented in derved class.
      */
     virtual bool last()
     {
@@ -213,7 +213,7 @@ public:
     }
 
     /**
-     * @brief Moves to the specified record position of the datasource. Implemented in derved class.
+     * Moves to the specified record position of the datasource. Implemented in derved class.
      */
     virtual bool find(Variant /*position*/)
     {
@@ -221,7 +221,7 @@ public:
     }
 
     /**
-     * @brief Returns true if there are no more records in the datasource. Implemented in derved class.
+     * Returns true if there are no more records in the datasource. Implemented in derved class.
      */
     virtual bool eof() const
     {
@@ -229,37 +229,37 @@ public:
     }
 
     /**
-     * @brief Loads data into the datasource
+     * Loads data into the datasource
      */
     bool load();
 
     /**
-     * @brief Saves data from the datasource
+     * Saves data from the datasource
      */
     bool save();
 
     /**
-     * @brief Saves dataset row data into XML
+     * Saves dataset row data into XML
      *
      * If the compactXmlMode is true, the node would have fields presented as attributues.
      * Otherwise, the fields are stored as subnodes.
-     * @param node XMLNode&, the XML node to fill in
-     * @param compactXmlMode bool, compact XML flag
+     * @param node              XML node to fill in
+     * @param compactXmlMode    Compact XML flag
      */
-    void rowToXML(XMLNode& node, bool compactXmlMode) const;
+    void rowToXML(xml::Node& node, bool compactXmlMode) const;
 
     /**
-     * @brief Saves data into XML
+     * Saves data into XML
      *
      * Opens the dataset, reads every row, and closes dataset.
      * For every row in the dataset, creates the node with the name nodeName.
      * If the compactXmlMode is true, the nodes would have fields presented as attributues.
      * Otherwise, the fields are stored as subnodes.
-     * @param parentNode XMLNode&, the XML node to add subnodes to
-     * @param nodeName std::string, the name for subnodes
-     * @param compactXmlMode bool, compact XML flag
+     * @param parentNode        XML node to add subnodes to
+     * @param nodeName          Name for subnodes
+     * @param compactXmlMode    Compact XML flag
      */
-    virtual void toXML(XMLNode& parentNode, const std::string& nodeName, bool compactXmlMode);
+    virtual void toXML(xml::Node& parentNode, const std::string& nodeName, bool compactXmlMode);
 };
 
 /**

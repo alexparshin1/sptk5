@@ -131,7 +131,7 @@ enum VariantType : uint32_t {
 class Field;
 
 /**
- * @brief Variant data buffer (internal).
+ * Variant data buffer (internal).
  *
  * A buffer for data with the variable length like strings, or just generic buffers
  */
@@ -150,7 +150,7 @@ struct VariantDataBuffer
 };
 
 /**
- * @brief Money data (internal).
+ * Money data (internal).
  *
  * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
  * A money value is quantity / 10^(scale)
@@ -193,7 +193,7 @@ struct MoneyData
 };
 
 /**
- * @brief Universal data storage.
+ * Universal data storage.
  *
  * Reasonably compact an fast class what allows storing data of different
  * types. It also allows conversions to and from supported types.
@@ -271,425 +271,425 @@ protected:
 
 
     /**
-     * @brief Copies data from another CVariant
+     * Copies data from another CVariant
      */
     void setData(const Variant& C);
 
     /**
-     * @brief Releases allocated buffer (if any)
+     * Releases allocated buffer (if any)
      */
     void releaseBuffers();
 
 protected:
     /**
-     * @brief Sets the data type
+     * Sets the data type
      */
     void dataType(uint32_t dt);
 
 public:
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant();
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(int32_t value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(uint32_t value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(int64_t value, unsigned scale = 1);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(uint64_t value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(float value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(double value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(const char * value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(const std::string& v);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(DateTime v);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(const void * value, size_t sz);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(const Buffer& value);
 
     /**
-     * @brief Constructor
+     * Constructor
      */
     Variant(const Variant& value);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~Variant();
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setBool(bool value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setInteger(int32_t value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setInt64(int64_t value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setFloat(double value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setMoney(int64_t value, unsigned scale);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setString(const char * value, size_t maxlen = 0);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setString(const std::string& value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     void setExternalString(const char *value, int length = -1);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     void setExternalString(const std::string& value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setText(const char * value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setText(const std::string& str);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setExternalText(const char * value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setBuffer(const void * value, size_t sz);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setBuffer(const Buffer& value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setExternalBuffer(const void * value, size_t sz);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setBuffer(const std::string& str);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setDate(DateTime value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setDateTime(DateTime value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setImagePtr(const void *value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setImageNdx(uint32_t value);
 
     /**
-     * @brief Assignment method
+     * Assignment method
      */
     virtual void setMoney(const MoneyData& value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     Variant& operator =(const Variant &C);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(int32_t value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(int64_t value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(uint32_t value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(uint64_t value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(int16_t value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(uint16_t value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(float value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(double value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(const MoneyData& value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(const char * value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(const String& value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(DateTime value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(const void *value);
 
     /**
-     * @brief Assignment operator
+     * Assignment operator
      */
     virtual Variant& operator =(const Buffer& value);
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual bool getBool() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const int32_t& getInteger() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const int64_t& getInt64() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const double& getFloat() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const MoneyData& getMoney() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const char* getString() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const char* getBuffer() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual const char* getText() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual DateTime getDateTime() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual DateTime getDate() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual void* getImagePtr() const;
 
     /**
-     * @brief Directly reads the internal data
+     * Directly reads the internal data
      */
     virtual uint32_t getImageNdx() const;
 
     /**
-     * @brief Returns the data type
+     * Returns the data type
      */
     VariantType dataType() const;
 
     /**
-     * @brief Returns the data size
+     * Returns the data size
      */
     size_t dataSize() const;
 
     /**
-     * @brief Sets the data size
-     * @param ds size_t, data size (in bytes).
+     * Sets the data size
+     * @param ds                Data size (in bytes).
      */
     void dataSize(size_t ds);
 
     /**
-     * @brief Returns the allocated buffer size
+     * Returns the allocated buffer size
      */
     size_t bufferSize() const;
 
     /**
-     * @brief Returns the internal buffer
+     * Returns the internal buffer
      */
     void* dataBuffer() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator bool() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator int32_t() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator uint32_t() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator int64_t() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator uint64_t() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator float() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator double() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator std::string() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator String() const;
 
     /**
-     * @brief Conversion operator
+     * Conversion operator
      */
     operator DateTime() const;
 
     /**
-     * @brief Conversion method
+     * Conversion method
      *
      * Converts variant value to double.
      */
     int32_t asInteger() const;
 
     /**
-     * @brief Conversion method
+     * Conversion method
      *
      * Converts variant value to double.
      */
     int64_t asInt64() const;
 
     /**
-     * @brief Conversion to bool
+     * Conversion to bool
      *
      * Converts variant string value with first char one of 'Y','y','T','t' to true,
      * and one of 'N','n','F','f' to false.
@@ -698,35 +698,35 @@ public:
     bool asBool() const;
 
     /**
-     * @brief Conversion to double
+     * Conversion to double
      *
      * Converts variant value to double.
      */
     double asFloat() const;
 
     /**
-     * @brief Conversion to string
+     * Conversion to string
      *
      * Converts variant value to string.
      */
     virtual String asString() const;
 
     /**
-     * @brief Conversion method
+     * Conversion method
      *
      * Converts variant value to DateTime. The time part of CDdatetime is empty.
      */
     DateTime asDate() const;
 
     /**
-     * @brief Conversion method
+     * Conversion method
      *
      * Converts variant value to DateTime.
      */
     DateTime asDateTime() const;
 
     /**
-     * @brief Conversion method
+     * Conversion method
      *
      * Simply returns the internal data pointer for string/text/blob types.
      * For incompatible types throws an exception.
@@ -734,7 +734,7 @@ public:
     void *asImagePtr() const;
 
     /**
-     * @brief Sets the NULL state
+     * Sets the NULL state
      *
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
@@ -743,57 +743,57 @@ public:
     virtual void setNull() { setNull(VAR_NONE); }
 
     /**
-     * @brief Sets the NULL state
+     * Sets the NULL state
      *
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
-     * @param vtype VariantType, optional variant type to enforce
+     * @param vtype             Optional variant type to enforce
      */
     virtual void setNull(VariantType vtype);
 
     /**
-     * @brief Null flag
+     * Null flag
      *
      * Returns true if the NULL state is set
      */
     bool isNull() const;
 
     /**
-     * @brief Returns a name for a particular variant type
-     * @param type VariantType, a variant type
+     * Returns a name for a particular variant type
+     * @param type              Variant type
      */
     static String typeName(VariantType type);
 
     /**
-     * @brief Returns a type for a particular variant type name
-     * @param name const char*, a variant type name
+     * Returns a type for a particular variant type name
+     * @param name              Variant type name
      */
     static VariantType nameType(const char* name);
 
     /**
-     * @brief Loads the data from XML node
-     * @param node const XMLNode&, XML node to load data from
+     * Loads the data from XML node
+     * @param node              XML node to load data from
      */
-    void load(const XMLNode& node);
+    void load(const xml::Node& node);
 
     /**
-     * @brief Loads the data from XML node
-     * @param node const XMLNode*, XML node to load data from
+     * Loads the data from XML node
+     * @param node              XML node to load data from
      */
-    void load(const XMLNode* node);
+    void load(const xml::Node* node);
 
     /**
-     * @brief Saves the data into XML node
-     * @param node XMLNode&, XML node to save data into
+     * Saves the data into XML node
+     * @param node              XML node to save data into
      */
-    void save(XMLNode& node) const;
+    void save(xml::Node& node) const;
 
     /**
-     * @brief Saves the data into XML node
-     * @param node XMLNode*, XML node to save data into
+     * Saves the data into XML node
+     * @param node              XML node to save data into
      */
-    void save(XMLNode* node) const;
+    void save(xml::Node* node) const;
 };
 /**
  * @}

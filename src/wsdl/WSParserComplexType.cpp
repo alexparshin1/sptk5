@@ -48,7 +48,7 @@ String WSParserAttribute::generate() const
     return str.str();
 }
 
-WSParserComplexType::WSParserComplexType(const XMLElement* complexTypeElement, const String& name,
+WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement, const String& name,
                                          const String& typeName)
 : m_element(complexTypeElement), m_refcount(0), m_restriction(nullptr)
 {
@@ -56,14 +56,14 @@ WSParserComplexType::WSParserComplexType(const XMLElement* complexTypeElement, c
     m_typeName = typeName.empty() ? complexTypeElement->getAttribute("type").str() : typeName;
 
     if (m_typeName.empty() && complexTypeElement->name() == "xsd:element") {
-        XMLNode* restrictionElement = complexTypeElement->findFirst("xsd:restriction");
+        xml::Node* restrictionElement = complexTypeElement->findFirst("xsd:restriction");
         if (restrictionElement != nullptr) {
             m_typeName = restrictionElement->getAttribute("base").c_str();
-            m_restriction = new WSRestriction(m_typeName, (XMLElement*) restrictionElement->parent());
+            m_restriction = new WSRestriction(m_typeName, (xml::Element*) restrictionElement->parent());
         }
     }
 
-    XMLNode* documentationElement = complexTypeElement->findFirst("xsd:documentation");
+    xml::Node* documentationElement = complexTypeElement->findFirst("xsd:documentation");
     if (documentationElement != nullptr)
         m_documentation = documentationElement->text();
 
@@ -110,10 +110,10 @@ String WSParserComplexType::className() const
     return "C" + m_typeName.substr(pos + 1);
 }
 
-void WSParserComplexType::parseSequence(XMLElement* sequence)
+void WSParserComplexType::parseSequence(xml::Element* sequence)
 {
     for (auto node: *sequence) {
-        auto element = dynamic_cast<XMLElement*>(node);
+        auto element = dynamic_cast<xml::Element*>(node);
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         string elementName = element->name();
@@ -128,7 +128,7 @@ void WSParserComplexType::parse()
     if (m_element == nullptr)
         return;
     for (auto node: *m_element) {
-        auto element = dynamic_cast<XMLElement*>(node);
+        auto element = dynamic_cast<xml::Element*>(node);
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         if (element->name() == "xsd:attribute") {
@@ -282,7 +282,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * Complex WSDL type members are loaded recursively." << endl;
     classDeclaration << "    * @param input              XML node containing " << className << " data" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void load(const sptk::XMLElement* input) override;" << endl << endl;
+    classDeclaration << "   void load(const sptk::xml::Element* input) override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Load " << className << " from FieldList" << endl;
     classDeclaration << "    *" << endl;
@@ -294,7 +294,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * Unload " << className << " to existing XML node" << endl;
     classDeclaration << "    * @param output             Existing XML node" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   void unload(sptk::XMLElement* output) const override;" << endl << endl;
+    classDeclaration << "   void unload(sptk::xml::Element* output) const override;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Unload " << className << " to Query's parameters" << endl;
     classDeclaration << "    * @param output             Query parameters" << endl;
@@ -340,7 +340,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "}" << endl << endl;
 
     // Loader from XML element
-    classImplementation << "void " << className << "::load(const sptk::XMLElement* input)" << endl
+    classImplementation << "void " << className << "::load(const sptk::xml::Element* input)" << endl
                         << "{" << endl
                         << "    lock_guard<mutex> lock(m_mutex);" << endl
                         << "    _clear();" << endl
@@ -357,7 +357,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     if (!m_sequence.empty()) {
         classImplementation << endl << "    // Load elements" << endl;
         classImplementation << "    for (auto node: *input) {" << endl;
-        classImplementation << "        auto element = dynamic_cast<XMLElement*>(node);" << endl;
+        classImplementation << "        auto element = dynamic_cast<xml::Element*>(node);" << endl;
         classImplementation << "        if (element == nullptr) {" << endl;
         classImplementation << "            continue;" << endl;
         classImplementation << "        }" << endl;
@@ -476,8 +476,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     classImplementation << "}" << endl << endl;
 
-    // Unloader to XMLElement
-    classImplementation << "void " << className << "::unload(sptk::XMLElement* output) const" << endl
+    // Unloader to Element
+    classImplementation << "void " << className << "::unload(sptk::xml::Element* output) const" << endl
                         << "{" << endl
                         << "    lock_guard<mutex> lock(m_mutex);" << endl;
     if (!m_attributes.empty()) {

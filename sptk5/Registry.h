@@ -63,7 +63,7 @@ enum RegistryMode
  * Class allows to read both INI and XML files and write the output file
  * in the same format, or change the output format before saving the file.
  */
-class SP_EXPORT Registry: public XMLDocument
+class SP_EXPORT Registry: public xml::Document
 {
     /**
      * The registry file name
@@ -81,18 +81,18 @@ class SP_EXPORT Registry: public XMLDocument
      *
      * The node is saved in INI file format.
      * @param outputData CStrings&, the string list to save data into
-     * @param node XMLNode*, the XML node to save
+     * @param node xml::Node*, the XML node to save
      * @param currentPath string, current path to the parent node
      */
-    void save(Strings& outputData, XMLNode* node, std::string currentPath);
+    void save(Strings& outputData, Node* node, std::string currentPath);
 
     /**
      * @brief Cleans the node recursively
      *
      * Removes the empty children nodes. The empty nodes are nodes without children and attributes.
-     * @param node XMLNode*, the node to clean
+     * @param node xml::Node*, the node to clean
      */
-    void clean(XMLNode* node);
+    void clean(Node* node);
 
 public:
 
@@ -160,7 +160,7 @@ public:
      * Nested sections make paths with the elements separated with "/".
      * @param data const XMLDoc&, the XML document to load data from
      */
-    virtual void load(const XMLDocument& data);
+    virtual void load(const xml::Document& data);
 
     /**
      * @brief Loads registry from buffer.
@@ -169,7 +169,7 @@ public:
     virtual void load(const Buffer &buffer)
     {
         clear();
-        XMLDocument::load(buffer);
+        xml::Document::load(buffer);
     }
 
     /**
@@ -188,7 +188,7 @@ public:
      * Nested sections with paths with the elements separated with "/" make nested XML nodes.
      * @param data const XMLDoc&, the XML document to load data from
      */
-    virtual void save(XMLDocument& data) const;
+    virtual void save(xml::Document& data) const;
 
     /**
      * @brief Saves registry to buffer.
@@ -197,7 +197,7 @@ public:
      */
     virtual void save(Buffer &buffer, bool formatXML=false) const
     {
-        XMLDocument::save(buffer, formatXML);
+        xml::Document::save(buffer, formatXML);
     }
 
     /**
@@ -207,7 +207,7 @@ public:
      */
     virtual void save(Buffer &buffer, int indent) const
     {
-        XMLDocument::save(buffer, indent);
+        xml::Document::save(buffer, indent);
     }
 
 public:

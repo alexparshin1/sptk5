@@ -341,13 +341,13 @@ bool CDialog::save()
     return true;
 }
 
-void CDialog::load(const XMLNode* node)
+void CDialog::load(const xml::Node* node)
 {
     CLayoutManager::loadLayout(node, LXM_DATA);
     loadPosition(node);
 }
 
-void CDialog::save(XMLNode* node) const
+void CDialog::save(xml::Node* node) const
 {
     CLayoutManager::saveLayout(node, LXM_DATA);
     savePosition(node);

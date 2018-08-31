@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLEntities.h - description                            ║
+║                       Attributes.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,58 +26,102 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XMLENTITIES_H__
-#define __SPTK_XMLENTITIES_H__
+#include <sptk5/cxml>
 
-#include <string>
-#include <map>
+using namespace sptk;
+using namespace sptk::xml;
 
-namespace sptk {
-
-/**
- * @addtogroup XML
- * @{
- */
-
-/**
- * @brief XML entities
- *
- * Maps an XML entity string to a presentation string.
- */
-class XMLEntities: public std::map<std::string, std::string>
+Attribute::Attribute(Element* parent, const char* tagname, Value avalue) :
+    NamedItem(*parent->document())
 {
-public:
-
-    /**
-     * @brief Constructor
-     */
-    XMLEntities()
-    {
-    }
-
-    /**
-     * @brief Removes named entity
-     * @param name const char *, entity name to remove
-     */
-    void removeEntity(const char *name)
-    {
-        erase(name);
-    }
-
-    /**
-     * @brief Adds entity to map
-     *
-     * If entity named 'name' exists already in map, its value is replaced with 'replacement'
-     * @param name const char *, entity to add/change
-     * @param replacement const char *, value that represents entity
-     */
-    void setEntity(const char *name, const char *replacement)
-    {
-        (*this)[name] = replacement;
-    }
-};
-/**
- * @}
- */
+    name(tagname);
+    value(avalue);
+    parent->attributes().push_back(this);
 }
-#endif
+
+Attribute::Attribute(Element* parent, const std::string& tagname, Value avalue) :
+    NamedItem(*parent->document())
+{
+    name(tagname);
+    value(avalue);
+    parent->attributes().push_back(this);
+}
+
+/// @brief Returns the value of the node
+const String& Attribute::value() const
+{
+    return m_value;
+}
+
+/// @brief Sets new value to node.
+/// @param new_value const std::string &, new value
+/// @see value()
+void Attribute::value(const std::string &new_value)
+{
+    m_value = new_value;
+}
+
+/// @brief Sets new value to node
+/// @param new_value const char *, value to set
+/// @see value()
+void Attribute::value(const char *new_value)
+{
+    m_value = new_value;
+}
+
+Attributes& Attributes::operator =(const Attributes& s)
+{
+    clear();
+    for (auto node: s)
+        new Attribute(m_parent, node->name(), node->value());
+    return *this;
+}
+
+Attribute* Attributes::getAttributeNode(std::string attr)
+{
+    auto itor = findFirst(attr.c_str());
+    if (itor != end())
+        return (Attribute*) *itor;
+    return nullptr;
+}
+
+const Attribute* Attributes::getAttributeNode(std::string attr) const
+{
+    auto itor = findFirst(attr.c_str());
+    if (itor != end())
+        return (const Attribute*) *itor;
+    return nullptr;
+}
+
+Value Attributes::getAttribute(std::string attr, const char *defaultValue) const
+{
+    auto itor = findFirst(attr.c_str());
+    if (itor != end())
+        return (*itor)->value();
+    Value rc;
+    if (defaultValue != nullptr)
+        rc = defaultValue;
+    return rc;
+}
+
+void Attributes::setAttribute(std::string attr, Value value, const char *defaultValue)
+{
+    auto itor = findFirst(attr);
+    if (defaultValue != nullptr && value.str() == defaultValue) {
+        if (itor != end()) {
+            delete *itor;
+            erase(itor);
+        }
+        return;
+    }
+    if (itor != end())
+        (*itor)->value(value);
+    else
+        new Attribute(m_parent, attr, value);
+}
+
+bool Attributes::hasAttribute(std::string attr) const
+{
+    auto itor = findFirst(attr.c_str());
+    return itor != end();
+}

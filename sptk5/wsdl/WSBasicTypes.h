@@ -31,7 +31,7 @@
 
 #include <sptk5/cxml>
 #include <sptk5/Field.h>
-#include <sptk5/xml/XMLElement.h>
+#include <sptk5/xml/Element.h>
 
 namespace sptk {
 
@@ -89,7 +89,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) = 0;
+    virtual void load(const xml::Node* attr) = 0;
 
     /**
      * Loads type data from string
@@ -107,7 +107,7 @@ public:
      * Adds an element to response XML with this object data
      * @param parent            Parent XML element
      */
-    XMLElement* addElement(XMLElement* parent) const;
+    xml::Element* addElement(xml::Element* parent) const;
 
     /**
      * Returns element name
@@ -143,7 +143,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) override;
+    virtual void load(const xml::Node* attr) override;
 
     /**
      * Loads type data from string
@@ -236,7 +236,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) override;
+    virtual void load(const xml::Node* attr) override;
 
     /**
      * Loads type data from string
@@ -301,7 +301,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) override;
+    virtual void load(const xml::Node* attr) override;
 
     /**
      * Loads type data from string
@@ -366,7 +366,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) override;
+    virtual void load(const xml::Node* attr) override;
 
     /**
      * Loads type data from string
@@ -436,7 +436,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) override;
+    virtual void load(const xml::Node* attr) override;
 
     /**
      * Loads type data from string
@@ -517,7 +517,7 @@ public:
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    virtual void load(const XMLNode* attr) override;
+    virtual void load(const xml::Node* attr) override;
 
     /**
      * Loads type data from string

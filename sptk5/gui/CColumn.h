@@ -162,7 +162,7 @@ public:
      * Loads information about column from the registry.
      * @param node              XML node to load column information from
      */
-    void load(const XMLNode& node);
+    void load(const xml::Node& node);
 
     /**
      * @brief Loads column information
@@ -171,7 +171,7 @@ public:
      * from the registry.
      * @param node              XML node to load column information from
      */
-    void load(const XMLNode* node)
+    void load(const xml::Node* node)
     {
         load(*node);
     }
@@ -183,7 +183,7 @@ public:
      * from the registry.
      * @param node              XML node to unload column information to
      */
-    void save(XMLNode& node) const;
+    void save(xml::Node& node) const;
 
     /**
      * @brief Saves column information
@@ -192,7 +192,7 @@ public:
      * from the registry.
      * @param node              XML node to unload column information to
      */
-    void save(XMLNode* node) const
+    void save(xml::Node* node) const
     {
         save(*node);
     }
@@ -224,7 +224,7 @@ public:
      * Loads information about columns from the registry.
      * @param node              XML node to load columns information from
      */
-    void load(const XMLNode& node);
+    void load(const xml::Node& node);
 
     /**
      * @brief Loads columns information
@@ -232,7 +232,7 @@ public:
      * Loads information about columns from the registry.
      * @param node              XML node to load columns information from
      */
-    void load(const XMLNode* node)
+    void load(const xml::Node* node)
     {
         load(*node);
     }
@@ -243,7 +243,7 @@ public:
      * Saves information about columns from the registry.
      * @param node              XML node to unload columns information to
      */
-    void save(XMLNode& node) const;
+    void save(xml::Node& node) const;
 
     /**
      * @brief Saves columns information
@@ -251,7 +251,7 @@ public:
      * Saves information about columns from the registry.
      * @param node              XML node to unload columns information to
      */
-    void save(XMLNode* node) const
+    void save(xml::Node* node) const
     {
         save(*node);
     }

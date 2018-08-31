@@ -133,7 +133,7 @@ Field *FieldList::fieldByName(const char *fname) const
     throw Exception("Field name '" + std::string(fname) + "' not found");
 }
 
-void FieldList::toXML(XMLNode& node) const
+void FieldList::toXML(xml::Node& node) const
 {
     for (auto field: *this)
         field->toXML(node, m_compactXmlMode);

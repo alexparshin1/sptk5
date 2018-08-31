@@ -119,7 +119,7 @@ CProgressBar::CProgressBar(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CProgressBar::creator(XMLNode* node)
+CLayoutClient* CProgressBar::creator(xml::Node* node)
 {
     auto widget = new CProgressBar("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

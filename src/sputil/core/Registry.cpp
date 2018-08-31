@@ -87,7 +87,7 @@ String Registry::homeDirectory()
 }
 
 Registry::Registry(const String& fileName, const String& _programGroupName, RegistryMode mode)
-: XMLDocument("Configuration"), m_fileName(fileName)
+: xml::Document("Configuration"), m_fileName(fileName)
 {
     String programGroupName(_programGroupName);
     if (!m_fileName.empty()) {
@@ -138,20 +138,20 @@ void Registry::load(const Strings& inputData)
 {
     clear();
     Buffer buffer(inputData.asString("\n"));
-    XMLDocument::load(buffer);
+    xml::Document::load(buffer);
 }
 
 void Registry::load(const char* inputData)
 {
     clear();
-    XMLDocument::load(inputData);
+    xml::Document::load(inputData);
 }
 
 void Registry::load()
 {
     Buffer inputData;
     inputData.loadFromFile(m_fileName);
-    XMLDocument::load(inputData);
+    xml::Document::load(inputData);
 }
 
 void Registry::save(Strings& outputData)
@@ -159,7 +159,7 @@ void Registry::save(Strings& outputData)
     Buffer buffer;
     prepareDirectory();
     outputData.clear();
-    XMLDocument::save(buffer, true);
+    xml::Document::save(buffer, true);
     outputData.fromString(buffer.data(), "\n", Strings::SM_DELIMITER);
 }
 
@@ -167,17 +167,17 @@ void Registry::save()
 {
     Buffer outputData;
     prepareDirectory();
-    XMLDocument::save(outputData, true);
+    xml::Document::save(outputData, true);
     outputData.saveToFile(m_fileName);
 }
 
-void Registry::clean(XMLNode* node)
+void Registry::clean(Node* node)
 {
     auto itor = node->begin();
     auto iend = node->end();
-    XMLNodeVector toDelete;
+    xml::NodeVector toDelete;
     for (; itor != iend; ++itor) {
-        XMLNode* anode = *itor;
+        Node* anode = *itor;
         if (anode->type() != DOM_ELEMENT) {
             toDelete.push_back(anode);
             continue;
@@ -190,14 +190,14 @@ void Registry::clean(XMLNode* node)
         node->remove(*it);
 }
 
-void Registry::load(const XMLDocument& data)
+void Registry::load(const xml::Document& data)
 {
     clear();
     copy(data);
     clean(this);
 }
 
-void Registry::save(XMLDocument& data) const
+void Registry::save(xml::Document& data) const
 {
     data.copy(*this);
 }

@@ -47,7 +47,7 @@ CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
     }
 }
 
-void CLayoutClient::load(const XMLNode* node, CLayoutXMLmode xmlMode)
+void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
     if (xmlMode & (int) LXM_LAYOUT) {
         CLayoutAlign layoutAlign;
@@ -117,7 +117,7 @@ void CLayoutClient::load(const XMLNode* node, CLayoutXMLmode xmlMode)
     }
 }
 
-void CLayoutClient::save(XMLNode* node, CLayoutXMLmode xmlMode) const
+void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     if (!node->isElement())
         throw Exception("Node must be an element");

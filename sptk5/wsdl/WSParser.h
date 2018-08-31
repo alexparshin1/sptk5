@@ -40,7 +40,7 @@ namespace sptk
  */
 
 /**
- * @brief WSDL operation
+ * WSDL operation
  */
 struct WSOperation
 {
@@ -57,7 +57,7 @@ struct WSOperation
 };
 
 /**
- * @brief Parser of WSDL files
+ * Parser of WSDL files
  *
  * Loads a WSDL file and converts it to a set of abstract classes that can be saved
  * as C++ source files to a directory.
@@ -67,29 +67,29 @@ class SP_EXPORT WSParser
 {
 public:
     /**
-     * @brief Map of element names to element objects
+     * Map of element names to element objects
      */
-    typedef std::map<String, WSParserElement*>     ElementMap;
+    typedef std::map<String, WSParserElement*>      ElementMap;
 
     /**
-     * @brief Map of complex type names to complex type objects
+     * Map of complex type names to complex type objects
      */
-    typedef std::map<String,WSParserComplexType*>  ComplexTypeMap;
+    typedef std::map<String,WSParserComplexType*>   ComplexTypeMap;
 
     /**
-     * @brief Map of element names to corresponding WSDL (XML) elements
+     * Map of element names to corresponding WSDL (XML) elements
      */
-    typedef std::map<String,const XMLElement*>     XmlTypeMap;
+    typedef std::map<String,const xml::Element*>    XmlTypeMap;
 
     /**
-     * @brief Map of operation names to operation objects
+     * Map of operation names to operation objects
      */
-    typedef std::map<String,WSOperation>          OperationMap;
+    typedef std::map<String,WSOperation>            OperationMap;
 
     /**
-     * @brief Map of operation names to operation objects
+     * Map of operation names to operation objects
      */
-    typedef std::map<String,String>           DocumentationMap;
+    typedef std::map<String,String>                 DocumentationMap;
 
 private:
     /**
@@ -120,80 +120,80 @@ private:
 
 protected:
     /**
-     * @brief Parses xsd:element nodes directly under xsd:schema
-     * @param element const XMLElement*, Schema element
+     * Parses xsd:element nodes directly under xsd:schema
+     * @param element           Schema element
      */
-    void parseElement(const XMLElement* element);
+    void parseElement(const xml::Element* element);
 
     /**
-     * @brief Parses xsd:complexType nodes directly under xsd:schema
-     * @param complexTypeElement const XMLElement*, Schema complex type
+     * Parses xsd:complexType nodes directly under xsd:schema
+     * @param complexTypeElement Schema complex type
      */
-    void parseComplexType(const XMLElement* complexTypeElement);
+    void parseComplexType(const xml::Element* complexTypeElement);
 
     /**
-     * @brief Parses wsdl:operation nodes directly under xsd:schema
-     * @param operation XMLElement*, Schema complex type
+     * Parses wsdl:operation nodes directly under xsd:schema
+     * @param operation         Schema complex type
      */
-    void parseOperation(XMLElement* operation);
+    void parseOperation(xml::Element* operation);
 
     /**
-     * @brief Parses xsd:schema
-     * @param schemaElement XMLElement*, Schema element
+     * Parses xsd:schema
+     * @param schemaElement     Schema element
      */
-    void parseSchema(XMLElement* schemaElement);
+    void parseSchema(xml::Element* schemaElement);
 
     /**
-     * @brief Generates service definition to output stream
-     * @param usedClasses const Strings&, List of this service complex types (classes)
-     * @param output std::ostream, Output stream
+     * Generates service definition to output stream
+     * @param usedClasses       List of this service complex types (classes)
+     * @param output            Output stream
      */
     void generateDefinition(const Strings& usedClasses, std::ostream& output);
 
     /**
-     * @brief Generates service implementation to output stream
-     * @param output std::ostream, Output stream
+     * Generates service implementation to output stream
+     * @param output            Output stream
      */
     void generateImplementation(std::ostream& output);
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      */
     WSParser() = default;
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~WSParser();
 
     /**
-     * @brief Clears parsed data
+     * Clears parsed data
      */
     void clear();
 
     /**
-     * @brief Loads WSDL-file and parses it to output classes
-     * @param wsdlFile std::string, WSDL file name
+     * Loads WSDL-file and parses it to output classes
+     * @param wsdlFile          WSDL file name
      */
     void parse(std::string wsdlFile);
 
     /**
-     * @brief Stores parsed classes to files in source directory
-     * @param sourceDirectory std::string, Directory to store output classes
-     * @param headerFile std::string, Optional header file to insert at the start of each generated file
+     * Stores parsed classes to files in source directory
+     * @param sourceDirectory   Directory to store output classes
+     * @param headerFile        Optional header file to insert at the start of each generated file
      */
     void generate(std::string sourceDirectory=".", std::string headerFile="");
 
     /**
-     * @brief Utility function that removes namespace from the element name
-     * @param name const std::string&, Element name
+     * Utility function that removes namespace from the element name
+     * @param name              Element name
      */
     static std::string strip_namespace(const std::string& name);
 
     /**
-     * @brief Utility function that returns namespace from the element name
-     * @param name const std::string&, Element name
+     * Utility function that returns namespace from the element name
+     * @param name              Element name
      */
     static std::string get_namespace(const std::string& name);
 };

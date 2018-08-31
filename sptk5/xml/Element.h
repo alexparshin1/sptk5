@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLElement.h - description                             ║
+║                       Element.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -32,49 +32,49 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/xml/XMLValue.h>
-#include <sptk5/xml/XMLAttributes.h>
+#include <sptk5/xml/Value.h>
+#include <sptk5/xml/Attributes.h>
 
 #include <string>
 #include <map>
 #include <vector>
 
 namespace sptk {
+namespace xml {
 
 /**
  * @addtogroup XML
  * @{
  */
 
-class XMLDocument;
+class Document;
 
 /**
  * @brief XML Element is a named item that may optionally have sub-nodes and attributes
  */
-class SP_EXPORT XMLElement : public XMLNamedItem
+class SP_EXPORT Element : public NamedItem
 {
-    friend class XMLDocument;
+    friend class Document;
     /**
      * The list of subnodes
      */
-    XMLNodeList       m_nodes;
+    NodeList       m_nodes;
 
 
 protected:
     /**
      * Node attributes
      */
-    XMLAttributes     m_attributes;
+    Attributes     m_attributes;
 
 
     /**
-     * @brief Protected constructor for creating XMLDoc only
+     * @brief Protected constructor for creating Doc only
      *
-     * @param doc XMLDoc&, a document.
+     * @param doc               XML document.
      */
-    XMLElement(XMLDocument& doc) :
-        XMLNamedItem(doc),
-        m_attributes(this)
+    Element(Document& doc)
+    : NamedItem(doc), m_attributes(this)
     {}
 
 public:
@@ -84,9 +84,8 @@ public:
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
      */
-    XMLElement(XMLNode& parent, const char* tagname) :
-        XMLNamedItem(parent,tagname),
-        m_attributes(this)
+    Element(Node& parent, const char* tagname)
+    : NamedItem(parent,tagname), m_attributes(this)
     {}
 
     /**
@@ -95,9 +94,8 @@ public:
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
      */
-    XMLElement(XMLNode* parent, const char* tagname) : 
-        XMLNamedItem(*parent,tagname),
-        m_attributes(this)
+    Element(Node* parent, const char* tagname)
+    : NamedItem(*parent,tagname), m_attributes(this)
     {}
 
     /**
@@ -106,15 +104,14 @@ public:
      * @param parent            Parent node.
      * @param tagname           Name of XML tag
      */
-    XMLElement(XMLNode& parent, const std::string& tagname) : 
-        XMLNamedItem(parent,tagname),
-        m_attributes(this)
+    Element(Node& parent, const std::string& tagname)
+    : NamedItem(parent,tagname), m_attributes(this)
     {}
 
     /**
      * @brief Returns node type
      */
-    XMLNodeType type() const override
+    NodeType type() const override
     {
         return DOM_ELEMENT;
     }
@@ -172,7 +169,7 @@ public:
      *
      * @param node              Node to append
      */
-    void push_back(XMLNode* node) override;
+    void push_back(Node* node) override;
 
     /**
      * @brief Inserts a subnode
@@ -180,7 +177,7 @@ public:
      * @param pos               Insert position with the list of subnodes
      * @param node              Node to insert
      */
-    void insert(iterator pos, XMLNode* node) override;
+    void insert(iterator pos, Node* node) override;
 
     /**
      * @brief Removes a subnode
@@ -189,14 +186,14 @@ public:
      * removed from its parent
      * @param node              Node to remove
      */
-    void remove(XMLNode* node) override;
+    void remove(Node* node) override;
 
     /**
      * @brief Removes a subnode
      *
      * Disconnects subnode from parent (this node)
      */
-    void unlink(XMLNode* node) override;
+    void unlink(Node* node) override;
 
     /**
      * @brief Deletes all child nodes
@@ -216,7 +213,7 @@ public:
     /**
      * @brief Returns referrence to node attributes
      */
-    XMLAttributes& attributes() override
+    Attributes& attributes() override
     {
         return m_attributes;
     }
@@ -224,7 +221,7 @@ public:
     /**
      * @brief Returns referrence to node attributes (const version)
      */
-    const XMLAttributes& attributes() const override
+    const Attributes& attributes() const override
     {
         return m_attributes;
     }
@@ -254,7 +251,7 @@ public:
      * @param defaultValue      Default value. If attribute doesn't exist then default value is returned.
      * @returns attribute value
      */
-    XMLValue getAttribute(const std::string& attr, const char *defaultValue="") const override
+    Value getAttribute(const std::string& attr, const char *defaultValue="") const override
     {
         return m_attributes.getAttribute(attr,defaultValue);
     }
@@ -267,7 +264,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const char *attr, XMLValue value, const char *defaultValue="") override
+    void setAttribute(const char *attr, Value value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr,value,defaultValue);
     }
@@ -280,7 +277,7 @@ public:
      * @param value             Attribute value
      * @param defaultValue      Default value. If attribute value is matching default value than attribute isn't stored (or removed if it existed).
      */
-    void setAttribute(const std::string& attr, XMLValue value, const char *defaultValue="") override
+    void setAttribute(const std::string& attr, Value value, const char *defaultValue="") override
     {
         m_attributes.setAttribute(attr.c_str(),value,defaultValue);
     }
@@ -289,5 +286,6 @@ public:
 /**
  * @}
  */
+}
 }
 #endif

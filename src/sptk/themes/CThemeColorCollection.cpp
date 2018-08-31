@@ -193,12 +193,12 @@ Fl_Color CThemeColorCollection::gtkColorFunction(const String& expression)
     }
 }
 
-void CThemeColorCollection::loadColor(XMLNode* colorNode, CThemeColorIndex colorIndex)
+void CThemeColorCollection::loadColor(xml::Node* colorNode, CThemeColorIndex colorIndex)
 {
     static const Strings colorStateNames("NORMAL,PRELIGHT,SELECTED,ACTIVE,INSENSITIVE", ",");
     auto itor = colorNode->attributes().begin();
     for (; itor != colorNode->attributes().end(); ++itor) {
-        XMLNode* colorStateNode = *itor;
+        xml::Node* colorStateNode = *itor;
         CThemeColorState colorState = (CThemeColorState) colorStateNames.indexOf(colorStateNode->name());
         if (colorState == THM_COLOR_UNDEFINED)
             continue;
@@ -209,28 +209,28 @@ void CThemeColorCollection::loadColor(XMLNode* colorNode, CThemeColorIndex color
 
 static const char* colorNames[THM_MAX_COLOR_INDEX] = {"fg", "bg", "base", "text"};
 
-void CThemeColorCollection::loadFromSptkTheme(XMLDocument& sptkTheme)
+void CThemeColorCollection::loadFromSptkTheme(xml::Document& sptkTheme)
 {
     loadColorMap(sptkTheme, "/color_scheme");
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         string colorXPath = string("/color_scheme/") + colorNames[colorIndex];
-        XMLNodeVector colorNodes;
+        xml::NodeVector colorNodes;
         sptkTheme.select(colorNodes, colorXPath);
         if (colorNodes.size() == 1) {
-            XMLNode* colorNode = *(colorNodes.begin());
+            xml::Node* colorNode = *(colorNodes.begin());
             loadColor(colorNode, CThemeColorIndex(colorIndex));
         }
     }
 }
 
-void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
+void CThemeColorCollection::loadFromGtkTheme(xml::Document& gtkTheme)
 {
     loadColorMap(gtkTheme, "/gtk_color_scheme");
 
     string stylesXPath = "/styles/style";
-    XMLNodeVector styleNodes;
+    xml::NodeVector styleNodes;
     gtkTheme.select(styleNodes, stylesXPath);
-    XMLNode* defaultStyleNode = *styleNodes.begin();
+    xml::Node* defaultStyleNode = *styleNodes.begin();
     for (auto styleNode : styleNodes) {
         String styleName(styleNode->getAttribute("name").str());
         if (styleName == "default" || styleName.find("-default") != STRING_NPOS) {
@@ -241,11 +241,11 @@ void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
 
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++) {
         String colorXPath(colorNames[colorIndex]);
-        XMLNodeVector colorNodes;
+        xml::NodeVector colorNodes;
         defaultStyleNode->select(colorNodes, colorXPath);
         size_t elements = colorNodes.size();
         if (elements == 1) {
-            XMLNode* colorNode = *(colorNodes.begin());
+            xml::Node* colorNode = *(colorNodes.begin());
             loadColor(colorNode, CThemeColorIndex(colorIndex));
         }
     }
@@ -257,16 +257,16 @@ void CThemeColorCollection::loadFromGtkTheme(XMLDocument& gtkTheme)
     Fl::set_color(FL_SELECTION_COLOR, bgColor(THM_COLOR_SELECTED));
 }
 
-void CThemeColorCollection::loadColorMap(XMLDocument& gtkTheme, const String& colorMapXPath)
+void CThemeColorCollection::loadColorMap(xml::Document& gtkTheme, const String& colorMapXPath)
 {
     m_colorMap.clear();
 
-    XMLNodeVector colorMapNodes;
+    xml::NodeVector colorMapNodes;
     gtkTheme.select(colorMapNodes, colorMapXPath);
     if (colorMapNodes.empty())
         return;
 
-    XMLNode* colorMapNode = *(colorMapNodes.begin());
+    xml::Node* colorMapNode = *(colorMapNodes.begin());
 
     Strings colorMapStrings(colorMapNode->getAttribute("colors"), "\\n");
 

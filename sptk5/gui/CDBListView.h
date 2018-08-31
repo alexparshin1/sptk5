@@ -207,9 +207,9 @@ public:
 
     /**
      * @brief Creates a widget based on the XML node information
-     * @param node XMLNode*, an XML node with widget information
+     * @param node xml::Node*, an XML node with widget information
      */
-    static CLayoutClient* creator(XMLNode* node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

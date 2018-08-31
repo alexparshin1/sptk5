@@ -140,7 +140,7 @@ CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
         : CButtonGroup (x,y,w,h,l) {}
 #endif
 
-CLayoutClient* CRadioButtons::creator(XMLNode* node)
+CLayoutClient* CRadioButtons::creator(xml::Node* node)
 {
     auto widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

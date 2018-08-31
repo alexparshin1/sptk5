@@ -80,7 +80,7 @@ CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * labe
 }
 #endif
 
-CLayoutClient* CDateIntervalInput::creator(XMLNode* node)
+CLayoutClient* CDateIntervalInput::creator(xml::Node* node)
 {
     auto widget = new CDateIntervalInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

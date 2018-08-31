@@ -820,7 +820,7 @@ int CTreeControl::handle(int event)
     return CScroll::handle(event);
 }
 
-void CTreeControl::load(const XMLNode& groupNode, bool /*autoCreate*/)
+void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
 {
     if (m_noXml)
         return;
@@ -836,7 +836,7 @@ void CTreeControl::load(const XMLNode& groupNode, bool /*autoCreate*/)
         m_group->activate();
 }
 
-void CTreeControl::save(XMLNode& groupNode) const
+void CTreeControl::save(xml::Node& groupNode) const
 {
     groupNode.clear();
     groupNode.name("tree");

@@ -37,7 +37,7 @@ namespace sptk {
 
     static const Strings notGroupingTags("styles;style;engine", ";");
 
-    XMLNode* CGtkThemeParser::parseParameter(const String& row, XMLNode* parentNode, bool createAttributes)
+    xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentNode, bool createAttributes)
     {
         try {
             size_t pos = row.find_first_of(":[ \t=");
@@ -100,7 +100,7 @@ namespace sptk {
                     throw Exception("Error parsing value for " + name + " in row " + row);
                 maxValueSize = int(pos2 - pos);
             }
-            XMLNode* node = nullptr;
+            xml::Node* node = nullptr;
             String value = trim(row.substr(pos, (unsigned) maxValueSize));
             bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
             if (!attemptGrouping)
@@ -112,7 +112,7 @@ namespace sptk {
                 } else {
                     node = parentNode->findFirst(name);
                     if (!node)
-                        node = new XMLElement(parentNode, name.c_str());
+                        node = new xml::Element(parentNode, name.c_str());
                     if (!subName.empty())
                         node->setAttribute(subName, value);
                     else
@@ -122,7 +122,7 @@ namespace sptk {
                 if (attemptGrouping)
                     node = parentNode->findFirst(name);
                 if (!node)
-                    node = new XMLElement(parentNode, name.c_str());
+                    node = new xml::Element(parentNode, name.c_str());
                 if (!subName.empty())
                     node->setAttribute("name", subName);
                 if (!value.empty())
@@ -136,7 +136,7 @@ namespace sptk {
         return nullptr;
     }
 
-    void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
+    void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)
     {
         if (gtkrc[currentRow] != "image")
             throw Exception("Expecting 'image' in row " + gtkrc[currentRow]);
@@ -144,7 +144,7 @@ namespace sptk {
         if (gtkrc[currentRow] != "{")
             throw Exception("Expecting '{' in row '" + gtkrc[currentRow]);
         currentRow++;
-        XMLNode* imageNode = new XMLElement(parentNode, "image");
+        xml::Node* imageNode = new xml::Element(parentNode, "image");
         while (gtkrc[currentRow] != "}") {
             parseParameter(gtkrc[currentRow], imageNode, true);
             currentRow++;
@@ -153,11 +153,11 @@ namespace sptk {
         }
     }
 
-    void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
+    void CGtkThemeParser::parseEngine(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)
     {
         if (gtkrc[currentRow].find("engine") != 0)
             throw Exception("Expecting 'engine' in row " + gtkrc[currentRow]);
-        XMLNode* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
+        xml::Node* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
         try {
             if (gtkrc[currentRow] != "{")
                 throw Exception("Expecting '{' in row '" + gtkrc[currentRow] + "'");
@@ -177,12 +177,12 @@ namespace sptk {
         }
     }
 
-    void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, XMLNode* parentNode)
+    void CGtkThemeParser::parseStyle(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)
     {
         //const string& styleRow = gtkrc[currentRow];
         if (gtkrc[currentRow].find("style") != 0)
             throw Exception("Expecting 'style' in row " + gtkrc[currentRow]);
-        XMLNode* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
+        xml::Node* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
         if (styleNode->getAttribute("name").str() == "scrollbar")
             styleNode->setAttribute("name", "scrollbars");
         if (gtkrc[currentRow] != "{")
@@ -204,8 +204,8 @@ namespace sptk {
     {
         Buffer buffer;
         m_xml.clear();
-        XMLNode* stylesNode = new XMLElement(&m_xml, "styles");
-        //XMLNode* paramsNode = new XMLElement(&m_xml,"styles");
+        xml::Node* stylesNode = new xml::Element(&m_xml, "styles");
+        //Node* paramsNode = new Element(&m_xml,"styles");
         for (unsigned row = 0; row < gtkrc.size(); row++) {
             const string& str = gtkrc[row];
             if (str.compare(0, 6, "style ") == 0)

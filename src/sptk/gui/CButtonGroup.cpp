@@ -192,7 +192,7 @@ void CButtonGroup::save(Query* updateQuery)
     param = data();
 }
 
-void CButtonGroup::load(const XMLNode* node, CLayoutXMLmode xmlMode)
+void CButtonGroup::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
     Strings btns(node->getAttribute("buttons"), "|");
@@ -200,7 +200,7 @@ void CButtonGroup::load(const XMLNode* node, CLayoutXMLmode xmlMode)
         buttons(btns);
 }
 
-void CButtonGroup::save(XMLNode* node, CLayoutXMLmode xmlMode) const
+void CButtonGroup::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
     node->setAttribute("buttons", buttons().asString("|"));

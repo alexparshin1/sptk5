@@ -32,10 +32,10 @@
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces)
+static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpaces)
 {
-    for (XMLNode* attributeNode: node->attributes()) {
-        auto attribute = dynamic_cast<XMLAttribute*>(attributeNode);
+    for (auto attributeNode: node->attributes()) {
+        auto attribute = dynamic_cast<xml::Attribute*>(attributeNode);
         if (attribute == nullptr)
             continue;
         if (attribute->nameSpace() != "xmlns")
@@ -44,13 +44,13 @@ static void extractNameSpaces(XMLNode* node, map<String,WSNameSpace>& nameSpaces
     }
 }
 
-void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* authentication)
+void WSRequest::processRequest(sptk::xml::Document* request, HttpAuthentication* authentication)
 {
     WSNameSpace             soapNamespace, requestNameSpace;
-    XMLElement*             soapEnvelope = nullptr;
+    xml::Element*           soapEnvelope = nullptr;
     map<String,WSNameSpace> allNamespaces;
     for (auto anode: *request) {
-        auto node = dynamic_cast<XMLElement*>(anode);
+        auto node = dynamic_cast<xml::Element*>(anode);
         if (node == nullptr)
             continue;
         if (node->tagname() == "Envelope") {
@@ -65,17 +65,17 @@ void WSRequest::processRequest(sptk::XMLDocument* request, HttpAuthentication* a
     if (soapEnvelope == nullptr)
         throwException("Can't find SOAP Envelope node");
 
-    XMLElement* soapBody;
+    xml::Element* soapBody;
     {
         lock_guard<mutex> lock(*this);
-        soapBody = dynamic_cast<XMLElement*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
+        soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
         if (soapBody == nullptr)
             throwException("Can't find SOAP Body node in incoming request");
     }
 
-    XMLElement* requestNode = nullptr;
+    xml::Element* requestNode = nullptr;
     for (auto anode: *soapBody) {
-        auto node = dynamic_cast<XMLElement*>(anode);
+        auto node = dynamic_cast<xml::Element*>(anode);
         if (node != nullptr) {
             std::lock_guard<std::mutex> lock(*this);
             requestNode = node;

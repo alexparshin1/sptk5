@@ -77,7 +77,7 @@ void CIconMap::insert(CIcon* icon)
     }
 }
 
-void CIconMap::load(Tar& tar, XMLNode* iconsNode)
+void CIconMap::load(Tar& tar, xml::Node* iconsNode)
 {
     for (auto node: *iconsNode) {
         if (node->name() != "icon")

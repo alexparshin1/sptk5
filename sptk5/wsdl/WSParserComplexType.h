@@ -155,7 +155,7 @@ protected:
     /**
      * XML element for that WSDL element
      */
-    const XMLElement*       m_element;
+    const xml::Element*       m_element;
 
     /**
      * Element attributes
@@ -185,7 +185,7 @@ protected:
     /**
      * Optional documentation
      */
-    sptk::String             m_documentation;
+    String                  m_documentation;
 
 
     /**
@@ -209,11 +209,11 @@ public:
 public:
     /**
      * Constructor
-     * @param complexTypeElement const XMLElement*, WSDL complexType element
-     * @param name std::string, Object name
-     * @param typeName std::string, Object types
+     * @param complexTypeElement WSDL complexType element
+     * @param name              Object name
+     * @param typeName          Object types
      */
-    WSParserComplexType(const XMLElement* complexTypeElement, const String& name = "", const String& typeName = "");
+    WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "", const String& typeName = "");
 
     /**
      * Destructor
@@ -292,7 +292,7 @@ public:
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(XMLElement* sequence);
+    void parseSequence(xml::Element* sequence);
 
     /**
      * Generates C++ class declaration and implementation

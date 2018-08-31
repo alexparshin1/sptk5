@@ -31,13 +31,13 @@
 using namespace std;
 using namespace sptk;
 
-WSRestriction::WSRestriction(const string& typeName, XMLNode* simpleTypeElement)
+WSRestriction::WSRestriction(const string& typeName, xml::Node* simpleTypeElement)
 : m_typeName(typeName)
 {
-    XMLNodeVector enumerationNodes;
+    xml::NodeVector enumerationNodes;
     simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
     for (auto node: enumerationNodes) {
-        auto enumerationNode = dynamic_cast<XMLElement*>(node);
+        auto enumerationNode = dynamic_cast<xml::Element*>(node);
         if (enumerationNode != nullptr)
             m_enumerations.push_back(string(enumerationNode->getAttribute("value").c_str()));
     }

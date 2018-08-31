@@ -269,7 +269,7 @@ public:
      * @param node               Node to export field data into
      * @param compactXmlMode     Compact XML mode flag
      */
-    void toXML(XMLNode& node, bool compactXmlMode) const;
+    void toXML(xml::Node& node, bool compactXmlMode) const;
 };
 /**
  * @}

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLDocType.h - description                             ║
+║                       DocType.h - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -29,12 +29,14 @@
 #ifndef __SPTK_XMLDOCTYPE_H__
 #define __SPTK_XMLDOCTYPE_H__
 
-#include <sptk5/xml/XMLEntities.h>
+#include <sptk5/xml/Entities.h>
 
 #include <string>
 #include <map>
 
 namespace sptk {
+
+namespace xml {
 
 /**
  * @addtogroup XML
@@ -48,37 +50,38 @@ namespace sptk {
  * It can return a map of all entities().
  * Provides the name(), public_id() and system_id() functions.
  */
-class XMLDocType
+class DocType
 {
-    friend class XMLDocument;
+    friend class Document;
+
     /**
      * The buffer used to return replacement literals
      */
-    char       m_replacementBuffer[16];
+    char m_replacementBuffer[16];
 
     /**
      * Encode buffers
      */
-    Buffer     m_encodeBuffers[2];
+    Buffer m_encodeBuffers[2];
 
 public:
 
     /**
      * @brief Default constructor
      */
-    XMLDocType()
+    DocType()
     {
     }
 
     /**
      * @brief Constructor
      */
-    XMLDocType(const char *name, const char *public_id = 0, const char *system_id = 0);
+    DocType(const char* name, const char* public_id = 0, const char* system_id = 0);
 
     /**
      * @brief Returns the name of the document type as specified in the <!DOCTYPE name> tag
      */
-    const std::string &name() const
+    const std::string& name() const
     {
         return m_name;
     }
@@ -88,7 +91,7 @@ public:
      *
      * Returns empty string if there is no public identifier
      */
-    const std::string &publicID() const
+    const std::string& publicID() const
     {
         return m_public_id;
     }
@@ -98,7 +101,7 @@ public:
      *
      * Returns empty string if there is no system identifier
      */
-    const std::string &systemID() const
+    const std::string& systemID() const
     {
         return m_system_id;
     }
@@ -108,7 +111,7 @@ public:
      *
      * NOTE: Map doesn't hold default entities.
      */
-    XMLEntities &entities()
+    Entities& entities()
     {
         return m_entities;
     }
@@ -118,7 +121,7 @@ public:
      *
      * NOTE: Map doesn't hold default entities.
      */
-    const XMLEntities &entities() const
+    const Entities& entities() const
     {
         return m_entities;
     }
@@ -131,7 +134,7 @@ public:
      * @param str const char *, string to convert
      * @param ret CBuffer&, converted text is stored here
      */
-    bool encodeEntities(const char *str, Buffer& ret);
+    bool encodeEntities(const char* str, Buffer& ret);
 
     /**
      * @brief Decodes entities in string to their actual values.
@@ -141,7 +144,7 @@ public:
      * @param sz uint32_t, text length
      * @param ret CBuffer&, converted text is stored here
      */
-    void decodeEntities(const char *str, uint32_t sz, Buffer& ret);
+    void decodeEntities(const char* str, uint32_t sz, Buffer& ret);
 
     /**
      * @brief Searches for entity with given name
@@ -149,13 +152,13 @@ public:
      * @returns true, if attribute is found.
      * @param name const char *, entity to search
      */
-    bool hasEntity(const char *name);
+    bool hasEntity(const char* name);
 
     /**
      * @brief Removes named entity from entity map
      * @param name entity to remove
      */
-    void removeEntity(const char *name)
+    void removeEntity(const char* name)
     {
         m_entities.removeEntity(name);
     }
@@ -167,7 +170,7 @@ public:
      * @param name const char *, entity name
      * @param replacementLength uint32_t&, the length of the replacement 
      */
-    const char* getReplacement(const char *name, uint32_t& replacementLength);
+    const char* getReplacement(const char* name, uint32_t& replacementLength);
 
     /**
      * @brief Adds an entity to the map
@@ -177,7 +180,7 @@ public:
      * @param name entity to add/change
      * @param replacement value that represents entity
      */
-    void setEntity(const char *name, const char *replacement)
+    void setEntity(const char* name, const char* replacement)
     {
         m_entities.setEntity(name, replacement);
     }
@@ -186,7 +189,7 @@ private:
     /**
      * List of entities
      */
-    XMLEntities m_entities;
+    Entities m_entities;
 
 
     /**
@@ -205,8 +208,10 @@ private:
     std::string m_system_id;
 
 };
+
 /**
  * @}
  */
+}
 }
 #endif

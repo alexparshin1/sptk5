@@ -50,7 +50,7 @@ namespace sptk {
  *
  * The information (layout,style,etc) is provided by the XML node
  */
-typedef CLayoutClient* (*createControlCallback)(XMLNode *node);
+typedef CLayoutClient* (*createControlCallback)(xml::Node *node);
 
 /**
  * @brief A callback map that stores type names and control create functions
@@ -243,18 +243,18 @@ public:
     /**
      * @brief Loads group controls data from XML node
      *
-     * @param node const XMLNode*, node to load data from
+     * @param node const xml::Node*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void loadLayout(const XMLNode* node,CLayoutXMLmode xmlMode);
+    virtual void loadLayout(const xml::Node* node,CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves group controls data into XML node
      *
-     * @param node const XMLNode*, node to save data into
+     * @param node const xml::Node*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void saveLayout(XMLNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void saveLayout(xml::Node* node,CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Builds an index of internal widget names

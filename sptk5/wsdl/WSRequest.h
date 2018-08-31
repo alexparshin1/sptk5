@@ -119,7 +119,7 @@ protected:
      * @param authentication    Optional HTTP authentication
      * @param requestNameSpace  Request SOAP element namespace
      */
-    virtual void requestBroker(XMLElement* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
+    virtual void requestBroker(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace) = 0;
 
 public:
     /**
@@ -136,9 +136,9 @@ public:
      * @brief Processes incoming requests
      *
      * The processing results are stored in the same request XML
-     * @param request sptk::XMLDocument*, Incoming request and outgoing response
+     * @param request           Incoming request and outgoing response
      */
-    void processRequest(sptk::XMLDocument* request, HttpAuthentication* authentication);
+    void processRequest(xml::Document* request, HttpAuthentication* authentication);
 
     /**
      * @brief Returns service title (for service handshake)

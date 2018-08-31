@@ -69,7 +69,7 @@ int main( int argc, char *argv[] )
         cout << "Testing IMAP connectivity." << endl << endl;
 
         registry.load();
-        XMLNode* hostNode = registry.findFirst("host");
+        xml::Node* hostNode = registry.findFirst("host");
         if (hostNode) {
             server = (string) hostNode->getAttribute("hostname");
             user = (string) hostNode->getAttribute("user");
@@ -98,7 +98,7 @@ int main( int argc, char *argv[] )
         try {
             hostNode = registry.findFirst("host");
             if (!hostNode)
-                hostNode = new XMLElement(registry,"host");
+                hostNode = new xml::Element(registry,"host");
             hostNode->setAttribute("hostname",server);
             hostNode->setAttribute("user",user);
             hostNode->setAttribute("password",password);

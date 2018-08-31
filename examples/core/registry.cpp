@@ -45,7 +45,7 @@ void printRegistry(RegistryMode mode)
         mySettings.load();
         cout << "---> Reading " << mySettings.fileName() << endl;
 
-        XMLNode* windowNode = mySettings.findFirst("window");
+        xml::Node* windowNode = mySettings.findFirst("window");
         if (windowNode != nullptr) {
             // Processing the subnodes of <window> node
             for (auto node: *windowNode) {
@@ -80,22 +80,22 @@ void updateRegistry(RegistryMode mode)
     try {
         cout << "<--- Updating " << mySettings.fileName() << endl;
 
-        XMLNode* windowNode = mySettings.findOrCreate("window");
+        xml::Node* windowNode = mySettings.findOrCreate("window");
         windowNode->clear();
 
-        XMLNode* positionNode = new XMLElement(*windowNode, "position");
+        xml::Node* positionNode = new xml::Element(*windowNode, "position");
         positionNode->setAttribute("x", 100);
         positionNode->setAttribute("y", 150);
 
-        XMLNode* colorsNode = new XMLElement(*windowNode, "colors");
-        XMLNode* colorNode;
+        xml::Node* colorsNode = new xml::Element(*windowNode, "colors");
+        xml::Node* colorNode;
 
-        colorNode = new XMLElement(*colorsNode, "color");
+        colorNode = new xml::Element(*colorsNode, "color");
         colorNode->setAttribute("name", "Header");
         colorNode->setAttribute("foreground", "WHITE");
         colorNode->setAttribute("background", "BLUE");
 
-        colorNode = new XMLElement(*colorsNode, "color");
+        colorNode = new xml::Element(*colorsNode, "color");
         colorNode->setAttribute("name", "Text");
         colorNode->setAttribute("foreground", "0x000000");
         colorNode->setAttribute("background", "0xFF80FF");

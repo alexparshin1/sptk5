@@ -182,20 +182,20 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void     load(const XMLNode* node,CLayoutXMLmode xmlMode);
+    virtual void     load(const xml::Node* node,CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(XMLNode* node,CLayoutXMLmode xmlMode) const;
+    virtual void save(xml::Node* node,CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Tells if the the current data content is valid

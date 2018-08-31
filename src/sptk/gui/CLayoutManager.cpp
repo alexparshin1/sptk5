@@ -368,7 +368,7 @@ void CLayoutManager::paintBackground()
         m_frame->drawResized(m_group->x(), m_group->y(), m_group->w(), m_group->h(), m_frameDrawBackground);
 }
 
-void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode)
+void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMode)
 {
     if (m_noXml)
         return;
@@ -382,7 +382,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
         m_group->begin();
         auto itor = groupNode->begin();
         for (; itor != groupNode->end(); ++itor) {
-            XMLNode* widgetNode = *itor;
+            xml::Node* widgetNode = *itor;
             if (!widgetNode->isElement())
                 continue;
             string widgetType = widgetNode->name();
@@ -415,11 +415,11 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
         }
         m_group->end();
     } else {
-        map<string, XMLNode*> xmlControls;
-        map<string, XMLNode*> xmlGroups;
+        map<string, xml::Node*> xmlControls;
+        map<string, xml::Node*> xmlGroups;
         auto itor = groupNode->begin();
         for (; itor != groupNode->end(); ++itor) {
-            XMLNode* node = *itor;
+            xml::Node* node = *itor;
             string label = node->getAttribute("label");
             if (label.empty())
                 label = "noName:" + (string) node->getAttribute("nn_index");
@@ -439,7 +439,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
                         glabel = "noName:" + int2string(i);
                     auto gtor = xmlGroups.find(glabel);
                     if (gtor != xmlGroups.end()) {
-                        XMLNode* node = gtor->second;
+                        xml::Node* node = gtor->second;
                         group->loadLayout(node, xmlMode);
                     }
                     continue;
@@ -453,7 +453,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
                         clabel = "noName:" + int2string(i);
                     auto ctor = xmlControls.find(clabel);
                     if (ctor != xmlControls.end()) {
-                        XMLNode* node = ctor->second;
+                        xml::Node* node = ctor->second;
                         control->load(node, xmlMode);
                     }
                     continue;
@@ -464,7 +464,7 @@ void CLayoutManager::loadLayout(const XMLNode* groupNode, CLayoutXMLmode xmlMode
     //cout << className << " has " << m_group->children() << " children, parent " << hex << m_group->parent() << endl << endl;
 }
 
-void CLayoutManager::saveLayout(XMLNode* groupNode, CLayoutXMLmode xmlMode) const
+void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) const
 {
     groupNode->clear();
     if (m_noXml)
@@ -483,7 +483,7 @@ void CLayoutManager::saveLayout(XMLNode* groupNode, CLayoutXMLmode xmlMode) cons
             auto layoutManager = dynamic_cast<CLayoutManager*>(widget);
             auto layoutClient = dynamic_cast<CLayoutClient*>(widget);
             if (layoutClient) {
-                XMLNode* node = new XMLElement(groupNode, layoutClient->className().c_str());
+                xml::Node* node = new xml::Element(groupNode, layoutClient->className().c_str());
                 if (layoutManager) {
                     layoutManager->saveLayout(node, xmlMode);
                 } else {

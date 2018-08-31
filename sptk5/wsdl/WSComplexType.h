@@ -34,7 +34,7 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/xml/XMLElement.h>
+#include <sptk5/xml/Element.h>
 
 #include <mutex>
 
@@ -46,7 +46,7 @@ namespace sptk {
  */
 
 /**
- * @brief Base type for all user WSDL types
+ * Base type for all user WSDL types
  */
 class WSComplexType : public WSTypeName
 {
@@ -81,14 +81,14 @@ protected:
 
 public:
     /**
-     * @brief Default constructor
-     * @param name const char*, Element name
-     * @param optional bool, Element optionality flag
+     * Default constructor
+     * @param name              Element name
+     * @param optional          Element optionality flag
      */
     WSComplexType(const char* name, bool optional=false) : m_name(name), m_optional(optional), m_loaded(false) {}
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~WSComplexType() {}
 
@@ -111,54 +111,54 @@ public:
     }
 
     /**
-     * @brief Copy data from other object
-     * @brief other const WSComplexType&, Object to copy from
+     * Copy data from other object
+     * @param other             Object to copy from
      */
     void copyFrom(const WSComplexType& other);
 
     /**
-     * @brief Load data from XML node
-     * @param input const XMLElement*, XML node containing CAddHandler data
+     * Load data from XML node
+     * @param input             XML node containing CAddHandler data
      */
-    virtual void load(const XMLElement* input) = 0;
+    virtual void load(const xml::Element* input) = 0;
 
     /**
      * Load data from FieldList
      *
      * Only simple WSDL type members are loaded.
-     * @param input const sptk::FieldList&, query field list containing CMqType data
+     * @param input             Query field list containing CMqType data
      */
 
     virtual void load(const sptk::FieldList& input) = 0;
 
     /**
-     * @brief Unload data to existing XML node
-     * @param output XMLElement*, existing XML node
+     * Unload data to existing XML node
+     * @param output            Existing XML node
      */
-    virtual void unload(XMLElement* output) const = 0;
+    virtual void unload(xml::Element* output) const = 0;
 
     /**
      * Unload data to Query's parameters
-     * @param output QueryParameterList&, query parameters
+     * @param output            Query parameters
      */
     virtual void unload(QueryParameterList& output) const = 0;
 
     /**
      * Unload single element or attribute to DB query parameter
-     * @param output QueryParameterList&, query parameters
-     * @param paramName const char*, query parameter name
-     * @param elementOrAttribute const WSBasicType*, complex type element (not an array!)
+     * @param output            Query parameters
+     * @param paramName         Query parameter name
+     * @param elementOrAttribute Complex type element (not an array!)
      */
     static void unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute);
 
     /**
-     * @brief Unload data to new XML node
-     * @param parent XMLElement*, parent XML node where new node is created
+     * Unload data to new XML node
+     * @param parent            Parent XML node where new node is created
      */
-    virtual void addElement(XMLElement* parent) const;
+    virtual void addElement(xml::Element* parent) const;
 
     /**
-     * @brief True is data was loaded
+     * True is data was loaded
      */
     virtual bool isNull() const
     {
@@ -167,7 +167,7 @@ public:
     }
 
     /**
-     * @brief Returns element name
+     * Returns element name
      */
     std::string complexTypeName() const
     {
@@ -176,7 +176,7 @@ public:
     }
 
     /**
-     * @brief True is element is optional
+     * True is element is optional
      */
     virtual bool isOptional() const
     {

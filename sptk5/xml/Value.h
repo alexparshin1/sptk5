@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLValue.h - description                               ║
+║                       Value.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -33,26 +33,28 @@
 #include <sptk5/DateTime.h>
 
 namespace sptk {
+namespace xml {
 
 /**
  * @addtogroup XML
  * @{
  */
 
-class XMLNode;
-class XMLDocument;
+class Node;
+
+class Document;
 
 /**
  * @brief XML value
  *
  * A string that has converters to and from most popular types
  */
-class SP_EXPORT XMLValue
+class SP_EXPORT Value
 {
     /**
      * XML value
      */
-    String      m_value;
+    String m_value;
 
 public:
     /**
@@ -60,9 +62,8 @@ public:
      *
      * Creates an empty XML attribute
      */
-    XMLValue()
-    {
-    }
+    Value()
+    {}
 
     /**
      * @brief Constructor
@@ -70,10 +71,9 @@ public:
      * Creates an XML attribute from character string
      * @param v                 Value
      */
-    XMLValue(const char *v) :
-        m_value(v)
-    {
-    }
+    Value(const char* v)
+    : m_value(v)
+    {}
 
     /**
      * @brief Constructor
@@ -82,8 +82,8 @@ public:
      * @param v                 Value
      * @param sz                Value length
      */
-    XMLValue(const char *v, size_t sz) :
-        m_value(v, sz)
+    Value(const char* v, size_t sz)
+    : m_value(v, sz)
     {
     }
 
@@ -93,8 +93,8 @@ public:
      * Creates an XML attribute from string
      * @param v                 value
      */
-    XMLValue(const String& v) :
-        m_value(v)
+    Value(const String& v)
+    : m_value(v)
     {
     }
 
@@ -104,9 +104,9 @@ public:
      * Creates an XML attribute from integer
      * @param v                 Value
      */
-    XMLValue(int32_t v)
+    Value(int32_t v)
     {
-        operator =(v);
+        operator=(v);
     }
 
     /**
@@ -115,9 +115,9 @@ public:
      * Creates an XML attribute from integer
      * @param v                 Value
      */
-    XMLValue(uint32_t v)
+    Value(uint32_t v)
     {
-        operator =(v);
+        operator=(v);
     }
 
     /**
@@ -126,9 +126,9 @@ public:
      * Creates an XML attribute from int64_t
      * @param v                 Value
      */
-    XMLValue(int64_t v)
+    Value(int64_t v)
     {
-        operator =(v);
+        operator=(v);
     }
 
     /**
@@ -137,9 +137,9 @@ public:
      * Creates an XML attribute from uint64_t
      * @param v                 Value
      */
-    XMLValue(uint64_t v)
+    Value(uint64_t v)
     {
-        operator =(v);
+        operator=(v);
     }
 
     /**
@@ -148,9 +148,9 @@ public:
      * Creates an XML attribute from double
      * @param v                 Value
      */
-    XMLValue(double v)
+    Value(double v)
     {
-        operator =(v);
+        operator=(v);
     }
 
     /**
@@ -159,9 +159,9 @@ public:
      * Creates an XML attribute from bool
      * @param v                 Value
      */
-    XMLValue(bool v)
+    Value(bool v)
     {
-        operator =(v);
+        operator=(v);
     }
 
     /**
@@ -170,8 +170,9 @@ public:
      * Creates an XML attribute from DateTime
      * @param v                 Value
      */
-    XMLValue(DateTime v) :
-        m_value(v)
+    Value(DateTime v)
+            :
+            m_value(v)
     {
     }
 
@@ -180,60 +181,49 @@ public:
      *
      * @param v                 New value
      */
-    XMLValue& operator =(bool v);
+    Value& operator=(bool v);
 
     /**
      * @brief Assignment of the value
      *
      * @param v                 New value
      */
-    XMLValue& operator =(int32_t v);
+    Value& operator=(int32_t v);
 
     /**
      * @brief Assignment of the value
      *
      * @param v                 New value
      */
-    XMLValue& operator =(uint32_t v);
+    Value& operator=(uint32_t v);
 
     /**
      * @brief Assignment of the value
      *
      * @param v                 New value
      */
-    XMLValue& operator =(int64_t v);
+    Value& operator=(int64_t v);
 
     /**
      * @brief Assignment of the value
      *
      * @param v                 New value
      */
-    XMLValue& operator =(uint64_t v);
+    Value& operator=(uint64_t v);
 
     /**
      * @brief Assignment of the value
      *
      * @param v                 New value
      */
-    XMLValue& operator =(double v);
+    Value& operator=(double v);
 
     /**
      * @brief Assignment of the value
      *
      * @param s                 New value
      */
-    XMLValue& operator =(const char* s)
-    {
-        m_value = s;
-        return *this;
-    }
-
-    /**
-     * @brief Assignment of the value
-     *
-     * @param s                 New value
-     */
-    XMLValue& operator =(const String& s)
+    Value& operator=(const char* s)
     {
         m_value = s;
         return *this;
@@ -244,7 +234,18 @@ public:
      *
      * @param s                 New value
      */
-    XMLValue& operator =(DateTime s)
+    Value& operator=(const String& s)
+    {
+        m_value = s;
+        return *this;
+    }
+
+    /**
+     * @brief Assignment of the value
+     *
+     * @param s                 New value
+     */
+    Value& operator=(DateTime s)
     {
         m_value = s.dateString() + " " + s.timeString(true);
         return *this;
@@ -356,5 +357,5 @@ public:
  * @}
  */
 }
+}
 #endif
-

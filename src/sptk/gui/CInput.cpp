@@ -345,7 +345,7 @@ CInput::CInput(int x,int y,int w,int h,const char *label,bool autoCreate)
 
 CInput::~CInput() = default;
 
-CLayoutClient* CInput::creator(XMLNode* node)
+CLayoutClient* CInput::creator(xml::Node* node)
 {
     auto widget = new CInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

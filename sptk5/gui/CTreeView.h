@@ -223,7 +223,7 @@ public:
      * and widget data
      * @param node              XML node
      */
-    void load(const XMLNode* node) override;
+    void load(const xml::Node* node) override;
 
     /**
      * @brief Saves the the widget to XML node
@@ -232,7 +232,7 @@ public:
      * and widget data
      * @param node              XML node
      */
-    void save(XMLNode* node) const override;
+    void save(xml::Node* node) const override;
 
     /**
      * @brief Returns true if data is valid
@@ -246,7 +246,7 @@ public:
      * @brief Creates a widget based on the XML node information
      * @param node              XML node with widget information
      */
-    static CLayoutClient* creator(XMLNode* node);
+    static CLayoutClient* creator(xml::Node* node);
 };
 /**
  * @}

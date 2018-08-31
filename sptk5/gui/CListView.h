@@ -799,20 +799,20 @@ protected:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const XMLNode* node, CLayoutXMLmode xmlMode) override;
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(XMLNode* node, CLayoutXMLmode xmlMode) const override;
+    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief True if the data is valid
@@ -1192,17 +1192,17 @@ public:
      * @brief Fills the list with the data from XML node
      *
      * The XML node should contain the columns information, and optional list items
-     * @param node const XMLNode&, the node to load list from
+     * @param node const xml::Node&, the node to load list from
      */
-    void loadList(const XMLNode* node);
+    void loadList(const xml::Node* node);
 
     /**
      * @brief Saves the list data into XML node
      *
      * The XML node should contain the columns information, and optional list items
-     * @param node const XMLNode&, the node to save list into
+     * @param node const xml::Node&, the node to save list into
      */
-    void saveList(XMLNode* node) const;
+    void saveList(xml::Node* node) const;
 
     /**
      * @brief Computes the optimal widgets size

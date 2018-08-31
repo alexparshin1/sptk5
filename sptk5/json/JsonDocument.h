@@ -125,10 +125,10 @@ public:
 
     /**
      * Export JSON element (and all children) to XML document
-     * @param document sptk::XMLDocument&, XML document to export JSON
+     * @param document sptk::xml::Document&, XML document to export JSON
      * @param rootNodeName const std::string&, XML document root node name
      */
-    void exportTo(XMLDocument& document, const std::string& rootNodeName="data") const;
+    void exportTo(xml::Document& document, const std::string& rootNodeName="data") const;
 
     /**
      * Get document root element

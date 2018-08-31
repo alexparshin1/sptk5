@@ -92,9 +92,9 @@ public:
     /**
      * @brief Constructor
      * @param tar const sptk::CTar&, the theme tar archive
-     * @param tabImageNode const sptk::XMLNode*, an XML node with the tab theme info
+     * @param tabImageNode const sptk::xml::Node*, an XML node with the tab theme info
      */
-    CTabImage(const sptk::Tar& tar,const sptk::XMLNode* tabImageNode);
+    CTabImage(const sptk::Tar& tar,const sptk::xml::Node* tabImageNode);
 
     /**
      * @brief Destructor
@@ -127,9 +127,9 @@ public:
     /**
      * @brief Loads tab images from tar archive using XML node as an index
      * @param tar const sptk::CTar&, the theme tar archive
-     * @param tabImagesNode const sptk::XMLNode*, an XML node with the tabs theme info
+     * @param tabImagesNode const sptk::xml::Node*, an XML node with the tabs theme info
      */
-    void load(const sptk::Tar& tar,const sptk::XMLNode* tabImagesNode);
+    void load(const sptk::Tar& tar,const sptk::xml::Node* tabImagesNode);
 
     /**
      * @brief Destructor

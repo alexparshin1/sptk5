@@ -224,7 +224,7 @@ void WSWebServiceProtocol::process()
         endOfMessage += strlen(endOfMessageMark);
     }
 
-    sptk::XMLDocument message;
+    sptk::xml::Document message;
     if (endOfMessage)
         *(char *) endOfMessage = 0;
     message.load(startOfMessage);

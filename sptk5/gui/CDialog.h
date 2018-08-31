@@ -136,7 +136,7 @@ class SP_EXPORT CDialog: public CWindow
      * @param node              Node to load data from
      * @param xmlMode           Mode defining how the layout and/or data should be loaded
      */
-    void load(const XMLNode* node, CLayoutXMLmode xmlMode) override
+    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
     {
         CWindow::load(node, xmlMode);
     }
@@ -147,7 +147,7 @@ class SP_EXPORT CDialog: public CWindow
      * @param node              Node to save data into
      * @param xmlMode           Mode defining how the layout and/or data should be loaded
      */
-    void save(XMLNode* node, CLayoutXMLmode xmlMode) const override
+    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override
     {
         CWindow::save(node, xmlMode);
     }
@@ -444,16 +444,16 @@ public:
     /**
      * Loads the dialog controls data from XML
      * @param node              XML node to load data from
-     * @see XMLNode
+     * @see xml::Node
      */
-    void load(const XMLNode* node) override;
+    void load(const xml::Node* node) override;
 
     /**
      * Saves the dialog controls into XML
      * @param node              XML node to save data into
-     * @see XMLNode* node
+     * @see xml::Node* node
      */
-    void save(XMLNode* node) const override;
+    void save(xml::Node* node) const override;
 
     /**
      * Returns the modal result of the dialog.

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLValue.cpp - description                             ║
+║                       Entities.h - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,72 +26,58 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cxml>
+#ifndef __SPTK_XMLENTITIES_H__
+#define __SPTK_XMLENTITIES_H__
 
-using namespace sptk;
+#include <string>
+#include <map>
 
-XMLValue::operator bool() const
+namespace sptk {
+namespace xml {
+
+/**
+ * @addtogroup XML
+ * @{
+ */
+
+/**
+ * @brief XML entities
+ *
+ * Maps an XML entity string to a presentation string.
+ */
+class Entities : public std::map<std::string, std::string>
 {
-    if (m_value.empty())
-        return false;
-    char ch = m_value.c_str()[0];
-    const char *p = strchr("TtYy1", ch);
-    return p != nullptr;
+public:
+
+    /**
+     * @brief Constructor
+     */
+    Entities() {}
+
+    /**
+     * @brief Removes named entity
+     * @param name const char *, entity name to remove
+     */
+    void removeEntity(const char* name)
+    {
+        erase(name);
+    }
+
+    /**
+     * @brief Adds entity to map
+     *
+     * If entity named 'name' exists already in map, its value is replaced with 'replacement'
+     * @param name const char *, entity to add/change
+     * @param replacement const char *, value that represents entity
+     */
+    void setEntity(const char* name, const char* replacement)
+    {
+        (*this)[name] = replacement;
+    }
+};
+/**
+ * @}
+ */
 }
-
-XMLValue& XMLValue::operator =(bool v)
-{
-    if (v)
-        m_value.assign("Y", 1);
-    else
-        m_value.assign("N", 1);
-    return *this;
 }
-
-XMLValue& XMLValue::operator =(int32_t v)
-{
-    char buff[64];
-    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%i", v);
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-XMLValue& XMLValue::operator =(uint32_t v)
-{
-    char buff[64];
-    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%u", v);
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-XMLValue& XMLValue::operator =(int64_t v)
-{
-    char buff[64];
-#ifndef _WIN32
-    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%li", v);
-#else
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%lli", v);
 #endif
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-XMLValue& XMLValue::operator =(uint64_t v)
-{
-    char buff[64];
-#ifndef _WIN32
-    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%lu", v);
-#else
-    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%llu", v);
-#endif
-    m_value.assign(buff, sz);
-    return *this;
-}
-
-XMLValue& XMLValue::operator =(double v)
-{
-    char buff[64];
-    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%f", v);
-    m_value.assign(buff, sz);
-    return *this;
-}

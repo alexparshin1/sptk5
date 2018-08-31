@@ -178,7 +178,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(XMLNode *node);
+    static CLayoutClient* creator(xml::Node *node);
 
     /**
      * @brief Custom handle() to support drag event

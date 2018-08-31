@@ -30,8 +30,8 @@
 #define __SPTK_XMLEXCEPTION_H__
 
 #include <sptk5/Exception.h>
-#include <sptk5/xml/XMLDocument.h>
-#include <sptk5/xml/XMLNode.h>
+#include <sptk5/xml/Document.h>
+#include <sptk5/xml/Node.h>
 
 namespace sptk {
 
@@ -52,18 +52,18 @@ public:
 
     /**
      * Constructor
-     * @param text std::string, the exception text
-     * @param file std::string, the file where exception occurs
-     * @param line int, the line number in the file where exception occurs
-     * @param description std::string, the optional description information
+     * @param text              The exception text
+     * @param file              The file where exception occurs
+     * @param line              The line number in the file where exception occurs
+     * @param description       The optional description information
      */
     XMLException(std::string text, std::string file = "", int line = 0, std::string description = "")
-            : Exception(text, file, line, description)
+    : Exception(text, file, line, description)
     {}
 
     /**
      * @brief Copy constructor
-     * @param other const CTimeoutException&, other exception object
+     * @param other             Other exception object
      */
     XMLException(const TimeoutException& other)
             : Exception(other)

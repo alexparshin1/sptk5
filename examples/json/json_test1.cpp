@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         jsonDocument.root().exportTo(cout, true);
         cout << endl << endl;
 
-        sptk::XMLDocument doc;
+        xml::Document doc;
         Buffer buffer;
         jsonDocument.exportTo(doc);
         doc.save(buffer, true);

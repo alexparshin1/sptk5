@@ -31,7 +31,7 @@
 
 #include <sptk5/cxml>
 #include <sptk5/Variant.h>
-#include <sptk5/xml/XMLElement.h>
+#include <sptk5/xml/Element.h>
 
 namespace sptk {
 
@@ -53,16 +53,16 @@ namespace sptk {
     public:
         /**
          * @brief Constructor from WSDL (XML) definition
-         * @param typeName const std::string&, WSDL type name
-         * @param simpleTypeElement XMLNode*, Simple type XML node
+         * @param typeName      WSDL type name
+         * @param simpleTypeElement Simple type XML node
          */
-        WSRestriction(const std::string& typeName, XMLNode* simpleTypeElement);
+        WSRestriction(const std::string& typeName, xml::Node* simpleTypeElement);
 
         /**
          * @brief Constructor from WSDL (XML) definition
-         * @param typeName const std::string&, WSDL type name
-         * @param enumerations const std::string&, Enumerations or empty string
-         * @param delimiter const char*, Enumerations delimiter
+         * @param typeName      WSDL type name
+         * @param enumerations  Enumerations or empty string
+         * @param delimiter     Enumerations delimiter
          */
         WSRestriction(const std::string& typeName, const std::string& enumerations, const char* delimiter = "|");
 
@@ -71,8 +71,8 @@ namespace sptk {
          *
          * Checks value to satisfy restriction.
          * If value violates restriction, throws exception.
-         * @param typeName const std::string&, Name of the checked type (for error messages)
-         * @param value const std::string&, Value to check
+         * @param typeName      Name of the checked type (for error messages)
+         * @param value         Value to check
          */
         void check(const std::string& typeName, const std::string& value) const;
 

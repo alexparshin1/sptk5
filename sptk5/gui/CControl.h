@@ -627,20 +627,20 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
+    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Loads control data from XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const XMLNode* node)
+    virtual void load(const xml::Node* node)
     {
         load(node, LXM_DATA);
     }
@@ -650,19 +650,19 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node XMLNode*, the XML node
+     * @param node xml::Node*, the XML node
      */
-    virtual void save(XMLNode* node) const
+    virtual void save(xml::Node* node) const
     {
         save(node, LXM_DATA);
     }
@@ -937,9 +937,9 @@ CControl *createControl(int controlKind, const String& label, const String& fiel
  *
  * The group node may contain other controls. If the control type or parameter is not recognized,
  * the exception is thrown.
- * @param xmlControls const XMLNodeList&, the controls description in XML
+ * @param xmlControls           The controls description in XML
  */
-void createControls(const XMLNodeList& xmlControls);
+void createControls(const xml::NodeList& xmlControls);
 
 /**
  * @}

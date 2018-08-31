@@ -146,7 +146,7 @@ protected:
      * @param name              JSON element name
      * @param element           XML element to export to
      */
-    void exportValueTo(const String &name, XMLElement &element) const;
+    void exportValueTo(const String &name, xml::Element &element) const;
 
     /**
      * Empty const Json element
@@ -518,7 +518,7 @@ public:
      * @param name              Parent element name
      * @param parentNode        XML element to export JSON
      */
-    void exportTo(const std::string& name, XMLElement& parentNode) const;
+    void exportTo(const std::string& name, xml::Element& parentNode) const;
 
     /** @brief Selects elements as defined by XPath
      *

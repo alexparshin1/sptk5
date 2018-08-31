@@ -208,9 +208,9 @@ public:
     /**
      * @brief Loads the frames from the tar archive by the XML description
      * @param tar CTar&, tar archive with the images
-     * @param frameNode XMLNode*, XML description of the frames
+     * @param frameNode xml::Node*, XML description of the frames
      */
-    void load(Tar& tar, XMLNode* frameNode);
+    void load(Tar& tar, xml::Node* frameNode);
 
     /**
      * @brief Registers a single frame image in the collection

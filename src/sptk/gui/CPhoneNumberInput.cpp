@@ -53,7 +53,7 @@ CPhoneNumberInput::CPhoneNumberInput(int x,int y,int w,int h,const char * label)
 }
 #endif
 
-CLayoutClient* CPhoneNumberInput::creator(XMLNode* node)
+CLayoutClient* CPhoneNumberInput::creator(xml::Node* node)
 {
     auto widget = new CPhoneNumberInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

@@ -15,7 +15,7 @@ SET (SPUTIL_SOURCES
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
     net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/ImapDS.cpp
-    xml/XMLAttributes.cpp xml/XMLDocument.cpp xml/XMLDocType.cpp xml/XMLNode.cpp xml/XMLNodeList.cpp xml/XMLValue.cpp
+        xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp xml/Value.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/RWLock.cpp threads/Synchronized.cpp threads/Thread.cpp threads/ThreadPool.cpp
     threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp threads/Timer.cpp

@@ -185,9 +185,9 @@ public:
      *
      * Any incorrect image information is ignored.
      * @param tar CTar&, the loaded tar archive where images are located
-     * @param node XMLNode*, an XML node describing the theme icon images
+     * @param node xml::Node*, an XML node describing the theme icon images
      */
-    void load(Tar& tar, XMLNode* node);
+    void load(Tar& tar, xml::Node* node);
 };
 
 /**

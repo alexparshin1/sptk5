@@ -460,7 +460,7 @@ CTabs::~CTabs()
     delete m_tabs;
 }
 
-CLayoutClient* CTabs::creator(XMLNode* node)
+CLayoutClient* CTabs::creator(xml::Node* node)
 {
     auto widget = new CTabs("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

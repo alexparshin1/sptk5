@@ -43,7 +43,7 @@ namespace sptk {
  */
 
 /**
- * @brief The list of CField objects.
+ * The list of CField objects.
  *
  * Is used in CDataSource.
  * Allows to access data fields by the field name or field index.
@@ -99,7 +99,7 @@ private:
 public:
 
     /**
-     * @brief Default constructor
+     * Default constructor
      *
      * @param indexed           If you want to have a field index by name added. Such index speeds up the search of the field by name, but increases the occupied memory.
      * @param compactXmlMode    Compact XML export flag, @see xmlMode for details
@@ -107,7 +107,7 @@ public:
     FieldList(bool indexed, bool compactXmlMode=true);
 
     /**
-     * @brief Copy constructor
+     * Copy constructor
      *
      * @param other             Other field list
      */
@@ -132,7 +132,7 @@ public:
     }
 
     /**
-     * @brief Begin iterator
+     * Begin iterator
      */
     iterator begin()
     {
@@ -140,7 +140,7 @@ public:
     }
 
     /**
-     * @brief Begin const iterator
+     * Begin const iterator
      */
     const_iterator begin() const
     {
@@ -148,7 +148,7 @@ public:
     }
 
     /**
-     * @brief End iterator
+     * End iterator
      */
     iterator end()
     {
@@ -156,7 +156,7 @@ public:
     }
 
     /**
-     * @brief End const iterator
+     * End const iterator
      */
     const_iterator end() const
     {
@@ -164,11 +164,11 @@ public:
     }
 
     /**
-     * @brief Defines XML export mode
+     * Defines XML export mode
      *
      * The compact XML modes means that fields values are stored as attributes, w/o type information.
      * Otherwise, fields are stored as subnodes, with the field information stored as attributes.
-     * @param compact bool, the compact XML export flag
+     * @param compact           Compact XML export flag
      */
     void xmlMode(bool compact)
     {
@@ -176,38 +176,38 @@ public:
     }
 
     /**
-     * @brief Adds a new field int the list
+     * Adds a new field int the list
      *
      * Creates and returns a new field.
-     * @param fname const char *, field name
-     * @param checkDuplicates bool, if true check if the field already exists in the list
+     * @param fname             Field name
+     * @param checkDuplicates   If true check if the field already exists in the list
      * @returns new field reference
      */
     Field& push_back(const char *fname,bool checkDuplicates);
 
     /**
-     * @brief Adds a new field int the list without creating a new copy of the field.
+     * Adds a new field int the list without creating a new copy of the field.
      *
      * This method is useful if you create a new field with the new() operator.
      * You shouldn't delete such fields manually - they would be maintained by CFieldList class.
-     * @param fld CField *, field name
+     * @param fld               Field name
      * @returns new field reference
      */
     Field& push_back(Field *fld);
 
     /**
-     * @brief Finds a field by the field name
+     * Finds a field by the field name
      *
      * Fast field lookup using std::map.
-     * @param fname const char *, field name
+     * @param fname             Field name
      * @returns CField pointer, or 0L if not found
      */
     Field* fieldByName(const char * fname) const;
 
     /**
-     * @brief Field access by field index, non-const version
+     * Field access by field index, non-const version
      *
-     * @param index uint32_t, field index
+     * @param index             Field index
      * @returns field reference
      */
     Field& operator [](uint32_t index)
@@ -216,9 +216,9 @@ public:
     }
 
     /**
-     * @brief Field access by field index, non-const version
+     * Field access by field index, non-const version
      *
-     * @param index int32_t, field index
+     * @param index             Field index
      * @returns field reference
      */
     Field& operator [](int32_t index)
@@ -227,8 +227,8 @@ public:
     }
 
     /**
-     * @brief Field access by field index, const version
-     * @param index uint32_t, field index
+     * Field access by field index, const version
+     * @param index             Field index
      * @returns field reference
      */
     const Field& operator [](uint32_t index) const
@@ -237,8 +237,8 @@ public:
     }
 
     /**
-     * @brief Field access by field index, const version
-     * @param index int32_t, field index
+     * Field access by field index, const version
+     * @param index             Field index
      * @returns field reference
      */
     const Field& operator [](int32_t index) const
@@ -247,8 +247,8 @@ public:
     }
 
     /**
-     * @brief Field access by field name, non-const version
-     * @param fname const char *, field name
+     * Field access by field name, non-const version
+     * @param fname             Field name
      * @returns field reference
      */
     Field& operator [](const char *fname)
@@ -258,7 +258,7 @@ public:
 
     /**
      * Field access by field name, const version
-     * @param fname const char *, field name
+     * @param fname             Field name
      * @returns field reference
      */
     const Field& operator [](const char *fname) const
@@ -267,8 +267,8 @@ public:
     }
 
     /**
-     * @brief Field access by field name, non-const version
-     * @param fname const std::string&, field name
+     * Field access by field name, non-const version
+     * @param fname             Field name
      * @returns field reference
      */
     Field& operator [](const std::string& fname)
@@ -277,8 +277,8 @@ public:
     }
 
     /**
-     * @brief Field access by field name, const version
-     * @param fname const std::string&, field name
+     * Field access by field name, const version
+     * @param fname             Field name
      * @returns field reference
      */
     const Field& operator [](const std::string& fname) const
@@ -287,12 +287,12 @@ public:
     }
 
     /**
-     * @brief Sets user data
+     * Sets user data
      *
      * User data is usually a pointer to some outside memory object,
      * or an index (id) of some object. CFieldList doesn't maintain this pointer, just keeps it
      * as a tag.
-     * @param data void *, a user-defined data
+     * @param data              User-defined data
      */
     void user_data(void *data)
     {
@@ -300,7 +300,7 @@ public:
     }
 
     /**
-     * @brief Returns user data
+     * Returns user data
      */
     void* user_data() const
     {
@@ -308,12 +308,12 @@ public:
     }
 
     /**
-     * @brief Exports data into XML node
+     * Exports data into XML node
      *
      * @see setXmlMode() for details.
-     * @param xml const XMLNode&, an XML node to store fields into
+     * @param xml               XML node to store fields into
      */
-    void toXML(XMLNode& xml) const;
+    void toXML(xml::Node& xml) const;
 };
 }
 

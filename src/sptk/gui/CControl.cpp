@@ -573,7 +573,7 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     }
 }
 
-void sptk::createControls(const XMLNodeList& xmlControls)
+void sptk::createControls(const xml::NodeList& xmlControls)
 {
     for (auto node: xmlControls) {
         CControlKind controlKind = CControlKindIndex::type(node->name());
@@ -587,7 +587,7 @@ void sptk::createControls(const XMLNodeList& xmlControls)
     }
 }
 
-void CControl::load(const XMLNode* node, CLayoutXMLmode xmlMode)
+void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
     if (xmlMode & LXM_LAYOUT)
         CLayoutClient::load(node, LXM_LAYOUT);
@@ -598,7 +598,7 @@ void CControl::load(const XMLNode* node, CLayoutXMLmode xmlMode)
     }
 }
 
-void CControl::save(XMLNode* node, CLayoutXMLmode xmlMode) const
+void CControl::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     node->name("control");
     if (xmlMode & LXM_LAYOUT)

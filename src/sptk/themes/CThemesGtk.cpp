@@ -43,7 +43,7 @@
 using namespace std;
 using namespace sptk;
 
-void CThemes::loadGtkButton(XMLNode* imageNode, std::map<CThemeImageState, std::string>& buttonFileNames)
+void CThemes::loadGtkButton(xml::Node* imageNode, std::map<CThemeImageState, std::string>& buttonFileNames)
 {
     static const Strings buttonStates("NORMAL|ACTIVE|DFRAME|PRELIGHT", "|"); /// DFRAME is a stub
 
@@ -69,9 +69,9 @@ void CThemes::loadGtkButton(XMLNode* imageNode, std::map<CThemeImageState, std::
 }
 
 void CThemes::loadGtkButtonFileNames(
-        XMLDocument& xml, string XPath, map<CThemeImageState, string>& buttonFileNames, string orientation)
+        xml::Document& xml, string XPath, map<CThemeImageState, string>& buttonFileNames, string orientation)
 {
-    XMLNodeVector buttonImages;
+    xml::NodeVector buttonImages;
 
     buttonFileNames.clear();
     xml.select(buttonImages, XPath);
@@ -91,7 +91,7 @@ void CThemes::loadGtkButtonFileNames(
         buttonFileNames[THM_IMAGE_ACTIVE_HIGHLITED] = buttonFileNames[THM_IMAGE_ACTIVE];
 }
 
-void CThemes::loadGtkButtons(XMLDocument& xml, const String& styleName, CThemeImageCollection& buttons,
+void CThemes::loadGtkButtons(xml::Document& xml, const String& styleName, CThemeImageCollection& buttons,
                              const String& function)
 {
     string XPath("/styles/style[@name='" + styleName + "']/engine[@name='pixmap']/image");
@@ -122,7 +122,7 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
     }
     catch (...) {}
 
-    XMLDocument& xml = gtkThemeLoader.xml();
+    xml::Document& xml = gtkThemeLoader.xml();
 
     /// Load theme colors
     m_colors.loadFromGtkTheme(xml);
@@ -141,7 +141,7 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
                                       "/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='bar']",
                                       "orientation", "HORIZONTAL");
 
-    XMLNodeVector bgImageNodes;
+    xml::NodeVector bgImageNodes;
     xml.select(bgImageNodes, "/styles/style/bg_pixmap");
     if (!bgImageNodes.empty()) {
         string fileName = CThemeImageCollection::gtkFullFileName(bgImageNodes[0]->getAttribute("NORMAL"));

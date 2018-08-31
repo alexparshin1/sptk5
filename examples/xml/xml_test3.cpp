@@ -43,7 +43,7 @@ using namespace sptk;
 
 void testXPath(const string& fileName, const string& xpath, int expectedNodeCount = -1)
 {
-    sptk::XMLDocument doc;
+    xml::Document doc;
     Buffer buf;
 
     cout << "Test file: " << fileName << endl;
@@ -53,7 +53,7 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     buf.loadFromFile(fileName);
     doc.load(buf);
 
-    XMLNodeVector selectedNodes;
+    xml::NodeVector selectedNodes;
     doc.select(selectedNodes, xpath);
     for (auto node: selectedNodes) {
         cout << node->name();

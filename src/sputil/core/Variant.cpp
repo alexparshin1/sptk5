@@ -1252,7 +1252,7 @@ VariantType Variant::nameType(const char* name)
     return itor->second;
 }
 
-void Variant::load(const XMLNode& node)
+void Variant::load(const xml::Node& node)
 {
     const string& ntype = node.getAttribute("type").str();
     unsigned type = nameType(ntype.c_str());
@@ -1281,12 +1281,12 @@ void Variant::load(const XMLNode& node)
     }
 }
 
-void Variant::load(const XMLNode* node)
+void Variant::load(const xml::Node* node)
 {
     load(*node);
 }
 
-void Variant::save(XMLNode& node) const
+void Variant::save(xml::Node& node) const
 {
     String stringValue(asString());
     node.setAttribute("type", typeName(dataType()));
@@ -1302,12 +1302,12 @@ void Variant::save(XMLNode& node) const
             case VAR_DATE:
             case VAR_DATE_TIME:
             case VAR_IMAGE_NDX:
-                new XMLText(node, stringValue);
+                new xml::Text(node, stringValue);
                 break;
 
             case VAR_TEXT:
             case VAR_BUFFER:
-                new XMLCDataSection(node, asString());
+                new xml::CDataSection(node, asString());
                 break;
 
             default:
@@ -1317,7 +1317,7 @@ void Variant::save(XMLNode& node) const
     }
 }
 
-void Variant::save(XMLNode* node) const
+void Variant::save(xml::Node* node) const
 {
     save(*node);
 }

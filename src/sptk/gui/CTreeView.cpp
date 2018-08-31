@@ -66,7 +66,7 @@ CTreeView::CTreeView(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CTreeView::creator(XMLNode* node)
+CLayoutClient* CTreeView::creator(xml::Node* node)
 {
     auto widget = new CTreeView("", 10, SP_ALIGN_TOP);
     widget->load(node);
@@ -113,12 +113,12 @@ void CTreeView::save(Query* updateQuery)
     param = data();
 }
 
-void CTreeView::load(const XMLNode* node)
+void CTreeView::load(const xml::Node* node)
 {
     m_treeControl->load(node);
 }
 
-void CTreeView::save(XMLNode* node) const
+void CTreeView::save(xml::Node* node) const
 {
     m_treeControl->save(node);
 }

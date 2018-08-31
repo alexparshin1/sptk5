@@ -601,7 +601,7 @@ public:
      * @param node              Node to load data from
      * @param autoCreate        Ignored
      */
-    virtual void load(const XMLNode& node, bool autoCreate);
+    virtual void load(const xml::Node& node, bool autoCreate);
 
     /**
      * @brief Loads group controls data from XML node
@@ -609,7 +609,7 @@ public:
      * @param node              Node to load data from
      * @param autoCreate        Create widgets if they are not found
      */
-    virtual void load(const XMLNode* node, bool autoCreate = false)
+    virtual void load(const xml::Node* node, bool autoCreate = false)
     {
         load(*node, autoCreate);
     }
@@ -619,14 +619,14 @@ public:
      *
      * @param node              Node to save data into
      */
-    virtual void save(XMLNode& node) const;
+    virtual void save(xml::Node& node) const;
 
     /**
      * @brief Saves group controls data into XML node
      *
      * @param node              Node to save data into
      */
-    virtual void save(XMLNode* node) const
+    virtual void save(xml::Node* node) const
     {
         save(*node);
     }

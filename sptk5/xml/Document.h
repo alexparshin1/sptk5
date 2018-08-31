@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLDocument.h - description                            ║
+║                       Document.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -29,9 +29,9 @@
 #ifndef __XML_DOCUMENT_H__
 #define __XML_DOCUMENT_H__
 
-#include <sptk5/xml/XMLNode.h>
-#include <sptk5/xml/XMLDocType.h>
-#include <sptk5/xml/XMLElement.h>
+#include <sptk5/xml/Node.h>
+#include <sptk5/xml/DocType.h>
+#include <sptk5/xml/Element.h>
 #include <sptk5/SharedStrings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
@@ -49,30 +49,31 @@ namespace sptk
 
 namespace json { class Document; }
 
+namespace xml {
 /**
  * @brief XML document.
  *
  * Represents the entire XML document.
  * It provides access to document root node, which includes all nodes in XML document tree.
  */
-class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
+class SP_EXPORT Document : public SharedStrings, public Element
 {
-    friend class XMLNode;
+    friend class Node;
 
     /**
      * Document type
      */
-    XMLDocType          m_doctype;
+    DocType m_doctype;
 
     /**
      * Indent spaces
      */
-    int                 m_indentSpaces;
+    int m_indentSpaces;
 
     /**
      * Buffer to encode entities
      */
-    Buffer              m_encodeBuffer;
+    Buffer m_encodeBuffer;
 
     /**
      * @brief Internal entities parser
@@ -87,14 +88,14 @@ class SP_EXPORT XMLDocument: public SharedStrings, public XMLElement
     /**
      * @brief Internal attributes parser
      */
-    void processAttributes(XMLNode* node, const char *ptr);
+    void processAttributes(Node* node, const char* ptr);
 
 protected:
 
     /**
      * Regular expression to match a number
      */
-    RegularExpression   m_matchNumber;
+    RegularExpression m_matchNumber;
 
     /**
      * Decode and encode buffer
@@ -103,25 +104,25 @@ protected:
 
 
     /**
-     * Creates new named node of type XMLNode::DOM_ELEMENT.
+     * Creates new named node of type xml::Node::DOM_ELEMENT.
      * It can be added to document DOM tree.
      * @param tagname           Name of the element
-     * @see XMLNode
+     * @see xml::Node
      */
-    XMLNode *createElement(const char *tagname);
+    Node* createElement(const char* tagname);
 
 public:
 
     /**
      * @brief Constructs an empty document, without doctype.
      */
-    XMLDocument();
+    Document();
 
     /**
      * @brief Constructs a document from XML string
      * @param xml               XML string
      */
-    XMLDocument(std::string xml);
+    Document(std::string xml);
 
     /**
      * @brief Constructs an empty document, with doctype.
@@ -129,12 +130,12 @@ public:
      * @param public_id         Public id of the document, placed on DOCTYPE declaration
      * @param system_id         System id of the document, placed on DOCTYPE declaration
      */
-    XMLDocument(const char *name, const char *public_id, const char *system_id);
+    Document(const char* name, const char* public_id, const char* system_id);
 
     /**
      * @brief Destructor
      */
-    virtual ~XMLDocument()
+    virtual ~Document()
     {
         clear();
     }
@@ -142,7 +143,7 @@ public:
     /**
      * @brief Returns node type
      */
-    virtual XMLNodeType type() const override
+    virtual NodeType type() const override
     {
         return DOM_DOCUMENT;
     }
@@ -169,7 +170,7 @@ public:
      * @brief Sets new name for node
      * @param name              New node name
      */
-    virtual void name(const char *name) override
+    virtual void name(const char* name) override
     {
     }
 
@@ -181,7 +182,7 @@ public:
      * mydoc->doctype().set_entity("myentity", "myreplacement");
      * </pre>
      */
-    XMLDocType &docType()
+    DocType& docType()
     {
         return m_doctype;
     }
@@ -194,7 +195,7 @@ public:
      * mydoc->doctype().set_entity("myentity", "myreplacement");
      * </pre>
      */
-    const XMLDocType &docType() const
+    const DocType& docType() const
     {
         return m_doctype;
     }
@@ -202,7 +203,7 @@ public:
     /**
      * @brief Returns pointer to root element of document
      */
-    XMLNode *rootNode();
+    Node* rootNode();
 
     /**
      * Return indentation in save
@@ -259,6 +260,9 @@ public:
      */
     void exportTo(json::Element& json) const override;
 };
+
+} // namespace xml
+
 /**
  * @}
  */

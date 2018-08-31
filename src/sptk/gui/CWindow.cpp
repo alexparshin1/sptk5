@@ -103,19 +103,19 @@ void CWindow::draw()
     x(savex);
 }
 
-void CWindow::load(const XMLNode* node, CLayoutXMLmode xmlMode)
+void CWindow::load(const xml::Node* node, CLayoutXMLmode xmlMode)
 {
     CLayoutManager::loadLayout(node, xmlMode);
     loadPosition(node);
 }
 
-void CWindow::save(XMLNode* node, CLayoutXMLmode xmlMode) const
+void CWindow::save(xml::Node* node, CLayoutXMLmode xmlMode) const
 {
     CLayoutManager::saveLayout(node, xmlMode);
     savePosition(node);
 }
 
-void CWindow::loadPosition(const XMLNode* node)
+void CWindow::loadPosition(const xml::Node* node)
 {
     int hh = node->getAttribute("height");
     if (!hh)
@@ -127,7 +127,7 @@ void CWindow::loadPosition(const XMLNode* node)
         resize(node->getAttribute("x", "0"), node->getAttribute("y", "0"), ww, hh);
 }
 
-void CWindow::savePosition(XMLNode* node) const
+void CWindow::savePosition(xml::Node* node) const
 {
     node->setAttribute("x", x());
     node->setAttribute("y", y());

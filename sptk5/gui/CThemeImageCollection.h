@@ -93,7 +93,7 @@ namespace sptk {
          * @brief Loads the collection from GTK theme
          */
         void loadFromGtkTheme(
-                XMLDocument& gtkTheme, const String& imagesXPath, const String& attribute = "",
+                xml::Document& gtkTheme, const String& imagesXPath, const String& attribute = "",
                 const String& attributeValue = "");
 
         /**

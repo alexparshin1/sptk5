@@ -48,13 +48,13 @@ const Fl_Boxtype  CFrames::frameTypes[] = {
         FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
 };
 
-void CFrames::load(Tar& tar, XMLNode* framesNode)
+void CFrames::load(Tar& tar, xml::Node* framesNode)
 {
     clear();
     auto itor = framesNode->begin();
     auto iend = framesNode->end();
     for (; itor != iend; ++itor) {
-        XMLNode* frameNode = *itor;
+        xml::Node* frameNode = *itor;
         if (frameNode->name() != "frame")
             continue;
         string fileName = frameNode->getAttribute("image");

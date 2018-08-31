@@ -45,32 +45,32 @@ int main()
     //out.open("xml_test3.log",ofstream::out);
 
     try {
-        sptk::XMLDocument doc;
+        xml::Document doc;
 
         DateTime start = DateTime::Now();
         DateTime end;
         auto *buf = new Buffer;
 
         out << "The XML document generation test started:" << endl;
-        out << "Size of XMLNode is : " << sizeof(XMLNode) << endl;
-        out << "Size of XMLElement is : " << sizeof(XMLElement) << endl;
-        out << "Size of XMLAttributes is : " << sizeof(XMLAttributes) << endl;
-        out << "Size of XMLNodeList is : " << sizeof(XMLNodeList) << endl;
+        out << "Size of Node is : " << sizeof(xml::Node) << endl;
+        out << "Size of Element is : " << sizeof(xml::Element) << endl;
+        out << "Size of Attributes is : " << sizeof(xml::Attributes) << endl;
+        out << "Size of NodeList is : " << sizeof(xml::NodeList) << endl;
         char buffer[64];
         string rowTag("row"), cellTag("cell");
         unsigned nodesPerRow = 7;
         for (unsigned i = 0; i < 100000; i++) {
-            XMLNode* row = new XMLElement(doc, rowTag);
+            xml::Node* row = new xml::Element(doc, rowTag);
 
             snprintf(buffer, sizeof(buffer), "%u", i);
-            XMLNode* cell1 = new XMLElement(*row, cellTag);
+            xml::Node* cell1 = new xml::Element(*row, cellTag);
             cell1->setAttribute("column", 1);
-            new XMLText(*cell1, buffer);
+            new xml::Text(*cell1, buffer);
 
             snprintf(buffer, sizeof(buffer), "A pretty long string number %u", i);
-            XMLNode* cell2 = new XMLElement(*row, cellTag);
+            xml::Node* cell2 = new xml::Element(*row, cellTag);
             cell2->setAttribute("column", 2);
-            new XMLText(*cell2, buffer);
+            new xml::Text(*cell2, buffer);
         }
 
         out.setf(ios::fixed);

@@ -63,7 +63,7 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 }
 #endif
 
-CLayoutClient* CBox::creator(XMLNode* node)
+CLayoutClient* CBox::creator(xml::Node* node)
 {
     auto widget = new CBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);

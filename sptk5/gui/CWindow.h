@@ -144,17 +144,17 @@ public:
     /**
      * @brief Loads window coordinates and widgets from XML node
      *
-     * @param node const XMLNode*, node to load data from
+     * @param node const xml::Node*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void load(const XMLNode* node, CLayoutXMLmode xmlMode);
+    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Loads window coordinates and widgets from XML node
      *
-     * @param node const XMLNode*, node to load data from
+     * @param node const xml::Node*, node to load data from
      */
-    virtual void load(const XMLNode* node)
+    virtual void load(const xml::Node* node)
     {
         load(node, LXM_DATA);
     }
@@ -162,17 +162,17 @@ public:
     /**
      * @brief Saves window coordinates and widgets into XML node
      *
-     * @param node XMLNode*, node to save data into
+     * @param node xml::Node*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void save(XMLNode* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Saves window coordinates and widgets into XML node
      *
-     * @param node XMLNode*, node to save data into
+     * @param node xml::Node*, node to save data into
      */
-    virtual void save(XMLNode* node) const
+    virtual void save(xml::Node* node) const
     {
         save(node, LXM_DATA);
     }
@@ -180,16 +180,16 @@ public:
     /**
      * @brief Loads the window position from XML node
      *
-     * @param node const XMLNode&, node to load position from
+     * @param node const xml::Node&, node to load position from
      */
-    void loadPosition(const XMLNode* node);
+    void loadPosition(const xml::Node* node);
 
     /**
      * @brief Saves the window position into XML node
      *
-     * @param node XMLNode&, node to save position into
+     * @param node xml::Node&, node to save position into
      */
-    void savePosition(XMLNode* node) const;
+    void savePosition(xml::Node* node) const;
 
     /**
      * @brief Returns the current label

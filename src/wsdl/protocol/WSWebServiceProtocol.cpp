@@ -105,7 +105,7 @@ void WSWebServiceProtocol::process()
     while ((unsigned char)*startOfMessage < 33)
         startOfMessage++;
 
-    sptk::XMLDocument message;
+    xml::Document message;
     json::Document jsonContent;
 
     bool requestIsJSON = false;
@@ -114,9 +114,9 @@ void WSWebServiceProtocol::process()
             *(char*) endOfMessage = 0;
         message.load(startOfMessage);
         auto jsonEnvelope = new json::Element(new json::ObjectData);
-        sptk::XMLNode* xmlEnvelope = message.findFirst("soap:Envelope", true);
-        sptk::XMLNode* xmlBody = xmlEnvelope->findFirst("soap:Body", true);
-        sptk::XMLNode* xmlRequest = *xmlBody->begin();
+        xml::Node* xmlEnvelope = message.findFirst("soap:Envelope", true);
+        xml::Node* xmlBody = xmlEnvelope->findFirst("soap:Body", true);
+        xml::Node* xmlRequest = *xmlBody->begin();
         jsonContent.root().add(xmlRequest->name(), jsonEnvelope);
         xmlRequest->exportTo(*jsonEnvelope);
         //jsonContent.exportTo(cout, true);
@@ -129,9 +129,9 @@ void WSWebServiceProtocol::process()
             throw Exception("Invalid url");
         // Converting JSON request to XML request
         String method(*url.rbegin());
-        auto xmlEnvelope = new sptk::XMLElement(message, "soap:Envelope");
+        auto xmlEnvelope = new xml::Element(message, "soap:Envelope");
         xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-        auto xmlBody = new sptk::XMLElement(xmlEnvelope, "soap:Body");
+        auto xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
         jsonContent.load(startOfMessage);
         jsonContent.root().exportTo("ns1:" + method, *xmlBody);
         Buffer buffer;
@@ -150,10 +150,10 @@ void WSWebServiceProtocol::process()
         m_service.processRequest(&message, authentication.get());
         if (requestIsJSON) {
             // Converting XML response to JSON response
-            sptk::XMLNode* bodyElement = message.findFirst("soap:Body");
+            xml::Node* bodyElement = message.findFirst("soap:Body");
             if (bodyElement == nullptr)
                 throw Exception("Can't find soap:Body in service response");
-            sptk::XMLNode* methodElement = *bodyElement->begin();
+            xml::Node* methodElement = *bodyElement->begin();
             json::Document jsonOutput;
             auto jsonResponse = new json::Element(new json::ObjectData);
             jsonOutput.root().add("response", jsonResponse);
@@ -182,6 +182,4 @@ void WSWebServiceProtocol::process()
              << "Content-Length: " << output.bytes() << "\n\n";
     m_socket.write(response.str());
     m_socket.write(output);
-
-    //cout << output.c_str() << endl;
 }

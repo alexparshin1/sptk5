@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLAttributes.cpp - description                        ║
+║                       Value.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -29,98 +29,70 @@
 #include <sptk5/cxml>
 
 using namespace sptk;
+using namespace sptk::xml;
 
-XMLAttribute::XMLAttribute(XMLElement* parent, const char* tagname, XMLValue avalue) :
-    XMLNamedItem(*parent->document())
+Value::operator bool() const
 {
-    name(tagname);
-    value(avalue);
-    parent->attributes().push_back(this);
+    if (m_value.empty())
+        return false;
+    char ch = m_value.c_str()[0];
+    const char *p = strchr("TtYy1", ch);
+    return p != nullptr;
 }
 
-XMLAttribute::XMLAttribute(XMLElement* parent, const std::string& tagname, XMLValue avalue) :
-    XMLNamedItem(*parent->document())
+Value& Value::operator =(bool v)
 {
-    name(tagname);
-    value(avalue);
-    parent->attributes().push_back(this);
-}
-
-/// @brief Returns the value of the node
-const String& XMLAttribute::value() const
-{
-    return m_value;
-}
-
-/// @brief Sets new value to node.
-/// @param new_value const std::string &, new value
-/// @see value()
-void XMLAttribute::value(const std::string &new_value)
-{
-    m_value = new_value;
-}
-
-/// @brief Sets new value to node
-/// @param new_value const char *, value to set
-/// @see value()
-void XMLAttribute::value(const char *new_value)
-{
-    m_value = new_value;
-}
-
-XMLAttributes& XMLAttributes::operator =(const XMLAttributes& s)
-{
-    clear();
-    for (auto node: s)
-        new XMLAttribute(m_parent, node->name(), node->value());
+    if (v)
+        m_value.assign("Y", 1);
+    else
+        m_value.assign("N", 1);
     return *this;
 }
 
-XMLAttribute* XMLAttributes::getAttributeNode(std::string attr)
+Value& Value::operator =(int32_t v)
 {
-    auto itor = findFirst(attr.c_str());
-    if (itor != end())
-        return (XMLAttribute*) *itor;
-    return nullptr;
+    char buff[64];
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%i", v);
+    m_value.assign(buff, sz);
+    return *this;
 }
 
-const XMLAttribute* XMLAttributes::getAttributeNode(std::string attr) const
+Value& Value::operator =(uint32_t v)
 {
-    auto itor = findFirst(attr.c_str());
-    if (itor != end())
-        return (const XMLAttribute*) *itor;
-    return nullptr;
+    char buff[64];
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%u", v);
+    m_value.assign(buff, sz);
+    return *this;
 }
 
-XMLValue XMLAttributes::getAttribute(std::string attr, const char *defaultValue) const
+Value& Value::operator =(int64_t v)
 {
-    auto itor = findFirst(attr.c_str());
-    if (itor != end())
-        return (*itor)->value();
-    XMLValue rc;
-    if (defaultValue != nullptr)
-        rc = defaultValue;
-    return rc;
+    char buff[64];
+#ifndef _WIN32
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%li", v);
+#else
+    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%lli", v);
+#endif
+    m_value.assign(buff, sz);
+    return *this;
 }
 
-void XMLAttributes::setAttribute(std::string attr, XMLValue value, const char *defaultValue)
+Value& Value::operator =(uint64_t v)
 {
-    auto itor = findFirst(attr);
-    if (defaultValue != nullptr && value.str() == defaultValue) {
-        if (itor != end()) {
-            delete *itor;
-            erase(itor);
-        }
-        return;
-    }
-    if (itor != end())
-        (*itor)->value(value);
-    else
-        new XMLAttribute(m_parent, attr, value);
+    char buff[64];
+#ifndef _WIN32
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%lu", v);
+#else
+    uint32_t sz = (uint32_t) snprintf(buff, sizeof(buff), "%llu", v);
+#endif
+    m_value.assign(buff, sz);
+    return *this;
 }
 
-bool XMLAttributes::hasAttribute(std::string attr) const
+Value& Value::operator =(double v)
 {
-    auto itor = findFirst(attr.c_str());
-    return itor != end();
+    char buff[64];
+    auto sz = (uint32_t) snprintf(buff, sizeof(buff), "%f", v);
+    m_value.assign(buff, sz);
+    return *this;
 }

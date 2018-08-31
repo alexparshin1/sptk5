@@ -151,25 +151,25 @@ public:
      * @param buttonImages CThemeImageCollection&, output button images
      */
     static void loadGtkScrollbarButtons(
-            XMLDocument& xml, const String& orientation, CThemeImageCollection& buttonImages);
+            xml::Document& xml, const String& orientation, CThemeImageCollection& buttonImages);
 
     /**
      * @brief Loads GTK theme scrollbar troughs
      * @param xml XMLDoc&, GTK theme converted to XML
      */
-    static void loadGtkScrollbarTroughs(XMLDocument& xml);
+    static void loadGtkScrollbarTroughs(xml::Document& xml);
 
     /**
      * @brief Loads GTK theme scrollbar sliders
      * @param xml XMLDoc&, GTK theme converted to XML
      */
-    static void loadGtkScrollbarSliders(XMLDocument& xml);
+    static void loadGtkScrollbarSliders(xml::Document& xml);
 
     /**
      * @brief Loads GTK theme scrollbar button images from GTK theme
      * @param xml XMLDoc&, GTK theme converted to XML
      */
-    static void loadGtkScrollbars(XMLDocument& xml);
+    static void loadGtkScrollbars(xml::Document& xml);
 
     /**
      * @brief Computes and returns the minimum size of the scroll bar

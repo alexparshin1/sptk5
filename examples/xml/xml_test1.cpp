@@ -40,21 +40,21 @@
 using namespace std;
 using namespace sptk;
 
-void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
+void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
 {
     if (!n)
         return;
 
     CTreeItem *w = nullptr;
     CTreeItem *newItem = nullptr;
-    if (!n->empty() || n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
+    if (!n->empty() || n->type() & (xml::Node::DOM_CDATA_SECTION | xml::Node::DOM_COMMENT)) {
         // Create a new item group
         if (item)
             newItem = item->addItem("", nullptr, nullptr, n);
         else
             newItem = tree->addItem("", nullptr, nullptr, n);
         w = newItem;
-        if (n->type() & (XMLNode::DOM_CDATA_SECTION | XMLNode::DOM_COMMENT)) {
+        if (n->type() & (xml::Node::DOM_CDATA_SECTION | xml::Node::DOM_COMMENT)) {
             w->label(n->name().c_str());
             w = newItem->addItem("", nullptr, nullptr, n);
         }
@@ -67,11 +67,11 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
     }
 
     String label;
-    const XMLAttributes &attr_map = n->attributes();
+    const xml::Attributes &attr_map = n->attributes();
 
     switch (n->type())
     {
-    case XMLNode::DOM_ELEMENT:
+    case xml::Node::DOM_ELEMENT:
         label = n->name();
         if (n->hasAttributes()) {
             auto it = attr_map.begin();
@@ -80,13 +80,13 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
         }
         break;
 
-    case XMLNode::DOM_PI:
+    case xml::Node::DOM_PI:
         label = n->name();
         label += ": ";
         label += n->value();
         break;
 
-    case XMLNode::DOM_DOCUMENT:
+    case xml::Node::DOM_DOCUMENT:
         label = n->name();
         break;
 
@@ -100,19 +100,19 @@ void build_tree(XMLElement *n, CTreeControl *tree, CTreeItem *item)
     auto itor = n->begin();
     auto iend = n->end();
     for (; itor != iend; ++itor) {
-        auto node = dynamic_cast<XMLElement*>(*itor);
+        auto node = dynamic_cast<xml::Element*>(*itor);
         if (node)
             build_tree(node, tree, newItem);
     }
 }
 
-XMLDocument *build_doc()
+xml::Document *build_doc()
 {
-    auto doc = new XMLDocument();
+    auto doc = new xml::Document();
 
-    XMLNode *rootNode = new XMLElement(*doc, "MyDocument");
-    XMLNode *hello = new XMLElement(*rootNode, "HelloTag");
-    new XMLElement(*hello, "Hello all!");
+    xml::Node *rootNode = new xml::Element(*doc, "MyDocument");
+    xml::Node *hello = new xml::Element(*rootNode, "HelloTag");
+    new xml::Element(*hello, "Hello all!");
 
     try {
         Buffer savebuffer;
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
         window->end();
 
         DateTime start = DateTime::Now();
-        unique_ptr<XMLDocument> doc(new XMLDocument);
+        unique_ptr<xml::Document> doc(new xml::Document);
         doc->load(buffer);
         DateTime end = DateTime::Now();
 

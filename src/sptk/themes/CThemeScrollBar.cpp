@@ -116,13 +116,13 @@ bool CThemeScrollBar::sizeScrollBar(int& w, int& h)
 }
 
 void CThemeScrollBar::loadGtkScrollbarButtons(
-        XMLDocument& xml, const String& orientation, CThemeImageCollection& buttonImages)
+        xml::Document& xml, const String& orientation, CThemeImageCollection& buttonImages)
 {
     String XPath("/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='STEPPER']");
     buttonImages.loadFromGtkTheme(xml, XPath, "arrow_direction", orientation);
 }
 
-void CThemeScrollBar::loadGtkScrollbarTroughs(XMLDocument& xml)
+void CThemeScrollBar::loadGtkScrollbarTroughs(xml::Document& xml)
 {
     static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
     for (unsigned i = 0; i < 2; i++) {
@@ -133,7 +133,7 @@ void CThemeScrollBar::loadGtkScrollbarTroughs(XMLDocument& xml)
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbarSliders(XMLDocument& xml)
+void CThemeScrollBar::loadGtkScrollbarSliders(xml::Document& xml)
 {
     static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
 
@@ -145,12 +145,12 @@ void CThemeScrollBar::loadGtkScrollbarSliders(XMLDocument& xml)
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbars(XMLDocument& xml)
+void CThemeScrollBar::loadGtkScrollbars(xml::Document& xml)
 {
-    XMLNodeVector scrollBarDefaults;
+    xml::NodeVector scrollBarDefaults;
     xml.select(scrollBarDefaults, "/styles/style/GtkRange");
     if (!scrollBarDefaults.empty()) {
-        XMLNode* node = scrollBarDefaults[0];
+        xml::Node* node = scrollBarDefaults[0];
         m_scrollBarTroughBorder = node->getAttribute("trough_border", "1");
         m_scrollBarSliderWidth = node->getAttribute("slider_width", "14");
         m_scrollBarStepperSize = node->getAttribute("stepper_size", "14");

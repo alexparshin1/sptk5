@@ -31,17 +31,17 @@
 using namespace std;
 using namespace sptk;
 
-XMLElement* WSBasicType::addElement(XMLElement* parent) const
+xml::Element* WSBasicType::addElement(xml::Element* parent) const
 {
     String text(asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
-    auto element = new XMLElement(*parent, m_name);
+    auto element = new xml::Element(*parent, m_name);
     element->text(text);
     return element;
 }
 
-void WSString::load(const XMLNode* attr)
+void WSString::load(const xml::Node* attr)
 {
     setString(attr->text());
 }
@@ -59,7 +59,7 @@ void WSString::load(const Field& field)
         setString(field);
 }
 
-void WSBool::load(const XMLNode* attr)
+void WSBool::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
@@ -84,7 +84,7 @@ void WSBool::load(const Field& field)
         setBool(field);
 }
 
-void WSDate::load(const XMLNode* attr)
+void WSDate::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
@@ -109,7 +109,7 @@ void WSDate::load(const Field& field)
         setDate(field);
 }
 
-void WSDateTime::load(const XMLNode* attr)
+void WSDateTime::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())
@@ -140,7 +140,7 @@ String WSDateTime::asString() const
     return dt.isoDateTimeString();
 }
 
-void WSDouble::load(const XMLNode* attr)
+void WSDouble::load(const xml::Node* attr)
 {
     setFloat(strtod(attr->text().c_str(), nullptr));
 }
@@ -161,7 +161,7 @@ void WSDouble::load(const Field& field)
         setFloat(field);
 }
 
-void WSInteger::load(const XMLNode* attr)
+void WSInteger::load(const xml::Node* attr)
 {
     String text = attr->text();
     if (text.empty())

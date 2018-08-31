@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       XMLNodeList.h - description                            ║
+║                       NodeList.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,85 +26,64 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XML_NODELIST_H__
-#define __SPTK_XML_NODELIST_H__
+#include <sptk5/sptk.h>
+#include <sptk5/cxml>
 
-#include <string>
-#include <vector>
-#include <algorithm>
+using namespace std;
+using namespace sptk;
+using namespace sptk::xml;
 
-namespace sptk {
-
-/**
- * @addtogroup XML
- * @{
- */
-
-class XMLNode;
-
-/**
- * @brief The vector of XMLNode *
- */
-typedef std::vector<XMLNode *> XMLNodeVector;
-
-/**
- * @brief XML node list
- *
- * The XMLNodeList interface provides the an ordered collection of nodes,
- * The items in the NodeList are accessible via an integral index, starting from 0.
- */
-class SP_EXPORT XMLNodeList : public XMLNodeVector
+void NodeList::clear()
 {
-public:
-    /**
-     * @brief Constructor
-     */
-    XMLNodeList() noexcept
-    {}
-
-    /**
-     * @brief Destructor
-     */
-    ~XMLNodeList() noexcept
-    {
-        clear();
-    }
-
-    /**
-     * @brief Clears the list of XML nodes and releases all the allocated memory
-     */
-    void clear();
-
-    /**
-     * @brief Finds the first node in the list with the matching name
-     * @param nodeName const char*, a node name
-     * @returns node iterator, or end()
-     */
-    iterator findFirst(const char* nodeName);
-
-    /**
-     * @brief Finds the first node in the list with the matching name
-     * @param nodeName const std::string&, a node name
-     * @returns node iterator, or end()
-     */
-    iterator findFirst(const std::string& nodeName);
-
-    /**
-     * @brief Finds the first node in the list with the matching name
-     * @param nodeName const char*, a node name
-     * @returns node iterator, or end()
-     */
-    const_iterator findFirst(const char* nodeName) const;
-
-    /**
-     * @brief Finds the first node node in the list with the matching name
-     * @param nodeName const std::string&, a node name
-     * @returns node iterator, or end()
-     */
-    const_iterator findFirst(const std::string& nodeName) const;
-};
-/**
- * @}
- */
+    for (auto item: *this)
+        delete item;
+    NodeVector::clear();
 }
-#endif
+
+NodeList::iterator NodeList::findFirst(const char* nodeName)
+{
+    auto _begin = begin();
+    auto _end = end();
+    if (_begin == _end)
+        return _end;
+
+    Node* anode = *_begin;
+    const string* sharedName = &anode->document()->shareString(nodeName);
+
+    iterator itor;
+    for (itor = _begin; itor != _end; ++itor) {
+        anode = *itor;
+        if (anode->nameIs(sharedName))
+            break;
+    }
+    return itor;
+}
+
+NodeList::iterator NodeList::findFirst(const string& nodeName)
+{
+    return findFirst(nodeName.c_str());
+}
+
+NodeList::const_iterator NodeList::findFirst(const char* nodeName) const
+{
+    auto _begin = begin();
+    auto _end = end();
+    if (_begin == _end)
+        return _end;
+
+    const Node* anode = *_begin;
+    const string* sharedName = anode->document()->findString(nodeName);
+
+    const_iterator itor;
+    for (itor = _begin; itor != _end; ++itor) {
+        anode = *itor;
+        if (anode->nameIs(sharedName))
+            break;
+    }
+    return itor;
+}
+
+NodeList::const_iterator NodeList::findFirst(const string& nodeName) const
+{
+    return findFirst(nodeName.c_str());
+}
