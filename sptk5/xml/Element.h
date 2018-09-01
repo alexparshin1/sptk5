@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Element.h - description                             ║
+║                       Element.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XMLELEMENT_H__
-#define __SPTK_XMLELEMENT_H__
+#ifndef __SPTK_XML_ELEMENT_H__
+#define __SPTK_XML_ELEMENT_H__
 
 #include <sptk5/Buffer.h>
 #include <sptk5/Strings.h>

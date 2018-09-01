@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Value.h - description                               ║
+║                       Value.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XMLVALUE_H__
-#define __SPTK_XMLVALUE_H__
+#ifndef __SPTK_XML_VALUE_H__
+#define __SPTK_XML_VALUE_H__
 
 #include <sptk5/cxml>
 #include <sptk5/DateTime.h>

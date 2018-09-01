@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Entities.h - description                            ║
+║                       Entities.h - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_XMLENTITIES_H__
-#define __SPTK_XMLENTITIES_H__
+#ifndef __SPTK_XML_ENTITIES_H__
+#define __SPTK_XML_ENTITIES_H__
 
 #include <string>
 #include <map>
