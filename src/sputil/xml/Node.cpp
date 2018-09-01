@@ -248,6 +248,9 @@ void Node::select(NodeVector& nodes, String xpath)
     const char* ptr;
     nodes.clear();
 
+    if (!xpath.startsWith("/"))
+        xpath = "//" + xpath;
+
     xpath = xpath.replace("\\/\\/", "/descendant::");
 
     if (xpath[0] == '/')
