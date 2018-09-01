@@ -271,33 +271,33 @@
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
-  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLAttributes.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLAttributes.cpp",
-  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLAttributes.cpp"
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/Attributes.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/Attributes.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/Attributes.cpp"
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
-  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLDocument.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocument.cpp",
-  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocument.cpp"
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/Document.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/Document.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/Document.cpp"
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
-  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLDocType.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocType.cpp",
-  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLDocType.cpp"
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/DocType.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/DocType.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/DocType.cpp"
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
-  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLNode.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNode.cpp",
-  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNode.cpp"
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/Node.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/Node.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/Node.cpp"
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
-  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLNodeList.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNodeList.cpp",
-  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLNodeList.cpp"
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/NodeList.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/NodeList.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/NodeList.cpp"
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",
-  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/XMLValue.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/XMLValue.cpp",
-  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/XMLValue.cpp"
+  "command": "/usr/bin/c++  -DSPTK_LOCK_DEBUG -DSP_LIBRARY -D_GLIBCXX_USE_CXX11_ABI=0 -Dsputil5_EXPORTS -I/usr/include/oracle/12.2/client64 -I/home/alexeyp/workspace/sptk5 -I/home/alexeyp/workspace/sptk5/googletest/include   -std=c++0x -g -fPIC   -Wall -pedantic -Wno-long-long -fPIC -DGTEST_HAS_PTHREAD=1 -o CMakeFiles/sputil5.dir/xml/Value.cpp.o -c /home/alexeyp/workspace/sptk5/src/sputil/xml/Value.cpp",
+  "file": "/home/alexeyp/workspace/sptk5/src/sputil/xml/Value.cpp"
 },
 {
   "directory": "/home/alexeyp/workspace/sptk5/src/sputil",

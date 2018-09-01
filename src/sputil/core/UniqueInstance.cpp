@@ -29,6 +29,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 
 #include <sptk5/Exception.h>
 #include <sptk5/UniqueInstance.h>
@@ -39,6 +40,7 @@
 #endif
 #endif
 
+using namespace std;
 using namespace sptk;
 
 // Constructor
@@ -77,41 +79,29 @@ UniqueInstance::~UniqueInstance()
 // Get the existing process id (if any) from the file
 int UniqueInstance::read_pid()
 {
-    char   buffer[32];
-
     // Try to read process id from the file
-    FILE  *f = fopen(m_fileName.c_str(),"r+b");
-    if (f == nullptr)
-        return 0;
-    fgets(buffer,32,f);
-    fclose(f);
-
-    // Is it a number?
-    buffer[31] = 0;
-    char *p = strchr(buffer,'\n');
-    if (p != nullptr)
-        *p = 0;
-    int pid = string2int(buffer);
+    int pid = 0;
+    ifstream lockfile(m_fileName.c_str());
+    lockfile >> pid;
+    if (lockfile.bad())
+        pid = 0; // Lock file doesn't exist, or doesn't contain pid
+    lockfile.close();
     if (pid == 0)
-        return 0;
+        return 0; // Lock file exists, but there is no process id int
 
-    // Does the process with this id exist?
-    int sid = getsid(pid);
-
-    if (sid < 0) // No such process - stale lock file.
-        return 0;
+    int rc = getsid(pid);
+    if (rc < 0 || rc == ESRCH)
+        return 0; // No such process - stale lock file.
 
     return pid;
 }
 
 int UniqueInstance::write_pid()
 {
-    FILE  *f = fopen(m_fileName.c_str(),"w+b");
-    if (f == nullptr)
-        return 0;
+    ofstream lockfile(m_fileName.c_str());
     int pid = getpid();
-    fprintf(f,"%i\n",pid);
-    fclose(f);
+    lockfile << pid;
+    lockfile.close();
 
     m_lockCreated = true;
     return pid;
@@ -122,3 +112,47 @@ bool UniqueInstance::isUnique()
 {
     return m_lockCreated;
 }
+
+const String& UniqueInstance::lockFileName() const
+{
+    return m_fileName;
+}
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(SPTK_UniqueInstance, create)
+{
+    UniqueInstance uniqueInstance("unit_tests");
+    EXPECT_TRUE(uniqueInstance.isUnique());
+
+    // Simulate lock file with non-existing process
+    ofstream lockFile(uniqueInstance.lockFileName());
+    lockFile << 123456;
+    lockFile.close();
+
+    UniqueInstance uniqueInstance2("unit_tests");
+    EXPECT_TRUE(uniqueInstance2.isUnique());
+
+#ifndef _WIN32
+    // Get pid of existing process
+    FILE* pipe1 = popen("pidof systemd", "r");
+    if (pipe1 != nullptr) {
+        char buffer[64];
+        const char* data = fgets(buffer, sizeof(buffer), pipe1);
+        if (data) {
+            int pid = string2int(data);
+            if (pid > 0) {
+                lockFile.open(uniqueInstance.lockFileName());
+                lockFile << pid;
+                lockFile.close();
+                UniqueInstance uniqueInstance3("unit_tests");
+                EXPECT_FALSE(uniqueInstance3.isUnique());
+            }
+        }
+        pclose(pipe1);
+    }
+#endif
+}
+
+#endif

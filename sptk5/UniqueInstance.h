@@ -56,7 +56,7 @@ class SP_EXPORT UniqueInstance
     /**
      * Instance name
      */
-    std::string  m_instanceName;
+    String      m_instanceName;
 
     /**
      * Lock is created
@@ -76,7 +76,7 @@ class SP_EXPORT UniqueInstance
     /**
      * The lock file name
      */
-    std::string  m_fileName;
+    String      m_fileName;
 
 
     /**
@@ -102,6 +102,8 @@ public:
      * Destructor
      */
     ~UniqueInstance();
+
+    const String& lockFileName() const;
 
     /**
      * Reports true if the instance is unique
