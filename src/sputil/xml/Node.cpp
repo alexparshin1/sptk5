@@ -144,18 +144,11 @@ static void parsePathElement(Document* document, const string& pathElementStr, X
     }
 }
 
-bool Node::matchPathElement(const XPathElement& pathElement, int nodePosition, const string* starPointer,
-                               bool& nameMatches, bool& positionMatches)
+bool Node::matchPathElement(const XPathElement& pathElement, const string* starPointer, bool& nameMatches)
 {
     if (pathElement.elementName != nullptr && pathElement.elementName != starPointer &&
         !nameIs(pathElement.elementName))
         return false;
-
-    // Node criteria is position
-    if (pathElement.nodePosition != 0) {
-        positionMatches = pathElement.nodePosition == nodePosition;
-        return positionMatches;
-    }
 
     // Node criteria is attribute
     if (pathElement.attributeName != nullptr && type() == DOM_ELEMENT) {
@@ -184,30 +177,50 @@ bool Node::matchPathElement(const XPathElement& pathElement, int nodePosition, c
     return true;
 }
 
+void Node::matchNodesThisLevel(NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
+                               const std::string* starPointer, NodeVector& matchedNodes, bool descendants)
+{
+    const XPathElement& pathElement = pathElements[size_t(pathPosition)];
+
+    for (auto node: *this) {
+        bool nameMatches;
+        if (node->matchPathElement(pathElement, starPointer, nameMatches)) {
+            matchedNodes.push_back(node);
+        }
+        if (descendants) {
+            if ((node->type() & (DOM_DOCUMENT | DOM_ELEMENT)) != 0)
+                node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
+        } else {
+            if (pathElement.axis == XPA_DESCENDANT)
+                node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
+        }
+    }
+
+    if (matchedNodes.empty())
+        return;
+
+    if (pathElement.nodePosition != 0) {
+        int matchedPosition;
+        if (pathElement.nodePosition < 0)
+            matchedPosition = matchedNodes.size() + pathElement.nodePosition;
+        else
+            matchedPosition = pathElement.nodePosition - 1;
+        if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())
+            return;
+        Node* anode = matchedNodes[matchedPosition];
+        matchedNodes.clear();
+        matchedNodes.push_back(anode);
+    }
+
+    for (auto node: matchedNodes)
+        node->matchNode(nodes, pathElements, pathPosition, starPointer);
+}
+
 void Node::scanDescendents(NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
                               const std::string* starPointer)
 {
-    const XPathElement& pathElement = pathElements[size_t(pathPosition)];
-    Node* lastNode = nullptr;
-    int currentPosition = 1;
     NodeVector matchedNodes;
-    for (auto node: *this) {
-        bool nameMatches = false;
-        bool positionMatches = false;
-        if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
-            currentPosition++;
-            node->matchNode(nodes, pathElements, pathPosition, starPointer);
-        } else {
-            if (nameMatches)
-                currentPosition++;
-            if (pathElement.nodePosition < 0 && nameMatches)
-                lastNode = node;
-        }
-        if ((node->type() & (DOM_DOCUMENT | DOM_ELEMENT)) != 0)
-            node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
-    }
-    if (lastNode != nullptr)
-        lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
+    matchNodesThisLevel(nodes, pathElements, pathPosition, starPointer, matchedNodes, true);
 }
 
 void Node::matchNode(NodeVector& nodes, const vector<XPathElement>& pathElements, int pathPosition,
@@ -226,24 +239,8 @@ void Node::matchNode(NodeVector& nodes, const vector<XPathElement>& pathElements
         return;
     }
 
-    const XPathElement& pathElement = pathElements[size_t(pathPosition)];
-
-    Node* lastNode = nullptr;
-    int currentPosition = 1;
-    for (auto node: *this) {
-        bool nameMatches;
-        bool positionMatches;
-        //string nodeName = node->name();
-        if (node->matchPathElement(pathElement, currentPosition, starPointer, nameMatches, positionMatches)) {
-            currentPosition++;
-            node->matchNode(nodes, pathElements, pathPosition, starPointer);
-        } else if (pathElement.nodePosition < 0 && nameMatches)
-            lastNode = node;
-        if (pathElement.axis == XPA_DESCENDANT)
-            node->scanDescendents(nodes, pathElements, pathPosition, starPointer);
-    }
-    if (lastNode != nullptr)
-        lastNode->matchNode(nodes, pathElements, pathPosition, starPointer);
+    NodeVector matchedNodes;
+    matchNodesThisLevel(nodes, pathElements, pathPosition, starPointer, matchedNodes, false);
 }
 
 void Node::select(NodeVector& nodes, String xpath)
@@ -675,9 +672,9 @@ TEST(SPTK_XmlElement, select4)
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("1", elementSet[0]->text().c_str());
 
-    //document.select(elementSet, "/AAA/BBB[last()]");
-    //EXPECT_EQ(size_t(1), elementSet.size());
-    //EXPECT_STREQ("4", elementSet[0]->text().c_str());
+    document.select(elementSet, "/AAA/BBB[last()]");
+    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_STREQ("4", elementSet[0]->text().c_str());
 }
 
 #endif

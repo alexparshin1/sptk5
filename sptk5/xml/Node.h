@@ -245,8 +245,10 @@ private:
      * @param positionMatches   (output) true if the node position matches the XPath element
      * @returns true if node matches the XPath element
      */
-    bool matchPathElement(const XPathElement& pathElement, int nodePosition, const std::string* starPointer,
-                          bool& nameMatches, bool& positionMatches);
+    bool matchPathElement(const XPathElement& pathElement, const std::string* starPointer, bool& nameMatches);
+
+    void matchNodesThisLevel(NodeVector& nodes, const std::vector<XPathElement>& pathElements, int pathPosition,
+                             const std::string* starPointer, NodeVector& matchedNodesThisLevel, bool descendants);
 
     /**
      * @brief Checks if the node matches the path element (internal)
