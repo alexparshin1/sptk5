@@ -49,14 +49,16 @@ HttpReader::HttpReader()
 bool HttpReader::readStatus(TCPSocket& socket)
 {
     string status;
-    if (socket.readLine(status) < 2)
-        socket.readLine(status);
-    if (status.empty())
-        return false;
+    while (socket.readLine(status) < 3) {
+        if (status.empty())
+            return false;
+        socket.readyToRead(chrono::seconds(1));
+    }
+
     Strings matches;
     if (!m_matchProtocolAndResponseCode.m(status, matches)) {
         m_readerState = READ_ERROR;
-        throw Exception("Broken HTTP version header");
+        throw Exception("Broken HTTP version header: [" + status + "]");
     }
     m_statusCode = string2int(matches[1]);
     if (matches.size() > 2)
@@ -147,6 +149,7 @@ bool HttpReader::readData(TCPSocket& socket)
                     chunkSizeStr = trim(chunkSizeStr);
                 }
 
+                errno = 0;
                 m_currentChunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
                 if (errno != 0)
                     throw Exception("Strange chunk size: '" + chunkSizeStr + "'");

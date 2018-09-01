@@ -54,6 +54,7 @@ void BaseSocket::throwSocketError(const string& operation, const char* file, int
     if (lpMsgBuf)
         errorStr = lpMsgBuf;
 #else
+    int err = errno;
     errorStr = strerror(errno);
 #endif
     throw Exception(operation + ": " + errorStr, file, line);
@@ -214,9 +215,13 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                     default:
                         break;
                 }
-                if (!readyToWrite(timeout)) {
+                try {
+                    if (!readyToWrite(timeout))
+                        throw Exception("Connection timeout");
+                }
+                catch (const exception& e) {
                     close();
-                    throw Exception("Connection timeout");
+                    throw;
                 }
                 rc = 0;
                 blockingMode(true);
@@ -411,7 +416,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) == CONNCLOSED)
+    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
         throw ConnectionException("Connection closed");
 #endif
     return rc != 0;
@@ -444,7 +449,7 @@ bool BaseSocket::readyToRead(DateTime timeout)
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) == CONNCLOSED)
+    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
         throw ConnectionException("Connection closed");
 #endif
     return rc != 0;
@@ -476,7 +481,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) == CONNCLOSED)
+    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
         throw Exception("Connection closed");
 #endif
     return rc != 0;
@@ -508,7 +513,7 @@ bool BaseSocket::readyToWrite(DateTime timeout)
     int rc = poll(&pfd, 1, timeoutMS);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) == CONNCLOSED)
+    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
         throw Exception("Connection closed");
 #endif
     return rc != 0;

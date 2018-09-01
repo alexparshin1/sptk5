@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sptk5/net/TCPSocket.h>
+#include <thread>
 
 using namespace std;
 using namespace sptk;
@@ -59,18 +60,28 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
 
     if (availableBytes == 0) {
         m_readOffset = 0;
-        if (from != nullptr) {
+        int error;
+        do {
+            error = 0;
+            if (from != nullptr) {
 #ifdef _WIN32
-            int flen = sizeof(sockaddr_in);
+                int flen = sizeof(sockaddr_in);
 #else
-			socklen_t flen = sizeof(sockaddr_in);
+                socklen_t flen = sizeof(sockaddr_in);
 #endif
-            m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_capacity - 2, 0, (sockaddr*) from, &flen);
-        } else {
-            m_bytes = m_socket.recv(m_buffer, m_capacity - 2);
-        }
-        if (int(m_bytes) == -1)
-            THROW_SOCKET_ERROR("Can't read from socket");
+                m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_capacity - 2, 0, (sockaddr*) from, &flen);
+            } else {
+                m_bytes = m_socket.recv(m_buffer, m_capacity - 2);
+            }
+            if (int(m_bytes) == -1) {
+                error = errno;
+                if (error == EAGAIN) {
+                    if (!m_socket.readyToRead(chrono::seconds(1)))
+                        throw TimeoutException("Can't read from socket: timeout");
+                } else
+                    THROW_SOCKET_ERROR("Can't read from socket");
+            }
+        } while (error == EAGAIN);
 
         availableBytes = int (m_bytes);
         m_buffer[m_bytes] = 0;
