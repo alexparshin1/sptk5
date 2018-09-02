@@ -33,7 +33,6 @@ documentation and/or software.
 /* interface header */
 #include <sptk5/md5.h>
 #include <cstring>
-#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;

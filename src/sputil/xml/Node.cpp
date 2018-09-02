@@ -612,7 +612,6 @@ const std::string& CDataSection::nodeName() const
 
 #if USE_GTEST
 #include <gtest/gtest.h>
-#include <sptk5/json/JsonDocument.h>
 
 static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
 static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");

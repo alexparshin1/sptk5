@@ -460,7 +460,6 @@ void Document::exportTo(json::Element& json) const
 
 #if USE_GTEST
 #include <gtest/gtest.h>
-#include <sptk5/json/JsonDocument.h>
 
 static const char* testXML =
         "<name>John</name><age>33</age><temperature>33.6</temperature><timestamp>1519005758000</timestamp>"

@@ -459,7 +459,7 @@ bool DirectoryDS::open()
 struct TempDirectory
 {
     String  m_path;
-    TempDirectory(const String& path)
+    explicit TempDirectory(const String& path)
     : m_path(path)
     {
 #ifdef _WIN32

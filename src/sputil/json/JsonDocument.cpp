@@ -139,7 +139,6 @@ const Element& Document::root() const
 
 #if USE_GTEST
 #include <gtest/gtest.h>
-#include <sptk5/json/JsonDocument.h>
 
 const char* testJSON =
         R"({ "name": "John", "age": 33, "temperature": 33.6, "timestamp": 1519005758000 )"

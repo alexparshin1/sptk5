@@ -215,7 +215,6 @@ const Buffer& Tar::file(std::string fileName) const
 #if USE_GTEST
 #include <gtest/gtest.h>
 #include <fstream>
-#include <sptk5/SystemException.h>
 #include <sptk5/md5.h>
 
 static const string gtestTempDirectory("gtest_temp_directory3");

@@ -142,7 +142,7 @@ protected:
     /**
      * Log options, a bit combination of Option
      */
-	std::atomic_int32_t         m_options;
+	std::atomic<int32_t>        m_options;
 
 
 public:

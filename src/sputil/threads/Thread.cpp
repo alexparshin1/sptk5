@@ -107,7 +107,7 @@ class TestThread: public Thread
 {
     atomic_int  m_counter;
 public:
-    TestThread(const String& threadName)
+    explicit TestThread(const String& threadName)
     : Thread(threadName), m_counter(0)
     {}
 
