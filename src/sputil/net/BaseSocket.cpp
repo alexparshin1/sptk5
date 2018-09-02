@@ -54,7 +54,6 @@ void BaseSocket::throwSocketError(const string& operation, const char* file, int
     if (lpMsgBuf)
         errorStr = lpMsgBuf;
 #else
-    int err = errno;
     errorStr = strerror(errno);
 #endif
     throw Exception(operation + ": " + errorStr, file, line);
