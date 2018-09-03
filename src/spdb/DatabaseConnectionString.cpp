@@ -36,6 +36,17 @@ static const Strings driverNames("sqlite3|postgres|postgresql|oracle|mysql|fireb
 
 void DatabaseConnectionString::parse()
 {
+    m_driverName = "";
+    m_hostName = "";
+    m_portNumber = 0;
+    m_userName = "";
+    m_password = "";
+    m_databaseName = "";
+    m_parameters.clear();
+
+    if (m_connectionString.empty())
+        return;
+
     size_t pos;
     String connStr(m_connectionString);
 
@@ -120,6 +131,11 @@ String DatabaseConnectionString::parameter(const String& name) const
     if (itor == m_parameters.end())
         return "";
     return itor->second;
+}
+
+bool DatabaseConnectionString::empty() const
+{
+    return m_hostName.empty();
 }
 
 #if USE_GTEST

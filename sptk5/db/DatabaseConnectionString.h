@@ -116,9 +116,8 @@ public:
      * Constructor
      * @param connectionString  Database connection string
      */
-    explicit DatabaseConnectionString(const String& connectionString) :
-        m_connectionString(connectionString),
-        m_portNumber(0)
+    explicit DatabaseConnectionString(const String& connectionString = "") :
+        m_connectionString(connectionString)
     {
         parse();
     }
@@ -127,30 +126,13 @@ public:
      * Copy constructor
      * @param cs                Database connection string object to copy from
      */
-    DatabaseConnectionString(const DatabaseConnectionString& cs) :
-        m_connectionString(cs.m_connectionString),
-        m_portNumber(0)
-    {
-        parse();
-    }
+    DatabaseConnectionString(const DatabaseConnectionString& cs) = default;
 
     /**
      * Assignment
      * @param cs                Database connection string object to copy from
      */
-    DatabaseConnectionString& operator = (const DatabaseConnectionString& cs)
-    {
-        m_connectionString = cs.m_connectionString;
-        m_driverName = "";
-        m_hostName = "";
-        m_portNumber = 0;
-        m_userName = "";
-        m_password = "";
-        m_databaseName = "";
-        m_parameters.clear();
-        parse();
-        return *this;
-    }
+    DatabaseConnectionString& operator = (const DatabaseConnectionString& cs) = default;
 
     /**
      * Returns connection string
@@ -229,6 +211,11 @@ public:
      * @return parameter value
      */
     String parameter(const String& name) const;
+
+    /**
+     * Is connection string empty?
+     */
+    bool empty() const;
 };
 /**
  * @}

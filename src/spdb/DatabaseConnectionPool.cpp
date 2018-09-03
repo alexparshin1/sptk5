@@ -206,27 +206,55 @@ void DatabaseConnectionPool::destroyConnection(DatabaseConnection* connection, b
 #include <gtest/gtest.h>
 #include <sptk5/db/DatabaseTests.h>
 
-TEST(SPTK_DatabaseConnectionPool, connect)
+TEST(SPTK_PostgreSQLConnection, connect)
 {
-    for (auto connectionString: databaseTests.connectionStrings()) {
-        try {
-            databaseTests.testConnect(connectionString);
-        }
-        catch (const exception& e) {
-            FAIL() << connectionString.toString() << ": " << e.what();
-        }
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testConnect(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
 
-TEST(SPTK_DatabaseConnectionPool, DDL)
+TEST(SPTK_PostgreSQLConnection, DDL)
 {
-    for (auto connectionString: databaseTests.connectionStrings()) {
-        try {
-            databaseTests.testDDL(connectionString);
-        }
-        catch (const exception& e) {
-            FAIL() << connectionString.toString() << ": " << e.what();
-        }
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testDDL(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MySQLConnection, connect)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testConnect(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MySQLConnection, DDL)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testDDL(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
 

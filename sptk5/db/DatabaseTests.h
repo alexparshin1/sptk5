@@ -35,11 +35,12 @@ namespace sptk {
 
 class DatabaseTests
 {
-    std::vector<DatabaseConnectionString> m_connectionStrings;
+    std::map<String, DatabaseConnectionString> m_connectionStrings;
 public:
     DatabaseTests();
     void addConnection(const DatabaseConnectionString& connectionString);
-    const std::vector<DatabaseConnectionString>& connectionStrings() const;
+    std::vector<DatabaseConnectionString> connectionStrings() const;
+    DatabaseConnectionString connectionString(const String& driverName) const;
 
     void testConnect(const DatabaseConnectionString& connectionString);
     void testDDL(const DatabaseConnectionString& connectionString);

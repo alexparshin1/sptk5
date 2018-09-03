@@ -40,14 +40,17 @@ DatabaseTests::DatabaseTests()
 {
 }
 
-const std::vector<DatabaseConnectionString>& DatabaseTests::connectionStrings() const
+vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
-    return m_connectionStrings;
+    vector<DatabaseConnectionString> connectionStrings;
+    for (auto itor: m_connectionStrings)
+        connectionStrings.push_back(itor.second);
+    return connectionStrings;
 }
 
 void DatabaseTests::addConnection(const DatabaseConnectionString& connectionString)
 {
-    m_connectionStrings.push_back(connectionString);
+    m_connectionStrings[connectionString.driverName()] = connectionString;
 }
 
 void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString)
@@ -87,17 +90,25 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
 }
 
 struct Row {
-    int     id;
-    string  name;
-    double  price;
+    int         id;
+    string      name;
+    double      price;
+    DateTime    ts;
 };
 
-static vector<Row> rows = {
-    { 1, "apple", 1.5 },
-    { 2, "pear",  3.1 },
-    { 3, "melon", 1.05 },
-    { 4, "watermelon", 0.85 },
-    { 5, "lemon", 5.5 }
+static const vector<Row> rows = {
+    { 1, "apple", 1.5, DateTime::Now() },
+    { 2, "pear",  3.1, DateTime::Now() },
+    { 3, "melon", 1.05, DateTime() },
+    { 4, "watermelon", 0.85, DateTime::Now() },
+    { 5, "lemon", 5.5, DateTime::Now() }
+};
+
+static const map<String,String> dateTimeFieldTypes = {
+    { "mysql", "TIMESTAMP" },
+    { "postgresql", "TIMESTAMP" },
+    { "mssql", "DATETIME" },
+    { "oracle", "DATETIME" }
 };
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
@@ -105,19 +116,30 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection* db = connectionPool.createConnection();
 
+    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
+    if (itor == dateTimeFieldTypes.end())
+        throw Exception("DateTime data type mapping is not defined for the test");
+    String dateTimeType = itor->second;
+
+    stringstream createTableSQL;
+    createTableSQL << "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2), ";
+    createTableSQL << "ts " << dateTimeType;
+    createTableSQL << ")";
+
     db->open();
-    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2))");
+    Query createTable(db, createTableSQL.str());
     Query dropTable(db, "DROP TABLE gtest_temp_table");
 
     try { dropTable.exec(); } catch (...) {}
 
     createTable.exec();
 
-    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price)");
+    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price, :ts)");
     for (auto& row: rows) {
         insert.param("id") = row.id;
         insert.param("name") = row.name;
         insert.param("price") = row.price;
+        insert.param("ts") = row.ts;
         insert.exec();
     }
 
@@ -184,4 +206,12 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
     db->close();
 
     connectionPool.destroyConnection(db);
+}
+
+DatabaseConnectionString DatabaseTests::connectionString(const String& driverName) const
+{
+    auto itor = m_connectionStrings.find(driverName);
+    if (itor == m_connectionStrings.end())
+        return DatabaseConnectionString("");
+    return itor->second;
 }
