@@ -39,7 +39,7 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
     for (unsigned i = 0; i < m_count; i++) {
         QueryParameter* param = m_params[i];
         VariantType ptype = param->dataType();
-        PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i]);
+        PostgreSQLConnection::CTypeToPostgreType(ptype, m_types[i], param->name());
 
         if ((ptype & (VAR_INT|VAR_INT64|VAR_FLOAT|VAR_BUFFER|VAR_DATE|VAR_DATE_TIME)) != 0)
             m_formats[i] = 1; // Binary format

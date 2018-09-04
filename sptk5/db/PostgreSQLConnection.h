@@ -168,7 +168,7 @@ public:
     /**
      * @brief Converts datatype from SPTK VariantType to PostgreSQL type
      */
-    static void CTypeToPostgreType(VariantType dataType, Oid& postgreType);
+    static void CTypeToPostgreType(VariantType dataType, Oid& postgreType, const String& paramName);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.

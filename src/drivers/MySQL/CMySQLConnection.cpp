@@ -251,7 +251,8 @@ void MySQLConnection::queryBindParameters(Query* query)
 
     auto statement = (MySQLStatement*) query->statement();
     try {
-        if (statement == nullptr) throwDatabaseException("Query not prepared");
+        if (statement == nullptr)
+            throwDatabaseException("Query not prepared");
         statement->setParameterValues();
     }
     catch (exception& e) {

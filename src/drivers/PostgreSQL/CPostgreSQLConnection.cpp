@@ -534,7 +534,7 @@ void PostgreSQLConnection::PostgreTypeToCType(int postgreType, VariantType& data
     }
 }
 
-void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgreType)
+void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgreType, const String& paramName)
 {
     switch (dataType) {
         case VAR_INT:
@@ -572,7 +572,7 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantType dataType, Oid& postgre
             return;           ///< Boolean
 
         default:
-            throwException("Unsupported SPTK data type: " << dataType);
+            throw DatabaseException("Unsupported parameter type(" + to_string(dataType) + ") for parameter '" + paramName + "'");
     }
 }
 

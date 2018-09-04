@@ -275,7 +275,7 @@ void MySQLStatement::setParameterValues()
             break;
 
         default:
-            throw DatabaseException("Unsupported parameter type");
+            throw DatabaseException("Unsupported parameter type(" + to_string(param->dataType()) + ") for parameter '" + param->name() + "'");
         }
         if (setNull)
             bind.is_null = &nullValue;
