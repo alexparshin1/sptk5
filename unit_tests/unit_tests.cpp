@@ -104,8 +104,8 @@ int main(int argc, char* argv[])
 	// and user 'test' has password 'test#123'.
 
 	//databaseTests.addConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost_pg:5432/gtest"));
-    //databaseTests.addConnection(DatabaseConnectionString("mysql://test:test#123@dbhost_mysql/gtest"));
-	databaseTests.addConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
+    databaseTests.addConnection(DatabaseConnectionString("mysql://protis:wsxedc@127.0.0.1:3306/gtest"));
+	//databaseTests.addConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

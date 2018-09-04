@@ -139,7 +139,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.param("id") = row.id;
         insert.param("name") = row.name;
         insert.param("price") = row.price;
-        insert.param("ts") = row.ts;
+        insert.param("ts").setNull(VAR_DATE_TIME);
         insert.exec();
     }
 
@@ -158,7 +158,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     }
     select.close();
 
-    dropTable.exec();
+    //dropTable.exec();
 
     db->close();
 
