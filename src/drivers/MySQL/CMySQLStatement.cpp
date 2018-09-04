@@ -64,7 +64,7 @@ public:
     {
         delete [] m_tempBuffer;
     }
-    
+
     void bindCallbacks(MYSQL_BIND* bind)
     {
         bind->length = &m_cbLength;
@@ -262,9 +262,8 @@ void MySQLStatement::setParameterValues()
         case VAR_DATE_TIME:
             m_paramLengths[paramIndex] = sizeof(MYSQL_TIME);
             bind.buffer = (void*) param->conversionBuffer();
-            setNull = false;
             if (param->isNull())
-                dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, DateTime(), param->dataType());
+                m_paramLengths[paramIndex] = 0;
             else
                 dateTimeToMySQLDate(*(MYSQL_TIME*)bind.buffer, param->getDateTime(), param->dataType());
             break;
