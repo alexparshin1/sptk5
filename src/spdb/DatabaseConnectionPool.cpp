@@ -258,4 +258,30 @@ TEST(SPTK_MySQLConnection, DDL)
     }
 }
 
+TEST(SPTK_OracleConnection, connect)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oracle connection is not defined";
+    try {
+        databaseTests.testConnect(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_OracleConnection, DDL)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oracle connection is not defined";
+    try {
+        databaseTests.testDDL(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 #endif
