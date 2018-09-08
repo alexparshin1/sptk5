@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/Exception.h>
+#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -34,11 +35,17 @@ using namespace sptk;
 Exception::Exception(const String& text, const String& file, int line, const String& description) DOESNT_THROW
 : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
 {
-    if (m_line != 0 && !m_file.empty())
-        m_fullMessage += " " + m_file + "(" + int2string(uint32_t(m_line)) + ") ";
+    if (m_line != 0 && !m_file.empty()) {
+        RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
+        Strings matches;
+        String fname(file);
+        if (matchFileName.m(file, matches))
+            fname = matches[0];
+        m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
+    }
 
     if (!m_description.empty())
-        m_fullMessage += "\n" + m_description;
+        m_fullMessage += ". " + m_description + ".";
 }
 
 Exception::Exception(const Exception& other) DOESNT_THROW
@@ -202,3 +209,28 @@ HTTPException::HTTPException(size_t statusCode, const String& text, const String
             break;
     }
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+TEST(Exception, throw)
+{
+    try {
+        throw Exception("Test exception");
+    }
+    catch (const Exception& e) {
+        EXPECT_STREQ("Test exception", e.what());
+    }
+
+    try {
+        throw Exception("Test exception", __FILE__, 1234, "This happens sometimes");
+    }
+    catch (const Exception& e) {
+        EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
+        EXPECT_STREQ("Test exception", e.message().c_str());
+        EXPECT_STREQ(__FILE__, e.file().c_str());
+        EXPECT_EQ(1234, e.line());
+    }
+}
+
+#endif
