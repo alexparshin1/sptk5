@@ -214,6 +214,10 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
 
+    Strings strings2(strings);
+    EXPECT_EQ(size_t(3), strings2.size());
+    EXPECT_STREQ(testString.c_str(), strings2.join("\n").c_str());
+
     strings.fromString(testString, "\n", Strings::SM_DELIMITER);
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(testString.c_str(), strings.join("\n").c_str());
@@ -239,6 +243,17 @@ TEST(SPTK_Strings, indexOf)
     strings.sort(false);
     EXPECT_EQ(2, strings.indexOf("text that contains several"));
     EXPECT_EQ(-1, strings.indexOf("text that Contains"));
+}
+
+TEST(SPTK_Strings, grep)
+{
+    Strings strings(testString, "[\\n\\r]+", Strings::SM_REGEXP);
+
+    Strings group1 = strings.grep("text");
+    EXPECT_EQ(size_t(1), group1.size());
+
+    Strings group2 = strings.grep("text|rows");
+    EXPECT_EQ(size_t(2), group2.size());
 }
 
 #endif
