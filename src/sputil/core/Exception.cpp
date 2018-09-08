@@ -233,4 +233,19 @@ TEST(Exception, throw)
     }
 }
 
+TEST(HttpException, throw)
+{
+    try {
+        throw HTTPException(404, "File not found", __FILE__, 1234, "This happens sometimes");
+    }
+    catch (const HTTPException& e) {
+        EXPECT_STREQ("File not found in core/Exception.cpp(1234). This happens sometimes.", e.what());
+        EXPECT_STREQ("File not found", e.message().c_str());
+        EXPECT_STREQ(__FILE__, e.file().c_str());
+        EXPECT_EQ(1234, e.line());
+        EXPECT_EQ(size_t(404), e.statusCode());
+        EXPECT_STREQ("Not Found", e.statusText().c_str());
+    }
+}
+
 #endif
