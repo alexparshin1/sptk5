@@ -246,6 +246,18 @@ TEST(HttpException, throw)
         EXPECT_EQ(size_t(404), e.statusCode());
         EXPECT_STREQ("Not Found", e.statusText().c_str());
     }
+
+    try {
+        throw HTTPException(500, "Something happen", __FILE__, 1234, "This happens sometimes");
+    }
+    catch (const HTTPException& e) {
+        EXPECT_STREQ("Something happen in core/Exception.cpp(1234). This happens sometimes.", e.what());
+        EXPECT_STREQ("Something happen", e.message().c_str());
+        EXPECT_STREQ(__FILE__, e.file().c_str());
+        EXPECT_EQ(1234, e.line());
+        EXPECT_EQ(size_t(500), e.statusCode());
+        EXPECT_STREQ("Internal Server Error", e.statusText().c_str());
+    }
 }
 
 #endif
