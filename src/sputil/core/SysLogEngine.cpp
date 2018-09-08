@@ -135,23 +135,6 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
         }
 #endif
     }
-
-    if (options & LO_STDOUT) {
-        string messagePrefix;
-        if (options & LO_DATE)
-            messagePrefix += message->timestamp.dateString() + " ";
-
-        if (options & LO_TIME)
-            messagePrefix += message->timestamp.timeString(true) + " ";
-
-        if (options & LO_PRIORITY)
-            messagePrefix += "[" + priorityName(message->priority) + "] ";
-
-        if (message->priority > LP_ERROR)
-            cout << messagePrefix + message->message + "\n";
-        else
-            cerr << messagePrefix + message->message + "\n";
-    }
 }
 
 SysLogEngine::~SysLogEngine()

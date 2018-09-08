@@ -53,20 +53,7 @@ void FileLogEngine::saveMessage(const Logger::Message* message)
         m_fileStream << message << endl;
     }
 
-    if ((m_options & LO_STDOUT) == LO_STDOUT) {
-        if ((m_options & LO_DATE) == LO_DATE)
-            cout << message->timestamp.dateString() << " ";
-
-        if ((m_options & LO_TIME) == LO_TIME)
-            cout << message->timestamp.timeString(true) << " ";
-
-        if ((m_options & LO_PRIORITY) == LO_PRIORITY)
-            cout << "[" << priorityName(message->priority) << "] ";
-
-        cout << message << endl;
-    }
-
-    if (m_fileStream.bad())
+	if (m_fileStream.bad())
         throw Exception("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
 }
 

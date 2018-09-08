@@ -167,6 +167,9 @@ String Host::toString(bool forceAddress) const
     std::lock_guard<std::mutex> lock(m_mutex);
     std::stringstream str;
 
+	if (m_hostname.empty())
+		return "";
+
     string address;
     if (forceAddress) {
         char buffer[128];
