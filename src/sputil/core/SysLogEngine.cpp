@@ -57,7 +57,8 @@ static atomic<bool>    m_logOpened(false);
  */
 
 SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
-: m_facilities(facilities)
+: LogEngine("SysLogEngine"),
+  m_facilities(facilities)
 {
 #ifndef _WIN32
     m_objectCounter++;
@@ -67,7 +68,7 @@ SysLogEngine::SysLogEngine(const string& _programName, uint32_t facilities)
     programName(_programName);
 }
 
-void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
+void SysLogEngine::saveMessage(const Logger::Message* message)
 {
     uint32_t    options;
     string      programName;
@@ -85,7 +86,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
         lock_guard<mutex> lock(m_mutex);
         if (!m_logOpened)
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
-        syslog(int(facilities | priority), "[%s] %s", priorityName(priority).c_str(), message);
+        syslog(int(facilities | message->priority), "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
 #else
         if (m_logHandle.load() == nullptr) {
             OSVERSIONINFO version;
@@ -100,7 +101,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
             throw Exception("Can't open Application Event Log");
 
         WORD eventType;
-        switch (priority) {
+        switch (message->priority) {
             case LOG_EMERG:
             case LOG_ALERT:
             case LOG_CRIT:
@@ -116,7 +117,7 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
         }
 
         //const char *messageStrings[] = { message, NULL };
-        LPCTSTR messageStrings[]= {TEXT(message)};
+        LPCTSTR messageStrings[]= {TEXT(message->message)};
 
         if (!ReportEvent(
                         m_logHandle,    // handle returned by RegisterEventSource
@@ -138,18 +139,18 @@ void SysLogEngine::saveMessage(const DateTime& date, const char* message, uint32
     if (options & LO_STDOUT) {
         string messagePrefix;
         if (options & LO_DATE)
-            messagePrefix += date.dateString() + " ";
+            messagePrefix += message->timestamp.dateString() + " ";
 
         if (options & LO_TIME)
-            messagePrefix += date.timeString(true) + " ";
+            messagePrefix += message->timestamp.timeString(true) + " ";
 
         if (options & LO_PRIORITY)
-            messagePrefix += "[" + priorityName(priority) + "] ";
+            messagePrefix += "[" + priorityName(message->priority) + "] ";
 
-        if (priority > LP_ERROR)
-            cout << messagePrefix + message + "\n";
+        if (message->priority > LP_ERROR)
+            cout << messagePrefix + message->message + "\n";
         else
-            cerr << messagePrefix + message + "\n";
+            cerr << messagePrefix + message->message + "\n";
     }
 }
 

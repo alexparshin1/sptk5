@@ -31,35 +31,13 @@
 
 #include <sptk5/DateTime.h>
 #include <sptk5/threads/SynchronizedCode.h>
+#include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/LogPriority.h>
+#include <sptk5/Logger.h>
 
 #include <atomic>
 #include <iostream>
-
-#ifndef _WIN32
-    #include <syslog.h>
-#else
-    /* priority codes */
-    #define LOG_EMERG   0   /* system is unusable */
-    #define LOG_ALERT   1   /* action must be taken immediately */
-    #define LOG_CRIT    2   /* critical conditions */
-    #define LOG_ERR     3   /* error conditions */
-    #define LOG_WARNING 4   /* warning conditions */
-    #define LOG_NOTICE  5   /* normal but significant condition */
-    #define LOG_INFO    6   /* informational */
-    #define LOG_DEBUG   7   /* debug-level messages */
-
-    /* facility codes */
-    #define LOG_KERN        (0<<3)  /* kernel messages */
-    #define LOG_USER        (1<<3)  /* random user-level messages */
-    #define LOG_MAIL        (2<<3)  /* mail system */
-    #define LOG_DAEMON      (3<<3)  /* system daemons */
-    #define LOG_AUTH        (4<<3)  /* security/authorization messages */
-    #define LOG_SYSLOG      (5<<3)  /* messages generated internally by syslogd */
-    #define LOG_LPR         (6<<3)  /* line printer subsystem */
-    #define LOG_NEWS        (7<<3)  /* network news subsystem */
-    #define LOG_UUCP        (8<<3)  /* UUCP subsystem */
-    #define LOG_CRON        (9<<3)  /* clock daemon */
-#endif
+#include <sptk5/threads/Thread.h>
 
 namespace sptk {
 
@@ -69,91 +47,56 @@ namespace sptk {
  */
 
 /**
- * @brief Log message priority
- */
-enum LogPriority : unsigned
-{
-    /**
-     * Debug message priority
-     */
-    LP_DEBUG    = LOG_DEBUG,
-
-    /**
-     * Information message priority
-     */
-    LP_INFO     = LOG_INFO,
-
-    /**
-     * Notice message priority
-     */
-    LP_NOTICE   = LOG_NOTICE,
-
-    /**
-     * Warning message priority
-     */
-    LP_WARNING  = LOG_WARNING,
-
-    /**
-     * Error message priority
-     */
-    LP_ERROR    = LOG_ERR,
-
-    /**
-     * Critical message priority
-     */
-    LP_CRITICAL = LOG_CRIT,
-
-    /**
-     * Alert message priority
-     */
-    LP_ALERT    = LOG_ALERT,
-
-    /**
-     * Panic message priority
-     */
-    LP_PANIC    = LOG_EMERG
-
-};
-
-/**
  * @brief Base class for various log engines.
  *
  * This class is abstract. Derived classes have to implement
  * at least saveMessage() method.
  */
-class SP_EXPORT LogEngine
+class SP_EXPORT LogEngine : public Thread
 {
+    friend class Logger;
+
+public:
+    void threadFunction() override;
+
 protected:
     /**
      * Mutex that protects internal data access
      */
-    mutable std::mutex          m_mutex;
+    mutable std::mutex                  m_mutex;
 
     /**
      * The default priority for the new message
      */
-    std::atomic<LogPriority>    m_defaultPriority;
+    std::atomic<LogPriority>            m_defaultPriority;
 
     /**
      * Min message priority, should be defined for every message
      */
-	std::atomic<LogPriority>    m_minPriority;
+	std::atomic<LogPriority>            m_minPriority;
 
     /**
      * Log options, a bit combination of Option
      */
-	std::atomic<int32_t>        m_options;
+	std::atomic<int32_t>                m_options;
 
+	/**
+	 * Message queue
+	 */
+    SynchronizedQueue<Logger::Message*> m_messages;
+
+    /**
+     * Log a message
+     * @param message           Message
+     */
+    void log(Logger::Message* message);
 
 public:
     /**
      * @brief Stores or sends log message to actual destination
-     * @param date              Message timestamp
-     * @param message           Message text
-     * @param sz                Message size
-     * @param priority          Message priority. @see LogPriority for more information.
+     * @param message           Log message
      */
-    virtual void saveMessage(const DateTime& date, const char *message, uint32_t sz, LogPriority priority) = 0;
+    virtual void saveMessage(const Logger::Message* message) = 0;
 
     /**
      * @brief Log options
@@ -193,7 +136,7 @@ public:
      *
      * Creates a new log object.
      */
-    LogEngine();
+    LogEngine(const String& logEngineName);
 
     /**
      * @brief Destructor

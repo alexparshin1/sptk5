@@ -60,13 +60,13 @@ int SmtpConnect::getResponse(bool decode)
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
         longLine = readBuffer;
         if (m_log != nullptr)
-            *m_log << "[RECV] " << readBuffer << endl;
+            m_log->debug("[RECV] " + string(readBuffer));
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
                 len = readLine(readBuffer, RSP_BLOCK_SIZE);
                 longLine += readBuffer;
                 if (m_log != nullptr)
-                    *m_log << "[RECV] " << readBuffer << endl;
+                    m_log->debug("[RECV] " + string(readBuffer));
             }
             while (len == RSP_BLOCK_SIZE);
         }
@@ -101,7 +101,7 @@ void SmtpConnect::sendCommand(string cmd, bool encode)
     if (encode)
         cmd = mime(cmd);
     if (m_log != nullptr)
-        *m_log << "[SEND] " << cmd << endl;
+        m_log->debug("[SEND] " + string(cmd));
     cmd += "\r\n";
     write(cmd.c_str(), (uint32_t) cmd.length());
 }

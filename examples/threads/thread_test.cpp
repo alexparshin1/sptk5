@@ -48,23 +48,23 @@ CMyThread::CMyThread(const string& threadName, FileLogEngine& sharedLog) :
         Thread(threadName), m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
-    m_log << name() << " is created" << endl;
+    m_log.info(name() + " is created");
 }
 
 // The thread function. Prints a message once a second till terminated
 void CMyThread::threadFunction()
 {
-    m_log << name() << " is started" << endl;
+    m_log.info(name() + " is started");
 
     unsigned counter = 0;
     while (!terminated()) {
-        m_log << "Output (1) " << counter << " from " << name() << endl;
-        m_log << "Output (2) " << counter << " from " << name() << endl;
+        m_log.info("Output (1) " + to_string(counter) + " from " + name());
+        m_log.info("Output (2) " + to_string(counter) + " from " + name());
         counter++;
         //msleep(1);
     }
 
-    m_log << name() << " is terminated" << endl;
+    m_log.notice(name() + " is terminated");
 }
 
 int main()
@@ -96,19 +96,19 @@ int main()
         for (i = 0; i < threads.size(); i++)
             threads[i]->run();
 
-        puts("Waiting 1 second while threads are running..");
+        log.info("Waiting 1 second while threads are running..");
         this_thread::sleep_for(chrono::seconds(1));
 
-        log << "Sending 'terminate' signal to all the threads." << endl;
+        log.info("Sending 'terminate' signal to all the threads.");
         // That signal suggests thread to terminate and exits ASAP.
         for (i = 0; i < threads.size(); i++)
             threads[i]->terminate();
 
-        log << "Joining all the threads." << endl;
+        log.info("Joining all the threads.");
         for (i = 0; i < threads.size(); i++)
             threads[i]->join();
 
-        log << "Deleting all the threads." << endl;
+        log.info("Deleting all the threads.");
         // Since threads are created in polite mode (see CMyThread class definition),
         // the delete operation would wait for actual thread termination.
         for (i = 0; i < threads.size(); i++)
@@ -117,7 +117,7 @@ int main()
         return 0;
     }
     catch (const exception& e) {
-        cerr << e.what() << endl;
+        log.error(e.what());
         return 1;
     }
 }

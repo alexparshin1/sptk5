@@ -171,7 +171,7 @@ public:
     void log(LogPriority priority, std::string message)
     {
         if (m_logger)
-            *m_logger << priority << message << std::endl;
+            m_logger->log(priority, message);
     }
 };
 

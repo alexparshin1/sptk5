@@ -53,7 +53,6 @@ namespace sptk
  * On Windows NT/2000+/XP the log is sent to Event Log (Application).
  * On Windows 95/98/ME the system log isn't supported..
  * The facility method allows to define - which system log is used
- * @see CBaseLog for more information about basic log abilities.
  */
 class SP_EXPORT SysLogEngine: public LogEngine
 {
@@ -79,12 +78,9 @@ public:
      * @brief Stores or sends log message to actual destination
      *
      * This method should be overwritten by the actual log implementation
-     * @param date DateTime, message timestamp
-     * @param message const char *, message text
-     * @param sz uint32_t, message size
-     * @param priority CLogPriority, message priority. @see CLogPriority for more information.
+     * @param message           Log message
      */
-    virtual void saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) override;
+    virtual void saveMessage(const Logger::Message* message) override;
 public:
     /**
      * @brief Constructor
@@ -92,11 +88,11 @@ public:
      * Creates a new log object based on the syslog facility (or facilities).
      * For Windows, parameter facilities is ignored and messages are stored
      * into Application event log.
-     * The program name is optional. It is set for all the CSysLog objects at once.
+     * The program name is optional. It is set for all the SysLogEngine objects at once.
      * If set, it appears in the log as a message prefix. Every time the program
      * name is changed, the log is closed to be re-opened on next message.
-     * @param programName std::string, a program name
-     * @param facilities int, log facility or a set of facilities.
+     * @param programName       Program name
+     * @param facilities        Log facility or a set of facilities.
      */
     SysLogEngine(const std::string& programName = "", uint32_t facilities = LOG_USER);
 

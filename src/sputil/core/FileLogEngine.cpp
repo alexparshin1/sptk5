@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-void FileLogEngine::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
+void FileLogEngine::saveMessage(const Logger::Message* message)
 {
     lock_guard<mutex> lock(m_mutex);
     if ((m_options & LO_ENABLE) == LO_ENABLE) {
@@ -42,26 +42,26 @@ void FileLogEngine::saveMessage(const DateTime& date, const char* message, uint3
         }
 
         if ((m_options & LO_DATE) == LO_DATE)
-            m_fileStream << date.dateString() << " ";
+            m_fileStream << message->timestamp.dateString() << " ";
 
         if ((m_options & LO_TIME) == LO_TIME)
-            m_fileStream << date.timeString(true) << " ";
+            m_fileStream << message->timestamp.timeString(true) << " ";
 
         if ((m_options & LO_PRIORITY) == LO_PRIORITY)
-            m_fileStream << "[" << priorityName(priority) << "] ";
+            m_fileStream << "[" << priorityName(message->priority) << "] ";
 
         m_fileStream << message << endl;
     }
 
     if ((m_options & LO_STDOUT) == LO_STDOUT) {
         if ((m_options & LO_DATE) == LO_DATE)
-            cout << date.dateString() << " ";
+            cout << message->timestamp.dateString() << " ";
 
         if ((m_options & LO_TIME) == LO_TIME)
-            cout << date.timeString(true) << " ";
+            cout << message->timestamp.timeString(true) << " ";
 
         if ((m_options & LO_PRIORITY) == LO_PRIORITY)
-            cout << "[" << priorityName(priority) << "] ";
+            cout << "[" << priorityName(message->priority) << "] ";
 
         cout << message << endl;
     }
@@ -69,6 +69,11 @@ void FileLogEngine::saveMessage(const DateTime& date, const char* message, uint3
     if (m_fileStream.bad())
         throw Exception("Can't write to log file '" + m_fileName + "'", __FILE__, __LINE__);
 }
+
+FileLogEngine::FileLogEngine(const String& fileName)
+: LogEngine("FileLogEngine"),
+  m_fileName(fileName)
+{}
 
 FileLogEngine::~FileLogEngine()
 {

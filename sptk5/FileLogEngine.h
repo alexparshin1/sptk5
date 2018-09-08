@@ -46,7 +46,7 @@ namespace sptk {
  * The log file is created automatically if it doesn't exist.
  * @see CBaseLog for more information about basic log abilities.
  */
-class SP_EXPORT FileLogEngine: public LogEngine
+class SP_EXPORT FileLogEngine: public sptk::LogEngine
 {
     /**
      * Log file stream
@@ -62,12 +62,9 @@ class SP_EXPORT FileLogEngine: public LogEngine
 public:
     /**
      * @brief Stores or sends log message to actual destination
-     * @param date              Message timestamp
-     * @param message           Message text
-     * @param sz                Message size
-     * @param priority          Message priority. @see LogPriority for more information.
+     * @param message           Log message
      */
-    virtual void saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority) override;
+    virtual void saveMessage(const Logger::Message* message) override;
 
 public:
     /**
@@ -77,7 +74,7 @@ public:
      * If this file doesn't exist - it will be created.
      * @param fileName          Log file name
      */
-    explicit FileLogEngine(const String& fileName) : m_fileName(fileName) {}
+    explicit FileLogEngine(const String& fileName);
 
     /**
      * @brief Destructor

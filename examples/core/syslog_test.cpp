@@ -48,13 +48,12 @@ int main(int argc, char* argv[])
       Logger authLog(logger2);
 
       cout << "Sending 'Hello, World!' to the log.." << endl;
-      sysLog  << "Hello, World!" << endl;
-      sysLog  << "Welcome to SPTK." << endl;
-      authLog << LP_ALERT << "This is SPTK test message" << endl;
-      sysLog  << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
+      sysLog.info("Hello, World! Welcome to SPTK.");
+      authLog.log(LP_ALERT, "This is SPTK test message");
+      sysLog.log(LP_WARNING, "Eating too much nuts will turn you into HappySquirrel!");
    }
    catch (exception& e) {
-      puts(e.what());
+      cerr << e.what() << endl;
       this_thread::sleep_for(chrono::seconds(5));
    }
 

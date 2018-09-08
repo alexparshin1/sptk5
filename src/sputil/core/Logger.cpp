@@ -26,73 +26,52 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/LogEngine.h>
 #include <sptk5/Logger.h>
 
 using namespace std;
 using namespace sptk;
 
-CLogStreamBuf::CLogStreamBuf()
-{
-    m_parent = nullptr;
-    m_bytes = 0;
-    m_size = 1024;
-    m_buffer = (char *) malloc(m_size);
-    m_priority = LP_NOTICE;
-    m_date = DateTime::Now();
-}
-
-streambuf::int_type CLogStreamBuf::overflow(streambuf::int_type c)
-{
-    bool bufferOverflow = m_bytes > m_size - 2;
-    bool lineBreak = c <= 13;
-
-    if (lineBreak || bufferOverflow) {
-        if (m_bytes != 0) {
-            m_buffer[m_bytes] = 0;
-            if (m_parent != nullptr) {
-                if (m_priority <= m_parent->m_destination.minPriority())
-                    m_parent->saveMessage(m_date, m_buffer, m_bytes, m_priority);
-                if (!bufferOverflow) {
-                    m_priority = m_parent->m_destination.defaultPriority();
-                    m_date = DateTime::Now();
-                }
-            }
-            m_bytes = 0;
-        }
-    }
-
-    if (!lineBreak) {
-        if (m_bytes == 0)
-            m_date = DateTime::Now();
-        m_buffer[m_bytes] = (char) c;
-        m_bytes++;
-    }
-
-    return traits_type::not_eof(c);
-}
-//==========================================================================================
+Logger::Message::Message(LogPriority priority, const String& message)
+: timestamp(DateTime::Now()), priority(priority), message(message)
+{}
 
 Logger::Logger(LogEngine& destination)
-: _ios(nullptr), _ostream((m_buffer = new CLogStreamBuf)), m_destination(destination)
+: m_destination(destination)
 {
-    m_buffer->parent(this);
 }
 
-Logger::~Logger()
+void Logger::log(LogPriority priority, const String& message)
 {
-    flush();
-    delete m_buffer;
+    m_destination.log(new Message(priority, message));
 }
 
-void Logger::saveMessage(const DateTime& date, const char* message, uint32_t sz, LogPriority priority)
+void Logger::debug(const String& message)
 {
-    m_destination.saveMessage(date, message, sz, priority);
+    m_destination.log(new Message(LP_DEBUG, message));
 }
 
-SP_EXPORT Logger& sptk::operator <<(Logger& stream, LogPriority priority)
+void Logger::info(const String& message)
 {
-    if (stream.fail() || stream.bad())
-        stream.clear();
-    stream.messagePriority(priority);
-    return stream;
+    m_destination.log(new Message(LP_INFO, message));
+}
+
+void Logger::notice(const String& message)
+{
+    m_destination.log(new Message(LP_NOTICE, message));
+}
+
+void Logger::warning(const String& message)
+{
+    m_destination.log(new Message(LP_WARNING, message));
+}
+
+void Logger::error(const String& message)
+{
+    m_destination.log(new Message(LP_ERROR, message));
+}
+
+void Logger::critical(const String& message)
+{
+    m_destination.log(new Message(LP_CRITICAL, message));
 }

@@ -44,8 +44,8 @@ WSConnection::WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest
 
 void WSConnection::threadFunction()
 {
-    static const RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
-    static const RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
+    RegularExpression parseProtocol("^(GET|POST) (\\S+)", "i");
+    RegularExpression parseHeader("^([^:]+): \"{0,1}(.*)\"{0,1}$", "i");
 
     Buffer data;
 
@@ -57,7 +57,7 @@ void WSConnection::threadFunction()
     try {
         if (!m_socket->readyToRead(chrono::seconds(30))) {
             m_socket->close();
-            m_logger << LP_DEBUG << "Client closed connection" << endl;
+            m_logger.debug("Client closed connection");
             return;
         }
 
@@ -96,11 +96,11 @@ void WSConnection::threadFunction()
             }
         }
         catch (Exception& e) {
-            m_logger << LP_ERROR << e.message() << endl;
+            m_logger.error(e.message());
             return;
         }
         catch (exception& e) {
-            m_logger << LP_ERROR << e.what() << endl;
+            m_logger.error(e.what());
             return;
         }
 
@@ -139,11 +139,11 @@ void WSConnection::threadFunction()
     }
     catch (exception& e) {
         if (!terminated())
-            m_logger << LP_ERROR << "Error in thread " << name() << ": " << e.what() << endl;
+            m_logger.error("Error in thread " + name() + ": " + string(e.what()));
     }
     catch (...) {
         if (!terminated())
-            m_logger << LP_ERROR << "Unknown error in thread " << name() << endl;
+            m_logger.error("Unknown error in thread " + name());
     }
 }
 

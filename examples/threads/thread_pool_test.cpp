@@ -66,16 +66,16 @@ CMyTask::CMyTask(SysLogEngine& sharedLog)
 // The task function. Prints a message once a second till terminated
 void CMyTask::run()
 {
-    m_log << name() << " started" << endl;
+    m_log.info(name() + " started");
 
     while (!terminated()) {
         int item;
         if (intQueue.pop(item, chrono::milliseconds(100))) {
-            m_log << "Output " << item << " from " << name() << endl;
+            m_log.info("Output " + to_string(item) + " from " + name());
         }
     }
 
-    m_log << name() << " is terminated" << endl;
+    m_log.info(name() + " is terminated");
 }
 
 int main(int, char* [])
@@ -98,13 +98,13 @@ int main(int, char* [])
         for (i = 0; i < 5; i++)
             tasks.push_back(new CMyTask(logEngine));
 
-        sharedLog << LP_NOTICE << "Thread pool has " << threadPool.size() << " threads" << endl;
+        sharedLog.log(LP_NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
-        cout << "Starting all tasks." << endl;
+        sharedLog.log(LP_NOTICE, "Starting all tasks.");
         for (i = 0; i < tasks.size(); i++)
             threadPool.execute(tasks[i]);
 
-        sharedLog << LP_NOTICE << tasks.size() << " tasks are running." << endl;
+        sharedLog.log(LP_NOTICE, to_string(tasks.size()) + " tasks are running.");
 
         // Let the tasks start and print start message
         this_thread::sleep_for(chrono::milliseconds(100));
@@ -112,33 +112,20 @@ int main(int, char* [])
         for (int value = 0; value < 100; value++)
             intQueue.push(value);
 
-        sharedLog << LP_NOTICE << "Waiting 1 seconds while tasks are running.." << endl;
+        sharedLog.log(LP_NOTICE, "Waiting 1 seconds while tasks are running..");
         this_thread::sleep_for(chrono::milliseconds(1000));
 
-        sharedLog << LP_NOTICE << "Sending 'terminate' signal to all the tasks." << endl;
+        sharedLog.log(LP_NOTICE, "Sending 'terminate' signal to all the tasks.");
         for (i = 0; i < tasks.size(); i++)
             tasks[i]->terminate();
         this_thread::sleep_for(chrono::seconds(1));
 
-        sharedLog << LP_NOTICE << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
-/*
-    sharedLog << LP_NOTICE << "Starting tasks again." << endl;
-    for (i = 0; i < tasks.size(); i++)
-        threadPool.execute(tasks[i]);
+        sharedLog.log(LP_NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
-    sharedLog << LP_NOTICE << "Thread pool has " << threadPool.size() << " threads" << endl << endl;
-
-    this_thread::sleep_for(chrono::seconds(1));
-
-    sharedLog << LP_NOTICE << "Sending 'terminate' signal to all the tasks." << endl;
-    for (i = 0; i < tasks.size(); i++)
-        tasks[i]->terminate();
-    this_thread::sleep_for(chrono::seconds(1));
-*/
-        sharedLog << LP_NOTICE << "Stopping thread pool..." << endl;
+        sharedLog.log(LP_NOTICE, "Stopping thread pool...");
         threadPool.stop();
 
-        sharedLog << LP_NOTICE << "Deleting all the tasks." << endl;
+        sharedLog.log(LP_NOTICE, "Deleting all the tasks.");
         for (i = 0; i < tasks.size(); i++)
             delete tasks[i];
 

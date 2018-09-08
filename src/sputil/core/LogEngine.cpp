@@ -31,11 +31,13 @@
 using namespace std;
 using namespace sptk;
 
-LogEngine::LogEngine()
-: m_defaultPriority(LP_INFO),
+LogEngine::LogEngine(const String& logEngineName)
+: Thread(logEngineName),
+  m_defaultPriority(LP_INFO),
   m_minPriority(LP_INFO),
   m_options(LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY)
 {
+    run();
 }
 
 void LogEngine::option(Option option, bool flag)
@@ -75,5 +77,22 @@ LogPriority LogEngine::priorityFromName(const String& prt)
         case 6: return LP_ALERT;
         case 7: return LP_PANIC;
         default: return LP_DEBUG;
+    }
+}
+
+void LogEngine::log(Logger::Message* message)
+{
+    m_messages.push(message);
+}
+
+void LogEngine::threadFunction()
+{
+    chrono::seconds timeout(1);
+    while (!terminated()) {
+        Logger::Message* message;
+        if (m_messages.pop(message, timeout)) {
+            saveMessage(message);
+            delete message;
+        }
     }
 }
