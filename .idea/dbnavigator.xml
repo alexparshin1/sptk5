@@ -23,22 +23,7 @@
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
-    <loaded-nodes>
-      <connection connection-id="0983d801-7563-4f1d-8d19-43008bb6c119">
-        <schema name="PE" object-types="table, view" />
-        <schema name="mysql" object-types="table, view" />
-      </connection>
-      <connection connection-id="528074d0-a19a-45ee-b6f3-d6f67550857f">
-        <schema name="db5" object-types="function, table, view" />
-        <schema name="owner1" object-types="column, function, table, view" />
-        <schema name="pg_catalog" object-types="function, table, view" />
-        <schema name="protis_main" object-types="function, table, view" />
-        <schema name="protisde_demodb" object-types="function, table, view" />
-        <schema name="public" object-types="function, table, view" />
-        <schema name="test_db1" object-types="function, table, view" />
-        <schema name="test_owner_2" object-types="function, table, view" />
-      </connection>
-    </loaded-nodes>
+    <loaded-nodes />
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="0983d801-7563-4f1d-8d19-43008bb6c119">
@@ -81,7 +66,7 @@
           <description value="" />
           <database-type value="MYSQL" />
           <config-type value="BASIC" />
-          <database-version value="5.7" />
+          <database-version value="5.5" />
           <driver-source value="BUILTIN" />
           <driver-library value="" />
           <driver value="" />
@@ -364,6 +349,7 @@
           <content-type name="PL/SQL" enabled="true" />
           <content-type name="JavaScript" enabled="true" />
           <content-type name="YAML" enabled="true" />
+          <content-type name="Bash" enabled="true" />
         </content-types>
       </qualified-text-editor>
       <record-navigation>

@@ -123,7 +123,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
 
     stringstream createTableSQL;
     createTableSQL << "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20), price DECIMAL(10,2), ";
-    createTableSQL << "ts " << dateTimeType;
+    createTableSQL << "ts " << dateTimeType << " NULL";
     createTableSQL << ")";
 
     db->open();
