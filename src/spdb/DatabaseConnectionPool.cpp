@@ -232,6 +232,19 @@ TEST(SPTK_PostgreSQLConnection, DDL)
     }
 }
 
+TEST(SPTK_PostgreSQLConnection, bulkInsert)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 TEST(SPTK_MySQLConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
@@ -258,6 +271,19 @@ TEST(SPTK_MySQLConnection, DDL)
     }
 }
 
+TEST(SPTK_MySQLConnection, bulkInsert)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 TEST(SPTK_OracleConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
@@ -278,6 +304,19 @@ TEST(SPTK_OracleConnection, DDL)
         FAIL() << "Oracle connection is not defined";
     try {
         databaseTests.testDDL(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_OracleConnection, bulkInsert)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oracle connection is not defined";
+    try {
+        databaseTests.testBulkInsert(connectionString);
     }
     catch (const exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();

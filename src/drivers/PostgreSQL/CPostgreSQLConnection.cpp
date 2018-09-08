@@ -1054,12 +1054,13 @@ std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
 void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                                        const String& format)
 {
-    stringstream sql("COPY ");
-    sql << tableName << "(" << columnNames.asString(",") << ") FROM STDIN " << format;
+    stringstream sql;
+    sql << "COPY " << tableName << "(" << columnNames.asString(",") << ") FROM STDIN " << format;
+
     PGresult* res = PQexec(m_connect, sql.str().c_str());
 
     ExecStatusType rc = PQresultStatus(res);
-    if (rc < 0) {
+    if (rc >= PGRES_BAD_RESPONSE) {
         string error = "COPY command failed: ";
         error += PQerrorMessage(m_connect);
         PQclear(res);

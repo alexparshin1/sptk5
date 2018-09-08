@@ -215,3 +215,51 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
         return DatabaseConnectionString("");
     return itor->second;
 }
+
+static const string expectedBulkInsertResult("1|Alex|Programmer|01/01/14 01:00:00+10:00 # 2|David|CEO|01/01/14 01:00:00+10:00 # 3|Roger|Bunny|01/01/14 01:00:00+10:00");
+
+void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection* db = connectionPool.createConnection();
+
+    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
+    if (itor == dateTimeFieldTypes.end())
+        throw Exception("DateTime data type mapping is not defined for the test");
+    String dateTimeType = itor->second;
+
+    db->open();
+    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT,name CHAR(40),position_name CHAR(20),hire_date " + dateTimeType +")");
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+    Query selectData(db, "SELECT * FROM gtest_temp_table");
+
+    try { dropTable.exec(); } catch (...) {}
+
+    createTable.exec();
+
+    Strings data;
+    data.push_back(string("1\tAlex\tProgrammer\t01-JAN-2014"));
+    data.push_back(string("2\tDavid\tCEO\t01-JAN-2014"));
+    data.push_back(string("3\tRoger\tBunny\t01-JAN-2014"));
+
+    Strings columnNames("id,name,position_name,hire_date", ",");
+    db->bulkInsert("gtest_temp_table", columnNames, data);
+
+    selectData.open();
+    Strings rows;
+    while (!selectData.eof()) {
+        Strings row;
+        for (auto field: selectData.fields())
+            row.push_back(field->asString().trim());
+        rows.push_back(row.join("|"));
+        selectData.next();
+    }
+    selectData.close();
+
+    if (rows.size() > 3)
+        throw Exception("Expected bulk input result (3 rows) doesn't match table data (" + int2string(rows.size()) + ")");
+
+    String actualResult(rows.join(" # "));
+    if (actualResult != expectedBulkInsertResult)
+        throw Exception("Expected bulk input result doesn't match inserted data");
+}

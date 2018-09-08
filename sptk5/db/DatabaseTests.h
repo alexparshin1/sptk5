@@ -46,6 +46,7 @@ public:
     void testDDL(const DatabaseConnectionString& connectionString);
     void testQueryParameters(const DatabaseConnectionString& connectionString);
     void testTransaction(const DatabaseConnectionString& connectionString);
+    void testBulkInsert(const DatabaseConnectionString& connectionString);
 };
 
 extern DatabaseTests databaseTests;
