@@ -323,4 +323,43 @@ TEST(SPTK_OracleConnection, bulkInsert)
     }
 }
 
+TEST(SPTK_MSSQLConnection, connect)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testConnect(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MSSQLConnection, DDL)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testDDL(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MSSQLConnection, bulkInsert)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 #endif
