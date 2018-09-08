@@ -117,7 +117,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
         }
 
         //const char *messageStrings[] = { message, NULL };
-        LPCTSTR messageStrings[]= {TEXT(message->message)};
+        LPCTSTR messageStrings[]= {TEXT(message->message.c_str())};
 
         if (!ReportEvent(
                         m_logHandle,    // handle returned by RegisterEventSource

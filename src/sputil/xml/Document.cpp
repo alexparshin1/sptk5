@@ -472,7 +472,7 @@ void verifyDocument(xml::Document& document)
 
     EXPECT_EQ(33, string2int(document.findOrCreate("age")->text()));
     EXPECT_DOUBLE_EQ(33.6, string2double(document.findOrCreate("temperature")->text()));
-    EXPECT_DOUBLE_EQ(1519005758000, string2int64(document.findOrCreate("timestamp")->text()));
+    EXPECT_DOUBLE_EQ(1519005758, int(string2int64(document.findOrCreate("timestamp")->text())/1000));
 
     Strings skills;
     for (auto node: *document.findOrCreate("skills")) {

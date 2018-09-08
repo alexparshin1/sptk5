@@ -106,6 +106,11 @@ int UniqueInstance::write_pid()
     m_lockCreated = true;
     return pid;
 }
+
+const String& UniqueInstance::lockFileName() const
+{
+	return m_fileName;
+}
 #endif
 
 bool UniqueInstance::isUnique()
@@ -113,14 +118,10 @@ bool UniqueInstance::isUnique()
     return m_lockCreated;
 }
 
-const String& UniqueInstance::lockFileName() const
-{
-    return m_fileName;
-}
-
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
 
+#ifndef _WIN32
 TEST(SPTK_UniqueInstance, create)
 {
     UniqueInstance uniqueInstance("unit_tests");
@@ -134,7 +135,6 @@ TEST(SPTK_UniqueInstance, create)
     UniqueInstance uniqueInstance2("unit_tests");
     EXPECT_TRUE(uniqueInstance2.isUnique());
 
-#ifndef _WIN32
     // Get pid of existing process
     FILE* pipe1 = popen("pidof systemd", "r");
     if (pipe1 != nullptr) {
@@ -152,7 +152,7 @@ TEST(SPTK_UniqueInstance, create)
         }
         pclose(pipe1);
     }
-#endif
 }
 
+#endif
 #endif

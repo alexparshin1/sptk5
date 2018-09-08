@@ -49,11 +49,11 @@ int main()
       fileLog.minPriority(LP_INFO);
       
       cout << "Sending 'Hello, World!' to this file.." << endl;
-      log << "Hello, World!" << endl;
-      log << "Welcome to SPTK." << endl;
-      log << LP_WARNING << "Eating too much nuts will turn you into HappySquirrel!" << endl;
-      log << LP_DEBUG << "This statement is not confirmed by HappySquirrel" << endl;
-      log << LP_INFO << "This is the end of the log." << endl;
+      log.info("Hello, World!");
+      log.info("Welcome to SPTK.");
+      log.warning("Eating too much nuts will turn you into HappySquirrel!");
+      log.debug("This statement is not confirmed by HappySquirrel");
+      log.info("This is the end of the log.");
    }
    catch (exception& e) {
       puts(e.what());

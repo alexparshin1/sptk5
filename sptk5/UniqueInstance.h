@@ -103,7 +103,9 @@ public:
      */
     ~UniqueInstance();
 
-    const String& lockFileName() const;
+#ifdef _WIN32
+	const String& lockFileName() const;
+#endif // _WIN32
 
     /**
      * Reports true if the instance is unique
