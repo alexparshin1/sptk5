@@ -103,7 +103,7 @@ public:
      */
     ~UniqueInstance();
 
-#ifdef _WIN32
+#ifndef _WIN32
 	const String& lockFileName() const;
 #endif // _WIN32
 
