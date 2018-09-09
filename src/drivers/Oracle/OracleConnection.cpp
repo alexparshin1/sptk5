@@ -29,7 +29,7 @@
 #include <sptk5/db/OracleConnection.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
-#include "COracleBulkInsertQuery.h"
+#include "OracleBulkInsertQuery.h"
 
 using namespace std;
 using namespace sptk;
@@ -206,7 +206,7 @@ void OracleConnection::queryPrepare(Query *query)
         CParamVector& enumeratedParams = statement->enumeratedParams();
         unsigned paramIndex = 1;
         Statement* stmt = statement->stmt();
-        auto bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+        auto bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
         if (bulkInsertQuery == nullptr)
             throw Exception("Not a bulk query");
         const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
@@ -323,7 +323,7 @@ void OracleConnection::queryExecute(Query *query)
         if (!statement)
             throw Exception("Query is not prepared");
         if (query->bulkMode()) {
-            auto bulkInsertQuery = dynamic_cast<COracleBulkInsertQuery*>(query);
+            auto bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
             if (bulkInsertQuery == nullptr)
                 throw Exception("Query is not COracleBulkInsertQuery");
             statement->execBulk(m_inTransaction, bulkInsertQuery->lastIteration());
@@ -589,7 +589,7 @@ void OracleConnection::_bulkInsert(const String& tableName, const Strings& colum
         columnTypeSizeVector.push_back(column->second);
     }
 
-    COracleBulkInsertQuery insertQuery(this,
+    OracleBulkInsertQuery insertQuery(this,
                                        "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
                                        ") VALUES (:" + columnNames.asString(",:") + ")",
                                        data.size(),

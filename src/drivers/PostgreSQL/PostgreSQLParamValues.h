@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       COracleBulkInsertQuery.h - description                 ║
+║                       CPostgreSQLParamValues.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,49 +26,71 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CORACLEBULKINSERTQUERY_H__
-#define __CORACLEBULKINSERTQUERY_H__
+#ifndef __CPOSTGRESQLPARAMVALUES_H__
+#define __CPOSTGRESQLPARAMVALUES_H__
 
-#include <sptk5/db/Query.h>
-#include <sptk5/db/OracleConnection.h>
-#include <sptk5/Exception.h>
+#include "pgtypes.h"
+#include <sptk5/db/PostgreSQLConnection.h>
+#include <sptk5/db/QueryParameterList.h>
 
 namespace sptk {
 
-/// @addtogroup Database Database Support
-/// @{
+    class PostgreSQLParamValues
+    {
+        friend class PostgreSQLStatement;
+    protected:
+        size_t                      m_count;
+        std::vector<const char*>    m_values;
+        std::vector<int>            m_lengths;
+        std::vector<int>            m_formats;
+        std::vector<Oid>            m_types;
+        CParamVector                m_params;
+        bool                        m_int64timestamps;
+    public:
+        explicit PostgreSQLParamValues(bool int64timestamps)
+        : m_count(0)
+        {
+            resize(16);
+            m_int64timestamps = int64timestamps;
+        }
 
-/// @brief Oracle bulk insert query
-///
-/// This class is dedicated for internal use only
-class SP_EXPORT COracleBulkInsertQuery : public Query
-{
-    friend class OracleConnection;
+        void reset()
+        {
+            m_count = 0;
+        }
 
-    size_t              m_recordCount;      ///< Inserted record count
-    size_t              m_recordNumber;     ///< Current record number
-    size_t              m_batchSize;        ///< Batch size
-    bool                m_lastIteration;    ///< Last iteration
-    QueryColumnTypeSizeMap  m_columnTypeSizes;  ///< Column type sizes
+        void resize(size_t sz)
+        {
+            m_values.resize(sz);
+            m_lengths.resize(sz);
+            m_formats.resize(sz);
+            m_types.resize(sz);
+        }
 
-protected:
-    /// @brief Constructor
-    /// @param db DatabaseConnection, the database to connect to, optional
-    /// @param sql std::string, the SQL query text to use, optional
-    /// @param recordCount size_t, number of records to insert
-    COracleBulkInsertQuery(DatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
+        void setParameters(QueryParameterList& params);
 
-    /// @brief Destructor
-    ~COracleBulkInsertQuery() override = default;
+        void setParameterValue(unsigned paramIndex, const void* value, unsigned sz, int32_t format, PG_DATA_TYPE dataType)
+        {
+            m_values[paramIndex] = (const char*) value;
+            m_lengths[paramIndex] = (int) sz;
+            m_formats[paramIndex] = format;
+            m_types[paramIndex] = dataType;
+        }
 
-public:
-    /// @brief Executes next iteration of bulk insert
-    void execNext();
+        void setParameterValue(unsigned paramIndex, QueryParameter* param);
 
-    size_t batchSize() const { return m_batchSize; }
-    bool lastIteration() const { return m_lastIteration; }
-    const QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
-};
-/// @}
-}
+        unsigned size() const               { return (unsigned) m_count;   }
+        const char* const* values() const   { return &m_values[0]; }
+        const int* lengths() const          { return &m_lengths[0]; }
+        const int* formats() const          { return &m_formats[0]; }
+        const Oid* types() const            { return &m_types[0]; }
+        const CParamVector& params() const  { return m_params;  }
+    };
+
+    extern const DateTime epochDate;
+    extern const long     daysSinceEpoch;
+    extern const int64_t  microsecondsSinceEpoch;
+
+} // namespace sptk
+
 #endif

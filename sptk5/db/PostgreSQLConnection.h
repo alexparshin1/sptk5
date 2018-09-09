@@ -47,7 +47,7 @@ namespace sptk
  */
 
 class Query;
-class CPostgreSQLStatement;
+class PostgreSQLStatement;
 
 /**
  * @brief PostgreSQL database

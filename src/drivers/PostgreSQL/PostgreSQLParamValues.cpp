@@ -26,13 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "CPostgreSQLParamValues.h"
+#include "PostgreSQLParamValues.h"
 #include "htonq.h"
 
 using namespace std;
 using namespace sptk;
 
-void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
+void PostgreSQLParamValues::setParameters(QueryParameterList& params) {
     params.enumerate(m_params);
     m_count = (unsigned) m_params.size();
     resize(m_count);
@@ -80,7 +80,7 @@ void CPostgreSQLParamValues::setParameters(QueryParameterList& params) {
 static const char* booleanTrue = "t";
 static const char* booleanFalse = "f";
 
-void CPostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
+void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParameter* param)
 {
     VariantType ptype = param->dataType();
 

@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "CPostgreSQLParamValues.h"
+#include "PostgreSQLParamValues.h"
 #include "htonq.h"
 #include <iomanip>
 #include <sptk5/db/DatabaseField.h>
@@ -41,7 +41,7 @@ namespace sptk {
     const long daysSinceEpoch = chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / 24;
     const int64_t microsecondsSinceEpoch = chrono::duration_cast<chrono::microseconds>(epochDate.timePoint().time_since_epoch()).count();
 
-    class CPostgreSQLStatement
+    class PostgreSQLStatement
     {
         PGresult* m_stmt;
         char m_stmtName[20];
@@ -50,17 +50,17 @@ namespace sptk {
         int m_cols;
         int m_currentRow;
     public:
-        CPostgreSQLParamValues m_paramValues;
+        PostgreSQLParamValues m_paramValues;
     public:
 
-        CPostgreSQLStatement(bool int64timestamps, bool prepared)
+        PostgreSQLStatement(bool int64timestamps, bool prepared)
             : m_stmt(nullptr), m_stmtName(), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
         {
             if (prepared)
                 snprintf(m_stmtName, sizeof(m_stmtName), "S%04u", ++index);
         }
 
-        ~CPostgreSQLStatement()
+        ~PostgreSQLStatement()
         {
             if (m_stmt != nullptr)
                 PQclear(m_stmt);
@@ -129,15 +129,15 @@ namespace sptk {
 
     };
 
-    unsigned CPostgreSQLStatement::index;
+    unsigned PostgreSQLStatement::index;
 
 } // namespace sptk
 
-enum CPostgreSQLTimestampFormat
+enum PostgreSQLTimestampFormat
 {
     PG_UNKNOWN_TIMESTAMPS, PG_DOUBLE_TIMESTAMPS, PG_INT64_TIMESTAMPS
 };
-static CPostgreSQLTimestampFormat timestampsFormat;
+static PostgreSQLTimestampFormat timestampsFormat;
 
 PostgreSQLConnection::PostgreSQLConnection(const string& connectionString)
 : DatabaseConnection(connectionString)
@@ -300,14 +300,14 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
+    querySetStmt(query, new PostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (PostgreSQLStatement*) query->statement();
 
     if (statement != nullptr) {
         if (statement->stmt() != nullptr) {
@@ -337,7 +337,7 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (PostgreSQLStatement*) query->statement();
     statement->clearRows();
 }
 
@@ -347,11 +347,11 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     lock_guard<mutex> lock(m_mutex);
 
-    querySetStmt(query, new CPostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
+    querySetStmt(query, new PostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (PostgreSQLStatement*) query->statement();
 
-    CPostgreSQLParamValues& params = statement->m_paramValues;
+    PostgreSQLParamValues& params = statement->m_paramValues;
     params.setParameters(query->params());
 
     const Oid* paramTypes = params.types();
@@ -387,7 +387,7 @@ void PostgreSQLConnection::queryUnprepare(Query* query)
 
 int PostgreSQLConnection::queryColCount(Query* query)
 {
-    auto statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (PostgreSQLStatement*) query->statement();
 
     return (int) statement->colCount();
 }
@@ -396,8 +396,8 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
-    CPostgreSQLParamValues& paramValues = statement->m_paramValues;
+    auto statement = (PostgreSQLStatement*) query->statement();
+    PostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
@@ -448,8 +448,8 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
-    CPostgreSQLParamValues& paramValues = statement->m_paramValues;
+    auto statement = (PostgreSQLStatement*) query->statement();
+    PostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
 
@@ -594,7 +594,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
     } else
         queryExecDirect(query);
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (PostgreSQLStatement*) query->statement();
 
     auto count = (short) queryColCount(query);
     if (count < 1) {
@@ -881,7 +881,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (CPostgreSQLStatement*) query->statement();
+    auto statement = (PostgreSQLStatement*) query->statement();
 
     statement->fetch();
 

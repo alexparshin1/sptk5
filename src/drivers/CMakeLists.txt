@@ -24,8 +24,8 @@ ENDIF (SQLITE3_FLAG)
 SET (POSTGRESQL_SOURCES)
 IF (POSTGRESQL_FLAG)
     ADD_LIBRARY (spdb5_postgresql ${DRIVER_LIBRARY_TYPE}
-        PostgreSQL/CPostgreSQLConnection.cpp
-        PostgreSQL/CPostgreSQLParamValues.cpp
+            PostgreSQL/PostgreSQLConnection.cpp
+            PostgreSQL/PostgreSQLParamValues.cpp
         PostgreSQL/htonq.cpp
     )
     SET_TARGET_PROPERTIES(spdb5_postgresql PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
@@ -36,10 +36,10 @@ ENDIF (POSTGRESQL_FLAG)
 
 IF (ORACLE_FLAG)
     ADD_LIBRARY (spdb5_oracle ${DRIVER_LIBRARY_TYPE}
-        Oracle/COracleEnvironment.cpp
-        Oracle/COracleStatement.cpp
-        Oracle/COracleConnection.cpp
-        Oracle/COracleBulkInsertQuery.cpp
+            Oracle/OracleEnvironment.cpp
+            Oracle/OracleStatement.cpp
+            Oracle/OracleConnection.cpp
+            Oracle/OracleBulkInsertQuery.cpp
     )
     SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     TARGET_LINK_LIBRARIES (spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
@@ -48,8 +48,8 @@ ENDIF (ORACLE_FLAG)
 
 IF (MYSQL_FLAG)
     ADD_LIBRARY (spdb5_mysql ${DRIVER_LIBRARY_TYPE}
-        MySQL/CMySQLStatement.cpp
-        MySQL/CMySQLConnection.cpp
+            MySQL/MySQLStatement.cpp
+            MySQL/MySQLConnection.cpp
     )
     SET_TARGET_PROPERTIES(spdb5_mysql PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     INCLUDE_DIRECTORIES (${MySQL_INCLUDE_DIR})

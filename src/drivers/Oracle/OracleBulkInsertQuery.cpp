@@ -26,18 +26,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "COracleBulkInsertQuery.h"
+#include "OracleBulkInsertQuery.h"
 
 using namespace std;
 using namespace sptk;
 
-COracleBulkInsertQuery::COracleBulkInsertQuery(DatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
+OracleBulkInsertQuery::OracleBulkInsertQuery(DatabaseConnection *db, const std::string& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
 : Query(db, sql), m_recordCount(recordCount), m_recordNumber(0), m_batchSize(2), m_lastIteration(false), m_columnTypeSizes(columnTypeSizes)
 {
     m_bulkMode = true;
 }
 
-void COracleBulkInsertQuery::execNext()
+void OracleBulkInsertQuery::execNext()
 {
     m_recordNumber++;
     m_lastIteration = (m_recordNumber == m_recordCount || (m_recordNumber % m_batchSize) == 0);
