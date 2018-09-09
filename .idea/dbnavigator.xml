@@ -23,12 +23,7 @@
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
-    <loaded-nodes>
-      <connection connection-id="617b4760-9185-409e-b0c6-a0cf38e570e9">
-        <schema name="GTEST" object-types="materialized view, synonym, table, view" />
-        <schema name="PUBLIC" object-types="materialized view, synonym, table, view" />
-      </connection>
-    </loaded-nodes>
+    <loaded-nodes />
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="0983d801-7563-4f1d-8d19-43008bb6c119">
@@ -436,7 +431,6 @@
           <content-type name="PL/SQL" enabled="true" />
           <content-type name="JavaScript" enabled="true" />
           <content-type name="YAML" enabled="true" />
-          <content-type name="Bash" enabled="true" />
         </content-types>
       </qualified-text-editor>
       <record-navigation>
