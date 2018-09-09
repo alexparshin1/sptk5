@@ -30,12 +30,15 @@
 #define __SPTK_DATABASE_TESTS_H__
 
 #include "DatabaseConnectionString.h"
+#include "DatabaseConnection.h"
 
 namespace sptk {
 
 class DatabaseTests
 {
     std::map<String, DatabaseConnectionString> m_connectionStrings;
+
+    size_t countRowsInTable(DatabaseConnection* db, const String& table);
 public:
     DatabaseTests();
     void addConnection(const DatabaseConnectionString& connectionString);

@@ -256,19 +256,20 @@ void OracleConnection::queryBindParameters(Query *query)
     }
 }
 
-VariantType OracleConnection::OracleTypeToVariantType(Type oracleType)
+VariantType OracleConnection::OracleTypeToVariantType(Type oracleType, int scale)
 {
     switch (oracleType)
     {
         case Type(SQLT_NUM):
-            return VAR_FLOAT;
+            return scale == 0 ? VAR_INT : VAR_FLOAT;
         case Type(SQLT_INT):
-        case Type(SQLT_FLT):
+            return VAR_INT;
         case Type(SQLT_UIN):
             return VAR_INT64;
         case Type(SQLT_DAT):
         case Type(SQLT_DATE):
             return VAR_DATE;
+        case Type(SQLT_FLT):
         case Type(SQLT_BFLOAT):
         case Type(SQLT_BDOUBLE):
             return VAR_FLOAT;
@@ -373,6 +374,7 @@ void OracleConnection::queryOpen(Query *query)
             for (; itor != iend; ++itor, columnIndex++) {
                 MetaData& metaData = *itor;
                 auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
+                int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
                 string columnName = metaData.getString(MetaData::ATTR_NAME);
                 int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
                 if (columnName.empty()) {
@@ -382,8 +384,8 @@ void OracleConnection::queryOpen(Query *query)
                 }
                 if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
                     resultSet->setMaxColumnSize(columnIndex + 1, 16384);
-                VariantType dataType = OracleTypeToVariantType(columnType);
-                DatabaseField* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize);
+                VariantType dataType = OracleTypeToVariantType(columnType, columnScale);
+                DatabaseField* field = new DatabaseField(columnName, columnIndex, columnType, dataType, columnDataSize, columnScale);
                 query->fields().push_back(field);
             }
         }
@@ -438,7 +440,10 @@ void OracleConnection::queryFetch(Query *query)
                     break;
 
                 case Type(SQLT_NUM):
-                    field->setFloat(resultSet->getNumber(columnIndex));
+                    if (field->dataType() == VAR_INT)
+                        field->setInteger(resultSet->getInt(columnIndex));
+                    else
+                        field->setFloat(resultSet->getFloat(columnIndex));
                     break;
 
                 case Type(SQLT_FLT):

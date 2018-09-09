@@ -30,6 +30,7 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/Transaction.h>
+#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -105,10 +106,10 @@ static const vector<Row> rows = {
 };
 
 static const map<String,String> dateTimeFieldTypes = {
-    { "mysql", "TIMESTAMP" },
+    { "mysql",      "TIMESTAMP" },
     { "postgresql", "TIMESTAMP" },
-    { "mssql", "DATETIME" },
-    { "oracle", "DATETIME" }
+    { "mssql",      "DATETIME" },
+    { "oracle",     "TIMESTAMP" }
 };
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
@@ -152,8 +153,9 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
             throw Exception("row.id != table data");
         if (row.name != select["name"].asString())
             throw Exception("row.name != table data");
-        if (row.price != select["price"].asFloat())
-            throw Exception("row.price != table data");
+
+        if (std::round(row.price * 100) != round(select["price"].asFloat() * 100))
+            throw Exception("row.price is " + select["price"].asString());
         select.next();
     }
     select.close();
@@ -181,25 +183,24 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
     Transaction transaction(*db);
     transaction.begin();
 
+    size_t count = countRowsInTable(db, "gtest_temp_table");
+    if (count != 0)
+        throw Exception("initial count != 0");
+
     Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
 
     insert.exec();
     insert.exec();
 
-    Query select(db, "SELECT count(*) cnt FROM gtest_temp_table");
-    select.open();
-    size_t count = select["cnt"];
+    count = countRowsInTable(db, "gtest_temp_table");
     if (count != 2)
         throw Exception("count != 2");
-    select.close();
 
     transaction.rollback();
 
-    select.open();
-    count = select["cnt"];
+    count = countRowsInTable(db, "gtest_temp_table");
     if (count != 0)
         throw Exception("count != 0");
-    select.close();
 
     dropTable.exec();
 
@@ -216,7 +217,7 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return itor->second;
 }
 
-static const string expectedBulkInsertResult("1|Alex|Programmer|01/01/14 01:00:00+10:00 # 2|David|CEO|01/01/14 01:00:00+10:00 # 3|Roger|Bunny|01/01/14 01:00:00+10:00");
+static const string expectedBulkInsertResult("1|Alex|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2014 # 3|Roger|Bunny|01-JAN-2014");
 
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
@@ -229,7 +230,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     String dateTimeType = itor->second;
 
     db->open();
-    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT,name CHAR(40),position_name CHAR(20),hire_date " + dateTimeType +")");
+    Query createTable(db, "CREATE TABLE gtest_temp_table(id INTEGER,name CHAR(40),position_name CHAR(20),hire_date CHAR(12))");
     Query dropTable(db, "DROP TABLE gtest_temp_table");
     Query selectData(db, "SELECT * FROM gtest_temp_table");
 
@@ -257,9 +258,19 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     selectData.close();
 
     if (rows.size() > 3)
-        throw Exception("Expected bulk input result (3 rows) doesn't match table data (" + int2string(rows.size()) + ")");
+        throw Exception("Expected bulk insert result (3 rows) doesn't match table data (" + int2string(rows.size()) + ")");
 
     String actualResult(rows.join(" # "));
     if (actualResult != expectedBulkInsertResult)
-        throw Exception("Expected bulk input result doesn't match inserted data");
+        throw Exception("Expected bulk insert result doesn't match inserted data");
+}
+
+size_t DatabaseTests::countRowsInTable(DatabaseConnection* db, const String& table)
+{
+    Query select(db, "SELECT count(*) cnt FROM " + table);
+    select.open();
+    size_t count = select["cnt"];
+    select.close();
+
+    return count;
 }

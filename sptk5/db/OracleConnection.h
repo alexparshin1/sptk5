@@ -90,7 +90,7 @@ protected:
      * @param oracleType        Oracle native type
      * @returns Variant type
      */
-    static VariantType OracleTypeToVariantType(Type oracleType);
+    static VariantType OracleTypeToVariantType(Type oracleType, int scale);
 
     /**
      * @brief Translates CVariant type to Oracle native type

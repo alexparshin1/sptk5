@@ -61,6 +61,7 @@ private:
      */
     MYSQL*  m_connection;
 
+    void executeCommand(const String& command);
 
 protected:
 

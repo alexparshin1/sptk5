@@ -135,23 +135,21 @@ String MySQLConnection::nativeConnectionString() const
     return connectionString.str();
 }
 
-void MySQLConnection::driverBeginTransaction()
+void MySQLConnection::executeCommand(const String& command)
 {
     if (m_connection == nullptr)
         open();
 
+    if (mysql_real_query(m_connection, command.c_str(), command.length()) != 0)
+        throwMySQLException("Can't execute " + command);
+}
+
+void MySQLConnection::driverBeginTransaction()
+{
     if (m_inTransaction)
         throwMySQLException("Transaction already started");
 
-    m_inTransaction = true;
-
-    if (mysql_query(m_connection, "BEGIN WORK") != 0)
-        throwMySQLException("Can't start transaction");
-
-    MYSQL_RES* result = mysql_store_result(m_connection);
-    if (result != nullptr)
-        mysql_free_result(result);
-
+    executeCommand("BEGIN");
     m_inTransaction = true;
 }
 
@@ -160,14 +158,7 @@ void MySQLConnection::driverEndTransaction(bool commit)
     if (!m_inTransaction) throwDatabaseException("Transaction isn't started.");
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
-    if (mysql_query(m_connection, action) != 0)
-        throwMySQLException(string(action)
-                                    +" failed");
-
-    MYSQL_RES* result = mysql_store_result(m_connection);
-    if (result != nullptr)
-        mysql_free_result(result);
-
+    executeCommand(action);
     m_inTransaction = false;
 }
 

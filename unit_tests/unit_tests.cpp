@@ -93,6 +93,26 @@ void stub()
 	DatabaseConnectionPool 		connectionPool("");
 }
 
+String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
+{
+    map<String,String> excludeDrivers = {
+            { "postgresql", "PostgreSQL" },
+            { "mysql", "MySQL" },
+            { "mssql", "MSSQL" },
+            { "oracle", "Oracle" }
+    };
+
+    for (auto& connection: definedConnections)
+        excludeDrivers.erase(connection.driverName());
+
+    Strings excludePatterns;
+    for (auto itor: excludeDrivers) {
+        excludePatterns.push_back("-SPTK_" + itor.second + "*.*");
+    }
+
+    return excludePatterns.join(":");
+}
+
 int main(int argc, char* argv[])
 {
 #ifdef _WIN32
@@ -106,7 +126,21 @@ int main(int argc, char* argv[])
 	databaseTests.addConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost_pg:5432/gtest"));
     databaseTests.addConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
     databaseTests.addConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql:3306/gtest"));
-	//databaseTests.addConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
+	databaseTests.addConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
+/*
+	String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
+
+    String modifiedFilter;
+    if (!excludeDBDriverPatterns.empty()) {
+        for (int i = 1; i < argc; i++) {
+            String arg(argv[i]);
+            if (arg.startsWith("--gtest_filter=")) {
+                modifiedFilter = arg + ":" + excludeDBDriverPatterns;
+                argv[i] = (char*) modifiedFilter.c_str();
+            }
+        }
+    }
+*/
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

@@ -245,6 +245,33 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
     }
 }
 
+
+TEST(SPTK_PostgreSQLConnection, queryParameters)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testQueryParameters(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_PostgreSQLConnection, transaction)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("postgresql");
+    if (connectionString.empty())
+        FAIL() << "PostgreSQL connection is not defined";
+    try {
+        databaseTests.testTransaction(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 TEST(SPTK_MySQLConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
@@ -278,6 +305,32 @@ TEST(SPTK_MySQLConnection, bulkInsert)
         FAIL() << "MySQL connection is not defined";
     try {
         databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MySQLConnection, queryParameters)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testQueryParameters(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MySQLConnection, transaction)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mysql");
+    if (connectionString.empty())
+        FAIL() << "MySQL connection is not defined";
+    try {
+        databaseTests.testTransaction(connectionString);
     }
     catch (const exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
@@ -323,6 +376,32 @@ TEST(SPTK_OracleConnection, bulkInsert)
     }
 }
 
+TEST(SPTK_OracleConnection, queryParameters)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oracle connection is not defined";
+    try {
+        databaseTests.testQueryParameters(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_OracleConnection, transaction)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("oracle");
+    if (connectionString.empty())
+        FAIL() << "Oracle connection is not defined";
+    try {
+        databaseTests.testTransaction(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 TEST(SPTK_MSSQLConnection, connect)
 {
     DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
@@ -356,6 +435,32 @@ TEST(SPTK_MSSQLConnection, bulkInsert)
         FAIL() << "MSSQL connection is not defined";
     try {
         databaseTests.testBulkInsert(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MSSQLConnection, queryParameters)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testQueryParameters(connectionString);
+    }
+    catch (const exception& e) {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
+TEST(SPTK_MSSQLConnection, transaction)
+{
+    DatabaseConnectionString connectionString = databaseTests.connectionString("mssql");
+    if (connectionString.empty())
+        FAIL() << "MSSQL connection is not defined";
+    try {
+        databaseTests.testTransaction(connectionString);
     }
     catch (const exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();

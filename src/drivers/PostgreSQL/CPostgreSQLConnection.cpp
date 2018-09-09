@@ -621,6 +621,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
             VariantType fieldType;
             PostgreTypeToCType((int) dataType, fieldType);
             int fieldLength = PQfsize(stmt, column);
+            //int mod = PQfmod(stmt, column);
             DatabaseField* field = new DatabaseField(columnName.str(), column, (int) dataType, fieldType, fieldLength);
             query->fields().push_back(field);
         }
