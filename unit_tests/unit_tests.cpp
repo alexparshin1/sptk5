@@ -142,5 +142,9 @@ int main(int argc, char* argv[])
     }
 */
     ::testing::InitGoogleTest(&argc, argv);
+
+    String filter = testing::GTEST_FLAG(filter);
+    testing::GTEST_FLAG(filter) = "-SPTK_Oracle*.*";
+
     return RUN_ALL_TESTS();
 }
