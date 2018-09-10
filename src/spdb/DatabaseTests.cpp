@@ -49,7 +49,7 @@ vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
     return connectionStrings;
 }
 
-void DatabaseTests::addConnection(const DatabaseConnectionString& connectionString)
+void DatabaseTests::addDatabaseConnection(const DatabaseConnectionString& connectionString)
 {
     m_connectionStrings[connectionString.driverName()] = connectionString;
 }

@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DatabaseTests.cpp - description                        ║
+║                       unit_tests.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,34 +26,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_DATABASE_TESTS_H__
-#define __SPTK_DATABASE_TESTS_H__
+#include "TestRunner.h"
 
-#include "DatabaseConnectionString.h"
-#include "DatabaseConnection.h"
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-class DatabaseTests
+int main(int argc, char* argv[])
 {
-    std::map<String, DatabaseConnectionString> m_connectionStrings;
+    TestRunner  tests(argc, argv);
 
-    size_t countRowsInTable(DatabaseConnection* db, const String& table);
-public:
-    DatabaseTests();
-    void addDatabaseConnection(const DatabaseConnectionString& connectionString);
-    std::vector<DatabaseConnectionString> connectionStrings() const;
-    DatabaseConnectionString connectionString(const String& driverName) const;
+    tests.addDatabaseConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost_pg:5432/gtest"));
+    tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
+    tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql:3306/gtest"));
+    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
 
-    void testConnect(const DatabaseConnectionString& connectionString);
-    void testDDL(const DatabaseConnectionString& connectionString);
-    void testQueryParameters(const DatabaseConnectionString& connectionString);
-    void testTransaction(const DatabaseConnectionString& connectionString);
-    void testBulkInsert(const DatabaseConnectionString& connectionString);
-};
-
-extern DatabaseTests databaseTests;
-
+    return tests.runAllTests();
 }
-
-#endif
