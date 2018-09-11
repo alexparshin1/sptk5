@@ -42,7 +42,7 @@
 #include <sptk5/Crypt.h>
 #include <sptk5/Base64.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
-#include "TestRunner.h"
+#include <sptk5/test/TestRunner.h>
 
 using namespace std;
 using namespace sptk;

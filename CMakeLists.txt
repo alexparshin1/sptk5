@@ -387,6 +387,9 @@ INSTALL (FILES ${includeFilesThreads} DESTINATION include/sptk5/threads)
 FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")
 INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/db)
 
+FILE (GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/test/*.h")
+INSTALL (FILES ${includeFilesDB} DESTINATION include/sptk5/test)
+
 IF (FLTK_FLAG)
   FILE (GLOB includeFilesGUI "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/gui/*.h")
   INSTALL (FILES ${includeFilesGUI} DESTINATION include/sptk5/gui)
