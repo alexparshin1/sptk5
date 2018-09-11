@@ -47,29 +47,24 @@ void Semaphore::post()
 
 bool Semaphore::sleep_for(chrono::milliseconds timeout)
 {
-    unique_lock<mutex>  lock(m_mutex);
-    // Wait until semaphore value is greater than 0
-    if (!m_condition.wait_for(lock,
-                              timeout,
-                              [this](){return m_value > 0;}))
-    {
-        return false;
-    }
-
-    m_value--;
-
-    return true;
+    auto timeoutAt = DateTime::Now() + timeout;
+    return sleep_until(timeoutAt);
 }
 
 bool Semaphore::sleep_until(DateTime timeoutAt)
 {
     unique_lock<mutex>  lock(m_mutex);
+
     // Wait until semaphore value is greater than 0
-    if (!m_condition.wait_until(lock,
-                                timeoutAt.timePoint(),
-                                [this](){return m_value > 0;}))
-    {
-        return false;
+    while (true) {
+        if (!m_condition.wait_until(lock,
+                                    timeoutAt.timePoint(),
+                                    [this]() { return m_value > 0; }))
+        {
+            if (timeoutAt < DateTime::Now())
+                return false;
+        } else
+            break;
     }
 
     m_value--;
@@ -80,7 +75,7 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-TEST(Semaphore, waitAndPost)
+TEST(SPTK_Semaphore, waitAndPost)
 {
     Semaphore semaphore;
 
