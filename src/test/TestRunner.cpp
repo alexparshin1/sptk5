@@ -3,7 +3,7 @@
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ║                       TestRunner.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Monday September 10, 2018                              ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -133,7 +133,8 @@ int TestRunner::runAllTests()
 
     ::testing::InitGoogleTest(&m_argc, m_argv);
 
-    String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
+#ifndef _WIN32
+	String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
     if (!excludeDBDriverPatterns.empty()) {
         String filter = testing::GTEST_FLAG(filter);
         if (filter.empty())
@@ -141,6 +142,6 @@ int TestRunner::runAllTests()
         else
             testing::GTEST_FLAG(filter) = filter + ":-" + excludeDBDriverPatterns;
     }
-
+#endif
     return RUN_ALL_TESTS();
 }
