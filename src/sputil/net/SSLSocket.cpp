@@ -118,10 +118,10 @@ Synchronized* CSSLLibraryLoader::m_locks;
 
 static CSSLLibraryLoader loader;
 
-void SSLSocket::throwSSLError(int rc)
+void SSLSocket::throwSSLError(const String& function, int rc)
 {
     int errorCode = SSL_get_error(m_ssl, rc);
-    string error = getSSLError("SSL_connect", errorCode);
+    string error = getSSLError(function.c_str(), errorCode);
     throw Exception(error, __FILE__, __LINE__);
 }
 
@@ -186,12 +186,16 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
     lock_guard<mutex> lock(*this);
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
-
+/*
+    int rc = SSL_set1_host(m_ssl, m_host.hostname().c_str());
+    if (rc != 1)
+        throwSSLError("SSL_set1_host", rc);
+*/
     if (timeout == chrono::milliseconds(0)) {
         int rc = SSL_connect(m_ssl);
         if (rc <= 0) {
             close();
-            throwSSLError(rc);
+            throwSSLError("SSL_connect", rc);
         }
         return;
     }
@@ -214,7 +218,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
                 continue;
             }
         }
-        throwSSLError(rc);
+        throwSSLError("SSL_connect", rc);
     }
     blockingMode(_blockingMode);
 }
@@ -283,6 +287,8 @@ string SSLSocket::getSSLError(const string& function, int32_t openSSLError) cons
 
 size_t SSLSocket::socketBytes()
 {
+    if (m_reader.availableBytes() > 0)
+        return m_reader.availableBytes();
     if (m_ssl != nullptr) {
         char dummy[8];
         SSL_read(m_ssl, dummy, 0);
@@ -305,7 +311,7 @@ size_t SSLSocket::recv(void* buffer, size_t size)
             break;
         default:
             close();
-            throwSSLError(rc);
+            throwSSLError("SSL_read", rc);
             break;
         }
     }
