@@ -245,7 +245,9 @@ void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
 
 size_t TCPSocket::socketBytes()
 {
-    return m_reader.availableBytes() + BaseSocket::socketBytes();
+    if (m_reader.availableBytes() > 0)
+        return m_reader.availableBytes();
+    return BaseSocket::socketBytes();
 }
 
 bool TCPSocket::readyToRead(chrono::milliseconds timeout)

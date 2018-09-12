@@ -63,9 +63,10 @@ public:
 
     /**
      * Throws SSL error based on SSL function return code
+     * @param function          SSL function name
      * @param rc                SSL function return code
      */
-    void throwSSLError(int rc);
+    void throwSSLError(const String& function, int rc);
 
 protected:
 

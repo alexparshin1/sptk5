@@ -108,6 +108,8 @@ bool HttpReader::readHeaders(TCPSocket& socket)
 
 bool HttpReader::readData(TCPSocket& socket)
 {
+    if (!socket.readyToRead(chrono::seconds(10)))
+        throw TimeoutException("Connection timeout");
     auto readBytes = (int) socket.socketBytes();
     if (readBytes == 0) {
         if (m_contentLength != 0)
@@ -115,7 +117,7 @@ bool HttpReader::readData(TCPSocket& socket)
         return true; // Server closed connection
     }
 
-    while (readBytes) {
+    while (socket.readyToRead(chrono::seconds(10))) {
         size_t bytesToRead;
         if (m_contentLength > 0) {
             bytesToRead = m_contentLength - m_contentReceivedLength;
