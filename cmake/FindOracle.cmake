@@ -12,13 +12,17 @@ ELSE (WIN32)
    SET (ORACLE_POSSIBLE_INCLUDE_PATHS
         ${ORACLE_HOME}/include
         ${ORACLE_HOME}/*/public
+        ${ORACLE_HOME}/sdk/include
+        /opt/*/sdk/include
         /usr/include
         /usr/include/oracle/*/*
         /usr/local/include
         /usr/local/include/oracle/*/*)
-   SET (ORACLE_POSSIBLE_LIB_PATHS 
+   SET (ORACLE_POSSIBLE_LIB_PATHS
         ${ORACLE_HOME}/lib
         ${ORACLE_HOME}/lib64
+        ${ORACLE_HOME}
+        /opt/*
         /usr/lib
         /usr/lib/oracle/*/*/lib
         /usr/*/lib)
