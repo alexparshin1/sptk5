@@ -2,8 +2,6 @@
 # For other environments, required CMake version can be 2.6 or higher.
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
-SET (CMAKE_ENABLE_COMPILE_COMMANDS ON)
-
 # The name of our project is "SPTK".  CMakeLists files in this project can
 # refer to the root source directory of the project as ${SPTK_SOURCE_DIR} and
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.

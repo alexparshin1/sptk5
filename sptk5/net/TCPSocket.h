@@ -114,6 +114,11 @@ public:
     void open();
 
     /**
+     * @brief Disconnects the reader from the socket handle, and compacts allocated memory
+     */
+    void close();
+
+    /**
      * @brief Performs the buffered read
      * @param destination              Destination buffer
      * @param sz                Size of the destination buffer
@@ -188,6 +193,11 @@ public:
     * @brief Destructor
     */
     virtual ~TCPSocket() = default;
+
+    /**
+     * Close socket connection
+     */
+    void close() override;
 
     /**
      * @brief In server mode, waits for the incoming connection.
