@@ -55,6 +55,8 @@ class SSLSocket: public TCPSocket, public std::mutex
     int         m_verifyMode { SSL_VERIFY_NONE };                       ///< SSL verify mode
     int         m_verifyDepth { 0 };                                    ///< SSL verify depth
 
+    String      m_sniHostName;                                          ///< SNI host name (optional)
+
 public:
     /**
      * Returns number of bytes available for read
@@ -125,6 +127,13 @@ public:
      */
     void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
                   const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+
+    /**
+     * Set SNI host name.
+     * This method only affects next connection.
+     * @param sniHostName           SNI host name
+     */
+    void setSNIHostName(const String& sniHostName);
 
 protected:
 
