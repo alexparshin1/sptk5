@@ -170,7 +170,7 @@ String Host::toString(bool forceAddress) const
 	if (m_hostname.empty())
 		return "";
 
-    string address;
+    String address;
     if (forceAddress) {
         char buffer[128];
 #ifdef _WIN32

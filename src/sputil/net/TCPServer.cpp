@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 TCPServer::TCPServer(Logger* logger)
-: Thread("TCPServer"), m_listenerThread(NULL), m_logger(logger)
+: Thread("TCPServer"), m_listenerThread(nullptr), m_logger(logger)
 {
     run();
 }

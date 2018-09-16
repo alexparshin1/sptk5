@@ -63,7 +63,7 @@ class TCPServerListener: public Thread, public std::mutex
     /**
      * Last socket error
      */
-    std::string     m_error;
+    String          m_error;
 
 public:
     /**
@@ -94,7 +94,7 @@ public:
     /**
      * @brief Returns listener port number
      */
-    int port() const
+    uint16_t port() const
     {
         return m_listenerSocket.host().port();
     }
@@ -102,7 +102,7 @@ public:
     /**
      * @brief Returns latest socket error (if any)
      */
-    std::string error() const
+    String error() const
     {
         return m_error;
     }

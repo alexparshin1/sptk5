@@ -451,7 +451,7 @@ const json::ObjectData& Element::getObject(const String& name) const
 
 void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) const
 {
-    string indentSpaces, newLineChar, firstElement(""), betweenElements(",");
+    string indentSpaces, newLineChar, firstElement, betweenElements(",");
     if (formatted && m_type & (JDT_ARRAY | JDT_OBJECT)) {
         if (indent)
             indentSpaces = string(indent, ' ');

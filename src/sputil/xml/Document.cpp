@@ -482,7 +482,7 @@ void verifyDocument(xml::Document& document)
 
     xml::Node* ptr = document.findFirst("address");
     EXPECT_TRUE(ptr != nullptr);
-    xml::Element* ptr2 = dynamic_cast<xml::Element*>(ptr);
+    auto ptr2 = dynamic_cast<xml::Element*>(ptr);
 
     xml::Element& address = *ptr2;
     EXPECT_STREQ("true", address.findOrCreate("married")->text().c_str());

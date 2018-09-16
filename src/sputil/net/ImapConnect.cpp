@@ -149,8 +149,7 @@ void ImapConnect::cmd_append(const string& mail_box, const Buffer &message)
 void ImapConnect::cmd_select(const string& mail_box, int32_t &total_msgs)
 {
     command("select", mail_box);
-    for (unsigned i = 0; i < m_response.size(); i++) {
-        std::string &st = m_response[i];
+    for (auto& st: m_response) {
         if (st[0] == '*') {
             size_t p = st.find("EXISTS");
             if (p != STRING_NPOS) {
@@ -164,8 +163,7 @@ void ImapConnect::cmd_select(const string& mail_box, int32_t &total_msgs)
 void ImapConnect::parseSearch(std::string &result)
 {
     result = "";
-    for (unsigned i = 0; i < m_response.size(); i++) {
-        std::string &st = m_response[i];
+    for (auto& st: m_response) {
         if (st.find("* SEARCH") == 0)
             result += st.substr(8, st.length());
     }
@@ -356,9 +354,9 @@ string ImapConnect::cmd_fetch_flags(int32_t msg_id)
     string result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
     size_t count = m_response.size() - 1;
-    size_t i = 0;
     //for (; i < count; i++) {
     if (count > 0) {
+        size_t i = 0;
         std::string &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
@@ -388,8 +386,7 @@ void ImapConnect::parseFolderList()
 {
     Strings folder_names;
     string prefix = "* LIST ";
-    for (unsigned i = 0; i < m_response.size(); i++) {
-        std::string &st = m_response[i];
+    for (auto& st: m_response) {
         if (st.find(prefix) == 0) {
             // passing the attribute(s)
             const char *p = strstr(st.c_str() + prefix.length(), ") ");

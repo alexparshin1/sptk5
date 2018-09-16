@@ -744,7 +744,7 @@ void DateTime::formatDate(ostream& str, int printFlags) const
         return;
 
     time_t t = clock::to_time_t(m_dateTime);
-    tm     tt;
+    tm     tt {};
     if ((printFlags & PF_GMT) != 0)
         gmtime_r(&t, &tt);
     else
@@ -1010,7 +1010,7 @@ TEST(SPTK_DateTime, formatDate)
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     time_t t = (time_t) dateTime;
-    tm tt;
+    tm     tt {};
     localtime_r(&t, &tt);
 
     char buffer[128];
@@ -1024,8 +1024,8 @@ TEST(SPTK_DateTime, formatTime)
 {
     DateTime dateTime("2018-08-07 11:22:33.444Z");
 
-    time_t t = (time_t) dateTime;
-    tm tt;
+    auto   t = (time_t) dateTime;
+    tm     tt {};
     gmtime_r(&t, &tt);
 
     char buffer[128];

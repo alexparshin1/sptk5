@@ -111,8 +111,7 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
     clear();
 
     Strings sl(cb.data(),"&");
-    for (unsigned i=0; i < sl.size(); i++) {
-        string& s = sl[i];
+    for (auto& s: sl) {
         size_t pos = s.find('=');
         if (pos != STRING_NPOS) {
             string key = s.substr(0, pos);

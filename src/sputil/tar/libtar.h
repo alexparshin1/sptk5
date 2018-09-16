@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "tar.h"
-#include <stddef.h>
+#include <cstddef>
 #include <string>
 
 #include "libtar_listhash.h"

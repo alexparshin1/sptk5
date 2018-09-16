@@ -192,7 +192,7 @@ TEST(SPTK_HttpConnect, get)
 {
     Host google("www.google.com:80");
 
-    TCPSocket* socket = new TCPSocket;
+    auto socket = new TCPSocket;
 
     ASSERT_NO_THROW(socket->open(google));
     ASSERT_TRUE(socket->active());
