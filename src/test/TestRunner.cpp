@@ -131,17 +131,37 @@ int TestRunner::runAllTests()
 	TCPSocket socket;
 #endif
 
-    ::testing::InitGoogleTest(&m_argc, m_argv);
-
-#ifndef _WIN32
 	String excludeDBDriverPatterns = excludeDatabasePatterns(databaseTests.connectionStrings());
-    if (!excludeDBDriverPatterns.empty()) {
-        String filter = testing::GTEST_FLAG(filter);
-        if (filter.empty())
-            testing::GTEST_FLAG(filter) = "-" + excludeDBDriverPatterns;
-        else
-            testing::GTEST_FLAG(filter) = filter + ":-" + excludeDBDriverPatterns;
-    }
-#endif
-    return RUN_ALL_TESTS();
+
+	size_t filterArgumentIndex = 0;
+	for (int i = 1; i < m_argc; i++) {
+		if (strstr(m_argv[i], "--gtest_filter=")) {
+			filterArgumentIndex = i;
+			break;
+		}
+	}
+
+	vector<char*> argv(m_argv, m_argv + m_argc);
+	String filter;
+
+	if (!excludeDBDriverPatterns.empty()) {
+		if (filterArgumentIndex != 0)
+			filter = argv[filterArgumentIndex];
+
+		if (filter.empty())
+			filter = "-" + excludeDBDriverPatterns;
+		else
+			filter += ":-" + excludeDBDriverPatterns;
+
+		if (filterArgumentIndex == 0) {
+			argv.push_back((char*)filter.c_str());
+			m_argc++;
+		}
+		else
+			argv[filterArgumentIndex] = (char*) filter.c_str();
+	}
+
+	::testing::InitGoogleTest(&m_argc, &argv[0]);
+
+	return RUN_ALL_TESTS();
 }
