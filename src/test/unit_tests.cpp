@@ -34,11 +34,13 @@ using namespace sptk;
 int main(int argc, char* argv[])
 {
     TestRunner  tests(argc, argv);
-
+/*
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql:3306/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
+*/
+    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test@dbhost_oracle:1521/XE"));
 
     return tests.runAllTests();
 }

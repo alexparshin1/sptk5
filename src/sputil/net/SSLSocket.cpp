@@ -31,7 +31,6 @@
 
 // These two includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
-#include <openssl/tls1.h>
 
 using namespace std;
 using namespace sptk;
@@ -167,8 +166,11 @@ void SSLSocket::initContextAndSocket()
 
     m_ssl = SSL_new(m_sslContext->handle());
 
-    if (!m_sniHostName.empty())
-        SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
+    if (!m_sniHostName.empty()) {
+        long rc = SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
+        if (!rc)
+            throwSSLError("SSL_set_tlsext_host_name", rc);
+    }
 }
 
 void SSLSocket::_open(const Host& host, CSocketOpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
