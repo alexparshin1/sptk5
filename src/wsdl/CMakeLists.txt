@@ -7,6 +7,7 @@ ADD_LIBRARY (spwsdl5 ${LIBRARY_TYPE}
     WSComplexType.cpp
     WSConnection.cpp
     WSListener.cpp
+    WSMessageIndex.cpp
     WSParser.cpp
     WSParserComplexType.cpp
     WSRequest.cpp

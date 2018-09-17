@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       unit_tests.cpp - description                           ║
+║                       WSMessageIndex.h - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Monday September 17 2018                               ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,23 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/test/TestRunner.h>
+#ifndef __WS_MESSAGE_INDEX_H__
+#define __WS_MESSAGE_INDEX_H__
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/Strings.h>
+#include <mutex>
 
-int main(int argc, char* argv[])
+namespace sptk {
+
+class WSMessageIndex
 {
-    TestRunner  tests(argc, argv);
+    mutable std::mutex      m_mutex;
+    std::map<String,int>    m_messageIndex;
+public:
+    WSMessageIndex(const Strings& messages);
+    int indexOf(const String& message) const;
+};
 
-    tests.addDatabaseConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost_pg:5432/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql:3306/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
+} // namespace sptk
 
-    //tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test@dbhost_oracle:1521/XE"));
-
-    return tests.runAllTests();
-}
+#endif

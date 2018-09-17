@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/WSMessageIndex.h>
 
 using namespace std;
 using namespace sptk;
@@ -298,41 +299,26 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         serviceOperations.push_back(requestName);
     }
     String operationNames = serviceOperations.asString("|");
+    WSMessageIndex serviceOperationsIndex(serviceOperations);
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
     serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl;
+    serviceImplementation << "#include <sptk5/wsdl/WSMessageIndex.h>" << endl;
     serviceImplementation << "#include <set>" << endl << endl;
 
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace sptk;" << endl << endl;
 
-    serviceImplementation << "class MessageIndex" << endl;
-    serviceImplementation << "{" << endl;
-    serviceImplementation << "    mutable mutex  m_mutex;" << endl;
-    serviceImplementation << "    sptk::Strings  m_messageIndex;" << endl;
-    serviceImplementation << "public:" << endl;
-    serviceImplementation << "    MessageIndex(const Strings& messages)" << endl;
-    serviceImplementation << "    : m_messageIndex(messages)" << endl;
-    serviceImplementation << "    {" << endl;
-    serviceImplementation << "        m_messageIndex.sort(true);" << endl;
-    serviceImplementation << "    }" << endl << endl;
-    serviceImplementation << "    int indexOf(const String& message) const" << endl;
-    serviceImplementation << "    {" << endl;
-    serviceImplementation << "        lock_guard<mutex> lock(m_mutex);" << endl;
-    serviceImplementation << "        return m_messageIndex.indexOf(message);" << endl;
-    serviceImplementation << "    }" << endl << endl;
-    serviceImplementation << "};" << endl << endl;
-
     serviceImplementation << "void " << serviceClassName << "::requestBroker(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
     serviceImplementation << "{" << endl;
-    serviceImplementation << "    static const MessageIndex messageNames(Strings(\"" << operationNames << "\", \"|\"));" << endl << endl;
+    serviceImplementation << "    static const WSMessageIndex messageNames(Strings(\"" << operationNames << "\", \"|\"));" << endl << endl;
     serviceImplementation << "    string requestName = WSParser::strip_namespace(requestNode->name());" << endl;
     serviceImplementation << "    int messageIndex = messageNames.indexOf(requestName);" << endl;
     serviceImplementation << "    try {" << endl;
     serviceImplementation << "        switch (messageIndex) {" << endl;
     for (auto itor: m_operations) {
         string requestName = strip_namespace(itor.second.m_input->name());
-        int messageIndex = serviceOperations.indexOf(requestName);
+        int messageIndex = serviceOperationsIndex.indexOf(requestName);
         serviceImplementation << "        case " << messageIndex << ":" << endl;
         serviceImplementation << "            process_" << requestName << "(requestNode, authentication, requestNameSpace);" << endl;
         serviceImplementation << "            break;" << endl;

@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       unit_tests.cpp - description                           ║
+║                       WSMessageIndex.cpp - description                       ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Monday September 17 2018                               ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,21 +26,26 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/test/TestRunner.h>
+#include "sptk5/wsdl/WSMessageIndex.h"
 
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char* argv[])
+WSMessageIndex::WSMessageIndex(const Strings& messages)
 {
-    TestRunner  tests(argc, argv);
-
-    tests.addDatabaseConnection(DatabaseConnectionString("postgresql://test:test#123@dbhost_pg:5432/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql:3306/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/protis"));
-
-    //tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test@dbhost_oracle:1521/XE"));
-
-    return tests.runAllTests();
+    int i = 0;
+    for (auto& message: messages) {
+        m_messageIndex[message] = i;
+        i++;
+    }
 }
+
+int WSMessageIndex::indexOf(const String& message) const
+{
+    lock_guard<mutex> lock(m_mutex);
+    auto itor = m_messageIndex.find(message);
+    if (itor == m_messageIndex.end())
+        return -1;
+    return itor->second;
+}
+
