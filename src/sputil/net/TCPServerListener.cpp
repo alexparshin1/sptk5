@@ -48,7 +48,7 @@ void TCPServerListener::threadFunction()
                     SOCKET connectionFD;
                     sockaddr_in connectionInfo = {};
                     m_listenerSocket.accept(connectionFD, connectionInfo);
-                    if (int(connectionFD) == -1)
+                    if ((int)connectionFD == -1)
                         continue;
                     if (m_server->allowConnection(&connectionInfo)) {
                         ServerConnection* connection = m_server->createConnection(connectionFD, &connectionInfo);

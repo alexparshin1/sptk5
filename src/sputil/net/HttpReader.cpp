@@ -174,8 +174,8 @@ bool HttpReader::readData(TCPSocket& socket)
             }
         }
         readBytes = (int) socket.socketBytes();
-        if (readBytes == 0) {
-            int tailOffset = bytes() - 13;
+        if (readBytes == 0 && bytes() > 13) {
+            size_t tailOffset = bytes() - 13;
 			String tail(m_buffer + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
 				break;

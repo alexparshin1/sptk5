@@ -116,6 +116,8 @@ void Host::setPort(uint16_t p)
 	case AF_INET6:
 		m_address.ip_v6.sin6_port = htons(uint16_t(m_port));
 		break;
+    default:
+        break;
 	}
 }
 

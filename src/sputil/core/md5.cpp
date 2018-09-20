@@ -120,7 +120,7 @@ MD5::MD5()
 MD5::MD5(const Buffer& data)
 {
     init();
-    update(data.c_str(), data.bytes());
+    update(data.c_str(), (size_type) data.bytes());
     finalize();
 }
 

@@ -354,7 +354,7 @@ size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* pee
     int bytes;
     const char* p = buffer;
 
-    if (int(size) == -1)
+    if ((int)size == -1)
         size = strlen(buffer);
 
     size_t total = size;

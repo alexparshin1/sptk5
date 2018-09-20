@@ -70,7 +70,7 @@ bool TCPServer::allowConnection(sockaddr_in*)
 
 void TCPServer::stop()
 {
-    lock_guard<mutex> lock(m_mutex);
+    lock_guard<mutex> serverLock(m_mutex);
     {
         lock_guard<mutex> lock(m_connectionThreadsLock);
         for (auto connectionThread: m_connectionThreads)

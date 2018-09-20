@@ -363,7 +363,7 @@ double Element::getNumber(const String& name) const
 #ifdef _WIN32
 #define INT64_FORMAT "%lld"
 #else
-#define INT64_FORMAT "%ld"
+#define INT64_FORMAT "%lld"
 #endif
 
 String Element::getString(const String& name) const
@@ -375,10 +375,10 @@ String Element::getString(const String& name) const
 
     switch (element.m_type) {
         case JDT_NUMBER: {
-            int len;
+            long len;
             char buffer[64];
             if (element.m_data.m_number == (int64_t) element.m_data.m_number)
-                len = snprintf(buffer, sizeof(buffer) - 1, INT64_FORMAT, (int64_t) element.m_data.m_number);
+                len = snprintf(buffer, sizeof(buffer) - 1, INT64_FORMAT, (long long) element.m_data.m_number);
             else {
                 len = snprintf(buffer, sizeof(buffer) - 1, "%1.8f", element.m_data.m_number);
                 const char* ptr = buffer + len - 1;

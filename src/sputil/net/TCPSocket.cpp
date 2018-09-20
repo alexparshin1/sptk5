@@ -80,7 +80,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
             } else {
                 m_bytes = m_socket.recv(m_buffer, m_capacity - 2);
             }
-            if (int(m_bytes) == -1) {
+            if ((int)m_bytes == -1) {
                 error = errno;
                 if (error == EAGAIN) {
                     if (!m_socket.readyToRead(chrono::seconds(1)))

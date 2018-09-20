@@ -118,10 +118,10 @@ int Strings::indexOf(const String& s) const
             break;
         case DESCENDING:
             {
-                auto itor = lower_bound(rbegin(), rend(), s);
-                if (itor == rend() || *itor != s)
+                auto xtor = lower_bound(rbegin(), rend(), s);
+                if (xtor == rend() || *xtor != s)
                     return -1;
-                return (int) distance(rbegin(), itor);
+                return (int) distance(rbegin(), xtor);
             }
         case ASCENDING:
             itor = lower_bound(begin(), end(), s);

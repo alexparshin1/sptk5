@@ -64,7 +64,7 @@ void throwError(const string& message, const char* json, size_t position)
         strncpy(context, json + position + 1, ERROR_CONTEXT_CHARS / 2);
         error << context << "'";
     }
-    else if (int(position) < 0)
+    else if ((int)position < 0)
         error << ", after position " << -int(position);
     throw Exception(error.str());
 }
