@@ -29,7 +29,7 @@
 #include <cstring>
 #include <sptk5/net/SSLContext.h>
 
-// These two includes must be after SSLContext.h, or it breaks Windows compilation
+// This include must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
 
 using namespace std;
