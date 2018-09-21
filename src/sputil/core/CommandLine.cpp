@@ -363,6 +363,8 @@ void CommandLine::init(int argc, const char* argv[])
     for (const String& arg : arguments) {
         if (startsWith(arg, "--")) {
             // Full option name
+            if (arg.startsWith("--gtest_"))
+                continue; // Ignore googletest arguments
             digestedArgs.push_back(arg);
             continue;
         }
