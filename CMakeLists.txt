@@ -319,15 +319,15 @@ IF (USE_OPENSSL)
   ENDIF (OPENSSL_FOUND)
 ENDIF (USE_OPENSSL)
 
-INCLUDE(cmake/CXX11.cmake)
-check_for_cxx11_compiler(CXX11_COMPILER)
-# If a C++11 compiler is available, then set the appropriate flags
-IF (CXX11_COMPILER)
-  enable_cxx11()
-  SET (CXX11_FLAG "1")
-ELSE (CXX11_COMPILER)
-  MESSAGE(FATAL_ERROR "C++11 compiler is not available")
-ENDIF (CXX11_COMPILER)
+INCLUDE(cmake/CXX17.cmake)
+check_for_cxx17_compiler(CXX17_COMPILER)
+# If a C++17 compiler is available, then set the appropriate flags
+IF (CXX17_COMPILER)
+  enable_cxx17()
+  SET (CXX17_FLAG "1")
+ELSE (CXX17_COMPILER)
+  MESSAGE(FATAL_ERROR "C++17 compiler is not available")
+ENDIF (CXX17_COMPILER)
 
 SET (THEMES_PREFIX ${CMAKE_INSTALL_PREFIX})
 
