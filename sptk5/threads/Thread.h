@@ -29,7 +29,7 @@
 #ifndef __SPTK_THREAD_H__
 #define __SPTK_THREAD_H__
 
-#include <sptk5/threads/SynchronizedCode.h>
+#include <sptk5/threads/Locks.h>
 
 #include <thread>
 #include <atomic>

@@ -26,11 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSYNCHRONIZEDLIST_H__
-#define __CSYNCHRONIZEDLIST_H__
+#ifndef __SYNCHRONIZED_LIST_H__
+#define __SYNCHRONIZED_LIST_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/threads/Semaphore.h>
 #include <list>
 

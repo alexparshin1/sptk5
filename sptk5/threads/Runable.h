@@ -29,10 +29,10 @@
 #ifndef __SPTK_RUNABLE_H__
 #define __SPTK_RUNABLE_H__
 
-#include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/Strings.h>
 
 #include <atomic>
+#include "Locks.h"
 
 namespace sptk
 {
@@ -99,12 +99,6 @@ public:
      * @brief Returns true if terminate request is sent to runable
      */
     bool terminated();
-
-    /**
-     * @brief Returns true, if the task is completed
-     * @param timeout std::chrono::milliseconds, Wait timeout
-     */
-    //bool completed(std::chrono::milliseconds timeout);
 };
 /**
  * @}

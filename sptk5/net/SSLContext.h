@@ -30,8 +30,9 @@
 #define __SSLCONTEXT_H__
 
 #include <sptk5/sptk.h>
+#include <sptk5/String.h>
 #include <openssl/ssl.h>
-#include <sptk5/threads/SynchronizedCode.h>
+#include <mutex>
 
 namespace sptk {
 

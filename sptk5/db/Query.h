@@ -39,6 +39,7 @@
 #include <sptk5/db/DatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/FieldList.h>
+#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -54,7 +55,7 @@ namespace sptk {
  * execute a database queries. The type of the database
  * depends on the DatabaseConnection object query is connected to.
  */
-class SP_EXPORT Query: public DataSource, public Synchronized
+class SP_EXPORT Query: public DataSource, protected SharedMutex
 {
     friend class DatabaseConnection;
 

@@ -48,7 +48,7 @@
 #include <assert.h>
 
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/threads/SynchronizedCode.h>
+#include <mutex>
 
 namespace sptk
 {

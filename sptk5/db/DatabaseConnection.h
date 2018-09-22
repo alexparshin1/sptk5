@@ -32,11 +32,11 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/Variant.h>
 #include <sptk5/Logger.h>
 
 #include <vector>
+#include <mutex>
 
 namespace sptk {
 

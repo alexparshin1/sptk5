@@ -107,7 +107,7 @@ enum CListViewDataMode
  * by column, supports type-in incremental search etc.
  */
 
-class SP_EXPORT CListView : public CControl, public Synchronized
+class SP_EXPORT CListView : public CControl, public SharedMutex
 {
     friend class CInternalComboBoxPanel;
     friend class CDBDropDownList;

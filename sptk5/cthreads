@@ -29,10 +29,9 @@
 #ifndef __CTHREADS__
 #define __CTHREADS__
 
-#include <sptk5/threads/RWLock.h>
+#include <sptk5/threads/Locks.h>
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/Semaphore.h>
-#include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedMap.h>
 #include <sptk5/threads/SynchronizedQueue.h>

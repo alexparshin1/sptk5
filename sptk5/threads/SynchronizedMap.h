@@ -30,7 +30,6 @@
 #define __CSYNCHRONIZEDMAP_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/SynchronizedCode.h>
 #include <map>
 
 namespace sptk {

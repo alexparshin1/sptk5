@@ -17,7 +17,7 @@ SET (SPUTIL_SOURCES
     net/UDPSocket.cpp net/ImapDS.cpp
         xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp xml/Value.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
-    threads/RWLock.cpp threads/Synchronized.cpp threads/Thread.cpp threads/ThreadPool.cpp
+    threads/RWLock.cpp threads/Thread.cpp threads/ThreadPool.cpp
     threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp threads/Timer.cpp
     )
 

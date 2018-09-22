@@ -30,7 +30,6 @@
 #define __LOGENGINE_H__
 
 #include <sptk5/DateTime.h>
-#include <sptk5/threads/SynchronizedCode.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/LogPriority.h>
 #include <sptk5/Logger.h>

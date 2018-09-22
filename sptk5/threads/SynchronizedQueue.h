@@ -26,11 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CSYNCHRONIZEDQUEUE_H__
-#define __CSYNCHRONIZEDQUEUE_H__
+#ifndef __SYNCHRONIZED_QUEUE_H__
+#define __SYNCHRONIZED_QUEUE_H__
 
 #include <sptk5/sptk.h>
-#include <sptk5/threads/SynchronizedCode.h>
+#include <sptk5/threads/Locks.h>
 #include <sptk5/threads/Semaphore.h>
 #include <queue>
 
@@ -65,7 +65,7 @@ protected:
     /**
      * Lock to synchronize queue operations
      */
-    mutable Synchronized    m_sync;
+    mutable SharedMutex     m_mutex;
 
 
 public:
@@ -84,8 +84,8 @@ public:
     /**
      * @brief Default constructor
      */
-    SynchronizedQueue() noexcept :
-        m_queue(new std::queue<T>)
+    SynchronizedQueue() noexcept
+    : m_queue(new std::queue<T>)
     {}
 
     /**
@@ -93,6 +93,7 @@ public:
      */
     virtual ~SynchronizedQueue()
     {
+        UniqueLock lock(m_mutex);
         delete m_queue;
     }
 
@@ -106,7 +107,7 @@ public:
      */
     void push(T&& data)
     {
-        SynchronizedCode sc(m_sync);
+        UniqueLock lock(m_mutex);
         m_queue->push(std::move(data));
         m_semaphore.post();
     }
@@ -120,7 +121,7 @@ public:
      */
     void push(const T& data)
     {
-        SynchronizedCode sc(m_sync);
+        UniqueLock lock(m_mutex);
         m_queue->push(data);
         m_semaphore.post();
     }
@@ -136,7 +137,7 @@ public:
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            SynchronizedCode sc(m_sync);
+            UniqueLock lock(m_mutex);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());
                 m_queue->pop();
@@ -161,7 +162,7 @@ public:
      */
     bool empty() const
     {
-        SynchronizedCode sc(m_sync);
+        SharedLock lock(m_mutex);
         return m_queue->empty();
     }
 
@@ -170,7 +171,7 @@ public:
      */
     size_t size() const
     {
-        SynchronizedCode sc(m_sync);
+        SharedLock lock(m_mutex);
         return m_queue->size();
     }
 
@@ -179,7 +180,7 @@ public:
      */
     void clear()
     {
-        SynchronizedCode sc(m_sync);
+        UniqueLock lock(m_mutex);
         delete m_queue;
         m_queue = new std::queue<T>;
     }
@@ -195,7 +196,7 @@ public:
      */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        SynchronizedCode sc(m_sync);
+        UniqueLock lock(m_mutex);
 
         std::queue<T> newQueue = new std::queue<T>;
 

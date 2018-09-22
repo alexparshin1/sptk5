@@ -38,7 +38,7 @@ using namespace sptk;
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
-    static Synchronized*  m_locks;
+    static std::mutex*  m_locks;
 
     void load_library()
     {
@@ -69,7 +69,7 @@ class CSSLLibraryLoader
 
     static void init_locks()
     {
-        m_locks = new Synchronized[CRYPTO_num_locks()];
+        m_locks = new mutex[CRYPTO_num_locks()];
         CRYPTO_set_id_callback(thread_id);
         CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lock_callback);
     }
@@ -114,7 +114,7 @@ public:
     }
 };
 
-Synchronized* CSSLLibraryLoader::m_locks;
+mutex* CSSLLibraryLoader::m_locks;
 
 static CSSLLibraryLoader loader;
 

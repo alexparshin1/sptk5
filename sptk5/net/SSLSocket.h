@@ -32,6 +32,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/net/SSLContext.h>
 #include <sptk5/net/TCPSocket.h>
+#include <memory>
 
 namespace sptk {
 

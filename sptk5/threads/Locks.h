@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Synchronized.cpp - description                         ║
+║                       Locs.h - description                                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Saturday September 22 2018                             ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,50 +26,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Synchronized.h>
+#ifndef __SPTK_LOCKS_H__
+#define __SPTK_LOCKS_H__
 
-using namespace std;
-using namespace sptk;
+#include <shared_mutex>
 
-Synchronized::Synchronized() :
-    m_location(nullptr, 0)
-{
-}
+namespace sptk {
 
-void Synchronized::throwError(const char* fileName, int lineNumber)
-{
-    string error("Lock failed");
+typedef std::shared_mutex                   SharedMutex;
+typedef std::unique_lock<std::shared_mutex> UniqueLock;
+typedef std::shared_lock<std::shared_mutex> SharedLock;
 
-    if (fileName != nullptr) {
-        error += " at " + CLocation(fileName, lineNumber).toString();
-        if (m_location.file() != nullptr)
-            error += ", conflicting lock at " + m_location.toString();
-    }
+} // namespace sptk
 
-    throw Exception(error + ": Lock timeout");
-}
-
-
-void Synchronized::lock(const char* fileName, int lineNumber)
-{
-    lock(std::chrono::seconds(3600), fileName, lineNumber);
-}
-
-void Synchronized::lock(chrono::milliseconds timeout, const char* fileName, int lineNumber)
-{
-    if (!m_synchronized.try_lock_for(timeout))
-        throwError(fileName, lineNumber);
-
-    // Storing successful lock invocation location
-    m_location.set(fileName, lineNumber);
-}
-
-bool Synchronized::tryLock()
-{
-    return m_synchronized.try_lock();
-}
-
-void Synchronized::unlock()
-{
-    m_synchronized.unlock();
-}
+#endif //SPTK_LOCKS_H
