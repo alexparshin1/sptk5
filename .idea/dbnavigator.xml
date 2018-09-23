@@ -70,7 +70,7 @@
           <description value="" />
           <database-type value="MYSQL" />
           <config-type value="BASIC" />
-          <database-version value="5.5" />
+          <database-version value="5.6" />
           <driver-source value="BUILTIN" />
           <driver-library value="" />
           <driver value="" />
@@ -431,7 +431,6 @@
           <content-type name="PL/SQL" enabled="true" />
           <content-type name="JavaScript" enabled="true" />
           <content-type name="YAML" enabled="true" />
-          <content-type name="Bash" enabled="true" />
         </content-types>
       </qualified-text-editor>
       <record-navigation>

@@ -168,6 +168,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     Strings includeFiles;
     includeFiles.push_back("#include <sptk5/sptk.h>");
     includeFiles.push_back("#include <sptk5/FieldList.h>");
+    includeFiles.push_back("#include <sptk5/threads/Locks.h>");
     includeFiles.push_back("#include <sptk5/db/QueryParameterList.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSBasicTypes.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
@@ -342,7 +343,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Loader from XML element
     classImplementation << "void " << className << "::load(const sptk::xml::Element* input)" << endl
                         << "{" << endl
-                        << "    lock_guard<mutex> lock(m_mutex);" << endl
+                        << "    UniqueLock lock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    m_loaded = true;" << endl;
 
@@ -408,7 +409,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Loader from FieldList
     classImplementation << "void " << className << "::load(const sptk::FieldList& input)" << endl
                         << "{" << endl
-                        << "    lock_guard<mutex> lock(m_mutex);" << endl
+                        << "    UniqueLock lock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    m_loaded = true;" << endl;
 
@@ -479,7 +480,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Unloader to Element
     classImplementation << "void " << className << "::unload(sptk::xml::Element* output) const" << endl
                         << "{" << endl
-                        << "    lock_guard<mutex> lock(m_mutex);" << endl;
+                        << "    SharedLock lock(m_mutex);" << endl;
     if (!m_attributes.empty()) {
         classImplementation << "    // Unload attributes" << endl;
         for (auto itor: m_attributes) {
@@ -503,7 +504,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Unloader to ParamList
     classImplementation << "void " << className << "::unload(sptk::QueryParameterList& output) const" << endl
                         << "{" << endl
-                        << "    lock_guard<mutex> lock(m_mutex);" << endl;
+                        << "    SharedLock lock(m_mutex);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << "    // Unload attributes" << endl;

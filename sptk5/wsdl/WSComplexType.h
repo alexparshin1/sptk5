@@ -34,9 +34,7 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/xml/Element.h>
-
-#include <mutex>
+#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -55,7 +53,7 @@ protected:
     /**
      * Mutex that protects internal data
      */
-    mutable std::mutex m_mutex;
+    mutable SharedMutex m_mutex;
 
     /**
     * WSDL element name
@@ -97,7 +95,7 @@ public:
      */
     String className() const override
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         return "WSComplexType";
     }
 
@@ -106,7 +104,7 @@ public:
      */
     virtual void clear()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        UniqueLock lock(m_mutex);
         _clear();
     }
 
@@ -162,7 +160,7 @@ public:
      */
     virtual bool isNull() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         return !m_loaded;
     }
 
@@ -171,7 +169,7 @@ public:
      */
     std::string complexTypeName() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         return m_name;
     }
 
@@ -180,7 +178,7 @@ public:
      */
     virtual bool isOptional() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         return m_optional;
     }
 };
