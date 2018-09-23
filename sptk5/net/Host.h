@@ -37,6 +37,7 @@
 #ifndef _WIN32
 
 #include <netinet/in.h>
+#include <sptk5/threads/Locks.h>
 
 #else
 #include <winsock2.h>
@@ -55,11 +56,11 @@ namespace sptk {
  */
 class Host
 {
-    mutable std::mutex  m_mutex;        ///< Mutex to protect internal class data
+    mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
     String              m_hostname;     ///< Host name or IP address
     uint16_t            m_port;         ///< Port number
 	union {
-		struct sockaddr	 any;
+		struct sockaddr	    any;
 		struct sockaddr_in  ip_v4;
 		struct sockaddr_in6 ip_v6;
 	}					m_address;      ///< Host address
@@ -146,7 +147,7 @@ public:
      */
     const String& hostname() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         return m_hostname;
     }
 
@@ -156,7 +157,6 @@ public:
      */
     void port(uint16_t p)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
 		setPort(p);
     }
 
@@ -166,7 +166,7 @@ public:
      */
     uint16_t port() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         return m_port;
     }
 
@@ -183,7 +183,7 @@ public:
      */
     void getAddress(sockaddr_in& address) const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         memcpy(&address, &m_address.ip_v4, sizeof(address));
     }
 
@@ -192,7 +192,7 @@ public:
      */
     void getAddress(sockaddr_in6& address) const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        SharedLock lock(m_mutex);
         memcpy(&address, &m_address.ip_v6, sizeof(address));
     }
 };
