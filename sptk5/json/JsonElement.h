@@ -97,9 +97,19 @@ protected:
      * XPath element
      */
     struct XPathElement {
-        String          name;
-        int             index {0}; // 1..N - element index, -1 - last element, 0 - don't use
+        String          name;       ///< Path element name
+        int             index {0};  ///< Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
+        /**
+         * Constructor
+         * @param name          Path element name
+         * @param index         Path element index(position) from start: 1..N - element index, -1 - last element, 0 - don't use
+         */
         XPathElement(const String& name, int index) : name(name), index(index) {}
+
+        /**
+         * Copy constructor
+         * @param other         Other object to copy from
+         */
         XPathElement(const XPathElement& other) = default;
     };
 
