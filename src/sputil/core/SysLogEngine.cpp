@@ -31,10 +31,10 @@
 using namespace std;
 using namespace sptk;
 
-static mutex	syslogMutex;
-static atomic<bool>    m_logOpened(false);
+static SharedMutex	    syslogMutex;
+static atomic_bool      m_logOpened(false);
 #ifndef _WIN32
-    static atomic<int> m_objectCounter(0);
+    static atomic_int   m_objectCounter(0);
 #else
     #include <events.w32/event_provider.h>
     static string   m_moduleFileName;
@@ -75,7 +75,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
     uint32_t    facilities;
 
     {
-        lock_guard<mutex> lock(syslogMutex);
+        SharedLock lock(syslogMutex);
         options = (uint32_t) m_options;
         programName = m_programName;
         facilities = m_facilities;
@@ -83,7 +83,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
 
     if (options & LO_ENABLE) {
 #ifndef _WIN32
-        lock_guard<mutex> lock(m_mutex);
+        UniqueLock lock(m_mutex);
         if (!m_logOpened)
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
         syslog(int(facilities | message->priority), "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
@@ -142,7 +142,7 @@ SysLogEngine::~SysLogEngine()
 #ifndef _WIN32
 	bool needToClose = false;
 	{
-		lock_guard<mutex> lock(syslogMutex);
+		UniqueLock lock(syslogMutex);
 		m_objectCounter--;
 		if (m_logOpened && m_objectCounter < 1)
 			needToClose = true;
@@ -158,7 +158,7 @@ SysLogEngine::~SysLogEngine()
 
 void SysLogEngine::setupEventSource()
 {
-    lock_guard<mutex> lock(syslogMutex);
+    UniqueLock lock(syslogMutex);
 #ifndef _WIN32
     m_logOpened = false;
     closelog();

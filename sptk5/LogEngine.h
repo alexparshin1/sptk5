@@ -62,7 +62,7 @@ protected:
     /**
      * Mutex that protects internal data access
      */
-    mutable std::mutex                  m_mutex;
+    mutable SharedMutex                 m_mutex;
 
     /**
      * The default priority for the new message
