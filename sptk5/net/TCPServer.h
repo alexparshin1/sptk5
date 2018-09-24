@@ -58,7 +58,7 @@ class TCPServer : protected Thread
     /**
      * Mutex protecting internal data
      */
-    std::mutex                              m_mutex;
+    mutable SharedMutex                     m_mutex;
 
     /**
      * Server listener object
@@ -83,7 +83,7 @@ class TCPServer : protected Thread
     /**
      * Lock to protect per-connection thread set manipulations
      */
-    std::mutex                              m_connectionThreadsLock;
+    mutable SharedMutex                     m_connectionThreadsLock;
 
 protected:
     /**

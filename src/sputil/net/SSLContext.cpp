@@ -55,13 +55,13 @@ SSLContext::SSLContext()
 
 SSLContext::~SSLContext()
 {
-    lock_guard<mutex> lock(*this);
+    UniqueLock lock(*this);
     SSL_CTX_free(m_ctx);
 }
 
 SSL_CTX* SSLContext::handle()
 {
-    lock_guard<mutex> lock(*this);
+    UniqueLock lock(*this);
     return m_ctx;
 }
 
@@ -75,7 +75,7 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwf
 void SSLContext::loadKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password,
                           const String& caFileName, int verifyMode, int verifyDepth)
 {
-    lock_guard<mutex> lock(*this);
+    UniqueLock lock(*this);
 
     m_password = password;
 

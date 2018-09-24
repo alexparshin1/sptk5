@@ -33,6 +33,7 @@
 #include <sptk5/String.h>
 #include <openssl/ssl.h>
 #include <mutex>
+#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -44,7 +45,7 @@ namespace sptk {
 /**
  * @brief SSL connection context
  */
-class SSLContext : public std::mutex
+class SSLContext : public SharedMutex
 {
     /**
      * SSL connection context
