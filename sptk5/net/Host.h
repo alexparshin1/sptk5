@@ -30,6 +30,7 @@
 #define __HOST_H__
 
 #include <sptk5/Strings.h>
+#include <sptk5/threads/Locks.h>
 #include <cstring>
 #include <mutex>
 #include <sstream>
@@ -37,7 +38,6 @@
 #ifndef _WIN32
 
 #include <netinet/in.h>
-#include <sptk5/threads/Locks.h>
 
 #else
 #include <winsock2.h>
