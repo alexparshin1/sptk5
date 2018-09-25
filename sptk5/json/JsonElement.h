@@ -122,6 +122,12 @@ protected:
         XPath(const String& xpath);
     };
 
+    /**
+     * Append matched element to element set
+     * @param elements          Matched element set
+     * @param xpathElement      Current XPath element
+     * @param element           Current element
+     */
     void appendMatchedElement(ElementSet& elements, const Element::XPathElement& xpathElement, Element* element);
 
     /**
