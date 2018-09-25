@@ -106,6 +106,15 @@ public:
     virtual void clear();
 
     /**
+     * Get current record
+     * @return current record reference
+     */
+    virtual FieldList& current()
+    {
+        return *m_current;
+    }
+
+    /**
      * Field access by the field index, const version.
      * @param fieldIndex int, field index
      * @returns field reference
