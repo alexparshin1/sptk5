@@ -32,6 +32,7 @@
 
 // This include must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -102,4 +103,3 @@ void SSLContext::loadKeys(const String& privateKeyFileName, const String& certif
     SSL_CTX_set_verify(m_ctx, verifyMode, nullptr);
     SSL_CTX_set_verify_depth(m_ctx, verifyDepth);
 }
-

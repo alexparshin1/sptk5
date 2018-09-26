@@ -10,12 +10,12 @@ SET (SPUTIL_SOURCES
     core/DirectoryDS.cpp core/MemoryDS.cpp core/Logger.cpp core/SystemException.cpp core/md5.cpp
     json/JsonArrayData.cpp json/JsonObjectData.cpp json/JsonDocument.cpp json/JsonElement.cpp json/JsonParser.cpp
     jwt/JWT.cpp jwt/JWT-openssl.cpp
-    net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp
+    net/AsyncTcpSocket.cpp net/BaseMailConnect.cpp net/BaseSocket.cpp net/CachedSSLContext.cpp
     net/Host.cpp net/HttpAuthentication.cpp net/HttpConnect.cpp net/HttpParams.cpp net/ImapConnect.cpp net/MailMessageBody.cpp
     net/SmtpConnect.cpp net/SSLContext.cpp net/SSLSocket.cpp net/SocketEvents.cpp
     net/TCPServer.cpp net/TCPServerListener.cpp net/TCPSocket.cpp net/ServerConnection.cpp
     net/UDPSocket.cpp net/ImapDS.cpp
-        xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp xml/Value.cpp
+    xml/Attributes.cpp xml/Document.cpp xml/DocType.cpp xml/Node.cpp xml/NodeList.cpp xml/Value.cpp
     tar/block.cpp tar/Tar.cpp tar/decode.cpp tar/handle.cpp tar/libtar_hash.cpp tar/libtar_list.cpp tar/util.cpp
     threads/RWLock.cpp threads/Thread.cpp threads/ThreadPool.cpp
     threads/Semaphore.cpp threads/Runable.cpp threads/WorkerThread.cpp threads/Timer.cpp

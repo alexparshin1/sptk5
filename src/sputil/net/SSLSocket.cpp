@@ -31,6 +31,7 @@
 
 // These two includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
+#include <sptk5/net/CachedSSLContext.h>
 
 using namespace std;
 using namespace sptk;
@@ -157,9 +158,7 @@ void SSLSocket::setSNIHostName(const String& sniHostName)
 
 void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = unique_ptr<SSLContext>(new SSLContext());
-    if (m_verifyMode != SSL_VERIFY_NONE)
-        m_sslContext->loadKeys(m_keyFileName, m_certificateFileName, m_password, m_caFileName, m_verifyMode, m_verifyDepth);
+    m_sslContext = CachedSSLContext::get(m_keyFileName, m_certificateFileName, m_password, m_caFileName, m_verifyMode, m_verifyDepth);
 
     if (m_ssl != nullptr)
         SSL_free(m_ssl);

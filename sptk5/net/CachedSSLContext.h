@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLContext.h - description                             ║
+║                       CachedSSLContext.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday September 26 2018                            ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -25,63 +25,36 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
+#ifndef __CACHED_SSLCONTEXT_H__
+#define __CACHED_SSLCONTEXT_H__
 
-#ifndef __SSLCONTEXT_H__
-#define __SSLCONTEXT_H__
-
-#include <sptk5/sptk.h>
-#include <sptk5/String.h>
-#include <openssl/ssl.h>
-#include <mutex>
-#include <sptk5/threads/Locks.h>
+#include <set>
+#include "SSLContext.h"
 
 namespace sptk {
 
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
-
-/**
- * SSL connection context
- */
-class SSLContext : public SharedMutex
+class CachedSSLContext
 {
-    /**
-     * SSL connection context
-     */
-    SSL_CTX*        m_ctx;
+    typedef std::map<String,SSLContext> CachedSSLContextMap;
+
+    static SharedMutex          m_mutex;
+    static CachedSSLContextMap  m_contexts;
 
     /**
-     * Password for auto-answer in callback function
+     * Makes SSL context ident, used as cache index, from keys definition
+     * @param keyFileName           Private key file name
+     * @param certificateFileName   Certificate file name
+     * @param password              Key file password
+     * @param caFileName            Optional CA (root certificate) file name
+     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
+     * @param verifyDepth           Connection verify depth
      */
-    String          m_password;
-
-    /**
-     * Password auto-reply callback function
-     */
-    static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);
-
-    /**
-     * Throw SSL error
-     * @param humanDescription  Human-readable error description
-     */
-    void throwError(const String& humanDescription);
-
+    static String makeIdent(const String& keyFileName = "", const String& certificateFileName = "",
+                            const String& password = "",
+                            const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 public:
-
     /**
-     * Default constructor
-     */
-    SSLContext();
-
-    /**
-     * Destructor
-     */
-    virtual ~SSLContext();
-
-    /**
-     * Loads private key and certificate(s)
+     * @brief Loads private key and certificate(s)
      *
      * Private key and certificates must be encoded with PEM format.
      * A single file containing private key and certificate can be used by supplying it for both,
@@ -94,18 +67,10 @@ public:
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    void loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
-                  const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
-
-    /**
-     * Returns SSL context handle
-     */
-    SSL_CTX* handle();
+    static SSLContext* get(const String& keyFileName="", const String& certificateFileName="", const String& password="",
+                           const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 };
 
-/**
- * @}
- */
 }
 
 #endif

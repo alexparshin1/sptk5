@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLContext.h - description                             ║
+║                       CachedSSLContext.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Wednesday September 26 2018                            ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,86 +26,42 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SSLCONTEXT_H__
-#define __SSLCONTEXT_H__
+#include <sptk5/Buffer.h>
+#include "sptk5/net/CachedSSLContext.h"
 
-#include <sptk5/sptk.h>
-#include <sptk5/String.h>
-#include <openssl/ssl.h>
-#include <mutex>
-#include <sptk5/threads/Locks.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
+SharedMutex                             CachedSSLContext::m_mutex;
+CachedSSLContext::CachedSSLContextMap   CachedSSLContext::m_contexts;
 
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
-
-/**
- * SSL connection context
- */
-class SSLContext : public SharedMutex
+sptk::SSLContext* CachedSSLContext::get(const sptk::String& keyFileName, const sptk::String& certificateFileName,
+                                        const sptk::String& password, const sptk::String& caFileName,
+                                        int verifyMode, int verifyDepth)
 {
-    /**
-     * SSL connection context
-     */
-    SSL_CTX*        m_ctx;
+    String ident = makeIdent(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
 
-    /**
-     * Password for auto-answer in callback function
-     */
-    String          m_password;
+    UniqueLock lock(m_mutex);
 
-    /**
-     * Password auto-reply callback function
-     */
-    static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);
+    auto itor = m_contexts.find(ident);
+    if (itor != m_contexts.end())
+        return &itor->second;
 
-    /**
-     * Throw SSL error
-     * @param humanDescription  Human-readable error description
-     */
-    void throwError(const String& humanDescription);
+    SSLContext& newContext = m_contexts[ident];
+    if (!keyFileName.empty() || !certificateFileName.empty())
+        newContext.loadKeys(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
 
-public:
-
-    /**
-     * Default constructor
-     */
-    SSLContext();
-
-    /**
-     * Destructor
-     */
-    virtual ~SSLContext();
-
-    /**
-     * Loads private key and certificate(s)
-     *
-     * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
-     * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keyFileName           Private key file name
-     * @param certificateFileName   Certificate file name
-     * @param password              Key file password
-     * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth           Connection verify depth
-     */
-    void loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
-                  const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
-
-    /**
-     * Returns SSL context handle
-     */
-    SSL_CTX* handle();
-};
-
-/**
- * @}
- */
+    return &newContext;
 }
 
-#endif
+String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName, const String& password,
+                             const String& caFileName, int verifyMode, int verifyDepth)
+{
+    Buffer buffer;
+    buffer.append(keyFileName); buffer.append('~');
+    buffer.append(certificateFileName); buffer.append('~');
+    buffer.append(caFileName); buffer.append('~');
+    buffer.append(int2string(verifyMode)); buffer.append('~');
+    buffer.append(int2string(verifyDepth));
+    return String(buffer.c_str(), buffer.length());
+}

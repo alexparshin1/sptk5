@@ -1,4 +1,4 @@
-ADD_EXECUTABLE (tar2h tar2h.cpp)
+ADD_EXECUTABLE (tar2h tar2h.cpp ../src/sputil/net/CachedSSLContext.cpp ../sptk5/net/CachedSSLContext.h)
 TARGET_LINK_LIBRARIES (tar2h sputil5)
 
 ADD_SUBDIRECTORY (Blue)
