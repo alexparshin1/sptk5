@@ -81,6 +81,7 @@ public:
     String(String&& src) noexcept
     : std::string(std::move(src)), m_id(src.m_id)
     {
+        src.m_id = 0;
     }
 
     /**
