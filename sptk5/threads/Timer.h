@@ -15,6 +15,13 @@ namespace sptk {
     {
     public:
 
+        struct EventId
+        {
+            uint64_t    serial;
+            DateTime    when;
+            EventId(const DateTime& when);
+        };
+
         /**
          * Timer event class.
          * Stores event data, including references to parent Timer
@@ -30,36 +37,17 @@ namespace sptk {
              */
             typedef void (*Callback) (void* eventData);
 
-            /**
-             * Events map definition.
-             * Events map stores events ordered by their timestamps.
-             */
-            typedef std::multimap<int64_t, Event*> Map;
-
-            /**
-             * Event bookmark definition.
-             * It's just an iterator to event entry in events map.
-             */
-            typedef Map::iterator               Bookmark;
-
         protected:
-            DateTime                    m_timestamp;    ///< Event timestamp - when the event has to fire next time.
+            EventId                     m_id;           ///< Event serial and when the event has to fire next time.
             void*                       m_data;         ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
             std::chrono::milliseconds   m_repeatEvery;  ///< Event repeat interval.
             Timer*                      m_timer;        ///< Parent timer
-            Bookmark                    m_bookmark;     ///< Bookmark of event entry in events map.
 
         public:
             /**
              * @return Bookmark of event entry in events map.
              */
-            const Bookmark& getBookmark() const;
-
-            /**
-             * Set bookmark of event entry in events map.
-             * @param bookmark              Bookmark of event entry in events map.
-             */
-            void setBookmark(const Bookmark& bookmark);
+            const EventId& getId() const;
 
         private:
 
@@ -68,7 +56,7 @@ namespace sptk {
              * @param other                 Other event
              */
             Event(const Event& other)
-            : m_timer(other.m_timer) {}
+            : m_id(DateTime()), m_timer(other.m_timer) {}
 
             /**
              * Disabled event assignment
@@ -96,7 +84,7 @@ namespace sptk {
              */
             const DateTime& getWhen() const
             {
-                return m_timestamp;
+                return m_id.when;
             }
 
             /**
@@ -105,7 +93,7 @@ namespace sptk {
              */
             void shift(std::chrono::milliseconds interval)
             {
-                m_timestamp = m_timestamp + interval;
+                m_id.when = m_id.when + interval;
             }
 
             /**

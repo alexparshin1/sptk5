@@ -3,11 +3,25 @@
 using namespace std;
 using namespace sptk;
 
+struct EventIdComparator
+{
+    bool operator()(const Timer::EventId& a, const Timer::EventId& b) const
+    {
+        if (a.when < b.when)
+            return true;
+        if (a.when > b.when)
+            return false;
+        return a.serial < b.serial;
+    }
+};
+
 class TimerThread : public Thread
 {
-    std::mutex                              m_scheduledMutex;
-    std::multimap<int64_t, Timer::Event*>   m_scheduledEvents;
-    Semaphore                               m_semaphore;
+    typedef map<Timer::EventId, Timer::Event*, EventIdComparator> EventMap;
+
+    mutex       m_scheduledMutex;
+    EventMap    m_scheduledEvents;
+    Semaphore   m_semaphore;
 protected:
     void threadFunction() override;
 
@@ -21,11 +35,8 @@ public:
 
     void schedule(Timer::Event* event)
     {
-        chrono::milliseconds timepointMS = chrono::duration_cast<chrono::milliseconds>(event->getWhen().sinceEpoch());
-
         lock_guard<mutex> lock(m_scheduledMutex);
-        auto bookmark = m_scheduledEvents.insert(pair<int64_t,Timer::Event*>(timepointMS.count(), event));
-        event->setBookmark(bookmark);
+        m_scheduledEvents.insert(pair<Timer::EventId,Timer::Event*>(event->getId(), event));
         m_semaphore.post();
     }
 
@@ -38,7 +49,7 @@ public:
                 when = DateTime::Now() + chrono::seconds(1);
             } else {
                 auto itor = m_scheduledEvents.begin();
-                when = DateTime(chrono::milliseconds(itor->first));
+                when = itor->first.when;
             }
         }
 
@@ -76,22 +87,28 @@ public:
     void forget(Timer::Event* event)
     {
         lock_guard<mutex> lock(m_scheduledMutex);
-        m_scheduledEvents.erase(event->getBookmark());
+        m_scheduledEvents.erase(event->getId());
     }
 
     void forget(set<Timer::Event*>& events)
     {
         lock_guard<mutex> lock(m_scheduledMutex);
         for (auto event: events)
-            m_scheduledEvents.erase(event->getBookmark());
+            m_scheduledEvents.erase(event->getId());
     }
 };
 
 static mutex                timerThreadMutex;
 static TimerThread*         timerThread;
+static atomic_uint64_t      nextSerial;
+
+Timer::EventId::EventId(const DateTime& when)
+: serial(nextSerial++), when(when)
+{
+}
 
 Timer::Event::Event(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery)
-: m_timestamp(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_timer(&timer)
+: m_id(timestamp), m_data(eventData), m_repeatEvery(repeatEvery), m_timer(&timer)
 {}
 
 Timer::Event::~Event()
@@ -100,14 +117,9 @@ Timer::Event::~Event()
         m_timer->unlink(this);
 }
 
-const Timer::Event::Bookmark& Timer::Event::getBookmark() const
+const Timer::EventId& Timer::Event::getId() const
 {
-    return m_bookmark;
-}
-
-void Timer::Event::setBookmark(const Timer::Event::Bookmark& bookmark)
-{
-    m_bookmark = bookmark;
+    return m_id;
 }
 
 void TimerThread::threadFunction()
@@ -213,9 +225,11 @@ void Timer::cancel(void* handle)
     event->m_timer = nullptr;
     delete event;
 }
-
 #if USE_GTEST
 #include <gtest/gtest.h>
+
+
+#include <sptk5/threads/Timer.h>
 
 static void gtestTimerCallback(void* eventData)
 {
