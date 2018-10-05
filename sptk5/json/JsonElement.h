@@ -118,7 +118,11 @@ protected:
      */
     struct XPath : public std::vector<XPathElement>
     {
-        bool rootOnly {false};
+        bool rootOnly {false};          ///< XPath starts from root flag
+        /**
+         * Constructor
+         * @param xpath           XPath expression
+         */
         XPath(const String& xpath);
     };
 
