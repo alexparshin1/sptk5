@@ -27,7 +27,7 @@ namespace sptk {
          * Stores event data, including references to parent Timer
          * and events map.
          */
-        class Event
+        class EventData
         {
             friend class Timer;
         public:
@@ -55,14 +55,14 @@ namespace sptk {
              * Disabled event copy constructor
              * @param other                 Other event
              */
-            Event(const Event& other)
+            EventData(const EventData& other)
             : m_id(DateTime()), m_timer(other.m_timer) {}
 
             /**
              * Disabled event assignment
              * @param other                 Other event
              */
-            Event& operator = (const Event&) { return *this; }
+            EventData& operator = (const EventData&) { return *this; }
 
         public:
             /**
@@ -72,12 +72,12 @@ namespace sptk {
              * @param eventData             Event data that will be passed to timer callback
              * @param repeatEvery           Event repeate interval
              */
-            Event(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery);
+            EventData(Timer& timer, const DateTime& timestamp, void* eventData, std::chrono::milliseconds repeatEvery);
 
             /**
              * Destructor
              */
-            ~Event();
+            ~EventData();
 
             /**
              * @return event fire at timestamp
@@ -121,14 +121,6 @@ namespace sptk {
             }
 
             /**
-             * Execute parent timer callback function with event data
-             */
-            void fire()
-            {
-                m_timer->fire(this);
-            }
-
-            /**
              * Disconnect event from timer (internal)
              */
             void unlinkFromTimer()
@@ -137,21 +129,22 @@ namespace sptk {
             }
         };
 
+        typedef std::shared_ptr<EventData> Event;
+
     protected:
 
         std::mutex                  m_mutex;        ///< Mutex protecting events set
-        std::set<Event*>            m_events;       ///< Events scheduled by this timer
-        Event::Callback             m_callback;     ///< Event callback function.
+        std::set<Event>             m_events;       ///< Events scheduled by this timer
+        EventData::Callback         m_callback;     ///< Event callback function.
 
-        void unlink(Event* event);                  ///< Remove event from this timer
-        void fire(Event* event);                    ///< Fire event
+        void unlink(Event event);                   ///< Remove event from this timer
 
     public:
         /**
          * Constructor
          * @param callback                  Timer callback function, called when event is up
          */
-        Timer(Event::Callback callback)
+        Timer(EventData::Callback callback)
         : m_callback(callback)
         {}
 
@@ -162,12 +155,18 @@ namespace sptk {
         virtual ~Timer();
 
         /**
+         * Fire single event.
+         * @param event                     User data that will be passed to timer callback function.
+         */
+        void fire(Event event);
+
+        /**
          * Schedule single event.
          * @param timestamp                 Fire at timestamp
          * @param eventData                 User data that will be passed to timer callback function.
          * @return event handle, that may be used to cancel this event.
          */
-        void* fireAt(const DateTime& timestamp, void* eventData);
+        Event fireAt(const DateTime& timestamp, void* eventData);
 
         /**
          * Schedule repeatable event.
@@ -176,13 +175,13 @@ namespace sptk {
          * @param eventData                 User data that will be passed to timer callback function.
          * @return event handle, that may be used to cancel this event.
          */
-        void* repeat(std::chrono::milliseconds interval, void* eventData);
+        Event repeat(std::chrono::milliseconds interval, void* eventData);
 
         /**
          * Cancel event
-         * @param handle                    Event handle, returned by event scheduling method.
+         * @param event                     Event handle, returned by event scheduling method.
          */
-        void  cancel(void* handle);
+        void  cancel(Event event);
     };
 
 } // namespace sptk
