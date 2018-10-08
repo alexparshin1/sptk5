@@ -15,10 +15,17 @@ namespace sptk {
     {
     public:
 
+        /**
+         * Timer Event Id
+         */
         struct EventId
         {
-            uint64_t    serial;
-            DateTime    when;
+            uint64_t    serial;     ///< Serial number
+            DateTime    when;       ///< Execution date and time
+            /**
+             * Constructor
+             * @param when      Event execution time
+             */
             EventId(const DateTime& when);
         };
 
