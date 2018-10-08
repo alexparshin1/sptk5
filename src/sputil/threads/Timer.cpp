@@ -1,3 +1,6 @@
+
+#include <sptk5/threads/Timer.h>
+
 #include "sptk5/threads/Timer.h"
 
 using namespace std;
@@ -149,19 +152,7 @@ void TimerThread::terminate()
 
 Timer::~Timer()
 {
-    set<Timer::Event> events;
-
-    // Cancel all events in this timer
-    {
-        lock_guard<mutex> lock(m_mutex);
-        events = move(m_events);
-    }
-
-    // Unregister and destroy events
-    for (auto event: events) {
-        timerThread->forget(event);
-        event->m_timer = nullptr;
-    }
+    cancel();
 }
 
 void Timer::unlink(Timer::Event event)
@@ -220,6 +211,23 @@ void Timer::cancel(Event event)
     m_events.erase(event);
 }
 
+void Timer::cancel()
+{
+    set<Timer::Event> events;
+
+    // Cancel all events in this timer
+    {
+        lock_guard<mutex> lock(m_mutex);
+        events = move(m_events);
+    }
+
+    // Unregister and destroy events
+    for (auto event: events) {
+        timerThread->forget(event);
+        event->m_timer = nullptr;
+    }
+}
+
 #if USE_GTEST
 #include <gtest/gtest.h>
 
@@ -257,6 +265,84 @@ TEST(SPTK_Timer, repeat)
         timer.cancel(handle);
 
         EXPECT_NEAR(5, eventSet, 1);
+    }
+    EXPECT_EQ(0, eventAllocations);
+}
+
+
+#define MAX_EVENT_COUNTER (10)
+#define MAX_TIMERS        (10)
+SharedMutex eventCounterMutex;
+vector<int> eventCounter(MAX_EVENT_COUNTER);
+vector<int> eventData(MAX_EVENT_COUNTER);
+
+static void gtestTimerCallback2(void* eventData)
+{
+    UniqueLock lock(eventCounterMutex);
+    size_t eventIndex = size_t(eventData);
+    eventCounter[eventIndex]++;
+}
+
+TEST(SPTK_Timer, repeat_multiple_events)
+{
+    {
+        Timer timer(gtestTimerCallback2);
+
+        vector<Timer::Event> createdEvents;
+        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+            eventData[eventIndex] = eventIndex;
+            Timer::Event event = timer.repeat(chrono::milliseconds(20), (void*)eventIndex);
+            createdEvents.push_back(event);
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(110));
+
+        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+            Timer::Event event = createdEvents[eventIndex];
+            timer.cancel(event);
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(20));
+
+        int totalEvents(0);
+        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+            UniqueLock lock(eventCounterMutex);
+            totalEvents += eventCounter[eventIndex];
+        }
+
+        EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
+    }
+    EXPECT_EQ(0, eventAllocations);
+}
+
+TEST(SPTK_Timer, repeat_multiple_timers)
+{
+    {
+        vector< shared_ptr<Timer> > timers;
+
+        for (size_t timerIndex = 0; timerIndex < MAX_TIMERS; timerIndex++) {
+            timers.push_back(make_shared<Timer>(gtestTimerCallback2));
+            shared_ptr<Timer> timer = timers[timerIndex];
+            for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++)
+                timer->repeat(chrono::milliseconds(20), (void*) eventIndex);
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(110));
+
+        for (size_t timerIndex = 0; timerIndex < MAX_TIMERS; timerIndex++) {
+            shared_ptr<Timer> timer = timers[timerIndex];
+            timer->cancel();
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(10));
+
+        int totalEvents(0);
+        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
+            UniqueLock lock(eventCounterMutex);
+            totalEvents += eventCounter[eventIndex];
+        }
+
+        EXPECT_NEAR(MAX_TIMERS * MAX_EVENT_COUNTER * 6, totalEvents, 10 * MAX_TIMERS);
     }
     EXPECT_EQ(0, eventAllocations);
 }

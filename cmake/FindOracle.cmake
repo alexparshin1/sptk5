@@ -14,6 +14,7 @@ ELSE (WIN32)
         ${ORACLE_HOME}/*/public
         ${ORACLE_HOME}/sdk/include
         /opt/*/sdk/include
+        /opt/oracle/*/sdk/include
         /usr/include
         /usr/include/oracle/*/*
         /usr/local/include
@@ -23,6 +24,7 @@ ELSE (WIN32)
         ${ORACLE_HOME}/lib64
         ${ORACLE_HOME}
         /opt/*
+        /opt/oracle/*
         /usr/lib
         /usr/lib/oracle/*/*/lib
         /usr/*/lib)

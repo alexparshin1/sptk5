@@ -156,6 +156,12 @@ namespace sptk {
         {}
 
         /**
+         * Constructor
+         * @param callback                  Timer callback function, called when event is up
+         */
+        Timer(const Timer& other) = delete;
+
+        /**
          * Destructor.
          * Cancel all events scheduled by this timer.
          */
@@ -189,6 +195,11 @@ namespace sptk {
          * @param event                     Event handle, returned by event scheduling method.
          */
         void  cancel(Event event);
+
+        /**
+         * Cancel all events
+         */
+        void  cancel();
     };
 
 } // namespace sptk
