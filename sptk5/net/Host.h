@@ -198,6 +198,31 @@ public:
 };
 
 /**
+ * @brief Case-insensitive host compare class.
+ *
+ * Lower case host compare class is really useful if we need
+ * a case-independent host map
+ */
+class SP_EXPORT HostCompare
+{
+public:
+    /**
+     * @brief Compare method
+     * @param s1            First host
+     * @param s2            Second host
+     */
+    bool operator()(const Host& s1, const Host& s2) const
+    {
+#ifdef WIN32
+        return stricmp(s1.toString(true).c_str(), s2.toString(true).c_str()) > 0;
+#else
+        return strcasecmp(s1.toString(true).c_str(), s2.toString(true).c_str()) > 0;
+#endif
+    }
+};
+
+
+/**
  * @}
  */
 
