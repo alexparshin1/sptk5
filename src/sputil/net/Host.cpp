@@ -33,6 +33,10 @@
 using namespace std;
 using namespace sptk;
 
+#ifdef _WIN32
+static BaseSocket initializer; // Needed for WinSock2 initialization
+#endif
+
 Host::Host()
 : m_port(0)
 {
