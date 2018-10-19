@@ -2,6 +2,9 @@
 
 #sysctl vsyscall=emulate
 
+export PATH=/opt/cov-analysis-linux64-2017.07/bin:$PATH
+
+cmake .
 make clean
 
 cov-build --dir cov-int make -j 8
