@@ -111,7 +111,7 @@ Element* ObjectData::move(const string& name)
     auto itor = m_items.find(name);
     if (itor == m_items.end())
         return nullptr;
-	Element* data = itor->second;
+    Element* data = itor->second;
     m_items.erase(itor);
     return data;
 }
