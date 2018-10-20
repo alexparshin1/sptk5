@@ -123,7 +123,7 @@ protected:
          * Constructor
          * @param xpath           XPath expression
          */
-        XPath(const String& xpath);
+        explicit XPath(const String& xpath);
     };
 
     /**

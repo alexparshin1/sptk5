@@ -46,13 +46,13 @@ ImapConnect::~ImapConnect()
 
 #define RSP_BLOCK_SIZE 1024
 
-bool ImapConnect::getResponse(string ident)
+bool ImapConnect::getResponse(const String& ident)
 {
     char readBuffer[RSP_BLOCK_SIZE + 1];
 
     for (; ;) {
         size_t len = readLine(readBuffer, RSP_BLOCK_SIZE);
-        string longLine = readBuffer;
+        String longLine = readBuffer;
         if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n') {
             do {
                 len = readLine(readBuffer, RSP_BLOCK_SIZE);
@@ -84,37 +84,39 @@ bool ImapConnect::getResponse(string ident)
     //return false;
 }
 
-const string ImapConnect::empty_quotes;
+const String ImapConnect::empty_quotes;
 
-static string quotes(const string& st)
+static String quotes(const String& st)
 {
     return "\"" + st + "\"";
 }
 
-string ImapConnect::sendCommand(string cmd)
+String ImapConnect::sendCommand(const String& cmd)
 {
+    String command(cmd);
     char id_str[10];
 	int len = snprintf(id_str, sizeof(id_str), "a%03i ", m_ident++);
-    string ident(id_str, (size_t) len);
-    cmd = ident + cmd + "\n";
+    String ident(id_str, (size_t) len);
+    command = ident + cmd + "\n";
     if (!active())
         throw Exception("Socket isn't open");
-    write(cmd.c_str(), (uint32_t) cmd.length());
+    write(command.c_str(), (uint32_t) command.length());
     return ident;
 }
 
-void ImapConnect::command(string cmd, const std::string &arg1, const std::string &arg2)
+void ImapConnect::command(const String& cmd, const String& arg1, const String& arg2)
 {
+    String command(cmd);
     if (!arg1.empty() || &arg1 == &empty_quotes)
-        cmd += " " + quotes(arg1);
+        command += " " + quotes(arg1);
     if (!arg2.empty() || &arg2 == &empty_quotes)
-        cmd += " " + quotes(arg2);
+        command += " " + quotes(arg2);
     m_response.clear();
-    string ident = sendCommand(cmd);
+    String ident = sendCommand(command);
     getResponse(ident);
 }
 
-void ImapConnect::cmd_login(const string& user, const string& password)
+void ImapConnect::cmd_login(const String& user, const String& password)
 {
     close();
     open();
@@ -136,17 +138,17 @@ CBuffer testMsg(
    "Content-Type: TEXT/PLAIN; CHARSET=US-ASCII\n\r\n\r"
    "Hello Joe, do you think we can meet at 3:30 tomorrow?\n\r");
  */
-void ImapConnect::cmd_append(const string& mail_box, const Buffer &message)
+void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
-    string cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
-    string ident = sendCommand(cmd);
+    String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
+    String ident = sendCommand(cmd);
     getResponse(ident);
     write(message.data(), message.bytes());
     write("\n", 1);
     getResponse(ident);
 }
 
-void ImapConnect::cmd_select(const string& mail_box, int32_t &total_msgs)
+void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
 {
     command("select", mail_box);
     for (auto& st: m_response) {
@@ -160,7 +162,7 @@ void ImapConnect::cmd_select(const string& mail_box, int32_t &total_msgs)
     }
 }
 
-void ImapConnect::parseSearch(std::string &result)
+void ImapConnect::parseSearch(String& result)
 {
     result = "";
     for (auto& st: m_response) {
@@ -169,13 +171,13 @@ void ImapConnect::parseSearch(std::string &result)
     }
 }
 
-void ImapConnect::cmd_search_all(std::string &result)
+void ImapConnect::cmd_search_all(String& result)
 {
     command("search all");
     parseSearch(result);
 }
 
-void ImapConnect::cmd_search_new(std::string &result)
+void ImapConnect::cmd_search_new(String& result)
 {
     command("search unseen");
     parseSearch(result);
@@ -207,7 +209,7 @@ static void parse_header(const String& header, String& header_name, String& head
     }
 }
 
-static DateTime decodeDate(const std::string &dt)
+static DateTime decodeDate(const String& dt)
 {
     char temp[40];
     strncpy(temp, dt.c_str() + 5, sizeof(temp));
@@ -287,7 +289,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     results.clear();
     unsigned i;
     for (i = 0; required_headers[i] != nullptr; i++) {
-        string headerName = required_headers[i];
+        String headerName = required_headers[i];
         Field *fld = new Field(lowerCase(headerName).c_str());
         switch (i) {
             case 0:
@@ -303,7 +305,7 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     // parse headers
     i = 1;
     for (; i < m_response.size() - 1; i++) {
-        std::string &st = m_response[i];
+        String &st = m_response[i];
         if (st.empty())
             break;
         String header_name, header_value;
@@ -328,10 +330,9 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
 
     if (headers_only) return;
 
-    string body;
-    for (; i < m_response.size() - 1; i++) {
+    String body;
+    for (; i < m_response.size() - 1; i++)
         body += m_response[i] + "\n";
-    }
 
     Field &bodyField = results.push_back(new Field("body"));
     bodyField.setString(body);
@@ -349,19 +350,19 @@ void ImapConnect::cmd_fetch_message(int32_t msg_id, FieldList &result)
     parseMessage(result, false);
 }
 
-string ImapConnect::cmd_fetch_flags(int32_t msg_id)
+String ImapConnect::cmd_fetch_flags(int32_t msg_id)
 {
-    string result;
+    String result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
     size_t count = m_response.size() - 1;
     //for (; i < count; i++) {
     if (count > 0) {
         size_t i = 0;
-        std::string &st = m_response[i];
+        String &st = m_response[i];
         const char *fpos = strstr(st.c_str(), "(\\");
         if (fpos == nullptr)
             return "";
-        string flags(fpos + 1);
+        String flags(fpos + 1);
         size_t pos = flags.find("))");
         if (pos != STRING_NPOS)
             flags[pos] = 0;
@@ -372,10 +373,10 @@ string ImapConnect::cmd_fetch_flags(int32_t msg_id)
 
 void ImapConnect::cmd_store_flags(int32_t msg_id, const char *flags)
 {
-    command("STORE " + int2string(msg_id) + " FLAGS " + std::string(flags));
+    command("STORE " + int2string(msg_id) + " FLAGS " + String(flags));
 }
 
-static string strip_framing_quotes(string st)
+static String strip_framing_quotes(const String& st)
 {
     if (st[0] == '\"')
         return st.substr(1, st.length() - 2);
@@ -385,7 +386,7 @@ static string strip_framing_quotes(string st)
 void ImapConnect::parseFolderList()
 {
     Strings folder_names;
-    string prefix = "* LIST ";
+    String prefix = "* LIST ";
     for (auto& st: m_response) {
         if (st.find(prefix) == 0) {
             // passing the attribute(s)
@@ -402,7 +403,7 @@ void ImapConnect::parseFolderList()
     m_response = folder_names;
 }
 
-void ImapConnect::cmd_list(string mail_box_mask, bool decode)
+void ImapConnect::cmd_list(const String& mail_box_mask, bool decode)
 {
     command("list", empty_quotes, mail_box_mask);
     if (decode)

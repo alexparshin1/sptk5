@@ -59,12 +59,12 @@ class Document
     /**
      * Disable copy constructor
      */
-    Document(const Document&) : m_root(NULL) {}
+    Document(const Document&) = delete;
 
     /**
      * Disable copy assignment
      */
-    Document& operator = (const Document&) { return *this; }
+    Document& operator = (const Document&) = delete;
 
 public:
     /**

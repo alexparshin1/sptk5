@@ -102,10 +102,20 @@ public:
         if (size > 1024)
             size = 1024;
         m_size = size;
-        m_sqlda = (XSQLDA *) realloc(m_sqlda, XSQLDA_LENGTH(m_size));
+
+        XSQLDA *newptr = (XSQLDA *) realloc(m_sqlda, XSQLDA_LENGTH(m_size));
+        if (newptr == nullptr)
+            throw Exception("Can't allocate memory for Firebird statement");
+        m_sqlda = newptr;
+
         m_sqlda->version = SQLDA_VERSION1;
         m_sqlda->sqln = (ISC_SHORT) m_size;
-        m_cbNulls = (short*) realloc(m_cbNulls, size * sizeof(short));
+
+        short* nptr = (short*) realloc(m_cbNulls, size * sizeof(short));
+        if (nptr == nullptr)
+            throw Exception("Can't allocate memory for Firebird statement");
+        m_cbNulls = nptr;
+
         short* cbNull = m_cbNulls;
         for (unsigned i = 0; i < m_size; i++, cbNull++)
             m_sqlda->sqlvar[i].sqlind = cbNull;

@@ -65,7 +65,7 @@ class ImapConnect: public TCPSocket
     /**
      * Empty quotes string
      */
-    static const std::string    empty_quotes;
+    static const String    empty_quotes;
 
 protected:
 
@@ -76,19 +76,19 @@ protected:
      * @param cmd std::string, the complete text of IMAP4 command
      * @returns the unique command identifier
      */
-    std::string sendCommand(std::string cmd);
+    String sendCommand(const String& cmd);
 
     /**
      * @brief Gets a response from the server for a previously sent command, identified by the ident
      * @param ident std::string, the command identifier returned by prior sendCommand().
      */
-    bool getResponse(std::string ident);
+    bool getResponse(const String& ident);
 
     /**
      * @brief Parses the result of SEARCH command in response. Returns results in result parameter
      * @param result std::string, returns the search results.
      */
-    void parseSearch(std::string& result);
+    void parseSearch(String& result);
 
     /**
      * @brief Parses server response as a message data (after the appropriate command) to the set of fields
@@ -122,7 +122,7 @@ public:
      * @param arg1 std::string, optional command argument1
      * @param arg2 std::string, optional command argument2
      */
-    void command(std::string cmd, const std::string& arg1 = "", const std::string& arg2 = "");
+    void command(const String& cmd, const String& arg1 = "", const String& arg2 = "");
 
     /**
      * Returns reference to a last command response.
@@ -166,7 +166,7 @@ public:
      * @param user std::string&, user name on the server
      * @param password std::string&, user password on the server
      */
-    void cmd_login(const std::string& user, const std::string& password);
+    void cmd_login(const String& user, const String& password);
 
     // IMAPv4 commands - logged in, mailbox-operations
 
@@ -175,13 +175,13 @@ public:
      * @param mail_box const std::string&, the name of the mail box
      * @param total_msgs int32_t&, returns the total messages in the mail box
      */
-    void cmd_select(const std::string& mail_box, int32_t& total_msgs);
+    void cmd_select(const String& mail_box, int32_t& total_msgs);
 
     /**
      * Retrieves the mail box information into response().
      * @param mail_box std::string, the name of the mail box
      */
-    void cmd_examine(std::string mail_box)
+    void cmd_examine(const String& mail_box)
     {
         command("examine", mail_box);
     }
@@ -190,7 +190,7 @@ public:
      * Subscribes the mail box to the user.
      * @param mail_box std::string, the name of the mail box
      */
-    void cmd_subscribe(std::string mail_box)
+    void cmd_subscribe(const String& mail_box)
     {
         command("subscribe", mail_box);
     }
@@ -199,7 +199,7 @@ public:
      * Unsubscribes the mail box from the user.
      * @param mail_box std::string, the name of the mail box
      */
-    void cmd_unsubscribe(std::string mail_box)
+    void cmd_unsubscribe(const String& mail_box)
     {
         command("unsubscribe", mail_box);
     }
@@ -208,7 +208,7 @@ public:
      * Creates the new mail box.
      * @param mail_box std::string, the name of the mail box
      */
-    void cmd_create(std::string mail_box)
+    void cmd_create(const String& mail_box)
     {
         command("create", mail_box);
     }
@@ -217,7 +217,7 @@ public:
      * Deletes the new mail box.
      * @param mail_box std::string, the name of the mail box
      */
-    void cmd_delete(std::string mail_box)
+    void cmd_delete(const String& mail_box)
     {
         command("delete", mail_box);
     }
@@ -227,7 +227,7 @@ public:
      * @param mail_box std::string, the name of the mail box
      * @param new_name std::string, the new name of the mail box
      */
-    void cmd_rename(std::string mail_box, std::string new_name)
+    void cmd_rename(const String& mail_box, const String& new_name)
     {
         command("rename ", mail_box, new_name);
     }
@@ -237,14 +237,14 @@ public:
      * @param mail_box_mask std::string, the mask for the mail box names
      * @param decode bool, true if you want to convert the response into plain folder list.
      */
-    void cmd_list(std::string mail_box_mask, bool decode = false);
+    void cmd_list(const String& mail_box_mask, bool decode = false);
 
     /**
      * Appends the message to the mail box.
      * @param mail_box std::string, the name of the mail box
      * @param message CBuffer, the RFC-2060 defined message
      */
-    void cmd_append(const std::string& mail_box, const Buffer& message);
+    void cmd_append(const String& mail_box, const Buffer& message);
 
     // IMAPv4 commands - logged in, selected mailbox-operations
 
@@ -267,12 +267,12 @@ public:
     /**
      * Reatrieves all the messages list in the current mail box.
      */
-    void cmd_search_all(std::string& result);
+    void cmd_search_all(String& result);
 
     /**
      * Reatrieves the new messages list in the current mail box.
      */
-    void cmd_search_new(std::string& result);
+    void cmd_search_new(String& result);
 
     /**
      * Reatrieves the headers for the message.
@@ -293,7 +293,7 @@ public:
      * @param msg_id int, the message identifier
      * @returns std::string, the message flags
      */
-    std::string cmd_fetch_flags(int32_t msg_id);
+    String cmd_fetch_flags(int32_t msg_id);
 
     /**
      * Sets message flags

@@ -714,7 +714,7 @@ protected:
      *
      * @param doc a document.
      */
-    NamedItem(Document& doc)
+    explicit NamedItem(Document& doc)
     : Node(doc)
     {
     }

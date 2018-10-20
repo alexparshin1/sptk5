@@ -73,7 +73,7 @@ protected:
      *
      * @param doc               XML document.
      */
-    Element(Document& doc)
+    explicit Element(Document& doc)
     : NamedItem(doc), m_attributes(this)
     {}
 

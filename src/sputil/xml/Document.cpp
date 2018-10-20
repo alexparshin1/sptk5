@@ -47,7 +47,7 @@ Document::Document()
 {
 }
 
-Document::Document(string xml)
+Document::Document(const String& xml)
         :
         Element(*this),
         m_indentSpaces(2),

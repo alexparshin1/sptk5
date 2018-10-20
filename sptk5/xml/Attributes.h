@@ -132,7 +132,7 @@ public:
      * The XML attributes object uses the shared strings table (SST) for attribute names
      * @param parent xml::Element*, the parent XML element
      */
-    Attributes(Element* parent)
+    explicit Attributes(Element* parent)
     : m_parent(parent)
     {
     }
