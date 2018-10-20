@@ -233,16 +233,12 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
     classDeclaration << "    * Disabled move constructor" << endl;
     classDeclaration << "    * @param other              Other element to move from" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(" << className << "&& other) noexcept" << endl << "   : " << copyInitializer.asString(", ") << endl
-                     << "   {}" << endl << endl;
+    classDeclaration << "   " << className << "(" << className << "&& other) = delete;" << endl << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Disabled move assignment" << endl;
     classDeclaration << "    * @param other              Other element to move from" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept" << endl
-                     << "   {" << endl
-                     << "       return *this;" << endl
-                     << "   }" << endl << endl
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other) = delete;" << endl << endl
                      << endl
                      << "protected:" << endl
                      << "   /**" << endl
