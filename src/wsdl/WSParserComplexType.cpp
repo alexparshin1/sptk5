@@ -228,7 +228,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration)
             copyInitializer.push_back("m_" + attr.name() + "(\"" + attr.name() + "\")");
         }
     }
-    classDeclaration << "private:" << endl;
+    classDeclaration << "public:" << endl;
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Disabled move constructor" << endl;
     classDeclaration << "    * @param other              Other element to move from" << endl;
