@@ -283,7 +283,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL) override;
+    size_t read(String& buffer, size_t size, sockaddr_in* from =) override;
 };
 
 /**

@@ -705,7 +705,7 @@ class SP_EXPORT NamedItem : public Node
     /**
      * Node name, stored in the parent document SST
      */
-    const std::string* m_name{nullptr};
+    const std::string* m_name {nullptr};
 
 
 protected:

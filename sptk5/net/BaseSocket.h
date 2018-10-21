@@ -176,7 +176,7 @@ public:
     * @param file              Source file name
     * @param line              Source file line number
     */
-    static void throwSocketError(const std::string& message, const char* file, int line);
+    static void throwSocketError(const String& message, const char* file, int line);
 
     /**
     * @brief Opens the socket connection by address.
@@ -364,7 +364,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(std::string& buffer, size_t size, sockaddr_in* from = NULL);
+    virtual size_t read(String& buffer, size_t size, sockaddr_in* from = NULL);
 
     /**
      * @brief Writes data to the socket
@@ -391,7 +391,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const std::string& buffer, const sockaddr_in* peer = NULL);
+    virtual size_t write(const String& buffer, const sockaddr_in* peer = NULL);
 
     /**
      * @brief Reports true if socket is ready for reading from it

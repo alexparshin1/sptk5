@@ -202,7 +202,7 @@ void Node::matchNodesThisLevel(NodeVector& nodes, const vector<XPathElement>& pa
     if (pathElement.nodePosition != 0) {
         int matchedPosition;
         if (pathElement.nodePosition < 0)
-            matchedPosition = matchedNodes.size() + pathElement.nodePosition;
+            matchedPosition = int(matchedNodes.size() + pathElement.nodePosition);
         else
             matchedPosition = pathElement.nodePosition - 1;
         if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())

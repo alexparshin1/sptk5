@@ -95,7 +95,7 @@ void Document::processAttributes(Node* node, const char* ptr)
         tokenStart++;
 
     while (*tokenStart != 0) {
-        auto tokenEnd = (char*) strpbrk(tokenStart, " =");
+        auto tokenEnd = strpbrk(tokenStart, " =");
         if (tokenEnd == nullptr)
             throw Exception("Incorrect attribute - missing '='");
         *tokenEnd = 0;
@@ -312,7 +312,7 @@ void Document::load(const char* xmlData)
                     const char* value;
                     if (ch == ' ') {
                         value = tokenEnd + 1;
-                        nodeEnd = (char*) strstr(value, "?>");
+                        nodeEnd = strstr(value, "?>");
                     } else {
                         value = "";
                         nodeEnd = strstr(tokenStart, "?");

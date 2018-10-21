@@ -307,7 +307,7 @@ size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
     return rc;
 }
 
-size_t TCPSocket::read(string& buffer, size_t size, sockaddr_in* from)
+size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
     size_t rc = m_reader.read((char*)buffer.c_str(), size, 0, false, from);
