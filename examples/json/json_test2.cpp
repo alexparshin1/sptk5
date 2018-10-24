@@ -40,9 +40,9 @@ int main(int argc, char **argv)
         json::Element& root = jsonDocument.root();
 
         // Fastest way to insert or replace element
-        root.add("boolean", new json::Element(true));
-        root.add("empty", new json::Element());
-        root.add("string", new json::Element("test1"));
+        root.set("boolean", true);
+        root.set("empty");
+        root.set("string", "test1");
 
         // Convenient way to insert or replace element.
         // Recognised types: bool, integers, floats, const char*, std::string, json::ArrayData*, json::ObjectData*
@@ -51,26 +51,16 @@ int main(int argc, char **argv)
         root["string"] = "test";
         root["boolean"] = true;
 
-        auto array1 = new json::ArrayData;
-        array1->add(new json::Element(100.0));
-        array1->add(new json::Element("101.0"));
-        array1->add(new json::Element(102.0));
-        root["array"] = array1;
-
-        // Create JSON array and insert it into JSON element (root)
-        // JSON element (root) takes ownership of arrayData
-        auto arrayData = new json::ArrayData;
-        arrayData->add(100.0);
-        arrayData->add("101.0");
-        arrayData->add(102.0);
-        root.add("numbers", arrayData);
+        auto array = root.set_object("array");
+        array->push_back(100.0);
+        array->push_back("101.0");
+        array->push_back(102.0);
 
         // Create JSON object and insert it into JSON element (root)
         // JSON element (root) takes ownership of objectData
-        auto objectData = new json::ObjectData;
+        auto objectData = root.set_object("boxes");
         (*objectData)["colour"] = "black";
         (*objectData)["shape"] = "cube";
-        root.add("boxes", objectData);
 
         // Get existing JSON object and add some data to it
         json::Element& boxes = root["boxes"];

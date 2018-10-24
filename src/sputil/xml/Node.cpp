@@ -432,20 +432,17 @@ void Node::save(json::Element& json, string& text) const
     }
 
     if (isPI()) {
-        json.add(name(), value());
+        json.set(name(), value());
         return;
     }
 
-    auto object = new json::Element(new json::ObjectData());
-    json.add(nodeName, object);
-
+    auto object = json.set_object(nodeName);
     if (isElement()) {
         const Attributes& attributes = this->attributes();
         if (!attributes.empty()) {
-            auto attrs = new json::Element(new json::ObjectData());
-            object->add("attributes", attrs);
+            auto attrs = object->set_object("attributes");
             for (auto attributeNode: attributes)
-                attrs->add(attributeNode->name(), attributeNode->value());
+                attrs->set(attributeNode->name(), attributeNode->value());
         }
     }
 
@@ -453,25 +450,24 @@ void Node::save(json::Element& json, string& text) const
         case DOM_TEXT:
         case DOM_CDATA_SECTION:
             if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
-                *object = json::Element(value().substr(9, value().length() - 12));
+                *object = value().substr(9, value().length() - 12);
             else
-                *object = json::Element(value());
+                *object = value();
             break;
 
         case DOM_COMMENT:
             // output all subnodes
-            object->add("comments", value());
+            object->set("comments", value());
             break;
 
         case DOM_ELEMENT: {
             if (empty()) {
-                *object = json::Element("");
+                *object = "";
             } else {
                 bool done = false;
                 if (size() == 1) {
                     for (auto np: *this)
                         if (np->name() == "null") {
-                            *object = json::Element();
                             done = true;
                         }
                 }
@@ -483,9 +479,9 @@ void Node::save(json::Element& json, string& text) const
                     if (object->isObject() && object->size() == 0) {
                         if (m_document->m_matchNumber.matches(nodeText)) {
                             double value = string2double(nodeText);
-                            *object = json::Element(value);
+                            *object = value;
                         } else
-                            *object = json::Element(nodeText);
+                            *object = nodeText;
                     }
                 }
             }

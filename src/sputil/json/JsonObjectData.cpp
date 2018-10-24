@@ -28,13 +28,14 @@
 
 #include <sptk5/json/JsonElement.h>
 #include <sptk5/json/JsonArrayData.h>
+#include <sptk5/json/JsonDocument.h>
 
 using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-ObjectData::ObjectData(Element* parent)
-: m_parent(parent)
+ObjectData::ObjectData(Document* document, Element* parent)
+: m_document(document), m_parent(parent)
 {
 }
 
@@ -56,15 +57,17 @@ void ObjectData::setParent(Element* parent)
 void ObjectData::add(const string& name, Element* element)
 {
     element->m_parent = m_parent;
-    auto itor = m_items.find(name);
+    const string* sharedName = m_document->getString(name);
+    auto itor = m_items.find(sharedName);
     if (itor != m_items.end())
         throw Exception("Element " + name + " conflicts with same name object");
-    m_items[name] = element;
+    m_items[sharedName] = element;
 }
 
 Element* ObjectData::find(const string& name)
 {
-    const_iterator itor = m_items.find(name);
+    const string* sharedName = m_document->getString(name);
+    auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         return nullptr;
     return itor->second;
@@ -72,12 +75,13 @@ Element* ObjectData::find(const string& name)
 
 Element& ObjectData::operator[](const string& name)
 {
-    auto itor = m_items.find(name);
+    const string* sharedName = m_document->getString(name);
+    auto itor = m_items.find(sharedName);
     Element* element;
     if (itor == m_items.end()) {
-        element = new Element;
+        element = new Element(m_document);
         element->m_parent = m_parent;
-        m_items[name] = element;
+        m_items[sharedName] = element;
     } else
         element = itor->second;
 
@@ -86,7 +90,8 @@ Element& ObjectData::operator[](const string& name)
 
 const Element* ObjectData::find(const string& name) const
 {
-    auto itor = m_items.find(name);
+    const string* sharedName = m_document->getString(name);
+    auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         throw Exception("Element name isn't found");
     return itor->second;
@@ -99,7 +104,8 @@ const Element& ObjectData::operator[](const string& name) const
 
 void ObjectData::remove(const string& name)
 {
-    auto itor = m_items.find(name);
+    const string* sharedName = m_document->getString(name);
+    auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         return;
     delete itor->second;
@@ -108,7 +114,8 @@ void ObjectData::remove(const string& name)
 
 Element* ObjectData::move(const string& name)
 {
-    auto itor = m_items.find(name);
+    const string* sharedName = m_document->getString(name);
+    auto itor = m_items.find(sharedName);
     if (itor == m_items.end())
         return nullptr;
     Element* data = itor->second;

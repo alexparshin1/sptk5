@@ -44,10 +44,17 @@ namespace sptk { namespace json {
  */
 class Document
 {
+    friend class ObjectData;
+    friend class Element;
+
     /**
      * Root element of the document
      */
-    Element*    m_root;
+    Element*        m_root;
+
+    SharedStrings   m_sharedStrings;
+
+    const Element   m_emptyElement;
 
     /**
      * Parse JSON text, replacing current document content
@@ -145,6 +152,22 @@ public:
      */
     void clear();
 
+protected:
+
+    const Element& getEmptyElement() const
+    {
+        return m_emptyElement;
+    }
+
+    const std::string* getString(const std::string& str)
+    {
+        return &m_sharedStrings.shareString(str);
+    }
+
+    const std::string* getString(const char* str)
+    {
+        return &m_sharedStrings.shareString(str);
+    }
 };
 
 }}

@@ -33,8 +33,8 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::json;
 
-ArrayData::ArrayData(Element* parent)
-: m_parent(parent)
+ArrayData::ArrayData(const Document* document, Element* parent)
+: m_document(document), m_parent(parent)
 {
 }
 
