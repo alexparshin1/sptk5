@@ -41,37 +41,37 @@ Element::Element(Document* document, double value) noexcept
     m_data.m_number = value;
 }
 
-Element::Element(Document*document, int value) noexcept
+Element::Element(Document* document, int value) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = value;
 }
 
-Element::Element(Document*document, int64_t value) noexcept
+Element::Element(Document* document, int64_t value) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_NUMBER)
 {
     m_data.m_number = (double) value;
 }
 
-Element::Element(Document*document, const String& value) noexcept
-: m_document(document), m_parent(nullptr), m_type(JDT_STRING)
-{
-    m_data.m_string = new string(value);
-}
-
-Element::Element(Document*document, const char* value) noexcept
+Element::Element(Document* document, const String& value) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_STRING)
 {
     m_data.m_string = m_document->getString(value);
 }
 
-Element::Element(Document*document, bool value) noexcept
+Element::Element(Document* document, const char* value) noexcept
+: m_document(document), m_parent(nullptr), m_type(JDT_STRING)
+{
+    m_data.m_string = m_document->getString(value);
+}
+
+Element::Element(Document* document, bool value) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_BOOLEAN)
 {
     m_data.m_boolean = value;
 }
 
-Element::Element(Document*document, ArrayData* value) noexcept
+Element::Element(Document* document, ArrayData* value) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_ARRAY)
 {
     m_data.m_array = value;
@@ -79,7 +79,7 @@ Element::Element(Document*document, ArrayData* value) noexcept
         jsonElement->m_parent = this;
 }
 
-Element::Element(Document*document, ObjectData* value) noexcept
+Element::Element(Document* document, ObjectData* value) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_OBJECT)
 {
     m_data.m_object = value;
@@ -87,13 +87,13 @@ Element::Element(Document*document, ObjectData* value) noexcept
         itor.second->m_parent = this;
 }
 
-Element::Element(Document*document) noexcept
+Element::Element(Document* document) noexcept
 : m_document(document), m_parent(nullptr), m_type(JDT_NULL)
 {
     m_data.m_boolean = false;
 }
 
-Element::Element(Document*document, const Element& other)
+Element::Element(Document* document, const Element& other)
 : m_document(document), m_parent(nullptr), m_type(JDT_NULL)
 {
     assign(other);
@@ -203,7 +203,8 @@ Element* Element::add(const String& name, Element* element)
     }
 
     m_data.m_object->move(name);
-    auto array = new Element(m_document, new ArrayData(m_document));
+    auto arrayData = new ArrayData(m_document);
+    auto array = new Element(m_document, arrayData);
     array->add(sameNameExistingElement);
     array->add(element);
     add(name, array);

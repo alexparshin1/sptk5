@@ -239,31 +239,31 @@ public:
      * Constructor
      * @param value             Integer value
      */
-    Element(Document*document, int value) noexcept;
+    Element(Document* document, int value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    Element(Document*document, int64_t value) noexcept;
+    Element(Document* document, int64_t value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    Element(Document*document,const String& value) noexcept;
+    Element(Document* document,const String& value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    Element(Document*document,const char* value) noexcept;
+    Element(Document* document,const char* value) noexcept;
 
     /**
      * Constructor
      * @param value             Boolean value
      */
-    Element(Document*document, bool value) noexcept;
+    Element(Document* document, bool value) noexcept;
 
     /**
      * Constructor
