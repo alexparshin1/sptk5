@@ -343,7 +343,7 @@ size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
-    size_t bytes = read(buffer.data(), size, from);
+    size_t bytes = read((char*)buffer.c_str(), size, from);
     if (bytes != size)
         buffer.resize(bytes);
     return bytes;

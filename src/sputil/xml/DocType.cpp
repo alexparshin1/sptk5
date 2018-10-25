@@ -111,7 +111,7 @@ void xml::DocType::decodeEntities(const char* str, uint32_t sz, Buffer& ret)
     while (*ptr != char(0)) {
         const char* ent_start = strchr(ptr, '&');
         if (ent_start != nullptr) {
-            auto ent_end = strchr(ent_start + 1, ';');
+            auto ent_end = (char*) strchr(ent_start + 1, ';');
             if (ent_end != nullptr) {
                 char ch = *ent_end;
                 *ent_end = 0;
