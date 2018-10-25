@@ -57,11 +57,10 @@ Document::Document(const String& xml)
 }
 
 Document::Document(const char* aname, const char* public_id, const char* system_id)
-        :
-        Element(*this),
-        m_doctype(aname, public_id, system_id),
-        m_indentSpaces(2),
-        m_matchNumber(MATCH_NUMBER, "i")
+: Element(*this),
+  m_doctype(aname, public_id, system_id),
+  m_indentSpaces(2),
+  m_matchNumber(MATCH_NUMBER, "i")
 {
 }
 
