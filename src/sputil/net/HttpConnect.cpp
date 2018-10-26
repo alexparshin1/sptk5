@@ -44,23 +44,24 @@ HttpConnect::HttpConnect(TCPSocket& socket)
 
 String HttpConnect::responseHeader(const String& headerName) const
 {
-    return m_reader.responseHeader(headerName);
+    if (m_reader)
+        return m_reader->responseHeader(headerName);
+    return "";
 }
 
-int HttpConnect::getResponse(chrono::milliseconds readTimeout)
+int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
 {
-    Buffer read_buffer(RSP_BLOCK_SIZE);
-
-    while (m_reader.getReaderState() < HttpReader::COMPLETED) {
+    m_reader = make_unique<HttpReader>(output);
+    while (m_reader->getReaderState() < HttpReader::COMPLETED) {
         if (!m_socket.readyToRead(readTimeout)) {
             m_socket.close();
             throw Exception("Response read timeout");
         }
 
-        m_reader.read(m_socket);
+        m_reader->read(m_socket);
     }
 
-    return m_reader.getStatusCode();
+    return m_reader->getStatusCode();
 }
 
 void HttpConnect::sendCommand(const String& cmd)
@@ -103,18 +104,19 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     return headers;
 }
 
-int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
+int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, Buffer& output,
+                         chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("GET", pageName, requestParameters);
 
     string command = headers.asString("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
-    return getResponse(timeout);
+    return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData,
-                          bool gzipContent, chrono::milliseconds timeout)
+int HttpConnect::cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& postData, bool gzipContent,
+                          Buffer& output, std::chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("POST", pageName, parameters);
 
@@ -140,11 +142,11 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 
     sendCommand(command);
 
-    return getResponse(timeout);
+    return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_put(const String& pageName, const HttpParams& requestParameters, const Buffer& putData,
-                         chrono::milliseconds timeout)
+int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& requestParameters, const Buffer& putData,
+                         Buffer& output, std::chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters);
 
@@ -162,27 +164,28 @@ int HttpConnect::cmd_put(const String& pageName, const HttpParams& requestParame
 
     sendCommand(command);
 
-    return getResponse(timeout);
+    return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_delete(const String& pageName, const HttpParams& requestParameters, chrono::milliseconds timeout)
+int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requestParameters, Buffer& output,
+                            std::chrono::milliseconds timeout)
 {
     Strings headers = makeHeaders("DELETE", pageName, requestParameters);
     string  command = headers.asString("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 
-    return getResponse(timeout);
+    return getResponse(output, timeout);
 }
 
 int HttpConnect::statusCode() const
 {
-    return m_reader.getStatusCode();
+    return m_reader->getStatusCode();
 }
 
 String HttpConnect::statusText() const
 {
-    return m_reader.getStatusText();
+    return m_reader->getStatusText();
 }
 
 #if USE_GTEST
@@ -198,9 +201,10 @@ TEST(SPTK_HttpConnect, get)
     ASSERT_TRUE(socket->active());
 
     HttpConnect http(*socket);
+    Buffer      output;
 
     try {
-        http.cmd_get("/", HttpParams());
+        http.cmd_get("/", HttpParams(), output);
     }
     catch (const exception& e) {
         FAIL() << e.what();
@@ -208,7 +212,7 @@ TEST(SPTK_HttpConnect, get)
     EXPECT_EQ(200, http.statusCode());
     EXPECT_STREQ("OK", http.statusText().c_str());
 
-    String data(http.htmlData().c_str(),http.htmlData().bytes());
+    String data(output.c_str(), output.bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
     //cout << data.c_str() << endl;
 	delete socket;

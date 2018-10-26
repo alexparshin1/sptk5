@@ -56,15 +56,16 @@ int main(int argc, char* argv[])
             httpFields["page"] = "0";
             httpFields["enddate"] = "2017-08-23T21:59:59.999Z";
 
+            Buffer data;
             try {
-                sock.cmd_get("/event/api/0.1/events", httpFields, chrono::seconds(30));
+                sock.cmd_get("/event/api/0.1/events", httpFields, data, chrono::seconds(30));
             }
             catch (const exception& e) {
                 cerr << e.what() << endl;
-                cerr << sock.htmlData().c_str() << endl;
+                cerr << data.c_str() << endl;
             }
 
-            cout << "Received " << sock.htmlData().bytes() << endl;
+            cout << "Received " << data.bytes() << endl;
 
             DateTime finished = DateTime::Now();
             long durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
