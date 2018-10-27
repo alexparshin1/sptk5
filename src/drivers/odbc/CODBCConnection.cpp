@@ -420,7 +420,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                 }
                     break;
                 default:
-                    THROW_QUERY_ERROR(query, "Unknown type of parameter " << paramNumber);
+                    THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'");
             }
             SQLLEN* cbValue = nullptr;
             if (param->isNull()) {
@@ -513,7 +513,11 @@ void ODBCConnection::queryOpen(Query* query)
 
     try {
         queryBindParameters(query);
-    } catch (...) {
+    }
+    catch (const DatabaseException& e) {
+        throw;
+    }
+    catch (...) {
         THROW_QUERY_ERROR(query, queryError(query));
     }
 
