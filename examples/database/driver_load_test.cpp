@@ -40,7 +40,7 @@ int main()
 {
     try {
         DatabaseConnectionPool connectionPool("postgresql://theater/protis");
-        DatabaseConnection* connection = connectionPool.createConnection();
+        DatabaseConnection connection = connectionPool.getConnection();
         cout << connection->nativeConnectionString() << endl;
     }
     catch (exception& e) {

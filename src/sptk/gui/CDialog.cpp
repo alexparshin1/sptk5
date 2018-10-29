@@ -33,7 +33,7 @@
 
 #include <sptk5/Exception.h>
 #include <sptk5/Registry.h>
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CMessageDialog.h>
 
@@ -188,14 +188,14 @@ bool CDialog::showModal()
     return rc;
 }
 
-void CDialog::database(DatabaseConnection* db)
+void CDialog::database(PoolDatabaseConnection* db)
 {
     m_selectQuery->database(db);
     m_updateQuery->database(db);
     m_insertQuery->database(db);
 }
 
-DatabaseConnection* CDialog::database() const
+PoolDatabaseConnection* CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -208,7 +208,7 @@ void CDialog::table(const String& tableName)
     }
 }
 
-void CDialog::table(DatabaseConnection* db, const String& tb, const String& key)
+void CDialog::table(PoolDatabaseConnection* db, const String& tb, const String& key)
 {
     database(db);
     table(tb);

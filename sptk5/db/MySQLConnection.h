@@ -29,7 +29,7 @@
 #ifndef __SPTK_MYSQLCONNECTION_H__
 #define __SPTK_MYSQLCONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_MYSQL == 1
 
@@ -49,7 +49,7 @@ class CMySQLStatement;
 /**
  * @brief MySQL database connection
  */
-class SP_EXPORT MySQLConnection: public DatabaseConnection
+class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class MySQLStatement;

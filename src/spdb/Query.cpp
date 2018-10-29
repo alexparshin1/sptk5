@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 
 using namespace std;
@@ -128,8 +128,29 @@ Query::Query() noexcept
     nextObjectIndex++; 
 }
 
-Query::Query(DatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
     : m_fields(true), m_bulkMode(false)
+{
+    m_objectIndex = nextObjectIndex;
+    nextObjectIndex++;
+    m_statement = nullptr;
+    m_autoPrepare = autoPrepare;
+    m_prepared = false;
+    m_active = false;
+    m_eof = true;
+    m_createdFile = createdFile;
+    m_createdLine = createdLine;
+    if (_db) {
+        m_db = _db->connection();
+        m_db->linkQuery(this);
+    } else {
+        m_db = nullptr;
+    }
+    sql(_sql);
+}
+
+Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
+        : m_fields(true), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
@@ -332,7 +353,7 @@ void Query::closeQuery(bool releaseStatement)
     //m_fields.clear();
 }
 
-void Query::connect(DatabaseConnection* _db)
+void Query::connect(PoolDatabaseConnection* _db)
 {
     if (m_db == _db)
         return;

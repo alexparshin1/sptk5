@@ -76,11 +76,11 @@ DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, u
 {
 }
 
-bool closeConnectionCB(DatabaseConnection*& item, void* data)
+bool DatabaseConnectionPool::closeConnectionCB(PoolDatabaseConnection*& item, void* data)
 {
-    DatabaseConnection* connection = item;
+    PoolDatabaseConnection* connection = item;
     auto connectionPool = (DatabaseConnectionPool*)data;
-    connectionPool->destroyConnection(connection,false);
+    connectionPool->destroyConnection(connection, false);
     return true;
 }
 
@@ -172,11 +172,16 @@ void DatabaseConnectionPool::load()
     m_loadedDrivers.add(driverName, driver);
 }
 
-DatabaseConnection* DatabaseConnectionPool::createConnection()
+DatabaseConnection DatabaseConnectionPool::getConnection()
+{
+    return make_shared<AutoDatabaseConnection>(*this);
+}
+
+PoolDatabaseConnection* DatabaseConnectionPool::createConnection()
 {
     if (m_driver == nullptr)
         load();
-    DatabaseConnection* connection = nullptr;
+    PoolDatabaseConnection* connection = nullptr;
     if (m_connections.size() < m_maxConnections && m_pool.empty()) {
         connection = m_createConnection(toString().c_str());
         m_connections.push_back(connection);
@@ -186,12 +191,12 @@ DatabaseConnection* DatabaseConnectionPool::createConnection()
     return connection;
 }
 
-void DatabaseConnectionPool::releaseConnection(DatabaseConnection* connection)
+void DatabaseConnectionPool::releaseConnection(PoolDatabaseConnection* connection)
 {
     m_pool.push(connection);
 }
 
-void DatabaseConnectionPool::destroyConnection(DatabaseConnection* connection, bool unlink)
+void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connection, bool unlink)
 {
     if (unlink)
         m_connections.remove(connection);

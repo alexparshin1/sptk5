@@ -29,7 +29,7 @@
 #ifndef __SPTK_POSTGRESQLCONNECTION_H__
 #define __SPTK_POSTGRESQLCONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_POSTGRESQL == 1
 
@@ -54,7 +54,7 @@ class PostgreSQLStatement;
  *
  * CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
  */
-class SP_EXPORT PostgreSQLConnection: public DatabaseConnection
+class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
 

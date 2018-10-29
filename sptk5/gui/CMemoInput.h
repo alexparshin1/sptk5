@@ -37,7 +37,7 @@
 #include <FL/Fl_Button.H>
 #include <sptk5/IntList.h>
 #include <sptk5/DateTime.h>
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>

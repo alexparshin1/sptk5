@@ -5,9 +5,10 @@ IF (LIBRARY_TYPE STREQUAL "SHARED")
 ENDIF(LIBRARY_TYPE STREQUAL "SHARED")
 
 ADD_LIBRARY (spdb5 ${LIBRARY_TYPE}
+    AutoDatabaseConnection.cpp
     DatabaseField.cpp QueryParameterBinding.cpp QueryParameter.cpp QueryParameterList.cpp
     Query.cpp Transaction.cpp DatabaseConnectionString.cpp
-    DatabaseConnection.cpp DatabaseConnectionPool.cpp DatabaseTests.cpp)
+        PoolDatabaseConnection.cpp DatabaseConnectionPool.cpp DatabaseTests.cpp)
 
 SET_TARGET_PROPERTIES(spdb5 PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 

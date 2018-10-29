@@ -32,7 +32,7 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CDBListView.h>
@@ -336,12 +336,12 @@ public:
     /**
      * Returns database connection pointer
      */
-    DatabaseConnection* database() const;
+    PoolDatabaseConnection* database() const;
 
     /**
      * Defines database connection
      */
-    void database(DatabaseConnection* db);
+    void database(PoolDatabaseConnection* db);
 
     /**
      * Returns SQL query text
@@ -390,7 +390,7 @@ public:
      * @param sql std::string, a SQL query text
      * @param keyField std::string, a name of the query field with unique row IDs
      */
-    void setup(DatabaseConnection* db, std::string sql, std::string keyField);
+    void setup(PoolDatabaseConnection* db, std::string sql, std::string keyField);
 
     /**
      * Returns the SQL query parameter reference for the parameter name. It is

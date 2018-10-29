@@ -36,7 +36,7 @@ using namespace sptk;
 using namespace oracle::occi;
 
 OracleConnection::OracleConnection(const string& connectionString) :
-    DatabaseConnection(connectionString),
+    PoolDatabaseConnection(connectionString),
     m_connection(nullptr)
 {
     m_connType = DCT_ORACLE;

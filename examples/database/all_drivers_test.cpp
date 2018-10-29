@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-bool testTransactions(DatabaseConnection* db, const string& tableName, bool rollback)
+bool testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName, true, __FILE__, __LINE__);
@@ -83,7 +83,7 @@ string fieldToString(const Field& field)
     return field;
 }
 
-void testBLOBs(DatabaseConnection* db)
+void testBLOBs(PoolDatabaseConnection* db)
 {
     Query createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true, __FILE__, __LINE__);
     try {
@@ -118,7 +118,7 @@ void testBLOBs(DatabaseConnection* db)
 int testDatabase(const string& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString);
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     try {
         cout << "==========================================\n";
@@ -180,7 +180,7 @@ int testDatabase(const string& connectionString)
         cout << "Ok.\nStep 1: Creating the test table.. ";
         try {
             createTempTableQuery.exec();
-            if (db->connectionType() == DatabaseConnection::DCT_FIREBIRD)
+            if (db->connectionType() == DCT_FIREBIRD)
                 db->commitTransaction(); // Some databases don't recognize table existense until it is committed
         } catch (exception& e) {
             if (strstr(e.what(), " already ") == nullptr)
@@ -376,7 +376,7 @@ int main(int argc, const char* argv[])
             connectionString = argv[1];
         else {
             //connectionString = "oracle://protis:pass@oracledb/protis";
-            connectionString = "mssql://protis:pass@Protis/protis";
+            connectionString = "mssql://gtest:test#123@dsn_mssql/gtest";
             //connectionString = "postgresql://localhost/test";
         }
 

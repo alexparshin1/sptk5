@@ -116,12 +116,12 @@ public:
     /**
      * Sets the database connection
      */
-    void database(DatabaseConnection *db);
+    void database(PoolDatabaseConnection *db);
 
     /**
      * Returns the database connection
      */
-    DatabaseConnection *database() const;
+    PoolDatabaseConnection *database() const;
 
     /**
      * Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
@@ -165,7 +165,7 @@ public:
      * @param sql std::string,  the full refresh SQL query text
      * @param keyField std::string, the name of the key field
      */
-    void setup(DatabaseConnection* db, const String& sql, const String& keyField);
+    void setup(PoolDatabaseConnection* db, const String& sql, const String& keyField);
 
     /**
      * Refreshes the data with full or fast method

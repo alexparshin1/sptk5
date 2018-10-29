@@ -57,21 +57,19 @@ void DatabaseTests::addDatabaseConnection(const DatabaseConnectionString& connec
 void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     db->open();
 
     Strings objects;
     db->objectList(DOT_TABLES, objects);
     db->close();
-
-    connectionPool.destroyConnection(db);
 }
 
 void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     db->open();
 
@@ -87,7 +85,6 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     dropTable.exec();
 
     db->close();
-    connectionPool.destroyConnection(db);
 }
 
 struct Row {
@@ -115,7 +112,7 @@ static const map<String,String> dateTimeFieldTypes = {
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     auto itor = dateTimeFieldTypes.find(connectionString.driverName());
     if (itor == dateTimeFieldTypes.end())
@@ -161,16 +158,12 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     select.close();
 
     //dropTable.exec();
-
-    db->close();
-
-    connectionPool.destroyConnection(db);
 }
 
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     db->open();
     Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
@@ -180,7 +173,7 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
 
     createTable.exec();
 
-    Transaction transaction(*db);
+    Transaction transaction(db);
     transaction.begin();
 
     size_t count = countRowsInTable(db, "gtest_temp_table");
@@ -203,10 +196,6 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
         throw Exception("count != 0");
 
     dropTable.exec();
-
-    db->close();
-
-    connectionPool.destroyConnection(db);
 }
 
 DatabaseConnectionString DatabaseTests::connectionString(const String& driverName) const
@@ -222,7 +211,7 @@ static const string expectedBulkInsertResult("1|Alex|Programmer|01-JAN-2014 # 2|
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     auto itor = dateTimeFieldTypes.find(connectionString.driverName());
     if (itor == dateTimeFieldTypes.end())
@@ -265,7 +254,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         throw Exception("Expected bulk insert result doesn't match inserted data");
 }
 
-size_t DatabaseTests::countRowsInTable(DatabaseConnection* db, const String& table)
+size_t DatabaseTests::countRowsInTable(DatabaseConnection db, const String& table)
 {
     Query select(db, "SELECT count(*) cnt FROM " + table);
     select.open();

@@ -49,7 +49,7 @@ void cb_OK(Fl_Widget* widget, void*)
 class CDataDialog : public CDialog
 {
 public:
-    explicit CDataDialog(DatabaseConnection* db)
+    explicit CDataDialog(PoolDatabaseConnection* db)
             :
             CDialog(300, 180, "Example Data Dialog")
     {

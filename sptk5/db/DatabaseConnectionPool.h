@@ -29,7 +29,8 @@
 #ifndef __SPTK_DATABASECONNECTIONLOADER_H__
 #define __SPTK_DATABASECONNECTIONLOADER_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/AutoDatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/threads/SynchronizedList.h>
@@ -46,12 +47,12 @@ namespace sptk
 /**
  * @brief Create driver instance function type
  */
-typedef DatabaseConnection* CreateDriverInstance(const char*);
+typedef PoolDatabaseConnection* CreateDriverInstance(const char*);
 
 /**
  * @brief Destroy driver instance function type
  */
-typedef void DestroyDriverInstance(DatabaseConnection*);
+typedef void DestroyDriverInstance(PoolDatabaseConnection*);
 
 #ifdef WIN32
     /**
@@ -97,6 +98,8 @@ struct SP_EXPORT DatabaseDriver
  */
 class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public std::mutex
 {
+    friend class AutoDatabaseConnection;
+
     /**
      * Database driver
      */
@@ -121,12 +124,12 @@ protected:
     /**
      * List all connections
      */
-    SynchronizedList<DatabaseConnection*>      m_connections;
+    SynchronizedList<PoolDatabaseConnection*>      m_connections;
 
     /**
      * Connection pool
      */
-    SynchronizedQueue<DatabaseConnection*>     m_pool;
+    SynchronizedQueue<PoolDatabaseConnection*>     m_pool;
 
 
     /**
@@ -135,6 +138,8 @@ protected:
      * First successfull driver load places driver into driver cache.
      */
     void load();
+
+    static bool closeConnectionCB(PoolDatabaseConnection*& item, void* data);
 
 public:
     /**
@@ -154,70 +159,27 @@ public:
      */
     ~DatabaseConnectionPool();
 
+    DatabaseConnection getConnection();
+
+protected:
+
     /**
      * @brief Creates database connection
      */
-    DatabaseConnection* createConnection();
+    PoolDatabaseConnection* createConnection();
 
     /**
      * @brief Returns used database connection back to the pool
      * @param connection        Database that is no longer in use and may be returned to the pool
      */
-    void releaseConnection(DatabaseConnection* connection);
+    void releaseConnection(PoolDatabaseConnection* connection);
 
     /**
      * @brief Destroys connection
      * @param connection DatabaseConnection*, destroys the driver instance
      * @param unlink            Should always be true for any external use
      */
-    void destroyConnection(DatabaseConnection* connection, bool unlink=true);
-};
-
-/**
- * @brief Wrapper for CDatabase connection that automatically handles connection create and release
- */
-class AutoDatabaseConnection
-{
-    /**
-     * Database connection pool
-     */
-    DatabaseConnectionPool&    m_connectionPool;
-
-    /**
-     * Database connection
-     */
-    DatabaseConnection*        m_connection;
-
-public:
-
-    /**
-     * @brief Constructor
-     * Automatically gets connection from connection pool
-     * @param connectionPool    DatabaseConnectionPool&, Database connection pool
-     */
-    explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
-    : m_connectionPool(connectionPool)
-    {
-        m_connection = m_connectionPool.createConnection();
-    }
-
-    /**
-     * @brief Destructor
-     * Releases connection to connection pool
-     */
-    ~AutoDatabaseConnection()
-    {
-        if (m_connection)
-            m_connectionPool.releaseConnection(m_connection);
-    }
-
-    /**
-     * @brief Returns database connection acquired from the connection pool
-     */
-    DatabaseConnection* connection()
-    {
-        return m_connection;
-    }
+    void destroyConnection(PoolDatabaseConnection* connection, bool unlink=true);
 };
 
 /**

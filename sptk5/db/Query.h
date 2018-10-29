@@ -36,7 +36,7 @@
 
 #include <sptk5/DataSource.h>
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/threads/Locks.h>
@@ -57,7 +57,7 @@ namespace sptk {
  */
 class SP_EXPORT Query: public DataSource, protected SharedMutex
 {
-    friend class DatabaseConnection;
+    friend class PoolDatabaseConnection;
 
 protected:
     /**
@@ -104,7 +104,7 @@ protected:
     /**
      * Database connection
      */
-    DatabaseConnection*     m_db;
+    PoolDatabaseConnection*     m_db;
 
     /**
      * SQL statement string
@@ -240,7 +240,22 @@ public:
      * @param createdFile       The name of the file this query was created in (optional)
      * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+
+    /**
+     * @brief Constructor
+     *
+     * You can optionally provide the name of the file and line number where
+     * this query is created. This is used to collect statistical information
+     * for the query calls. If file and line information is provided, then
+     * calls statistics is stored to the database object during the query dtor.
+     * @param db                The database to connect to, optional
+     * @param sql               The SQL query text to use, optional
+     * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
+     * @param createdFile       The name of the file this query was created in (optional)
+     * @param createdLine       The line of the file this query was created at (optional)
+     */
+    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
 
     /**
      * @brief Copy constructor
@@ -442,7 +457,7 @@ public:
      * If the query was connected
      * to another database, releases all the allocated resources in it.
      */
-    void connect(DatabaseConnection *db);
+    void connect(PoolDatabaseConnection *db);
 
     /**
      * @brief Disconnects query from the database and releases all the allocated resourses.
@@ -521,7 +536,7 @@ public:
     /**
      * @brief Returns the database the query is connected to
      */
-    DatabaseConnection *database() const
+    PoolDatabaseConnection *database() const
     {
         return m_db;
     }
@@ -529,7 +544,7 @@ public:
     /**
      * @brief Connects the query to the database different database.
      */
-    void database(DatabaseConnection *db)
+    void database(PoolDatabaseConnection *db)
     {
         connect(db);
     }

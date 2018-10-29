@@ -29,7 +29,7 @@
 #ifndef __SPTK_ORACLECONNECTION_H__
 #define __SPTK_ORACLECONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_ORACLE == 1
 
@@ -52,7 +52,7 @@ class OracleStatement;
  *
  * COracleConnection is thread-safe connection to Oracle database.
  */
-class SP_EXPORT OracleConnection: public DatabaseConnection
+class SP_EXPORT OracleConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class OracleStatement;

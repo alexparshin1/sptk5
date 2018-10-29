@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       DatabaseConnection.cpp - description                   ║
+║                       PoolDatabaseConnection.cpp - description                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,19 +26,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
 
-DatabaseConnection::DatabaseConnection(const string& connectionString)
+PoolDatabaseConnection::PoolDatabaseConnection(const string& connectionString)
 :   m_connString(connectionString), m_connType(DCT_UNKNOWN)
 {
     m_inTransaction = false;
 }
 
-DatabaseConnection::~DatabaseConnection()
+PoolDatabaseConnection::~PoolDatabaseConnection()
 {
     // To prevent the exceptions, if the database connection
     // is terminated already
@@ -52,35 +52,35 @@ DatabaseConnection::~DatabaseConnection()
     }
 }
 
-bool DatabaseConnection::linkQuery(Query *q)
+bool PoolDatabaseConnection::linkQuery(Query *q)
 {
     m_queryList.push_back(q);
     return true;
 }
 
-bool DatabaseConnection::unlinkQuery(Query *q)
+bool PoolDatabaseConnection::unlinkQuery(Query *q)
 {
     auto itor = find(m_queryList.begin(), m_queryList.end(), q);
     m_queryList.erase(itor);
     return true;
 }
 
-void DatabaseConnection::_openDatabase(const String& newConnectionString)
+void PoolDatabaseConnection::_openDatabase(const String& newConnectionString)
 {
     notImplemented("openDatabase");
 }
 
-void DatabaseConnection::open(const String& newConnectionString)
+void PoolDatabaseConnection::open(const String& newConnectionString)
 {
     _openDatabase(newConnectionString);
 }
 
-void DatabaseConnection::closeDatabase()
+void PoolDatabaseConnection::closeDatabase()
 {
     //closeDatabase();
 }
 
-void DatabaseConnection::close()
+void PoolDatabaseConnection::close()
 {
     if (active()) {
         if (m_inTransaction) {
@@ -95,169 +95,169 @@ void DatabaseConnection::close()
     }
 }
 
-void* DatabaseConnection::handle() const
+void* PoolDatabaseConnection::handle() const
 {
     notImplemented("handle");
     return nullptr;
 }
 
-bool DatabaseConnection::active() const
+bool PoolDatabaseConnection::active() const
 {
     notImplemented("active");
     return true;
 }
 
-void DatabaseConnection::beginTransaction()
+void PoolDatabaseConnection::beginTransaction()
 {
     driverBeginTransaction();
 }
 
-void DatabaseConnection::commitTransaction()
+void PoolDatabaseConnection::commitTransaction()
 {
     driverEndTransaction(true);
 }
 
-void DatabaseConnection::rollbackTransaction()
+void PoolDatabaseConnection::rollbackTransaction()
 {
     driverEndTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
 
-String DatabaseConnection::queryError(const Query*) const
+String PoolDatabaseConnection::queryError(const Query*) const
 {
     notImplemented("queryError");
     return "";
 }
 
-void DatabaseConnection::querySetAutoPrep(Query *q, bool pf)
+void PoolDatabaseConnection::querySetAutoPrep(Query *q, bool pf)
 {
     q->m_autoPrepare = pf;
 }
 
-void DatabaseConnection::querySetStmt(Query *q, void *stmt)
+void PoolDatabaseConnection::querySetStmt(Query *q, void *stmt)
 {
     q->m_statement = stmt;
 }
 
-void DatabaseConnection::querySetConn(Query *q, void *conn)
+void PoolDatabaseConnection::querySetConn(Query *q, void *conn)
 {
     q->m_connection = conn;
 }
 
-void DatabaseConnection::querySetPrepared(Query *q, bool pf)
+void PoolDatabaseConnection::querySetPrepared(Query *q, bool pf)
 {
     q->m_prepared = pf;
 }
 
-void DatabaseConnection::querySetActive(Query *q, bool af)
+void PoolDatabaseConnection::querySetActive(Query *q, bool af)
 {
     q->m_active = af;
 }
 
-void DatabaseConnection::querySetEof(Query *q, bool eof)
+void PoolDatabaseConnection::querySetEof(Query *q, bool eof)
 {
     q->m_eof = eof;
 }
 
-void DatabaseConnection::queryAllocStmt(Query*)
+void PoolDatabaseConnection::queryAllocStmt(Query*)
 {
     notImplemented("queryAllocStmt");
 }
 
-void DatabaseConnection::queryFreeStmt(Query*)
+void PoolDatabaseConnection::queryFreeStmt(Query*)
 {
     notImplemented("queryFreeStmt");
 }
 
-void DatabaseConnection::queryCloseStmt(Query*)
+void PoolDatabaseConnection::queryCloseStmt(Query*)
 {
     notImplemented("queryCloseStmt");
 }
 
-void DatabaseConnection::queryPrepare(Query*)
+void PoolDatabaseConnection::queryPrepare(Query*)
 {
     notImplemented("queryPrepare");
 }
 
-void DatabaseConnection::queryUnprepare(Query *query)
+void PoolDatabaseConnection::queryUnprepare(Query *query)
 {
     queryFreeStmt(query);
 }
 
-void DatabaseConnection::queryExecute(Query*)
+void PoolDatabaseConnection::queryExecute(Query*)
 {
     notImplemented("queryExecute");
 }
 
-int DatabaseConnection::queryColCount(Query*)
+int PoolDatabaseConnection::queryColCount(Query*)
 {
     notImplemented("queryColCount");
     return 0;
 }
 
-void DatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
+void PoolDatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void DatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
+void PoolDatabaseConnection::queryColAttributes(Query*, int16_t, int16_t, char *, int32_t)
 {
     notImplemented("queryColAttributes");
 }
 
-void DatabaseConnection::queryBindParameters(Query*)
+void PoolDatabaseConnection::queryBindParameters(Query*)
 {
     notImplemented("queryBindParameters");
 }
 
-void DatabaseConnection::queryOpen(Query*)
+void PoolDatabaseConnection::queryOpen(Query*)
 {
     notImplemented("queryOpen");
 }
 
-void DatabaseConnection::queryFetch(Query*)
+void PoolDatabaseConnection::queryFetch(Query*)
 {
     notImplemented("queryFetch");
 }
 
-void DatabaseConnection::notImplemented(const char *methodName) const
+void PoolDatabaseConnection::notImplemented(const char *methodName) const
 {
     throw DatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
 }
 
-void *DatabaseConnection::queryHandle(Query *query) const
+void *PoolDatabaseConnection::queryHandle(Query *query) const
 {
     return query->m_statement;
 }
 
-void DatabaseConnection::queryHandle(Query *query, void *handle)
+void PoolDatabaseConnection::queryHandle(Query *query, void *handle)
 {
     query->m_statement = handle;
 }
 
-string DatabaseConnection::paramMark(unsigned /*paramIndex*/)
+string PoolDatabaseConnection::paramMark(unsigned /*paramIndex*/)
 {
     return "?";
 }
 
-void DatabaseConnection::logAndThrow(const String& method, const String& error)
+void PoolDatabaseConnection::logAndThrow(const String& method, const String& error)
 {
     String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
 
-void DatabaseConnection::driverBeginTransaction()
+void PoolDatabaseConnection::driverBeginTransaction()
 {
     notImplemented("driverBeginTransaction");
 }
 
-void DatabaseConnection::driverEndTransaction(bool /*commit*/)
+void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
 {
     notImplemented("driverEndTransaction");
 }
 
-void DatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
+void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                                      const String& format)
 {
     Query insertQuery(this,
@@ -271,14 +271,14 @@ void DatabaseConnection::_bulkInsert(const String& tableName, const Strings& col
     }
 }
 
-void DatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
+void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName);
     _executeBatchSQL(batchFileContent, errors);
 }
 
-void DatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
+void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }

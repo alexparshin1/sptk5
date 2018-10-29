@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        DatabaseConnection.h - description                    ║
+║                        PoolDatabaseConnection.h - description                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -46,6 +46,52 @@ namespace sptk {
  */
 
 class Query;
+
+/**
+ * @brief Database connection type
+ */
+enum DatabaseConnectionType : uint16_t {
+    /**
+     * Unknown
+     */
+    DCT_UNKNOWN=0,
+
+    /**
+     * MySQL
+     */
+    DCT_MYSQL=1,
+
+    /**
+     * Oracle
+     */
+    DCT_ORACLE=2,
+
+    /**
+     * PostgreSQL
+     */
+    DCT_POSTGRES=4,
+
+    /**
+     * SQLite3
+     */
+    DCT_SQLITE3=8,
+
+    /**
+     * Firebird
+     */
+    DCT_FIREBIRD=16,
+
+    /**
+     * Generic ODBC
+     */
+    DCT_GENERIC_ODBC=32,
+
+    /**
+     * MS SQL ODBC
+     */
+    DCT_MSSQL_ODBC=64
+
+};
 
 /**
  * @brief Types of the objects for DatabaseConnection::listObjects method
@@ -111,7 +157,7 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT DatabaseConnection
+class SP_EXPORT PoolDatabaseConnection
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;
@@ -121,48 +167,6 @@ public:
     * Mutex that protects access to data memebers
     */
     mutable std::mutex    m_mutex;
-
-    /**
-     * @brief Database connection type
-     */
-    enum Type : uint16_t {
-        /**
-         * Unknown
-         */
-        DCT_UNKNOWN=0,
-
-        /**
-         * MySQL
-         */
-        DCT_MYSQL=1,
-
-        /**
-         * Oracle
-         */
-        DCT_ORACLE=2,
-
-        /**
-         * PostgreSQL
-         */
-        DCT_POSTGRES=4,
-
-        /**
-         * SQLite3
-         */
-        DCT_SQLITE3=8,
-
-        /**
-         * Firebird
-         */
-        DCT_FIREBIRD=16,
-
-        DCT_GENERIC_ODBC=32,///< Generic ODBC
-        /**
-         * Generic ODBC
-         */
-        DCT_MSSQL_ODBC=64
-
-    };
 
 protected:
 
@@ -179,7 +183,7 @@ protected:
     /**
      * The connection type
      */
-    Type                        m_connType;
+    DatabaseConnectionType      m_connType;
 
     /**
      * The in-transaction flag
@@ -331,7 +335,7 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    DatabaseConnection(const std::string& connectionString);
+    PoolDatabaseConnection(const std::string& connectionString);
 
     /**
      * Stub function to throw an exception in case if the
@@ -431,7 +435,7 @@ public:
      * Closes the database connection and all the connected queries.
      * Releases all the database resources allocated during the connection.
      */
-    virtual ~DatabaseConnection();
+    virtual ~PoolDatabaseConnection();
 
     /**
      * @brief Opens the database connection
@@ -472,7 +476,7 @@ public:
     /**
      * @brief Returns the connection type
      */
-    virtual Type connectionType() const
+    virtual DatabaseConnectionType connectionType() const
     {
         return m_connType;
     }

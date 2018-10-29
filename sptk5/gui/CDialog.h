@@ -45,7 +45,7 @@ class Fl_Group;
 namespace sptk {
 
 class Query;
-class DatabaseConnection;
+class PoolDatabaseConnection;
 class CButton;
 class CControl;
 class CDlgControls;
@@ -335,12 +335,12 @@ public:
      * Sets the database connection
      * @param db                Database connection
      */
-    virtual void database(DatabaseConnection *db);
+    virtual void database(PoolDatabaseConnection *db);
 
     /**
      * Returns current database connection
      */
-    DatabaseConnection *database() const;
+    PoolDatabaseConnection *database() const;
 
     /**
      * Defines database table to use
@@ -362,7 +362,7 @@ public:
      * @param tableName         Name of the database table
      * @param keyFieldName      Name of the key field in the database table
      */
-    void table(DatabaseConnection* db, const String& tableName, const String& keyFieldName);
+    void table(PoolDatabaseConnection* db, const String& tableName, const String& keyFieldName);
 
     /**
      * Sets the key field name for the database table.

@@ -57,7 +57,7 @@ public:
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
-: DatabaseConnection(connectionString)
+: PoolDatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnectionBase;
     m_connType = DCT_GENERIC_ODBC;

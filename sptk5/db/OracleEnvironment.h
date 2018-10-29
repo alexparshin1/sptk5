@@ -29,7 +29,7 @@
 #ifndef __SPTK_ORACLEENVIRONMENT_H__
 #define __SPTK_ORACLEENVIRONMENT_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_ORACLE == 1
 
