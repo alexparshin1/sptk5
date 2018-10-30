@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       PoolDatabaseConnection.cpp - description                   ║
+║                       PoolDatabaseConnection.cpp - description               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Sunday Octomer 28 2018                                 ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 PoolDatabaseConnection::PoolDatabaseConnection(const string& connectionString)
-:   m_connString(connectionString), m_connType(DCT_UNKNOWN)
+: m_connString(connectionString), m_connType(DCT_UNKNOWN)
 {
     m_inTransaction = false;
 }
