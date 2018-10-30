@@ -3,7 +3,7 @@
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ║                        PoolDatabaseConnection.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Sunday Octomer 28 2018                                 ║
+║  begin                Sunday October 28 2018                                 ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
