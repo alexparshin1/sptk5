@@ -109,7 +109,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                     htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
                 } else {
                     double dt = days * 86400.0;
-                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                    htonq_inplace((uint64_t*) (void*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
             }
@@ -121,7 +121,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
                     htonq_inplace((uint64_t*) &mcs,(uint64_t*) param->conversionBuffer());
                 } else {
                     double dt = mcs / 1E6;
-                    htonq_inplace((uint64_t*) &dt,(uint64_t*) param->conversionBuffer());
+                    htonq_inplace((uint64_t*) (void*) &dt,(uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_TIMESTAMP);
             }
@@ -137,7 +137,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, QueryParamete
             case VAR_MONEY: {
                 double value = param->asFloat();
                 auto bufferToSend = (uint64_t*) param->conversionBuffer();
-                *bufferToSend = htonq(*(uint64_t*)&value);
+                *bufferToSend = htonq(*(uint64_t*) (void*) &value);
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PG_FLOAT8);
             }
             break;

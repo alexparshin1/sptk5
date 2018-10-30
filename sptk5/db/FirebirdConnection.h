@@ -34,6 +34,7 @@
 #if HAVE_FIREBIRD == 1
 
 #include <ibase.h>
+#include "AutoDatabaseConnection.h"
 
 namespace sptk
 {
@@ -49,7 +50,7 @@ class FirebirdStatement;
 /**
  * @brief Firebird database connection
  */
-class SP_EXPORT FirebirdConnection: public DatabaseConnection
+class SP_EXPORT FirebirdConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class FirebirdStatement;
