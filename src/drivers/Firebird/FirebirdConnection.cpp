@@ -401,7 +401,7 @@ String FirebirdConnection::driverDescription() const
     return "Firebird";
 }
 
-std::string FirebirdConnection::paramMark(unsigned)
+String FirebirdConnection::paramMark(unsigned)
 {
     return "?";
 }

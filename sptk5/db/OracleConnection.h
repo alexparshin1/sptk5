@@ -175,7 +175,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        parameter index in SQL starting from 0
      */
-    std::string paramMark(unsigned paramIndex) override;
+    String paramMark(unsigned paramIndex) override;
 
 public:
     /**

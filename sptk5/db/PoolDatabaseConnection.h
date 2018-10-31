@@ -193,7 +193,7 @@ protected:
     /**
      * Object name for logs and error messages
      */
-    std::string                 m_objectName;
+    String                      m_objectName;
 
 
     /**
@@ -317,14 +317,14 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex unsigned, parameter index in SQL starting from 0
      */
-    virtual std::string paramMark(unsigned paramIndex);
+    virtual String paramMark(unsigned paramIndex);
 
 protected:
 
     /**
      * Driver description is filled by the particular driver.
      */
-    std::string m_driverDescription;
+    String  m_driverDescription;
 
 
     /**
@@ -335,13 +335,13 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    PoolDatabaseConnection(const std::string& connectionString);
+    PoolDatabaseConnection(const String& connectionString);
 
     /**
      * Stub function to throw an exception in case if the
      * called method isn't implemented in the derived class
      */
-    void notImplemented(const char *methodName) const;
+    void notImplemented(const String& methodName) const;
 
     /**
      * Retrieves internal query handle

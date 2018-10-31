@@ -444,7 +444,7 @@ String MySQLConnection::driverDescription() const
     return "MySQL";
 }
 
-std::string MySQLConnection::paramMark(unsigned)
+String MySQLConnection::paramMark(unsigned)
 {
     return "?";
 }
