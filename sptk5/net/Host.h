@@ -63,7 +63,7 @@ class Host
 		struct sockaddr	    any;
 		struct sockaddr_in  ip_v4;
 		struct sockaddr_in6 ip_v6;
-	}					m_address;      ///< Host address
+	}					m_address {0};      ///< Host address
 
     /**
      * Get host address
@@ -81,7 +81,7 @@ public:
     /**
      * Default constructor
      */
-    Host();
+    Host() noexcept;
 
     /**
      * Constructor

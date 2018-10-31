@@ -53,7 +53,7 @@ protected:
     /**
      * String ID
      */
-    int32_t m_id;
+    int32_t m_id {0};
 
 
 public:
@@ -61,9 +61,7 @@ public:
      * @brief Default constructor
      */
     String() noexcept
-    : m_id(0)
-    {
-    }
+    {}
 
     /**
      * @brief Copy constructor
@@ -89,9 +87,8 @@ public:
      * @param src				Other object
      */
     String(std::string&& src) noexcept
-    : std::string(std::move(src)), m_id(0)
-    {
-    }
+    : std::string(std::move(src))
+    {}
 
     /**
      * @brief Constructor

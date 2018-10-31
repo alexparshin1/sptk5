@@ -88,7 +88,7 @@ protected:
     /**
      * Database server port number
      */
-    uint16_t   m_portNumber;
+	uint16_t   m_portNumber {0};
 
     /**
      * Database user name

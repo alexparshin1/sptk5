@@ -66,13 +66,13 @@ public:
      * @param other             Other exception object
      */
     XMLException(const TimeoutException& other)
-            : Exception(other)
+    : Exception(other)
     {}
 
     /**
      * @brief Destructor
      */
-    ~XMLException() DOESNT_THROW
+    ~XMLException() noexcept
     {}
 };
 /**
