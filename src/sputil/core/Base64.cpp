@@ -45,7 +45,7 @@ static char B64Chars[64] = {
 void Base64::encode(Buffer& bufDest, const char* bufSource, size_t len)
 {
     const char* current = bufSource;
-    auto outputLen = uint32_t(len / 3 * 4);
+    auto outputLen = size_t(len / 3 * 4);
     if ((len % 3) != 0)
         outputLen += 4;
     bufDest.checkSize(outputLen + 1);
@@ -111,7 +111,7 @@ static const String base64_chars(
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/");
 
-static inline bool is_base64(uint8_t c)
+static inline bool is_base64(uint8_t c) noexcept
 {
     return (isalnum(c) || (c == '+') || (c == '/'));
 }
@@ -121,7 +121,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     size_t in_len = encoded_string.size();
     int i = 0;
     int in_ = 0;
-    uint8_t char_array_4[4], char_array_3[3];
+	uint8_t char_array_4[4] {}, char_array_3[3] {};
 
     dest.reset();
 
