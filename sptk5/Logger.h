@@ -60,11 +60,20 @@ class SP_EXPORT Logger
     LogEngine&      m_destination;
 
 public:
+
+    /**
+     * Log message
+     */
     struct Message
     {
-        DateTime    timestamp;
-        LogPriority priority;
-        String      message;
+        DateTime    timestamp;      ///< Message timestamp
+        LogPriority priority;       ///< Message priority
+        String      message;        ///< Message text
+        /**
+         * Constructor
+         * @param priority       Message priority
+         * @param message        Message text
+         */
         Message(LogPriority priority, const String& message);
     };
 

@@ -101,9 +101,9 @@ public:
         CRYPTO_set_locking_callback(NULL);
         CRYPTO_set_id_callback(NULL);
 #if OPENSSL_VERSION_NUMBER > 0x1000114fL
-    #if OPENSSL_VERSION_NUMBER > 0x20000000L
+#if OPENSSL_VERSION_NUMBER > 0x20000000L
         SSL_COMP_free_compression_methods();
-    #endif
+#endif
 #endif
         ERR_free_strings();
         EVP_cleanup();
@@ -333,7 +333,7 @@ size_t SSLSocket::send(const void* buffer, size_t len)
 {
     if (len == 0)
         return 0;
-    auto ptr = (const char*) buffer;
+    auto* ptr = (const char*) buffer;
     auto totalLen = (uint32_t) len;
     for (;;) {
         size_t writeLen = totalLen;

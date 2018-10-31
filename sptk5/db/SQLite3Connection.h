@@ -43,8 +43,6 @@ namespace sptk {
  * @{
  */
 
-class Query;
-
 /**
  * @brief SQLite3 database
  *
@@ -56,8 +54,6 @@ class SP_EXPORT SQLite3Connection: public PoolDatabaseConnection
 
     typedef sqlite3_stmt * SQLHSTMT;
     typedef sqlite3 * SQLHDBC;
-
-private:
 
     /**
      * The SQLite3 database connection object

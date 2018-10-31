@@ -43,9 +43,6 @@ namespace sptk {
  * @{
  */
 
-class ODBCConnection;
-class Query;
-
 /**
  * @brief ODBC database
  *
@@ -54,8 +51,6 @@ class Query;
 class SP_DRIVER_EXPORT ODBCConnection: public PoolDatabaseConnection
 {
     friend class Query;
-
-private:
 
     /**
      * The ODBC connection object
@@ -148,12 +143,10 @@ protected:
      */
     void queryFetch(Query *query) override;
 
-
     /**
      * Converts the native ODBC type into SPTK data type
      */
     static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType);
-
 
     /**
      * Returns the ODBC connection object

@@ -103,18 +103,17 @@ class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public
     /**
      * Database driver
      */
-    DatabaseDriver*                            m_driver;
+    DatabaseDriver*                            m_driver {nullptr};
 
-protected:
     /**
      * Function that creates driver instances
      */
-    CreateDriverInstance*                      m_createConnection;
+    CreateDriverInstance*                      m_createConnection {nullptr};
 
     /**
      * Function that destroys driver instances
      */
-    DestroyDriverInstance*                     m_destroyConnection;
+    DestroyDriverInstance*                     m_destroyConnection {nullptr};
 
     /**
      * Maximum number of connections in the pool
@@ -122,15 +121,16 @@ protected:
     unsigned                                   m_maxConnections;
 
     /**
-     * List all connections
-     */
-    SynchronizedList<PoolDatabaseConnection*>      m_connections;
-
-    /**
      * Connection pool
      */
     SynchronizedQueue<PoolDatabaseConnection*>     m_pool;
 
+protected:
+
+    /**
+     * List all connections
+     */
+    SynchronizedList<PoolDatabaseConnection*>      m_connections;
 
     /**
      * @brief Loads database driver
@@ -139,6 +139,12 @@ protected:
      */
     void load();
 
+    /**
+     * Close connection callback
+     * @param item          Database connection
+     * @param data          Data (connection pool pointer)
+     * @return true if callback should continue to be executed
+     */
     static bool closeConnectionCB(PoolDatabaseConnection*& item, void* data);
 
 public:

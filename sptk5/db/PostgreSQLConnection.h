@@ -46,7 +46,6 @@ namespace sptk
  * @{
  */
 
-class Query;
 class PostgreSQLStatement;
 
 /**
@@ -57,8 +56,6 @@ class PostgreSQLStatement;
 class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
-
-private:
 
     /**
      * PostgreSQL database connection
@@ -159,7 +156,6 @@ public:
         return m_connect;
     }
 
-public:
     /**
      * @brief Converts datatype from PostgreSQL type to SPTK VariantType
      */
@@ -200,8 +196,6 @@ public:
      */
     void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-public:
-
     /**
      * @brief Constructor
      *
@@ -211,7 +205,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The PostgreSQL connection string
      */
-    PostgreSQLConnection(const std::string& connectionString = "");
+    explicit PostgreSQLConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor

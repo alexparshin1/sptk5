@@ -35,9 +35,9 @@ using namespace std;
 using namespace sptk;
 
 FieldList::FieldList(bool indexed, bool compactXmlMode)
+: m_compactXmlMode(compactXmlMode)
 {
     m_userData = nullptr;
-    m_compactXmlMode = compactXmlMode;
     if (indexed)
         m_index = new Map;
     else

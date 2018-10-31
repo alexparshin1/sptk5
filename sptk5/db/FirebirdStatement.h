@@ -42,8 +42,6 @@
 namespace sptk
 {
 
-class FirebirdConnection;
-
 /**
  * @brief Firebird-specific bind buffers
  */
@@ -158,12 +156,6 @@ class FirebirdStatement : public DatabaseStatement<FirebirdConnection,isc_stmt_h
      */
     ISC_STATUS              m_status_vector[20];
 
-    /**
-     * BLOB fetch buffer
-     */
-    Buffer                  m_blobData;
-
-
 public:
 
     /**
@@ -203,7 +195,6 @@ public:
      */
     size_t fetchBLOB(ISC_QUAD* blob_id, DatabaseField* field);
 
-public:
     /**
      * @brief Constructor
      * @param connection Connection*, Firebird connection

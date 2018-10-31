@@ -122,12 +122,14 @@ string readJsonString(const char* json, const char*& readPosition)
         pos = strpbrk(pos, "\\\"");
         if (pos == nullptr)
             throwError("Premature end of data, expecting '\"'", json, readPosition - json);
-        char ch = *pos;
-        if (ch == '"')
-            break;
-        if (ch == '\\')
+        else {
+            char ch = *pos;
+            if (ch == '"')
+                break;
+            if (ch == '\\')
+                pos++;
             pos++;
-        pos++;
+        }
     }
     string str = Element::decode(string(readPosition + 1, pos - readPosition - 1));
 
@@ -211,14 +213,14 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
 
             case '[':
             {
-                auto jsonArrayElement = parent->push_array();
+                auto* jsonArrayElement = parent->push_array();
                 readArrayData(jsonArrayElement, json, readPosition);
             }
             break;
 
             case '{':
             {
-                auto jsonObjectElement = parent->push_object();
+                auto* jsonObjectElement = parent->push_object();
                 readObjectData(jsonObjectElement, json, readPosition);
             }
             break;

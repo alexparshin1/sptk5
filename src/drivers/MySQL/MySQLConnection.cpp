@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-MySQLConnection::MySQLConnection(const string& connectionString)
+MySQLConnection::MySQLConnection(const String& connectionString)
 : PoolDatabaseConnection(connectionString),
   m_connection(nullptr)
 {

@@ -121,24 +121,20 @@ static void parsePathElement(Document* document, const string& pathElementStr, X
     if (!criteria.empty()) {
         int& nodePosition = pathElement.nodePosition;
         nodePosition = string2int(pathElement.criteria);
-        if (nodePosition == 0) {
-            if (criteria == "last()")
-                nodePosition = -1;
-        }
+        if (nodePosition == 0 && criteria == "last()")
+            nodePosition = -1;
 
-        if (nodePosition == 0) {
-            if (criteria[0] == '@') {
-                pos = criteria.find('=');
-                if (pos == STRING_NPOS)
-                    pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
-                else {
-                    pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
-                    if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
-                        pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
-                    else
-                        pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
-                    pathElement.attributeValueDefined = true;
-                }
+        if (nodePosition == 0 && criteria[0] == '@') {
+            pos = criteria.find('=');
+            if (pos == STRING_NPOS)
+                pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
+            else {
+                pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
+                if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
+                    pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
+                else
+                    pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
+                pathElement.attributeValueDefined = true;
             }
         }
     }

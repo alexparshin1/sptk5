@@ -58,23 +58,23 @@ class Host
 {
     mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
     String              m_hostname;     ///< Host name or IP address
-	uint16_t            m_port {0};     ///< Port number
-	union {
-		struct sockaddr	    any;
-		struct sockaddr_in  ip_v4;
-		struct sockaddr_in6 ip_v6;
-	}					m_address{{}};      ///< Host address
+    uint16_t            m_port {0};     ///< Port number
+    union {
+        struct sockaddr	    any;
+        struct sockaddr_in  ip_v4;
+        struct sockaddr_in6 ip_v6;
+    } m_address {{}};                   ///< Host address
 
     /**
      * Get host address
      */
     void getHostAddress();
 
-	/**
-	 * Set port number
-	 * @param p                 Port number
-	 */
-	void setPort(uint16_t p);
+    /**
+     * Set port number
+     * @param p                 Port number
+     */
+    void setPort(uint16_t p);
 
 public:
 

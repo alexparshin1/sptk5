@@ -48,7 +48,6 @@ class SP_EXPORT QueryParameter : public Variant
     friend class Query;
     friend class QueryParameterList;
 
-protected:
     /**
      * Parameter name
      */
@@ -73,6 +72,8 @@ protected:
      * Parent param list used for notifications
      */
     QueryParameterList*         m_paramList;
+
+protected:
 
 public:
     /**
@@ -116,8 +117,6 @@ public:
     int32_t& callbackLength() {
         return m_callbackLength;
     }
-
-public:
 
     /**
      * @brief Constructor

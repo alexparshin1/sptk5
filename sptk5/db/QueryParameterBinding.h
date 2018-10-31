@@ -76,7 +76,6 @@ public:
      */
     bool         m_output;
 
-public:
     /**
      * Constructor
      * @param isOutput          Output parameter flag

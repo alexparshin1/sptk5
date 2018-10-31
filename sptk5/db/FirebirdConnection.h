@@ -44,7 +44,6 @@ namespace sptk
  * @{
  */
 
-class Query;
 class FirebirdStatement;
 
 /**
@@ -54,8 +53,6 @@ class SP_EXPORT FirebirdConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class FirebirdStatement;
-
-protected:
 
     /**
      * Database connection handle
@@ -71,6 +68,8 @@ protected:
      * Connection status on last checkStatus
      */
     std::string     m_lastStatus;
+
+protected:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -155,6 +154,7 @@ protected:
      * @param paramIndex        Parameter index in SQL starting from 0
      */
     String paramMark(unsigned paramIndex) override;
+
 public:
 
     /**
@@ -168,8 +168,6 @@ public:
     isc_stmt_handle* createStatement(std::string sql);
 
     isc_stmt_handle* createStatement();
-
-public:
 
     /**
      * @brief Constructor
