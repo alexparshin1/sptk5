@@ -44,7 +44,6 @@ namespace sptk
  * @{
  */
 
-class Query;
 class FirebirdStatement;
 
 /**
@@ -168,8 +167,6 @@ public:
     isc_stmt_handle* createStatement(std::string sql);
 
     isc_stmt_handle* createStatement();
-
-public:
 
     /**
      * @brief Constructor

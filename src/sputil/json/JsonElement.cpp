@@ -203,8 +203,8 @@ Element* Element::add(const String& name, Element* element)
     }
 
     m_data.m_object->move(name);
-    auto arrayData = new ArrayData(m_document);
-    auto array = new Element(m_document, arrayData);
+    auto* arrayData = new ArrayData(m_document);
+    auto* array = new Element(m_document, arrayData);
     array->add(sameNameExistingElement);
     array->add(element);
     add(name, array);
@@ -461,12 +461,15 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             else
                 stream << fixed << m_data.m_number;
             break;
+
         case JDT_STRING:
             stream << "\"" << escape(*m_data.m_string) << "\"";
             break;
+
         case JDT_BOOLEAN:
             stream << (m_data.m_boolean ? "true" : "false");
             break;
+
         case JDT_ARRAY:
             stream << "[";
             if (m_data.m_array) {
@@ -483,6 +486,7 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             }
             stream << "]";
             break;
+
         case JDT_OBJECT:
             stream << "{";
             if (m_data.m_object) {
@@ -502,8 +506,12 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
             }
             stream << newLineChar << indentSpaces << "}";
             break;
+
         case JDT_NULL:
             stream << "null";
+            break;
+
+        default:
             break;
     }
     stream.flags(saveFlags);

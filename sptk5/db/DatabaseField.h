@@ -42,8 +42,6 @@ namespace sptk {
  * @{
  */
 
-class Query;
-
 /**
  * @brief database field
  *
@@ -89,11 +87,6 @@ public:
     DatabaseField(
             const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
             int fieldScale = 4);
-
-    /**
-     * Column display name
-     */
-    String          displayName;
 
     /**
      * Column display format

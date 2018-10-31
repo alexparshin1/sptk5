@@ -71,6 +71,8 @@ void Attribute::value(const char *new_value)
 
 Attributes& Attributes::operator =(const Attributes& s)
 {
+    if (&s == this)
+        return *this;
     clear();
     for (auto node: s)
         new Attribute(m_parent, node->name(), node->value());

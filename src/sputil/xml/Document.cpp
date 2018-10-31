@@ -94,7 +94,7 @@ void Document::processAttributes(Node* node, const char* ptr)
         tokenStart++;
 
     while (*tokenStart != 0) {
-        auto tokenEnd = (char*) strpbrk(tokenStart, " =");
+        auto* tokenEnd = (char*) strpbrk(tokenStart, " =");
         if (tokenEnd == nullptr)
             throw Exception("Incorrect attribute - missing '='");
         *tokenEnd = 0;
@@ -138,7 +138,7 @@ void Document::processAttributes(Node* node, const char* ptr)
 
 void Document::parseEntities(char* entitiesSection)
 {
-    auto start = (unsigned char*) entitiesSection;
+    auto* start = (unsigned char*) entitiesSection;
     while (start != nullptr) {
         start = (unsigned char*) strstr((char*) start, "<!ENTITY ");
         if (start == nullptr)
@@ -146,7 +146,7 @@ void Document::parseEntities(char* entitiesSection)
         start += 9;
         while (*start <= ' ')
             start++;
-        auto end = (unsigned char*) strchr((char*) start, ' ');
+        auto* end = (unsigned char*) strchr((char*) start, ' ');
         if (end == nullptr)
             break;
         *end = 0;
@@ -481,7 +481,7 @@ void verifyDocument(xml::Document& document)
 
     xml::Node* ptr = document.findFirst("address");
     EXPECT_TRUE(ptr != nullptr);
-    auto ptr2 = dynamic_cast<xml::Element*>(ptr);
+    auto* ptr2 = dynamic_cast<xml::Element*>(ptr);
 
     xml::Element& address = *ptr2;
     EXPECT_STREQ("true", address.findOrCreate("married")->text().c_str());

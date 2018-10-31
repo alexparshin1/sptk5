@@ -53,10 +53,6 @@ Field::Field(const Field& other)
 void Field::setNull(VariantType vtype)
 {
     switch (dataType()) {
-        default:
-            m_data.int64Data = 0;
-            break;
-
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
@@ -65,6 +61,10 @@ void Field::setNull(VariantType vtype)
             else if (m_data.buffer.data != nullptr)
                 m_data.buffer.data[0] = 0;
 
+            break;
+
+        default:
+            m_data.int64Data = 0;
             break;
     }
 

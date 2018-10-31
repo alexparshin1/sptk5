@@ -59,14 +59,14 @@ MoneyData::operator bool() const
 //---------------------------------------------------------------------------
 void Variant::releaseBuffers()
 {
-    if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0) {
-        if (m_data.buffer.data != nullptr) {
-            if ((m_dataType & VAR_EXTERNAL_BUFFER) == 0)
-                free(m_data.buffer.data);
+    if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
+        m_data.buffer.data != nullptr)
+    {
+        if ((m_dataType & VAR_EXTERNAL_BUFFER) == 0)
+            free(m_data.buffer.data);
 
-            m_data.buffer.data = nullptr;
-            m_data.buffer.size = 0;
-        }
+        m_data.buffer.data = nullptr;
+        m_data.buffer.size = 0;
     }
 }
 
