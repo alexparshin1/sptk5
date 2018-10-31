@@ -93,7 +93,6 @@ public:
      */
     typedef CParamVector::const_iterator    const_iterator;
 
-public:
     /**
      * @brief Default constructor
      */

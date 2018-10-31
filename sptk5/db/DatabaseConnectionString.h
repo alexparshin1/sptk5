@@ -59,26 +59,18 @@ namespace sptk
 class SP_EXPORT DatabaseConnectionString
 {
 public:
+
     /**
      * Connection string parameters
      */
     typedef std::map<String,String> Parameters;
 
-protected:
-    /**
-     * Parses connection string
-     */
-    void parse();
+private:
 
     /**
      * Database connection string
      */
     String     m_connectionString;
-
-    /**
-     * Database driver name
-     */
-    String     m_driverName;
 
     /**
      * Database server host name
@@ -88,7 +80,7 @@ protected:
     /**
      * Database server port number
      */
-	uint16_t   m_portNumber {0};
+    uint16_t   m_portNumber {0};
 
     /**
      * Database user name
@@ -96,12 +88,12 @@ protected:
     String     m_userName;
 
     /**
-     * Database user name
+     * Database user password
      */
     String     m_password;
 
     /**
-     * Database user password
+     * Database name
      */
     String     m_databaseName;
 
@@ -109,6 +101,18 @@ protected:
      * Optional parameters
      */
     Parameters m_parameters;
+
+protected:
+
+    /**
+     * Database driver name
+     */
+    String     m_driverName;
+
+    /**
+     * Parses connection string
+     */
+    void parse();
 
 
 public:

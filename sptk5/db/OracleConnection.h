@@ -44,7 +44,6 @@ namespace sptk
  * @{
  */
 
-class Query;
 class OracleStatement;
 
 /**
@@ -98,8 +97,6 @@ protected:
      * @returns Oracle native type
      */
     static Type VariantTypeToOracleType(VariantType dataType);
-
-protected:
 
     /**
      * @brief Begins the transaction
@@ -231,15 +228,13 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
-
-public:
+    void _executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor
      * @param connectionString  The Oracle connection string
      */
-    explicit OracleConnection(const std::string& connectionString = "");
+    explicit OracleConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor

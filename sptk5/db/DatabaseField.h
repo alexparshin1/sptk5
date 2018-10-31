@@ -51,7 +51,9 @@ namespace sptk {
 class SP_EXPORT DatabaseField : public Field
 {
     friend class Query;
+
 protected:
+
     /**
      * Native database data type
      */

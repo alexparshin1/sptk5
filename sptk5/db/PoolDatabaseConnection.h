@@ -199,116 +199,114 @@ protected:
     /**
      * @brief Attaches (links) query to the database
      */
-    bool linkQuery(Query *q);
+    bool linkQuery(Query* q);
 
     /**
      * @brief Unlinks query from the database
      */
-    bool unlinkQuery(Query *q);
+    bool unlinkQuery(Query* q);
 
-protected:
-    // These methods get access to CQuery's protected members
     /**
      * Sets internal CQuery m_autoPrepare flag
      */
-    void querySetAutoPrep(Query *q, bool pf);
+    void querySetAutoPrep(Query* q, bool pf);
 
     /**
      * Sets internal CQuery statement handle
      */
-    void querySetStmt(Query *q, void *stmt);
+    void querySetStmt(Query* q, void *stmt);
 
     /**
      * Sets internal CQuery connection handle
      */
-    void querySetConn(Query *q, void *conn);
+    void querySetConn(Query* q, void *conn);
 
     /**
      * Sets internal CQuery m_prepared flag
      */
-    void querySetPrepared(Query *q, bool pf);
+    void querySetPrepared(Query* q, bool pf);
 
     /**
      * Sets internal CQuery m_active flag
      */
-    void querySetActive(Query *q, bool af);
+    void querySetActive(Query* q, bool af);
 
     /**
      * Sets internal CQuery m_eof flag
      */
-    void querySetEof(Query *q, bool eof);
+    void querySetEof(Query* q, bool eof);
 
 
     // These methods implement the actions requested by CQuery
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual String queryError(const Query *query) const;
+    virtual String queryError(const Query* query) const;
 
     /**
      * Allocates an ODBC statement
      */
-    virtual void queryAllocStmt(Query *query);
+    virtual void queryAllocStmt(Query* query);
 
     /**
      * Deallocates an ODBC statement
      */
-    virtual void queryFreeStmt(Query *query);
+    virtual void queryFreeStmt(Query* query);
 
     /**
      * Closes an ODBC statement
      */
-    virtual void queryCloseStmt(Query *query);
+    virtual void queryCloseStmt(Query* query);
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query *query);
+    virtual void queryPrepare(Query* query);
 
     /**
      * Unprepares a query if supported by database
      */
-    virtual void queryUnprepare(Query *query);
+    virtual void queryUnprepare(Query* query);
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query *query);
+    virtual void queryExecute(Query* query);
 
     /**
      * Executes unprepared statement
      */
-    virtual void queryExecDirect(Query *query) {}
+    virtual void queryExecDirect(Query* query) {}
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int  queryColCount(Query *query);
+    virtual int  queryColCount(Query* query);
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, int32_t& value);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value);
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, char *buff, int len);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char *buff, int len);
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query *query);
+    virtual void queryBindParameters(Query* query);
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query *query);
+    virtual void queryOpen(Query* query);
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query *query);
+    virtual void queryFetch(Query* query);
 
 
     /**
@@ -319,13 +317,10 @@ protected:
      */
     virtual String paramMark(unsigned paramIndex);
 
-protected:
-
     /**
      * Driver description is filled by the particular driver.
      */
     String  m_driverDescription;
-
 
     /**
      * @brief Constructor
@@ -335,7 +330,7 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    PoolDatabaseConnection(const String& connectionString);
+    explicit PoolDatabaseConnection(const String& connectionString);
 
     /**
      * Stub function to throw an exception in case if the
@@ -346,12 +341,12 @@ protected:
     /**
      * Retrieves internal query handle
      */
-    void *queryHandle(Query *query) const;
+    void *queryHandle(Query* query) const;
 
     /**
      * Sets internal query handle
      */
-    void queryHandle(Query *query, void *handle);
+    void queryHandle(Query* query, void *handle);
 
 
     /**
