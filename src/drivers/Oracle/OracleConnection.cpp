@@ -611,7 +611,7 @@ String OracleConnection::driverDescription() const
     return m_environment.clientVersion();
 }
 
-std::string OracleConnection::paramMark(unsigned paramIndex)
+String OracleConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, ":%i", paramIndex + 1);

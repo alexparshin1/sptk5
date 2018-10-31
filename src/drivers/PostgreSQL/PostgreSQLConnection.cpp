@@ -1045,7 +1045,7 @@ String PostgreSQLConnection::driverDescription() const
     return "PostgreSQL";
 }
 
-std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
+String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     snprintf(mark, sizeof(mark), "$%i", paramIndex + 1);

@@ -235,7 +235,7 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqlsubtype = 1;
                 sqlvar.sqllen = sizeof(int64_t);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getMoney().quantity;
-                sqlvar.sqlscale = -param->getMoney().scale;
+                sqlvar.sqlscale = (ISC_SHORT) -param->getMoney().scale;
                 break;
 
             case VAR_STRING:

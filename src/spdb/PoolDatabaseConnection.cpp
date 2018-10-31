@@ -28,11 +28,12 @@
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
+#include "../../sptk5/String.h"
 
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const string& connectionString)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString)
 : m_connString(connectionString), m_connType(DCT_UNKNOWN)
 {
     m_inTransaction = false;
@@ -127,7 +128,7 @@ void PoolDatabaseConnection::rollbackTransaction()
 String PoolDatabaseConnection::queryError(const Query*) const
 {
     notImplemented("queryError");
-    return "";
+    return String();
 }
 
 void PoolDatabaseConnection::querySetAutoPrep(Query *q, bool pf)
@@ -221,9 +222,9 @@ void PoolDatabaseConnection::queryFetch(Query*)
     notImplemented("queryFetch");
 }
 
-void PoolDatabaseConnection::notImplemented(const char *methodName) const
+void PoolDatabaseConnection::notImplemented(const String& methodName) const
 {
-    throw DatabaseException("Method '" + string(methodName) + "' is not supported by this database driver.");
+    throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
 }
 
 void *PoolDatabaseConnection::queryHandle(Query *query) const
@@ -236,9 +237,9 @@ void PoolDatabaseConnection::queryHandle(Query *query, void *handle)
     query->m_statement = handle;
 }
 
-string PoolDatabaseConnection::paramMark(unsigned /*paramIndex*/)
+String PoolDatabaseConnection::paramMark(unsigned /*paramIndex*/)
 {
-    return "?";
+    return String("?");
 }
 
 void PoolDatabaseConnection::logAndThrow(const String& method, const String& error)

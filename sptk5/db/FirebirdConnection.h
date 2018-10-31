@@ -34,6 +34,7 @@
 #if HAVE_FIREBIRD == 1
 
 #include <ibase.h>
+#include "AutoDatabaseConnection.h"
 
 namespace sptk
 {
@@ -49,7 +50,7 @@ class FirebirdStatement;
 /**
  * @brief Firebird database connection
  */
-class SP_EXPORT FirebirdConnection: public DatabaseConnection
+class SP_EXPORT FirebirdConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class FirebirdStatement;
@@ -153,7 +154,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        Parameter index in SQL starting from 0
      */
-    std::string paramMark(unsigned paramIndex) override;
+    String paramMark(unsigned paramIndex) override;
 public:
 
     /**

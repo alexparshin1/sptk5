@@ -27,7 +27,6 @@
 */
 
 #include <sptk5/db/Transaction.h>
-#include <sptk5/db/AutoDatabaseConnection.h>
 
 using namespace std;
 using namespace sptk;

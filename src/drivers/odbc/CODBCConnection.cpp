@@ -678,7 +678,7 @@ void ODBCConnection::queryFetch(Query* query)
             if (dataLength <= 0)
                 field->setNull(VAR_NONE);
             else
-                field->dataSize(dataLength);
+                field->dataSize((size_t)dataLength);
         } catch (exception& e) {
             query->throwError("CODBCConnection::queryFetch",
                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));
