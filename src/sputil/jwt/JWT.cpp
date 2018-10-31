@@ -673,10 +673,9 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt["iss"] = "http://test.com";
     jwt["exp"] = (int) time(nullptr) + 86400;
 
-    auto info = new json::ObjectData;
-    info->add("company", new json::Element("Linotex"));
-    info->add("city", new json::Element("Melbourne"));
-    jwt.grants.root().add("info", info);
+    auto info = jwt.grants.root().set_object("info");
+    info->set("company", "Linotex");
+    info->set("city", "Melbourne");
 
     stringstream originalToken;
     jwt.encode(originalToken);

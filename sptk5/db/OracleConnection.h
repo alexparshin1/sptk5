@@ -29,7 +29,7 @@
 #ifndef __SPTK_ORACLECONNECTION_H__
 #define __SPTK_ORACLECONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_ORACLE == 1
 
@@ -44,7 +44,6 @@ namespace sptk
  * @{
  */
 
-class Query;
 class OracleStatement;
 
 /**
@@ -52,7 +51,7 @@ class OracleStatement;
  *
  * COracleConnection is thread-safe connection to Oracle database.
  */
-class SP_EXPORT OracleConnection: public DatabaseConnection
+class SP_EXPORT OracleConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class OracleStatement;
@@ -98,8 +97,6 @@ protected:
      * @returns Oracle native type
      */
     static Type VariantTypeToOracleType(VariantType dataType);
-
-protected:
 
     /**
      * @brief Begins the transaction
@@ -175,7 +172,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        parameter index in SQL starting from 0
      */
-    std::string paramMark(unsigned paramIndex) override;
+    String paramMark(unsigned paramIndex) override;
 
 public:
     /**
@@ -231,15 +228,13 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
-
-public:
+    void _executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor
      * @param connectionString  The Oracle connection string
      */
-    explicit OracleConnection(const std::string& connectionString = "");
+    explicit OracleConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor

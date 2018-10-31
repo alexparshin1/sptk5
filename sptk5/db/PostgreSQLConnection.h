@@ -29,7 +29,7 @@
 #ifndef __SPTK_POSTGRESQLCONNECTION_H__
 #define __SPTK_POSTGRESQLCONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_POSTGRESQL == 1
 
@@ -46,7 +46,6 @@ namespace sptk
  * @{
  */
 
-class Query;
 class PostgreSQLStatement;
 
 /**
@@ -54,11 +53,9 @@ class PostgreSQLStatement;
  *
  * CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
  */
-class SP_EXPORT PostgreSQLConnection: public DatabaseConnection
+class SP_EXPORT PostgreSQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
-
-private:
 
     /**
      * PostgreSQL database connection
@@ -148,7 +145,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        Parameter index in SQL starting from 0
      */
-    std::string paramMark(unsigned paramIndex) override;
+    String paramMark(unsigned paramIndex) override;
 
 public:
     /**
@@ -159,7 +156,6 @@ public:
         return m_connect;
     }
 
-public:
     /**
      * @brief Converts datatype from PostgreSQL type to SPTK VariantType
      */
@@ -200,8 +196,6 @@ public:
      */
     void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-public:
-
     /**
      * @brief Constructor
      *
@@ -211,7 +205,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The PostgreSQL connection string
      */
-    PostgreSQLConnection(const std::string& connectionString = "");
+    explicit PostgreSQLConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor

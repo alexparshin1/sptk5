@@ -73,24 +73,29 @@ class Element
     friend class ObjectData;
 protected:
     /**
-     * Parent JSON Element
+     * Parent JSON document
      */
-    Element*    m_parent;
+    Document*       m_document;
 
     /**
-     * JSON Element type
+     * Parent JSON element
      */
-    Type        m_type;
+    Element*        m_parent;
 
     /**
-     * JSON Element data
+     * JSON element type
+     */
+    Type            m_type;
+
+    /**
+     * JSON element data
      */
     union {
-        double          m_number;
-        std::string*    m_string;
-        bool            m_boolean;
-        ArrayData*      m_array;
-        ObjectData*     m_object;
+        double              m_number;
+        const std::string*  m_string;
+        bool                m_boolean;
+        ArrayData*          m_array;
+        ObjectData*         m_object;
     } m_data;
 
     /**
@@ -123,7 +128,7 @@ protected:
          * Constructor
          * @param xpath           XPath expression
          */
-        XPath(const String& xpath);
+        explicit XPath(const String& xpath);
     };
 
     /**
@@ -168,11 +173,6 @@ protected:
      */
     void exportValueTo(const String &name, xml::Element &element) const;
 
-    /**
-     * Empty const Json element
-     */
-    static const Element    emptyElement;
-
 public:
     /**
      * Escape special characters
@@ -201,15 +201,17 @@ private:
 
     /**
      * Blocked constructor
-     * @param value             Array of JSON Elements
+     * @param document          Parent JSON document
+     * @param value             Array of JSON elements
      */
-    Element(ArrayData& value);
+    Element(Document* document, ArrayData& value) = delete;
 
     /**
      * Blocked constructor
+     * @param document          Parent JSON document
      * @param value             Map of JSON Elements
      */
-    Element(ObjectData& value);
+    Element(Document* document, ObjectData& value) = delete;
 
     /**
      * Get immediate child element, or return this element if the name is empty.
@@ -231,76 +233,88 @@ public:
      * Constructor
      * @param value             Floating point value
      */
-    Element(double value) noexcept;
+    Element(Document* document, double value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    Element(int value) noexcept;
+    Element(Document* document, int value) noexcept;
 
     /**
      * Constructor
      * @param value             Integer value
      */
-    Element(int64_t value) noexcept;
+    Element(Document* document, int64_t value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    Element(const std::string& value) noexcept;
+    Element(Document* document,const String& value) noexcept;
 
     /**
      * Constructor
      * @param value             String value
      */
-    Element(const char* value) noexcept;
+    Element(Document* document,const char* value) noexcept;
 
     /**
      * Constructor
      * @param value             Boolean value
      */
-    Element(bool value) noexcept;
+    Element(Document* document, bool value) noexcept;
 
     /**
      * Constructor
      * Element takes ownership of value.
      * Elements in value are set their parent pointer to this element.
+     * @param document          Parent JSON document
      * @param value             Array of JSON Elements
      */
-    Element(ArrayData* value) noexcept;
+    Element(Document* document, ArrayData* value) noexcept;
 
     /**
      * Constructor
      * Element takes ownership of value.
      * Elements in value are set their parent pointer to this element.
+     * @param document          Parent JSON document
      * @param value             Map of names to JSON elements
      */
-    Element(ObjectData* value) noexcept;
+    Element(Document* document, ObjectData* value) noexcept;
 
     /**
      * Constructor
      * Element will contain null value
+     * @param document          Parent JSON document
      */
-    Element() noexcept;
+    Element(Document* document) noexcept;
 
     /**
-     * Copy constructor
+     * Constructor
+     * @param document          Parent JSON document
      * @param other             Element to assign from
      */
-    Element(const Element& other);
+    Element(Document* document, const Element& other);
 
     /**
      * Move constructor
+     * @param document          Parent JSON document
      * @param other             Element to assign from
      */
-    Element(Element&& other) noexcept;
+    Element(Document* document, Element&& other) noexcept;
 
     /**
      * Destructor
      */
     ~Element();
+
+    template <typename T> Element& operator = (const T& other)
+    {
+        Element element(m_document, other);
+        *this = std::move(element);
+        return *this;
+    }
 
     /**
      * Assignment operator
@@ -314,6 +328,71 @@ public:
      */
     Element& operator = (Element&& other) noexcept;
 
+    /**
+     * Add array element to JSON array
+     * @param name              Array element name
+     * @return Array element
+     */
+    Element* push_array();
+
+    /**
+     * Add array element to JSON object
+     * @param name              Array element name
+     * @return Array element
+     */
+    Element* set_array(const String& name);
+
+    /**
+     * Add object element to JSON array
+     * @return Object element
+     */
+    Element* push_object();
+
+    /**
+     * Add object element to JSON object
+     * @param name              Object element name
+     * @return Object element
+     */
+    Element* set_object(const String& name);
+
+    /**
+     * Set null element in JSON object
+     * @param name              Element name
+     */
+    void set(const String& name)
+    {
+        add(name, new Element(m_document));
+    }
+
+    /**
+     * Set element in JSON object
+     * @param name              Element name
+     * @param value             Element value
+     */
+    template <typename T> void set(const String& name, T value)
+    {
+        add(name, new Element(m_document, value));
+    }
+
+    /**
+     * Push null element to JSON array
+     * @param name              Element name
+     */
+    void push_back()
+    {
+        add(new Element(m_document));
+    }
+
+    /**
+     * Push element to JSON object
+     * @param value             Element value
+     */
+    template <typename T> void push_back(T value)
+    {
+        add(new Element(m_document, value));
+    }
+
+protected:
     /**
      * Add JSON element to JSON array element.
      *
@@ -336,49 +415,70 @@ public:
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, int value) { return add(name, new Element(value)); }
+    Element* add(const String& name, int value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add integer field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, int64_t value) { return add(name, new Element(value)); }
+    Element* add(const String& name, int64_t value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add double field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, double value) { return add(name, new Element(value)); }
+    Element* add(const String& name, double value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add string field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, const std::string& value) { return add(name, new Element(value)); }
+    Element* add(const String& name, const std::string& value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add string field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, const char* value) { return add(name, new Element(value)); }
+    Element* add(const String& name, const char* value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add boolean field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, bool value) { return add(name, new Element(value)); }
+    Element* add(const String& name, bool value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add JSON array field to JSON element
      * @param name              Field name
      * @param value             Field value
      */
-    Element* add(const String& name, ArrayData* value) { return add(name, new Element(value)); }
+    Element* add(const String& name, ArrayData* value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
     /**
      * Add JSON object field to JSON element
@@ -386,8 +486,12 @@ public:
      * @param value             Field value
      *
      */
-    Element* add(const String& name, ObjectData* value) { return add(name, new Element(value)); }
+    Element* add(const String& name, ObjectData* value)
+    {
+        return add(name, new Element(m_document, value));
+    }
 
+public:
     /**
      * Find JSON element in JSON object element
      * @param name              Name of the element in the object element
@@ -616,6 +720,8 @@ public:
      * @param name              Optional field name, use any name if empty string
      */
     void optimizeArrays(const std::string& name="item");
+
+    Document* getDocument() const;
 };
 
 }}

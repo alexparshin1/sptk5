@@ -90,12 +90,12 @@ void Parser::parse(Element& jsonElement, const string& jsonStr)
     switch (*pos) {
         case '{':
             jsonElement.m_type = JDT_OBJECT;
-            jsonElement.m_data.m_object = new ObjectData(&jsonElement);
+            jsonElement.m_data.m_object = new ObjectData(jsonElement.getDocument(), &jsonElement);
             readObjectData(&jsonElement, json, pos);
             break;
         case '[':
             jsonElement.m_type = JDT_ARRAY;
-            jsonElement.m_data.m_array = new ArrayData(&jsonElement);
+            jsonElement.m_data.m_array = new ArrayData(jsonElement.getDocument(), &jsonElement);
             readArrayData(&jsonElement, json, pos);
             break;
         default:
@@ -122,12 +122,14 @@ string readJsonString(const char* json, const char*& readPosition)
         pos = strpbrk(pos, "\\\"");
         if (pos == nullptr)
             throwError("Premature end of data, expecting '\"'", json, readPosition - json);
-        char ch = *pos;
-        if (ch == '"')
-            break;
-        if (ch == '\\')
+        else {
+            char ch = *pos;
+            if (ch == '"')
+                break;
+            if (ch == '\\')
+                pos++;
             pos++;
-        pos++;
+        }
     }
     string str = Element::decode(string(readPosition + 1, pos - readPosition - 1));
 
@@ -211,17 +213,15 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
 
             case '[':
             {
-                auto jsonArrayElement = new Element(new ArrayData);
+                auto* jsonArrayElement = parent->push_array();
                 readArrayData(jsonArrayElement, json, readPosition);
-                parent->add(jsonArrayElement);
             }
             break;
 
             case '{':
             {
-                auto jsonObjectElement = new Element(new ObjectData);
+                auto* jsonObjectElement = parent->push_object();
                 readObjectData(jsonObjectElement, json, readPosition);
-                parent->add(jsonObjectElement);
             }
             break;
 
@@ -230,7 +230,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
             {
                 // Number
                 double number = readJsonNumber(json, readPosition);
-                parent->add(new Element(number));
+                parent->push_back(number);
             }
             break;
 
@@ -239,7 +239,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
             {
                 // Boolean
                 bool value = readJsonBoolean(json, readPosition);
-                parent->add(new Element(value));
+                parent->push_back(value);
             }
             break;
 
@@ -247,7 +247,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
             {
                 // Null
                 readJsonNull(json, readPosition);
-                parent->add(new Element());
+                parent->push_back();
             }
             break;
 
@@ -255,7 +255,7 @@ void readArrayData(Element* parent, const char* json, const char*& readPosition)
             {
                 // String
                 string str = readJsonString(json, readPosition);
-                parent->add(new Element(str));
+                parent->push_back(str);
             }
             break;
 
@@ -302,17 +302,15 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
 
             case '[':
             {
-                auto jsonArrayElement = new Element(new ArrayData);
+                auto jsonArrayElement = parent->set_array(elementName);
                 readArrayData(jsonArrayElement, json, readPosition);
-                parent->add(elementName, jsonArrayElement);
             }
             break;
 
             case '{':
             {
-                auto jsonObjectElement = new Element(new ObjectData);
+                auto jsonObjectElement = parent->set_object(elementName);
                 readObjectData(jsonObjectElement, json, readPosition);
-                parent->add(elementName, jsonObjectElement);
             }
             break;
 
@@ -321,7 +319,7 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
             {
                 // Number
                 double number = readJsonNumber(json, readPosition);
-                parent->add(elementName, new Element(number));
+                parent->set(elementName, number);
             }
             break;
 
@@ -330,7 +328,7 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
             {
                 // Boolean
                 bool value = readJsonBoolean(json, readPosition);
-                parent->add(elementName, new Element(value));
+                parent->set(elementName, value);
             }
             break;
 
@@ -338,7 +336,7 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
             {
                 // Null
                 readJsonNull(json, readPosition);
-                parent->add(elementName, new Element());
+                parent->set(elementName);
             }
             break;
 
@@ -346,7 +344,7 @@ void readObjectData(Element* parent, const char* json, const char*& readPosition
             {
                 // String
                 string str = readJsonString(json, readPosition);
-                parent->add(elementName, new Element(str));
+                parent->set(elementName, str);
             }
             break;
 

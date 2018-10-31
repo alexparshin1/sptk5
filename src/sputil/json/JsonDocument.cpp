@@ -42,16 +42,16 @@ void Document::clear()
     }
 
     if (elementType == JDT_ARRAY)
-        m_root = new Element((ArrayData*)nullptr);
+        m_root = new Element(this, (ArrayData*)nullptr);
     else
-        m_root = new Element((ObjectData*)nullptr);
+        m_root = new Element(this, (ObjectData*)nullptr);
 }
 
 void Document::parse(const string& json)
 {
     delete m_root;
 
-    m_root = new Element;
+    m_root = new Element(this);
 
     if (json.empty())
         return;
@@ -61,20 +61,21 @@ void Document::parse(const string& json)
 }
 
 Document::Document(bool isObject)
+: m_emptyElement(this, "")
 {
     if (isObject)
-        m_root = new Element(new ObjectData);
+        m_root = new Element(this, new ObjectData(this));
     else
-        m_root = new Element(new ArrayData);
+        m_root = new Element(this, new ArrayData(this));
 }
 
 Document::Document(Document&& other) noexcept
-: m_root(other.m_root)
+: m_root(other.m_root), m_emptyElement(this, "")
 {
     if (m_root->type() == JDT_OBJECT)
-        other.m_root = new Element(new ObjectData);
+        other.m_root = new Element(this, new ObjectData(this));
     else
-        other.m_root = new Element(new ArrayData);
+        other.m_root = new Element(this, new ArrayData(this));
 }
 
 Document::~Document()
@@ -183,22 +184,20 @@ TEST(SPTK_JsonDocument, add)
 
     json::Element& root = document.root();
 
-    root.add("int", 1);
-    root.add("double", 2.5);
-    root.add("string", "Test");
-    root.add("bool1", true);
-    root.add("bool2", false);
+    root["int"] = 1;
+    root["double"] = 2.5;
+    root["string"] = "Test";
+    root["bool1"] = true;
+    root["bool2"] = false;
 
-    json::ArrayData* arrayData = new json::ArrayData();
-    arrayData->add(new json::Element("C++"));
-    arrayData->add(new json::Element("Java"));
-    arrayData->add(new json::Element("Python"));
-    root.add("array", arrayData);
+    auto arrayData = root.set_array("array");
+    arrayData->push_back("C++");
+    arrayData->push_back("Java");
+    arrayData->push_back("Python");
 
-    json::ObjectData* objectData = new json::ObjectData();
-    objectData->add("height", new json::Element(178));
-    objectData->add("weight", new json::Element(85.5));
-    root.add("object", objectData);
+    auto objectData = root.set_object("object");
+    (*objectData)["height"] = 178;
+    (*objectData)["weight"] = 85.5;
 
     EXPECT_EQ(1, (int) root.getNumber("int"));
     EXPECT_DOUBLE_EQ(2.5, root.getNumber("double"));

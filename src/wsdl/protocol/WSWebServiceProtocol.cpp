@@ -113,14 +113,12 @@ void WSWebServiceProtocol::process()
         if (endOfMessage != nullptr)
             *(char*) endOfMessage = 0;
         message.load(startOfMessage);
-        auto jsonEnvelope = new json::Element(new json::ObjectData);
         xml::Node* xmlEnvelope = message.findFirst("soap:Envelope", true);
         xml::Node* xmlBody = xmlEnvelope->findFirst("soap:Body", true);
         xml::Node* xmlRequest = *xmlBody->begin();
-        jsonContent.root().add(xmlRequest->name(), jsonEnvelope);
+
+        auto jsonEnvelope = jsonContent.root().set_object(xmlRequest->name());
         xmlRequest->exportTo(*jsonEnvelope);
-        //jsonContent.exportTo(cout, true);
-        //cout << endl;
     }
     else if (*startOfMessage == '{' || *startOfMessage == '[') {
         requestIsJSON = true;
@@ -155,8 +153,7 @@ void WSWebServiceProtocol::process()
                 throw Exception("Can't find soap:Body in service response");
             xml::Node* methodElement = *bodyElement->begin();
             json::Document jsonOutput;
-            auto jsonResponse = new json::Element(new json::ObjectData);
-            jsonOutput.root().add("response", jsonResponse);
+            auto jsonResponse = jsonOutput.root().set_object("response");
             methodElement->exportTo(*jsonResponse);
             jsonOutput.exportTo(output, false);
             contentType = "application/json";
@@ -170,9 +167,9 @@ void WSWebServiceProtocol::process()
         contentType = "application/json";
 
         json::Document error;
-        error.root().add("error", e.what());
-        error.root().add("status_code", (int) e.statusCode());
-        error.root().add("status_text", e.statusText());
+        error.root().set("error", e.what());
+        error.root().set("status_code", (int) e.statusCode());
+        error.root().set("status_text", e.statusText());
         error.exportTo(output, true);
     }
 

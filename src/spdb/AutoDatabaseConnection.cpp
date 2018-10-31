@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        QueryParameterBinding.h - description                 ║
+║                        AutoDatabaseConnection.cpp - description              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Wednesday November 2 2005                              ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -26,95 +26,31 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __SPTK_QUERYPARAMBINDING_H__
-#define __SPTK_QUERYPARAMBINDING_H__
+#include <sptk5/db/DatabaseConnectionPool.h>
 
-#include <sptk5/sptk.h>
-#include <sptk5/Variant.h>
+using namespace std;
+using namespace sptk;
 
-#include <vector>
-#include <map>
-
-namespace sptk
+AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
+: m_connectionPool(connectionPool)
 {
-
-/**
- * @addtogroup Database Database Support
- * @{
- */
-
-/**
- *  Parameter Binding descriptor
- *
- * Stores the last information on parameter binding
- */
-class SP_EXPORT QueryParameterBinding
-{
-public:
-    /**
-     * Statement handle or id
-     */
-    void*        m_stmt;
-
-    /**
-     * Data type
-     */
-    VariantType  m_dataType;
-
-    /**
-     * Buffer
-     */
-    void*        m_buffer;
-
-    /**
-     * Buffer size
-     */
-    uint32_t     m_size;
-
-    /**
-     * Output parameter flag
-     */
-    bool         m_output;
-
-    /**
-     * Constructor
-     * @param isOutput          Output parameter flag
-     */
-    explicit QueryParameterBinding(bool isOutput)
-    {
-        reset(isOutput);
+    try {
+        m_connection = m_connectionPool.createConnection();
     }
-
-    /**
-     *  Resets the binding information
-     * @param isOutput          Output parameter flag
-     */
-    void reset(bool isOutput);
-
-    /**
-     * Set binding to output
-     */
-    void setOutput()
-    {
-        m_output = true;
+    catch (...) {
+        m_connection = nullptr;
     }
-
-    /**
-     * Checks if the parameter binding is matching the cached
-     *
-     * Returns true, if the passed parameters are matching last binding parameters.
-     * Returns false and stores new parameters into last binding parameters otherwise.
-     * @param stmt              Statement handle
-     * @param type              Data type
-     * @param size              Binding buffer size
-     * @param buffer            Binding buffer
-     */
-    bool check(void* stmt, VariantType type, uint32_t size, void* buffer);
-};
-
-/**
- * @}
- */
 }
 
-#endif
+AutoDatabaseConnection::~AutoDatabaseConnection()
+{
+    if (m_connection != nullptr) {
+        m_connection->close();
+        m_connectionPool.releaseConnection(m_connection);
+    }
+}
+
+PoolDatabaseConnection* AutoDatabaseConnection::connection()
+{
+    return m_connection;
+}

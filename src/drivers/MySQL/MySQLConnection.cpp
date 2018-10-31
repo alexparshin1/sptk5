@@ -33,8 +33,8 @@
 using namespace std;
 using namespace sptk;
 
-MySQLConnection::MySQLConnection(const string& connectionString)
-: DatabaseConnection(connectionString),
+MySQLConnection::MySQLConnection(const String& connectionString)
+: PoolDatabaseConnection(connectionString),
   m_connection(nullptr)
 {
     m_connType = DCT_MYSQL;
@@ -444,7 +444,7 @@ String MySQLConnection::driverDescription() const
     return "MySQL";
 }
 
-std::string MySQLConnection::paramMark(unsigned)
+String MySQLConnection::paramMark(unsigned)
 {
     return "?";
 }

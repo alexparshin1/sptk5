@@ -142,7 +142,7 @@ public:
      *
      * Destructs the log object, releases all the allocated resources
      */
-    virtual ~LogEngine() = default;
+	virtual ~LogEngine();
 
     /**
      * @brief Restarts the log

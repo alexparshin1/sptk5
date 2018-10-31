@@ -118,12 +118,7 @@ public:
         queryParams.enumerate(m_enumeratedParams);
         m_state.outputParameterCount = 0;
 
-        CParamVector::iterator
-            itor = m_enumeratedParams.begin(),
-            iend = m_enumeratedParams.end();
-        for (; itor != iend; ++itor)
-        {
-            QueryParameter* parameter = *itor;
+        for (auto parameter: m_enumeratedParams) {
             if (parameter->isOutput())
                 m_state.outputParameterCount++;
         }

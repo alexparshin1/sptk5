@@ -57,7 +57,7 @@ public:
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
-: DatabaseConnection(connectionString)
+: PoolDatabaseConnection(connectionString)
 {
     m_connect = new ODBCConnectionBase;
     m_connType = DCT_GENERIC_ODBC;
@@ -420,7 +420,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                 }
                     break;
                 default:
-                    THROW_QUERY_ERROR(query, "Unknown type of parameter " << paramNumber);
+                    THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'");
             }
             SQLLEN* cbValue = nullptr;
             if (param->isNull()) {
@@ -513,7 +513,11 @@ void ODBCConnection::queryOpen(Query* query)
 
     try {
         queryBindParameters(query);
-    } catch (...) {
+    }
+    catch (const DatabaseException& e) {
+        throw;
+    }
+    catch (...) {
         THROW_QUERY_ERROR(query, queryError(query));
     }
 
@@ -674,7 +678,7 @@ void ODBCConnection::queryFetch(Query* query)
             if (dataLength <= 0)
                 field->setNull(VAR_NONE);
             else
-                field->dataSize(dataLength);
+                field->dataSize((size_t)dataLength);
         } catch (exception& e) {
             query->throwError("CODBCConnection::queryFetch",
                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));

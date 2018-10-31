@@ -42,7 +42,7 @@ static bool  m_inited(false);
 
 #endif
 
-void BaseSocket::throwSocketError(const string& operation, const char* file, int line)
+void BaseSocket::throwSocketError(const String& operation, const char* file, int line)
 {
     string errorStr;
 #ifdef _WIN32
@@ -340,10 +340,10 @@ size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
     return bytes;
 }
 
-size_t BaseSocket::read(std::string& buffer, size_t size, sockaddr_in* from)
+size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
-    size_t bytes = read((char*) buffer.data(), size, from);
+    size_t bytes = read((char*)buffer.c_str(), size, from);
     if (bytes != size)
         buffer.resize(bytes);
     return bytes;
@@ -377,7 +377,7 @@ size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
     return write(buffer.data(), buffer.bytes(), peer);
 }
 
-size_t BaseSocket::write(const std::string& buffer, const sockaddr_in* peer)
+size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 {
     return write(buffer.c_str(), buffer.length(), peer);
 }

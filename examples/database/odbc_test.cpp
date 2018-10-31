@@ -40,14 +40,14 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(DatabaseConnection& db, const string& tableName, bool rollback)
+int testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
 {
     try {
-        Query step5Query(&db, "DELETE FROM " + tableName);
-        Query step6Query(&db, "SELECT count(*) FROM " + tableName);
+        Query step5Query(db, "DELETE FROM " + tableName);
+        Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
         cout << "\n        Begining the transaction ..";
-        db.beginTransaction();
+        db->beginTransaction();
         cout << "\n        Deleting everything from the table ..";
         step5Query.exec();
 
@@ -58,10 +58,10 @@ int testTransactions(DatabaseConnection& db, const string& tableName, bool rollb
 
         if (rollback) {
             cout << "\n        Rolling back the transaction ..";
-            db.rollbackTransaction();
+            db->rollbackTransaction();
         } else {
             cout << "\n        Commiting the transaction ..";
-            db.commitTransaction();
+            db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
@@ -93,7 +93,7 @@ int main(int argc, const char* argv[])
         }
 
         DatabaseConnectionPool connectionPool(connectString);
-        DatabaseConnection* db = connectionPool.createConnection();
+        DatabaseConnection db = connectionPool.getConnection();
 
         cout << "Openning the database, using connection string " << connectString << ":" << endl;
         db->open();
@@ -211,8 +211,8 @@ int main(int argc, const char* argv[])
 
         cout << "Ok.\n***********************************************\nTesting the transactions.";
 
-        testTransactions(*db, tableName, true);
-        testTransactions(*db, tableName, false);
+        testTransactions(db, tableName, true);
+        testTransactions(db, tableName, false);
 
         step4Query.exec();
 

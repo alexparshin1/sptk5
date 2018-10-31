@@ -33,9 +33,9 @@
 using namespace std;
 using namespace sptk;
 
-FirebirdConnection::FirebirdConnection(const String& connectionString) :
-    DatabaseConnection(connectionString),
-    m_connection(0)
+FirebirdConnection::FirebirdConnection(const String& connectionString)
+: PoolDatabaseConnection(connectionString),
+  m_connection(0)
 {
     m_connType = DCT_FIREBIRD;
 }
@@ -401,7 +401,7 @@ String FirebirdConnection::driverDescription() const
     return "Firebird";
 }
 
-std::string FirebirdConnection::paramMark(unsigned)
+String FirebirdConnection::paramMark(unsigned)
 {
     return "?";
 }

@@ -29,11 +29,12 @@
 #ifndef __SPTK_FIREBIRDCONNECTION_H__
 #define __SPTK_FIREBIRDCONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_FIREBIRD == 1
 
 #include <ibase.h>
+#include "AutoDatabaseConnection.h"
 
 namespace sptk
 {
@@ -43,18 +44,15 @@ namespace sptk
  * @{
  */
 
-class Query;
 class FirebirdStatement;
 
 /**
  * @brief Firebird database connection
  */
-class SP_EXPORT FirebirdConnection: public DatabaseConnection
+class SP_EXPORT FirebirdConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class FirebirdStatement;
-
-protected:
 
     /**
      * Database connection handle
@@ -70,6 +68,8 @@ protected:
      * Connection status on last checkStatus
      */
     std::string     m_lastStatus;
+
+protected:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -153,7 +153,8 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        Parameter index in SQL starting from 0
      */
-    std::string paramMark(unsigned paramIndex) override;
+    String paramMark(unsigned paramIndex) override;
+
 public:
 
     /**
@@ -167,8 +168,6 @@ public:
     isc_stmt_handle* createStatement(std::string sql);
 
     isc_stmt_handle* createStatement();
-
-public:
 
     /**
      * @brief Constructor

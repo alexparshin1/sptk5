@@ -65,6 +65,8 @@ public:
 
 protected:
 
+    const Document*         m_document;
+
     /**
      * Parent JSON element
      */
@@ -87,7 +89,7 @@ public:
      * Constructor
      * @param parent Element*, Parent JSON element
      */
-    explicit ArrayData(Element* parent = NULL);
+    explicit ArrayData(const Document* document, Element* parent = NULL);
 
     /**
      * Destructor

@@ -39,7 +39,7 @@
 using namespace std;
 using namespace sptk;
 
-int testTransactions(DatabaseConnection* db, const String& tableName, bool rollback)
+int testTransactions(DatabaseConnection db, const String& tableName, bool rollback)
 {
     try {
         Query step5Query(db, "DELETE FROM " + tableName);
@@ -76,7 +76,7 @@ int testTransactions(DatabaseConnection* db, const String& tableName, bool rollb
 int main()
 {
     DatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
-    DatabaseConnection* db = connectionPool.createConnection();
+    DatabaseConnection db = connectionPool.getConnection();
 
     try {
         cout << "Openning the database.. ";

@@ -122,7 +122,7 @@ public:
      * Constructs a document from XML string
      * @param xml               XML string
      */
-    Document(std::string xml);
+    explicit Document(const String& xml);
 
     /**
      * Constructs an empty document, with doctype.

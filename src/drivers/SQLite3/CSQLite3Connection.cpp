@@ -67,7 +67,7 @@ typedef void (* sqlite3cb)(void*);
 
 SQLite3Connection::SQLite3Connection(const String& connectionString)
         :
-        DatabaseConnection(connectionString)
+        PoolDatabaseConnection(connectionString)
 {
     m_connect = nullptr;
     m_connType = DCT_SQLITE3;

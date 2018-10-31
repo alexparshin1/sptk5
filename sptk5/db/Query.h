@@ -36,7 +36,7 @@
 
 #include <sptk5/DataSource.h>
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/threads/Locks.h>
@@ -57,39 +57,37 @@ namespace sptk {
  */
 class SP_EXPORT Query: public DataSource, protected SharedMutex
 {
-    friend class DatabaseConnection;
+    friend class PoolDatabaseConnection;
 
-protected:
     /**
      * Prepare the query automatically, on thedynamic_cast<COracleBulkInsertQuery*>( first call
      */
-    bool            m_autoPrepare;
+    bool                    m_autoPrepare {false};
 
     /**
      * ODBC statement handle
      */
-    void*           m_statement;
+    void*                   m_statement {nullptr};
 
     /**
      * Database server connection
      */
-    void*           m_connection;
-
+    void*                   m_connection {nullptr};
 
     /**
      * True if the statement is prepared
      */
-    bool            m_prepared;
+    bool                    m_prepared {false};
 
     /**
      * True if query is active (opened)
      */
-    bool            m_active;
+    bool                    m_active {false};
 
     /**
      * True if there is no more records to fetch
      */
-    bool            m_eof;
+    bool                    m_eof {true};
 
     /**
      * List of query parameters
@@ -104,7 +102,7 @@ protected:
     /**
      * Database connection
      */
-    DatabaseConnection*     m_db;
+    PoolDatabaseConnection* m_db {nullptr};
 
     /**
      * SQL statement string
@@ -112,25 +110,32 @@ protected:
     String                  m_sql;
 
     /**
-     * The source file the query was created in
-     */
-    const char*             m_createdFile;
-
-    /**
-     * The source file line the query was created at
-     */
-    unsigned                m_createdLine;
-
-    /**
-     * Optional diag messages populated after exec() or open()
+     * Optional diagnostic messages populated after exec() or open()
      */
     Strings                 m_messages;
 
     /**
+     * Unique index for query object
+     */
+    int                     m_objectIndex {0};
+
+protected:
+
+    /**
+     * The source file the query was created in
+     */
+    const char*             m_createdFile {nullptr};
+
+    /**
+     * The source file line the query was created at
+     */
+    unsigned                m_createdLine {0};
+
+
+    /**
      * Bulk mode flag
      */
-    bool                    m_bulkMode;
-
+    bool                    m_bulkMode {false};
 
     /**
      * Counts columns of the dataset (if any) returned by query
@@ -167,16 +172,11 @@ protected:
      */
     void colAttributes(int16_t column, int16_t descType, char *buff, int len);
 
+
     /**
      * Retrieves an error (if any) after executing an ODBC statement
      */
     String getError() const;
-
-
-    /**
-     * Unique index for query object
-     */
-    int             m_objectIndex;
 
     /**
      * Internal number to implement unique query index. That is pretty useful for logs
@@ -189,8 +189,6 @@ protected:
      */
     void notImplemented(const String& functionName) const;
 
-
-protected:
     /**
      * @brief Closes query by closing the statement.
      *
@@ -240,7 +238,22 @@ public:
      * @param createdFile       The name of the file this query was created in (optional)
      * @param createdLine       The line of the file this query was created at (optional)
      */
-    Query(DatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+    Query(DatabaseConnection db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
+
+    /**
+     * @brief Constructor
+     *
+     * You can optionally provide the name of the file and line number where
+     * this query is created. This is used to collect statistical information
+     * for the query calls. If file and line information is provided, then
+     * calls statistics is stored to the database object during the query dtor.
+     * @param db                The database to connect to, optional
+     * @param sql               The SQL query text to use, optional
+     * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
+     * @param createdFile       The name of the file this query was created in (optional)
+     * @param createdLine       The line of the file this query was created at (optional)
+     */
+    Query(PoolDatabaseConnection *db, const String& sql = "", bool autoPrepare = true, const char* createdFile = nullptr, unsigned createdLine = 0);
 
     /**
      * @brief Copy constructor
@@ -361,8 +374,6 @@ public:
         return m_params;
     }
 
-public:
-
     /**
      * @brief Field read access by the field name, for the universal data connection
      */
@@ -373,7 +384,6 @@ public:
      */
     virtual bool writeField(const char *fname, const Variant& fvalue);
 
-public:
     /**
      * @brief Opens the query and fetches the first row.
      *
@@ -410,7 +420,6 @@ public:
         return m_eof;
     }
 
-public:
     /**
      * @brief Executes the query and closes the statement.
      */
@@ -442,7 +451,7 @@ public:
      * If the query was connected
      * to another database, releases all the allocated resources in it.
      */
-    void connect(DatabaseConnection *db);
+    void connect(PoolDatabaseConnection *db);
 
     /**
      * @brief Disconnects query from the database and releases all the allocated resourses.
@@ -521,7 +530,7 @@ public:
     /**
      * @brief Returns the database the query is connected to
      */
-    DatabaseConnection *database() const
+    PoolDatabaseConnection *database() const
     {
         return m_db;
     }
@@ -529,7 +538,7 @@ public:
     /**
      * @brief Connects the query to the database different database.
      */
-    void database(DatabaseConnection *db)
+    void database(PoolDatabaseConnection *db)
     {
         connect(db);
     }

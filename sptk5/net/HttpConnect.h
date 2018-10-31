@@ -54,7 +54,7 @@ class SP_EXPORT HttpConnect
     /**
      * HTTP reader
      */
-    HttpReader      m_reader;
+    std::unique_ptr<HttpReader> m_reader;
 
     /**
      * External socket
@@ -99,7 +99,7 @@ protected:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int getResponse(std::chrono::milliseconds timeout);
+    int getResponse(Buffer& output, std::chrono::milliseconds timeout);
 
 public:
 
@@ -111,19 +111,6 @@ public:
      * @param socket            external socket
      */
     explicit HttpConnect(TCPSocket& socket);
-
-    /**
-     * @brief Returns the internal read buffer
-     *
-     * The buffer makes sense only after sending a command to the server (if that command calls
-     * getResponse() method internally). The buffer doesn't contain HTTP headers that are parsed
-     * int m_headers map.
-     * @returns internal read buffer reference
-     */
-    const Buffer& htmlData() const
-    {
-        return m_reader;
-    }
 
     /**
      * @brief Returns the HTTP request headers
@@ -145,59 +132,63 @@ public:
      */
     const HttpHeaders& responseHeaders() const
     {
-        return m_reader.getResponseHeaders();
+        return m_reader->getResponseHeaders();
     }
 
     /**
      * @brief Sends the GET command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName          The name of the page without the server name.
-     * @param parameters        The list of HTTP data to pass to the server
+     * @param pageName          Page URL without the server name.
+     * @param parameters        HTTP request parameters
+     * @param output            Output data
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_get(const sptk::String& pageName, const HttpParams& parameters,
+    int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
                 std::chrono::milliseconds timeout=std::chrono::seconds(60));
 
     /**
      * @brief Sends the POST command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName          The name of the page without the server name.
-     * @param parameters        The list of HTTP data to pass to the server
+     * @param pageName          Page URL without the server name.
+     * @param parameters        HTTP request parameters
      * @param content           The data to post to the server
      * @param gzipContent       If true then compress buffer and set HTTP header Content-Encoding
+     * @param output            Output data
      * @param timeout           Response timeout
      * @return HTTP result code
      */
     int cmd_post(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content, bool gzipContent,
-                 std::chrono::milliseconds timeout=std::chrono::seconds(60));
+                 Buffer& output, std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the PUT command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName          The name of the page without the server name.
-     * @param parameters        The list of HTTP data to pass to the server
+     * @param pageName          Page URL without the server name.
+     * @param parameters        HTTP request parameters
      * @param content           The data to post to the server
+     * @param output            Output data
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int cmd_put(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content,
-                std::chrono::milliseconds timeout=std::chrono::seconds(60));
+    int cmd_put(const sptk::String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
+                std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
    /**
      * @brief Sends the DELETE command to the server
      *
      * Retrieves the server response into internal read buffer.
-     * @param pageName          The name of the page without the server name.
-     * @param parameters        The list of HTTP data to pass to the server
+     * @param pageName          Page URL without the server name.
+     * @param parameters        HTTP request parameters
+     * @param output            Output data
      * @param timeout           Request timeout
      * @return HTTP result code
      */
-    int cmd_delete(const sptk::String& pageName, const HttpParams& parameters,
-                   std::chrono::milliseconds timeout=std::chrono::seconds(60));
+   int cmd_delete(const sptk::String& pageName, const HttpParams& parameters, Buffer& output,
+                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
 
     /**
      * @brief Get value of response header

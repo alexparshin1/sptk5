@@ -29,7 +29,7 @@
 #ifndef __SPTK_MYSQLCONNECTION_H__
 #define __SPTK_MYSQLCONNECTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 #if HAVE_MYSQL == 1
 
@@ -43,18 +43,13 @@ namespace sptk
  * @{
  */
 
-class Query;
-class CMySQLStatement;
-
 /**
  * @brief MySQL database connection
  */
-class SP_EXPORT MySQLConnection: public DatabaseConnection
+class SP_EXPORT MySQLConnection: public PoolDatabaseConnection
 {
     friend class Query;
     friend class MySQLStatement;
-
-private:
 
     /**
      * MySQL database connection
@@ -139,7 +134,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        Parameter index in SQL starting from 0
      */
-    std::string paramMark(unsigned paramIndex) override;
+    String paramMark(unsigned paramIndex) override;
 
 public:
     /**
@@ -150,7 +145,7 @@ public:
         return m_connection;
     }
 
-    MYSQL_STMT* createStatement(std::string sql);
+    MYSQL_STMT* createStatement(const String& sql);
 
     MYSQL_STMT* createStatement();
 
@@ -184,8 +179,6 @@ public:
      */
     void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-public:
-
     /**
      * @brief Constructor
      *
@@ -195,7 +188,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The MySQL connection string
      */
-    explicit MySQLConnection(const std::string& connectionString = "");
+    explicit MySQLConnection(const String& connectionString = "");
 
     /**
      * @brief Destructor

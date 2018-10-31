@@ -58,8 +58,8 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
             if (usernameAndPassword.size() != 2)
                 throw Exception("Invalid or unsupported 'Authentication' header format");
             auto xuserData = new json::Document;
-            xuserData->root().add("username", usernameAndPassword[0]);
-            xuserData->root().add("password", usernameAndPassword[1]);
+            xuserData->root()["username"] = usernameAndPassword[0];
+            xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
             m_type = BASIC;
         }

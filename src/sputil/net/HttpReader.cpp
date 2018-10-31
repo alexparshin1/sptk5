@@ -35,16 +35,18 @@
 using namespace std;
 using namespace sptk;
 
-HttpReader::HttpReader()
-: Buffer(1024),
-  m_readerState(READY),
+HttpReader::HttpReader(Buffer& output)
+: m_readerState(READY),
   m_statusCode(0),
   m_contentLength(0),
   m_contentReceivedLength(0),
   m_currentChunkSize(0),
   m_contentIsChunked(false),
-  m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s+(\\S.*)?\r")
-{}
+  m_matchProtocolAndResponseCode("^(HTTP/1.\\d)\\s+(\\d+)\\s+(\\S.*)?\r"),
+  m_output(output)
+{
+    output.reset(128);
+}
 
 bool HttpReader::readStatus(TCPSocket& socket)
 {
@@ -135,7 +137,7 @@ bool HttpReader::readData(TCPSocket& socket)
             readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
             if (readBytes == 0) // 0 bytes case is a workaround for OpenSSL
                 readBytes = (int) socket.read(m_read_buffer, (size_t) readBytes);
-            append(m_read_buffer);
+            m_output.append(m_read_buffer);
             m_contentReceivedLength += readBytes;
             if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength) // No more data
                 return true;
@@ -160,8 +162,8 @@ bool HttpReader::readData(TCPSocket& socket)
                     return true; // Last chunk
             }
 
-            checkSize(bytes() + m_currentChunkSize + 16384);
-            char* appendPtr = data() + bytes();
+            m_output.checkSize(m_output.bytes() + m_currentChunkSize + 16384);
+            char* appendPtr = m_output.data() + m_output.bytes();
             if (!socket.readyToRead(chrono::seconds(30)))
                 throw TimeoutException("Read timeout");
             readBytes = (int) socket.read(appendPtr, m_currentChunkSize, nullptr);
@@ -169,14 +171,14 @@ bool HttpReader::readData(TCPSocket& socket)
                 m_contentReceivedLength += readBytes;
                 appendPtr[readBytes] = 0;
                 m_currentChunkSize = 0;
-                bytes(bytes() + readBytes);
+                m_output.bytes(m_output.bytes() + readBytes);
                 return false; // Not the last chunk
             }
         }
         readBytes = (int) socket.socketBytes();
-        if (readBytes == 0 && bytes() > 13) {
-            size_t tailOffset = bytes() - 13;
-			String tail(m_buffer + tailOffset);
+        if (readBytes == 0 && m_output.bytes() > 13) {
+            size_t tailOffset = m_output.bytes() - 13;
+			String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
 				break;
             if (!socket.readyToRead(chrono::seconds(30)))
@@ -192,7 +194,7 @@ void HttpReader::read(TCPSocket& socket)
     lock_guard<mutex> lock(m_mutex);
 
     if (m_readerState == READY) {
-        bytes(0);
+        m_output.bytes(0);
         m_responseHeaders.clear();
         m_statusCode = 0;
         m_statusText = "";
@@ -217,7 +219,7 @@ void HttpReader::read(TCPSocket& socket)
     if (itor != m_responseHeaders.end() && itor->second == "gzip") {
 #if HAVE_ZLIB
         Buffer unzipBuffer;
-        ZLib::decompress(unzipBuffer, *this);
+        ZLib::decompress(unzipBuffer, m_output);
         *(Buffer*)this = move(unzipBuffer);
 #else
         throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");

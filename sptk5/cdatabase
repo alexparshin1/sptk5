@@ -29,7 +29,7 @@
 #ifndef __CDATABASE__
 #define __CDATABASE__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/Transaction.h>

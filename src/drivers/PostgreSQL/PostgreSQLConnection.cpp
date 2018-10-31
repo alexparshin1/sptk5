@@ -139,8 +139,8 @@ enum PostgreSQLTimestampFormat
 };
 static PostgreSQLTimestampFormat timestampsFormat;
 
-PostgreSQLConnection::PostgreSQLConnection(const string& connectionString)
-: DatabaseConnection(connectionString)
+PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
+: PoolDatabaseConnection(connectionString)
 {
     m_connect = nullptr;
     m_connType = DCT_POSTGRES;
@@ -1045,7 +1045,7 @@ String PostgreSQLConnection::driverDescription() const
     return "PostgreSQL";
 }
 
-std::string PostgreSQLConnection::paramMark(unsigned paramIndex)
+String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     snprintf(mark, sizeof(mark), "$%i", paramIndex + 1);

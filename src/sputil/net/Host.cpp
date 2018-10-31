@@ -33,8 +33,11 @@
 using namespace std;
 using namespace sptk;
 
-Host::Host()
-: m_port(0)
+#ifdef _WIN32
+static BaseSocket initializer; // Needed for WinSock2 initialization
+#endif
+
+Host::Host() noexcept
 {
     memset(&m_address, 0, sizeof(m_address));
 }
@@ -47,7 +50,6 @@ Host::Host(const String& hostname, uint16_t port)
 }
 
 Host::Host(const String& hostAndPort)
-: m_port(0)
 {
     RegularExpression matchHost("^(\\[.*\\]|[^\\[\\]:]*)(:\\d+)?");
     Strings matches;

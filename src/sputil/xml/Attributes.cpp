@@ -48,7 +48,7 @@ Attribute::Attribute(Element* parent, const std::string& tagname, Value avalue) 
 }
 
 /// @brief Returns the value of the node
-const String& Attribute::value() const
+const String& Attribute::value() const noexcept
 {
     return m_value;
 }
@@ -56,7 +56,7 @@ const String& Attribute::value() const
 /// @brief Sets new value to node.
 /// @param new_value const std::string &, new value
 /// @see value()
-void Attribute::value(const std::string &new_value)
+void Attribute::value(const std::string &new_value) 
 {
     m_value = new_value;
 }
@@ -64,13 +64,15 @@ void Attribute::value(const std::string &new_value)
 /// @brief Sets new value to node
 /// @param new_value const char *, value to set
 /// @see value()
-void Attribute::value(const char *new_value)
+void Attribute::value(const char *new_value) 
 {
     m_value = new_value;
 }
 
 Attributes& Attributes::operator =(const Attributes& s)
 {
+    if (&s == this)
+        return *this;
     clear();
     for (auto node: s)
         new Attribute(m_parent, node->name(), node->value());
@@ -79,7 +81,7 @@ Attributes& Attributes::operator =(const Attributes& s)
 
 Attribute* Attributes::getAttributeNode(std::string attr)
 {
-    auto itor = findFirst(attr.c_str());
+    const auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (Attribute*) *itor;
     return nullptr;
@@ -87,7 +89,7 @@ Attribute* Attributes::getAttributeNode(std::string attr)
 
 const Attribute* Attributes::getAttributeNode(std::string attr) const
 {
-    auto itor = findFirst(attr.c_str());
+    const auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (const Attribute*) *itor;
     return nullptr;
@@ -95,7 +97,7 @@ const Attribute* Attributes::getAttributeNode(std::string attr) const
 
 Value Attributes::getAttribute(std::string attr, const char *defaultValue) const
 {
-    auto itor = findFirst(attr.c_str());
+    const auto itor = findFirst(attr.c_str());
     if (itor != end())
         return (*itor)->value();
     Value rc;
@@ -106,7 +108,7 @@ Value Attributes::getAttribute(std::string attr, const char *defaultValue) const
 
 void Attributes::setAttribute(std::string attr, Value value, const char *defaultValue)
 {
-    auto itor = findFirst(attr);
+    const auto itor = findFirst(attr);
     if (defaultValue != nullptr && value.str() == defaultValue) {
         if (itor != end()) {
             delete *itor;
@@ -122,6 +124,6 @@ void Attributes::setAttribute(std::string attr, Value value, const char *default
 
 bool Attributes::hasAttribute(std::string attr) const
 {
-    auto itor = findFirst(attr.c_str());
+    const auto itor = findFirst(attr.c_str());
     return itor != end();
 }

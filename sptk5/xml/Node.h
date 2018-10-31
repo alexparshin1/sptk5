@@ -88,7 +88,7 @@ public:
     /**
      * Node name, or '*'
      */
-    const std::string* elementName;
+	const std::string* elementName {nullptr};
 
     /**
      * Criteria
@@ -103,7 +103,7 @@ public:
     /**
      * Attribute name (optional)
      */
-    const std::string* attributeName;
+	const std::string* attributeName {nullptr};
 
     /**
      * Attribute value (optional)
@@ -118,7 +118,7 @@ public:
     /**
      * 0 (not required), -1 (last), or node position
      */
-    int nodePosition;
+	int nodePosition {0};
 
 public:
     /**
@@ -127,10 +127,7 @@ public:
     XPathElement()
     {
         axis = XPA_CHILD;
-        nodePosition = 0;
         attributeValueDefined = false;
-        elementName = NULL;
-        attributeName = NULL;
     }
 
     /**
@@ -286,7 +283,7 @@ protected:
     /**
      * Parent node pointer
      */
-    Node* m_parent;
+	Node* m_parent {nullptr};
 
 
     /**
@@ -295,10 +292,8 @@ protected:
      * @param doc               Node document
      */
     Node(Document& doc)
-    {
-        m_document = &doc;
-        m_parent = 0;
-    }
+	: m_document(&doc)
+	{}
 
     /**
      * @brief Protected constructor - for derived classes
@@ -306,8 +301,8 @@ protected:
      * @param parent            Node document
      */
     Node(Node& parent)
-    {
-        m_document = parent.document();
+	: m_document(parent.document())
+	{
         parent.push_back(this);
     }
 
@@ -705,7 +700,7 @@ class SP_EXPORT NamedItem : public Node
     /**
      * Node name, stored in the parent document SST
      */
-    const std::string* m_name{nullptr};
+    const std::string* m_name {nullptr};
 
 
 protected:
@@ -714,7 +709,7 @@ protected:
      *
      * @param doc a document.
      */
-    NamedItem(Document& doc)
+    explicit NamedItem(Document& doc)
     : Node(doc)
     {
     }
@@ -1073,7 +1068,7 @@ class SP_EXPORT PI : public BaseTextNode
     /**
      * Node name, stored in the parent document SST
      */
-    const std::string* m_name;
+	const std::string* m_name {nullptr};
 
 public:
     /**
@@ -1084,7 +1079,7 @@ public:
      * @param data              Data
      */
     PI(Node& parent, std::string target, const char* data)
-            : BaseTextNode(&parent, data)
+    : BaseTextNode(&parent, data)
     {
         name(target);
     }
@@ -1097,7 +1092,7 @@ public:
      * @param data              Data
      */
     PI(Node* parent, std::string target, const char* data)
-            : BaseTextNode(parent, data)
+    : BaseTextNode(parent, data)
     {
         name(target);
     }
@@ -1110,7 +1105,7 @@ public:
      * @param data              Data
      */
     PI(Node& parent, std::string target, const std::string& data)
-            : BaseTextNode(&parent, data.c_str())
+    : BaseTextNode(&parent, data.c_str())
     {
         name(target);
     }

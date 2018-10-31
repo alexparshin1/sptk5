@@ -29,8 +29,9 @@
 #ifndef __SPTK_TRANSACTION_H__
 #define __SPTK_TRANSACTION_H__
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/Exception.h>
+#include "AutoDatabaseConnection.h"
 
 namespace sptk {
 
@@ -56,14 +57,14 @@ class SP_EXPORT Transaction
     /**
      * Database to work with
      */
-    DatabaseConnection*     m_db;
+    PoolDatabaseConnection*     m_db;
 
 public:
     /**
      * Constructor
      * @param db DatabaseConnection&, the database to work with
      */
-    Transaction(DatabaseConnection& db);
+    explicit Transaction(DatabaseConnection db);
 
     /**
      * Destructor

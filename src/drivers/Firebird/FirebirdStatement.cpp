@@ -40,10 +40,8 @@ class FirebirdStatementField: public DatabaseField
 public:
     // Callback variables
     ISC_SHORT       m_cbNull;
-    //ISC_QUAD        m_blob_id;
     double          m_numericScale;
 
-public:
     FirebirdStatementField(const std::string& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldSize, XSQLVAR& sqlvar) :
         DatabaseField(fieldName, fieldColumn, fieldType & 0xFFFE, dataType, fieldSize),
         m_sqlvar(sqlvar), m_cbNull(0), m_numericScale(1)
@@ -62,9 +60,7 @@ public:
             case SQL_DOUBLE:
                 m_numericScale = exp10(sqlvar.sqlscale);
                 break;
-            case SQL_TEXT:
-            case SQL_BLOB:
-            case SQL_VARYING:
+
             default:
                 setBuffer(nullptr, (size_t) fieldSize + 1);
                 m_sqlvar.sqldata = (ISC_SCHAR*) getBuffer();
@@ -137,10 +133,6 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
     switch (firebirdType) {
 
     case SQL_SHORT:
-        if (firebirdSubtype == 1)
-            return VAR_MONEY;
-        return VAR_INT;
-
     case SQL_LONG:
         if (firebirdSubtype == 1)
             return VAR_MONEY;
@@ -171,8 +163,7 @@ VariantType FirebirdStatement::firebirdTypeToVariantType(int firebirdType, int f
             return VAR_BUFFER;
         return VAR_STRING;
         
-    case SQL_VARYING:
-        // Anything we don't know about - treat as string
+    // Anything we don't know about - treat as string
     default:
         return VAR_STRING;
     }
@@ -235,7 +226,7 @@ void FirebirdStatement::setParameterValues()
                 sqlvar.sqlsubtype = 1;
                 sqlvar.sqllen = sizeof(int64_t);
                 sqlvar.sqldata = (ISC_SCHAR*) &param->getMoney().quantity;
-                sqlvar.sqlscale = -param->getMoney().scale;
+                sqlvar.sqlscale = -(ISC_SHORT) param->getMoney().scale;
                 break;
 
             case VAR_STRING:

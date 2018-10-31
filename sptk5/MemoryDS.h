@@ -83,7 +83,7 @@ protected:
     /**
      * Move constructor is protected, to prevent creating of the instance of that class
      */
-    MemoryDS(MemoryDS&& other)
+    MemoryDS(MemoryDS&& other) noexcept
     : m_list(std::move(other.m_list)), m_current(other.m_current), m_currentIndex(other.m_currentIndex), m_eof(other.m_eof)
     {
         other.m_current = 0;

@@ -34,7 +34,7 @@
 #if HAVE_ODBC == 1
 
 #include <sptk5/db/ODBCEnvironment.h>
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
 namespace sptk {
 
@@ -43,19 +43,14 @@ namespace sptk {
  * @{
  */
 
-class ODBCConnection;
-class Query;
-
 /**
  * @brief ODBC database
  *
  * CODBCConnection is thread-safe connection to ODBC database.
  */
-class SP_DRIVER_EXPORT ODBCConnection: public DatabaseConnection
+class SP_DRIVER_EXPORT ODBCConnection: public PoolDatabaseConnection
 {
     friend class Query;
-
-private:
 
     /**
      * The ODBC connection object
@@ -148,12 +143,10 @@ protected:
      */
     void queryFetch(Query *query) override;
 
-
     /**
      * Converts the native ODBC type into SPTK data type
      */
     static void ODBCtypeToCType(int odbcType, int32_t &ctype, VariantType& dataType);
-
 
     /**
      * Returns the ODBC connection object

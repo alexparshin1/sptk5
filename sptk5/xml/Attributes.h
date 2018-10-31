@@ -86,21 +86,21 @@ public:
     /**
      * @brief Returns the value of the node
      */
-    virtual const String& value() const;
+    const String& value() const noexcept override;
 
     /**
      * @brief Sets new value to node.
      * @param new_value const std::string &, new value
      * @see value()
      */
-    virtual void value(const std::string& new_value);
+    void value(const std::string& new_value) override;
 
     /**
      * @brief Sets new value to node
      * @param new_value const char *, value to set
      * @see value()
      */
-    virtual void value(const char* new_value);
+    void value(const char* new_value) override;
 };
 
 class Node;
@@ -132,7 +132,7 @@ public:
      * The XML attributes object uses the shared strings table (SST) for attribute names
      * @param parent xml::Element*, the parent XML element
      */
-    Attributes(Element* parent)
+    explicit Attributes(Element* parent)
     : m_parent(parent)
     {
     }

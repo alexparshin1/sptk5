@@ -35,8 +35,8 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-OracleConnection::OracleConnection(const string& connectionString) :
-    DatabaseConnection(connectionString),
+OracleConnection::OracleConnection(const String& connectionString) :
+    PoolDatabaseConnection(connectionString),
     m_connection(nullptr)
 {
     m_connType = DCT_ORACLE;
@@ -611,7 +611,7 @@ String OracleConnection::driverDescription() const
     return m_environment.clientVersion();
 }
 
-std::string OracleConnection::paramMark(unsigned paramIndex)
+String OracleConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
     sprintf(mark, ":%i", paramIndex + 1);

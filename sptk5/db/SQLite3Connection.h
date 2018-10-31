@@ -34,7 +34,7 @@
 
 #if HAVE_SQLITE3 == 1
 
-#include <sptk5/db/DatabaseConnection.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sqlite3.h>
 
 namespace sptk {
@@ -43,21 +43,17 @@ namespace sptk {
  * @{
  */
 
-class Query;
-
 /**
  * @brief SQLite3 database
  *
  * CSQLite3Connection is thread-safe connection to SQLite3 database.
  */
-class SP_EXPORT SQLite3Connection: public DatabaseConnection
+class SP_EXPORT SQLite3Connection: public PoolDatabaseConnection
 {
     friend class Query;
 
     typedef sqlite3_stmt * SQLHSTMT;
     typedef sqlite3 * SQLHDBC;
-
-private:
 
     /**
      * The SQLite3 database connection object

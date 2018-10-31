@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
-║                        DatabaseConnection.h - description                    ║
+║                        PoolDatabaseConnection.h - description                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Wednesday November 2 2005                              ║
+║  begin                Sunday October 28 2018                                 ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -46,6 +46,52 @@ namespace sptk {
  */
 
 class Query;
+
+/**
+ * @brief Database connection type
+ */
+enum DatabaseConnectionType : uint16_t {
+    /**
+     * Unknown
+     */
+    DCT_UNKNOWN=0,
+
+    /**
+     * MySQL
+     */
+    DCT_MYSQL=1,
+
+    /**
+     * Oracle
+     */
+    DCT_ORACLE=2,
+
+    /**
+     * PostgreSQL
+     */
+    DCT_POSTGRES=4,
+
+    /**
+     * SQLite3
+     */
+    DCT_SQLITE3=8,
+
+    /**
+     * Firebird
+     */
+    DCT_FIREBIRD=16,
+
+    /**
+     * Generic ODBC
+     */
+    DCT_GENERIC_ODBC=32,
+
+    /**
+     * MS SQL ODBC
+     */
+    DCT_MSSQL_ODBC=64
+
+};
 
 /**
  * @brief Types of the objects for DatabaseConnection::listObjects method
@@ -111,7 +157,7 @@ typedef std::map<std::string,QueryColumnTypeSize> QueryColumnTypeSizeMap;
  * Implements a thread-safe connection to general database. It is used
  * as a base class for actual database driver classes.
  */
-class SP_EXPORT DatabaseConnection
+class SP_EXPORT PoolDatabaseConnection
 {
     typedef std::vector<Query*> CQueryVector;
     friend class Query;
@@ -121,48 +167,6 @@ public:
     * Mutex that protects access to data memebers
     */
     mutable std::mutex    m_mutex;
-
-    /**
-     * @brief Database connection type
-     */
-    enum Type : uint16_t {
-        /**
-         * Unknown
-         */
-        DCT_UNKNOWN=0,
-
-        /**
-         * MySQL
-         */
-        DCT_MYSQL=1,
-
-        /**
-         * Oracle
-         */
-        DCT_ORACLE=2,
-
-        /**
-         * PostgreSQL
-         */
-        DCT_POSTGRES=4,
-
-        /**
-         * SQLite3
-         */
-        DCT_SQLITE3=8,
-
-        /**
-         * Firebird
-         */
-        DCT_FIREBIRD=16,
-
-        DCT_GENERIC_ODBC=32,///< Generic ODBC
-        /**
-         * Generic ODBC
-         */
-        DCT_MSSQL_ODBC=64
-
-    };
 
 protected:
 
@@ -179,7 +183,7 @@ protected:
     /**
      * The connection type
      */
-    Type                        m_connType;
+    DatabaseConnectionType      m_connType;
 
     /**
      * The in-transaction flag
@@ -189,122 +193,120 @@ protected:
     /**
      * Object name for logs and error messages
      */
-    std::string                 m_objectName;
+    String                      m_objectName;
 
 
     /**
      * @brief Attaches (links) query to the database
      */
-    bool linkQuery(Query *q);
+    bool linkQuery(Query* q);
 
     /**
      * @brief Unlinks query from the database
      */
-    bool unlinkQuery(Query *q);
+    bool unlinkQuery(Query* q);
 
-protected:
-    // These methods get access to CQuery's protected members
     /**
      * Sets internal CQuery m_autoPrepare flag
      */
-    void querySetAutoPrep(Query *q, bool pf);
+    void querySetAutoPrep(Query* q, bool pf);
 
     /**
      * Sets internal CQuery statement handle
      */
-    void querySetStmt(Query *q, void *stmt);
+    void querySetStmt(Query* q, void *stmt);
 
     /**
      * Sets internal CQuery connection handle
      */
-    void querySetConn(Query *q, void *conn);
+    void querySetConn(Query* q, void *conn);
 
     /**
      * Sets internal CQuery m_prepared flag
      */
-    void querySetPrepared(Query *q, bool pf);
+    void querySetPrepared(Query* q, bool pf);
 
     /**
      * Sets internal CQuery m_active flag
      */
-    void querySetActive(Query *q, bool af);
+    void querySetActive(Query* q, bool af);
 
     /**
      * Sets internal CQuery m_eof flag
      */
-    void querySetEof(Query *q, bool eof);
+    void querySetEof(Query* q, bool eof);
 
 
     // These methods implement the actions requested by CQuery
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual String queryError(const Query *query) const;
+    virtual String queryError(const Query* query) const;
 
     /**
      * Allocates an ODBC statement
      */
-    virtual void queryAllocStmt(Query *query);
+    virtual void queryAllocStmt(Query* query);
 
     /**
      * Deallocates an ODBC statement
      */
-    virtual void queryFreeStmt(Query *query);
+    virtual void queryFreeStmt(Query* query);
 
     /**
      * Closes an ODBC statement
      */
-    virtual void queryCloseStmt(Query *query);
+    virtual void queryCloseStmt(Query* query);
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query *query);
+    virtual void queryPrepare(Query* query);
 
     /**
      * Unprepares a query if supported by database
      */
-    virtual void queryUnprepare(Query *query);
+    virtual void queryUnprepare(Query* query);
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query *query);
+    virtual void queryExecute(Query* query);
 
     /**
      * Executes unprepared statement
      */
-    virtual void queryExecDirect(Query *query) {}
+    virtual void queryExecDirect(Query* query) {}
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int  queryColCount(Query *query);
+    virtual int  queryColCount(Query* query);
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, int32_t& value);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value);
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query *query, int16_t column, int16_t descType, char *buff, int len);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char *buff, int len);
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query *query);
+    virtual void queryBindParameters(Query* query);
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query *query);
+    virtual void queryOpen(Query* query);
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query *query);
+    virtual void queryFetch(Query* query);
 
 
     /**
@@ -313,15 +315,12 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex unsigned, parameter index in SQL starting from 0
      */
-    virtual std::string paramMark(unsigned paramIndex);
-
-protected:
+    virtual String paramMark(unsigned paramIndex);
 
     /**
      * Driver description is filled by the particular driver.
      */
-    std::string m_driverDescription;
-
+    String  m_driverDescription;
 
     /**
      * @brief Constructor
@@ -331,23 +330,23 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    DatabaseConnection(const std::string& connectionString);
+    explicit PoolDatabaseConnection(const String& connectionString);
 
     /**
      * Stub function to throw an exception in case if the
      * called method isn't implemented in the derived class
      */
-    void notImplemented(const char *methodName) const;
+    void notImplemented(const String& methodName) const;
 
     /**
      * Retrieves internal query handle
      */
-    void *queryHandle(Query *query) const;
+    void *queryHandle(Query* query) const;
 
     /**
      * Sets internal query handle
      */
-    void queryHandle(Query *query, void *handle);
+    void queryHandle(Query* query, void *handle);
 
 
     /**
@@ -431,7 +430,7 @@ public:
      * Closes the database connection and all the connected queries.
      * Releases all the database resources allocated during the connection.
      */
-    virtual ~DatabaseConnection();
+    virtual ~PoolDatabaseConnection();
 
     /**
      * @brief Opens the database connection
@@ -472,7 +471,7 @@ public:
     /**
      * @brief Returns the connection type
      */
-    virtual Type connectionType() const
+    virtual DatabaseConnectionType connectionType() const
     {
         return m_connType;
     }

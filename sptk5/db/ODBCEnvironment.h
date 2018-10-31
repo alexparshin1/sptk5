@@ -60,7 +60,6 @@ namespace sptk
 
 class ODBCEnvironment;
 class ODBCConnectionBase;
-class QueryParameter;
 
 /**
  * @brief ODBC base
@@ -70,12 +69,13 @@ class QueryParameter;
 class SP_DRIVER_EXPORT ODBCBase
 {
 	friend class ODBCConnection;
+
 protected:
 
-	/**
-	 * Mutex that protects access to data memebers
-	 */
-	mutable std::mutex	m_mutex;
+    /**
+     * Mutex that protects access to data memebers
+     */
+    mutable std::mutex	m_mutex;
 
     /**
      * Last RETCODE returned from ODBC function
@@ -133,8 +133,6 @@ class SP_DRIVER_EXPORT ODBCEnvironment : public ODBCBase
 {
     friend class ODBCConnectionBase;
 
-private:
-
     /**
      * ODBC environment handle
      */
@@ -180,8 +178,6 @@ public:
      * @returns ODBC driver error message with the user action
      */
     std::string errorInformation();
-
-public:
 
     /**
      * Destructor
@@ -328,8 +324,6 @@ public:
     {
         transact(SQL_ROLLBACK);
     }
-
-public:
 
     /**
      * Returns the only environment needed

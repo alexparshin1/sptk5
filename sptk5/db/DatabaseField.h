@@ -42,8 +42,6 @@ namespace sptk {
  * @{
  */
 
-class Query;
-
 /**
  * @brief database field
  *
@@ -53,7 +51,9 @@ class Query;
 class SP_EXPORT DatabaseField : public Field
 {
     friend class Query;
+
 protected:
+
     /**
      * Native database data type
      */
@@ -89,11 +89,6 @@ public:
     DatabaseField(
             const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
             int fieldScale = 4);
-
-    /**
-     * Column display name
-     */
-    String          displayName;
 
     /**
      * Column display format

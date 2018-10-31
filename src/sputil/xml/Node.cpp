@@ -121,24 +121,20 @@ static void parsePathElement(Document* document, const string& pathElementStr, X
     if (!criteria.empty()) {
         int& nodePosition = pathElement.nodePosition;
         nodePosition = string2int(pathElement.criteria);
-        if (nodePosition == 0) {
-            if (criteria == "last()")
-                nodePosition = -1;
-        }
+        if (nodePosition == 0 && criteria == "last()")
+            nodePosition = -1;
 
-        if (nodePosition == 0) {
-            if (criteria[0] == '@') {
-                pos = criteria.find('=');
-                if (pos == STRING_NPOS)
-                    pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
-                else {
-                    pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
-                    if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
-                        pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
-                    else
-                        pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
-                    pathElement.attributeValueDefined = true;
-                }
+        if (nodePosition == 0 && criteria[0] == '@') {
+            pos = criteria.find('=');
+            if (pos == STRING_NPOS)
+                pathElement.attributeName = &document->shareString(criteria.c_str() + 1);
+            else {
+                pathElement.attributeName = &document->shareString(criteria.substr(1, pos - 1));
+                if (criteria[pos + 1] == '\'' || criteria[pos + 1] == '"')
+                    pathElement.attributeValue = criteria.substr(pos + 2, criteria.length() - (pos + 3));
+                else
+                    pathElement.attributeValue = criteria.substr(pos + 1, criteria.length() - (pos + 1));
+                pathElement.attributeValueDefined = true;
             }
         }
     }
@@ -202,7 +198,7 @@ void Node::matchNodesThisLevel(NodeVector& nodes, const vector<XPathElement>& pa
     if (pathElement.nodePosition != 0) {
         int matchedPosition;
         if (pathElement.nodePosition < 0)
-            matchedPosition = matchedNodes.size() + pathElement.nodePosition;
+            matchedPosition = int(matchedNodes.size() + pathElement.nodePosition);
         else
             matchedPosition = pathElement.nodePosition - 1;
         if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())
@@ -432,20 +428,17 @@ void Node::save(json::Element& json, string& text) const
     }
 
     if (isPI()) {
-        json.add(name(), value());
+        json.set(name(), value());
         return;
     }
 
-    auto object = new json::Element(new json::ObjectData());
-    json.add(nodeName, object);
-
+    auto object = json.set_object(nodeName);
     if (isElement()) {
         const Attributes& attributes = this->attributes();
         if (!attributes.empty()) {
-            auto attrs = new json::Element(new json::ObjectData());
-            object->add("attributes", attrs);
+            auto attrs = object->set_object("attributes");
             for (auto attributeNode: attributes)
-                attrs->add(attributeNode->name(), attributeNode->value());
+                attrs->set(attributeNode->name(), attributeNode->value());
         }
     }
 
@@ -453,25 +446,24 @@ void Node::save(json::Element& json, string& text) const
         case DOM_TEXT:
         case DOM_CDATA_SECTION:
             if (value().substr(0, 9) == "<![CDATA[" && value().substr(value().length() - 3) == "]]>")
-                *object = json::Element(value().substr(9, value().length() - 12));
+                *object = value().substr(9, value().length() - 12);
             else
-                *object = json::Element(value());
+                *object = value();
             break;
 
         case DOM_COMMENT:
             // output all subnodes
-            object->add("comments", value());
+            object->set("comments", value());
             break;
 
         case DOM_ELEMENT: {
             if (empty()) {
-                *object = json::Element("");
+                *object = "";
             } else {
                 bool done = false;
                 if (size() == 1) {
                     for (auto np: *this)
                         if (np->name() == "null") {
-                            *object = json::Element();
                             done = true;
                         }
                 }
@@ -483,9 +475,9 @@ void Node::save(json::Element& json, string& text) const
                     if (object->isObject() && object->size() == 0) {
                         if (m_document->m_matchNumber.matches(nodeText)) {
                             double value = string2double(nodeText);
-                            *object = json::Element(value);
+                            *object = value;
                         } else
-                            *object = json::Element(nodeText);
+                            *object = nodeText;
                     }
                 }
             }

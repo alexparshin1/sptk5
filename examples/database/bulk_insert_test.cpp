@@ -45,7 +45,7 @@ int main()
         //DatabaseConnectionPool connectionPool("postgresql://localhost/test");
         //DatabaseConnectionPool connectionPool("mysql://localhost/test");
         DatabaseConnectionPool connectionPool("oracle://protis:xxxxx@theater/XE");
-        DatabaseConnection* db = connectionPool.createConnection();
+        DatabaseConnection db = connectionPool.getConnection();
 
         cout << "Openning the database.. ";
         db->open();

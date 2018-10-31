@@ -57,7 +57,7 @@ typedef std::map<String, String, caseInsensitiveCompare> HttpHeaders;
  *
  * Designed to be able accepting asynchronous data
  */
-class HttpReader : public Buffer
+class HttpReader
 {
 public:
     /**
@@ -133,6 +133,11 @@ private:
     RegularExpression   m_matchProtocolAndResponseCode;
 
     /**
+     * Output data buffer
+     */
+    Buffer&             m_output;
+
+    /**
      * Read buffer
      */
     Buffer              m_read_buffer;
@@ -174,8 +179,9 @@ private:
 public:
     /**
      * Constructor
+     * @param output            Output data buffer
      */
-    HttpReader();
+    HttpReader(Buffer& output);
 
     /**
      * Read data that can be read completely

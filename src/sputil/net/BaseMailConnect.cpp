@@ -82,7 +82,7 @@ string ContentTypes::type(const string& fileName)
         extension++;
         if (strlen(extension) > 4)
             return "application/octet-stream";
-        auto itor = m_contentTypes.find(extension);
+        const auto itor = m_contentTypes.find(extension);
         if (itor != m_contentTypes.end())
             return itor->second;
     }
@@ -106,9 +106,9 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     Buffer buffer;
 
     Base64::encode(strDest, bufSource);
-    auto cnt = (uint32_t) strDest.length();
+    const auto cnt = (uint32_t) strDest.length();
     const char* data = strDest.c_str();
-    char line[90];
+	char line[90] {};
     for (uint32_t p = 0; p < cnt; p += LINE_CHARS) {
         uint32_t length = cnt - p;
         if (length > LINE_CHARS) length = LINE_CHARS;

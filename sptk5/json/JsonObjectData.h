@@ -40,6 +40,7 @@ namespace sptk { namespace json {
 /// @{
 
 class Element;
+class Document;
 
 /**
  * Map of names to JSON Element objects
@@ -48,11 +49,13 @@ class ObjectData
 {
     friend class Element;
 
+    Document*                                   m_document;
+
 public:
     /**
      * Type definition: map of element names to elements
      */
-    typedef std::unordered_map<std::string, Element*>     Map;
+    typedef std::unordered_map<const std::string*, Element*> Map;
 
     /**
      * Type definition: map of element names to elements iterator
@@ -87,7 +90,7 @@ public:
      * Constructor
      * @param parent            Parent JSON element
      */
-    explicit ObjectData(Element *parent = nullptr);
+    explicit ObjectData(Document* document, Element* parent = nullptr);
 
     /**
      * Destructor
