@@ -65,6 +65,9 @@ public:
 
 protected:
 
+    /**
+     * Document this object belongs to
+     */
     const Document*         m_document;
 
     /**
@@ -79,7 +82,7 @@ protected:
 
     /**
      * Set parent JSON element for this array
-     * @param parent Element*, Parent JSON element
+     * @param parent            Parent JSON element
      */
     void setParent(Element* parent);
 
@@ -87,7 +90,8 @@ public:
 
     /**
      * Constructor
-     * @param parent Element*, Parent JSON element
+     * @param document          Document this object belongs to
+     * @param parent            Parent JSON element
      */
     explicit ArrayData(const Document* document, Element* parent = NULL);
 
@@ -98,7 +102,7 @@ public:
 
     /**
      * Add JSON element to this array
-     * @param element Element*, JSON element
+     * @param element           JSON element
      */
     void add(Element* element);
 
@@ -106,7 +110,7 @@ public:
      * Add JSON element to this array.
      *
      * JSON element is constructed from value.
-     * @param value (template), JSON element value
+     * @param value             JSON element value
      */
     template <typename T> void add(T value)
     {
@@ -115,19 +119,19 @@ public:
 
     /**
      * Get JSON element from this array by index
-     * @param index size_t, Element index
+     * @param index             Element index
      */
     Element& operator[](size_t index);
 
     /**
      * Get JSON element from this array by index (const version)
-     * @param index size_t, Element index
+     * @param index             Element index
      */
     const Element& operator[](size_t index) const;
 
     /**
      * Remove JSON element from this array by index (const version)
-     * @param index size_t, Element index
+     * @param index             Element index
      */
     void remove(size_t index);
 

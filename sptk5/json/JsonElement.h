@@ -231,36 +231,42 @@ public:
 
     /**
      * Constructor
+     * @param document          Parent document
      * @param value             Floating point value
      */
     Element(Document* document, double value) noexcept;
 
     /**
      * Constructor
+     * @param document          Parent document
      * @param value             Integer value
      */
     Element(Document* document, int value) noexcept;
 
     /**
      * Constructor
+     * @param document          Parent document
      * @param value             Integer value
      */
     Element(Document* document, int64_t value) noexcept;
 
     /**
      * Constructor
+     * @param document          Parent document
      * @param value             String value
      */
     Element(Document* document,const String& value) noexcept;
 
     /**
      * Constructor
+     * @param document          Parent document
      * @param value             String value
      */
     Element(Document* document,const char* value) noexcept;
 
     /**
      * Constructor
+     * @param document          Parent document
      * @param value             Boolean value
      */
     Element(Document* document, bool value) noexcept;
@@ -336,7 +342,6 @@ public:
 
     /**
      * Add array element to JSON array
-     * @param name              Array element name
      * @return Array element
      */
     Element* push_array();
@@ -382,7 +387,6 @@ public:
 
     /**
      * Push null element to JSON array
-     * @param name              Element name
      */
     void push_back()
     {
