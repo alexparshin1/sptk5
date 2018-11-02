@@ -143,12 +143,12 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     message << "Subject: " << m_subject << endl;
 
-    DateTime date = DateTime::Now();
+    const DateTime date = DateTime::Now();
     short dy, dm, dd, wd, yd, th, tm, ts, tms;
     date.decodeDate(&dy, &dm, &dd, &wd, &yd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
-    char dateBuffer[128];
+	char dateBuffer[128] = {};
     const char* sign = "-";
     int offset = DateTime::timeZoneOffset;
     if (offset >= 0)

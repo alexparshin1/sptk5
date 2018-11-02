@@ -179,7 +179,7 @@ public:
      *
      * This method is not thread-safe.
      */
-    void close() override;
+    void close() noexcept override;
 
     /**
      * Returns SSL handle

@@ -52,11 +52,14 @@ void TCPSocketReader::open()
     m_bytes = 0;
 }
 
-void TCPSocketReader::close()
+void TCPSocketReader::close() noexcept
 {
-    reset(1024);
-    m_readOffset = 0;
-    m_bytes = 0;
+	try {
+		reset(1024);
+		m_readOffset = 0;
+		m_bytes = 0;
+	}
+	catch (...) {}
 }
 
 int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
@@ -242,7 +245,7 @@ void TCPSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
         blockingMode(false);
 }
 
-void TCPSocket::close()
+void TCPSocket::close() noexcept
 {
     BaseSocket::close();
     m_reader.close();

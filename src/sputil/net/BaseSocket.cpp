@@ -46,11 +46,11 @@ void BaseSocket::throwSocketError(const String& operation, const char* file, int
 {
     string errorStr;
 #ifdef _WIN32
-    LPCTSTR lpMsgBuf = 0;
-    DWORD dw = GetLastError();
+    LPCTSTR lpMsgBuf = nullptr;
+    const DWORD dw = GetLastError();
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL );
+        nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr );
     if (lpMsgBuf)
         errorStr = lpMsgBuf;
 #else
@@ -60,17 +60,17 @@ void BaseSocket::throwSocketError(const String& operation, const char* file, int
 }
 
 #ifdef _WIN32
-void BaseSocket::init()
+void BaseSocket::init() noexcept
 {
     if (m_inited)
         return;
     m_inited =  true;
-    WSADATA  wsaData;
-    WORD     wVersionRequested = MAKEWORD (2, 0);
+	WSADATA  wsaData = {};
+    const WORD     wVersionRequested = MAKEWORD (2, 0);
     WSAStartup (wVersionRequested, &wsaData);
 }
 
-void BaseSocket::cleanup()
+void BaseSocket::cleanup() noexcept
 {
     m_inited =  false;
     WSACleanup();
@@ -133,7 +133,7 @@ void BaseSocket::blockingMode(bool blocking)
     uint32_t arg = blocking ? 0 : 1;
     control(FIONBIO, &arg);
     u_long arg2 = arg;
-    int rc = ioctlsocket(m_sockfd, FIONBIO, &arg2);
+    const int rc = ioctlsocket(m_sockfd, FIONBIO, &arg2);
 #else
     int flags = fcntl(m_sockfd, F_GETFL);
     if ((flags & O_NONBLOCK) == O_NONBLOCK)
@@ -150,7 +150,7 @@ size_t BaseSocket::socketBytes()
 {
     uint32_t bytes = 0;
 #ifdef _WIN32
-    int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+    const int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
 #else
     int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
@@ -297,7 +297,7 @@ void BaseSocket::listen(uint16_t portNumber)
     open_addr(SOM_BIND, &addr);
 }
 
-void BaseSocket::close()
+void BaseSocket::close() noexcept
 {
     if (m_sockfd != INVALID_SOCKET) {
 #ifndef _WIN32
@@ -357,7 +357,7 @@ size_t BaseSocket::write(const char* buffer, size_t size, const sockaddr_in* pee
     if ((int)size == -1)
         size = strlen(buffer);
 
-    size_t total = size;
+    const size_t total = size;
     auto remaining = (int) size;
     while (remaining > 0) {
         if (peer != nullptr)
@@ -390,7 +390,7 @@ size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 
 bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 {
-    auto timeoutMS = (int) timeout.count();
+    const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -402,7 +402,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     FD_SET(m_sockfd, &inputs);
     FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, &inputs, NULL, &errors, &time);
+    const int rc = select(FD_SETSIZE, &inputs, nullptr, &errors, &time);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
@@ -423,7 +423,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 
 bool BaseSocket::readyToRead(DateTime timeout)
 {
-    auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
+    const auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -435,7 +435,7 @@ bool BaseSocket::readyToRead(DateTime timeout)
     FD_SET(m_sockfd, &inputs);
     FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, &inputs, NULL, &errors, &time);
+    const int rc = select(FD_SETSIZE, &inputs, nullptr, &errors, &time);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
@@ -456,7 +456,7 @@ bool BaseSocket::readyToRead(DateTime timeout)
 
 bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 {
-    auto timeoutMS = (int) timeout.count();
+    const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -468,7 +468,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     FD_SET(m_sockfd, &inputs);
     FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, NULL, &inputs, &errors, &time);
+    const int rc = select(FD_SETSIZE, nullptr, &inputs, &errors, &time);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
@@ -488,7 +488,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
 
 bool BaseSocket::readyToWrite(DateTime timeout)
 {
-	auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
+	const auto timeoutMS = (int) chrono::duration_cast<chrono::milliseconds>(timeout - DateTime::Now()).count();
 #ifdef _WIN32
     struct timeval time;
     time.tv_sec = int32_t (timeoutMS) / 1000;
@@ -500,7 +500,7 @@ bool BaseSocket::readyToWrite(DateTime timeout)
     FD_SET(m_sockfd, &inputs);
     FD_SET(m_sockfd, &errors);
 
-    int rc = select(FD_SETSIZE, NULL, &inputs, &errors, &time);
+    const int rc = select(FD_SETSIZE, nullptr, &inputs, &errors, &time);
     if (rc < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
     if (FD_ISSET(m_sockfd, &errors))
@@ -526,7 +526,7 @@ bool BaseSocket::readyToWrite(DateTime timeout)
 
 void BaseSocket::setOption(int level, int option, int value)
 {
-    socklen_t len = sizeof(int);
+    const socklen_t len = sizeof(int);
     if (setsockopt(m_sockfd, level, option, VALUE_TYPE (&value), len) != 0)
         THROW_SOCKET_ERROR("Can't set socket option");
 }

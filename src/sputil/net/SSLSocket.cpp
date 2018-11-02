@@ -233,7 +233,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
     blockingMode(_blockingMode);
 }
 
-void SSLSocket::close()
+void SSLSocket::close() noexcept
 {
     SSL_set_fd(m_ssl, -1);
     TCPSocket::close();

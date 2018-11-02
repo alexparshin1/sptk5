@@ -45,7 +45,7 @@ public:
      * @param type              Socket type
      * @param protocol          Protocol type
      */
-    AsyncTcpSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+    AsyncTcpSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0) noexcept;
 
     /**
      * Destructor

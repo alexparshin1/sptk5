@@ -100,7 +100,7 @@ public:
     /**
      * Default constructor
      */
-    BaseMailConnect()
+    BaseMailConnect() noexcept
     {
     }
 
@@ -108,7 +108,7 @@ public:
      * Method from() returns the current value of 'FROM:' field of e-mail message.
      * @returns a single e-mail address.
      */
-    String from() const
+    String from() const noexcept
     {
         return m_from;
     }
@@ -119,7 +119,7 @@ public:
      * @param addr should be an e-mail address in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
-    void from(const String& addr)
+    void from(const String& addr) 
     {
         m_from = addr;
     }
@@ -128,7 +128,7 @@ public:
      * Method to() returns the current value of 'TO:' field
      * of e-mail message
      */
-    String to() const
+    String to() const noexcept
     {
         return m_to;
     }
@@ -149,7 +149,7 @@ public:
      * of e-mail message
      * @returns a list of e-mail addresses. See method to() description for format
      */
-    String cc() const
+    String cc() const noexcept
     {
         return m_cc;
     }
@@ -170,7 +170,7 @@ public:
      * of e-mail message.
      * @returns a list of e-mail addresses. See method to() description for format
      */
-    String bcc() const
+    String bcc() const noexcept
     {
         return m_bcc;
     }
@@ -189,7 +189,7 @@ public:
      * Method subject() returns the current value of 'SUBJECT:' field of e-mail message.
      * @returns current message subject
      */
-    String subject() const
+    String subject() const noexcept
     {
         return m_subject;
     }
@@ -207,7 +207,7 @@ public:
      * Method subject() returns the current plain text part of e-mail message.
      * @returns current message plain-text part
      */
-    String body() const
+    String body() const noexcept
     {
         return m_body.text();
     }
@@ -227,7 +227,7 @@ public:
      * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
      * @returns current message list of attachments
      */
-    String attachments() const
+    String attachments() const noexcept
     {
         return m_attachments;
     }
@@ -247,7 +247,7 @@ public:
      * prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
      * @returns reference to current message text
      */
-    const Buffer& messageBuffer() const
+    const Buffer& messageBuffer() const noexcept
     {
         return m_messageBuffer;
     }

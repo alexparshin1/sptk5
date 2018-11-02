@@ -116,7 +116,7 @@ public:
     /**
      * @brief Disconnects the reader from the socket handle, and compacts allocated memory
      */
-    void close();
+    void close() noexcept;
 
     /**
      * @brief Performs the buffered read
@@ -197,7 +197,7 @@ public:
     /**
      * Close socket connection
      */
-    void close() override;
+    void close() noexcept override;
 
     /**
      * @brief In server mode, waits for the incoming connection.

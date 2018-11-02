@@ -140,12 +140,12 @@ protected:
     /**
      * WinSock initialization
      */
-    static void init();
+    static void init() noexcept;
 
     /**
      * WinSock cleanup
      */
-    static void cleanup();
+    static void cleanup() noexcept;
 
 #endif
 
@@ -290,7 +290,7 @@ public:
     /**
      * @brief Closes the socket connection
      */
-    virtual void close();
+    virtual void close() noexcept;
 
     /**
      * @brief Returns the current socket state
@@ -342,7 +342,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = NULL);
+    virtual size_t read(char *buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -353,7 +353,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = NULL);
+    virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * @brief Reads data from the socket into memory buffer
@@ -364,7 +364,7 @@ public:
      * @param from              Optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    virtual size_t read(String& buffer, size_t size, sockaddr_in* from = NULL);
+    virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * @brief Writes data to the socket
@@ -375,7 +375,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = NULL);
+    virtual size_t write(const char *buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
 
     /**
      * @brief Writes data to the socket
@@ -383,7 +383,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = NULL);
+    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * @brief Writes data to the socket
@@ -391,7 +391,7 @@ public:
      * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const String& buffer, const sockaddr_in* peer = NULL);
+    virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * @brief Reports true if socket is ready for reading from it

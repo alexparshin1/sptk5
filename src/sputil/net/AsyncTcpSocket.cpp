@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-AsyncTcpSocket::AsyncTcpSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+AsyncTcpSocket::AsyncTcpSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol) noexcept
 : TCPSocket(domain, type, protocol)
 {
 }
