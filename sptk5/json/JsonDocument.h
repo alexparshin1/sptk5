@@ -154,16 +154,30 @@ public:
 
 protected:
 
+    /**
+     * Return empty const JSON element
+     * @return empty const JSON element reference
+     */
     const Element& getEmptyElement() const
     {
         return m_emptyElement;
     }
 
+    /**
+     * Get shared string matching passed string
+     * @param str               String
+     * @return shared string
+     */
     const std::string* getString(const std::string& str)
     {
         return &m_sharedStrings.shareString(str);
     }
 
+    /**
+     * Get shared string matching passed string
+     * @param str               String
+     * @return shared string
+     */
     const std::string* getString(const char* str)
     {
         return &m_sharedStrings.shareString(str);

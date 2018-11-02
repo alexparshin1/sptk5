@@ -88,6 +88,7 @@ public:
 
     /**
      * Constructor
+     * @param document          Document this object belongs to
      * @param parent            Parent JSON element
      */
     explicit ObjectData(Document* document, Element* parent = nullptr);

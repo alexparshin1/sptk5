@@ -309,6 +309,12 @@ public:
      */
     ~Element();
 
+    /**
+     * Assignment operator (template)
+     * @tparam T                Data type to assign
+     * @param other             Data to assign
+     * @return Reference to self
+     */
     template <typename T> Element& operator = (const T& other)
     {
         Element element(m_document, other);
@@ -721,6 +727,10 @@ public:
      */
     void optimizeArrays(const std::string& name="item");
 
+    /**
+     * Get document this JSON element belongs to.
+     * @return pointer to the owner document
+     */
     Document* getDocument() const;
 };
 
