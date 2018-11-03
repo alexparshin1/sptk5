@@ -510,9 +510,6 @@ void Element::exportValueTo(ostream& stream, bool formatted, size_t indent) cons
         case JDT_NULL:
             stream << "null";
             break;
-
-        default:
-            break;
     }
     stream.flags(saveFlags);
 }
