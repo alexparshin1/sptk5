@@ -136,6 +136,9 @@ namespace sptk {
             }
         };
 
+		/**
+		 * Type definition for timer event
+		 */
         typedef std::shared_ptr<EventData> Event;
 
     protected:
@@ -156,8 +159,8 @@ namespace sptk {
         {}
 
         /**
-         * Constructor
-         * @param callback                  Timer callback function, called when event is up
+         * Copy constructor
+         * @param other                     Timer to copy from
          */
         Timer(const Timer& other) = delete;
 
