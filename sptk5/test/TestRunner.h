@@ -33,13 +33,31 @@
 
 namespace sptk {
 
+/**
+ * GTest run test wrapper
+ */
 class TestRunner
 {
-    int&        m_argc;
-    char**&     m_argv;
+    int&        m_argc;     ///< Reference to command line arguments number
+    char**&     m_argv;     ///< Reference to command line arguments array
 public:
+    /**
+     * Constructor
+     * @param argc              Command line arguments number
+     * @param argv              Command line arguments
+     */
     TestRunner(int& argc, char**& argv);
+
+    /**
+     * Define database connection for DB module that should be tested
+     * @param connectionString
+     */
     void addDatabaseConnection(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Actually run tests
+     * @return 0 if tests were successful
+     */
     int runAllTests();
 };
 
