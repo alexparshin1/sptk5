@@ -34,12 +34,32 @@
 
 namespace sptk {
 
+/**
+ * WSDL message index
+ */
 class WSMessageIndex
 {
+    /**
+     * Mutex that protects internal data
+     */
     mutable std::mutex      m_mutex;
+
+    /**
+     * Map of message name to index
+     */
     std::map<String,int>    m_messageIndex;
 public:
-    WSMessageIndex(const Strings& messages);
+    /**
+     * Constructor
+     * @param messages          Message names
+     */
+    explicit WSMessageIndex(const Strings& messages);
+
+    /**
+     * Get message index by name
+     * @param message           Message name
+     * @return message index
+     */
     int indexOf(const String& message) const;
 };
 

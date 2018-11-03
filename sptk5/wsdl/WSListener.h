@@ -103,7 +103,10 @@ public:
      * @param service               Web Service request processor
      * @param logger                Logger
      * @param staticFilesDirectory  Web Service static files directory
+     * @param indexPage             Index page name
+     * @param wsRequestPage         WSDL request page name
      * @param hostname              This service hostname
+     * @param encrypted             True if communication is encrypted
      */
     WSListener(WSRequest& service, LogEngine& logger, const String& staticFilesDirectory,
                const String& indexPage, const String& wsRequestPage, const String& hostname,

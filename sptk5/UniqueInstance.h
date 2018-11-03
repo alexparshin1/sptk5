@@ -104,6 +104,10 @@ public:
     ~UniqueInstance();
 
 #ifndef _WIN32
+    /**
+     * Return lock file name
+     * @return lock file name
+     */
 	const String& lockFileName() const;
 #endif // _WIN32
 
