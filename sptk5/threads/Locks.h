@@ -37,6 +37,40 @@ typedef std::shared_mutex                   SharedMutex;
 typedef std::unique_lock<std::shared_mutex> UniqueLock;
 typedef std::shared_lock<std::shared_mutex> SharedLock;
 
+typedef std::shared_timed_mutex             SharedTimedMutex;
+
+class UniqueTimedLock
+{
+    SharedTimedMutex&   mutex;
+public:
+    UniqueTimedLock(SharedTimedMutex& mutex, std::chrono::milliseconds timeout)
+    : mutex(mutex)
+    {
+        mutex.try_lock_for(timeout);
+    }
+
+    virtual ~UniqueTimedLock()
+    {
+        mutex.unlock();
+    }
+};
+
+class SharedTimedLock
+{
+    SharedTimedMutex&   mutex;
+public:
+    SharedTimedLock(SharedTimedMutex& mutex, std::chrono::milliseconds timeout)
+    : mutex(mutex)
+    {
+        mutex.try_lock_shared_for(timeout);
+    }
+
+    virtual ~SharedTimedLock()
+    {
+        mutex.unlock_shared();
+    }
+};
+
 } // namespace sptk
 
 #endif //SPTK_LOCKS_H
