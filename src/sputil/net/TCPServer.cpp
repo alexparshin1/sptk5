@@ -52,7 +52,7 @@ uint16_t TCPServer::port() const
 
 void TCPServer::listen(uint16_t port)
 {
-    UniqueLock lock(m_mutex);
+    UniqueLock(m_mutex);
     if (m_listenerThread != nullptr) {
         m_listenerThread->terminate();
         m_listenerThread->join();
@@ -70,16 +70,16 @@ bool TCPServer::allowConnection(sockaddr_in*)
 
 void TCPServer::stop()
 {
-    UniqueLock serverLock(m_mutex);
+    UniqueLock(m_mutex);
     {
-        UniqueLock lock(m_connectionThreadsLock);
+        UniqueLock(m_connectionThreadsLock);
         for (auto connectionThread: m_connectionThreads)
             connectionThread->terminate();
     }
 
     while (true) {
         this_thread::sleep_for(chrono::milliseconds(100));
-        UniqueLock lock(m_connectionThreadsLock);
+        UniqueLock(m_connectionThreadsLock);
         if (m_connectionThreads.empty())
             break;
     }
@@ -102,14 +102,14 @@ void TCPServer::stop()
 
 void TCPServer::registerConnection(ServerConnection* connection)
 {
-    UniqueLock m_sync(m_connectionThreadsLock);
+    UniqueLock(m_connectionThreadsLock);
     m_connectionThreads.insert(connection);
     connection->m_server = this;
 }
 
 void TCPServer::unregisterConnection(ServerConnection* connection)
 {
-    UniqueLock m_sync(m_connectionThreadsLock);
+    UniqueLock(m_connectionThreadsLock);
     m_connectionThreads.erase(connection);
     m_completedConnectionThreads.push(connection);
 }

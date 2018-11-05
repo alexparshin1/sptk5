@@ -105,7 +105,7 @@ public:
      */
     virtual void push_front(const T& data)
     {
-        UniqueLock lock(m_sync);
+        UniqueLock(m_sync);
         m_list->push_front(data);
         m_semaphore.post();
     }
@@ -121,7 +121,7 @@ public:
     virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock lock(m_sync);
+            UniqueLock(m_sync);
             if (!m_list->empty()) {
                 item = m_list->front();
                 m_list->pop_front();
@@ -140,7 +140,7 @@ public:
      */
     virtual void push_back(const T& data)
     {
-        UniqueLock lock(m_sync);
+        UniqueLock(m_sync);
         m_list->push_back(data);
         m_semaphore.post();
     }
@@ -156,7 +156,7 @@ public:
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock lock(m_sync);
+            UniqueLock(m_sync);
             if (!m_list->empty()) {
                 item = m_list->back();
                 m_list->pop_back();
@@ -171,7 +171,7 @@ public:
      */
     virtual void remove(T& item)
     {
-        UniqueLock lock(m_sync);
+        UniqueLock(m_sync);
         m_list->remove(item);
     }
 
@@ -190,7 +190,7 @@ public:
      */
     bool empty() const
     {
-        SharedLock lock(m_sync);
+        SharedLock(m_sync);
         return m_list->empty();
     }
 
@@ -199,7 +199,7 @@ public:
      */
     size_t size() const
     {
-        SharedLock lock(m_sync);
+        SharedLock(m_sync);
         return m_list->size();
     }
 
@@ -208,7 +208,7 @@ public:
      */
     void clear()
     {
-        UniqueLock lock(m_sync);
+        UniqueLock(m_sync);
         m_list->clear();
     }
 
@@ -220,7 +220,7 @@ public:
      */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        UniqueLock lock(m_sync);
+        UniqueLock(m_sync);
         typename std::list<T>::iterator itor;
         for (itor = m_list->begin(); itor != m_list->end(); ++itor) {
             if (!callbackFunction(*itor, data))

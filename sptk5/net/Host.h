@@ -147,7 +147,7 @@ public:
      */
     const String& hostname() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return m_hostname;
     }
 
@@ -166,7 +166,7 @@ public:
      */
     uint16_t port() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return m_port;
     }
 
@@ -183,7 +183,7 @@ public:
      */
     void getAddress(sockaddr_in& address) const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         memcpy(&address, &m_address.ip_v4, sizeof(address));
     }
 
@@ -192,7 +192,7 @@ public:
      */
     void getAddress(sockaddr_in6& address) const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         memcpy(&address, &m_address.ip_v6, sizeof(address));
     }
 };

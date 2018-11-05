@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SSLContext.cpp - description                           ║
+║                       Locks.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Saturday September 22 2018                             ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,80 +26,98 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
-#include <sptk5/Exception.h>
-#include <sptk5/net/SSLContext.h>
-
-// This include must be after SSLContext.h, or it breaks Windows compilation
-#include <openssl/err.h>
-#include <sptk5/Buffer.h>
+#include <sptk5/threads/Locks.h>
+#include <mutex>
 
 using namespace std;
 using namespace sptk;
 
-static int s_server_session_id_context = 1;
-
-void SSLContext::throwError(const String& humanDescription)
+UniqueLockInt::UniqueLockInt(SharedMutex& mutex)
+: mutex(mutex)
 {
-    unsigned long error = ERR_get_error();
-    string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
-    throwException(humanDescription + "\n" + errorStr);
+    mutex.lock();
+    locked = true;
 }
 
-SSLContext::SSLContext()
+UniqueLockInt::UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
+: mutex(mutex)
 {
-    m_ctx = SSL_CTX_new(SSLv23_method());
-    SSL_CTX_set_cipher_list(m_ctx, "ALL");
-    SSL_CTX_set_mode(m_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-    SSL_CTX_set_session_id_context(m_ctx, (const unsigned char*) &s_server_session_id_context, sizeof s_server_session_id_context);
+    if (!mutex.try_lock_for(timeout)) {
+        std::stringstream error;
+        error << "Can't lock for write, " << file << "(" << line << ")";
+        throw TimeoutException(error.str());
+    }
 }
 
-SSLContext::~SSLContext()
+SharedLockInt::SharedLockInt(SharedMutex& mutex)
+: mutex(mutex)
 {
-    UniqueLock(*this);
-    SSL_CTX_free(m_ctx);
+    mutex.lock_shared();
+    locked = true;
 }
 
-SSL_CTX* SSLContext::handle()
+SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line)
+: mutex(mutex)
 {
-    UniqueLock(*this);
-    return m_ctx;
+    if (!mutex.try_lock_shared_for(timeout)) {
+        std::stringstream error;
+        error << "Can't lock for write, " << file << "(" << line << ")";
+        throw TimeoutException(error.str());
+    }
 }
 
-int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
+CopyLockInt::CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex)
+: destinationLock(destinationMutex, defer_lock),
+  sourceLock(sourceMutex, defer_lock)
 {
-    strncpy(replyBuffer, (const char*) userdata, (size_t) replySize);
-    replyBuffer[replySize - 1] = '\0';
-    return (int) strlen(replyBuffer);
+    lock(destinationLock, sourceLock);
 }
 
-void SSLContext::loadKeys(const String& privateKeyFileName, const String& certificateFileName, const String& password,
-                          const String& caFileName, int verifyMode, int verifyDepth)
+CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
+: lock1(mutex1, std::defer_lock),
+  lock2(mutex2, std::defer_lock)
 {
-    UniqueLock(*this);
-
-    m_password = password;
-
-    // Load keys and certificates
-    if (SSL_CTX_use_certificate_chain_file(m_ctx, certificateFileName.c_str()) <= 0)
-        throwError("Can't use certificate file " + certificateFileName);
-
-    // Define password for auto-answer in callback function
-    SSL_CTX_set_default_passwd_cb(m_ctx, passwordReplyCallback);
-    SSL_CTX_set_default_passwd_cb_userdata(m_ctx, (void*) m_password.c_str());
-    if (SSL_CTX_use_PrivateKey_file(m_ctx, privateKeyFileName.c_str(), SSL_FILETYPE_PEM) <= 0)
-        throwError("Can't use private key file " + privateKeyFileName);
-
-    if (SSL_CTX_check_private_key(m_ctx) == 0)
-        throwError("Can't check private key file " + privateKeyFileName);
-
-    // Load the CAs we trust
-    if (!caFileName.empty() && SSL_CTX_load_verify_locations(m_ctx, caFileName.c_str(), nullptr) <= 0)
-        throwError("Can't load or verify CA file " + caFileName);
-
-    if (SSL_CTX_set_default_verify_paths(m_ctx) <= 0)
-        throwError("Can't set default verify paths");
-
-    SSL_CTX_set_verify(m_ctx, verifyMode, nullptr);
-    SSL_CTX_set_verify_depth(m_ctx, verifyDepth);
+    lock(lock1, lock2);
 }
+
+#if USE_GTEST
+#include <gtest/gtest.h>
+
+#include <atomic>
+
+#include <sptk5/threads/Thread.h>
+
+static SharedMutex     amutex;
+
+class TestThread : public Thread
+{
+public:
+    TestThread() : Thread("test")
+    {
+        run();
+    }
+
+    String result;
+
+    void threadFunction() override
+    {
+        try {
+            TimedUniqueLock(amutex, chrono::milliseconds(1000));
+            result = "locked";
+        }
+        catch (const exception& e) {
+            result = e.what();
+        }
+    }
+};
+
+TEST(SPTK_Locks, writeLockAndWait)
+{
+    TimedUniqueLock(amutex, chrono::seconds(2));
+    TestThread      th;
+    this_thread::sleep_for(chrono::seconds(2));
+    th.join();
+    cout << th.result << endl;
+}
+
+#endif

@@ -27,6 +27,8 @@
 */
 
 #include <sptk5/test/TestRunner.h>
+#include <sptk5/threads/Locks.h>
+#include <sptk5/DateTime.h>
 
 using namespace std;
 using namespace sptk;

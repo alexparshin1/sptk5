@@ -93,7 +93,7 @@ public:
      */
     virtual ~SynchronizedQueue()
     {
-        UniqueLock lock(m_mutex);
+        UniqueLock(m_mutex);
         delete m_queue;
     }
 
@@ -107,7 +107,7 @@ public:
      */
     void push(T&& data)
     {
-        UniqueLock lock(m_mutex);
+        UniqueLock(m_mutex);
         m_queue->push(std::move(data));
         m_semaphore.post();
     }
@@ -121,7 +121,7 @@ public:
      */
     void push(const T& data)
     {
-        UniqueLock lock(m_mutex);
+        UniqueLock(m_mutex);
         m_queue->push(data);
         m_semaphore.post();
     }
@@ -137,7 +137,7 @@ public:
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.sleep_for(timeout)) {
-            UniqueLock lock(m_mutex);
+            UniqueLock(m_mutex);
             if (!m_queue->empty()) {
                 item = std::move(m_queue->front());
                 m_queue->pop();
@@ -162,7 +162,7 @@ public:
      */
     bool empty() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return m_queue->empty();
     }
 
@@ -171,7 +171,7 @@ public:
      */
     size_t size() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return m_queue->size();
     }
 
@@ -180,7 +180,7 @@ public:
      */
     void clear()
     {
-        UniqueLock lock(m_mutex);
+        UniqueLock(m_mutex);
         delete m_queue;
         m_queue = new std::queue<T>;
     }
@@ -196,7 +196,7 @@ public:
      */
     bool each(CallbackFunction* callbackFunction, void* data=NULL)
     {
-        UniqueLock lock(m_mutex);
+        UniqueLock(m_mutex);
 
         std::queue<T> newQueue = new std::queue<T>;
 

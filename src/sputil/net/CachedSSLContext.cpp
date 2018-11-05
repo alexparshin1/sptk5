@@ -41,7 +41,7 @@ sptk::SSLContext* CachedSSLContext::get(const sptk::String& keyFileName, const s
 {
     String ident = makeIdent(keyFileName, certificateFileName, password, caFileName, verifyMode, verifyDepth);
 
-    UniqueLock lock(m_mutex);
+    UniqueLock(m_mutex);
 
     auto itor = m_contexts.find(ident);
     if (itor != m_contexts.end())

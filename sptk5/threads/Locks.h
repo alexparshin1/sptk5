@@ -1,7 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       Locs.h - description                                   ║
+║                       Locks.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Saturday September 22 2018                             ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
@@ -29,48 +29,67 @@
 #ifndef __SPTK_LOCKS_H__
 #define __SPTK_LOCKS_H__
 
+#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
 #include <shared_mutex>
 
 namespace sptk {
 
-typedef std::shared_mutex                   SharedMutex;
-typedef std::unique_lock<std::shared_mutex> UniqueLock;
-typedef std::shared_lock<std::shared_mutex> SharedLock;
+typedef std::shared_timed_mutex             SharedMutex;
 
-typedef std::shared_timed_mutex             SharedTimedMutex;
-
-class UniqueTimedLock
+class UniqueLockInt
 {
-    SharedTimedMutex&   mutex;
+    SharedMutex&    mutex;
+    bool            locked {false};
 public:
-    UniqueTimedLock(SharedTimedMutex& mutex, std::chrono::milliseconds timeout)
-    : mutex(mutex)
-    {
-        mutex.try_lock_for(timeout);
-    }
+    UniqueLockInt(SharedMutex& mutex);
+    UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line);
 
-    virtual ~UniqueTimedLock()
+    virtual ~UniqueLockInt()
     {
-        mutex.unlock();
+        if (locked)
+            mutex.unlock();
     }
 };
 
-class SharedTimedLock
+class SharedLockInt
 {
-    SharedTimedMutex&   mutex;
+    SharedMutex&    mutex;
+    bool            locked {false};
 public:
-    SharedTimedLock(SharedTimedMutex& mutex, std::chrono::milliseconds timeout)
-    : mutex(mutex)
-    {
-        mutex.try_lock_shared_for(timeout);
-    }
+    SharedLockInt(SharedMutex& mutex);
+    SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeout, const char* file, size_t line);
 
-    virtual ~SharedTimedLock()
+    virtual ~SharedLockInt()
     {
-        mutex.unlock_shared();
+        if (locked)
+            mutex.unlock_shared();
     }
 };
+
+class CopyLockInt
+{
+    std::unique_lock<SharedMutex>   destinationLock;
+    std::shared_lock<SharedMutex>   sourceLock;
+public:
+    CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex);
+};
+
+class CompareLockInt
+{
+    std::shared_lock<SharedMutex>   lock1;
+    std::shared_lock<SharedMutex>   lock2;
+public:
+    CompareLockInt(SharedMutex& lock1, SharedMutex& lock2);
+};
+
+#define UniqueLock(amutex)                      UniqueLockInt  lock(amutex)
+#define TimedUniqueLock(amutex,timeout)         UniqueLockInt  lock(amutex,timeout,__FILE__,__LINE__)
+#define SharedLock(amutex)                      SharedLockInt  lock(amutex)
+#define TimedSharedLock(amutex,timeout)         SharedLockInt  lock(amutex,timeout,__FILE__,__LINE__)
+#define CompareLock(mutex1,mutex2)              CompareLockInt lock(mutex1, mutex2)
+#define CopyLock(destinationMutex,sourceMutex)  CopyLockInt    lock(destinationMutex, sourceMutex)
 
 } // namespace sptk
 
-#endif //SPTK_LOCKS_H
+#endif

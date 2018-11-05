@@ -95,7 +95,7 @@ public:
      */
     String className() const override
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return "WSComplexType";
     }
 
@@ -104,7 +104,7 @@ public:
      */
     virtual void clear()
     {
-        UniqueLock lock(m_mutex);
+        UniqueLock(m_mutex);
         _clear();
     }
 
@@ -160,7 +160,7 @@ public:
      */
     virtual bool isNull() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return !m_loaded;
     }
 
@@ -169,7 +169,7 @@ public:
      */
     std::string complexTypeName() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return m_name;
     }
 
@@ -178,7 +178,7 @@ public:
      */
     virtual bool isOptional() const
     {
-        SharedLock lock(m_mutex);
+        SharedLock(m_mutex);
         return m_optional;
     }
 };

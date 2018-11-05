@@ -339,7 +339,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Loader from XML element
     classImplementation << "void " << className << "::load(const sptk::xml::Element* input)" << endl
                         << "{" << endl
-                        << "    UniqueLock lock(m_mutex);" << endl
+                        << "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    m_loaded = true;" << endl;
 
@@ -392,9 +392,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                     first = false;
                 else
                     classImplementation << endl;
-                classImplementation << "    if (m_" << requiredElement << ".isNull()) {" << endl;
+                classImplementation << "    if (m_" << requiredElement << ".isNull())" << endl;
                 classImplementation << "        throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
-                classImplementation << "    }" << endl;
             }
         }
     }
@@ -405,7 +404,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Loader from FieldList
     classImplementation << "void " << className << "::load(const sptk::FieldList& input)" << endl
                         << "{" << endl
-                        << "    UniqueLock lock(m_mutex);" << endl
+                        << "    UniqueLock(m_mutex);" << endl
                         << "    _clear();" << endl
                         << "    m_loaded = true;" << endl;
 
@@ -465,9 +464,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                 first = false;
             else
                 classImplementation << endl;
-            classImplementation << "    if (m_" << requiredElement << ".isNull()) {" << endl;
+            classImplementation << "    if (m_" << requiredElement << ".isNull())" << endl;
             classImplementation << "        throw SOAPException(\"Element '" << requiredElement << "' is required in '" << wsClassName(m_name) << "'.\");" << endl;
-            classImplementation << "    }" << endl;
         }
     }
 
@@ -476,7 +474,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Unloader to Element
     classImplementation << "void " << className << "::unload(sptk::xml::Element* output) const" << endl
                         << "{" << endl
-                        << "    SharedLock lock(m_mutex);" << endl;
+                        << "    SharedLock(m_mutex);" << endl;
     if (!m_attributes.empty()) {
         classImplementation << "    // Unload attributes" << endl;
         for (auto itor: m_attributes) {
@@ -500,7 +498,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     // Unloader to ParamList
     classImplementation << "void " << className << "::unload(sptk::QueryParameterList& output) const" << endl
                         << "{" << endl
-                        << "    SharedLock lock(m_mutex);" << endl;
+                        << "    SharedLock(m_mutex);" << endl;
 
     if (!m_attributes.empty()) {
         classImplementation << "    // Unload attributes" << endl;

@@ -67,21 +67,21 @@ Host::Host(const String& hostAndPort)
 Host::Host(const Host& other)
 : m_hostname(other.m_hostname), m_port(other.m_port)
 {
-    SharedLock lock(other.m_mutex);
+    SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
 Host::Host(Host&& other) noexcept
 : m_hostname(move(other.m_hostname)), m_port(other.m_port)
 {
-    SharedLock lock(other.m_mutex);
+    SharedLock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
 Host& Host::operator = (const Host& other)
 {
-    SharedLock lock1(other.m_mutex);
-    UniqueLock lock2(m_mutex);
+    SharedLockInt lock1(other.m_mutex);
+    UniqueLockInt lock2(m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -90,8 +90,7 @@ Host& Host::operator = (const Host& other)
 
 Host& Host::operator = (Host&& other) noexcept
 {
-    SharedLock lock1(other.m_mutex);
-    UniqueLock lock2(m_mutex);
+    CopyLock(m_mutex, other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -100,21 +99,19 @@ Host& Host::operator = (Host&& other) noexcept
 
 bool Host::operator == (const Host& other) const
 {
-    SharedLock lock1(m_mutex);
-    SharedLock lock2(other.m_mutex);
+    CompareLock(m_mutex, other.m_mutex);
     return toString(true) == other.toString(true);
 }
 
 bool Host::operator != (const Host& other) const
 {
-    SharedLock lock1(m_mutex);
-    SharedLock lock2(other.m_mutex);
+    CompareLock(m_mutex, other.m_mutex);
     return toString(true) != other.toString(true);
 }
 
 void Host::setPort(uint16_t p)
 {
-    UniqueLock lock(m_mutex);
+    UniqueLock(m_mutex);
 	m_port = p;
 	switch (m_address.any.sa_family) {
 	case AF_INET:
@@ -137,7 +134,7 @@ void Host::getHostAddress()
 	if (host_info == nullptr)
 		BaseSocket::throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
 
-    UniqueLock lock(m_mutex);
+    UniqueLock(m_mutex);
     memset(&m_address, 0, sizeof(m_address));
 	m_address.any.sa_family = host_info->h_addrtype;
 
@@ -158,16 +155,20 @@ void Host::getHostAddress()
     //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
     hints.ai_protocol = 0;
 
-    UniqueLock lock1(getaddrinfoMutex);
-
     struct addrinfo* result;
-    int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
-    if (rc != 0)
-        throw Exception(gai_strerror(rc));
+    {
+        UniqueLock(getaddrinfoMutex);
 
-    UniqueLock lock2(m_mutex);
-    memset(&m_address, 0, sizeof(m_address));
-    memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
+        int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
+        if (rc != 0)
+            throw Exception(gai_strerror(rc));
+    }
+
+    {
+        UniqueLock(m_mutex);
+        memset(&m_address, 0, sizeof(m_address));
+        memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
+    }
 
     freeaddrinfo(result);
 #endif
@@ -175,7 +176,7 @@ void Host::getHostAddress()
 
 String Host::toString(bool forceAddress) const
 {
-    SharedLock lock(m_mutex);
+    SharedLock(m_mutex);
     std::stringstream str;
 
 	if (m_hostname.empty())

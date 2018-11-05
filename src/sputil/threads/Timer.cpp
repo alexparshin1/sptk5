@@ -278,7 +278,7 @@ vector<int> eventData(MAX_EVENT_COUNTER);
 
 static void gtestTimerCallback2(void* eventData)
 {
-    UniqueLock lock(eventCounterMutex);
+    UniqueLock(eventCounterMutex);
     size_t eventIndex = size_t(eventData);
     eventCounter[eventIndex]++;
 }
@@ -306,7 +306,7 @@ TEST(SPTK_Timer, repeat_multiple_events)
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
-            UniqueLock lock(eventCounterMutex);
+            UniqueLock(eventCounterMutex);
             totalEvents += eventCounter[eventIndex];
         }
 
@@ -338,7 +338,7 @@ TEST(SPTK_Timer, repeat_multiple_timers)
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; eventIndex++) {
-            UniqueLock lock(eventCounterMutex);
+            UniqueLock(eventCounterMutex);
             totalEvents += eventCounter[eventIndex];
         }
 
