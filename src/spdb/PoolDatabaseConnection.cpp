@@ -28,7 +28,6 @@
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
-#include "../../sptk5/String.h"
 
 using namespace std;
 using namespace sptk;
