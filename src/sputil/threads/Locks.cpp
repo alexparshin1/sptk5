@@ -47,6 +47,8 @@ UniqueLockInt::UniqueLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
         error << "Can't lock for write, " << file << "(" << line << ")";
         throw TimeoutException(error.str());
     }
+    else
+        locked = true;
 }
 
 SharedLockInt::SharedLockInt(SharedMutex& mutex)
@@ -64,6 +66,8 @@ SharedLockInt::SharedLockInt(SharedMutex& mutex, std::chrono::milliseconds timeo
         error << "Can't lock for write, " << file << "(" << line << ")";
         throw TimeoutException(error.str());
     }
+    else
+        locked = true;
 }
 
 CopyLockInt::CopyLockInt(SharedMutex& destinationMutex, SharedMutex& sourceMutex)
