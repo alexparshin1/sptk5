@@ -79,16 +79,15 @@ public:
 
     /**
      * Constructor
-     * @param fieldName std::string, field name
-     * @param fieldColumn int, field column number
-     * @param fieldType int, database field type
-     * @param dataType VariantType, variant data type
-     * @param fieldLength int, database field length
-     * @param fieldScale int, database field scale
+     * @param fieldName			Field name
+     * @param fieldColumn		Field column number
+     * @param fieldType			Database field type
+     * @param dataType			Variant data type
+     * @param fieldLength		Database field length
+     * @param fieldScale		Database field scale
      */
-    DatabaseField(
-            const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
-            int fieldScale = 4);
+    DatabaseField(const String& fieldName, int fieldColumn, int fieldType, VariantType dataType, int fieldLength,
+				  int fieldScale = 4);
 
     /**
      * Column display format
@@ -110,19 +109,18 @@ public:
      * @brief Checks the internal buffer size
      *
      * The internal buffer is automatically extended to fit the required size of data
-     * @param sz uint32_t, data size (in bytes)
-     * @returns true if success
+     * @param sz				Data size (in bytes)
      */
-    bool checkSize(uint32_t sz);
+    void checkSize(size_t sz);
 
     /**
      * @brief Sets the internal data size
      *
      * The internal buffer is not modified, only the data size is set.
-     * @param sz uint32_t, data size (in bytes)
+     * @param sz				Data size (in bytes)
      */
 
-    void setDataSize(uint32_t sz)
+    void setDataSize(size_t sz)
     {
         dataSize(sz);
     }

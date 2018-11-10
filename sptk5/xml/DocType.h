@@ -57,7 +57,7 @@ class DocType
     /**
      * The buffer used to return replacement literals
      */
-    char m_replacementBuffer[16];
+	char m_replacementBuffer[16] {};
 
     /**
      * Encode buffers

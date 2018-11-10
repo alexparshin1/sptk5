@@ -85,35 +85,35 @@ enum XPathAxis
 class SP_EXPORT XPathElement
 {
 public:
-    /**
-     * Node name, or '*'
-     */
-	const std::string* elementName {nullptr};
+	/**
+	 * Node name, or '*'
+	 */
+	const std::string* elementName{ nullptr };
 
-    /**
-     * Criteria
-     */
-    std::string criteria;
+	/**
+	 * Criteria
+	 */
+	std::string criteria;
 
-    /**
-     * Axis
-     */
-    XPathAxis axis;
+	/**
+	 * Axis
+	 */
+	XPathAxis axis {XPA_CHILD};
 
-    /**
-     * Attribute name (optional)
-     */
-	const std::string* attributeName {nullptr};
+	/**
+	 * Attribute name (optional)
+	 */
+	const std::string* attributeName{ nullptr };
 
-    /**
-     * Attribute value (optional)
-     */
-    std::string attributeValue;
+	/**
+	 * Attribute value (optional)
+	 */
+	std::string attributeValue;
 
-    /**
-     * true if attribute value was defined
-     */
-    bool attributeValueDefined;
+	/**
+	 * true if attribute value was defined
+	 */
+	bool attributeValueDefined {0};
 
     /**
      * 0 (not required), -1 (last), or node position

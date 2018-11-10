@@ -66,19 +66,19 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
     case VAR_STRING:
         setString("");
-        checkSize((uint32_t)fieldLength + 1);
+        checkSize((size_t)fieldLength + 1);
         view.width = fieldLength;
         break;
 
     case VAR_TEXT:
         setText("");
-        checkSize((uint32_t)fieldLength + 1);
+        checkSize((size_t)fieldLength + 1);
         view.width = fieldLength;
         break;
 
     case VAR_BUFFER:
         setBuffer("", 1);
-        checkSize((uint32_t)fieldLength);
+        checkSize((size_t)fieldLength);
         view.width = 1;
         break;
 
@@ -96,21 +96,20 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
     default:
         setString("");
-        checkSize((uint32_t)fieldLength + 1);
+        checkSize((size_t)fieldLength + 1);
         view.width = fieldLength;
         break;
     }
 }
 
-bool DatabaseField::checkSize(unsigned sz)
+void DatabaseField::checkSize(size_t sz)
 {
     if (sz > m_data.buffer.size) {
-        unsigned newSize = (sz / 16 + 1) * 16;
+        size_t newSize = (sz / 16 + 1) * 16;
         auto p = (char *) realloc(m_data.buffer.data, newSize + 1);
         if (p == nullptr)
             throw DatabaseException("Can't reallocate a buffer");
         m_data.buffer.data = p;
         m_data.buffer.size = newSize;
     }
-    return true;
 }

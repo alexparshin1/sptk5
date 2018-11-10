@@ -161,10 +161,7 @@ public:
     /**
      * Default constructor
      */
-    Strings() noexcept
-    {
-        m_userData = 0;
-    }
+    Strings() noexcept {}
 
     /**
      * Copy constructor
@@ -191,7 +188,6 @@ public:
      * @param mode              Delimiter string usage
      */
     Strings(const String& src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
-    : m_userData(0)
     {
         try {
             fromString(src.c_str(), delimiter, mode);
@@ -208,7 +204,6 @@ public:
      * @param mode              Delimiter string usage
      */
     Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
-    : m_userData(0)
     {
         clear();
         try {

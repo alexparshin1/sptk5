@@ -120,14 +120,14 @@ void QueryParameterList::enumerate(CParamVector& params)
     if (m_items.empty())
         return;
 
-    uint32_t maxIndex = 0;
+    size_t maxIndex = 0;
 
     for (ptor = m_items.begin(); ptor != m_items.end(); ++ptor) {
         QueryParameter* param = *ptor;
         IntList& bindIndex = param->m_bindParamIndexes;
 
         for (btor = bindIndex.begin(); btor != bindIndex.end(); ++btor) {
-            uint32_t index = *btor;
+            size_t index = *btor;
 
             if (index >= params.size())
                 params.resize(index + 1);

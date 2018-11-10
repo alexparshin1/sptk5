@@ -505,7 +505,7 @@ struct CodeLocation {
   CodeLocation(const string& a_file, int a_line) : file(a_file), line(a_line) {}
 
   string file;
-  int line;
+  int line {0};
 };
 
 // Creates a new TestInfo object and registers it with Google Test;

@@ -54,27 +54,27 @@ public:
     /**
      * Statement handle or id
      */
-    void*        m_stmt;
+	void*        m_stmt {nullptr};
 
     /**
      * Data type
      */
-    VariantType  m_dataType;
+	VariantType  m_dataType {VAR_NONE};
 
     /**
      * Buffer
      */
-    void*        m_buffer;
+	void*        m_buffer {nullptr};
 
     /**
      * Buffer size
      */
-    uint32_t     m_size;
+	uint32_t     m_size {0};
 
     /**
      * Output parameter flag
      */
-    bool         m_output;
+	bool         m_output {false};
 
     /**
      * Constructor

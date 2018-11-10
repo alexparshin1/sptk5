@@ -85,7 +85,7 @@ QueryParameter& QueryParameter::operator = (const Variant& param)
 
 void QueryParameter::setString(const char * value, size_t maxlen)
 {
-    uint32_t valueLength;
+    size_t valueLength;
     uint32_t dtype = VAR_STRING;
     if (maxlen != 0)
         valueLength = (uint32_t) maxlen;

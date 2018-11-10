@@ -184,7 +184,7 @@ public:
      * Allocates memory if needed.
      * @param sz size_t, required memory size
      */
-    void checkSize(size_t sz)
+    virtual void checkSize(size_t sz)
     {
         if (sz > m_capacity)
             adjustSize(sz);
