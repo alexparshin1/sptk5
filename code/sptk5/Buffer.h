@@ -148,7 +148,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~Buffer()
+    virtual ~Buffer()
     {
         if (m_buffer)
             free(m_buffer);
