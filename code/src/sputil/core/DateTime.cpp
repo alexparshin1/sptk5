@@ -344,7 +344,9 @@ void DateTime::encodeDate(time_point& dt, const char* dat)
         dt = time_point();
         return;
     }
-    short month = 0, day = 0, year = 0;
+    short month = 0;
+    short day = 0;
+    short year = 0;
     if (actualDateSeparator != dateSeparator && datePart[0] > 31) {
         // YYYY-MM-DD format
         year = datePart[0];
@@ -426,12 +428,12 @@ int decodeTZOffset(const char* tzOffset)
             break;
     }
     char* p1 = strchr(p, ':');
-    int hours, minutes = 0;
+    int minutes = 0;
     if (p1 != nullptr) {
         *p1 = 0;
         minutes = string2int(p1 + 1);
     }
-    hours = string2int(p);
+    int hours = string2int(p);
     return sign * (hours * 60 + minutes);
 }
 
@@ -878,22 +880,40 @@ short DateTime::day() const
 
 short DateTime::month() const
 {
-    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
+    short y = 0;
+    short m = 0;
+    short d = 0;
+    short wd = 0;
+    short yd = 0;
+
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
+
     return m;
 }
 
 short DateTime::year() const
 {
-    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
+    short y = 0;
+    short m = 0;
+    short d = 0;
+    short wd = 0;
+    short yd = 0;
+
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
+
     return y;
 }
 
 short DateTime::dayOfWeek() const
 {
-    short y = 0, m = 0, d = 0, wd = 0, yd = 0;
+    short y = 0;
+    short m = 0;
+    short d = 0;
+    short wd = 0;
+    short yd = 0;
+
     decodeDate(m_dateTime, y, m, d, wd, yd, false);
+
     return short(wd + 1);
 }
 
@@ -984,9 +1004,15 @@ TEST(SPTK_DateTime, add)
 
 TEST(SPTK_DateTime, extractDate)
 {
-    short year, month, day, wday, yday;
+    short year;
+    short month;
+    short day;
+    short wday;
+    short yday;
+
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     dateTime.decodeDate(&year, &month, &day, &wday, &yday, true);
+
     EXPECT_EQ(2018, year);
     EXPECT_EQ(8, month);
     EXPECT_EQ(7, day);
@@ -996,9 +1022,14 @@ TEST(SPTK_DateTime, extractDate)
 
 TEST(SPTK_DateTime, extractTime)
 {
-    short hour, minute, second, ms;
+    short hour;
+    short minute;
+    short second;
+    short ms;
+
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     dateTime.decodeTime(&hour, &minute, &second, &ms, true);
+    
     EXPECT_EQ(11, hour);
     EXPECT_EQ(22, minute);
     EXPECT_EQ(33, second);

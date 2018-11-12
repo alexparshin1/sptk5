@@ -295,10 +295,9 @@ bool DirectoryDS::open()
     clear();
 
     size_t dlen = m_directory.length() - 1;
-    if (dlen) {
-        if (m_directory[dlen] != slash)
-            m_directory += slash;
-    }
+    if (dlen != 0 && m_directory[dlen] != slash)
+        m_directory += slash;
+
 #ifdef _WIN32
     WIN32_FIND_DATA FindFileData;
     HANDLE hFind = FindFirstFile((m_directory + "*.*").c_str(), &FindFileData);
@@ -327,7 +326,7 @@ bool DirectoryDS::open()
             n++;
             continue;
         }
-        auto file = (char *) files[n]->d_name;
+        auto* file = (char *) files[n]->d_name;
 #endif
 
         size_t len = strlen(file);
@@ -390,7 +389,7 @@ bool DirectoryDS::open()
             useEntry = (showPolicy() & DDS_HIDE_FILES) == 0;
 
         if (useEntry) {
-            auto df = new FieldList(false);
+            auto* df = new FieldList(false);
             df->push_back(" ", false).setImageNdx(pixmapType);
             df->push_back("Name", false) = file;
             if (modeName == "Directory")
