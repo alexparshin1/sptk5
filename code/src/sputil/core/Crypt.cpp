@@ -127,16 +127,21 @@ TEST(SPTK_Crypt, encrypt)
 {
     Buffer encrypted;
     string encryptedStr;
+
     Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
     Base64::encode(encryptedStr, encrypted);
+
     EXPECT_STREQ(encryptedB64, encryptedStr.c_str());
 }
 
 TEST(SPTK_Crypt, decrypt)
 {
-    Buffer encrypted, decrypted;
+    Buffer encrypted;
+    Buffer decrypted;
+
     Base64::decode(encrypted, encryptedB64);
     Crypt::decrypt(decrypted, encrypted, testKey, testIV);
+
     EXPECT_STREQ(testText, decrypted.c_str());
 }
 
