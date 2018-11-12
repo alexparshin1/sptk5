@@ -53,7 +53,7 @@ FieldList::FieldList(const FieldList& other)
         m_index = nullptr;
 
     for (auto otherField: other) {
-        auto field = new Field(*otherField);
+        auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
             (*m_index)[field->fieldName()] = field;
@@ -97,7 +97,7 @@ Field& FieldList::push_back(const char *fname, bool checkDuplicates)
     if (duplicate)
         throw Exception("Attempt to duplicate field name");
 
-    auto field = new Field(fname);
+    auto* field = new Field(fname);
 
     m_list.push_back(field);
 
