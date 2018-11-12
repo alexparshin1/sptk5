@@ -144,7 +144,7 @@ Buffer::Buffer(Buffer&& other) noexcept
 void Buffer::adjustSize(size_t sz)
 {
     size_t newSize = sz / 3 * 4 + 16;
-    auto p = (char*) realloc(m_buffer, newSize + 1);
+    auto* p = (char*) realloc(m_buffer, newSize + 1);
 
     if (p == nullptr)
         throw Exception("Can't reallocate a buffer");
@@ -208,7 +208,7 @@ void Buffer::fill(char c, size_t count)
 void Buffer::reset(size_t sz)
 {
     if (sz != 0) {
-        auto p = (char*)realloc(m_buffer, sz + 1);
+        auto* p = (char*)realloc(m_buffer, sz + 1);
 
         if (p == nullptr)
             throw Exception("Can't reallocate a buffer");

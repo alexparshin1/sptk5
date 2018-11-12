@@ -121,7 +121,8 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     size_t in_len = encoded_string.size();
     int i = 0;
     int in_ = 0;
-	uint8_t char_array_4[4] {}, char_array_3[3] {};
+	uint8_t char_array_4[4] {};
+	uint8_t char_array_3[3] {};
 
     dest.reset();
 

@@ -89,7 +89,10 @@ bool CommandLine::CommandLineElement::hasValue() const
     return false;
 }
 
-void CommandLine::CommandLineElement::validate(const String& value) const { }
+void CommandLine::CommandLineElement::validate(const String& value) const
+{
+    // Abstract element
+}
 
 String CommandLine::CommandLineElement::printableName() const
 {
@@ -275,7 +278,7 @@ void CommandLine::defineOption(const String& fullName, const String& shortName, 
     if (fullName.empty() && shortName.empty())
         return;
 
-    auto optionTemplate = new CommandLineOption(fullName, shortName, useForCommands, help);
+    auto* optionTemplate = new CommandLineOption(fullName, shortName, useForCommands, help);
     m_allElements.push_back(optionTemplate);
     if (!fullName.empty())
         m_optionTemplates[fullName] = optionTemplate;
@@ -290,7 +293,7 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
     if (fullName.empty() && shortName.empty())
         return;
 
-    auto argumentTemplate = new CommandLineParameter(fullName, shortName, valueName, validateValue,
+    auto* argumentTemplate = new CommandLineParameter(fullName, shortName, valueName, validateValue,
         useForCommands, help);
     m_allElements.push_back(argumentTemplate);
 
@@ -314,7 +317,7 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
 void CommandLine::defineArgument(const String& fullName, const String& helpText)
 {
     if (!fullName.empty()) {
-        auto argumentTemplate = new CommandLineArgument(fullName, helpText);
+        auto* argumentTemplate = new CommandLineArgument(fullName, helpText);
         m_allElements.push_back(argumentTemplate);
         m_argumentTemplates[fullName] = argumentTemplate;
     }
@@ -328,26 +331,25 @@ void CommandLine::init(int argc, const char* argv[])
 
     // Pre-process command line arguments
     Strings arguments;
-    string quote, quotedString;
-    for (auto arg : args) {
+    String quote;
+    String quotedString;
+    for (auto& arg : args) {
         if (quote.empty()) {
             if (startsWith(arg, "'")) {
                 quote = arg.substr(0, 1);
                 quotedString = arg.substr(1);
-                if (endsWith(quotedString, quote)) {
+                if (quotedString.endsWith(quote)) {
                     quotedString = quotedString.substr(0, arg.length() - 1);
                     arguments.push_back(quotedString);
                     quote = "";
                     quotedString = "";
                 }
             }
-            else {
+            else
                 arguments.push_back(arg);
-                continue;
-            }
         }
         else {
-            if (endsWith(arg, quote)) {
+            if (arg.endsWith(quote)) {
                 arg = arg.substr(0, arg.length() - 1);
                 quote = "";
                 quotedString += " " + arg;
@@ -360,7 +362,7 @@ void CommandLine::init(int argc, const char* argv[])
 
     // Re-write arguments
     Strings digestedArgs;
-    for (const String& arg : arguments) {
+    for (auto& arg : arguments) {
         if (startsWith(arg, "--")) {
             // Full option name
             if (arg.startsWith("--gtest_"))
