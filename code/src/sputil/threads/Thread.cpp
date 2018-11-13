@@ -103,11 +103,11 @@ bool Thread::sleep_until(DateTime timestamp)
 #if USE_GTEST
 #include <gtest/gtest.h>
 
-class TestThread: public Thread
+class ThreadTestThread: public Thread
 {
     atomic_int  m_counter;
 public:
-    explicit TestThread(const String& threadName)
+    explicit ThreadTestThread(const String& threadName)
     : Thread(threadName), m_counter(0)
     {}
 
@@ -124,7 +124,7 @@ public:
 
 TEST(SPTK_Thread, run)
 {
-    TestThread testThread("Test Thread");
+    ThreadTestThread testThread("Test Thread");
     testThread.run();
     this_thread::sleep_for(chrono::milliseconds(250));
     testThread.terminate();

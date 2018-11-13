@@ -134,5 +134,8 @@ namespace sptk {
 	#define strncasecmp _strnicmp
 #endif
 
+#if USE_GTEST
+#include <gtest/gtest.h>
 #endif
 
+#endif

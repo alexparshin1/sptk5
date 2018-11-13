@@ -172,7 +172,6 @@ size_t Base64::decode(Buffer &bufDest, const string& strSource)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const char* testPhrase = "This is a test";
 static const char* testPhraseBase64 = "VGhpcyBpcyBhIHRlc3Q=";

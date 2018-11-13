@@ -91,26 +91,26 @@ CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
 
 #include <sptk5/threads/Thread.h>
 
-static SharedMutex     amutex;
+static SharedMutex  amutex;
 
-class TestThread : public Thread
+class LockTestThread : public Thread
 {
 public:
-    TestThread() : Thread("test")
-    {
-        run();
-    }
+    String       aresult;
 
-    String result;
+    LockTestThread()
+    : Thread("test")
+    {
+    }
 
     void threadFunction() override
     {
         try {
             TimedUniqueLock(amutex, chrono::milliseconds(1000));
-            result = "locked";
+            aresult = "locked";
         }
         catch (const exception& e) {
-            result = e.what();
+            aresult = "lock timeout";
         }
     }
 };
@@ -118,10 +118,11 @@ public:
 TEST(SPTK_Locks, writeLockAndWait)
 {
     TimedUniqueLock(amutex, chrono::seconds(2));
-    TestThread      th;
+    LockTestThread th;
+    th.run();
     this_thread::sleep_for(chrono::seconds(2));
     th.join();
-    cout << th.result << endl;
+    //cout << aresult << endl;
 }
 
 #endif

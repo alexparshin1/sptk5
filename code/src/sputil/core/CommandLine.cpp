@@ -89,7 +89,7 @@ bool CommandLine::CommandLineElement::hasValue() const
     return false;
 }
 
-void CommandLine::CommandLineElement::validate(const String& value) const
+void CommandLine::CommandLineElement::validate(const String&) const
 {
     // Abstract element
 }
@@ -323,7 +323,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
     }
 }
 
-void CommandLine::init(int argc, const char* argv[])
+Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
 {
     Strings args;
     for (int i = 1; i < argc; i++)
@@ -359,6 +359,12 @@ void CommandLine::init(int argc, const char* argv[])
                 quotedString += " " + arg;
         }
     }
+    return arguments;
+}
+
+void CommandLine::init(int argc, const char* argv[])
+{
+    Strings arguments = preprocessArguments(argc, argv);
 
     // Re-write arguments
     Strings digestedArgs;

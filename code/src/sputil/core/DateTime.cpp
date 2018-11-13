@@ -103,10 +103,12 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     while (isalnum(*ptr) != 0 || *ptr == ' ')
         ptr++;
     separator[0] = *ptr;
-    ptr = strtok(dt, separator);
+
+    char* save_ptr = nullptr;
+    ptr = strtok_r(dt, separator, &save_ptr);
+
     strcpy(format, "");
 
-    //bool processingTime = false;
     const char* pattern;
     while (ptr != nullptr) {
         int number = string2int(ptr);
@@ -146,13 +148,11 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
             strcat(format, pattern);
             strcat(format, separator);
         }
-        ptr = strtok(nullptr, separator);
+        ptr = strtok_r(nullptr, separator, &save_ptr);
     }
     len = (int) strlen(format);
     if (len != 0)
         format[len - 1] = 0;
-    //if (processingTime && _time24Mode)
-    //    strcat(format, "TM");
 
     return separator[0];
 }
@@ -235,12 +235,13 @@ void DateTimeFormat::init() noexcept
 
     time_t ts = time(nullptr);
     char buf[16];
-    struct tm *ltime = localtime(&ts);
-    strftime(buf, sizeof(buf), "%z", ltime);
+    struct tm ltime {};
+    localtime_r(&ts, &ltime);
+    strftime(buf, sizeof(buf), "%z", &ltime);
     int offset = string2int(buf);
     int minutes = offset % 100;
     int hours = offset / 100;
-    DateTime::isDaylightSavingsTime = ltime->tm_isdst == -1? 0 : ltime->tm_isdst;
+    DateTime::isDaylightSavingsTime = ltime.tm_isdst == -1? 0 : ltime.tm_isdst;
     DateTime::timeZoneOffset = hours * 60 + minutes;
 }
 

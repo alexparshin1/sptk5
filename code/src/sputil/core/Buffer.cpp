@@ -353,7 +353,6 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const char* testPhrase = "This is a test";
 static const char* tempFileName = "/tmp/gtest_sptk5_buffer.tmp";

@@ -510,6 +510,14 @@ public:
      * @brief Prints program version
      */
     void printVersion() const;
+
+    /**
+     * Preprocess command line arguments
+     * @param argc              Number of command line arguments
+     * @param argv              Command line arguments
+     * @return preprocessed command line arguments
+     */
+    Strings preprocessArguments(int argc, const char* const* argv);
 };
 
 /**
