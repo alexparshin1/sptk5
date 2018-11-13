@@ -34,24 +34,83 @@
 
 namespace sptk {
 
+/**
+ * Common operations used by database-related unit tests
+ */
 class DatabaseTests
 {
+    /**
+     * Connection strings for which tests will be executed
+     */
     std::map<String, DatabaseConnectionString> m_connectionStrings;
 
+    /**
+     * Get number of rows in table
+     * @param db            Database connection
+     * @param table         Database table
+     * @return number of rows in table
+     */
     size_t countRowsInTable(DatabaseConnection db, const String& table);
 public:
+    /**
+     * Constructor
+     */
     DatabaseTests();
+
+    /**
+     * Add database connection to future tests.
+     * Only one connection string is allowed per database type (driver name).
+     * @param connectionString Database connection string
+     */
     void addDatabaseConnection(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Get list of added database connections
+     * @return list of added database connections
+     */
     std::vector<DatabaseConnectionString> connectionStrings() const;
+
+    /**
+     * Get connection string for database type (driver name).
+     * @param driverName        Driver name
+     * @return connection string
+     */
     DatabaseConnectionString connectionString(const String& driverName) const;
 
+    /**
+     * Test database connection
+     * @param connectionString Database connection string
+     */
     void testConnect(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test basic DDL statements
+     * @param connectionString Database connection string
+     */
     void testDDL(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test parametrized queries
+     * @param connectionString Database connection string
+     */
     void testQueryParameters(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test transaction
+     * @param connectionString Database connection string
+     */
     void testTransaction(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test bulk insert operation
+     * @param connectionString Database connection string
+     */
     void testBulkInsert(const DatabaseConnectionString& connectionString);
 };
 
+/**
+ * Global database tests collection
+ */
 extern DatabaseTests databaseTests;
 
 }
