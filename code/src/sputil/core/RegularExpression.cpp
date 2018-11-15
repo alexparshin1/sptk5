@@ -230,14 +230,8 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         string nextReplacement;
         replaced = true;
         while (pos != string::npos) {
-            size_t placeHolderStart = pos;
-            for (;; placeHolderStart++) {
-                placeHolderStart = outputPattern.find('\\', placeHolderStart);
-                if (placeHolderStart == string::npos)
-                    break;
-                if (isdigit(outputPattern[placeHolderStart + 1]))
-                    break;
-            }
+            size_t placeHolderStart = findNextPlaceholder(pos, outputPattern);
+
             if (placeHolderStart == string::npos) {
                 nextReplacement += outputPattern.substr(pos);
                 break;
@@ -266,6 +260,19 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
     } while (offset);
 
     return result + text.substr(lastOffset);
+}
+
+size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPattern) const
+{
+    size_t placeHolderStart = pos;
+    for (;; placeHolderStart++) {
+            placeHolderStart = outputPattern.find('\\', placeHolderStart);
+            if (placeHolderStart == string::npos)
+                break;
+            if (isdigit(outputPattern[placeHolderStart + 1]))
+                break;
+        }
+    return placeHolderStart;
 }
 
 String RegularExpression::replaceAll(const String& text, const map<String, String>& substitutions, bool& replaced) const
@@ -348,10 +355,25 @@ TEST(SPTK_RegularExpression, match)
     EXPECT_FALSE(match1 != String(testPhrase));
 }
 
-TEST(SPTK_RegularExpression, replase)
+TEST(SPTK_RegularExpression, replace)
 {
     RegularExpression match1("^(.*)(text).*(verify)(.*)");
     EXPECT_STREQ("This is a test expression to test MD5 algorithm", match1.s(testPhrase, "\\1expression to test\\4").c_str());
+}
+
+TEST(SPTK_RegularExpression, replaceAll)
+{
+    map<String,String> substitutions = {
+            { "$NAME", "John Doe" },
+            { "$CITY", "London" },
+            { "$YEAR", "2000" }
+    };
+
+    RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
+    String text = "$NAME was in $CITY in $YEAR ";
+    bool  replaced(false);
+    String result = matchPlaceholders.replaceAll(text, substitutions, replaced);
+    EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
 TEST(SPTK_RegularExpression, extract)

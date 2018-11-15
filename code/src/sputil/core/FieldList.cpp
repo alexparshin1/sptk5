@@ -52,7 +52,7 @@ FieldList::FieldList(const FieldList& other)
     else
         m_index = nullptr;
 
-    for (auto otherField: other) {
+    for (auto* otherField: other) {
         auto* field = new Field(*otherField);
         m_list.push_back(field);
         if (m_index)
@@ -68,7 +68,7 @@ FieldList::~FieldList()
 
 void FieldList::clear()
 {
-    for (auto field: *this)
+    for (auto* field: *this)
         delete field;
     m_list.clear();
     if (m_index)
@@ -77,25 +77,11 @@ void FieldList::clear()
 
 Field& FieldList::push_back(const char *fname, bool checkDuplicates)
 {
-    bool duplicate = false;
     if (checkDuplicates) {
-        if (m_index) {
-            auto itor = m_index->find(fname);
-            if (itor != m_index->end())
-                duplicate = true;
-        }
-        else {
-            try {
-                Field *pfld = fieldByName(fname);
-                duplicate = (pfld != nullptr);
-            }
-            catch (...) {
-            }
-        }
+        Field *pfld = findField(fname);
+        if (pfld != nullptr)
+            throw Exception("Attempt to duplicate field name");
     }
-
-    if (duplicate)
-        throw Exception("Attempt to duplicate field name");
 
     auto* field = new Field(fname);
 
@@ -117,7 +103,7 @@ Field& FieldList::push_back(Field *field)
     return *field;
 }
 
-Field *FieldList::fieldByName(const char *fname) const
+Field *FieldList::findField(const char* fname) const
 {
     if (m_index) {
         Map::const_iterator itor = m_index->find(fname);
@@ -125,17 +111,17 @@ Field *FieldList::fieldByName(const char *fname) const
             return itor->second;
     }
     else {
-        for (auto field: *this) {
+        for (auto* field: *this) {
             if (strcmp(field->m_name.c_str(), fname) == 0)
                 return field;
         }
     }
-    throw Exception("Field name '" + std::string(fname) + "' not found");
+    return nullptr;
 }
 
 void FieldList::toXML(xml::Node& node) const
 {
-    for (auto field: *this)
+    for (auto* field: *this)
         field->toXML(node, m_compactXmlMode);
 }
 

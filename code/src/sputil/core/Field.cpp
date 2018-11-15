@@ -100,31 +100,11 @@ String Field::asString() const
 #endif
             return String(print_buffer, len);
 
-        case VAR_FLOAT: {
-            char formatString[10];
-            snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
-            len = snprintf(print_buffer, sizeof(print_buffer), formatString, m_data.floatData);
-            return String(print_buffer, len);
-        }
+        case VAR_FLOAT:
+            return doubleDataToString(print_buffer, sizeof(print_buffer));
 
-        case VAR_MONEY: {
-            char    format[32];
-            int64_t absValue;
-            char* formatPtr = format;
-
-            if (m_data.moneyData.quantity < 0) {
-                *formatPtr = '-';
-                formatPtr++;
-                absValue = -m_data.moneyData.quantity;
-            } else
-                absValue = m_data.moneyData.quantity;
-
-            snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
-            int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
-            int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-            len = snprintf(print_buffer, sizeof(print_buffer) - 1, format, intValue, fraction);
-            return String(print_buffer, len);
-        }
+        case VAR_MONEY:
+            return moneyDataToString(print_buffer, sizeof(print_buffer));
 
         case VAR_STRING:
         case VAR_TEXT:
@@ -153,6 +133,34 @@ String Field::asString() const
         default:
             throw Exception("Can't convert field for that type");
     }
+}
+
+String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const
+{
+    char    format[32];
+    int64_t absValue;
+    char* formatPtr = format;
+
+    if (m_data.moneyData.quantity < 0) {
+        *formatPtr = '-';
+        formatPtr++;
+        absValue = -m_data.moneyData.quantity;
+    } else
+        absValue = m_data.moneyData.quantity;
+
+    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
+    int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
+    int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
+    int len = snprintf(printBuffer, printBufferSize - 1, format, intValue, fraction);
+    return String(printBuffer, len);
+}
+
+String Field::doubleDataToString(char* printBuffer, size_t printBufferSize) const
+{
+    char formatString[10];
+    snprintf(formatString, sizeof(formatString), "%%0.%if", view.precision);
+    int len = snprintf(printBuffer, printBufferSize, formatString, m_data.floatData);
+    return String(printBuffer, len);
 }
 
 void Field::toXML(xml::Node& node, bool compactXmlMode) const

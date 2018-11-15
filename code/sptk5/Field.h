@@ -270,6 +270,12 @@ public:
      * @param compactXmlMode     Compact XML mode flag
      */
     void toXML(xml::Node& node, bool compactXmlMode) const;
+
+private:
+
+    String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
+
+    String moneyDataToString(char* printBuffer, size_t printBufferSize) const;
 };
 /**
  * @}

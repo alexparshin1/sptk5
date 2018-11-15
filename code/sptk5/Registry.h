@@ -109,7 +109,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~Registry();
+    virtual ~Registry() = default;
 
     /**
      * @brief Sets the registry file name

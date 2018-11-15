@@ -84,7 +84,6 @@ bool fl_file_match(const char *s, const char *p)
                     if (*p == '-' && last) {
                         if (*s <= *++p && *s >= last)
                             matched = true;
-                        //last = 0;
                     } else {
                         if (*s == *p)
                             matched = true;
@@ -447,7 +446,6 @@ bool DirectoryDS::open()
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 #ifdef _WIN32
 	const String testTempDirectory = "C:\\gtest_temp_dir";
@@ -455,9 +453,11 @@ bool DirectoryDS::open()
 	const String testTempDirectory = "/tmp/gtest_temp_dir";
 #endif
 
-struct TempDirectory
+class TempDirectory
 {
+public:
     String  m_path;
+
     explicit TempDirectory(const String& path)
     : m_path(path)
     {

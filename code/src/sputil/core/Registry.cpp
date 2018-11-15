@@ -28,24 +28,23 @@
 
 #include <sptk5/Registry.h>
 #include <sptk5/SystemException.h>
-#include <sys/stat.h>
 
 using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <windows.h>
-    #include <io.h>
-    #include <direct.h>
+#include <winsock2.h>
+#include <windows.h>
+#include <io.h>
+#include <direct.h>
 
-    #define S_ISLNK(m)      (false)
-    #define S_ISEXEC(m)     (((m) & _S_IEXEC) == _S_IEXEC)
-    #if !defined(__UNIX_COMPILER__) && !defined(__BORLANDC__)
-        #define S_ISREG(m)      (((m) & _S_IFREG) == _S_IFREG)
-        #define S_ISDIR(m)      (((m) & _S_IFDIR) == _S_IFDIR)
-        #define S_ISBLK(m)      (((m) & _S_IFBLK) == _S_IFBLK)
-    #endif
+#define S_ISLNK(m)      (false)
+#define S_ISEXEC(m)     (((m) & _S_IEXEC) == _S_IEXEC)
+#if !defined(__UNIX_COMPILER__) && !defined(__BORLANDC__)
+#define S_ISREG(m)      (((m) & _S_IFREG) == _S_IFREG)
+#define S_ISDIR(m)      (((m) & _S_IFDIR) == _S_IFDIR)
+#define S_ISBLK(m)      (((m) & _S_IFBLK) == _S_IFBLK)
+#endif
 #endif
 
 //----------------------------------------------------------------------------
@@ -87,7 +86,7 @@ String Registry::homeDirectory()
 }
 
 Registry::Registry(const String& fileName, const String& _programGroupName, RegistryMode mode)
-: xml::Document("Configuration"), m_fileName(fileName)
+        : xml::Document("Configuration"), m_fileName(fileName)
 {
     String programGroupName(_programGroupName);
     if (!m_fileName.empty()) {
@@ -105,11 +104,6 @@ Registry::Registry(const String& fileName, const String& _programGroupName, Regi
         m_fileName = directory + m_fileName;
     }
     m_fileName = m_fileName.replace("[\\/\\\\]+", "/");
-}
-
-Registry::~Registry()
-{
-    clear();
 }
 
 void Registry::prepareDirectory()

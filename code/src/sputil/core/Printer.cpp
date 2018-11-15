@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SharedStrings.cpp - description                        ║
+║                       Printer.cpp - description                              ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday November 14 2018                              ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,56 +26,28 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-#include <sptk5/SharedStrings.h>
+#include "sptk5/Printer.h"
 
 using namespace std;
 using namespace sptk;
 
-SharedStrings::SharedStrings()
+mutex   Printer::m_mutex;
+Printer sptk::__stdout(stdout);
+Printer sptk::__stderr(stderr);
+
+Printer::Printer(FILE* stream)
+: m_stream(stream)
 {
-    shareString("");
 }
 
-const std::string* SharedStrings::findString(const char *str) const
+void Printer::print(const String& text)
 {
-    string s(str);
-    auto itor = m_strings.find(s);
-    if (itor == m_strings.end()) 
-        return nullptr;
-    return &(*itor);
+    lock_guard<mutex> lock(m_mutex);
+    fprintf(m_stream, "%s", text.c_str());
 }
 
-const string& SharedStrings::shareString(const char* str)
+void Printer::println(const String& text)
 {
-    string s(str);
-    auto itor = m_strings.find(s);
-    if (itor == m_strings.end()) {
-        pair<Set::iterator, bool> insertResult = m_strings.insert(s);
-        itor = insertResult.first;
-    }
-    return *itor;
+    lock_guard<mutex> lock(m_mutex);
+    fprintf(m_stream, "%s\n", text.c_str());
 }
-
-void SharedStrings::clear()
-{
-    m_strings.clear();
-    shareString("");
-}
-
-#if USE_GTEST
-#include <gtest/gtest.h>
-
-TEST(SPTK_SharedStrings, match)
-{
-    SharedStrings strings;
-    strings.shareString("This");
-    strings.shareString("is");
-    strings.shareString("a");
-    strings.shareString("test");
-
-    EXPECT_STREQ("This", strings.findString("This")->c_str());
-    EXPECT_STREQ("test", strings.findString("test")->c_str());
-}
-
-#endif

@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/CommandLine.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -141,12 +142,12 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     for (const string& helpRow : helpText) {
         if (firstRow) {
             snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), printableName().c_str(), helpRow.c_str());
-            cout << rowBuffer << endl;
+            COUT(rowBuffer << endl);
             firstRow = false;
         }
         else {
             snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", helpRow.c_str());
-            cout << rowBuffer << endl;
+            COUT(rowBuffer << endl);
         }
     }
 
@@ -157,7 +158,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
             printDefaultValue = "'" + optionDefaultValue + "'";
         string defaultValueStr = "The default value is " + printDefaultValue + ".";
         snprintf(rowBuffer, sizeof(rowBuffer), printFormat.c_str(), "", defaultValueStr.c_str());
-        cout << rowBuffer << endl;
+        COUT(rowBuffer << endl);
     }
 }
 //=============================================================================
@@ -362,11 +363,8 @@ Strings CommandLine::preprocessArguments(int argc, const char* const* argv)
     return arguments;
 }
 
-void CommandLine::init(int argc, const char* argv[])
+Strings CommandLine::rewriteArguments(const Strings& arguments)
 {
-    Strings arguments = preprocessArguments(argc, argv);
-
-    // Re-write arguments
     Strings digestedArgs;
     for (auto& arg : arguments) {
         if (startsWith(arg, "--")) {
@@ -388,6 +386,13 @@ void CommandLine::init(int argc, const char* argv[])
 
         digestedArgs.push_back(arg);
     }
+    return digestedArgs;
+}
+
+void CommandLine::init(int argc, const char* argv[])
+{
+    Strings arguments = preprocessArguments(argc, argv);
+    Strings digestedArgs = rewriteArguments(arguments);
 
     for (unsigned i = 0; i < digestedArgs.size(); i++) {
         String arg = digestedArgs[i];
@@ -452,9 +457,10 @@ const Strings& CommandLine::arguments() const
 
 void CommandLine::printLine(const String& ch, size_t count)
 {
+    stringstream line;
     for (size_t i = 0; i < count; i++)
-        cout << ch;
-    cout << endl;
+        line << ch;
+    COUT(line.str() << endl);
 }
 
 void CommandLine::printHelp(size_t screenColumns) const
@@ -465,21 +471,21 @@ void CommandLine::printHelp(size_t screenColumns) const
 void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end()) {
-        cerr << "Command '" << onlyForCommand << "' is not defined" << endl;
+        CERR("Command '" << onlyForCommand << "' is not defined" << endl);
         return;
     }
 
-    cout << m_programVersion << endl;
+    COUT(m_programVersion << endl);
     printLine("═", screenColumns);
-    cout << m_description << endl;
+    COUT(m_description << endl);
 
-    cout << "\nSyntax:" << endl;
+    COUT("\nSyntax:" << endl);
     printLine("─", screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
     if (!onlyForCommand.empty())
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
-    cout << commandLinePrototype << endl;
+    COUT(commandLinePrototype << endl);
 
     // Find out space needed for command and option names
     size_t nameColumns = 10;
@@ -517,24 +523,19 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     size_t helpTextColumns = screenColumns - (nameColumns + 2);
     if ((int)helpTextColumns < 10) {
-        cerr << "Can't print help information - the screen width is too small" << endl;
+        CERR("Can't print help information - the screen width is too small" << endl);
         return;
     }
 
-    if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
-        cout << "\nCommands:" << endl;
-        printLine("─", screenColumns);
-        for (const String& commandName : sortedCommands) {
-            auto ator = m_argumentTemplates.find(commandName);
-            const CommandLineArgument* commandTemplate = ator->second;
-            if (!onlyForCommand.empty() && commandName != onlyForCommand)
-                continue;
-            commandTemplate->printHelp(nameColumns, helpTextColumns, "");
-        }
-    }
+    printCommands(onlyForCommand, screenColumns, nameColumns, sortedCommands, helpTextColumns);
+    printOptions(onlyForCommand, screenColumns, nameColumns, sortedOptions, helpTextColumns);
+}
 
+void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
+                               const Strings& sortedOptions, size_t helpTextColumns) const
+{
     if (!m_optionTemplates.empty()) {
-        cout << "\nOptions:" << endl;
+        COUT("\nOptions:" << endl);
         printLine("─", screenColumns);
         for (const String& optionName : sortedOptions) {
             auto itor = m_optionTemplates.find(optionName);
@@ -552,13 +553,28 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
 }
 
+void CommandLine::printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
+                                const Strings& sortedCommands, size_t helpTextColumns) const
+{
+    if (onlyForCommand.empty() && !m_argumentTemplates.empty()) {
+        COUT("\nCommands:" << endl);
+        printLine("─", screenColumns);
+        for (const String& commandName : sortedCommands) {
+            auto ator = m_argumentTemplates.find(commandName);
+            const CommandLineArgument* commandTemplate = ator->second;
+            if (!onlyForCommand.empty() && commandName != onlyForCommand)
+                continue;
+            commandTemplate->printHelp(nameColumns, helpTextColumns, "");
+        }
+    }
+}
+
 void CommandLine::printVersion() const
 {
-    cout << m_programVersion << endl;
+    COUT(m_programVersion << endl);
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const char* testCommandLineArgs[] = { "testapp", "connect", "--host", "ahostname", "-p", "12345", "--verbose",
                                              nullptr };

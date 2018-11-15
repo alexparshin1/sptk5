@@ -202,7 +202,22 @@ public:
      * @param fname             Field name
      * @returns CField pointer, or 0L if not found
      */
-    Field* fieldByName(const char * fname) const;
+    Field* findField(const char * fname) const;
+
+    /**
+     * Finds a field by the field name
+     *
+     * Fast field lookup using std::map.
+     * @param fname             Field name
+     * @returns CField pointer, or throw exception not found
+     */
+    Field* fieldByName(const char * fname) const
+    {
+        Field* field = findField(fname);
+        if (field == nullptr)
+            throw Exception("Field name '" + std::string(fname) + "' not found");
+        return field;
+    }
 
     /**
      * Field access by field index, non-const version

@@ -205,6 +205,9 @@ public:
      * @return processed text
      */
     sptk::String replaceAll(const sptk::String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const;
+
+private:
+    size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
 };
 
 /**

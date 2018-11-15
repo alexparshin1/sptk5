@@ -94,7 +94,7 @@ public:
         PF_GMT = 16
     };
 
-    protected:
+protected:
 
     /**
      * @brief Internal decode date operation into year, month, and day
@@ -148,6 +148,23 @@ public:
     {
         return ((year&3) == 0 && year%100) || ((year%400) == 0);
     }
+
+    /**
+     * Split date string to components
+     * @param bdat                  Date string
+     * @param datePart              Date components (output)
+     * @param actualDateSeparator   Date separator (output)
+     * @return
+     */
+    static short splitDateString(char* bdat, short* datePart, char& actualDateSeparator);
+
+    /**
+     * Split timee string to components
+     * @param bdat                  Time string
+     * @param timePart              Time components (output)
+     * @return
+     */
+    static short splitTimeString(char* bdat, short* timePart);
 
 protected:
 
@@ -208,6 +225,7 @@ public:
     */
     static int timeZoneOffset;
 
+
     /**
     * Daylight savings time 0 or 1
     */
@@ -215,10 +233,9 @@ public:
 
     /**
     * Set timezone for the application
-    * @param tzname             Time zone name, such as "UTC", ":US/Pacific", etc
+    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
     */
-    static void setTimeZone(const sptk::String& tzname);
-
+    static void setTimeZone(const sptk::String& timeZoneName);
 
 public:
 

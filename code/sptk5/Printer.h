@@ -1,9 +1,9 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       SharedStrings.cpp - description                        ║
+║                       Printer.h - description                                ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
+║  begin                Thursday November 14 2018                              ║
 ║  copyright            (C) 1999-2018 by Alexey Parshin. All rights reserved.  ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -25,57 +25,33 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
+#ifndef __SCREEN_STREAM_H__
+#define __SCREEN_STREAM_H__
 
-#include <sptk5/sptk.h>
-#include <sptk5/SharedStrings.h>
+#include <sptk5/String.h>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <mutex>
 
-using namespace std;
-using namespace sptk;
+namespace sptk {
 
-SharedStrings::SharedStrings()
+class Printer
 {
-    shareString("");
-}
+    static std::mutex   m_mutex;
+    FILE*               m_stream;
+public:
+    Printer(FILE* stream);
+    void print(const String& text);
+    void println(const String& text);
+};
 
-const std::string* SharedStrings::findString(const char *str) const
-{
-    string s(str);
-    auto itor = m_strings.find(s);
-    if (itor == m_strings.end()) 
-        return nullptr;
-    return &(*itor);
-}
+extern Printer __stdout;
+extern Printer __stderr;
 
-const string& SharedStrings::shareString(const char* str)
-{
-    string s(str);
-    auto itor = m_strings.find(s);
-    if (itor == m_strings.end()) {
-        pair<Set::iterator, bool> insertResult = m_strings.insert(s);
-        itor = insertResult.first;
-    }
-    return *itor;
-}
+#define COUT(a) { std::stringstream _printstream; _printstream << a; __stdout.print(_printstream.str().c_str()); }
+#define CERR(a) { std::stringstream _printstream; _printstream << a; __stderr.print(_printstream.str().c_str()); }
 
-void SharedStrings::clear()
-{
-    m_strings.clear();
-    shareString("");
-}
-
-#if USE_GTEST
-#include <gtest/gtest.h>
-
-TEST(SPTK_SharedStrings, match)
-{
-    SharedStrings strings;
-    strings.shareString("This");
-    strings.shareString("is");
-    strings.shareString("a");
-    strings.shareString("test");
-
-    EXPECT_STREQ("This", strings.findString("This")->c_str());
-    EXPECT_STREQ("test", strings.findString("test")->c_str());
 }
 
 #endif

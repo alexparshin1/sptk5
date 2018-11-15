@@ -413,7 +413,29 @@ protected:
      */
     static void printLine(const String& ch, size_t count);
 
+    /**
+     * Print help on commands
+     * @param onlyForCommand    Optional: if not empty then print only this command help
+     * @param screenColumns     Screen width in columns
+     * @param nameColumns       Number of columns for command names
+     * @param sortedCommands    Sorted command list
+     * @param helpTextColumns   Number of columns for help text
+     */
+    void printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
+                       const Strings& sortedCommands, size_t helpTextColumns) const;
+
+    /**
+     * Print help on options
+     * @param onlyForCommand    Optional: if not empty then print only this command help
+     * @param screenColumns     Screen width in columns
+     * @param nameColumns       Number of columns for option names
+     * @param sortedOptions     Sorted option list
+     * @param helpTextColumns   Number of columns for help text
+     */
+    void printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns, const Strings& sortedOptions,
+                      size_t helpTextColumns) const;
 public:
+
     /**
      * @brief Constructor
      * @param programVersion        Program version and copyright message (forhelp only).
@@ -518,6 +540,13 @@ public:
      * @return preprocessed command line arguments
      */
     Strings preprocessArguments(int argc, const char* const* argv);
+
+    /**
+     * Re-write command line arguments
+     * @param arguments         Command line arguments
+     * @return re-written command line arguments
+     */
+    Strings rewriteArguments(const Strings& arguments);
 };
 
 /**

@@ -30,6 +30,9 @@
 #include <sptk5/Crypt.h>
 #include <openssl/conf.h>
 #include <openssl/evp.h>
+#if USE_GTEST
+#include <sptk5/Base64.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -115,8 +118,6 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const std::string& key, con
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/Base64.h>
 
 static const char* testText = "The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const char* testKey = "01234567890123456789012345678901";
