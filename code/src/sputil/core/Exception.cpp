@@ -181,6 +181,9 @@ HTTPException::HTTPException(size_t statusCode, const String& text, const String
             case 451:
                 m_statusText = "Unavailable For Legal Reasons";
                 break;
+            default:
+                m_statusText = "Status undefined";
+                break;
         }
     } else {
         switch (statusCode) {
