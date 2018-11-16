@@ -449,6 +449,73 @@ FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index
     return df;
 }
 
+std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& wildcard)
+{
+    String regexpStr;
+    bool groupStarted = false;
+    bool charClassStarted = false;
+    for (size_t pos = 0; pos < wildcard.length(); pos++) {
+        char ch = wildcard[pos];
+
+        if (charClassStarted) {
+            switch (ch) {
+                case '!':
+                    ch = '^';
+                    break;
+                case ']':
+                    charClassStarted = false;
+                    break;
+                default:
+                    break;
+            }
+            regexpStr += ch;
+            continue;
+        }
+
+        switch (ch) {
+            case '{':
+                groupStarted = true;
+                ch = '(';
+                break;
+            case ',':
+                if (groupStarted)
+                    ch = '|';
+                break;
+            case '}':
+                if (groupStarted) {
+                    groupStarted = false;
+                    ch = ')';
+                }
+                break;
+            case '\\':
+                regexpStr += ch;
+                pos++;
+                if (pos < wildcard.length())
+                    regexpStr += wildcard[pos];
+                break;
+            case '?':
+                ch = '.';
+                break;
+            case '*':
+                regexpStr += ".";
+                break;
+            case '[':
+                charClassStarted = true;
+                break;
+            case '(':
+            case ')':
+            case '+':
+            case '.':
+                regexpStr += "\\";
+                break;
+            default:
+                break;
+        }
+        regexpStr += ch;
+    }
+    return make_shared<RegularExpression>(regexpStr);
+}
+
 #if USE_GTEST
 
 #ifdef _WIN32
@@ -512,6 +579,21 @@ TEST (SPTK_DirectoryDS, open)
 
     EXPECT_EQ(size_t(5), files.size());
     EXPECT_EQ(10, files["file1"]);
+}
+
+TEST (SPTK_DirectoryDS, patternToRegexp)
+{
+    auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
+    EXPECT_STREQ("[abc]..", regexp->pattern().c_str());
+
+    regexp = DirectoryDS::wildcardToRegexp("[!a-f][c-z].doc");
+    EXPECT_STREQ("[^a-f][c-z]\\.doc", regexp->pattern().c_str());
+
+    regexp = DirectoryDS::wildcardToRegexp("{full,short}.*");
+    EXPECT_STREQ("(full|short)\\..*", regexp->pattern().c_str());
+
+    regexp = DirectoryDS::wildcardToRegexp("{full,short?}.*");
+    EXPECT_STREQ("(full|short.)\\..*", regexp->pattern().c_str());
 }
 
 TEST (SPTK_DirectoryDS, patterns)

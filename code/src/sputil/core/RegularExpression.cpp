@@ -334,6 +334,11 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
     return replaceAll(text, outputPattern, replaced);
 }
 
+const String& RegularExpression::pattern() const
+{
+    return m_pattern;
+}
+
 #if USE_GTEST
 
 static const char* testPhrase = "This is a test text to verify MD5 algorithm";

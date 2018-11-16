@@ -29,6 +29,7 @@
 #ifndef __SPTK_DIRECTORYDS_H__
 #define __SPTK_DIRECTORYDS_H__
 
+#include <memory>
 #include <sys/stat.h>
 #include <sptk5/MemoryDS.h>
 #include <sptk5/Strings.h>
@@ -194,8 +195,14 @@ public:
      */
     virtual bool open();
 
-private:
+    /**
+     * Creates regular expression from wildcard
+     * @param wildcard          Wilcard
+     * @return regular expression object
+     */
+    static std::shared_ptr<RegularExpression> wildcardToRegexp(const String& wildcard);
 
+private:
     FieldList* makeFileListEntry(const struct stat& st, unsigned& index, char* file, bool is_link, const std::string& fullName) const;
 };
 /**

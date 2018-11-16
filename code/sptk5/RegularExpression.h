@@ -45,12 +45,12 @@ namespace sptk {
  */
 
 /**
- * @brief PCRE-type regular expressions
+ * PCRE-type regular expressions
  */
 class SP_EXPORT RegularExpression
 {
     /**
-     * @brief Match position information
+     * Match position information
      */
     typedef struct {
         /**
@@ -70,11 +70,12 @@ class SP_EXPORT RegularExpression
      */
     typedef std::vector<Match> Matches;
 
-
     /**
      * Match pattern
      */
     sptk::String     m_pattern;
+
+private:
 
     /**
      * Global match (g) or first match only
@@ -108,7 +109,7 @@ class SP_EXPORT RegularExpression
     void initPCRE();
 
     /**
-     * @brief Computes match positions and lengths
+     * Computes match positions and lengths
      * @param text              Input text
      * @param offset            Starting match offset, advanced with every successful match
      * @param matchOffsets      Output match positions array
@@ -119,7 +120,7 @@ class SP_EXPORT RegularExpression
 
 public:
     /**
-     * @brief Constructor
+     * Constructor
      *
      * Pattern options is combination of flags matching Perl regular expression switches:
      * 'g'  global match, not just first one
@@ -139,33 +140,33 @@ public:
     RegularExpression(const RegularExpression& other);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~RegularExpression();
 
     /**
-     * @brief Returns true if text matches with regular expression
+     * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found
      */
     bool operator ==(const sptk::String& text) const;
 
     /**
-     * @brief Returns true if text doesn't match with regular expression
+     * Returns true if text doesn't match with regular expression
      * @param text              Input text
      * @return true if match found
      */
     bool operator !=(const sptk::String& text) const;
 
     /**
-     * @brief Returns true if text matches with regular expression
+     * Returns true if text matches with regular expression
      * @param text              Text to process
      * @return true if match found
      */
     bool matches(const sptk::String& text) const;
 
     /**
-     * @brief Returns list of strings matched with regular expression
+     * Returns list of strings matched with regular expression
      * @param text              Text to process
      * @param matchedStrings    List of matched strings
      * @return true if match found
@@ -173,7 +174,7 @@ public:
     bool m(const sptk::String& text, sptk::Strings& matchedStrings) const;
 
     /**
-     * @brief Replaces matches with replacement string
+     * Replaces matches with replacement string
      * @param text              Text to process
      * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
      * @return processed text
@@ -181,7 +182,7 @@ public:
     sptk::String s(const sptk::String& text, const sptk::String& outputPattern) const;
 
     /**
-     * @brief Returns list of strings split by regular expression
+     * Returns list of strings split by regular expression
      * @param text              Text to process
      * @param outputStrings     List of matched strings
      * @return true if match found
@@ -189,7 +190,7 @@ public:
     bool split(const sptk::String& text, sptk::Strings& outputStrings) const;
 
     /**
-     * @brief Replaces matches with replacement string
+     * Replaces matches with replacement string
      * @param text              Text to process
      * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
      * @param replaced          Optional flag if replacement was made
@@ -198,7 +199,7 @@ public:
     sptk::String replaceAll(const sptk::String& text, const sptk::String& outputPattern, bool& replaced) const;
 
     /**
-     * @brief Replaces matches with replacement string from map, using matched string as an index
+     * Replaces matches with replacement string from map, using matched string as an index
      * @param text              Text to process
      * @param substitutions     Substitutions for matched strings
      * @param replaced          Optional flag if replacement was made
@@ -206,7 +207,20 @@ public:
      */
     sptk::String replaceAll(const sptk::String& text, const std::map<sptk::String,sptk::String>& substitutions, bool& replaced) const;
 
+    /**
+     * Get regular expression pattern
+     * @return 
+     */
+    const String& pattern() const;
+
 private:
+
+    /**
+     * Find next placeholder
+     * @param pos               Start position
+     * @param outputPattern     Output pattern
+     * @return placeholder position
+     */
     size_t findNextPlaceholder(size_t pos, const String& outputPattern) const;
 };
 
