@@ -33,10 +33,9 @@ using namespace sptk;
 
 static SharedMutex	    syslogMutex;
 static atomic_bool      m_logOpened(false);
-
-#ifndef _WIN32
 static atomic_int   m_objectCounter(0);
-#else
+
+#ifdef _WIN32
 #include <events.w32/event_provider.h>
 static string   m_moduleFileName;
 static bool     m_registrySet(false);

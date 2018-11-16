@@ -240,7 +240,11 @@ void DateTimeFormat::init() noexcept
     time_t ts = time(nullptr);
     char buf[16];
     struct tm ltime {};
+#ifdef _WIN32
+	localtime_s(&ltime, &ts);
+#else
     localtime_r(&ts, &ltime);
+#endif
     strftime(buf, sizeof(buf), "%z", &ltime);
     int offset = string2int(buf);
     int minutes = offset % 100;
@@ -254,7 +258,7 @@ static DateTimeFormat dateTimeFormatInitializer;
 void sptk::DateTime::setTimeZone(const String& _timeZoneName)
 {
 #ifdef _WIN32
-	_putenv_s("TZ", tzname.c_str());
+	_putenv_s("TZ", _timeZoneName.c_str());
 #else
 	setenv("TZ", _timeZoneName.c_str(), 1);
 #endif
