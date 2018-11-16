@@ -59,22 +59,22 @@ class SP_EXPORT Buffer
      */
     void adjustSize(size_t sz);
 
-protected:
-
     /**
-     * Allocated size of the buffer
+     * Actual storage
      */
-    size_t    m_capacity {0};
+    std::vector<char>   m_storage;
+
+protected:
 
     /**
      * Actual size of the data in buffer
      */
-    size_t    m_bytes {0};
+    size_t              m_bytes {0};
 
     /**
      * The buffer itself
      */
-    char*       m_buffer { nullptr };
+    char*               m_buffer;
 
 
 public:
@@ -148,11 +148,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~Buffer()
-    {
-        if (m_buffer)
-            free(m_buffer);
-    }
+    virtual ~Buffer() = default;
 
     /**
      * @brief Returns pointer on the data buffer.
@@ -186,7 +182,7 @@ public:
      */
     virtual void checkSize(size_t sz)
     {
-        if (sz > m_capacity)
+        if (sz > m_storage.size())
             adjustSize(sz);
     }
 
@@ -314,7 +310,7 @@ public:
      */
     size_t capacity()  const
     {
-        return m_capacity;
+        return m_storage.size();
     }
 
     /**
@@ -378,17 +374,17 @@ public:
 
     /**
      * @brief Moves buffer from another buffer
-     * @param b Buffer&&, the buffer to move from
+     * @param other Buffer&&, the buffer to move from
      * @returns this object
      */
-    Buffer& operator = (Buffer&& b) DOESNT_THROW;
+    Buffer& operator = (Buffer&& other) DOESNT_THROW;
 
     /**
      * @brief Assigns from Buffer
-     * @param b const Buffer&, the buffer to assign from
+     * @param other const Buffer&, the buffer to assign from
      * @returns this object
      */
-    Buffer& operator = (const Buffer& b);
+    Buffer& operator = (const Buffer& other);
 
     /**
      * @brief Assigns from String

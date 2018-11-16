@@ -794,6 +794,15 @@ public:
      * @param node              XML node to save data into
      */
     void save(xml::Node* node) const;
+
+private:
+    /**
+     * Return money data as string
+     * @param printBuffer      Internal print buffer
+     * @param printBufferSize   Internal print buffer size
+     * @return
+     */
+    String getMoneyString(char* printBuffer, size_t printBufferSize) const;
 };
 /**
  * @}

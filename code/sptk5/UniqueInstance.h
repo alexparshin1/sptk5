@@ -61,7 +61,7 @@ class SP_EXPORT UniqueInstance
     /**
      * Lock is created
      */
-    bool         m_lockCreated;
+    bool         m_lockCreated {false};
 
 
 #ifdef _WIN32

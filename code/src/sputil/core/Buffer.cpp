@@ -35,133 +35,89 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(size_t sz)
+: m_storage(sz + 1)
 {
-    m_buffer = (char*)calloc(1, sz + 1);
-
-    if (m_buffer != nullptr)
-        m_capacity = sz;
-    else
-        m_capacity = 0;
-
-    m_bytes = 0;
+    m_buffer = &*m_storage.begin();
 }
 
 Buffer::Buffer(const void* data, size_t sz)
+: m_storage(sz + 1)
 {
-    m_buffer = (char*)malloc(sz + 1);
+    m_buffer = &*m_storage.begin();
 
-    if (m_buffer != nullptr)
+    if (data != nullptr)
     {
         memcpy(m_buffer, data, sz);
-        m_capacity = sz;
         m_bytes = sz;
         m_buffer[sz] = 0;
     }
     else
-        m_capacity = m_bytes = 0;
+        m_buffer[0] = 0;
 }
 
 Buffer::Buffer(const char* str)
 {
-    size_t sz = (size_t) strlen(str) + 1;
-    m_buffer = (char*)malloc(sz );
+    auto sz = (size_t) strlen(str);
+    m_storage.resize(sz + 1);
+    m_buffer = &*m_storage.begin();
 
-    if (m_buffer != nullptr) {
+    if (str != nullptr) {
         memcpy(m_buffer, str, sz);
-        m_capacity = sz;
-        m_bytes = sz - 1;
-    } else {
-        m_capacity = 0;
-        m_bytes = 0;
+        m_bytes = sz;
     }
+    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const string& str)
+: m_storage(str.length() + 1)
 {
-    size_t sz = (size_t) str.length() + 1;
-    m_buffer = (char*)malloc(sz);
+    m_buffer = &*m_storage.begin();
+    auto sz = str.length();
 
-    if (m_buffer != nullptr) {
-        if (sz > 1)
-            memcpy(m_buffer, str.c_str(), sz);
-        else m_buffer[0] = 0;
-
-        m_capacity = sz;
-        m_bytes = sz - 1;
-    } else {
-        m_capacity = 0;
-        m_bytes = 0;
+    if (!str.empty()) {
+        memcpy(m_buffer, str.c_str(), sz);
+        m_bytes = sz;
     }
+    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const String& str)
+: m_storage(str.length() + 1)
 {
-    size_t sz = (size_t) str.length() + 1;
-    m_buffer = (char*)malloc(sz);
+    m_buffer = &*m_storage.begin();
+    auto sz = str.length();
 
-    if (m_buffer != nullptr) {
-        if (sz > 1)
-            memcpy(m_buffer, str.c_str(), sz);
-        else m_buffer[0] = 0;
-
-        m_capacity = sz;
-        m_bytes = sz - 1;
-    } else {
-        m_capacity = 0;
-        m_bytes = 0;
+    if (!str.empty()) {
+        memcpy(m_buffer, str.c_str(), sz);
+        m_bytes = sz;
     }
+    m_buffer[sz] = 0;
 }
 
-Buffer::Buffer(const Buffer& buffer)
+Buffer::Buffer(const Buffer& other)
+: m_storage(other.m_storage), m_bytes(other.m_bytes)
 {
-    size_t sz = buffer.bytes() + 1;
-    m_buffer = (char*)malloc(sz);
-
-    if (m_buffer != nullptr) {
-        memcpy(m_buffer, buffer.data(), sz);
-        m_capacity = sz;
-        m_bytes = sz - 1;
-    } else {
-        m_capacity = 0;
-        m_bytes = 0;
-    }
+    m_buffer = &*m_storage.begin();
 }
 
 Buffer::Buffer(Buffer&& other) noexcept
+: m_storage(move(other.m_storage)), m_bytes(other.m_bytes)
 {
-    if (m_buffer != nullptr)
-        free(m_buffer);
-
-    m_bytes = other.m_bytes;
-    m_capacity = other.m_capacity;
-    m_buffer = other.m_buffer;
-
+    m_buffer = &*m_storage.begin();
     other.m_bytes = 0;
-    other.m_capacity = 0;
-    other.m_buffer = nullptr;
 }
 
 void Buffer::adjustSize(size_t sz)
 {
-    size_t newSize = sz / 3 * 4 + 16;
-    auto* p = (char*) realloc(m_buffer, newSize + 1);
-
-    if (p == nullptr)
-        throw Exception("Can't reallocate a buffer");
-
-    m_buffer = p;
-    m_capacity = newSize;
+    m_storage.resize(sz + 1);
+    m_buffer = &*m_storage.begin();
+    m_buffer[sz] = 0;
 }
 
 void Buffer::set(const char* data, size_t sz)
 {
-    checkSize(sz + 1);
-
-    if (data != nullptr) {
-        memcpy(m_buffer, data, sz);
-        m_buffer[sz] = 0;
-    }
-
+    checkSize(sz);
+    memcpy(m_buffer, data, sz);
     m_bytes = sz;
 }
 
@@ -175,8 +131,8 @@ void Buffer::append(char ch)
 void Buffer::append(uint8_t val)
 {
     checkSize(m_bytes + 1);
-    *(uint8_t*)(m_buffer + m_bytes) = val;
-    m_bytes += 1;
+    m_buffer[m_bytes] = val;
+    m_bytes++;
 }
 
 void Buffer::append(uint16_t val)
@@ -207,16 +163,8 @@ void Buffer::fill(char c, size_t count)
 
 void Buffer::reset(size_t sz)
 {
-    if (sz != 0) {
-        auto* p = (char*)realloc(m_buffer, sz + 1);
-
-        if (p == nullptr)
-            throw Exception("Can't reallocate a buffer");
-
-        m_buffer = p;
-        m_capacity = sz;
-    }
-
+    checkSize(sz + 1);
+    m_buffer = &*m_storage.begin();
     m_buffer[0] = 0;
     m_bytes = 0;
 }
@@ -253,37 +201,33 @@ void Buffer::saveToFile(const String& fileName) const
     fclose(f);
 }
 
-Buffer& Buffer::operator = (Buffer&& b) DOESNT_THROW
+Buffer& Buffer::operator = (Buffer&& other) DOESNT_THROW
 {
-    if (m_buffer != nullptr)
-        free(m_buffer);
+    m_storage = move(other.m_storage);
+    m_buffer = &m_storage[0];
 
-    m_bytes = b.m_bytes;
-    m_capacity = b.m_capacity;
-    m_buffer = b.m_buffer;
+    m_bytes = other.m_bytes;
+    other.m_bytes = 0;
 
-    b.m_bytes = 0;
-    b.m_capacity = 0;
-    b.m_buffer = nullptr;
     return *this;
 }
 
-Buffer& Buffer::operator = (const Buffer& b)
+Buffer& Buffer::operator = (const Buffer& other)
 {
-    checkSize(b.m_bytes + 1);
+    if (&other == this)
+        return *this;
 
-    if (b.m_buffer != nullptr)
-        memcpy(m_buffer, b.m_buffer, b.m_bytes);
+    m_storage.assign(other.m_storage.begin(), other.m_storage.end());
+    m_buffer = &m_storage[0];
+    m_bytes = other.m_bytes;
 
-    m_bytes = b.m_bytes;
-    m_buffer[m_bytes] = 0;
     return *this;
 }
 
 Buffer& Buffer::operator = (const std::string& str)
 {
     auto sz = (size_t) str.length();
-    checkSize(sz + 1);
+    checkSize(sz);
 
     if (sz != 0)
         memcpy(m_buffer, str.c_str(), sz + 1);
@@ -365,9 +309,13 @@ TEST(SPTK_Buffer, create)
     EXPECT_TRUE(strlen(testPhrase) < buffer1.capacity());
 }
 
+Buffer* ptr;
+
 TEST(SPTK_Buffer, assign)
 {
     Buffer  buffer1(testPhrase);
+    ptr = &buffer1;
+
     Buffer  buffer2;
 
     buffer2 = buffer1;

@@ -193,6 +193,10 @@ public:
      * Opens the directory and fills in the dataset
      */
     virtual bool open();
+
+private:
+
+    FieldList* makeFileListEntry(const struct stat& st, unsigned& index, char* file, bool is_link, const std::string& fullName) const;
 };
 /**
  * @}

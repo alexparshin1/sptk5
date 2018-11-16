@@ -45,9 +45,8 @@ using namespace sptk;
 
 // Constructor
 UniqueInstance::UniqueInstance(const std::string& instanceName)
+: m_instanceName(instanceName)
 {
-    m_lockCreated = false;
-    m_instanceName = instanceName;
 #ifndef _WIN32
     std::string home = getenv("HOME");
     m_fileName = home + "/" + m_instanceName + ".lock";
@@ -119,7 +118,6 @@ bool UniqueInstance::isUnique()
 }
 
 #ifdef USE_GTEST
-#include <gtest/gtest.h>
 
 #ifndef _WIN32
 TEST(SPTK_UniqueInstance, create)

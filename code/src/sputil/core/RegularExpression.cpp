@@ -219,8 +219,6 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
-        //if (matchCount == 1) // String matched but no strings extracted
-        //    break;
         if (offset)
             lastOffset = offset;
         totalMatches += matchCount;
@@ -266,12 +264,10 @@ size_t RegularExpression::findNextPlaceholder(size_t pos, const String& outputPa
 {
     size_t placeHolderStart = pos;
     for (;; placeHolderStart++) {
-            placeHolderStart = outputPattern.find('\\', placeHolderStart);
-            if (placeHolderStart == string::npos)
-                break;
-            if (isdigit(outputPattern[placeHolderStart + 1]))
-                break;
-        }
+        placeHolderStart = outputPattern.find('\\', placeHolderStart);
+        if (placeHolderStart == string::npos || isdigit(outputPattern[placeHolderStart + 1]))
+            break;
+    }
     return placeHolderStart;
 }
 
@@ -298,8 +294,6 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
         size_t matchCount = nextMatch(text, offset, matchOffsets, MAX_MATCHES);
         if (matchCount == 0) // No matches
             break;
-        //if (matchCount == 1) // String matched but no strings extracted
-        //    break;
         if (offset)
             lastOffset = offset;
         totalMatches += matchCount;
@@ -341,7 +335,6 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const char* testPhrase = "This is a test text to verify MD5 algorithm";
 

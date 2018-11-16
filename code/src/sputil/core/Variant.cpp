@@ -33,8 +33,8 @@ using namespace std;
 using namespace sptk;
 
 int64_t MoneyData::dividers[16] = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL, 1000000000LL,
-                                    10000000000LL, 100000000000LL,
-                                    1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL};
+                                   10000000000LL, 100000000000LL,
+                                   1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL};
 
 MoneyData::operator double() const
 {
@@ -60,10 +60,9 @@ MoneyData::operator bool() const
 void Variant::releaseBuffers()
 {
     if ((m_dataType & (VAR_STRING | VAR_BUFFER | VAR_TEXT)) != 0 &&
-        m_data.buffer.data != nullptr)
-    {
+        m_data.buffer.data != nullptr) {
         if ((m_dataType & VAR_EXTERNAL_BUFFER) == 0)
-            free(m_data.buffer.data);
+            delete [] m_data.buffer.data;
 
         m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
@@ -76,7 +75,7 @@ void Variant::dataSize(size_t ds)
     m_dataSize = ds;
     if (m_dataSize > 0)
         m_dataType &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
-    }
+}
 
 //---------------------------------------------------------------------------
 void Variant::dataType(uint32_t dt)
@@ -141,17 +140,17 @@ Variant::Variant(double value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const char * value)
+Variant::Variant(const char* value)
 {
     m_dataType = VAR_NONE;
-    setString(value);
+    Variant::setString(value);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const std::string& v)
 {
     m_dataType = VAR_NONE;
-    setString(v.c_str(), v.length());
+    Variant::setString(v.c_str(), v.length());
 }
 
 //---------------------------------------------------------------------------
@@ -163,17 +162,17 @@ Variant::Variant(DateTime v)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const void * value, size_t sz)
+Variant::Variant(const void* value, size_t sz)
 {
     m_dataType = VAR_NONE;
-    setBuffer(value, sz);
+    Variant::setBuffer(value, sz);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
     m_dataType = VAR_NONE;
-    setBuffer(value.data(), value.bytes());
+    Variant::setBuffer(value.data(), value.bytes());
 }
 
 //---------------------------------------------------------------------------
@@ -259,33 +258,29 @@ void Variant::setString(const char* value, size_t maxlen)
         if (value != nullptr) {
             strncpy(m_data.buffer.data, value, maxlen);
             m_data.buffer.data[maxlen] = 0;
-        }
-        else {
+        } else {
             m_data.buffer.data[0] = 0;
             dtype |= VAR_NULL;
         }
-    }
-    else {
+    } else {
         releaseBuffers();
 
         if (value != nullptr) {
             if (maxlen != 0) {
                 dataSize(maxlen);
                 m_data.buffer.size = maxlen + 1;
-                m_data.buffer.data = (char*) malloc(m_data.buffer.size);
+                m_data.buffer.data = new char[m_data.buffer.size];
                 if (m_data.buffer.data != nullptr) {
                     strncpy(m_data.buffer.data, value, maxlen);
                     m_data.buffer.data[maxlen] = 0;
                 }
-            }
-            else {
+            } else {
                 dataSize(strlen(value));
                 dtype &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
                 m_data.buffer.size = dataSize() + 1;
                 m_data.buffer.data = strdup(value);
             }
-        }
-        else {
+        } else {
             m_data.buffer.data = nullptr;
             dataSize(0);
             m_data.buffer.size = 0;
@@ -303,7 +298,7 @@ void Variant::setString(const std::string& value)
 }
 
 //---------------------------------------------------------------------------
-void Variant::setExternalString(const char *value, int length)
+void Variant::setExternalString(const char* value, int length)
 {
     uint32_t dtype = VAR_STRING;
 
@@ -315,10 +310,9 @@ void Variant::setExternalString(const char *value, int length)
             length = (int) strlen(value);
 
         m_dataSize = size_t(length);
-        m_data.buffer.size = (size_t)length + 1;
+        m_data.buffer.size = (size_t) length + 1;
         dtype |= VAR_EXTERNAL_BUFFER;
-    }
-    else {
+    } else {
         m_dataSize = 0;
         m_data.buffer.size = 0;
         dtype |= VAR_NULL;
@@ -344,8 +338,7 @@ void Variant::setText(const char* value)
         dataSize(strlen(value));
         m_data.buffer.size = dataSize() + 1;
         m_data.buffer.data = strdup(value);
-    }
-    else {
+    } else {
         m_dataType |= VAR_NULL;
         m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
@@ -364,8 +357,7 @@ void Variant::setText(const string& value)
         dataSize(vlen);
         m_data.buffer.size = vlen + 1;
         m_data.buffer.data = strdup(value.c_str());
-    }
-    else {
+    } else {
         m_dataType |= VAR_NULL;
         m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
@@ -384,8 +376,7 @@ void Variant::setExternalText(const char* value)
         m_data.buffer.size = dataSize() + 1;
         m_data.buffer.data = (char*) value;
         m_dataType |= VAR_EXTERNAL_BUFFER;
-    }
-    else {
+    } else {
         m_dataType |= VAR_NULL;
         m_data.buffer.data = nullptr;
         m_data.buffer.size = 0;
@@ -402,12 +393,11 @@ void Variant::setBuffer(const void* value, size_t sz)
     if (value != nullptr || sz != 0) {
         m_data.buffer.size = sz;
         dataSize(sz);
-        m_data.buffer.data = (char*) malloc(sz);
+        m_data.buffer.data = new char[sz];
 
         if (m_data.buffer.data != nullptr && value != nullptr)
             memcpy(m_data.buffer.data, value, sz);
-    }
-    else
+    } else
         setNull();
 }
 
@@ -427,11 +417,10 @@ void Variant::setBuffer(const string& value)
         size_t sz = vlen + 1;
         m_data.buffer.size = sz;
         dataSize(sz);
-        m_data.buffer.data = (char*) malloc(sz);
+        m_data.buffer.data = new char[sz];
         if (m_data.buffer.data != nullptr && !value.empty())
             memcpy(m_data.buffer.data, value.c_str(), sz);
-    }
-    else
+    } else
         setNull();
 }
 
@@ -446,8 +435,7 @@ void Variant::setExternalBuffer(const void* value, size_t sz)
         m_data.buffer.size = sz;
         dataSize(sz);
         m_dataType |= VAR_EXTERNAL_BUFFER;
-    }
-    else {
+    } else {
         dataSize(0);
         m_dataType |= VAR_NULL;
     }
@@ -520,7 +508,7 @@ void Variant::setData(const Variant& C)
 {
     switch (C.dataType()) {
         case VAR_BOOL:
-            setInteger(C.getBool()? 1: 0);
+            setInteger(C.getBool() ? 1 : 0);
             break;
 
         case VAR_INT:
@@ -567,7 +555,7 @@ void Variant::setData(const Variant& C)
             setImageNdx(C.getImageNdx());
             break;
 
-        case VAR_NONE:
+        default:
             break;
     }
 
@@ -575,7 +563,7 @@ void Variant::setData(const Variant& C)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const Variant &C)
+Variant& Variant::operator=(const Variant& C)
 {
     if (this == &C)
         return *this;
@@ -584,98 +572,98 @@ Variant& Variant::operator =(const Variant &C)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(int32_t value)
+Variant& Variant::operator=(int32_t value)
 {
     setInteger(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(int64_t value)
+Variant& Variant::operator=(int64_t value)
 {
     setInt64(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(uint32_t value)
+Variant& Variant::operator=(uint32_t value)
 {
     setInteger((int32_t) value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(uint64_t value)
+Variant& Variant::operator=(uint64_t value)
 {
-    setInt64((int64_t)value);
+    setInt64((int64_t) value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(int16_t value)
-{
-    setInteger(value);
-    return *this;
-}
-
-//---------------------------------------------------------------------------
-Variant& Variant::operator =(uint16_t value)
+Variant& Variant::operator=(int16_t value)
 {
     setInteger(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(float value)
+Variant& Variant::operator=(uint16_t value)
+{
+    setInteger(value);
+    return *this;
+}
+
+//---------------------------------------------------------------------------
+Variant& Variant::operator=(float value)
 {
     setFloat(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(double value)
+Variant& Variant::operator=(double value)
 {
     setFloat(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const MoneyData& value)
+Variant& Variant::operator=(const MoneyData& value)
 {
     setMoney(value.quantity, value.scale);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const char * value)
+Variant& Variant::operator=(const char* value)
 {
     setString(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const String& value)
+Variant& Variant::operator=(const String& value)
 {
     setString(value.c_str(), value.length());
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(DateTime value)
+Variant& Variant::operator=(DateTime value)
 {
     setDateTime(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const void *value)
+Variant& Variant::operator=(const void* value)
 {
     setImagePtr(value);
     return *this;
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator =(const Buffer& value)
+Variant& Variant::operator=(const Buffer& value)
 {
     setBuffer(value.data(), value.bytes());
     return *this;
@@ -775,7 +763,7 @@ size_t Variant::bufferSize() const
 //---------------------------------------------------------------------------
 void* Variant::dataBuffer() const
 {
-    return (void *) &m_data;
+    return (void*) &m_data;
 }
 
 //---------------------------------------------------------------------------
@@ -1014,13 +1002,9 @@ String Variant::asString() const
     int len;
 
     switch (dataType()) {
-        default:
-            return "";
-
         case VAR_BOOL:
             if (m_data.boolData)
                 return "t";
-
             return "f";
 
         case VAR_INT:
@@ -1029,31 +1013,11 @@ String Variant::asString() const
         case VAR_INT64:
             return int2string(m_data.int64Data);
 
-        case VAR_MONEY: {
-            char    format[64];
-            int64_t absValue;
-            char* formatPtr = format;
+        case VAR_MONEY:
+            return getMoneyString(print_buffer, sizeof(print_buffer));
 
-            if (m_data.moneyData.quantity < 0) {
-                *formatPtr = '-';
-                formatPtr++;
-                absValue = -m_data.moneyData.quantity;
-            }
-            else
-                absValue = m_data.moneyData.quantity;
-
-            snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
-            int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
-            int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
-            len = snprintf(print_buffer, sizeof(print_buffer), format, intValue, fraction);
-            return String(print_buffer, len);
-        }
-
-        case VAR_FLOAT: {
-            stringstream str;
-            str << m_data.floatData;
-            return str.str();
-        }
+        case VAR_FLOAT:
+            return double2string(m_data.floatData);
 
         case VAR_STRING:
         case VAR_TEXT:
@@ -1066,10 +1030,8 @@ String Variant::asString() const
         case VAR_DATE:
             return DateTime(chrono::microseconds(m_data.timeData)).dateString();
 
-        case VAR_DATE_TIME: {
-            DateTime dt(chrono::microseconds(m_data.timeData));
-            return dt.dateString() + " " + dt.timeString();
-        }
+        case VAR_DATE_TIME:
+            return DateTime(chrono::microseconds(m_data.timeData));
 
         case VAR_IMAGE_PTR:
             len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
@@ -1077,12 +1039,35 @@ String Variant::asString() const
 
         case VAR_IMAGE_NDX:
             return int2string(m_data.imageNdx);
+
+        default:
+            return "";
     }
+}
+
+String Variant::getMoneyString(char* printBuffer, size_t printBufferSize) const
+{
+    char format[64];
+    int64_t absValue;
+    char* formatPtr = format;
+
+    if (m_data.moneyData.quantity < 0) {
+        *formatPtr = '-';
+        formatPtr++;
+        absValue = -m_data.moneyData.quantity;
+    } else
+        absValue = m_data.moneyData.quantity;
+
+    snprintf(formatPtr, sizeof(format) - 2, "%%Ld.%%0%dLd", m_data.moneyData.scale);
+    int64_t intValue = absValue / MoneyData::dividers[m_data.moneyData.scale];
+    int64_t fraction = absValue % MoneyData::dividers[m_data.moneyData.scale];
+    int len = snprintf(printBuffer, printBufferSize, format, intValue, fraction);
+    return String(printBuffer, len);
 }
 
 DateTime Variant::asDate() const
 {
-    if ((m_dataType & VAR_NULL) != 0) 
+    if ((m_dataType & VAR_NULL) != 0)
         return DateTime();
 
     switch (dataType()) {
@@ -1104,7 +1089,7 @@ DateTime Variant::asDate() const
 
         case VAR_DATE:
         case VAR_DATE_TIME:
-                DateTime(chrono::microseconds(m_data.timeData)).date();
+            return DateTime(chrono::microseconds(m_data.timeData)).date();
 
         default:
             throw Exception("Can't convert field for that type");
@@ -1147,13 +1132,10 @@ void* Variant::asImagePtr() const
     if ((m_dataType & VAR_NULL) != 0)
         return nullptr;
 
-    switch (dataType()) {
-        case VAR_IMAGE_PTR:
-            return m_data.imagePtr;
+    if (dataType() == VAR_IMAGE_PTR)
+        return m_data.imagePtr;
 
-        default:
-            throw Exception("Can't convert field for that type");
-    }
+    throw Exception("Can't convert field for that type");
 }
 
 void Variant::setNull(VariantType vtype)
@@ -1164,10 +1146,6 @@ void Variant::setNull(VariantType vtype)
     }
 
     switch (dataType()) {
-        default:
-            m_data.int64Data = 0;
-            break;
-
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
@@ -1176,6 +1154,10 @@ void Variant::setNull(VariantType vtype)
             else if (m_data.buffer.data != nullptr)
                 m_data.buffer.data[0] = 0;
 
+            break;
+
+        default:
+            m_data.int64Data = 0;
             break;
     }
 
@@ -1190,9 +1172,6 @@ bool Variant::isNull() const
 String Variant::typeName(VariantType type)
 {
     switch (type) {
-        default:
-            return "undefined";
-
         case VAR_BOOL:
             return "bool";
 
@@ -1228,6 +1207,9 @@ String Variant::typeName(VariantType type)
 
         case VAR_IMAGE_NDX:
             return "imagendx";
+
+        default:
+            return "undefined";
     }
 }
 
@@ -1276,7 +1258,6 @@ void Variant::load(const xml::Node& node)
             break;
 
         default:
-        case VAR_IMAGE_PTR:
             break;
     }
 }
@@ -1311,7 +1292,6 @@ void Variant::save(xml::Node& node) const
                 break;
 
             default:
-            case VAR_IMAGE_PTR:
                 break;
         }
     }
@@ -1323,7 +1303,6 @@ void Variant::save(xml::Node* node) const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_Variant, ctors)
 {
@@ -1337,7 +1316,8 @@ TEST(SPTK_Variant, ctors)
     EXPECT_EQ(1, v1.asInteger());
     EXPECT_DOUBLE_EQ(2.22, v2.asFloat());
     EXPECT_STREQ("Test", v3.asString().c_str());
-    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z",
+                 v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
 TEST(SPTK_Variant, assigns)
@@ -1372,7 +1352,8 @@ TEST(SPTK_Variant, toString)
     EXPECT_STREQ("1", v1.asString().c_str());
     EXPECT_STREQ("2.22", v2.asString().c_str());
     EXPECT_STREQ("Test", v3.asString().c_str());
-    EXPECT_STREQ("2018-02-01T09:11:14.345Z", v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
+    EXPECT_STREQ("2018-02-01T09:11:14.345Z",
+                 v4.asDateTime().isoDateTimeString(DateTime::PA_MILLISECONDS, true).c_str());
 }
 
 #endif

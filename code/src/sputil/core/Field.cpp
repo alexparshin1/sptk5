@@ -117,10 +117,8 @@ String Field::asString() const
         case VAR_DATE:
             return DateTime(chrono::microseconds(m_data.timeData)).dateString();
 
-        case VAR_DATE_TIME: {
-            DateTime dt(chrono::microseconds(m_data.timeData));
-            return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
-        }
+        case VAR_DATE_TIME:
+            return epochDataToDateTimeString();
 
         case VAR_IMAGE_PTR:
             len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);
@@ -133,6 +131,12 @@ String Field::asString() const
         default:
             throw Exception("Can't convert field for that type");
     }
+}
+
+String Field::epochDataToDateTimeString() const
+{
+    DateTime dt(chrono::microseconds(m_data.timeData));
+    return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PA_SECONDS);
 }
 
 String Field::moneyDataToString(char* printBuffer, size_t printBufferSize) const

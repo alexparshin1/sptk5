@@ -29,6 +29,9 @@
 #include <sptk5/Exception.h>
 #include <sptk5/ZLib.h>
 #include "zlib.h"
+#if USE_GTEST
+#include <sptk5/Base64.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -37,28 +40,28 @@ using namespace sptk;
 
 void ZLib::compress(Buffer& dest, const Buffer& src)
 {
-    int ret, flush;
+    int flush;
     unsigned have;
     z_stream strm = {};
     unsigned char in[CHUNK];
     unsigned char out[CHUNK];
 
-    /* allocate deflate state */
+    // allocate deflate state
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
-    ret = deflateInit2(&strm,
-                       Z_DEFAULT_COMPRESSION,
-                       Z_DEFLATED,
-                       MAX_WBITS + 16,
-                       ZLIB_VER_MAJOR,
-                       Z_DEFAULT_STRATEGY);
+    int ret = deflateInit2(&strm,
+                           Z_DEFAULT_COMPRESSION,
+                           Z_DEFLATED,
+                           MAX_WBITS + 16,
+                           ZLIB_VER_MAJOR,
+                           Z_DEFAULT_STRATEGY);
     if (ret != Z_OK)
         throw Exception("deflateInit() error");
 
     bool eof = false;
     size_t readPosition = 0;
-    /* compress until end of file */
+    // Compress until end of file
     do {
         auto bytesToRead = uInt(src.bytes() - readPosition);
         if (bytesToRead > CHUNK)
@@ -71,24 +74,22 @@ void ZLib::compress(Buffer& dest, const Buffer& src)
         flush = eof ? Z_FINISH : Z_NO_FLUSH;
         strm.next_in = in;
 
-        /* run deflate() on input until output buffer not full, finish
-           compression if all of source has been read in */
+        // Run deflate() on input until output buffer not full, finish
+        // compression if all of source has been read in
         do {
             strm.avail_out = CHUNK;
             strm.next_out = out;
-            ret = deflate(&strm, flush);    /* no bad return value */
-            if (ret == Z_STREAM_ERROR)  /* state not clobbered */
+            ret = deflate(&strm, flush);    // no bad return value
+            if (ret == Z_STREAM_ERROR)      // state not clobbered
                 throw Exception("compressed data error");
             have = CHUNK - strm.avail_out;
             dest.append((char*) out, have);
         } while (strm.avail_out == 0);
-        //assert(strm.avail_in == 0);     /* all input will be used */
 
-        /* done when last data in file processed */
+        // Done when last data in file processed
     } while (flush != Z_FINISH);
-    //assert(ret == Z_STREAM_END);        /* stream will be complete */
 
-    /* clean up and return */
+    // Clean up and return
     (void)deflateEnd(&strm);
 }
 
@@ -111,7 +112,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
         throw Exception("inflateInit() error");
 
     uInt readPosition = 0;
-    /* decompress until deflate stream ends or end of file */
+    // Decompress until deflate stream ends or end of file
     do {
         auto bytesToRead = uInt(src.bytes() - readPosition);
         if (bytesToRead > CHUNK)
@@ -123,12 +124,12 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
             break;
         strm.next_in = in;
 
-        /* run inflate() on input until output buffer not full */
+        // Run inflate() on input until output buffer not full
         do {
             strm.avail_out = CHUNK;
             strm.next_out = out;
             ret = inflate(&strm, Z_NO_FLUSH);
-            if (ret == Z_STREAM_ERROR)  /* state not clobbered */
+            if (ret == Z_STREAM_ERROR)  // state not clobbered
                 throw Exception("compressed data error");
             switch (ret) {
                 case Z_NEED_DICT:
@@ -143,17 +144,14 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
             dest.append((char*) out, have);
         } while (strm.avail_out == 0);
 
-        /* done when inflate() says it's done */
+        // Done when inflate() says it's done
     } while (ret != Z_STREAM_END);
 
-    /* clean up and return */
+    // clean up and return
     (void)inflateEnd(&strm);
-    //return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/Base64.h>
 
 static const String originalTestString = "This is a test of compression using GZip algorithm";
 
@@ -177,7 +175,9 @@ TEST(SPTK_ZLib, compress)
 
 TEST(SPTK_ZLib, decompress)
 {
-    Buffer compressed, decompressed;
+    Buffer compressed;
+    Buffer decompressed;
+
     Base64::decode(compressed, originalTestStringBase64);
     ZLib::decompress(decompressed, compressed);
 

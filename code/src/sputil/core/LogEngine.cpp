@@ -40,12 +40,6 @@ LogEngine::LogEngine(const String& logEngineName)
     run();
 }
 
-LogEngine::~LogEngine()
-{
-	terminate();
-	join();
-}
-
 void LogEngine::option(Option option, bool flag)
 {
     if (flag)
@@ -57,14 +51,22 @@ void LogEngine::option(Option option, bool flag)
 String LogEngine::priorityName(LogPriority prt)
 {
     switch (prt) {
-    case LP_DEBUG:     return "DEBUG";
-    case LP_INFO:      return "INFO";
-    case LP_NOTICE:    return "NOTICE";
-    case LP_WARNING:   return "WARNING";
-    case LP_ERROR:     return "ERROR";
-    case LP_CRITICAL:  return "CRITICAL";
-    case LP_ALERT:     return "ALERT";
-    case LP_PANIC:     return "PANIC";
+        case LP_DEBUG:
+            return "DEBUG";
+        case LP_INFO:
+            return "INFO";
+        case LP_NOTICE:
+            return "NOTICE";
+        case LP_WARNING:
+            return "WARNING";
+        case LP_ERROR:
+            return "ERROR";
+        case LP_CRITICAL:
+            return "CRITICAL";
+        case LP_ALERT:
+            return "ALERT";
+        default:
+            return "PANIC";
     }
     return "";
 }
@@ -74,15 +76,24 @@ LogPriority LogEngine::priorityFromName(const String& prt)
     static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
 
     switch (priorityNames.indexOf(prt)) {
-        case 0: return LP_DEBUG;
-        case 1: return LP_INFO;
-        case 2: return LP_NOTICE;
-        case 3: return LP_WARNING;
-        case 4: return LP_ERROR;
-        case 5: return LP_CRITICAL;
-        case 6: return LP_ALERT;
-        case 7: return LP_PANIC;
-        default: return LP_DEBUG;
+        case 0:
+            return LP_DEBUG;
+        case 1:
+            return LP_INFO;
+        case 2:
+            return LP_NOTICE;
+        case 3:
+            return LP_WARNING;
+        case 4:
+            return LP_ERROR;
+        case 5:
+            return LP_CRITICAL;
+        case 6:
+            return LP_ALERT;
+        case 7:
+            return LP_PANIC;
+        default:
+            return LP_DEBUG;
     }
 }
 
@@ -99,24 +110,24 @@ void LogEngine::threadFunction()
         if (m_messages.pop(message, timeout)) {
             saveMessage(message);
 
-			if (m_options & LO_STDOUT) {
-				string messagePrefix;
-				if (m_options & LO_DATE)
-					messagePrefix += message->timestamp.dateString() + " ";
+            if (m_options & LO_STDOUT) {
+                string messagePrefix;
+                if (m_options & LO_DATE)
+                    messagePrefix += message->timestamp.dateString() + " ";
 
-				if (m_options & LO_TIME)
-					messagePrefix += message->timestamp.timeString(true) + " ";
+                if (m_options & LO_TIME)
+                    messagePrefix += message->timestamp.timeString(true) + " ";
 
-				if (m_options & LO_PRIORITY)
-					messagePrefix += "[" + priorityName(message->priority) + "] ";
+                if (m_options & LO_PRIORITY)
+                    messagePrefix += "[" + priorityName(message->priority) + "] ";
 
-				FILE* dest = stdout;
-				if (message->priority <= LP_ERROR)
-					dest = stderr;
-				fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
-			}
-			
-			delete message;
+                FILE* dest = stdout;
+                if (message->priority <= LP_ERROR)
+                    dest = stderr;
+                fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
+            }
+
+            delete message;
         }
     }
 }

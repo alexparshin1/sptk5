@@ -69,10 +69,10 @@ String sptk::trim(const String& str)
         return "";
 
     auto* s = (const unsigned char*) str.c_str();
-    int i, startpos = 0, endpos = int(len - 1);
-    bool found = false;
+    int   endpos = int(len - 1);
+    bool  found = false;
 
-    for (i = endpos; i >= 0; i--) {
+    for (int i = endpos; i >= 0; i--) {
         if (s[i] > 32) {
             endpos = i;
             found = true;
@@ -83,7 +83,8 @@ String sptk::trim(const String& str)
     if (!found)
         return "";
 
-    for (i = 0; i <= endpos; i++) {
+    int startpos = 0;
+    for (int i = 0; i <= endpos; i++) {
         if (s[i] > 32) {
             startpos = i;
             break;
@@ -106,7 +107,7 @@ void sptk::join(string& dest, const vector<string>& src, const string& separator
 void sptk::split(vector<string>& dest, const string& src, const string& delimitter)
 {
     dest.clear();
-    auto buffer = (char*) src.c_str();
+    auto* buffer = (char*) src.c_str();
 
     if (strlen(buffer) == 0)
         return;
@@ -122,7 +123,6 @@ void sptk::split(vector<string>& dest, const string& src, const string& delimitt
         char* end = strstr(p, delimitter.c_str());
 
         if (end != nullptr) {
-            //int len = end - p;
             char sc = *end;
             *end = 0;
             dest.emplace_back(p);
@@ -195,6 +195,22 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
     return result;
 }
 
+String sptk::double2string(double value)
+{
+    char buffer[128];
+    int len = snprintf(buffer, sizeof(buffer) - 1, "%f", value);
+    for (int i = len - 1; i > 0; i--) {
+        if (buffer[i] != '0') {
+            if (buffer[i] == '.')
+                len = i + 2;
+            else
+                len = i + 1;
+            break;
+        }
+    }
+    return String(buffer, len, 0);
+}
+
 double sptk::string2double(const String& str)
 {
     char* endptr;
@@ -219,10 +235,27 @@ double sptk::string2double(const String& str, double defaultValue)
     return result;
 }
 
+static void capitalizeWord(char* current, char* wordStart)
+{
+    if (wordStart != nullptr)
+        *wordStart = (char) toupper(*wordStart);
+    else
+        wordStart = current;
+
+    for (char* ptr = wordStart + 1; ptr < current; ptr++)
+        *ptr = (char) tolower(*ptr);
+}
+
+static void lowerCaseWord(char* current, char* wordStart)
+{
+    for (char* ptr = wordStart; ptr < current; ptr++)
+        *ptr = (char) tolower(*ptr);
+}
+
 String sptk::capitalizeWords(const String& str)
 {
     String s(str);
-    auto current = (char*) s.c_str();
+    auto* current = (char*) s.c_str();
     char* wordStart = nullptr;
 
     if (*current != char(0)) {
@@ -231,16 +264,10 @@ String sptk::capitalizeWords(const String& str)
                 if (wordStart == nullptr)
                     wordStart = current;
             } else {
-                if (current - wordStart > 3) {
-                    if (wordStart != nullptr)
-                        *wordStart = (char) toupper(*wordStart);
-                    else
-                        wordStart = current;
-
-                    for (char* ptr = wordStart + 1; ptr < current; ptr++)
-                        *ptr = (char) tolower(*ptr);
-                }
-
+                if (current - wordStart > 3)
+                    capitalizeWord(current, wordStart);
+                else
+                    lowerCaseWord(current, wordStart);
                 wordStart = nullptr;
             }
 
@@ -253,3 +280,13 @@ String sptk::capitalizeWords(const String& str)
 
     return s;
 }
+
+#if USE_GTEST
+
+TEST(SPTK_string_ext, to_string)
+{
+    EXPECT_STREQ("2.22", double2string(2.22).c_str());
+    EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
+}
+
+#endif

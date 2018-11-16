@@ -81,14 +81,14 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
 {
     clear();
     switch (mode) {
-        case SM_DELIMITER:
-            splitByDelimiter(src, delimitter);
-            break;
         case SM_ANYCHAR:
             splitByAnyChar(src, delimitter);
             break;
         case SM_REGEXP:
             splitByRegExp(src, delimitter);
+            break;
+        default:
+            splitByDelimiter(src, delimitter);
             break;
     }
 }
@@ -110,22 +110,21 @@ String Strings::asString(const char* delimitter) const
 int Strings::indexOf(const String& s) const
 {
     const_iterator itor;
+    const_reverse_iterator xtor;
     switch (m_sorted) {
-        case UNSORTED:
-            itor = find(begin(), end(), s);
-            if (itor == end())
-                return -1;
-            break;
         case DESCENDING:
-            {
-                auto xtor = lower_bound(rbegin(), rend(), s);
-                if (xtor == rend() || *xtor != s)
-                    return -1;
-                return (int) distance(rbegin(), xtor);
-            }
+            xtor = lower_bound(rbegin(), rend(), s);
+            if (xtor == rend() || *xtor != s)
+                return -1;
+            return (int) distance(rbegin(), xtor);
         case ASCENDING:
             itor = lower_bound(begin(), end(), s);
             if (itor == end() || *itor != s)
+                return -1;
+            break;
+        default:
+            itor = find(begin(), end(), s);
+            if (itor == end())
                 return -1;
             break;
     }
@@ -157,10 +156,8 @@ void Strings::loadFromFile(const String& fileName)
     if (pos1 != string::npos) {
         size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
         delimiter = text.substr(pos1, 1);
-        if (pos1 + 1 == pos2) {
-            if (text[pos1] != text[pos2]) // Two chars delimiter
-                delimiter = text.substr(pos1, 2);
-        }
+        if (pos1 + 1 == pos2 && text[pos1] != text[pos2]) // Two chars delimiter
+            delimiter = text.substr(pos1, 2);
     }
 
     splitByDelimiter(text, delimiter.c_str());
@@ -204,7 +201,6 @@ void Strings::sort(bool ascending)
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const String testString("This is a test\ntext that contains several\nexample rows");
 

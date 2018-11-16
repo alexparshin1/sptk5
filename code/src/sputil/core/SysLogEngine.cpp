@@ -33,12 +33,13 @@ using namespace sptk;
 
 static SharedMutex	    syslogMutex;
 static atomic_bool      m_logOpened(false);
+
 #ifndef _WIN32
-    static atomic_int   m_objectCounter(0);
+static atomic_int   m_objectCounter(0);
 #else
-    #include <events.w32/event_provider.h>
-    static string   m_moduleFileName;
-    static bool     m_registrySet(false);
+#include <events.w32/event_provider.h>
+static string   m_moduleFileName;
+static bool     m_registrySet(false);
 #endif
 
 /* Unix facilities
@@ -74,12 +75,7 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
     string      programName;
     uint32_t    facilities;
 
-    {
-        SharedLock(syslogMutex);
-        options = (uint32_t) m_options;
-        programName = m_programName;
-        facilities = m_facilities;
-    }
+    getOptions(options, programName, facilities);
 
     if (options & LO_ENABLE) {
 #ifndef _WIN32
@@ -137,23 +133,31 @@ void SysLogEngine::saveMessage(const Logger::Message* message)
     }
 }
 
+void SysLogEngine::getOptions(uint32_t& options, string& programName, uint32_t& facilities) const
+{
+    SharedLock(syslogMutex);
+    options = (uint32_t) m_options;
+    programName = m_programName;
+    facilities = m_facilities;
+}
+
 SysLogEngine::~SysLogEngine()
 {
 #ifndef _WIN32
-	bool needToClose = false;
-	{
-		UniqueLock(syslogMutex);
-		m_objectCounter--;
-		if (m_logOpened && m_objectCounter < 1)
-			needToClose = true;
-	}
-
+	bool needToClose = unregisterInstance();
 	if (needToClose)
         closelog();
 #else
     if (m_logHandle)
         CloseEventLog(m_logHandle);
 #endif
+}
+
+bool SysLogEngine::unregisterInstance() const
+{
+    UniqueLock(syslogMutex);
+    m_objectCounter--;
+    return m_objectCounter < 1;
 }
 
 void SysLogEngine::setupEventSource()

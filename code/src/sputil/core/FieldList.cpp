@@ -126,7 +126,6 @@ void FieldList::toXML(xml::Node& node) const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_FieldList, copy)
 {

@@ -57,8 +57,11 @@ Thread::Thread(const string& name) :
 
 Thread::~Thread()
 {
-    if (m_thread.joinable())
-        m_thread.detach();
+    if (m_thread.joinable()) {
+        m_pause.post();
+        m_terminated = true;
+        m_thread.join();
+    }
 }
 
 void Thread::terminate()

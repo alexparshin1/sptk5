@@ -130,16 +130,19 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
                 break;
             case 17:
                 pattern = "39";   // day
-                strncat(DateTime::datePartsOrder, "D", sizeof(DateTime::datePartsOrder) - 1);
+                if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
+                    strcat(DateTime::datePartsOrder, "D");
                 break;
             case 6:
                 pattern = "19";   // month
-                strncat(DateTime::datePartsOrder, "M", sizeof(DateTime::datePartsOrder) - 1);
+                if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
+                    strcat(DateTime::datePartsOrder, "M");
                 break;
             case 2000:
             case 0:
                 pattern = "2999"; // year
-                strncat(DateTime::datePartsOrder, "Y", sizeof(DateTime::datePartsOrder) - 1);
+                if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
+                    strcat(DateTime::datePartsOrder, "Y");
                 break;
             default:
                 pattern = nullptr;
@@ -345,17 +348,24 @@ void DateTime::encodeDate(time_point& dt, const char* dat)
         }
     }
 
+    year = correctTwoDigitYear(year);
+
+    time_point dd;
+    encodeDate(dd, year, month, day);
+    if (partNumber > 3) // Time part included into string
+        encodeTime(dd, datePart[3], datePart[4], datePart[5], datePart[6]);
+    dt = dd;
+}
+
+short DateTime::correctTwoDigitYear(short year)
+{
     if (year < 100) {
         if (year < 35)
             year = short(year + 2000);
         else
             year = short(year + 1900);
     }
-    time_point dd;
-    encodeDate(dd, year, month, day);
-    if (partNumber > 3) // Time part included into string
-        encodeTime(dd, datePart[3], datePart[4], datePart[5], datePart[6]);
-    dt = dd;
+    return year;
 }
 
 short DateTime::splitDateString(char* bdat, short* datePart, char& actualDateSeparator)
@@ -811,7 +821,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
         case PA_SECONDS:
             str << timeSeparator << setw(2) << s;
             break;
-        case PA_MILLISECONDS:
+        default:
             str << timeSeparator << setw(2) << s << "." << setw(3) << ms;
             break;
     }

@@ -102,6 +102,10 @@ public:
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
     virtual ~SysLogEngine();
+
+    bool unregisterInstance() const;
+
+    void getOptions(uint32_t& options, std::string& programName, uint32_t& facilities) const;
 };
 /**
  * @}

@@ -88,6 +88,13 @@ int SP_EXPORT string2int(const sptk::String& str, int defaultValue = 0);
 int64_t SP_EXPORT string2int64(const sptk::String& str, int64_t defaultValue = 0);
 
 /**
+ * Converts double to string, using fixed format. Any trailing zeros are truncated.
+ * @param value                 Double value
+ * @return string presentation of double
+ */
+String SP_EXPORT double2string(double value);
+
+/**
  * Converts string to double. The exception is thrown
  * for unsuccessful conversion
  */

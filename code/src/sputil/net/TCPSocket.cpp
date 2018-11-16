@@ -79,9 +79,9 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
 #else
                 socklen_t flen = sizeof(sockaddr_in);
 #endif
-                m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, m_capacity - 2, 0, (sockaddr*) from, &flen);
+                m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, capacity() - 2, 0, (sockaddr*) from, &flen);
             } else {
-                m_bytes = m_socket.recv(m_buffer, m_capacity - 2);
+                m_bytes = m_socket.recv(m_buffer, capacity() - 2);
             }
             if ((int)m_bytes == -1) {
                 error = errno;
@@ -118,9 +118,9 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
                     m_readOffset = 0;
                     m_bytes = (size_t) availableBytes;
                 } else {
-                    checkSize(m_capacity + 128);
+                    checkSize(capacity() + 128);
                 }
-                size_t bytes = m_socket.recv(m_buffer + availableBytes, m_capacity - availableBytes);
+                size_t bytes = m_socket.recv(m_buffer + availableBytes, capacity() - availableBytes);
                 m_bytes += bytes;
                 return 0;
             }

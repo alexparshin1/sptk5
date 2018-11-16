@@ -274,8 +274,8 @@ public:
 private:
 
     String doubleDataToString(char* printBuffer, size_t printBufferSize) const;
-
     String moneyDataToString(char* printBuffer, size_t printBufferSize) const;
+    String epochDataToDateTimeString() const;
 };
 /**
  * @}

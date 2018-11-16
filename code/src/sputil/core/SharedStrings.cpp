@@ -64,7 +64,6 @@ void SharedStrings::clear()
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_SharedStrings, match)
 {

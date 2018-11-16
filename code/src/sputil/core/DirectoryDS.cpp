@@ -30,9 +30,8 @@
 #include <sys/stat.h>
 
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/SystemException.h>
-
 #include <sptk5/filedefs.h>
+#include <sptk5/SystemException.h>
 
 #define CASE_INSENSITIVE 1
 
@@ -50,7 +49,7 @@ using namespace std;
 using namespace sptk;
 
 /* That function is adapted from Rich Salz. */
-bool fl_file_match(const char *s, const char *p)
+bool fl_file_match(const char* s, const char* p)
 {
     int nesting;
 
@@ -100,7 +99,7 @@ bool fl_file_match(const char *s, const char *p)
                 break;
 
             case '{': // {pattern1|pattern2|pattern3}
-                NEXTCASE :
+            NEXTCASE :
                 if (fl_file_match(s, p))
                     return true;
                 for (nesting = 0;;) {
@@ -182,7 +181,7 @@ bool fl_file_match(const char *s, const char *p)
 
 // Returns typename
 
-string DirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, const char *fname) const
+string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, const char* fname) const
 {
     bool executable = S_ISEXEC(st.st_mode);
     bool directory = false;
@@ -205,8 +204,8 @@ string DirectoryDS::getFileType(const struct stat &st, CSmallPixmapType& image, 
         image = SXPM_EXECUTABLE;
     } else {
         if (!directory) {
-            const char *ext = strrchr(fname, '.');
-            const char *sep = strrchr(fname, slash);
+            const char* ext = strrchr(fname, '.');
+            const char* sep = strrchr(fname, slash);
             if (ext && ext > sep) {
                 ext++;
                 if (strcasecmp(ext, "doc") == 0)
@@ -303,7 +302,7 @@ bool DirectoryDS::open()
     if (hFind == INVALID_HANDLE_VALUE)
         return false;
 #else
-    dirent **files;
+    dirent** files;
     //int num_files = fl_filename_list(m_directory.c_str(), &files);
     int num_files = scandir(m_directory.c_str(), &files, nullptr, alphasort);
     if (num_files <= 0)
@@ -325,7 +324,7 @@ bool DirectoryDS::open()
             n++;
             continue;
         }
-        auto* file = (char *) files[n]->d_name;
+        auto* file = (char*) files[n]->d_name;
 #endif
 
         size_t len = strlen(file);
@@ -373,14 +372,6 @@ bool DirectoryDS::open()
         } else
             is_dir = true;
 
-        CSmallPixmapType pixmapType;
-        String modeName = getFileType(st, pixmapType, file);
-
-        if (is_link) {
-            modeName += ' ';
-            modeName += "link";
-        }
-
         bool useEntry;
         if (is_dir)
             useEntry = (showPolicy() & DDS_HIDE_DIRECTORIES) == 0;
@@ -388,23 +379,7 @@ bool DirectoryDS::open()
             useEntry = (showPolicy() & DDS_HIDE_FILES) == 0;
 
         if (useEntry) {
-            auto* df = new FieldList(false);
-            df->push_back(" ", false).setImageNdx(pixmapType);
-            df->push_back("Name", false) = file;
-            if (modeName == "Directory")
-                df->push_back("Size", false) = "";
-            else
-                df->push_back("Size", false) = (uint32_t) st.st_size;
-            df->push_back("Type", false) = modeName;
-            df->push_back("Modified", false) = DateTime::convertCTime(st.st_mtime);
-            df->push_back("", false) = (uint32_t) index; // Fake key value
-            index++;
-
-            if (access(fullName.c_str(), R_OK) != 0) {
-                (*df)[uint32_t(0)].view.flags = FL_ALIGN_LEFT;
-                (*df)[uint32_t(1)].view.flags = FL_ALIGN_LEFT;
-            }
-
+            FieldList* df = makeFileListEntry(st, index, file, is_link, fullName);
             if (is_dir)
                 m_list.push_back(df);
             else
@@ -419,10 +394,9 @@ bool DirectoryDS::open()
         n++;
     }
 #ifdef _WIN32
-    while (FindNextFile(hFind, &FindFileData));
+        while (FindNextFile(hFind, &FindFileData));
 #else
-    while (n < num_files)
-        ;
+    while (n < num_files);
 #endif
 
     for (auto& file: fileList)
@@ -445,40 +419,70 @@ bool DirectoryDS::open()
     return !m_list.empty();
 }
 
+FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index, char* file, bool is_link,
+                                          const string& fullName) const
+{
+    CSmallPixmapType pixmapType;
+    String modeName = getFileType(st, pixmapType, file);
+
+    if (is_link) {
+        modeName += ' ';
+        modeName += "link";
+    }
+
+    auto* df = new FieldList(false);
+    df->push_back(" ", false).setImageNdx(pixmapType);
+    df->push_back("Name", false) = file;
+    if (modeName == "Directory")
+        df->push_back("Size", false) = "";
+    else
+        df->push_back("Size", false) = (uint32_t) st.st_size;
+    df->push_back("Type", false) = modeName;
+    df->push_back("Modified", false) = DateTime::convertCTime(st.st_mtime);
+    df->push_back("", false) = (uint32_t) index; // Fake key value
+    index++;
+
+    if (access(fullName.c_str(), R_OK) != 0) {
+        (*df)[uint32_t(0)].view.flags = FL_ALIGN_LEFT;
+        (*df)[uint32_t(1)].view.flags = FL_ALIGN_LEFT;
+    }
+    return df;
+}
+
 #if USE_GTEST
 
 #ifdef _WIN32
-	const String testTempDirectory = "C:\\gtest_temp_dir";
+const String testTempDirectory = "C:\\gtest_temp_dir";
 #else
-	const String testTempDirectory = "/tmp/gtest_temp_dir";
+const String testTempDirectory = "/tmp/gtest_temp_dir";
 #endif
 
 class TempDirectory
 {
 public:
-    String  m_path;
+    String m_path;
 
     explicit TempDirectory(const String& path)
-    : m_path(path)
+            : m_path(path)
     {
 #ifdef _WIN32
-		int rc = system(("mkdir " + m_path).c_str());
-		if (rc < 0)
-			throw SystemException(("Can't create temp directory " + m_path).c_str());
-		rc = system(("mkdir " + m_path + "\\dir1").c_str());
-		if (rc < 0)
-			throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
+        int rc = system(("mkdir " + m_path).c_str());
+        if (rc < 0)
+            throw SystemException(("Can't create temp directory " + m_path).c_str());
+        rc = system(("mkdir " + m_path + "\\dir1").c_str());
+        if (rc < 0)
+            throw SystemException(("Can't create temp directory " + m_path + "/dir1").c_str());
 #else
-		int rc = mkdir(m_path.c_str(), 0777);
-		if (rc < 0)
-			throw SystemException("Can't create temp directory " + m_path);
-		rc = mkdir((m_path + "/dir1").c_str(), 0777);
-		if (rc < 0)
-			throw SystemException("Can't create temp directory " + m_path + "/dir1");
+        int rc = mkdir(m_path.c_str(), 0777);
+        if (rc < 0)
+            throw SystemException("Can't create temp directory " + m_path);
+        rc = mkdir((m_path + "/dir1").c_str(), 0777);
+        if (rc < 0)
+            throw SystemException("Can't create temp directory " + m_path + "/dir1");
 #endif
 
         Buffer buffer;
-        buffer.fill('X',10);
+        buffer.fill('X', 10);
         buffer.saveToFile(m_path + "/file1");
         buffer.saveToFile(m_path + "/file2");
     }
@@ -486,9 +490,9 @@ public:
     ~TempDirectory()
     {
 #ifdef _WIN32
-		system(("rmdir /s /q " + m_path).c_str());
+        system(("rmdir /s /q " + m_path).c_str());
 #else
-		system(("rm -rf " + m_path).c_str());
+        system(("rm -rf " + m_path).c_str());
 #endif
     }
 };
@@ -499,9 +503,9 @@ TEST (SPTK_DirectoryDS, open)
 
     DirectoryDS directoryDS(testTempDirectory + "1");
     directoryDS.open();
-    map<String,int> files;
+    map<String, int> files;
     while (!directoryDS.eof()) {
-        files[ directoryDS["Name"].asString() ] =  directoryDS["Size"].asInteger();
+        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
         directoryDS.next();
     }
     directoryDS.close();
@@ -516,9 +520,9 @@ TEST (SPTK_DirectoryDS, patterns)
 
     DirectoryDS directoryDS(testTempDirectory + "2", "file1;dir*", DDS_HIDE_DOT_FILES);
     directoryDS.open();
-    map<String,int> files;
+    map<String, int> files;
     while (!directoryDS.eof()) {
-        files[ directoryDS["Name"].asString() ] =  directoryDS["Size"].asInteger();
+        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
         directoryDS.next();
     }
     directoryDS.close();

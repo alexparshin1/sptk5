@@ -523,6 +523,8 @@ public:
      * @brief Sets system's time mode
      */
     static void time24Mode(bool t24mode);
+
+    static short correctTwoDigitYear(short year);
 };
 
 /**

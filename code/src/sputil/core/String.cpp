@@ -82,7 +82,6 @@ String String::trim() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const String testString("This is a test");
 
