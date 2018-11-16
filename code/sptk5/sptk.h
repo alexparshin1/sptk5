@@ -130,6 +130,7 @@ namespace sptk {
 	#define vsnprintf _vsnprintf
 	#define strcasecmp _stricmp
 	#define strncasecmp _strnicmp
+	#define strtok_r strtok_s
 #endif
 
 #if USE_GTEST
