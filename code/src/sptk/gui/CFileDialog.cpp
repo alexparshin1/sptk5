@@ -157,9 +157,7 @@ void CFileDialog::pattern_cb(Fl_Widget* w, void*)
         return;
 
     auto fileDialog = (CFileDialog*) w->window();
-
-    if (fileDialog->pattern() != fileDialog->m_directory.pattern())
-        fileDialog->refreshDirectory();
+    fileDialog->refreshDirectory();
 }
 
 CFileDialog::CFileDialog(const string& label, bool saveMode)

@@ -77,7 +77,6 @@ void PoolDatabaseConnection::open(const String& newConnectionString)
 
 void PoolDatabaseConnection::closeDatabase()
 {
-    //closeDatabase();
 }
 
 void PoolDatabaseConnection::close()
@@ -88,7 +87,7 @@ void PoolDatabaseConnection::close()
             m_inTransaction = false;
         }
 
-        for (auto query: m_queryList)
+        for (auto* query: m_queryList)
             query->closeQuery(true);
 
         closeDatabase();

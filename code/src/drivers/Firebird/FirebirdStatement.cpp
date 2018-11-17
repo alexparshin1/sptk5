@@ -270,7 +270,7 @@ void FirebirdStatement::setParameterValues()
             default:
             {
                 char buffer[256];
-                sprintf(buffer, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
+                snprintf(buffer, sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
                 throw DatabaseException(buffer);
             }
         }
@@ -329,7 +329,7 @@ void FirebirdStatement::bindResult(FieldList& fields)
         strncpy(columnName, sqlvar.aliasname, sizeof(columnName));
         columnName[sizeof(columnName)-1] = 0;
         if (columnName[0] == 0)
-            sprintf(columnName, "column_%02i", columnIndex + 1);
+            snprintf(columnName, sizeof(columnName)-1, "column_%02i", columnIndex + 1);
 
         VariantType fieldType = firebirdTypeToVariantType(type, sqlvar.sqlsubtype);
         auto fieldLength = (unsigned) sqlvar.sqllen;
@@ -495,7 +495,7 @@ void FirebirdStatement::fetchResult(FieldList& fields)
             default:
                 {
                     char buffer[256];
-                    sprintf(buffer, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
+                    snprintf(buffer, sizeof(buffer) - 1, "Unsupported Firebird type %i", sqlvar.sqltype & 0xFFFE);
                     throw DatabaseException(buffer);
                 }
         }

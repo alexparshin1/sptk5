@@ -96,12 +96,12 @@ int main(int argc, char **argv)
 
         listView.showGrid(false);
 
-        char buffer1[10];
-        char buffer2[10];
+        char buffer1[20];
+        char buffer2[20];
         int maxItems = 20;
         for(int a=0; a<maxItems; a++) {
-            sprintf(buffer1, "%i", a);
-            sprintf(buffer2, "%i", maxItems-a);
+            snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
+            snprintf(buffer2, sizeof(buffer2) - 1, "%i", maxItems-a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
             auto ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);

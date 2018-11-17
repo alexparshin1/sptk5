@@ -120,7 +120,7 @@ void QueryParameter::setString(const char * value, size_t maxlen)
                 }
             } else {
                 if ((m_dataType & (VAR_STRING | VAR_TEXT | VAR_BUFFER)) != 0 && m_data.buffer.data != nullptr)
-                    free(m_data.buffer.data);
+                    delete [] m_data.buffer.data;
                 m_data.buffer.size = m_dataSize + 1;
                 m_data.buffer.data = new char[m_data.buffer.size];
                 strncpy(m_data.buffer.data, value, m_dataSize);

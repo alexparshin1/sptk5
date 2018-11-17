@@ -156,8 +156,6 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         select.next();
     }
     select.close();
-
-    //dropTable.exec();
 }
 
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
@@ -236,20 +234,20 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     db->bulkInsert("gtest_temp_table", columnNames, data);
 
     selectData.open();
-    Strings rows;
+    Strings printRows;
     while (!selectData.eof()) {
         Strings row;
-        for (auto field: selectData.fields())
+        for (auto* field: selectData.fields())
             row.push_back(field->asString().trim());
-        rows.push_back(row.join("|"));
+        printRows.push_back(row.join("|"));
         selectData.next();
     }
     selectData.close();
 
-    if (rows.size() > 3)
-        throw Exception("Expected bulk insert result (3 rows) doesn't match table data (" + int2string(rows.size()) + ")");
+    if (printRows.size() > 3)
+        throw Exception("Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
 
-    String actualResult(rows.join(" # "));
+    String actualResult(printRows.join(" # "));
     if (actualResult != expectedBulkInsertResult)
         throw Exception("Expected bulk insert result doesn't match inserted data");
 }

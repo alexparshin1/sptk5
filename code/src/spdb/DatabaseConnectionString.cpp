@@ -139,7 +139,6 @@ bool DatabaseConnectionString::empty() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_DatabaseConnectionString, ctorSimple)
 {

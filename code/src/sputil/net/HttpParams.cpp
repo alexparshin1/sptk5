@@ -56,7 +56,7 @@ String HttpParams::encodeString(const String& str)
                 dest++;
                 break;
             default:
-                sprintf(dest, "%%%02X", (unsigned char)*src);
+                snprintf(dest, 5, "%%%02X", (unsigned char)*src);
                 dest += 3;
                 break;
             }

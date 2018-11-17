@@ -114,7 +114,7 @@ protected:
     /**
      * Socket internal (OS) handle
      */
-    SOCKET      m_sockfd;
+    SOCKET      m_sockfd {INVALID_SOCKET};
 
     /**
      * Socket domain type

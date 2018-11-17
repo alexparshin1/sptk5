@@ -30,9 +30,11 @@
 #include <sptk5/SystemException.h>
 
 #ifndef WIN32
-    /// *nix only
-    #include <dlfcn.h>
-#else
+#include <dlfcn.h>
+#endif
+
+#if USE_GTEST
+#include <sptk5/db/DatabaseTests.h>
 #endif
 
 using namespace std;
@@ -80,7 +82,7 @@ DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, u
 bool DatabaseConnectionPool::closeConnectionCB(PoolDatabaseConnection*& item, void* data)
 {
     PoolDatabaseConnection* connection = item;
-    auto connectionPool = (DatabaseConnectionPool*)data;
+    auto* connectionPool = (DatabaseConnectionPool*)data;
     connectionPool->destroyConnection(connection, false);
     return true;
 }
@@ -209,8 +211,6 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/db/DatabaseTests.h>
 
 TEST(SPTK_PostgreSQLConnection, connect)
 {

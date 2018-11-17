@@ -28,6 +28,26 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/cgroup_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/cscroll_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/splitter.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/themes_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
           <value>
             <set />
@@ -83,6 +103,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/BaseSocket.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/sptk.h">
           <value>
             <set />
@@ -93,12 +118,62 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/Firebird/FirebirdStatement.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/Oracle/OracleConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/PostgreSQL/PostgreSQLConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionPool.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionString.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/DatabaseField.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
           <value>
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/PoolDatabaseConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/Query.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/spdb/QueryParameter.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/QueryParameterList.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CFileDialog.cpp">
           <value>
             <set />
           </value>
@@ -189,6 +264,21 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/string_ext.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/BaseMailConnect.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/BaseSocket.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sputil/net/HttpParams.cpp">
           <value>
             <set />
           </value>

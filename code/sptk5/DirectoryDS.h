@@ -103,7 +103,7 @@ private:
     /**
      * Current file pattern
      */
-    Strings         m_patterns;
+    std::vector< std::shared_ptr<RegularExpression> > m_patterns;
 
     /**
      * Show policy, see CDirectoryDSpolicies for more information
@@ -177,17 +177,14 @@ public:
      * Sets pattern in format like: "*.txt;*.csv;*.xls"
      * @param pattern           Patterns to match, separated with ';'
      */
-    void pattern(const String& pattern)
+    void pattern(const String& wildcards)
     {
-        m_patterns.fromString(pattern, ";", Strings::SM_DELIMITER);
-    }
-
-    /**
-     * Returns pattern in format like: "*.txt;*.csv;*.xls"
-     */
-    String pattern() const
-    {
-        return m_patterns.asString(";");
+        Strings patterns(wildcards, ";", Strings::SM_DELIMITER);
+        m_patterns.clear();
+        for (auto& pattern: patterns) {
+            auto matchPattern = wildcardToRegexp(pattern);
+            m_patterns.push_back(matchPattern);
+        }
     }
 
     /**
@@ -206,6 +203,7 @@ private:
     Strings getFileNames();
     FieldList* makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
                                      const String& fullName, bool is_link) const;
+    CSmallPixmapType imageTypeFromExtention(const char* ext) const;
 };
 /**
  * @}

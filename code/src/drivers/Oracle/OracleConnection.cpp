@@ -379,7 +379,7 @@ void OracleConnection::queryOpen(Query *query)
                 int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
                 if (columnName.empty()) {
                     char alias[32];
-                    sprintf(alias, "column_%02i", int(columnIndex + 1));
+                    snprintf(alias, sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
                     columnName = alias;
                 }
                 if (columnType == Type::OCCI_SQLT_LNG && columnDataSize == 0)
@@ -614,7 +614,7 @@ String OracleConnection::driverDescription() const
 String OracleConnection::paramMark(unsigned paramIndex)
 {
     char mark[16];
-    sprintf(mark, ":%i", paramIndex + 1);
+    snprintf(mark, sizeof(mark) - 1, ":%i", paramIndex + 1);
     return string(mark);
 }
 

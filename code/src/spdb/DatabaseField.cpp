@@ -34,12 +34,12 @@ using namespace sptk;
 
 DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType,
                              VariantType dataType, int fieldLength, int fieldScale)
-: Field(fName.c_str())
+: Field(fName.c_str()),
+  m_fldType(fieldType),
+  m_fldColumn(fieldColumn),
+  m_fldSize(fieldLength),
+  m_fldScale(fieldScale)
 {
-    m_fldType = fieldType;
-    m_fldColumn = fieldColumn;
-    m_fldSize = fieldLength;
-    m_fldScale = fieldScale;
     visible = true;
     displayName = fName;
     alignment = ALIGN_LEFT;
@@ -49,53 +49,53 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
     switch (dataType)
     {
     case VAR_BOOL:
-        setBool(false);
+        Variant::setBool(false);
         view.width = 6;
         break;
 
     case VAR_INT:
-        setInteger(0);
+        Variant::setInteger(0);
         view.width = 10;
         break;
 
     case VAR_FLOAT:
-        setFloat(0);
+        Variant::setFloat(0);
         view.width = 16;
         view.precision = fieldScale;
         break;
 
     case VAR_STRING:
-        setString("");
+        Variant::setString("");
         checkSize((size_t)fieldLength + 1);
         view.width = fieldLength;
         break;
 
     case VAR_TEXT:
-        setText("");
+        Variant::setText("");
         checkSize((size_t)fieldLength + 1);
         view.width = fieldLength;
         break;
 
     case VAR_BUFFER:
-        setBuffer("", 1);
+        Variant::setBuffer("", 1);
         checkSize((size_t)fieldLength);
         view.width = 1;
         break;
 
     case VAR_DATE:
     case VAR_DATE_TIME:
-        setDateTime(DateTime());
+        Variant::setDateTime(DateTime());
         Field::dataType(dataType);
         view.width = 10;
         break;
 
     case VAR_INT64:
-        setInt64(0);
+        Variant::setInt64(0);
         view.width = 16;
         break;
 
     default:
-        setString("");
+        Variant::setString("");
         checkSize((size_t)fieldLength + 1);
         view.width = fieldLength;
         break;
@@ -106,9 +106,13 @@ void DatabaseField::checkSize(size_t sz)
 {
     if (sz > m_data.buffer.size) {
         size_t newSize = (sz / 16 + 1) * 16;
-        auto p = (char *) realloc(m_data.buffer.data, newSize + 1);
+        auto* p = new char[newSize + 1];
         if (p == nullptr)
             throw DatabaseException("Can't reallocate a buffer");
+        if (m_data.buffer.data != nullptr) {
+            memcpy(p, m_data.buffer.data, m_data.buffer.size);
+            delete[] m_data.buffer.data;
+        }
         m_data.buffer.data = p;
         m_data.buffer.size = newSize;
     }

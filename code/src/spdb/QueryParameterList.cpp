@@ -50,7 +50,7 @@ void QueryParameterList::clear()
     unsigned sz = size();
 
     for (unsigned i = 0; i < sz; i++) {
-        auto item = (QueryParameter*) m_items[i];
+        auto* item = (QueryParameter*) m_items[i];
         delete item;
     }
 

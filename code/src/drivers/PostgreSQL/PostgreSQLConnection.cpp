@@ -51,7 +51,6 @@ namespace sptk {
         int m_currentRow;
     public:
         PostgreSQLParamValues m_paramValues;
-    public:
 
         PostgreSQLStatement(bool int64timestamps, bool prepared)
             : m_stmt(nullptr), m_stmtName(), m_rows(0), m_cols(0), m_currentRow(0), m_paramValues(int64timestamps)
@@ -156,7 +155,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
 
         while (!m_queryList.empty()) {
             try {
-                auto query = (Query*) m_queryList[0];
+                auto* query = (Query*) m_queryList[0];
                 query->disconnect();
             } catch (...) {
             }
@@ -337,7 +336,7 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
     statement->clearRows();
 }
 
@@ -349,7 +348,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     querySetStmt(query, new PostgreSQLStatement(timestampsFormat == PG_INT64_TIMESTAMPS, query->autoPrepare()));
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
 
     PostgreSQLParamValues& params = statement->m_paramValues;
     params.setParameters(query->params());
@@ -387,7 +386,7 @@ void PostgreSQLConnection::queryUnprepare(Query* query)
 
 int PostgreSQLConnection::queryColCount(Query* query)
 {
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
 
     return (int) statement->colCount();
 }
@@ -396,7 +395,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
     PostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
@@ -448,7 +447,7 @@ void PostgreSQLConnection::queryExecDirect(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
     PostgreSQLParamValues& paramValues = statement->m_paramValues;
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
@@ -594,7 +593,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
     } else
         queryExecDirect(query);
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
 
     auto count = (short) queryColCount(query);
     if (count < 1) {
@@ -683,46 +682,6 @@ static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
     DateTime ts = epochDate + chrono::microseconds((int64_t) seconds * 1000000);
     return ts;
 }
-
-// Converts internal NUMERIC Postgresql binary to long double
-/*
-static inline long double readNumericToFloat(char* v)
-{
-    int16_t ndigits = ntohs(*(int16_t*) v);
-    int16_t weight = ntohs(*(int16_t*) (v + 2));
-    int16_t sign = ntohs(*(int16_t*) (v + 4));
-    //int16_t dscale  = ntohs(*(int16_t*)(v+6));
-
-    v += 8;
-    int64_t value = 0;
-    int64_t decValue = 0;
-    int64_t divider = 1;
-
-    if (weight < 0) {
-        for (int i = 0; i < -(weight + 1); i++)
-            divider *= 10000;
-        weight = -1;
-    }
-
-    for (int i = 0; i < ndigits; i++, v += 2) {
-        int16_t digit = ntohs(*(int16_t*) v);
-
-        if (i <= weight)
-            value = value * 10000 + digit;
-        else {
-            decValue = decValue * 10000 + digit;
-            divider *= 10000;
-        }
-    }
-
-    long double finalValue = value + decValue / (long double) (divider);
-
-    if (sign)
-        finalValue = -finalValue;
-
-    return finalValue;
-}
-*/
 
 // Converts internal NUMERIC Postgresql binary to long double
 static inline MoneyData readNumericToScaledInteger(const char* v)
@@ -881,7 +840,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
 
     statement->fetch();
 

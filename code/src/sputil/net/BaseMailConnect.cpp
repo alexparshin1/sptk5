@@ -93,7 +93,6 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 {
     Buffer bufSource;
     string strDest;
-    //char    *header = new char[1024];
 
     bufSource.loadFromFile(fileName);
 
@@ -114,7 +113,6 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
         if (length > LINE_CHARS) length = LINE_CHARS;
         memcpy(line, data + p, 80);
         line[length] = '\n';
-        //line[length+1] = '\n';
         length++;
         line[length] = 0;
         buffer.append(line, length);
@@ -144,7 +142,16 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "Subject: " << m_subject << endl;
 
     const DateTime date = DateTime::Now();
-    short dy, dm, dd, wd, yd, th, tm, ts, tms;
+    short dy;
+    short dm;
+    short dd;
+    short wd;
+    short yd;
+    short th;
+    short tm;
+    short ts;
+    short tms;
+
     date.decodeDate(&dy, &dm, &dd, &wd, &yd);
     date.decodeTime(&th, &tm, &ts, &tms);
 
@@ -200,8 +207,6 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
         message << endl << "--" << boundary2 << "--" << endl;
     }
 
-    //message << endl << "--" << boundary << "--" << endl;
-
     Strings sl(m_attachments, ";");
     for (auto& attachment: sl) {
         String attachmentAlias(attachment);
@@ -223,5 +228,4 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     buffer.reset(2048);
     buffer.append(message.str().c_str(), (uint32_t) message.str().length());
     buffer.saveToFile("/tmp/mimed.txt");
-    //exit(0);
 }

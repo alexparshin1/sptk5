@@ -30,16 +30,17 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/BaseSocket.h>
 
+#ifndef _WIN32
+#include <sys/poll.h>
+#endif
+
 using namespace std;
 using namespace sptk;
+
 
 #ifdef _WIN32
 static int   m_socketCount;
 static bool  m_inited(false);
-#else
-
-#include <sys/poll.h>
-
 #endif
 
 void BaseSocket::throwSocketError(const String& operation, const char* file, int line)
@@ -79,54 +80,25 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+: m_domain(domain), m_type(type), m_protocol(protocol)
 {
 #ifdef _WIN32
     init();
     m_socketCount++;
 #endif
-    m_sockfd = INVALID_SOCKET;
-    m_domain = domain;
-    m_type = type;
-    m_protocol = protocol;
 }
 
 // Destructor
 BaseSocket::~BaseSocket()
 {
-    close();
+    BaseSocket::close();
 #ifdef _WIN32
     m_socketCount--;
     if (!m_socketCount)
         cleanup();
 #endif
 }
-/*
-void BaseSocket::getHostAddress(const string& hostname, sockaddr_in& addr)
-{
-    memset(&addr, 0, sizeof(addr));
 
-#ifdef _WIN32
-    struct hostent* host_info = gethostbyname(hostname.c_str());
-    memcpy(&addr.sin_addr, host_info->h_addr, size_t(host_info->h_length));
-#else
-    struct addrinfo hints = {};
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;          // IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM;    // Socket type
-    //hints.ai_flags = AI_PASSIVE;      // For wildcard IP address
-    hints.ai_protocol = 0;
-
-    struct addrinfo* result;
-    int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result);
-    if (rc != 0)
-        throw Exception(gai_strerror(rc));
-
-    memcpy(&addr, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
-
-    freeaddrinfo(result);
-#endif
-}
-*/
 void BaseSocket::blockingMode(bool blocking)
 {
 #ifdef _WIN32

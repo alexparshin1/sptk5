@@ -108,7 +108,7 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
     char* save_ptr = nullptr;
     ptr = strtok_r(dt, separator, &save_ptr);
 
-    strcpy(format, "");
+    strncpy(format, "", 2);
 
     const char* pattern;
     while (ptr != nullptr) {
@@ -131,26 +131,26 @@ char DateTimeFormat::parseDateOrTime(char* format, const char* dateOrTime)
             case 17:
                 pattern = "39";   // day
                 if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
-                    strcat(DateTime::datePartsOrder, "D");
+                    strncat(DateTime::datePartsOrder, "D", 2);
                 break;
             case 6:
                 pattern = "19";   // month
                 if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
-                    strcat(DateTime::datePartsOrder, "M");
+                    strncat(DateTime::datePartsOrder, "M", 2);
                 break;
             case 2000:
             case 0:
                 pattern = "2999"; // year
                 if (strlen(DateTime::datePartsOrder) < sizeof(DateTime::datePartsOrder) - 2)
-                    strcat(DateTime::datePartsOrder, "Y");
+                    strncat(DateTime::datePartsOrder, "Y", 2);
                 break;
             default:
                 pattern = nullptr;
                 break;
         }
         if (pattern != nullptr) {
-            strcat(format, pattern);
-            strcat(format, separator);
+            strncat(format, pattern, 4);
+            strncat(format, separator, 2);
         }
         ptr = strtok_r(nullptr, separator, &save_ptr);
     }

@@ -129,16 +129,11 @@ Query::Query() noexcept
 }
 
 Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
-    : m_fields(true), m_bulkMode(false)
+: m_autoPrepare(autoPrepare), m_fields(true), m_createdFile(createdFile), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
-    m_statement = nullptr;
-    m_autoPrepare = autoPrepare;
-    m_prepared = false;
-    m_active = false;
-    m_eof = true;
-    m_createdFile = createdFile;
+
     m_createdLine = createdLine;
     if (_db) {
         m_db = _db->connection();
@@ -146,19 +141,14 @@ Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const
     } else {
         m_db = nullptr;
     }
-    sql(_sql);
+    Query::sql(_sql);
 }
 
 Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
-        : m_fields(true), m_bulkMode(false)
+: m_autoPrepare(autoPrepare), m_fields(true), m_createdFile(createdFile), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
-    m_statement = nullptr;
-    m_autoPrepare = autoPrepare;
-    m_prepared = false;
-    m_active = false;
-    m_eof = true;
     m_createdFile = createdFile;
     m_createdLine = createdLine;
     if (_db != nullptr) {
@@ -171,24 +161,17 @@ Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare, 
 }
 
 Query::Query(const Query& srcQuery)
-:   m_fields(true)
+: m_autoPrepare(srcQuery.m_autoPrepare), m_fields(true),
+  m_createdFile(srcQuery.m_createdFile), m_createdLine(srcQuery.m_createdLine)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
-    m_statement = nullptr;
-    m_autoPrepare = srcQuery.m_autoPrepare;
-    m_prepared = false;
-    m_active = false;
-    m_eof = true;
-    m_createdFile = srcQuery.m_createdFile;
-    m_createdLine = srcQuery.m_createdLine;
 
     if (srcQuery.m_db != nullptr) {
         m_db = srcQuery.m_db;
         m_db->linkQuery(this);
-    } else {
+    } else
         m_db = nullptr;
-    }
 
     sql(srcQuery.m_sql);
 }
@@ -350,7 +333,6 @@ void Query::closeQuery(bool releaseStatement)
             closeStmt();
         }
     }
-    //m_fields.clear();
 }
 
 void Query::connect(PoolDatabaseConnection* _db)
@@ -372,13 +354,11 @@ void Query::disconnect()
 
 bool Query::readField(const char*, Variant&)
 {
-    //fvalue = m_fields[fname];
     return true;
 }
 
 bool Query::writeField(const char*, const Variant&)
 {
-    //m_fields[fname] = fvalue;
     return true;
 }
 

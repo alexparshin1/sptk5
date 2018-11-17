@@ -76,19 +76,25 @@ string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, 
             const char* sep = strrchr(fname, slash);
             if (ext && ext > sep) {
                 ext++;
-                if (strcasecmp(ext, "doc") == 0)
-                    image = SXPM_DOC_DOCUMENT;
-                if (strcasecmp(ext, "txt") == 0)
-                    image = SXPM_TXT_DOCUMENT;
-                if (strcasecmp(ext, "xls") == 0)
-                    image = SXPM_XLS_DOCUMENT;
-                if (strcasecmp(ext, "csv") == 0)
-                    image = SXPM_XLS_DOCUMENT;
+                image = imageTypeFromExtention(ext);
             }
         }
     }
 
     return modeName;
+}
+
+CSmallPixmapType DirectoryDS::imageTypeFromExtention(const char* ext) const
+{
+    if (strcasecmp(ext, "doc") == 0)
+        return SXPM_DOC_DOCUMENT;
+    else if (strcasecmp(ext, "txt") == 0)
+        return SXPM_TXT_DOCUMENT;
+    else if (strcasecmp(ext, "xls") == 0)
+        return SXPM_XLS_DOCUMENT;
+    else if (strcasecmp(ext, "csv") == 0)
+        return SXPM_XLS_DOCUMENT;
+    return SXPM_DOCUMENT;
 }
 
 // Define access mode constants if they aren't already defined.
@@ -209,12 +215,6 @@ bool DirectoryDS::open()
 {
     clear();
 
-    vector< shared_ptr<RegularExpression> > matchPatterns;
-    for (auto& pattern: m_patterns) {
-        auto matchPattern = wildcardToRegexp(pattern);
-        matchPatterns.push_back(matchPattern);
-    }
-
     vector<FieldList*>  fileList;
     Strings             fileNames = getFileNames();
     unsigned            index = 0;
@@ -246,7 +246,7 @@ bool DirectoryDS::open()
         if (!is_dir) {
             if ((showPolicy() & DDS_HIDE_FILES) == DDS_HIDE_FILES)
                 continue;
-            if (!matchPatterns.empty() && !fileMatchesPattern(fileName, matchPatterns))
+            if (!m_patterns.empty() && !fileMatchesPattern(fileName, m_patterns))
                 continue;
         } else {
             if ((showPolicy() & DDS_HIDE_DIRECTORIES) == DDS_HIDE_DIRECTORIES)
