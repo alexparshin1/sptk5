@@ -278,7 +278,8 @@ void Variant::setString(const char* value, size_t maxlen)
                 dataSize(strlen(value));
                 dtype &= VAR_TYPES | VAR_EXTERNAL_BUFFER;
                 m_data.buffer.size = dataSize() + 1;
-                m_data.buffer.data = strdup(value);
+                m_data.buffer.data = new char[m_data.buffer.size];
+                strncpy(m_data.buffer.data, value, m_data.buffer.size);
             }
         } else {
             m_data.buffer.data = nullptr;
@@ -337,7 +338,8 @@ void Variant::setText(const char* value)
     if (value != nullptr) {
         dataSize(strlen(value));
         m_data.buffer.size = dataSize() + 1;
-        m_data.buffer.data = strdup(value);
+        m_data.buffer.data = new char[m_data.buffer.size];
+        strncpy(m_data.buffer.data, value, m_data.buffer.size);
     } else {
         m_dataType |= VAR_NULL;
         m_data.buffer.data = nullptr;
@@ -356,7 +358,8 @@ void Variant::setText(const string& value)
     if (vlen != 0) {
         dataSize(vlen);
         m_data.buffer.size = vlen + 1;
-        m_data.buffer.data = strdup(value.c_str());
+        m_data.buffer.data = new char[m_data.buffer.size];
+        strncpy(m_data.buffer.data, value.c_str(), m_data.buffer.size);
     } else {
         m_dataType |= VAR_NULL;
         m_data.buffer.data = nullptr;

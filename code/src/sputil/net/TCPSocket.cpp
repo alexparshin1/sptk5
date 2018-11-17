@@ -191,7 +191,7 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
         throw Exception("Can't read from closed socket", __FILE__, __LINE__);
 
     while (eol == 0) {
-        auto bytesToRead = int(destinationBuffer.capacity() - total);
+        auto bytesToRead = int(destinationBuffer.capacity() - total - 1);
         if (bytesToRead <= 128) {
             destinationBuffer.checkSize(destinationBuffer.capacity() + 128);
             bytesToRead = int(destinationBuffer.capacity() - total - 1);
@@ -200,7 +200,6 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
         char *destination = destinationBuffer.data() + total;
 
         int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, true);
-
         if (bytes == 0) // No more data
             break;
 

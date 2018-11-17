@@ -254,6 +254,7 @@ bool DirectoryDS::open()
         }
 
         FieldList* df = makeFileListEntry(st, index, fileName, fullName, is_link);
+
         if (is_dir)
             m_list.push_back(df);
         else

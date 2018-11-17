@@ -13,7 +13,17 @@
             <set />
           </value>
         </entry>
+        <entry key="/directory_ds (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/fragment.mm">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/datasources/directory_ds.cpp">
           <value>
             <set />
           </value>
@@ -84,6 +94,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/QueryParameter.cpp">
           <value>
             <set />
           </value>
