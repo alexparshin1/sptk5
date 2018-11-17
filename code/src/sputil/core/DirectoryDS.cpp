@@ -292,21 +292,43 @@ bool DirectoryDS::open()
 {
     clear();
 
-    size_t dlen = m_directory.length() - 1;
-    if (dlen != 0 && m_directory[dlen] != slash)
-        m_directory += slash;
-
+	auto matchPattern = wildcardToRegexp();
+	Strings fileNames;
 #ifdef _WIN32
-    WIN32_FIND_DATA FindFileData;
-    HANDLE hFind = FindFirstFile((m_directory + "*.*").c_str(), &FindFileData);
-    if (hFind == INVALID_HANDLE_VALUE)
-        return false;
+	//open a directory the WIN32 way
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA fdata;
+
+	if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
+		m_directory = m_directory.substr(0, m_directory.length() - 1);
+
+	hFind = FindFirstFile(m_directory.append("\\*").c_str(), &fdata);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			fileNames.push_back(fdata.cFileName);
+		} while (FindNextFile(hFind, &fdata) != 0);
+	}
+
+	if (GetLastError() != ERROR_NO_MORE_FILES)
+	{
+		FindClose(hFind);
+		throw Exception("Error opening directory '" + m_directory + "'");
+	}
+
+	FindClose(hFind); 
 #else
-    dirent** files;
-    //int num_files = fl_filename_list(m_directory.c_str(), &files);
-    int num_files = scandir(m_directory.c_str(), &files, nullptr, alphasort);
-    if (num_files <= 0)
-        return false;
+	DIR* dp = opendir(dir_name);
+
+	if (dp != nullptr) {
+		struct dirent *ep;
+		while (ep = readdir(dp))
+			fileNames.push_back(ep->d_name);
+		closedir(dp);
+	}
+	else {
+		throw Exception("Error opening directory '" + m_directory + "'");
+		return;
+	}
 #endif
 
     struct stat st = {};
