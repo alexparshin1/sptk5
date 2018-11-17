@@ -451,7 +451,7 @@ FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index
 
 std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& wildcard)
 {
-    String regexpStr;
+    String regexpStr("^");
     bool groupStarted = false;
     bool charClassStarted = false;
     for (size_t pos = 0; pos < wildcard.length(); pos++) {
@@ -513,6 +513,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
         }
         regexpStr += ch;
     }
+    regexpStr += "$";
     return make_shared<RegularExpression>(regexpStr);
 }
 
@@ -584,16 +585,13 @@ TEST (SPTK_DirectoryDS, open)
 TEST (SPTK_DirectoryDS, patternToRegexp)
 {
     auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
-    EXPECT_STREQ("[abc]..", regexp->pattern().c_str());
+    EXPECT_STREQ("^[abc]..$", regexp->pattern().c_str());
 
     regexp = DirectoryDS::wildcardToRegexp("[!a-f][c-z].doc");
-    EXPECT_STREQ("[^a-f][c-z]\\.doc", regexp->pattern().c_str());
+    EXPECT_STREQ("^[^a-f][c-z]\\.doc$", regexp->pattern().c_str());
 
     regexp = DirectoryDS::wildcardToRegexp("{full,short}.*");
-    EXPECT_STREQ("(full|short)\\..*", regexp->pattern().c_str());
-
-    regexp = DirectoryDS::wildcardToRegexp("{full,short?}.*");
-    EXPECT_STREQ("(full|short.)\\..*", regexp->pattern().c_str());
+    EXPECT_STREQ("^(full|short)\\..*$", regexp->pattern().c_str());
 }
 
 TEST (SPTK_DirectoryDS, patterns)
