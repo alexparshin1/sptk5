@@ -41,7 +41,7 @@ Exception::Exception(const String& text, const String& file, int line, const Str
         String fname(file);
         if (matchFileName.m(file, matches))
             fname = matches[0];
-        m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
+		m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
     }
 
     if (!m_description.empty())
@@ -233,7 +233,11 @@ TEST(Exception, throw)
         throw Exception("Test exception", __FILE__, 1234, "This happens sometimes");
     }
     catch (const Exception& e) {
-        EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#ifdef _WIN32
+		EXPECT_STREQ("Test exception in core\\exception.cpp(1234). This happens sometimes.", e.what());
+#else
+		EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#endif
         EXPECT_STREQ("Test exception", e.message().c_str());
         EXPECT_STREQ(__FILE__, e.file().c_str());
         EXPECT_EQ(1234, e.line());
@@ -246,7 +250,11 @@ TEST(HttpException, throw)
         throw HTTPException(404, "File not found", __FILE__, 1234, "This happens sometimes");
     }
     catch (const HTTPException& e) {
-        EXPECT_STREQ("File not found in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#ifdef _WIN32
+		EXPECT_STREQ("File not found in core\\exception.cpp(1234). This happens sometimes.", e.what());
+#else
+		EXPECT_STREQ("File not found in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#endif
         EXPECT_STREQ("File not found", e.message().c_str());
         EXPECT_STREQ(__FILE__, e.file().c_str());
         EXPECT_EQ(1234, e.line());
@@ -258,7 +266,11 @@ TEST(HttpException, throw)
         throw HTTPException(500, "Something happen", __FILE__, 1234, "This happens sometimes");
     }
     catch (const HTTPException& e) {
-        EXPECT_STREQ("Something happen in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#ifdef _WIN32
+		EXPECT_STREQ("Something happen in core\\exception.cpp(1234). This happens sometimes.", e.what());
+#else
+		EXPECT_STREQ("Something happen in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#endif
         EXPECT_STREQ("Something happen", e.message().c_str());
         EXPECT_STREQ(__FILE__, e.file().c_str());
         EXPECT_EQ(1234, e.line());
