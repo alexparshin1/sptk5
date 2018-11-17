@@ -68,12 +68,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/AutoDatabaseConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/sptk.h">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/sptk5/string_ext.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
           <value>
             <set />
           </value>

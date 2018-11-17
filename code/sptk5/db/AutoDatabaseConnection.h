@@ -84,6 +84,9 @@ public:
      */
     void open(const String& connectionString = "")
     {
+        if (!m_connection)
+            throw Exception("DB driver not loaded");
+
         m_connection->open(connectionString);
     }
 
