@@ -175,7 +175,7 @@ Strings DirectoryDS::getFileNames()
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA fdata;
 
-	hFind = FindFirstFile(m_directory.append("\\*").c_str(), &fdata);
+	hFind = FindFirstFile((m_directory + "\\*").c_str(), &fdata);
 	if (hFind != INVALID_HANDLE_VALUE) {
 		do {
 			fileNames.push_back(fdata.cFileName);
@@ -246,7 +246,7 @@ bool DirectoryDS::open()
         if (!is_dir) {
             if ((showPolicy() & DDS_HIDE_FILES) == DDS_HIDE_FILES)
                 continue;
-            if (!m_patterns.empty() && !fileMatchesPattern(fileName, matchPatterns))
+            if (!matchPatterns.empty() && !fileMatchesPattern(fileName, matchPatterns))
                 continue;
         } else {
             if ((showPolicy() & DDS_HIDE_DIRECTORIES) == DDS_HIDE_DIRECTORIES)
