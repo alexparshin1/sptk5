@@ -103,7 +103,7 @@ private:
     /**
      * Current file pattern
      */
-    Strings         m_pattern;
+    Strings         m_patterns;
 
     /**
      * Show policy, see CDirectoryDSpolicies for more information
@@ -179,7 +179,7 @@ public:
      */
     void pattern(const String& pattern)
     {
-        m_pattern.fromString(pattern, ";", Strings::SM_DELIMITER);
+        m_patterns.fromString(pattern, ";", Strings::SM_DELIMITER);
     }
 
     /**
@@ -187,7 +187,7 @@ public:
      */
     String pattern() const
     {
-        return m_pattern.asString(";");
+        return m_patterns.asString(";");
     }
 
     /**
@@ -203,7 +203,9 @@ public:
     static std::shared_ptr<RegularExpression> wildcardToRegexp(const String& wildcard);
 
 private:
-    FieldList* makeFileListEntry(const struct stat& st, unsigned& index, char* file, bool is_link, const std::string& fullName) const;
+    Strings getFileNames();
+    FieldList* makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
+                                     const String& fullName, bool is_link) const;
 };
 /**
  * @}

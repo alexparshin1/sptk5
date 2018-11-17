@@ -38,6 +38,7 @@
 #ifdef _WIN32
 const char slash = '\\';
 #else
+#include <dirent.h>
 const char slash = '/';
 #endif
 
@@ -47,139 +48,6 @@ const char slash = '/';
 
 using namespace std;
 using namespace sptk;
-
-/* That function is adapted from Rich Salz. */
-bool fl_file_match(const char* s, const char* p)
-{
-    int nesting;
-
-    for (;;) {
-        switch (*p++) {
-
-            case '?': // match any single character
-                if (!*s++)
-                    return false;
-                break;
-
-            case '*': // match 0-n of any characters
-                // do trailing * quickly
-                if (!*p)
-                    return true;
-                while (!fl_file_match(s, p))
-                    if (!*s++)
-                        return false;
-                return true;
-
-            case '[': // match one character in set of form [abc-d] or [^a-b]
-            {
-                if (!*s)
-                    return false;
-                bool reverse = (*p == '^' || *p == '!');
-                if (reverse)
-                    p++;
-                bool matched = false;
-                char last = 0;
-                while (*p) {
-                    if (*p == '-' && last) {
-                        if (*s <= *++p && *s >= last)
-                            matched = true;
-                    } else {
-                        if (*s == *p)
-                            matched = true;
-                    }
-                    last = *p++;
-                    if (*p == ']')
-                        break;
-                }
-                if (matched == reverse)
-                    return false;
-                s++;
-                p++;
-            }
-                break;
-
-            case '{': // {pattern1|pattern2|pattern3}
-            NEXTCASE :
-                if (fl_file_match(s, p))
-                    return true;
-                for (nesting = 0;;) {
-                    switch (*p++) {
-                        case '\\':
-                            if (*p)
-                                p++;
-                            break;
-                        case '{':
-                            nesting++;
-                            break;
-                        case '}':
-                            if (!nesting--)
-                                return false;
-                            break;
-                        case '|':
-                        case ',':
-                            if (nesting == 0)
-                                goto NEXTCASE;
-                        case 0:
-                            return false;
-                        default:
-                            break;
-                    }
-                }
-            case '|': // skip rest of |pattern|pattern} when called recursively
-            case ',':
-                for (nesting = 0; *p && nesting >= 0;) {
-                    switch (*p++) {
-                        case '\\':
-                            if (*p)
-                                p++;
-                            break;
-                        case '{':
-                            nesting++;
-                            break;
-                        case '}':
-                            nesting--;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                break;
-            case '}':
-                break;
-
-            case 0: // end of pattern
-                return !*s;
-
-#if CASE_INSENSITIVE
-
-            case '\\': // quote next character
-                if (*p)
-                    p++;
-                if (*s++ != *(p - 1))
-                    return false;
-                break;
-            default:
-                if (*s != *(p - 1) && tolower(*s) != *(p - 1))
-                    return false;
-                s++;
-                break;
-#else
-
-            case '\\': // quote next character
-                if (*p)
-                    p++;
-            default:
-                if (*s++ != *(p - 1))
-                    return false;
-                break;
-#endif
-
-        }
-    }
-    //return false;
-}
-
-// Returns typename
 
 string DirectoryDS::getFileType(const struct stat& st, CSmallPixmapType& image, const char* fname) const
 {
@@ -286,21 +154,26 @@ void DirectoryDS::directory(const String& d)
     m_directory = absolutePath(d);
 }
 
-// read the directory() and move item into the first entry
-
-bool DirectoryDS::open()
+static bool fileMatchesPattern(const String& fileName, vector< shared_ptr<RegularExpression> >& matchPatterns)
 {
-    clear();
+    for (auto matchPattern: matchPatterns) {
+        if (matchPattern->matches(fileName))
+            return true;
+    }
+    return false;
+}
 
-	auto matchPattern = wildcardToRegexp();
-	Strings fileNames;
+Strings DirectoryDS::getFileNames()
+{
+    Strings fileNames;
+
+    if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
+        m_directory = m_directory.substr(0, m_directory.length() - 1);
+
 #ifdef _WIN32
-	//open a directory the WIN32 way
+    //open a directory the WIN32 way
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA fdata;
-
-	if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
-		m_directory = m_directory.substr(0, m_directory.length() - 1);
 
 	hFind = FindFirstFile(m_directory.append("\\*").c_str(), &fdata);
 	if (hFind != INVALID_HANDLE_VALUE) {
@@ -315,53 +188,50 @@ bool DirectoryDS::open()
 		throw Exception("Error opening directory '" + m_directory + "'");
 	}
 
-	FindClose(hFind); 
+	FindClose(hFind);
 #else
-	DIR* dp = opendir(dir_name);
+    DIR* dp = opendir(m_directory.c_str());
 
-	if (dp != nullptr) {
-		struct dirent *ep;
-		while (ep = readdir(dp))
-			fileNames.push_back(ep->d_name);
-		closedir(dp);
-	}
-	else {
-		throw Exception("Error opening directory '" + m_directory + "'");
-		return;
-	}
-#endif
-
-    struct stat st = {};
-
-    vector<FieldList*> fileList;
-    int n = 0;
-    unsigned index = 0;
-    do {
-
-#ifdef _WIN32
-        char* file = FindFileData.cFileName;
-#else
-
-        if (!files[n]) {
-            n++;
-            continue;
+    if (dp != nullptr) {
+        struct dirent *ep;
+        while ((ep = readdir(dp))) {
+            fileNames.push_back(ep->d_name);
         }
-        auto* file = (char*) files[n]->d_name;
+        closedir(dp);
+    }
+    else
+        throw Exception("Error opening directory '" + m_directory + "'");
 #endif
+    return fileNames;
+}
 
-        size_t len = strlen(file);
-        if (len && file[len - 1] == '/')
-            file[len - 1] = 0;
+bool DirectoryDS::open()
+{
+    clear();
 
-        if ((showPolicy() & DDS_HIDE_DOT_FILES) && file[0] == '.') {
-            n++;
+    vector< shared_ptr<RegularExpression> > matchPatterns;
+    for (auto& pattern: m_patterns) {
+        auto matchPattern = wildcardToRegexp(pattern);
+        matchPatterns.push_back(matchPattern);
+    }
+
+    vector<FieldList*>  fileList;
+    Strings             fileNames = getFileNames();
+    unsigned            index = 0;
+
+    m_list.clear();
+    for (auto& fileName: fileNames) {
+
+        if (fileName.endsWith("\\") || fileName.endsWith("/"))
+            fileName = fileName.substr(0, fileName.length() - 1);
+
+        if ((showPolicy() & DDS_HIDE_DOT_FILES) && fileName[0] == '.')
             continue;
-        }
 
+        struct stat st = {};
         bool is_link = false;
-        bool is_dir = false;
 
-        string fullName = m_directory + file;
+        String fullName = m_directory + "/" + fileName;
         if (lstat(fullName.c_str(), &st) != 0)
             throw SystemException("Can't access file '" + fullName + "'");
 
@@ -372,80 +242,39 @@ bool DirectoryDS::open()
                 throw SystemException("Can't get directory info");
         }
 #endif
-        if (!S_ISDIR(st.st_mode)) {
-            size_t patternCount = m_pattern.size();
-            if (patternCount) {
-                bool matchFound = false;
-                for (unsigned i = 0; i < patternCount; i++) {
-                    if (fl_file_match(file, m_pattern[i].c_str())) {
-                        matchFound = true;
-                        break;
-                    }
-                }
-                if (!matchFound) {
-#ifndef _WIN32
-                    free(files[n]);
-                    files[n] = nullptr;
-                    n++;
-#endif
-                    continue;
-                }
-            }
-        } else
-            is_dir = true;
-
-        bool useEntry;
-        if (is_dir)
-            useEntry = (showPolicy() & DDS_HIDE_DIRECTORIES) == 0;
-        else
-            useEntry = (showPolicy() & DDS_HIDE_FILES) == 0;
-
-        if (useEntry) {
-            FieldList* df = makeFileListEntry(st, index, file, is_link, fullName);
-            if (is_dir)
-                m_list.push_back(df);
-            else
-                fileList.push_back(df);
+        bool is_dir = S_ISDIR(st.st_mode);
+        if (!is_dir) {
+            if ((showPolicy() & DDS_HIDE_FILES) == DDS_HIDE_FILES)
+                continue;
+            if (!m_patterns.empty() && !fileMatchesPattern(fileName, matchPatterns))
+                continue;
+        } else {
+            if ((showPolicy() & DDS_HIDE_DIRECTORIES) == DDS_HIDE_DIRECTORIES)
+                continue;
         }
 
-#ifndef _WIN32
-        free(files[n]);
-        files[n] = nullptr;
-#endif
+        FieldList* df = makeFileListEntry(st, index, fileName, fullName, is_link);
+        if (is_dir)
+            m_list.push_back(df);
+        else
+            fileList.push_back(df);
 
-        n++;
     }
-#ifdef _WIN32
-        while (FindNextFile(hFind, &FindFileData));
-#else
-    while (n < num_files);
-#endif
 
-    for (auto& file: fileList)
-        m_list.push_back(file);
+    for (auto* df: fileList)
+        m_list.push_back(df);
     fileList.clear();
 
     first();
 
-    int defaultWidths[5] = {3, 30, 10, 10, 16};
-    if (m_current)
-        for (unsigned f = 0; f < 5; f++) {
-            (*this)[f].view.flags = FL_ALIGN_LEFT;
-            (*this)[f].view.width = defaultWidths[f];
-        }
-
-#ifndef _WIN32
-    free(files);
-#endif
-
     return !m_list.empty();
 }
 
-FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index, char* file, bool is_link,
-                                          const string& fullName) const
+FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index, const String& fileName,
+                                          const String& fullName, bool is_link) const
 {
     CSmallPixmapType pixmapType;
-    String modeName = getFileType(st, pixmapType, file);
+    String modeName = getFileType(st, pixmapType, fileName.c_str());
 
     if (is_link) {
         modeName += ' ';
@@ -454,7 +283,7 @@ FieldList* DirectoryDS::makeFileListEntry(const struct stat& st, unsigned& index
 
     auto* df = new FieldList(false);
     df->push_back(" ", false).setImageNdx(pixmapType);
-    df->push_back("Name", false) = file;
+    df->push_back("Name", false) = fileName;
     if (modeName == "Directory")
         df->push_back("Size", false) = "";
     else
