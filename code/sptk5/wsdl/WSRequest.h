@@ -76,9 +76,11 @@ public:
      */
     WSNameSpace& operator = (const WSNameSpace& other)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_alias = other.m_alias;
-        m_location = other.m_location;
+        if (&other != this) {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_alias = other.m_alias;
+            m_location = other.m_location;
+        }
         return *this;
     }
 

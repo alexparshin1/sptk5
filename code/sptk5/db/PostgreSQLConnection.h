@@ -243,6 +243,8 @@ public:
      * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
+
+    Strings extractStatements(const Strings& sqlBatch) const;
 };
 
 /**

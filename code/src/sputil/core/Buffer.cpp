@@ -38,6 +38,7 @@ Buffer::Buffer(size_t sz)
 : m_storage(sz + 1)
 {
     m_buffer = &*m_storage.begin();
+    m_buffer[sz] = 0;
 }
 
 Buffer::Buffer(const void* data, size_t sz)

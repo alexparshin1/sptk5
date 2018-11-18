@@ -126,8 +126,8 @@ public:
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    void loadKeys(const std::string& keyFileName, const std::string& certificateFileName, const std::string& password,
-                  const std::string& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+    void loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
+                  const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 
     /**
      * Set SNI host name.

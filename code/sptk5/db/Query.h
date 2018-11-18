@@ -119,8 +119,6 @@ class SP_EXPORT Query: public DataSource, protected SharedMutex
      */
     int                     m_objectIndex {0};
 
-protected:
-
     /**
      * The source file the query was created in
      */
@@ -131,6 +129,7 @@ protected:
      */
     unsigned                m_createdLine {0};
 
+protected:
 
     /**
      * Bulk mode flag

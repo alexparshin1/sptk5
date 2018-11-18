@@ -68,7 +68,6 @@ String LogEngine::priorityName(LogPriority prt)
         default:
             return "PANIC";
     }
-    return "";
 }
 
 LogPriority LogEngine::priorityFromName(const String& prt)

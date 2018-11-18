@@ -36,14 +36,26 @@
 
 namespace sptk {
 
+/**
+ * Thread-safe stream printer.
+ * Designed to be used with stdout and stderr.
+ */
 class Printer
 {
-    static std::mutex   m_mutex;
-    FILE*               m_stream;
+    static std::mutex   m_mutex;    ///< Mutex that protects file access
+    FILE*               m_stream;   ///< Output file
 public:
-    Printer(FILE* stream);
+    /**
+     * Constructor
+     * @param stream            Output file
+     */
+    explicit Printer(FILE* stream);
+
+    /**
+     * Thread-safe print
+     * @param text              Text to print
+     */
     void print(const String& text);
-    void println(const String& text);
 };
 
 extern Printer __stdout;

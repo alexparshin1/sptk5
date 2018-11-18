@@ -35,11 +35,11 @@
 using namespace sptk;
 
 CIntegerInput::CIntegerInput(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CInput(label, layoutSize, layoutAlignment)
+: CInput(label, layoutSize, layoutAlignment)
 {
     controlType(FL_INT_INPUT);
     m_minValue = m_maxValue = 0;
-    maxLength(10);
+    CInput::maxLength(10);
 }
 
 #ifdef __COMPATIBILITY_MODE__
@@ -52,7 +52,7 @@ CIntegerInput::CIntegerInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CIntegerInput::creator(xml::Node* node)
 {
-    auto widget = new CIntegerInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CIntegerInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

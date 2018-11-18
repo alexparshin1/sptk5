@@ -160,18 +160,18 @@ protected:
 
     /**
      * Split timee string to components
-     * @param bdat                  Time string
-     * @param timePart              Time components (output)
+     * @param bdat              Time string
+     * @param timePart          Time components (output)
      * @return
      */
     static short splitTimeString(char* bdat, short* timePart);
 
-protected:
-
     /**
      * Actual date and time value
      */
-    time_point m_dateTime;
+    time_point                  m_dateTime;
+
+protected:
 
 public:
 
@@ -477,7 +477,7 @@ public:
     /**
      * @brief Returns date and time as a string
      */
-    operator String() const
+    explicit operator String() const
     {
         return dateString() + " " + timeString();
     }
@@ -485,7 +485,7 @@ public:
     /**
      * @brief Returns time_t presentation
      */
-    operator time_t() const
+    explicit operator time_t() const
     {
         return clock::to_time_t(m_dateTime);
     }

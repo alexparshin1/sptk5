@@ -26,16 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #include <iostream>
 #include <iomanip>
 
 #include <sptk5/cdatabase>
 #include <sptk5/cthreads>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -46,12 +42,12 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
         Query deleteQuery(db, "DELETE FROM " + tableName);
         Query insertQuery(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
 
-        cout << "\n        Deleting everything from the table ..";
+        COUT("\n        Deleting everything from the table ..");
         deleteQuery.exec();
 
         DateTime started("now");
 
-        cout << "\n        Begining the transaction ..";
+        COUT("\n        Begining the transaction ..");
         Transaction transaction(db);
 
         size_t count = 1000;
@@ -68,10 +64,10 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         double durationSec = duration2seconds(ended - started);
 
-        cout << "Performance Test: " << count / durationSec << " TPS" << endl;
+        COUT("Performance Test: " << count / durationSec << " TPS" << endl);
 
     } catch (exception& e) {
-        cout << "Error: " << e.what() << endl;
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
@@ -83,29 +79,29 @@ int testTransactions(DatabaseConnection db, const string& tableName, bool rollba
         Query step5Query(db, "DELETE FROM " + tableName);
         Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
-        cout << "\n        Begining the transaction ..";
+        COUT("\n        Begining the transaction ..");
         db->beginTransaction();
-        cout << "\n        Deleting everything from the table ..";
+        COUT("\n        Deleting everything from the table ..");
         step5Query.exec();
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        cout << "\n        The table now has " << counter << " records ..";
+        COUT("\n        The table now has " << counter << " records ..");
 
         if (rollback) {
-            cout << "\n        Rolling back the transaction ..";
+            COUT("\n        Rolling back the transaction ..");
             db->rollbackTransaction();
         } else {
-            cout << "\n        Commiting the transaction ..";
+            COUT("\n        Commiting the transaction ..");
             db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        cout << "\n        The table now has " << counter << " records..";
+        COUT("\n        The table now has " << counter << " records..");
     } catch (exception& e) {
-        cout << "Error: " << e.what() << endl;
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
@@ -121,37 +117,37 @@ int main(int argc, const char* argv[])
 
     try {
         if (!RegularExpression("^odbc://").matches(connectString)) {
-            cout << "Syntax:" << endl << endl;
-            cout << "odbc_test [connection string]" << endl << endl;
-            cout << "Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl;
-            cout << "for instance:" << endl << endl;
-            cout << "  odbc://alex:secret@mydsn" << endl;
+            COUT("Syntax:" << endl << endl);
+            COUT("odbc_test [connection string]" << endl << endl);
+            COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl);
+            COUT("for instance:" << endl << endl);
+            COUT("  odbc://alex:secret@mydsn" << endl);
             return 1;
         }
 
         DatabaseConnectionPool connectionPool(connectString);
         DatabaseConnection db = connectionPool.getConnection();
 
-        cout << "Openning the database, using connection string " << connectString << ":" << endl;
+        COUT("Openning the database, using connection string " << connectString << ":" << endl);
         db->open();
-        cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
+        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         DatabaseObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
         string objectTypeNames[] = { "tables", "views", "stored procedures" };
 
         for (unsigned i = 0; i < 3; i++) {
-            cout << "-------------------------------------------------" << endl;
-            cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
+            COUT("-------------------------------------------------" << endl);
+            COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
             Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
-                cout << e.what() << endl;
+                COUT(e.what() << endl);
             }
             for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-                cout << "  " << objectList[j] << endl;
+                COUT("  " << objectList[j] << endl);
         }
-        cout << "-------------------------------------------------" << endl;
+        COUT("-------------------------------------------------" << endl);
 
         // Defining the queries
         string tableName = "test_table";
@@ -160,16 +156,16 @@ int main(int argc, const char* argv[])
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
         Query step4Query(db, "DROP TABLE " + tableName);
 
-        cout << "Ok.\nStep 1: Creating the test table.. ";
+        COUT("Ok.\nStep 1: Creating the test table.. ");
         try {
             step1Query.exec();
         } catch (exception& e) {
             if (strstr(e.what(), "already exists") == nullptr)
                 throw;
-            cout << "Table already exists, ";
+            COUT("Table already exists, ");
         }
 
-        cout << "Ok.\nStep 2: Inserting data into the test table.. ";
+        COUT("Ok.\nStep 2: Inserting data into the test table.. ");
 
         // The following example shows how to use the paramaters,
         // addressing them by name
@@ -206,7 +202,7 @@ int main(int argc, const char* argv[])
         position_param.setNull(); // This is the way to set field to NULL
         step2Query.exec();
 
-        cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
+        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -219,13 +215,13 @@ int main(int argc, const char* argv[])
             string name = step3Query[1];
             string position = step3Query[2];
 
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        cout << "Ok.\nStep 4: Selecting the information the fast way .." << endl;
+        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -240,26 +236,26 @@ int main(int argc, const char* argv[])
             string name = nameField;
             string position = positionField;
 
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position << endl;
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        cout << "Ok.\n***********************************************\nTesting the transactions.";
+        COUT("Ok.\n***********************************************\nTesting the transactions.");
 
         testTransactions(db, tableName, true);
         testTransactions(db, tableName, false);
 
         step4Query.exec();
 
-        cout << "Ok.\nStep 5: Closing the database.. ";
+        COUT("Ok.\nStep 5: Closing the database.. ");
         db->close();
-        cout << "Ok." << endl;
+        COUT("Ok." << endl);
     } catch (exception& e) {
-        cout << "\nError: " << e.what() << endl;
-        cout << "\nSorry, you have to fix your database connection." << endl;
-        cout << "Please, read the README.txt for more information." << endl;
+        CERR("\nError: " << e.what() << endl);
+        CERR("\nSorry, you have to fix your database connection." << endl);
+        CERR("Please, read the README.txt for more information." << endl);
     }
 
     this_thread::sleep_for(chrono::milliseconds(1000));

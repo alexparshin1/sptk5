@@ -94,9 +94,9 @@ class SP_EXPORT UniqueInstance
 public:
     /**
      * Constructor
-     * @param instanceName CString, instance name
+     * @param instanceName      Instance name
      */
-    UniqueInstance(const std::string& instanceName);
+    explicit UniqueInstance(const String& instanceName);
 
     /**
      * Destructor

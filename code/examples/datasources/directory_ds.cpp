@@ -64,11 +64,6 @@ void list_view_cb(Fl_Widget* w, void*)
 
 int main(int argc, char* argv[])
 {
-    DirectoryDS ds("/tmp/gtest_temp_dir1");
-    ds.open();
-    ds.close();
-    return 0;
-
     try {
         // Initialize themes
         CThemes themes;

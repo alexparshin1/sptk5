@@ -605,7 +605,7 @@ public:
      */
     virtual void reset()
     {
-        data("");
+        data(Variant(""));
     }
 
     /**

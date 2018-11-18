@@ -139,7 +139,7 @@ CControlKind CControlKindIndex::type(const char* name)
 
 void CControl::defaultControlMenuCopy(Fl_Widget* w, void*)
 {
-    auto control = dynamic_cast<CControl*>(w->parent());
+    auto* control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr) {
         String text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
@@ -148,7 +148,7 @@ void CControl::defaultControlMenuCopy(Fl_Widget* w, void*)
 
 void CControl::defaultControlMenuCut(Fl_Widget* w, void*)
 {
-    auto control = dynamic_cast<CControl*>(w->parent());
+    auto* control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr) {
         String text = control->data().asString();
         Fl::copy(text.c_str(), (int) text.length(), 1);
@@ -158,7 +158,7 @@ void CControl::defaultControlMenuCut(Fl_Widget* w, void*)
 
 void CControl::defaultControlMenuPaste(Fl_Widget* w, void*)
 {
-    auto control = dynamic_cast<CControl*>(w->parent());
+    auto* control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr) {
         control->data("");
         Fl::paste(*control->m_control, 1);
@@ -167,7 +167,7 @@ void CControl::defaultControlMenuPaste(Fl_Widget* w, void*)
 
 void CControl::defaultControlMenuClear(Fl_Widget* w, void*)
 {
-    auto control = dynamic_cast<CControl*>(w->parent());
+    auto* control = dynamic_cast<CControl*>(w->parent());
     if (control != nullptr)
         control->data("");
 }
@@ -343,9 +343,8 @@ bool sptk::checkFieldName(const String& fieldName)
         return true;
 
     for (size_t i = 0; i < len; i++) {
-        if (isalnum(fieldName[i]) == 0)
-            if (fieldName[i] != '_')
-                return false;
+        if (isalnum(fieldName[i]) == 0 && fieldName[i] != '_')
+            return false;
     }
     return isalpha(fieldName[0]) != 0;
 }
@@ -556,7 +555,7 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
 {
     for (Fl_Widget* parentWidget = internalWidget->parent();
          parentWidget != nullptr; parentWidget = parentWidget->parent()) {
-        auto control = dynamic_cast<CControl*>(parentWidget);
+        auto* control = dynamic_cast<CControl*>(parentWidget);
         if (control != nullptr) {
             control->fireEvent(CE_DATA_CHANGED, (int32_t)(long)(data));
             break;
@@ -575,7 +574,7 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
 
 void sptk::createControls(const xml::NodeList& xmlControls)
 {
-    for (auto node: xmlControls) {
+    for (auto* node: xmlControls) {
         CControlKind controlKind = CControlKindIndex::type(node->name());
         CControl* control = createControl(controlKind, node->getAttribute("label", ""),
                                           node->getAttribute("fieldName", ""),

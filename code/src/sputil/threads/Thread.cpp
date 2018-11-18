@@ -49,7 +49,7 @@ namespace sptk {
     }
 }
 
-Thread::Thread(const string& name) :
+Thread::Thread(const String& name) :
     m_name(name),
     m_terminated(false)
 {

@@ -140,8 +140,6 @@ class WSParserComplexType
      */
     typedef std::list<WSParserComplexType*>            ElementList;
 
-protected:
-
     /**
      * Element name
      */
@@ -186,6 +184,8 @@ protected:
      * Optional documentation
      */
     String                  m_documentation;
+
+protected:
 
 
     /**

@@ -56,7 +56,6 @@ class CDBListView;
 class SP_EXPORT CBaseListBox: public CControl
 {
     friend class CInternalComboBoxPanel;
-private:
 
     /**
      * Internal button callback
@@ -78,11 +77,16 @@ private:
      */
     uint32_t        m_buttonSet;
 
+    /**
+     * Control mode - CListBox or CComboBox
+     */
+    int             m_mode;
 
     /**
      * The internal function to process data changes
      */
     void changeControlData(int changeType, int intData = 0, std::string stringData = "");
+
     /**
      * The constructor initializer
      */
@@ -94,20 +98,16 @@ private:
     static void comboButtonPressed(Fl_Widget *btn, void *data);
 
 protected:
-    /**
-     * Control mode - CListBox or CComboBox
-     */
-    int m_mode;
 
     /**
      * Drop down window - CComboBox only
      */
-    CDBDropDownList *m_dropDownWindow;
+    CDBDropDownList*    m_dropDownWindow;
 
     /**
      * Internal CDBListView widget
      */
-    CDBListView *m_list;
+    CDBListView*        m_list;
 
     /**
      * The width of space taken by buttons

@@ -36,7 +36,7 @@ xml::Element* WSBasicType::addElement(xml::Element* parent) const
     String text(asString());
     if (m_optional && (isNull() || text.empty()))
         return nullptr;
-    auto element = new xml::Element(*parent, m_name);
+    auto element = new xml::Element(*parent, name());
     element->text(text);
     return element;
 }

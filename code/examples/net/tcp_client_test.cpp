@@ -27,6 +27,7 @@
 */
 
 #include <sptk5/cnet>
+#include <sptk5/Printer.h>
 
 using namespace sptk;
 
@@ -37,33 +38,33 @@ int main(int argc, char* argv[]) {
 
        client.open();
 
-      std::cout << "Connected\n";
+      COUT("Connected\n");
 
-      std::string data;
+      String data;
 
       client.readLine(data);
-      std::cout << "Receiving: " << data.c_str() << "\n";
+      COUT("Receiving: " << data.c_str() << "\n");
 
       data = "Several copies of a single string";
-      std::cout << "Sending: test data\n";
+      COUT("Sending: test data\n");
       client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
 
-      std::cout << "Sending: end data\n";
+      COUT("Sending: end data\n");
       client.write("EOD\n");
 
       client.readLine(data);
-      std::cout << "Receiving: " << data.c_str() << "\n";
+      COUT("Receiving: " << data.c_str() << "\n");
 
-      std::cout << "Sending: end session\n";
+      COUT("Sending: end session\n");
       client.write("EOS\n");
 
       client.readLine(data);
-      std::cout << "Receiving: " << data.c_str() << "\n";
+      COUT("Receiving: " << data.c_str() << "\n");
    } catch (std::exception& e) {
-      std::cout << "Exception was caught:" << e.what() << "\nExiting.\n";
+      CERR("Exception was caught:" << e.what() << "\nExiting.\n");
    }
 
-   std::cout << "Exiting\n";
+   COUT("Exiting\n");
 
    return 0;
 }

@@ -216,7 +216,7 @@ public:
      * modal mode is that if you click anywhere outside the calendar window and it closes.
      * @returns true if date was selected
      */
-    bool showModal();
+    bool showModal() override;
 };
 /**
  * @}

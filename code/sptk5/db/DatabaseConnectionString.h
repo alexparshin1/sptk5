@@ -102,12 +102,12 @@ private:
      */
     Parameters m_parameters;
 
-protected:
-
     /**
      * Database driver name
      */
     String     m_driverName;
+
+protected:
 
     /**
      * Parses connection string

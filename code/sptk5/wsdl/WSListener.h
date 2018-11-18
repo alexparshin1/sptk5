@@ -51,7 +51,6 @@ namespace sptk {
  */
 class WSListener : public TCPServer
 {
-protected:
     /**
      * Web Service request processor
      */
@@ -61,6 +60,8 @@ protected:
      * Logger object
      */
     Logger          m_logger;
+
+protected:
 
     /**
      * Web Service static files directory

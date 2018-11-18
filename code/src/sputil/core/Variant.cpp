@@ -46,6 +46,11 @@ MoneyData::operator int64_t() const
     return quantity / dividers[scale];
 }
 
+MoneyData::operator size_t() const
+{
+    return size_t(quantity / dividers[scale]);
+}
+
 MoneyData::operator int32_t() const
 {
     return int32_t(quantity / dividers[scale]);
@@ -1034,7 +1039,7 @@ String Variant::asString() const
             return DateTime(chrono::microseconds(m_data.timeData)).dateString();
 
         case VAR_DATE_TIME:
-            return DateTime(chrono::microseconds(m_data.timeData));
+            return (String) DateTime(chrono::microseconds(m_data.timeData));
 
         case VAR_IMAGE_PTR:
             len = snprintf(print_buffer, sizeof(print_buffer), "%p", m_data.imagePtr);

@@ -45,9 +45,3 @@ void Printer::print(const String& text)
     lock_guard<mutex> lock(m_mutex);
     fprintf(m_stream, "%s", text.c_str());
 }
-
-void Printer::println(const String& text)
-{
-    lock_guard<mutex> lock(m_mutex);
-    fprintf(m_stream, "%s\n", text.c_str());
-}

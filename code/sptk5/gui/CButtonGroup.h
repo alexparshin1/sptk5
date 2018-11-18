@@ -56,7 +56,6 @@ class SP_EXPORT CButtonGroup : public CControl {
      */
     int         m_maxHeight;
 
-protected:
     /**
      * Last value of the group (last list of choices)
      */
@@ -66,6 +65,8 @@ protected:
      * Button labels for the buttons inside
      */
     Strings     m_buttonLabels;
+
+protected:
 
     /**
      * The 'Other' Button if requested (add '*' in the button list)

@@ -80,11 +80,13 @@ Host::Host(Host&& other) noexcept
 
 Host& Host::operator = (const Host& other)
 {
-    SharedLockInt lock1(other.m_mutex);
-    UniqueLockInt lock2(m_mutex);
-    m_hostname = other.m_hostname;
-    m_port = other.m_port;
-    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    if (&other != this) {
+        SharedLockInt lock1(other.m_mutex);
+        UniqueLockInt lock2(m_mutex);
+        m_hostname = other.m_hostname;
+        m_port = other.m_port;
+        memcpy(&m_address, &other.m_address, sizeof(m_address));
+    }
     return *this;
 }
 

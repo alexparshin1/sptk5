@@ -23,7 +23,92 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/examples/datasources/directory_ds.cpp">
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/SetupDatabase.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Configuration/Users.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/ControlService.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Data.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/DataProvider/MQDataProvider.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/DataProvider/RestDataProvider.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/DataProvider/SmtpDataProvider.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/EurekaState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Handlers/MQHandler.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/JWTManager.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Request.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestExecuteTask.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/RequestState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/database/all_drivers_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/database/driver_load_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/database/odbc_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/database/sqlite3_test.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/ceditor_test.cpp">
           <value>
             <set />
           </value>
@@ -38,32 +123,17 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/shaped_window.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/gui/splitter.cpp">
           <value>
             <set />
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/examples/gui/themes_test.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/sptk5/Buffer.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/sptk5/DateTime.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/sptk5/DirectoryDS.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/sptk5/Field.h">
           <value>
             <set />
           </value>
@@ -78,6 +148,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/Printer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/Registry.h">
           <value>
             <set />
@@ -88,12 +163,7 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/sptk5/UniqueInstance.h">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/sptk5/Variant.h">
+        <entry key="$PROJECT_DIR$/sptk5/String.h">
           <value>
             <set />
           </value>
@@ -103,7 +173,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/DatabaseField.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/DatabaseStatement.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/net/BaseSocket.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/net/SmtpConnect.h">
           <value>
             <set />
           </value>
@@ -128,16 +213,6 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/drivers/PostgreSQL/PostgreSQLConnection.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionPool.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionString.cpp">
           <value>
             <set />
@@ -149,11 +224,6 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/spdb/PoolDatabaseConnection.cpp">
           <value>
             <set />
           </value>
@@ -174,11 +244,6 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CFileDialog.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/Buffer.cpp">
           <value>
             <set />
           </value>
@@ -204,11 +269,6 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/FieldList.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/LogEngine.cpp">
           <value>
             <set />
           </value>
@@ -239,11 +299,6 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/sputil/core/SysLogEngine.cpp">
-          <value>
-            <set />
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/core/UniqueInstance.cpp">
           <value>
             <set />
           </value>
@@ -293,12 +348,17 @@
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/sputil/threads/Thread.cpp">
+        <entry key="$PROJECT_DIR$/src/test/unit_tests.cpp">
           <value>
             <set />
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/src/test/unit_tests.cpp">
+        <entry key="/usr/local/include/sptk5/net/TCPSocket.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="/usr/local/include/sptk5/wsdl/WSComplexType.h">
           <value>
             <set />
           </value>

@@ -47,7 +47,23 @@ namespace sptk {
  */
 class CommandLine
 {
+    /**
+     * Program version and copyright message (forhelp only).
+     */
+    String                                      m_programVersion;
+
+    /**
+     * Program description (forhelp only).
+     */
+    String                                      m_description;
+
+    /**
+     * Command line prototype (forhelp only).
+     */
+    String                                      m_commandLinePrototype;
+
 public:
+
     /**
      * @brief Option visibility for an argument or command.
      *
@@ -105,12 +121,34 @@ public:
     };
 
 protected:
+
     /**
      * @brief Command line element that could be argument/command, option, or option with value
      */
     class CommandLineElement
     {
+        /**
+         * Element name
+         */
+        String      m_name;
+
+        /**
+         * Short element name (single character, options only)
+         */
+        String      m_shortName;
+
+        /**
+         * Help (description) for the element
+         */
+        String      m_help;
+
+        /**
+         * Element visibility for a command (options only)
+         */
+        Visibility  m_useWithCommands;
+
     protected:
+
 
         /**
          * @brief Command line element type
@@ -139,27 +177,6 @@ protected:
 
         };
 
-        /**
-         * Element name
-         */
-        String      m_name;
-
-        /**
-         * Short element name (single character, options only)
-         */
-        String      m_shortName;
-
-        /**
-         * Help (description) for the element
-         */
-        String m_help;
-
-
-        /**
-         * Element visibility for a command (options only)
-         */
-        Visibility m_useWithCommands;
-
     public:
 
         /**
@@ -186,6 +203,11 @@ protected:
          * @brief Returns element name
          */
         virtual String name() const;
+
+        /**
+         * @brief Returns element short name
+         */
+        virtual String shortName() const;
 
         /**
          * @brief Returns true if element expects value
@@ -351,20 +373,7 @@ protected:
         virtual Type type() const;
     };
 
-    /**
-     * Program version and copyright message (forhelp only).
-     */
-    String                                      m_programVersion;
-
-    /**
-     * Program description (forhelp only).
-     */
-    String                                      m_description;
-
-    /**
-     * Command line prototype (forhelp only).
-     */
-    String                                      m_commandLinePrototype;
+private:
 
     /**
      * All the defined options.
@@ -390,6 +399,8 @@ protected:
      * All defined elements.
      */
     std::list<CommandLineElement*>              m_allElements;
+
+public:
 
 
     /**

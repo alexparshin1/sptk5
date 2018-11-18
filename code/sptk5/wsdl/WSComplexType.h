@@ -48,29 +48,27 @@ namespace sptk {
  */
 class WSComplexType : public WSTypeName
 {
-protected:
-
-    /**
-     * Mutex that protects internal data
-     */
-    mutable SharedMutex m_mutex;
-
     /**
     * WSDL element name
     */
     std::string  m_name;
-
-protected:
 
     /**
      * Element optionality flag
      */
     bool         m_optional;
 
+protected:
+
     /**
      * Is data loaded flage
      */
     bool         m_loaded;
+
+    /**
+     * Mutex that protects internal data
+     */
+    mutable SharedMutex m_mutex;
 
     /**
      * Internal clear data

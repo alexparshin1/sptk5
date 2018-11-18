@@ -165,7 +165,10 @@ void CListView::displayRow(unsigned index)
     if (displayed(index))
         return;
 
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     bbox(X, Y, W, H);
 
     // find the bottom
@@ -229,7 +232,10 @@ void CListView::draw()
     int full_width_ = fullWidth();
     int full_height_ = fullHeight();
 
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     bbox(X, Y, W, H);
 
     if (m_top >= m_rows.size())
@@ -604,8 +610,6 @@ void CListView::item_draw(
         }
     }
 
-    //fl_push_clip(this->x(),yy,this->w(),hh);
-
     fl_font(m_textFont, m_textSize);
     size_t cnt = m_columnList.size();
     if (item && (size_t) item->size() < cnt)
@@ -627,7 +631,6 @@ void CListView::item_draw(
             int w1 = column.width();
 
             if (x + w1 > 0 && x <= maxX) {
-                //if (x + w1 > 0) {
                 if (m_showGrid)
                     draw_box(FL_THIN_DOWN_FRAME, x, yy, w1, hh, FL_GRAY);
 
@@ -712,8 +715,6 @@ void CListView::item_draw(
     int w = ww - x + this->x() + 10;
     if (w > 0)
         draw_box(FL_FLAT_BOX, x, yy, w, hh, boxcol);
-
-    //fl_pop_clip();
 }
 
 void CListView::clear()
@@ -734,7 +735,7 @@ void CListView::addRow(CPackedStrings* ptr)
 
 void CListView::addRow(int ident, const Strings& ss)
 {
-    auto packedStrings = new CPackedStrings(ss);
+    auto* packedStrings = new CPackedStrings(ss);
     if (ident)
         packedStrings->argument(ident);
     addRow(packedStrings);
@@ -742,7 +743,7 @@ void CListView::addRow(int ident, const Strings& ss)
 
 void CListView::insertRow(unsigned position, const Strings& ss, int ident)
 {
-    auto packedStrings = new CPackedStrings(ss);
+    auto* packedStrings = new CPackedStrings(ss);
     if (ident)
         packedStrings->argument(ident);
     item_compute_height(packedStrings);

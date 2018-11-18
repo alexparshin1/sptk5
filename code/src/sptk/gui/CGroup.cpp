@@ -59,7 +59,7 @@ CGroup::CGroup(int x,int y,int w,int h,const char *alabel)
 
 CLayoutClient* CGroup::creator(xml::Node* node)
 {
-    auto widget = new CGroup("", 10, SP_ALIGN_TOP);
+    auto* widget = new CGroup("", 10, SP_ALIGN_TOP);
     widget->loadLayout(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -68,15 +68,12 @@ void CGroup::resize(int xx, int yy, int ww, int hh)
 {
     Fl_Widget::resize(xx, yy, ww, hh);
 
-    //int offsetX = frameWidth();
-    //int offsetY = offsetX;
-
     const char* lbl = m_label.c_str();
     if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0) {
-        int tw = ww - 8, th = 0;
+        int tw = ww - 8;
+        int th = 0;
         fl_font(labelfont(), labelsize());
         fl_measure(lbl, tw, th);
-        //offsetY = th;
     }
 
     autoLayout(xx, yy, ww, hh, true);
@@ -89,7 +86,8 @@ bool CGroup::preferredSize(int& ww, int& hh)
 
     const char* lbl = m_label.c_str();
     if ((align() & FL_ALIGN_INSIDE) != 0 && lbl != nullptr && lbl[0] != 0) {
-        int tw = ww - 8, th = 0;
+        int tw = ww - 8;
+        int th = 0;
         fl_font(labelfont(), labelsize());
         fl_measure(lbl, tw, th);
         offsetY = th;
@@ -123,7 +121,8 @@ void CGroup::draw()
 
     label(lbl.c_str());
 
-    int tw = w() - 8, th = 0;
+    int tw = w() - 8;
+    int th = 0;
     fl_font(labelfont(), labelsize());
     fl_measure(m_label.c_str(), tw, th);
 

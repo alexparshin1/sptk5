@@ -100,9 +100,9 @@ int CCheckButton::handle(int event)
 
 void CCheckButtons::checkButtonsCallback(Fl_Widget* w, void*)
 {
-    auto b = (Fl_Button*) w;
+    auto* b = (Fl_Button*) w;
     Fl_Group* g = b->parent();
-    auto c = (CCheckButtons*) g->parent();
+    auto* c = (CCheckButtons*) g->parent();
     c->controlDataChanged();
     g->redraw();
 }
@@ -129,10 +129,10 @@ Fl_Button* CCheckButtons::createButton(const char* label, int sz, CLayoutAlign l
 Variant CCheckButtons::data() const
 {
     string result;
-    auto group = (CScroll*) m_control;
+    auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        auto b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         if (b->value()) {
@@ -159,11 +159,11 @@ void CCheckButtons::data(const Variant s)
     string st = s;
     Strings sl(st, "|");
     size_t cnt = sl.size();
-    auto g = (CScroll*) m_control;
+    auto* g = (CScroll*) m_control;
     for (unsigned i = 0; i < cnt; i++) {
         int ndx = buttonIndex(sl[i].c_str());
         if (ndx > -1) {
-            auto b = (Fl_Button*) g->child(ndx);
+            auto* b = (Fl_Button*) g->child(ndx);
             b->value(1);
         } else {
             if (m_otherButton) {
@@ -177,10 +177,10 @@ void CCheckButtons::data(const Variant s)
 void CCheckButtons::getSelections(IntList& selection) const
 {
     selection.clear();
-    auto group = (CScroll*) m_control;
+    auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        auto b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         if (b->value()) {
@@ -193,10 +193,10 @@ void CCheckButtons::getSelections(IntList& selection) const
 void CCheckButtons::setSelections(const IntList& selection)
 {
     deselectAllButtons();
-    auto group = (CScroll*) m_control;
+    auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        auto b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto* b = dynamic_cast<Fl_Button*> (group->child(i));
         if (!b)
             continue;
         auto id = (uint32_t) (long) b->user_data();
@@ -208,7 +208,7 @@ void CCheckButtons::setSelections(const IntList& selection)
 
 CLayoutClient* CCheckButtons::creator(xml::Node* node)
 {
-    auto widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
+    auto* widget = new CCheckButtons("", 20, SP_ALIGN_NONE);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

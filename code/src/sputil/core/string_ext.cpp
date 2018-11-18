@@ -248,8 +248,10 @@ static void capitalizeWord(char* current, char* wordStart)
 
 static void lowerCaseWord(char* current, char* wordStart)
 {
-    for (char* ptr = wordStart; ptr < current; ptr++)
-        *ptr = (char) tolower(*ptr);
+    if (wordStart != nullptr) {
+        for (char* ptr = wordStart; ptr < current; ptr++)
+            *ptr = (char) tolower(*ptr);
+    }
 }
 
 String sptk::capitalizeWords(const String& str)

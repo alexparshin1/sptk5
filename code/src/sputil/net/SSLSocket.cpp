@@ -137,8 +137,8 @@ SSLSocket::~SSLSocket()
         SSL_free(m_ssl);
 }
 
-void SSLSocket::loadKeys(const string& keyFileName, const string& certificateFileName, const string& password,
-                         const string& caFileName, int verifyMode, int verifyDepth)
+void SSLSocket::loadKeys(const String& keyFileName, const String& certificateFileName, const String& password,
+                         const String& caFileName, int verifyMode, int verifyDepth)
 {
     if (m_sockfd > 0)
         throw Exception("Socket already opened");

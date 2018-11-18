@@ -85,6 +85,11 @@ String CommandLine::CommandLineElement::name() const
     return m_name;
 }
 
+String CommandLine::CommandLineElement::shortName() const
+{
+    return m_shortName;
+}
+
 bool CommandLine::CommandLineElement::hasValue() const
 {
     return false;
@@ -186,13 +191,13 @@ String CommandLine::CommandLineOption::printableName() const
 {
     String result;
 
-    result += "--" + m_name;
+    result += "--" + name();
 
     if (!result.empty())
         result += ", ";
 
-    if (!m_shortName.empty())
-        result += "-" + m_shortName;
+    if (!shortName().empty())
+        result += "-" + shortName();
 
     return result;
 }
@@ -221,13 +226,13 @@ String CommandLine::CommandLineParameter::printableName() const
 {
     string result;
 
-    result += "--" + m_name;
+    result += "--" + name();
 
     if (!result.empty())
         result += ", ";
 
-    if (!m_shortName.empty())
-        result += "-" + m_shortName;
+    if (!shortName().empty())
+        result += "-" + shortName();
 
     result += " <" + m_valueInfo + ">";
 
@@ -240,7 +245,7 @@ void CommandLine::CommandLineParameter::validate(const String& value) const
         return;
     Strings matches;
     if (!m_validateValue->m(value, matches))
-        throw Exception("Parameter " + m_name + " has invalid value");
+        throw Exception("Parameter " + name() + " has invalid value");
 }
 
 bool CommandLine::CommandLineParameter::hasValue() const

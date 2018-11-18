@@ -96,11 +96,11 @@ void DatabaseConnectionPool::load()
 {
     lock_guard<mutex> lock(*this);
 
-    String driverName = lowerCase(m_driverName);
-    if (driverName == "mssql")
-        driverName = "odbc";
+    String driverNameLC = lowerCase(driverName());
+    if (driverNameLC == "mssql")
+        driverNameLC = "odbc";
 
-    DatabaseDriver* loadedDriver = m_loadedDrivers.get(driverName);
+    DatabaseDriver* loadedDriver = m_loadedDrivers.get(driverNameLC);
     if (loadedDriver != nullptr) {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
@@ -115,7 +115,7 @@ void DatabaseConnectionPool::load()
     if (!handle)
         throw SystemException("Cannot load library " + driverFileName);
 #else
-    String driverFileName = String("libspdb5_") + driverName + String(".so");
+    String driverFileName = String("libspdb5_") + driverNameLC + String(".so");
 
     DriverHandle handle = dlopen(driverFileName.c_str(), RTLD_NOW);
     if (handle == nullptr)
@@ -123,16 +123,16 @@ void DatabaseConnectionPool::load()
 #endif
 
     // Creating the driver instance
-    String create_connectionFunctionName(driverName + String("_create_connection"));
-    String destroy_connectionFunctionName(driverName + String("_destroy_connection"));
+    String create_connectionFunctionName(driverNameLC + String("_create_connection"));
+    String destroy_connectionFunctionName(driverNameLC + String("_destroy_connection"));
 #ifdef WIN32
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
     if (!createConnection)
-        throw DatabaseException("Cannot load driver " + driverName + ": no function " + create_connectionFunctionName);
+        throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + create_connectionFunctionName);
 
     DestroyDriverInstance* destroyConnection = (DestroyDriverInstance*) GetProcAddress(handle, destroy_connectionFunctionName.c_str());
     if (!destroyConnection)
-        throw DatabaseException("Cannot load driver " + driverName + ": no function " + destroy_connectionFunctionName);
+        throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + destroy_connectionFunctionName);
 #else
     // reset errors
     dlerror();
@@ -159,7 +159,7 @@ void DatabaseConnectionPool::load()
     if (dlsym_error != nullptr) {
         m_createConnection = nullptr;
         dlclose(handle);
-        throw DatabaseException(String("Cannot load driver ") + driverName + String(": ") + string(dlsym_error));
+        throw DatabaseException(String("Cannot load driver ") + driverNameLC + String(": ") + string(dlsym_error));
     }
 
 #endif
@@ -172,7 +172,7 @@ void DatabaseConnectionPool::load()
     m_destroyConnection = destroyConnection;
 
     // Registering loaded driver in the map
-    m_loadedDrivers.add(driverName, driver);
+    m_loadedDrivers.add(driverNameLC, driver);
 }
 
 DatabaseConnection DatabaseConnectionPool::getConnection()

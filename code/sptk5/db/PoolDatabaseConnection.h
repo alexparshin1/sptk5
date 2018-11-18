@@ -164,7 +164,7 @@ class SP_EXPORT PoolDatabaseConnection
 
 public:
     /**
-    * Mutex that protects access to data memebers
+    * Mutex that protects access to data members
     */
     mutable std::mutex    m_mutex;
 
@@ -276,7 +276,7 @@ protected:
     /**
      * Executes unprepared statement
      */
-    virtual void queryExecDirect(Query* query) {}
+    virtual void queryExecDirect(Query* query);
 
     /**
      * Counts columns of the dataset (if any) returned by query

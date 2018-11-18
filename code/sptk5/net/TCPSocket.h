@@ -252,7 +252,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    size_t readLine(std::string& s, char delimiter='\n');
+    size_t readLine(String& s, char delimiter = '\n');
 
     /**
      * @brief Reads data from the socket

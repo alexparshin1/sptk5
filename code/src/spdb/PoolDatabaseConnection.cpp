@@ -189,6 +189,11 @@ void PoolDatabaseConnection::queryExecute(Query*)
     notImplemented("queryExecute");
 }
 
+void PoolDatabaseConnection::queryExecDirect(Query*)
+{
+    notImplemented("queryExecDirect");
+}
+
 int PoolDatabaseConnection::queryColCount(Query*)
 {
     notImplemented("queryColCount");

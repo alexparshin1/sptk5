@@ -140,7 +140,7 @@ public:
      */
     ~DirectoryDS()
     {
-        close();
+        MemoryDS::close();
     }
 
     /**

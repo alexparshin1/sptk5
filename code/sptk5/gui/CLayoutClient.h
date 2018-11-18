@@ -101,12 +101,12 @@ protected:
     /**
      * The width as a result of the last call of preferredSize()
      */
-    int m_lastPreferredW;
+    int m_lastPreferredW {0};
 
     /**
      * The width as a result of the last call of preferredSize()
      */
-    int m_lastPreferredH;
+    int m_lastPreferredH {0};
 
 
     /**

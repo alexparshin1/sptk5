@@ -49,12 +49,10 @@ class Strings;
  */
 class SP_EXPORT String : public std::string
 {
-protected:
     /**
      * String ID
      */
     int32_t m_id {0};
-
 
 public:
     /**
@@ -76,7 +74,7 @@ public:
      * @brief Move constructor
      * @param src				Other object
      */
-    String(String&& src) noexcept
+    explicit String(String&& src) noexcept
     : std::string(std::move(src)), m_id(src.m_id)
     {
         src.m_id = 0;
@@ -86,7 +84,7 @@ public:
      * @brief Move constructor
      * @param src				Other object
      */
-    String(std::string&& src) noexcept
+    explicit String(std::string&& src) noexcept
     : std::string(std::move(src))
     {}
 
@@ -145,12 +143,14 @@ public:
 
     /**
      * Assignment operator
-     * @param si 				Source string
+     * @param other 	        Source string
      */
-    String& operator=(const String& si)
+    String& operator=(const String& other)
     {
-        assign(si);
-        m_id = si.m_id;
+        if (&other != this) {
+            assign(other);
+            m_id = other.m_id;
+        }
         return *this;
     }
 

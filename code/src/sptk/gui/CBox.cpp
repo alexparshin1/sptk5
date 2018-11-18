@@ -66,7 +66,7 @@ CBox::CBox(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CBox::creator(xml::Node* node)
 {
-    auto widget = new CBox("", 10, SP_ALIGN_TOP);
+    auto* widget = new CBox("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     widget->dragable(node->getAttribute("drag", "N"));
     return widget;
@@ -145,7 +145,8 @@ int CBox::totalHeight(int ww) const
     fl_font(m_textFont, m_textSize);
     if (ww < 1)
         ww = w();
-    int cw = ww, ch = 0;
+    int cw = ww;
+    int ch = 0;
     fl_measure(m_label.c_str(), cw, ch);
     return ch;
 }
@@ -159,7 +160,8 @@ void CBox::resize(int x, int y, int w, int h)
 
 bool CBox::preferredSize(int& w, int& h)
 {
-    int cw = 0, ch = 0;
+    int cw = 0;
+    int ch = 0;
     int dh = Fl::box_dh(box()) * 2;
     int dw = Fl::box_dw(box()) * 2;
 

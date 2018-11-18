@@ -44,7 +44,7 @@ using namespace std;
 using namespace sptk;
 
 // Constructor
-UniqueInstance::UniqueInstance(const std::string& instanceName)
+UniqueInstance::UniqueInstance(const String& instanceName)
 : m_instanceName(instanceName)
 {
 #ifndef _WIN32

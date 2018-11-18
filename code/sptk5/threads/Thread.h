@@ -45,7 +45,7 @@ namespace sptk
  */
 
 /**
- * @brief Base thread object.
+ * Base thread object.
  *
  * Should be used for deriving a user thread
  * by overwriting threadFunction().
@@ -58,7 +58,7 @@ protected:
     /**
      * Thread name
      */
-    std::string         m_name;
+    String              m_name;
 
     /**
      * Thread object
@@ -89,55 +89,55 @@ public:
 
 
     /**
-     * @brief Constructor
+     * Constructor
      * @param name CString, name of the thread for future references.
      */
-    Thread(const std::string& name);
+    explicit Thread(const String& name);
 
     /**
-     * @brief Destructor
+     * Destructor
      */
     virtual ~Thread();
 
     /**
-     * @brief Starts the already created thread
+     * Starts the already created thread
      */
     void run();
 
     /**
-     * @brief The thread function. Should be overwritten by the derived class.
+     * The thread function. Should be overwritten by the derived class.
      */
     virtual void threadFunction() = 0;
 
     /**
-     * @brief Requests to terminate the thread
+     * Requests to terminate the thread
      */
     virtual void terminate();
 
     /**
-     * @brief This method is executed immediately after thread function exit
+     * This method is executed immediately after thread function exit
      */
     virtual void onThreadExit() {}
 
     /**
-     * @brief Returns true if the thread is terminated
+     * Returns true if the thread is terminated
      */
     bool terminated();
 
     /**
-     * @brief Waits until thread joins
+     * Waits until thread joins
      */
     void join();
 
     /**
-     * @brief Returns this thread OS id
+     * Returns this thread OS id
      */
     Id id();
 
     /**
-     * @brief Returns the name of the thread
+     * Returns the name of the thread
      */
-    const std::string& name() const
+    const String& name() const
     {
         return m_name;
     }

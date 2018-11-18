@@ -57,8 +57,7 @@ void CDialogTabs::prepareNewPage(Fl_Group* page, bool autoColor)
 
 //==============================================================================
 CDialog::CDialog(int w, int h, const char* label)
-        :
-        CWindow(w, h, label)
+: CWindow(w, h, label)
 {
     m_queriesBuilt = false;
     m_controlsScanned = false;
@@ -81,7 +80,7 @@ CDialog::CDialog(int w, int h, const char* label)
 
     defaultButton(m_okButton);
 
-    newPage("", false);
+    CDialog::newPage("", false);
 
     m_modalResult = DMR_NONE;
 }
@@ -98,19 +97,13 @@ int CDialog::handle(int event)
     int rc = CWindow::handle(event);
     if (rc)
         return rc;
-    switch (event) {
-        case FL_KEYBOARD:
-            if (Fl::event_key() == FL_Enter) {
-                auto btn = dynamic_cast<Fl_Button*>(Fl::focus());
-                if (btn)
-                    btn->do_callback();
-                else if (m_defaultButton)
-                    m_defaultButton->do_callback();
-                return 1;
-            }
-            break;
-        default:
-            break;
+    if (event == FL_KEYBOARD && Fl::event_key() == FL_Enter) {
+        auto* btn = dynamic_cast<Fl_Button*>(Fl::focus());
+        if (btn)
+            btn->do_callback();
+        else if (m_defaultButton)
+            m_defaultButton->do_callback();
+        return 1;
     }
     return 0;
 }
@@ -119,7 +112,7 @@ void CDialog::defaultButton(CButton* newDefaultButton)
 {
     auto cnt = (unsigned) m_buttonGroup->children();
     for (unsigned bi = 0; bi < cnt; bi++) {
-        auto button = (CButton*) m_buttonGroup->child(bi);
+        auto* button = (CButton*) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
     }
     m_defaultButton = newDefaultButton;
@@ -366,7 +359,7 @@ CControl& CDialog::operator[](const String& fieldName)
 CButton* CDialog::addExtraButton(CButtonKind buttonKind, const char* label, Fl_Callback_p callbackFunction)
 {
     m_buttonGroup->begin();
-    auto extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
+    auto* extraButton = new CButton(buttonKind, SP_ALIGN_RIGHT, label);
     m_buttonGroup->end();
     if (callbackFunction)
         extraButton->callback(callbackFunction);

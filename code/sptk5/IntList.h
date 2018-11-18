@@ -58,12 +58,13 @@ public:
     IntList() {}
 
     /**
-     * Assigns another CIntList
+     * Assigns another IntList
+     * @param other             Other list to assign
      */
-    IntList& operator = (const IntList& list)
+    IntList& operator = (const IntList& other)
     {
-        resize(list.size());
-        std::copy(list.begin(),list.end(),begin());
+        if (&other != this)
+            assign(other.begin(), other.end());
         return *this;
     }
 

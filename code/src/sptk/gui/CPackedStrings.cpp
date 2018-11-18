@@ -150,14 +150,16 @@ const char* CPackedStrings::operator[](uint16_t index) const
     return pchar(m_buffer) + offsets[index];
 }
 
-CPackedStrings& CPackedStrings::operator=(const CPackedStrings& newData)
+CPackedStrings& CPackedStrings::operator=(const CPackedStrings& other)
 {
-    m_data = newData.m_data;
-    if (m_size != newData.m_size) {
-        m_size = newData.m_size;
-        m_buffer = realloc(m_buffer, m_size);
+    if (&other != this) {
+        m_data = other.m_data;
+        if (m_size != other.m_size) {
+            m_size = other.m_size;
+            m_buffer = realloc(m_buffer, m_size);
+        }
+        memcpy(m_buffer, other.m_buffer, m_size);
     }
-    memcpy(m_buffer, newData.m_buffer, m_size);
     return *this;
 }
 

@@ -98,7 +98,7 @@ bool MemoryDS::writeField(const char* fname, const Variant& fvalue)
 
 bool MemoryDS::close()
 {
-    clear();
+    MemoryDS::clear();
     return true;
 }
 

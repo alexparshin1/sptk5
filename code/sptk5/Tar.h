@@ -62,7 +62,7 @@ public:
      * @brief Constructor
      * @param buffer CBuffer*, source data
      */
-    MemoryTarHandle(Buffer* buffer=0) {
+    explicit MemoryTarHandle(Buffer* buffer=0) {
         position = 0;
         if (buffer) {
             sourceBuffer = buffer->data();

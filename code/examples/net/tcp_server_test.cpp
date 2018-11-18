@@ -27,12 +27,13 @@
 */
 
 #include <sptk5/cnet>
+#include <sptk5/Printer.h>
 
 using namespace sptk;
 
 int main( int argc, char* argv[] )
 {
-   std::cout << "running....\n";
+   COUT("running....\n");
 
    try {
       // Create the socket
@@ -49,19 +50,19 @@ int main( int argc, char* argv[] )
       new_sock.attach(clientSocketFD);
 
       try {
-         std::string data;
+         String data;
 
-         std::cout << "Sending: Test SPTK server 1.00\n";
+         COUT("Sending: Test SPTK server 1.00\n");
          new_sock.write("Test SPTK server 1.00\n");
 
-         std::cout << "Receving (strings): ";
+         COUT("Receving (strings): ");
 
          do {
             new_sock.readLine(data);
-            std::cout << data.c_str() << "\n";
+            COUT(data.c_str() << "\n");
          } while (data != "EOD");
 
-         std::cout << "Sending: confirmation\n";
+         COUT("Sending: confirmation\n");
          new_sock.write("Data accepted\n");
 
          // End of session
@@ -75,8 +76,8 @@ int main( int argc, char* argv[] )
       catch (std::exception&) {}
    }
    catch (std::exception& e) {
-      std::cout << "Exception was caught: " << e.what() << "\nExiting.\n";
+      COUT("Exception was caught: " << e.what() << "\nExiting.\n");
    }
-   std::cout << "Server session closed" << std::endl;
+   COUT("Server session closed\n");
    return 0;
 }

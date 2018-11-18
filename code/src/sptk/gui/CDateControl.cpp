@@ -72,7 +72,7 @@ void CDateControl::resize(int x, int y, int w, int h)
 
 void CDateControl::preferredHeight(int& hh)
 {
-    auto parentControl = dynamic_cast<CControl*>(parent());
+    auto* parentControl = dynamic_cast<CControl*>(parent());
     int bw = 18;
     int bh = 18;
     int dh = Fl::box_dh(box());
@@ -86,7 +86,7 @@ void CDateControl::preferredHeight(int& hh)
 
 void CDateControl::preferredSize(int& ww, int& hh, int& editorWidth, int& buttonWidth)
 {
-    auto parentControl = dynamic_cast<CControl*>(parent());
+    auto* parentControl = dynamic_cast<CControl*>(parent());
     editorWidth = 70;
     int bw = 18;
     int bh = 18;

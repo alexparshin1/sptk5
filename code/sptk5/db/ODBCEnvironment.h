@@ -80,7 +80,7 @@ protected:
     /**
      * Last RETCODE returned from ODBC function
      */
-    SQLRETURN			m_Retcode;
+    SQLRETURN			m_Retcode {0};
 
     /**
      * Constructor

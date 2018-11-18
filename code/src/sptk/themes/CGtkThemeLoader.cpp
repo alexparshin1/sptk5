@@ -133,7 +133,6 @@ namespace sptk {
         catch (exception& e) {
             throw Exception("Error parsing row '" + row + "'\n" + string(e.what()));
         }
-        return nullptr;
     }
 
     void CGtkThemeParser::parseImage(const Strings& gtkrc, unsigned& currentRow, xml::Node* parentNode)

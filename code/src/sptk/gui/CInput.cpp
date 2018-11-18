@@ -66,14 +66,10 @@ static string reformatPhoneNumber(const char* st)
     result[j] = 0;
     if (result.length() == 11 && result[0] == '1')
         result = result.substr(1, 10); // US long distance starts from 1
-    switch (result.length()) {
-        case 7:
-            result = "(   )-" + result.substr(0, 3) + "-" + result.substr(3, 4);
-            break;
-        default:
-            result = "(" + result.substr(0, 3) + ")-" + result.substr(3, 3) + "-" + result.substr(6, 4);
-            break;
-    }
+    if (result.length() == 7)
+        result = "(   )-" + result.substr(0, 3) + "-" + result.substr(3, 4);
+    else
+        result = "(" + result.substr(0, 3) + ")-" + result.substr(3, 3) + "-" + result.substr(6, 4);
     return result;
 }
 
@@ -90,8 +86,8 @@ void CInput_::mask(const char* m)
     m_inputMask = m;
     m_backgroundMask = m;
 
-    auto bg_mask_ptr = (char*) m_backgroundMask.c_str();
-    auto input_mask_ptr = (char*) m_inputMask.c_str();
+    auto* bg_mask_ptr = (char*) m_backgroundMask.c_str();
+    auto* input_mask_ptr = (char*) m_inputMask.c_str();
 
     size_t l = m_mask.length();
     size_t j = 0;
@@ -195,7 +191,7 @@ int CInput_::handle(int event)
                 break;
 
             case FL_FOCUS: {
-                auto control = dynamic_cast<CControl*>(parent());
+                auto* control = dynamic_cast<CControl*>(parent());
                 if (!control && parent())
                     control = dynamic_cast<CControl*>(parent()->parent());
                 if (control)
@@ -347,14 +343,14 @@ CInput::~CInput() = default;
 
 CLayoutClient* CInput::creator(xml::Node* node)
 {
-    auto widget = new CInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
 int CInput::maxLength() const
 {
-    auto input = dynamic_cast<CInput_*>(m_control);
+    auto* input = dynamic_cast<CInput_*>(m_control);
     if (input)
         return input->maxLength();
     return 0;
@@ -362,14 +358,14 @@ int CInput::maxLength() const
 
 void CInput::maxLength(int ml)
 {
-    auto input = dynamic_cast<CInput_*>(m_control);
+    auto* input = dynamic_cast<CInput_*>(m_control);
     if (input)
         input->maxLength(ml);
 }
 
 int CInput::controlType() const
 {
-    auto input = dynamic_cast<CInput_*>(m_control);
+    auto* input = dynamic_cast<CInput_*>(m_control);
     if (input)
         return input->type();
     return 0;
@@ -377,7 +373,7 @@ int CInput::controlType() const
 
 void CInput::controlType(int type)
 {
-    auto input = dynamic_cast<CInput_*>(m_control);
+    auto* input = dynamic_cast<CInput_*>(m_control);
     if (input)
         input->type((unsigned char) (type));
 }

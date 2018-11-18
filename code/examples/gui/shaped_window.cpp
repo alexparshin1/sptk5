@@ -34,6 +34,7 @@
 #include <FL/Fl.H>
 
 #include <sptk5/cgui>
+#include <sptk5/Printer.h>
 #include <cmath>
 
 using namespace std;
@@ -41,27 +42,23 @@ using namespace sptk;
 
 class CShapedWindow : public CWindow
 {
-    CBox* m_captionBox;
-    CButton* m_closeButton;
-    CButton* m_maximizeButton;
-    CButton* m_minimizeButton;
-    bool m_maximized;
-    int m_restoreX{0};
-    int m_restoreY{0};
-    int m_restoreW{0};
-    int m_restoreH{0};
+    CBox*    m_captionBox {nullptr};
+    CButton* m_closeButton {nullptr};
+    CButton* m_maximizeButton {nullptr};
+    CButton* m_minimizeButton {nullptr};
+    bool m_maximized {false};
+    int m_restoreX {0};
+    int m_restoreY {0};
+    int m_restoreW {0};
+    int m_restoreH {0};
 
     void appendSector(int xc, int yc, int r, int a1, int a2, int da);
 
 public:
     CShapedWindow(int x, int y, int w, int h, const char* label = "");
-
     void shapeResize(int ww, int hh) override; // This method should define points for the window shape
-
     void minimize();
-
     void maximize();
-
     void restore();
 };
 
@@ -73,12 +70,12 @@ void exit_cb(Fl_Widget* w, void*)
 void theme_cb(Fl_Widget* w, void*)
 {
     try {
-        auto themesCombo = (CComboBox*) w;
+        auto* themesCombo = (CComboBox*) w;
         std::string themeName = themesCombo->data();
 
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
             CThemes::set(themeName);
-            auto window = (CWindow*) w->window();
+            auto* window = (CWindow*) w->window();
             window->relayout();
             window->redraw();
         }
@@ -94,25 +91,25 @@ void close_cb(Fl_Widget* w, void*)
 
 void maximize_cb(Fl_Widget* w, void*)
 {
-    auto shapedWindow = (CShapedWindow*) w->window();
+    auto* shapedWindow = dynamic_cast<CShapedWindow*>(w->window());
     shapedWindow->maximize();
 }
 
 void minimize_cb(Fl_Widget* w, void*)
 {
-    auto shapedWindow = (CShapedWindow*) w->window();
+    auto* shapedWindow = dynamic_cast<CShapedWindow*>(w->window());
     shapedWindow->minimize();
 }
 
 CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
-        : CWindow(x, y, w, h, label)
+: CWindow(x, y, w, h, label)
 {
     m_maximized = false;
 
     box(FL_FLAT_BOX);
     //clear_border();
 
-    auto captionGroup = new CGroup;
+    auto* captionGroup = new CGroup;
     captionGroup->layoutSpacing(1);
     captionGroup->box(FL_DOWN_BOX);
     captionGroup->color(FL_BLUE);
@@ -135,7 +132,7 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
 
     captionGroup->end();
 
-    auto toolBar = new CToolBar;
+    auto* toolBar = new CToolBar;
     new CButton("Test");
     toolBar->end();
 
@@ -143,13 +140,13 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     // buttons use the default alignment for buttons -
     // SP_ALIGN_RIGHT, and the text/icon defined by the
     // button kind.
-    auto buttonGroup = new CGroup("", 10, SP_ALIGN_BOTTOM);
+    auto* buttonGroup = new CGroup("", 10, SP_ALIGN_BOTTOM);
     buttonGroup->color(FL_LIGHT1);
 
-    auto exitButton = new CButton(SP_EXIT_BUTTON);
+    auto* exitButton = new CButton(SP_EXIT_BUTTON);
     exitButton->callback(exit_cb);
 
-    auto themesCombo = new CComboBox("Theme", 200, SP_ALIGN_LEFT);
+    auto* themesCombo = new CComboBox("Theme", 200, SP_ALIGN_LEFT);
     Strings themes = CThemes::availableThemes();
     themesCombo->addRows("Theme", themes);
     themesCombo->callback(theme_cb);
@@ -223,16 +220,15 @@ int main(int argc, char* argv[])
         // Initialize themes
         CThemes themes;
 
-        auto w = new CShapedWindow(100, 100, 300, 300);
+        auto* w = new CShapedWindow(100, 100, 300, 300);
 
         w->show(argc, argv);
 
         return Fl::run();
     }
     catch (const exception& e) {
-        cerr << e.what() << endl;
-        return 1;
+        CERR(e.what() << endl);
     }
 
-    return 0;
+    return 1;
 }

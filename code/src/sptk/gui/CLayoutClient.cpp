@@ -36,11 +36,8 @@ using namespace std;
 using namespace sptk;
 
 CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
+: m_layoutSize(layoutSize), m_widget(widget), m_layoutAlign(ca)
 {
-    m_lastPreferredW = m_lastPreferredH = 0;
-    m_layoutSize = layoutSize;
-    m_layoutAlign = ca;
-    m_widget = widget;
     if (widget->label()) {
         m_label = widget->label();
         widget->label(m_label.c_str());
@@ -111,7 +108,7 @@ void CLayoutClient::load(const xml::Node* node, CLayoutXMLmode xmlMode)
             m_widget->activate();
     }
     if (xmlMode & (int) LXM_DATA) {
-        auto control = dynamic_cast<CControl*>(m_widget);
+        auto* control = dynamic_cast<CControl*>(m_widget);
         if (control)
             control->load(node, LXM_DATA);
     }
@@ -122,7 +119,7 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
     if (!node->isElement())
         throw Exception("Node must be an element");
     String className = "widget";
-    auto layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
+    auto* layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
     if (layoutClient)
         className = layoutClient->className();
     node->name(className);
@@ -154,7 +151,7 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
             case SP_ALIGN_CLIENT:
                 layoutAlignStr = "client";
                 break;
-            case SP_ALIGN_NONE:
+            default:
                 break;
         }
 
@@ -174,7 +171,7 @@ void CLayoutClient::save(xml::Node* node, CLayoutXMLmode xmlMode) const
             node->setAttribute("label", label());
     }
     if (xmlMode & (int) LXM_DATA) {
-        auto control = dynamic_cast<CControl*>(m_widget);
+        auto* control = dynamic_cast<CControl*>(m_widget);
         if (control != nullptr)
             control->save(node, LXM_DATA);
     }

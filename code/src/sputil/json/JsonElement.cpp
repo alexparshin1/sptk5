@@ -134,7 +134,8 @@ void Element::assign(const Element& other)
 
 Element& Element::operator=(const Element& other)
 {
-    assign(other);
+    if (&other != this)
+        assign(other);
     return *this;
 }
 

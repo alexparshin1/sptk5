@@ -125,12 +125,12 @@ class SP_EXPORT DatabaseConnectionPool : public DatabaseConnectionString, public
      */
     SynchronizedQueue<PoolDatabaseConnection*>     m_pool;
 
-protected:
-
     /**
      * List all connections
      */
     SynchronizedList<PoolDatabaseConnection*>      m_connections;
+
+protected:
 
     /**
      * @brief Loads database driver

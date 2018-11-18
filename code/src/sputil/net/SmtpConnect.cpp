@@ -119,10 +119,10 @@ string SmtpConnect::mime(const Buffer& buffer)
 {
     Buffer result;
     Base64::encode(result, buffer);
-    return result;
+    return (string) result;
 }
 
-string SmtpConnect::mime(string s)
+string SmtpConnect::mime(const String& s)
 {
     string result;
     Buffer src;

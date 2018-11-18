@@ -58,12 +58,10 @@ public:
  */
 class WSBasicType : public Field, public WSTypeName
 {
-protected:
     /**
      * Element optionality flag
      */
     bool m_optional;
-
 
 public:
     /**
@@ -131,7 +129,7 @@ public:
      */
     WSString(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
-        setNull(VAR_STRING);
+        Field::setNull(VAR_STRING);
     }
 
     /**
@@ -205,7 +203,7 @@ public:
     /**
      * Conversion operator
      */
-    operator sptk::String() const
+    explicit operator sptk::String() const
     {
         return asString();
     }
@@ -224,7 +222,7 @@ public:
      */
     WSBool(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
-        setNull(VAR_BOOL);
+        Field::setNull(VAR_BOOL);
     }
 
     /**
@@ -270,7 +268,7 @@ public:
     /**
      * Conversion operator
      */
-    operator sptk::String() const
+    explicit operator sptk::String() const
     {
         return asString();
     }
@@ -289,7 +287,7 @@ public:
      */
     WSDate(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
-        setNull(VAR_DATE);
+        Field::setNull(VAR_DATE);
     }
 
     /**
@@ -327,7 +325,7 @@ public:
     /**
      * Conversion operator
      */
-    operator DateTime() const
+    explicit operator DateTime() const
     {
         return asDate();
     }
@@ -335,7 +333,7 @@ public:
     /**
      * Conversion operator
      */
-    operator sptk::String() const
+    explicit operator sptk::String() const
     {
         return asString();
     }
@@ -354,7 +352,7 @@ public:
      */
     WSDateTime(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
-        setNull(VAR_DATE_TIME);
+        Field::setNull(VAR_DATE_TIME);
     }
 
     /**
@@ -397,7 +395,7 @@ public:
     /**
      * Conversion operator
      */
-    operator DateTime() const
+    explicit operator DateTime() const
     {
         return asDateTime();
     }
@@ -405,7 +403,7 @@ public:
     /**
      * Conversion operator
      */
-    operator sptk::String() const
+    explicit operator sptk::String() const
     {
         return asString();
     }
@@ -424,7 +422,7 @@ public:
      */
     WSDouble(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
-        setNull(VAR_FLOAT);
+        Field::setNull(VAR_FLOAT);
     }
 
     /**
@@ -470,7 +468,7 @@ public:
     /**
      * Conversion operator
      */
-    operator float() const
+    explicit operator float() const
     {
         return (float) asFloat();
     }
@@ -478,7 +476,7 @@ public:
     /**
      * Conversion operator
      */
-    operator double() const
+    explicit operator double() const
     {
         return asFloat();
     }
@@ -486,7 +484,7 @@ public:
     /**
      * Conversion operator
      */
-    operator sptk::String() const
+    explicit operator sptk::String() const
     {
         return asString();
     }
@@ -505,7 +503,7 @@ public:
      */
     WSInteger(const char* name, bool optional=false) : WSBasicType(name, optional)
     {
-        setNull(VAR_INT);
+        Field::setNull(VAR_INT);
     }
 
     /**
@@ -588,7 +586,7 @@ public:
     /**
      * Conversion operator
      */
-    operator int32_t() const
+    explicit operator int32_t() const
     {
         return asInteger();
     }
@@ -596,7 +594,7 @@ public:
     /**
      * Conversion operator
      */
-    operator uint32_t() const
+    explicit operator uint32_t() const
     {
         return (uint32_t) asInteger();
     }
@@ -604,7 +602,7 @@ public:
     /**
      * Conversion operator
      */
-    operator int64_t() const
+    explicit operator int64_t() const
     {
         return asInt64();
     }
@@ -612,7 +610,7 @@ public:
     /**
      * Conversion operator
      */
-    operator uint64_t() const
+    explicit operator uint64_t() const
     {
         return (uint64_t) asInt64();
     }
@@ -620,7 +618,7 @@ public:
     /**
      * Conversion operator
      */
-    operator sptk::String() const
+    explicit operator sptk::String() const
     {
         return asString();
     }

@@ -220,8 +220,10 @@ public:
      */
     Strings &operator=(const Strings &other)
     {
-        m_userData = other.m_userData;
-        m_strings.assign(other.m_strings.begin(), other.m_strings.end());
+        if (&other != this) {
+            m_userData = other.m_userData;
+            m_strings.assign(other.m_strings.begin(), other.m_strings.end());
+        }
         return *this;
     }
 

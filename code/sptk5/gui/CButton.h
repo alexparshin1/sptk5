@@ -247,17 +247,17 @@ class SP_EXPORT CBaseButton : public Fl_Button, public CLayoutClient {
      */
     void drawFocusLine(int xs,int ys,int xe,int ye);
 
-protected:
-
     /**
      * Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
      */
     CButtonKind       m_kind;
 
+protected:
+
     /**
      * Internal image pointer
      */
-    Fl_Image         *m_image;
+    Fl_Image*         m_image;
 
     /**
      * Icon size

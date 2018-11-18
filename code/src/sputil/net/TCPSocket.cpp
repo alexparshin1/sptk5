@@ -43,13 +43,12 @@ TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
     : Buffer(buffer_size), m_socket(socket)
 {
     m_readOffset = 0;
-    m_buffer[buffer_size-1] = 0;
 }
 
 void TCPSocketReader::open()
 {
     m_readOffset = 0;
-    m_bytes = 0;
+    bytes(0);
 }
 
 void TCPSocketReader::close() noexcept
@@ -57,14 +56,14 @@ void TCPSocketReader::close() noexcept
 	try {
 		reset(1024);
 		m_readOffset = 0;
-		m_bytes = 0;
+		bytes(0);
 	}
 	catch (...) {}
 }
 
 int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
 {
-    auto availableBytes = int(m_bytes - m_readOffset);
+    auto availableBytes = int(bytes() - m_readOffset);
     auto bytesToRead = (int) sz;
     bool eol = false;
 
@@ -73,17 +72,19 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
         int error;
         do {
             error = 0;
+            int receivedBytes;
             if (from != nullptr) {
 #ifdef _WIN32
                 int flen = sizeof(sockaddr_in);
 #else
                 socklen_t flen = sizeof(sockaddr_in);
 #endif
-                m_bytes = (size_t) recvfrom(m_socket.handle(), m_buffer, capacity() - 2, 0, (sockaddr*) from, &flen);
-            } else {
-                m_bytes = m_socket.recv(m_buffer, capacity() - 2);
-            }
-            if ((int)m_bytes == -1) {
+                receivedBytes = (int) recvfrom(m_socket.handle(), data(), capacity() - 2, 0, (sockaddr*) from, &flen);
+            } else
+                receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
+
+            if (receivedBytes == -1) {
+                bytes(0);
                 error = errno;
                 if (error == EAGAIN) {
                     if (!m_socket.readyToRead(chrono::seconds(1)))
@@ -91,15 +92,16 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
                 } else
                     THROW_SOCKET_ERROR("Can't read from socket");
             }
+            bytes((size_t)receivedBytes);
         } while (error == EAGAIN);
 
-        availableBytes = int (m_bytes);
-        m_buffer[m_bytes] = 0;
-        if (m_bytes == 0)
+        availableBytes = (int) bytes();
+        data()[bytes()] = 0;
+        if (empty())
             return 0;
     }
 
-    char *readPosition = m_buffer + m_readOffset;
+    char *readPosition = data() + m_readOffset;
     if (availableBytes < bytesToRead)
         bytesToRead = availableBytes;
 
@@ -114,14 +116,14 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
                 len = cr - readPosition + 1;
             else {
                 if (m_readOffset != 0) {
-                    memmove(m_buffer, m_buffer + m_readOffset, (size_t) availableBytes);
+                    memmove(data(), data() + m_readOffset, (size_t) availableBytes);
                     m_readOffset = 0;
-                    m_bytes = (size_t) availableBytes;
+                    bytes((size_t) availableBytes);
                 } else {
                     checkSize(capacity() + 128);
                 }
-                size_t bytes = m_socket.recv(m_buffer + availableBytes, capacity() - availableBytes);
-                m_bytes += bytes;
+                size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
+                bytes(bytes() + receivedBytes);
                 return 0;
             }
         }
@@ -179,7 +181,7 @@ size_t TCPSocketReader::read(char* destination, size_t sz, char delimiter, bool 
 
 size_t TCPSocketReader::availableBytes() const
 {
-    return m_bytes - m_readOffset;
+    return bytes() - m_readOffset;
 }
 
 size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
@@ -285,7 +287,7 @@ size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
     return m_reader.readLine(buffer, delimiter);
 }
 
-size_t TCPSocket::readLine(std::string& s, char delimiter)
+size_t TCPSocket::readLine(String& s, char delimiter)
 {
     m_reader.readLine(m_stringBuffer, delimiter);
     if (m_stringBuffer.empty())

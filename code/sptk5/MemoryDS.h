@@ -55,36 +55,38 @@ protected:
     /**
      * Internal list of the dataset records
      */
-    std::vector<FieldList *>  m_list;
+    std::vector<FieldList*> m_list;
 
     /**
      * Current record in the dataset.
      */
-    FieldList*                m_current;
+    FieldList*              m_current;
 
     /**
      * The index of the current record.
      */
-    uint32_t                   m_currentIndex;
+    uint32_t                m_currentIndex;
 
     /**
      * EOF flag for sequentual reading first(),next()..next().
      */
-    bool                       m_eof;
-
+    bool                    m_eof;
 
 protected:
 
     /**
      * Default constructor is protected, to prevent creating of the instance of that class
      */
-    MemoryDS() : DataSource(), m_current(0L), m_currentIndex(0), m_eof(false) { }
+    MemoryDS()
+    : DataSource(), m_current(0L), m_currentIndex(0), m_eof(false)
+    {}
 
     /**
      * Move constructor is protected, to prevent creating of the instance of that class
      */
     MemoryDS(MemoryDS&& other) noexcept
-    : m_list(std::move(other.m_list)), m_current(other.m_current), m_currentIndex(other.m_currentIndex), m_eof(other.m_eof)
+    : m_list(std::move(other.m_list)), m_current(other.m_current), m_currentIndex(other.m_currentIndex),
+      m_eof(other.m_eof)
     {
         other.m_current = 0;
         other.m_currentIndex = 0;
@@ -96,8 +98,9 @@ public:
     /**
      * Destructor
      */
-    virtual ~MemoryDS() {
-        close();
+    virtual ~MemoryDS()
+    {
+        MemoryDS::close();
     }
 
     /**
@@ -119,33 +122,34 @@ public:
      * @param fieldIndex int, field index
      * @returns field reference
      */
-    virtual const Field& operator [] (uint32_t fieldIndex) const;
+    virtual const Field& operator[](uint32_t fieldIndex) const;
 
     /**
      * Field access by the field index, non-const version.
      * @param fieldIndex int, field index
      * @returns field reference
      */
-    virtual Field&       operator [] (uint32_t fieldIndex);
+    virtual Field& operator[](uint32_t fieldIndex);
 
     /**
      * Field access by the field name, const version.
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual const Field& operator [] (const char *fieldName) const;
+    virtual const Field& operator[](const char* fieldName) const;
 
     /**
      * Field access by the field name, non-const version.
      * @param fieldName const char *, field name
      * @returns field reference
      */
-    virtual Field&       operator [] (const char *fieldName);
+    virtual Field& operator[](const char* fieldName);
 
     /**
      * Returns user_data associated with the datasource.
      */
-    virtual void             *user_data() const {
+    virtual void* user_data() const
+    {
         return m_current->user_data();
     }
 
@@ -153,69 +157,71 @@ public:
      * Returns field count in the datasource.
      * @returns field count
      */
-    virtual uint32_t           fieldCount() const;
+    virtual uint32_t fieldCount() const;
 
     /**
      * Returns record count in the datasource.
      * @returns record count
      */
-    virtual uint32_t           recordCount() const;
+    virtual uint32_t recordCount() const;
 
     /**
      * Reads the field by name from the datasource.
      * @param fieldName const char *, field name
      * @param fieldValue CVariant, field value
      */
-    virtual bool              readField(const char *fieldName,Variant& fieldValue);
+    virtual bool readField(const char* fieldName, Variant& fieldValue);
 
     /**
      * Writes the field by name from the datasource.
      * @param fieldName const char *, field name
      * @param fieldValue CVariant, field value
      */
-    virtual bool              writeField(const char *fieldName,const Variant& fieldValue);
+    virtual bool writeField(const char* fieldName, const Variant& fieldValue);
 
     /**
      * Opens the datasource. Implemented in derved class.
      */
-    virtual bool              open() {
+    virtual bool open()
+    {
         throw Exception("Not implemented yet");
     }
 
     /**
      * Closes the datasource.
      */
-    virtual bool              close();
+    virtual bool close();
 
     /**
      * Moves to the first record of the datasource.
      */
-    virtual bool              first();
+    virtual bool first();
 
     /**
      * Moves to the next record of the datasource.
      */
-    virtual bool              next();
+    virtual bool next();
 
     /**
      * Moves to the prior record of the datasource.
      */
-    virtual bool              prior();
+    virtual bool prior();
 
     /**
      * Moves to the last record of the datasource.
      */
-    virtual bool              last();
+    virtual bool last();
 
     /**
      * Finds the record by the record position (defined by record's user_data or key).
      */
-    virtual bool              find(Variant position);
+    virtual bool find(Variant position);
 
     /**
      * Returns true if there are no more records in the datasource. Implemented in derved class.
      */
-    virtual bool              eof() const { return m_eof; }
+    virtual bool eof() const
+    { return m_eof; }
 };
 /**
  * @}

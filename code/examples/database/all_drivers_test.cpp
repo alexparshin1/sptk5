@@ -30,6 +30,7 @@
 #include <iomanip>
 
 #include <sptk5/cdatabase>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -43,31 +44,31 @@ bool testTransactions(DatabaseConnection db, const string& tableName, bool rollb
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        cout << "\n        The table has " << counter << " records.";
+        COUT("\n        The table has " << counter << " records.");
 
-        cout << "\n        Begining the transaction ..";
+        COUT("\n        Begining the transaction ..");
         db->beginTransaction();
-        cout << "\n        Deleting everything from the table ..";
+        COUT("\n        Deleting everything from the table ..");
         step5Query.exec();
 
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        cout << "\n        The table now has " << counter << " records.";
+        COUT("\n        The table now has " << counter << " records.");
 
         if (rollback) {
-            cout << "\n        Rolling back the transaction ..";
+            COUT("\n        Rolling back the transaction ..");
             db->rollbackTransaction();
         } else {
-            cout << "\n        Commiting the transaction ..";
+            COUT("\n        Commiting the transaction ..");
             db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        cout << "\n        The table now has " << counter << " records.";
+        COUT("\n        The table now has " << counter << " records.");
     } catch (exception& e) {
-        cout << "Error: " << e.what() << endl;
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
@@ -90,7 +91,7 @@ void testBLOBs(PoolDatabaseConnection* db)
         createTableQuery.exec();
     }
     catch (exception& e) {
-        cout << e.what() << endl;
+        CERR(e.what() << endl);
     }
 
     Query createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true, __FILE__, __LINE__);
@@ -121,28 +122,28 @@ int testDatabase(const string& connectionString)
     DatabaseConnection db = connectionPool.getConnection();
 
     try {
-        cout << "==========================================\n";
-        cout << "Connection string: " << connectionString << "\n";
-        cout << "Openning the database.. ";
+        COUT("==========================================\n");
+        COUT("Connection string: " << connectionString << "\n");
+        COUT("Openning the database.. ");
         db->open();
-        cout << "Ok.\nDriver description: " << db->driverDescription() << endl;
+        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++) {
-            cout << "-------------------------------------------------" << endl;
-            cout << "First 10 " << objectTypeNames[i] << " in the database:" << endl;
+            COUT("-------------------------------------------------" << endl);
+            COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
             Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
             } catch (exception& e) {
-                cout << e.what() << endl;
+                CERR(e.what() << endl);
             }
             for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-                cout << "  " << objectList[j] << endl;
+                COUT("  " << objectList[j] << endl);
         }
-        cout << "-------------------------------------------------" << endl;
+        COUT("-------------------------------------------------" << endl);
 
         // Defining the statements
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
@@ -177,7 +178,7 @@ int testDatabase(const string& connectionString)
         }
         catch (...) {}
 
-        cout << "Ok.\nStep 1: Creating the test table.. ";
+        COUT("Ok.\nStep 1: Creating the test table.. ");
         try {
             createTempTableQuery.exec();
             if (db->connectionType() == DCT_FIREBIRD)
@@ -185,12 +186,12 @@ int testDatabase(const string& connectionString)
         } catch (exception& e) {
             if (strstr(e.what(), " already ") == nullptr)
                 throw;
-            cout << "Table already exists, ";
+            COUT("Table already exists, ");
             Query deleteAll(db, "delete from " + tableName);
             deleteAll.exec();
         }
 
-        cout << "Ok.\nStep 2: Inserting data into the test table.. ";
+        COUT("Ok.\nStep 2: Inserting data into the test table.. ");
 
         // The following example shows how to use the paramaters,
         // addressing them by name
@@ -252,7 +253,7 @@ int testDatabase(const string& connectionString)
         rate_param.setNull();
         insertRecordQuery.exec();
 
-        cout << "Ok.\nStep 3: Selecting the information the slow way .." << endl;
+        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
         selectRecordsQuery.open();
 
         while (!selectRecordsQuery.eof()) {
@@ -261,10 +262,11 @@ int testDatabase(const string& connectionString)
             int64_t id = selectRecordsQuery["id"];
 
             // we can check field for NULL value
-            if (selectRecordsQuery["id"].isNull())
-                cout << setw(7) << "<NULL>";
-            else
-                cout << setw(7) << id;
+            if (selectRecordsQuery["id"].isNull()) {
+                COUT(setw(7) << "<NULL>");
+            } else {
+                COUT(setw(7) << id);
+            }
 
             // Another method: getting data by the column number.
             // For printing values we use custom function implemented above
@@ -280,7 +282,7 @@ int testDatabase(const string& connectionString)
         }
         selectRecordsQuery.close();
 
-        cout << "Ok.\nStep 4: Selecting the information through the field iterator .." << endl;
+        COUT("Ok.\nStep 4: Selecting the information through the field iterator .." << endl);
         //step3Query.param("some_id") = 1;
         selectRecordsQuery.open();
 
@@ -310,13 +312,13 @@ int testDatabase(const string& connectionString)
                 fieldIndex++;
             }
 
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl;
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl);
 
             selectRecordsQuery.fetch();
         }
         selectRecordsQuery.close();
 
-        cout << "Ok.\nStep 5: Selecting the information the fast way .." << endl;
+        COUT("Ok.\nStep 5: Selecting the information the fast way .." << endl);
         selectRecordsQuery.open();
 
         // First, find the field references by name or by number
@@ -341,25 +343,25 @@ int testDatabase(const string& connectionString)
         }
         selectRecordsQuery.close();
 
-        cout << "Ok.\n***********************************************\nTesting the transactions.\n";
+        COUT("Ok.\n***********************************************\nTesting the transactions.\n");
 
-        cout << endl;
-        cout << "- Start transaction, delete all records from test table, then rollback:" << endl;
-        cout << "  After the test, table should have same number of records as before test." << endl;
+        COUT(endl);
+        COUT("- Start transaction, delete all records from test table, then rollback:" << endl);
+        COUT("  After the test, table should have same number of records as before test." << endl);
         testTransactions(db, tableName, true);
 
-        cout << endl << endl;
-        cout << "- Start transaction, delete all records from test table, then rollback:" << endl;
-        cout << "  After the test, table should have no records." << endl;
+        COUT(endl << endl);
+        COUT("- Start transaction, delete all records from test table, then rollback:" << endl);
+        COUT("  After the test, table should have no records." << endl);
         testTransactions(db, tableName, false);
-        cout << endl;
+        COUT(endl);
 
         //dropTempTableQuery.exec();
 
-        cout << "Ok.\nStep 6: Closing the database.. ";
+        COUT("Ok.\nStep 6: Closing the database.. ");
         db->close();
     } catch (exception& e) {
-        cout << "\nError: " << e.what() << endl;
+        CERR("\nError: " << e.what() << endl);
         return 1;
     }
 
@@ -406,26 +408,26 @@ int main(int argc, const char* argv[])
 
             string dbtype, dbname, username, password, hostOrDSN;
             for (;;) {
-                cout << "Please select database type (" << databaseTypes.asString(",") << ")> ";
+                COUT("Please select database type (" << databaseTypes.asString(",") << ")> ");
                 cin >> dbtype;
                 if (databaseTypes.indexOf(dbtype) != -1)
                     break;
             }
 
             if (dbtype == "odbc") {
-                cout << "DSN name > ";
+                COUT("DSN name > ");
                 cin >> hostOrDSN;
             } else {
-                cout << "hostname (or localhost) > ";
+                COUT("hostname (or localhost) > ");
                 cin >> hostOrDSN;
-                cout << "Database name > ";
+                COUT("Database name > ");
                 cin >> dbname;
             }
 
-            cout << "User name > ";
+            COUT("User name > ");
             cin >> username;
 
-            cout << "Password > ";
+            COUT("Password > ");
             cin >> password;
 
             // Creating connection string in the following format:
@@ -448,12 +450,12 @@ int main(int argc, const char* argv[])
             }
         }
 
-        cout << "Connection string: " << connectionString << endl;
+        COUT("Connection string: " << connectionString << endl);
 
         return testDatabase(connectionString);
     }
     catch (const exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

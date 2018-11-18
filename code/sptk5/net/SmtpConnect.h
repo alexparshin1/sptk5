@@ -96,7 +96,7 @@ protected:
      * @param s                 Source data
      * @return MIME-encoded data
      */
-    static std::string mime(std::string s);
+    static std::string mime(const String& s);
 
     /**
      * @brief Mime-decodes the string
@@ -111,7 +111,7 @@ public:
      * @brief Default constructor
      * @param log               Optional log object
      */
-    SmtpConnect(Logger* log=NULL);
+    explicit SmtpConnect(Logger* log=NULL);
 
     /**
      * Destructor

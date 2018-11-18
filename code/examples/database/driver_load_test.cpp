@@ -27,11 +27,7 @@
 */
 
 #include <sptk5/cdatabase>
-
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -41,10 +37,10 @@ int main()
     try {
         DatabaseConnectionPool connectionPool("postgresql://theater/protis");
         DatabaseConnection connection = connectionPool.getConnection();
-        cout << connection->nativeConnectionString() << endl;
+        COUT(connection->nativeConnectionString() << endl);
     }
     catch (exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
     }
     return 0;
 }

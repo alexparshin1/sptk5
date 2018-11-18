@@ -50,7 +50,7 @@ HttpReader::HttpReader(Buffer& output)
 
 bool HttpReader::readStatus(TCPSocket& socket)
 {
-    string status;
+    String status;
     while (socket.readLine(status) < 3) {
         if (status.empty())
             return false;
@@ -74,7 +74,7 @@ bool HttpReader::readHeaders(TCPSocket& socket)
     /// Reading HTTP headers
     Strings matches;
     for (;;) {
-        string header;
+        String header;
 
         socket.readLine(header);
 

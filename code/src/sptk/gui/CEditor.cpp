@@ -67,11 +67,9 @@ void CEditor::cursorRowCol(int& row,int& col) {
 }
 
 int CEditor::handle(int event) {
-   if (event == FL_KEYUP || event == FL_RELEASE) {
-      if (m_lastCursorPosition != mCursorPos) {
-         m_lastCursorPosition = mCursorPos;
-         do_callback();
-      }
+   if ((event == FL_KEYUP || event == FL_RELEASE) && m_lastCursorPosition != mCursorPos) {
+      m_lastCursorPosition = mCursorPos;
+      do_callback();
    }
    return Fl_Text_Editor::handle(event);
 }

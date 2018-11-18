@@ -37,14 +37,14 @@ using namespace sptk;
 //===========================================================================
 void CDBDropDownListView::item_clicked(int /*mouse_btn*/)
 {
-    auto parentWindow = (CDBDropDownList*) window();
+    auto* parentWindow = (CDBDropDownList*) window();
     parentWindow->m_clicked = 1;
     parentWindow->hide();
 }
 
 void CDBDropDownListView::onExit()
 {
-    auto wnd = (CDBDropDownList*) window();
+    auto* wnd = (CDBDropDownList*) window();
     wnd->m_clicked = -1;
     wnd->hide();
 }

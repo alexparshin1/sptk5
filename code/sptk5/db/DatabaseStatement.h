@@ -91,7 +91,7 @@ public:
      * @brief Constructor
      * @param connection Connection*, DB connection
      */
-    DatabaseStatement(Connection* connection)
+    explicit DatabaseStatement(Connection* connection)
     : m_connection(connection), m_statement(nullptr), m_state({})
     {}
 
@@ -135,7 +135,7 @@ public:
     /**
      * @brief Returns true if statement uses output parameters
      */
-    bool outputParameterCount() const
+    size_t outputParameterCount() const
     {
         return m_state.outputParameterCount;
     }

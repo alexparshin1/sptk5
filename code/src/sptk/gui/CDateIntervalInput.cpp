@@ -40,7 +40,7 @@ using namespace sptk;
 
 void CDateIntervalInput::intervalCalendarButtonPressed(Fl_Widget* btn, void*)
 {
-    auto intervalInput = (CDateIntervalInput*) btn->parent()->parent();
+    auto* intervalInput = (CDateIntervalInput*) btn->parent()->parent();
     intervalInput->showCalendar(btn);
 }
 
@@ -82,7 +82,7 @@ CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * labe
 
 CLayoutClient* CDateIntervalInput::creator(xml::Node* node)
 {
-    auto widget = new CDateIntervalInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CDateIntervalInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

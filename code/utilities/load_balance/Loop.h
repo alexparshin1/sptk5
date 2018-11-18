@@ -22,7 +22,7 @@ public:
     const T& loop()
     {
         if (m_list.empty())
-            throw new sptk::Exception("Loop is empty");
+            throw sptk::Exception("Loop is empty");
 
         size_t currentPosition = m_position;
         m_position++;

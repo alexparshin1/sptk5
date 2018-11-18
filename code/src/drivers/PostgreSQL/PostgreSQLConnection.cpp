@@ -909,10 +909,6 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         field->setMoney(readNumericToScaledInteger(data));
                         break;
 
-                    default:
-                        field->setExternalString(data, dataLength);
-                        break;
-
                     case PG_BYTEA:
                         field->setExternalBuffer(data, (size_t) dataLength);
                         break;
@@ -940,6 +936,9 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         decodeArray(data, field);
                         break;
 
+                    default:
+                        field->setExternalString(data, dataLength);
+                        break;
                 }
             }
 
@@ -974,10 +973,6 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
                     "AND routine_type = 'PROCEDURE'";
             break;
 
-        case DOT_TABLES:
-            objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
-            break;
-
         case DOT_VIEWS:
             objectsSQL = tablesSQL + "AND table_type = 'VIEW'";
             break;
@@ -985,6 +980,10 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
         case DOT_DATABASES:
             objectsSQL =
                 "SELECT datname FROM pg_database WHERE datname NOT IN ('postgres','template0','template1')";
+            break;
+
+        default:
+            objectsSQL = tablesSQL + "AND table_type = 'BASE TABLE'";
             break;
     }
 
@@ -1049,13 +1048,32 @@ void PostgreSQLConnection::_bulkInsert(const String& tableName, const Strings& c
 
 void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
+    Strings statements = extractStatements(sqlBatch);
+
+    for (auto& stmt : statements) {
+        try {
+            Query query(this, stmt);
+            query.exec();
+        }
+        catch (const exception& e) {
+            if (errors != nullptr)
+                errors->push_back(e.what());
+            else
+                throw;
+        }
+    }
+}
+
+Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch) const
+{
     RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
     RegularExpression matchFunctionBodyStart("AS\\s+(\\S+)\\s*$", "i");
     RegularExpression matchStatementEnd(";(\\s*|\\s*--.*)$");
     RegularExpression matchCommentRow("^\\s*--");
 
-    Strings statements, matches;
-    String delimiter;
+    Strings statements;
+    Strings matches;
+    String  delimiter;
     stringstream statement;
 
     bool functionHeader = false;
@@ -1101,19 +1119,7 @@ void PostgreSQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* er
 
     if (!trim(statement.str()).empty())
         statements.push_back(statement.str());
-
-    for (auto& stmt : statements) {
-        try {
-            Query query(this, stmt);
-            query.exec();
-        }
-        catch (const exception& e) {
-            if (errors != nullptr)
-                errors->push_back(e.what());
-            else
-                throw;
-        }
-    }
+    return statements;
 }
 
 void* postgresql_create_connection(const char* connectionString)

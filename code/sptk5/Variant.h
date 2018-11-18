@@ -169,26 +169,30 @@ struct MoneyData
      */
     uint8_t      scale:4;
 
-
     /**
      * Convert to double value
      */
-    operator double () const;
+    explicit operator double () const;
 
     /**
      * Convert to integer value
      */
-    operator int64_t () const;
+    explicit operator int64_t () const;
 
     /**
      * Convert to integer value
      */
-    operator int32_t () const;
+    explicit operator size_t () const;
+
+    /**
+     * Convert to integer value
+     */
+    explicit operator int32_t () const;
 
     /**
      * Convert to bool value
      */
-    operator bool () const;
+    explicit operator bool () const;
 
 };
 

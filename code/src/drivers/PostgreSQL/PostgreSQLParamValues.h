@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CPOSTGRESQLPARAMVALUES_H__
-#define __CPOSTGRESQLPARAMVALUES_H__
+#ifndef __POSTGRESQL_PARAM_VALUES_H__
+#define __POSTGRESQL_PARAM_VALUES_H__
 
 #include "pgtypes.h"
 #include <sptk5/db/PostgreSQLConnection.h>
@@ -38,7 +38,6 @@ namespace sptk {
     class PostgreSQLParamValues
     {
         friend class PostgreSQLStatement;
-    protected:
         size_t                      m_count;
         std::vector<const char*>    m_values;
         std::vector<int>            m_lengths;

@@ -69,7 +69,7 @@ public:
      * Shows window in modal mode. Exits from the modal mode
      * when the focus is moved outside the window.
      */
-    bool showModal();
+    virtual bool showModal();
 };
 /**
  * @}

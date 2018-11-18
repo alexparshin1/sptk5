@@ -36,9 +36,8 @@ using namespace std;
 using namespace sptk;
 
 CSpellOption::CSpellOption(const String& name, const String& value)
+: m_name(name), m_value(value)
 {
-    m_name = name;
-    m_value = value;
 }
 
 CSpellOption& CSpellOption::operator=(const char* value)
@@ -55,19 +54,19 @@ CSpellOption& CSpellOption::operator=(const String& value)
 
 void CSpellChecker::cb_learn(Fl_Widget* w, void*)
 {
-    auto spellChecker = (CSpellChecker*) w->window();
+    auto* spellChecker = (CSpellChecker*) w->window();
     spellChecker->learnAndClose();
 }
 
 void CSpellChecker::cb_ignore(Fl_Widget* w, void*)
 {
-    auto spellChecker = (CSpellChecker*) w->window();
+    auto* spellChecker = (CSpellChecker*) w->window();
     spellChecker->ignoreAndClose();
 }
 
 void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 {
-    auto spellChecker = (CSpellChecker*) w->window();
+    auto* spellChecker = (CSpellChecker*) w->window();
     String word = trim(spellChecker->m_replaceToInput->data());
     if (word.length())
         spellChecker->m_okButton->activate();
@@ -76,9 +75,9 @@ void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 
 void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
 {
-    auto listView = (CListView*) lv;
+    auto* listView = (CListView*) lv;
     if (listView->eventType() == CE_DATA_CHANGED) {
-        auto spellChecker = (CSpellChecker*) listView->window();
+        auto* spellChecker = (CSpellChecker*) listView->window();
         spellChecker->m_replaceToInput->data(listView->data());
         String word = trim(spellChecker->m_replaceToInput->data());
         if (word.length())

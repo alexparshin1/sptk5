@@ -46,7 +46,6 @@ namespace sptk {
  */
 class SP_EXPORT CColumn
 {
-protected:
     /**
      * Column name
      */

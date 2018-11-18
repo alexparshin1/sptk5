@@ -57,11 +57,11 @@ class FieldList;
 class SP_EXPORT Field : public Variant
 {
     friend class FieldList;
-protected:
     /**
      * Field name
      */
     String m_name;
+protected:
 
 
 public:

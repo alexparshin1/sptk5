@@ -293,7 +293,7 @@ void style_parse(const char *text, char *style, int length)
 
 void style_init()
 {
-    auto style = new char[textbuf->length() + 1];
+    auto* style = new char[textbuf->length() + 1];
     char *text = textbuf->text();
 
     memset(style, 'A', (size_t) textbuf->length());
@@ -436,7 +436,7 @@ EditorWindow::EditorWindow(int w, int h, const char* t) : CWindow(w, h, t)
     replace_find = new CInput("Find:");
     replace_with = new CInput("Replace:");
 
-    auto grp = new CGroup("", 10, SP_ALIGN_BOTTOM);
+    auto* grp = new CGroup("", 10, SP_ALIGN_BOTTOM);
     replace_all = new CButton("Replace All");
     replace_all->callback((Fl_Callback *) replall_cb, this);
 
@@ -481,7 +481,8 @@ void load_file(const char *newfile, int ipos)
     loading = 1;
     int insert = (ipos != -1);
     changed = insert;
-    if (!insert) strncpy(filename, "", sizeof(filename));
+    if (!insert)
+        strncpy(filename, "", 2);
     int r;
     if (!insert) r = textbuf->loadfile(newfile);
     else r = textbuf->insertfile(newfile, ipos);
@@ -489,7 +490,7 @@ void load_file(const char *newfile, int ipos)
         fl_alert("Error reading from file \'%s\':\n%s.", newfile, strerror(errno));
     else
         if (!insert)
-            strncpy(filename, newfile, sizeof(filename) - 1);
+            strncpy(filename, newfile, strlen(newfile) + 1);
     loading = 0;
     textbuf->call_modify_callbacks();
 }
@@ -499,20 +500,20 @@ void save_file(const char *newfile)
     if (textbuf->savefile(newfile))
         fl_alert("Error writing to file \'%s\':\n%s.", newfile, strerror(errno));
     else
-        strncpy(filename, newfile, sizeof(filename) - 1);
+        strncpy(filename, newfile, strlen(newfile) + 1);
     changed = 0;
     textbuf->call_modify_callbacks();
 }
 
 void copy_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     Fl_Text_Editor::kf_copy(0, e->editor);
 }
 
 void cut_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     Fl_Text_Editor::kf_cut(0, e->editor);
 }
 
@@ -523,7 +524,7 @@ void delete_cb(Fl_Widget*, void*)
 
 void find_cb(Fl_Widget* w, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     const char *val;
 
     val = fl_input("Search String:", e->search.c_str());
@@ -536,7 +537,7 @@ void find_cb(Fl_Widget* w, void* v)
 
 void find2_cb(Fl_Widget* w, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     if (e->search[0] == '\0') {
         // Search string is blank; get a new one...
         find_cb(w, v);
@@ -556,7 +557,7 @@ void find2_cb(Fl_Widget* w, void* v)
 
 void cursor_cb(Fl_Widget* w, void*)
 {
-    auto e = (EditorWindow*) w->window();
+    auto* e = (EditorWindow*) w->window();
     int row, col;
     e->editor->cursorRowCol(row, col);
     e->cursor_position->data("Row " + int2string(row) + ", Col " + int2string(col));
@@ -565,7 +566,8 @@ void cursor_cb(Fl_Widget* w, void*)
 
 void set_title(Fl_Window* w)
 {
-    if (filename[0] == '\0') strncpy(title, "Untitled", sizeof(title));
+    if (filename[0] == '\0')
+        strncpy(title, "Untitled", 9);
     else {
         char *slash;
         slash = strrchr(filename, '/');
@@ -573,9 +575,9 @@ void set_title(Fl_Window* w)
         if (slash == NULL) slash = strrchr(filename, '\\');
 #endif
         if (slash != nullptr)
-            strncpy(title, slash + 1, sizeof(title) - 1);
+            strncpy(title, slash + 1, strlen(slash));
         else
-            strncpy(title, filename, sizeof(title) - 1);
+            strncpy(title, filename, strlen(filename) + 1);
     }
 
     if (changed)
@@ -587,7 +589,7 @@ void set_title(Fl_Window* w)
 void changed_cb(int, int nInserted, int nDeleted, int, const char*, void* v)
 {
     if ((nInserted || nDeleted) && !loading) changed = 1;
-    auto w = (EditorWindow *) v;
+    auto* w = (EditorWindow *) v;
     set_title(w);
     if (loading) w->editor->show_insert_position();
 }
@@ -616,7 +618,7 @@ void open_cb(Fl_Widget*, void*)
 
 void insert_cb(Fl_Widget*, void *v)
 {
-    auto w = (EditorWindow *) v;
+    auto* w = (EditorWindow *) v;
 
     CFileOpenDialog dialog("Insert File");
     if (dialog.execute()) {
@@ -627,7 +629,7 @@ void insert_cb(Fl_Widget*, void *v)
 
 void paste_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     Fl_Text_Editor::kf_paste(0, e->editor);
 }
 
@@ -635,7 +637,7 @@ int num_windows = 0;
 
 void close_cb(Fl_Widget*, void* v)
 {
-    auto w = (Fl_Window*) v;
+    auto* w = (Fl_Window*) v;
     if (num_windows == 1 && !check_save()) {
         return;
     }
@@ -657,13 +659,13 @@ void quit_cb(Fl_Widget*, void*)
 
 void replace_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     e->replace_dlg->show();
 }
 
 void replace2_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     string find = e->replace_find->data();
     string replace = e->replace_with->data();
 
@@ -692,7 +694,7 @@ void replace2_cb(Fl_Widget*, void* v)
 
 void replall_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     string find = e->replace_find->data();
     string replace = e->replace_with->data();
 
@@ -729,7 +731,7 @@ void replall_cb(Fl_Widget*, void* v)
 
 void replcan_cb(Fl_Widget*, void* v)
 {
-    auto e = (EditorWindow*) v;
+    auto* e = (EditorWindow*) v;
     e->replace_dlg->hide();
 }
 
@@ -791,10 +793,10 @@ Fl_Menu_Item menuitems[] = {
 
 CWindow* new_view()
 {
-    auto w = new EditorWindow(660, 400, title);
+    auto* w = new EditorWindow(660, 400, title);
     w->begin();
 
-    auto m = new CMenuBar;
+    auto* m = new CMenuBar;
     m->copy(menuitems, w);
 
     w->editor = new CEditor(10, SP_ALIGN_CLIENT);
@@ -806,7 +808,7 @@ CWindow* new_view()
     w->editor->callback(cursor_cb);
 
 
-    auto grp = new CGroup("", 20, SP_ALIGN_BOTTOM);
+    auto* grp = new CGroup("", 20, SP_ALIGN_BOTTOM);
     grp->layoutSpacing(1);
     w->cursor_position = new CBox("", 150, SP_ALIGN_RIGHT);
     w->cursor_position->box(FL_THIN_DOWN_BOX);

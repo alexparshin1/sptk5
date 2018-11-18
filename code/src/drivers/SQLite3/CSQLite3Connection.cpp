@@ -43,8 +43,7 @@ class CSQLite3Field : public DatabaseField
 
 public:
     CSQLite3Field(const std::string& fieldName, int fieldColumn)
-            :
-            DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
+    : DatabaseField(fieldName, fieldColumn, 0, VAR_NONE, 0, 0)
     {
     }
 

@@ -31,41 +31,43 @@
 #include <FL/Fl.H>
 
 #include <sptk5/gui/CLayoutManager.h>
-#include <sptk5/gui/CColumn.h>
 #include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CFontComboBox.h>
 
 using namespace std;
 using namespace sptk;
 
-void CFontComboBox::loadFonts() {
-   Strings fontNames;
-   int k = Fl::set_fonts("*");
-   for (int i = 0; i < k; i++) {
-      int t;
-      String fontIdString(string(Fl::get_font_name((Fl_Font)i,&t)),i);
-      fontNames.push_back(fontIdString);
-   }
-   addRows("Fonts",fontNames);
-   columns()[unsigned(0)].width(150);
-   sortColumn(0);
-   m_list->autoRowHeight(true);
+void CFontComboBox::loadFonts()
+{
+    Strings fontNames;
+    int k = Fl::set_fonts("*");
+    for (int i = 0; i < k; i++) {
+        int t;
+        String fontIdString(string(Fl::get_font_name((Fl_Font) i, &t)), i);
+        fontNames.push_back(fontIdString);
+    }
+    addRows("Fonts", fontNames);
+    columns()[unsigned(0)].width(150);
+    sortColumn(0);
+    m_list->autoRowHeight(true);
 }
 
-CFontComboBox::CFontComboBox(const char * label,int layoutSize,CLayoutAlign layoutAlignment)
-: CComboBox(label,layoutSize,layoutAlignment) {
-   loadFonts();
+CFontComboBox::CFontComboBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
+        : CComboBox(label, layoutSize, layoutAlignment)
+{
+    loadFonts();
 }
 
-#ifdef __COMPATIBILITY_MODE__ 
+#ifdef __COMPATIBILITY_MODE__
 CFontComboBox::CFontComboBox(int x,int y,int w,int h,const char *l)
 : CComboBox(x,y,w,h,l) {
    loadFonts();
 }
 #endif
 
-CLayoutClient* CFontComboBox::creator(xml::Node *node) {
-    auto widget = new CFontComboBox("",10,SP_ALIGN_TOP);
-    widget->load(node,LXM_LAYOUTDATA);
+CLayoutClient* CFontComboBox::creator(xml::Node* node)
+{
+    auto* widget = new CFontComboBox("", 10, SP_ALIGN_TOP);
+    widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }

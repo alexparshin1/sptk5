@@ -119,8 +119,10 @@ public:
      */
     CControlList& operator =(const CControlList& l)
     {
-        clear();
-        add(l);
+        if (&l != this) {
+            clear();
+            add(l);
+        }
         return *this;
     }
 

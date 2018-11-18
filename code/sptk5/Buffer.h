@@ -54,17 +54,9 @@ class SP_EXPORT Buffer
 {
 
     /**
-     * @brief Resizes current buffer
-     * @param sz size_t, required memory size
-     */
-    void adjustSize(size_t sz);
-
-    /**
      * Actual storage
      */
     std::vector<char>   m_storage;
-
-protected:
 
     /**
      * Actual size of the data in buffer
@@ -72,10 +64,15 @@ protected:
     size_t              m_bytes {0};
 
     /**
-     * The buffer itself
+     * The pointer to beginning of the storage
      */
     char*               m_buffer;
 
+    /**
+     * @brief Resizes current buffer
+     * @param sz size_t, required memory size
+     */
+    void adjustSize(size_t sz);
 
 public:
 
@@ -317,7 +314,7 @@ public:
      * @brief Returns the size of data in the data buffer
      * @returns data size
      */
-    size_t bytes() const
+    size_t length() const
     {
         return m_bytes;
     }
@@ -326,7 +323,7 @@ public:
      * @brief Returns the size of data in the data buffer
      * @returns data size
      */
-    size_t length() const
+    size_t bytes() const
     {
         return m_bytes;
     }
@@ -339,7 +336,10 @@ public:
      */
     void bytes(size_t b)
     {
+        if (b + 1 > m_storage.size())
+            throw Exception("Attempt to set buffer size outside storage");
         m_bytes = b;
+        m_buffer[b] = 0;
     }
 
     /**
@@ -436,7 +436,7 @@ public:
     /**
      * @brief Convertor to std::string
      */
-    operator std::string() const
+    explicit operator std::string() const
     {
         return std::string(m_buffer, m_bytes);
     }
