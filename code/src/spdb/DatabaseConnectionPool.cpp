@@ -110,7 +110,7 @@ void DatabaseConnectionPool::load()
 
     // Load the library
 #ifdef WIN32
-    string driverFileName = "spdb5_"+driverName+".dll";
+    string driverFileName = "spdb5_" + driverNameLC + ".dll";
     DriverHandle handle = LoadLibrary(driverFileName.c_str());
     if (!handle)
         throw SystemException("Cannot load library " + driverFileName);
