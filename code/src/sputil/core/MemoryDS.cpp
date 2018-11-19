@@ -160,7 +160,7 @@ bool MemoryDS::find(Variant position)
     switch (position.dataType()) {
         case VAR_INT:
             if (position.asInteger() < (int) cnt) {
-                m_currentIndex = position;
+                m_currentIndex = position.asInteger();
                 m_current = (FieldList*) m_list[m_currentIndex];
                 return true;
             }

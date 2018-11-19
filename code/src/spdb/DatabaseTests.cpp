@@ -256,7 +256,7 @@ size_t DatabaseTests::countRowsInTable(DatabaseConnection db, const String& tabl
 {
     Query select(db, "SELECT count(*) cnt FROM " + table);
     select.open();
-    size_t count = select["cnt"];
+    size_t count = select["cnt"].asInteger();
     select.close();
 
     return count;

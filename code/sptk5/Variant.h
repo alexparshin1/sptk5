@@ -631,66 +631,66 @@ public:
     /**
      * Conversion operator
      */
-    operator bool() const;
+    explicit operator bool() const;
 
     /**
      * Conversion operator
      */
-    operator int32_t() const;
+	explicit operator int() const;
 
     /**
      * Conversion operator
      */
-    operator uint32_t() const;
+	explicit operator unsigned() const;
 
     /**
      * Conversion operator
      */
-    operator int64_t() const;
+	explicit operator int64_t() const;
 
     /**
      * Conversion operator
      */
-    operator uint64_t() const;
+	explicit operator uint64_t() const;
 
     /**
      * Conversion operator
      */
-    operator float() const;
+	explicit operator float() const;
 
     /**
      * Conversion operator
      */
-    operator double() const;
+	explicit operator double() const;
 
     /**
      * Conversion operator
      */
-    operator std::string() const;
+	explicit operator std::string() const;
 
     /**
      * Conversion operator
      */
-    operator String() const;
+	explicit operator String() const;
 
     /**
      * Conversion operator
      */
-    operator DateTime() const;
+	explicit operator DateTime() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to double.
      */
-    int32_t asInteger() const;
+	int asInteger() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to double.
      */
-    int64_t asInt64() const;
+	int64_t asInt64() const;
 
     /**
      * Conversion to bool

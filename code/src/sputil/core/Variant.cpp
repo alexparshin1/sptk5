@@ -51,9 +51,9 @@ MoneyData::operator size_t() const
     return size_t(quantity / dividers[scale]);
 }
 
-MoneyData::operator int32_t() const
+MoneyData::operator int() const
 {
-    return int32_t(quantity / dividers[scale]);
+    return int(quantity / dividers[scale]);
 }
 
 MoneyData::operator bool() const
@@ -781,15 +781,15 @@ Variant::operator bool() const
 }
 
 //---------------------------------------------------------------------------
-Variant::operator int32_t() const
+Variant::operator int() const
 {
     return asInteger();
 }
 
 //---------------------------------------------------------------------------
-Variant::operator uint32_t() const
+Variant::operator unsigned() const
 {
-    return (uint32_t) asInteger();
+    return (unsigned) asInteger();
 }
 
 //---------------------------------------------------------------------------

@@ -56,7 +56,7 @@ void WSString::load(const Field& field)
     if (field.isNull())
         setNull(VAR_STRING);
     else
-        setString(field);
+        setString(field.asString());
 }
 
 void WSBool::load(const xml::Node* attr)
@@ -81,7 +81,7 @@ void WSBool::load(const Field& field)
     if (field.isNull())
         setNull(VAR_BOOL);
     else
-        setBool(field);
+        setBool(field.asBool());
 }
 
 void WSDate::load(const xml::Node* attr)
@@ -106,7 +106,7 @@ void WSDate::load(const Field& field)
     if (field.isNull())
         setNull(VAR_DATE);
     else
-        setDate(field);
+        setDate(field.asDate());
 }
 
 void WSDateTime::load(const xml::Node* attr)
@@ -131,7 +131,7 @@ void WSDateTime::load(const Field& field)
     if (field.isNull())
         setNull(VAR_DATE_TIME);
     else
-        setDateTime(field);
+        setDateTime(field.asDateTime());
 }
 
 String WSDateTime::asString() const
@@ -158,7 +158,7 @@ void WSDouble::load(const Field& field)
     if (field.isNull())
         setNull(VAR_FLOAT);
     else
-        setFloat(field);
+        setFloat(field.asFloat());
 }
 
 void WSInteger::load(const xml::Node* attr)
@@ -183,5 +183,5 @@ void WSInteger::load(const Field& field)
     if (field.isNull())
         setNull(VAR_INT64);
     else
-        setInt64(field);
+        setInt64(field.asInt64());
 }
