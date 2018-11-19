@@ -313,7 +313,22 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CButton.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CCalendar.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/sptk/gui/CCheckButtons.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/sptk/gui/CColumn.cpp">
           <value>
             <set />
           </value>

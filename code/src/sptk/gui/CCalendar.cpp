@@ -115,7 +115,7 @@ void CCalendar::switchButtonClicked(int32_t monthChange)
             date(newDate);
             break;
         }
-        catch (...) {
+        catch (const Exception&) {
             day--;
         }
     }

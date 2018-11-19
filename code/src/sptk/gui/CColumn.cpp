@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/sptk.h>
-
+#include <sptk5/Printer.h>
 #include <sptk5/gui/CColumn.h>
 
 using namespace std;
@@ -99,7 +99,8 @@ void CColumnList::load(const xml::Node& node)
                 continue;
             CColumn& column = (*this)[columnIndex];
             column.load(columnNode);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
 }
@@ -115,7 +116,8 @@ void CColumnList::save(xml::Node& node) const
             xml::Node& columnNode = *(new xml::Element(node, "column"));
             column.save(columnNode);
             columnNode.setAttribute("index", i);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
 }

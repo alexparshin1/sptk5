@@ -50,6 +50,7 @@ namespace sptk {
 class SP_EXPORT CInternalComboBoxPanel : public Fl_Box
 {
     void draw() override;
+    int handleKeyboardEvent();
 
 public:
     CInternalComboBoxPanel(int x, int y, int w, int h, const char* label = nullptr);
@@ -60,8 +61,7 @@ public:
 }
 
 CInternalComboBoxPanel::CInternalComboBoxPanel(int x, int y, int w, int h, const char* label)
-        :
-        Fl_Box(x, y, w, h, label)
+: Fl_Box(x, y, w, h, label)
 {
     align(FL_ALIGN_LEFT);
 }
@@ -95,6 +95,32 @@ void CInternalComboBoxPanel::draw()
     fl_pop_clip();
 }
 
+int CInternalComboBoxPanel::handleKeyboardEvent()
+{
+    int ch = Fl::event_key();
+    if (ch == FL_Tab || ch == FL_Enter) {
+        if (Fl_Box::handle(FL_KEYBOARD))
+            return 1;
+        return 0;
+    }
+    auto* combo = (CBaseListBox*) parent();
+    if (!combo)
+        return 0;
+    CDBDropDownList* ddl = combo->m_dropDownWindow;
+    if (!ddl)
+        return 0;
+    CDBDropDownListView* listView = ddl->listView;
+    if (!listView)
+        return 0;
+    int oldIntValue = listView->data().asInteger();
+    int rc = listView->handle(FL_KEYBOARD);
+    redraw();
+    int newIntValue = listView->data().asInteger();
+    if (oldIntValue != newIntValue)
+        combo->fireEvent(CE_DATA_CHANGED, newIntValue);
+    return rc;
+}
+
 int CInternalComboBoxPanel::handle(int event)
 {
     auto* control = (CControl*) parent();
@@ -114,28 +140,8 @@ int CInternalComboBoxPanel::handle(int event)
             Fl::focus(this);
             control->notifyFocus();
             return 1;
-        case FL_KEYBOARD: {
-            int ch = Fl::event_key();
-            if (ch == FL_Tab || ch == FL_Enter)
-                break;
-            auto* combo = (CBaseListBox*) parent();
-            if (!combo)
-                return 0;
-            CDBDropDownList* ddl = combo->m_dropDownWindow;
-            if (!ddl)
-                return 0;
-            CDBDropDownListView* listView = ddl->listView;
-            if (!listView)
-                return 0;
-            int oldIntValue = listView->data().asInteger();
-            int rc = listView->handle(event);
-            redraw();
-            int newIntValue = listView->data().asInteger();
-            if (oldIntValue != newIntValue) {
-                combo->fireEvent(CE_DATA_CHANGED, newIntValue);
-            }
-            return rc;
-        }
+        case FL_KEYBOARD:
+            return handleKeyboardEvent();
         default:
             break;
     }

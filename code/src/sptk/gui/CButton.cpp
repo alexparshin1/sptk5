@@ -331,22 +331,15 @@ void CBaseButton::draw()
 
 int CBaseButton::handle(int event)
 {
+    CControl* control = nullptr;
     switch (event) {
-        case FL_FOCUS: {
-            CControl* control = nullptr;
-            try {
-                control = dynamic_cast<CControl*>(parent());
+        case FL_FOCUS:
+            control = dynamic_cast<CControl*>(parent());
+            if (!control && parent()) {
+                control = dynamic_cast<CControl*>(parent()->parent());
+                if (control)
+                    control->notifyFocus();
             }
-            catch (...) {}
-
-            if (!control && parent())
-                try {
-                    control = dynamic_cast<CControl*>(parent()->parent());
-                    if (control)
-                        control->notifyFocus();
-                }
-                catch (...) {}
-        }
             break;
 
         case FL_ENTER:
