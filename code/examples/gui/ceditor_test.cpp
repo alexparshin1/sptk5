@@ -666,8 +666,8 @@ void replace_cb(Fl_Widget*, void* v)
 void replace2_cb(Fl_Widget*, void* v)
 {
     auto* e = (EditorWindow*) v;
-    string find = e->replace_find->data();
-    string replace = e->replace_with->data();
+    String find = e->replace_find->data().asString();
+    String replace = e->replace_with->data().asString();
 
     if (find[0] == '\0') {
         // Search string is blank; get a new one...
@@ -695,8 +695,8 @@ void replace2_cb(Fl_Widget*, void* v)
 void replall_cb(Fl_Widget*, void* v)
 {
     auto* e = (EditorWindow*) v;
-    string find = e->replace_find->data();
-    string replace = e->replace_with->data();
+    String find = e->replace_find->data().asString();
+    String replace = e->replace_with->data().asString();
 
     if (find[0] == '\0') {
         // Search string is blank; get a new one...

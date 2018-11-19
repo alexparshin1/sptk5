@@ -62,13 +62,13 @@ void CIntegerInput::save(Query* updateQuery)
     if (!m_fieldName.length())
         return;
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setInteger(data());
+    param.setInteger(data().asInteger());
 }
 
 bool CIntegerInput::valid() const
 {
     if (m_limited) {
-        int val = data();
+        int val = data().asInteger();
         return val >= m_minValue && val <= m_maxValue;
     }
     return true;

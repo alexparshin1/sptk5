@@ -306,7 +306,7 @@ bool CDialog::save()
             throw Exception(control->label() + " entry has the incorrect value!");
         }
         if (control->flags() & FGE_MANDATORY) {
-            string test = control->data();
+            String test = control->data().asString();
             if (!trim(test).length()) {
                 Fl::focus(control->control());
                 throw Exception(control->label() + " entry can't be empty!");

@@ -75,9 +75,9 @@ public:
     /**
      * Returns currently selected font name
      */
-    std::string fontName() const
+    String fontName() const
     {
-        return data();
+        return data().asString();
     }
 
     /**

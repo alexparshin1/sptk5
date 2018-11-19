@@ -156,7 +156,7 @@ void CCheckButtons::data(const Variant s)
     deselectAllButtons();
     if (m_otherButton)
         m_otherInput->value("");
-    string st = s;
+    String st = s.asString();
     Strings sl(st, "|");
     size_t cnt = sl.size();
     auto* g = (CScroll*) m_control;

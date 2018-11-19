@@ -67,7 +67,7 @@ void CSpellChecker::cb_ignore(Fl_Widget* w, void*)
 void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 {
     auto* spellChecker = (CSpellChecker*) w->window();
-    String word = trim(spellChecker->m_replaceToInput->data());
+    String word = trim(spellChecker->m_replaceToInput->data().asString());
     if (word.length())
         spellChecker->m_okButton->activate();
     else spellChecker->m_okButton->deactivate();
@@ -79,7 +79,7 @@ void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
     if (listView->eventType() == CE_DATA_CHANGED) {
         auto* spellChecker = (CSpellChecker*) listView->window();
         spellChecker->m_replaceToInput->data(listView->data());
-        String word = trim(spellChecker->m_replaceToInput->data());
+        String word = trim(spellChecker->m_replaceToInput->data().asString());
         if (word.length())
             spellChecker->m_okButton->activate();
         else spellChecker->m_okButton->deactivate();
@@ -88,7 +88,7 @@ void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
 
 void CSpellChecker::learnAndClose()
 {
-    string word = m_wordInput->data();
+    String word = m_wordInput->data().asString();
     if (m_spellChecker) {
         aspell_speller_add_to_personal(m_spellChecker, word.c_str(), (int) word.length());
     }
@@ -97,14 +97,14 @@ void CSpellChecker::learnAndClose()
 
 void CSpellChecker::ignoreAndClose()
 {
-    string word = m_wordInput->data();
+    String word = m_wordInput->data().asString();
     if (m_spellChecker)
         aspell_speller_add_to_session(m_spellChecker, word.c_str(), (int) word.length());
     m_modalResult = DMR_USER;
 }
 
 CSpellChecker::CSpellChecker()
-        : CDialog(340, 300, "Spell Check")
+: CDialog(340, 300, "Spell Check")
 {
     m_spellChecker = nullptr;
 
@@ -269,7 +269,7 @@ bool CSpellChecker::spellCheck()
                 break;
             }
             if (modalResult() == DMR_OK)
-                replaceWord(m_replaceToInput->data(), wordStart, wordEnd);
+                replaceWord(m_replaceToInput->data().asString(), wordStart, wordEnd);
         }
     }
 

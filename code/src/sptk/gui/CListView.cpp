@@ -876,7 +876,7 @@ void CListView::data(const Variant vv)
 {
     unsigned cnt = m_rows.size();
     void* dataValue = nullptr;
-    int intValue = vv;
+    int intValue = vv.asInteger();
     unsigned oldSelectedCount = m_selection.size();
     CPackedStrings* oldSelectedRow = nullptr;
     CPackedStrings* newSelectedRow = nullptr;
@@ -886,7 +886,7 @@ void CListView::data(const Variant vv)
 
     switch (m_dataMode) {
         case LV_DATA_KEY:
-            newSelectedRow = findKey(vv);
+            newSelectedRow = findKey(vv.asInteger());
             break;
         case LV_DATA_INDEX: {
             auto line = (unsigned) intValue;

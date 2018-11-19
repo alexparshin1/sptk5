@@ -63,13 +63,13 @@ void CFloatInput::save(Query* updateQuery)
     if (!m_fieldName.length())
         return;
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param.setFloat(data());
+    param.setFloat(data().asFloat());
 }
 
 bool CFloatInput::valid() const
 {
     if (m_limited) {
-        double val = data();
+        double val = data().asFloat();
         return val >= m_minValue && val <= m_maxValue;
     }
     return true;

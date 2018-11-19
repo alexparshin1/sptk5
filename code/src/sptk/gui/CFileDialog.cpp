@@ -48,7 +48,7 @@ const char sptk::CFileDialog::slashStr[] = "/";
 using namespace std;
 using namespace sptk;
 
-string CFileDialog::removeTrailingSlash(std::string dirname)
+String CFileDialog::removeTrailingSlash(const String& dirname)
 {
     size_t dlen = dirname.length();
 
@@ -160,7 +160,7 @@ void CFileDialog::pattern_cb(Fl_Widget* w, void*)
     fileDialog->refreshDirectory();
 }
 
-CFileDialog::CFileDialog(const string& label, bool saveMode)
+CFileDialog::CFileDialog(const String& label, bool saveMode)
         : CDialog(450, 400, label.c_str())
 {
     CButton* btn;
@@ -329,18 +329,18 @@ void CFileDialog::clearPatterns()
     refreshDirectory();
 }
 
-void CFileDialog::setPattern(string patternName)
+void CFileDialog::setPattern(const String& patternName)
 {
     m_patternCombo->sortColumn(0);
     m_patternCombo->findString(patternName);
 }
 
-void CFileDialog::addPattern(string patternName, string pattern)
+void CFileDialog::addPattern(const String& patternName, const String& pattern)
 {
     m_patternCombo->addRow(0, Strings(patternName + "|" + pattern, "|"));
 }
 
-string CFileDialog::pattern() const
+String CFileDialog::pattern() const
 {
     if (m_patternCombo->selectedRow()) {
         CPackedStrings& ps = *m_patternCombo->selectedRow();
@@ -350,7 +350,7 @@ string CFileDialog::pattern() const
     return "*.*";
 }
 
-void CFileDialog::refreshDirectory(string dir)
+void CFileDialog::refreshDirectory(const String& dir)
 {
     if (dir.length())
         m_directory.directory(dir);
@@ -360,14 +360,14 @@ void CFileDialog::refreshDirectory(string dir)
     //m_fileNameInput->data("");
 }
 
-void CFileDialog::fileName(string fn)
+void CFileDialog::fileName(const String& fn)
 {
     m_fileNameInput->data(fn);
 }
 
 String CFileDialog::fullFileName() const
 {
-    String fileNamesStr = m_fileNameInput->data();
+    String fileNamesStr = m_fileNameInput->data().asString();
     Strings fileNames(fileNamesStr, ";");
 
     for (auto& fileName : fileNames) {

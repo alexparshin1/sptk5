@@ -127,10 +127,10 @@ int CInternalComboBoxPanel::handle(int event)
             CDBDropDownListView* listView = ddl->listView;
             if (!listView)
                 return 0;
-            int oldIntValue = listView->data();
+            int oldIntValue = listView->data().asInteger();
             int rc = listView->handle(event);
             redraw();
-            int newIntValue = listView->data();
+            int newIntValue = listView->data().asInteger();
             if (oldIntValue != newIntValue) {
                 combo->fireEvent(CE_DATA_CHANGED, newIntValue);
             }
@@ -352,7 +352,7 @@ void CBaseListBox::changeControlData(int changeType, int intData, string stringD
     CPackedStrings* newSelection = m_list->selectedRow();
 
     if (oldSelection != newSelection)
-        fireEvent(CE_DATA_CHANGED, m_list->data());
+        fireEvent(CE_DATA_CHANGED, (int32_t) m_list->data().asInteger());
 }
 
 void CBaseListBox::buttons(uint32_t buttonSet)
@@ -477,7 +477,7 @@ void CBaseListBox::data(const Variant newData)
     CPackedStrings* newSelection = m_list->selectedRow();
 
     if (oldSelection != newSelection)
-        fireEvent(CE_DATA_CHANGED, m_list->data());
+        fireEvent(CE_DATA_CHANGED, (int32_t) m_list->data().asInteger());
 }
 
 string CBaseListBox::keyField() const

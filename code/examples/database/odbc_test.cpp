@@ -209,11 +209,11 @@ int main(int argc, const char* argv[])
         while (!step3Query.eof()) {
 
             // getting data from the query by the field name
-            int id = step3Query["id"];
+            int id = step3Query["id"].asInteger();
 
             // another method - getting data by the column number
-            string name = step3Query[1];
-            string position = step3Query[2];
+            String name = step3Query[1].asString();
+            String position = step3Query[2].asString();
 
             COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
 
@@ -232,9 +232,9 @@ int main(int argc, const char* argv[])
 
         while (!step3Query.eof()) {
 
-            int id = idField;
-            string name = nameField;
-            string position = positionField;
+            auto id = idField.asInteger();
+            auto name = nameField.asString();
+            auto position = positionField.asString();
 
             COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
 

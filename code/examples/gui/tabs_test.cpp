@@ -156,14 +156,12 @@ void general_cb(Fl_Widget* w, void*)
 void theme_cb(Fl_Widget* w, void*)
 {
     auto themesCombo = (CComboBox*) w;
-    std::string themeName = themesCombo->data();
+    String themeName = themesCombo->data().asString();
 
     CThemes::set(themeName);
 
     auto window = (CWindow*) w->window();
     window->redraw();
-    //window->relayout();
-    //Fl::check();
 }
 
 int main(int argc, char** argv)

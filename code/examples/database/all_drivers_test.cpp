@@ -76,12 +76,12 @@ bool testTransactions(DatabaseConnection db, const string& tableName, bool rollb
 
 // This function returns field content as a string, or "<NULL>" is field
 // contains a NULL value
-string fieldToString(const Field& field)
+String fieldToString(const Field& field)
 {
     if (field.isNull())
         return "<NULL>";
     // Returned field is automatically converted to string
-    return field;
+    return field.asString();
 }
 
 void testBLOBs(PoolDatabaseConnection* db)
@@ -259,7 +259,7 @@ int testDatabase(const string& connectionString)
         while (!selectRecordsQuery.eof()) {
 
             // getting data from the query by the field name
-            int64_t id = selectRecordsQuery["id"];
+            auto id = selectRecordsQuery["id"].asInteger();
 
             // we can check field for NULL value
             if (selectRecordsQuery["id"].isNull()) {
@@ -330,11 +330,11 @@ int testDatabase(const string& connectionString)
 
         while (!selectRecordsQuery.eof()) {
 
-            int64_t id = idField;
-            string name = nameField;
-            string position_name = positionNameField;
-            string hire_date = dateField;
-            string rate = rateField;
+            auto id = idField.asInteger();
+            auto name = nameField.asString();
+            auto position_name = positionNameField.asString();
+            auto hire_date = dateField.asString();
+            auto rate = rateField.asString();
 
             cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
                  hire_date << " | " << rate << endl;

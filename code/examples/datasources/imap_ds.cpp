@@ -49,9 +49,9 @@ void exit_cb(Fl_Widget* w, void*)
 void go_cb(Fl_Widget*, void*)
 {
     imapDS->host(Host(imapServer->data().asString()));
-    imapDS->user(imapUser->data());
-    imapDS->password(imapPassword->data());
-    imapDS->folder(imapMailBox->data());
+    imapDS->user(imapUser->data().asString());
+    imapDS->password(imapPassword->data().asString());
+    imapDS->folder(imapMailBox->data().asString());
     try {
         filesListView->fill(*imapDS);
     }

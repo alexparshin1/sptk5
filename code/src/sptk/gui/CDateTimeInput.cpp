@@ -120,7 +120,7 @@ bool CDateTimeBaseInput::valid() const
 
 DateTime CDateTimeBaseInput::dateTimeValue() const
 {
-    return data();
+    return data().asDateTime();
 }
 
 void CDateTimeBaseInput::dateTimeValue(DateTime dt)
@@ -200,7 +200,7 @@ Variant CDateInput::data() const
 
 void CDateInput::data(const Variant s)
 {
-    DateTime dt = s;
+    DateTime dt = s.asDateTime();
     m_dateInput->input()->value(dt.dateString().c_str());
 }
 

@@ -664,10 +664,10 @@ Strings CThemes::availableThemes()
             dir.pattern("*.tar");
             dir.open();
             while (!dir.eof()) {
-                std::string fileName = dir["Name"];
+                String fileName = dir["Name"].asString();
                 size_t pos = fileName.rfind(".tar");
                 if (pos != STRING_NPOS) {
-                    string themeName = fileName.substr(0, pos);
+                    String themeName = fileName.substr(0, pos);
                     if (themes.indexOf(themeName) < 0)
                         themes.push_back(themeName);
                 }
@@ -692,8 +692,8 @@ Strings CThemes::availableThemes()
             //dir.pattern("*.tar");
             dir.open();
             while (!dir.eof()) {
-                std::string dirName = dir["Name"];
-                std::string gtkThemeDirName = gtkDirs[i] + "/" + dirName + "/gtk-2.0";
+                String dirName = dir["Name"].asString();
+                String gtkThemeDirName = gtkDirs[i] + "/" + dirName + "/gtk-2.0";
                 if (access(gtkThemeDirName.c_str(),X_OK) == 0) {
                     string themeName = "GTK:" + dirName;
                     if (themes.indexOf(themeName) < 0)

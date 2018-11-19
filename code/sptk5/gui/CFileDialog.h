@@ -81,9 +81,9 @@ protected:
     /**
      * @brief Removes a trailing slash in the directory name
      *
-     * @param dirname std::string, a directory name
+     * @param dirname           Directory name
      */
-    static std::string removeTrailingSlash(std::string dirname);
+    static String removeTrailingSlash(const String& dirname);
 
     /**
      * Internal create folder button callback
@@ -134,10 +134,10 @@ protected:
 
     /**
      * Constructor
-     * @param label std::string, window caption
-     * @param saveMode bool, true for File Save Dialog and false for File Open Dialog.
+     * @param label             Window caption
+     * @param saveMode          True for File Save Dialog and false for File Open Dialog.
      */
-    CFileDialog(const std::string& label, bool saveMode);
+    CFileDialog(const String& label, bool saveMode);
 
 public:
 
@@ -161,35 +161,35 @@ public:
 
     /**
      * Sets the file name patern in pattern combo box
-     * @param patternName std::string, the name of the pattern as defined in call of addPattern()
+     * @param patternName       The name of the pattern as defined in call of addPattern()
      */
-    void setPattern(std::string patternName);
+    void setPattern(const String& patternName);
 
     /**
      * Adds the file name patern to the pattern combo box
-     * @param patternName std::string, the name of the pattern, like "All files"
-     * @param pattern std::string, one or more the patterns, separated with semicolon like "*.cpp;*.cxx"
+     * @param patternName       The name of the pattern, like "All files"
+     * @param pattern           One or more the patterns, separated with semicolon like "*.cpp;*.cxx"
      */
-    void addPattern(std::string patternName, std::string pattern);
+    void addPattern(const String& patternName, const String& pattern);
 
     /**
      * Returns currently selected pattern
      */
-    std::string pattern() const;
+    String pattern() const;
 
     /**
      * Sets the new directory, if parameter dir is defined, and reloads the file list.
-     * @param dirName std::string, the name of the directory
+     * @param dirName           The name of the directory
      */
-    void refreshDirectory(std::string dirName = "");
+    void refreshDirectory(const String& dirName = "");
 
     /**
      * Returns the list of currently selected files without the full path, as a simicolon-separated string.
      * @returns The list of the selected file names.
      */
-    std::string fileName() const
+    String fileName() const
     {
-        return m_fileNameInput->data();
+        return m_fileNameInput->data().asString();
     }
 
     /**
@@ -200,9 +200,9 @@ public:
 
     /**
      * Set the currently selected file name in edit entry
-     * @param fileName std::string, the name of the file.
+     * @param fileName          The name of the file.
      */
-    void fileName(std::string fileName);
+    void fileName(const String& fileName);
 
     /**
      * Initializes the dialog and shows it in the modal mode

@@ -817,7 +817,7 @@ public:
      */
     operator String() const
     {
-        return data();
+        return data().asString();
     }
 
     /**
@@ -825,7 +825,7 @@ public:
      */
     operator int32_t() const
     {
-        return data();
+        return data().asInteger();
     }
 
     /**
@@ -833,7 +833,7 @@ public:
      */
     operator uint32_t() const
     {
-        return data();
+        return data().asInteger();
     }
 
     /**
@@ -841,7 +841,7 @@ public:
      */
     operator int64_t() const
     {
-        return data();
+        return data().asInt64();
     }
 
     /**
@@ -849,7 +849,7 @@ public:
      */
     operator uint64_t() const
     {
-        return data();
+        return data().asInt64();
     }
 
     /**
@@ -857,7 +857,7 @@ public:
      */
     operator float() const
     {
-        return data();
+        return data().asFloat();
     }
 
     /**
@@ -865,7 +865,7 @@ public:
      */
     operator double() const
     {
-        return data();
+        return data().asFloat();
     }
 
     /**
@@ -873,7 +873,7 @@ public:
      */
     operator DateTime() const
     {
-        return data();
+        return data().asDateTime();
     }
 
 public:

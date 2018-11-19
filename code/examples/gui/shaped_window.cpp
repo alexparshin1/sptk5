@@ -71,7 +71,7 @@ void theme_cb(Fl_Widget* w, void*)
 {
     try {
         auto* themesCombo = (CComboBox*) w;
-        std::string themeName = themesCombo->data();
+        String themeName = themesCombo->data().asString();
 
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
             CThemes::set(themeName);

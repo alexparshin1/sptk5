@@ -40,24 +40,24 @@
 using namespace std;
 using namespace sptk;
 
-void exit_cb(Fl_Widget *w, void *)
+void exit_cb(Fl_Widget* w, void*)
 {
-   w->window()->hide();
+    w->window()->hide();
 }
 
-void theme_cb(Fl_Widget *w, void *)
+void theme_cb(Fl_Widget* w, void*)
 {
-    auto themesCombo = (CComboBox *)w;
-   std::string themeName = themesCombo->data();
+    auto themesCombo = (CComboBox*) w;
+    String themeName = themesCombo->data().asString();
 
-   CThemes::set(themeName);
+    CThemes::set(themeName);
 
-    auto window = (CWindow *)w->window();
-   window->relayout();
-   window->redraw();
+    auto window = (CWindow*) w->window();
+    window->relayout();
+    window->redraw();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     try {
         // Initialize themes
@@ -78,11 +78,11 @@ int main(int argc, char **argv)
         group1.end();
 
         CCheckButtons checkButtons("Check buttons");
-        checkButtons.buttons(Strings("button 1|button 2","|"));
+        checkButtons.buttons(Strings("button 1|button 2", "|"));
         checkButtons.data("button 1");
 
         CRadioButtons radioButtons("Radio buttons");
-        radioButtons.buttons(Strings("button 1|button 2","|"));
+        radioButtons.buttons(Strings("button 1|button 2", "|"));
         radioButtons.data("button 1");
 
         CInput inp1("input 1");
@@ -99,15 +99,15 @@ int main(int argc, char **argv)
         char buffer1[20];
         char buffer2[20];
         int maxItems = 20;
-        for(int a=0; a<maxItems; a++) {
+        for (int a = 0; a < maxItems; a++) {
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
-            snprintf(buffer2, sizeof(buffer2) - 1, "%i", maxItems-a);
+            snprintf(buffer2, sizeof(buffer2) - 1, "%i", maxItems - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
             auto ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
-        CProgressBar progressBar("Progress",20,SP_ALIGN_TOP);
+        CProgressBar progressBar("Progress", 20, SP_ALIGN_TOP);
         progressBar.data(50);
 
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
         themesCombo.labelWidth(70);
 
         auto exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_RIGHT);
-        exitButton->callback((Fl_Callback*)exit_cb);
+        exitButton->callback((Fl_Callback*) exit_cb);
         exitButton->defaultButton(true);
 
         buttonGroup.end();
