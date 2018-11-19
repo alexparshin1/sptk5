@@ -83,7 +83,7 @@ void PoolDatabaseConnection::close()
 {
     if (active()) {
         if (m_inTransaction) {
-            rollbackTransaction();
+            //rollbackTransaction();
             m_inTransaction = false;
         }
 

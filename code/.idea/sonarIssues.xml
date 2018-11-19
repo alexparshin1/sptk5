@@ -13,6 +13,11 @@
             <set />
           </value>
         </entry>
+        <entry key="/data_portal (disassembly)">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="/directory_ds (disassembly)">
           <value>
             <set />
@@ -59,6 +64,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/EurekaState.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../../edulog/data_portal/src/server/Handlers/DBCommandHandler.cpp">
           <value>
             <set />
           </value>
@@ -203,6 +213,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/DatabaseTests.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/ODBCEnvironment.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/gui/CControl.h">
           <value>
             <set />
@@ -248,6 +268,16 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/odbc/CODBC.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/odbc/CODBCConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/spdb/DatabaseConnectionString.cpp">
           <value>
             <set />
@@ -259,6 +289,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/spdb/DatabaseTests.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/spdb/PoolDatabaseConnection.cpp">
           <value>
             <set />
           </value>

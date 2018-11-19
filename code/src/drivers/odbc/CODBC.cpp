@@ -69,8 +69,7 @@ void ODBCBase::exception(string text, int line) const
 // ODBC Environment class
 //---------------------------------------------------------------------------
 ODBCEnvironment::ODBCEnvironment()
-        :
-        m_hEnvironment(SQL_NULL_HENV)
+: m_hEnvironment(SQL_NULL_HENV)
 {
 }
 
@@ -105,10 +104,9 @@ void ODBCEnvironment::freeEnv()
 //--------------------------------------------------------------------------------------------
 
 ODBCConnectionBase::ODBCConnectionBase()
-        :
-        m_cEnvironment(getEnvironment()),
-        m_hConnection(SQL_NULL_HDBC),
-        m_connected(false)
+: m_cEnvironment(getEnvironment()),
+  m_hConnection(SQL_NULL_HDBC),
+  m_connected(false)
 {
 }
 
@@ -234,6 +232,25 @@ void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
         exception(errorInformation(cantSetConnectOption), __LINE__);
 }
 
+void ODBCConnectionBase::execQuery(const char* query)
+{
+    SQLHSTMT hstmt = SQL_NULL_HSTMT;
+
+    // Allocate Statement Handle
+    if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection, &hstmt)))
+        throw Exception("Can't allocate handle");
+    if (!Successful(SQLExecDirect(hstmt, (SQLCHAR*) query, strlen(query)))) {
+        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+        throw Exception("Can't execute query: " + String(query));
+    }
+    SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+}
+
+void ODBCConnectionBase::beginTransaction()
+{
+    execQuery("BEGIN TRANSACTION");
+}
+
 void ODBCConnectionBase::transact(UWORD fType)
 {
     if (!isConnected())
@@ -241,9 +258,10 @@ void ODBCConnectionBase::transact(UWORD fType)
 
     lock_guard<mutex> lock(m_mutex);
 
-    m_Retcode = SQLEndTran(SQL_HANDLE_ENV, m_cEnvironment.handle(), fType);
-    if (!Successful(m_Retcode))
-        exception(errorInformation(cantEndTranscation), __LINE__);
+    if (fType == SQL_COMMIT)
+        execQuery("COMMIT");
+    else
+        execQuery("ROLLBACK");
 }
 
 //==============================================================================

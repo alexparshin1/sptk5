@@ -51,6 +51,9 @@ class DatabaseTests
      * @return number of rows in table
      */
     size_t countRowsInTable(DatabaseConnection db, const String& table);
+
+    void testTransaction(DatabaseConnection db, bool commit);
+
 public:
     /**
      * Constructor

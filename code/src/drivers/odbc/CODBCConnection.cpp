@@ -157,7 +157,7 @@ void ODBCConnection::driverEndTransaction(bool commit)
     else
         m_connect->rollback();
 
-    m_connect->setConnectOption(SQL_AUTOCOMMIT, SQL_AUTOCOMMIT_ON);
+    m_connect->setConnectOption(SQL_ATTR_AUTOCOMMIT, true);
     m_inTransaction = false;
 }
 

@@ -226,6 +226,12 @@ protected:
         return m_hConnection != SQL_NULL_HDBC;
     }
 
+    /**
+     * Execute query in current connection
+     * @param query             Query to execute
+     */
+    void execQuery(const char* query);
+
 public:
 
     /**
@@ -299,10 +305,7 @@ public:
     /**
      * Begins transaction
      */
-    void beginTransaction()
-    {
-        setConnectOption(SQL_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF);
-    }
+    void beginTransaction();
 
     /**
      * Controls transaction

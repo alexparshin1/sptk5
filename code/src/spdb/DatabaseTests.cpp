@@ -158,6 +158,40 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     select.close();
 }
 
+void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
+{
+    Query deleteRecords(db, "DELETE FROM gtest_temp_table");
+    deleteRecords.exec();
+
+    Transaction transaction(db);
+    transaction.begin();
+
+    Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
+
+    size_t maxRecords = 100;
+
+    for (unsigned i = 0; i < maxRecords; i++)
+        insert.exec();
+
+    auto count = countRowsInTable(db, "gtest_temp_table");
+    if (count != maxRecords)
+        throw Exception("count " + to_string(count) + " != " + to_string(maxRecords));
+
+    if (commit) {
+        transaction.commit();
+
+        count = countRowsInTable(db, "gtest_temp_table");
+        if (count != maxRecords)
+            throw Exception("count != " + to_string(maxRecords) + " after commit)");
+    } else {
+        transaction.rollback();
+
+        count = countRowsInTable(db, "gtest_temp_table");
+        if (count != 0)
+            throw Exception("count != 0 (after rollback)");
+    }
+}
+
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
@@ -171,27 +205,9 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
 
     createTable.exec();
 
-    Transaction transaction(db);
-    transaction.begin();
-
-    size_t count = countRowsInTable(db, "gtest_temp_table");
-    if (count != 0)
-        throw Exception("initial count != 0");
-
-    Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
-
-    insert.exec();
-    insert.exec();
-
-    count = countRowsInTable(db, "gtest_temp_table");
-    if (count != 2)
-        throw Exception("count != 2");
-
-    transaction.rollback();
-
-    count = countRowsInTable(db, "gtest_temp_table");
-    if (count != 0)
-        throw Exception("count != 0");
+    testTransaction(db, false);
+    for (unsigned i = 0; i < 3; i++)
+        testTransaction(db, true);
 
     dropTable.exec();
 }
