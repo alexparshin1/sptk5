@@ -48,7 +48,7 @@ CSplitter::CSplitter(const char* label, int layoutSize, CLayoutAlign layoutAlign
 
 CLayoutClient* CSplitter::creator(xml::Node* node)
 {
-    auto widget = new CSplitter("", 10, SP_ALIGN_TOP);
+    auto* widget = new CSplitter("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -88,7 +88,6 @@ int CSplitter::handle(int event)
 
         case FL_DRAG:
             if (m_chainedWidget) {
-                //puts("DRAGGING");
                 int dx = Fl::event_x() - m_lastDragX;
                 int dy = Fl::event_y() - m_lastDragY;
                 m_lastDragX = Fl::event_x();
@@ -119,17 +118,14 @@ int CSplitter::handle(int event)
                     default:
                         break;
                 }
-                auto parentManager = dynamic_cast<CLayoutManager*>(parent());
+                auto* parentManager = dynamic_cast<CLayoutManager*>(parent());
                 if (parentManager) {
                     parentManager->relayout();
-                    auto parentGroup = dynamic_cast<CGroup*>(parent());
-                    if (parentGroup) {
-                        //puts("Group");
+                    auto* parentGroup = dynamic_cast<CGroup*>(parent());
+                    if (parentGroup)
                         parentGroup->redraw();
-                    } else {
-                        //puts("Window");
+                    else
                         window()->redraw();
-                    }
                 }
             }
             return true;
@@ -161,16 +157,11 @@ void CSplitter::findChainedControl()
             }
         }
         if (index < cnt - 1) {
-            try {
-                priorWidget = group->child(index - 1);
-                priorWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index - 1));
-            }
-            catch (...) {}
-            try {
-                nextWidget = group->child(index + 1);
-                nextWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index + 1));
-            }
-            catch (...) {}
+            priorWidget = group->child(index - 1);
+            priorWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index - 1));
+
+            nextWidget = group->child(index + 1);
+            nextWidgetLayout = dynamic_cast<CLayoutClient*>(group->child(index + 1));
         }
         if (priorWidget && priorWidgetLayout && priorWidgetLayout->layoutAlign() != SP_ALIGN_CLIENT) {
             m_chainedWidget = priorWidget;

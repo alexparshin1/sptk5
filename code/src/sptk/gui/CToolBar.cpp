@@ -53,14 +53,14 @@ CToolBar::CToolBar(int x,int y,int w,int h)
 
 CLayoutClient* CToolBar::creator(xml::Node* node)
 {
-    auto widget = new CToolBar(SP_ALIGN_TOP);
+    auto* widget = new CToolBar(SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
 CButton* CToolBar::addButton(CButtonKind buttonKind, Fl_Callback_p cb, const char* label, CLayoutAlign buttonAlign)
 {
-    auto b = new CButton(buttonKind, buttonAlign, label);
+    auto* b = new CButton(buttonKind, buttonAlign, label);
     if (cb != nullptr)
         b->callback(cb);
     return b;
@@ -105,8 +105,7 @@ int CToolBar::handle(int event)
 
         if (Fl::event_x() <= x() + xzone) {
             m_colapsed = !m_colapsed;
-            auto parentLayoutManager = dynamic_cast<CLayoutManager*>(parent());
-            //CLayoutManager *parentLayoutManager = dynamic_cast<CLayoutManager *>(window());
+            auto* parentLayoutManager = dynamic_cast<CLayoutManager*>(parent());
             if (parentLayoutManager != nullptr)
                 parentLayoutManager->relayout();
             else
@@ -128,9 +127,6 @@ void CToolBar::draw()
     int hs = h() - dh - 2;
     if (m_colapsed) {
         draw_box();
-        //fl_draw_box(FL_THIN_UP_BOX,xs,ys,HIDE_BAR_WIDTH_COLLAPSED,hs,color());
-        //xs += 1;
-        //ys += 1;
         int xe = xs + HIDE_BAR_WIDTH_COLLAPSED - 4;
         for (int xx = xs; xx < xe; xx += 3) {
             fl_draw_box(FL_THIN_UP_BOX, xx, ys, 2, 2, FL_WHITE);

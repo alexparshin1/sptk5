@@ -46,7 +46,10 @@ using namespace sptk;
 int CScrollBar::handle(int event)
 {
     int area; // area of scrollbar
-    int X = x(), Y = y(), W = w(), H = h();
+    int X = x();
+    int Y = y();
+    int W = w();
+    int H = h();
 
     // adjust slider area to be inside the arrow buttons:
     if (horizontal()) {

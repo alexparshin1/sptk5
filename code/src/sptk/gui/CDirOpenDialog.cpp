@@ -67,7 +67,7 @@ bool CDirOpenDialog::okPressed()
 
         return true;
     }
-    catch (exception& e) {
+    catch (Exception&  e) {
         spError(e.what());
         return false;
     }

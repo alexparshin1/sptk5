@@ -210,10 +210,8 @@ void HttpReader::read(TCPSocket& socket)
         m_readerState = READING_DATA;
     }
 
-    if (m_readerState == READING_DATA) {
-        if (!readData(socket))
-            return;
-    }
+    if (m_readerState == READING_DATA && !readData(socket))
+        return;
 
     auto itor = m_responseHeaders.find("content-encoding");
     if (itor != m_responseHeaders.end() && itor->second == "gzip") {
@@ -230,13 +228,11 @@ void HttpReader::read(TCPSocket& socket)
     if (itor != m_responseHeaders.end() && itor->second == "close")
         socket.close();
 
-    if (m_statusCode >= 400) {
-        if (m_statusText.empty()) {
-            if (m_statusCode >= 500)
-                m_statusText = "Unknown server error";
-            else
-                m_statusText = "Unknown client error";
-        }
+    if (m_statusCode >= 400 && m_statusText.empty()) {
+        if (m_statusCode >= 500)
+            m_statusText = "Unknown server error";
+        else
+            m_statusText = "Unknown client error";
     }
 
     m_readerState = COMPLETED;

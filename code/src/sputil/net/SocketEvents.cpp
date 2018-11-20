@@ -26,7 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/net/SocketEvents.h"
+#include <sptk5/cutils>
+#include <sptk5/net/SocketEvents.h>
 
 using namespace std;
 using namespace sptk;
@@ -43,8 +44,8 @@ SocketEvents::~SocketEvents()
     try {
         m_socketPool.close();
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.message() << endl);
     }
 }
 
@@ -66,7 +67,7 @@ void SocketEvents::threadFunction()
             m_socketPool.waitForEvents(m_timeout);
         }
         catch (const Exception& e) {
-            cerr << e.message() << endl;
+            CERR(e.message() << endl);
         }
     }
     m_socketPool.close();

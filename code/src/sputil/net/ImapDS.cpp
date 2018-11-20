@@ -39,7 +39,8 @@ bool ImapDS::open()
     m_imap.cmd_login(m_user, m_password);
 
     // Select the mail box
-    int32_t total_messages, first_message = 1;
+    int32_t total_messages;
+    int32_t first_message = 1;
     m_imap.cmd_select(m_folder, total_messages);
 
     if (m_msgid != 0) {
@@ -50,7 +51,7 @@ bool ImapDS::open()
         if (m_callback != nullptr)
             m_callback(total_messages, 0);
         for (long msg_id = first_message; msg_id <= total_messages; msg_id++) {
-            auto df = new FieldList(false);
+            auto* df = new FieldList(false);
 
             df->user_data((void*) (size_t) msg_id);
 
@@ -58,7 +59,7 @@ bool ImapDS::open()
                 m_imap.cmd_fetch_message((int32_t) msg_id, *df);
             else m_imap.cmd_fetch_headers((int32_t) msg_id, *df);
 
-            auto fld = new Field("msg_id");
+            auto* fld = new Field("msg_id");
             fld->view.width = 0;
             fld->setInteger((int32_t) msg_id);
             df->push_back(fld);

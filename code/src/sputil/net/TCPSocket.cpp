@@ -30,6 +30,7 @@
 #include <cstdlib>
 #include <sptk5/net/TCPSocket.h>
 #include <thread>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -58,7 +59,43 @@ void TCPSocketReader::close() noexcept
 		m_readOffset = 0;
 		bytes(0);
 	}
-	catch (...) {}
+	catch (const Exception& e) {
+	    CERR(e.what() << endl);
+	}
+}
+
+int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
+{
+    m_readOffset = 0;
+    int error;
+    do {
+        error = 0;
+        int receivedBytes;
+        if (from != nullptr) {
+#ifdef _WIN32
+            int flen = sizeof(sockaddr_in);
+#else
+            socklen_t flen = sizeof(sockaddr_in);
+#endif
+            receivedBytes = (int) recvfrom(m_socket.handle(), data(), capacity() - 2, 0, (sockaddr*) from, &flen);
+        } else
+            receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
+
+        if (receivedBytes == -1) {
+            bytes(0);
+            error = errno;
+            if (error == EAGAIN) {
+                if (!m_socket.readyToRead(chrono::seconds(1)))
+                    throw TimeoutException("Can't read from socket: timeout");
+            } else
+                THROW_SOCKET_ERROR("Can't read from socket");
+        }
+        bytes((size_t)receivedBytes);
+    } while (error == EAGAIN);
+
+    data()[bytes()] = 0;
+
+    return bytes();
 }
 
 int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
@@ -68,35 +105,7 @@ int32_t TCPSocketReader::bufferedRead(char *destination, size_t sz, char delimit
     bool eol = false;
 
     if (availableBytes == 0) {
-        m_readOffset = 0;
-        int error;
-        do {
-            error = 0;
-            int receivedBytes;
-            if (from != nullptr) {
-#ifdef _WIN32
-                int flen = sizeof(sockaddr_in);
-#else
-                socklen_t flen = sizeof(sockaddr_in);
-#endif
-                receivedBytes = (int) recvfrom(m_socket.handle(), data(), capacity() - 2, 0, (sockaddr*) from, &flen);
-            } else
-                receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
-
-            if (receivedBytes == -1) {
-                bytes(0);
-                error = errno;
-                if (error == EAGAIN) {
-                    if (!m_socket.readyToRead(chrono::seconds(1)))
-                        throw TimeoutException("Can't read from socket: timeout");
-                } else
-                    THROW_SOCKET_ERROR("Can't read from socket");
-            }
-            bytes((size_t)receivedBytes);
-        } while (error == EAGAIN);
-
-        availableBytes = (int) bytes();
-        data()[bytes()] = 0;
+        availableBytes = readFromSocket(from);
         if (empty())
             return 0;
     }

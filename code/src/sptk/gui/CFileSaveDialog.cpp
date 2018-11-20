@@ -68,7 +68,7 @@ bool CFileSaveDialog::okPressed() {
       }
       return true;
    }
-   catch(exception& e) {
+   catch(Exception&  e) {
       spError("Can't save file "+fname +".\n"+string(e.what()));
    }
    return false;

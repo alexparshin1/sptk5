@@ -215,7 +215,8 @@ void CControl::flags(unsigned flags)
 unsigned CControl::labelHeight() const
 {
     fl_font(labelfont(), labelsize());
-    int cw = m_labelWidth - 3, ch = 0;
+    int cw = m_labelWidth - 3;
+    int ch = 0;
     if (m_labelWidth != 0)
         fl_measure(m_label.c_str(), cw, ch);
     return (unsigned) ch;
@@ -328,10 +329,12 @@ void CControl::labelSize(uchar sz)
 
 void CControl::onEnter()
 {
+    // Should be overwritten in dervied classes
 }
 
 void CControl::onExit()
 {
+    // Should be overwritten in dervied classes
 }
 
 bool sptk::checkFieldName(const String& fieldName)

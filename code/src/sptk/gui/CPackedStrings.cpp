@@ -49,7 +49,7 @@ CPackedStrings::CPackedStrings(int cnt, const char* strings[])
     int offsetsSpace = cnt * sizeof(uint16_t);
     int sz = offsetsSpace + sizeof(uint16_t);
 
-    auto offset = (uint16_t*) alloca(offsetsSpace * 2);
+    auto* offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + cnt;
 
     flags = 0;
@@ -91,7 +91,7 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     int offsetsSpace = rcnt * sizeof(uint16_t);
     int sz = offsetsSpace + sizeof(uint16_t);
 
-    auto offset = (uint16_t*) alloca(offsetsSpace * 2);
+    auto* offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + rcnt;
 
     flags = 0;
@@ -167,7 +167,7 @@ CPackedStrings& CPackedStrings::operator=(const Strings& strings)
 {
     size_t cnt = strings.size();
     auto offsetsSpace = int(cnt * sizeof(uint16_t));
-    auto offset = (uint16_t*) alloca(offsetsSpace * 2);
+    auto* offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + cnt;
 
     flags = 0;

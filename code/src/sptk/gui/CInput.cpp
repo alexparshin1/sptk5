@@ -226,9 +226,8 @@ int CInput_::handle(int event)
                     // allow only certain characters
                     if (!strchr("0123456789.eE+-", key)) return 0;
                     // for certain characters allow only one
-                    if (strchr(".eE", key)) {
-                        if (strchr(value(), key)) return 0;
-                    }
+                    if (strchr(".eE", key) && strchr(value(), key))
+                        return 0;
                     break;
                 case FL_INT_INPUT:
                     key = (char) toupper(key);

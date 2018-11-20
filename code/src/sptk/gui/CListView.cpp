@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
@@ -117,7 +117,7 @@ void CListView::ctor_init()
     m_textColor = FL_FOREGROUND_COLOR;
     m_currentTextFont = m_textFont;
     m_currentTextSize = m_textSize;
-    for (auto& smallPixmapID : smallPixmapIDs)
+    for (auto* smallPixmapID : smallPixmapIDs)
         m_iconNames.push_back(smallPixmapID);
 }
 
@@ -386,7 +386,8 @@ int CListView::item_height(unsigned index) const
         if (h < 6)
             h = 6;
         return h;
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 
     return 0;
@@ -1054,7 +1055,9 @@ void CListView::save(Query* updateQuery)
 }
 
 void CListView::item_clicked(int)
-{}
+{
+    // Should be defined in derived classes
+}
 
 int CListView::find_id(int id) const
 {
@@ -1334,7 +1337,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
 
                     try {
                         ds.next();
-                    } catch (...) {
+                    } catch (const Exception&) {
                         ds.close();
                         throw;
                     }
@@ -1367,7 +1370,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
 
             if (unsigned(m_rows.sortColumn()) < columns().size())
                 m_rows.sort();
-        } catch (...) {
+        } catch (const Exception&) {
             m_fillInProgress = false;
             ds.close();
             fl_cursor(FL_CURSOR_DEFAULT);
@@ -1545,7 +1548,10 @@ int CListView::handle(int event)
         default:
             break;
     }
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     bbox(X, Y, W, H);
     int my;
     unsigned l;
@@ -1553,11 +1559,11 @@ int CListView::handle(int event)
     static int py;
     switch (event) {
         case FL_MOVE:
-            if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight)) {
-                if (header_drag_position(Fl::event_x() + m_horizPosition - x())) {
-                    fl_cursor(FL_CURSOR_WE, FL_BLACK, FL_WHITE);
-                    break;
-                }
+            if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight) &&
+                header_drag_position(Fl::event_x() + m_horizPosition - x()))
+            {
+                fl_cursor(FL_CURSOR_WE, FL_BLACK, FL_WHITE);
+                break;
             }
             fl_cursor(FL_CURSOR_DEFAULT, FL_BLACK, FL_WHITE);
             return 1;
@@ -1625,22 +1631,6 @@ int CListView::handle(int event)
                 header_dragged(Fl::event_x() + m_horizPosition - x());
                 return 1;
             }
-            // do the scrolling first:
-            my = Fl::event_y();
-            if (my < Y && my < py) {
-                /* broken - ASP
-                int p = m_realPosition+my-Y;
-                if (p<0) p = 0;
-                position(p);
-                 */
-            } else if (my > (Y + H) && my > py) {
-                /* broken - ASP
-                int p = m_realPosition+my-(Y+H);
-                int h = full_height()-H; if (p > h) p = h;
-                if (p<0) p = 0;
-                position(p);
-                 */
-            }
             break;
         case FL_RELEASE:
             if (Fl::event_inside(X, Y - m_headerHeight, W, m_headerHeight)) {
@@ -1654,7 +1644,6 @@ int CListView::handle(int event)
                 else if (!(when() & FL_WHEN_CHANGED))
                     set_changed();
             }
-            //return 1;
             break;
         default:
             break;
@@ -1727,7 +1716,10 @@ bool CListView::select_next_page()
 {
     int row;
     unsigned cnt = size();
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     int hh = 0;
     bbox(X, Y, W, H);
     // find the new active row
@@ -1756,7 +1748,10 @@ bool CListView::select_next_page()
 bool CListView::select_prior_page()
 {
     int row;
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     int hh = 0;
     bbox(X, Y, W, H);
     // find the new active row
@@ -1778,7 +1773,10 @@ bool CListView::select_prior_page()
 
 int CListView::find_item(int my)
 {
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     bbox(X, Y, W, H);
     int yy = Y;
     unsigned maxl = size();
@@ -1797,7 +1795,10 @@ int CListView::find_item(int my)
 
 bool CListView::displayed(unsigned index) const
 {
-    int X, Y, W, H;
+    int X;
+    int Y;
+    int W;
+    int H;
     bbox(X, Y, W, H);
     int yy = H;
     unsigned maxl = size();
@@ -1871,11 +1872,11 @@ void CListView::bbox(int& X, int& Y, int& W, int& H) const
 
 bool CListView::activate_row(unsigned newActiveRow)
 {
-    if (newActiveRow < size()) {
-        if (m_activeRow != newActiveRow) {
-            select_only(newActiveRow, true);
-            return true;
-        }
+    if (newActiveRow < size() &&
+        m_activeRow != newActiveRow)
+    {
+        select_only(newActiveRow, true);
+        return true;
     }
     return false;
 }

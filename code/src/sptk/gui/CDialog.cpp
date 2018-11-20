@@ -122,7 +122,7 @@ bool CDialog::okPressed()
 {
     try {
         save();
-    } catch (exception& e) {
+    } catch (Exception&  e) {
         spError(e.what());
         return false;
     }
@@ -155,18 +155,14 @@ bool CDialog::showModal()
         else {
             fl_cursor(FL_CURSOR_WAIT);
             Fl::check();
-            if (pressed == this || pressed == m_cancelButton) {
-                if (cancelPressed()) {
-                    m_modalResult = DMR_CANCEL;
-                    break;
-                }
+            if ((pressed == this || pressed == m_cancelButton) && cancelPressed()) {
+                m_modalResult = DMR_CANCEL;
+                break;
             }
-            if (pressed == m_okButton) {
-                if (okPressed()) {
-                    rc = true;
-                    m_modalResult = DMR_OK;
-                    break;
-                }
+            if (pressed == m_okButton &&  okPressed()) {
+                rc = true;
+                m_modalResult = DMR_OK;
+                break;
             }
             fl_cursor(FL_CURSOR_DEFAULT);
         }
@@ -222,7 +218,7 @@ void CDialog::keyValue(int val)
     m_keyValue = val;
     try {
         load();
-    } catch (exception& e) {
+    } catch (Exception&  e) {
         m_keyValue = -1;
         spError(e.what());
     }
@@ -279,7 +275,7 @@ bool CDialog::load()
             try {
                 CControl* control = itor->second;
                 control->load(m_selectQuery);
-            } catch (exception& e) {
+            } catch (Exception&  e) {
                 spError(e.what());
             }
         }

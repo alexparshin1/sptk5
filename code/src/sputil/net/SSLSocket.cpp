@@ -196,11 +196,7 @@ void SSLSocket::_open(const struct sockaddr_in& address, CSocketOpenMode openMod
     lock_guard<mutex> lock(*this);
 
     SSL_set_fd(m_ssl, (int) m_sockfd);
-/*
-    int rc = SSL_set1_host(m_ssl, m_host.hostname().c_str());
-    if (rc != 1)
-        throwSSLError("SSL_set1_host", rc);
-*/
+
     if (timeout == chrono::milliseconds(0)) {
         int rc = SSL_connect(m_ssl);
         if (rc <= 0) {

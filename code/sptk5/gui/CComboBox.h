@@ -190,7 +190,7 @@ protected:
     /**
      * Internal buttons callback function
      */
-    virtual void button_handle(uint32_t buttonKind);
+    virtual void button_handle(uint32_t theButtonKind);
 
 public:
 

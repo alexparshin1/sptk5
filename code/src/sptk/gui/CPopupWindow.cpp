@@ -87,7 +87,6 @@ int CPopupWindow::handle(int event)
                     hide();
                     return 1;
                 case FL_Enter:
-                    //combo->item.index(drop_list->row());
                     m_clicked = 1;
                     hide();
                     return 1;

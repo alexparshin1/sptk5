@@ -55,7 +55,7 @@ CPhoneNumberInput::CPhoneNumberInput(int x,int y,int w,int h,const char * label)
 
 CLayoutClient* CPhoneNumberInput::creator(xml::Node* node)
 {
-    auto widget = new CPhoneNumberInput("", 10, SP_ALIGN_TOP);
+    auto* widget = new CPhoneNumberInput("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -73,7 +73,7 @@ Variant CPhoneNumberInput::data() const
 void CPhoneNumberInput::data(const Variant ss)
 {
     char* s1 = strdup(ss.asString().c_str());
-    auto p1 = new char[15];
+    auto* p1 = new char[15];
 
     int pos = 0;
     char* s2 = s1;

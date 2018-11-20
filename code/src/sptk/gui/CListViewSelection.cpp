@@ -51,7 +51,7 @@ void CSelection::deselectAll()
 {
     size_t cnt = m_selectedRows.size();
     for (size_t i = 0; i < cnt; i++) {
-        auto row = (CPackedStrings*) m_selectedRows[i];
+        auto* row = (CPackedStrings*) m_selectedRows[i];
         row->flags &= ~CLV_SELECTED;
     }
     m_selectedRows.clear();
@@ -73,7 +73,7 @@ CPackedStrings* CSelection::findKey(int keyValue) const
 {
     size_t cnt = m_selectedRows.size();
     for (size_t i = 0; i < cnt; i++) {
-        auto row = (CPackedStrings*) m_selectedRows[i];
+        auto* row = (CPackedStrings*) m_selectedRows[i];
         if (row->argument() == keyValue)
             return row;
     }
@@ -84,7 +84,7 @@ CPackedStrings* CSelection::findCaption(const String& caption) const
 {
     size_t cnt = m_selectedRows.size();
     for (size_t i = 0; i < cnt; i++) {
-        auto row = (CPackedStrings*) m_selectedRows[i];
+        auto* row = (CPackedStrings*) m_selectedRows[i];
         if ((*row)[0] == caption)
             return row;
     }

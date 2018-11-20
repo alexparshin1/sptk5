@@ -59,27 +59,27 @@ protected:
     /**
      * Resizing mouse zone where mouse was pushed
      */
-    int                      m_resizingZone;
+    int                      m_resizingZone {0};
 
     /**
      * Last window width during the shape generation
      */
-    int                      m_lastW;
+    int                      m_lastW {0};
 
     /**
      * Last window height during the shape generation
      */
-    int                      m_lastH;
+    int                      m_lastH {0};
 
     /**
      * X coordinate of the last FL_PUSH event
      */
-    int                      m_pushedX;
+    int                      m_pushedX {0};
 
     /**
      * Y coordinate of the last FL_PUSH event
      */
-    int                      m_pushedY;
+    int                      m_pushedY {0};
 
     /**
      * Vector of points defining window shape
@@ -89,22 +89,22 @@ protected:
     /**
      * Is the shape size changed?
      */
-    bool                     m_shapeChanged;
+    bool                     m_shapeChanged {true};
 
     /**
      * Shape border width, the default is 6
      */
-    int                      m_borderWidth;
+    int                      m_borderWidth {6};
 
     /**
      * Is no border flag set for the window?
      */
-    bool                     m_borderCleared;
+    bool                     m_borderCleared {false};
 
     /**
      * Is the shape extension activated?
      */
-    bool                     m_shapeExtension;
+    bool                     m_shapeExtension {false};
 
 
     /**

@@ -37,7 +37,6 @@ using namespace sptk;
 HttpConnect::HttpConnect(TCPSocket& socket)
 : m_socket(socket)
 {
-    //m_requestHeaders["Connection"] = "close";
 }
 
 #define RSP_BLOCK_SIZE (1024*64)
@@ -189,13 +188,12 @@ String HttpConnect::statusText() const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 TEST(SPTK_HttpConnect, get)
 {
     Host google("www.google.com:80");
 
-    auto socket = new TCPSocket;
+    auto* socket = new TCPSocket;
 
     ASSERT_NO_THROW(socket->open(google));
     ASSERT_TRUE(socket->active());
@@ -206,7 +204,7 @@ TEST(SPTK_HttpConnect, get)
     try {
         http.cmd_get("/", HttpParams(), output);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << e.what();
     }
     EXPECT_EQ(200, http.statusCode());
@@ -214,7 +212,7 @@ TEST(SPTK_HttpConnect, get)
 
     String data(output.c_str(), output.bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-    //cout << data.c_str() << endl;
+
 	delete socket;
 }
 

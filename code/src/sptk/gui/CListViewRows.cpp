@@ -54,7 +54,7 @@ void CListViewRows::truncate(unsigned cnt)
     size_t rowCount = m_rows.size();
     if (cnt < rowCount) {
         for (size_t i = cnt; i < rowCount; i++) {
-            auto row = (CPackedStrings*) m_rows[i];
+            auto* row = (CPackedStrings*) m_rows[i];
             m_fullHeight -= row->height;
             delete row;
         }
@@ -79,7 +79,7 @@ unsigned CListViewRows::insert(unsigned position, CPackedStrings* ss)
 
 unsigned CListViewRows::update(unsigned index, CPackedStrings* ss)
 {
-    auto s = (CPackedStrings*) m_rows[index];
+    auto* s = (CPackedStrings*) m_rows[index];
     int oldh = s->height;
     delete s;
     m_fullHeight += ss->height - oldh;
@@ -89,7 +89,7 @@ unsigned CListViewRows::update(unsigned index, CPackedStrings* ss)
 
 void CListViewRows::clear()
 {
-    for (auto packedStrings: m_rows)
+    for (auto* packedStrings: m_rows)
         delete packedStrings;
     m_rows.clear();
     m_fullHeight = 0;
@@ -98,7 +98,7 @@ void CListViewRows::clear()
 void CListViewRows::remove(unsigned index)
 {
     if (index < m_rows.size()) {
-        auto row = (CPackedStrings*) m_rows[index];
+        auto* row = (CPackedStrings*) m_rows[index];
         m_fullHeight -= row->height;
         delete row;
         m_rows.erase(m_rows.begin() + index);

@@ -31,14 +31,12 @@
 #include <sptk5/gui/CWindow.h>
 #include <FL/fl_draw.H>
 
+#ifndef _WIN32
+#include <X11/extensions/shape.h>
+#endif
+
 using namespace std;
 using namespace sptk;
-
-#ifndef _WIN32
-
-#include <X11/extensions/shape.h>
-
-#endif
 
 #define TOP_EDGE    1
 #define BOTTOM_EDGE 2
@@ -46,16 +44,8 @@ using namespace sptk;
 #define RIGHT_EDGE  8
 
 CWindowShape::CWindowShape(CWindow* window)
+: m_window(window)
 {
-    m_window = window;
-    m_shapeChanged = true;
-    m_lastW = m_lastH = 0;
-    m_resizingZone = 0;
-    m_borderWidth = 6;
-    m_borderCleared = false;
-    m_shapeExtension = false;
-    m_pushedX = 0;
-    m_pushedY = 0;
 }
 
 void CWindowShape::initShapeExtension()
@@ -86,7 +76,6 @@ void CWindowShape::shapeApply()
         }
 #else
         Region region = XPolygonRegion((XPoint*) array, (int) m_shapePoints.size(), WindingRule);
-        //XUnmapWindow(fl_display, fl_xid(m_window));
         XShapeCombineRegion(fl_display, fl_xid(m_window), ShapeBounding, 0, 0, region, ShapeSet);
 
         if (!m_borderCleared) {
@@ -98,7 +87,6 @@ void CWindowShape::shapeApply()
             XChangeProperty(fl_display, fl_xid(m_window), motif_wm_hints, motif_wm_hints, 32,
                             PropModeReplace, (unsigned char*) prop, 5);
             m_borderCleared = true;
-            //XDeleteProperty (fl_display, fl_xid(m_window),net_wm_state);
             XMoveWindow(fl_display, fl_xid(m_window), xpos, ypos);
         }
 
@@ -136,10 +124,19 @@ void CWindowShape::changeSize(int mouseX, int mouseY)
 {
     if (!m_shapeExtension)
         return;
+
     if (!m_resizingZone)
         return;
-    int oldX = m_window->x(), oldY = m_window->y(), oldW = m_window->w(), oldH = m_window->h();
-    int newX = oldX, newY = oldY, newW = oldW, newH = oldH;
+
+    int oldX = m_window->x();
+    int oldY = m_window->y();
+    int oldW = m_window->w();
+    int oldH = m_window->h();
+
+    int newX = oldX;
+    int newY = oldY;
+    int newW = oldW;
+    int newH = oldH;
 
     if (m_resizingZone & TOP_EDGE) {
         if (oldY != mouseY) {

@@ -75,7 +75,7 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
     int socketFD = socket.handle();
 
-    auto event = (epoll_event*) malloc(sizeof(epoll_event));
+    auto* event = (epoll_event*) malloc(sizeof(epoll_event));
     event->data.ptr = userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
@@ -120,8 +120,6 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout)
     int eventCount = epoll_wait(m_pool, events, MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
         throw SystemException("Error waiting for socket activity");
-
-    //cout << "Got " << eventCount << " events" << endl;
 
     for (int i = 0; i < eventCount; i++) {
         epoll_event& event = events[i];

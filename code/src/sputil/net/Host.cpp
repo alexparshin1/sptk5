@@ -154,7 +154,6 @@ void Host::getHostAddress()
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;          // IPv4 or IPv6
     hints.ai_socktype = SOCK_STREAM;    // Socket type
-    //hints.ai_flags = AI_PASSIVE;      /* For wildcard IP address */
     hints.ai_protocol = 0;
 
     struct addrinfo* result;
@@ -217,7 +216,6 @@ String Host::toString(bool forceAddress) const
 
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 const char* testHost = "www.google.com:80";
 

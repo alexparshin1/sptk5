@@ -26,8 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
+#if USE_GTEST
+#include <sptk5/net/TCPServerConnection.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -73,7 +77,7 @@ void TCPServer::stop()
     UniqueLock(m_mutex);
     {
         UniqueLock(m_connectionThreadsLock);
-        for (auto connectionThread: m_connectionThreads)
+        for (auto* connectionThread: m_connectionThreads)
             connectionThread->terminate();
     }
 
@@ -131,8 +135,6 @@ void TCPServer::terminate()
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/net/TCPServerConnection.h>
 
 /**
  * Not encrypted connection to control service
@@ -171,8 +173,8 @@ public:
                 } else
                     break;
             }
-            catch (exception& e) {
-                cerr << e.what() << endl;
+            catch (const Exception& e) {
+                CERR(e.what() << endl);
             }
         }
         m_socket->close();

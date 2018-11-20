@@ -241,7 +241,8 @@ bool CSpellChecker::spellCheck()
     String word;
 
     bool rc = true;
-    int wordStart, wordEnd;
+    int wordStart;
+    int wordEnd;
     while (getNextWord(word, wordStart, wordEnd)) {
         if (strpbrk(word.c_str(), "0123456789")) continue;
         int result = aspell_speller_check(m_spellChecker, word.c_str(), (int) word.length());

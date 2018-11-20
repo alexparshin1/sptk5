@@ -60,13 +60,13 @@ String CFileDialog::removeTrailingSlash(const String& dirname)
 
 void CFileDialog::new_folder_cb(Fl_Widget* w, void*)
 {
-    auto fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) w->window();
     fileDialog->createFolder();
 }
 
 void CFileDialog::home_cb(Fl_Widget* w, void*)
 {
-    auto fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) w->window();
     String homeDirectory = Registry::homeDirectory();
     fileDialog->directory(homeDirectory);
     fileDialog->refreshDirectory();
@@ -74,7 +74,7 @@ void CFileDialog::home_cb(Fl_Widget* w, void*)
 
 void CFileDialog::up_cb(Fl_Widget* w, void*)
 {
-    auto fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) w->window();
     fileDialog->directory(fileDialog->directory() + "..");
     fileDialog->refreshDirectory();
 }
@@ -83,8 +83,8 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 {
     bool directoryClicked = false;
 
-    auto fileDialog = (CFileDialog*) w->window();
-    auto listView = (CListView*) w;
+    auto* fileDialog = (CFileDialog*) w->window();
+    auto* listView = (CListView*) w;
 
     if (listView->selectedRow() == nullptr)
         return;
@@ -133,8 +133,8 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 
 void CFileDialog::lookin_cb(Fl_Widget* w, void*)
 {
-    auto fileDialog = (CFileDialog*) w->window();
-    auto comboBox = (CComboBox*) w;
+    auto* fileDialog = (CFileDialog*) w->window();
+    auto* comboBox = (CComboBox*) w;
 
     if (comboBox->eventType() != CE_DATA_CHANGED)
         return;
@@ -151,21 +151,21 @@ void CFileDialog::lookin_cb(Fl_Widget* w, void*)
 
 void CFileDialog::pattern_cb(Fl_Widget* w, void*)
 {
-    auto comboBox = (CComboBox*) w;
+    auto* comboBox = (CComboBox*) w;
 
     if (comboBox->eventType() != CE_DATA_CHANGED)
         return;
 
-    auto fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) w->window();
     fileDialog->refreshDirectory();
 }
 
 CFileDialog::CFileDialog(const String& label, bool saveMode)
-        : CDialog(450, 400, label.c_str())
+: CDialog(450, 400, label.c_str())
 {
     CButton* btn;
 
-    auto grp = new CGroup;
+    auto* grp = new CGroup;
     m_lookInCombo = new CComboBox("Look in:", 10, SP_ALIGN_CLIENT);
     m_lookInCombo->labelWidth(60);
     m_lookInCombo->addColumn("Path", VAR_STRING, 250);
@@ -176,10 +176,6 @@ CFileDialog::CFileDialog(const String& label, bool saveMode)
         btn->callback(CFileDialog::new_folder_cb);
     }
 
-    /*
-       btn = new CButton("",SP_ALIGN_RIGHT);
-       btn->buttonImage(&pixmap_favorites);
-    */
     btn = new CButton("", SP_ALIGN_RIGHT);
     btn->buttonImage(CThemes::getIconImage("fd_level_up", IS_LARGE_ICON));
     btn->callback(CFileDialog::up_cb);
@@ -357,7 +353,6 @@ void CFileDialog::refreshDirectory(const String& dir)
 
     m_directory.pattern(pattern());
     m_directoryView->fill(m_directory, "N/A");
-    //m_fileNameInput->data("");
 }
 
 void CFileDialog::fileName(const String& fn)

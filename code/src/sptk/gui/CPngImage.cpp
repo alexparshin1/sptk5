@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CPngImage.h>
@@ -43,7 +43,7 @@ typedef struct
 
 static void png_read(png_structp pp, png_bytep buf, png_size_t len)
 {
-    auto p = (CMemHandle*) png_get_io_ptr(pp);
+    auto* p = (CMemHandle*) png_get_io_ptr(pp);
     const Buffer* buffer = p->buffer;
     png_size_t tail = buffer->bytes() - p->read_offset;
     if (len > tail)
@@ -60,7 +60,6 @@ void CPngImage::load(const Buffer& imagedata)
     png_infop info; // PNG info pointer
     png_bytep* rows; // PNG row pointers
     CMemHandle p;
-    //png_byte junk[16];
 
     pp = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     info = png_create_info_struct(pp);
@@ -79,15 +78,12 @@ void CPngImage::load(const Buffer& imagedata)
     else
         channels = 1;
 
-    //bool            alpha = false;
     int num_trans = 0;
     png_color_16p trans_color;
     png_bytep trans_alpha;
     png_get_tRNS(pp, info, &trans_alpha, &num_trans, &trans_color);
-    if ((color_type & PNG_COLOR_MASK_ALPHA) || num_trans) {
+    if ((color_type & PNG_COLOR_MASK_ALPHA) || num_trans)
         channels++;
-        //alpha = true;
-    }
 
     w((int) png_get_image_width(pp, info));
     h((int) png_get_image_height(pp, info));
@@ -162,7 +158,9 @@ CPngImage::CPngImage(const String& fileName)
         Buffer imageData;
         imageData.loadFromFile(fileName);
         load(imageData);
-    } catch (...) {}
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 }
 
 static Fl_RGB_Image*
@@ -180,11 +178,9 @@ subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned wi
     unsigned newBytesPerRow = width * image->d();
     unsigned totalBytes = height * newBytesPerRow;
     const uchar* imageArray = image->array;
-    auto newArray = new uchar[totalBytes];
-    auto newImage = new Fl_RGB_Image(newArray, width, height, image->d());
+    auto* newArray = new uchar[totalBytes];
+    auto* newImage = new Fl_RGB_Image(newArray, width, height, image->d());
     newImage->alloc_array = 1;
-    //unsigned maxRow = offsetY + height;
-    //unsigned maxCol = offsetX + width;
 
     const uchar* imageRow = imageArray + offsetY * bytesPerRow + offsetX * image->d();
     for (unsigned row = 0; row < height; row++) {
@@ -200,7 +196,7 @@ void CPngImage::cutStretchDraw(
 {
     if (destW <= 0 || destH <= 0) return;
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
-    auto stretched = (Fl_RGB_Image*) img->copy(destW, destH);
+    auto* stretched = (Fl_RGB_Image*) img->copy(destW, destH);
     stretched->draw(destX, destY);
     delete img;
     delete stretched;
@@ -238,7 +234,8 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPattern
         cornerSizeY = hh / 2;
 
     /// Draw corners
-    int imageHeight = h(), imageWidth = w();
+    int imageHeight = h();
+    int imageWidth = w();
     for (int destY = yy, srcY = 0; destY < yy + hh; destY += hh - cornerSizeY, srcY += imageHeight - cornerSizeY)
         for (int destX = xx, srcX = 0; destX < xx + ww; destX += ww - cornerSizeX, srcX += imageWidth - cornerSizeX)
             draw(destX, destY, cornerSizeX, cornerSizeY, srcX, srcY);
@@ -269,17 +266,9 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDra
     int yBorderSpace = border[BORDER_TOP] + border[BORDER_BOTTOM];
     int ySideSpace = h() - yBorderSpace;
 
-    /*
-    int cornerSizeX = border[BORDER_LEFT];
-    if (cornerSizeX > ww/2)
-        cornerSizeX = ww/2;
-    int cornerSizeY = border[BORDER_TOP];
-    if (cornerSizeY > hh/2)
-        cornerSizeY = hh/2;
-    */
-
     /// Draw corners
-    int imageHeight = h(), imageWidth = w();
+    int imageHeight = h();
+    int imageWidth = w();
     draw(xx, yy, border[BORDER_LEFT], border[BORDER_TOP], 0, 0);
     draw(xx, yy + hh - border[BORDER_BOTTOM], border[BORDER_LEFT], border[BORDER_BOTTOM], 0,
          imageHeight - border[BORDER_BOTTOM]);

@@ -39,7 +39,7 @@ using namespace sptk;
 
 void CTreeView::internal_callback(Fl_Widget* widget, void*)
 {
-    auto tree = (CTreeView*) widget->parent();
+    auto* tree = (CTreeView*) widget->parent();
     tree->do_callback();
 }
 
@@ -68,7 +68,7 @@ CTreeView::CTreeView(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CTreeView::creator(xml::Node* node)
 {
-    auto widget = new CTreeView("", 10, SP_ALIGN_TOP);
+    auto* widget = new CTreeView("", 10, SP_ALIGN_TOP);
     widget->load(node);
     return widget;
 }

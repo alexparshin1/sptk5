@@ -85,6 +85,7 @@ class SP_EXPORT TCPSocketReader: protected Buffer
      */
     uint32_t        m_readOffset;
 
+    int32_t readFromSocket(sockaddr_in* from);
 
     /**
      * @brief Performs buffered read

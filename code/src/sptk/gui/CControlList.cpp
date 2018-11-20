@@ -40,26 +40,16 @@ void CControlList::scanControls(const Fl_Group *group)
         Fl_Widget *widget = group->child(i);
 
         // The try {} catch() {} is only required for MSVC++
-        CControl *control = nullptr;
-        try {
-            control = dynamic_cast<CControl *>(widget);
-        } catch (...) {
-        }
-
-        if (control) {
+        CControl *control = dynamic_cast<CControl *>(widget);
+        if (control != nullptr) {
             if (control->fieldName().length())
                 add(control);
             continue;
         }
 
-        Fl_Group *g = nullptr;
 
-        try {
-            g = dynamic_cast<Fl_Group *>(widget);
-        } catch (...) {
-        }
-
-        if (g)
+        Fl_Group *g = dynamic_cast<Fl_Group *>(widget);
+        if (g != nullptr)
             scanControls(g);
     }
 }

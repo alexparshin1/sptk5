@@ -54,7 +54,7 @@ bool CFileOpenDialog::okPressed() {
       close(fh);
       return true;
    }
-   catch(exception& e) {
+   catch(Exception&  e) {
       spError("Can't open file "+fname +".\n"+string(e.what()));
       return false;
    }

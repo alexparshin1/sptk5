@@ -36,36 +36,30 @@ String HttpParams::encodeString(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
-    auto buffer = (char *)calloc(cnt*3+1,1);
-    if (buffer == nullptr)
-        throw Exception("Out of memory");
-    char *dest = buffer;
+    char hexBuffer[5];
+    Buffer buffer(cnt * 3 + 1);
+    buffer.data();
     while (*src != 0) {
         if (isalnum(*src) != 0) {
-            *dest = *src;
-            dest++;
+            buffer.append(*src);
         } else {
             switch (*src) {
             case ' ':
-                *dest = '+';
-                dest++;
+                buffer.append('+');
                 break;
             case '.':
             case '-':
-                *dest = *src;
-                dest++;
+                buffer.append(*src);
                 break;
             default:
-                snprintf(dest, 5, "%%%02X", (unsigned char)*src);
-                dest += 3;
+                snprintf(hexBuffer, sizeof(hexBuffer), "%%%02X", (unsigned char)*src);
+                buffer.append(hexBuffer);
                 break;
             }
         }
         src++;
     }
-    string result(buffer);
-    free(buffer);
-    return result;
+    return String(buffer.c_str(), buffer.bytes());
 }
 
 int hexCharToInt(unsigned char ch)
@@ -75,35 +69,33 @@ int hexCharToInt(unsigned char ch)
     return ch - '0';
 }
 
-sptk::String HttpParams::decodeString(const String& str)
+String HttpParams::decodeString(const String& str)
 {
-    auto cnt = (uint32_t) str.length();
     const char *src = str.c_str();
-    auto buffer = (char *)calloc(cnt+1,1);
-    if (buffer == nullptr)
-        throw Exception("Out of memory");
-    char *dest = buffer;
+    char dest;
+    Buffer buffer;
     while (*src != 0) {
         switch (*src) {
         case '+':
-            *dest = ' ';
+            buffer.append(' ');
             src++;
             break;
-        default:
-            *dest = *src;
-            src++;
-            break;
+
         case '%':
             src++;
-            *dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
+            dest = char(hexCharToInt((unsigned char)*src) * 16 + hexCharToInt((unsigned char)src[1]));
+            buffer.append(dest);
             src += 2;
+            break;
+
+        default:
+            buffer.append(*src);
+            src++;
             break;
         }
         dest++;
     }
-    string result(buffer);
-    free(buffer);
-    return result;
+    return String(buffer.c_str(), buffer.length());
 }
 
 void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
@@ -143,7 +135,6 @@ String HttpParams::get(const String& paramName) const
 }
 
 #if USE_GTEST
-#include <gtest/gtest.h>
 
 static const char* gtestURLencoded = "name=John+Doe&items=%5B%22book%22%2C%22pen%22%5D&id=1234";
 

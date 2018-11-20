@@ -64,20 +64,14 @@ void TCPServerListener::threadFunction()
 #endif
                     }
                 }
-                catch (exception& e) {
+                catch (const Exception& e) {
                     m_server->log(LP_ERROR, e.what());
-                }
-                catch (...) {
-                    m_server->log(LP_ERROR, "Unknown exception");
                 }
             }
         }
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         m_server->log(LP_ERROR, e.what());
-    }
-    catch (...) {
-        m_server->log(LP_ERROR, "Unknown exception");
     }
 }
 

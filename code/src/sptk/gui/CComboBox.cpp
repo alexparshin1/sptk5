@@ -369,10 +369,10 @@ void CBaseListBox::buttons(uint32_t buttonSet)
     }
 }
 
-void CBaseListBox::button_handle(uint32_t buttonKind)
+void CBaseListBox::button_handle(uint32_t theButtonKind)
 {
     Fl::focus(m_control);
-    switch (buttonKind) {
+    switch (theButtonKind) {
         case SP_BROWSE_BUTTON:
             if (m_mode == IS_COMBO_BOX)
                 dropDownList();

@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
@@ -119,7 +119,7 @@ void CLayoutManager::relayout()
             ca = dynamic_cast<CLayoutClient*>(widget);
             if (ca == nullptr)
                 continue;
-        } catch (...) {
+        } catch (const Exception&) {
             continue;
         }
         if (ca->layoutAlign() == SP_ALIGN_NONE)
@@ -174,7 +174,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                 ca = dynamic_cast<CLayoutClient*>(widget);
                 if (ca == nullptr)
                     continue;
-            } catch (...) {
+            } catch (const Exception&) {
                 continue;
             }
             if (ca->layoutAlign() == SP_ALIGN_NONE)
@@ -189,7 +189,8 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
             layoutWidgets++;
 
-            int preferred_x = xx, preferred_y = yy;
+            int preferred_x = xx;
+            int preferred_y = yy;
 
             switch (ca->layoutAlign()) {
                 case SP_ALIGN_RIGHT:
@@ -292,8 +293,8 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
                 layoutWidgets++;
 
-                preferred_w = ww; // - m_layoutSpacing;
-                preferred_h = hh; // - m_layoutSpacing;
+                preferred_w = ww;
+                preferred_h = hh;
                 if (preferred_w < 0)
                     preferred_w = 20;
                 if (preferred_h < 0)
@@ -309,8 +310,8 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                         preferred_h = hh;
                 }
 
-                ww -= preferred_w; // + m_layoutSpacing;
-                hh -= preferred_h; // + m_layoutSpacing;
+                ww -= preferred_w;
+                hh -= preferred_h;
 
                 if (resizeWidgets)
                     clientWidget->resize(xx, yy, preferred_w, preferred_h);
@@ -374,13 +375,17 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     auto* layoutManager = dynamic_cast<CLayoutManager*>(widget);
                     if (layoutManager)
                         layoutManager->loadLayout(widgetNode, xmlMode);
-                } catch (...) {}
+                } catch (const Exception& e) {
+                    CERR(e.what() << endl);
+                }
             } else {
                 try {
                     auto* cwidget = dynamic_cast<CControl*>(widget);
                     if (cwidget)
                         cwidget->load(widgetNode, xmlMode);
-                } catch (...) {}
+                } catch (const Exception& e) {
+                    CERR(e.what() << endl);
+                }
             }
             if (widget->parent() != m_group)
                 m_group->add
@@ -417,7 +422,9 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     }
                     continue;
                 }
-            } catch (...) {}
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
+            }
             try {
                 auto* control = dynamic_cast<CControl*>(widget);
                 if (control) {
@@ -431,7 +438,9 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     }
                     continue;
                 }
-            } catch (...) {}
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
+            }
         }
     }
 }
@@ -471,7 +480,9 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                 }
                 continue;
             }
-        } catch (...) {}
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
     }
 }
 
@@ -485,14 +496,18 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
             auto* client = dynamic_cast<CLayoutClient*>(widget);
             if (client && !client->name().empty())
                 index[client->name()] = widget;
-        } catch (...) {}
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
 
         if (recursive)
             try {
                 auto* group = dynamic_cast<CLayoutManager*>(widget);
                 if (group)
                     group->nameIndex(index, true, false);
-            } catch (...) {}
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
+            }
     }
 }
 

@@ -47,7 +47,7 @@ public:
 
     std::string m_units;
     bool m_showText;
-public:
+
     CProgressBox(int x, int y, int w, int h)
             : Fl_Box(x, y, w, h)
     {
@@ -121,14 +121,15 @@ CProgressBar::CProgressBar(int x,int y,int w,int h,const char *label)
 
 CLayoutClient* CProgressBar::creator(xml::Node* node)
 {
-    auto widget = new CProgressBar("", 10, SP_ALIGN_TOP);
+    auto* widget = new CProgressBar("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
 
 bool CProgressBar::preferredSize(int& w, int& h)
 {
-    int minWidth, minHeight;
+    int minWidth;
+    int minHeight;
     CThemes::sizeProgressBar(minWidth, minHeight);
     if (minWidth) {
         // progress bar is themed
@@ -136,7 +137,7 @@ bool CProgressBar::preferredSize(int& w, int& h)
             w = minWidth;
         h = minHeight;
     } else {
-        auto pb = (CProgressBox*) m_control;
+        auto* pb = (CProgressBox*) m_control;
         if (w < 20) w = 20;
         if (pb->m_showText)
             h = m_textSize + 6;
@@ -147,54 +148,54 @@ bool CProgressBar::preferredSize(int& w, int& h)
 
 Variant CProgressBar::data() const
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     return pb->m_value;
 }
 
 void CProgressBar::data(const Variant v)
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     pb->m_value = v.asFloat();
 }
 
 void CProgressBar::units(const char* un)
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     pb->m_units = un;
 }
 
 std::string CProgressBar::units() const
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     return pb->m_units;
 }
 
 void CProgressBar::showText(bool flag)
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     pb->m_showText = flag;
 }
 
 void CProgressBar::minimum(float value)
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     pb->m_minValue = value;
 }
 
 float CProgressBar::minimum() const
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     return pb->m_minValue;
 }
 
 void CProgressBar::maximum(float value)
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     pb->m_maxValue = value;
 }
 
 float CProgressBar::maximum() const
 {
-    auto pb = (CProgressBox*) m_control;
+    auto* pb = (CProgressBox*) m_control;
     return pb->m_maxValue;
 }

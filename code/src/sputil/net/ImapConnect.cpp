@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/net/ImapConnect.h>
 
 using namespace std;
@@ -41,7 +42,7 @@ ImapConnect::ImapConnect()
 
 ImapConnect::~ImapConnect()
 {
-    close();
+    TCPSocket::close();
 }
 
 #define RSP_BLOCK_SIZE 1024
@@ -81,7 +82,6 @@ bool ImapConnect::getResponse(const String& ident)
             }
         }
     }
-    //return false;
 }
 
 const String ImapConnect::empty_quotes;
@@ -291,14 +291,10 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
     for (i = 0; required_headers[i] != nullptr; i++) {
         String headerName = required_headers[i];
         Field *fld = new Field(lowerCase(headerName).c_str());
-        switch (i) {
-            case 0:
-                fld->view.width = 16;
-                break;
-            default:
-                fld->view.width = 32;
-                break;
-        }
+        if (i == 0)
+            fld->view.width = 16;
+        else
+            fld->view.width = 32;
         results.push_back(fld);
     }
 
@@ -308,7 +304,8 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
         String &st = m_response[i];
         if (st.empty())
             break;
-        String header_name, header_value;
+        String header_name;
+        String header_value;
         parse_header(st, header_name, header_value);
         if (!header_name.empty()) {
             try {
@@ -317,7 +314,8 @@ void ImapConnect::parseMessage(FieldList &results, bool headers_only)
                     field.setDate(decodeDate(header_value));
                 else
                     field = header_value;
-            } catch (...) {
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
             }
         }
     }
@@ -355,7 +353,6 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
     String result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
     size_t count = m_response.size() - 1;
-    //for (; i < count; i++) {
     if (count > 0) {
         size_t i = 0;
         String &st = m_response[i];

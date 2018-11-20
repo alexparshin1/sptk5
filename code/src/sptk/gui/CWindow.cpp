@@ -37,7 +37,8 @@ using namespace sptk;
 void CWindow::resize(int xx, int yy, int ww, int hh)
 {
     Fl_Double_Window::resize(xx, yy, ww, hh);
-    int www = ww, hhh = hh;
+    int www = ww;
+    int hhh = hh;
     // For a window, layout is always located at 0,0 coordinates
     autoLayout(0, 0, www, hhh, true);
     bool limited = false;
@@ -154,11 +155,13 @@ int CWindow::handle(int event)
 
         case FL_DRAG:
             if (m_resizingZone) {
-                int x, y;
+                int x;
+                int y;
                 Fl::get_mouse(x, y);
                 changeSize(x, y);
             } else {
-                int new_x, new_y;
+                int new_x;
+                int new_y;
                 new_x = Fl::event_x() + x() - m_pushedX;
                 new_y = Fl::event_y() + y() - m_pushedY;
                 position(new_x, new_y);

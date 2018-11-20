@@ -190,7 +190,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                     if (!readyToWrite(timeout))
                         throw Exception("Connection timeout");
                 }
-                catch (const exception& e) {
+                catch (const Exception& e) {
                     close();
                     throw;
                 }
@@ -199,6 +199,7 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
             } else
                 rc = connect(m_sockfd, (sockaddr*) addr, sizeof(sockaddr_in));
             break;
+
         case SOM_BIND:
             if (m_type != SOCK_DGRAM) {
 #ifndef _WIN32
@@ -214,7 +215,8 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
                 currentOperation = "listen";
             }
             break;
-        case SOM_CREATE:
+
+        default:
             break;
     }
 
@@ -228,7 +230,9 @@ void BaseSocket::open_addr(CSocketOpenMode openMode, const sockaddr_in* addr, st
 }
 
 void BaseSocket::_open(const Host&, CSocketOpenMode, bool, std::chrono::milliseconds)
-{}
+{
+    // Override in derived classes
+}
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
 {

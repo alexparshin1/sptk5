@@ -45,13 +45,12 @@ class CTabButtons;
 class CTabButton : public Fl_Button
 {
     Fl_Group* m_page;
-    CTabButtons* m_ownerRow;
+    CTabButtons* m_ownerRow {nullptr};
 public:
     explicit CTabButton(Fl_Group* page)
-            : Fl_Button(0, 0, 10, 10, "")
+    : Fl_Button(0, 0, 10, 10, ""),
+      m_page(page)
     {
-        m_page = page;
-        m_ownerRow = nullptr;
     }
 
     ~CTabButton() override = default;
@@ -116,12 +115,12 @@ public:
 
     virtual ~CTabRows()
     {
-        clear();
+        CTabRows::clear();
     }
 
     virtual void clear()
     {
-        for (auto button: *this)
+        for (auto* button: *this)
             delete button;
         vector<CTabButtons*>::clear();
     }
@@ -133,9 +132,9 @@ class CTabGroup : public CGroup
     friend class CTabs;
 
     CTabButtons m_buttons;
-protected:
     CTabButton* m_activeTabButton;
-    CTabRows m_rows;
+    CTabRows    m_rows;
+protected:
 
     static void cb_tabButton(Fl_Widget* btn, void* data);
 
@@ -196,7 +195,7 @@ using namespace sptk;
 
 int CTabButton::handle(int event)
 {
-    auto tabGroup = (CTabGroup*) parent();
+    auto* tabGroup = (CTabGroup*) parent();
     switch (event) {
         case FL_FOCUS:
             tabGroup->activate(this);
@@ -214,7 +213,7 @@ int CTabButton::handle(int event)
 
 bool CTabButton::selected() const
 {
-    auto tabGroup = dynamic_cast<CTabGroup*>(parent());
+    auto* tabGroup = dynamic_cast<CTabGroup*>(parent());
     if (!tabGroup)
         return false;
     return tabGroup->m_activeTabButton == this;
@@ -239,7 +238,7 @@ bool CTabButton::preferredSize(int& w, int& h)
 
 void CTabButton::draw()
 {
-    auto tabsWidget = dynamic_cast<CTabGroup*>(parent());
+    auto* tabsWidget = dynamic_cast<CTabGroup*>(parent());
     if (!tabsWidget)
         return;
     int hh = parent()->h() - (y() - parent()->y());
@@ -247,7 +246,8 @@ void CTabButton::draw()
 
     Fl_Align labelAlign = FL_ALIGN_CENTER;
     int labelLeft = 0;
-    int wt = 0, ht = 0;
+    int wt = 0;
+    int ht = 0;
 
     m_page->measure_label(wt, ht);
 
@@ -279,7 +279,7 @@ void CTabGroup::add(Fl_Group* group)
 {
     Fl_Group* saveParent = Fl_Group::current();
     begin();
-    auto button = new CTabButton(group);
+    auto* button = new CTabButton(group);
     button->callback(cb_tabButton, this);
     m_buttons.push_back(button);
     end();
@@ -312,17 +312,17 @@ void CTabGroup::activate(CTabButton* button)
     m_activeTabButton->page()->hide();
     m_activeTabButton = button;
     m_activeTabButton->page()->show();
-    auto tabControl = (CGroup*) parent();
+    auto* tabControl = (CGroup*) parent();
     tabControl->relayout();
     redraw();
 }
 
 void CTabGroup::cb_tabButton(Fl_Widget* btn, void* data)
 {
-    auto button = dynamic_cast<CTabButton*>(btn);
+    auto* button = dynamic_cast<CTabButton*>(btn);
     if (!button)
         return;
-    auto group = (CTabGroup*) data;
+    auto* group = (CTabGroup*) data;
     group->activate(button);
 }
 
@@ -360,7 +360,8 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
         CTabButton* button = *itor;
         if (!button)
             continue;
-        int bw = 0, bh = 0;
+        int bw = 0;
+        int bh = 0;
         button->preferredSize(bw, bh);
         unsigned newOffset = offset + bw + 2;
         if (newOffset <= (unsigned) width) {
@@ -373,7 +374,6 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
             }
             height += rowHeight;
             rowHeight = 0;
-            //offset = 0;
             newOffset = (unsigned) bw;
         }
         if (rowHeight < bh)
@@ -438,7 +438,7 @@ const Fl_Color CTabs::AutoColorTable[16] = {
 };
 
 CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
-        : CGroup(label, layoutSize, layoutAlign), m_autoColorIndex(0)
+: CGroup(label, layoutSize, layoutAlign), m_autoColorIndex(0)
 {
     box(FL_THIN_UP_BOX);
     layoutSpacing(0);
@@ -447,7 +447,7 @@ CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
 
 #ifdef __COMPATIBILITY_MODE__
 CTabs::CTabs(int x, int y, int w, int h, const char *label)
-        : CGroup(x, y, w, h, label), m_autoColorIndex(0)
+: CGroup(x, y, w, h, label), m_autoColorIndex(0)
 {
     box(FL_UP_BOX);
     layoutSpacing(0);
@@ -462,7 +462,7 @@ CTabs::~CTabs()
 
 CLayoutClient* CTabs::creator(xml::Node* node)
 {
-    auto widget = new CTabs("", 10, SP_ALIGN_TOP);
+    auto* widget = new CTabs("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -477,7 +477,6 @@ void CTabs::showTabs(bool show)
 
 void CTabs::draw()
 {
-    //int dy = Fl::box_dy(box());
     if (m_tabs->visible()) {
         m_tabs->draw();
         fl_draw_box(box(), x(), y() + m_tabs->h(), w(), h() - m_tabs->h(), color());
@@ -497,7 +496,7 @@ void CTabs::removeEmptyLastPage()
     int i = children() - 1;
     if (i < 1)
         return;
-    auto agroup = (Fl_Group*) child(i);
+    auto* agroup = (Fl_Group*) child(i);
     if (agroup) {
         if (!agroup->children())
             remove(agroup);
@@ -524,7 +523,7 @@ Fl_Group* CTabs::newScroll(const char* label, bool autoColor)
     removeEmptyLastPage();
 
     begin();
-    auto scroll = new CScroll(label, 10, SP_ALIGN_CLIENT);
+    auto* scroll = new CScroll(label, 10, SP_ALIGN_CLIENT);
     scroll->scrollbar.visible_focus(false);
     scroll->hscrollbar.visible_focus(false);
 
@@ -537,7 +536,7 @@ Fl_Group* CTabs::newPage(const char* label, bool autoColor)
     removeEmptyLastPage();
 
     begin();
-    auto group = new CGroup(label, 10, SP_ALIGN_CLIENT);
+    auto* group = new CGroup(label, 10, SP_ALIGN_CLIENT);
 
     prepareNewPage(group, autoColor);
     return group;

@@ -122,9 +122,9 @@ int CRadioButton::handle(int event)
 
 void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
 {
-    auto b = (Fl_Button*) w;
+    auto* b = (Fl_Button*) w;
     Fl_Group* g = b->parent();
-    auto r = (CRadioButtons*) g->parent();
+    auto* r = (CRadioButtons*) g->parent();
     r->deselectAllButtons();
     b->value(1);
     g->redraw();
@@ -132,7 +132,7 @@ void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
 }
 
 CRadioButtons::CRadioButtons(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : CButtonGroup(label, layoutSize, layoutAlignment)
+: CButtonGroup(label, layoutSize, layoutAlignment)
 {}
 
 #ifdef __COMPATIBILITY_MODE__
@@ -142,7 +142,7 @@ CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
 
 CLayoutClient* CRadioButtons::creator(xml::Node* node)
 {
-    auto widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
+    auto* widget = new CRadioButtons("", 10, SP_ALIGN_TOP);
     widget->load(node, LXM_LAYOUTDATA);
     return widget;
 }
@@ -157,10 +157,10 @@ Fl_Button* CRadioButtons::createButton(const char* label, int sz, CLayoutAlign l
 
 int32_t CRadioButtons::intValue() const
 {
-    auto group = (CScroll*) m_control;
+    auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (uint32_t i = 0; i < cnt; i++) {
-        auto b = dynamic_cast<Fl_Button*>(group->child(i));
+        auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
             continue;
         if (b->value())
@@ -172,10 +172,10 @@ int32_t CRadioButtons::intValue() const
 void CRadioButtons::intValue(int32_t v)
 {
     deselectAllButtons();
-    auto group = (CScroll*) m_control;
+    auto* group = (CScroll*) m_control;
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++) {
-        auto btn = dynamic_cast<Fl_Button*>(group->child(i));
+        auto* btn = dynamic_cast<Fl_Button*>(group->child(i));
         if (!btn)
             continue;
         if (long(btn->user_data()) == v) {

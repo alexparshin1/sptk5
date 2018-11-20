@@ -57,18 +57,18 @@ const sptk::json::Element& sptk::HttpAuthentication::getData()
             Strings usernameAndPassword(decoded,":");
             if (usernameAndPassword.size() != 2)
                 throw Exception("Invalid or unsupported 'Authentication' header format");
-            auto xuserData = new json::Document;
+            auto* xuserData = new json::Document;
             xuserData->root()["username"] = usernameAndPassword[0];
             xuserData->root()["password"] = usernameAndPassword[1];
             m_userData = xuserData;
             m_type = BASIC;
         }
         else if (m_authenticationHeader.startsWith("Bearer ")) {
-            auto xjwtData = new JWT;
+            auto* xjwtData = new JWT;
             try {
                 xjwtData->decode(m_authenticationHeader.substr(7).c_str());
             }
-            catch (...) {
+            catch (const Exception&) {
                 delete xjwtData;
                 throw;
             }

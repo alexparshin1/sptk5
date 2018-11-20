@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CDateTimeInput.h>
@@ -34,6 +34,7 @@
 #include <sptk5/gui/CDateControl.h>
 #include <sptk5/gui/CCalendar.h>
 
+using namespace std;
 using namespace sptk;
 
 void CDateTimeBaseInput::calendarButtonPressed(Fl_Widget* btn, void*)
@@ -113,7 +114,8 @@ bool CDateTimeBaseInput::valid() const
         if (m_limited)
             return val >= m_minValue && val <= m_maxValue;
         return true;
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
     return false;
 }

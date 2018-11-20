@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/net/TCPServer.h>
 
 using namespace std;
@@ -36,5 +37,7 @@ void ServerConnection::onThreadExit()
     try {
         m_server->unregisterConnection(this);
     }
-    catch (...) {}
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 }
