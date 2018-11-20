@@ -27,6 +27,7 @@
 */
 
 #include <iomanip>
+#include <sptk5/cutils>
 #include <sptk5/wsdl/SourceModule.h>
 #include <sptk5/wsdl/WSParser.h>
 #include <sptk5/wsdl/WSMessageIndex.h>
@@ -39,7 +40,9 @@ WSParser::~WSParser()
     try {
         clear();
     }
-    catch (...) {}
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 }
 
 void WSParser::clear()
@@ -95,8 +98,6 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
 
     WSParserComplexType* complexType = new WSParserComplexType(complexTypeElement, complexTypeName);
     m_complexTypes[complexTypeName] = complexType;
-    if (complexTypeName == "HandlerType")
-        cout << endl;
     complexType->parse();
 }
 
@@ -106,8 +107,8 @@ void WSParser::parseOperation(xml::Element* operationNode)
     operationNode->document()->select(messageNodes, "//wsdl:message");
 
     map<string, string> messageToElementMap;
-    for (auto node: messageNodes) {
-        auto message = dynamic_cast<xml::Element*>(node);
+    for (auto* node: messageNodes) {
+        auto* message = dynamic_cast<xml::Element*>(node);
         if (message == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         xml::Node* part = message->findFirst("wsdl:part");
@@ -121,8 +122,8 @@ void WSParser::parseOperation(xml::Element* operationNode)
 
     WSOperation operation = {};
     bool found = false;
-    for (auto node: *operationNode) {
-        auto element = dynamic_cast<const xml::Element*>(node);
+    for (auto* node: *operationNode) {
+        auto* element = dynamic_cast<const xml::Element*>(node);
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         string message = element->getAttribute("message");
@@ -153,14 +154,14 @@ void WSParser::parseSchema(xml::Element* schemaElement)
     xml::NodeVector complexTypeNodes;
     schemaElement->select(complexTypeNodes, "//xsd:complexType");
 
-    for (auto node: complexTypeNodes) {
-        auto element = dynamic_cast<const xml::Element*>(node);
+    for (auto* node: complexTypeNodes) {
+        auto* element = dynamic_cast<const xml::Element*>(node);
         if (element != nullptr && element->name() == "xsd:complexType")
             parseComplexType(element);
     }
 
-    for (auto node: *schemaElement) {
-        auto element = dynamic_cast<const xml::Element*>(node);
+    for (auto* node: *schemaElement) {
+        auto* element = dynamic_cast<const xml::Element*>(node);
         if (element != nullptr && element->name() == "xsd:element")
             parseElement(element);
     }
@@ -194,9 +195,8 @@ void WSParser::parse(std::string wsdlFile)
 String capitalize(const String& name)
 {
     Strings parts(lowerCase(name),"_");
-    for (auto& part : parts) {
+    for (auto& part : parts)
         part[0] = (char) toupper(part[0]);
-    }
     return parts.asString("");
 }
 
@@ -347,10 +347,8 @@ void WSParser::generateImplementation(ostream& serviceImplementation)
         String requestName;
         if (nameParts.size() == 1)
             requestName = nameParts[0];
-        else {
-            // string requestNamespace = nameParts[0];
+        else
             requestName = nameParts[1];
-        }
         WSOperation& operation = itor.second;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName << "(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl;
         serviceImplementation << "{" << endl;

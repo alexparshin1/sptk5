@@ -34,8 +34,8 @@ using namespace sptk;
 
 static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpaces)
 {
-    for (auto attributeNode: node->attributes()) {
-        auto attribute = dynamic_cast<xml::Attribute*>(attributeNode);
+    for (auto* attributeNode: node->attributes()) {
+        auto* attribute = dynamic_cast<xml::Attribute*>(attributeNode);
         if (attribute == nullptr)
             continue;
         if (attribute->nameSpace() != "xmlns")
@@ -46,11 +46,12 @@ static void extractNameSpaces(xml::Node* node, map<String,WSNameSpace>& nameSpac
 
 void WSRequest::processRequest(sptk::xml::Document* request, HttpAuthentication* authentication)
 {
-    WSNameSpace             soapNamespace, requestNameSpace;
+    WSNameSpace             soapNamespace;
+    WSNameSpace             requestNameSpace;
     xml::Element*           soapEnvelope = nullptr;
     map<String,WSNameSpace> allNamespaces;
-    for (auto anode: *request) {
-        auto node = dynamic_cast<xml::Element*>(anode);
+    for (auto* anode: *request) {
+        auto* node = dynamic_cast<xml::Element*>(anode);
         if (node == nullptr)
             continue;
         if (node->tagname() == "Envelope") {
@@ -74,8 +75,8 @@ void WSRequest::processRequest(sptk::xml::Document* request, HttpAuthentication*
     }
 
     xml::Element* requestNode = nullptr;
-    for (auto anode: *soapBody) {
-        auto node = dynamic_cast<xml::Element*>(anode);
+    for (auto* anode: *soapBody) {
+        auto* node = dynamic_cast<xml::Element*>(anode);
         if (node != nullptr) {
             std::lock_guard<std::mutex> lock(*this);
             requestNode = node;

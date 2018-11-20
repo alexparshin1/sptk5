@@ -34,7 +34,7 @@ using namespace sptk;
 void WSComplexType::copyFrom(const WSComplexType& other)
 {
     xml::Document xml;
-    auto element = new xml::Element(xml, "temp");
+    auto* element = new xml::Element(xml, "temp");
     other.unload(element);
     load(element);
 }

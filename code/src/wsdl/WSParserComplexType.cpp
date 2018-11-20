@@ -70,7 +70,8 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
     if (m_typeName.empty())
         m_typeName = m_name;
 
-    string maxOccurs, minOccurs;
+    String maxOccurs;
+    String minOccurs;
     if (complexTypeElement->hasAttribute("maxOccurs"))
         maxOccurs = (string) complexTypeElement->getAttribute("maxOccurs");
     if (complexTypeElement->hasAttribute("minOccurs"))
@@ -112,8 +113,8 @@ String WSParserComplexType::className() const
 
 void WSParserComplexType::parseSequence(xml::Element* sequence)
 {
-    for (auto node: *sequence) {
-        auto element = dynamic_cast<xml::Element*>(node);
+    for (auto* node: *sequence) {
+        auto* element = dynamic_cast<xml::Element*>(node);
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         string elementName = element->name();
@@ -127,8 +128,8 @@ void WSParserComplexType::parse()
     m_attributes.clear();
     if (m_element == nullptr)
         return;
-    for (auto node: *m_element) {
-        auto element = dynamic_cast<xml::Element*>(node);
+    for (auto* node: *m_element) {
+        auto* element = dynamic_cast<xml::Element*>(node);
         if (element == nullptr)
             throw Exception("The node " + node->name() + " is not an XML element");
         if (element->name() == "xsd:attribute") {

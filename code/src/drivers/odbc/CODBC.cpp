@@ -34,10 +34,9 @@
 using namespace std;
 using namespace sptk;
 
-static const char
-        cantSetConnectOption[] = "Can't set connect option",
-        cantEndTranscation[] = "Can't end transaction",
-        cantGetInformation[] = "Can't get connect information";
+static const char cantSetConnectOption[] = "Can't set connect option";
+static const char cantEndTranscation[] = "Can't end transaction";
+static const char cantGetInformation[] = "Can't get connect information";
 
 // Returns true if result code indicates success
 static inline bool Successful(RETCODE ret)
@@ -45,21 +44,6 @@ static inline bool Successful(RETCODE ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-// String description of ODBC return code
-/*
- static LPCSTR GetRetcodeDescription(RETCODE retcode) {
- switch(retcode) {
- case SQL_INVALID_HANDLE     : return "SQL_INVALID_HANDLE";
- case SQL_ERROR              : return "SQL_ERROR"         ;
- case SQL_SUCCESS            : return "SQL_SUCCESS"       ;
- case SQL_SUCCESS_WITH_INFO  : return "SQL_SUCCESS_WITH_INFO";
- case SQL_NO_DATA_FOUND      : return "SQL_NO_DATA_FOUND" ;
- case SQL_STILL_EXECUTING    : return "SQL_STILL_EXECUTING (unsupported)";
- case SQL_NEED_DATA          : return "SQL_NEED_DATA (unsupported)";
- default                     : return "Unexpected sql retcode";
- }
- }
- */
 void ODBCBase::exception(string text, int line) const
 {
     throw DatabaseException(text, __FILE__, line);
@@ -174,7 +158,7 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
 
     m_connectString = ConnectionString;
 
-    auto buff = new char[2048];
+    auto* buff = new char[2048];
     SWORD bufflen = 0;
 
 #ifdef WIN32
@@ -196,7 +180,7 @@ void ODBCConnectionBase::connect(const string& ConnectionString, string& pFinalS
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    auto driverDescription = new SQLCHAR[2048];
+    auto* driverDescription = new SQLCHAR[2048];
     SQLSMALLINT descriptionLength = 0;
     m_Retcode = SQLGetInfo(m_hConnection, SQL_DBMS_NAME, driverDescription, 2048, &descriptionLength);
     if (Successful(m_Retcode))
@@ -270,7 +254,7 @@ String sptk::removeDriverIdentification(const char* error)
     if (error == nullptr)
         return "";
 
-    auto p = (char*) error;
+    auto* p = (char*) error;
     const char* p1 = error;
     while (p1 != nullptr) {
         p1 = strstr(p, "][");
@@ -296,7 +280,6 @@ string ODBCEnvironment::errorInformation()
 
     char errorDescription[SQL_MAX_MESSAGE_LENGTH];
     char errorState[SQL_MAX_MESSAGE_LENGTH];
-    //const char *errorPtr;
 
     SWORD pcnmsg = 0;
     SQLINTEGER nativeError = 0;
@@ -309,7 +292,6 @@ string ODBCEnvironment::errorInformation()
                     (UCHAR FAR*) errorDescription, sizeof(errorDescription), &pcnmsg))
         exception(cantGetInformation, __LINE__);
 
-    //return removeDriverIdentification(errorDescription);
     return string(errorDescription);
 }
 

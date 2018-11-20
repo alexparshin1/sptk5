@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <iomanip>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/db/DatabaseField.h>
@@ -66,19 +67,21 @@ ODBCConnection::ODBCConnection(const String& connectionString)
 ODBCConnection::~ODBCConnection()
 {
     try {
-        if (m_inTransaction && active())
+        if (m_inTransaction && ODBCConnection::active())
             rollbackTransaction();
         close();
         while (!m_queryList.empty()) {
             try {
-                auto query = (Query*) m_queryList[0];
+                auto* query = (Query*) m_queryList[0];
                 query->disconnect();
-            } catch (...) {
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
             }
         }
         m_queryList.clear();
         delete m_connect;
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl)
     }
 }
 
@@ -112,10 +115,11 @@ void ODBCConnection::_openDatabase(const String& newConnectionString)
 
 void ODBCConnection::closeDatabase()
 {
-    for (auto query: m_queryList) {
+    for (auto* query: m_queryList) {
         try {
             queryFreeStmt(query);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl)
         }
     }
     m_connect->freeConnect();
@@ -203,11 +207,11 @@ void ODBCConnection::queryAllocStmt(Query* query)
 {
     lock_guard<mutex> lock(m_connect->m_mutex);
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
     if (stmt != SQL_NULL_HSTMT)
         SQLFreeStmt(stmt, SQL_DROP);
 
-    auto hdb = (SQLHDBC) handle();
+    auto* hdb = (SQLHDBC) handle();
     int rc = SQLAllocStmt(hdb, &stmt);
 
     if (rc != SQL_SUCCESS) {
@@ -384,7 +388,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
-                    auto t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
+                    auto* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
                     DateTime dt = param->getDateTime();
                     buff = t;
                     if (!dt.zero()) {
@@ -403,7 +407,7 @@ void ODBCConnection::queryBindParameters(Query* query)
                     paramType = SQL_C_TIMESTAMP;
                     sqlType = SQL_TIMESTAMP;
                     len = sizeof(TIMESTAMP_STRUCT);
-                    auto t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
+                    auto* t = (TIMESTAMP_STRUCT*) param->conversionBuffer();
                     DateTime dt = param->getDateTime();
                     int16_t ms;
                     buff = t;
@@ -517,8 +521,8 @@ void ODBCConnection::queryOpen(Query* query)
     catch (const DatabaseException& e) {
         throw;
     }
-    catch (...) {
-        THROW_QUERY_ERROR(query, queryError(query));
+    catch (const Exception& e) {
+        THROW_QUERY_ERROR(query, e.what());
     }
 
     if (query->autoPrepare() && !query->prepared()) {
@@ -599,7 +603,7 @@ void ODBCConnection::queryFetch(Query* query)
     if (!query->active())
         THROW_QUERY_ERROR(query, "Dataset isn't open");
 
-    auto statement = (SQLHSTMT) query->statement();
+    auto* statement = (SQLHSTMT) query->statement();
 
     lock_guard<mutex> lock(m_connect->m_mutex);
 
@@ -744,7 +748,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     SQLHSTMT stmt = nullptr;
     try {
         SQLRETURN rc;
-        auto hdb = (SQLHDBC) handle();
+        auto* hdb = (SQLHDBC) handle();
         if (SQLAllocStmt(hdb, &stmt) != SQL_SUCCESS)
             throw DatabaseException("CODBCConnection::SQLAllocStmt");
 
@@ -796,15 +800,13 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         }
 
         SQLFreeStmt(stmt, SQL_DROP);
-    } catch (exception& e) {
+    } catch (Exception& e) {
         String error;
         if (stmt != nullptr) {
             error = queryError(stmt);
             SQLFreeStmt(stmt, SQL_DROP);
         }
         logAndThrow(e.what(), error);
-    } catch (...) {
-        logAndThrow("CODBCConnection::objectList", "Unknown error");
     }
 }
 

@@ -38,7 +38,6 @@ namespace sptk {
 
 class WSConnection : public ServerConnection
 {
-protected:
     WSRequest&  m_service;
     Logger&     m_logger;
     String      m_staticFilesDirectory;
@@ -46,6 +45,7 @@ protected:
     String      m_wsRequestPage;
 
 public:
+
     WSConnection(SOCKET connectionSocket, sockaddr_in* addr, WSRequest& service, Logger& logger,
                  const String& staticFilesDirectory, const String& htmlIndexPage, const String& wsRequestPage);
 

@@ -52,7 +52,9 @@ void WSConnection::threadFunction()
     // Read request data
     String row;
     Strings matches;
-    String protocolName, url, requestType;
+    String protocolName;
+    String url;
+    String requestType;
 
     try {
         if (!m_socket->readyToRead(chrono::seconds(30))) {
@@ -95,12 +97,8 @@ void WSConnection::threadFunction()
                 }
             }
         }
-        catch (Exception& e) {
+        catch (const Exception& e) {
             m_logger.error(e.message());
-            return;
-        }
-        catch (exception& e) {
-            m_logger.error(e.what());
             return;
         }
 
@@ -137,13 +135,9 @@ void WSConnection::threadFunction()
         WSWebServiceProtocol protocol(m_socket, url, headers, m_service);
         protocol.process();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         if (!terminated())
             m_logger.error("Error in thread " + name() + ": " + string(e.what()));
-    }
-    catch (...) {
-        if (!terminated())
-            m_logger.error("Unknown error in thread " + name());
     }
 }
 
