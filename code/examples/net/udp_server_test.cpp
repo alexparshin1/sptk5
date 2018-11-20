@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/cnet>
 
 using namespace std;
@@ -51,17 +52,18 @@ int main (int argc, char* argv[])
                 size_t bytes = server.read(readBuffer, sizeof(readBuffer),&clientInfo);
 
                 string data(readBuffer, bytes);
-                cout << "Received data: " << data << endl;
-                
+                COUT("Received data: " << data << endl);
+
                 if (data.find("EOD") == 0) {
                     server.close();
-                    cout << "Server session closed" << endl;
+                    COUT("Server session closed" << endl);
                     break;
                 }
             }
         }
-    } catch (exception& e) {
-        cout << "Exception was caught: " << e.what() << "\nExiting.\n";
+    } catch (const Exception& e) {
+        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl);
+        return 1;
     }
 
     return 0;

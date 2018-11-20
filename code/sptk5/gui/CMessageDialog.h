@@ -60,6 +60,7 @@ class CAskDialog : public CDialog {
     CHtmlBox  *m_textBox;
 
 protected:
+
     /**
      * Input box, optionally shown
      */

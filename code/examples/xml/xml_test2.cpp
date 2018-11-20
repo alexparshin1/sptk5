@@ -123,7 +123,7 @@ int main()
         delete buf;
 
     }
-    catch (std::exception& e) {
+    catch (const Exception& e) {
         out << e.what() << endl;
         return 1;
     }

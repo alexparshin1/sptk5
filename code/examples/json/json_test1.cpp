@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/json/JsonDocument.h>
 
 #include <fstream>
@@ -43,22 +44,24 @@ int main(int argc, char **argv)
         file.close();
 
         jsonDocument.root().exportTo(cout, true);
-        cout << endl << endl;
+        COUT(endl << endl);
 
         xml::Document doc;
         Buffer buffer;
         jsonDocument.exportTo(doc);
         doc.save(buffer, true);
-        cout << buffer.c_str() << endl << endl;
+
+        COUT(buffer.c_str() << endl << endl);
 
         json::Document doc2;
         doc.exportTo(doc2.root());
         doc2.root().exportTo(cout, true);
-        cout << endl << endl;
+
+        COUT(endl << endl);
 
         return 0;
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

@@ -109,7 +109,7 @@ int main()
 
         return Fl::run();
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

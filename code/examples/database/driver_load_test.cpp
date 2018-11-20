@@ -39,7 +39,7 @@ int main()
         DatabaseConnection connection = connectionPool.getConnection();
         COUT(connection->nativeConnectionString() << endl);
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         CERR(e.what() << endl);
     }
     return 0;

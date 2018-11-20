@@ -29,6 +29,7 @@
 #include <FL/Fl.H>
 #include <FL/fl_ask.H>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 #include <sptk5/cnet>
 
 using namespace std;
@@ -55,7 +56,7 @@ void go_cb(Fl_Widget*, void*)
     try {
         filesListView->fill(*imapDS);
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         fl_alert("%s", e.what());
     }
 }
@@ -94,16 +95,14 @@ int main(int argc, char* argv[])
         mainWindow.resizable(mainWindow);
         mainWindow.show(argc, argv);
 
-        //goButton.do_callback();
-
         int rc = Fl::run();
 
         delete imapDS;
 
         return rc;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

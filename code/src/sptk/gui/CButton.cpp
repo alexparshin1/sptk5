@@ -43,6 +43,8 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* 
 {
     const char* name;
     const char* l;
+
+    if (buttonKind < SP_NEW_BUTTON) {
     switch (buttonKind) {
         case SP_ADD_BUTTON:
             name = "add";
@@ -104,6 +106,13 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* 
             name = "left";
             l = "Left";
             break;
+        default:
+            name = nullptr;
+            l = "??";
+            break;
+        }
+    } else {
+    switch (buttonKind) {
         case SP_NEW_BUTTON:
             name = "new";
             l = "New";
@@ -172,6 +181,7 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, const char* 
             name = nullptr;
             l = "??";
             break;
+        }
     }
     if (!label)
         label = l;

@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 
         return 0;
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

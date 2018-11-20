@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -35,7 +36,7 @@ CBox *dateBox;
 
 void cb_clicked(Fl_Widget *w, void *)
 {
-    auto calendar = (CCalendar *) w;
+    auto* calendar = (CCalendar *) w;
     string dateString = calendar->date().dateString();
     dateBox->data(dateString);
 }
@@ -63,8 +64,8 @@ int main(int argc, char *argv[])
 
         return EXIT_SUCCESS;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

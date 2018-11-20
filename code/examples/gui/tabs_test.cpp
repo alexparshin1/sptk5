@@ -398,7 +398,7 @@ int main(int argc, char** argv)
         w.show(argc, argv);
         return Fl::run();
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

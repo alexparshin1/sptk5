@@ -73,9 +73,9 @@ int main( int argc, char* argv[] )
 
          server.close();
       }
-      catch (std::exception&) {}
+      catch (const Exception&) {}
    }
-   catch (std::exception& e) {
+   catch (const Exception& e) {
       COUT("Exception was caught: " << e.what() << "\nExiting.\n");
    }
    COUT("Server session closed\n");

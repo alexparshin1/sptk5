@@ -26,12 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 #include <sptk5/cxml>
 #include <iostream>
 #include <sstream>
@@ -43,7 +38,7 @@ using namespace sptk;
 
 int main(int argc,char *argv[]) {
     try {
-        cout << "The XML UTF8 test started." << endl << endl;
+        COUT("The XML UTF8 test started." << endl << endl);
 
         CBuffer buf;
         XMLDoc doc;
@@ -54,12 +49,12 @@ int main(int argc,char *argv[]) {
         doc.save(buf);
         buf.saveToFile("test_utf8_out.xml");
 
-        cout << buf.data() << endl;
+        COUT(buf.data() << endl);
 
-        cout << "The XML UTF8 test completed" << endl;
+        COUT("The XML UTF8 test completed" << endl);
 
-    } catch (std::exception& e) {
-        cout << e.what() << endl;
+    } catch (const Exception& e) {
+        COUT(e.what() << endl);
         return 1;
     }
     return 0;

@@ -226,7 +226,7 @@ int main(int argc, char **argv)
             query2.param("emp") = companies[i].number;
             query2.exec();
         }
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         spError("<b>" + string(e.what()) + "</b><br/>Sorry, you have to fix your database connection.");
         return 4;
     }
@@ -382,7 +382,7 @@ int main(int argc, char **argv)
             comboBox2->keyField("comp_id");
             try {
                 comboBox2->refreshData();
-            } catch (exception& e) {
+            } catch (const Exception& e) {
                 printf("Exception: %s\n", e.what());
             }
 #else
@@ -412,7 +412,7 @@ int main(int argc, char **argv)
             listView2->keyField("comp_id");
             try {
                 listView2->refreshData();
-            } catch (exception& e) {
+            } catch (const Exception& e) {
                 printf("Exception: %s\n", e.what());
             }
 #endif

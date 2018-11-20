@@ -67,7 +67,7 @@ bool testTransactions(DatabaseConnection db, const string& tableName, bool rollb
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records.");
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("Error: " << e.what() << endl);
     }
 
@@ -90,7 +90,7 @@ void testBLOBs(PoolDatabaseConnection* db)
     try {
         createTableQuery.exec();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         CERR(e.what() << endl);
     }
 
@@ -105,15 +105,68 @@ void testBLOBs(PoolDatabaseConnection* db)
     Query selectBlobsQuery(db, "SELECT id, data FROM sptk_blob_test WHERE id < 10", true, __FILE__, __LINE__);
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
-        cout << selectBlobsQuery["id"].asInteger()
+        COUT(selectBlobsQuery["id"].asInteger()
              << ": "
-             << selectBlobsQuery["data"].asString() << endl;
+             << selectBlobsQuery["data"].asString() << endl);
         selectBlobsQuery.fetch();
     }
     selectBlobsQuery.close();
 
     Query dropTableQuery(db, "DROP TABLE sptk_blob_test", true, __FILE__, __LINE__);
     dropTableQuery.exec();
+}
+
+void printDatabaseObjects(DatabaseConnection db)
+{
+    DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+    string objectTypeNames[] = {"tables", "views", "stored procedures"};
+
+    for (unsigned i = 0; i < 3; i++) {
+        COUT("-------------------------------------------------" << endl);
+        COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
+        Strings objectList;
+        try {
+            db->objectList(objectTypes[i], objectList);
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
+        for (unsigned j = 0; j < objectList.size() && j < 10; j++)
+            COUT("  " << objectList[j] << endl);
+    }
+    COUT("-------------------------------------------------" << endl);
+}
+
+void createTempTable(DatabaseConnection db, const String& tableName)
+{
+    Query createTempTableQuery(db);
+    if (db->driverDescription().find("Microsoft") != string::npos)
+        createTempTableQuery.sql(
+                "CREATE TABLE " + tableName + "("
+                   "id             INT NULL, "
+                   "name           NCHAR(80) NULL, "
+                   "position_name  NCHAR(80) NULL, "
+                   "hire_date      DATETIME NULL, "
+                   "rate           NUMERIC(16,10) NULL)");
+    else
+        createTempTableQuery.sql(
+                "CREATE TABLE " + tableName + "("
+                   "id             INT, "
+                   "name           CHAR(80), "
+                   "position_name  CHAR(80), "
+                   "hire_date      TIMESTAMP, "
+                   "rate           NUMERIC(16,10))");
+
+    try {
+        createTempTableQuery.exec();
+        if (db->connectionType() == DCT_FIREBIRD)
+            db->commitTransaction(); // Some databases don't recognize table existense until it is committed
+    } catch (const Exception& e) {
+        if (strstr(e.what(), " already ") == nullptr)
+            throw;
+        COUT("Table already exists, ");
+        Query deleteAll(db, "delete from " + tableName);
+        deleteAll.exec();
+    }
 }
 
 int testDatabase(const string& connectionString)
@@ -127,45 +180,12 @@ int testDatabase(const string& connectionString)
         COUT("Openning the database.. ");
         db->open();
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
-
-        DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
-        string objectTypeNames[] = {"tables", "views", "stored procedures"};
-
-        for (unsigned i = 0; i < 3; i++) {
-            COUT("-------------------------------------------------" << endl);
-            COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
-            Strings objectList;
-            try {
-                db->objectList(objectTypes[i], objectList);
-            } catch (exception& e) {
-                CERR(e.what() << endl);
-            }
-            for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-                COUT("  " << objectList[j] << endl);
-        }
-        COUT("-------------------------------------------------" << endl);
+        printDatabaseObjects(db);
 
         // Defining the statements
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
 
-        Query createTempTableQuery(db);
-        if (db->driverDescription().find("Microsoft") != string::npos)
-            createTempTableQuery.sql(
-                    "CREATE TABLE " + tableName + "("
-                                                  "id             INT NULL, "
-                                                  "name           NCHAR(80) NULL, "
-                                                  "position_name  NCHAR(80) NULL, "
-                                                  "hire_date      DATETIME NULL, "
-                                                  "rate           NUMERIC(16,10) NULL)");
-        else
-            createTempTableQuery.sql(
-                    "CREATE TABLE " + tableName + "("
-                                                  "id             INT, "
-                                                  "name           CHAR(80), "
-                                                  "position_name  CHAR(80), "
-                                                  "hire_date      TIMESTAMP, "
-                                                  "rate           NUMERIC(16,10))");
         Query insertRecordQuery(db, "INSERT INTO " + tableName +
                                     " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true, __FILE__,
                                 __LINE__);
@@ -176,20 +196,12 @@ int testDatabase(const string& connectionString)
         try {
             dropTempTableQuery.exec();
         }
-        catch (...) {}
+        catch (const Exception& e) {
+            COUT("Couldn't drop temp table: " << e.what());
+        }
 
         COUT("Ok.\nStep 1: Creating the test table.. ");
-        try {
-            createTempTableQuery.exec();
-            if (db->connectionType() == DCT_FIREBIRD)
-                db->commitTransaction(); // Some databases don't recognize table existense until it is committed
-        } catch (exception& e) {
-            if (strstr(e.what(), " already ") == nullptr)
-                throw;
-            COUT("Table already exists, ");
-            Query deleteAll(db, "delete from " + tableName);
-            deleteAll.exec();
-        }
+        createTempTable(db, tableName);
 
         COUT("Ok.\nStep 2: Inserting data into the test table.. ");
 
@@ -210,14 +222,6 @@ int testDatabase(const string& connectionString)
         insertRecordQuery.param(3).setDate(DateTime::Now());
         insertRecordQuery.param(4) = 12340.001234;
         insertRecordQuery.exec();
-        /*
-        step2Query.param(uint32_t(0)) = 3;
-        step2Query.param(1) = "UTF-8: тестик (Russian, 6 chars)";
-        step2Query.param(2) = "Manager";
-        step2Query.param(3).setDate(DateTime::Now());
-        step2Query.param(4).setFloat(12340.001234);
-        step2Query.exec();
-        */
 
         // And, finally - the fastest method: using CParam& variables.
         // If you have to call the same query multiple times with the different parameters,
@@ -275,21 +279,22 @@ int testDatabase(const string& connectionString)
             string date = fieldToString(selectRecordsQuery[3]);
             string rate = fieldToString(selectRecordsQuery[4]);
 
-            cout << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
-                 endl;
+            COUT(" | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
+                 endl);
 
             selectRecordsQuery.fetch();
         }
         selectRecordsQuery.close();
 
         COUT("Ok.\nStep 4: Selecting the information through the field iterator .." << endl);
-        //step3Query.param("some_id") = 1;
         selectRecordsQuery.open();
 
         while (!selectRecordsQuery.eof()) {
 
             int id = 0;
-            String name, position_name, hire_date;
+            String name;
+            String position_name;
+            String hire_date;
 
             int fieldIndex = 0;
             for (Field* field: selectRecordsQuery.fields()) {
@@ -336,8 +341,8 @@ int testDatabase(const string& connectionString)
             auto hire_date = dateField.asString();
             auto rate = rateField.asString();
 
-            cout << setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
-                 hire_date << " | " << rate << endl;
+            COUT(setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
+                 hire_date << " | " << rate << endl);
 
             selectRecordsQuery.fetch();
         }
@@ -356,11 +361,9 @@ int testDatabase(const string& connectionString)
         testTransactions(db, tableName, false);
         COUT(endl);
 
-        //dropTempTableQuery.exec();
-
         COUT("Ok.\nStep 6: Closing the database.. ");
         db->close();
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("\nError: " << e.what() << endl);
         return 1;
     }
@@ -406,7 +409,12 @@ int main(int argc, const char* argv[])
             for (size_t i = 0; availableDatabaseTypes[i] != nullptr; i++)
                 databaseTypes.push_back(string(availableDatabaseTypes[i]));
 
-            string dbtype, dbname, username, password, hostOrDSN;
+            String dbtype;
+            String dbname;
+            String username;
+            String password;
+            String hostOrDSN;
+
             for (;;) {
                 COUT("Please select database type (" << databaseTypes.asString(",") << ")> ");
                 cin >> dbtype;
@@ -454,7 +462,7 @@ int main(int argc, const char* argv[])
 
         return testDatabase(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         CERR(e.what() << endl);
         return 1;
     }

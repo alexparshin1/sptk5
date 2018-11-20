@@ -41,6 +41,10 @@ IF (ORACLE_FLAG)
             Oracle/OracleConnection.cpp
             Oracle/OracleBulkInsertQuery.cpp
     )
+
+    # Oracle uses old C++ ABI
+    #TARGET_COMPILE_OPTIONS (spdb5_oracle PUBLIC -D_GLIBCXX_USE_CXX11_ABI=0)
+
     SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     TARGET_LINK_LIBRARIES (spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
     INSTALL(TARGETS spdb5_oracle RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

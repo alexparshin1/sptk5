@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/json/JsonDocument.h>
 
 #include <fstream>
@@ -46,20 +47,20 @@ int main(int argc, char **argv)
         jsonDocument.root().exportTo(cout);
         jsonDocument.root().select(selected, "//firstName");
 
-        cout << endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl;
+        COUT(endl << endl << "Selected " << selected.size() << " element(s):" << endl << endl);
 
         int elementIndex = 1;
         for (json::Element* element: selected) {
-            cout << "Element " << elementIndex << ":" << endl;
+            COUT("Element " << elementIndex << ":" << endl);
             element->exportTo(cout);
-            cout << endl << endl;
+            COUT(endl << endl);
             elementIndex++;
         }
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

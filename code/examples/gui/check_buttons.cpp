@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
         return EXIT_SUCCESS;
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

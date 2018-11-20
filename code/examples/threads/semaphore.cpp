@@ -37,18 +37,24 @@ int main()
     Semaphore  semaphore;
     try {
         semaphore.post();
-        cout << "Semaphore posted       (Ok)" << endl;
-        if (semaphore.sleep_for(chrono::seconds(1)))
-            cout << "Semaphore was posted   (Ok)" << endl;
-        else
-            cout << "Semaphore wait timeout (Error)" << endl;
-        if (semaphore.sleep_for(chrono::seconds(1)))
-            cout << "Semaphore was posted   (Error)" << endl;
-        else
-            cout << "Semaphore wait timeout (Ok)" << endl;
+
+        COUT("Semaphore posted       (Ok)" << endl);
+
+        if (semaphore.sleep_for(chrono::seconds(1))) {
+            COUT("Semaphore was posted   (Ok)" << endl);
+        } else {
+            COUT("Semaphore wait timeout (Error)" << endl);
+        }
+
+        if (semaphore.sleep_for(chrono::seconds(1))) {
+            COUT("Semaphore was posted   (Error)" << endl);
+        } else {
+            COUT("Semaphore wait timeout (Ok)" << endl);
+        }
     }
-    catch (exception& e) {
-        cout << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+        return 1;
     }
     return 0;
 }

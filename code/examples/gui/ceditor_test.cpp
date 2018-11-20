@@ -40,14 +40,8 @@
 #include <FL/fl_ask.H>
 #include <FL/Fl_Text_Buffer.H>
 
-#include <sptk5/gui/CGroup.h>
-#include <sptk5/gui/CWindow.h>
-#include <sptk5/gui/CMenuBar.h>
-#include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CEditor.h>
-#include <sptk5/gui/CFileOpenDialog.h>
-#include <sptk5/gui/CFileSaveDialog.h>
+#include <sptk5/cutils>
+#include <sptk5/cgui>
 
 using namespace std;
 using namespace sptk;
@@ -166,7 +160,8 @@ void style_parse(const char *text, char *style, int length)
     char current;
     int col;
     int last;
-    char buf[255], *bufptr;
+    char buf[255];
+    char *bufptr;
     const char *temp;
 
     for (current = *style, col = 0, last = 0; length > 0; length--, text++) {
@@ -329,12 +324,11 @@ void style_update(
     void*       cbArg
 )
 { // I - Callback data
-    int start, // Start of text
-        end; // End of text
-    char last, // Last style on line
-        *style, // Style data
-        *text; // Text data
-
+    int  start;  // Start of text
+    int  end;    // End of text
+    char last;   // Last style on line
+    char *style; // Style data
+    char *text;  // Text data
 
     // If this is just a selection change, just unselect the style buffer...
     if (nInserted == 0 && nDeleted == 0) {
@@ -372,12 +366,7 @@ void style_update(
     style = stylebuf->text_range(start, end);
     last = style[end - start - 1];
 
-    //  printf("start = %d, end = %d, text = \"%s\", style = \"%s\"...\n",
-    //         start, end, text, style);
-
     style_parse(text, style, end - start);
-
-    //  printf("new style = \"%s\"...\n", style);
 
     stylebuf->replace(start, end, style);
     ((Fl_Text_Editor *) cbArg)->redisplay_range(start, end);
@@ -558,7 +547,8 @@ void find2_cb(Fl_Widget* w, void* v)
 void cursor_cb(Fl_Widget* w, void*)
 {
     auto* e = (EditorWindow*) w->window();
-    int row, col;
+    int row;
+    int col;
     e->editor->cursorRowCol(row, col);
     e->cursor_position->data("Row " + int2string(row) + ", Col " + int2string(col));
     e->relayout();
@@ -863,7 +853,7 @@ int main(int argc, char *argv[])
 
         return Fl::run();
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

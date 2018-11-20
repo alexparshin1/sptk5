@@ -26,31 +26,29 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
-#include <sptk5/Exception.h>
-#include <sptk5/Buffer.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    cout << "Let's try to throw the exception and catch it:" << endl;
+    COUT("Let's try to throw the exception and catch it:" << endl);
 
     try {
         // If something goes wrong, we can throw an exception here
         throw Exception("Error in something", __FILE__, __LINE__, "The full description is here.");
-    } catch (exception& e) {
-        cerr << "Caught exception: " << e.what() << endl;
+    } catch (const Exception& e) {
+        CERR("Caught exception: " << e.what() << endl);
     }
 
-    cout << endl << "Now let's try to load non-existing file and catch the exception:" << endl;
+    COUT(endl << "Now let's try to load non-existing file and catch the exception:" << endl);
 
     try {
         Buffer buffer;
         buffer.loadFromFile("/this/file/does/not/exist");
-    } catch (exception& e) {
-        cerr << "Caught exception: " << e.what() << endl;
+    } catch (const Exception& e) {
+        CERR("Caught exception: " << e.what() << endl);
     }
 
     return 0;

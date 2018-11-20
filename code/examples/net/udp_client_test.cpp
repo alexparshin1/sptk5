@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/cnet>
 
 using namespace std;
@@ -44,17 +45,17 @@ int main (int argc, char* argv[])
         serv.sin_family = AF_INET;
         serv.sin_port = htons(client.host().port());
         serv.sin_addr.s_addr = inet_addr(client.host().hostname().c_str());
-        
+
         data = "Data 1";
         client.write(data, &serv);
 
         data = "EOD";
         client.write(data, &serv);
-    } catch (exception& e) {
-        cout << "Exception was caught:" << e.what() << "\nExiting.\n";
+    } catch (const Exception& e) {
+        CERR("Exception was caught:" << e.what() << endl << "Exiting." << endl);
+        return 1;
     }
 
-    cout << "Exiting\n";
-
+    COUT("Exiting" << endl);
     return 0;
 }

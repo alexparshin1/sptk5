@@ -31,9 +31,7 @@
 #pragma hdrstop
 #endif
 
-#include <iostream>
-#include <iomanip>
-
+#include <sptk5/cutils>
 #include <sptk5/cdatabase>
 
 using namespace std;
@@ -47,7 +45,7 @@ int main()
         DatabaseConnectionPool connectionPool("oracle://protis:xxxxx@theater/XE");
         DatabaseConnection db = connectionPool.getConnection();
 
-        cout << "Openning the database.. ";
+        COUT("Openning the database.. ");
         db->open();
 
         // Defining the queries
@@ -60,16 +58,16 @@ int main()
                          __LINE__);
         Query step4Query(db, "DROP TABLE " + tableName, true, __FILE__, __LINE__);
 
-        cout << "Ok.\nStep 1: Creating the test table.. ";
+        COUT("Ok.\nStep 1: Creating the test table.. ");
         try {
             step1Query.exec();
-        } catch (exception& e) {
+        } catch (const Exception& e) {
             if (strstr(e.what(), "exist") == nullptr)
                 throw;
-            cout << "Table already exists, ";
+            COUT("Table already exists, ");
         }
 
-        cout << "Ok.\nStep 2: Inserting data into the test table.. ";
+        COUT("Ok.\nStep 2: Inserting data into the test table.. ");
         Strings columnNames("id,name,position_name,hire_date", ",");
 
         Strings data;
@@ -79,14 +77,16 @@ int main()
 
         db->bulkInsert(tableName, columnNames, data);
 
-        cout << "Ok.\nStep 3: Selecting the information through the field iterator .." << endl;
+        COUT("Ok.\nStep 3: Selecting the information through the field iterator .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
         while (!step3Query.eof()) {
 
             int id = 0;
-            String name, position_name, hire_date;
+            String name;
+            String position_name;
+            String hire_date;
 
             int fieldIndex = 0;
             for (Field* field: step3Query.fields()) {
@@ -109,18 +109,18 @@ int main()
                 fieldIndex++;
             }
 
-            cout << setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl;
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
         step4Query.open();
-        cout << "Ok." << endl;
-    } catch (exception& e) {
-        cout << "\nError: " << e.what() << endl;
-        cout << "\nSorry, you have to fix your database connection." << endl;
-        cout << "Please, read the README.txt for more information." << endl;
+        COUT("Ok." << endl);
+    } catch (const Exception& e) {
+        CERR("\nError: " << e.what() << endl);
+        CERR("\nSorry, you have to fix your database connection." << endl);
+        CERR("Please, read the README.txt for more information." << endl);
     }
 
     return 0;

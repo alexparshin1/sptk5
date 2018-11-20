@@ -62,7 +62,7 @@ int testTransactions(DatabaseConnection db, const String& tableName, bool rollba
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
         COUT(endl << "        The temp table now has " << counter << " records.." << endl);
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("Error: " << e.what() << endl);
     }
 
@@ -179,7 +179,7 @@ int main()
         COUT("Ok.\nStep 6: Closing the database.. ");
         db->close();
         COUT("Ok." << endl);
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("\nError: " << e.what() << endl);
         CERR("Sorry, you have to fix your database or database connection." << endl);
         CERR("Please, read the README.txt for more information." << endl);

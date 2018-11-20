@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
-
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -50,7 +49,7 @@ void go_cb(Fl_Widget*, void*)
 
 void list_view_cb(Fl_Widget* w, void*)
 {
-    auto listView = (CListView*) w;
+    auto* listView = (CListView*) w;
     if (listView->eventType() == CE_MOUSE_DOUBLE_CLICK) {
         CPackedStrings& row = *listView->selectedRow();
         if (strncmp(row[3], "Directory", 9) == 0) {
@@ -103,8 +102,9 @@ int main(int argc, char* argv[])
 
         return rc;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
+    return 0;
 }

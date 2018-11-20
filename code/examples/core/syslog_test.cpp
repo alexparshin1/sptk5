@@ -32,29 +32,29 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char* argv[])
+int main()
 {
 #ifdef _WIN32
-   cout << "Attention: This example project must include file events.rc." << endl;
-   cout << "You should also have enough access rights to write into HKEY_LOCAL_MACHINE" << endl;
-   cout << "in Windows registry." << endl << endl;
+   COUT("Attention: This example project must include file events.rc." << endl);
+   COUT("You should also have enough access rights to write into HKEY_LOCAL_MACHINE" << endl);
+   COUT("in Windows registry." << endl << endl);
 #endif
    try {
-      cout << "Defining a log attributes: " << endl;
+      COUT("Defining a log attributes: " << endl);
       SysLogEngine   logger1("syslog_test", LOG_USER);
       Logger sysLog(logger1);
 
       SysLogEngine   logger2("syslog_test", LOG_AUTH);
       Logger authLog(logger2);
 
-      cout << "Sending 'Hello, World!' to the log.." << endl;
+      COUT("Sending 'Hello, World!' to the log.." << endl);
       sysLog.info("Hello, World! Welcome to SPTK.");
       authLog.log(LP_ALERT, "This is SPTK test message");
       sysLog.log(LP_WARNING, "Eating too much nuts will turn you into HappySquirrel!");
    }
-   catch (exception& e) {
-      cerr << e.what() << endl;
-      this_thread::sleep_for(chrono::seconds(5));
+   catch (const Exception& e) {
+      CERR(e.what() << endl);
+      return 1;
    }
 
    return 0;

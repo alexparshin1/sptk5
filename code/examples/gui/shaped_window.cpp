@@ -79,7 +79,7 @@ void theme_cb(Fl_Widget* w, void*)
             window->relayout();
             window->redraw();
         }
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         spError(e.what());
     }
 }
@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
 
         return Fl::run();
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         CERR(e.what() << endl);
     }
 

@@ -116,7 +116,7 @@ int main()
 
         return 0;
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         log.error(e.what());
         return 1;
     }

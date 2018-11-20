@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
         SmtpConnect SMTP(&logger);
         String user, password, email, host, portStr;
 
-        cout << "Testing SMTP connectivity." << endl;
+        COUT("Testing SMTP connectivity." << endl);
 
         if (argc == 3) {
             RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
@@ -65,9 +65,9 @@ int main(int argc, char* argv[])
             }
             email = argv[2];
         } else {
-            cout << "Please provide server hostname/port, user credentials, ad destination email address." << endl;
+            COUT("Please provide server hostname/port, user credentials, ad destination email address." << endl);
             cout << "You can also use command line arguments:" << endl;
-            cout << "  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl;
+            COUT("  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl);
 
             cout << "SMTP server name: ";
             cin >> host;
@@ -87,13 +87,13 @@ int main(int argc, char* argv[])
         auto port = (uint16_t) string2int(portStr);
         if (port < 1) port = 25;
 
-        cout << "\nTrying to connect to SMTP server.." << endl;
+        COUT("\nTrying to connect to SMTP server.." << endl);
 
         SMTP.host(Host(host, port));
         if (!user.empty() && !password.empty())
             SMTP.cmd_auth(user, password);  // Supported methods are login and plain
 
-        cout << SMTP.response().asString("\n") << endl;
+        COUT(SMTP.response().asString("\n") << endl);
 
         SMTP.subject("Test e-mail");
         SMTP.from("Me <" + email + ">");
@@ -103,20 +103,20 @@ int main(int argc, char* argv[])
                 true);
         //SMTP.attachments("test.html");
 
-        cout << "\nSending test message.." << endl;
+        COUT("\nSending test message.." << endl);
         SMTP.cmd_send();
-        cout << SMTP.response().asString("\n") << endl;
+        COUT(SMTP.response().asString("\n") << endl);
 
-        cout << "\nClosing SMTP connection.." << endl;
+        COUT("\nClosing SMTP connection.." << endl);
         SMTP.cmd_quit();
-        cout << SMTP.response().asString("\n") << endl;
+        COUT(SMTP.response().asString("\n") << endl);
 
-        cout << endl << "Message sent. Please, check your mail in " << email << endl;
+        COUT(endl << "Message sent. Please, check your mail in " << email << endl);
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

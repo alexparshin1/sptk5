@@ -31,8 +31,7 @@
 #pragma hdrstop
 #endif
 
-#include <sptk5/Variant.h>
-#include <sptk5/Registry.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -43,33 +42,34 @@ void printRegistry(RegistryMode mode)
     Registry mySettings("mySettings.ini", "sptk_test", mode);
     try {
         mySettings.load();
-        cout << "---> Reading " << mySettings.fileName() << endl;
+        COUT("---> Reading " << mySettings.fileName() << endl);
 
         xml::Node* windowNode = mySettings.findFirst("window");
         if (windowNode != nullptr) {
             // Processing the subnodes of <window> node
-            for (auto node: *windowNode) {
-                if (node->name() == "position")
-                    cout << "Window position: "
+            for (auto* node: *windowNode) {
+                if (node->name() == "position") {
+                    COUT("Window position: "
                          << (int) node->getAttribute("x") << ":"
-                         << (int) node->getAttribute("y") << endl;
+                         << (int) node->getAttribute("y") << endl);
+                }
                 else if (node->name() == "colors") {
                     // Processing the subnodes of <colors>
-                    cout << "Window colors:" << endl;
-                    for (auto colorNode: *node) {
-                        cout << "  " << (string) colorNode->getAttribute("name")
+                    COUT("Window colors:" << endl);
+                    for (auto* colorNode: *node) {
+                        COUT("  " << (string) colorNode->getAttribute("name")
                              << ": fg " << (string) colorNode->getAttribute("foreground")
                              << ", bg " << (string) colorNode->getAttribute("background")
-                             << endl;
+                             << endl);
                     }
                 }
             }
         } else {
-            cout << "The registry doesn't contain window information" << endl;
+            COUT("The registry doesn't contain window information" << endl);
         }
     }
-    catch (exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 
@@ -78,7 +78,7 @@ void updateRegistry(RegistryMode mode)
     // Open user settings, file is located in user home directory
     Registry mySettings("mySettings.ini", "sptk_test", mode);
     try {
-        cout << "<--- Updating " << mySettings.fileName() << endl;
+        COUT("<--- Updating " << mySettings.fileName() << endl);
 
         xml::Node* windowNode = mySettings.findOrCreate("window");
         windowNode->clear();
@@ -102,15 +102,15 @@ void updateRegistry(RegistryMode mode)
 
         mySettings.save();
     }
-    catch (exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 
 int main()
 {
     try {
-        cout << "-------- Test for the USER (stored in homedir)  registry. -----------" << endl;
+        COUT("-------- Test for the USER (stored in homedir)  registry. -----------" << endl);
 
         // Print the original registry
         // The registry file is located in the user home directory
@@ -124,8 +124,8 @@ int main()
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

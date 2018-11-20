@@ -66,7 +66,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         COUT("Performance Test: " << count / durationSec << " TPS" << endl);
 
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("Error: " << e.what() << endl);
     }
 
@@ -100,7 +100,7 @@ int testTransactions(DatabaseConnection db, const string& tableName, bool rollba
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records..");
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("Error: " << e.what() << endl);
     }
 
@@ -141,7 +141,7 @@ int main(int argc, const char* argv[])
             Strings objectList;
             try {
                 db->objectList(objectTypes[i], objectList);
-            } catch (exception& e) {
+            } catch (const Exception& e) {
                 COUT(e.what() << endl);
             }
             for (unsigned j = 0; j < objectList.size() && j < 10; j++)
@@ -159,7 +159,7 @@ int main(int argc, const char* argv[])
         COUT("Ok.\nStep 1: Creating the test table.. ");
         try {
             step1Query.exec();
-        } catch (exception& e) {
+        } catch (const Exception& e) {
             if (strstr(e.what(), "already exists") == nullptr)
                 throw;
             COUT("Table already exists, ");
@@ -252,7 +252,7 @@ int main(int argc, const char* argv[])
         COUT("Ok.\nStep 5: Closing the database.. ");
         db->close();
         COUT("Ok." << endl);
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         CERR("\nError: " << e.what() << endl);
         CERR("\nSorry, you have to fix your database connection." << endl);
         CERR("Please, read the README.txt for more information." << endl);

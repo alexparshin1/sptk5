@@ -26,10 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#if __BORLANDC__ > 0x500
-#include <condefs.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -56,30 +52,30 @@ CMyThread::CMyThread(string threadName) :
         Thread(threadName)
 {
     // Put anything you need here to define your actual thread
-    cout << name() << " thread: created" << endl;
+    COUT(name() << " thread: created" << endl);
 }
 
 CMyThread::~CMyThread()
 {
-    cout << name() << " thread: destroyed" << endl;
+    COUT(name() << " thread: destroyed" << endl);
 }
 
 // The thread function. Prints a message once a second till terminated
 void CMyThread::threadFunction()
 {
-    cout << name() << " thread: started" << endl;
+    COUT(name() << " thread: started" << endl);
     int i = 0;
     while (!terminated()) {
-        cout << "Output " << i << " from " << name() << endl;
+        COUT("Output " << i << " from " << name() << endl);
         i++;
         msleep(1010);
     }
-    cout << name() + " thread: terminated" << endl;
+    COUT(name() + " thread: terminated" << endl);
 }
 
 void CMyThread::onThreadExit()
 {
-    cout << name() << " thread: no longer executing" << endl;
+    COUT(name() << " thread: no longer executing" << endl);
     delete this;
 }
 
@@ -91,7 +87,7 @@ int main(int, char*[])
     thread1->run();
     thread2->run();
 
-    cout << "Waiting 5 seconds while threads are running.." << endl;
+    COUT("Waiting 5 seconds while threads are running.." << endl);
 
     Thread::msleep(5000);
 

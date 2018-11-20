@@ -131,7 +131,7 @@ int main(int, char* [])
 
         return 0;
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         cerr << e.what() << endl;
         return 1;
     }

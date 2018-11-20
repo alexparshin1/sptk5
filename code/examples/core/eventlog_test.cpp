@@ -34,29 +34,29 @@ using namespace sptk;
 int main()
 {
    try {
-      cout << "Creating a log file ./logfile_test.log: " << endl;
+      COUT("Creating a log file ./logfile_test.log: " << endl);
       FileLogEngine fileLog("logfile_test.log");
       Logger  log(fileLog);
 
       /// Cleaning log file before test.
       fileLog.reset();
-	  fileLog.option(LogEngine::LO_STDOUT, true);
+      fileLog.option(LogEngine::LO_STDOUT, true);
 
       /// Set the minimal priority for the messages.
       /// Any messages with the less priority are ignored.
       /// This means, in this example, that no messages with CLP_DEBUG priority
       /// would make it to the log.
       fileLog.minPriority(LP_INFO);
-      
-      cout << "Sending 'Hello, World!' to this file.." << endl;
+
+      cout("Sending 'Hello, World!' to this file.." << endl);
       log.info("Hello, World!");
       log.info("Welcome to SPTK.");
       log.warning("Eating too much nuts will turn you into HappySquirrel!");
       log.debug("This statement is not confirmed by HappySquirrel");
       log.info("This is the end of the log.");
    }
-   catch (exception& e) {
-      puts(e.what());
+   catch (const Exception& e) {
+      CERR(e.what() << endl);
    }
 
    return 0;

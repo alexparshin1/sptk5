@@ -27,6 +27,7 @@
 */
 
 #include <FL/Fl.H>
+#include <sptk5/cutils>
 #include <sptk5/cnet>
 
 using namespace std;
@@ -60,28 +61,28 @@ int main(int argc, char* argv[])
             try {
                 sock.cmd_get("/event/api/0.1/events", httpFields, data, chrono::seconds(30));
             }
-            catch (const exception& e) {
+            catch (const Exception& e) {
                 cerr << e.what() << endl;
                 cerr << data.c_str() << endl;
             }
 
-            cout << "Received " << data.bytes() << endl;
+            COUT("Received " << data.bytes() << endl);
 
             DateTime finished = DateTime::Now();
             long durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
 
-            cout << "Elapsed " << durationMS << " ms " << endl << endl;
+            COUT("Elapsed " << durationMS << " ms " << endl << endl);
 
             delete socket;
 
-        } catch (Exception& e) {
-            cerr << e.what() << endl;
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
             return 1;
         }
     }
 
     long totalMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - totalStarted).count();
-    cout << "Total Elapsed " << totalMS << " ms " << endl << endl;
+    COUT("Total Elapsed " << totalMS << " ms " << endl << endl);
 
     return 0;
 }

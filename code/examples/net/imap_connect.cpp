@@ -42,8 +42,8 @@ using namespace sptk;
 
 void printResponse(const Strings& response)
 {
-    cout << response.asString("\n") << endl;
-    cout << "---------------------------------" << endl;
+    COUT(response.asString("\n") << endl);
+    COUT("---------------------------------" << endl);
 }
 
 String getString()
@@ -66,7 +66,7 @@ int main( int argc, char *argv[] )
         String         user, password, server;
         Registry       registry("imap_connect.ini","");
 
-        cout << "Testing IMAP connectivity." << endl << endl;
+        COUT("Testing IMAP connectivity." << endl << endl);
 
         registry.load();
         xml::Node* hostNode = registry.findFirst("host");
@@ -78,18 +78,18 @@ int main( int argc, char *argv[] )
         IMAP.host(Host(server,143));
 
         if (!user.length()) {
-            cout << "IMAP server name: ";
+            COUT("IMAP server name: ");
             server = getString();
             IMAP.host(Host(server,143));
 
-            cout << "IMAP user name: ";
+            COUT("IMAP user name: ");
             user = getString();
 
-            cout << "IMAP user password: ";
+            COUT("IMAP user password: ");
             password = getString();
         }
 
-        cout << "\nTrying to connect to IMAP server.." << endl;
+        COUT("\nTrying to connect to IMAP server.." << endl);
 
         IMAP.cmd_login(user,password);
         printResponse(IMAP.response());
@@ -121,12 +121,12 @@ int main( int argc, char *argv[] )
         IMAP.cmd_append("Sent",msgBuffer);
         printResponse(IMAP.response());
 
-        cout << endl << "Closing IMAP connection.." << endl;
+        COUT(endl << "Closing IMAP connection.." << endl);
         IMAP.cmd_logout();
         printResponse(IMAP.response());
     }
-    catch (exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 

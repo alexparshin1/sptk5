@@ -39,56 +39,59 @@ int main()
 
         text = "This text contains number: ABCDEF";
 
-        cout << "Test: does '" << text << "' contain number? ";
+        COUT("Test: does '" << text << "' contain number? ");
         RegularExpression regexp("\\d+");
         if (regexp.matches(text)) {
-            cout << "yes" << endl;
+            COUT("yes" << endl);
         } else {
-            cout << "no" << endl;
+            COUT("no" << endl);
         }
 
         text = "This text contains number: 12345";
-        cout << "Test: does '" << text << "' contain number? ";
-        if (regexp.matches(text))
-            cout << "yes" << endl;
-        else
-            cout << "no" << endl;
+        COUT("Test: does '" << text << "' contain number? ");
+        if (regexp.matches(text)) {
+            COUT("yes" << endl);
+        } else {
+            COUT("no" << endl);
+        }
 
         text = "This text contains phone number: (415)-123-4567";
-        cout << "Test: does '" << text << "' contain valid phone number? ";
+        COUT("Test: does '" << text << "' contain valid phone number? ");
         RegularExpression phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
-        if (phoneRegexp.matches(text))
-            cout << "yes" << endl;
-        else
-            cout << "no" << endl;
+        if (phoneRegexp.matches(text)) {
+            COUT("yes" << endl);
+        } else {
+            COUT("no" << endl);
+        }
 
         text = "This text contains phone number: 415/123/4567";
-        cout << "Test: does '" << text << "' contain valid phone number? ";
-        if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text))
-            cout << "no" << endl;
-        else
-            cout << "yes" << endl;
+        COUT("Test: does '" << text << "' contain valid phone number? ");
+        if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text)) {
+            COUT("no" << endl);
+        } else {
+            COUT("yes" << endl);
+        }
 
         text = "user='horse' noice='some' password='haystack' host='localhost'";
-        cout << "\nParsing the text: " << text << endl;
+        COUT("\nParsing the text: " << text << endl);
         RegularExpression connectionParser("(user|password|host)='([\\S]+)'", "g");
         RegularExpression parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
         Strings matches;
         if (connectionParser.m(text, matches)) {
             for (unsigned i = 0; i < matches.size(); i++) {
-                cout << matches[i] << " : ";
+                COUT(matches[i] << " : ");
                 i++;
-                cout << matches[i] << endl;
+                COUT(matches[i] << endl);
             }
-            cout << endl;
+            COUT(endl);
         } else
-            cerr << "ERROR: Didn't match connectionParser" << endl;
+            CERR("ERROR: Didn't match connectionParser" << endl);
 
         text = "Area code: 415 Phone: 123-4567";
-        cout << "\nParsing the text: " << text << endl;
+        COUT("\nParsing the text: " << text << endl);
         RegularExpression phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
         String phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
-        cout << "Reformatted phone number: " << phoneNumber << endl << endl;
+        COUT("Reformatted phone number: " << phoneNumber << endl << endl);
 
         DateTime started = DateTime::Now();
 
@@ -102,8 +105,8 @@ int main()
         RegularExpression phoneTranslate("{[a-z]+}", "gi");
         bool replaced;
         phoneNumber = phoneTranslate.replaceAll(text, substitutions, replaced);
-        cout << "\nSubstituting text '" << text << "' to digits." << endl;
-        cout << "The result is '" << phoneNumber << "'." << endl << endl;
+        COUT("\nSubstituting text '" << text << "' to digits." << endl);
+        COUT("The result is '" << phoneNumber << "'." << endl << endl);
 
         unsigned counter = 0;
         unsigned tests = 1000000;
@@ -113,9 +116,8 @@ int main()
         }
         DateTime finished = DateTime::Now();
         double duration = duration_cast<milliseconds>(finished - started).count() / 1000.0;
-        cout << "Executed " << tests << " regexp tests (compiled on the fly) for " << duration << " seconds." << endl;
-        cout.precision(2);
-        cout << "That is " << fixed << tests / duration / 1000000 << "M tests/sec" << endl;
+        COUT("Executed " << tests << " regexp tests (compiled on the fly) for " << duration << " seconds." << endl);
+        COUT("That is " << fixed << tests / duration / 1000000 << "M tests/sec" << endl);
 
         started = DateTime::Now();
         counter = 0;
@@ -125,14 +127,13 @@ int main()
         }
         finished = DateTime::Now();
         duration = duration_cast<milliseconds>(finished - started).count() / 1000.0;
-        cout << "Executed " << counter << " regexp tests (precompiled) for " << duration << " seconds." << endl;
-        cout.precision(2);
-        cout << "That is " << fixed << tests / duration / 1000000 << "M tests/sec" << endl;
+        COUT("Executed " << counter << " regexp tests (precompiled) for " << duration << " seconds." << endl);
+        COUT("That is " << fixed << tests / duration / 1000000 << "M tests/sec" << endl);
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

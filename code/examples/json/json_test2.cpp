@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/json/JsonDocument.h>
 
 using namespace std;
@@ -70,12 +71,12 @@ int main(int argc, char **argv)
         boxes["address"]["last name"] = "Kruger";
 
         root.exportTo(cout, true);
-        cout << endl;
+        COUT(endl);
 
         return 0;
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

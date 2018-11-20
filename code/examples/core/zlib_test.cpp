@@ -26,25 +26,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 // This example shows how to compress and uncompress data using ZLib library.
 
-#include <iostream>
-#include <sptk5/Buffer.h>
+#include <sptk5/cutils>
 #include <sptk5/ZLib.h>
 
 using namespace std;
 using namespace sptk;
 
-int main(int argc, const char* argv[])
+int main()
 {
     try {
         Buffer testData("============================ 1234567890 1234567890 test data 1234567890 1234567890 ============================");
-        cout << "Test data:              " << testData.bytes() << " bytes." << endl;
+        COUT("Test data:              " << testData.bytes() << " bytes." << endl);
 
         Buffer compressedData;
         ZLib::compress(compressedData, testData);
@@ -52,13 +46,13 @@ int main(int argc, const char* argv[])
         testData.reset(); // Decompressed data will be appended to destination
         ZLib::decompress(testData, compressedData);
 
-        cout << "Compressed test data:   " << compressedData.bytes() << " bytes." << endl;
-        cout << "Decompressed test data: " << testData.bytes() << " bytes." << endl;
+        COUT("Compressed test data:   " << compressedData.bytes() << " bytes." << endl);
+        COUT("Decompressed test data: " << testData.bytes() << " bytes." << endl);
 
-        cout << testData << endl;
+        COUT(testData << endl);
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
     return 0;

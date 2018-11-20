@@ -52,7 +52,7 @@ void smartQueryExec(CQuery& query)
         query.exec();
         return;
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         if (!query.autoPrepare())
             throw;   // Query is already in no-auto-prepare mode
         if (strstr(e.what(), "altered") == 0L)
@@ -73,7 +73,7 @@ void smartQueryOpen(CQuery& query)
         query.open();
         return;
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         if (!query.autoPrepare())
             throw;   // Query is already in no-auto-prepare mode
         if (strstr(e.what(), "altered") == 0L)
@@ -176,7 +176,7 @@ int main()
             db.close();
             printf("Ok.\n");
         }
-        catch (exception& e) {
+        catch (const Exception& e) {
             db.close();
             printf("\nError: %s\n", e.what());
             puts("\nSorry, you have to fix your database connection.");

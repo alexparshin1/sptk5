@@ -34,9 +34,8 @@
 // This example shows how to create "unique instance" application.
 // Such application may only have one process running simultaneously on the same computer.
 
-#include <iostream>
+#include <sptk5/cutils>
 #include <sptk5/md5.h>
-#include <cstring>
 
 using namespace std;
 using namespace sptk;
@@ -44,13 +43,13 @@ using namespace sptk;
 int main(int argc, const char* argv[])
 {
     if (argc != 2) {
-        cerr << "Please provide a phrase to md5 as a single parameter!" << endl;
+        CERR("Please provide a phrase to md5 as a single parameter!" << endl);
         return 1;
     }
 
     if (argv[1] != nullptr) {
         Buffer buffer(argv[1]);
-        cout << md5(buffer) << endl;
+        COUT(md5(buffer) << endl);
     }
 
     return 0;

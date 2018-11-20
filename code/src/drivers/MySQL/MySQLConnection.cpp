@@ -372,17 +372,19 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
 void MySQLConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
                                   const String& format)
 {
-    char fileName[256];
-    snprintf(fileName, sizeof(fileName), ".bulk.insert.%i.%li", getpid(), (long) time(nullptr));
-    data.saveToFile(fileName);
-    string sql = "LOAD DATA LOCAL INFILE '" + string(fileName) + "' INTO TABLE " + tableName + " (" +
-                 columnNames.asString(",") + ") " + format;
-
-    int rc = mysql_query(m_connection, sql.c_str());
-    unlink(fileName);
-    if (rc != 0) {
-        string error = mysql_error(m_connection);
-        throwDatabaseException(error);
+    Query insertQuery(this,
+                      "INSERT INTO " + tableName + "(" + columnNames.asString(",") +
+                      ") VALUES (:" + columnNames.asString(",:") + ")");
+    for (auto& row: data) {
+        Strings rowData(row,"\t");
+        for (unsigned i = 0; i < columnNames.size(); i++) {
+            String& value = rowData[i];
+            if (value.length() > 255)
+                insertQuery.param(i).setText(value);
+            else
+                insertQuery.param(i).setString(value);
+        }
+        insertQuery.exec();
     }
 }
 

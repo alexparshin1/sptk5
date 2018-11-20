@@ -26,13 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
-#include <cstdio>
-
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 #include <sptk5/Registry.h>
 
@@ -59,7 +53,7 @@ class CExampleDialog : public CDialog
     Registry m_registry;  ///< An XML file where we store dialog controls data
 public:
     CExampleDialog()
-            : CDialog(300, 260, "Example Dialog"), m_registry("dialog_test.xml", "sptk_test", USER_REGISTRY)
+    : CDialog(300, 260, "Example Dialog"), m_registry("dialog_test.xml", "sptk_test", USER_REGISTRY)
     {
         CInput* inp;
 
@@ -124,7 +118,7 @@ public:
             /// Save the XML file.
             m_registry.save();
         }
-        catch (exception& e) {
+        catch (const Exception& e) {
             spError("Can't save dialog data: " + string(e.what()));
         }
         catch (...) {
@@ -150,7 +144,7 @@ void dialog_cb(Fl_Widget*, void*)
         dialog["last_name"] = "Doe";
         dialog["age"] = 35.2;
         dialog["notes"] = "Heavy duty worker. Family Guy. Good Friend.";
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         /// We can get here if the field name is incorrect,
         /// or data conversion isn't possible
         spError(e.what());
@@ -161,11 +155,11 @@ void dialog_cb(Fl_Widget*, void*)
     dialog.loadState();
 
     if (dialog.showModal()) {
-        cout <<
+        COUT(
              (string) dialog["company_name"] << ", has " <<
              (int) dialog["company_size"] << " employees (" <<
              (string) dialog["business_type"] << "), established " <<
-             (string) dialog["established"] << endl;
+             (string) dialog["established"] << endl);
     }
 
     /// This saves the last known state of the dialog
@@ -202,8 +196,8 @@ int main(int argc, char* argv[])
 
         return Fl::run();
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

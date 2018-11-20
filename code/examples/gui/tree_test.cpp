@@ -413,7 +413,7 @@ void theme_cb(Fl_Widget* w, void*)
             window->relayout();
             window->redraw();
         }
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         puts(e.what());
     }
 }
@@ -633,7 +633,7 @@ int main(int argc, char* argv[])
 
         window.show(argc, argv);
         Fl::run();
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         spError(e.what());
     } catch (...) {
         spError("Unknown Error");

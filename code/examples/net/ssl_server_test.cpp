@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/SSLContext.h>
-#include <sptk5/net/SSLSocket.h>
+#include <sptk5/cutils>
+#include <sptk5/cnet>
 
 using namespace std;
 using namespace sptk;
@@ -46,7 +46,7 @@ void readAndReply(SSLSocket& socket)
 
     bytes = socket.socketBytes();
     if (bytes == 0) {
-        cout << "Connection is closed by client" << endl;
+        COUT("Connection is closed by client" << endl);
         return;
     }
 
@@ -65,7 +65,7 @@ int main(int argc, const char *argv[])
     int port = string2int(argv[1]);
 
     if (argc != 2 || port == 0) {
-        printf("Usage: %s <portnum>\n", argv[0]);
+        COUT("Usage: " << argv[0] << "<portnum>" << endl);
         return 1;
     }
 
@@ -91,11 +91,11 @@ int main(int argc, const char *argv[])
                 connection.close();
             }
             catch (const Exception& e) {
-                cerr << e.what() << endl;
+                CERR(e.what() << endl);
             }
         }
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
     }
 }

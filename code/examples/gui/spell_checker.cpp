@@ -43,7 +43,7 @@ void cb_spellCheck(Fl_Widget*, void*)
     try {
         sc.spellCheck();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         fl_alert("%s", e.what());
     }
 }

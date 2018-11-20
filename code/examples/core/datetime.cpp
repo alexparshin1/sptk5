@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
-#include <sptk5/DateTime.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -38,59 +37,59 @@ int main()
     int printFlags = DateTime::PF_TIMEZONE;
 
     // Print current date and time, showing timezone and milliseconds
-    cout << "Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PA_MILLISECONDS) << endl;
+    COUT("Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PA_MILLISECONDS) << endl);
 
     // Print same date and time as GMT, showing timezone and milliseconds
-    cout << "Current GMT time is " << now.dateString() + " " + now.timeString(printFlags|DateTime::PF_GMT, DateTime::PA_MILLISECONDS) << endl;
-	cout << "UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl;
-	cout << endl;
+    COUT("Current GMT time is " << now.dateString() + " " + now.timeString(printFlags|DateTime::PF_GMT, DateTime::PA_MILLISECONDS) << endl);
+    COUT("UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl);
+    COUT(endl);
 
-    cout << "Decode date and time in PST timezone and print it in local timezone:" << endl;
+    COUT("Decode date and time in PST timezone and print it in local timezone:" << endl);
     const char*  pstDateTimeStr = "2013-10-01 10:00:00-7:00";
     DateTime    pstDateTime(pstDateTimeStr);
-    cout << "From PST(-7:00): " << pstDateTimeStr
-         << " to local: " << pstDateTime.isoDateTimeString() << endl;
+    COUT("From PST(-7:00): " << pstDateTimeStr
+         << " to local: " << pstDateTime.isoDateTimeString() << endl);
 
     const char*  utcDateTimeStr = "2013-10-01T10:00:00Z";
     DateTime     utcDateTime(utcDateTimeStr);
-    cout << "From UTC: " << utcDateTimeStr
-         << " to local: " << utcDateTime.isoDateTimeString() << endl;
+    COUT("From UTC: " << utcDateTimeStr
+         << " to local: " << utcDateTime.isoDateTimeString() << endl);
 
-    cout << endl << "Define the date as 2003/09/28, and print the date components:" << endl;
+    COUT(endl << "Define the date as 2003/09/28, and print the date components:" << endl);
 
     DateTime   dt(2003, 9, 28);
-    cout << "Year:  " << dt.year() << endl;
-    cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
-    cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
-    cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString(printFlags) << endl;
+    COUT("Year:  " << dt.year() << endl);
+    COUT("Month:  " << dt.month() << ", " << dt.monthName() << endl);
+    COUT("Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl);
+    COUT("Date:   " << dt.dateString() << endl);
+    COUT("Time:   " << dt.timeString(printFlags) << endl);
 
-    cout << endl << "Get the date and time from the system, and print the date components:" << endl << endl;
+    COUT(endl << "Get the date and time from the system, and print the date components:" << endl << endl);
     dt = DateTime::Now();
 
     /// Printing the date components:
-    cout << "Year:   " << dt.year() << endl;
-    cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
-    cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
-    cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString(printFlags) << endl;
+    COUT("Year:   " << dt.year() << endl);
+    COUT("Month:  " << dt.month() << ", " << dt.monthName() << endl);
+    COUT("Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl);
+    COUT("Date:   " << dt.dateString() << endl);
+    COUT("Time:   " << dt.timeString(printFlags) << endl);
 
-    cout << endl << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl << endl;
-    cout << "Local TZ offset is " << DateTime::timeZoneOffset << " seconds." << endl;
+    COUT(endl << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl << endl);
+    COUT("Local TZ offset is " << DateTime::timeZoneOffset << " seconds." << endl);
 
 #ifndef _WIN32
     DateTime::setTimeZone(":US/Pacific");
-    cout << "US/Pacific TZ offset is " << DateTime::timeZoneOffset << " seconds."  << endl;
+    COUT("US/Pacific TZ offset is " << DateTime::timeZoneOffset << " seconds."  << endl);
 
     dt = DateTime::Now();
 
     /// Printing the date components:
-    cout << "Year:   " << dt.year() << endl;
-    cout << "Month:  " << dt.month() << ", " << dt.monthName() << endl;
-    cout << "Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl;
-    cout << "Date:   " << dt.dateString() << endl;
-    cout << "Time:   " << dt.timeString() << endl;
-    cout << "TZ offset is " << DateTime::timeZoneOffset << endl;
+    COUT("Year:   " << dt.year() << endl);
+    COUT("Month:  " << dt.month() << ", " << dt.monthName() << endl);
+    COUT("Day:    " << dt.day() << ", " << dt.dayOfWeekName() << endl);
+    COUT("Date:   " << dt.dateString() << endl);
+    COUT("Time:   " << dt.timeString() << endl);
+    COUT("TZ offset is " << DateTime::timeZoneOffset << endl);
 #endif
 
     return 0;

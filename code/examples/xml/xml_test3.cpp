@@ -26,16 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #ifdef WIN32
 #include <direct.h>
 #endif
 
-#include <sptk5/sptk.h>
+#include <sptk5/cutils>
 #include <sptk5/cxml>
 
 using namespace std;
@@ -46,9 +41,9 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     xml::Document doc;
     Buffer buf;
 
-    cout << "Test file: " << fileName << endl;
-    cout << "XPath is : " << xpath << endl;
-    cout << "Selected Nodes are:" << endl;
+    COUT("Test file: " << fileName << endl);
+    COUT("XPath is : " << xpath << endl);
+    COUT("Selected Nodes are:" << endl);
 
     buf.loadFromFile(fileName);
     doc.load(buf);
@@ -58,12 +53,12 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     for (auto node: selectedNodes) {
         cout << node->name();
         if (node->hasAttribute("N"))
-            cout << ", N=" << node->getAttribute("N").str();
+            COUT(", N=" << node->getAttribute("N").str());
         if (!node->value().empty())
-            cout << ", value=" << node->value();
-        cout << endl;
+            COUT(", value=" << node->value());
+        COUT(endl);
     }
-    cout << endl;
+    COUT(endl);
     if (expectedNodeCount != -1 && expectedNodeCount != (int) selectedNodes.size()) {
         stringstream st;
         st << "ERROR: expected " << expectedNodeCount << " node(s) in selection, got " << selectedNodes.size() << " node(s)" << endl;
@@ -74,7 +69,7 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
 int main(int argc, char *argv[])
 {
     try {
-        cout << "The XPath selection test started." << endl << endl;
+        COUT("The XPath selection test started." << endl << endl);
 
         Strings path(argv[0], "[\\\\\\/]+", Strings::SM_REGEXP);
         String workDirectory(path[0]);
@@ -114,11 +109,11 @@ int main(int argc, char *argv[])
         testXPath("xpath_test6.xml", "//BBB[@id='b1']", 1);
         testXPath("xpath_test6.xml", "//BBB[@name='bbb']", 1);
 
-        cout << "The XPath selection test completed" << endl;
+        COUT("The XPath selection test completed" << endl);
 
     }
-    catch (std::exception& e) {
-        cout << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
     return 0;

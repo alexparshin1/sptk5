@@ -26,15 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #include <FL/fl_ask.H>
 #include <FL/Fl.H>
 
 #include <sptk5/DateTime.h>
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -135,7 +131,6 @@ double diffSeconds(DateTime start, DateTime end)
 
 int main(int argc, char **argv)
 {
-    auto precision = cout.precision(2);
     try {
         // Initialize themes
         CThemes themes;
@@ -153,8 +148,8 @@ int main(int argc, char **argv)
                 if (dialog.execute())
                     fileName = dialog.fullFileName();
             }
-            catch (const exception& e) {
-                cerr << e.what() << endl;
+            catch (const Exception& e) {
+                CERR(e.what() << endl);
                 return 1;
             }
         }
@@ -166,8 +161,8 @@ int main(int argc, char **argv)
         try {
             buffer.loadFromFile(fileName.c_str());
         }
-        catch (exception& e) {
-            puts(e.what());
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
             return 12;
         }
 
@@ -186,13 +181,13 @@ int main(int argc, char **argv)
         stringstream message;
         message << "XML Test - loaded file in " << diffSeconds(start, end) << " sec";
         window->label(message.str());
-        cout << message.str() << endl;
+        COUT(message.str() << endl);
 
         build_tree(doc.get(), tree, nullptr);
         start = DateTime::Now();
         tree->relayout();
         end = DateTime::Now();
-        cout << "XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl;
+        COUT("XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl);
 
         try {
             start = DateTime::Now();
@@ -200,7 +195,7 @@ int main(int argc, char **argv)
             doc->save(savebuffer, true);
             savebuffer.saveToFile("MyXML.xml");
             end = DateTime::Now();
-            cout << "XML Test - saved for " << diffSeconds(start, end) << " sec";
+            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl);
         }
         catch (...) {
             Fl::warning("Error!");
@@ -210,12 +205,11 @@ int main(int argc, char **argv)
 
         Fl::run();
 
-        cout << "--------------------------------" << endl;
-        cout << "There were " << autoLayoutCounter << " calls to autoLayout()" << endl;
+        COUT("--------------------------------" << endl);
+        COUT("There were " << autoLayoutCounter << " calls to autoLayout()" << endl);
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
-    cout.precision(precision);
     return 0;
 }

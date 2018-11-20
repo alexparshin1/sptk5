@@ -38,16 +38,18 @@ int main()
     string key("01234567890123456789012345678901");
     string iv("0123456789012345");
 
-    Buffer intext(text), outtext;
-    cout << "Encrypt text (" << text.length() << " bytes)." << endl;
+    Buffer intext(text);
+    Buffer outtext;
+
+    COUT("Encrypt text (" << text.length() << " bytes)." << endl);
     try {
         Crypt::encrypt(outtext, intext, key, iv);
-        cout << outtext << endl;
+        COUT(outtext << endl);
         Crypt::decrypt(intext, outtext, key, iv);
-        cout << intext << endl;
+        COUT(intext << endl);
     }
-    catch (exception& e) {
-        puts(e.what());
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 
     return 0;

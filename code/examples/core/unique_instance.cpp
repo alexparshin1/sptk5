@@ -26,18 +26,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 // This example shows how to create "unique instance" application.
 // Such application may only have one process running simultaneously on the same computer.
 
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-
+#include <sptk5/cutils>
 #include <sptk5/UniqueInstance.h>
 
 using namespace std;
@@ -49,9 +41,9 @@ int main()
    UniqueInstance instance("mytest");
 
    if (instance.isUnique()) {
-      cout << "-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl;
-      cout << "To test it, try to start another copy of application while" << endl;
-      cout << "the first copy is still running. Type 'end' to exit test." << endl;
+      COUT("-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl);
+      COUT("To test it, try to start another copy of application while" << endl);
+      COUT("the first copy is still running. Type 'end' to exit test." << endl);
 
       // Unique instance, wait here
       char buffer[128];
@@ -61,7 +53,7 @@ int main()
             break;
       } while (strstr(buffer, "end") == nullptr);
    } else
-      cout << "Another instance of the program is running. Exiting." << endl;
+      COUT("Another instance of the program is running. Exiting." << endl);
 
    return 0;
 }

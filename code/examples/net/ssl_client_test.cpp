@@ -45,18 +45,17 @@ int main(int, const char**)
 
             client.write("GET /\n",6);
             client.readLine(buffer, '\n');
-            cout << "Receiving: ";
-            cout << buffer.data() << "\n";
+            COUT("Receiving: ");
+            COUT(buffer.data() << endl);
             client.close();
             this_thread::sleep_for(chrono::milliseconds(3000));
         }
 
-    } catch (exception& e) {
-        cout << "Exception was caught: ";
-        cout << e.what() << "\nExiting.\n";
+    } catch (const Exception& e) {
+        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl);
+        return 1;
     }
 
-    cout << "Exiting\n";
-
+    CERR("Exiting" << endl);
     return 0;
 }

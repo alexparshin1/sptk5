@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
       client.readLine(data);
       COUT("Receiving: " << data.c_str() << "\n");
-   } catch (std::exception& e) {
+   } catch (const Exception& e) {
       CERR("Exception was caught:" << e.what() << "\nExiting.\n");
    }
 
