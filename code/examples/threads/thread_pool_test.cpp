@@ -78,7 +78,7 @@ void CMyTask::run()
     m_log.info(name() + " is terminated");
 }
 
-int main(int, char* [])
+int main()
 {
     try {
         unsigned i;
@@ -132,7 +132,7 @@ int main(int, char* [])
         return 0;
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

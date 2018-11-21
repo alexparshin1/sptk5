@@ -26,11 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -85,7 +81,7 @@ int main()
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto ps = new CPackedStrings(4, rowData);
+            auto* ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -96,7 +92,6 @@ int main()
         // SP_ALIGN_RIGHT, and the text/icon defined by the
         // button kind.
         CGroup buttonGroup("", 10, SP_ALIGN_BOTTOM);
-        //buttonGroup.box(FL_THIN_DOWN_FRAME);
         CButton exitButton(SP_EXIT_BUTTON);
         exitButton.callback(exit_cb);
         buttonGroup.end();
@@ -110,7 +105,7 @@ int main()
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

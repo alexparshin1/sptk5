@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/SystemException.h>
 
@@ -163,7 +164,7 @@ void DatabaseConnectionPool::load()
     }
 
 #endif
-    auto driver = new DatabaseDriver;
+    auto* driver = new DatabaseDriver;
     driver->m_handle = handle;
     driver->m_createConnection = createConnection;
     driver->m_destroyConnection = destroyConnection;
@@ -206,7 +207,9 @@ void DatabaseConnectionPool::destroyConnection(PoolDatabaseConnection* connectio
     try {
         connection->close();
     }
-    catch (...) {}
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
     m_destroyConnection(connection);
 }
 
@@ -220,7 +223,7 @@ TEST(SPTK_PostgreSQLConnection, connect)
     try {
         databaseTests.testConnect(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -233,7 +236,7 @@ TEST(SPTK_PostgreSQLConnection, DDL)
     try {
         databaseTests.testDDL(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -246,11 +249,10 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
     try {
         databaseTests.testBulkInsert(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
-
 
 TEST(SPTK_PostgreSQLConnection, queryParameters)
 {
@@ -260,7 +262,7 @@ TEST(SPTK_PostgreSQLConnection, queryParameters)
     try {
         databaseTests.testQueryParameters(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -273,7 +275,7 @@ TEST(SPTK_PostgreSQLConnection, transaction)
     try {
         databaseTests.testTransaction(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -286,7 +288,7 @@ TEST(SPTK_MySQLConnection, connect)
     try {
         databaseTests.testConnect(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -299,7 +301,7 @@ TEST(SPTK_MySQLConnection, DDL)
     try {
         databaseTests.testDDL(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -312,7 +314,7 @@ TEST(SPTK_MySQLConnection, bulkInsert)
     try {
         databaseTests.testBulkInsert(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -325,7 +327,7 @@ TEST(SPTK_MySQLConnection, queryParameters)
     try {
         databaseTests.testQueryParameters(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -338,7 +340,7 @@ TEST(SPTK_MySQLConnection, transaction)
     try {
         databaseTests.testTransaction(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -351,7 +353,7 @@ TEST(SPTK_OracleConnection, connect)
     try {
         databaseTests.testConnect(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -364,7 +366,7 @@ TEST(SPTK_OracleConnection, DDL)
     try {
         databaseTests.testDDL(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -377,7 +379,7 @@ TEST(SPTK_OracleConnection, bulkInsert)
     try {
         databaseTests.testBulkInsert(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -390,7 +392,7 @@ TEST(SPTK_OracleConnection, queryParameters)
     try {
         databaseTests.testQueryParameters(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -403,7 +405,7 @@ TEST(SPTK_OracleConnection, transaction)
     try {
         databaseTests.testTransaction(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -416,7 +418,7 @@ TEST(SPTK_MSSQLConnection, connect)
     try {
         databaseTests.testConnect(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -429,7 +431,7 @@ TEST(SPTK_MSSQLConnection, DDL)
     try {
         databaseTests.testDDL(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -442,7 +444,7 @@ TEST(SPTK_MSSQLConnection, bulkInsert)
     try {
         databaseTests.testBulkInsert(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -455,7 +457,7 @@ TEST(SPTK_MSSQLConnection, queryParameters)
     try {
         databaseTests.testQueryParameters(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
@@ -468,7 +470,7 @@ TEST(SPTK_MSSQLConnection, transaction)
     try {
         databaseTests.testTransaction(connectionString);
     }
-    catch (const exception& e) {
+    catch (const Exception& e) {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }

@@ -37,6 +37,20 @@
 using namespace std;
 using namespace sptk;
 
+void createTable(DatabaseConnection db, const String& tableName)
+{
+    Query step1Query(db, "CREATE TABLE " + tableName +
+                         "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true,
+                         __FILE__, __LINE__);
+    try {
+        step1Query.exec();
+    } catch (const Exception& e) {
+        if (strstr(e.what(), "exist") == nullptr)
+            throw;
+        COUT("Table already exists, ");
+    }
+}
+
 int main()
 {
     try {
@@ -51,21 +65,12 @@ int main()
         // Defining the queries
         // Using __FILE__ in query constructor __LINE__ is optional and used for printing statistics only
         string tableName = "test_table";
-        Query step1Query(db, "CREATE TABLE " + tableName +
-                             "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true, __FILE__,
-                         __LINE__);
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", true, __FILE__,
                          __LINE__);
         Query step4Query(db, "DROP TABLE " + tableName, true, __FILE__, __LINE__);
 
         COUT("Ok.\nStep 1: Creating the test table.. ");
-        try {
-            step1Query.exec();
-        } catch (const Exception& e) {
-            if (strstr(e.what(), "exist") == nullptr)
-                throw;
-            COUT("Table already exists, ");
-        }
+        createTable(db, tableName);
 
         COUT("Ok.\nStep 2: Inserting data into the test table.. ");
         Strings columnNames("id,name,position_name,hire_date", ",");

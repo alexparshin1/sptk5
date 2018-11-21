@@ -48,35 +48,36 @@ typedef int16_t COORD;
 /**
  * @brief A point to define a shape
  */
-class CShapePoint {
+class CShapePoint
+{
 public:
     /**
      * X-coordinate
      */
-    COORD       x;
+    COORD x;
 
     /**
      * Y-coordinate
      */
-    COORD       y;
+    COORD y;
 
-public:
     /**
      * @brief Default constructor
      * @param _x COORD, X-coordinate
      * @param _y COORD, Y-coordinate
      */
-    CShapePoint(COORD _x=0,COORD _y=0) {
-        x = _x;
-        y = _y;
+    CShapePoint(COORD _x = 0, COORD _y = 0)
+    : x(_x), y(_y)
+    {
     }
+
     /**
      * @brief Copy constructor
      * @param p const CPoint&, point to copy from
      */
-    CShapePoint(const CShapePoint& p) {
-        x = p.x;
-        y = p.y;
+    CShapePoint(const CShapePoint& p)
+    : x(p.x), y(p.y)
+    {
     }
 };
 /**

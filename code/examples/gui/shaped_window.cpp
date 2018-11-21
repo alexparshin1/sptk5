@@ -107,7 +107,6 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     m_maximized = false;
 
     box(FL_FLAT_BOX);
-    //clear_border();
 
     auto* captionGroup = new CGroup;
     captionGroup->layoutSpacing(1);
@@ -159,7 +158,7 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     initShapeExtension();
 
     resizable(this);
-    relayout();
+    CWindow::relayout();
 }
 
 void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da)

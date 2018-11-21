@@ -40,7 +40,7 @@ void readAndReply(SSLSocket& socket)
     const char* HTMLecho="<html><body><pre>%s</pre></body></html>\n\n";
 
     if (!socket.readyToRead(chrono::seconds(3))) {
-        cerr << "Read timeout" << endl;
+        CERR("Read timeout" << endl);
         return;
     }
 
@@ -55,7 +55,7 @@ void readAndReply(SSLSocket& socket)
 
     bytes = socket.read(buffer, bytes);
     buffer[bytes] = 0;
-    printf("Client msg: \"%s\"\n", buffer);
+    COUT("Client msg: " << buffer << endl);
     snprintf(reply, sizeof(reply), HTMLecho, buffer);
     socket.write(reply, strlen(reply));
 }
@@ -81,7 +81,7 @@ int main(int argc, const char *argv[])
             struct sockaddr_in clientInfo = {};
 
             server.accept(clientSocketFD, clientInfo);
-            printf("Connection: %s:%u\n", inet_ntoa(clientInfo.sin_addr), (unsigned) ntohs(clientInfo.sin_port));
+            COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port));
 
             SSLSocket connection;
             connection.loadKeys("key.pem", "cert.pem", "");

@@ -54,7 +54,7 @@ class SP_EXPORT CListViewRows
     typedef CPackedStrings * PPackedStrings;
     typedef std::vector<PPackedStrings> CPSVector;
     friend class CListView;
-private:
+
     /**
      * The sort column number
      */
@@ -70,7 +70,6 @@ private:
      */
     bool m_sortAscending;
 
-protected:
     /**
      * The summary height of the rows
      */
@@ -80,6 +79,8 @@ protected:
      * The list of the rows
      */
     CPSVector m_rows;
+
+protected:
 
 
     /**

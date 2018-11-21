@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char **argv)
+int main()
 {
     try {
         json::Document jsonDocument;
@@ -52,14 +52,14 @@ int main(int argc, char **argv)
         root["string"] = "test";
         root["boolean"] = true;
 
-        auto array = root.set_object("array");
+        auto* array = root.set_object("array");
         array->push_back(100.0);
         array->push_back("101.0");
         array->push_back(102.0);
 
         // Create JSON object and insert it into JSON element (root)
         // JSON element (root) takes ownership of objectData
-        auto objectData = root.set_object("boxes");
+        auto* objectData = root.set_object("boxes");
         (*objectData)["colour"] = "black";
         (*objectData)["shape"] = "cube";
 

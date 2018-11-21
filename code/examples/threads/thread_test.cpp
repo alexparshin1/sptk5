@@ -61,7 +61,6 @@ void CMyThread::threadFunction()
         m_log.info("Output (1) " + to_string(counter) + " from " + name());
         m_log.info("Output (2) " + to_string(counter) + " from " + name());
         counter++;
-        //msleep(1);
     }
 
     m_log.notice(name() + " is terminated");

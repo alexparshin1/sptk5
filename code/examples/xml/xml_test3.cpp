@@ -50,8 +50,8 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
 
     xml::NodeVector selectedNodes;
     doc.select(selectedNodes, xpath);
-    for (auto node: selectedNodes) {
-        cout << node->name();
+    for (auto* node: selectedNodes) {
+        COUT(node->name());
         if (node->hasAttribute("N"))
             COUT(", N=" << node->getAttribute("N").str());
         if (!node->value().empty())
@@ -62,11 +62,11 @@ void testXPath(const string& fileName, const string& xpath, int expectedNodeCoun
     if (expectedNodeCount != -1 && expectedNodeCount != (int) selectedNodes.size()) {
         stringstream st;
         st << "ERROR: expected " << expectedNodeCount << " node(s) in selection, got " << selectedNodes.size() << " node(s)" << endl;
-        throw runtime_error(st.str());
+        throw Exception(st.str());
     }
 }
 
-int main(int argc, char *argv[])
+int main(int, char *argv[])
 {
     try {
         COUT("The XPath selection test started." << endl << endl);

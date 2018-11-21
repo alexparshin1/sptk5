@@ -54,7 +54,7 @@ enum CControlKind
     /**
      * Control kind is unknown
      */
-    DCV_UNKNOWN,
+    DCV_UNKNOWN=0,
 
     /**
      * Control is a box of plain text
@@ -166,7 +166,7 @@ enum FGENTRYFLAGS
     /**
      * No flags
      */
-    FGE_NONE,
+    FGE_NONE=0,
 
     /**
      * Requires spell checking
@@ -302,9 +302,6 @@ protected:
      */
     bool              m_hasFocus;
 
-
-protected:
-
     /**
      * @brief Does the control contain focus?
      */
@@ -361,8 +358,6 @@ public:
      */
     CControl(int,int,int,int,const char * = 0);
 #endif
-
-public:
 
     /**
      * @brief Resizes the control and inside widgets.
@@ -876,7 +871,6 @@ public:
         return data().asDateTime();
     }
 
-public:
     /**
      * @brief Default callback function to support CControl default menu item 'Copy'
      */

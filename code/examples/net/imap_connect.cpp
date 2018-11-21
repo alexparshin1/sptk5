@@ -55,13 +55,11 @@ String getString()
     return trim(buffer);
 }
 
-int main( int argc, char *argv[] )
+int main()
 {
     try {
         // Initialize themes
-        CThemes themes;
-
-        //char           buffer[128];
+        CThemes        themes;
         ImapConnect    IMAP;
         String         user, password, server;
         Registry       registry("imap_connect.ini","");
@@ -94,7 +92,7 @@ int main( int argc, char *argv[] )
         IMAP.cmd_login(user,password);
         printResponse(IMAP.response());
 
-          // Connected? Save the logon parameters..
+        // Connected? Save the logon parameters..
         try {
             hostNode = registry.findFirst("host");
             if (!hostNode)
@@ -104,7 +102,8 @@ int main( int argc, char *argv[] )
             hostNode->setAttribute("password",password);
             registry.save();
         }
-        catch (...) {
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
 
         // RFC 2060 test message :)

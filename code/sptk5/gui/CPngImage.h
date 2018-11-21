@@ -152,7 +152,6 @@ public:
         cutStretchDraw(this, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
     }
 
-public:
     /**
      * @brief Constructor
      *

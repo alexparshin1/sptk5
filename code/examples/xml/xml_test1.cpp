@@ -89,14 +89,14 @@ void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
     default:
         label = n->value();
         break;
-    };
+    }
 
     w->label(label.c_str());
 
     auto itor = n->begin();
     auto iend = n->end();
     for (; itor != iend; ++itor) {
-        auto node = dynamic_cast<xml::Element*>(*itor);
+        auto* node = dynamic_cast<xml::Element*>(*itor);
         if (node)
             build_tree(node, tree, newItem);
     }
@@ -104,7 +104,7 @@ void build_tree(xml::Element *n, CTreeControl *tree, CTreeItem *item)
 
 xml::Document *build_doc()
 {
-    auto doc = new xml::Document();
+    auto* doc = new xml::Document();
 
     xml::Node *rootNode = new xml::Element(*doc, "MyDocument");
     xml::Node *hello = new xml::Element(*rootNode, "HelloTag");
@@ -166,11 +166,11 @@ int main(int argc, char **argv)
             return 12;
         }
 
-        auto window = new CWindow(700, 200, 300, 300);
+        auto* window = new CWindow(700, 200, 300, 300);
         window->resizable(window);
         window->begin();
 
-        auto tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
+        auto* tree = new CTreeControl("Tree", 10, SP_ALIGN_CLIENT);
         window->end();
 
         DateTime start = DateTime::Now();
@@ -197,8 +197,8 @@ int main(int argc, char **argv)
             end = DateTime::Now();
             COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl);
         }
-        catch (...) {
-            Fl::warning("Error!");
+        catch (const Exception& e) {
+            Fl::warning(e.what());
         }
 
         window->show();

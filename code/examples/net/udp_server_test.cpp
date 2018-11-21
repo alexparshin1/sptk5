@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-int main (int argc, char* argv[])
+int main()
 {
     try {
         // Create the socket
@@ -43,7 +43,7 @@ int main (int argc, char* argv[])
 
         server.listen();
 
-        cout << "Listening: Test SPTK UDP server 1.00\n";
+        COUT("Listening: Test SPTK UDP server 1.00" << endl);
 
         char readBuffer[1024];
 

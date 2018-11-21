@@ -52,13 +52,16 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         size_t count = 1000;
         for (size_t i = 0; i < count; i++) {
-            insertQuery.param((uint32_t)0) = i;
+            insertQuery.param((uint32_t) 0) = i;
             insertQuery.param(1) = "John";
             insertQuery.param(2) = "Doe";
             insertQuery.exec();
         }
 
-        transaction.commit();
+        if (rollback)
+            transaction.rollback();
+        else
+            transaction.commit();
 
         DateTime ended("now");
 
@@ -132,8 +135,8 @@ int main(int argc, const char* argv[])
         db->open();
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
-        DatabaseObjectType objectTypes[] = { DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES };
-        string objectTypeNames[] = { "tables", "views", "stored procedures" };
+        DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
+        string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++) {
             COUT("-------------------------------------------------" << endl);
@@ -144,8 +147,7 @@ int main(int argc, const char* argv[])
             } catch (const Exception& e) {
                 COUT(e.what() << endl);
             }
-            for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-                COUT("  " << objectList[j] << endl);
+            for (unsigned j = 0; j < objectList.size() && j < 10; j++) COUT("  " << objectList[j] << endl);
         }
         COUT("-------------------------------------------------" << endl);
 

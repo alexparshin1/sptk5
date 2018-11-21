@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 
@@ -129,12 +130,11 @@ Query::Query() noexcept
 }
 
 Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
-: m_autoPrepare(autoPrepare), m_fields(true), m_createdFile(createdFile), m_bulkMode(false)
+: m_autoPrepare(autoPrepare), m_fields(true), m_createdFile(createdFile), m_createdLine(    createdLine), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
 
-    m_createdLine = createdLine;
     if (_db) {
         m_db = _db->connection();
         m_db->linkQuery(this);
@@ -145,19 +145,18 @@ Query::Query(DatabaseConnection _db, const String& _sql, bool autoPrepare, const
 }
 
 Query::Query(PoolDatabaseConnection* _db, const String& _sql, bool autoPrepare, const char* createdFile, unsigned createdLine)
-: m_autoPrepare(autoPrepare), m_fields(true), m_createdFile(createdFile), m_bulkMode(false)
+: m_autoPrepare(autoPrepare), m_fields(true), m_createdFile(createdFile), m_createdLine(createdLine), m_bulkMode(false)
 {
     m_objectIndex = nextObjectIndex;
     nextObjectIndex++;
-    m_createdFile = createdFile;
-    m_createdLine = createdLine;
+
     if (_db != nullptr) {
         m_db = _db;
         m_db->linkQuery(this);
     } else {
         m_db = nullptr;
     }
-    sql(_sql);
+    Query::sql(_sql);
 }
 
 Query::Query(const Query& srcQuery)
@@ -173,7 +172,7 @@ Query::Query(const Query& srcQuery)
     } else
         m_db = nullptr;
 
-    sql(srcQuery.m_sql);
+    Query::sql(srcQuery.m_sql);
 }
 
 Query::~Query()
@@ -181,7 +180,9 @@ Query::~Query()
     try {
         closeQuery(true);
     }
-    catch (...) { }
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
     if (m_db != nullptr)
         m_db->unlinkQuery(this);
 }

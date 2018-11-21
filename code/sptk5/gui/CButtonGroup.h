@@ -111,8 +111,6 @@ protected:
      */
     void ctor_init();
 
-protected:
-
     /**
      * SPTK-style constructor
      * @param label const char *, the widget label

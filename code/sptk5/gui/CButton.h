@@ -288,7 +288,7 @@ protected:
      * Special handle() method
      */
     int  handle(int event) override;
-protected:
+
     /**
      * @brief Preferred size for the button computes the optimal size for the button
      * @param w int&, button width

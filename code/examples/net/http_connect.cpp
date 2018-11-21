@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char* argv[])
+int main()
 {
     system("rm -rf /tmp/logs");
     system("mkdir /tmp/logs");
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
         try {
             DateTime started = DateTime::Now();
 
-            auto socket = new TCPSocket;
+            auto* socket = new TCPSocket;
             HttpConnect sock(*socket);
 
             Host api("api.karrostech.io", 80);
@@ -62,8 +62,8 @@ int main(int argc, char* argv[])
                 sock.cmd_get("/event/api/0.1/events", httpFields, data, chrono::seconds(30));
             }
             catch (const Exception& e) {
-                cerr << e.what() << endl;
-                cerr << data.c_str() << endl;
+                CERR(e.what() << endl);
+                CERR(data.c_str() << endl);
             }
 
             COUT("Received " << data.bytes() << endl);

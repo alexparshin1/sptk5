@@ -158,8 +158,6 @@ protected:
         return true;
     }
 
-protected:
-
     /**
      * Constructor in SPTK style
      * @param label const char *, label
@@ -394,8 +392,7 @@ public:
 
     /**
      * Returns the SQL query parameter reference for the parameter name. It is
-     * typical to call:
-     *   myCombo.param("customer_id") = 1234;
+     * typical to call: myCombo.param("customer_id") = 1234;
      * @param paramName const char *, parameter name.
      * @returns the parameter reference, if found, or throws an excception.
      */

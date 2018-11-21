@@ -27,6 +27,7 @@
 */
 
 #include <cstdio>
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -54,8 +55,7 @@ void file_save_dialog_cb(Fl_Widget *,void *)
     dialog.directory(".");
     dialog.addPattern("C++ Files","*.cpp;*.cxx");
     dialog.addPattern("VC++ Projects","*.dsp");
-    // Optionally, you can pre-select the file name
-    // dialog.fileName("file_dialog.cpp");
+    // Optionally, you can pre-select the file name with dialog.fileName("file_dialog.cpp");
     if (dialog.execute())
         spInformation("Selected file:\n"+dialog.directory()+dialog.fileName());
 }
@@ -91,12 +91,10 @@ int main(int argc,char *argv[])
         w.end();
         w.show(argc,argv);
 
-        //CThemes::set("GTK");
-
         return Fl::run();
     }
-    catch (const exception& e) {
-        cerr << e.what() << endl;
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
         return 1;
     }
 }

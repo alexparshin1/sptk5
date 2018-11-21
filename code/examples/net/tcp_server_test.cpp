@@ -26,12 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/cnet>
-#include <sptk5/Printer.h>
 
+using namespace std;
 using namespace sptk;
 
-int main( int argc, char* argv[] )
+int main()
 {
    COUT("running....\n");
 
@@ -69,11 +70,15 @@ int main( int argc, char* argv[] )
          try {
             new_sock.readLine(data);
          }
-         catch(...) {}
+         catch(const Exception& e) {
+            CERR(e.what() << endl);
+         }
 
          server.close();
       }
-      catch (const Exception&) {}
+      catch (const Exception& e) {
+         CERR(e.what() << endl);
+      }
    }
    catch (const Exception& e) {
       COUT("Exception was caught: " << e.what() << "\nExiting.\n");

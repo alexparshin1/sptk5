@@ -89,7 +89,6 @@ public:
      */
     bool        m_shared;
 
-public:
     /**
      * @brief Constructor
      */
@@ -157,8 +156,8 @@ public:
      * @param shared bool, if true then memory, allocated for the icons, isn't managed
      */
     explicit CIconMap(bool shared = false)
+    : m_shared(shared)
     {
-        m_shared = shared;
     }
 
     /**

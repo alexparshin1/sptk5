@@ -120,8 +120,6 @@ protected:
      */
     void createFolder();
 
-protected:
-
     /**
      * Default slash character, '\\' on Windows and '/' on Unux.
      */

@@ -26,11 +26,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#    include <vcl.h>
-#    pragma hdrstop
-#endif
-
 #include <FL/Fl.H>
 
 #include <sptk5/cutils>
@@ -47,13 +42,13 @@ void exit_cb(Fl_Widget *w, void *)
 void theme_cb(Fl_Widget *w, void *)
 {
     try {
-        auto themesCombo = (CComboBox *) w;
+        auto* themesCombo = (CComboBox *) w;
         String themeName = themesCombo->data().asString();
 
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
             CThemes::set(themeName);
 
-            auto window = (CWindow *) w->window();
+            auto* window = (CWindow *) w->window();
             window->relayout();
             window->redraw();
         }
@@ -116,7 +111,7 @@ int main(int argc, char *argv[])
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto ps = new CPackedStrings(4, rowData);
+            auto* ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -147,7 +142,7 @@ int main(int argc, char *argv[])
 
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 

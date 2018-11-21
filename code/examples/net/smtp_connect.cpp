@@ -46,7 +46,11 @@ int main(int argc, char* argv[])
         Logger logger(logEngine);
 
         SmtpConnect SMTP(&logger);
-        String user, password, email, host, portStr;
+        String user;
+        String password;
+        String email;
+        String host;
+        String portStr;
 
         COUT("Testing SMTP connectivity." << endl);
 
@@ -101,7 +105,6 @@ int main(int argc, char* argv[])
         SMTP.body(
                 "<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>",
                 true);
-        //SMTP.attachments("test.html");
 
         COUT("\nSending test message.." << endl);
         SMTP.cmd_send();

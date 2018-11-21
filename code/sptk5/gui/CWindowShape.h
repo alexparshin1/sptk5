@@ -49,37 +49,39 @@ class CWindow;
  * The derived window should modify the shape points array by ovewriting shapeResize() method.
  * The window resize support is activated only if window resizable() is true.
  */
-class CWindowShape {
-protected:
+class CWindowShape
+{
     /**
      * Window to change shape
      */
-    sptk::CWindow*           m_window;
-
-    /**
-     * Resizing mouse zone where mouse was pushed
-     */
-    int                      m_resizingZone {0};
+    sptk::CWindow* m_window;
 
     /**
      * Last window width during the shape generation
      */
-    int                      m_lastW {0};
+    int m_lastW {0};
 
     /**
      * Last window height during the shape generation
      */
-    int                      m_lastH {0};
+    int m_lastH {0};
+
+protected:
+
+    /**
+     * Resizing mouse zone where mouse was pushed
+     */
+    int m_resizingZone {0};
 
     /**
      * X coordinate of the last FL_PUSH event
      */
-    int                      m_pushedX {0};
+    int m_pushedX {0};
 
     /**
      * Y coordinate of the last FL_PUSH event
      */
-    int                      m_pushedY {0};
+    int m_pushedY {0};
 
     /**
      * Vector of points defining window shape
@@ -89,37 +91,36 @@ protected:
     /**
      * Is the shape size changed?
      */
-    bool                     m_shapeChanged {true};
+    bool m_shapeChanged{true};
 
     /**
      * Shape border width, the default is 6
      */
-    int                      m_borderWidth {6};
+    int m_borderWidth{6};
 
     /**
      * Is no border flag set for the window?
      */
-    bool                     m_borderCleared {false};
+    bool m_borderCleared{false};
 
     /**
      * Is the shape extension activated?
      */
-    bool                     m_shapeExtension {false};
-
+    bool m_shapeExtension{false};
 
     /**
      * @brief Computes mouse zone from window coordinates
      * @param mouseX int, mouse x-coordinate in the window
      * @param mouseY int, mouse y-coordinate in the window
      */
-    int  mouseZone(int mouseX,int mouseY) const;
+    int mouseZone(int mouseX, int mouseY) const;
 
     /**
      * @brief Resizes the window based on mouse zone and mouse screen coordinates
      * @param mouseX int, mouse x-coordinate in the screen
      * @param mouseY int, mouse y-coordinate in the screen
      */
-    void changeSize(int mouseX,int mouseY);
+    void changeSize(int mouseX, int mouseY);
 
     /**
      * @brief Changes the window cursor based on the mouse position in the window
@@ -127,7 +128,7 @@ protected:
      * Designed to emulate cursor changes on the window border for shaped windows.
      * Should be uncoditionally called inside handle() for the window.
      */
-    virtual int  shapeCursorHandle(int event);
+    virtual int shapeCursorHandle(int event);
 
 public:
     /**
@@ -139,14 +140,16 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~CWindowShape() {}
+    virtual ~CWindowShape()
+    {}
 
     /**
      * @brief Returns true if the window is resizing as a result of border drag
      *
      * Can be used to simplified drawing during the resize
      */
-    bool shapeResizing() {
+    bool shapeResizing()
+    {
         return m_resizingZone != 0;
     }
 
@@ -163,7 +166,8 @@ protected:
     /**
      * @brief Returns true if border was cleared for the shape
      */
-    bool borderCleared() const { return m_borderCleared; }
+    bool borderCleared() const
+    { return m_borderCleared; }
 
     /**
      * @brief Sets the shape to the window during window->draw()
@@ -173,10 +177,11 @@ protected:
     /**
      * @brief Calls resizeShape() from inside CWindow::resize()
      */
-    void resizingShape(int w,int h) {
+    void resizingShape(int w, int h)
+    {
         if (m_lastW == w && m_lastH == h)
             return;
-        shapeResize(w,h);
+        shapeResize(w, h);
         m_shapeChanged = true;
         m_lastW = w;
         m_lastH = h;
@@ -188,7 +193,8 @@ protected:
      * This method should be overwritten in the derived class
      * to adapt m_shapePoints[] to the window size.
      */
-    virtual void shapeResize(int w,int h) {}
+    virtual void shapeResize(int w, int h)
+    {}
 };
 /**
  * @}

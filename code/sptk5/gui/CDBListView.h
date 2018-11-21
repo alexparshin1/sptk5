@@ -45,7 +45,6 @@ namespace sptk {
  */
 class SP_EXPORT CDBListView : public CListView
 {
-protected:
     /**
      * Full refersh Query
      */
@@ -85,6 +84,8 @@ protected:
      * Is the records limit enabled?
      */
     bool        m_recordsLimited;
+
+protected:
 
 public:
 

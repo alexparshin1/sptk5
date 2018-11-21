@@ -104,7 +104,7 @@ void test_decode()
             "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
     JWT::jwt_alg_t alg;
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
     }
@@ -127,12 +127,12 @@ void test_decode_invalid_final_dot()
                  "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                  "3ViIjoidXNlcjAifQ";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (...) {
+    catch (const Exception& e) {
     }
 
     delete jwt;
@@ -145,12 +145,12 @@ void test_decode_invalid_alg()
                  "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                  "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (...) {
+    catch (const Exception&) {
     }
 
     delete jwt;
@@ -163,12 +163,12 @@ void test_decode_invalid_typ()
                  "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                  "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (...) {
+    catch (const Exception&) {
     }
 
     delete jwt;
@@ -182,12 +182,12 @@ void test_decode_invalid_head()
         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (...) {
+    catch (const Exception&) {
     }
 
     delete jwt;
@@ -201,12 +201,12 @@ void test_decode_alg_none_with_key()
         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (...) {
+    catch (const Exception&) {
     }
 
     delete jwt;
@@ -220,12 +220,12 @@ void test_decode_invalid_body()
         "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (...) {
+    catch (const Exception&) {
     }
 
     delete jwt;
@@ -240,7 +240,7 @@ void test_decode_hs256()
         "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
     String key256("012345678901234567890123456789XY");
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token, key256);
     }
@@ -264,7 +264,7 @@ void test_decode_hs384()
         "aaaabbbbccccddddeeeeffffg"
         "ggghhhhiiiijjjjkkkkllll");
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token, key384);
     }
@@ -287,7 +287,7 @@ void test_decode_hs512()
         "012345678901234567890123456789XY"
         "012345678901234567890123456789XY");
 
-    auto jwt = new JWT;
+    auto* jwt = new JWT;
     try {
         jwt->decode(token, key512);
     }

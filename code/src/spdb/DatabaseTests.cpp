@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
@@ -79,7 +80,9 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     try {
         dropTable.exec();
     }
-    catch (...) {}
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 
     createTable.exec();
     dropTable.exec();
@@ -87,26 +90,27 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     db->close();
 }
 
-struct Row {
-    int         id;
-    string      name;
-    double      price;
-    DateTime    ts;
+struct Row
+{
+    int id;
+    string name;
+    double price;
+    DateTime ts;
 };
 
 static const vector<Row> rows = {
-    { 1, "apple", 1.5, DateTime::Now() },
-    { 2, "pear",  3.1, DateTime::Now() },
-    { 3, "melon", 1.05, DateTime() },
-    { 4, "watermelon", 0.85, DateTime::Now() },
-    { 5, "lemon", 5.5, DateTime::Now() }
+        {1, "apple",      1.5,  DateTime::Now()},
+        {2, "pear",       3.1,  DateTime::Now()},
+        {3, "melon",      1.05, DateTime()},
+        {4, "watermelon", 0.85, DateTime::Now()},
+        {5, "lemon",      5.5,  DateTime::Now()}
 };
 
-static const map<String,String> dateTimeFieldTypes = {
-    { "mysql",      "TIMESTAMP" },
-    { "postgresql", "TIMESTAMP" },
-    { "mssql",      "DATETIME" },
-    { "oracle",     "TIMESTAMP" }
+static const map<String, String> dateTimeFieldTypes = {
+        {"mysql",      "TIMESTAMP"},
+        {"postgresql", "TIMESTAMP"},
+        {"mssql",      "DATETIME"},
+        {"oracle",     "TIMESTAMP"}
 };
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
@@ -128,7 +132,12 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     Query createTable(db, createTableSQL.str());
     Query dropTable(db, "DROP TABLE gtest_temp_table");
 
-    try { dropTable.exec(); } catch (...) {}
+    try {
+        dropTable.exec();
+    }
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 
     createTable.exec();
 
@@ -201,7 +210,12 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
     Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
     Query dropTable(db, "DROP TABLE gtest_temp_table");
 
-    try { dropTable.exec(); } catch (...) {}
+    try {
+        dropTable.exec();
+    }
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 
     createTable.exec();
 
@@ -220,7 +234,8 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return itor->second;
 }
 
-static const string expectedBulkInsertResult("1|Alex|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2014 # 3|Roger|Bunny|01-JAN-2014");
+static const string expectedBulkInsertResult(
+        "1|Alex|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2014 # 3|Roger|Bunny|01-JAN-2014");
 
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
@@ -233,11 +248,17 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     String dateTimeType = itor->second;
 
     db->open();
-    Query createTable(db, "CREATE TABLE gtest_temp_table(id INTEGER,name CHAR(40),position_name CHAR(20),hire_date CHAR(12))");
+    Query createTable(db,
+                      "CREATE TABLE gtest_temp_table(id INTEGER,name CHAR(40),position_name CHAR(20),hire_date CHAR(12))");
     Query dropTable(db, "DROP TABLE gtest_temp_table");
     Query selectData(db, "SELECT * FROM gtest_temp_table");
 
-    try { dropTable.exec(); } catch (...) {}
+    try {
+        dropTable.exec();
+    }
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
 
     createTable.exec();
 
@@ -261,7 +282,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     selectData.close();
 
     if (printRows.size() > 3)
-        throw Exception("Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
+        throw Exception(
+                "Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
 
     String actualResult(printRows.join(" # "));
     if (actualResult != expectedBulkInsertResult)

@@ -72,7 +72,7 @@ enum CLayoutGrowMode {
     /**
      * Don't allow layout to grow
      */
-    LGM_NONE,
+    LGM_NONE = 0,
 
     /**
      * Allow horizontal grow only

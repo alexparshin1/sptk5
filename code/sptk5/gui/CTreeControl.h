@@ -96,8 +96,6 @@ class CTreeItem : public CGroup
      */
     Fl_Color m_itemColor[2];
 
-
-protected:
     /**
      * The widget that represents the item without a child
      */
@@ -122,6 +120,8 @@ protected:
      * The tree control
      */
     CTreeControl* m_tree;
+
+protected:
 
 
     /** Adds a child item to the item using the path. The required path items are created automatically.
@@ -163,8 +163,6 @@ public:
      */
     static const Fl_Image* document;
 
-
-public:
     /** Constructor. If the closedImage parameter is omitted the openedImage is used instead.
      * @param label             The item label
      * @param openedImage       The image for the opened state
@@ -449,7 +447,6 @@ private:
      */
     CTreeItem* m_root;
 
-protected:
     /**
      * Internal flag to temporarely block tree items focus acceptance
      */
@@ -459,6 +456,8 @@ protected:
      * The tree item creator creates a tree item' body, @see CTreeItemCreator
      */
     CTreeItemCreator m_itemCreator;
+
+protected:
 
 
     /**

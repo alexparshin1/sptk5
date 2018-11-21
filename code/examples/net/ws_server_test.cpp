@@ -43,7 +43,7 @@ public:
     StubRequest() = default;
 };
 
-int main( int argc, char* argv[] )
+int main()
 {
     StubRequest     request;
     SysLogEngine    log;

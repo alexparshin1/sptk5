@@ -111,7 +111,6 @@ class SP_EXPORT CListView : public CControl, public SharedMutex
 {
     friend class CInternalComboBoxPanel;
     friend class CDBDropDownList;
-private:
 
     /**
      * @brief Constructor initializer
@@ -308,8 +307,6 @@ protected:
      */
     void bbox(int& X, int& Y, int& W, int& H) const;
 
-protected:
-
     /**
      * @brief Internal vertical scrollback callback
      */
@@ -363,8 +360,6 @@ protected:
     {
         return m_scrollbarWidth;
     }
-
-protected:
 
     /**
      * @brief Finds item with ID
@@ -529,7 +524,7 @@ public:
 
     ~CListView()
     {
-        clear();
+        CListView::clear();
     }
 
     /**

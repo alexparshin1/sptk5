@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-int main(int argc, char **argv)
+int main()
 {
     try {
         json::Document jsonDocument;
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         return 0;
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

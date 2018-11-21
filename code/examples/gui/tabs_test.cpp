@@ -26,15 +26,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #include <FL/Fl.H>
 #include <FL/Fl_Button.H>
 #include <FL/fl_ask.H>
 
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -50,15 +46,13 @@ class CDataDialog : public CDialog
 {
 public:
     explicit CDataDialog(PoolDatabaseConnection* db)
-            :
-            CDialog(300, 180, "Example Data Dialog")
+    : CDialog(300, 180, "Example Data Dialog")
     {
-        database(db);
+        CDialog::database(db);
         table("companies");
         keyField("comp_id");
 
-        CInput* inp;
-        inp = new CInput("Company Name:");
+        CInput* inp = new CInput("Company Name:");
         inp->fieldName("comp_name");
 
         inp = new CIntegerInput("Employees:");
@@ -81,8 +75,7 @@ struct CCompanyInfo
 CCompanyInfo companies[] = {{1, "Red Hat",      1000},
                             {2, "MandrakeSoft", 2000},
                             {3, "Oracle",       30000},
-                            {4, "Microsoft",
-                                                300000}};
+                            {4, "Microsoft",    300000}};
 
 CListView* eventsListView;
 
@@ -109,7 +102,7 @@ void printMessage(CControl* control, const String& event)
 
 void general_cb(Fl_Widget* w, void*)
 {
-    auto control = dynamic_cast<CControl*>(w);
+    auto* control = dynamic_cast<CControl*>(w);
     if (control) {
         switch (control->eventType()) {
             case CE_FOCUS:
@@ -146,7 +139,7 @@ void general_cb(Fl_Widget* w, void*)
         return;
     }
 
-    auto button = dynamic_cast<CButton*>(w);
+    auto* button = dynamic_cast<CButton*>(w);
     if (button) {
         printMessage(button->label(), "CButton", "Button Pressed");
         return;
@@ -155,12 +148,12 @@ void general_cb(Fl_Widget* w, void*)
 
 void theme_cb(Fl_Widget* w, void*)
 {
-    auto themesCombo = (CComboBox*) w;
+    auto* themesCombo = (CComboBox*) w;
     String themeName = themesCombo->data().asString();
 
     CThemes::set(themeName);
 
-    auto window = (CWindow*) w->window();
+    auto* window = (CWindow*) w->window();
     window->redraw();
 }
 
@@ -183,22 +176,22 @@ int main(int argc, char** argv)
         Strings sl6("Jayson|(415)-123-45678|SF", "|");
 
         {
-            auto tabs = new CTabs("", 10, SP_ALIGN_CLIENT);
+            auto* tabs = new CTabs("", 10, SP_ALIGN_CLIENT);
             tabs->selection_color(15);
 
             // Buttons demo, see cbutton.h for button_kind constants.
             // Button label is optional.
             {
-                auto group = (CGroup*) tabs->newPage(" CButton class ", true);
+                auto* group = (CGroup*) tabs->newPage(" CButton class ", true);
                 group->box(FL_THIN_DOWN_BOX);
 
                 new CBox(
                         "All the buttons in application are sharing the pixmaps.\nThere are no duplicate button pixmaps in the memory.\nThe size of the button is defined by both the pixmap and the label.");
                 int button_kind = 1;
                 for (int col = 0; col < 5 && button_kind < SP_MAX_BUTTON; col++) {
-                    auto columnGroup = new CGroup("", 10, SP_ALIGN_LEFT); // Reserving some space on the page
+                    auto* columnGroup = new CGroup("", 10, SP_ALIGN_LEFT); // Reserving some space on the page
                     for (int row = 0; row < 6 && button_kind < SP_MAX_BUTTON; row++) {
-                        auto btn = new CButton((CButtonKind) button_kind, SP_ALIGN_TOP);
+                        auto* btn = new CButton((CButtonKind) button_kind, SP_ALIGN_TOP);
                         btn->callback(general_cb);
                         button_kind *= 2;
                     }
@@ -214,68 +207,68 @@ int main(int argc, char** argv)
                 Fl_Group* t = tabs->newScroll(" Data controls 1 ", true);
                 t->labeltype(FL_ENGRAVED_LABEL);
 
-                auto box =
+                auto* box =
                         new CBox(
                                 "All the data controls can be connected to the dataset\nto read or save data. It's done automatically\n if they are created in CDialog window.");
                 box->flags(0); // blocking FGE_USEPARENTCOLOR - default value
                 box->color(t->color());
 
-                auto htmlBox = new CHtmlBox("HTML output:");
+                auto* htmlBox = new CHtmlBox("HTML output:");
                 std::string htmlTxt = " This is a <b>bold</b> <i>italic</i> read-only text in HTML. It is very useful sometimes. ";
                 htmlTxt = htmlTxt + htmlTxt;
                 htmlTxt = htmlTxt + htmlTxt;
                 htmlBox->data(htmlTxt);
 
-                auto memoInput = new CMemoInput("Memo input:", 100);
+                auto* memoInput = new CMemoInput("Memo input:", 100);
                 memoInput->data(
                         "This is multiline text input.\nIt can be bound with ODBC data for TEXT fields \n(text of unlimited length).");
                 memoInput->callback(general_cb);
 
-                auto radioButtons = new CRadioButtons("Radio Buttons:");
+                auto* radioButtons = new CRadioButtons("Radio Buttons:");
                 radioButtons->buttons(Strings("Red|Blue|Green|Unknown", "|"));
                 radioButtons->callback(general_cb);
 
-                auto checkBoxList = new CCheckButtons("Check Buttons:");
+                auto* checkBoxList = new CCheckButtons("Check Buttons:");
                 checkBoxList->buttons(Strings("first,second,third,*", ","));
                 checkBoxList->callback(general_cb);
 
-                auto textInput = new CInput("Text Input:");
+                auto* textInput = new CInput("Text Input:");
                 textInput->data("some text");
                 textInput->callback(general_cb);
 
-                auto integerInput = new CIntegerInput("Integer Input:");
+                auto* integerInput = new CIntegerInput("Integer Input:");
                 integerInput->data(12345);
                 integerInput->callback(general_cb);
 
-                auto dateIntervalInput = new CDateIntervalInput("Date Interval Input:");
+                auto* dateIntervalInput = new CDateIntervalInput("Date Interval Input:");
                 dateIntervalInput->beginOfInterval(DateTime::Now());
                 dateIntervalInput->endOfInterval(DateTime::Now());
                 dateIntervalInput->callback(general_cb);
 
-                auto phoneNumberInput = new CPhoneNumberInput("Phone Number Input:");
+                auto* phoneNumberInput = new CPhoneNumberInput("Phone Number Input:");
                 phoneNumberInput->data("(415)-123-4567");
                 phoneNumberInput->callback(general_cb);
 
-                auto floatInput = new CFloatInput("Float Number Input:");
+                auto* floatInput = new CFloatInput("Float Number Input:");
                 floatInput->data(1.2345);
                 floatInput->callback(general_cb);
 
-                auto passwordInput = new CPasswordInput("Password Input:");
+                auto* passwordInput = new CPasswordInput("Password Input:");
                 passwordInput->data("password");
                 passwordInput->callback(general_cb);
 
                 // If the conversion from string to date doesn't work
                 // on you system - you can use the correct date/time format
                 // or use the DateTime to construct time
-                auto dateInput = new CDateInput("Date Input:");
+                auto* dateInput = new CDateInput("Date Input:");
                 dateInput->data("10/02/2002");
                 dateInput->callback(general_cb);
 
-                auto timeInput = new CTimeInput("Time Input:");
+                auto* timeInput = new CTimeInput("Time Input:");
                 timeInput->data("10:25AM");
                 timeInput->callback(general_cb);
 
-                auto dateTimeInput = new CDateTimeInput("Date and Time Input:");
+                auto* dateTimeInput = new CDateTimeInput("Date and Time Input:");
                 dateTimeInput->data("10/02/2002 10:25AM");
                 dateTimeInput->callback(general_cb);
             }
@@ -284,13 +277,13 @@ int main(int argc, char** argv)
                 Fl_Group* t = tabs->newScroll(" Data controls 2 ", true);
                 t->labeltype(FL_ENGRAVED_LABEL);
 
-                auto box = new CBox(
+                auto* box = new CBox(
                         "Some of the data controls have list of values\n that can be filled directly or from the database.");
                 box->flags(0); // blocking FGE_USEPARENTCOLOR - default value
                 box->color(t->color());
 
                 // The example of filling in the combo box without data connection
-                auto comboBox1 = new CComboBox("Combo box:");
+                auto* comboBox1 = new CComboBox("Combo box:");
                 CColumnList columns;
                 columns.push_back(CColumn("name", VAR_STRING, 50));
                 columns.push_back(CColumn("phone", VAR_STRING, 120));
@@ -311,7 +304,7 @@ int main(int argc, char** argv)
                 // The example of filling in the combo box from the database.
                 // Please, notice (1): It only works if you have ODBC support in SPDB/
                 // Please, notice (2): the key field column of query is not shown.
-                auto comboBox2 = new CComboBox("DB Combo box:");
+                auto* comboBox2 = new CComboBox("DB Combo box:");
                 comboBox2->callback(general_cb);
 
                 comboBox2->addColumn("company", VAR_STRING, 70);
@@ -319,7 +312,7 @@ int main(int argc, char** argv)
                 comboBox2->addRow(1, Strings("Joy Inc.|123", "|"));
                 comboBox2->addRow(2, Strings("Red Cap Inc.|1234", "|"));
 
-                auto listView1 = new CListView("List View 1:", 150);
+                auto* listView1 = new CListView("List View 1:", 150);
                 listView1->columns(columns);
                 listView1->addRow(0, sl1);
                 listView1->addRow(0, sl2);
@@ -329,35 +322,35 @@ int main(int argc, char** argv)
                 listView1->addRow(0, sl6);
                 listView1->callback(general_cb);
 
-                auto listView2 = new CDBListView("List View 2:", 150);
+                auto* listView2 = new CDBListView("List View 2:", 150);
                 listView2->callback(general_cb);
             }
 
             {
-                auto group = (CGroup*) tabs->newPage(" CMemoInput class ", false);
+                auto* group = (CGroup*) tabs->newPage(" CMemoInput class ", false);
                 group->box(FL_THIN_DOWN_BOX);
 
-                auto memoInput = new CMemoInput("Text Editor:", 10, SP_ALIGN_CLIENT);
+                auto* memoInput = new CMemoInput("Text Editor:", 10, SP_ALIGN_CLIENT);
                 memoInput->data(
                         "This is a plain text editor that uses FL_Multiline_Input. By default, it sets wrap(true).");
                 memoInput->callback(general_cb);
             }
 
             {
-                auto group = (CGroup*) tabs->newPage(" Nested Tabs ", false);
+                auto* group = (CGroup*) tabs->newPage(" Nested Tabs ", false);
                 group->box(FL_THIN_DOWN_BOX);
 
-                auto nestedTabs = new CTabs("", 10, SP_ALIGN_CLIENT);
+                auto* nestedTabs = new CTabs("", 10, SP_ALIGN_CLIENT);
                 nestedTabs->selection_color(15);
 
                 {
-                    auto group1 = (CGroup*) nestedTabs->newPage("Nested Tab 1", true);
+                    auto* group1 = (CGroup*) nestedTabs->newPage("Nested Tab 1", true);
                     group1->box(FL_THIN_DOWN_BOX);
                     new CButton("Button 1", SP_ALIGN_LEFT);
                 }
 
                 {
-                    auto group2 = (CGroup*) nestedTabs->newPage("Nested Tab 2", true);
+                    auto* group2 = (CGroup*) nestedTabs->newPage("Nested Tab 2", true);
                     group2->box(FL_THIN_DOWN_BOX);
                     new CButton("Button 2", SP_ALIGN_LEFT);
                 }
@@ -387,7 +380,7 @@ int main(int argc, char** argv)
 
         themesCombo.data("Default");
 
-        auto exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_TOP);
+        auto* exitButton = new CButton(SP_EXIT_BUTTON, SP_ALIGN_TOP);
         exitButton->callback((Fl_Callback*) cb_OK);
 
         buttonGroup.end();
@@ -399,7 +392,7 @@ int main(int argc, char** argv)
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 
@@ -44,11 +45,12 @@ PoolDatabaseConnection::~PoolDatabaseConnection()
     // is terminated already
     try {
         while (!m_queryList.empty()) {
-            auto query = (Query *) m_queryList[0];
+            auto* query = (Query *) m_queryList[0];
             query->disconnect();
         }
     }
-    catch (...) {
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 
@@ -65,7 +67,7 @@ bool PoolDatabaseConnection::unlinkQuery(Query *q)
     return true;
 }
 
-void PoolDatabaseConnection::_openDatabase(const String& newConnectionString)
+void PoolDatabaseConnection::_openDatabase(const String&)
 {
     notImplemented("openDatabase");
 }
@@ -77,15 +79,13 @@ void PoolDatabaseConnection::open(const String& newConnectionString)
 
 void PoolDatabaseConnection::closeDatabase()
 {
+    // Implemented in derived classes
 }
 
 void PoolDatabaseConnection::close()
 {
     if (active()) {
-        if (m_inTransaction) {
-            //rollbackTransaction();
-            m_inTransaction = false;
-        }
+        m_inTransaction = false;
 
         for (auto* query: m_queryList)
             query->closeQuery(true);
@@ -261,8 +261,8 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
-void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const Strings& data,
-                                     const String& format)
+void PoolDatabaseConnection::_bulkInsert(
+        const String& tableName, const Strings& columnNames, const Strings& data, const String& format)
 {
     Query insertQuery(this,
                       "INSERT INTO " + tableName + "(" + columnNames.asString(",") +

@@ -89,22 +89,22 @@ enum CThemeColorState
     /**
      * Prelight color
      */
-    THM_COLOR_PRELIGHT,
+    THM_COLOR_PRELIGHT=1,
 
     /**
      * Selection color
      */
-    THM_COLOR_SELECTED,
+    THM_COLOR_SELECTED=2,
 
     /**
      * Active (focused) color
      */
-    THM_COLOR_ACTIVE,
+    THM_COLOR_ACTIVE=3,
 
     /**
      * Intensive color
      */
-    THM_COLOR_INSENSITIVE
+    THM_COLOR_INSENSITIVE=4
 
 };
 

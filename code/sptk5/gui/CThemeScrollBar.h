@@ -92,8 +92,6 @@ public:
      */
     CThemeImageCollection m_steppers[2];
 
-public:
-
     /**
      * @brief Default constructor
      */

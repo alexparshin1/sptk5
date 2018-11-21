@@ -31,7 +31,7 @@
 
 using namespace sptk;
 
-int main(int argc, char* argv[]) {
+int main() {
    try {
       TCPSocket client;
       client.host(Host("localhost",3000));

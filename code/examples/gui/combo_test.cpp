@@ -26,13 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#    include <vcl.h>
-#    pragma hdrstop
-#endif
-
 #include <cstdio>
-
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -41,14 +36,13 @@ using namespace sptk;
 void theme_cb(Fl_Widget *w, void *)
 {
     try {
-        auto themesCombo = (CComboBox *) w;
+        auto* themesCombo = (CComboBox *) w;
         String themeName = themesCombo->data().asString();
 
         if (themesCombo->eventType() == CE_DATA_CHANGED) {
-            CThemes::set
-                (themeName);
+            CThemes::set(themeName);
 
-            auto window = (CWindow *) w->window();
+            auto* window = (CWindow *) w->window();
             window->relayout();
             window->redraw();
         }
@@ -70,31 +64,31 @@ void combo_cb(Fl_Widget *w, void *)
         return;
     switch (control->eventType()) {
         case CE_FOCUS:
-            puts("Got focus");
+            COUT("Got focus" << endl);
             break;
         case CE_UNFOCUS:
-            puts("Lost focus");
+            COUT("Lost focus" << endl);
             break;
         case CE_DATA_CHANGED:
-            puts("Data Changed");
+            COUT("Data Changed" << endl);
             break;
         case UC_ADD_ITEM:
-            puts("Add Item Command");
+            COUT("Add Item Command" << endl);
             break;
         case UC_EDIT_ITEM:
-            puts("Edit Item Command");
+            COUT("Edit Item Command" << endl);
             break;
         case UC_DELETE_ITEM:
-            puts("Delete Item Command");
+            COUT("Delete Item Command" << endl);
             break;
         case CE_MOUSE_CLICK:
-            puts("Mouse Click");
+            COUT("Mouse Click" << endl);
             break;
         case CE_MOUSE_DOUBLE_CLICK:
-            puts("Mouse Double Click");
+            COUT("Mouse Double Click" << endl);
             break;
         case CE_KEYBOARD:
-            puts("Keyboard Key Pressed");
+            COUT("Keyboard Key Pressed" << endl);
             break;
         default:
             break;
@@ -157,7 +151,7 @@ int main(int argc, char *argv[])
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

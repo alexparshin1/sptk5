@@ -26,13 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifdef __BORLANDC__
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #include <FL/Fl.H>
-
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -54,16 +49,10 @@ int main(int argc, char* argv[])
         w.resizable(w);
         w.layoutSpacing(4);
 
-        auto sb = new CScroll("", 100, SP_ALIGN_RIGHT);
+        auto* sb = new CScroll("", 100, SP_ALIGN_RIGHT);
         new CBox("This is a box", 100, SP_ALIGN_CLIENT);
         sb->end();
-        /*
-        CListView listView("List View 1:",150,SP_ALIGN_RIGHT);
-        listView.columns().push_back(CColumn("column 1",VAR_INT,70));
-        listView.columns().push_back(CColumn("column 2",VAR_INT,70));
-        listView.columns().push_back(CColumn("column 3",VAR_STRING,200));
-        listView.columns().push_back(CColumn("column 4",VAR_STRING));
-        */
+
         CSplitter splitter("", 3, SP_ALIGN_RIGHT);
 
         CListView listView2("List View 2:", 10, SP_ALIGN_CLIENT);
@@ -79,7 +68,7 @@ int main(int argc, char* argv[])
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto ps = new CPackedStrings(4, rowData);
+            auto* ps = new CPackedStrings(4, rowData);
             listView2.addRow(ps);
         }
 
@@ -101,7 +90,7 @@ int main(int argc, char* argv[])
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }

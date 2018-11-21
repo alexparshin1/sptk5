@@ -81,12 +81,9 @@ public:
      */
     explicit CFont(const String& name = "arial", uint32_t size = 10, uint32_t color = 0, uint32_t index = 0,
                    uint32_t attributes = 0)
+    : m_name(name), m_size(size), m_color(color),
+      m_index(index), m_attributes(attributes)
     {
-        m_name = name;
-        m_size = size;
-        m_color = color;
-        m_index = index;
-        m_attributes = attributes;
     }
 
     /**
@@ -94,18 +91,15 @@ public:
      * @param font const CFont&, font to copy from
      */
     CFont(const CFont& font)
+    : m_name(font.m_name), m_size(font.m_size), m_color(font.m_color),
+      m_index(font.m_index), m_attributes(font.m_attributes)
     {
-        m_name = font.m_name;
-        m_size = font.m_size;
-        m_color = font.m_color;
-        m_index = font.m_index;
-        m_attributes = font.m_attributes;
     }
 
     /**
      * @brief Returns font name
      */
-    std::string name() const
+    String name() const
     {
         return m_name;
     }

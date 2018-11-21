@@ -37,7 +37,7 @@ AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectio
     try {
         m_connection = m_connectionPool.createConnection();
     }
-    catch (...) {
+    catch (const Exception&) {
         m_connection = nullptr;
     }
 }

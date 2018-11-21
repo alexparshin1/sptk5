@@ -35,7 +35,7 @@ using namespace sptk;
 
 void example_dialog_cb(Fl_Widget* w, void*)
 {
-    auto btn = dynamic_cast<CButton*>(w);
+    auto* btn = dynamic_cast<CButton*>(w);
     if (btn)
         spInformation(string(btn->label()) +
                       " button was pressed.\n"
@@ -57,7 +57,7 @@ public:
     {
         CInput* inp;
 
-        newPage("Company", true);
+        CDialog::newPage("Company", true);
 
         inp = new CInput("Company Name:");
         inp->fieldName("company_name");
@@ -65,7 +65,7 @@ public:
         inp = new CIntegerInput("Company Size:");
         inp->fieldName("company_size");
 
-        auto cb = new CComboBox("Business Type:");
+        auto* cb = new CComboBox("Business Type:");
         cb->fieldName("business_type");
         cb->addColumn("business type", VAR_STRING, 120);
         cb->addRow(1, Strings("Agriculture", "|"));
@@ -73,10 +73,10 @@ public:
         cb->addRow(3, Strings("Hardware", "|"));
         cb->addRow(4, Strings("Software", "|"));
 
-        auto dateInput = new CDateInput("Established");
+        auto* dateInput = new CDateInput("Established");
         dateInput->fieldName("established");
 
-        newScroll("Contact Info", true);
+        CDialog::newScroll("Contact Info", true);
 
         inp = new CInput("First Name:");
         inp->fieldName("first_name");
@@ -94,7 +94,7 @@ public:
 
         end();
 
-        relayout();
+        CDialog::relayout();
     }
 
     void loadState()
@@ -106,7 +106,9 @@ public:
 
             /// If the XML file exists, try to load data into the dialog
             load(&m_registry);
-        } catch (...) {}
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
     }
 
     void saveState()
@@ -120,9 +122,6 @@ public:
         }
         catch (const Exception& e) {
             spError("Can't save dialog data: " + string(e.what()));
-        }
-        catch (...) {
-            spError("Can't save dialog data: Unknown exception");
         }
     }
 };

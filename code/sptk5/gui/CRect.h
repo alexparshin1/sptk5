@@ -39,7 +39,8 @@ namespace sptk {
 /**
  * General class to work with rectangles
  */
-class CRect {
+class CRect
+{
     /**
      * rectangle X-coordinate
      */
@@ -48,17 +49,17 @@ class CRect {
     /**
      * rectangle Y-coordinate
      */
-    int   m_y;
+    int m_y;
 
     /**
      * rectangle width
      */
-    int   m_w;
+    int m_w;
 
     /**
      * rectangle height
      */
-    int   m_h;
+    int m_h;
 
 public:
     /**
@@ -68,38 +69,39 @@ public:
      * @param w int, rectangle width
      * @param h int, rectangle height
      */
-    CRect(int x=0,int y=0,int w=0,int h=0) {
-        m_x = x;
-        m_y = y;
-        m_w = w;
-        m_h = h;
-    }
+    CRect(int x = 0, int y = 0, int w = 0, int h = 0)
+    : m_x(x), m_y(y), m_w(w), m_h(h)
+    {}
 
     /**
      * returns rectangle X-coordinate
      */
-    int x() const {
+    int x() const
+    {
         return m_x;
     }
 
     /**
      * returns rectangle Y-coordinate
      */
-    int y() const {
+    int y() const
+    {
         return m_y;
     }
 
     /**
      * returns rectangle width
      */
-    int w() const {
+    int w() const
+    {
         return m_w;
     }
 
     /**
      * returns rectangle height
      */
-    int h() const {
+    int h() const
+    {
         return m_h;
     }
 
@@ -108,7 +110,8 @@ public:
      * @param x int, rectangle X-coordinate
      * @param y int, rectangle Y-coordinate
      */
-    void move(int x,int y) {
+    void move(int x, int y)
+    {
         m_x = x;
         m_y = y;
     }
@@ -118,7 +121,8 @@ public:
      * @param w int, rectangle width
      * @param h int, rectangle height
      */
-    void size(int w,int h) {
+    void size(int w, int h)
+    {
         m_w = w;
         m_h = h;
     }
@@ -128,7 +132,8 @@ public:
      * @param dx int, rectangle X-coordinate shift
      * @param dy int, rectangle Y-coordinate shift
      */
-    void shift(int dx,int dy) {
+    void shift(int dx, int dy)
+    {
         m_x += dx;
         m_y += dy;
     }
@@ -138,7 +143,8 @@ public:
      * @param dw int, rectangle width change
      * @param dh int, rectangle height change
      */
-    void shrink(int dw,int dh) {
+    void shrink(int dw, int dh)
+    {
         m_w -= dw;
         m_h -= dh;
     }
@@ -148,12 +154,12 @@ public:
      * @param dw int, rectangle width change
      * @param dh int, rectangle height change
      */
-    void expand(int dw,int dh) {
+    void expand(int dw, int dh)
+    {
         m_w += dw;
         m_h += dh;
     }
-}
-;
+};
 /**
  * @}
  */

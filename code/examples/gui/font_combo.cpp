@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/cgui>
 
 using namespace std;
@@ -35,7 +36,7 @@ CMemoInput *memoInput;
 
 void font_cb(Fl_Widget *fc, void *)
 {
-    auto fontCombo = dynamic_cast<CFontComboBox *>(fc);
+    auto* fontCombo = dynamic_cast<CFontComboBox *>(fc);
     if (!fontCombo)
         return;
     if (fontCombo->eventType() == CE_DATA_CHANGED) {
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
         return Fl::run();
     }
     catch (const Exception& e) {
-        cerr << e.what() << endl;
+        CERR(e.what() << endl);
         return 1;
     }
 }
