@@ -48,7 +48,7 @@ int main()
       /// would make it to the log.
       fileLog.minPriority(LP_INFO);
 
-      cout("Sending 'Hello, World!' to this file.." << endl);
+      COUT("Sending 'Hello, World!' to this file.." << endl);
       log.info("Hello, World!");
       log.info("Welcome to SPTK.");
       log.warning("Eating too much nuts will turn you into HappySquirrel!");

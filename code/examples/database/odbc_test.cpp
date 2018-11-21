@@ -53,8 +53,8 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
         size_t count = 1000;
         for (size_t i = 0; i < count; i++) {
             insertQuery.param((uint32_t) 0) = i;
-            insertQuery.param(1) = "John";
-            insertQuery.param(2) = "Doe";
+            insertQuery.param("person_name") = "John Doe";
+            insertQuery.param("position_name") = "lead engineer";
             insertQuery.exec();
         }
 
@@ -119,7 +119,7 @@ int main(int argc, const char* argv[])
         connectString = argv[1];
 
     try {
-        if (!RegularExpression("^odbc://").matches(connectString)) {
+        if (!RegularExpression("^(mssql|odbc)://").matches(connectString)) {
             COUT("Syntax:" << endl << endl);
             COUT("odbc_test [connection string]" << endl << endl);
             COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl);
@@ -133,6 +133,9 @@ int main(int argc, const char* argv[])
 
         COUT("Openning the database, using connection string " << connectString << ":" << endl);
         db->open();
+
+		String tableName = "test_table";
+		/*
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         DatabaseObjectType objectTypes[] = {DOT_TABLES, DOT_VIEWS, DOT_PROCEDURES};
@@ -152,7 +155,6 @@ int main(int argc, const char* argv[])
         COUT("-------------------------------------------------" << endl);
 
         // Defining the queries
-        string tableName = "test_table";
         Query step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(20),position CHAR(20))");
         Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id");
@@ -162,7 +164,7 @@ int main(int argc, const char* argv[])
         try {
             step1Query.exec();
         } catch (const Exception& e) {
-            if (strstr(e.what(), "already exists") == nullptr)
+            if (strstr(e.what(), " already ") == nullptr)
                 throw;
             COUT("Table already exists, ");
         }
@@ -250,6 +252,8 @@ int main(int argc, const char* argv[])
         testTransactions(db, tableName, false);
 
         step4Query.exec();
+		*/
+		testPerformance(db, tableName, false);
 
         COUT("Ok.\nStep 5: Closing the database.. ");
         db->close();
