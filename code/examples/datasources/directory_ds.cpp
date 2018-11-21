@@ -106,5 +106,4 @@ int main(int argc, char* argv[])
         CERR(e.what() << endl);
         return 1;
     }
-    return 0;
 }
