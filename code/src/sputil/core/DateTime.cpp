@@ -610,9 +610,16 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
     }
 }
 
+using days = duration<int, ratio<86400>>;
+
 DateTime::DateTime(const char* dat) noexcept
 {
-    while (*dat == ' ') dat++;
+	if (*dat == 'n' && strcmp(dat, "now") == 0) {
+		m_dateTime = clock::now();
+		return;
+	}
+
+	while (*dat == ' ') dat++;
     if (*dat == char(0)) {
         m_dateTime = time_point();
         return;

@@ -123,7 +123,7 @@ void QueryParameter::setString(const char * value, size_t maxlen)
                     delete [] m_data.buffer.data;
                 m_data.buffer.size = m_dataSize + 1;
                 m_data.buffer.data = new char[m_data.buffer.size];
-                strncpy(m_data.buffer.data, value, m_dataSize);
+                strncpy(m_data.buffer.data, value, m_data.buffer.size);
             }
         } else {
             m_dataSize = 0;
