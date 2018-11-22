@@ -129,13 +129,12 @@ public:
 
     };
 
-public:
     /**
      * @brief Constructor
      *
      * Creates a new log object.
      */
-    LogEngine(const String& logEngineName);
+    explicit LogEngine(const String& logEngineName);
 
     /**
      * @brief Destructor
@@ -150,7 +149,10 @@ public:
      * The current log content is cleared.
      * Actual result depends on derived log engine.
      */
-    virtual void reset() {}
+    virtual void reset()
+    {
+        // Implement in derived class
+    }
 
     /**
      * @brief Sets log options

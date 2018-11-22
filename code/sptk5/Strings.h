@@ -34,6 +34,8 @@
 namespace sptk
 {
 
+class Exception;
+
 /**
  * @addtogroup utility Utility Classes
  * @{
@@ -187,15 +189,7 @@ public:
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
      */
-    Strings(const String& src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
-    {
-        try {
-            fromString(src.c_str(), delimiter, mode);
-        }
-        catch (const std::exception& e) {
-            push_back("# ERROR: " + String(e.what()));
-        }
-    }
+    Strings(const String& src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept;
 
     /**
      * Constructor from a string with elements separated by a delimiter string
@@ -203,16 +197,7 @@ public:
      * @param delimiter         Delimiter string
      * @param mode              Delimiter string usage
      */
-    Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept
-    {
-        clear();
-        try {
-            fromString(src, delimiter, mode);
-        }
-        catch (const std::exception& e) {
-            push_back("# ERROR: " + String(e.what()));
-        }
-    }
+    Strings(const char *src, const char *delimiter, SplitMode mode = SM_DELIMITER) noexcept;
 
     /**
      * Assignment operator

@@ -445,7 +445,6 @@ public:
      */
     void printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns, const Strings& sortedOptions,
                       size_t helpTextColumns) const;
-public:
 
     /**
      * @brief Constructor

@@ -57,7 +57,6 @@ public:
      */
     size_t      sourceBufferLen;
 
-public:
     /**
      * @brief Constructor
      * @param buffer CBuffer*, source data
@@ -165,7 +164,6 @@ public:
      */
     static int mem_write(int handle, const void *buf, size_t len);
 
-public:
     /**
      * @brief Constructor
      */

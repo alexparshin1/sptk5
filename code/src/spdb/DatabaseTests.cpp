@@ -81,7 +81,8 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
         dropTable.exec();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        if (string(e.what()).find("not exist") == string::npos)
+            CERR(e.what() << endl);
     }
 
     createTable.exec();
@@ -257,7 +258,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         dropTable.exec();
     }
     catch (const Exception& e) {
-        CERR(e.what() << endl);
+        if (string(e.what()).find("not exist") == string::npos)
+            CERR(e.what() << endl);
     }
 
     createTable.exec();

@@ -134,7 +134,7 @@ public:
     /**
      * @brief Constructor
      */
-    TCPServer(Logger* logger=NULL);
+    explicit TCPServer(Logger* logger=NULL);
 
     /**
      * @brief Destructor

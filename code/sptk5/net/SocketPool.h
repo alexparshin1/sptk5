@@ -131,7 +131,7 @@ public:
      * Constructor
      * @param eventCallback SocketEventCallback, Callback function executed upon socket events
      */
-    SocketPool(SocketEventCallback eventCallback);
+    explicit SocketPool(SocketEventCallback eventCallback);
 
     /**
      * Destructor

@@ -95,11 +95,9 @@
 #include <string>
 #include <vector>
 
-namespace sptk {
 #define ALIGN_LEFT   1
 #define ALIGN_RIGHT  2
 #define ALIGN_CENTER 3
-}
 
 #ifdef __UNIX_COMPILER__
     #include <inttypes.h>

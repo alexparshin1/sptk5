@@ -52,7 +52,7 @@ public:
      * @brief Constructor
      * @param domain SOCKET_ADDRESS_FAMILY, socket domain type
      */
-    UDPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET);
+    explicit UDPSocket(SOCKET_ADDRESS_FAMILY domain=AF_INET);
 
     /**
      * @brief Destructor

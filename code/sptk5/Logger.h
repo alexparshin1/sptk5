@@ -77,7 +77,6 @@ public:
         Message(LogPriority priority, const String& message);
     };
 
-public:
     /**
      * @brief Constructor
      * @param destination LogEngine&, destination logger

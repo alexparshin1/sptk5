@@ -83,7 +83,6 @@ public:
     virtual ~DataSource()
     {}
 
-public:
     /**
      * Field access by the field index, const version.
      *
@@ -127,7 +126,6 @@ public:
      * @returns field count
      */
     virtual uint32_t fieldCount() const = 0;
-public:
 
     /**
      * Returns record count in the datasource.
@@ -144,7 +142,7 @@ public:
     {
         return 0L;
     }
-public:
+
     /**
      * Reads the field by name from the datasource.
      *
@@ -162,7 +160,6 @@ public:
      * @param fieldValue        Field value
      */
     virtual bool writeField(const char *fieldName, const Variant& fieldValue) = 0;
-public:
 
     /**
      * Opens the datasource. Implemented in derved class.

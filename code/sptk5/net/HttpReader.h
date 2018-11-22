@@ -181,7 +181,7 @@ public:
      * Constructor
      * @param output            Output data buffer
      */
-    HttpReader(Buffer& output);
+    explicit HttpReader(Buffer& output);
 
     /**
      * Read data that can be read completely

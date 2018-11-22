@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
 #include <iomanip>
@@ -148,20 +149,18 @@ PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
 PostgreSQLConnection::~PostgreSQLConnection()
 {
     try {
-        if (m_inTransaction && active())
+        if (m_inTransaction && PostgreSQLConnection::active())
             rollbackTransaction();
 
         close();
 
         while (!m_queryList.empty()) {
-            try {
-                auto* query = (Query*) m_queryList[0];
-                query->disconnect();
-            } catch (...) {
-            }
+            auto* query = (Query*) m_queryList[0];
+            query->disconnect();
         }
         m_queryList.clear();
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl)
     }
 }
 
@@ -218,10 +217,11 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 
 void PostgreSQLConnection::closeDatabase()
 {
-    for (auto query: m_queryList) {
+    for (auto* query: m_queryList) {
         try {
             queryFreeStmt(query);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl)
         }
     }
 
@@ -306,7 +306,7 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = (PostgreSQLStatement*) query->statement();
 
     if (statement != nullptr) {
         if (statement->stmt() != nullptr) {
@@ -761,13 +761,13 @@ static void decodeArray(const char* data, DatabaseField* field)
         uint32_t lowerBound;
     };
 
-    auto arrayHeader = (PGArrayHeader*) data;
+    auto* arrayHeader = (PGArrayHeader*) data;
     arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
     arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
     arrayHeader->elementType = ntohl(arrayHeader->elementType);
     data += sizeof(PGArrayHeader);
 
-    auto dimensions = (PGArrayDimension*) data;
+    auto* dimensions = (PGArrayDimension*) data;
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
     stringstream output;

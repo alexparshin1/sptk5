@@ -77,6 +77,27 @@ void Strings::splitByRegExp(const String& src, const char* pattern)
     regularExpression.split(src, *this);
 }
 
+Strings::Strings(const String& src, const char *delimiter, SplitMode mode) noexcept
+{
+    try {
+        fromString(src.c_str(), delimiter, mode);
+    }
+    catch (const Exception& e) {
+        push_back("# ERROR: " + String(e.what()));
+    }
+}
+
+Strings::Strings(const char *src, const char *delimiter, SplitMode mode) noexcept
+{
+    clear();
+    try {
+        fromString(src, delimiter, mode);
+    }
+    catch (const Exception& e) {
+        push_back("# ERROR: " + String(e.what()));
+    }
+}
+
 void Strings::fromString(const String& src, const char* delimitter, SplitMode mode)
 {
     clear();

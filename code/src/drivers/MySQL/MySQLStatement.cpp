@@ -48,7 +48,6 @@ public:
     MYSQL_TIME      m_timeBuffer {};
     char*           m_tempBuffer;
 
-public:
     CMySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantType dataType, int fieldSize) :
         DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize),
         m_cbLength(0), m_cbNull(0), m_cbError(0)
@@ -103,7 +102,16 @@ MySQLStatement::~MySQLStatement()
 
 void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantType timeType)
 {
-    short year, month, day, wday, yday, hour, minute, second, msecond;
+    short year;
+    short month;
+    short day;
+    short wday;
+    short yday;
+    short hour;
+    short minute;
+    short second;
+    short msecond;
+
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
     timestamp.decodeDate(&year, &month, &day, &wday, &yday);
     mysqlDate.year = (unsigned) year;
@@ -344,7 +352,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         // Bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(m_state.columnCount);
         for (unsigned columnIndex = 0; columnIndex < m_state.columnCount; columnIndex++) {
-            auto        field = (CMySQLStatementField*) &fields[columnIndex];
+            auto*        field = (CMySQLStatementField*) &fields[columnIndex];
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = (enum_field_types) field->fieldType();
@@ -416,7 +424,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields)
     unsigned long*  lengths = mysql_fetch_lengths(m_result);
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
 
-        auto field = (CMySQLStatementField*) &fields[fieldIndex];
+        auto* field = (CMySQLStatementField*) &fields[fieldIndex];
 
         VariantType fieldType = field->dataType();
 
@@ -477,7 +485,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
     uint32_t    fieldCount = fields.size();
     bool        fieldSizeChanged = false;
     for (uint32_t fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        auto        field = (CMySQLStatementField*) &fields[fieldIndex];
+        auto*        field = (CMySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
         VariantType fieldType = field->dataType();
@@ -534,7 +542,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         case VAR_BUFFER:
             if (dataLength == 0) {
                 // Empty string
-                auto data = (char*) field->getBuffer();
+                auto* data = (char*) field->getBuffer();
                 *data = 0;
                 field->setDataSize(0);
             } else {

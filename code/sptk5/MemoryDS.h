@@ -72,8 +72,6 @@ protected:
      */
     bool                    m_eof;
 
-protected:
-
     /**
      * Default constructor is protected, to prevent creating of the instance of that class
      */

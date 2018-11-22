@@ -171,8 +171,6 @@ protected:
      */
     time_point                  m_dateTime;
 
-protected:
-
 public:
 
     /**
@@ -236,8 +234,6 @@ public:
     * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
     */
     static void setTimeZone(const sptk::String& timeZoneName);
-
-public:
 
     /**
     * @brief Default constructor

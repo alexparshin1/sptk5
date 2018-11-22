@@ -75,8 +75,6 @@ class SP_EXPORT RegularExpression
      */
     sptk::String     m_pattern;
 
-private:
-
     /**
      * Global match (g) or first match only
      */

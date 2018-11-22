@@ -52,7 +52,7 @@ public:
      * @brief Constructor
      * @param connectionSocket SOCKET, Already accepted by accept() function incoming connection socket
      */
-    TCPServerConnection(SOCKET connectionSocket)
+    explicit TCPServerConnection(SOCKET connectionSocket)
     : ServerConnection(connectionSocket, "TCPServerConnection")
     {
         m_socket = new TCPSocket;

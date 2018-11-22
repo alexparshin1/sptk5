@@ -61,8 +61,6 @@ class SP_EXPORT Field : public Variant
      * Field name
      */
     String m_name;
-protected:
-
 
 public:
     /**
@@ -70,7 +68,6 @@ public:
      */
     String displayName;
 
-public:
     /**
      * @brief Constructor
      * @param name               Field name

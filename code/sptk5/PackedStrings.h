@@ -141,8 +141,6 @@ namespace sptk {
              */
             int32_t argument() const   { return (int32_t)(long) m_data;   }
 
-        public:
-
             /**
              * Row height for CListView
              */

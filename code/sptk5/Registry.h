@@ -210,8 +210,6 @@ public:
         xml::Document::save(buffer, indent);
     }
 
-public:
-
     /**
      * Get current user home directory
 	 * @return current user home directory

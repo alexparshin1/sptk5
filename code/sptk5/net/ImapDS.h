@@ -108,7 +108,7 @@ public:
      */
     virtual ~ImapDS()
     {
-        close();
+        MemoryDS::close();
     }
 
     /**

@@ -81,7 +81,7 @@ public:
      * @param message           Log message
      */
     virtual void saveMessage(const Logger::Message* message) override;
-public:
+
     /**
      * @brief Constructor
      *

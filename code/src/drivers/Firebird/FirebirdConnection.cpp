@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/db/FirebirdConnection.h>
 #include <sptk5/db/FirebirdStatement.h>
 #include <sptk5/db/Query.h>
@@ -48,13 +49,15 @@ FirebirdConnection::~FirebirdConnection()
         close();
         while (!m_queryList.empty()) {
             try {
-                auto query = (Query *) m_queryList[0];
+                auto* query = (Query *) m_queryList[0];
                 query->disconnect();
-            } catch (...) {
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
             }
         }
         m_queryList.clear();
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 
@@ -116,10 +119,11 @@ void FirebirdConnection::closeDatabase()
     if (m_transaction)
         driverEndTransaction(false);
 
-    for (auto query: m_queryList) {
+    for (auto* query: m_queryList) {
         try {
             queryFreeStmt(query);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
 
@@ -208,7 +212,7 @@ void FirebirdConnection::queryAllocStmt(Query *query)
 void FirebirdConnection::queryFreeStmt(Query *query)
 {
     lock_guard<mutex> lock(m_mutex);
-    auto statement = (FirebirdStatement*) query->statement();
+    auto* statement = (FirebirdStatement*) query->statement();
     if (statement) {
         delete statement;
         querySetStmt(query, nullptr);
@@ -220,11 +224,11 @@ void FirebirdConnection::queryCloseStmt(Query *query)
 {
     lock_guard<mutex> lock(m_mutex);
     try {
-        auto statement = (FirebirdStatement*) query->statement();
+        auto* statement = (FirebirdStatement*) query->statement();
         if (statement)
             statement->close();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         throwDatabaseException(e.what());
     }
 }
@@ -234,12 +238,12 @@ void FirebirdConnection::queryPrepare(Query *query)
     lock_guard<mutex> lock(m_mutex);
 
     if (!query->prepared()) {
-        auto statement = (FirebirdStatement*) query->statement();
+        auto* statement = (FirebirdStatement*) query->statement();
         try {
             statement->prepare(query->sql());
             statement->enumerateParams(query->params());
         }
-        catch (exception& e) {
+        catch (const Exception& e) {
             throwDatabaseException(e.what());
         }
         querySetPrepared(query, true);
@@ -254,11 +258,11 @@ void FirebirdConnection::queryUnprepare(Query *query)
 int FirebirdConnection::queryColCount(Query *query)
 {
     int colCount = 0;
-    auto statement = (FirebirdStatement*) query->statement();
+    auto* statement = (FirebirdStatement*) query->statement();
     try {
         colCount = (int) statement->colCount();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         throwDatabaseException(e.what());
     }
     return colCount;
@@ -268,26 +272,26 @@ void FirebirdConnection::queryBindParameters(Query *query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (FirebirdStatement*) query->statement();
+    auto* statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query not prepared");
         statement->setParameterValues();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         throwDatabaseException(e.what());
     }
 }
 
 void FirebirdConnection::queryExecute(Query *query)
 {
-    auto statement = (FirebirdStatement*) query->statement();
+    auto* statement = (FirebirdStatement*) query->statement();
     try {
         if (!statement)
             throwDatabaseException("Query is not prepared");
         statement->execute(m_inTransaction);
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         throwDatabaseException(e.what());
     }
 }
@@ -309,7 +313,7 @@ void FirebirdConnection::queryOpen(Query *query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    auto statement = (FirebirdStatement*) query->statement();
+    auto* statement = (FirebirdStatement*) query->statement();
 
     queryExecute(query);
     auto fieldCount = (short) queryColCount(query);
@@ -336,7 +340,7 @@ void FirebirdConnection::queryFetch(Query *query)
     lock_guard<mutex> lock(m_mutex);
 
     try {
-        auto statement = (FirebirdStatement*) query->statement();
+        auto* statement = (FirebirdStatement*) query->statement();
 
         statement->fetch();
 
@@ -347,7 +351,7 @@ void FirebirdConnection::queryFetch(Query *query)
 
         statement->fetchResult(query->fields());
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         throwDatabaseException(e.what());
     }
 }

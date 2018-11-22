@@ -155,8 +155,10 @@ struct VariantDataBuffer
  * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
  * A money value is quantity / 10^(scale)
  */
-struct MoneyData
+class MoneyData
 {
+public:
+
     static int64_t dividers[16];///< Dividers that help formatting money data
 
     /**
@@ -210,51 +212,15 @@ protected:
      */
     typedef union variantData
     {
-        /**
-         * Boolean data
-         */
-        bool                boolData;
-
-        /**
-         * Integer data
-         */
-        int32_t             intData;
-
-        /**
-         * 64 bit integer data
-         */
-        int64_t             int64Data;
-
-        /**
-         * Floating point data
-         */
-        double              floatData;
-
-        /**
-         * DateTime data
-         */
-        int64_t             timeData;
-
-        /**
-         * A buffer for data with the variable length like strings, or just generic buffers
-         */
-        VariantDataBuffer   buffer;
-
-        /**
-         * Image pointer
-         */
-        void*               imagePtr;
-
-        /**
-         * Image index in object-specific table of image pointers
-         */
-        int32_t             imageNdx;
-
-        /**
-         * Money data
-         */
-        MoneyData           moneyData;
-
+        bool                boolData;   ///< Boolean data
+        int32_t             intData;    ///< Integer data
+        int64_t             int64Data;  ///< 64 bit integer data
+        double              floatData;  ///< Floating point data
+        int64_t             timeData;   ///< DateTime data
+        VariantDataBuffer   buffer;     ///< A buffer for data with the variable length like strings, or just generic buffers
+        void*               imagePtr;   ///< Image pointer
+        int32_t             imageNdx;   ///< Image index in object-specific table of image pointers
+        MoneyData           moneyData;  ///< Money data
     } VariantData;
 
 
@@ -284,7 +250,6 @@ protected:
      */
     void releaseBuffers();
 
-protected:
     /**
      * Sets the data type
      */

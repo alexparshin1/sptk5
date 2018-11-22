@@ -67,8 +67,6 @@ protected:
      */
     HttpHeaders     m_requestHeaders;
 
-protected:
-
     /**
      * Create default headers for HTTP request
      */

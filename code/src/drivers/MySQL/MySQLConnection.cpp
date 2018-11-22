@@ -26,6 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/cutils>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/db/MySQLConnection.h>
 #include <sptk5/db/Query.h>
@@ -43,18 +44,20 @@ MySQLConnection::MySQLConnection(const String& connectionString)
 MySQLConnection::~MySQLConnection()
 {
     try {
-        if (m_inTransaction && active())
+        if (m_inTransaction && MySQLConnection::active())
             rollbackTransaction();
         close();
         while (!m_queryList.empty()) {
             try {
-                auto query = (Query*) m_queryList[0];
+                auto* query = (Query*) m_queryList[0];
                 query->disconnect();
-            } catch (...) {
+            } catch (const Exception& e) {
+                CERR(e.what() << endl);
             }
         }
         m_queryList.clear();
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 
@@ -101,10 +104,11 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
 void MySQLConnection::closeDatabase()
 {
-    for (auto query: m_queryList) {
+    for (auto* query: m_queryList) {
         try {
             queryFreeStmt(query);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
 
@@ -177,7 +181,7 @@ void MySQLConnection::queryAllocStmt(Query* query)
 void MySQLConnection::queryFreeStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
-    auto statement = (MySQLStatement*) query->statement();
+    auto* statement = (MySQLStatement*) query->statement();
     if (statement != nullptr) {
         delete statement;
         querySetStmt(query, nullptr);
@@ -189,11 +193,11 @@ void MySQLConnection::queryCloseStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
     try {
-        auto statement = (MySQLStatement*) query->statement();
+        auto* statement = (MySQLStatement*) query->statement();
         if (statement != nullptr)
             statement->close();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         THROW_QUERY_ERROR(query, e.what());
     }
 }
@@ -203,13 +207,13 @@ void MySQLConnection::queryPrepare(Query* query)
     lock_guard<mutex> lock(m_mutex);
 
     if (!query->prepared()) {
-        auto statement = (MySQLStatement*) query->statement();
+        auto* statement = (MySQLStatement*) query->statement();
         if (statement != nullptr) {
             try {
                 statement->prepare(query->sql());
                 statement->enumerateParams(query->params());
             }
-            catch (exception& e) {
+            catch (const Exception& e) {
                 THROW_QUERY_ERROR(query, e.what());
             }
             //querySetPrepared(query, true);
@@ -225,12 +229,12 @@ void MySQLConnection::queryUnprepare(Query* query)
 int MySQLConnection::queryColCount(Query* query)
 {
     int colCount = 0;
-    auto statement = (MySQLStatement*) query->statement();
+    auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr) throwDatabaseException("Query not opened");
         colCount = (int) statement->colCount();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         THROW_QUERY_ERROR(query, e.what());
     }
     return colCount;
@@ -240,25 +244,25 @@ void MySQLConnection::queryBindParameters(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto statement = (MySQLStatement*) query->statement();
+    auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr)
             throwDatabaseException("Query not prepared");
         statement->setParameterValues();
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         THROW_QUERY_ERROR(query, e.what());
     }
 }
 
 void MySQLConnection::queryExecute(Query* query)
 {
-    auto statement = (MySQLStatement*) query->statement();
+    auto* statement = (MySQLStatement*) query->statement();
     try {
         if (statement == nullptr) throwDatabaseException("Query is not prepared");
         statement->execute(m_inTransaction);
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         THROW_QUERY_ERROR(query, e.what());
     }
 }
@@ -281,13 +285,12 @@ void MySQLConnection::queryOpen(Query* query)
         queryBindParameters(query);
     }
 
-    auto statement = (MySQLStatement*) query->statement();
+    auto* statement = (MySQLStatement*) query->statement();
 
     queryExecute(query);
     auto fieldCount = (short) queryColCount(query);
-    if (fieldCount < 1) {
+    if (fieldCount < 1)
         return;
-    }
 
     querySetActive(query, true);
     if (query->fieldCount() == 0) {
@@ -296,18 +299,18 @@ void MySQLConnection::queryOpen(Query* query)
     }
 
     querySetEof(query, statement->eof());
-
     queryFetch(query);
 }
 
 void MySQLConnection::queryFetch(Query* query)
 {
-    if (!query->active()) THROW_QUERY_ERROR(query, "Dataset isn't open");
+    if (!query->active())
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     lock_guard<mutex> lock(m_mutex);
 
     try {
-        auto statement = (MySQLStatement*) query->statement();
+        auto* statement = (MySQLStatement*) query->statement();
 
         statement->fetch();
         if (statement->eof()) {
@@ -317,7 +320,7 @@ void MySQLConnection::queryFetch(Query* query)
 
         statement->readResultRow(query->fields());
     }
-    catch (exception& e) {
+    catch (const Exception& e) {
         query->throwError("CMySQLConnection::queryFetch", e.what());
     }
 }
@@ -355,6 +358,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
                     "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
             break;
     }
+
     Query query(this, objectsSQL);
     try {
         query.open();
@@ -364,8 +368,8 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
         }
         query.close();
     }
-    catch (exception& e) {
-        cerr << "Error fetching system info: " << e.what() << endl;
+    catch (const Exception& e) {
+        CERR("Error fetching system info: " << e.what() << endl);
     }
 }
 
@@ -428,7 +432,7 @@ void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
         try {
             query.exec();
         }
-        catch (const exception& e) {
+        catch (const Exception& e) {
             stringstream error;
             error << e.what() << ", query: " << query.sql();
             if (errors != nullptr)
