@@ -79,13 +79,11 @@ public:
      */
     typedef bool (CallbackFunction)(T& item, void* data);
 
-public:
-
     /**
      * @brief Default constructor
      */
-    SynchronizedList() :
-        m_list(new std::list<T>)
+    SynchronizedList()
+    : m_list(new std::list<T>)
     {}
 
     /**

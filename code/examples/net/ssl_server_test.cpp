@@ -60,6 +60,20 @@ void readAndReply(SSLSocket& socket)
     socket.write(reply, strlen(reply));
 }
 
+void processConnection(SOCKET clientSocketFD)
+{
+    SSLSocket connection;
+    connection.loadKeys("key.pem", "cert.pem", "");
+    try {
+                connection.attach(clientSocketFD);
+                readAndReply(connection);         /* service connection */
+                connection.close();
+            }
+            catch (const Exception& e) {
+                CERR(e.what() << endl);
+            }
+}
+
 int main(int argc, const char *argv[])
 {
     int port = string2int(argv[1]);
@@ -83,16 +97,7 @@ int main(int argc, const char *argv[])
             server.accept(clientSocketFD, clientInfo);
             COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port));
 
-            SSLSocket connection;
-            connection.loadKeys("key.pem", "cert.pem", "");
-            try {
-                connection.attach(clientSocketFD);
-                readAndReply(connection);         /* service connection */
-                connection.close();
-            }
-            catch (const Exception& e) {
-                CERR(e.what() << endl);
-            }
+            processConnection(clientSocketFD);
         }
     }
     catch (const Exception& e) {

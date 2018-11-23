@@ -33,6 +33,7 @@
 
 #if HAVE_ODBC == 1
 
+#include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCEnvironment.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 
@@ -228,6 +229,43 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
+private:
+
+    /**
+     * Parse columns information, returned by opened statement
+     * @param query             Query object
+     * @param count             Field count
+     */
+    void parseColumns(Query* query, int count);
+
+    /**
+     * Read string or blob field
+     * @param statement         Statement
+     * @param field             Query field
+     * @param column            Column number
+     * @param fieldType         Field type
+     * @param dataLength        Output data length
+     * @return operation result
+     */
+    SQLRETURN readStringObBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+                                    SQLLEN& dataLength);
+
+    /**
+     * Read timestamp field
+     * @param statement         Statement
+     * @param field             Query field
+     * @param column            Column number
+     * @param fieldType         Field type
+     * @param rc
+     * @param dataLength        Output data length
+     */
+    SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+                                 SQLLEN& dataLength);
+
+    /**
+     * Disconnect first query in the list
+     */
+    void disconnectQuery() const;
 };
 
 

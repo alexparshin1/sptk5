@@ -79,8 +79,6 @@ public:
      */
     typedef bool (CallbackFunction)(T& item, void* data);
 
-public:
-
     /**
      * @brief Default constructor
      */
@@ -212,7 +210,7 @@ public:
                 try {
                     rc = callbackFunction(item, data);
                 }
-                catch (std::exception&) {
+                catch (const Exception&) {
                     rc = false;
                 }
             }

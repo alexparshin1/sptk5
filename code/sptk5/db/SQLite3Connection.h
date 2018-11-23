@@ -194,6 +194,8 @@ public:
      * @param objects           Object list (output)
      */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) override;
+
+    void disconnectQuery() const;
 };
 
 /**

@@ -55,6 +55,23 @@ String getString()
     return trim(buffer);
 }
 
+void saveSettings(const String& user, const String& password, const String& server, Registry& registry,
+                  xml::Node* hostNode)
+{
+    try {
+            hostNode = registry.findFirst("host");
+            if (!hostNode)
+                hostNode = new xml::Element(registry, "host");
+            hostNode->setAttribute("hostname",server);
+            hostNode->setAttribute("user",user);
+            hostNode->setAttribute("password",password);
+            registry.save();
+        }
+        catch (const Exception& e) {
+            CERR(e.what() << endl);
+        }
+}
+
 int main()
 {
     try {
@@ -95,18 +112,7 @@ int main()
         printResponse(IMAP.response());
 
         // Connected? Save the logon parameters..
-        try {
-            hostNode = registry.findFirst("host");
-            if (!hostNode)
-                hostNode = new xml::Element(registry,"host");
-            hostNode->setAttribute("hostname",server);
-            hostNode->setAttribute("user",user);
-            hostNode->setAttribute("password",password);
-            registry.save();
-        }
-        catch (const Exception& e) {
-            CERR(e.what() << endl);
-        }
+        saveSettings(user, password, server, registry, hostNode);
 
         // RFC 2060 test message :)
         Buffer msgBuffer(

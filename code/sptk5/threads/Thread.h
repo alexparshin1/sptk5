@@ -117,7 +117,10 @@ public:
     /**
      * This method is executed immediately after thread function exit
      */
-    virtual void onThreadExit() {}
+    virtual void onThreadExit()
+    {
+        // Implement in derived class, if needed
+    }
 
     /**
      * Returns true if the thread is terminated

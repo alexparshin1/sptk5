@@ -32,57 +32,58 @@
 using namespace std;
 using namespace sptk;
 
-int main()
+void processConnection(TCPSocket& server, SOCKET clientSocketFD)
 {
-   COUT("running....\n");
+    TCPSocket new_sock;
+    new_sock.attach(clientSocketFD);
 
-   try {
-      // Create the socket
-      TCPSocket server;
-      server.host(Host("localhost", 3000));
+    try {
+        String data;
 
-      SOCKET clientSocketFD;
-      struct sockaddr_in clientInfo {};
+        COUT("Sending: Test SPTK server 1.00\n");
+        new_sock.write("Test SPTK server 1.00\n");
 
-      server.listen();
-      server.accept(clientSocketFD, clientInfo);
+        COUT("Receving (strings): ");
 
-      TCPSocket new_sock;
-      new_sock.attach(clientSocketFD);
-
-      try {
-         String data;
-
-         COUT("Sending: Test SPTK server 1.00\n");
-         new_sock.write("Test SPTK server 1.00\n");
-
-         COUT("Receving (strings): ");
-
-         do {
+        do {
             new_sock.readLine(data);
             COUT(data.c_str() << "\n");
-         } while (data != "EOD");
+        } while (data != "EOD");
 
-         COUT("Sending: confirmation\n");
-         new_sock.write("Data accepted\n");
+        COUT("Sending: confirmation\n");
+        new_sock.write("Data accepted\n");
 
-         // End of session
-         try {
-            new_sock.readLine(data);
-         }
-         catch(const Exception& e) {
-            CERR(e.what() << endl);
-         }
+        // End of session
+        new_sock.readLine(data);
 
-         server.close();
-      }
-      catch (const Exception& e) {
-         CERR(e.what() << endl);
-      }
-   }
-   catch (const Exception& e) {
-      COUT("Exception was caught: " << e.what() << "\nExiting.\n");
-   }
-   COUT("Server session closed\n");
-   return 0;
+        server.close();
+    }
+    catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
+}
+
+int main()
+{
+    try {
+        // Create the socket
+        TCPSocket server;
+        server.host(Host("localhost", 3000));
+
+        SOCKET clientSocketFD;
+        struct sockaddr_in clientInfo{};
+
+        server.listen();
+
+        COUT("Listening on port 3000\n");
+
+        server.accept(clientSocketFD, clientInfo);
+
+        processConnection(server, clientSocketFD);
+    }
+    catch (const Exception& e) {
+        COUT("Exception was caught: " << e.what() << "\nExiting.\n");
+    }
+    COUT("Server session closed\n");
+    return 0;
 }

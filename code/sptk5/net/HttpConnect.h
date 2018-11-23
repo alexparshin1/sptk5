@@ -61,11 +61,12 @@ class SP_EXPORT HttpConnect
      */
     TCPSocket&      m_socket;
 
-protected:
     /**
      * HTTP request headers
      */
     HttpHeaders     m_requestHeaders;
+
+protected:
 
     /**
      * Create default headers for HTTP request

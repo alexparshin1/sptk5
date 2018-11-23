@@ -129,6 +129,21 @@ double diffSeconds(DateTime start, DateTime end)
     return chrono::duration_cast<chrono::milliseconds>(end-start).count() / 1000.0;
 }
 
+void saveDocument(const unique_ptr<xml::Document>& doc)
+{
+    try {
+            DateTime start("now");
+            Buffer savebuffer;
+            doc->save(savebuffer, true);
+            savebuffer.saveToFile("MyXML.xml");
+            DateTime end("now");
+            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl);
+        }
+        catch (const Exception& e) {
+            Fl::warning(e.what());
+        }
+}
+
 int main(int argc, char **argv)
 {
     try {
@@ -139,19 +154,13 @@ int main(int argc, char **argv)
         if (argc == 2) {
             fileName = argv[1];
         } else {
-            try {
-                CFileOpenDialog dialog;
-                dialog.directory(".");
-                dialog.addPattern("XML Files", "*.xml");
-                dialog.addPattern("All Files", "*.*");
-                dialog.setPattern("XML Files");
-                if (dialog.execute())
-                    fileName = dialog.fullFileName();
-            }
-            catch (const Exception& e) {
-                CERR(e.what() << endl);
-                return 1;
-            }
+            CFileOpenDialog dialog;
+            dialog.directory(".");
+            dialog.addPattern("XML Files", "*.xml");
+            dialog.addPattern("All Files", "*.*");
+            dialog.setPattern("XML Files");
+            if (dialog.execute())
+                fileName = dialog.fullFileName();
         }
 
         if (fileName.empty())
@@ -163,7 +172,7 @@ int main(int argc, char **argv)
         }
         catch (const Exception& e) {
             CERR(e.what() << endl);
-            return 12;
+            return 1;
         }
 
         auto* window = new CWindow(700, 200, 300, 300);
@@ -189,17 +198,7 @@ int main(int argc, char **argv)
         end = DateTime::Now();
         COUT("XML Test - relayouted tree in " << diffSeconds(start, end) << " sec" << endl);
 
-        try {
-            start = DateTime::Now();
-            Buffer savebuffer;
-            doc->save(savebuffer, true);
-            savebuffer.saveToFile("MyXML.xml");
-            end = DateTime::Now();
-            COUT("XML Test - saved for " << diffSeconds(start, end) << " sec" << endl);
-        }
-        catch (const Exception& e) {
-            Fl::warning(e.what());
-        }
+        saveDocument(doc);
 
         window->show();
 

@@ -106,8 +106,8 @@ void testBLOBs(PoolDatabaseConnection* db)
     selectBlobsQuery.open();
     while (!selectBlobsQuery.eof()) {
         COUT(selectBlobsQuery["id"].asInteger()
-             << ": "
-             << selectBlobsQuery["data"].asString() << endl);
+                     << ": "
+                     << selectBlobsQuery["data"].asString() << endl);
         selectBlobsQuery.fetch();
     }
     selectBlobsQuery.close();
@@ -130,8 +130,7 @@ void printDatabaseObjects(DatabaseConnection db)
         } catch (const Exception& e) {
             CERR(e.what() << endl);
         }
-        for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-            COUT("  " << objectList[j] << endl);
+        for (unsigned j = 0; j < objectList.size() && j < 10; j++) COUT("  " << objectList[j] << endl);
     }
     COUT("-------------------------------------------------" << endl);
 }
@@ -142,19 +141,19 @@ void createTempTable(DatabaseConnection db, const String& tableName)
     if (db->driverDescription().find("Microsoft") != string::npos)
         createTempTableQuery.sql(
                 "CREATE TABLE " + tableName + "("
-                   "id             INT NULL, "
-                   "name           NCHAR(80) NULL, "
-                   "position_name  NCHAR(80) NULL, "
-                   "hire_date      DATETIME NULL, "
-                   "rate           NUMERIC(16,10) NULL)");
+                                              "id             INT NULL, "
+                                              "name           NCHAR(80) NULL, "
+                                              "position_name  NCHAR(80) NULL, "
+                                              "hire_date      DATETIME NULL, "
+                                              "rate           NUMERIC(16,10) NULL)");
     else
         createTempTableQuery.sql(
                 "CREATE TABLE " + tableName + "("
-                   "id             INT, "
-                   "name           CHAR(80), "
-                   "position_name  CHAR(80), "
-                   "hire_date      TIMESTAMP, "
-                   "rate           NUMERIC(16,10))");
+                                              "id             INT, "
+                                              "name           CHAR(80), "
+                                              "position_name  CHAR(80), "
+                                              "hire_date      TIMESTAMP, "
+                                              "rate           NUMERIC(16,10))");
 
     try {
         createTempTableQuery.exec();
@@ -166,6 +165,17 @@ void createTempTable(DatabaseConnection db, const String& tableName)
         COUT("Table already exists, ");
         Query deleteAll(db, "delete from " + tableName);
         deleteAll.exec();
+    }
+}
+
+void dropTempTable(const DatabaseConnection& db, const string& tableName)
+{
+    Query dropTempTableQuery(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
+    try {
+        dropTempTableQuery.exec();
+    }
+    catch (const Exception& e) {
+        COUT("Couldn't drop temp table " << tableName << ": " << e.what());
     }
 }
 
@@ -191,14 +201,8 @@ int testDatabase(const string& connectionString)
                                 __LINE__);
         Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false, __FILE__,
                                  __LINE__);
-        Query dropTempTableQuery(db, "DROP TABLE " + tableName, false, __FILE__, __LINE__);
 
-        try {
-            dropTempTableQuery.exec();
-        }
-        catch (const Exception& e) {
-            COUT("Couldn't drop temp table: " << e.what());
-        }
+        dropTempTable(db, tableName);
 
         COUT("Ok.\nStep 1: Creating the test table.. ");
         createTempTable(db, tableName);
@@ -280,7 +284,7 @@ int testDatabase(const string& connectionString)
             string rate = fieldToString(selectRecordsQuery[4]);
 
             COUT(" | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
-                 endl);
+                       endl);
 
             selectRecordsQuery.fetch();
         }
@@ -342,7 +346,7 @@ int testDatabase(const string& connectionString)
             auto rate = rateField.asString();
 
             COUT(setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
-                 hire_date << " | " << rate << endl);
+                         hire_date << " | " << rate << endl);
 
             selectRecordsQuery.fetch();
         }

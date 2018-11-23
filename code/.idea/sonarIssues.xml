@@ -333,6 +333,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/examples/gui/spell_checker.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/examples/gui/splitter.cpp">
           <value>
             <set />
@@ -553,6 +558,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/db/ODBCConnection.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/sptk5/db/ODBCEnvironment.h">
           <value>
             <set />
@@ -728,6 +738,36 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/SynchronizedList.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/SynchronizedMap.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/SynchronizedQueue.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/Thread.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/ThreadEvent.h">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/sptk5/threads/Timer.h">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/src/drivers/Firebird/FirebirdConnection.cpp">
           <value>
             <set />
@@ -754,6 +794,11 @@
           </value>
         </entry>
         <entry key="$PROJECT_DIR$/src/drivers/PostgreSQL/PostgreSQLConnection.cpp">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/drivers/SQLite3/CSQLite3Connection.cpp">
           <value>
             <set />
           </value>

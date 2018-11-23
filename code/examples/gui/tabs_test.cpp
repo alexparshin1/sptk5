@@ -46,7 +46,7 @@ class CDataDialog : public CDialog
 {
 public:
     explicit CDataDialog(PoolDatabaseConnection* db)
-    : CDialog(300, 180, "Example Data Dialog")
+            : CDialog(300, 180, "Example Data Dialog")
     {
         CDialog::database(db);
         table("companies");
@@ -157,53 +157,27 @@ void theme_cb(Fl_Widget* w, void*)
     window->redraw();
 }
 
-int main(int argc, char** argv)
+void buttonDemo(CTabs* tabs)
 {
-    try {
-        // Initialize themes
-        CThemes allThemes;
+    auto* group = (CGroup*) tabs->newPage(" CButton class ", true);
+    group->box(FL_THIN_DOWN_BOX);
 
-        CWindow w(550, 450, "SPTK general test");
+    new CBox(
+            "All the buttons in application are sharing the pixmaps.\nThere are no duplicate button pixmaps in the memory.\nThe size of the button is defined by both the pixmap and the label.");
+    int button_kind = 1;
+    for (int col = 0; col < 5 && button_kind < SP_MAX_BUTTON; col++) {
+        auto* columnGroup = new CGroup("", 10, SP_ALIGN_LEFT); // Reserving some space on the page
+        for (int row = 0; row < 6 && button_kind < SP_MAX_BUTTON; row++) {
+            auto* btn = new CButton((CButtonKind) button_kind, SP_ALIGN_TOP);
+            btn->callback(general_cb);
+            button_kind *= 2;
+        }
+        columnGroup->end();
+    }
+}
 
-        new CBox("Title box", 20, SP_ALIGN_TOP);
-
-        // This data will be used in Combo Box and List View demos.
-        Strings sl1("Alex|(415)-123-45678|SF", "|");
-        Strings sl2("Eric|(510)-123-45678|Oakland", "|");
-        Strings sl3("Kon|(415)-123-45678|SF", "|");
-        Strings sl4("Karina|(415)-123-45678|SF", "|");
-        Strings sl5("Marko|(510)-123-45678|Oakland", "|");
-        Strings sl6("Jayson|(415)-123-45678|SF", "|");
-
-        {
-            auto* tabs = new CTabs("", 10, SP_ALIGN_CLIENT);
-            tabs->selection_color(15);
-
-            // Buttons demo, see cbutton.h for button_kind constants.
-            // Button label is optional.
-            {
-                auto* group = (CGroup*) tabs->newPage(" CButton class ", true);
-                group->box(FL_THIN_DOWN_BOX);
-
-                new CBox(
-                        "All the buttons in application are sharing the pixmaps.\nThere are no duplicate button pixmaps in the memory.\nThe size of the button is defined by both the pixmap and the label.");
-                int button_kind = 1;
-                for (int col = 0; col < 5 && button_kind < SP_MAX_BUTTON; col++) {
-                    auto* columnGroup = new CGroup("", 10, SP_ALIGN_LEFT); // Reserving some space on the page
-                    for (int row = 0; row < 6 && button_kind < SP_MAX_BUTTON; row++) {
-                        auto* btn = new CButton((CButtonKind) button_kind, SP_ALIGN_TOP);
-                        btn->callback(general_cb);
-                        button_kind *= 2;
-                    }
-                    columnGroup->end();
-                }
-            }
-
-            // Widgets demo, shows how useful may be the auto-layout.
-            // BTW, you you can continue to use traditional FLTK
-            // widget positioning, just define __COMPATIBILITY_MODE__
-            // and recompile SPTK.
-            {   // It will be many widgets on this page, so creating a scroll
+void widgetDemo(CTabs* tabs)
+{   // It will be many widgets on this page, so creating a scroll
                 Fl_Group* t = tabs->newScroll(" Data controls 1 ", true);
                 t->labeltype(FL_ENGRAVED_LABEL);
 
@@ -214,7 +188,7 @@ int main(int argc, char** argv)
                 box->color(t->color());
 
                 auto* htmlBox = new CHtmlBox("HTML output:");
-                std::string htmlTxt = " This is a <b>bold</b> <i>italic</i> read-only text in HTML. It is very useful sometimes. ";
+                string htmlTxt = " This is a <b>bold</b> <i>italic</i> read-only text in HTML. It is very useful sometimes. ";
                 htmlTxt = htmlTxt + htmlTxt;
                 htmlTxt = htmlTxt + htmlTxt;
                 htmlBox->data(htmlTxt);
@@ -273,7 +247,9 @@ int main(int argc, char** argv)
                 dateTimeInput->callback(general_cb);
             }
 
-            {   // It will be many widgets on this page, so creating a scroll
+void scrollDemo(const Strings& sl1, const Strings& sl2, const Strings& sl3, const Strings& sl4, const Strings& sl5,
+                const Strings& sl6, CTabs* tabs)
+{   // It will be many widgets on this page, so creating a scroll
                 Fl_Group* t = tabs->newScroll(" Data controls 2 ", true);
                 t->labeltype(FL_ENGRAVED_LABEL);
 
@@ -326,7 +302,8 @@ int main(int argc, char** argv)
                 listView2->callback(general_cb);
             }
 
-            {
+void memoDemo(CTabs* tabs)
+{
                 auto* group = (CGroup*) tabs->newPage(" CMemoInput class ", false);
                 group->box(FL_THIN_DOWN_BOX);
 
@@ -336,7 +313,8 @@ int main(int argc, char** argv)
                 memoInput->callback(general_cb);
             }
 
-            {
+void nestedTabsDemo(CTabs* tabs)
+{
                 auto* group = (CGroup*) tabs->newPage(" Nested Tabs ", false);
                 group->box(FL_THIN_DOWN_BOX);
 
@@ -357,6 +335,44 @@ int main(int argc, char** argv)
 
                 group->end();
             }
+
+int main(int argc, char** argv)
+{
+    try {
+        // Initialize themes
+        CThemes allThemes;
+
+        CWindow w(550, 450, "SPTK general test");
+
+        new CBox("Title box", 20, SP_ALIGN_TOP);
+
+        // This data will be used in Combo Box and List View demos.
+        Strings sl1("Alex|(415)-123-45678|SF", "|");
+        Strings sl2("Eric|(510)-123-45678|Oakland", "|");
+        Strings sl3("Kon|(415)-123-45678|SF", "|");
+        Strings sl4("Karina|(415)-123-45678|SF", "|");
+        Strings sl5("Marko|(510)-123-45678|Oakland", "|");
+        Strings sl6("Jayson|(415)-123-45678|SF", "|");
+
+        {
+            auto* tabs = new CTabs("", 10, SP_ALIGN_CLIENT);
+            tabs->selection_color(15);
+
+            // Buttons demo, see cbutton.h for button_kind constants.
+            // Button label is optional.
+            buttonDemo(tabs);
+
+            // Widgets demo, shows how useful may be the auto-layout.
+            // BTW, you you can continue to use traditional FLTK
+            // widget positioning, just define __COMPATIBILITY_MODE__
+            // and recompile SPTK.
+            widgetDemo(tabs);
+
+            scrollDemo(sl1, sl2, sl3, sl4, sl5, sl6, tabs);
+
+            memoDemo(tabs);
+
+            nestedTabsDemo(tabs);
 
             tabs->end();
         }

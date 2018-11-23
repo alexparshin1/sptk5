@@ -49,6 +49,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         COUT("\n        Begining the transaction ..");
         Transaction transaction(db);
+        transaction.begin();
 
         size_t count = 1000;
         for (size_t i = 0; i < count; i++) {
@@ -67,7 +68,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         double durationSec = duration2seconds(ended - started);
 
-        COUT("Performance Test: " << count / durationSec << " TPS" << endl);
+        COUT("\nPerformance Test: " << count / durationSec << " TPS" << endl);
 
     } catch (const Exception& e) {
         CERR("Error: " << e.what() << endl);

@@ -74,8 +74,6 @@ public:
      */
     typedef bool (CallbackFunction)(const K& key, T& item, void* data);
 
-public:
-
     /**
      * @brief Default constructor
      */

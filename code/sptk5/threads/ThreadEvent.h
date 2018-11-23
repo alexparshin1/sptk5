@@ -76,7 +76,7 @@ public:
         IDLE_TIMEOUT
 
     };
-public:
+
     /**
      * @brief Thread event callback function
      *

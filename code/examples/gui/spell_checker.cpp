@@ -48,7 +48,7 @@ void cb_spellCheck(Fl_Widget*, void*)
     }
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     CThemes themes;
     CWindow window(400, 300, "CSpellChecker test");

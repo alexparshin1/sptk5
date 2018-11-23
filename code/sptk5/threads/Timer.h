@@ -26,7 +26,7 @@ namespace sptk {
              * Constructor
              * @param when      Event execution time
              */
-            EventId(const DateTime& when);
+            explicit EventId(const DateTime& when);
         };
 
         /**
@@ -44,34 +44,32 @@ namespace sptk {
              */
             typedef void(*Callback) (void* eventData);
 
-        protected:
+        private:
+
             EventId                     m_id;                ///< Event serial and when the event has to fire next time.
-            void*                       m_data {nullptr};   ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
-            std::chrono::milliseconds   m_repeatEvery;        ///< Event repeat interval.
-            Timer*                      m_timer {nullptr};  ///< Parent timer
+            void*                       m_data {nullptr};    ///< Opaque event data, defined when event is scheduled. Passed by event to callback function.
+            std::chrono::milliseconds   m_repeatEvery;       ///< Event repeat interval.
+            Timer*                      m_timer {nullptr};   ///< Parent timer
 
         public:
-            /**
-             * @return Bookmark of event entry in events map.
-             */
-            const EventId& getId() const;
-
-        private:
 
             /**
              * Disabled event copy constructor
              * @param other                 Other event
              */
-            EventData(const EventData& other)
-            : m_id(DateTime()), m_timer(other.m_timer) {}
+            EventData(const EventData& other) = delete;
+
+            /**
+             * @return Bookmark of event entry in events map.
+             */
+            const EventId& getId() const;
 
             /**
              * Disabled event assignment
              * @param other                 Other event
              */
-            EventData& operator = (const EventData&) { return *this; }
+            EventData& operator = (const EventData&) = delete;
 
-        public:
             /**
              * Constructor
              * @param timer                 Parent timer

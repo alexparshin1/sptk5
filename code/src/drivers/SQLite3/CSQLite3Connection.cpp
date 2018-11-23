@@ -30,6 +30,7 @@
 
 #if HAVE_SQLITE3
 
+#include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/db/SQLite3Connection.h>
@@ -65,8 +66,7 @@ typedef void (* sqlite3cb)(void*);
 }
 
 SQLite3Connection::SQLite3Connection(const String& connectionString)
-        :
-        PoolDatabaseConnection(connectionString)
+: PoolDatabaseConnection(connectionString)
 {
     m_connect = nullptr;
     m_connType = DCT_SQLITE3;
@@ -75,21 +75,27 @@ SQLite3Connection::SQLite3Connection(const String& connectionString)
 SQLite3Connection::~SQLite3Connection()
 {
     try {
-        if (m_inTransaction && active())
+        if (m_inTransaction && SQLite3Connection::active())
             rollbackTransaction();
 
         close();
 
-        while (!m_queryList.empty()) {
-            try {
-                auto query = (Query *) m_queryList[0];
-                query->disconnect();
-            } catch (...) {
-            }
-        }
+        while (!m_queryList.empty())
+            disconnectQuery();
         m_queryList.clear();
 
-    } catch (...) {
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
+    }
+}
+
+void SQLite3Connection::disconnectQuery() const
+{
+    try {
+        auto* query = (Query *) m_queryList[0];
+        query->disconnect();
+    } catch (const Exception& e) {
+        CERR(e.what() << endl);
     }
 }
 
@@ -117,10 +123,11 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
 
 void SQLite3Connection::closeDatabase()
 {
-    for (auto query: m_queryList) {
+    for (auto* query: m_queryList) {
         try {
             queryFreeStmt(query);
-        } catch (...) {
+        } catch (const Exception& e) {
+            CERR(e.what() << endl);
         }
     }
 
@@ -187,7 +194,7 @@ void SQLite3Connection::queryAllocStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
     if (stmt != nullptr)
         sqlite3_finalize(stmt);
 
@@ -198,7 +205,7 @@ void SQLite3Connection::queryFreeStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
 
     if (stmt != nullptr)
         sqlite3_finalize(stmt);
@@ -211,7 +218,7 @@ void SQLite3Connection::queryCloseStmt(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
     if (stmt != nullptr)
         sqlite3_finalize(stmt);
 
@@ -230,8 +237,6 @@ void SQLite3Connection::queryPrepare(Query* query)
         const char* errorMsg = sqlite3_errmsg(m_connect);
         throw DatabaseException(errorMsg, __FILE__, __LINE__, query->sql());
     }
-
-    //sqlite3_clear_bindings(stmt);
 
     querySetStmt(query, stmt);
     querySetPrepared(query, true);
@@ -254,7 +259,7 @@ int SQLite3Connection::queryColCount(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
 
     return sqlite3_column_count(stmt);
 }
@@ -263,13 +268,12 @@ void SQLite3Connection::queryBindParameters(Query* query)
 {
     lock_guard<mutex> lock(m_mutex);
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
 
     for (uint32_t i = 0; i < query->paramCount(); i++) {
         QueryParameter* param = &query->param(i);
         VariantType ptype = param->dataType();
 
-        //SQLINTEGER& cblen = param->callbackLength();
         for (unsigned j = 0; j < param->bindCount(); j++) {
 
             int rc;
@@ -371,7 +375,7 @@ void SQLite3Connection::queryOpen(Query* query)
 
     query->fields().clear();
 
-    auto stmt = (SQLHSTMT) query->statement();
+    auto* stmt = (SQLHSTMT) query->statement();
 
     if (count < 1) {
         if (sqlite3_step(stmt) != SQLITE_DONE) {
@@ -389,8 +393,6 @@ void SQLite3Connection::queryOpen(Query* query)
     // Reading the column attributes
     char columnName[256];
 
-    //long  columnType;
-    //VariantType dataType;
     for (short column = 1; column <= count; column++) {
         strncpy(columnName, sqlite3_column_name(stmt, column - 1), 255);
         columnName[255] = 0;
@@ -413,8 +415,7 @@ static uint32_t trimField(char* s, uint32_t sz)
     char ch = s[0];
     s[0] = '!';
 
-    while (*(--p) == ' ') {
-    }
+    while (*(--p) == ' ') ;
 
     *(++p) = 0;
 
@@ -430,7 +431,7 @@ void SQLite3Connection::queryFetch(Query* query)
     if (!query->active())
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, query->sql());
 
-    auto statement = (SQLHSTMT) query->statement();
+    auto* statement = (SQLHSTMT) query->statement();
 
     lock_guard<mutex> lock(m_mutex);
 
@@ -499,7 +500,7 @@ void SQLite3Connection::queryFetch(Query* query)
                 field->setString("");
                 field->setNull(VAR_NONE);
             }
-        } catch (exception& e) {
+        } catch (const Exception& e) {
             throw DatabaseException(
                     "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
                     query->sql());

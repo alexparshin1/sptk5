@@ -54,7 +54,6 @@ typedef void (*ProgressCallback)(int total, int progress);
  */
 class ImapDS: public MemoryDS
 {
-protected:
     /**
      * IMAP socket connector
      */
@@ -78,30 +77,26 @@ protected:
     /**
      * True, if we want to fetch the message headers AND message body
      */
-    bool                m_fetchbody;
+    bool                m_fetchbody {false};
 
     /**
      * Internal prograssion callback for open()
      */
-    ProgressCallback    m_callback;
+    ProgressCallback    m_callback {nullptr};
 
     /**
      * Internal message ID
      */
-    int                 m_msgid;
+    int                 m_msgid {0};
 
 public:
 
     /**
      * Default constructor
      */
-    ImapDS() :
-            MemoryDS(),
-            m_fetchbody(false),
-            m_callback(NULL)
-    {
-        m_msgid = 0;
-    }
+    ImapDS()
+    : MemoryDS()
+    {}
 
     /**
      * Destructor

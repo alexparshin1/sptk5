@@ -300,7 +300,7 @@ void style_init()
 
     stylebuf->text(style);
     delete[] style;
-    free(text);
+    delete[] text;
 }
 
 
@@ -374,8 +374,8 @@ void style_update(
     if (last != style[end - start - 1]) {
         // The last character on the line changed styles, so reparse the
         // remainder of the buffer...
-        free(text);
-        free(style);
+        delete [] text;
+        delete [] style;
 
         end = textbuf->length();
         text = textbuf->text_range(start, end);
@@ -387,8 +387,8 @@ void style_update(
         ((Fl_Text_Editor *) cbArg)->redisplay_range(start, end);
     }
 
-    free(text);
-    free(style);
+    delete [] text;
+    delete [] style;
 }
 
 
@@ -571,7 +571,7 @@ void set_title(Fl_Window* w)
     }
 
     if (changed)
-        strncat(title, " (modified)", sizeof(title) - 1);
+        strncat(title, " (modified)", strlen(" (modified)") + 1);
 
     w->label(title);
 }
